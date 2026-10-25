@@ -32,6 +32,7 @@ Die Abgrenzung konkretisiert [DEC-2026-011](./DECISIONS.md#dec-2026-011-reposito
 | Execution Context, Cancellation, Error Envelope und Console Message | Korrelationskontext, kooperative Abbruchanforderungen, übergebene Fehler und Meldungen verarbeiten. | Betriebszustände über diese Hilfsfunktionen hinweg bewerten. |
 | Second Session und Probe | Registrierte Arbeiten ausführen und den eigenen Provider prüfen. | Unabhängige Session- und Betriebsdiagnose durchführen. |
 | T-SQL-Parser und Transformation | Syntax, Tokens, Referenzen und Syntaxfehler extrahieren sowie definierte Transformationen unterstützen. | Lint-Regeln, Bad-Practice-Bewertungen und Findings anwenden. |
+| SSIS-Paketmodell und Debug-SELECT | Neutrale Paketdefinitionen und direkte Lineage einmal im gemeinsamen Kern pflegen; Modell und SQL-Prüfstufen daraus erzeugen. | Das optional übergebene Modell nativ validieren und statische oder beobachtete Diagnosefragen bewerten; die begrenzte native XML-Inventur bleibt eigenständig. |
 | Vergleich, Fingerprints und Introspektion | Übergebene Zustände vergleichen und neutrale Metadaten für Generatoren oder Dokumentation liefern. | Schemaänderungen überwachen, betriebliche Baselines bewerten und Risiken ableiten. |
 
 Der Migration-Idempotency-Verifier bleibt Toolbelt-Qualitätssicherung: Seine Driftprüfung untersucht das eigene Deployment und Uninstall in synthetischen Testdatenbanken. Sie ist keine installierte Überwachungsfunktion.

@@ -22,11 +22,16 @@ class PreparationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.plan = json.loads((ROOT / release.PLAN).read_bytes())
-        _, cls.files = release.snapshot("HEAD")
+        # Der freigegebene Releaseplan beschreibt den eingefrorenen Kandidaten,
+        # während HEAD bereits die nächste Entwicklungsänderung enthalten darf.
+        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+            prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
+            manifest = json.loads(archive.read(prefix + 'PACKAGE-MANIFEST.json'))
+            cls.files, _, _ = release.recovered_snapshot(archive.read(prefix + 'PREPARATION.bundle'), manifest['source_commit'], manifest['product_commit'])
         cls.files[release.PLAN] = (ROOT / release.PLAN).read_bytes()
         cls.files[release.MATRIX] = (ROOT / release.MATRIX).read_bytes()
 
-    def test_complete_current_plan_and_matrix(self):
+    def test_complete_frozen_plan_and_matrix(self):
         self.assertEqual(release.make_plan(self.files, self.plan["product_commit"]), self.plan)
         self.assertEqual(release.matrix(self.plan), (ROOT / release.MATRIX).read_bytes())
         self.assertEqual(len(self.plan["modules"]), 45)
@@ -570,7 +575,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertLess(plan['budget']['max_case_attempts'], 100)
         self.assertFalse(plan['budget']['delegation'])
 
-    def test_evidence_assignment_preserves_every_canonical_manifest(self):
+    def test_evidence_assignment_preserves_recorded_manifest_snapshot(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
         api = json.loads((ROOT / 'Releases/1.0.0/api-qualification.json').read_bytes())
@@ -600,9 +605,14 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(api['functional_calls_blocked'], sum(len(c['blocked_fixture_calls']) for c in cases.values()))
         for key in ('all_owned_database_names_absent', 'trust_states_restored', 'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit'):
             self.assertTrue(api['final_independent_audit'][key])
+        # Die Evidenzzuordnung gehört zum unveränderlichen Kandidatenpaket.
+        # Spätere Moduländerungen werden separat qualifiziert und schreiben
+        # dessen historische Manifestbindung nicht auf den aktuellen Stand um.
+        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+            recorded_manifests = {m['manifest']: archive.read('SQL-Server-Toolbelt-1.0.0-candidate-source/' + m['manifest']) for m in report['modules']}
         for m in report['modules']:
             self.assertFalse(m['record_snapshot_is_execution_commit'])
-            canonical = (ROOT / m['manifest']).read_bytes().replace(b'\r\n', b'\n')
+            canonical = recorded_manifests[m['manifest']].replace(b'\r\n', b'\n')
             self.assertEqual(hashlib.sha256(canonical).hexdigest(), m['manifest_sha256'])
             self.assertEqual(set(m['additional_fixture_ids']), {t['id'] for t in spec['tests'] if t['module_id'] == m['module_id']})
             if m['additional_fixture_ids']:

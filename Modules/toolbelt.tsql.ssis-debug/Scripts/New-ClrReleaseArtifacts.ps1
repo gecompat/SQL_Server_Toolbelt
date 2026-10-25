@@ -38,6 +38,7 @@ function Fingerprint([string[]]$Entries){
 }
 $sources=@(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File | Where-Object {$_.Extension -in '.cs','.csproj' -and $_.FullName -notmatch '[\\/](bin|obj)[\\/]'} | Sort-Object {$_.FullName.Substring($moduleRoot.Length).Replace('\','/')} | ForEach-Object {$_.FullName.Substring($moduleRoot.Length+1).Replace('\','/')+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
 $shared=Join-Path (Split-Path -Parent $moduleRoot) 'toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs'
+$sources += @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Exchange/Core') -File -Filter '*.cs' | Sort-Object Name | ForEach-Object {'Exchange/Core/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
 $sources += '../toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs:'+(Get-FileHash -LiteralPath $shared -Algorithm SHA256).Hash
 $deployment=@(foreach($folder in @('Contracts','Source','Deployment','Scripts')){
  Get-ChildItem -LiteralPath (Join-Path $moduleRoot $folder) -File | Sort-Object Name | ForEach-Object {$folder+'/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}

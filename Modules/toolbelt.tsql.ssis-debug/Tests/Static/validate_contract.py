@@ -26,7 +26,7 @@ pins = json.loads((ROOT / "Contracts/DependencyPins.json").read_text())
 assert pins["parserVersion"] == "2.0.1" and len(pins["parserSha512"]) == 128
 for token in [pins["parserSha512"], pins["scriptDomSha512"], "WITH (NOLOCK)", "USP_PrepareResultTable"]:
     assert token in (ROOT / "Deployment/DependencyPreflight.sql").read_text()
-code = "\n".join(p.read_text(encoding="utf-8") for p in (ROOT / "Clr").glob("*.cs"))
+code = "\n".join(p.read_text(encoding="utf-8") for folder in ("Clr", "Exchange/Core") for p in (ROOT / folder).glob("*.cs"))
 for forbidden in ["File.ReadAll", "WebClient", "HttpClient", "Process.Start", "new Thread", "Assembly.Load", "Package.Execute", "Microsoft.SqlServer.Dts.Runtime"]:
     assert forbidden not in code, forbidden
 assert 'new GuardProfile(4096, 65536, 32, 16, 256, 64)' in code
@@ -40,6 +40,9 @@ for name in ["Deploy.sql", "Uninstall.sql"]:
     assert "sp_add_trusted_assembly" not in ddl and "TRUSTWORTHY ON" not in ddl
     assert "ASSEMBLY_ID(" not in ddl
 assert "ASSEMBLY_ID(" not in code
+projection = (ROOT / "Clr/PackageModel.cs").read_text(encoding="utf-8")
+assert not any(token in projection for token in ("System.Xml", "XElement", "XDocument", ".Descendants(", ".Elements(")), "generator must project the shared typed model"
+assert 'Exchange\\Core\\*.cs' in (ROOT / "Clr/Toolbelt.Tsql.SsisDebug.csproj").read_text(), "CLR must compile the canonical core"
 objects = json.loads((ROOT / "Contracts/ReleaseObjects.1.0.0.json").read_text())
 assert "USP_ExplainSsisDataFlowInternal" in json.dumps(objects)
 print("SSIS_STATIC_PASS signature/generation/dependencies/lifecycle; no SQL executed")

@@ -216,8 +216,8 @@ Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikatio
 freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-18`
-- Nachweis: `local: Parser-Releasebuilder in zwei Buildroots; Parser Framework Full; SSIS Releasebuilder, Framework Full, Syntax und InstallationExample; Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
-- Scope: Neuer freigegebener Buildsatz ohne Parser-PDB-Debugdaten: Parser aus zwei verschiedenen Verzeichnissen bytegleich und alle57 Methoden-ILs unverändert;245 Parser- und21 SSIS-Frameworkfälle,21 SQL-Syntaxfälle sowie55 Installerassertionen bestanden. Windows2019/BIN2,2022/CS_AS und2025/CI_AS_SC_UTF8 jeweils local/central:181 Kern-,61 API- und15 Lifecycleassertionen je Lauf,1542 insgesamt. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture und Repeat bestanden; drei eigene Journale PASS_CLEANED. Functional mit explizitem Lab-Trustwert bei erforderlicher Verschlüsselung. Authentifizierte TLS-Abnahme, aktueller Head-CI- und Releaseabschluss separat; kein Produktions- oder vollständiger SDK-Paritätsnachweis.
+- Datum: `2026-10-25`
+- Nachweis: `local: gemeinsamer Exchange-Kern, externer .NET-10-Host, Framework Full und SQL2025 local/central Full`
+- Scope: Gemeinsames typisiertes Paketmodell für Generator und Exporthost; reproduzierbarer CLR-Build,21 Generator-Frameworkfälle und47 gemeinsame Schema-/Modellgegenproben bestanden. Windows SQL2025 lokal und zentral jeweils181 Kern-,61 API- und15 Lifecycleassertionen,514 insgesamt, mit eigenem Cleanup. Funktionales TLS gemäß Labvertrag; authentifizierte TLS-Abnahme, Linux-Hostlauf, SDK-Parität, Vorgängerupgrade für diesen Build und Veröffentlichung separat offen. Historische SQL2019/2022-Nachweise bleiben an ihre ursprünglichen Binaries gebunden.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
