@@ -569,8 +569,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: Lookup-Ausgangsrollen Full 12 Windows/CL/Modus, Framework 23, gemeinsame 165 Modellgegenproben`
-- Scope: Build aus PR #447 mit unveränderter SQL-API und Parserpins. Zwölf explizite Windows-Ziel-/CL-/Modusfälle, 3516 Assertions mit Callerrechten, Grenzen, Lifecycle und echtem Upgrade vom ausgelieferten Pipelinebuild. Zwölf frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Grenzen 300/360/400 und Functional Encrypt=True mit explizitem Lab-Trust unverändert. ZIP-/Gesamtpaket, Windows-Identität/SSMS-GUI, authentifiziertes TLS, externer Linux-Host, Ressourcen-/Produktions- und Veröffentlichungsgates getrennt.
+- Nachweis: `local: Lookup-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
+- Scope: 191-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Pipelinebuild; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -635,3 +635,14 @@ unbekannte Profile und mehrdeutige Ausgangsmengen bleiben UNKNOWN. Alle zwölf
 finalen unabhängigen Cleanup-/Pin-/Konfigurationsaudits bestanden. Frühere
 Nachweise behalten ihre eigenen Quellen und Grenzen. Sicherheitsbudgets,
 SQL-API und Modulstatus bleiben unverändert; Veröffentlichung nicht autorisiert.
+
+## Aktuelle Lookup-Paketlieferung
+
+Die [Paketprojektion](Qualification/LookupRoles.InstallPackage.20261025.json)
+bindet den finalen ZIP-Hash an zwei Windows-SQL2025-Fälle lokal/zentral mit
+ODBC-sqlcmd: Installation, Repeat, Uninstall/Repeat und echtes Upgrade vom
+zuvor ausgelieferten Pipelinebuild. 226 Assertions und zwei frische unabhängige
+Abschlussaudits bestätigen Ergebnisse, Cleanup, Pins und Konfiguration.
+Das ZIP enthält seinen unveränderlichen Paketcommit; die spätere Paketprojektion
+im Repository ändert keine enthaltenen SQL-/DLL-Bytes. Windows-Anmeldung,
+SSMS-GUI und authentifizierte TLS-Abnahme bleiben gesondert offen.
