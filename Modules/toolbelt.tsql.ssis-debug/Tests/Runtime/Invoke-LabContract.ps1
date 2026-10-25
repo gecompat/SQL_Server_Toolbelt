@@ -8,6 +8,8 @@ param(
  [string]$PredecessorRoot,
  [string]$SsisPredecessorReleaseDirectory,
  [string]$SsisIntermediateReleaseDirectory,
+ [string]$InstallationPackageRoot,
+ [string]$PackageSqlcmdPath,
  [string]$JournalDirectory,
  [string]$ExpectedTargetKey,
  [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedContractSha256,
@@ -27,6 +29,22 @@ if($astErrors.Count){throw 'LAB_DISCOVERY_SYNTAX_INVALID'}
 foreach($name in @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-LabTargetReady','Get-LabTargetsForSelector','New-LabConnectionString','Invoke-LabPreflight')){
  $definition=@($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name},$true))
  if($definition.Count -ne 1){throw 'LAB_DISCOVERY_NOT_UNIQUE'};. ([scriptblock]::Create($definition[0].Extent.Text))
+}
+if($InstallationPackageRoot){
+ $repoRoot=[IO.Path]::GetFullPath($InstallationPackageRoot)
+ $package=Get-Content -LiteralPath (Join-Path $repoRoot 'PACKAGE-MANIFEST.json') -Raw|ConvertFrom-Json
+ if($package.packageName -cne 'SSIS-Debug-1.0.0-Install-Windows' -or $PredecessorRoot){throw 'SSIS_PACKAGE_SCOPE_INVALID'}
+ foreach($file in $package.files){
+  $path=[IO.Path]::GetFullPath((Join-Path $repoRoot $file.path))
+  if(-not $path.StartsWith($repoRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or
+     (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $file.sha256){throw 'SSIS_PACKAGE_INPUT_CHANGED'}
+ }
+ $moduleRoot=Join-Path $repoRoot 'Modules/toolbelt.tsql.ssis-debug'
+ if($SsisReleaseDirectory -or $ParserReleaseDirectory){throw 'SSIS_PACKAGE_EXTERNAL_RELEASE_NOT_ALLOWED'}
+}
+if($PackageSqlcmdPath){
+ if(-not $InstallationPackageRoot){throw 'SSIS_PACKAGE_SQLCMD_SCOPE_REQUIRED'}
+ $packageSqlcmd=Get-Command -Name $PackageSqlcmdPath -ErrorAction Stop
 }
 $ssisNativeScopeClock=[Diagnostics.Stopwatch]::new();$ssisNativeCleanupPhase=$false
 $ssisNativeBoundedInvocation=$Modes.Count -eq 1
@@ -67,6 +85,21 @@ function Expand([string]$Path){
 function Batches([Data.SqlClient.SqlConnection]$Connection,[string]$Text,[string]$Mode){
  $sql=[regex]::Replace($Text.Replace('$(DeploymentMode)',$Mode),'(?im)^:On Error exit\s*$','')
  if($sql -match '(?m)^:' -or $sql -match '\$\('){throw 'LAB_UNRESOLVED_SQLCMD'}
+ if($PackageSqlcmdPath){
+  # Explizit gewählter Paketclient, keine Authentifizierungs-/Transportumschaltung nach Fehlern.
+  if(-not $builder.Encrypt){throw 'SSIS_PACKAGE_ENCRYPT_REQUIRED'}
+  $inputFile=Join-Path $journalRoot ('sqlcmd-'+[guid]::NewGuid().ToString('N')+'.sql')
+  [IO.File]::WriteAllText($inputFile,$sql,[Text.UTF8Encoding]::new($false))
+  $arguments=@('-S',$builder.DataSource,'-d',$Connection.Database,'-N','-b','-l','15','-t',[string](Get-SsisNativeTimeout 45),'-f','65001','-i',$inputFile)
+  if($builder.TrustServerCertificate){$arguments+='-C'}
+  $priorPassword=$env:SQLCMDPASSWORD
+  try{
+   if($builder.IntegratedSecurity){$arguments+='-E'}else{$arguments+=@('-U',$builder.UserID);$env:SQLCMDPASSWORD=$builder.Password}
+   & $packageSqlcmd.Source @arguments
+   if($LASTEXITCODE -ne 0){throw 'SSIS_PACKAGE_SQLCMD_FAILED'}
+  }finally{$env:SQLCMDPASSWORD=$priorPassword}
+  return
+ }
  foreach($batch in [regex]::Split($sql,'(?im)^\s*GO\s*(?:--[^\r\n]*)?\r?$')){if(-not [string]::IsNullOrWhiteSpace($batch)){NonQuery $Connection $batch}}
 }
 function VerifyFiles($Manifest,[string]$Root){
@@ -207,6 +240,11 @@ foreach($target in $targets){
      "SSIS_GENUINE_UPGRADE_TRIGGER_PASS Windows $Version $mode"
     }
     $phase=$mode+'-ssis'
+    if($InstallationPackageRoot){
+     $phase=$mode+'-package-fresh-install'
+     & (Join-Path $PSScriptRoot 'Invoke-PackageInstallCases.ps1') -Connection $connection -Mode $mode -Release $ssisRelease -ExpectedHash $qualifiedProvider -Fixture (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx')
+     $journal['packageFreshInstall']='PASS';SaveJournal
+    }
     if($SsisPredecessorReleaseDirectory){
      $phase=$mode+'-ssis-build-upgrade'
      $upgradeArguments=@{Connection=$connection;Mode=$mode;PreviousRelease=$SsisPredecessorReleaseDirectory;CurrentRelease=$ssisRelease;ExpectedOldHash=$oldQualified;ExpectedNewHash=$qualifiedProvider}

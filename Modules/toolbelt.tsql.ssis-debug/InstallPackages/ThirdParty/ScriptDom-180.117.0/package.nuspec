@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.SqlServer.TransactSql.ScriptDom</id>
+    <version>180.117.0</version>
+    <title>Microsoft SQL Server ScriptDOM</title>
+    <authors>Microsoft</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>nuspecicon.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/microsoft/SqlScriptDOM</projectUrl>
+    <description>The Microsoft SQL ScriptDOM library provides parsing and analysis capabilities for management and development of TSQL Scripts.</description>
+    <releaseNotes>https://go.microsoft.com/fwlink/?linkid=2240206</releaseNotes>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>SQL Script DOM</tags>
+    <repository type="git" url="https://github.com/microsoft/SqlScriptDOM" commit="e3e282510b9d2254feac6354395ab423e1bd308f" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.7.2" />
+      <group targetFramework="net8.0" />
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+  </metadata>
+</package>
