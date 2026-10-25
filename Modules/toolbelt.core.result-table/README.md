@@ -1,29 +1,23 @@
 # Result Table Infrastructure
 
-Lastqualifikation 2026-10-19: Der vollständige Moduladapter einschließlich Pflicht-Lastfall (100000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen) bestand auf SQL Server 2025 Linux/latest CL170. Zusammen mit der unveränderten Windows-/Linux-Fachmatrix gilt `validated`; Release bleibt `unreleased`. Optionale Laufzeitmessungen: `not executed`. [Aktuelle Abnahme](../../Tests/V0C_RELEASE_GATE_STATUS.md).
-
-Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
-
-Historischer Zwischenstand vor der Abnahmeänderung am 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Die abgegrenzte Performance-Abnahme bleibt offen; Runtime: `partially validated`, Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
-
-Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; eine vergleichbare plattformübergreifende Performance-Baseline bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
-
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+`USP_PrepareResultTable` bereitet eine vorhandene lokale Temp-Tabelle für
+Resultsets anderer Toolbelt-Procedures vor. Die Procedure prüft Referenzschema,
+Collation und Datenerhalt, erzeugt selbst aber keine fachlichen Ergebniszeilen.
 
 ## Status
 
-| Feld | Wert |
-|---|---|
-| Modul-ID | `toolbelt.core.result-table` |
-| Version | `1.0.0` |
-| Implementierung | `implemented` |
-| Runtime-Validierung | `partially validated` |
-| Release | `unreleased` |
-| Persistente Objekte | genau `toolbelt_core.USP_PrepareResultTable` |
+Aktueller Implementierungs-, Validierungs- und Releasestatus stehen im
+[kanonischen Modulmanifest](module.yaml) und in der daraus abgeleiteten
+[Modulübersicht](../README.md). Die [V0c-Abnahme vom 2026-10-19](../../Tests/V0C_RELEASE_GATE_STATUS.md)
+belegt die vollständige Fachmatrix und den verpflichtenden Lastfall. Der
+[zusätzliche Callerrechtebericht](../../Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+grenzt die am 2026-10-24 geprüften Rechteprofile ab. Weitere Releasegates und
+Veröffentlichung bleiben eine gesonderte Entscheidung.
 
-Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [aktuelle GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 vollständig erfolgreich. Alle drei Versionen führten dieselbe Vollsuite einschließlich lokaler und zentraler Nutzung, expliziter Collations, 1024-Spalten-Grenze, Transaktionspfade, vier paralleler Sitzungen mit identischen logischen Temp-Tabellennamen, Lifecycle und synthetischem Performance-Workload aus. Der natürliche Savepoint-Rollback nach Enginefehler 2705 ist im [GitHub-Actions-Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich. Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.
+Die [Objektdokumentation](Documentation/USP_PrepareResultTable.md) erklärt
+Parameter, Verhalten und Fehler. [Deployment](#deployment) führt zur
+Installation; die [aktuellen Nachweise](#aktuelle-validierungsevidenz) und die
+[historischen Entwicklungsstände](#historische-entwicklungsnachweise) sind getrennt.
 
 ## Zweck
 
@@ -119,3 +113,35 @@ zulässig. Nicht freigegebene db_ddladmin-Mitglieder werden abgewiesen.
 Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
 beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
 weiter ausschließlich für ihre datierten Quellen.
+
+## Historische Entwicklungsnachweise
+
+Die folgenden unveränderten datierten Texte und die damalige Statustabelle
+beschreiben frühere Arbeits- und Abnahmeverträge. Für den heutigen Status
+gelten das kanonische Manifest und die oben verlinkte aktuelle Abnahme;
+eine ältere Performance-Sperre wird daraus nicht erneut aktiviert.
+
+Lastqualifikation 2026-10-19: Der vollständige Moduladapter einschließlich Pflicht-Lastfall (100000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen) bestand auf SQL Server 2025 Linux/latest CL170. Zusammen mit der unveränderten Windows-/Linux-Fachmatrix gilt `validated`; Release bleibt `unreleased`. Optionale Laufzeitmessungen: `not executed`. [Aktuelle Abnahme](../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
+Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
+
+Historischer Zwischenstand vor der Abnahmeänderung am 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Die abgegrenzte Performance-Abnahme bleibt offen; Runtime: `partially validated`, Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
+Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; eine vergleichbare plattformübergreifende Performance-Baseline bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
+
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
+### Damaliger Status
+
+| Feld | Wert |
+|---|---|
+| Modul-ID | `toolbelt.core.result-table` |
+| Version | `1.0.0` |
+| Implementierung | `implemented` |
+| Runtime-Validierung | `partially validated` |
+| Release | `unreleased` |
+| Persistente Objekte | genau `toolbelt_core.USP_PrepareResultTable` |
+
+Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [aktuelle GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 vollständig erfolgreich. Alle drei Versionen führten dieselbe Vollsuite einschließlich lokaler und zentraler Nutzung, expliziter Collations, 1024-Spalten-Grenze, Transaktionspfade, vier paralleler Sitzungen mit identischen logischen Temp-Tabellennamen, Lifecycle und synthetischem Performance-Workload aus. Der natürliche Savepoint-Rollback nach Enginefehler 2705 ist im [GitHub-Actions-Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich. Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.
