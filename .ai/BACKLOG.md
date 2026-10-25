@@ -2,6 +2,90 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Dritter endlicher Release-Rahmen — 2026-10-25
+
+Erneuter unmittelbarer Benutzerauftrag: die verbleibenden ausführbaren bereits
+freigegebenen Releasegates autonom fortsetzen, stündlichen Heartbeat reaktivieren
+und grüne Wellen per PR integrieren; SSIS verbleibt beim anderen Chat.
+Vor Entwicklung: höchstens vier zusätzliche PR-Wellen, vier Stunden und 60
+neue native Zielversuche einschließlich Fehlern/Nachfolgern. Die früheren
+acht PRs/94 Versuche und vier PRs/34 Versuche bleiben getrennt abgeschlossen.
+Ein Owner, keine zusätzlichen Agenten/CI-Jobs; Kosten/Tokens unbekannt.
+
+Plan nach Quelleninventar: Konvertierungs-Callerprofile; GenerateSeries und
+DateSpine; übrige native Utilityprofile aus BitOperations/DirectionalTrim/
+SplitCharacters sowie Identifier/SemanticVersion. Die zwei kleinen Utility-
+Gruppen sind vor ihrer Entwicklung zu einer vergleichbar großen kohärenten
+Qualifikationswelle gebündelt; keine Funktion oder Plattform entfällt. Eine
+vierte Welle benötigt einen vorab konkret geplanten, weiterhin freigegebenen
+und ausführbaren Restscope sowie ausreichendes gemeinsames Budget.
+
+Die erste Welle belegt [16 Konvertierungsprofile](../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md)
+auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral: 384 Einzelgrantprofile,
+7.680 SQL229-Abweisungen, zwei verworfene Kontrollen, drei beibehaltene frühere
+Zeilenenden-Bindungen und einen bereinigten Installationsfehler mit geprüftem
+frischem Nachfolger. Alle 27 aktuellen Datenbanknamen sind frisch unabhängig
+als abwesend bestätigt. Produkt-SQL, Modulstatus und Pakete bleiben unverändert.
+
+Konkrete Metadatenlücke: Die pauschalen `permissions_required`-Labels von
+Base64/IntegerBase/UriComponent nennen SELECT/REFERENCES für Scalarwrapper.
+Der tatsächliche direkte Caller benötigt das hier geprüfte EXECUTE; TVFs
+bleiben beim einzeln geprüften SELECT. Die an den eingefrorenen Quellpaket-
+stand gebundenen Labels werden separat zusammen mit dem zuständigen Paket-
+refresh korrigiert, sobald dessen parallele SSIS-Ownership reconciled ist.
+Ownerrolle: Releasepflege; Trigger: freier abgestimmter Snapshot-/Paketscope.
+Dies blockiert keine unabhängigen eigenen Callerqualifikationen und ist
+keine neue Funktions- oder Veröffentlichungsfreigabe.
+
+### Zweite Welle im dritten Rahmen: Series-/Datums-Callerprofile
+
+Vor Entwicklung konkretisiert: neun öffentliche TVFs einschließlich der
+begrenzten Series-Status-API und der ohnehin benötigten Truncate-Dependency.
+Der [Callerbericht](../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md) bindet
+216 Einzelgrantprofile,2.592 SQL229-Abweisungen,96 genaue SQL8134-Kontrollen und
+zwei verworfene Kontrollen auf zwölf lokalen/direkt zentralen Ziel-/CL-Fällen.
+Ein ursprünglicher falscher Legacy-Nullschritt-Sollwert wurde anhand des
+bestehenden Vertrags korrigiert; drei ursprüngliche Versuche/Audits bleiben
+getrennt im Verbrauch. Alle26 aktuellen eigenen Datenbanknamen sind frisch
+unabhängig als abwesend geprüft. Keine Produkt-, Status-, Manifest- oder
+Paketänderung; weitere Last-/Client-/Lifecycle-/CrossDB-/TLS-Gates separat.
+
+### Dritte Welle im dritten Rahmen: native Utility-Callerprofile
+
+Vor Entwicklung konkretisiert:16 öffentliche Funktionen aus BitOperations,
+DirectionalTrim,SplitCharacters,Identifier und SemanticVersion einschließlich
+Status-Split und drei Scalarwrappern. Der [Callerbericht](../Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md)
+bindet384 Einzelgrantprofile und8.064 SQL229-Abweisungen auf zwölf lokalen/
+direkt zentralen Ziel-/CL-Fällen, zwei verworfene Kontrollen und26 frisch
+unabhängig als abwesend bestätigte Datenbanknamen. Produkt-SQL, Manifeste,
+Modulstatus und Pakete bleiben unverändert.
+
+Die pauschalen Scalarrechte-Angaben von Identifier und SemanticVersion sowie
+der Identifier-Scalarheader ergänzen die oben erfasste Metadatenlücke. Das
+konkrete EXECUTE-Einzelprofil ist nativ belegt; die gebundene Kommentar-/
+Manifest-/Paketkorrektur bleibt bei der Releasepflege, sobald der gemeinsame
+Snapshot-/Paketscope frei und nachvollziehbar gebunden ist.
+
+Der zunächst geprüfte separate Stable-SQL-Herkunftsfix wird hier nicht umgesetzt:
+Der Read-only-Abgleich fand diese Datei bereits im aktiven SSIS-/Gesamtpaket-
+Scope des anderen Chats. Keine konkurrierende Implementierung oder Übernahme.
+
+### Vierte Welle im dritten Rahmen: ausgewählte Date-Math-Callerprofile
+
+Nach Read-only-Abgleich und vor Entwicklung als zusätzlicher unabhängiger
+Restscope geplant: vier vorhandene DateBucket-/CalendarDifference-TVFs mit je
+einem SELECT auf sechs höchsten CL je physischer Plattform-/Versionskombination.
+Der [Teilbericht](../Releases/1.0.0/DATE-MATH-HIGHEST-CL-QUALIFICATION.md) bindet48
+Einzelgrantprofile,336 SQL229-Abweisungen,zwei verworfene Kontrollen und14
+frisch unabhängig als abwesend bestätigte eigene Datenbanknamen.
+
+Noch offen bleiben genau Linux/Windows SQL2022/CL150 undSQL2025/CL150/160 für
+diese Callerfixture. Keine Gleichwertigkeit oder Ausführung dieser sechs Fälle
+behauptet,keine Modul-/Support-/Releaseaufwertung. Die drei vorherigen Wellen
+behalten ihre vollständigen zwölf Fälle. Die vierte Welle schließt den endlichen
+Rahmen;keine automatische fünfte Entwicklung. Produkt-SQL,Manifeste und Pakete
+bleiben unverändert,Veröffentlichung und weitere Releasegates separat.
+
 ## Zweiter endlicher Release-Rahmen — 2026-10-25
 
 Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene

@@ -1,0 +1,317 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Nine GenerateSeries,DateSpine and Truncate TVF caller profiles with exact legacy/status separation",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "bfe45a51376a732b875390118574cdb642cc3587",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.core.generate-series": "1.0.0",
+    "toolbelt.datetime.date-spine": "1.0.0",
+    "toolbelt.datetime.truncate": "1.0.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesBigIntStatus",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineDay",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineMonth",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineIsoWeek",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_TruncateDate",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_TruncateDateTime2",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_TruncateDateTimeOffset",
+      "permission": "SELECT"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 216,
+  "strict_sql229_denials": 2592,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/SeriesDate.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "3005b5fbbee9382c1361b82aa21a6dd5aa0d435915adb735d60108767bf2a512",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.generate-series/Deployment/Deploy.sql": "1c2e19e69c55684c9a9096af0d2a26b801b4581e114cd19d5008118cab70fa9c",
+    "Modules/toolbelt.core.generate-series/Deployment/Uninstall.sql": "177dd25f2f20111610a19d1026129a1c6a6160e81a7f9d3c5098a2f726535046",
+    "Modules/toolbelt.core.generate-series/module.yaml": "4368b16029d98d2232fc62a10e675d16017f11eacdac28dafb21cb5946d9558a",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql": "99d9090c2cd50edc23b8137bfa3d9ef863c1bf4fa5e1ebd952c1da1722770dd1",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql": "44d8723199f44a22e58e43a3fa4c2e6002420fa03c58210ed16a0bf1ff9d1a3d",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.datetime.date-spine/Deployment/Deploy.sql": "66cfe82f9ff77069b77b4611b1bca4770464e0e7e4ac376da5aeee1f8862d76d",
+    "Modules/toolbelt.datetime.date-spine/Deployment/Uninstall.sql": "5aabeb7ed612c18ad967cfb45c8f7280193877977ec65ab7482ea42558e03917",
+    "Modules/toolbelt.datetime.date-spine/module.yaml": "31909eb3105bde36828c49cc51c5c3c3a0048fc8922b81b7c633c00e594e8089",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineCore.sql": "39898bc83c9c198113b539f69cc0485d3157d7358420e1f3dda53a0165fb42b6",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql": "50ce950301627e93bb741f34a56133d3806552d9075a7e2228b60c04cbb5b6f4",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql": "cca24cdcbd8f1fba1d63e7b368d612f9b67c2ce89a1b04413e0a23e3da7a6bb1",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql": "6843046c4f45470d73a5470aeabbcf14b9d8e9098bb99175e1e49493c6de032e",
+    "Modules/toolbelt.datetime.truncate/Deployment/Deploy.sql": "555f643b0798c833ecc7527595955389c5030f446dbd2ae9ac457ec3afe16d54",
+    "Modules/toolbelt.datetime.truncate/Deployment/Uninstall.sql": "2cb6c057b19732402c0d8c88550c7a34a8f69c37ea3db5b106b83b6d36f441f7",
+    "Modules/toolbelt.datetime.truncate/module.yaml": "4b88a67c9eb6ebbc38165d59c39305d3fc3847d33f33277aa51637ffb9f5b1d4",
+    "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql": "38d0c1f26e97aa088b69c2d3bb8c9f87980188ab7fc9b651f451b5dec2c08e74",
+    "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql": "f2800682a6c726fd394688d0c68f9ea4c3bf2fcbfe925b3dd4a00b29ed75db95",
+    "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql": "befe5b2e43ee2f880da7e9f8098b539bbd6e3b05404cdd6da306d4ea3baad915",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2",
+    "Tests/Release/Runtime/SeriesDate.FunctionCases.sql": "f7251b5013e3d5cbb0245cf980706dbb51c9726719c4d259e7a51fe86470a44f"
+  },
+  "offline_export_sha256": {
+    "local": "187bd43433992ed405c813c85c61abadce1425849fdb2005529adcc064d85cf8",
+    "central": "3307bb959720ed656f5a3a1a661e71015deb586ea0de757e10b396698a81b08c"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 18,
+      "strict_sql229_denials": 216,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "failed_setup_attempts_consumed": 0,
+  "setup_recovery_note": null,
+  "superseded_binding_attempts_consumed": 3,
+  "superseded_binding_note": "Original two controls and failed positive retained with original cleanup/pin audits;legacy zero-step expectation corrected to the existing engine-error contract before current qualification",
+  "final_independent_audit": {
+    "accepted_terminal_attempts": 14,
+    "accepted_database_names_absent": 26,
+    "all_current_terminal_attempts": 14,
+    "all_current_database_names_absent": 26,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "legacy_manifest_permission_wording_pending": [],
+  "remaining_gates": [
+    "Full output/client/lifecycle/resource contracts retain their own scope",
+    "Genuine lowpriv CrossDB identity mappings and authenticated TLS",
+    "Frozen package/manifest metadata refresh requires coordinated ownership;no publication/tags"
+  ],
+  "strict_sql8134_expected_checks": 96
+}

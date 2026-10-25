@@ -1364,5 +1364,108 @@ class StableSqlPackageTests(unittest.TestCase):
             self.package.verify(self.package.zip_payload(payload))
 
 
+class FunctionCallerQualificationTests(unittest.TestCase):
+    def test_fixed_function_compositions_and_current_native_reports(self):
+        import hashlib
+        import re
+        expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
+                    [('2019', [150]), ('2022', [150, 160]), ('2025', [150, 160, 170])] for cl in cls}
+        reports = sorted((ROOT / 'Releases/1.0.0').glob('*-caller-qualification.json'))
+        self.assertTrue(reports)
+        for path in reports:
+            with self.subTest(report=path.name):
+                report = json.loads(path.read_bytes())
+                self.assertEqual(report['result'], 'PASS')
+                parts = report['composition_order']
+                self.assertEqual(parts[0], 'Tests/Release/Runtime/FunctionCaller.Prelude.sql')
+                self.assertEqual(parts[2], 'Tests/Release/Runtime/FunctionCaller.Assertions.sql')
+                data = b'\n'.join((ROOT / p).read_bytes() for p in parts) + b'\n'
+                self.assertEqual(hashlib.sha256(data).hexdigest(), report['composed_fixture_sha256'])
+                cases = (ROOT / parts[1]).read_text(encoding='utf-8')
+                selected, denied = cases.split('INSERT @Denied')
+                pattern = r"^\(\d+,N'([^']+)',N'([^']+)','(SELECT|EXECUTE)'"
+                apis = [{'schema': s, 'name': n, 'permission': p} for s, n, p in re.findall(pattern, selected, re.M)]
+                self.assertEqual(apis, report['public_apis'])
+                count = int(re.search(r'@ExpectedApiCount int=(\d+)', cases)[1])
+                self.assertEqual(len(apis), count)
+                extra = len(re.findall(pattern, denied, re.M))
+                self.assertEqual(report['positive_profiles'], count * 24)
+                self.assertEqual(report['strict_sql229_denials'], count * (count + 1 + extra) * 24)
+                self.assertEqual(len(report['native_cases']), 12)
+                self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+                self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                                    and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+                for source, digest in report['source_sha256'].items():
+                    self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+                self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
+                self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                                    for c in report['oracle_rejection_controls']))
+                self.assertTrue(report['final_independent_audit']['fresh_after_all_consumers'])
+                self.assertEqual(report['final_independent_audit']['accepted_database_names_absent'], 26)
+                for flag in ('publication_authorized', 'product_sql_changed', 'module_status_changed',
+                             'package_payload_changed', 'genuine_crossdb_identity_qualified', 'authenticated_tls_qualified'):
+                    self.assertIs(report[flag], False)
+
+    def test_function_composer_rejects_noncanonical_cases_and_matches_bytes(self):
+        spec = importlib.util.spec_from_file_location('function_rights_composer', ROOT / 'Tests/Release/prepare_function_rights.py')
+        composer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(composer)
+        for path in (ROOT / 'LICENSE.md', ROOT / '.runtime/Foreign.FunctionCases.sql',
+                     ROOT / 'Tests/Release/Runtime/FunctionCaller.Prelude.sql'):
+            with self.assertRaises(ValueError):
+                composer.compose(path)
+        for path in (ROOT / 'Tests/Release/Runtime').glob('*.FunctionCases.sql'):
+            data, manifest = composer.compose(path)
+            self.assertEqual(data, b'\n'.join((ROOT / p).read_bytes() for p in manifest['composition_order']) + b'\n')
+
+
+class DateMathSelectedCallerTests(unittest.TestCase):
+    def test_selected_scope_cannot_claim_unexecuted_lower_cl_cases(self):
+        import hashlib
+        import re
+        report = json.loads((ROOT / 'Releases/1.0.0/date-math-highest-cl-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS_SELECTED_SCOPE')
+        self.assertEqual(report['qualification_matrix'], 'six-highest-cl-only')
+        self.assertIs(report['full_target_cl_matrix_qualified'], False)
+        expected = {(p, v, cl) for p in ('windows', 'linux') for v, cl in
+                    [('2019', 150), ('2022', 160), ('2025', 170)]}
+        remaining = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
+                     [('2022', [150]), ('2025', [150, 160])] for cl in cls}
+        self.assertEqual(len(report['native_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(len(report['remaining_unexecuted_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level'])
+                          for c in report['remaining_unexecuted_cases']}, remaining)
+        self.assertTrue(all(c['result'] == 'not executed' for c in report['remaining_unexecuted_cases']))
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0',
+                         'toolbelt.datetime.bucket': '1.0.0', 'toolbelt.datetime.calendar-difference': '1.0.0'})
+        self.assertEqual({a['name'] for a in report['public_apis']}, {'TVF_DateBucketDate', 'TVF_DateBucketDateTime2',
+                         'TVF_DateBucketDateTimeOffset', 'TVF_CalendarDifference'})
+        self.assertTrue(all(a['schema'] == 'toolbelt_datetime' and a['permission'] == 'SELECT' for a in report['public_apis']))
+        parts = report['composition_order']
+        self.assertEqual(parts, ['Tests/Release/Runtime/FunctionCaller.Prelude.sql',
+                                'Tests/Release/Runtime/DateMath.FunctionCases.sql',
+                                'Tests/Release/Runtime/FunctionCaller.Assertions.sql'])
+        data = b'\n'.join((ROOT / p).read_bytes() for p in parts) + b'\n'
+        self.assertEqual(hashlib.sha256(data).hexdigest(), report['composed_fixture_sha256'])
+        for source, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+        cases = (ROOT / parts[1]).read_text(encoding='utf-8')
+        self.assertIn('@ExpectedApiCount int=4', cases)
+        self.assertEqual(report['positive_profiles'], 48)
+        self.assertEqual(report['strict_sql229_denials'], 336)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['accepted_terminal_attempts'], 8)
+        self.assertEqual(report['final_independent_audit']['accepted_database_names_absent'], 14)
+        self.assertTrue(report['final_independent_audit']['fresh_after_all_consumers'])
+        for flag in ('publication_authorized', 'product_sql_changed', 'module_status_changed',
+                     'package_payload_changed', 'genuine_crossdb_identity_qualified', 'authenticated_tls_qualified'):
+            self.assertIs(report[flag], False)
+
+
 if __name__ == "__main__":
     unittest.main()
