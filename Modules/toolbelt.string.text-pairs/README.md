@@ -1,6 +1,8 @@
 # Begrenzter Paarvergleich
 
-`toolbelt.string.text-pairs` 1.0.0 ist implementiert, **teilweise validiert** und unveröffentlicht. Die gezielten lokalen Linux-/Windows- und zentralen Windows-Nachweise stehen im [Nachweisstand](Tests/README.md); Minimalrechte, weitere Lifecycle-Negativfälle und Ziele bleiben offen. Bestehende Distanz-/Jaro-Evidenz qualifiziert diesen Wrapper nicht.
+`toolbelt.string.text-pairs` 1.0.0 ist implementiert, **teilweise validiert** und unveröffentlicht. Die gezielten lokalen Linux-/Windows- und zentralen Windows-Nachweise stehen im [Nachweisstand](Tests/README.md); Weitergehende Rechteprofile, Lifecycle-Negativfälle und Ziele bleiben offen. Bestehende Distanz-/Jaro-Evidenz qualifiziert diesen Wrapper nicht.
+
+Die [aktuelle Callerqualifikation](../../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIFICATION.md) belegt im gebunden installierten Ownershipstand genau ein EXECUTE auf `toolbelt_string.USP_CompareTextPairs` für alle drei Algorithmen über direkte Ausgabe und ResultTable. Separate SELECT-Rechte auf Vergleichs-TVFs oder EXECUTE auf dem Helper werden dabei nicht erteilt; direkte Dependencyaufrufe bleiben mit SQL229 gesperrt. Andere Owner-/Client-/Grenz-/Lifecyclekontexte bleiben getrennt.
 
 Die einzige öffentliche USP [USP_CompareTextPairs](Documentation/USP_CompareTextPairs.md) vergleicht eine caller-lokale #Temp mit drei global auswählbaren Algorithmen. Bestehende TVFs bleiben der einzige Vergleichskern. Row-, Textbyte- und konservative Workadmission gehen allen TVF-Aufrufen voraus; ResultTable-Vorbereitung und Insert werden gemeinsam atomar veröffentlicht.
 

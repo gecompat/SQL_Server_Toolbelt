@@ -1,5 +1,13 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Achter endlicher Release-Rahmen
+
+Direkt am 2026-10-25 erneut autorisiert; vor Entwicklung auf eine PR-Welle, zwei Stunden ab unverändertem Originalstart und höchstens 20 native Versuche inklusive Fehlern/Nachfolgern begrenzt. Sieben frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Single-DLL-Labtreiber und feste Caller-Fixtures für die einzeln freigegebene USP_CompareTextPairs 1.0.0. Tatsächlich 15 Versuche inklusive eines erhaltenen eigenen Fixturefehlers und zweier gezielt abgewiesener Kontrollen; aktuelle Matrix und sämtliche eigenen Abschlussaudits bestanden. SSIS und der Sechs-Modul-Manifest-/Nachweis-/Paketscope bleiben beim anderen Chat.
+
+Die anschließende ausdrückliche Benutzerfreigabe erweitert ausschließlich Warten, Integration und CI auf insgesamt sechs Stunden ab demselben Originalstart19:16:56UTC. Der ursprüngliche Zweistundenplan bleibt erhalten; eine PR, höchstens20 native Versuche und Verbrauch15 sind unverändert. Kein neuer Entwicklungsscope oder nativer Replay.
+
+[Textpaar-Callerrechte](../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIFICATION.md): ein EXECUTE-Grant, drei Algorithmen, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 24 positive Profile und 216 SQL229-Abweisungen. 1008 feste Zeilenorakel und eigene Bereinigung sind belegt; weitergehende Gates bleiben separat.
+
 ## Caller-Metadaten und Paketbindung — 2026-10-25
 
 Unmittelbarer Auftrag: verbleibende Releasegates autonom abarbeiten und mit dem anderen
@@ -15,7 +23,6 @@ Originalstart und insgesamt höchstens 70 native Versuche einschließlich CI.
 Die [Lookup-Qualifikation](../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)
 belegt 26 neue native Treiberfälle und die getrennt erhaltenen früheren Nachweise.
 Nach Integration und grüner Main-CI endet diese Welle; keine Veröffentlichung.
-
 
 ## Siebter endlicher Release-Rahmen
 

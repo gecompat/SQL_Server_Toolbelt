@@ -9,6 +9,9 @@ läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:
 `python -B Tests/Release/test_caller_metadata.py`; ursprüngliche Caller-Pins
 bleiben erhalten, Runtime-/Vertragsänderungen werden abgewiesen.
 
+## Textpaar-Caller mit einzelnem EXECUTE
+
+Der [Textpaarbericht](../../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIFICATION.md) beschreibt `Invoke-TextPairsCallerLab.ps1`, `Runtime/TextPairs.FunctionCases.sql`, die kanonische Komposition und private Runset-/Pin-/Labfensteranforderungen. Drei Algorithmen werden gegen feste Werte geprüft. Die bestehende Release-Regressionssuite bindet den Bericht; zusätzlich `python -B Tests/Release/test_text_pairs_caller_qualification.py`.
 
 ## JSON-Schema-Caller mit drei Objektrechten
 
