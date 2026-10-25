@@ -499,6 +499,39 @@ class SsisProductDeltaTests(unittest.TestCase):
             with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
                 release.validate_ssis_product_delta(old, new, record, build, old)
 
+    def test_caller_metadata_exception_is_exact_inside_ssis_delta(self):
+        for path in release.caller_metadata.PATHS:
+            old, new, record, build = self.inputs()
+            original = release.caller_metadata.historical_manifest(ROOT, path)
+            old[path] = original
+            new[path] = release.caller_metadata.corrected_manifest(path, original)
+            changed = sorted(p for p in old.keys() | new.keys() if old.get(p) != new.get(p))
+            record.update(changed_product_paths=changed,
+                          previous_source_sha256={p: release.sha(old[p]) if p in old else None for p in changed},
+                          current_source_sha256={p: release.sha(new[p]) for p in changed})
+            with self.subTest(path=path):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+                new[path] += b'\nadditional_runtime_contract: true\n'
+                record['current_source_sha256'][path] = release.sha(new[path])
+                with self.assertRaises(ValueError):
+                    release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_caller_reading_path_exception_rejects_other_documentation(self):
+        for path in release.caller_metadata.READMES:
+            old, new, record, build = self.inputs()
+            old[path] = release.git('show', release.caller_metadata.BASELINE + ':' + path)
+            new[path] = release.caller_metadata.corrected_readme(path, old[path])
+            changed = sorted(p for p in old.keys() | new.keys() if old.get(p) != new.get(p))
+            record.update(changed_product_paths=changed,
+                          previous_source_sha256={p: release.sha(old[p]) if p in old else None for p in changed},
+                          current_source_sha256={p: release.sha(new[p]) for p in changed})
+            with self.subTest(path=path):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+                new[path] += b'\nUnqualified support assertion.\n'
+                record['current_source_sha256'][path] = release.sha(new[path])
+                with self.assertRaises(release.ReleaseError):
+                    release.validate_ssis_product_delta(old, new, record, build, old)
+
     def test_public_test_maintenance_does_not_authorize_unpublished_or_runtime_changes(self):
         paths = ('Modules/toolbelt.string.edit-distance/Tests/Runtime/Invoke-LabContract.ps1',
                  'Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1',
