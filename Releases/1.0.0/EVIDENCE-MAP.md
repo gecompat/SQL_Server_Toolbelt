@@ -35,6 +35,12 @@ und Scalarwrappern: zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einzelnen
 SELECT-/EXECUTE-Grants. Veraltete pauschale Manifestlabels bleiben ausdrücklich
 als getrennte Metadaten-/Paketlücke dokumentiert; keine Statusaufwertung.
 
+Die [Series-/Datums-Callerprofile](SERIES-DATE-CALLER-QUALIFICATION.md) ergänzen
+neun öffentliche GenerateSeries-/DateSpine-/Truncate-TVFs einschließlich der
+begrenzten Series-Status-API. Zwölf lokale/direkt zentrale Ziel-/CL-Fälle belegen
+je ein SELECT; interne Core-/Helperrechte und andere APIs bleiben getrennt.
+Keine Erweiterung alter Last-/Client-/Lifecycle- oder CrossDB-Nachweise.
+
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
 lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; keine volle Modulabnahme.

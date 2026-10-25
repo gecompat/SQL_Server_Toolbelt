@@ -37,6 +37,19 @@ Ownerrolle: Releasepflege; Trigger: freier abgestimmter Snapshot-/Paketscope.
 Dies blockiert keine unabhängigen eigenen Callerqualifikationen und ist
 keine neue Funktions- oder Veröffentlichungsfreigabe.
 
+### Zweite Welle im dritten Rahmen: Series-/Datums-Callerprofile
+
+Vor Entwicklung konkretisiert: neun öffentliche TVFs einschließlich der
+begrenzten Series-Status-API und der ohnehin benötigten Truncate-Dependency.
+Der [Callerbericht](../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md) bindet
+216 Einzelgrantprofile,2.592 SQL229-Abweisungen,96 genaue SQL8134-Kontrollen und
+zwei verworfene Kontrollen auf zwölf lokalen/direkt zentralen Ziel-/CL-Fällen.
+Ein ursprünglicher falscher Legacy-Nullschritt-Sollwert wurde anhand des
+bestehenden Vertrags korrigiert; drei ursprüngliche Versuche/Audits bleiben
+getrennt im Verbrauch. Alle26 aktuellen eigenen Datenbanknamen sind frisch
+unabhängig als abwesend geprüft. Keine Produkt-, Status-, Manifest- oder
+Paketänderung; weitere Last-/Client-/Lifecycle-/CrossDB-/TLS-Gates separat.
+
 ## Zweiter endlicher Release-Rahmen — 2026-10-25
 
 Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene
