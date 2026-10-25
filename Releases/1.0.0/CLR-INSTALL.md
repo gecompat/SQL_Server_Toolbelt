@@ -1,6 +1,6 @@
 # CLR-Module ohne eigenen Build installieren
 
-Der [aktuelle SSIS-Paketnachweis](SSIS-RELEASE-QUALIFICATION.md) bindet den neuen
+Der [aktuelle SSIS-Paketnachweis](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/SSIS-PIPELINE-QUALIFICATION.md) bindet den neuen
 SSIS-Binary an zwölf explizite Windows-Buildkontexte und die aktualisierte
 CLR-Lieferung an sechs neue Windows-Paketkontexte. Die übrigen DLLs behalten
 ihre qualifizierten Bytes; die unten beschriebene Installation benötigt keinen Build.
