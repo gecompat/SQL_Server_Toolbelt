@@ -1,0 +1,249 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Complete Split Advanced caller-rights CL coverage by six new lower-CL cases and reuse of six existing cases under identical canonical execution inputs",
+  "result": "PASS",
+  "caller_profile_cl_matrix_complete": true,
+  "publication_authorized": false,
+  "product_sources_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "execution_source_baseline_commit": "cba9f894d5837f33bf9f11dda8a7554d7d6ab549",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.string.split-advanced": "1.1.0"
+  },
+  "public_apis": {
+    "TVF_SplitAdvanced": "SELECT",
+    "TVF_UnquoteToken": "SELECT",
+    "USP_SplitAdvanced": "EXECUTE"
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.string.split-advanced/Deployment/Deploy.sql": "e78a5a0b9984b991001d336d3d02d21de1b6cb49a7a776842870cf77fe8dbbad",
+    "Modules/toolbelt.string.split-advanced/Deployment/Uninstall.sql": "dc9dd57a613bc066f55ee5418ca53f54d28c001f196cc94368c8b0b6c58e9ad3",
+    "Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql": "7ae0996ea75419688c61da06d2a332a633a54600617ef9fc4355f404bd174557",
+    "Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql": "b1135766dd0a0e021c36f0727d4c08409ea7c86fb31399f688ab82648531ddd2",
+    "Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql": "19afcb2ac86a27e615e3b41d81acc10300919bf16f97f792576065ceeb64d200",
+    "Modules/toolbelt.string.split-advanced/module.yaml": "8f2e97983e42de3b7170fa5e06b265bf93ae04a830b0dd719ada902c853d6276",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/Runtime/SplitAdvanced.Rights.sql": "3d9c3358d140905eab65d2eaa9950520d5b9007ad21116786080b3c5a3c3210f"
+  },
+  "offline_export_sha256": {
+    "local": "28f26d354cc737112afce2a0f422ed8473f3cfd38899f4decd2d4c808d9deb34",
+    "central": "0f06f85a84f2e7ff40c16cb9c79ae86bab3e39f27606c17bd9f118dd6923e550"
+  },
+  "reused_report": "Releases/1.0.0/split-advanced-rights-qualification.json",
+  "reused_report_sha256": "316872fd34d2fb7502b97a21ae1353e040bb0d5e014ab19dceeb311f94f4e2f1",
+  "new_native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "reused_native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 8,
+      "strict_sql229_denials": 38,
+      "strict_sql51680_business_denials": 4,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "reused_oracle_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-object",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "combined_totals": {
+    "positive_api_profiles": 96,
+    "single_grant_api_profiles": 72,
+    "usp_with_helper_profiles": 24,
+    "strict_sql229_denials": 456,
+    "strict_sql51680_business_denials": 48
+  },
+  "final_independent_audit": {
+    "new_terminal_attempts_audited": 6,
+    "new_case_databases_absent": 12,
+    "fresh_after_new_consumers": true,
+    "old_cleanup_evidence_reused_without_replay": true
+  },
+  "remaining_gates": [
+    "Full non-rights limits, lifecycle, concurrency and resource contracts",
+    "Genuine lowpriv CrossDB, authenticated TLS and hard recovery",
+    "Final package refresh and separate publication authorization"
+  ]
+}

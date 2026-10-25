@@ -6,10 +6,10 @@ ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.
 Es ist ein Entwicklungs-/Testpaket; der Status bleibt `unreleased`.
 
 Dieses Archiv enthält den auf Windows SQL2019/2022/2025 lokal und zentral
-qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411. Es enthält
+qualifizierten SSIS-Iterationsbuild. Es enthält
 keinen externen Exporthost. Die [Prüfmatrix](../Tests/README.md) trennt die
 sechs nativen Buildnachweise von den Prüfungen des entpackten Installationspakets.
-Die [Paketprojektion](../Tests/Qualification/InstallPackage.20261025.json) bindet
+Die [Paketprojektion](../Tests/Qualification/Iterations.InstallPackage.20261025.json) bindet
 den finalen ZIP-Hash an die tatsächlich ausgeführte Neuinstallation und
 Upgradefolge auf Windows SQL2025 lokal und zentral, einschließlich echtem
 ODBC-sqlcmd und unabhängigen Cleanup-Audits. Der öffentliche PowerShell-Aufruf
@@ -59,8 +59,8 @@ vorhanden ist.
 3. `VerifyInstallation.sql` und das SSMS-Beispiel erneut ausführen. Die
    Versionsnummer bleibt 1.0.0; entscheidend ist der neue exakte Binaryhash.
 
-Die geprüfte Upgradefolge umfasst den ursprünglich ausgelieferten Build und
-den danach qualifizierten gemeinsamen Kern. Bereits vorhandene gemeinsame
+Die neue Upgradeprüfung beginnt mit dem zuvor ausgelieferten #411-Build.
+Dessen frühere Upgradepfade behalten ihre eigenen datierten Nachweise. Bereits vorhandene gemeinsame
 Dependencies und alte Assembly-Trusteinträge werden nicht pauschal entfernt.
 Beim ersten Fehler bricht der Installer ab; erfolgreiche vorherige Schritte
 bleiben bestehen. Die [Installationsanleitung](../Examples/Installation/README.md)

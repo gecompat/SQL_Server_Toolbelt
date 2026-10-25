@@ -2,7 +2,121 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Dritter endlicher Release-Rahmen — 2026-10-25
+
+Erneuter unmittelbarer Benutzerauftrag: die verbleibenden ausführbaren bereits
+freigegebenen Releasegates autonom fortsetzen, stündlichen Heartbeat reaktivieren
+und grüne Wellen per PR integrieren; SSIS verbleibt beim anderen Chat.
+Vor Entwicklung: höchstens vier zusätzliche PR-Wellen, vier Stunden und 60
+neue native Zielversuche einschließlich Fehlern/Nachfolgern. Die früheren
+acht PRs/94 Versuche und vier PRs/34 Versuche bleiben getrennt abgeschlossen.
+Ein Owner, keine zusätzlichen Agenten/CI-Jobs; Kosten/Tokens unbekannt.
+
+Plan nach Quelleninventar: Konvertierungs-Callerprofile; GenerateSeries und
+DateSpine; übrige native Utilityprofile aus BitOperations/DirectionalTrim/
+SplitCharacters sowie Identifier/SemanticVersion. Die zwei kleinen Utility-
+Gruppen sind vor ihrer Entwicklung zu einer vergleichbar großen kohärenten
+Qualifikationswelle gebündelt; keine Funktion oder Plattform entfällt. Eine
+vierte Welle benötigt einen vorab konkret geplanten, weiterhin freigegebenen
+und ausführbaren Restscope sowie ausreichendes gemeinsames Budget.
+
+Die erste Welle belegt [16 Konvertierungsprofile](../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md)
+auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral: 384 Einzelgrantprofile,
+7.680 SQL229-Abweisungen, zwei verworfene Kontrollen, drei beibehaltene frühere
+Zeilenenden-Bindungen und einen bereinigten Installationsfehler mit geprüftem
+frischem Nachfolger. Alle 27 aktuellen Datenbanknamen sind frisch unabhängig
+als abwesend bestätigt. Produkt-SQL, Modulstatus und Pakete bleiben unverändert.
+
+Konkrete Metadatenlücke: Die pauschalen `permissions_required`-Labels von
+Base64/IntegerBase/UriComponent nennen SELECT/REFERENCES für Scalarwrapper.
+Der tatsächliche direkte Caller benötigt das hier geprüfte EXECUTE; TVFs
+bleiben beim einzeln geprüften SELECT. Die an den eingefrorenen Quellpaket-
+stand gebundenen Labels werden separat zusammen mit dem zuständigen Paket-
+refresh korrigiert, sobald dessen parallele SSIS-Ownership reconciled ist.
+Ownerrolle: Releasepflege; Trigger: freier abgestimmter Snapshot-/Paketscope.
+Dies blockiert keine unabhängigen eigenen Callerqualifikationen und ist
+keine neue Funktions- oder Veröffentlichungsfreigabe.
+
+### Zweite Welle im dritten Rahmen: Series-/Datums-Callerprofile
+
+Vor Entwicklung konkretisiert: neun öffentliche TVFs einschließlich der
+begrenzten Series-Status-API und der ohnehin benötigten Truncate-Dependency.
+Der [Callerbericht](../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md) bindet
+216 Einzelgrantprofile,2.592 SQL229-Abweisungen,96 genaue SQL8134-Kontrollen und
+zwei verworfene Kontrollen auf zwölf lokalen/direkt zentralen Ziel-/CL-Fällen.
+Ein ursprünglicher falscher Legacy-Nullschritt-Sollwert wurde anhand des
+bestehenden Vertrags korrigiert; drei ursprüngliche Versuche/Audits bleiben
+getrennt im Verbrauch. Alle26 aktuellen eigenen Datenbanknamen sind frisch
+unabhängig als abwesend geprüft. Keine Produkt-, Status-, Manifest- oder
+Paketänderung; weitere Last-/Client-/Lifecycle-/CrossDB-/TLS-Gates separat.
+
+## Zweiter endlicher Release-Rahmen — 2026-10-25
+
+Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene
+Releasegates autonom abarbeiten, stündlichen Heartbeat reaktivieren und grüne
+Wellen per PR nach `origin/main` integrieren. SSIS verbleibt beim anderen Chat.
+Vor Entwicklung festgelegter gemeinsamer Rahmen: höchstens vier zusätzliche
+PR-Wellen, vier Stunden ab Auftragsbeginn und 60 zusätzliche native Zielprüfungen
+einschließlich Fehlversuchen/Nachfolgern. Der erste Rahmen mit acht PRs und
+94 Versuchen bleibt abgeschlossen und unverändert. Kosten/Tokens unbekannt;
+ein Owner, keine zusätzlichen Agenten oder CI-Jobs und kein Wiederholen grüner Fälle.
+
+Geplante Reihenfolge: fehlende Split-CL-Rechtefälle; Queue-Workerrechte und
+befüllte Blockerview; kanonische GeoJitter-Verträge auf fehlenden physischen
+Zielen; danach unabhängige nicht-SSIS-Paket-/Dokumentationsgates nach Bindungsprüfung.
+Neue Fachfunktionen, fremde Arbeiten, Labinfrastruktur und Veröffentlichung
+bleiben außerhalb dieser Freigabe. Echte externe Blocker halten unabhängige
+freigegebene Schritte nicht auf.
+
+Erste Welle vor Umsetzung geplant: genau die sechs fehlenden Split-CL-Fälle
+lokal/direkt zentral ausführen. Der [CL-Abschluss](../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
+bindet sechs neue Fälle, zwölf bereinigte eigene Datenbanken und die
+unveränderte Wiederverwendung der früheren sechs Fälle/Orakelkontrollen.
+Damit sind zwölf Callerprofil-Kombinationen belegt; keine Produkt-/Manifest-/
+Status-/Paketänderung. Aktuelle Head-/Main-CI bleiben am PR nachzuweisen.
+
+### Zweite Welle im neuen Rahmen: Queue-Worker-Callerrechte
+
+Vor Umsetzung geplant: sieben bestehende Worker-APIs und die befüllte
+Blockerview getrennt prüfen. Claim erfordert Handler-EXECUTE und feste
+CLAIM-Policy; ein sichtbarer nicht ausführbarer Handler darf keine eigene
+Arbeit reservieren. Vier falsche Token müssen genau scheitern und ihre
+Zeile samt RowVersion erhalten. Eigene Persistenz-/Vieworakel, zwölf lokale/
+direkt zentrale Fälle und zwei verworfene Orakelkontrollen sind im
+[Worker-Bericht](../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md) gebunden.
+Alle 26 eigenen Datenbanknamen sind frisch unabhängig als abwesend geprüft.
+Keine Produkt-/Manifest-/Status-/Paketänderung; ResultTable-/Clientmetadaten-,
+Managed-/Provider-/Workerhost- und übrige Lifecycle-/Recoverygates bleiben separat.
+Head-/Main-CI bleiben am aktuellen PR nachzuweisen.
+
+### Dritte Welle im neuen Rahmen: zusätzliche Geo-SQL-Ziele
+
+Vor Umsetzung geplant: unveränderte Geo-/Safety-/SQL-Metadatenverträge auf
+acht fehlenden Ziel-/CL-Kombinationen lokal/direkt zentral. Der
+[Geo-Bericht](../Releases/1.0.0/GEO-MISSING-TARGETS-QUALIFICATION.md) bindet
+8.064 Prioritätsfälle, zwei verworfene Kontrollen, drei erhaltene Vorläufer und
+einen bereinigten Installationsfehler mit erfolgreichem frischem Nachfolger
+nach nachgewiesen geänderter Voraussetzung. Elf frische Audits bestätigen
+alle 19 aktuellen eigenen Datenbanknamen als abwesend. Keine Produkt-/Status-/
+Paketänderung; Client-/Lifecycle-,129-Byte-UDT- und CrossDB/TLS-Gates separat.
+
+### Vierte Welle im neuen Rahmen: eigenständige Stable-SQL-Lieferform
+
+Vor Umsetzung nach Bindungsprüfung geplant: zwei bytegleiche qualifizierte
+SQL-Payloads für genau19 stabile Kandidaten als kleine eigenständige ZIP mit
+unveränderter Lizenz, Anleitung, Manifest und Prüfsummen bereitstellen.
+Die [Installationsanleitung](../Releases/1.0.0/STABLE-SQL-INSTALL.md) und der
+[Offline-Testweg](../Tests/Release/README.md#eigenständiges-stable-sql-paket-reproduzieren)
+trennen aktuelle Quellarchivbindung und historischen nativen SQL-Nachweis.
+Kein SSIS-/CLR-/Gesamtquellpaketrefresh, keine neue SQL-Funktion, native
+Wiederholung, Modulstatus- oder Veröffentlichungsfreigabe. Vorhandene offene
+Fach-, Datei-/Identitäts-, Provider-/Recovery-, CrossDB- und TLS-Gates bleiben
+im Releasebericht; vier eigene PR-Wellen schließen diesen endlichen Rahmen.
+
 ## Geordnete autonome Fortsetzung — 2026-10-25
+
+Historischer erster Rahmen: abgeschlossen; weitere Entwicklung ist nur durch
+den oben getrennten neuen unmittelbaren Auftrag autorisiert.
 
 Direkter Benutzerauftrag: offene Entwicklungen in der besprochenen Reihenfolge
 autonom abarbeiten, bereits freigegebene Arbeiten fortführen, echte Blocker
@@ -11,6 +125,11 @@ melden und kohärente Wellen nach grünen Pflichtprüfungen per PR nach
 Heartbeat dient ausschließlich als letzte Instanz zur Leerlauferkennung.
 Die laufenden SSIS-Themen verbleiben beim separaten aktiven Chat; hier werden
 weder dessen Dateien, Branches, Tests noch Ressourcen übernommen.
+
+Der Benutzer hat den gemeinsamen endlichen Rahmen ausdrücklich auf insgesamt
+acht eigene PR-Wellen und 100 native Zielprüfungen erweitert. Das ursprüngliche
+Achtstundenfenster und sämtlicher bisheriger Verbrauch bleiben unverändert;
+keine Budgetresets. Nach Abschluss der achten Welle beginnt keine neue Entwicklung.
 
 Der Arbeitsplan beginnt mit dem Abschluss von v1.0.0 und der noch fehlenden
 Rechtequalifikation außerhalb von SSIS. Danach folgen Datei-/Identitätsgates,
@@ -91,6 +210,47 @@ zwölf lokale/direkt zentrale Fälle, zwei verworfene Orakelkontrollen und
 frische unabhängige Audits aller 26 eigenen Datenbanknamen. Keine Produkt-,
 Status- oder Serverkonfigurationsänderung; übrige Quoten-/Lifecycle-/CrossDB-/
 Recoverygates und aktuelle Head-/Main-CI bleiben getrennt.
+
+### Sechste Welle: Pseudonymisierungs-Callerrechte
+
+Vor Umsetzung geplant: vier bestehende TVFs und Lookup mit getrennten
+Objektrechten, festen synthetischen Werten, NULL-/Konfigurationsfällen und
+gesperrten internen Kernen prüfen; den ResultTable-/Helperpfad gesondert zählen.
+Der [Rechtebericht](../Releases/1.0.0/DETERMINISTIC-RIGHTS-QUALIFICATION.md) bindet
+zwölf lokale/direkt zentrale Fälle, zwei verworfene Orakelkontrollen und frische
+Abwesenheitsaudits aller 26 eigenen Datenbanknamen. Keine Produkt-, Status-,
+Serverkonfigurations- oder Paketänderung; weitere Modul-/CrossDB-/Recoverygates
+und aktuelle Head-/Main-CI bleiben getrennt.
+
+### Siebte Welle: Queue-Frontend-Callerrechte
+
+Vor Umsetzung geplant: drei Producer, Statusabfrage und beide Views getrennt
+unter fester eigener ENQUEUE-Policy prüfen; andere Worker-/interne Objekte
+abweisen. Der erste Fixtureversuch zeigte die fehlende Handler-Metadatensicht
+des Legacyproducers. Vor dem Nachfolger wurde der Plan auf einen separaten
+Legacyproducer-/VIEW-DEFINITION-Pfad und genaue SQL51902-Abweisung ergänzt;
+der erste Verbrauch bleibt erhalten. Der
+[Rechtebericht](../Releases/1.0.0/QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md) bindet
+zwölf lokale/direkt zentrale Fälle, zwei erwartete verworfene Kontrollen und
+frische Abwesenheitsaudits aller 27 eigenen Datenbanknamen. Moduleinstieg und
+Objektdokumentation erklären den aktuellen 2.1-Stand und diese vorhandene
+Voraussetzung. Keine Produkt-/Manifest-/Status-/Server-/Paketänderung; sieben
+andere positive Workerprofile, volle Blocker-/Managed-/Recoveryverträge und
+aktuelle Head-/Main-CI bleiben getrennt.
+
+### Achte Welle: Split-Advanced-Callerrechte
+
+Vor Umsetzung geplant: die beiden TVFs und die USP getrennt mit einem
+Objektrecht prüfen, den ResultTable-/Helperpfad gesondert zählen. Feste
+Originaltokens, Unquoting, NULL-/Konfigurationsfälle, SQL229/51680 und
+Bereinigung sind im [Rechtebericht](../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+gebunden. Die sechs physischen Windows-/Linux-/SQL-Ziele sind bei jeweils
+höchstem CL geprüft; sechs niedrigere CL-Kombinationen bleiben ausdrücklich
+ungeprüft. Zwei Orakelkontrollen wurden erwartungsgemäß verworfen; alle
+14 eigenen Datenbanknamen sind frisch unabhängig als abwesend geprüft. Keine
+Produkt-/Manifest-/Status-/Server-/Paketänderung; Head-/Main-CI und die
+verbleibenden Releasegates bleiben getrennt. Nach Integration und Main-CI dieser
+achten eigenen PR-Welle endet der endliche autonome Entwicklungsauftrag.
 
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 

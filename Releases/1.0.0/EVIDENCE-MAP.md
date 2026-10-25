@@ -1,10 +1,49 @@
 # Nachweiszuordnung aller 45 Module
 
+Die [eigenständige Stable-SQL-Lieferform](STABLE-SQL-INSTALL.md) bindet ihre
+beiden SQL-Dateien bytegleich an die vorhandene native Paketqualifikation.
+Die neue ZIP-Verpackung ist offline geprüft; weitergehende API-/Modul-, GUI-
+und Identitätsabnahmen werden daraus nicht abgeleitet.
+
 Diese Zuordnung verknüpft den eingefrorenen Releasekandidaten mit den
 kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 [zusätzlichen API-/Grenzprüfungen](API-QUALIFICATION.md). Die originale
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
+
+Die [ursprünglichen Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+umfassen sechs physische Ziele bei höchstem CL. Der
+[CL-Abschluss vom 2026-10-25](SPLIT-ADVANCED-CL-COMPLETION.md) ergänzt sechs
+niedrigere CL-Fälle bei identischen Ausführungsinputs; zusammen zwölf
+lokale/direkt zentrale Ziel-/CL-Kombinationen genau dieser Callerprofile.
+
+Die [Queue-Frontend-Callerrechte vom 2026-10-25](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+ergänzen fünf Einzelgrants und einen Legacyproducer mit zusätzlicher
+Handler-Metadatensicht. Die [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+fügen sieben Worker-APIs und die befüllte Blockerview auf zwölf lokalen/direkt
+zentralen Ziel-/CL-Kombinationen hinzu. Provider-/Managed-/Ausgabevarianten
+und frühere Policyfälle behalten ihren eigenen Scope.
+
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
+
+Die [Konvertierungs-Callerprofile](CONVERSION-CALLER-QUALIFICATION.md) ergänzen
+16 öffentliche Base64-/IntegerBase-/URI-Funktionen einschließlich Status-TVFs
+und Scalarwrappern: zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einzelnen
+SELECT-/EXECUTE-Grants. Veraltete pauschale Manifestlabels bleiben ausdrücklich
+als getrennte Metadaten-/Paketlücke dokumentiert; keine Statusaufwertung.
+
+Die [Series-/Datums-Callerprofile](SERIES-DATE-CALLER-QUALIFICATION.md) ergänzen
+neun öffentliche GenerateSeries-/DateSpine-/Truncate-TVFs einschließlich der
+begrenzten Series-Status-API. Zwölf lokale/direkt zentrale Ziel-/CL-Fälle belegen
+je ein SELECT; interne Core-/Helperrechte und andere APIs bleiben getrennt.
+Keine Erweiterung alter Last-/Client-/Lifecycle- oder CrossDB-Nachweise.
+
+Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
+lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; keine volle Modulabnahme.
 
 Die [Cancellation-Callerrechte vom 2026-10-25](CANCELLATION-RIGHTS-QUALIFICATION.md)
 ergänzen drei isolierte API-Profile lokal/direkt zentral auf zwölf Ziel-/CL-

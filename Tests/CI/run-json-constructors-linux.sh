@@ -35,6 +35,7 @@ private_dir="$(mktemp -d)"
 cleanup() {
     local result=$? inspection="" container_id="" owner="" cleanup_verified=true
     trap - EXIT
+    trap '' INT TERM
     # Gemeinsame ID-/Owneraufnahme bindet rm auch bei Namensaustausch.
     # Unbekannter Dockerzustand oder fremdes Label ist niemals ein Erfolg.
     if ! docker container ls --all --filter "name=^/${container_name}$" \
@@ -48,7 +49,7 @@ cleanup() {
             container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
             if [[ "${owner}" != "${container_owner}" ]]; then
                 cleanup_verified=false
-            elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+            elif ! docker rm -f --volumes "${container_id}" >/dev/null 2>&1; then
                 cleanup_verified=false
             fi
         fi
@@ -71,6 +72,8 @@ cleanup() {
 }
 
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 docker run --detach \
     --name "${container_name}" \

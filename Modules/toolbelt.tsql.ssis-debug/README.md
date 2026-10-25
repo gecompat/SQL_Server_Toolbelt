@@ -26,7 +26,7 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411 einschließlich
+den qualifizierten SSIS-Iterationsbuild einschließlich
 passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
 Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
 Build- und Paketnachweise stehen getrennt in der Prüfmatrix.
@@ -52,9 +52,8 @@ und Trusteinträge werden beim Uninstall nicht entfernt.
 
 Die begrenzten nativen Fachnachweise umfassen Windows SQL Server 2019/2022/2025
 jeweils lokal und zentral. Die [Prüfmatrix](Tests/README.md) trennt deren
-Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Der Build
-mit Objektkennungsexport aus PR #411 hat einen eigenen Nachweis für alle drei
-Windows-Versionen einschließlich beider Upgradevorgänger. Das Modul
+Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Der Iterationsbuild hat einen eigenen Nachweis für alle drei Windows-Versionen
+einschließlich Upgrade vom zuvor ausgelieferten #411-Build. Das Modul
 bleibt unveröffentlicht. Seit der Benutzerklarstellung
 vom 2026-10-16 verwendet sie `TestPurpose=Functional` mit dem ausdrücklich
 gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
@@ -65,8 +64,8 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: deterministischer ZIP-Doppelbau, Integritäts-/Manipulationssuite6, Installer-Orakel55, extrahiertes ValidateOnly und ODBC-Paketläufe Windows2025 local/central mit unabhängigen Audits`
-- Scope: Aktualisiertes SSIS-ZIP mit exakt qualifiziertem PR411-Binary, unverändertem Deployment-SQL/Trustmanifest und Parser-/ScriptDom-Pins; keine neue Assembly gebaut.175 Dateien einschließlich exakter Buildquellroots, Installationsanleitung und SSMS-Beispiel. Zwei native Paketkontexte mit je8 Neuinstallations-/Lifecycle-,14 echten SSIS-Upgrade-,36 Kern- und61 API-Assertions,238 insgesamt. Ursprünglicher Lieferbuild → gemeinsamer Kern → Objektkennungsexport, alte Vorlagen und Identitäten erhalten. Zwei frische Abschlussaudits: zwei eigene DB-Namen abwesend, zehn Trustzustände und Konfiguration wiederhergestellt, Eingabepins unverändert. Grenzen300/360/400 und40/45 erhalten; echter ODBC-Client mit expliziter Functional-Labanmeldung und Encrypt=True ohne Fallback. Frühere sechs Full-Enginekontexte bleiben separat gebunden. Öffentlicher Windows-Authentifizierungsprozess, authentifizierte TLS-/SSMS-GUI-Abnahme, Gesamtpaket-Update und Veröffentlichung nicht belegt.
+- Nachweis: `local: Iterations-ZIP Doppelbau, Paketintegrität6/Installer55/ValidateOnly, echte ODBC-Installation und PR411-Upgrade Windows2025 local/central, abschließende Audits aller8 Fälle`
+- Scope: 178-Dateien-Installationssatz mit exakt qualifiziertem Iterationsbinary, unveränderten Parser-/ScriptDom-Pins, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen. Zwei zusätzliche Paketkontexte mit je8 Neuinstallations-/Lifecycle-,8 realen PR411→Iterations-Upgrades,36 Kern- und61 API-Assertions,226 insgesamt. Paketbytehash und Source-/Testcommit getrennt gebunden. Acht frische Abschlussaudits der ganzen Welle:14 eigene DB-Namen abwesend,32 Trustzustände und Konfigurationsbaselines wiederhergestellt, Eingabepins unverändert. Acht Versuche im unveränderten10er-Gesamtrahmen, keine nativen Fehlläufe; Grenzen300/360/400 und40/45 unverändert. Functional Encrypt=True, explizite Lab-Anmeldung/Trust ohne Fallback. Windows-Authentifizierungs-/SSMS-GUI-, authentifizierte TLS-, Linux-Host-, SDK-/Ressourcen-/Produktions-, Gesamtpaket- und Releasegates bleiben getrennt; allgemeine Autonomie pausiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

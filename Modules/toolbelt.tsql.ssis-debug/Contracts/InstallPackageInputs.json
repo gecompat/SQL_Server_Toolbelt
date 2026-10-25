@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "qualification_evidence": "Tests/Qualification/Identities.Windows2019-2025.20261025.json",
-  "ssis_release_manifest_sha256": "042E2F75D7D13120D30D378622F88A2D78249F97458026E9F109448D8C67D391",
+  "qualification_evidence": "Tests/Qualification/Iterations.Windows2019-2025.20261025.json",
+  "ssis_release_manifest_sha256": "4E0DA8832BAE71AA4F50B34410B47D402081C5C0924C1968C4AD86A0D3A02D23",
   "parser_release_manifest_sha256": "2A86CED4D1C12F1699DA9A970AFC217E5488C117E7FDF8209DD6CA6543DAA017"
 }

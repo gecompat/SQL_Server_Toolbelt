@@ -1,7 +1,7 @@
 SSIS-Debug 1.0.0 - vollständiges Installationspaket für Windows
 Copyright (c) gecompat - Gerhard Pisch. Lizenz: LICENSE.md.
 
-Dieses ZIP enthält den qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411:
+Dieses ZIP enthält den qualifizierten SSIS-Iterationsbuild des gemeinsamen Paketkerns:
   ResultTable 1.0.0 (T-SQL)
   Script Parser 2.0.1 + Microsoft ScriptDom 180.117.0 (net472)
   SSIS-Debug 1.0.0 (.NET Framework 4.8)
@@ -112,7 +112,7 @@ Die allgemeine Moduldokumentation enthält auch Anleitungen für eigene Builds;
 diese sind bei diesem vorbereiteten Paket nicht erforderlich. Lab-/CI-Testadapter
 können zusätzliche Dateien aus dem vollständigen Repository voraussetzen.
 Der Installer verwendet ausschließlich die hier vollständig enthaltenen Inputs.
-Der SSIS-Build ist auf Windows SQL2019/2022/2025 lokal/zentral mit 1.626 Assertions geprüft. Diese Buildqualifikation und die eigene Prüfung des neuen ZIPs sind getrennte Nachweise; siehe Downloadseite und Prüfmatrix. Die
+Der SSIS-Build ist auf Windows SQL2019/2022/2025 lokal/zentral mit 1.590 Assertions einschließlich Upgrade vom ausgelieferten #411-Build geprüft. Diese Buildqualifikation und die eigene Prüfung des neuen ZIPs sind getrennte Nachweise; siehe Downloadseite und Prüfmatrix. Die
 ZIP-Prüfung ist eine Offline-Artefaktprüfung und keine Installation auf Ihrem
 Server. Die gesonderte authentifizierte TLS-Abnahme bleibt separat.
 

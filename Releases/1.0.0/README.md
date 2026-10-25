@@ -10,6 +10,14 @@ Für den ersten praktischen Test beginne mit der
 stabilen T-SQL-Kandidaten keinen eigenen Build. Die folgenden Abschnitte
 erklären Lieferumfang, Paketpflege und Freigabegrenzen.
 
+Für den schnellen SQL-Einstieg gibt es das eigenständige
+[Stable-SQL-ZIP](InstallPackages/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip) mit
+[SHA-256-Prüfsumme](InstallPackages/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip.sha256).
+Die [kurze Anleitung](STABLE-SQL-INSTALL.md) beschreibt Installation und Kontrolle.
+Es enthält genau die beiden bereits qualifizierten SQL-Payloads, unveränderte
+Lizenz, Anleitung, Herkunftsmanifest und Dateiprüfsummen. Dies ergänzt die
+Lieferform; Modulstatus, Support- und Veröffentlichungsgrenzen bleiben bestehen.
+
 ## Was enthalten ist
 
 Alle 45 implementierten Module mit ihren unveränderten Modulversionen,
@@ -39,6 +47,41 @@ Die [Execution-Context-Minimalrechte](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
 sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
+
+Die [Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+sind mit dem [ergänzenden CL-Abschluss](SPLIT-ADVANCED-CL-COMPLETION.md)
+lokal/direkt zentral auf allen zwölf Ziel-/CL-Kombinationen belegt: sechs
+neue niedrigere CL-Fälle und sechs unverändert wiederverwendete Fälle.
+Drei Einzelgrants und der Helperpfad bleiben getrennt; weitere Modulpflichtfälle offen.
+
+Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+ergänzen sechs Producer-/Status-/Viewprofile. Die
+[Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) ergänzen sieben
+Worker-APIs und die befüllte Blockerview auf zwölf Ziel-/CL-Kombinationen.
+Damit bestehen direkte Callerprofile aller 13 öffentlichen APIs; Managed-/
+Provider-/ResultTable- und weitere Betriebsvarianten bleiben separat.
+
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
+
+Die [Konvertierungs-Callerprofile](CONVERSION-CALLER-QUALIFICATION.md) ergänzen
+16 öffentliche Base64-/IntegerBase-/URI-Funktionen einschließlich Status-TVFs
+und Scalarwrappern: zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einzelnen
+SELECT-/EXECUTE-Grants. Veraltete pauschale Manifestlabels bleiben ausdrücklich
+als getrennte Metadaten-/Paketlücke dokumentiert; keine Statusaufwertung.
+
+Die [Series-/Datums-Callerprofile](SERIES-DATE-CALLER-QUALIFICATION.md) ergänzen
+neun öffentliche GenerateSeries-/DateSpine-/Truncate-TVFs einschließlich der
+begrenzten Series-Status-API. Zwölf lokale/direkt zentrale Ziel-/CL-Fälle belegen
+je ein SELECT; interne Core-/Helperrechte und andere APIs bleiben getrennt.
+Keine Erweiterung alter Last-/Client-/Lifecycle- oder CrossDB-Nachweise.
+
+Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad
+lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft. Weitere
+Großwert-, Lifecycle- und CrossDB-Verträge behalten ihren eigenen Umfang.
 
 Die [Cancellation-Callerrechte](CANCELLATION-RIGHTS-QUALIFICATION.md) bestehen
 für alle drei APIs mit getrennten EXECUTE-/SELECT-Grants lokal/direkt zentral

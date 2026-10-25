@@ -21,8 +21,9 @@ verwendet. SQL Server, SQL CLR, ScriptDom und SSIS SDK werden vom Host nicht
 benötigt. Die bestehende SQL-CLR-Fassade bleibt Windows-spezifisch; ihre
 Abhängigkeiten werden durch den externen Host nicht installiert oder geändert.
 Der Host wird derzeit aus den Quellen gebaut. Das bestehende versionierte
-Installations-ZIP enthält den früher qualifizierten CLR-Build und keinen
-Exporthost; es ist kein Liefernachweis für diesen neuen Kern.
+Installations-ZIP enthält den separat qualifizierten CLR-Iterationsbuild,
+aber kein vorbereitetes Exporthost-Programm. Der optionale Sidecartransport
+bleibt ein Hostvertrag; die SQL-Debug-Schnittstelle bleibt unverändert.
 
 ```powershell
 $sourceCommit = git rev-parse HEAD
@@ -70,6 +71,31 @@ SSIS-Runtime-Nachbau. Pragmatische Vergleichs- und Cacheentscheidungen des
 SQL-Generators gehören nicht in das neutrale Modell.
 
 ## Native Objektkennungen als Begleittransport
+
+`--scope-bundle` liefert den optionalen Identitätssidecar 1.2.0 für gebundene
+projektinterne Paketaufrufe und Handleraktivität. Derselbe Parser und dieselben
+Definitionen liefern Parent-IDs, native GUIDs/Pfade und klassifizierte
+Laufzeitpfadschritte. Nur explizite Projektverweise des Execute Package Task
+mit festem Paketdateinamen und ohne Property-Expression werden als Ziel
+ausgegeben. Externe, dynamische oder getrennte Prozessaufrufe bleiben
+unqualifiziert. Handlerprofile umfassen `OnPreExecute`, `OnPostExecute` und
+`OnError`; Ereignistyp und besitzendes Objekt stammen aus den qualifizierten
+XML-Metadaten. Es wird weder ein Aufruf ausgeführt noch eine Fehlerursache
+abgeleitet. Das [Schema 1.2.0](../Contracts/Exchange/SSIS_Object_Identities_V1_2.schema.json)
+definiert Rollen, Statuswerte und begrenzte Pfadschritte. Ein Consumer hält
+Paketmodelle und wiederholte Aufrufbeobachtungen getrennt. Bestehende Modelle,
+Sidecars 1.0.0/1.1.0 und Lineage bleiben unverändert.
+
+Für iterationsgebundene Ausführungskorrelation stellt `--iteration-bundle`
+denselben Modellvertrag mit einem Identitätssidecar 1.1.0 bereit. Jedes
+Paket-/Executableobjekt besitzt zusätzlich `iterationContainer` als Boolean.
+Der zentrale Klassifikator erkennt ausschließlich `STOCK:FORLOOP` und
+`STOCK:FOREACHLOOP` außerhalb von Ereignishandlern. Andere Typen und reine
+Namensähnlichkeiten erhalten `false`. Das
+[Schema 1.1.0](../Contracts/Exchange/SSIS_Object_Identities_V1_1.schema.json)
+definiert diesen optional gewählten Transport. `--bundle` bleibt bei 1.0.0;
+Modell, Parser und Lineagevertrag bleiben unverändert. Die Kennzeichnung
+beschreibt eine statische Containerrolle und beweist keine Ausführung.
 
 Die vierte ausdrücklich freigegebene SSIS-Welle ergänzt `--bundle` für die
 spätere qualifizierte Design-/Laufzeitkorrelation in Analyze. Toolbelt liest

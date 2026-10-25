@@ -95,6 +95,24 @@ betroffenen Nachweis. Die Paket-/Negativtests und der vollständige
 Dokumentationsaudit laufen im bestehenden CI; ein grüner Strukturcheck allein
 bestätigt keine native Ausführung. Einzelheiten der Ausführung stehen im PR.
 
+## Eigenständige Stable-SQL-Lieferform
+
+Das neue [SQL-Installationspaket](STABLE-SQL-INSTALL.md) enthält nur die beiden
+qualifizierten Stable-Payloads, unveränderte Lizenz, Anleitung, Herkunftsmanifest
+und Dateiprüfsummen. Der Offlinegenerator prüft das aktuelle Quellarchiv gegen
+seine Prüfsumme und beide SQL-Dateien gegen `qualification.json`. Der heutige
+Quellarchivhash unterscheidet sich vom historischen nativen Archivhash; beide
+SQL-Payloads bleiben exakt gleich. Wiederverwendet wird ausschließlich deren
+bestehender nativer SQL-Scope, keine neue Gesamtarchiv- oder Modulabnahme.
+
+Deterministische Containerbytes, exakte Dateiliste, Pfad-/Symlink-/Duplikat-
+Abweisung, Größenlimits, unveränderte Lizenz und SQL-Bindung sowie verweigertes
+Überschreiben werden offline geprüft. ZIP_STORED mit festen Metadaten vermeidet
+Kompressionsunterschiede zwischen Laufzeitumgebungen. Installation, GUI, Anmeldung und TLS
+wurden für die neue Verpackung nicht erneut nativ ausgeführt. Der eigenständige
+Download erleichtert den vorhandenen SSMS-Weg; keine Produkt-/Manifest-/Status-
+änderung, kein SSIS-/CLR-Paketrefresh und keine Veröffentlichung.
+
 ## Fertige CLR-DLLs und native Paketinstallation
 
 Der anschließende ausdrückliche Benutzerauftrag verlangt fertige DLLs mit
@@ -288,6 +306,41 @@ Die [Cancellation-Callerrechte](CANCELLATION-RIGHTS-QUALIFICATION.md) sind
 ebenfalls für drei isolierte API-Profile auf zwölf Ziel-/CL-Kombinationen
 lokal/direkt zentral geprüft. Das schließt keine Quoten-, Konkurrenz-,
 Retention-, Lifecycle-, CrossDB- oder Recoverygates mit ein.
+
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
+
+Die [Konvertierungs-Callerprofile](CONVERSION-CALLER-QUALIFICATION.md) ergänzen
+16 öffentliche Base64-/IntegerBase-/URI-Funktionen einschließlich Status-TVFs
+und Scalarwrappern: zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einzelnen
+SELECT-/EXECUTE-Grants. Veraltete pauschale Manifestlabels bleiben ausdrücklich
+als getrennte Metadaten-/Paketlücke dokumentiert; keine Statusaufwertung.
+
+Die [Series-/Datums-Callerprofile](SERIES-DATE-CALLER-QUALIFICATION.md) ergänzen
+neun öffentliche GenerateSeries-/DateSpine-/Truncate-TVFs einschließlich der
+begrenzten Series-Status-API. Zwölf lokale/direkt zentrale Ziel-/CL-Fälle belegen
+je ein SELECT; interne Core-/Helperrechte und andere APIs bleiben getrennt.
+Keine Erweiterung alter Last-/Client-/Lifecycle- oder CrossDB-Nachweise.
+
+Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten
+Lookup-/Helperpfad auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen.
+Großwert-/Konkurrenz-/Lifecycle-, echte CrossDB- und Recoverygates bleiben separat.
+
+Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+und [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) belegen direkte
+Callerprofile aller 13 öffentlichen Queue-APIs auf zwölf Ziel-/CL-Kombinationen.
+Die befüllte Blockerview ist vor/nach eigenem Complete geprüft; Snapshotanlage,
+Managed-/Provider-/Workerhost-, ResultTable-Ausgabe-, volle Lifecycle-/
+Parallelitäts-/Ressourcen- und harte Recoveryverträge bleiben separat.
+
+Die [Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+sind durch den [ergänzenden CL-Abschluss](SPLIT-ADVANCED-CL-COMPLETION.md)
+auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral belegt. Sechs niedrigere
+CL-Fälle wurden neu geprüft, die bisherigen sechs Fälle bei identischen
+Inputs wiederverwendet. Andere Lifecycle-/CrossDB-/Recoveryverträge bleiben offen.
 
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 

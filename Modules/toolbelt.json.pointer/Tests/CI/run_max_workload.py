@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import re
 from pathlib import Path
 import secrets
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -48,6 +51,19 @@ def checked(args: list[str], deadline: float, cap: float, label: str) -> str:
     if result.returncode != 0:
         raise ProbeError(f"{label} fehlgeschlagen")
     return result.stdout
+
+
+def cleanup_container(name: str, owner: str, deadline: float) -> bool:
+    identity = invoke(['docker', 'container', 'inspect', '--format',
+                       '{{.Id}}|{{index .Config.Labels "tbx.pointer.max.owner"}}', name], deadline, 10)
+    if identity.returncode == 0:
+        parts = identity.stdout.strip().split('|')
+        if len(parts) != 2 or not re.fullmatch('[0-9a-f]{64}', parts[0]) or parts[1] != owner:
+            return False
+        checked(['docker', 'rm', '-f', '--volumes', parts[0]], deadline, 45, 'Container-Cleanup')
+    listing = checked(['docker', 'container', 'ls', '--all', '--filter', f'name=^{name}$',
+                       '--format', '{{.ID}}'], deadline, 10, 'Cleanup-Audit')
+    return not listing.strip()
 
 
 def sql_args(cid: str, sqlcmd: str, password: str, database: str, statement: str) -> list[str]:
@@ -118,10 +134,14 @@ def main() -> int:
     name = f"tbx-pointer-max-{owner}"
     password = f"Tbx!{secrets.token_hex(16)}Aa1"
     private = Path(tempfile.mkdtemp(prefix="tbx-pointer-max-"))
+    (private / 'owner.json').write_text(json.dumps({'name': name, 'owner': owner}), encoding='utf-8')
     cid_file = private / "cid"
     result = "FAILED"
     detail = ""
     cleanup_ok = True
+    def cancel(_signum, _frame):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, cancel)
     try:
         image = f"mcr.microsoft.com/mssql/server:{options.sql_version}-latest"
         container_args = [
@@ -183,30 +203,20 @@ def main() -> int:
     except (ProbeError, OSError, UnicodeError) as error:
         result, detail = "FAILED", str(error)
     finally:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
         # Nur den eindeutig eigenen Container entfernen; fremde Namen/CIDs bleiben unangetastet.
         cleanup_deadline = min(started + WORK_SECONDS + CLEANUP_SECONDS,
                                time.monotonic() + CLEANUP_SECONDS)
         try:
-            identity = invoke([
-                "docker", "container", "inspect", "--format",
-                "{{index .Config.Labels \"tbx.pointer.max.owner\"}}", name,
-            ], cleanup_deadline, 10)
-            if identity.returncode == 0:
-                if identity.stdout.strip() != owner:
-                    cleanup_ok = False
-                else:
-                    checked(["docker", "rm", "-f", name], cleanup_deadline, 45, "Container-Cleanup")
-            if cleanup_ok:
-                # Ein erfolgreiches Listing belegt Abwesenheit; ein fehlgeschlagenes
-                # inspect könnte auch nur einen unerreichbaren Docker-Daemon bedeuten.
-                listing = checked([
-                    "docker", "container", "ls", "--all", "--filter", f"name=^{name}$",
-                    "--format", "{{.ID}}",
-                ], cleanup_deadline, 10, "Cleanup-Audit")
-                cleanup_ok = not listing.strip()
+            cleanup_ok = cleanup_container(name, owner, cleanup_deadline)
         except (ProbeError, ProbeTimeout, OSError):
             cleanup_ok = False
-        shutil.rmtree(private, ignore_errors=True)
+        if cleanup_ok:
+            try:
+                shutil.rmtree(private)
+            except OSError:
+                cleanup_ok = False
 
     if not cleanup_ok:
         print("INCONCLUSIVE: owned-container cleanup unconfirmed", file=sys.stderr)

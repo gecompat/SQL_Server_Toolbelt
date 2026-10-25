@@ -549,6 +549,213 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_geo_missing_targets_preserves_unpartitioned_canonical_fixtures(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/geo-missing-targets-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0', 'toolbelt.pseudonymization.deterministic': '1.2.0'})
+        expected = {('linux', '2022', 150), ('linux', '2022', 160), ('linux', '2025', 150), ('linux', '2025', 160),
+                    ('linux', '2025', 170), ('windows', '2019', 150), ('windows', '2022', 150), ('windows', '2022', 160)}
+        self.assertEqual(len(report['native_cases']), 8)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(report['canonical_contract_batches'], 5)
+        self.assertEqual(report['qualified_priority_oracle_rows'], 8064)
+        self.assertEqual(report['execution_profile']['canonical_batch_cap_seconds'], 120)
+        self.assertEqual(report['execution_profile']['overall_work_seconds'], 300)
+        paths = report['composition_order']
+        self.assertEqual(paths, ['Tests/Release/Runtime/OwnedTsqlScope.Guard.sql'] + [
+            'Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/' + name
+            for name in ('GeoJitter.Contract.sql', 'GeoJitter.Safety.sql', 'InstalledMetadata.Contract.sql')])
+        composed = b'\nGO\n'.join((ROOT / p).read_bytes() for p in paths) + b'\n'
+        self.assertEqual(hashlib.sha256(composed).hexdigest(), report['composed_fixture_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['predecessor_attempts_consumed'], 3)
+        self.assertEqual(report['final_independent_audit']['current_profile_database_names_absent'], 18)
+        for flag in ('publication_authorized', 'product_sources_changed', 'module_status_changed', 'package_payload_changed',
+                     'client_udt_metadata_qualified', 'new_lifecycle_upgrade_qualification', 'exact_129_byte_udt_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertTrue(report['remaining_gates'])
+
+    @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline Geo execution guards')
+    def test_geo_execution_caps_without_sql_connection(self):
+        result = subprocess.run([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
+                                 str(ROOT / 'Tests/Release/Test-GeoContractHarness.ps1')], capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 0, 'Geo canonical/remaining budget and disposal guards failed')
+
+    def test_geo_entrypoint_preserves_generic_ownership_and_cleanup_flow(self):
+        original = (ROOT / 'Tests/Release/Invoke-TsqlContractLab.ps1').read_text(encoding='utf-8')
+        geo = (ROOT / 'Tests/Release/Invoke-GeoContractLab.ps1').read_text(encoding='utf-8')
+        geo = geo.replace('# Begrenzte kanonische Geo-Funktionsqualifikation; Ownership/Cleanup wie im T-SQL-Treiber.',
+                          '# Begrenzte T-SQL-Rechtequalifikation ohne CLR-/Serverkonfigurationsaenderung.')
+        geo = geo.replace("'geo-functional-contract/v1'", "'tsql-release-contract/v1'")
+        geo = geo.replace("\n  (Join-Path $PSScriptRoot 'GeoContract.Execution.ps1'),", '')
+        geo = geo.replace(" foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'GeoContract.Execution.ps1') @('Invoke-GeoCanonicalBatches')){. $block}\n", '')
+        geo = geo.replace(" if(@($runset.module_versions.PSObject.Properties).Count -ne 2 -or $runset.module_versions.'toolbelt.core.result-table' -cne '1.0.0' -or $runset.module_versions.'toolbelt.pseudonymization.deterministic' -cne '1.2.0'){throw 'GEO_CLOSURE_NOT_AUTHORIZED'}\n", '')
+        geo = geo.replace('Invoke-GeoCanonicalBatches $db ([IO.File]::ReadAllText($runset.fixture))',
+                          'Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($runset.fixture))')
+        geo = geo.replace('PASS GEO_FUNCTIONAL', 'PASS TSQL_CONTRACT_RIGHTS')
+        self.assertEqual(geo, original)
+
+    def test_queue_worker_rights_binds_tokens_and_populated_blocker_states(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/queue-worker-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'product_sources_changed', 'module_status_changed', 'package_payload_changed',
+                     'managed_qualified', 'worker_host_provider_qualified', 'resulttable_worker_paths_qualified', 'barrier_snapshot_creation_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertTrue(report['fixed_own_claim_policy_required'])
+        self.assertTrue(report['claim_requires_handler_execute'])
+        self.assertEqual(report['public_apis'], {name: ('SELECT' if name.startswith('VW_') else 'EXECUTE') for name in
+                         ('USP_ClaimWork', 'USP_RenewWorkLease', 'USP_RecoverExpiredWork', 'USP_CompleteWork',
+                          'USP_FailWork', 'USP_ScheduleWorkRetry', 'USP_RequeueDeadLetter', 'VW_WorkQueueBarrierBlockers')})
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 192), ('strict_sql229_denials', 4776), ('strict_wrong_token_denials', 96),
+                             ('no_claim_reservations_without_handler_execute', 24), ('populated_barrier_view_states', 48)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        self.assertEqual(report['single_grant_api_profiles'], 168)
+        self.assertEqual(report['claim_with_handler_execute_profiles'], 24)
+        self.assertEqual(set(report['wrong_token_error_numbers'].values()), {51952, 51923, 51928, 51987})
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 26)
+        self.assertTrue(report['remaining_gates'])
+
+    def test_split_cl_completion_reuses_only_identical_bound_inputs(self):
+        import hashlib
+        prior_path = ROOT / 'Releases/1.0.0/split-advanced-rights-qualification.json'
+        prior = json.loads(prior_path.read_bytes())
+        report = json.loads((ROOT / 'Releases/1.0.0/split-advanced-cl-completion.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        self.assertTrue(report['caller_profile_cl_matrix_complete'])
+        self.assertEqual(report['reused_report_sha256'], hashlib.sha256(prior_path.read_bytes()).hexdigest())
+        self.assertEqual(report['reused_native_cases'], prior['native_cases'])
+        self.assertEqual(report['source_sha256'], prior['source_sha256'])
+        self.assertEqual(report['offline_export_sha256'], prior['offline_export_sha256'])
+        self.assertEqual(report['reused_oracle_controls'], prior['oracle_rejection_controls'])
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        all_cases = report['new_native_cases'] + report['reused_native_cases']
+        self.assertEqual(len(report['new_native_cases']), 6)
+        self.assertEqual(len(all_cases), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in all_cases}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in all_cases))
+        for field, total in [('positive_api_profiles', 96), ('strict_sql229_denials', 456), ('strict_sql51680_business_denials', 48)]:
+            self.assertEqual(report['combined_totals'][field], total)
+            self.assertEqual(sum(c[field] for c in all_cases), total)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual(report['final_independent_audit']['new_case_databases_absent'], 12)
+        self.assertFalse(report['publication_authorized'])
+        self.assertTrue(report['remaining_gates'])
+
+    def test_split_rights_binds_selected_targets_without_full_cl_matrix_claim(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/split-advanced-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed', 'full_cl_matrix_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0', 'toolbelt.string.split-advanced': '1.1.0'})
+        self.assertEqual(report['public_apis'], {'TVF_SplitAdvanced': 'SELECT', 'TVF_UnquoteToken': 'SELECT', 'USP_SplitAdvanced': 'EXECUTE'})
+        expected = {(p, v, cl) for p in ('linux', 'windows') for v, cl in (('2019', 150), ('2022', 160), ('2025', 170))}
+        self.assertEqual(len(report['native_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        missing = {(p, v, cl) for p in ('linux', 'windows') for v, cl in (('2022', 150), ('2025', 150), ('2025', 160))}
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['unexecuted_compatibility_combinations']}, missing)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 48), ('strict_sql229_denials', 228), ('strict_sql51680_business_denials', 24)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        self.assertEqual(report['single_grant_api_profiles'], 36)
+        self.assertEqual(report['usp_with_helper_profiles'], 12)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 14)
+        self.assertTrue(report['remaining_gates'])
+
+    def test_queue_frontend_rights_binds_producer_policy_and_narrow_view_scope(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/queue-frontend-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed'):
+            self.assertIs(report[flag], False)
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0',
+                          'toolbelt.core.work-type': '1.2.0', 'toolbelt.core.work-queue': '2.1.0'})
+        self.assertEqual(report['public_apis'], {name: ('SELECT' if name.startswith('VW_') else 'EXECUTE') for name in
+                         ('USP_EnqueueWork', 'USP_EnqueueWorkWithPolicy', 'USP_EnqueueBarrierWork',
+                          'USP_GetWorkStatus', 'VW_WorkQueue', 'VW_WorkQueueBarrierBlockers')})
+        self.assertTrue(report['fixed_own_enqueue_policy_required'])
+        self.assertEqual(report['single_grant_api_profiles'], 120)
+        self.assertEqual(report['legacy_producer_with_metadata_profiles'], 24)
+        self.assertEqual(report['strict_sql51902_metadata_denials'], 24)
+        self.assertEqual(report['barrier_view_scope'], 'empty public view and metadata only')
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 144), ('strict_sql229_denials', 3456)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 27)
+        self.assertEqual(report['initial_unaccepted_fixture_attempts'], 1)
+        self.assertTrue(report['remaining_gates'])
+
+    def test_deterministic_rights_binds_single_grants_and_separate_helper_profile(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/deterministic-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed'):
+            self.assertIs(report[flag], False)
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0',
+                                                     'toolbelt.pseudonymization.deterministic': '1.2.0'})
+        self.assertEqual(report['public_apis'], {name: ('EXECUTE' if name.startswith('USP_') else 'SELECT')
+                         for name in ('TVF_DeterministicRange', 'TVF_DeterministicDateShift',
+                                      'TVF_DeterministicTranslate', 'TVF_DeterministicGeoJitter', 'USP_DeterministicLookup')})
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 144), ('strict_sql229_denials', 1416)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        self.assertEqual(report['single_grant_api_profiles'], 120)
+        self.assertEqual(report['lookup_with_helper_profiles'], 24)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 26)
+        self.assertTrue(report['remaining_gates'])
+
     def test_cancellation_rights_binds_isolated_api_and_denial_scope(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/cancellation-rights-qualification.json').read_bytes())
@@ -1067,6 +1274,192 @@ if(-not $caught){throw 'CALLBACK_DEADLINE_LOST'}
         result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('PASS OFFLINE_API_GUARDS', result.stdout)
+
+
+class StableSqlPackageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('stable_sql_package', ROOT / 'Scripts/Release/prepare_stable_sql_package.py')
+        cls.package = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.package)
+        cls.payload = cls.package.expected_payload()
+
+    def test_committed_standalone_zip_and_payload_lineage(self):
+        import hashlib
+        package = self.package
+        data = (ROOT / package.PACKAGE).read_bytes()
+        package.verify(data)
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            self.assertTrue(all(entry.compress_type == zipfile.ZIP_STORED for entry in archive.infolist()))
+        self.assertEqual((ROOT / (str(package.PACKAGE) + '.sha256')).read_text().split(),
+                         [hashlib.sha256(data).hexdigest(), package.PACKAGE.name])
+        manifest = json.loads(self.payload['PACKAGE-MANIFEST.json'])
+        self.assertEqual(len(manifest['stable_candidates']), 19)
+        self.assertEqual(len({m['module_id'] for m in manifest['stable_candidates']}), 19)
+        self.assertTrue(manifest['payload_native_qualification_reused'])
+        self.assertFalse(manifest['standalone_archive_native_execution'])
+        self.assertFalse(manifest['publication_authorized'])
+        self.assertNotEqual(manifest['source_archive_sha256'], manifest['historical_native_archive_sha256'])
+        self.assertEqual(self.payload['LICENSE.md'], (ROOT / 'LICENSE.md').read_bytes())
+
+    def test_deterministic_bytes_and_reject_payload_manifest_guide_license_drift(self):
+        package = self.package
+        self.assertEqual(package.zip_payload(self.payload), package.zip_payload(dict(reversed(list(self.payload.items())))))
+        for name in ('Install-Stable-local.sql', 'Install-Stable-central.sql', 'PACKAGE-MANIFEST.json',
+                     'START-HERE.md', 'LICENSE.md', 'SHA256SUMS'):
+            with self.subTest(name=name):
+                payload = dict(self.payload)
+                payload[name] += b'\n-- synthetic drift\n'
+                with self.assertRaises(ValueError):
+                    package.verify(package.zip_payload(payload))
+
+    def test_reject_path_escape_extra_missing_duplicate_and_symlink_entries(self):
+        package = self.package
+        for name in ('../escape.sql', '/absolute.sql', 'nested/extra.sql', 'foreign.sql'):
+            with self.subTest(name=name):
+                payload = dict(self.payload)
+                payload[name] = b'SELECT 1;'
+                with self.assertRaises(ValueError):
+                    package.verify(package.zip_payload(payload))
+        payload = dict(self.payload)
+        payload.pop('LICENSE.md')
+        with self.assertRaises(ValueError):
+            package.verify(package.zip_payload(payload))
+        for duplicate in (False, True):
+            output = io.BytesIO()
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', UserWarning)
+                with zipfile.ZipFile(output, 'w') as archive:
+                    for name, data in self.payload.items():
+                        info = zipfile.ZipInfo(package.NAME + '/' + name)
+                        info.create_system = 3
+                        info.external_attr = ((stat.S_IFLNK if name == 'LICENSE.md' and not duplicate else stat.S_IFREG) | 0o644) << 16
+                        archive.writestr(info, data)
+                    if duplicate:
+                        archive.writestr(package.NAME + '/LICENSE.md', b'synthetic duplicate')
+            with self.assertRaises(ValueError):
+                package.verify(output.getvalue())
+
+    def test_reject_changed_source_checksum_qualified_sql_pin_and_license(self):
+        import tempfile
+        package = self.package
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for path in (package.SOURCE, Path(str(package.SOURCE) + '.sha256'), package.RELEASE / 'release-plan.json',
+                         package.RELEASE / 'qualification.json', package.RELEASE / 'STABLE-SQL-INSTALL.md', Path('LICENSE.md')):
+                target = root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / path, target)
+            for path in (Path(str(package.SOURCE) + '.sha256'), package.RELEASE / 'qualification.json', Path('LICENSE.md')):
+                original = (root / path).read_bytes()
+                if path.name == 'qualification.json':
+                    document = json.loads(original)
+                    document['native_package']['sql_payload_sha256']['Install-Stable-local.sql'] = '0' * 64
+                    altered = json.dumps(document).encode()
+                else:
+                    altered = b'synthetic drift'
+                (root / path).write_bytes(altered)
+                with self.assertRaises(ValueError):
+                    package.expected_payload(root)
+                (root / path).write_bytes(original)
+
+    def test_no_overwrite_of_zip_or_checksum(self):
+        import tempfile
+        package = self.package
+        data = package.zip_payload(self.payload)
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'synthetic.zip'
+            checksum = Path(str(output) + '.sha256')
+            checksum.write_bytes(b'existing checksum')
+            with self.assertRaises(ValueError):
+                package.write_artifacts(output, data)
+            self.assertFalse(output.exists())
+            self.assertEqual(checksum.read_bytes(), b'existing checksum')
+            checksum.unlink()
+            package.write_artifacts(output, data)
+            with self.assertRaises(ValueError):
+                package.write_artifacts(output, b'drift')
+            self.assertEqual(output.read_bytes(), data)
+
+    def test_failed_checksum_write_preserves_intervening_foreign_output_drift(self):
+        import tempfile
+        from unittest.mock import patch
+        package = self.package
+        data = package.zip_payload(self.payload)
+        original_open = Path.open
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'synthetic.zip'
+            checksum = Path(str(output) + '.sha256')
+            def fail_checksum(path, *args, **kwargs):
+                if path == checksum:
+                    output.write_bytes(b'synthetic intervening foreign drift')
+                    raise OSError('synthetic checksum write failure')
+                return original_open(path, *args, **kwargs)
+            with patch.object(Path, 'open', fail_checksum):
+                with self.assertRaises(OSError):
+                    package.write_artifacts(output, data)
+            self.assertEqual(output.read_bytes(), b'synthetic intervening foreign drift')
+
+    def test_reject_oversized_zip_entry(self):
+        payload = dict(self.payload)
+        payload['Install-Stable-local.sql'] = b'x' * (self.package.MAX_ENTRY + 1)
+        with self.assertRaises(ValueError):
+            self.package.verify(self.package.zip_payload(payload))
+
+
+class FunctionCallerQualificationTests(unittest.TestCase):
+    def test_fixed_function_compositions_and_current_native_reports(self):
+        import hashlib
+        import re
+        expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
+                    [('2019', [150]), ('2022', [150, 160]), ('2025', [150, 160, 170])] for cl in cls}
+        reports = sorted((ROOT / 'Releases/1.0.0').glob('*-caller-qualification.json'))
+        self.assertTrue(reports)
+        for path in reports:
+            with self.subTest(report=path.name):
+                report = json.loads(path.read_bytes())
+                self.assertEqual(report['result'], 'PASS')
+                parts = report['composition_order']
+                self.assertEqual(parts[0], 'Tests/Release/Runtime/FunctionCaller.Prelude.sql')
+                self.assertEqual(parts[2], 'Tests/Release/Runtime/FunctionCaller.Assertions.sql')
+                data = b'\n'.join((ROOT / p).read_bytes() for p in parts) + b'\n'
+                self.assertEqual(hashlib.sha256(data).hexdigest(), report['composed_fixture_sha256'])
+                cases = (ROOT / parts[1]).read_text(encoding='utf-8')
+                selected, denied = cases.split('INSERT @Denied')
+                pattern = r"^\(\d+,N'([^']+)',N'([^']+)','(SELECT|EXECUTE)'"
+                apis = [{'schema': s, 'name': n, 'permission': p} for s, n, p in re.findall(pattern, selected, re.M)]
+                self.assertEqual(apis, report['public_apis'])
+                count = int(re.search(r'@ExpectedApiCount int=(\d+)', cases)[1])
+                self.assertEqual(len(apis), count)
+                extra = len(re.findall(pattern, denied, re.M))
+                self.assertEqual(report['positive_profiles'], count * 24)
+                self.assertEqual(report['strict_sql229_denials'], count * (count + 1 + extra) * 24)
+                self.assertEqual(len(report['native_cases']), 12)
+                self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+                self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                                    and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+                for source, digest in report['source_sha256'].items():
+                    self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+                self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
+                self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                                    for c in report['oracle_rejection_controls']))
+                self.assertTrue(report['final_independent_audit']['fresh_after_all_consumers'])
+                self.assertEqual(report['final_independent_audit']['accepted_database_names_absent'], 26)
+                for flag in ('publication_authorized', 'product_sql_changed', 'module_status_changed',
+                             'package_payload_changed', 'genuine_crossdb_identity_qualified', 'authenticated_tls_qualified'):
+                    self.assertIs(report[flag], False)
+
+    def test_function_composer_rejects_noncanonical_cases_and_matches_bytes(self):
+        spec = importlib.util.spec_from_file_location('function_rights_composer', ROOT / 'Tests/Release/prepare_function_rights.py')
+        composer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(composer)
+        for path in (ROOT / 'LICENSE.md', ROOT / '.runtime/Foreign.FunctionCases.sql',
+                     ROOT / 'Tests/Release/Runtime/FunctionCaller.Prelude.sql'):
+            with self.assertRaises(ValueError):
+                composer.compose(path)
+        for path in (ROOT / 'Tests/Release/Runtime').glob('*.FunctionCases.sql'):
+            data, manifest = composer.compose(path)
+            self.assertEqual(data, b'\n'.join((ROOT / p).read_bytes() for p in manifest['composition_order']) + b'\n')
 
 
 if __name__ == "__main__":

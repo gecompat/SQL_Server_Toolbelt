@@ -7,12 +7,30 @@ SC-029/SC-032: Die Legacyclaim-Prüfung erfolgt erneut unter einer bis Transakti
 
 ## Status
 
-`toolbelt.core.work-queue` Version `2.0.0` ergänzt den E1a-/E1b-Kern um
+Aktueller Implementierungs-, Validierungs- und Releasestatus von Version
+`2.1.0` stehen im [kanonischen Modulmanifest](module.yaml) und in der daraus
+abgeleiteten [Modulübersicht](../README.md). Die
+[Managedintegration](#work-queue-21--neutrale-managedintegration) und ihre
+offenen Providergrenzen sind getrennt von älteren Plattformnachweisen zu lesen.
+Das Modul bleibt `unreleased`.
+
+Der [zusätzliche Callerrechtebericht](../../Releases/1.0.0/QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+prüft sechs Producer-/Status-/Viewprofile. Das ältere Enqueue benötigt
+zusätzliche Handler-Metadatensicht; die Blockerview ist nur leer geprüft.
+Die [Worker-Callerrechte](../../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+ergänzen sieben Worker-APIs und eine befüllte Blockerview auf zwölf Ziel-/CL-
+Kombinationen. Direkte Callerprofile sind damit abgedeckt; Managed-/Provider-/
+Workerhost-, ResultTable- und andere Betriebsvarianten behalten eigene Gates.
+
+### Historischer Stand 2.0
+
+Version `2.0.0` ergänzt den E1a-/E1b-Kern um
 persistierte Retry-Policies, Dead Letter, Idempotency Keys sowie priorisierte
 gruppenbezogene Drain-Barriers. Das Modul bleibt `unreleased`.
 
 Die Work-Queue-v2-Suite ist auf SQL Server 2019, 2022 und 2025 unter Windows
-und Linux validiert.
+und Linux validiert. Dieser historische Nachweis gilt für die jeweils
+datierten Quellen und qualifiziert die spätere 2.1-Integration nicht.
 
 ## Zweck
 

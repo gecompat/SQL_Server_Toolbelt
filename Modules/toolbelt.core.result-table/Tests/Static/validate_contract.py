@@ -279,7 +279,7 @@ def main() -> int:
     if ('"${TBX_SQL_TARGET:-runner}" == lab' not in cleanup[:lab_end]
             or 'exit "${result}"' not in cleanup[:lab_end]
             or '^([0-9a-f]{64})\\ ([0-9a-f]{32})$' not in runner_cleanup
-            or 'docker rm -f "${container_id}"' not in runner_cleanup
+            or 'docker rm -f --volumes "${container_id}"' not in runner_cleanup
             or runner_cleanup.count('docker container ls --all --filter "name=^/${container_name}$"') != 2
             or 'docker rm -f "${container_name}"' in runner_cleanup
             or '|| true' in runner_cleanup):

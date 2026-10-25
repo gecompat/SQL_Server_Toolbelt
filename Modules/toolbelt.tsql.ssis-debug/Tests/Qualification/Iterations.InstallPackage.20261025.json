@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "exact iteration-build installation ZIP, representative Windows2025 local/central extracted ODBC fresh/repeat/uninstall and actual shipped PR411 upgrade",
+  "package_sha256": "43b02c4b2cf4dd52b2f0e12c991e47f275383b4231e36a598f5c67d855b3f6ad",
+  "package_source_commit": "68c2c0a2772a00f570b1de55d057a3de7177c0e8",
+  "native_fixture_execution_commit": "68c2c0a2772a00f570b1de55d057a3de7177c0e8",
+  "native_harness_sha256": "b80c24c521f0d6430f27938b66939994c15e35b41ce4e8df834ffbfd5931fc66",
+  "payload_files": 178,
+  "double_package_build_byteidentical": true,
+  "assemblies_rebuilt_for_packaging": false,
+  "qualified_binary_evidence": "Iterations.Windows2019-2025.20261025.json",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 8,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_pr411_to_iteration_upgrade": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 8,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_pr411_to_iteration_upgrade": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "total_new_native_assertions": 226,
+  "upgrade_chain": [
+    "shipped PR411 identity build1.0.0",
+    "iteration build1.0.0"
+  ],
+  "assembly_and_public_object_ids_preserved": true,
+  "predecessor_json_template_reused": true,
+  "dependency_pins_changed": false,
+  "final_audit": {
+    "case_audits": 2,
+    "owned_database_names_absent": 2,
+    "trust_states_restored": 8,
+    "configuration_baselines_restored": true,
+    "input_pins_unchanged": true,
+    "failed_native_attempts": 0
+  },
+  "whole_manual_wave": {
+    "build_contexts": 6,
+    "build_assertions": 1590,
+    "package_contexts": 2,
+    "package_assertions": 226,
+    "actual_native_attempts": 8,
+    "maximum_native_attempts_including_recovery": 10,
+    "independent_final_audits": 8,
+    "all_owned_database_names_absent": 14,
+    "all_trust_states_restored": 32
+  },
+  "offline": {
+    "package_integrity_and_negative_cases": 6,
+    "installer_process_oracles": 55,
+    "extracted_validate_only": "PASS; no SQL"
+  },
+  "functional_transport": {
+    "encrypt_required": true,
+    "explicit_schema_validated_lab_trust": true,
+    "schema_selected_authentication": true,
+    "fallback": false,
+    "deployment_client": "ODBC sqlcmd",
+    "assertion_and_cleanup_client": "System.Data.SqlClient",
+    "authenticated_tls": "not executed"
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400,
+    "maximum_command_seconds": 45
+  },
+  "public_windows_auth_installer_process_e2e": "not executed; separate usable Windows identity/client prerequisite. Process order and flags covered offline; actual package SQL executed with explicit Functional Lab authentication.",
+  "external_export_host_binary_included": false,
+  "complete_release_packages_updated": false,
+  "remaining_scope": [
+    "Windows-authentication/SSMS client acceptance and authenticated TLS",
+    "Linux external host and executable host distribution",
+    "actual SSISDB correlation, SDK/resource/production claims and final release/publication"
+  ],
+  "general_autonomy": "PAUSED",
+  "cost_tokens": "UNKNOWN"
+}

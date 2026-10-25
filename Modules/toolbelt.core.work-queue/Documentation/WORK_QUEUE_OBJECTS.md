@@ -20,6 +20,14 @@ Jeder Claim erzeugt ein neues `ClaimToken`, erhöht `ClaimGeneration` und setzt 
 
 ## `USP_EnqueueWork` und `USP_EnqueueWorkWithPolicy`
 
+Das ältere `USP_EnqueueWork` benötigt neben seinem EXECUTE und der expliziten
+ENQUEUE-Policy Metadatensicht auf den registrierten Handler, etwa ein enges
+VIEW DEFINITION auf genau diese Procedure. Ohne Sicht kann seine
+`OBJECT_ID`-Prüfung mit 51902 abbrechen, auch wenn der Handler existiert.
+Handler-EXECUTE ist hierfür nicht erforderlich. Policy-/Barrier-Enqueue
+haben diese zusätzliche Handler-Metadatenprüfung nicht; Claim verlangt
+weiterhin Handler-EXECUTE. Rechte müssen dem tatsächlichen Aufrufpfad entsprechen.
+
 `USP_EnqueueWork` behält den V1-Vertrag und reiht mit Gruppe `default`, Priorität `0`, Modus `SHARED` und der Retry-Policy drei Versuche, 60 Sekunden Basis- sowie 3.600 Sekunden Maximalverzögerung ein. Der erweiterte öffentliche Vertrag `USP_EnqueueWorkWithPolicy` ergänzt Idempotency Key, Priority, ExecutionGroup, Retry-Policy und ExecutionMode. Gruppen und Keys werden binär verglichen; ein Key ist je Work Type eindeutig, solange das Item existiert. Gleiche Payload und Policy liefern das vorhandene Item, Abweichungen werden abgewiesen.
 
 `USP_EnqueueBarrierWork` ist die getrennt berechtigte Kurzform für `DRAIN_BARRIER`. Beim Enqueue speichert sie unter dem Scheduler-Mutex die zugehörigen aktiven Claim-Generationen als Blocker-Snapshot. Die öffentliche Sicht `VW_WorkQueueBarrierBlockers` zeigt diese Blocker ohne Payload oder Claim-Token.

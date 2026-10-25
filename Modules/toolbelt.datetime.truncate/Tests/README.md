@@ -1,5 +1,7 @@
 # Teststatus: Date/Time Truncation
 
+Aktuelle [Series-/Datums-Callerrechte](../../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md): neun öffentliche TVFs einschließlich Series-Status und Truncate mit je einem SELECT lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Interner Core und Helper sowie andere öffentliche Objekte bleiben direkt unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren eigenen Scope; keine Modulstatusänderung.
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 | Datum | Scope | Ergebnis | Einschränkung |

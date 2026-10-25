@@ -1,5 +1,81 @@
 # Releasevorbereitung prüfen
 
+## Eigenständiges Stable-SQL-Paket reproduzieren
+
+`Scripts/Release/prepare_stable_sql_package.py` benötigt nur Python3.10+ und die
+versionierten Releaseinputs. Es führt kein SQL, keinen Build und keinen
+Netzwerkaufruf aus. Die bestehende 19-Modul-Kanalzuordnung bleibt maßgeblich.
+
+```powershell
+python -B Scripts/Release/prepare_stable_sql_package.py verify
+# Einen neuen vorhandenen privaten Ordner verwenden; Dateien dürfen nicht existieren:
+python -B Scripts/Release/prepare_stable_sql_package.py build `
+  --output .runtime/stable-sql-new/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip
+python -B Scripts/Release/prepare_stable_sql_package.py verify `
+  --output .runtime/stable-sql-new/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip
+```
+
+Das Werkzeug liest nur drei feste Dateinamen aus dem prüfsummenverifizierten
+Quellarchiv und extrahiert nichts. Beide SQL-Hashes müssen exakt zur kanonischen
+nativen Qualifikation passen, die Lizenz zu `LICENSE.md`; hinzu kommen die
+[Paketanleitung](../../Releases/1.0.0/STABLE-SQL-INSTALL.md), Manifest und
+Dateiprüfsummen. Geänderte Herkunftsinputs, Dateien, ZIP-Metadaten, zusätzliche/
+fehlende/doppelte/Pfad-/Symlink-Einträge, Größenüberschreitungen oder vorhandene
+Ausgaben werden abgewiesen. Ein Fehler erfordert Prüfung des betroffenen Inputs;
+keinen Hash anpassen, um eine Abweisung zu umgehen. Erneut in einen neuen
+Ausgabeort bauen. ZIP und Prüfsumme immer gemeinsam aus demselben Stand liefern.
+Die Einträge verwenden ZIP_STORED mit festem Datum und festen Dateiattributen;
+dadurch hängt der exakte Containervergleich nicht von Deflate-/zlib-Versionen ab.
+
+Die Tests in `test_prepare_release.py` prüfen Reproduktion und gezielte Drift.
+Das Manifest unterscheidet heutigen Quellarchivhash und historischen nativen
+Archivhash; nur die exakt gleichen SQL-Payloads übernehmen ihren bisherigen
+12-Fall-Scope. Die neue Verpackung erhält keinen neuen nativen GUI-/Anmeldungs-,
+TLS-, API- oder Lifecycle-Nachweis. Das Gesamtquell-/CLR-/SSIS-Paket wird dabei
+nicht neu gebaut; `prepared_not_published` bleibt verbindlich.
+
+## Native Funktions-Callerrechte prüfen
+
+`prepare_function_rights.py` komponiert drei feste öffentliche SQL-Teile ohne
+SQL-/Labzugriff: Scope-/Tabellendeklarationen aus `FunctionCaller.Prelude.sql`,
+eine explizite `*.FunctionCases.sql` und `FunctionCaller.Assertions.sql`.
+Die Bytekomposition ist `b'\n'.join(parts) + b'\n'`; öffentliche Teile müssen
+bereits vor dem Einfrieren den kanonischen Git-Bytes entsprechen.
+
+```powershell
+python -B Tests/Release/prepare_function_rights.py `
+  --cases Tests/Release/Runtime/Conversion.FunctionCases.sql `
+  --output .runtime/function-conversion-new
+```
+
+Der Ausgabeordner unter `.runtime` darf nicht existieren. Die Ausgabe besteht
+aus `FunctionRights.sql` und `composition.json`; Pfade/Hashes der drei Teile
+machen die Komposition nachvollziehbar. Nur kanonische Falldateien aus dem
+Runtime-Verzeichnis sind zugelassen. Der Stager installiert oder verbindet nichts.
+
+Danach gilt der [bestehende T-SQL-Runsetvertrag](#weitere-tsql-callerrechte-prüfen):
+exakte Modulclosure, verbindungslos erzeugte lokale/zentrale Exports, Quellen-,
+Kompositions-, Treiber- und Labpins, schema-valider expliziter Zielkontext.
+`Invoke-TsqlContractLab.ps1` bleibt unverändert. Jeder native Fall hat eine
+Budgetreservierung, ein einmaliges eigenes Journal, 300/360/400-Sekunden-
+Arbeits-/Cleanup-/äußere Grenzen und einen separaten 90-Sekunden-Audit.
+Kein Replay vorhandener Journale, kein Fallback, keine fremde Bereinigung.
+
+Die eigene Fixture prüft fehlendes/einzelnes/entzogenes Recht, feste kardinalitäts-
+und NULL-sichere Wertorakel, direkte Geschwister-/Dependency-/Helperabweisungen
+mit genau SQL229 sowie fehlende breite Rechte. Ein falscher Festwert und ein
+zusätzliches Objektrecht dienen als frische negative Kontrollen. Der
+[Konvertierungsbericht](../../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md)
+begrenzt die tatsächliche Matrix und bewahrt alle Vorläufer. Die Tests in
+`test_prepare_release.py` prüfen Komposition, Inputs und Berichtsgrenzen ohne
+Labmutation. Keine neuen Jobs und keine automatische Native-Testausführung.
+
+Die [Series-/Datumsqualifikation](../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md)
+verwendet denselben Ablauf mit `Runtime/SeriesDate.FunctionCases.sql` und genau
+ResultTable/GenerateSeries/DateSpine/Truncate1.0.0. Der Legacy-Nullschritt wird
+mit SQL8134 geprüft; er wird nicht mit INVALID der begrenzten Status-TVF
+vertauscht. Die drei ursprünglichen Fixtureversuche bleiben getrennt erhalten.
+
 ## API- und Grenzqualifikation
 
 `api-qualification-spec.json` benennt die 165 ausgewählten kanonischen
@@ -393,6 +469,69 @@ prüfen Request, TVF und SVF, ihre unbekannten/NULL-Zustände, Requesterbindung,
 Context, Idempotenz und die gesperrte interne Tabelle. Der
 [Cancellation-Bericht](../../Releases/1.0.0/CANCELLATION-RIGHTS-QUALIFICATION.md)
 grenzt die zwölf Fälle von weiteren Quoten-/Lifecycle-/Recoveryverträgen ab.
+
+`Runtime/Deterministic.Rights.sql` verwendet denselben Treiber für Deterministic
+1.2.0 und ResultTable 1.0.0. Vier SELECT-TVFs und der direkte Lookup-EXECUTE-Pfad
+sind isoliert; das zusätzliche Lookup-/Helperprofil bleibt getrennt. Der
+[Pseudonymisierungsbericht](../../Releases/1.0.0/DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+bindet Festwerte, NULL-/Fehlerfälle, interne Abweisungen und Bereinigung.
+
+`Runtime/QueueFrontend.Rights.sql` prüft Queue 2.1.0 mit ResultTable 1.0.0
+und Work Type 1.2.0. Fünf Einzelgrants und der Legacyproducer mit zusätzlicher
+Handler-Metadatensicht bleiben ausdrücklich getrennt. Der
+[Queue-Frontend-Bericht](../../Releases/1.0.0/QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+bindet Initialzustände, SQL229/51902, den leeren Blockerview-Scope und die
+Bereinigung einschließlich des nicht akzeptierten ersten Fixtureversuchs.
+
+`Runtime/SplitAdvanced.Rights.sql` prüft Split Advanced 1.1.0 mit ResultTable
+1.0.0: zwei SELECT-TVFs, direkten USP-EXECUTE-Pfad und separaten Helperpfad.
+Der [Split-Bericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+bindet Originaltokens, Unquote, NULL-/Fehlerfälle und sechs physische Ziele
+bei jeweils höchstem CL. Der spätere
+[CL-Abschluss](../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md) ergänzt
+die sechs niedrigeren CL-Kombinationen bei identischen Ausführungsinputs;
+die bereits grünen Fälle und Orakelkontrollen werden nicht wiederholt.
+
+`Runtime/QueueWorker.Rights.sql` prüft sieben direkte unmanaged Worker-APIs
+und eine befüllte Blockerview. Claim benötigt zusätzlich Handler-EXECUTE;
+die feste CLAIM-Policy bleibt separat. Der
+[Worker-Bericht](../../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+bindet Persistenz-/Tokenorakel und Viewzustände, nicht vollständige Resultsets,
+ResultTable-Workerpfade, Managed Admission oder Workerhost-/Providerverhalten.
+
+## Kanonische Geo-SQL-Verträge auf weiteren Zielen prüfen
+
+`Invoke-GeoContractLab.ps1` verwendet den vorhandenen T-SQL-Treiberfluss für
+Pinprüfung, explizite Functional-Labauswahl, eigene Datenbanken, Objektvergleich
+und unabhängige Cleanupaudits. Ein mechanischer Regressionstest hält diesen
+Fluss bis auf die klar abgegrenzte Geoausführung identisch.
+
+Nur die zusammengesetzte Geo-Fixture nutzt `GeoContract.Execution.ps1` mit
+ExecuteNonQuery und höchstens 120 Sekunden je Batch wie der vorhandene
+Geo-/Translate-Testweg. Restzeit begrenzt jeden Batch zusätzlich; die gesamte
+Arbeitsphase bleibt auf 300 Sekunden begrenzt. Installation, Kontrollabfragen
+und Cleanup behalten ihre vorhandenen 45-Sekunden-Grenzen und eigenen Fristen.
+Das ist ein Funktionsprofil und keine Laufzeitzusage.
+
+Der private Runset verwendet `schema_version = geo-functional-contract/v1`
+und ausschließlich ResultTable 1.0.0 mit Deterministic 1.2.0. Die Fixture wird
+bytegetreu als `b"\nGO\n".join(parts) + b"\n"` aus
+`Runtime/OwnedTsqlScope.Guard.sql`, `GeoJitter.Contract.sql`,
+`GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql` zusammengesetzt.
+Die drei kanonischen Dateien liegen unter
+`Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/`; keine Orakel
+werden kopiert, umgeschrieben oder partitioniert. Der Guard normalisiert nur
+die Capture-NULL-Defaults und verlangt den eigenen markierten Scope ohne
+Callertransaktion. Payload, Teile, Treiber und Ausführungshilfe werden gepinnt.
+
+`Test-GeoContractHarness.ps1` prüft offline den kanonischen Batchdeckel,
+Restzeit, Ablehnung nach Fristablauf, Fehlerweitergabe und Command-Dispose.
+Ungeklärte oder fremde Bereinigung verhindert weitere Mutation; ein
+fehlgeschlagener Vorläufer wird nicht nachträglich als bestanden dargestellt.
+
+Der [Geo-Ergänzungsbericht](../../Releases/1.0.0/GEO-MISSING-TARGETS-QUALIFICATION.md)
+bindet acht positive Fälle, zwei verworfene Kontrollen, die erhaltenen Vorläufer
+und den bereinigten Installationsfehler mit geprüftem frischem Nachfolger.
 
 ## Queue-Autorisierungsvertrag physisch prüfen
 
