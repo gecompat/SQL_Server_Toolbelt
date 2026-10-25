@@ -17,7 +17,7 @@ namespace Toolbelt.Ssis.Exchange
         internal ModelException(string code) : base("TBX_SSISMODEL_" + code) { Code = code; }
     }
 
-    public sealed class PackageDocument
+    public sealed partial class PackageDocument
     {
         internal static readonly XNamespace Dts = "www.microsoft.com/SqlServer/Dts";
         internal XElement Root { get; private set; }

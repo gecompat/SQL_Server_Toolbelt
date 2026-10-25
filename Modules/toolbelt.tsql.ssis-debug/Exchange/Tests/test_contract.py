@@ -75,15 +75,16 @@ def main():
         iteration_schema=json.loads((MODULE/"Contracts/Exchange/SSIS_Object_Identities_V1_1.schema.json").read_text(encoding="utf-8"))
         iteration_validator=Draft202012Validator(iteration_schema)
         Draft202012Validator.check_schema(iteration_schema)
-        def bundle_run(data,iterations=False):
+        scope_validator=Draft202012Validator(json.loads((MODULE/"Contracts/Exchange/SSIS_Object_Identities_V1_2.schema.json").read_text(encoding="utf-8")))
+        def bundle_run(data,iterations=False,scopes=False):
             path=root/"synthetic.dtsx";path.write_bytes(data)
-            option="--iteration-bundle" if iterations else "--bundle"
+            option="--scope-bundle" if scopes else "--iteration-bundle" if iterations else "--bundle"
             external=subprocess.run(["dotnet",str(args.host),option,str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
             framework=subprocess.run([str(parity),option,str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
             check(external.returncode==0 and framework.returncode==0,"both hosts export identity bundle")
             a,b=json.loads(external.stdout),json.loads(framework.stdout)
             check(set(a)=={"contract","version","model","identities"} and a["contract"]=="ssis-export-bundle" and a["version"]=="1.0.0","closed separate bundle transport")
-            validator.validate(a["model"]);(iteration_validator if iterations else identity_validator).validate(a["identities"])
+            validator.validate(a["model"]);(scope_validator if scopes else iteration_validator if iterations else identity_validator).validate(a["identities"])
             check(canonical(a["model"])==canonical(b["model"]) and a["identities"]==b["identities"],"one common identity core on net48 and external host")
             check(a["identities"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"identity sidecar bound to exact source bytes")
             check([n["nodeId"] for n in a["identities"]["objects"]]==[n["id"] for n in a["model"]["nodes"] if n["kind"] in ("PACKAGE","EXECUTABLE")],"same occurrence universe and order")
@@ -98,6 +99,31 @@ def main():
             loop_exe.set(DTS+"ObjectName","STOCK:FORLOOP")
             loop_bundle=bundle_run(ET.tostring(loop_xml,encoding="utf-8",xml_declaration=True),True)
             check([n["iterationContainer"] for n in loop_bundle["identities"]["objects"]]==[False,expected],"qualified loop role independent of display name: "+executable_type)
+        scope_xml=ET.fromstring(fixture)
+        scope_exe=scope_xml.find(f"{DTS}Executables/{DTS}Executable")
+        scope_exe.set(DTS+"ExecutableType","Microsoft.ExecutePackageTask")
+        scope_exe.set(DTS+"refId","Package\\SyntheticCall")
+        object_data=scope_exe.find(DTS+"ObjectData")
+        task=ET.SubElement(object_data,"ExecutePackageTask")
+        ET.SubElement(task,"UseProjectReference").text="True"
+        ET.SubElement(task,"PackageName").text="SyntheticChild.dtsx"
+        scope_payload=ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True)
+        scoped=bundle_run(scope_payload,scopes=True)
+        check(scoped["identities"]["objects"][1]["callTarget"]=="SyntheticChild.dtsx","explicit same-project call target")
+        task.find("UseProjectReference").text="False"
+        check(bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)["identities"]["objects"][1]["callTarget"] is None,"external package reference remains unqualified")
+        task.find("UseProjectReference").text="True"
+        duplicate_target=ET.SubElement(task,"PackageName");duplicate_target.text="SyntheticOther.dtsx"
+        check(bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)["identities"]["objects"][1]["callTarget"] is None,"duplicate call target cannot select first property")
+        task.remove(duplicate_target)
+        expression=ET.SubElement(scope_exe,DTS+"PropertyExpression",{DTS+"Name":"PackageName"});expression.text='"SyntheticChild.dtsx"'
+        check(bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)["identities"]["objects"][1]["callTarget"] is None,"expression target remains unqualified")
+        scope_exe.remove(expression)
+        handlers=ET.SubElement(scope_xml,DTS+"EventHandlers")
+        handler=ET.SubElement(handlers,DTS+"EventHandler",{DTS+"refId":"Package.EventHandlers[OnError]",DTS+"EventName":"OnError"})
+        scoped=bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)
+        eh=scoped["identities"]["objects"][-1]
+        check(eh["scopeKind"]=="HANDLER" and eh["parentId"]=="pkg1" and eh["steps"]==[{"text":"\\OnError","counter":False}],"handler role and runtime steps from qualified native declaration")
         identity_xml=ET.fromstring(fixture)
         identity_xml.set(DTS+"DTSID","{11111111-1111-1111-1111-111111111111}")
         identity_exe=identity_xml.find(f"{DTS}Executables/{DTS}Executable")
