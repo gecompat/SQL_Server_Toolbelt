@@ -587,3 +587,12 @@ Ports und Kanten, den Unterschied zwischen Pfadname und SDK-Identifikationsstrin
 sowie unqualifizierte native Referenzsyntax. Die bestehenden Generatorfälle
 bleiben Regressionen. Diese Prüfung führt weder SSISDB-Pakete noch neue
 CLR-Releaseartefakte aus; die native Analyze-Abnahme bleibt getrennt.
+
+## Gebundener Vorgänger der Pipeline-Folgequalifikation
+
+Der Labrunner akzeptiert mit `-SsisQualifiedPredecessorEvidence` zusätzlich
+`Release.Windows.CL.20261025.json`. Damit kann der tatsächlich ausgelieferte
+Scope-Identitätsbuild als Upgrade-Ausgangspunkt verwendet werden. Originaler
+Quellcommit, DLL- und Deploymenthash sowie Parser-/ScriptDom-Pins bleiben
+verbindlich. Der zusätzliche Selektor ist noch kein Nachweis für den neuen
+Pipeline-Identitätsbuild; dieser benötigt seine eigene gebundene Qualifikation.

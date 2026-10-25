@@ -9,7 +9,7 @@ param(
  [switch]$ReleaseRights,
  [string]$PredecessorRoot,
  [string]$SsisPredecessorReleaseDirectory,
- [ValidateSet('Identities.Windows2019-2025.20261025.json','Iterations.Windows2019-2025.20261025.json')][string]$SsisQualifiedPredecessorEvidence,
+ [ValidateSet('Identities.Windows2019-2025.20261025.json','Iterations.Windows2019-2025.20261025.json','Release.Windows.CL.20261025.json')][string]$SsisQualifiedPredecessorEvidence,
  [string]$SsisIntermediateReleaseDirectory,
  [string]$InstallationPackageRoot,
  [string]$PackageSqlcmdPath,
@@ -130,7 +130,7 @@ if($SsisPredecessorReleaseDirectory){
  $oldQualified='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'
  if($SsisQualifiedPredecessorEvidence){
   $previousRecord=Get-Content -LiteralPath (Join-Path $moduleRoot ('Tests/Qualification/'+$SsisQualifiedPredecessorEvidence)) -Raw|ConvertFrom-Json
-  $previousSource=@{'Identities.Windows2019-2025.20261025.json'='bab9188d0af72c0ca852019ad5bc039070903c94';'Iterations.Windows2019-2025.20261025.json'='cba9f894d5837f33bf9f11dda8a7554d7d6ab549'}[$SsisQualifiedPredecessorEvidence]
+  $previousSource=@{'Identities.Windows2019-2025.20261025.json'='bab9188d0af72c0ca852019ad5bc039070903c94';'Iterations.Windows2019-2025.20261025.json'='cba9f894d5837f33bf9f11dda8a7554d7d6ab549';'Release.Windows.CL.20261025.json'='3800de1822b2c5fef1ddc626159afd4eb7579eff'}[$SsisQualifiedPredecessorEvidence]
   if($previousRecord.result -cne 'PASS' -or $previousRecord.product_source_commit -cne $previousSource -or
      (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $previousRecord.qualified_assembly_sha256 -or
      (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $previousRecord.qualified_deploy_sql_sha256){throw 'SSIS_QUALIFIED_PREDECESSOR_BINDING_INVALID'}
