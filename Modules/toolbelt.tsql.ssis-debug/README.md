@@ -26,10 +26,10 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den bisherigen qualifizierten Artefaktsatz einschließlich DLLs, SQL-/PowerShell-
-Skripten und SSMS-Beispiel zum Testen ohne eigenen Build. Der neue gemeinsame
-Kern und der Exporthost sind noch nicht in diesem ZIP ausgeliefert; seine
-Buildnachweise stehen getrennt in der Prüfmatrix.
+den qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411 einschließlich
+passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
+Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
+Build- und Paketnachweise stehen getrennt in der Prüfmatrix.
 
 Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
 Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz
@@ -65,8 +65,8 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: PR411 CLR-Build, Framework Full21 und Invoke-LabContract.ps1 Full je Windows2019/2022/2025 local/central mit beiden echten SSIS-Upgrades und unabhängigen Audits`
-- Scope: Produktquellstand bab9188 mit Objektkennungsexport aus PR411: sechs positive native Einzelkontexte auf Windows SQL2019/BIN2, SQL2022/CS_AS und SQL2025/CI_AS_SC_UTF8, jeweils local/central, mit je181 Kern-,61 API-,15 Lifecycle- und14 SSIS-Buildupgradeassertionen,1626 insgesamt. Drei unterschiedliche echte SSIS1.0.0-Binaries: ausgelieferter ZIP-Build → qualifizierter gemeinsamer Kern e718 → neuer Build; Assembly-/Prozeduridentitäten bei beiden Upgrades erhalten und beide Vorgänger-JSON-Vorlagen am finalen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades und beide Triggerfixtures bestanden. Sechs frische Abschlussaudits: zwölf eigene DB-Namen abwesend,36 Trustzustände und Konfigurationsbaselines wiederhergestellt, Pins unverändert. Reproduzierbarer exakter Build und Full21 bestanden. Budgets300/360/400 und40/45 unverändert; Functional mit Encrypt=True und explizitem Lab-Trust ohne Fallback. Keine Übertragung alter Evidenz, kein Linux-Host-, SSISDB-/SDK-Paritäts-, Produktions-, neuer Paketlieferungs- oder Veröffentlichungsnachweis; authentifizierte TLS-Abnahme separat not executed.
+- Nachweis: `local: deterministischer ZIP-Doppelbau, Integritäts-/Manipulationssuite6, Installer-Orakel55, extrahiertes ValidateOnly und ODBC-Paketläufe Windows2025 local/central mit unabhängigen Audits`
+- Scope: Aktualisiertes SSIS-ZIP mit exakt qualifiziertem PR411-Binary, unverändertem Deployment-SQL/Trustmanifest und Parser-/ScriptDom-Pins; keine neue Assembly gebaut.175 Dateien einschließlich exakter Buildquellroots, Installationsanleitung und SSMS-Beispiel. Zwei native Paketkontexte mit je8 Neuinstallations-/Lifecycle-,14 echten SSIS-Upgrade-,36 Kern- und61 API-Assertions,238 insgesamt. Ursprünglicher Lieferbuild → gemeinsamer Kern → Objektkennungsexport, alte Vorlagen und Identitäten erhalten. Zwei frische Abschlussaudits: zwei eigene DB-Namen abwesend, zehn Trustzustände und Konfiguration wiederhergestellt, Eingabepins unverändert. Grenzen300/360/400 und40/45 erhalten; echter ODBC-Client mit expliziter Functional-Labanmeldung und Encrypt=True ohne Fallback. Frühere sechs Full-Enginekontexte bleiben separat gebunden. Öffentlicher Windows-Authentifizierungsprozess, authentifizierte TLS-/SSMS-GUI-Abnahme, Gesamtpaket-Update und Veröffentlichung nicht belegt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

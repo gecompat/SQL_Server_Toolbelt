@@ -55,8 +55,8 @@ jobs:
           "SSIS_SCRIPT_DOM_PATH=$($dom.FullName)" >> $env:GITHUB_ENV
       - name: Static contract and canonical generation
         run: python Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_contract.py
-      - name: Versioned installation ZIP integrity and dependency binding
-        run: python Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py
+      - name: Versioned ZIP integrity, exact build sources and tampering controls without SQL
+        run: python -m unittest discover -s Modules/toolbelt.tsql.ssis-debug/Tests/Static -p test_install_package.py
       - name: Reproduce current provider build
         shell: pwsh
         run: |

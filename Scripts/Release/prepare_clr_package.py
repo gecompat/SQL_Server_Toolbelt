@@ -264,8 +264,8 @@ def verify(path: Path, allow_unqualified_candidate: bool = False) -> dict:
                         and 'QUALIFICATION.json' not in data,
                         'Privater Kandidat besitzt noch keine native Qualifikation.')
     elif qualification.is_file():
-        release.validate_clr_qualification(data, json.loads(qualification.read_bytes()),
-                                         {p:(release.ROOT / p).read_bytes() for p in json.loads(qualification.read_bytes())['method_bindings']})
+        qualified = json.loads(qualification.read_bytes())
+        release.validate_clr_qualification(data, qualified, release.clr_qualification_method_sources(qualified))
     print('PASS CLR_CANDIDATE native NOT_EXECUTED; private qualification input only' if pending else
           'PASS CLR_PACKAGE 12 modules, 13 DLLs, four explicit deployment profiles; no build needed on installation')
     return metadata

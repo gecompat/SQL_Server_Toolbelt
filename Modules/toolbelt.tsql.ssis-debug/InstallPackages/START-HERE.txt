@@ -1,0 +1,133 @@
+SSIS-Debug 1.0.0 - vollständiges Installationspaket für Windows
+Copyright (c) gecompat - Gerhard Pisch. Lizenz: LICENSE.md.
+
+Dieses ZIP enthält den qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411:
+  ResultTable 1.0.0 (T-SQL)
+  Script Parser 2.0.1 + Microsoft ScriptDom 180.117.0 (net472)
+  SSIS-Debug 1.0.0 (.NET Framework 4.8)
+Alle drei benötigten DLLs, beide fertigen SQL-Deployments und Trustmanifeste
+sind enthalten. Kein eigener Build, Git, Visual Studio oder SSIS-SDK nötig.
+Die Quell-, Vertrags- und Testdateien der drei Module liegen zur Einsicht bei.
+Dies ist ein Paket zum Testen des Entwicklungsstands, kein offizielles Release.
+
+VORAUSSETZUNGEN
+SQL Server 2019, 2022 oder 2025 auf Windows; Kompatibilitätslevel 150/160/170.
+SSMS für SQL-Skripte. PowerShell 7 und ODBC-sqlcmd auf dem Installationsrechner.
+Ein vorhandener sysadmin-Zugang per Windows-Anmeldung für dieses Adminbeispiel.
+SQL Server, SSMS, PowerShell, sqlcmd und das .NET Framework werden nicht mitgeliefert.
+Alle Dateien gemeinsam entpacken; die Verzeichnisstruktur beibehalten.
+
+1. DATEIEN OHNE SQL-VERBINDUNG PRÜFEN
+PowerShell 7 im entpackten Paketroot öffnen. Folgenden Pfad einmal setzen:
+
+  $install = '.\Modules\toolbelt.tsql.ssis-debug\Examples\Installation\Install-Local.ps1'
+  & $install -Server localhost -Database ContosoSsisDebug -ValidateOnly
+
+Erwartet:
+  SSIS_INSTALL_ARTIFACTS_VALIDATED files=5; no sqlcmd or SQL executed
+
+Der Prüfmodus kontrolliert Versionen, Dependency-Pins, drei DLL-Hashes und
+beide fertigen Deploymentdateien. Er benötigt weder sqlcmd noch einen Server.
+PACKAGE-MANIFEST.json und SHA256SUMS.txt enthalten zusätzlich die Paketdateihashes.
+Hashes sind Integritätsvergleiche und keine digitale Herausgebersignatur.
+
+2. SERVER UND DEMODATENBANK VORBEREITEN
+Auf dem gewünschten SQL Server in SSMS diese Datei öffnen und vollständig
+ausführen (normaler Abfragemodus genügt):
+
+  Modules\toolbelt.tsql.ssis-debug\Examples\Installation\PrepareServer.sql
+
+Das Skript prüft Plattform und Rechte, aktiviert bei Bedarf CLR instanzweit
+und legt ContosoSsisDebug an, wenn die Datenbank noch fehlt. Den Vorzustand
+vorher lokal festhalten. Bei einem anderen Datenbanknamen @DemoDatabase
+anpassen und denselben Namen in den weiteren Schritten verwenden.
+clr strict security bleibt aktiviert. TRUSTWORTHY ON ist nicht erforderlich.
+Ausstehende Konfigurationsänderungen werden vor RECONFIGURE zurückgewiesen.
+
+3. RESULTTABLE, PARSER, SSIS-DEBUG UND ASSEMBLY-TRUST INSTALLIEREN
+In der PowerShell-7-Sitzung aus Schritt 1:
+
+  & $install -Server localhost -Database ContosoSsisDebug
+
+localhost durch die gewünschte SQL-Server-Instanz ersetzen. Falls sqlcmd.exe
+nicht im Suchpfad liegt, -SqlcmdPath mit dessen vollständigem Pfad ergänzen.
+Der Installer führt die fünf kanonischen Deploy-/Trustschritte in Reihenfolge
+aus. Die drei exakten Assembly-Hashes werden instanzweit freigegeben; die
+SQL-Objekte und Assemblies werden in der angegebenen Datenbank installiert.
+Die Assemblybytes sind im fertigen SQL enthalten. Kein DLL-Dateizugriff vom
+SQL-Server-Rechner auf das Installationsverzeichnis ist erforderlich.
+
+Die Verbindung nutzt Windows-Anmeldung und Verschlüsselung. Der explizite
+Standard ist TrustServerCertificate=True. Für Zertifikatsvalidierung:
+
+  & $install -Server localhost -Database ContosoSsisDebug -TrustServerCertificate:$false
+
+Die fachliche Funktion setzt keine Zertifikatsvalidierung voraus. Es gibt
+keinen automatischen Trustwechsel nach einem Verbindungsfehler. Serverzertifikat-
+Trust und Assembly-Hash-Trust sind verschiedene Einstellungen.
+Beim ersten Installationsfehler wird abgebrochen; bereits erfolgreiche Schritte
+bleiben bestehen. Details und Lifecycle-Grenzen stehen in der Installationsanleitung.
+
+4. INSTALLATION IN SSMS KONTROLLIEREN
+Diese Datei auf derselben Instanz ausführen; USE bei Bedarf anpassen:
+
+  Modules\toolbelt.tsql.ssis-debug\Examples\Installation\VerifyInstallation.sql
+
+Erwartet werden Modulversionen 1.0.0 / 2.0.1 / 1.0.0, drei vertraute UNSAFE-
+Assemblies und eine erfolgreiche Parserprobe. Die Hilfeaufrufe zeigen die API.
+Der tatsächliche SSIS-Debug-Einstieg wird mit Schritt 5 angesprochen.
+
+5. DTSX, JSON-VORLAGE UND EINZELNE CTE-STUFEN TESTEN
+Die mitgelieferte Datei unverändert auf den SQL-Server-Rechner kopieren:
+
+  Modules\toolbelt.tsql.ssis-debug\Tests\Fixtures\synthetic-8.dtsx
+  Ziel für das unveränderte Beispiel: C:\Contoso\synthetic-8.dtsx
+
+OPENROWSET liest die Datei serverseitig. Vorhandene Datei-/BULK-Leserechte
+müssen den Zugriff erlauben. Der Pfad kann im Beispiel angepasst werden.
+In SSMS öffnen:
+
+  Modules\toolbelt.tsql.ssis-debug\Examples\SsmsDebugWalkthrough.sql
+
+Die nummerierten Abschnitte im selben Abfragefenster schrittweise ausführen.
+Abschnitt 0 legt ausschließlich synthetische Demotabellen an und läuft einmal.
+Danach: Paketbytes lesen, bindings-template erzeugen, User::Threshold im JSON
+von 100 auf 150 ändern, explain aufrufen und StageSql/TargetSql auswählen.
+Die ausgegebenen vollständigen SQL-Blöcke können direkt kopiert und ausgeführt
+werden. DECLARE steht jeweils am Anfang; damit lassen sich Werte und einzelne
+CTE-Stufen unabhängig prüfen. Für Lookup-Caches dieselbe SSMS-Sitzung behalten.
+Die erwarteten Zeilenzahlen und Cleanup-Schritte stehen in der Beispielanleitung.
+Quell-/Lookupabfragen verwenden NOLOCK; unbestätigte, fehlende oder doppelte
+Zeilen sind möglich, und Schemasperren können weiterhin blockieren.
+
+WEITERFÜHRENDE DATEIEN
+  Installationsablauf: Modules\toolbelt.tsql.ssis-debug\Examples\Installation\README.md
+  SSMS-Anleitung:      Modules\toolbelt.tsql.ssis-debug\Examples\README.md
+  Öffentliche API:     Modules\toolbelt.tsql.ssis-debug\Documentation\USP_ExplainSsisDataFlow.md
+  V1-Vertrag:          Documentation\Architecture\SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md
+  Drittanbieter:       ThirdParty\ScriptDom-180.117.0\
+  Quellstand:          https://github.com/gecompat/SQL_Server_Toolbelt/tree/@SOURCE_COMMIT@
+
+Die allgemeine Moduldokumentation enthält auch Anleitungen für eigene Builds;
+diese sind bei diesem vorbereiteten Paket nicht erforderlich. Lab-/CI-Testadapter
+können zusätzliche Dateien aus dem vollständigen Repository voraussetzen.
+Der Installer verwendet ausschließlich die hier vollständig enthaltenen Inputs.
+Der SSIS-Build ist auf Windows SQL2019/2022/2025 lokal/zentral mit 1.626 Assertions geprüft. Diese Buildqualifikation und die eigene Prüfung des neuen ZIPs sind getrennte Nachweise; siehe Downloadseite und Prüfmatrix. Die
+ZIP-Prüfung ist eine Offline-Artefaktprüfung und keine Installation auf Ihrem
+Server. Die gesonderte authentifizierte TLS-Abnahme bleibt separat.
+
+UPGRADE EINER BESTEHENDEN TESTINSTALLATION
+Das neue ZIP vollständig in ein neues Verzeichnis entpacken. ValidateOnly aus
+Schritt 1 ausführen und Install-Local.ps1 anschließend mit derselben Instanz
+und bestehenden Testdatenbank aufrufen. ResultTable und Parser werden wiederholt
+installiert, SSIS wird mit dem neuen exakten Assemblyhash aktualisiert. Die
+Versionsnummer bleibt 1.0.0; identische Versionsnummern ersetzen keine Hashprüfung.
+Anschließend Schritte 4 und 5 erneut durchführen. Es ist kein eigener Build nötig.
+Gemeinsame Dependencies und alte Trusteinträge nicht pauschal entfernen.
+
+OPTIONALE QUELLPRÜFUNG
+PACKAGE-MANIFEST.json nennt die exakten Buildquellroots. Die ursprünglichen
+Parser-Buildinputs liegen zusätzlich unter BuildSources/ScriptParser-2.0.1/.
+Sie erhalten die im qualifizierten Parsermanifest gebundenen Zeilenenden. Der
+SSIS-Build verwendet den separat gebundenen gemeinsamen Guard im Hauptquellbaum.
+Diese Quellen werden für die schnelle Installation nicht benötigt.
