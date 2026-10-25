@@ -1,5 +1,15 @@
 # Releasevorbereitung prüfen
 
+Die [aktuelle SSIS-Lookup-Paketbindung](../../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)
+verknüpft die zwölf Build-, zwei Standalone- und je sechs CLR-/Gesamtpaketfälle.
+Historische Pipeline-Nachweise behalten ihre ursprünglichen Artefakte.
+
+Die [Caller-Metadatenprüfung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md)
+läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:
+`python -B Tests/Release/test_caller_metadata.py`; ursprüngliche Caller-Pins
+bleiben erhalten, Runtime-/Vertragsänderungen werden abgewiesen.
+
+
 ## JSON-Schema-Caller mit drei Objektrechten
 
 Der [JSON-Schema-Bericht](../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) beschreibt `Invoke-JsonSchemaCallerLab.ps1`, `Runtime/JsonSchema.CallerRights.sql`, das genaue Rechteprofil, private Runset-/Pin-Anforderungen und die separate Offlineprüfung `python -B Tests/Release/test_json_schema_caller_profile.py`. Die vorhandenen gemeinsamen Konfigurations-/Trusthelfer bleiben unverändert. Neue Tests ändern keine Produktfunktion; alle ursprünglichen Nachweise bleiben gebunden.
@@ -740,10 +750,12 @@ Syntax und Strukturtests ersetzen keine native Qualifikation. Keine automatische
 Labaktivierung und kein neuer CI-Job; echte CrossDB-Identitäten bleiben separat.
 
 
-## SSIS-Teilqualifikation und aktuelle Paketinputs
+## Historische SSIS-Teilqualifikation aus PR #442
 
 [SSIS-RELEASE-QUALIFICATION.md](../../Releases/1.0.0/SSIS-RELEASE-QUALIFICATION.md)
-führt zu den tatsächlichen neuen SSIS-, ZIP-, CLR- und Gesamtpaketfällen.
+führt zu den damaligen SSIS-, ZIP-, CLR- und Gesamtpaketfällen.
+Dieser Abschnitt beschreibt den früheren 36er-Rahmen; aktuelle Paketinputs
+stehen im oben verlinkten Lookup-Nachweis.
 `clr-ssis-qualification.json` und `complete-ssis-qualification.json` ergänzen
 je sechs neue Windows-Kontexte; die alten Dateien bleiben als historische
 Ausführungen erhalten. Portable SQL und die übrigen zwölf DLLs müssen exakt

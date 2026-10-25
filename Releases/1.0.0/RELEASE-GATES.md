@@ -1,8 +1,8 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
-[JSON-Schema-Callerrechte](JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Das pauschale EXECUTE-Manifestlabel bleibt als Paketpflege offen.
+[JSON-Schema-Callerrechte](JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Die [gebundene Metadatenkorrektur](CALLER-METADATA-UPDATE.md) übernimmt diese Rechte jetzt in Manifest und Paket.
 
-Die [SSIS-Qualifikation vom 2026-10-25](SSIS-PIPELINE-QUALIFICATION.md) ergänzt
+Die [SSIS-Qualifikation vom 2026-10-25](SSIS-LOOKUP-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
 Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
@@ -341,8 +341,8 @@ Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
 Die [Konvertierungs-Callerprofile](CONVERSION-CALLER-QUALIFICATION.md) ergänzen
 16 öffentliche Base64-/IntegerBase-/URI-Funktionen einschließlich Status-TVFs
 und Scalarwrappern: zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einzelnen
-SELECT-/EXECUTE-Grants. Veraltete pauschale Manifestlabels bleiben ausdrücklich
-als getrennte Metadaten-/Paketlücke dokumentiert; keine Statusaufwertung.
+SELECT-/EXECUTE-Grants. Die [Metadatenkorrektur](CALLER-METADATA-UPDATE.md) schließt die pauschalen
+Manifestlabels dieser drei Module; keine Statusaufwertung.
 
 Die [Series-/Datums-Callerprofile](SERIES-DATE-CALLER-QUALIFICATION.md) ergänzen
 neun öffentliche GenerateSeries-/DateSpine-/Truncate-TVFs einschließlich der

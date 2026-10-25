@@ -6,10 +6,10 @@ ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.
 Es ist ein Entwicklungs-/Testpaket; der Status bleibt `unreleased`.
 
 Dieses Archiv enthält den auf Windows SQL2019/2022/2025 lokal und zentral
-qualifizierten SSIS-Build mit gemeinsamem Pipeline-Identitätskern. Es enthält
+qualifizierten SSIS-Build mit Pipeline-Identitäten und qualifizierten Lookup-Ausgangsrollen. Es enthält
 keinen externen Exporthost. Die [Prüfmatrix](../Tests/README.md) trennt die
 zwölf expliziten Engine-/CL-/Modusnachweise von den Prüfungen des entpackten Installationspakets.
-Die enthaltene [Buildprojektion](../Tests/Qualification/Pipeline.Windows.CL.20261025.json)
+Die enthaltene [Buildprojektion](../Tests/Qualification/LookupRoles.Windows.CL.20261025.json)
 bindet den Binary an diese Matrix. Die getrennte Paketprojektion im
 [Qualifikationsverzeichnis des Repositorys](https://github.com/gecompat/SQL_Server_Toolbelt/tree/main/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification)
 nennt je geprüfter Lieferung den exakten ZIP-Hash sowie Umfang und Ergebnis
@@ -62,7 +62,7 @@ vorhanden ist.
    Versionsnummer bleibt 1.0.0; entscheidend ist der neue exakte Binaryhash.
 
 Die neue Build-Upgradeprüfung beginnt mit dem zuvor ausgelieferten
-Scope-Identitätsbuild aus PR #442. Beide Builds haben die Modulversion 1.0.0;
+Pipeline-Identitätsbuild aus PR #446. Beide Builds haben die Modulversion 1.0.0;
 ihre exakten Assemblyhashes unterscheiden sie.
 Frühere Upgradepfade behalten ihre eigenen datierten Nachweise. Bereits vorhandene gemeinsame
 Dependencies und alte Assembly-Trusteinträge werden nicht pauschal entfernt.

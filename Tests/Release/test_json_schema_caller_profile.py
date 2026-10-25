@@ -3,8 +3,11 @@ from pathlib import Path
 import hashlib
 import json
 import unittest
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import caller_metadata
 REPORT = ROOT / 'Releases/1.0.0/json-schema-caller-profile.json'
 
 
@@ -44,7 +47,7 @@ class JsonSchemaCallerProfileTests(unittest.TestCase):
             self.assertFalse(Path(relative).is_absolute())
             self.assertNotIn('..', Path(relative).parts)
             self.assertNotIn('.runtime', Path(relative).parts)
-            self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), digest, relative)
+            caller_metadata.validate_source(ROOT, relative, digest)
 
     def test_controls_and_terminal_cleanup(self):
         r = self.report

@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
   "kind": "synthetic_product_snapshot",
-  "source_commit": "0d7987e90bc5b82ea55ea4e70fe1470d042cd0f6",
-  "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
-  "base_commit": "8a56ec2a32768670923a2ae1eb0103671199fc52",
-  "tree_oid": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
+  "source_commit": "23775b3342f0b9069cd41a283c3adf47bf90dfe3",
+  "product_commit": "5f796e599554b55668861ec0dee8d28ae663f082",
+  "base_commit": "d228163a945678044032d3868dd11425f5f6a457",
+  "tree_oid": "704100a2a4d7d7b78f8b4d856df9205268ac295d",
   "excluded_generated_output_prefixes": [
     "Releases/1.0.0/Artifacts/"
   ]

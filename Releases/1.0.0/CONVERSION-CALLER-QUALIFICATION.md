@@ -1,5 +1,9 @@
 # Konvertierungsfunktionen mit getrennten Callerrechten
 
+Die damals offene Manifest-/Paketlücke ist durch die spätere
+[exakte Metadatenkorrektur](CALLER-METADATA-UPDATE.md) geschlossen.
+Der folgende Ausführungsbericht behält seine ursprünglichen Quellen und Grenzen.
+
 Stand 2026-10-25, erste vorab geplante Welle des dritten endlichen Release-Rahmens.
 Alle 16 öffentlichen Base64-, Integer-Base- und URI-Funktionen bestehen mit
 getrennten Objektgrants auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral.

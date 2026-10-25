@@ -1,5 +1,9 @@
 # SSIS-Pipelinebuild: Qualifikation und Paketbindung
 
+Historischer Pipelinebuild aus PR #446. Die folgenden Ergebnisse und
+Paketbeschreibungen behalten ihre damaligen Build-, Paket- und Methodenbindungen.
+Der neue Lookup-Build hat einen [eigenen Nachweis](SSIS-LOOKUP-QUALIFICATION.md).
+
 Stand 2026-10-25. Diese Folgequalifikation bindet den bereits freigegebenen
 gemeinsamen Pipeline-Identitätskern aus PR #435 an den SQL-CLR-Build und die
 v1.0.0-Installationskandidaten. Die öffentliche SQL-API, Modulversion 1.0.0,
@@ -13,8 +17,8 @@ Eine Veröffentlichung ist nicht autorisiert.
 | Neuer SSIS-Binary | Reproduzierbarer Doppelbau; 23 isolierte Frameworkfälle und 147 gemeinsame CLR-/Hostgegenproben | [Buildprojektion](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Pipeline.Windows.CL.20261025.json) |
 | Windows SQL2019/2022/2025 | Zwölf lokale/zentrale Engine-/CL-Fälle mit 3516 Assertions: API, Callerrechte, Grenzen, Lifecycle und echtes Upgrade | dieselbe Buildprojektion |
 | Eigenständiges SSIS-ZIP | Zwei Windows-SQL2025-Kontexte, 226 Assertions, entpackte Skripte mit ODBC-sqlcmd, Erst-/Repeatinstallation und Uninstall/Repeat | [Paketprojektion](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Pipeline.InstallPackage.20261025.json) |
-| CLR-Paket | Sechs neue Windows-Engine-/CL-Fälle, jeweils lokal/zentral mit Consumer | [CLR-Projektion](clr-ssis-qualification.json) |
-| Gesamtpaket | Sechs neue Windows-Engine-/CL-Fälle, jeweils lokal/zentral mit Consumer | [Gesamtpaketprojektion](complete-ssis-qualification.json) |
+| CLR-Paket | Sechs neue Windows-Engine-/CL-Fälle, jeweils lokal/zentral mit Consumer | [CLR-Projektion](https://github.com/gecompat/SQL_Server_Toolbelt/blob/d228163a945678044032d3868dd11425f5f6a457/Releases/1.0.0/clr-ssis-qualification.json) |
+| Gesamtpaket | Sechs neue Windows-Engine-/CL-Fälle, jeweils lokal/zentral mit Consumer | [Gesamtpaketprojektion](https://github.com/gecompat/SQL_Server_Toolbelt/blob/d228163a945678044032d3868dd11425f5f6a457/Releases/1.0.0/complete-ssis-qualification.json) |
 
 Die Matrix umfasst SQL2019 CL150, SQL2022 CL150/160 und SQL2025 CL150/160/170.
 Jeder neue mutierende Fall hatte einen eigenen äußeren Watchdog. Die Grenzen
@@ -66,7 +70,7 @@ historisch. Ihre damaligen Gesamtpaketprojektionen sind im öffentlichen
 unverändert verfügbar. Aktuelle CLR-/Gesamtpaketprojektionen ersetzen keine
 historischen Ausführungsdaten durch einen neuen Methodencode.
 
-Der [Produktdelta-Nachweis](ssis-release-update.json) vergleicht die aktuelle
+Der [Produktdelta-Nachweis](https://github.com/gecompat/SQL_Server_Toolbelt/blob/d228163a945678044032d3868dd11425f5f6a457/Releases/1.0.0/ssis-release-update.json) vergleicht die aktuelle
 Lieferung weiter mit der ursprünglichen stabilen Produktbasis. Die Herkunft
 des damaligen Archivs und die spätere öffentliche Integrationsbasis für
 Test-/Dokumentationspflege sind separat gebunden. Außerhalb von SSIS bleiben

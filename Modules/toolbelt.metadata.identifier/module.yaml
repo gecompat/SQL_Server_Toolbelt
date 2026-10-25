@@ -49,7 +49,8 @@ objects:
     visibility: public
 
 permissions_required:
-  - "SELECT oder REFERENCES auf den Functions"
+  - "SELECT auf toolbelt_metadata.TVF_ParseMultipartName"
+  - "EXECUTE auf toolbelt_metadata.SVF_QuoteMultipartName"
   - "DDL-Rechte für Deploy und Uninstall"
 
 collation_contract: "Delimiter-, Escape- und Metazeichenprüfungen verwenden Latin1_General_100_BIN2; Identifierinhalte werden nicht nach Groß-/Kleinschreibung normalisiert."

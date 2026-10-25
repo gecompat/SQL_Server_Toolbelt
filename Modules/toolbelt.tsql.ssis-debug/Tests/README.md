@@ -569,8 +569,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: Pipeline-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 189-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Scope 1.2-Build; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im bisherigen SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
+- Nachweis: `local: Lookup-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
+- Scope: 191-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Pipelinebuild; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -607,7 +607,7 @@ Katalogzugriffe und Sicherheitsbudgets sind unverändert; der optionale
 Pipelineexport ist weiterhin eine externe Hostoperation. Eine neue
 SQL-Schnittstelle oder SSIS-Runtime wird daraus nicht abgeleitet.
 
-## Aktuelle Pipeline-Paketlieferung
+## Historische Pipeline-Paketlieferung
 
 Die [Paketprojektion](Qualification/Pipeline.InstallPackage.20261025.json)
 bindet den finalen ZIP-Hash an zwei neue Windows-SQL2025-Fälle lokal und
@@ -620,3 +620,29 @@ Das ZIP enthält den unveränderlichen Quell-/Anleitungssnapshot seines
 Paketcommits. Die nach der Ausführung ergänzte Paketprojektion steht im
 Repository; sie verändert keine enthaltenen DLL-/SQL-Bytes. Die Prüfung
 ersetzt weder Windows-Anmeldung/SSMS-GUI noch authentifizierte TLS-Abnahme.
+
+## Aktueller Lookup-Ausgangsrollenbuild
+
+Die [Buildprojektion](Qualification/LookupRoles.Windows.CL.20261025.json)
+bindet den Build aus PR #447 an zwölf Windows-/CL-/Modusfälle und 3516
+Assertions. SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170
+wurden jeweils lokal und zentral geprüft. Der tatsächlich ausgelieferte
+Pipelinebuild ist über den Selektor Pipeline.Windows.CL.20261025.json der
+exakte Upgradevorgänger; DLL-/Deploymenthash, Quellcommit und Pins sind Pflicht.
+23 begrenzte Frameworkfälle und 165 gemeinsame Core-/Host-Gegenproben ergänzen
+die native Matrix. NO_MATCH bleibt auf das qualifizierte Lookup-Profil begrenzt;
+unbekannte Profile und mehrdeutige Ausgangsmengen bleiben UNKNOWN. Alle zwölf
+finalen unabhängigen Cleanup-/Pin-/Konfigurationsaudits bestanden. Frühere
+Nachweise behalten ihre eigenen Quellen und Grenzen. Sicherheitsbudgets,
+SQL-API und Modulstatus bleiben unverändert; Veröffentlichung nicht autorisiert.
+
+## Aktuelle Lookup-Paketlieferung
+
+Die [Paketprojektion](Qualification/LookupRoles.InstallPackage.20261025.json)
+bindet den finalen ZIP-Hash an zwei Windows-SQL2025-Fälle lokal/zentral mit
+ODBC-sqlcmd: Installation, Repeat, Uninstall/Repeat und echtes Upgrade vom
+zuvor ausgelieferten Pipelinebuild. 226 Assertions und zwei frische unabhängige
+Abschlussaudits bestätigen Ergebnisse, Cleanup, Pins und Konfiguration.
+Das ZIP enthält seinen unveränderlichen Paketcommit; die spätere Paketprojektion
+im Repository ändert keine enthaltenen SQL-/DLL-Bytes. Windows-Anmeldung,
+SSMS-GUI und authentifizierte TLS-Abnahme bleiben gesondert offen.
