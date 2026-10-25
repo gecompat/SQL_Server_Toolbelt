@@ -1,5 +1,9 @@
 # Releasevorbereitung prüfen
 
+Der historisch benannte Funktions-Composer wird auch für die vorhandene Konsolen-Prozedur verwendet: Die gemeinsame Fixture prüft deklarierte SELECT-/EXECUTE-Objektrechte ohne Annahme eines Funktionstyps. Die feste `Console.FunctionCases.sql` ergänzt nur Rückgabe-/Fehler-/Transaktionsorakel; der native Treiber bleibt unverändert. Nachrichtendarstellung und Clientreader behalten ihren eigenen Nachweis.
+
+[Konsolenausgabe mit einzelnem EXECUTE-Recht](../../Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 [JSON-Pfade mit getrennten SELECT-Rechten](../../Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 
