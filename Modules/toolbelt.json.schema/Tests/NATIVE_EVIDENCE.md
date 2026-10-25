@@ -1,5 +1,7 @@
 # Begrenzte native JSON-Closure-Qualifikation
 
+Additiver Nachweis 2026-10-25: Das [Caller-Rechteprofil](../../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) ergänzt zwölf Ziel-/CL-Fälle lokal/direkt zentral mit genau drei Objektrechten und direkten/ResultTable-Ausgaben. Frühere offene Minimalrechteangaben bleiben historisch; diese neue Abnahme schließt ausschließlich das dokumentierte Datenpfadprofil. Andere Lifecycle-, Client-, Ressourcen- und CrossDB-Gates bleiben getrennt.
+
 ## Schema1.0.1: erfolgreicher nativer CI-Nachweis, 2026-10-06
 
 [Runtime37532174433](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433)

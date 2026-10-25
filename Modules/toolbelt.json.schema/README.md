@@ -1,5 +1,7 @@
 # Bounded JSON Schema Validation
 
+Das [nativ geprüfte Caller-Rechteprofil](../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) belegt direkte Ausgabe und ResultTable mit drei einzelnen Objektrechten. Die [Objektdokumentation](Documentation/USP_ValidateJsonSchema.md) nennt die erforderlichen Rechte; das eingefrorene pauschale Manifestlabel wird separat gepflegt. Status und Artefakte bleiben unverändert.
+
 `toolbelt.json.schema`1.0.1 liefert
 [`toolbelt_json.USP_ValidateJsonSchema`](Documentation/USP_ValidateJsonSchema.md)
 für das ausdrücklich begrenzte Profil `toolbelt-2020-12-v1`. Ein Ergebnis

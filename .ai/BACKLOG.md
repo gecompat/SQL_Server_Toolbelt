@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Siebter endlicher Release-Rahmen
+
+Direkt am 2026-10-25 erneut autorisiert; vor Entwicklung auf eine PR-Welle, zwei Stunden ab Originalstart und höchstens 20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Sechs frühere Rahmen bleiben abgeschlossen und unverändert. Entwickelt und nativ geprüft wurden ein eigener JSON-Schema-Caller-Testtreiber und eine feste SQL-Fixture für die bestehende USP 1.0.1. 14 native Versuche einschließlich zweier gezielt abgewiesener Kontrollen; kein neuer Produktcode. SSIS und fremde Arbeit bleiben ausgenommen.
+
+[JSON-Schema-Callerrechte](../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Das pauschale EXECUTE-Manifestlabel bleibt als Paketpflege offen.
+
 ## Sechster endlicher Release-Rahmen
 
 Direkt am 2026-10-25 erneut autorisiert und vor Entwicklung auf eine PR-Welle, zwei Stunden und höchstens20 native Testfälle begrenzt. Fünf frühere Rahmen bleiben abgeschlossen und unverändert. Konkret umgesetzt: CLR-Caller-Testtreiber mit eigenem Trust-/Wiederherstellungsscope und fünf vorhandenen Phonetic-/Edit-Distance-TVFs. Keine neue Fachfunktion, keine Produkt-, Manifest- oder Paketänderung; SSIS und fremde Arbeit bleiben ausgenommen.

@@ -1,5 +1,7 @@
 # toolbelt_json.USP_ValidateJsonSchema
 
+Für den qualifizierten Datenpfad benötigt der Caller gemeinsam EXECUTE auf dieser USP, EXECUTE auf `toolbelt_core.USP_PrepareResultTable` und SELECT auf `toolbelt_json.FT_ValidateJsonSchemaInternal`. Die Helper-Metadaten werden auch bei direkter Ausgabe geprüft; der TVF-Zugriff erfolgt aus dynamischem SQL. Nur EXECUTE auf der öffentlichen USP reicht dafür nicht. Fehlende Helper-Sichtbarkeit ergibt 55601; fehlende Aufruf-/SELECT-Rechte ergeben 229. Der [native Rechtebericht](../../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) trennt diese Zustände und verbleibende Gates. Diese Beschreibung ändert keine Rechte automatisch.
+
 Die USP prüft ein JSON-Dokument gegen ein Schema des begrenzten Profils
 `toolbelt-2020-12-v1`. Sie schreibt keine fachlichen Daten. Der optionale
 ResultTable-Pfad verwendet den bestehenden Toolbelt-Helpervertrag.
