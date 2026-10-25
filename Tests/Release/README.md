@@ -1,5 +1,59 @@
 # Releasevorbereitung prüfen
 
+## CLR-String-Caller mit eigenem Trust-/Konfigurationsjournal
+
+Der [CLR-Callerbericht](../../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md)
+verwendet `Runtime/ClrString.FunctionCases.sql` und den unveränderten
+`prepare_function_rights.py`-Composer. `Invoke-ClrCallerLab.ps1` ist der neue
+begrenzte Labtreiber; `ClrCaller.Environment.ps1` kapselt ausschließlich seine
+Konfigurations- und Verbraucherprüfungen. Die bisherigen T-SQL-/CLR-Treiber
+werden nicht geändert. Produktfunktionen sind durch diese Welle nicht erweitert.
+
+```powershell
+pwsh -NoProfile -NonInteractive -File Tests/Release/Test-ClrCallerSafety.ps1
+python -B Tests/Release/test_clr_caller_qualification.py
+python -B Tests/Release/test_prepare_release.py FunctionCallerQualificationTests
+```
+
+Erwartet werden zehn isolierte Sicherheitsfälle ohne SQL-Verbindung sowie
+Offlineprüfungen der aktuellen CLR-Berichts-/Kompositions-/Quellbindungen.
+Die bestehende Release-Regressionssuite prüft auch diese Callerprojektion;
+neue CI-Jobs oder Trigger entstehen nicht.
+
+Ein neuer privater Runset unter `.runtime` benötigt `schema_version` gleich
+`clr-caller-contract/v1`, die unveränderte zwölfteilige T-SQL-Zielmatrix,
+`contract_sha256`, `module_versions`, die komponierte `fixture`, `exports`
+für local/central, genau zwei `artifacts` und alle tatsächlichen `pins`.
+Die Closure besteht aus ResultTable1.0.0, Phonetic1.0.0 und EditDistance1.1.0.
+Jedes private Artifact bindet `module_id`, privaten `path`, `sql_name`,
+SHA256 und SHA512. Vor Verwendung Herkunft, zwei reproduzierbare Builds,
+aktuelle Compile-Inputs und gepackte Bytes abgleichen. Keine unbekannten DLLs
+vertrauen. Artefakte und ursprüngliche Nachweise privat unverändert einfrieren.
+
+Die SQL-Exports entstehen verbindungsfrei über `Deployment/Deploy-All.ps1`
+mit `ModuleVariables`: je CLR-Modul exakte `AssemblyBits` und
+`ExpectedInstalledAssemblyHash` gleich `0x` für die neue eigene Datenbank.
+Auf öffentliche Sourcepfade, beide Exports, Fixture, beide tatsächlichen DLLs,
+Labvertrag/-schema/-Reader, Treiber, Umgebungsdatei und importierte CSV-/Release-
+Helfer sind eindeutige Pins erforderlich. Der Treiber prüft Modulclosure,
+installierte SAFE-Assemblybytes, Methodenbindungen und Objektdefinitionen.
+
+Ausführung erfolgt mit `-RunsetPath` und `-CaseIndex`; anschließend separat
+mit `-AuditOnly`. Der private unveränderliche Casejournalname bleibt erhalten.
+Nie einen bereits versuchten Case erneut verwenden. Bei geänderten Inputs
+neue Journale anlegen oder eine ausdrücklich begründete Wiederverwendungs-
+bindung separat nachweisen. Auditprojektionen sind keine neuen Qualifikationen.
+
+Notwendige CLR-Aktivierung erfordert unveränderte Strict Security, keine echten
+Pending-Änderungen und vollständige Sicht auf fehlende Benutzerassemblies.
+Dokumentierte Engine-Normalisierungen werden eng erkannt; Speicheroptionen
+werden nicht gesetzt. Bereinigung entfernt nur eigene DBs/Trusteinträge,
+verifiziert vorbestehende Fingerprints und stellt eigenen Konfigurationsscope
+nur bei passendem Journalzustand wieder her. Drift oder neue Verbraucher
+blockieren statt fremden Zustand zu überschreiben. Parameterstände, Hashes,
+private Ziele und Rohlogs bleiben ausschließlich in privaten Journalen.
+
+
 ## Event-Log-Caller mit exakter Rollback-Abschlussprüfung
 
 `prepare_event_log_rights.py` verwendet unverändert den bisherigen Composer

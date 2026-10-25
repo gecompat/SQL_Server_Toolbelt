@@ -7,6 +7,7 @@ Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
 Linux-Payloads behalten ihre ursprünglichen Nachweise; keine neue Linux-Ausführung
 und keine automatische Modul- oder Gesamtfreigabe.
 
+[CLR-String-Callerrechte](CLR-STRING-CALLER-QUALIFICATION.md): fünf vorhandene Phonetic-/Edit-Distance-TVFs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle,120 positive Profile und1440 SQL229-Abweisungen. Entwickelt wurden Labtreiber, Sicherheitsprüfungen und feste SQL-Fixtures. Eigener Trust und notwendige Testkonfiguration sind unabhängig als bereinigt bestätigt; Produktquellen und Modulstatus bleiben unverändert.
 Die [Event-Log-Callerprofile](EVENT-LOG-CALLER-QUALIFICATION.md) ergänzen View und zwei lokale Retention-APIs auf zwölf lokalen/direkt zentralen Ziel-/CL-Fällen: 72 Einzelgrantprofile, 648 SQL229-Abweisungen und exakter Rollback-Zeilenvergleich. Producer/RPC und weitere Modulpflichten bleiben separat.
 
 Die [Providerview-Callerrechte](PROVIDER-CALLER-QUALIFICATION.md) ergänzen zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einem SELECT und rein synthetischem deaktiviertem Datensatz. Reale Linked-Server-Konfiguration, Loginmapping, RPC und neue Sessions bleiben separat.

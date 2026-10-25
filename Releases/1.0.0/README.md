@@ -46,6 +46,12 @@ Capture-Timeout-Gate ist für die gebundene DLL mit ausdrücklich angenommenem
 Restrisiko [begrenzt abgeschlossen](CAPTURE-RELEASE-ACCEPTANCE.md); weitere
 Modul- und Paketgates bleiben offen.
 
+Die [CLR-String-Callerrechte](CLR-STRING-CALLER-QUALIFICATION.md) ergänzen
+fünf vorhandene Phonetic-/Edit-Distance-TVFs auf zwölf lokalen/direkt zentralen
+Ziel-/CL-Fällen. Der neue Labtreiber prüft isolierte SELECT-Profile und eigene
+Trust-/Konfigurationsbereinigung; Produktimplementierung und weitere Modulpflichten
+bleiben separat.
+
 Die [Execution-Context-Minimalrechte](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
 sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.

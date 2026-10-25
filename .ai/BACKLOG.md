@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Sechster endlicher Release-Rahmen
+
+Direkt am 2026-10-25 erneut autorisiert und vor Entwicklung auf eine PR-Welle, zwei Stunden und höchstens20 native Testfälle begrenzt. Fünf frühere Rahmen bleiben abgeschlossen und unverändert. Konkret umgesetzt: CLR-Caller-Testtreiber mit eigenem Trust-/Wiederherstellungsscope und fünf vorhandenen Phonetic-/Edit-Distance-TVFs. Keine neue Fachfunktion, keine Produkt-, Manifest- oder Paketänderung; SSIS und fremde Arbeit bleiben ausgenommen.
+
+[CLR-String-Callerrechte](../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md): fünf vorhandene Phonetic-/Edit-Distance-TVFs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle,120 positive Profile und1440 SQL229-Abweisungen. Entwickelt wurden Labtreiber, Sicherheitsprüfungen und feste SQL-Fixtures. Eigener Trust und notwendige Testkonfiguration sind unabhängig als bereinigt bestätigt; Produktquellen und Modulstatus bleiben unverändert.
+
 [Event Log: Lesen und lokale Retention mit Einzelrechten](../Releases/1.0.0/EVENT-LOG-CALLER-QUALIFICATION.md): 3 APIs, zwölf Fälle lokal/direkt zentral, 72 Einzelgrantprofile und 648 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 [Providerview mit einzelnem SELECT-Recht](../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
