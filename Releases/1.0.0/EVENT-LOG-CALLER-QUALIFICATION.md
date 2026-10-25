@@ -1,5 +1,11 @@
 # Event Log: Lesen und lokale Retention mit Einzelrechten
 
+Beide Retention-Profile treffen in diesen synthetischen Daten jeweils zwei
+alte Zeilen. Die Callerfixture belegt daher Zugriff, begrenzte Löschzahlen und
+exakte Wiederherstellung; sie unterscheidet nicht zusätzlich die Identitäten
+der je Zeitachse ausgewählten Zeilen. Deren fachliche Auswahlorakel bleiben im
+bestehenden Retentionvertrag und dessen separaten Nachweisen.
+
 Stand 2026-10-25. Die vorhandene View besteht eine feste vollständige 24-Spalten-Projektion von vier synthetischen Events. Beide Retention-Prozeduren bestehen je einen einzelnen EXECUTE-Grant: unterschiedliche OccurredAtUtc-/RecordedAtUtc-Achsen, begrenzte Löschzahlen 1/1/0, exakte SQL51711-Abweisung und unveränderte Callertransaktion. Nach eigenem Rollback und dem gemeinsamen Principal-Cleanup prüft ein vierter fester Fixtureteil die exakte ursprüngliche Zeilenmenge und den Root-Kontext. Direkte Tabelle, Event-Producer, interner Writer, Sessiontransport und ResultTable-Helfer bleiben gesperrt. Producer-Routing, neue Sessions, Standalone-Commit-, Infrastruktur-, Client- und Ressourcengates behalten ihren gesonderten Scope.
 
 Zwölf Ziel-/CL-Kombinationen auf Windows und Linux: SQL2019/CL150,

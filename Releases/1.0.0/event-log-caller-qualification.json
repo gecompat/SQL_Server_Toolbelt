@@ -339,7 +339,8 @@
     "exact_full_rowset_postconditions": 24,
     "root_context_and_test_principal_absence_checked_separately": true,
     "producer_rpc_or_new_session_qualified": false,
-    "standalone_commit_path_newly_qualified": false
+    "standalone_commit_path_newly_qualified": false,
+    "retention_row_identity_selection_newly_qualified": false
   },
   "superseded_independent_absence_only_audit": {
     "attempts": 5,
