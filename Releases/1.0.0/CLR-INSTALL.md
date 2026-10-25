@@ -1,5 +1,11 @@
 # CLR-Module ohne eigenen Build installieren
 
+Der [aktuelle SSIS-Paketnachweis](SSIS-RELEASE-QUALIFICATION.md) bindet den neuen
+SSIS-Binary an zwölf explizite Windows-Buildkontexte und die aktualisierte
+CLR-Lieferung an sechs neue Windows-Paketkontexte. Die übrigen DLLs behalten
+ihre qualifizierten Bytes; die unten beschriebene Installation benötigt keinen Build.
+Die öffentliche Windows-Anmeldung und SSMS-GUI bleiben separat offen.
+
 Das optionale CLR-Paket enthält alle zwölf bestehenden Toolbelt-CLR-Module
 als fertige DLLs, die passende ScriptDom-Dependency, SQL-Installationsdateien,
 exakte SHA2-512-Trustwerte, Quellcode und Lizenzhinweise. Es ist ein

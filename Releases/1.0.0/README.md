@@ -1,9 +1,13 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
-Status: **Releasevorbereitung, nicht veröffentlicht**. Der aktuelle
-Benutzerauftrag erlaubt die autonome Fertigstellung des Gesamtpakets im
-freigegebenen Stable-/Preview-Zielumfang sowie die Integration grüner
-Release-PRs. Veröffentlichung, Tag und GitHub-Release sind nicht freigegeben.
+Status: **Releasevorbereitung, nicht veröffentlicht**. Das aktuelle manuell
+freigegebene SSIS-Arbeitspaket qualifiziert den bestehenden Stand und aktualisiert
+die Lieferpakete. Die allgemeine autonome Weiterentwicklung bleibt pausiert.
+Veröffentlichung, Tag und GitHub-Release sind nicht freigegeben.
+
+Die [aktuelle SSIS-Teilqualifikation und Paketbindung](SSIS-RELEASE-QUALIFICATION.md)
+trennt neue Windows-Nachweise von unverändert übernommenen Linux-Payloads und
+nennt die weiterhin offenen Client-, Ressourcen- und Releasegates.
 
 Für den ersten praktischen Test beginne mit der
 [Installationsanleitung für SSMS](../../INSTALL.md). Sie benötigt für die

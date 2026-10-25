@@ -1,5 +1,13 @@
 # Nachweiszuordnung aller 45 Module
 
+Die [SSIS-Qualifikation vom 2026-10-25](SSIS-RELEASE-QUALIFICATION.md) ergänzt
+zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
+je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
+Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
+Linux-Payloads behalten ihre ursprünglichen Nachweise; keine neue Linux-Ausführung
+und keine automatische Modul- oder Gesamtfreigabe. Die allgemeine Autonomie
+bleibt pausiert.
+
 Die [eigenständige Stable-SQL-Lieferform](STABLE-SQL-INSTALL.md) bindet ihre
 beiden SQL-Dateien bytegleich an die vorhandene native Paketqualifikation.
 Die neue ZIP-Verpackung ist offline geprüft; weitergehende API-/Modul-, GUI-
