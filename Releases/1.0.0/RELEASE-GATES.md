@@ -284,6 +284,11 @@ zusätzlich auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral mit jeweils
 einem einzelnen SELECT geprüft. Die neue Rechtequalifikation ersetzt keine
 Lifecycle-DDL-, echte CrossDB-, harte Recovery- oder Produktionskapazitätsabnahme.
 
+Die [Cancellation-Callerrechte](CANCELLATION-RIGHTS-QUALIFICATION.md) sind
+ebenfalls für drei isolierte API-Profile auf zwölf Ziel-/CL-Kombinationen
+lokal/direkt zentral geprüft. Das schließt keine Quoten-, Konkurrenz-,
+Retention-, Lifecycle-, CrossDB- oder Recoverygates mit ein.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
