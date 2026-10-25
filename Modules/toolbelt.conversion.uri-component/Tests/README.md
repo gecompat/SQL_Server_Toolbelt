@@ -1,5 +1,7 @@
 # Test Evidence
 
+Aktuelle [Callerrechte-Qualifikation](../../../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md): einzelne SELECT-Grants für TVFs und EXECUTE-Grants für Scalarwrapper, lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Die ältere pauschale SELECT-/REFERENCES-Formulierung im Manifest ist für Scalarwrapper veraltet; ihr gebundener Metadaten-/Paketrefresh bleibt separat offen. Andere Fach-/Lifecycle-/CrossDB-Gates und Modulstatus werden dadurch nicht erweitert.
+
 Nachqualifikation 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Runtime: `validated`; Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../../Tests/V0C_RELEASE_GATE_STATUS.md).
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
