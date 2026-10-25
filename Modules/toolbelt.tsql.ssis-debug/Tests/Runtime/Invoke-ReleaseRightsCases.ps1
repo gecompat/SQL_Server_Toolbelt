@@ -11,13 +11,18 @@ function Sql([string]$Text){
  $c=$Connection.CreateCommand();$c.CommandText=$Text;$c.CommandTimeout=Get-SsisNativeTimeout 40
  try{$r=$c.ExecuteReader();try{$t=[Data.DataTable]::new();if($r.FieldCount -gt 0){$t.Load($r)};return ,$t}finally{$r.Dispose()}}finally{$c.Dispose()}
 }
-function Call([string]$Operation,[byte[]]$Bytes=$package,[string]$Bindings,[string]$ResultTable,[bool]$Help=$false,[bool]$Keep=$true){
+function New-ReleaseRightsCommand([string]$Operation,[byte[]]$Bytes=$package,[string]$Bindings,[string]$ResultTable,[bool]$Help=$false,[bool]$Keep=$true){
  $c=$Connection.CreateCommand();$c.CommandTimeout=Get-SsisNativeTimeout 40;$c.CommandType='StoredProcedure';$c.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
  foreach($p in @(@('@Operation',[Data.SqlDbType]::NVarChar,32,$Operation),@('@PackageBytes',[Data.SqlDbType]::VarBinary,-1,$Bytes),@('@Bindings',[Data.SqlDbType]::NVarChar,-1,$Bindings),@('@CatalogBindings',[Data.SqlDbType]::NVarChar,-1,$catalog),@('@ResultTable',[Data.SqlDbType]::NVarChar,128,$ResultTable))){
-  $v=$c.Parameters.Add($p[0],$p[1],$p[2]);$v.Value=if($null -eq $p[3] -or ($p[3] -is [string] -and $p[3] -eq '')){[DBNull]::Value}else{$p[3]}
+  $v=$c.Parameters.Add($p[0],$p[1],$p[2]);$v.Value=$p[3]
+  if($null -eq $p[3] -or ($p[3] -is [string] -and $p[3] -eq '')){$v.Value=[DBNull]::Value}
  }
  [void]$c.Parameters.Add('@Hilfe',[Data.SqlDbType]::Bit);$c.Parameters['@Hilfe'].Value=$Help
  [void]$c.Parameters.Add('@KeepData',[Data.SqlDbType]::Bit);$c.Parameters['@KeepData'].Value=$Keep
+ return $c
+}
+function Call([string]$Operation,[byte[]]$Bytes=$package,[string]$Bindings,[string]$ResultTable,[bool]$Help=$false,[bool]$Keep=$true){
+ $c=New-ReleaseRightsCommand @PSBoundParameters
  try{$r=$c.ExecuteReader();try{$t=[Data.DataTable]::new();if($r.FieldCount -gt 0){$t.Load($r)};return ,$t}finally{$r.Dispose()}}finally{$c.Dispose()}
 }
 function Denied([scriptblock]$Action,[int]$Number,[string]$Prefix){

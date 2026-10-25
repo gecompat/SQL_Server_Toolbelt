@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 import prepare_release as release
-from check_clr_builds import check_binary
+from check_clr_builds import check_binary, clr_projects
 
 PACKAGE = 'SQL-Server-Toolbelt-1.0.0-CLR-Install'
 LOCATION = release.CLR_PACKAGE
@@ -165,7 +165,7 @@ def build(build_directory: Path, output: Path, unqualified_candidate: bool = Fal
                     {p:b for p,b in built_sources.items() if p.startswith(('Modules/','Deployment/'))}, 'Buildquellen abweichend.')
     old = zipfile.ZipFile(io.BytesIO(files[SSIS]))
     artifacts, payload = [], {}
-    for project in sorted(p for p in files if p.startswith('Modules/') and p.endswith('.csproj')):
+    for project in clr_projects(files):
         mid = project.split('/')[1]
         assembly = next(n.text for n in ET.fromstring(files[project]).iter() if n.tag.endswith('}AssemblyName'))
         filename = assembly + '.dll'

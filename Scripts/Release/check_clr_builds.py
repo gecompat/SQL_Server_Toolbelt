@@ -13,6 +13,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -22,6 +23,13 @@ import zipfile
 import prepare_release as release
 
 ROOT = release.ROOT
+
+
+def clr_projects(files: dict[str, bytes]) -> list[str]:
+    """Nur kanonische SQL-CLR-Projekte; externe Hosts sind eigene Lieferprodukte."""
+    projects = sorted(p for p in files if re.fullmatch(r'Modules/[^/]+/Clr/[^/]+\.csproj', p))
+    release.require(len(projects) == 12, "Erwartet werden die zwölf besprochenen CLR-Projekte.")
+    return projects
 
 
 def check_binary(data: bytes, private_roots: list[Path]) -> None:
@@ -45,8 +53,7 @@ def run(msbuild: Path, output: Path) -> None:
     release.require(not release.git("status", "--porcelain", "--", "Modules", "Deployment", "Workers").strip(),
                     "Produktinputs im Checkout geändert.")
     commit, files = release.snapshot("HEAD")
-    projects = sorted(p for p in files if p.startswith("Modules/") and p.endswith(".csproj"))
-    release.require(len(projects) == 12, "Erwartet werden die zwölf besprochenen CLR-Projekte.")
+    projects = clr_projects(files)
     first = ("toolbelt.json.core", "toolbelt.archive.zip-memory")
     projects.sort(key=lambda p: (first.index(p.split('/')[1]) if p.split('/')[1] in first else 2, p))
     nested = files["Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip"]
