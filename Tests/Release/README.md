@@ -359,6 +359,34 @@ zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
 Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
 automatischer Labstart oder Replay einer bereits grünen Vollmatrix.
 
+## Weitere T-SQL-Callerrechte prüfen
+
+`Invoke-TsqlContractLab.ps1` verwendet die bereits geprüften begrenzten
+SQL-/Pin-/Ownershiphelfer und einen expliziten Runset mit
+`schema_version=tsql-release-contract/v1`. Die übrigen Pflichtfelder und
+Pins entsprechen dem unten beschriebenen Work-Type-Testweg. Zusätzlich
+nennt `module_versions` exakt die erwarteten Module mit Version; der
+installierte Versionsmarkersatz muss vollständig passen. User-defined
+Assemblies sind für diesen T-SQL-Weg ausgeschlossen.
+
+```powershell
+& Tests/Release/Invoke-TsqlContractLab.ps1 -RunsetPath $privateRunset -CaseIndex 0
+# Neuer Prozess nach terminalem Fall:
+& Tests/Release/Invoke-TsqlContractLab.ps1 -RunsetPath $privateRunset -CaseIndex 0 -AuditOnly
+```
+
+Die gebundene SQL-Fixture gehört jeweils zum ausdrücklich ausgewählten
+Testumfang. Vorhandene Journale verhindern Replay; Fehler oder unbekannter
+Cleanup verlangen Reconciliation statt neuer mutierender Fälle. Gemeinsames
+Budget, 300/360/400-Sekunden-Grenzen und separaten Audit vor dem Start
+reservieren. Ein Erfolg qualifiziert ausschließlich die tatsächliche Fixture.
+
+`Runtime/SafeCast.Rights.sql` prüft sechs einzelne SELECT-Profile mit festen
+Wert-/Fehlerorakeln und strikten Abweisungen der anderen APIs. Der
+[Safe-Cast-Bericht](../../Releases/1.0.0/SAFE-CAST-RIGHTS-QUALIFICATION.md)
+bindet die zwölf bestandenen Fälle und die verworfenen Orakelkontrollen.
+Weitere Lifecycle-/CrossDB-/Recoverygates bleiben separat.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen
