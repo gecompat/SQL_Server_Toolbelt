@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "qualified PR411 SSIS installation ZIP; extracted package fresh/repeat/uninstall, real upgrades and public API on representative Windows SQL2025 local/central",
+  "package_sha256": "7f8140a3bdf29b8c8e357f6632b6e5b5e77a2985be3f6d3854604d3acfa1dfba",
+  "package_source_commit": "c7d266de9bc500d3d73021294c73265949f8580e",
+  "native_fixture_execution_commit": "208f82df1b7518fe34834b08d8ab846e5fcfe421",
+  "native_harness_sha256": "7cec886badd24f2f2fa8ae1cabbe1e96c0809ef224268f2c025837b01af51e63",
+  "payload_files": 175,
+  "double_package_build_byteidentical": true,
+  "assemblies_rebuilt": false,
+  "qualified_binary_evidence": "Identities.Windows2019-2025.20261025.json",
+  "reused_binary_scope": "Exact unchanged SSIS DLL and generated deployment, pinned parser/ScriptDom and common API; earlier Full evidence remains at its own6 Windows2019/2022/2025 contexts. Package/client path additionally executed here; no relabeling or replay of those cases.",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 14,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_package_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "both_real_ssis_upgrades": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 14,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_package_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "both_real_ssis_upgrades": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "total_new_native_assertions": 238,
+  "upgrade_chain": [
+    "original shipped1.0.0",
+    "qualified common-core1.0.0 at e718acc",
+    "PR411 identity-export1.0.0"
+  ],
+  "preserved_assembly_and_public_object_ids": true,
+  "both_predecessor_json_templates_reused_at_final_entry": true,
+  "dependencies_changed": false,
+  "final_audit": {
+    "case_audits": 2,
+    "owned_database_names_absent": 2,
+    "trust_states_restored": 10,
+    "configuration_baselines_restored": true,
+    "input_pins_unchanged": true,
+    "failed_native_attempts": 0
+  },
+  "offline": {
+    "package_integrity_and_negative_cases": 6,
+    "installer_process_double_assertions": 55,
+    "extracted_installer_validate_only": "PASS, no SQL"
+  },
+  "functional_transport": {
+    "encrypt_required": true,
+    "explicit_schema_validated_lab_trust": true,
+    "schema_selected_authentication": true,
+    "fallback": false,
+    "deployment_client": "ODBC sqlcmd",
+    "assertion_and_cleanup_client": "System.Data.SqlClient",
+    "authenticated_tls": "not executed"
+  },
+  "limits": {
+    "maximum_native_context_attempts_including_recovery": 4,
+    "actual_attempts": 2,
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400,
+    "maximum_command_seconds": 45
+  },
+  "public_windows_auth_installer_process_e2e": "not executed; Windows test identity remains a separate client prerequisite. Process order/flags covered by55 offline assertions; package SQL actually executed via ODBC using explicit Lab authentication.",
+  "complete_release_packages_updated": false,
+  "external_export_host_binary_included": false,
+  "remaining_scope": [
+    "public installer Windows-authentication client acceptance",
+    "authenticated TLS, Linux export-host run, actual SSISDB correlation, broader SDK/resource/production claims",
+    "complete1.0.0 delivery synchronization and final release/publication gates"
+  ],
+  "general_autonomy": "PAUSED",
+  "cost_tokens": "UNKNOWN"
+}

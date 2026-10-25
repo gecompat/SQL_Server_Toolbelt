@@ -9,6 +9,12 @@ Dieses Archiv enthält den auf Windows SQL2019/2022/2025 lokal und zentral
 qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411. Es enthält
 keinen externen Exporthost. Die [Prüfmatrix](../Tests/README.md) trennt die
 sechs nativen Buildnachweise von den Prüfungen des entpackten Installationspakets.
+Die [Paketprojektion](../Tests/Qualification/InstallPackage.20261025.json) bindet
+den finalen ZIP-Hash an die tatsächlich ausgeführte Neuinstallation und
+Upgradefolge auf Windows SQL2025 lokal und zentral, einschließlich echtem
+ODBC-sqlcmd und unabhängigen Cleanup-Audits. Der öffentliche PowerShell-Aufruf
+mit Windows-Anmeldung ist zusätzlich mit 55 Prozess-Orakeln offline geprüft;
+eine echte Windows-Testidentität bleibt eine getrennte Clientvoraussetzung.
 Der PowerShell-Installer verwendet den lokalen Deploymentmodus; die kanonischen
 SQL-Skripte unterstützen zusätzlich den zentralen Modus ohne Synonyme.
 
@@ -82,11 +88,15 @@ zusätzlich unter `BuildSources/ScriptParser-2.0.1/`; damit bleiben ihre
 manifestgebundenen Zeilenenden neben dem separat gebundenen SSIS-Guard erhalten.
 DLLs, Trustmanifeste und Dependencypins werden nicht umgeschrieben.
 
-`Scripts/New-InstallPackage.py` erstellt den Satz aus einem versionierten
+[`Scripts/New-InstallPackage.py`](../Scripts/New-InstallPackage.py) erstellt den Satz aus einem versionierten
 Quellcommit und ausdrücklich angegebenen qualifizierten Releaseverzeichnissen.
 Es kompiliert nichts. Der zweifache Paketbau verwendet feste ZIP-Metadaten und
 wird auf Bytegleichheit geprüft. Für die Installation ist dieses Werkzeug
 nicht erforderlich.
+
+Die Gesamtpakete unter `Releases/1.0.0/` behalten ihre eigene frühere Lieferung
+und Qualifikation. Dieses aktualisierte SSIS-ZIP ersetzt deren eingebettete
+Artefakte nicht automatisch und veröffentlicht kein Release.
 
 ## Wartung und Prüfung
 
