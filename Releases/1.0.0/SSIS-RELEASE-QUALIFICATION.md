@@ -7,7 +7,7 @@ Die Freigabematrix bleibt bei 19 Stable- und 26 Preview-Kandidaten; SSIS bleibt
 
 ## GeprÃ¼fte Lieferung
 
-Der eingefrorene Lieferstand `765b630f1a5e049827829adfa4a851244a2bd717` enthÃ¤lt
+Der eingefrorene Lieferstand `192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e` enthÃ¤lt
 den Scope-IdentitÃ¤tskern1.2 aus PR427. Die
 [Produktdelta-Bindung](ssis-release-update.json) vergleicht ihn mit der vorherigen
 Gesamtlieferung. AuÃŸerhalb SSIS bleiben Runtime-, Deployment- und Workerbytes
@@ -107,7 +107,7 @@ bleiben maÃŸgeblich. Installation beginnt bei [INSTALL.md](../../INSTALL.md).
 Der tatsÃ¤chliche native AusfÃ¼hrungsstand bleibt
 `fbd20b952f3e8c37ddda56b3d245ce71ce60af6e`, Methodencode `66ed4fa`.
 Zwischen ihm und dem Lieferstand unterscheiden sich innerhalb der Produktpfade
-nur Markdown-Dateien aus inzwischen integrierten Main-Nachweisen. Der
+nur Markdown-Dateien sowie die Kommentarposition im SSIS-Manifest. Der
 Produktdelta-Nachweis enthÃ¤lt beide vollstÃ¤ndigen Pfad-/Hashmengen; alle anderen
 Produktbytes bleiben gleich. Das Ã¤ndert keine nativen AusfÃ¼hrungsbehauptungen
 und lÃ¶st keinen erneuten SQL-Test aus.
@@ -117,3 +117,17 @@ Modules-/Deployment-Baum. Daher ist nach dieser Dokumentationsintegration ein
 weiterer begrenzter Doppelbau nÃ¶tig; die alte BuildausfÃ¼hrung bleibt erhalten.
 Das Gate wurde nicht abgeschwÃ¤cht. Das ist ein zusÃ¤tzlicher Offlineaufwand ohne
 neue NativefÃ¤lle, CI-Jobs, Trigger, Reviewketten oder Modellaufrufe.
+
+
+Der Dokumentsynchronisationsfehler wurde durch Einrücken zweier Kommentare
+innerhalb der Manifestsektion behoben; alle YAML-Schlüssel und Werte bleiben
+unverändert. Der Lieferproduktbaum schließt erzeugte Quellarchive explizit aus,
+wie bereits die kanonische Quellsnapshot-Auswahl. So werden frühere Quell-ZIPs
+nicht rekursiv im Recovery-Bundle eines neuen Quell-ZIPs verpackt. Ursprung,
+Ausgabenausschluss und exakter Produktbaum sind im Produktnachweis festgehalten.
+
+Der eigenständige SSIS-Installationssatz bleibt der exakt nativ geprüfte
+185-Dateien-Container. Seine Buildquellen und Statusabschnitte sind ein
+unveränderter Snapshot seines Paket-Sourcecommits. Spätere Abnahmeprojektionen
+und generierte Statuspflege stehen im Repository und im aktualisierten
+Gesamtquellpaket; sie ändern keine enthaltenen SQL-/DLL-Bytes oder Installationsschritte.

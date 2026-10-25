@@ -4,9 +4,9 @@
   "publication_authorized": false,
   "scope": "SSIS-only runtime delivery update; unchanged other native qualification scopes retained",
   "previous_product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
-  "current_product_commit": "765b630f1a5e049827829adfa4a851244a2bd717",
+  "current_product_commit": "192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e",
   "previous_product_tree": "8c23d50a63c35cbe5d8a24337496c9979db9494a",
-  "current_product_tree": "db0cfdece5098230ef42bcde4e91fc5db91c2aa3",
+  "current_product_tree": "d34ad8c02bbec4e392f32945b2b64896dce3b35f",
   "public_baseline_commit": "df435af0c482f4e21bef933df858d93419c391ad",
   "previous_source_zip_sha256": "5cc870fe261b8194c5ab86a136ec38a80d031c6092b8547f6851c9c0093d74de",
   "changed_product_paths": [
@@ -261,7 +261,7 @@
     "Modules/toolbelt.tsql.ssis-debug/InstallPackages/ThirdParty/ScriptDom-180.117.0/ORIGIN.txt": "10a4d749579538daa5a91997e8cd55b75ca838165062b024d7a9c0010bfa146e",
     "Modules/toolbelt.tsql.ssis-debug/InstallPackages/ThirdParty/ScriptDom-180.117.0/README.md": "6147ab5b352066376b3305ce6fe7f701cd947f4df442e4625acb802cd58fe752",
     "Modules/toolbelt.tsql.ssis-debug/InstallPackages/ThirdParty/ScriptDom-180.117.0/package.nuspec": "5f23cf8b9289efac0cb90fef6ce1ac5e78d6e0215fa855ab7d6fe8567aa10970",
-    "Modules/toolbelt.tsql.ssis-debug/README.md": "24f94422b37be551979c96c71ef013f594063fdc06b27436e74ed5eaef41f896",
+    "Modules/toolbelt.tsql.ssis-debug/README.md": "28d3cc344b0e35796bdbaaf283a47909b5d33fbb2c83e9c6146417a2acc0f5ba",
     "Modules/toolbelt.tsql.ssis-debug/Scripts/New-ClrReleaseArtifacts.ps1": "8637268923453b8e1977d1eb81a720bd871fdc108a7e87bf9bd2e945724a099b",
     "Modules/toolbelt.tsql.ssis-debug/Scripts/New-InstallPackage.py": "b44f562b67cec3c6abd2e6f9c183f7e26d49e3088f644171d13493c6dd1d65eb",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/ContractTests.cs": "a8ba0cfb8ede831e16c784deb05b3da5e059d44e361c9cb970510d8766b809a4",
@@ -275,7 +275,7 @@
     "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Release.InstallPackage.20261025.json": "441ff5457a6640e8f4006d35ca395b25e67de141b1a104d42c9528ba8f139b7f",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Release.Windows.CL.20261025.json": "1ff2399ed67d497a93b4a67e3de241f9e7a004cd7282dbc4e53108974913cf61",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Windows2019-2022.20261025.json": "4b990c79979174b6f0c2c75ea77ad91a4cdcc8eb09abe563780f89c03bb43fba",
-    "Modules/toolbelt.tsql.ssis-debug/Tests/README.md": "380f8a9205703a78932d8a2ea64537d2bdb3bfcf783ee754601ad6b55a0884c5",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/README.md": "003e560cee3702dfe75da3e9de56dc1472c6c06a09a69665bea1be2512fc7ea4",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1": "f0e235f3cbf984d611dec6b6a12676d08145185010cec2faf5499c4dd51fbcfc",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1": "4ed1f632f11122d6759b2b1083aa0bf003509b264004ff160fbecbe3be570999",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "9d688babac282c4bb44c522245910de3d09a1df04ff29706a6085cdff8a79441",
@@ -286,7 +286,7 @@
     "Modules/toolbelt.tsql.ssis-debug/Tests/Static/test_install_package.py": "e298ac939bd1a9e20cb0474f9e0a9fc53ed8e40cd79a0b4578dab7892633871e",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_contract.py": "1c2fef3af20b392837c8d0d77cc78c6bac261056627e17a3d0be437a0a2601c2",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "9b2cfad49a2e5f985ffe0166b89d02f81ec8c8d444417c38d6369df9aaed6332",
-    "Modules/toolbelt.tsql.ssis-debug/module.yaml": "69aedf454b8cb8b0303eee05a876f9e628a961780f79fa347ec74a0ee66dd672",
+    "Modules/toolbelt.tsql.ssis-debug/module.yaml": "e0384b3b895be497eda4c33183079eaf5debc7921c915092d63365a7b352f553",
     "Modules/toolbelt.validation.semantic-version/README.md": "f51a51f8f628e06347bd5eba28e7b22e12e5ae5bb6e54f2d08b1896173dd230b",
     "Modules/toolbelt.validation.semantic-version/Tests/README.md": "7a8fcb242d2f8a2277783ed973e51c49dc7a987917b10e5c8a08b30bf91d80ec",
     "Workers/ExternalQueue/Tests/CiTarget.Contract.py": "baddb24be006b0eef29e5df4197f711d7babc3d760e5cb34509a48c432d1c0b0"
@@ -295,7 +295,7 @@
   "execution_product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
   "documentation_only_delivery_hop": {
     "previous_product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
-    "current_product_commit": "765b630f1a5e049827829adfa4a851244a2bd717",
+    "current_product_commit": "192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e",
     "changed_paths": [
       "Modules/toolbelt.binary.bit-operations/README.md",
       "Modules/toolbelt.binary.bit-operations/Tests/README.md",
@@ -311,6 +311,9 @@
       "Modules/toolbelt.string.directional-trim/Tests/README.md",
       "Modules/toolbelt.string.split-characters/README.md",
       "Modules/toolbelt.string.split-characters/Tests/README.md",
+      "Modules/toolbelt.tsql.ssis-debug/README.md",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/README.md",
+      "Modules/toolbelt.tsql.ssis-debug/module.yaml",
       "Modules/toolbelt.validation.semantic-version/README.md",
       "Modules/toolbelt.validation.semantic-version/Tests/README.md"
     ],
@@ -329,6 +332,9 @@
       "Modules/toolbelt.string.directional-trim/Tests/README.md": "f69bc02d745b0aac110907742ec8b1116201741575cec278ceb26a847d2a34ec",
       "Modules/toolbelt.string.split-characters/README.md": "5c00910c7c42cfe3a4a638a406f9e8d978bdcaa2f705d442371da6aed3c8c336",
       "Modules/toolbelt.string.split-characters/Tests/README.md": "d5df37ad446d1bdfce01d8326f5838039a2b05e070d59e90f9cbb2b8dbff580d",
+      "Modules/toolbelt.tsql.ssis-debug/README.md": "24f94422b37be551979c96c71ef013f594063fdc06b27436e74ed5eaef41f896",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/README.md": "380f8a9205703a78932d8a2ea64537d2bdb3bfcf783ee754601ad6b55a0884c5",
+      "Modules/toolbelt.tsql.ssis-debug/module.yaml": "69aedf454b8cb8b0303eee05a876f9e628a961780f79fa347ec74a0ee66dd672",
       "Modules/toolbelt.validation.semantic-version/README.md": "cd17cf4a9bed7fd4e791f9ee7a538e1496cd242a54162fb30dbf54d54c4dad80",
       "Modules/toolbelt.validation.semantic-version/Tests/README.md": "acf2bfd18661d5f8c33476ee26dac02f298313310b519fe1f751184635958b17"
     },
@@ -347,9 +353,15 @@
       "Modules/toolbelt.string.directional-trim/Tests/README.md": "7ff7d8aee48fc116534c86f33632b5616ce76e216b65549c102c6e77ad0498bd",
       "Modules/toolbelt.string.split-characters/README.md": "7c47a3cae9fa49de71107c28c338ed3c3c7c2c7c055fd724a9fcf1d7c8506944",
       "Modules/toolbelt.string.split-characters/Tests/README.md": "402e28dfb96cae83ff91ea8561d725a5fba5742c67bd969249b78c95f8db73a0",
+      "Modules/toolbelt.tsql.ssis-debug/README.md": "28d3cc344b0e35796bdbaaf283a47909b5d33fbb2c83e9c6146417a2acc0f5ba",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/README.md": "003e560cee3702dfe75da3e9de56dc1472c6c06a09a69665bea1be2512fc7ea4",
+      "Modules/toolbelt.tsql.ssis-debug/module.yaml": "e0384b3b895be497eda4c33183079eaf5debc7921c915092d63365a7b352f553",
       "Modules/toolbelt.validation.semantic-version/README.md": "f51a51f8f628e06347bd5eba28e7b22e12e5ae5bb6e54f2d08b1896173dd230b",
       "Modules/toolbelt.validation.semantic-version/Tests/README.md": "7a8fcb242d2f8a2277783ed973e51c49dc7a987917b10e5c8a08b30bf91d80ec"
     },
-    "all_non_markdown_product_bytes_identical": true
+    "all_executable_product_bytes_identical": true,
+    "comment_only_manifest_paths": [
+      "Modules/toolbelt.tsql.ssis-debug/module.yaml"
+    ]
   }
 }
