@@ -84,6 +84,8 @@ contracts:
   usp: "1.0"
   deployment: "1.0"
   validation: "1.0"
+  ssis_object_identities: "1.0.0"
+  ssis_export_bundle: "1.0.0"
 tests:
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/Invoke-Contract.ps1"
@@ -114,7 +116,7 @@ validation_evidence:
 
   - date: "2026-10-25"
     workflow: "local: Invoke-LabContract.ps1 Full je Windows2019/2022 und local/central, echte SSIS-Build-/Parser-/Table-Clone-Upgrades; unabhängige Abschlussaudits"
-    scope: "Vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis."
+    scope: "Produktquellstand e718 vor dem späteren Objektkennungsexport: vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis."
     result: "success"
 
 # Das externe Modell ist kein zusätzlicher SQL-CLR-Einstieg und kein Linux-CLR-Provider.

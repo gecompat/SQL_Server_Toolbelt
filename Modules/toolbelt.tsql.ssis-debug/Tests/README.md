@@ -217,7 +217,8 @@ freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeut
 
 ## Neuer gemeinsamer Build: Windows SQL2019/2022 und Upgrade
 
-Die zusätzliche Qualifikation vom 2026-10-25 verwendet denselben SSIS-Binary
+Die zusätzliche Qualifikation vom 2026-10-25 gilt für den Produktquellstand
+`e718accba206153c7af6aece1bf180cb23a16203`. Sie verwendet denselben SSIS-Binary
 und dasselbe Deployment-SQL wie der separat dokumentierte SQL2025-Nachweis
 zum gemeinsamen Modellkern. SQL2025 wurde nicht wiederholt. Die
 [maschinenlesbare Projektion](Qualification/Windows2019-2022.20261025.json)
@@ -229,6 +230,12 @@ bindet die tatsächlichen Eingaben, Fälle und Ergebnisgrenzen.
 | Windows SQL2019 / BIN2 | central | 181 | 61 | 15 | 8 |
 | Windows SQL2022 / CS_AS | local | 181 | 61 | 15 | 8 |
 | Windows SQL2022 / CS_AS | central | 181 | 61 | 15 | 8 |
+
+Der später über PR #411 integrierte Objektkennungsexport verändert den
+geteilten CLR-Kern. Die Nachweise hier bleiben am vorigen Binary gebunden;
+sie qualifizieren keinen daraus neu gebauten CLR-Binary. Der Objektkennungsexport
+hat eigene Offlinegegenproben. Vor einer neuen CLR-Lieferung ist deren nativer
+Nachweis getrennt zu erbringen; erfolgreiche alte Läufe werden nicht umetikettiert.
 
 Alle vier Fälle bestanden, insgesamt 1.060 Assertions. Der öffentliche
 Generator verwendet dabei SQL150; weitere Dialekte und andere Nachweise
@@ -296,6 +303,11 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
 - Nachweis: `local: Invoke-LabContract.ps1 Full je Windows2019/2022 und local/central, echte SSIS-Build-/Parser-/Table-Clone-Upgrades; unabhängige Abschlussaudits`
-- Scope: Vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis.
+- Scope: Produktquellstand e718 vor dem späteren Objektkennungsexport: vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+Die Exchange-Gegenproben prüfen zusätzlich `--bundle` auf beiden Hosts. Fehlende,
+ungültige, namespacefremd überschattete und doppelte DTSIDs bleiben ausdrücklich
+getrennte Fälle; Paketbytehash und Modellvorkommen müssen übereinstimmen. Diese
+synthetischen Kernproben belegen weder eine SSISDB-Ausführung noch deren Revision.

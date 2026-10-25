@@ -190,5 +190,12 @@
     "native_replayed": false,
     "offline_cross_script_cases": 7
   },
-  "offline_deadline_guard_sha256": "0b11ff948b391b1fbc9319131465795c03d05cb3d57d421190a22cbe9aad74bc"
+  "offline_deadline_guard_sha256": "0b11ff948b391b1fbc9319131465795c03d05cb3d57d421190a22cbe9aad74bc",
+  "later_product_changes": {
+    "integration_base_commit": "626283a51a569442e5a0cfb455fdf59e9be608d7",
+    "pull_request": 411,
+    "scope": "native object identity export adds fields and methods to shared PackageDocument; the resulting new CLR binary is not the exact artifact qualified by this record",
+    "native_qualification_transferred": false,
+    "action": "retain these successful exact-build results at e718; qualify any newer CLR release artifact separately before claiming its native coverage"
+  }
 }
