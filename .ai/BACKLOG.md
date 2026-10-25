@@ -43,6 +43,23 @@ Die historische Paketkopie bleibt unverändert. Eine gebundene Übernahme des
 korrigierten Lesepfads gehört zum finalen Releasekandidaten; diese reine
 Dokumentationswelle behauptet keinen neuen Paket- oder Runtime-Nachweis.
 
+### Dritte Welle: Queue-Autorisierungsvertrag
+
+Vor Umsetzung geplant: den unveränderten kanonischen Queue-Policyvertrag auf
+zwölf physischen Ziel-/CL-Kombinationen lokal und direkt zentral prüfen.
+Der eigene Releaseharness installiert nur die drei vorhandenen T-SQL-Module;
+keine neue Fachfunktion, kein Workerprovider, keine CLR-/Serverkonfiguration.
+Der [Bericht](../Releases/1.0.0/QUEUE-AUTHORIZATION-QUALIFICATION.md) bindet
+Producer-/Handler-/DENY-/Idempotenz- und Callertransaktionsverhalten,
+zwei verworfene Orakelkontrollen sowie unabhängige Schlussaudits. Alle 26
+eigenen Datenbanknamen sind abwesend. Die abschließend verstärkte reine
+Generator-Ausgabegrenze erzeugt identische Fixturebytes und erhält den
+ursprünglich ausgeführten Generatorbezug getrennt; kein Testreplay.
+
+Vollständige isolierte API-Minimalrechte, echter CrossDB-Kontext und
+Worker-/Recoverygates bleiben separat. Head-/Main-CI und reguläre Integration
+werden im PR nachgewiesen; keine vorweggenommene Vollabnahme oder Veröffentlichung.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit
