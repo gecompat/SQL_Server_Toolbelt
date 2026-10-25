@@ -11,6 +11,7 @@ import sys
 import unittest
 import warnings
 import zipfile
+import hashlib
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")
@@ -18,12 +19,83 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
+_source_fixture_cache = {}
+_archive_fixture_cache = {}
+
+
+def source_fixture_key(module, product):
+    # Nur immutable Testinputs wiederverwenden. Auch ein geänderter Sidecar
+    # oder Anwendbarkeitsnachweis muss erneut die echten Validatoren durchlaufen.
+    paths = (module.ARTIFACTS + module.NAME + '.zip',
+             module.ARTIFACTS + module.NAME + '.zip.sha256', module.SSIS_UPDATE,
+             module.DIRECTORY + '/runtime-source-equivalence.json')
+    return (str(module.ROOT.resolve()), product, tuple(
+        (p, hashlib.sha256((module.ROOT / p).read_bytes()).digest()
+         if (module.ROOT / p).is_file() else None) for p in paths))
+
+
+def share_frozen_source_fixtures(module):
+    if getattr(module.qualification_sources, '_test_fixture_cache', False):
+        return
+    original = module.qualification_sources
+
+    def recover(product):
+        key = source_fixture_key(module, product)
+        if key not in _source_fixture_cache:
+            if len(_source_fixture_cache) >= 4:
+                _source_fixture_cache.pop(next(iter(_source_fixture_cache)))
+            _source_fixture_cache[key] = original(product)
+        methods, product_files, tree = _source_fixture_cache[key]
+        # Negative Gegenproben dürfen keinen späteren Testinput verändern.
+        return dict(methods), dict(product_files), tree
+
+    recover._test_fixture_cache = True
+    module.qualification_sources = recover
+
+
+share_frozen_source_fixtures(release)
+
+
 def pre_ssis_delivery_archive():
     """Historische Fixture-/Manifest-Snapshots behalten ihre ursprüngliche Lieferung."""
     update = ROOT / release.SSIS_UPDATE
     if update.is_file():
-        return release.qualification_archive(json.loads(update.read_bytes())['previous_product_commit'])
+        product = json.loads(update.read_bytes())['previous_product_commit']
+        key = source_fixture_key(release, product)
+        if key not in _archive_fixture_cache:
+            _archive_fixture_cache[key] = release.qualification_archive(product)
+        return _archive_fixture_cache[key]
     return (ROOT / release.ARTIFACTS / (release.NAME + '.zip')).read_bytes()
+
+
+class SourceFixtureCacheTests(unittest.TestCase):
+    def test_dependency_change_and_rejected_input_never_reuse_a_validation(self):
+        import tempfile
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory(prefix='source-fixture-', dir=ROOT / '.runtime') as temp:
+            fake = SimpleNamespace(ROOT=Path(temp), ARTIFACTS='Artifacts/', NAME='synthetic',
+                                   SSIS_UPDATE='update.json', DIRECTORY='Release')
+            calls = []
+
+            def original(product):
+                calls.append(product)
+                if product == 'rejected':
+                    raise ValueError('synthetic rejected input')
+                return {'method': b'fixed'}, {'product': b'fixed'}, 'tree'
+
+            fake.qualification_sources = original
+            share_frozen_source_fixtures(fake)
+            first = fake.qualification_sources('fixed')
+            first[0]['method'] = b'changed by caller'
+            self.assertEqual(fake.qualification_sources('fixed')[0]['method'], b'fixed')
+            self.assertEqual(calls, ['fixed'])
+            (fake.ROOT / fake.SSIS_UPDATE).write_bytes(b'changed synthetic dependency')
+            fake.qualification_sources('fixed')
+            self.assertEqual(calls, ['fixed', 'fixed'])
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'rejected'):
+                    fake.qualification_sources('rejected')
+            self.assertEqual(calls[-2:], ['rejected', 'rejected'])
 
 
 class PreparationTests(unittest.TestCase):
@@ -340,6 +412,7 @@ class ClrPackageTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / 'Scripts/Release'))
         import prepare_clr_package
         cls.clr = prepare_clr_package
+        share_frozen_source_fixtures(cls.clr.release)
         cls.package = ROOT / prepare_clr_package.LOCATION
 
     def test_regex_permission_documentation_delta_rejects_runtime_or_metadata_drift(self):
