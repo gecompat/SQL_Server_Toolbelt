@@ -505,6 +505,59 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_geo_missing_targets_preserves_unpartitioned_canonical_fixtures(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/geo-missing-targets-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0', 'toolbelt.pseudonymization.deterministic': '1.2.0'})
+        expected = {('linux', '2022', 150), ('linux', '2022', 160), ('linux', '2025', 150), ('linux', '2025', 160),
+                    ('linux', '2025', 170), ('windows', '2019', 150), ('windows', '2022', 150), ('windows', '2022', 160)}
+        self.assertEqual(len(report['native_cases']), 8)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(report['canonical_contract_batches'], 5)
+        self.assertEqual(report['qualified_priority_oracle_rows'], 8064)
+        self.assertEqual(report['execution_profile']['canonical_batch_cap_seconds'], 120)
+        self.assertEqual(report['execution_profile']['overall_work_seconds'], 300)
+        paths = report['composition_order']
+        self.assertEqual(paths, ['Tests/Release/Runtime/OwnedTsqlScope.Guard.sql'] + [
+            'Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/' + name
+            for name in ('GeoJitter.Contract.sql', 'GeoJitter.Safety.sql', 'InstalledMetadata.Contract.sql')])
+        composed = b'\nGO\n'.join((ROOT / p).read_bytes() for p in paths) + b'\n'
+        self.assertEqual(hashlib.sha256(composed).hexdigest(), report['composed_fixture_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['predecessor_attempts_consumed'], 3)
+        self.assertEqual(report['final_independent_audit']['current_profile_database_names_absent'], 18)
+        for flag in ('publication_authorized', 'product_sources_changed', 'module_status_changed', 'package_payload_changed',
+                     'client_udt_metadata_qualified', 'new_lifecycle_upgrade_qualification', 'exact_129_byte_udt_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertTrue(report['remaining_gates'])
+
+    @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline Geo execution guards')
+    def test_geo_execution_caps_without_sql_connection(self):
+        result = subprocess.run([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
+                                 str(ROOT / 'Tests/Release/Test-GeoContractHarness.ps1')], capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 0, 'Geo canonical/remaining budget and disposal guards failed')
+
+    def test_geo_entrypoint_preserves_generic_ownership_and_cleanup_flow(self):
+        original = (ROOT / 'Tests/Release/Invoke-TsqlContractLab.ps1').read_text(encoding='utf-8')
+        geo = (ROOT / 'Tests/Release/Invoke-GeoContractLab.ps1').read_text(encoding='utf-8')
+        geo = geo.replace('# Begrenzte kanonische Geo-Funktionsqualifikation; Ownership/Cleanup wie im T-SQL-Treiber.',
+                          '# Begrenzte T-SQL-Rechtequalifikation ohne CLR-/Serverkonfigurationsaenderung.')
+        geo = geo.replace("'geo-functional-contract/v1'", "'tsql-release-contract/v1'")
+        geo = geo.replace("\n  (Join-Path $PSScriptRoot 'GeoContract.Execution.ps1'),", '')
+        geo = geo.replace(" foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'GeoContract.Execution.ps1') @('Invoke-GeoCanonicalBatches')){. $block}\n", '')
+        geo = geo.replace(" if(@($runset.module_versions.PSObject.Properties).Count -ne 2 -or $runset.module_versions.'toolbelt.core.result-table' -cne '1.0.0' -or $runset.module_versions.'toolbelt.pseudonymization.deterministic' -cne '1.2.0'){throw 'GEO_CLOSURE_NOT_AUTHORIZED'}\n", '')
+        geo = geo.replace('Invoke-GeoCanonicalBatches $db ([IO.File]::ReadAllText($runset.fixture))',
+                          'Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($runset.fixture))')
+        geo = geo.replace('PASS GEO_FUNCTIONAL', 'PASS TSQL_CONTRACT_RIGHTS')
+        self.assertEqual(geo, original)
+
     def test_queue_worker_rights_binds_tokens_and_populated_blocker_states(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/queue-worker-rights-qualification.json').read_bytes())

@@ -19,6 +19,11 @@ fügen sieben Worker-APIs und die befüllte Blockerview auf zwölf lokalen/direk
 zentralen Ziel-/CL-Kombinationen hinzu. Provider-/Managed-/Ausgabevarianten
 und frühere Policyfälle behalten ihren eigenen Scope.
 
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
+
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
 lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; keine volle Modulabnahme.

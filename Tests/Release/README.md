@@ -423,6 +423,40 @@ die feste CLAIM-Policy bleibt separat. Der
 bindet Persistenz-/Tokenorakel und Viewzustände, nicht vollständige Resultsets,
 ResultTable-Workerpfade, Managed Admission oder Workerhost-/Providerverhalten.
 
+## Kanonische Geo-SQL-Verträge auf weiteren Zielen prüfen
+
+`Invoke-GeoContractLab.ps1` verwendet den vorhandenen T-SQL-Treiberfluss für
+Pinprüfung, explizite Functional-Labauswahl, eigene Datenbanken, Objektvergleich
+und unabhängige Cleanupaudits. Ein mechanischer Regressionstest hält diesen
+Fluss bis auf die klar abgegrenzte Geoausführung identisch.
+
+Nur die zusammengesetzte Geo-Fixture nutzt `GeoContract.Execution.ps1` mit
+ExecuteNonQuery und höchstens 120 Sekunden je Batch wie der vorhandene
+Geo-/Translate-Testweg. Restzeit begrenzt jeden Batch zusätzlich; die gesamte
+Arbeitsphase bleibt auf 300 Sekunden begrenzt. Installation, Kontrollabfragen
+und Cleanup behalten ihre vorhandenen 45-Sekunden-Grenzen und eigenen Fristen.
+Das ist ein Funktionsprofil und keine Laufzeitzusage.
+
+Der private Runset verwendet `schema_version = geo-functional-contract/v1`
+und ausschließlich ResultTable 1.0.0 mit Deterministic 1.2.0. Die Fixture wird
+bytegetreu als `b"\nGO\n".join(parts) + b"\n"` aus
+`Runtime/OwnedTsqlScope.Guard.sql`, `GeoJitter.Contract.sql`,
+`GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql` zusammengesetzt.
+Die drei kanonischen Dateien liegen unter
+`Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/`; keine Orakel
+werden kopiert, umgeschrieben oder partitioniert. Der Guard normalisiert nur
+die Capture-NULL-Defaults und verlangt den eigenen markierten Scope ohne
+Callertransaktion. Payload, Teile, Treiber und Ausführungshilfe werden gepinnt.
+
+`Test-GeoContractHarness.ps1` prüft offline den kanonischen Batchdeckel,
+Restzeit, Ablehnung nach Fristablauf, Fehlerweitergabe und Command-Dispose.
+Ungeklärte oder fremde Bereinigung verhindert weitere Mutation; ein
+fehlgeschlagener Vorläufer wird nicht nachträglich als bestanden dargestellt.
+
+Der [Geo-Ergänzungsbericht](../../Releases/1.0.0/GEO-MISSING-TARGETS-QUALIFICATION.md)
+bindet acht positive Fälle, zwei verworfene Kontrollen, die erhaltenen Vorläufer
+und den bereinigten Installationsfehler mit geprüftem frischem Nachfolger.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen
