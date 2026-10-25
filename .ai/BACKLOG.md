@@ -41,6 +41,17 @@ Keine Produkt-/Manifest-/Status-/Paketänderung; ResultTable-/Clientmetadaten-,
 Managed-/Provider-/Workerhost- und übrige Lifecycle-/Recoverygates bleiben separat.
 Head-/Main-CI bleiben am aktuellen PR nachzuweisen.
 
+### Dritte Welle im neuen Rahmen: zusätzliche Geo-SQL-Ziele
+
+Vor Umsetzung geplant: unveränderte Geo-/Safety-/SQL-Metadatenverträge auf
+acht fehlenden Ziel-/CL-Kombinationen lokal/direkt zentral. Der
+[Geo-Bericht](../Releases/1.0.0/GEO-MISSING-TARGETS-QUALIFICATION.md) bindet
+8.064 Prioritätsfälle, zwei verworfene Kontrollen, drei erhaltene Vorläufer und
+einen bereinigten Installationsfehler mit erfolgreichem frischem Nachfolger
+nach nachgewiesen geänderter Voraussetzung. Elf frische Audits bestätigen
+alle 19 aktuellen eigenen Datenbanknamen als abwesend. Keine Produkt-/Status-/
+Paketänderung; Client-/Lifecycle-,129-Byte-UDT- und CrossDB/TLS-Gates separat.
+
 ## Geordnete autonome Fortsetzung — 2026-10-25
 
 Historischer erster Rahmen: abgeschlossen; weitere Entwicklung ist nur durch

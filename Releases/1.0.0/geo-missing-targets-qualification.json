@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Canonical GeoJitter1.2.0 contract, safety and installed SQL metadata on eight additional target/CL combinations, local/direct central",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sources_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "client_udt_metadata_qualified": false,
+  "new_lifecycle_upgrade_qualification": false,
+  "exact_129_byte_udt_qualified": false,
+  "execution_source_baseline_commit": "07c3e00825fc8c305064c4f6306b9cca7d7bc9a6",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.pseudonymization.deterministic": "1.2.0"
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/Deploy.sql": "05907ec2cad74234aa37a9dacb8026288fe1a93941061dbe6c3a9acdcd04eeb1",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/New-LegacyTestArtifacts.ps1": "a081cc97a5b08f80c4576529def6c0b3e670caefad43e6985d78db44ba42db91",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/ReleaseManifest.sql": "f01c1ada396bea9076bb7329e52f27937b04fcc5468d9f0be5feedf0eb02de0e",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/Uninstall.sql": "790a37af624537b9237792365241973a15372b8a898c7fa8d1b68956831f0a39",
+    "Modules/toolbelt.pseudonymization.deterministic/module.yaml": "47ba50cbdfa2d2f8448911043f83fdf61a42acb8f1379da9d55525e82d8498ee",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql": "ce9564cf87a761fef273651a7a45d12865de8b7acc4932f0b609567f3045b284",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql": "ee8578db41f8a4e209b2b0b3da77a35cf124d71fd11f6d9d6b57705ef8c14444",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql": "48b0db6199bd7843ac09d5b90e82e06a1ace37d6b0c28efe6fd0ab5311b6f9ab",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicIntegerBytes.sql": "bc26259479a5a69b00456a523b451b18115f8094f90a4781a314e23b5de0c8e0",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql": "651364a4d2072b7bebb0ba3ffa015d6a5ee3a5db78e46644fc2ecb3b0a0ce49f",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRangeCore.sql": "1fd5d15be0cd5f815ac7020a522a59ea2492f1fe09663d1b90e25adec126a66f",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql": "dc35412b57644271b098fd4f581485588e161ba445baebe3f79daa42bdc238b1",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookupCore.sql": "6167635232dc8d1238bc0cd058094a07fb1bdea4c8f95454d77a39fb1cf1a21b",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Contract.sql": "33824f0e8bba43475185d58ca5e34354cf1da900f0de46098d409841a67b4db2",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Safety.sql": "ad28d609cfe7fed7e79ff25a28756b4e3154d045c82735ca1a3aecf22fa6247c",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/InstalledMetadata.Contract.sql": "f4c72636d8a4a02387cf0881611f3c80c81a00905736217cafc157e0d3aaad3c",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-deterministic-geo-lab.ps1": "1e7a576f1e508aaf96d56f4c7b0f4d2712833b8068886440ecd79179e985f368",
+    "Tests/CI/run-deterministic-translate-lab.ps1": "0abda10d0c167512b40a94ed4acac269f150f4c82f896bd0a83a623d83e60b8d",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/GeoContract.Execution.ps1": "525df424d6332d409d5025d1b22b2341c805ba40ba958857f653690738e57aca",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-GeoContractLab.ps1": "1f45e38f2fcb9ee54ae6be84bd3728c4103439b26c4359800178f3c1e04a545e",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/Runtime/OwnedTsqlScope.Guard.sql": "cbdf478663e901ae1cab06292f9acba862383e3bbf884af16505d937b35b7d8e"
+  },
+  "offline_export_sha256": {
+    "local": "f567e9af4e9c8e0fcba64c2de36f7f43540180a3a8a9647fe0506c25e8103a0e",
+    "central": "f3f6b6cd09d07b5811371b7d697898425d663eef9ab0dceda92ad92556ad5c49"
+  },
+  "composition_order": [
+    "Tests/Release/Runtime/OwnedTsqlScope.Guard.sql",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Contract.sql",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Safety.sql",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/InstalledMetadata.Contract.sql"
+  ],
+  "composition_separator": "LF GO LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "c080b583ab809d175828fe42a7424e4d2e232dcd61f7af753074e7d83f750f50",
+  "canonical_contract_batches": 5,
+  "priority_oracle_rows_per_context": 504,
+  "qualified_priority_oracle_rows": 8064,
+  "execution_profile": {
+    "canonical_batch_cap_seconds": 120,
+    "remaining_work_time_caps_each_batch": true,
+    "overall_work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_seconds": 400,
+    "audit_seconds": 90,
+    "install_control_cleanup_command_cap_seconds": 45,
+    "lineage": "Existing canonical Geo adapter imports 120-second ExecuteNonQuery Translate executor; no function runtime promise"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "priority_oracle_rows": 1008,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-object",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "predecessor_attempts_consumed": 3,
+  "predecessor_outcomes": [
+    "Added scope guard rejected before Geo oracle; not accepted as oracle control",
+    "Superseded 45-second driver rejected wrong fixed vector",
+    "Superseded 45-second positive timed out; no functional mismatch established"
+  ],
+  "current_profile_failed_install_attempts": 1,
+  "install_retry": {
+    "prior_state": "FAILED_CLEANED",
+    "stage": "INSTALL_local",
+    "reason": "Existing named ResultTable temp constraint before Geo execution",
+    "readonly_precondition_changed_to_absent": true,
+    "fresh_owned_successor": "PASS",
+    "foreign_state_changed": false
+  },
+  "final_independent_audit": {
+    "current_profile_terminal_attempts_audited": 11,
+    "current_profile_database_names_absent": 18,
+    "all_current_execution_database_names_absent": 19,
+    "fresh_after_all_consumers": true,
+    "predecessor_original_independent_audits": "PASS at their original bindings; initial guard later intentionally revised",
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "historical_cases_not_replayed": [
+    "Linux2019 CL150",
+    "Windows2025 exact CU8 CL150/160/170"
+  ],
+  "remaining_gates": [
+    "Separate client UDT metadata and exact129-byte UDT fixture",
+    "Full lifecycle/upgrade and least-privilege contracts on additional targets",
+    "Genuine lowpriv CrossDB mappings, authenticated TLS, final full package refresh and publication authorization"
+  ]
+}

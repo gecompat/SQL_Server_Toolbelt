@@ -289,6 +289,11 @@ ebenfalls für drei isolierte API-Profile auf zwölf Ziel-/CL-Kombinationen
 lokal/direkt zentral geprüft. Das schließt keine Quoten-, Konkurrenz-,
 Retention-, Lifecycle-, CrossDB- oder Recoverygates mit ein.
 
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
+
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten
 Lookup-/Helperpfad auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen.
