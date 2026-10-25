@@ -27,10 +27,10 @@ foreach($name in @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-La
  $definition=@($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name},$true))
  if($definition.Count -ne 1){throw 'LAB_DISCOVERY_NOT_UNIQUE'};. ([scriptblock]::Create($definition[0].Extent.Text))
 }
-$script:nativeClock=[Diagnostics.Stopwatch]::new();$script:cleanupPhase=$false
+$ssisNativeScopeClock=[Diagnostics.Stopwatch]::new();$ssisNativeCleanupPhase=$false
 function Get-SsisNativeTimeout([int]$Maximum=45){
- $deadline=if($script:cleanupPhase){360}else{300}
- $left=[Math]::Floor($deadline-$script:nativeClock.Elapsed.TotalSeconds)
+ $deadline=if($ssisNativeCleanupPhase){360}else{300}
+ $left=[Math]::Floor($deadline-$ssisNativeScopeClock.Elapsed.TotalSeconds)
  if($left -lt 1){throw 'SSIS_NATIVE_SCOPE_DEADLINE'}
  return [int][Math]::Min($Maximum,$left)
 }
@@ -115,7 +115,7 @@ if(Test-Path -LiteralPath $journalRoot){throw 'SSIS_LAB_JOURNAL_COLLISION'}
 New-Item -ItemType Directory -Path $journalRoot|Out-Null
 $targetOrdinal=0
 foreach($target in $targets){
- $script:nativeClock.Restart();$script:cleanupPhase=$false
+ $ssisNativeScopeClock.Restart();$ssisNativeCleanupPhase=$false
  $targetOrdinal++;[void](Invoke-LabPreflight -Entry $target -TestPurpose Functional)
  $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $target -TestPurpose Functional));$builder['Initial Catalog']='master';$builder['Pooling']=$false
  $master=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString);$master.Open()
@@ -232,7 +232,7 @@ foreach($target in $targets){
   if($detail.Length -gt 3000){$detail=$detail.Substring(0,3000)}
   Write-Output ('SSIS_LAB_FAILURE '+$phase+' '+$failed+' '+$detail)
  }finally{
-  $script:cleanupPhase=$true
+  $ssisNativeCleanupPhase=$true
   $cleanupOk=$true
   if($uncertainDatabase){$unknown=Query $master ("SELECT COUNT_BIG(*) AS N FROM sys.databases WITH (NOLOCK) WHERE name=N'"+$uncertainDatabase+"';");if($unknown.Rows[0].N -ne 0){$cleanupOk=$false}}
   foreach($database in $ownedDatabases){try{NonQuery $master ('IF DB_ID(N'''+$database+''') IS NOT NULL DROP DATABASE ['+$database+'];')}catch{$cleanupOk=$false}}
