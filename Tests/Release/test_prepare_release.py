@@ -173,6 +173,60 @@ class PreparationTests(unittest.TestCase):
     def test_product_and_foundation_bindings(self):
         release.validate_plan(self.files, self.plan)
 
+    def test_missing_local_ssis_commit_uses_only_bound_package_tree(self):
+        from unittest.mock import patch
+        record = json.loads((ROOT / release.SSIS_UPDATE).read_bytes())
+        previous, current = record['previous_product_commit'], record['current_product_commit']
+        original_run = subprocess.run
+        original_sources = release.qualification_sources
+
+        def without_local_product(command, *args, **kwargs):
+            if command == ['git', 'cat-file', '-e', current + '^{commit}']:
+                return subprocess.CompletedProcess(command, 1, b'', b'')
+            if command == ['git', '-C', str(ROOT), 'rev-parse', current + '^{tree}']:
+                self.fail('Der fehlende Produktcommit darf nicht lokal aufgelöst werden.')
+            return original_run(command, *args, **kwargs)
+
+        with patch.object(subprocess, 'run', side_effect=without_local_product):
+            with patch.object(release, 'qualification_sources', wraps=original_sources) as sources:
+                release.validate_ssis_product_applicability(previous, current, self.files)
+                self.assertIn(unittest.mock.call(current), sources.call_args_list)
+
+            def wrong_tree(product):
+                methods, files, tree = original_sources(product)
+                return methods, files, '0' * 40 if product == current else tree
+
+            with patch.object(release, 'qualification_sources', side_effect=wrong_tree):
+                with self.assertRaisesRegex(release.ReleaseError, 'Produktbaum driftet'):
+                    release.validate_ssis_product_applicability(previous, current, self.files)
+
+            def unavailable_package(product):
+                if product == current:
+                    raise release.ReleaseError('synthetic corrupt qualification package')
+                return original_sources(product)
+
+            with patch.object(release, 'qualification_sources', side_effect=unavailable_package):
+                with self.assertRaisesRegex(release.ReleaseError, 'synthetic corrupt qualification package'):
+                    release.validate_ssis_product_applicability(previous, current, self.files)
+
+    def test_native_method_binding_survives_only_exact_frozen_source(self):
+        from unittest.mock import patch
+        qualification = json.loads((ROOT / release.SSIS_CLR_QUALIFICATION).read_bytes())
+        product_id = qualification['product_commit']
+        preparation, product, tree = release.qualification_sources(product_id)
+        path = 'Scripts/Release/prepare_release.py'
+        original = product[path]
+        self.assertEqual(hashlib.sha256(original).hexdigest(), qualification['method_bindings'][path])
+        preparation = dict(preparation)
+        product = dict(product)
+        preparation[path] = b'synthetic later offline validator'
+        with patch.object(release, 'qualification_sources', return_value=(preparation, product, tree)):
+            sources = release.clr_qualification_method_sources(qualification)
+            self.assertEqual(sources[path], original)
+            product[path] = b'synthetic altered historical method'
+            with self.assertRaisesRegex(release.ReleaseError, 'CLR-Methoden-Recoverybindung veraltet'):
+                release.clr_qualification_method_sources(qualification)
+
     def test_dependency_demotion_is_transitive(self):
         graph = {"a": {"validation_status": "validated", "dependencies": ["b"]},
                  "b": {"validation_status": "validated", "dependencies": ["c"]},
