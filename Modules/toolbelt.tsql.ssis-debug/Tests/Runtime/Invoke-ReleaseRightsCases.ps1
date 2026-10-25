@@ -13,7 +13,8 @@ function Sql([string]$Text){
 }
 function New-ReleaseRightsCommand([string]$Operation,[byte[]]$Bytes=$package,[string]$Bindings,[string]$ResultTable,[bool]$Help=$false,[bool]$Keep=$true){
  $c=$Connection.CreateCommand();$c.CommandTimeout=Get-SsisNativeTimeout 40;$c.CommandType='StoredProcedure';$c.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
- foreach($p in @(@('@Operation',[Data.SqlDbType]::NVarChar,32,$Operation),@('@PackageBytes',[Data.SqlDbType]::VarBinary,-1,$Bytes),@('@Bindings',[Data.SqlDbType]::NVarChar,-1,$Bindings),@('@CatalogBindings',[Data.SqlDbType]::NVarChar,-1,$catalog),@('@ResultTable',[Data.SqlDbType]::NVarChar,128,$ResultTable))){
+ $selectedCatalog=$null;if($Operation -eq 'explain'){$selectedCatalog=$catalog}
+ foreach($p in @(@('@Operation',[Data.SqlDbType]::NVarChar,32,$Operation),@('@PackageBytes',[Data.SqlDbType]::VarBinary,-1,$Bytes),@('@Bindings',[Data.SqlDbType]::NVarChar,-1,$Bindings),@('@CatalogBindings',[Data.SqlDbType]::NVarChar,-1,$selectedCatalog),@('@ResultTable',[Data.SqlDbType]::NVarChar,128,$ResultTable))){
   $v=$c.Parameters.Add($p[0],$p[1],$p[2]);$v.Value=$p[3]
   if($null -eq $p[3] -or ($p[3] -is [string] -and $p[3] -eq '')){$v.Value=[DBNull]::Value}
  }
@@ -34,7 +35,7 @@ $package=[IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/syntheti
 $catalog=@{schemaVersion=1;defaultDatabase=$Connection.Database;databases=@($Connection.Database);connections=@{'Package.ConnectionManagers[Synthetic]'=$Connection.Database}}|ConvertTo-Json -Compress -Depth 4
 $principal=$false;$impersonated=$false
 try{
- [void](Sql 'CREATE TABLE dbo.SyntheticSourceA(KeyA int,KeyB int,Amount int);CREATE TABLE dbo.SyntheticSourceB(KeyA int,KeyB int,Amount int);CREATE TABLE dbo.SyntheticLookup(KeyA int,KeyB int,Score int);INSERT dbo.SyntheticSourceA VALUES(1,10,100);')
+ [void](Sql 'CREATE TABLE dbo.SyntheticSourceA(KeyA int NOT NULL,KeyB int NOT NULL,Amount int NOT NULL);CREATE TABLE dbo.SyntheticSourceB(KeyA int NOT NULL,KeyB int NOT NULL,Amount int NOT NULL);CREATE TABLE dbo.SyntheticLookup(KeyA int NOT NULL,KeyB int NOT NULL,Score int NULL);INSERT dbo.SyntheticSourceA VALUES(1,10,100);')
  [void](Sql 'CREATE USER SyntheticSsisReleaseCaller WITHOUT LOGIN;');$principal=$true
  [void](Sql 'GRANT EXECUTE ON OBJECT::toolbelt_tsql.USP_ExplainSsisDataFlow TO SyntheticSsisReleaseCaller;')
  [void](Sql "EXECUTE AS USER=N'SyntheticSsisReleaseCaller';");$impersonated=$true
