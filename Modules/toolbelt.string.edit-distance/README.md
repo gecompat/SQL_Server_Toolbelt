@@ -1,5 +1,7 @@
 # Begrenzte Editierdistanzen
 
+Aktuelle [CLR-Callerrechte](../../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md): isolierte SELECT-Profile auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen. Neue Testtreiber/Fixtures sind entwickelt; Produktimplementierung und Modulstatus bleiben unverändert. Weitere API-/Client-/Lifecycle- und Ressourcengates sind separat.
+
 `toolbelt.string.edit-distance` Version 1.1.0 stellt genau drei öffentliche
 Funktionen bereit: [Levenshtein](Documentation/TVF_LevenshteinDistance.md) und
 [Optimal String Alignment](Documentation/TVF_OsaDistance.md) und
