@@ -210,8 +210,10 @@ class PreparationTests(unittest.TestCase):
         files = dict(self.files)
         paths = (evidence["native_package"]["driver"], evidence["native_package"]["method"],
                  evidence["clr_build_inputs"]["method"])
+        # Die positive Baseline stammt aus den tatsächlich qualifizierten
+        # Recoveryquellen, nicht aus einem inzwischen weiterentwickelten Builder.
         for path in paths:
-            files[path] = (ROOT / path).read_bytes()
+            self.assertIn(path, files)
         files[release.QUALIFICATION] = release.encoded(evidence)
         release.validate_qualification(files, self.plan)
         for path in paths:
