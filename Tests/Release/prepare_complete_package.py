@@ -47,7 +47,8 @@ def module_profiles(files: dict[str, bytes]) -> dict[str, list[str]]:
     return result
 
 
-def prepare(package: Path, output: Path, product_commit: str | None = None) -> None:
+def prepare(package: Path, output: Path, product_commit: str | None = None,
+            clr_candidate: Path | None = None) -> None:
     release.require(output.resolve().is_relative_to(release.runtime_root().resolve())
                     and not output.exists() and not output.with_suffix('.zip.sha256').exists()
                     and output.parent.is_dir(), 'Neues privates Ausgabeziel erforderlich.')
@@ -55,6 +56,9 @@ def prepare(package: Path, output: Path, product_commit: str | None = None) -> N
     prefix = release.NAME + '/'
     files = {p[len(prefix):]: b for p, b in release.read_zip(package.read_bytes()).items()}
     source_commit = json.loads(files['PACKAGE-MANIFEST.json'])['product_commit']
+    if clr_candidate is not None:
+        release.require(product_commit is not None, 'Explizite SSIS-Produktquelle erforderlich.')
+        clr.verify(clr_candidate, allow_unqualified_candidate=True)
     if product_commit is not None:
         source_commit, updated = release.snapshot(product_commit)
         allowed = {'Modules/toolbelt.string.edit-distance/Deployment/Deploy.sql',
@@ -62,11 +66,31 @@ def prepare(package: Path, output: Path, product_commit: str | None = None) -> N
         changed = {p for p in set(files) | set(updated)
                    if p.startswith(('Modules/', 'Deployment/', 'Workers/'))
                    and not p.endswith(('.md', '.yaml')) and files.get(p) != updated.get(p)}
-        release.require(changed <= allowed, 'Kandidat verändert weitere Runtime-/Build-/Binaryinputs.')
+        if clr_candidate is None:
+            release.require(changed <= allowed, 'Kandidat verändert weitere Runtime-/Build-/Binaryinputs.')
+        else:
+            record = json.loads((release.ROOT / release.SSIS_UPDATE).read_bytes())
+            release.require(record['previous_product_commit'] == json.loads(files['PACKAGE-MANIFEST.json'])['product_commit'],
+                            'SSIS-Kandidat hat einen anderen qualifizierten Vorgänger.')
+            release.validate_ssis_product_applicability(record['previous_product_commit'], source_commit, updated)
         files.update({p: b for p, b in updated.items() if p.startswith(('Modules/', 'Deployment/', 'Workers/'))})
     inner_prefix = clr.PACKAGE + '/'
-    inner = {p[len(inner_prefix):]: b for p, b in release.read_zip(files[release.CLR_PACKAGE]).items()}
+    clr_bytes = clr_candidate.read_bytes() if clr_candidate is not None else files[release.CLR_PACKAGE]
+    inner = {p[len(inner_prefix):]: b for p, b in release.read_zip(clr_bytes).items()}
     metadata = json.loads(inner['CLR-PACKAGE.json'])
+    if clr_candidate is not None:
+        release.require(clr_candidate.resolve().is_relative_to(release.runtime_root().resolve())
+                        and metadata['qualification_state'] == 'pending', 'SSIS-Folgekandidat muss ausdrücklich privat/pending bleiben.')
+        old_inner = {p[len(inner_prefix):]: b for p, b in release.read_zip(files[release.CLR_PACKAGE]).items()}
+        old_binaries = {p: b for p, b in old_inner.items() if p.startswith('Binaries/')}
+        new_binaries = {p: b for p, b in inner.items() if p.startswith('Binaries/')}
+        ssis_binary = 'Binaries/Toolbelt.Tsql.SsisDebug.dll'
+        release.require(set(new_binaries) == set(old_binaries)
+                        and all(new_binaries[p] == old_binaries[p] for p in old_binaries if p != ssis_binary),
+                        'Nicht-SSIS-Binaries gegenüber der qualifizierten Lieferung geändert.')
+        ssis_build = json.loads(files[release.SSIS_BUILD_QUALIFICATION])
+        release.require(release.sha(new_binaries[ssis_binary]) == ssis_build['qualified_assembly_sha256'],
+                        'Gesamtpaket hat einen anderen SSIS-Binary als die neue Vollqualifikation.')
     profiles = module_profiles(files)
     metadata['complete_profiles'] = profiles
     metadata['versions'] = {m: release.documentation.top_scalar(files[f'Modules/{m}/module.yaml'].decode('utf-8-sig'), 'version')
@@ -146,5 +170,6 @@ if __name__ == '__main__':
     parser.add_argument('--package', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--product-commit', help='Expliziter privater Lifecycle-Kandidat; ausschließlich die zwei freigegebenen SQL-Korrekturen.')
+    parser.add_argument('--clr-candidate', type=Path, help='Privater SSIS-Folgekandidat mit exakter Build-/Produktdeltaqualifikation; keine Freigabe als Releaseasset.')
     args = parser.parse_args()
-    prepare(args.package, args.output, args.product_commit)
+    prepare(args.package, args.output, args.product_commit, args.clr_candidate)

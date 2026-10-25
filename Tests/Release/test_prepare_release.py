@@ -11,12 +11,149 @@ import sys
 import unittest
 import warnings
 import zipfile
+import hashlib
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
+
+_source_fixture_cache = {}
+_archive_fixture_cache = {}
+_snapshot_fixture_cache = {}
+
+
+def source_fixture_key(module, product):
+    # Nur immutable Testinputs wiederverwenden. Auch ein geänderter Sidecar
+    # oder Anwendbarkeitsnachweis muss erneut die echten Validatoren durchlaufen.
+    paths = (module.ARTIFACTS + module.NAME + '.zip',
+             module.ARTIFACTS + module.NAME + '.zip.sha256', module.SSIS_UPDATE,
+             module.DIRECTORY + '/runtime-source-equivalence.json')
+    return (str(module.ROOT.resolve()), product, tuple(
+        (p, hashlib.sha256((module.ROOT / p).read_bytes()).digest()
+         if (module.ROOT / p).is_file() else None) for p in paths))
+
+
+def share_frozen_source_fixtures(module):
+    if getattr(module.qualification_sources, '_test_fixture_cache', False):
+        return
+    original = module.qualification_sources
+
+    def recover(product):
+        key = source_fixture_key(module, product)
+        if key not in _source_fixture_cache:
+            if len(_source_fixture_cache) >= 4:
+                _source_fixture_cache.pop(next(iter(_source_fixture_cache)))
+            _source_fixture_cache[key] = original(product)
+        methods, product_files, tree = _source_fixture_cache[key]
+        # Negative Gegenproben dürfen keinen späteren Testinput verändern.
+        return dict(methods), dict(product_files), tree
+
+    recover._test_fixture_cache = True
+    module.qualification_sources = recover
+
+
+def share_frozen_snapshot_fixtures(module):
+    """Identische Bundlefixtures teilen; die Produktvalidatoren bleiben unverändert."""
+    if getattr(module.recovered_snapshot, '_test_fixture_cache', False):
+        return
+    original = module.recovered_snapshot
+
+    def recover(bundle, commit, product):
+        key = (source_fixture_key(module, product), commit,
+               hashlib.sha256(bundle).digest())
+        if key not in _snapshot_fixture_cache:
+            if len(_snapshot_fixture_cache) >= 4:
+                _snapshot_fixture_cache.pop(next(iter(_snapshot_fixture_cache)))
+            _snapshot_fixture_cache[key] = original(bundle, commit, product)
+        methods, product_files, tree = _snapshot_fixture_cache[key]
+        return dict(methods), dict(product_files), tree
+
+    recover._test_fixture_cache = True
+    module.recovered_snapshot = recover
+
+
+share_frozen_snapshot_fixtures(release)
+share_frozen_source_fixtures(release)
+
+
+def pre_ssis_delivery_archive():
+    """Historische Fixture-/Manifest-Snapshots behalten ihre ursprüngliche Lieferung."""
+    update = ROOT / release.SSIS_UPDATE
+    if update.is_file():
+        product = json.loads(update.read_bytes())['previous_product_commit']
+        key = source_fixture_key(release, product)
+        if key not in _archive_fixture_cache:
+            _archive_fixture_cache[key] = release.qualification_archive(product)
+        return _archive_fixture_cache[key]
+    return (ROOT / release.ARTIFACTS / (release.NAME + '.zip')).read_bytes()
+
+
+class SourceFixtureCacheTests(unittest.TestCase):
+    def test_bundle_fixture_binds_bytes_commits_scope_and_dependencies(self):
+        import tempfile
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory(prefix='bundle-fixture-', dir=ROOT / '.runtime') as temp:
+            fake = SimpleNamespace(ROOT=Path(temp), ARTIFACTS='Artifacts/', NAME='synthetic',
+                                   SSIS_UPDATE='update.json', DIRECTORY='Release')
+            calls = []
+
+            def original(bundle, commit, product):
+                calls.append((bundle, commit, product))
+                if bundle == b'rejected':
+                    raise ValueError('synthetic rejected bundle')
+                return {'method': b'fixed'}, {'product': b'fixed'}, 'tree'
+
+            fake.recovered_snapshot = original
+            share_frozen_snapshot_fixtures(fake)
+            result = fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            result[0]['method'] = result[1]['product'] = b'caller mutation'
+            self.assertEqual(fake.recovered_snapshot(b'bundle', 'commit', 'product'),
+                             ({'method': b'fixed'}, {'product': b'fixed'}, 'tree'))
+            self.assertEqual(len(calls), 1)
+            for args in ((b'changed', 'commit', 'product'), (b'bundle', 'changed', 'product'),
+                         (b'bundle', 'commit', 'changed')):
+                fake.recovered_snapshot(*args)
+            self.assertEqual(len(calls), 4)
+            (fake.ROOT / fake.SSIS_UPDATE).write_bytes(b'changed dependency')
+            fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            self.assertEqual(len(calls), 5)
+            fake.ROOT = fake.ROOT / 'other-scope'
+            fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            self.assertEqual(len(calls), 6)
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'rejected bundle'):
+                    fake.recovered_snapshot(b'rejected', 'commit', 'product')
+            self.assertEqual(calls[-2:], [(b'rejected', 'commit', 'product')] * 2)
+
+    def test_dependency_change_and_rejected_input_never_reuse_a_validation(self):
+        import tempfile
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory(prefix='source-fixture-', dir=ROOT / '.runtime') as temp:
+            fake = SimpleNamespace(ROOT=Path(temp), ARTIFACTS='Artifacts/', NAME='synthetic',
+                                   SSIS_UPDATE='update.json', DIRECTORY='Release')
+            calls = []
+
+            def original(product):
+                calls.append(product)
+                if product == 'rejected':
+                    raise ValueError('synthetic rejected input')
+                return {'method': b'fixed'}, {'product': b'fixed'}, 'tree'
+
+            fake.qualification_sources = original
+            share_frozen_source_fixtures(fake)
+            first = fake.qualification_sources('fixed')
+            first[0]['method'] = b'changed by caller'
+            self.assertEqual(fake.qualification_sources('fixed')[0]['method'], b'fixed')
+            self.assertEqual(calls, ['fixed'])
+            (fake.ROOT / fake.SSIS_UPDATE).write_bytes(b'changed synthetic dependency')
+            fake.qualification_sources('fixed')
+            self.assertEqual(calls, ['fixed', 'fixed'])
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'rejected'):
+                    fake.qualification_sources('rejected')
+            self.assertEqual(calls[-2:], ['rejected', 'rejected'])
 
 def reader_import_only_equivalent(path, digest, current, reader):
     """Enge aktuelle Anwendbarkeit; kein neuer nativer Qualifikationsnachweis."""
@@ -63,6 +200,18 @@ class PreparationTests(unittest.TestCase):
         self.assertEqual(self.plan["state"], "prepared_not_published")
         self.assertTrue(all(m["current_release_status"] == "unreleased" for m in self.plan["modules"]))
 
+    def test_external_host_does_not_become_a_thirteenth_sql_clr_provider(self):
+        sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+        import check_clr_builds as builds
+        files = dict(self.files)
+        expected = builds.clr_projects(files)
+        files['Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj'] = b'<Project />'
+        files['Modules/toolbelt.tsql.ssis-debug/Tests/Synthetic.csproj'] = b'<Project />'
+        self.assertEqual(builds.clr_projects(files), expected)
+        del files[expected[0]]
+        with self.assertRaises(builds.release.ReleaseError):
+            builds.clr_projects(files)
+
     def test_approved_target_scope_does_not_publish_or_waive_tests(self):
         scope = self.plan['approved_target_scope']
         self.assertEqual(scope['channels'], {'stable': 19, 'preview': 26})
@@ -101,6 +250,60 @@ class PreparationTests(unittest.TestCase):
 
     def test_product_and_foundation_bindings(self):
         release.validate_plan(self.files, self.plan)
+
+    def test_missing_local_ssis_commit_uses_only_bound_package_tree(self):
+        from unittest.mock import patch
+        record = json.loads((ROOT / release.SSIS_UPDATE).read_bytes())
+        previous, current = record['previous_product_commit'], record['current_product_commit']
+        original_run = subprocess.run
+        original_sources = release.qualification_sources
+
+        def without_local_product(command, *args, **kwargs):
+            if command == ['git', 'cat-file', '-e', current + '^{commit}']:
+                return subprocess.CompletedProcess(command, 1, b'', b'')
+            if command == ['git', '-C', str(ROOT), 'rev-parse', current + '^{tree}']:
+                self.fail('Der fehlende Produktcommit darf nicht lokal aufgelöst werden.')
+            return original_run(command, *args, **kwargs)
+
+        with patch.object(subprocess, 'run', side_effect=without_local_product):
+            with patch.object(release, 'qualification_sources', wraps=original_sources) as sources:
+                release.validate_ssis_product_applicability(previous, current, self.files)
+                self.assertIn(unittest.mock.call(current), sources.call_args_list)
+
+            def wrong_tree(product):
+                methods, files, tree = original_sources(product)
+                return methods, files, '0' * 40 if product == current else tree
+
+            with patch.object(release, 'qualification_sources', side_effect=wrong_tree):
+                with self.assertRaisesRegex(release.ReleaseError, 'Produktbaum driftet'):
+                    release.validate_ssis_product_applicability(previous, current, self.files)
+
+            def unavailable_package(product):
+                if product == current:
+                    raise release.ReleaseError('synthetic corrupt qualification package')
+                return original_sources(product)
+
+            with patch.object(release, 'qualification_sources', side_effect=unavailable_package):
+                with self.assertRaisesRegex(release.ReleaseError, 'synthetic corrupt qualification package'):
+                    release.validate_ssis_product_applicability(previous, current, self.files)
+
+    def test_native_method_binding_survives_only_exact_frozen_source(self):
+        from unittest.mock import patch
+        qualification = json.loads((ROOT / release.SSIS_CLR_QUALIFICATION).read_bytes())
+        product_id = qualification['product_commit']
+        preparation, product, tree = release.qualification_sources(product_id)
+        path = 'Scripts/Release/prepare_release.py'
+        original = product[path]
+        self.assertEqual(hashlib.sha256(original).hexdigest(), qualification['method_bindings'][path])
+        preparation = dict(preparation)
+        product = dict(product)
+        preparation[path] = b'synthetic later offline validator'
+        with patch.object(release, 'qualification_sources', return_value=(preparation, product, tree)):
+            sources = release.clr_qualification_method_sources(qualification)
+            self.assertEqual(sources[path], original)
+            product[path] = b'synthetic altered historical method'
+            with self.assertRaisesRegex(release.ReleaseError, 'CLR-Methoden-Recoverybindung veraltet'):
+                release.clr_qualification_method_sources(qualification)
 
     def test_dependency_demotion_is_transitive(self):
         graph = {"a": {"validation_status": "validated", "dependencies": ["b"]},
@@ -216,21 +419,123 @@ class PreparationTests(unittest.TestCase):
 
     def test_native_evidence_cannot_cover_changed_inputs(self):
         evidence = json.loads((ROOT / release.QUALIFICATION).read_bytes())
-        files = dict(self.files)
+        with zipfile.ZipFile(io.BytesIO(pre_ssis_delivery_archive())) as archive:
+            prefix = release.NAME + '/'
+            files = {p[len(prefix):]: archive.read(p) for p in archive.namelist()}
+        plan = json.loads(files[release.PLAN])
         paths = (evidence["native_package"]["driver"], evidence["native_package"]["method"],
                  evidence["clr_build_inputs"]["method"])
+        # Die positive Baseline stammt aus den tatsächlich qualifizierten
+        # Recoveryquellen, nicht aus einem inzwischen weiterentwickelten Builder.
         for path in paths:
-            files[path] = (ROOT / path).read_bytes()
+            self.assertIn(path, files)
         files[release.QUALIFICATION] = release.encoded(evidence)
-        release.validate_qualification(files, self.plan)
+        release.validate_qualification(files, plan)
         for path in paths:
             changed = dict(files)
             changed[path] += b"# changed input\n"
             with self.assertRaises(release.ReleaseError):
-                release.validate_qualification(changed, self.plan)
+                release.validate_qualification(changed, plan)
         with self.assertRaises(release.ReleaseError):
-            release.validate_qualification(files, self.plan,
+            release.validate_qualification(files, plan,
                                           {"Install-Stable-local.sql": b"SELECT 1;", "Install-Stable-central.sql": b"SELECT 1;"})
+
+
+class SsisProductDeltaTests(unittest.TestCase):
+    """Synthetische Validatorinputs, kein behaupteter nativer Qualifikationslauf."""
+    def inputs(self):
+        prefix = 'Modules/toolbelt.tsql.ssis-debug/'
+        previous = {'Modules/toolbelt.synthetic/Source/Test.sql': b'SELECT 1;',
+                    prefix + 'Clr/Core.cs': b'old core', prefix + 'Source/Test.sql': b'SELECT 1;',
+                    'Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs': b'fixed guard'}
+        for p in ('Api.json', 'DependencyPins.json', 'ReleaseObjects.1.0.0.json'):
+            previous[prefix + 'Contracts/' + p] = b'{}'
+        current = dict(previous)
+        current[prefix + 'Clr/Core.cs'] = b'new qualified core'
+        cases = [{'sql_version': v, 'compatibility_level': cl, 'deployment_mode': mode, 'result': 'PASS'}
+                 for v, levels in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170)))
+                 for cl in levels for mode in ('local', 'central')]
+        build = {'result': 'PASS', 'cases': cases,
+                 'native_source_sha256': {p: release.sha(b) for p, b in current.items()}}
+        current[release.SSIS_BUILD_QUALIFICATION] = release.encoded(build)
+        changed = sorted(p for p in set(previous) | set(current) if previous.get(p) != current.get(p))
+        record = {'schema_version': '1.0', 'publication_authorized': False, 'changed_product_paths': changed,
+                  'previous_source_sha256': {p: release.sha(previous[p]) if p in previous else None for p in changed},
+                  'current_source_sha256': {p: release.sha(current[p]) for p in changed},
+                  'build_qualification_sha256': release.sha(current[release.SSIS_BUILD_QUALIFICATION])}
+        return previous, current, record, build
+
+    def test_ssis_delta_keeps_other_runtime_bytes_and_exact_build_binding(self):
+        old, new, record, build = self.inputs()
+        self.assertEqual(release.validate_ssis_product_delta(old, new, record, build, old),
+                         set(record['changed_product_paths']))
+        for path in ('Modules/toolbelt.synthetic/Source/Test.sql',
+                     'Modules/toolbelt.tsql.ssis-debug/Clr/Core.cs',
+                     'Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json'):
+            old, new, record, build = self.inputs()
+            new[path] += b'changed'
+            changed = sorted(p for p in set(old) | set(new) if old.get(p) != new.get(p))
+            record['changed_product_paths'] = changed
+            record['previous_source_sha256'] = {p: release.sha(old[p]) if p in old else None for p in changed}
+            record['current_source_sha256'] = {p: release.sha(new[p]) for p in changed}
+            with self.subTest(path=path), self.assertRaises(release.ReleaseError):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_ssis_delta_does_not_accept_partial_matrix_or_publication(self):
+        for mutation in ('missing_case', 'failed_case', 'publication'):
+            old, new, record, build = self.inputs()
+            if mutation == 'missing_case':
+                build['cases'].pop()
+            elif mutation == 'failed_case':
+                build['cases'][0]['result'] = 'not executed'
+            else:
+                record['publication_authorized'] = True
+            new[release.SSIS_BUILD_QUALIFICATION] = release.encoded(build)
+            record['current_source_sha256'][release.SSIS_BUILD_QUALIFICATION] = release.sha(new[release.SSIS_BUILD_QUALIFICATION])
+            record['build_qualification_sha256'] = release.sha(new[release.SSIS_BUILD_QUALIFICATION])
+            with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_qualification_selection_stays_closed(self):
+        self.assertEqual(release.clr_qualification_path({}), 'Releases/1.0.0/clr-qualification.json')
+        self.assertEqual(release.clr_qualification_path({'qualification_evidence': release.SSIS_CLR_QUALIFICATION}),
+                         release.SSIS_CLR_QUALIFICATION)
+        with self.assertRaises(release.ReleaseError):
+            release.clr_qualification_path({'qualification_evidence': '../unqualified.json'})
+
+    def test_ssis_delivery_requires_new_windows_and_identical_retained_linux_payload(self):
+        import hashlib
+        payload = {'SQL/Install-Portable-local.sql': b'fixed portable SQL',
+                   'Binaries/Toolbelt.Synthetic.dll': b'fixed other binary',
+                   'Binaries/Toolbelt.Tsql.SsisDebug.dll': b'new SSIS binary'}
+        sql = {p: release.sha(b) for p, b in payload.items() if p.startswith('SQL/')}
+        binaries = {p: hashlib.sha512(b).hexdigest() for p, b in payload.items() if p.startswith('Binaries/')}
+        linux = [{'platform': 'Linux', 'sql': '2019', 'compatibility_level': 150}]
+        legacy = release.encoded({'matrix': linux, 'sql_payload_sha256': sql, 'binary_sha512': binaries})
+        build = release.encoded({'qualified_assembly_sha256': release.sha(payload['Binaries/Toolbelt.Tsql.SsisDebug.dll'])})
+        sources = {'Releases/1.0.0/clr-qualification.json': legacy, release.SSIS_BUILD_QUALIFICATION: build}
+        evidence = {'kind': 'ssis_current_delivery', 'publication_authorized': False, 'native_cases_passed': 12,
+                    'previous_qualification_sha256': release.sha(legacy), 'retained_linux_cases': linux,
+                    'ssis_build_qualification_sha256': release.sha(build), 'sql_payload_sha256': sql,
+                    'binary_sha512': binaries, 'method_bindings': {},
+                    'new_windows_cases': [{'sql': v, 'compatibility_level': cl, 'result': 'PASS', 'independent_audit': 'PASS'}
+                        for v, levels in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in levels]}
+        payload['QUALIFICATION.json'] = release.encoded(evidence)
+        release.validate_clr_qualification(payload, evidence, sources)
+        for mutation in ('windows', 'linux', 'portable', 'binary', 'ssis_build'):
+            changed, proof = dict(payload), copy.deepcopy(evidence)
+            if mutation == 'windows':
+                proof['new_windows_cases'].pop()
+            elif mutation == 'linux':
+                proof['retained_linux_cases'] = []
+            elif mutation in ('portable', 'binary'):
+                path = 'SQL/Install-Portable-local.sql' if mutation == 'portable' else 'Binaries/Toolbelt.Synthetic.dll'
+                changed[path] += b'changed'
+            else:
+                proof['ssis_build_qualification_sha256'] = '0' * 64
+            changed['QUALIFICATION.json'] = release.encoded(proof)
+            with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
+                release.validate_clr_qualification(changed, proof, sources)
 
 
 class ClrPackageTests(unittest.TestCase):
@@ -239,6 +544,8 @@ class ClrPackageTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / 'Scripts/Release'))
         import prepare_clr_package
         cls.clr = prepare_clr_package
+        share_frozen_snapshot_fixtures(cls.clr.release)
+        share_frozen_source_fixtures(cls.clr.release)
         cls.package = ROOT / prepare_clr_package.LOCATION
 
     def test_regex_permission_documentation_delta_rejects_runtime_or_metadata_drift(self):
@@ -328,7 +635,10 @@ class ClrPackageTests(unittest.TestCase):
         self.assertEqual(report['final_independent_audit']['current_owned_database_names_absent'], 36)
         self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
         self.assertEqual(qualification['client_followup']['evidence'], 'Releases/1.0.0/clr-client-qualification.json')
-        with zipfile.ZipFile(self.package) as archive:
+        # Der alte ODBC-Lauf gehört zu seinen tatsächlichen damaligen Bytes.
+        # Der neue SSIS-Binary besitzt eigene neue Windows-/ODBC-Nachweise.
+        old_source = release.read_zip(pre_ssis_delivery_archive())
+        with zipfile.ZipFile(io.BytesIO(old_source[release.NAME + '/' + release.CLR_PACKAGE])) as archive:
             prefix = self.clr.PACKAGE + '/'
             sql = {p[len(prefix):]: archive.read(p) for p in archive.namelist() if p.startswith(prefix + 'SQL/')}
             binaries = {p[len(prefix):]: hashlib.sha512(archive.read(p)).hexdigest()
@@ -402,10 +712,10 @@ class ClrPackageTests(unittest.TestCase):
             self.assertEqual(self.clr.verify(path,allow_unqualified_candidate=True)['qualification_state'],'pending')
 
     def test_clr_qualification_rejects_sql_binary_and_method_drift(self):
-        qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())
         with zipfile.ZipFile(self.package) as archive:
             prefix=self.clr.PACKAGE+'/'
             payload={p[len(prefix):]:archive.read(p) for p in archive.namelist()}
+        qualification = json.loads((ROOT / release.clr_qualification_path(json.loads(payload['CLR-PACKAGE.json']))).read_bytes())
         sources=self.clr.release.clr_qualification_method_sources(qualification)
         self.clr.release.validate_clr_qualification(payload,qualification,sources)
         for prefix in ('SQL/','Binaries/'):
@@ -498,7 +808,8 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertFalse(report['runtime_product_sql_dll_changed'])
         self.assertFalse(report['module_statuses_changed'])
         plan = json.loads((ROOT / 'Releases/1.0.0/release-plan.json').read_bytes())
-        self.assertEqual(report['product_commit'], plan['product_commit'])
+        if report['product_commit'] != plan['product_commit']:
+            release.validate_ssis_product_applicability(report['product_commit'], plan['product_commit'])
         expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
                     {'2019': [150], '2022': [150, 160], '2025': [150, 160, 170]}.items() for cl in cls}
         self.assertEqual(len(report['native_cases']), 12)
@@ -1052,7 +1363,7 @@ class ApiQualificationTests(unittest.TestCase):
             self.assertEqual(case['result'], 'partially validated' if case['blocked_fixture_calls'] else 'validated')
         # Auch die damals ausgeführten Fixtures gehören zum gebundenen Snapshot.
         # Neue Testadapter werden separat qualifiziert; die alte Ausführung bleibt unverändert.
-        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+        with zipfile.ZipFile(io.BytesIO(pre_ssis_delivery_archive())) as archive:
             for path, digest in api['fixture_source_sha256'].items():
                 recorded = archive.read('SQL-Server-Toolbelt-1.0.0-candidate-source/' + path).replace(b'\r\n', b'\n')
                 self.assertEqual(hashlib.sha256(recorded).hexdigest(), digest)
@@ -1065,7 +1376,7 @@ class ApiQualificationTests(unittest.TestCase):
         # Die Evidenzzuordnung gehört zum unveränderlichen Kandidatenpaket.
         # Spätere Moduländerungen werden separat qualifiziert und schreiben
         # dessen historische Manifestbindung nicht auf den aktuellen Stand um.
-        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+        with zipfile.ZipFile(io.BytesIO(pre_ssis_delivery_archive())) as archive:
             recorded_manifests = {m['manifest']: archive.read('SQL-Server-Toolbelt-1.0.0-candidate-source/' + m['manifest']) for m in report['modules']}
         for m in report['modules']:
             self.assertFalse(m['record_snapshot_is_execution_commit'])
@@ -1143,7 +1454,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
         current_plan = json.loads((ROOT / release.PLAN).read_bytes())
         if report['product_commit'] != current_plan['product_commit']:
-            release.validate_regex_product_applicability(report['product_commit'], current_plan['product_commit'])
+            release.validate_product_applicability(report['product_commit'], current_plan['product_commit'])
         self.assertTrue(all(report['final_independent_audit'][key] for key in (
             'all_owned_database_names_absent', 'trust_states_restored',
             'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit')))

@@ -1,26 +1,12 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
-[CLR-String-Callerrechte](CLR-STRING-CALLER-QUALIFICATION.md): fünf vorhandene Phonetic-/Edit-Distance-TVFs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle,120 positive Profile und1440 SQL229-Abweisungen. Entwickelt wurden Labtreiber, Sicherheitsprüfungen und feste SQL-Fixtures. Eigener Trust und notwendige Testkonfiguration sind unabhängig als bereinigt bestätigt; Produktquellen und Modulstatus bleiben unverändert.
+Status: **Releasevorbereitung, nicht veröffentlicht**. Die Lieferpakete sind an
+ihre dokumentierten Quell- und Prüfstände gebunden. Veröffentlichung, Tag und
+GitHub-Release sind nicht freigegeben.
 
-[Event Log: Lesen und lokale Retention mit Einzelrechten](EVENT-LOG-CALLER-QUALIFICATION.md): 3 APIs, zwölf Fälle lokal/direkt zentral, 72 Einzelgrantprofile und 648 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
-
-[Providerview mit einzelnem SELECT-Recht](PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
-
-[JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
-
-[Capability-Katalog mit einzelnem SELECT-Recht](CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
-
-[Konsolenausgabe mit einzelnem EXECUTE-Recht](CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
-
-[JSON-Pfade mit getrennten SELECT-Rechten](JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
-
-
-Die [additive Date-Math-Ergänzung](DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
-
-Status: **Releasevorbereitung, nicht veröffentlicht**. Der aktuelle
-Benutzerauftrag erlaubt die autonome Fertigstellung des Gesamtpakets im
-freigegebenen Stable-/Preview-Zielumfang sowie die Integration grüner
-Release-PRs. Veröffentlichung, Tag und GitHub-Release sind nicht freigegeben.
+Die [aktuelle SSIS-Teilqualifikation und Paketbindung](SSIS-RELEASE-QUALIFICATION.md)
+trennt neue Windows-Nachweise von unverändert übernommenen Linux-Payloads und
+nennt die weiterhin offenen Client-, Ressourcen- und Releasegates.
 
 Für den ersten praktischen Test beginne mit der
 [Installationsanleitung für SSMS](../../INSTALL.md). Sie benötigt für die
@@ -59,6 +45,12 @@ Korrektur der Literal-Replace-Materialisierung. Das anschließende historische
 Capture-Timeout-Gate ist für die gebundene DLL mit ausdrücklich angenommenem
 Restrisiko [begrenzt abgeschlossen](CAPTURE-RELEASE-ACCEPTANCE.md); weitere
 Modul- und Paketgates bleiben offen.
+
+Die [CLR-String-Callerrechte](CLR-STRING-CALLER-QUALIFICATION.md) ergänzen
+fünf vorhandene Phonetic-/Edit-Distance-TVFs auf zwölf lokalen/direkt zentralen
+Ziel-/CL-Fällen. Der neue Labtreiber prüft isolierte SELECT-Profile und eigene
+Trust-/Konfigurationsbereinigung; Produktimplementierung und weitere Modulpflichten
+bleiben separat.
 
 Die [Execution-Context-Minimalrechte](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
 sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
@@ -251,10 +243,29 @@ Die gepackten Exports der 19 stabilen Kandidaten bestanden auf zwölf
 Windows-/Linux-/SQL-/CL-Kombinationen Erstinstallation, Wiederholung,
 zentralen Consumer und Uninstall. Der [Gatebericht](RELEASE-GATES.md)
 nennt den exakten Scope, die Eingabebindung und den bereinigten Erstfehler.
-Die Gesamtinstallation aller 45 Module einschließlich Preview und CLR ist
-weiter `not executed`. Bestehende native Modulnachweise bleiben mit ihrem
-dokumentierten Scope verlinkt. Der Pakettest behauptet keine neue Rechte-,
-Speicher-, Parallelitäts-, Recovery- oder TLS-Qualifikation.
+Die [aktuelle CLR- und Gesamtpaketqualifikation](SSIS-RELEASE-QUALIFICATION.md)
+ergänzt jeweils sechs Windows-Engine-/CL-Kontexte mit lokaler, zentraler und
+Consumer-Installation. Die Windows-Gesamtprofile enthalten 45 beziehungsweise
+43 Module. Unveränderte Linux-Payloads behalten ihre ursprünglichen Nachweise.
+Diese Paketprüfungen ersetzen keine noch offenen modulspezifischen Rechte-,
+Speicher-, Parallelitäts-, Recovery- oder TLS-Gates.
+
+## Ergänzende Teilnachweise
+
+[Event Log: Lesen und lokale Retention mit Einzelrechten](EVENT-LOG-CALLER-QUALIFICATION.md): 3 APIs, zwölf Fälle lokal/direkt zentral, 72 Einzelgrantprofile und 648 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Providerview mit einzelnem SELECT-Recht](PROVIDER-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Capability-Katalog mit einzelnem SELECT-Recht](CATALOG-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Konsolenausgabe mit einzelnem EXECUTE-Recht](CONSOLE-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON-Pfade mit getrennten SELECT-Rechten](JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+
+Die [additive Date-Math-Ergänzung](DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
 
 ## Vor einer Veröffentlichung
 

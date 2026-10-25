@@ -13,10 +13,11 @@ internal static class Program
 {
     private static int Main(string[] args)
     {
-        bool scopes = args.Length == 2 && args[0] == "--scope-bundle";
+        bool pipelines = args.Length == 2 && args[0] == "--pipeline-bundle";
+        bool scopes = pipelines || args.Length == 2 && args[0] == "--scope-bundle";
         bool iterations = args.Length == 2 && args[0] == "--iteration-bundle";
         bool bundle = args.Length == 2 && (args[0] == "--bundle" || iterations || scopes);
-        if (args.Length != 1 && !bundle) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle|--iteration-bundle|--scope-bundle] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
+        if (args.Length != 1 && !bundle) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle|--iteration-bundle|--scope-bundle|--pipeline-bundle] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
         try
         {
             var input = new FileInfo(args[bundle ? 1 : 0]);
@@ -39,9 +40,11 @@ internal static class Program
             string commit = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>().Single(x => x.Key == "SourceCommit").Value;
             var document = PackageDocument.Read(bytes);
             var model = document.Export("1.0.0", commit, buildHash);
+            var sidecar = pipelines ? document.ExportPipelineIdentities() : null;
             object output = bundle ? (object)new System.Collections.Generic.Dictionary<string, object> {
                 { "contract", "ssis-export-bundle" }, { "version", "1.0.0" }, { "model", model }, { "identities", scopes ? document.ExportExecutionScopes() : document.ExportObjectIdentities(iterations) }
             } : model;
+            if (pipelines) ((System.Collections.Generic.Dictionary<string, object>)output).Add("pipelineIdentities", sidecar);
             string json = JsonSerializer.Serialize(output);
             if ((long)json.Length * 2 > 16777216) throw new ModelException("LIMIT_EXCEEDED");
             Console.OutputEncoding = new UTF8Encoding(false); Console.Out.Write(json); return 0;

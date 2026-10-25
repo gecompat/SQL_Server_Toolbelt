@@ -6,10 +6,31 @@ mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.
 
 `Framework/Invoke-Contract.ps1` prüft den exakten ScriptDom-Pin und führt
 isolierte .NET-Framework-Prozesse mit begrenztem Stack und Watchdog aus.
-Profil `Full` umfasst derzeit 21 Kindprozesse: JSON-Grenzen und exakte Werte,
+Profil `Full` umfasst derzeit 23 Kindprozesse: JSON-Grenzen und exakte Werte,
 Format 6/8, Vorlagen-Roundtrip, Source/Union/Derived/Lookup/Split/Destination,
 CTE-Parsecache, blockierte Komponenten, unzulässige SQL-Statements sowie
 Operator-, Struktur-, Kommentar-, Projektions- und Textgrenzen.
+Die zwei zusätzlichen Releaseprozesse prüfen Artefakt-/Diagnose-/Ausgabebytes,
+128 eindeutige Parser-/Katalogaufrufe und das unveränderte kooperative
+30-Sekunden-Budget. Sie öffnen keine SQL-Verbindung. Frühere Full21-Nachweise
+behalten ihre damaligen Inputs und ihren eigenen Umfang.
+
+Für die ausdrückliche CL-Abnahme akzeptiert `Invoke-LabContract.ps1`
+`-CompatibilityLevel 150|160|170` nur soweit die gewählte Engine dies unterstützt.
+Der Adapter setzt und verifiziert den Wert ausschließlich in seinen eigenen
+Test- und Consumerdatenbanken und hält die tatsächlichen Werte privat fest.
+Ohne den Parameter bleibt der bisherige Engine-Default unverändert.
+`-ReleaseRights` verlangt `-Full` und ergänzt einen loginlosen eigenen Caller:
+Help mit EXECUTE, Vorlage/Analyse mit expliziter Metadatensicht ohne Quell-SELECT,
+einzeln verweigerte Rechte mit strikten SQL-Fehlerorakeln sowie Erhalt einer
+befüllten ResultTable bei Überschreitung der Paketbytegrenze. Keine Server-Logins,
+CrossDB-Identitätsverwaltung oder Erweiterung der Funktions-/Sicherheitsbudgets.
+Dies beschreibt den Harness; tatsächliche Ergebnisse werden separat gebunden.
+Der Ausgabegrenztest umfasst außerdem ursprüngliche Komponenten-IDs mit
+3999/4000/4001 UTF-16-Einheiten. Die öffentliche Spalte bleibt `nvarchar(4000)`;
+eine längere ID wird vor der SQL-Materialisierung als `resource_limit` abgewiesen.
+Zulässige IDs müssen vollständig erhalten bleiben; eine bereits befüllte
+ResultTable darf durch die Abweisung nicht verändert werden.
 
 Bestanden: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
 Lookup-Dezimalprodukt, Textlängen, SUM/AVG/LEN, Integerpräzedenz,
@@ -215,7 +236,40 @@ Der Benutzer hat am 2026-10-18 die Veröffentlichung mit eingebettetem lokalen
 Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikation
 freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
 
-## Aktuelles Iterations-Installationspaket
+## Aktuelle Releasequalifikation mit expliziten Compatibility Levels
+
+[Release.Windows.CL.20261025.json](Qualification/Release.Windows.CL.20261025.json)
+bindet den Scope-Identitätskern1.2 aus PR427 an den tatsächlich geprüften Binary.
+Zwölf Windows-Kontexte: SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170,
+jeweils lokal und zentral. Pro Kontext bestehen181 Kern-,61 API-,28 Rechte-/
+Grenzen-,15 Lifecycle- und8 echte Iterationsbuild-Upgrades:3.516 Assertions.
+Der SQL-Generator bleibt Dialekt150; die Datenbank-CLs wurden explizit gesetzt
+und unabhängig ausgelesen. Full23 am finalen Provider und128 externe
+Modellgegenproben ergänzen diesen eng abgegrenzten Nachweis.
+
+Die Rechtefälle verwenden ausschließlich eigene Benutzer ohne Login.
+Help braucht EXECUTE; Vorlage und Analyse brauchen zusätzlich Metadatensicht.
+Die generierten SELECT-Stufen scheitern ohne Quell-SELECT strikt mit SQL229.
+Die bestehende4000-Zeichen-ID-Grenze und atomare Ablehnung übergroßer Pakete
+sind geprüft; Sicherheitsbudgets wurden nicht erhöht. Fünf korrigierte
+Testadapterversuche bleiben FAILED_CLEANED und mitgezählt. Alle zwölf positiven
+und fünf fehlgeschlagenen Fälle haben frische unabhängige Cleanup-/Konfigurationsaudits.
+
+Die [aktuelle ZIP-Projektion](Qualification/Release.InstallPackage.20261025.json)
+bindet den finalen185-Dateien-Satz an zwei neue Windows2025-Paketläufe lokal/zentral:
+je8 Neuinstallations-/Repeat-/Uninstall-,8 reale Iterations-Upgrades,36 Kern- und61
+API-Assertions,226 insgesamt. Doppelpaketierung, Integritäts-/Manipulationssuite6,
+zusätzliche fehlende-Paketübersicht-Gegenprobe und extrahiertes ValidateOnly bestehen.
+Eine zuvor fehlende interne Paketübersicht wurde ergänzt; zwei erfolgreiche frühere
+Paketfälle bleiben im gemeinsamen Budget erhalten und wurden für den geänderten
+Container durch zwei weitere erfolgreiche Fälle ergänzt. Der Installer braucht
+weiterhin keinen Build. Der öffentliche Windows-Anmeldeprozess ist damit nicht
+neu abgenommen. Das Gesamtpaket hat eigene Nachweise unter Releases/1.0.0.
+SSMS-/Windows-Identität, authentifizierte TLS-Verbindung, Linux-Exporthost,
+SSISDB-/SDK-Parität und Produktions-/Ressourcengrenzen bleiben offen.
+Modulstatus und allgemeine Autonomie bleiben unverändert.
+
+## Historisches Iterations-Installationspaket
 
 Die [Paketprojektion](Qualification/Iterations.InstallPackage.20261025.json)
 bindet den endgültigen ZIP-Hash an den Paketquellcommit und die tatsächlich
@@ -515,8 +569,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: Iterations-ZIP Doppelbau, Paketintegrität6/Installer55/ValidateOnly, echte ODBC-Installation und PR411-Upgrade Windows2025 local/central, abschließende Audits aller8 Fälle`
-- Scope: 178-Dateien-Installationssatz mit exakt qualifiziertem Iterationsbinary, unveränderten Parser-/ScriptDom-Pins, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen. Zwei zusätzliche Paketkontexte mit je8 Neuinstallations-/Lifecycle-,8 realen PR411→Iterations-Upgrades,36 Kern- und61 API-Assertions,226 insgesamt. Paketbytehash und Source-/Testcommit getrennt gebunden. Acht frische Abschlussaudits der ganzen Welle:14 eigene DB-Namen abwesend,32 Trustzustände und Konfigurationsbaselines wiederhergestellt, Eingabepins unverändert. Acht Versuche im unveränderten10er-Gesamtrahmen, keine nativen Fehlläufe; Grenzen300/360/400 und40/45 unverändert. Functional Encrypt=True, explizite Lab-Anmeldung/Trust ohne Fallback. Windows-Authentifizierungs-/SSMS-GUI-, authentifizierte TLS-, Linux-Host-, SDK-/Ressourcen-/Produktions-, Gesamtpaket- und Releasegates bleiben getrennt; allgemeine Autonomie pausiert.
+- Nachweis: `local: finales Scope1.2-ZIP, Doppelpaketierung, Integrität6 plus Navigationsgegenprobe, ValidateOnly und Windows2025 local/central ODBC`
+- Scope: 185-Dateien-Installationssatz mit fertigen qualifizierten Assemblies, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen einschließlich interner Paketübersicht. Zwei finale Kontexte mit je113 Assertions,226 insgesamt; reales Iterationsbuild-Upgrade und unabhängige Cleanup-/Pin-/Konfigurationsaudits. Zwei frühere erfolgreiche Paketfälle wegen korrigiertem Dokumentationsumfang behalten und im unveränderten gemeinsamen36er-Rahmen gezählt; fünf bereinigte frühere Testadapterfehlversuche ebenfalls erhalten. SSIS-Phase21 Treiberversuche, Gesamtpaketphase separat. Grenzen300/360/400, Functional Encrypt=True und expliziter Lab-Trust ohne Fallback. Keine Veröffentlichung; allgemeine Autonomie pausiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -524,3 +578,12 @@ Die Exchange-Gegenproben prüfen zusätzlich `--bundle` auf beiden Hosts. Fehlen
 ungültige, namespacefremd überschattete und doppelte DTSIDs bleiben ausdrücklich
 getrennte Fälle; Paketbytehash und Modellvorkommen müssen übereinstimmen. Diese
 synthetischen Kernproben belegen weder eine SSISDB-Ausführung noch deren Revision.
+
+### Pipelineidentitäten im gemeinsamen Austausch
+
+Der optionale Pipelinebundle wird durch denselben Austauschtest gegen externen
+und Frameworkhost verglichen. Die Gegenfälle prüfen gleiche Modellkennungen,
+Ports und Kanten, den Unterschied zwischen Pfadname und SDK-Identifikationsstring
+sowie unqualifizierte native Referenzsyntax. Die bestehenden Generatorfälle
+bleiben Regressionen. Diese Prüfung führt weder SSISDB-Pakete noch neue
+CLR-Releaseartefakte aus; die native Analyze-Abnahme bleibt getrennt.

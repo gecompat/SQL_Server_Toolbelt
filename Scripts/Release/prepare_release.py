@@ -35,6 +35,9 @@ NAME = f"SQL-Server-Toolbelt-{VERSION}-candidate-source"
 ARTIFACTS = f"{DIRECTORY}/Artifacts/"
 CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip"
 PRODUCT_SOURCE = f"{DIRECTORY}/product-source.json"
+SSIS_UPDATE = f"{DIRECTORY}/ssis-release-update.json"
+SSIS_CLR_QUALIFICATION = f"{DIRECTORY}/clr-ssis-qualification.json"
+SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Release.Windows.CL.20261025.json'
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -288,11 +291,134 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
                 {p: b for p, b in product.items() if p.startswith(prefix)}, "Produktinputs gegenüber der qualifizierten Basis geändert.")
     validate_qualification(files, plan)
     if CLR_PACKAGE in files:
-        qualified = json.loads(files[f'{DIRECTORY}/clr-qualification.json'])
-        require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
         inner = read_zip(files[CLR_PACKAGE])
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
-        validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified, files)
+        metadata = json.loads(inner[prefix + 'CLR-PACKAGE.json'])
+        qualified = json.loads(files[clr_qualification_path(metadata)])
+        require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
+        validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified,
+                                   clr_qualification_method_sources(qualified))
+
+
+def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, bytes],
+                                record: dict, build: dict, baseline: dict[str, bytes]) -> set[str]:
+    """Nur SSIS ersetzen; andere Fach-/Deployment-/Workerbytes bleiben gleich.
+
+    Historische Nicht-SSIS-Ausführungen werden damit nicht umetikettiert.
+    Pflege an anderen Tests/Lesepfaden ist ausschließlich gegen den bereits
+    öffentlichen, im Nachweis gebundenen Integrationsvorstand zulässig.
+    """
+    require(record['schema_version'] == '1.0' and record['publication_authorized'] is False,
+            'SSIS-Produktdelta ohne geschlossene Veröffentlichungsgrenze.')
+    prefix = 'Modules/toolbelt.tsql.ssis-debug/'
+    paths = {p for p in set(previous) | set(current) if p.startswith(('Modules/', 'Deployment/', 'Workers/'))}
+    changed = {p for p in paths if previous.get(p) != current.get(p)}
+    maintenance = {
+        'Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py',
+        'Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py',
+        'Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py',
+        'Modules/toolbelt.string.regex/Tests/Static/validate_contract.py',
+        'Workers/ExternalQueue/Tests/CiTarget.Contract.py'}
+    for path in changed:
+        if path.startswith(prefix):
+            continue
+        require((path.endswith(('.md', '.yaml')) or path in maintenance)
+                and current.get(path) == baseline.get(path),
+                'Weitere Fach-/Deployment-/Workeränderung neben dem SSIS-Update.')
+    require(sorted(changed) == record['changed_product_paths'], 'SSIS-Produktdelta driftet.')
+    for files, key in ((previous, 'previous_source_sha256'), (current, 'current_source_sha256')):
+        require(record[key] == {p: sha(files[p]) if p in files else None for p in sorted(changed)},
+                'SSIS-Produktquellhash driftet.')
+    expected = {(v, cl, mode) for v, levels in (('2019', (150,)), ('2022', (150, 160)),
+                ('2025', (150, 160, 170))) for cl in levels for mode in ('local', 'central')}
+    require(build['result'] == 'PASS' and len(build['cases']) == 12
+            and {(c['sql_version'], c['compatibility_level'], c['deployment_mode']) for c in build['cases']} == expected
+            and all(c['result'] == 'PASS' for c in build['cases']), 'SSIS-Abnahme der expliziten CL-/Modusmatrix fehlt.')
+    require(json.loads(current[SSIS_BUILD_QUALIFICATION]) == build
+            and record['build_qualification_sha256'] == sha(current[SSIS_BUILD_QUALIFICATION]), 'SSIS-Buildnachweis driftet.')
+    required = {p for p in current if p.startswith((prefix + 'Clr/', prefix + 'Exchange/Core/'))
+                and p.endswith(('.cs', '.csproj'))}
+    required |= {p for p in current if p.startswith((prefix + 'Source/', prefix + 'Deployment/')) and p.endswith('.sql')}
+    required.add('Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs')
+    required |= {prefix + 'Contracts/' + p for p in ('Api.json', 'DependencyPins.json', 'ReleaseObjects.1.0.0.json')}
+    require(required <= set(build['native_source_sha256']), 'Transitive SSIS-Produktquellen unvollständig gebunden.')
+    for path in required:
+        require(sha(current[path]) == build['native_source_sha256'][path], 'SSIS-Produktquelle gegenüber nativer Abnahme geändert.')
+    return changed
+
+
+def clr_qualification_path(metadata: dict) -> str:
+    path = metadata.get('qualification_evidence', f'{DIRECTORY}/clr-qualification.json')
+    require(path in (f'{DIRECTORY}/clr-qualification.json', SSIS_CLR_QUALIFICATION),
+            'Unbekannter CLR-Qualifikationsvertrag.')
+    return path
+
+
+def qualification_archive(product: str) -> bytes:
+    """Exakte historische Lieferquelle; niemals neue Methoden rückdatieren."""
+    archive = ROOT / ARTIFACTS / (NAME + '.zip')
+    data = archive.read_bytes()
+    require(archive.with_suffix('.zip.sha256').read_text(encoding='ascii').split() == [sha(data), archive.name],
+            'Qualifikations-Recoveryarchiv beschädigt.')
+    if json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit'] == product:
+        return data
+    for path in (SSIS_UPDATE, f'{DIRECTORY}/runtime-source-equivalence.json'):
+        if not (ROOT / path).is_file():
+            continue
+        record = json.loads((ROOT / path).read_bytes())
+        if record.get('previous_product_commit') != product:
+            continue
+        require(re.fullmatch(r'[a-f0-9]{40}', record['public_baseline_commit']) is not None,
+                'Historische öffentliche Basis fehlt.')
+        historical = git('show', record['public_baseline_commit'] + ':' + ARTIFACTS + NAME + '.zip')
+        require(sha(historical) == record['previous_source_zip_sha256'], 'Historisches Quellarchiv driftet.')
+        require(json.loads(read_zip(historical)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit'] == product,
+                'Historische Produktbindung driftet.')
+        return historical
+    raise ReleaseError('Recoveryprodukt besitzt keine gebundene historische Qualifikationsquelle.')
+
+
+def qualification_sources(product: str) -> tuple[dict[str, bytes], dict[str, bytes], str]:
+    raw = read_zip(qualification_archive(product)); prefix = NAME + '/'
+    metadata = json.loads(raw[prefix + 'PACKAGE-MANIFEST.json'])
+    return recovered_snapshot(raw[prefix + 'PREPARATION.bundle'], metadata['source_commit'], product)
+
+
+def validate_ssis_product_applicability(previous: str, current: str, current_files: dict[str, bytes] | None = None) -> None:
+    record = json.loads((ROOT / SSIS_UPDATE).read_bytes())
+    require(record['previous_product_commit'] == previous and record['current_product_commit'] == current,
+            'SSIS-Anwendbarkeitskette driftet.')
+    _, old_product, old_tree = qualification_sources(previous)
+    if current_files is None:
+        _, current_files, current_tree = qualification_sources(current)
+    else:
+        # Synthetische Produktcommits sind in frischen Checkouts nicht
+        # erreichbar. Nur bei fehlendem Commit den bereits hash- und
+        # commitgebundenen Paketsnapshot verwenden; keine Ersatzquelle.
+        available = subprocess.run(['git', 'cat-file', '-e', current + '^{commit}'],
+                                   cwd=ROOT, capture_output=True).returncode == 0
+        if available:
+            current_tree = git('rev-parse', current + '^{tree}').decode().strip()
+        else:
+            _, _, current_tree = qualification_sources(current)
+    require(old_tree == record['previous_product_tree'] and current_tree == record['current_product_tree'],
+            'SSIS-Produktbaum driftet.')
+    _, baseline = snapshot(record['public_baseline_commit'])
+    build = json.loads(current_files[SSIS_BUILD_QUALIFICATION])
+    validate_ssis_product_delta(old_product, current_files, record, build, baseline)
+
+
+def validate_product_applicability(previous: str, current: str) -> None:
+    if previous == current:
+        return
+    if (ROOT / SSIS_UPDATE).is_file():
+        record = json.loads((ROOT / SSIS_UPDATE).read_bytes())
+        if record['current_product_commit'] == current:
+            validate_ssis_product_applicability(record['previous_product_commit'], current)
+            if previous != record['previous_product_commit']:
+                validate_regex_product_applicability(previous, record['previous_product_commit'])
+            return
+    validate_regex_product_applicability(previous, current)
 
 
 def validate_regex_documentation_delta(previous: dict[str, bytes], current: dict[str, bytes]) -> set[str]:
@@ -352,10 +478,7 @@ def validate_regex_product_applicability(previous_product: str, current_product:
     require(re.fullmatch(r'[0-9a-f]{40}', base) is not None, 'Ungültige öffentliche Anwendbarkeitsbasis.')
     historical = git('show', base + ':' + ARTIFACTS + NAME + '.zip')
     require(sha(historical) == record['previous_source_zip_sha256'], 'Historisches Quellpaket driftet.')
-    source = ROOT / ARTIFACTS / (NAME + '.zip')
-    data = source.read_bytes()
-    require(source.with_suffix('.zip.sha256').read_text(encoding='ascii').split() == [sha(data), source.name],
-            'Aktuelles Anwendbarkeitsarchiv driftet.')
+    data = qualification_archive(current_product)
     products = []
     for archive, expected in ((historical, previous_product), (data, current_product)):
         raw = read_zip(archive); prefix = NAME + '/'
@@ -373,22 +496,39 @@ def validate_regex_product_applicability(previous_product: str, current_product:
 
 def clr_qualification_method_sources(qualification: dict, additional_bindings: dict | None = None) -> dict[str, bytes]:
     """Historische Methoden aus ihrem geprüften Recoverypaket, niemals vom aktuellen Checkout."""
-    archive = ROOT / ARTIFACTS / (NAME + '.zip')
-    data = archive.read_bytes()
-    require(archive.with_suffix('.zip.sha256').read_text(encoding='ascii').split() ==
-            [sha(data), archive.name], 'CLR-Methoden-Recoveryarchiv beschädigt.')
-    raw = read_zip(data)
-    prefix = NAME + '/'
-    manifest = json.loads(raw[prefix + 'PACKAGE-MANIFEST.json'])
-    require(manifest['product_commit'] == qualification['product_commit'],
-            'CLR-Methoden-Recoveryprodukt abweichend.')
-    sources, _, _ = recovered_snapshot(raw[prefix + 'PREPARATION.bundle'],
-                                       manifest['source_commit'], manifest['product_commit'])
+    product_sources = None
+    if qualification.get('kind') == 'ssis_current_delivery':
+        # Vor dem Packen des neuen Recoveryarchivs ist der tatsächlich
+        # ausgeführte, unveränderliche Methodencommit bereits lokal vorhanden.
+        require(re.fullmatch(r'[a-f0-9]{40}', qualification['executed_code_commit']) is not None,
+                'CLR-Ausführungsquelle fehlt.')
+        archive = ROOT / ARTIFACTS / (NAME + '.zip')
+        data = archive.read_bytes()
+        require(archive.with_suffix('.zip.sha256').read_text(encoding='ascii').split() == [sha(data), archive.name],
+                'CLR-Methoden-Recoveryarchiv beschädigt.')
+        delivered_product = json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit']
+        if delivered_product == qualification['product_commit']:
+            sources, product_sources, _ = qualification_sources(qualification['product_commit'])
+        else:
+            require(json.loads((ROOT / SSIS_CLR_QUALIFICATION).read_bytes()) == qualification
+                    and json.loads((ROOT / SSIS_UPDATE).read_bytes())['current_product_commit'] == qualification['product_commit'],
+                    'Nicht gebundene CLR-Methodenvorbereitung.')
+            _, sources = snapshot(qualification['executed_code_commit'])
+    else:
+        sources, _, _ = qualification_sources(qualification['product_commit'])
     bindings = dict(qualification['method_bindings'])
     for path, expected in (additional_bindings or {}).items():
         require(path not in bindings or bindings[path] == expected, 'CLR-Methoden-Recoverybindung widersprüchlich.')
         bindings[path] = expected
     for path, expected in bindings.items():
+        # Spätere Offline-Prüfer dürfen die tatsächlich ausgeführten Methoden
+        # nicht ersetzen. Beide Kandidaten stammen aus demselben geprüften
+        # Bundle; ausschließlich der ursprüngliche exakte Quellhash gilt.
+        if path not in sources or sha(sources[path]) != expected:
+            require(product_sources is not None and path in product_sources
+                    and sha(product_sources[path]) == expected, 'CLR-Methoden-Recoverybindung veraltet.')
+            sources = dict(sources)
+            sources[path] = product_sources[path]
         require(path in sources and sha(sources[path]) == expected, 'CLR-Methoden-Recoverybindung veraltet.')
     return {path:sources[path] for path in bindings}
 
@@ -397,6 +537,31 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
     """Aktuelle Lieferbytes an die tatsächlich ausgeführte native Paketwelle binden."""
     require(qualification['publication_authorized'] is False and qualification['native_cases_passed'] == 12,
             'Keine CLR-Veröffentlichungsfreigabe oder vollständige Paketmatrix.')
+    require(qualification.get('kind') in (None, 'ssis_current_delivery'), 'Unbekannter CLR-Qualifikationsscope.')
+    if qualification.get('kind') == 'ssis_current_delivery':
+        legacy_path = f'{DIRECTORY}/clr-qualification.json'
+        legacy_bytes = sources[legacy_path] if legacy_path in sources else (ROOT / legacy_path).read_bytes()
+        legacy = json.loads(legacy_bytes)
+        require(sha(legacy_bytes) == qualification['previous_qualification_sha256'], 'Historische CLR-Qualifikation driftet.')
+        expected = {(v, cl) for v, levels in (('2019', (150,)), ('2022', (150, 160)),
+                    ('2025', (150, 160, 170))) for cl in levels}
+        executed = qualification['new_windows_cases']
+        require(len(executed) == 6 and {(c['sql'], c['compatibility_level']) for c in executed} == expected
+                and all(c['result'] == 'PASS' and c['independent_audit'] == 'PASS' for c in executed),
+                'Neue CLR-Windows-Vollmatrix fehlt.')
+        require(qualification['retained_linux_cases'] == [c for c in legacy['matrix'] if c['platform'].lower() == 'linux'],
+                'Unbelegte CLR-Linux-Übernahme.')
+        for path, data in payload.items():
+            if path.startswith('SQL/') and '-Portable-' in path:
+                require(sha(data) == legacy['sql_payload_sha256'][path], 'Portabler CLR-Payload wurde nicht unverändert übernommen.')
+            if path.startswith('Binaries/') and not path.endswith('/Toolbelt.Tsql.SsisDebug.dll'):
+                require(hashlib.sha512(data).hexdigest() == legacy['binary_sha512'][path], 'Weiterer CLR-Binary wurde geändert.')
+        build_bytes = sources.get(SSIS_BUILD_QUALIFICATION)
+        if build_bytes is None:
+            build_bytes = (ROOT / SSIS_BUILD_QUALIFICATION).read_bytes()
+        require(sha(build_bytes) == qualification['ssis_build_qualification_sha256']
+                and sha(payload['Binaries/Toolbelt.Tsql.SsisDebug.dll']) == json.loads(build_bytes)['qualified_assembly_sha256'],
+                'Aktuelle CLR-Lieferung besitzt einen anderen SSIS-Build.')
     require(payload.get('QUALIFICATION.json') == encoded(qualification), 'CLR-Qualifikationsprojektion fehlt oder driftet.')
     require(qualification['sql_payload_sha256'] == {p:sha(b) for p,b in payload.items() if p.startswith('SQL/')},
             'CLR-SQL-Payload gegenüber nativem Nachweis geändert.')
@@ -422,14 +587,21 @@ def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[st
     if QUALIFICATION not in files:
         return
     evidence = json.loads(files[QUALIFICATION])
-    require(evidence["product_commit"] == plan["product_commit"] and evidence["publication_authorized"] is False,
-            "Qualifikationsbasis oder Veröffentlichungsgrenze abweichend.")
+    require(evidence["publication_authorized"] is False, "Veröffentlichungsgrenze abweichend.")
+    methods = files
+    if evidence['product_commit'] != plan['product_commit']:
+        require(SSIS_UPDATE in files, 'Qualifikationsbasis ohne gebundenes SSIS-Delta geändert.')
+        record = json.loads(files[SSIS_UPDATE])
+        require(record['previous_product_commit'] == evidence['product_commit']
+                and record['current_product_commit'] == plan['product_commit'], 'Falsche stabile Anwendbarkeitsbasis.')
+        validate_ssis_product_applicability(evidence['product_commit'], plan['product_commit'], files)
+        methods, _, _ = qualification_sources(evidence['product_commit'])
     native = evidence["native_package"]
-    require(sha(files[native["driver"]]) == native["driver_sha256"]
-            and sha(files[native["method"]]) == native["method_sha256"],
+    require(sha(methods[native["driver"]]) == native["driver_sha256"]
+            and sha(methods[native["method"]]) == native["method_sha256"],
             "Nativer Paketadapter gegenüber dem Nachweis geändert.")
     build = evidence["clr_build_inputs"]
-    require(sha(files[build["method"]]) == build["method_sha256"] and build["distributed"] is False,
+    require(sha(methods[build["method"]]) == build["method_sha256"] and build["distributed"] is False,
             "Offline-Buildprüfung gegenüber dem Nachweis geändert oder als Auslieferung dargestellt.")
     if exports is not None:
         require(native["sql_payload_sha256"] == {p: sha(b) for p, b in exports.items()},

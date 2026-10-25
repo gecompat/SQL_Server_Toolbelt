@@ -734,3 +734,45 @@ Vier frühere bereinigte Testfehler bleiben separat erhalten; der unveränderte
 historische Zusatzrecht-Guard wird nicht als neuer Lauf ausgegeben. Offline-
 Syntax und Strukturtests ersetzen keine native Qualifikation. Keine automatische
 Labaktivierung und kein neuer CI-Job; echte CrossDB-Identitäten bleiben separat.
+
+
+## SSIS-Teilqualifikation und aktuelle Paketinputs
+
+[SSIS-RELEASE-QUALIFICATION.md](../../Releases/1.0.0/SSIS-RELEASE-QUALIFICATION.md)
+führt zu den tatsächlichen neuen SSIS-, ZIP-, CLR- und Gesamtpaketfällen.
+`clr-ssis-qualification.json` und `complete-ssis-qualification.json` ergänzen
+je sechs neue Windows-Kontexte; die alten Dateien bleiben als historische
+Ausführungen erhalten. Portable SQL und die übrigen zwölf DLLs müssen exakt
+unverändert sein, bevor die ursprünglichen sechs Linux-Fälle übernommen werden.
+
+Der private Gesamtpaketexport unterstützt den gekoppelten Aufruf
+`prepare_complete_package.py --package <qualifiziertes-vorgaenger-quellzip>
+--product-commit <eingefrorenes-ssis-produkt> --clr-candidate <privates-pending-clr-zip>
+--output <neues-privates-pruefzip>`. Alle Flags gehören zu einem Aufruf.
+Er verlangt das gebundene SSIS-Produktdelta und den neuen Full12-Buildnachweis.
+Das erzeugt ausschließlich einen privaten Testinput; keine neue Veröffentlichung.
+
+Vor Mutationen wurden Runsets, Inputs, Ownership und der gemeinsame36er-Rahmen
+mit unverändertem ursprünglichem Start festgelegt.34 native Treiberversuche,
+alle unabhängig reconciled;300/360/400-Sekunden-Grenzen unverändert.
+Keine neuen CI-Jobs oder Trigger und keine Delegation. Zusätzliche Offline-
+Gegenproben schützen Projektwahl12 statt externem Host13, exakte Lieferbytes,
+explizite Nachweisauswahl und beibehaltene historische Quellen. Vollständiger
+Offlineaudit und echte aktuelle Head-CI ergänzen die Nativevidenz; sie ersetzen
+keine noch offenen fachlichen oder externen Gates. Allgemeine Autonomie pausiert.
+
+
+Die Recovery-Regressionen prüfen auch einen fehlenden lokalen synthetischen
+Produktcommit. Der Baum muss aus dem bereits prüfsummen- und commitgebundenen
+Bundle stammen; ein abweichender Baum oder ein beschädigtes Paket bleibt ein
+Fehler. Historische CLR-Methoden werden ausschließlich bei Übereinstimmung mit
+ihrem unveränderten ursprünglichen SHA-256 aus dem Quellen- oder Produktsnapshot
+desselben Bundles gelesen. Änderungen ausgelieferter Installer- oder Methodenbytes
+bleiben durch die bestehenden Paket-Negativtests gesperrt. Der Checkout-Objektstore
+und seine Refs werden bei dieser Prüfung nicht ergänzt oder verändert.
+
+Auch direkte Wiederherstellungen identischer Bundles teilen im Testprozess
+dieselbe geprüfte Fixture. Der Schlüssel bindet zusätzlich Bundlebytes und
+Quell-/Produktcommit; Scope- und Dependencywechsel sowie Fehler bleiben
+Gegenproben. Keine Produktionsfunktion erhält einen Cache; die vollständige
+Suite behält ihre 120-Sekunden-Grenze.

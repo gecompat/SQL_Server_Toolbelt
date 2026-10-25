@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "qualification_evidence": "Tests/Qualification/Iterations.Windows2019-2025.20261025.json",
-  "ssis_release_manifest_sha256": "4E0DA8832BAE71AA4F50B34410B47D402081C5C0924C1968C4AD86A0D3A02D23",
+  "qualification_evidence": "Tests/Qualification/Release.Windows.CL.20261025.json",
+  "ssis_release_manifest_sha256": "A4403D85E368EE19D90CD301CE3D34D95FA9F2679A431C756E486E045699C620",
   "parser_release_manifest_sha256": "2A86CED4D1C12F1699DA9A970AFC217E5488C117E7FDF8209DD6CA6543DAA017"
 }

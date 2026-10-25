@@ -87,6 +87,7 @@ contracts:
   ssis_object_identities: "1.0.0"
   ssis_iteration_object_identities: "1.1.0"
   ssis_scope_object_identities: "1.2.0"
+  ssis_pipeline_identities: "1.0.0"
   ssis_export_bundle: "1.0.0"
 tests:
   static: "Tests/Static/validate_contract.py"
@@ -141,5 +142,15 @@ validation_evidence:
     scope: "178-Dateien-Installationssatz mit exakt qualifiziertem Iterationsbinary, unveränderten Parser-/ScriptDom-Pins, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen. Zwei zusätzliche Paketkontexte mit je8 Neuinstallations-/Lifecycle-,8 realen PR411→Iterations-Upgrades,36 Kern- und61 API-Assertions,226 insgesamt. Paketbytehash und Source-/Testcommit getrennt gebunden. Acht frische Abschlussaudits der ganzen Welle:14 eigene DB-Namen abwesend,32 Trustzustände und Konfigurationsbaselines wiederhergestellt, Eingabepins unverändert. Acht Versuche im unveränderten10er-Gesamtrahmen, keine nativen Fehlläufe; Grenzen300/360/400 und40/45 unverändert. Functional Encrypt=True, explizite Lab-Anmeldung/Trust ohne Fallback. Windows-Authentifizierungs-/SSMS-GUI-, authentifizierte TLS-, Linux-Host-, SDK-/Ressourcen-/Produktions-, Gesamtpaket- und Releasegates bleiben getrennt; allgemeine Autonomie pausiert."
     result: "success"
 
-# Das externe Modell ist kein zusätzlicher SQL-CLR-Einstieg und kein Linux-CLR-Provider.
-# Die aktuelle Quellenqualifikation ergänzt die historisch gebundenen älteren Nachweise.
+  # Das externe Modell ist kein zusätzlicher SQL-CLR-Einstieg und kein Linux-CLR-Provider.
+  # Die aktuelle Quellenqualifikation ergänzt die historisch gebundenen älteren Nachweise.
+
+  - date: "2026-10-25"
+    workflow: "local: Full12 explizite Windows-Engine-/CL-/Modusmatrix, Full23 und128 gemeinsame Modellgegenproben"
+    scope: "Scope-Identitätskern1.2 aus PR427; je293 Assertions,3516 insgesamt einschließlich isolierter Callerrechte, bestehender Ausgabe-/ID-Grenzen und echtem ausgeliefertem Iterationsbuild-Upgrade. Zwölf positive und fünf korrigierte FAILED_CLEANED-Testadapterversuche unabhängig abschließend auditiert. Grenzen300/360/400 unverändert; Functional Encrypt=True mit explizitem Lab-Trust ohne Fallback. Finales ZIP und Gesamtpaket separat gebunden; Windows-/SSMS-Identität, authentifizierte TLS-, Linux-Host-, SDK-/Ressourcen-/Produktions- und Veröffentlichungsgates bleiben offen. Allgemeine Autonomie pausiert."
+    result: "success"
+
+  - date: "2026-10-25"
+    workflow: "local: finales Scope1.2-ZIP, Doppelpaketierung, Integrität6 plus Navigationsgegenprobe, ValidateOnly und Windows2025 local/central ODBC"
+    scope: "185-Dateien-Installationssatz mit fertigen qualifizierten Assemblies, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen einschließlich interner Paketübersicht. Zwei finale Kontexte mit je113 Assertions,226 insgesamt; reales Iterationsbuild-Upgrade und unabhängige Cleanup-/Pin-/Konfigurationsaudits. Zwei frühere erfolgreiche Paketfälle wegen korrigiertem Dokumentationsumfang behalten und im unveränderten gemeinsamen36er-Rahmen gezählt; fünf bereinigte frühere Testadapterfehlversuche ebenfalls erhalten. SSIS-Phase21 Treiberversuche, Gesamtpaketphase separat. Grenzen300/360/400, Functional Encrypt=True und expliziter Lab-Trust ohne Fallback. Keine Veröffentlichung; allgemeine Autonomie pausiert."
+    result: "success"

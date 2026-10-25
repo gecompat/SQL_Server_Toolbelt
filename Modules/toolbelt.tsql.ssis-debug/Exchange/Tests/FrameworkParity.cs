@@ -10,7 +10,8 @@ internal static class FrameworkParity
     {
         try
         {
-            bool scopes=args.Length==2 && args[0]=="--scope-bundle";
+            bool pipelines=args.Length==2 && args[0]=="--pipeline-bundle";
+            bool scopes=pipelines || args.Length==2 && args[0]=="--scope-bundle";
             bool iterations=args.Length==2 && args[0]=="--iteration-bundle";
             bool bundle=args.Length==2 && (args[0]=="--bundle" || iterations || scopes);
             var document=PackageDocument.Read(File.ReadAllBytes(args[bundle ? 1 : 0]));
@@ -18,6 +19,7 @@ internal static class FrameworkParity
             object result=bundle ? (object)new System.Collections.Generic.Dictionary<string,object> {
                 {"contract","ssis-export-bundle"},{"version","1.0.0"},{"model",model},{"identities",scopes ? document.ExportExecutionScopes() : document.ExportObjectIdentities(iterations)}
             } : model;
+            if(pipelines) ((System.Collections.Generic.Dictionary<string,object>)result).Add("pipelineIdentities",document.ExportPipelineIdentities());
             Console.Write(new JavaScriptSerializer { MaxJsonLength=16777216 }.Serialize(result));
             return 0;
         }

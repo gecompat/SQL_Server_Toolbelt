@@ -1,5 +1,9 @@
 # Supportumfang von v1.0.0
 
+Aktueller Arbeitsstatus: Die allgemeine autonome Weiterentwicklung bleibt pausiert.
+Die [manuell beauftragte SSIS-Teilqualifikation](SSIS-RELEASE-QUALIFICATION.md)
+aktualisiert den Kandidaten und seine Lieferpakete; sie erteilt keine Veröffentlichung.
+
 Der Benutzer hat am 2026-10-23 den zuvor vorgeschlagenen Supportumfang
 übernommen und die ausführbaren Releaseprüfungen in genau einem PR beauftragt.
 Dies ist der freigegebene **Zielumfang**. Eine öffentliche Supportzusage entsteht

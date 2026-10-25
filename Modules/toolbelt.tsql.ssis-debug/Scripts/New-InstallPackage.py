@@ -33,7 +33,7 @@ def build(args):
         require(path in names, 'source missing: ' + path)
         return subprocess.check_output(['git', 'show', commit + ':' + path], cwd=ROOT)
     payload = {p: source(p) for p in names if any(p.startswith('Modules/' + m + '/') for m in MODULES)
-               and '/InstallPackages/' not in p}
+               and ('/InstallPackages/' not in p or p == MODULE + 'InstallPackages/README.md')}
     for p in ('LICENSE.md', 'Documentation/Standards/USP_CONTRACT.md',
               'Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md',
               'Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md',
@@ -47,14 +47,20 @@ def build(args):
     payload['START-HERE.txt'] = source(MODULE + 'InstallPackages/START-HERE.txt').replace(b'@SOURCE_COMMIT@', commit.encode())
     release_pins = json.loads(source(MODULE + 'Contracts/InstallPackageInputs.json'))
     allowed = {'Tests/Qualification/Identities.Windows2019-2025.20261025.json':1626,
-               'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590}
+               'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590,
+               'Tests/Qualification/Release.Windows.CL.20261025.json':3516}
     evidence = release_pins['qualification_evidence']
     require(evidence in allowed, 'explicit qualification contract')
     record_path = MODULE + evidence
     record = json.loads(source(record_path))
-    require(record['result'] == 'PASS' and len(record['cases']) == 6 and record['total_native_assertions'] == allowed[evidence] and
-            {(c['sql_version'],c['deployment_mode']) for c in record['cases']} ==
-            {(v,m) for v in ('2019','2022','2025') for m in ('local','central')} and
+    explicit_cl = evidence == 'Tests/Qualification/Release.Windows.CL.20261025.json'
+    expected = {(v,cl,m) for v,levels in (('2019',(150,)),('2022',(150,160)),('2025',(150,160,170)))
+                for cl in levels for m in ('local','central')} if explicit_cl else {
+                    (v,m) for v in ('2019','2022','2025') for m in ('local','central')}
+    actual = {(c['sql_version'],c['compatibility_level'],c['deployment_mode']) if explicit_cl else
+              (c['sql_version'],c['deployment_mode']) for c in record['cases']}
+    require(record['result'] == 'PASS' and len(record['cases']) == len(expected) and record['total_native_assertions'] == allowed[evidence] and
+            actual == expected and
             all(c['result'] == 'PASS' for c in record['cases']),
             'exact native qualification missing')
     pins = json.loads(source(MODULE + 'Contracts/DependencyPins.json'))
