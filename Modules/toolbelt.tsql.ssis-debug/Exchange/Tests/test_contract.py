@@ -1,4 +1,4 @@
-"""Gemeinsame synthetische SollfÃ¤lle fÃ¼r CLR- und externen SSIS-Modellkern."""
+"""Gemeinsame synthetische SollfÃ¤lle für CLR- und externen SSIS-Modellkern."""
 from __future__ import annotations
 
 import argparse
