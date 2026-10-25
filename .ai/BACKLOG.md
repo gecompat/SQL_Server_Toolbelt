@@ -1,5 +1,7 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+[Capability-Katalog mit einzelnem SELECT-Recht](../Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 [Konsolenausgabe mit einzelnem EXECUTE-Recht](../Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 [JSON-Pfade mit getrennten SELECT-Rechten](../Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.

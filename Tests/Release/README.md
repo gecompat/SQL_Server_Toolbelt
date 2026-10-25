@@ -1,5 +1,9 @@
 # Releasevorbereitung prüfen
 
+Die feste `Catalog.FunctionCases.sql` verwendet denselben historischen Composer für die bestehende View: feste Ownerprojektion von fünf Markergruppen, darunter drei synthetische Testgruppen. Das reine SELECT-Callerprofil erlaubt die vertragliche kleinere/leere Metadatensicht und verwirft zusätzliche oder abweichende sichtbare Zeilen. Kein VIEW DEFINITION, keine neue Registry und keine Produktobjektänderung. Die Marker liegen ausschließlich in den eindeutig eigenen, anschließend entfernten Testdatenbanken.
+
+[Capability-Katalog mit einzelnem SELECT-Recht](../../Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 Der historisch benannte Funktions-Composer wird auch für die vorhandene Konsolen-Prozedur verwendet: Die gemeinsame Fixture prüft deklarierte SELECT-/EXECUTE-Objektrechte ohne Annahme eines Funktionstyps. Die feste `Console.FunctionCases.sql` ergänzt nur Rückgabe-/Fehler-/Transaktionsorakel; der native Treiber bleibt unverändert. Nachrichtendarstellung und Clientreader behalten ihren eigenen Nachweis.
 
 [Konsolenausgabe mit einzelnem EXECUTE-Recht](../../Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.

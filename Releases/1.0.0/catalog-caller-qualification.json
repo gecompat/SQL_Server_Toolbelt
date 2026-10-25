@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Capability catalog SELECT caller profiles with preserved metadata visibility",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "ea1ceceda7e929893ee1c9a8f1f53c62b761bdf0",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.metadata.capability-catalog": "1.0.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_metadata",
+      "name": "VW_ModuleCapabilities",
+      "permission": "SELECT"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 24,
+  "strict_sql229_denials": 72,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/Catalog.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "0ef42c4c7c0dffece1426a491068446c54b7b601bbe5f925c5542f2b0722ba6e",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.metadata.capability-catalog/Deployment/Deploy.sql": "d1fd441566d6206b466522426f043dd73b264a773fb109acea47b199d2e08649",
+    "Modules/toolbelt.metadata.capability-catalog/Deployment/Uninstall.sql": "84c08176bcce1d21eedbe64143ab4084b718d01ff3e88439af82aebf3f39ec87",
+    "Modules/toolbelt.metadata.capability-catalog/module.yaml": "e775f6f2aab4e869beadc9b9b44bbf6902e2a25d5a8b8781a8df23ab36edb6be",
+    "Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql": "47b3085e8a596b4f82bb229d5f45973b87fe567edc3ee15b30b6b94997a802f7",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f",
+    "Tests/Release/Runtime/Catalog.FunctionCases.sql": "9f30118e6126063481aa0db470fcef811d4aeea8c234c539b9eb25284065df9a",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2"
+  },
+  "offline_export_sha256": {
+    "local": "9134840464ef7aa27acd02f32cd06e81ec27dde517323160e4b8efc49b17a777",
+    "central": "31765f3cad21bcea5572540c660482939889824cc365426f12b6c503efae11ad"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 6,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "failed_setup_attempts_consumed": 0,
+  "setup_recovery_note": null,
+  "superseded_binding_attempts_consumed": 0,
+  "superseded_binding_note": null,
+  "final_independent_audit": {
+    "accepted_terminal_attempts": 14,
+    "accepted_database_names_absent": 26,
+    "all_current_terminal_attempts": 14,
+    "all_current_database_names_absent": 26,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "legacy_manifest_permission_wording_pending": [],
+  "remaining_gates": [
+    "Full output/client/lifecycle/resource contracts retain their own scope",
+    "Genuine lowpriv CrossDB identity mappings and authenticated TLS",
+    "Frozen package/manifest metadata refresh requires coordinated ownership;no publication/tags"
+  ],
+  "selected_metadata_contract": {
+    "exact_owner_rows": 5,
+    "installed_module_groups": 2,
+    "synthetic_marker_groups": 3,
+    "fixed_statuses": [
+      "valid",
+      "incomplete",
+      "invalid"
+    ],
+    "restricted_rows_must_be_subset_of_fixed_expected_rows": true,
+    "restricted_empty_or_partial_visibility_is_valid": true,
+    "database_view_definition_granted": false,
+    "database_view_definition_asserted_absent": true,
+    "full_metadata_visibility_guaranteed": false
+  }
+}
