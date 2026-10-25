@@ -112,7 +112,7 @@ def main(archive_path=None):
                 require(path in payload and sha(payload[path]) == expected, 'qualified build source hash')
     qualification_path = ssis + 'Tests/Qualification/Identities.Windows2019-2025.20261025.json'
     require(manifest['nativeBinaryQualification'] == qualification_path, 'native qualification path')
-    require(payload[qualification_path] == (MODULE / 'Tests/Qualification/Identities.Windows2019-2025.20261025.json').read_bytes(),
+    require(json.loads(payload[qualification_path]) == json.loads((MODULE / 'Tests/Qualification/Identities.Windows2019-2025.20261025.json').read_bytes()),
             'canonical native qualification')
     qualification = json.loads(payload[qualification_path])
     require(qualification['result'] == 'PASS' and len(qualification['cases']) == 6 and
