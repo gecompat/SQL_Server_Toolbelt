@@ -71,6 +71,20 @@ SQL-Generators gehören nicht in das neutrale Modell.
 
 ## Native Objektkennungen als Begleittransport
 
+`--scope-bundle` liefert den optionalen Identitätssidecar 1.2.0 für gebundene
+projektinterne Paketaufrufe und Handleraktivität. Derselbe Parser und dieselben
+Definitionen liefern Parent-IDs, native GUIDs/Pfade und klassifizierte
+Laufzeitpfadschritte. Nur explizite Projektverweise des Execute Package Task
+mit festem Paketdateinamen und ohne Property-Expression werden als Ziel
+ausgegeben. Externe, dynamische oder getrennte Prozessaufrufe bleiben
+unqualifiziert. Handlerprofile umfassen `OnPreExecute`, `OnPostExecute` und
+`OnError`; Ereignistyp und besitzendes Objekt stammen aus den qualifizierten
+XML-Metadaten. Es wird weder ein Aufruf ausgeführt noch eine Fehlerursache
+abgeleitet. Das [Schema 1.2.0](../Contracts/Exchange/SSIS_Object_Identities_V1_2.schema.json)
+definiert Rollen, Statuswerte und begrenzte Pfadschritte. Ein Consumer hält
+Paketmodelle und wiederholte Aufrufbeobachtungen getrennt. Bestehende Modelle,
+Sidecars 1.0.0/1.1.0 und Lineage bleiben unverändert.
+
 Für iterationsgebundene Ausführungskorrelation stellt `--iteration-bundle`
 denselben Modellvertrag mit einem Identitätssidecar 1.1.0 bereit. Jedes
 Paket-/Executableobjekt besitzt zusätzlich `iterationContainer` als Boolean.
