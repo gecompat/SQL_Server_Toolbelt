@@ -7,6 +7,8 @@ Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
 Linux-Payloads behalten ihre ursprünglichen Nachweise; keine neue Linux-Ausführung
 und keine automatische Modul- oder Gesamtfreigabe.
 
+[Event Log: Lesen und lokale Retention mit Einzelrechten](EVENT-LOG-CALLER-QUALIFICATION.md): 3 APIs, zwölf Fälle lokal/direkt zentral, 72 Einzelgrantprofile und 648 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 [Providerview mit einzelnem SELECT-Recht](PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 [JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.

@@ -7,6 +7,8 @@ Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
 Linux-Payloads behalten ihre ursprünglichen Nachweise; keine neue Linux-Ausführung
 und keine automatische Modul- oder Gesamtfreigabe.
 
+Die [Event-Log-Callerprofile](EVENT-LOG-CALLER-QUALIFICATION.md) ergänzen View und zwei lokale Retention-APIs auf zwölf lokalen/direkt zentralen Ziel-/CL-Fällen: 72 Einzelgrantprofile, 648 SQL229-Abweisungen und exakter Rollback-Zeilenvergleich. Producer/RPC und weitere Modulpflichten bleiben separat.
+
 Die [Providerview-Callerrechte](PROVIDER-CALLER-QUALIFICATION.md) ergänzen zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einem SELECT und rein synthetischem deaktiviertem Datensatz. Reale Linked-Server-Konfiguration, Loginmapping, RPC und neue Sessions bleiben separat.
 
 Die jüngeren Callerberichte ergänzen diese historische Modulzuordnung:
