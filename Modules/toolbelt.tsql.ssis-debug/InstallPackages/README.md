@@ -1,18 +1,19 @@
 # SSIS-Debug ohne eigenen Build installieren
 
-Das [ZIP-Installationspaket](SSIS-Debug-1.0.0-Install-Windows.zip) enthält
+Das [ZIP-Installationspaket](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip) enthält
 SSIS-Debug **1.0.0**, Script Parser **2.0.1**, die exakt passende Microsoft
 ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.
 Es ist ein Entwicklungs-/Testpaket; der Status bleibt `unreleased`.
 
 Dieses Archiv enthält den auf Windows SQL2019/2022/2025 lokal und zentral
-qualifizierten SSIS-Iterationsbuild. Es enthält
+qualifizierten SSIS-Build mit Scope-Identitäten1.2. Es enthält
 keinen externen Exporthost. Die [Prüfmatrix](../Tests/README.md) trennt die
-sechs nativen Buildnachweise von den Prüfungen des entpackten Installationspakets.
-Die [Paketprojektion](../Tests/Qualification/Iterations.InstallPackage.20261025.json) bindet
-den finalen ZIP-Hash an die tatsächlich ausgeführte Neuinstallation und
-Upgradefolge auf Windows SQL2025 lokal und zentral, einschließlich echtem
-ODBC-sqlcmd und unabhängigen Cleanup-Audits. Der öffentliche PowerShell-Aufruf
+zwölf expliziten Engine-/CL-/Modusnachweise von den Prüfungen des entpackten Installationspakets.
+Die enthaltene [Buildprojektion](../Tests/Qualification/Release.Windows.CL.20261025.json)
+bindet den Binary an diese Matrix. Die getrennte Paketprojektion im
+[Qualifikationsverzeichnis des Repositorys](https://github.com/gecompat/SQL_Server_Toolbelt/tree/main/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification)
+bindet den finalen ZIP-Hash an Neuinstallation und Upgrade auf Windows SQL2025
+lokal und zentral, einschließlich echtem ODBC-sqlcmd und unabhängigen Cleanup-Audits. Der öffentliche PowerShell-Aufruf
 mit Windows-Anmeldung ist zusätzlich mit 55 Prozess-Orakeln offline geprüft;
 eine echte Windows-Testidentität bleibt eine getrennte Clientvoraussetzung.
 Der PowerShell-Installer verwendet den lokalen Deploymentmodus; die kanonischen

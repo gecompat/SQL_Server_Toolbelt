@@ -5,9 +5,11 @@ param(
  [ValidateSet('local','central')][string[]]$Modes=@('local','central'),
  [switch]$Full,
  [switch]$ApiOnly,
+ [ValidateSet(0,150,160,170)][int]$CompatibilityLevel=0,
+ [switch]$ReleaseRights,
  [string]$PredecessorRoot,
  [string]$SsisPredecessorReleaseDirectory,
- [ValidateSet('Identities.Windows2019-2025.20261025.json')][string]$SsisQualifiedPredecessorEvidence,
+ [ValidateSet('Identities.Windows2019-2025.20261025.json','Iterations.Windows2019-2025.20261025.json')][string]$SsisQualifiedPredecessorEvidence,
  [string]$SsisIntermediateReleaseDirectory,
  [string]$InstallationPackageRoot,
  [string]$PackageSqlcmdPath,
@@ -21,6 +23,8 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+if($CompatibilityLevel -and $CompatibilityLevel -gt (@{'2019'=150;'2022'=160;'2025'=170}[$Version])){throw 'SSIS_COMPATIBILITY_NOT_SUPPORTED'}
+if($ReleaseRights -and (-not $Full -or $ApiOnly)){throw 'SSIS_RELEASE_RIGHTS_FULL_REQUIRED'}
 $moduleRoot=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $repoRoot=Split-Path -Parent (Split-Path -Parent $moduleRoot)
 . (Join-Path $repoRoot 'Tests/CI/LabQualifiedContract.ps1')
@@ -126,7 +130,8 @@ if($SsisPredecessorReleaseDirectory){
  $oldQualified='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'
  if($SsisQualifiedPredecessorEvidence){
   $previousRecord=Get-Content -LiteralPath (Join-Path $moduleRoot ('Tests/Qualification/'+$SsisQualifiedPredecessorEvidence)) -Raw|ConvertFrom-Json
-  if($previousRecord.result -cne 'PASS' -or $previousRecord.product_source_commit -cne 'bab9188d0af72c0ca852019ad5bc039070903c94' -or
+  $previousSource=@{'Identities.Windows2019-2025.20261025.json'='bab9188d0af72c0ca852019ad5bc039070903c94';'Iterations.Windows2019-2025.20261025.json'='cba9f894d5837f33bf9f11dda8a7554d7d6ab549'}[$SsisQualifiedPredecessorEvidence]
+  if($previousRecord.result -cne 'PASS' -or $previousRecord.product_source_commit -cne $previousSource -or
      (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $previousRecord.qualified_assembly_sha256 -or
      (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $previousRecord.qualified_deploy_sql_sha256){throw 'SSIS_QUALIFIED_PREDECESSOR_BINDING_INVALID'}
   $oldQualified=(Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash
@@ -214,11 +219,19 @@ foreach($target in $targets){
    $journal.intendedDatabase=$database;SaveJournal;$uncertainDatabase=$database
    $phase=$mode+'-create';NonQuery $master ('CREATE DATABASE ['+$database+'] COLLATE '+$DatabaseCollation+';')
    $ownedDatabases.Add($database);$uncertainDatabase=$null;$journal.databases=@($ownedDatabases);SaveJournal
+   if($CompatibilityLevel){NonQuery $master ('ALTER DATABASE ['+$database+'] SET COMPATIBILITY_LEVEL='+$CompatibilityLevel+';')}
+   $actualLevel=Query $master ("SELECT compatibility_level AS C FROM sys.databases WITH(NOLOCK) WHERE name=N'"+$database+"';")
+   if($CompatibilityLevel -and [int]$actualLevel.Rows[0].C -ne $CompatibilityLevel){throw 'SSIS_COMPATIBILITY_WITNESS_FAILED'}
+   $journal['compatibilityLevel']=[int]$actualLevel.Rows[0].C;SaveJournal
    $clientDatabase=$null
    if($Full){
     $clientDatabase=$database+'_client';$journal.intendedDatabase=$clientDatabase;SaveJournal;$uncertainDatabase=$clientDatabase
     NonQuery $master ('CREATE DATABASE ['+$clientDatabase+'] COLLATE Latin1_General_100_CI_AS;')
     $ownedDatabases.Add($clientDatabase);$uncertainDatabase=$null;$journal.databases=@($ownedDatabases);SaveJournal
+    if($CompatibilityLevel){NonQuery $master ('ALTER DATABASE ['+$clientDatabase+'] SET COMPATIBILITY_LEVEL='+$CompatibilityLevel+';')}
+    $clientLevel=Query $master ("SELECT compatibility_level AS C FROM sys.databases WITH(NOLOCK) WHERE name=N'"+$clientDatabase+"';")
+    if($CompatibilityLevel -and [int]$clientLevel.Rows[0].C -ne $CompatibilityLevel){throw 'SSIS_CLIENT_COMPATIBILITY_WITNESS_FAILED'}
+    $journal['clientCompatibilityLevel']=[int]$clientLevel.Rows[0].C;SaveJournal
    }
    $builder['Initial Catalog']=$database;$connection=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString);$connection.Open()
    try{
@@ -264,6 +277,7 @@ foreach($target in $targets){
     $phase=$mode+'-repeat';Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Deploy.WithAssembly.sql'))) $mode
     if(-not $ApiOnly){$phase=$mode+'-core'; & (Join-Path $PSScriptRoot 'Invoke-CoreContract.ps1') -Connection $connection -Full:$Full -CrossDatabase $clientDatabase}
     $phase=$mode+'-api'; & (Join-Path $PSScriptRoot 'Invoke-ApiCases.ps1') -Connection $connection
+    if($ReleaseRights){$phase=$mode+'-release-rights'; & (Join-Path $PSScriptRoot 'Invoke-ReleaseRightsCases.ps1') -Connection $connection}
     if($Full){$phase=$mode+'-lifecycle'; & (Join-Path $PSScriptRoot 'Invoke-LifecycleCases.ps1') -Connection $connection -Mode $mode}
     $phase=$mode+'-uninstall';Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Uninstall.Expanded.sql'))) $mode;Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Uninstall.Expanded.sql'))) $mode
     $remaining=Query $connection "SELECT COUNT_BIG(*) AS N FROM sys.objects WITH (NOLOCK) WHERE schema_id=SCHEMA_ID(N'toolbelt_tsql') AND name IN(N'USP_ExplainSsisDataFlow',N'USP_ExplainSsisDataFlowInternal');"

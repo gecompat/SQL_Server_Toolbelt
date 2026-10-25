@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import subprocess
 import sys
 import zipfile
 
@@ -61,6 +62,45 @@ def checked_member(archive: zipfile.ZipFile, name: str) -> bytes:
 
 
 def expected_payload(root: Path = ROOT) -> dict[str, bytes]:
+    update = root / RELEASE / 'ssis-release-update.json'
+    if update.is_file():
+        # Das Stable-Unterpaket bleibt eine unveränderte historische Lieferung.
+        # Ein Neubinden an das es selbst enthaltende Quell-ZIP wäre zirkulär.
+        record = json.loads(bounded_file(update))
+        require(record['publication_authorized'] is False
+                and re.fullmatch('[a-f0-9]{40}', record['public_baseline_commit']) is not None,
+                'Historische Stable-Lieferbasis fehlt.')
+        paths = (SOURCE, Path(str(SOURCE) + '.sha256'), RELEASE / 'release-plan.json',
+                 RELEASE / 'qualification.json', RELEASE / 'STABLE-SQL-INSTALL.md', Path('LICENSE.md'))
+        historical = {}
+        for path in paths:
+            result = subprocess.run(['git', 'show', record['public_baseline_commit'] + ':' + path.as_posix()],
+                                    cwd=root, capture_output=True, timeout=30)
+            require(result.returncode == 0, 'Historische Stable-Lieferquelle fehlt.')
+            historical[path] = result.stdout
+        require(sha(historical[SOURCE]) == record['previous_source_zip_sha256'],
+                'Historische Stable-Quellarchivbindung driftet.')
+        old_plan = json.loads(historical[RELEASE / 'release-plan.json'])
+        current_plan = json.loads(bounded_file(root / RELEASE / 'release-plan.json'))
+        require(old_plan['product_commit'] == record['previous_product_commit']
+                and current_plan['product_commit'] == record['current_product_commit'],
+                'Stable-Produktanwendbarkeit driftet.')
+        stable = lambda plan: sorted((m['module_id'], m['module_version']) for m in plan['modules']
+                                     if m['proposed_channel'] == 'stable')
+        require(stable(old_plan) == stable(current_plan)
+                and historical[RELEASE / 'qualification.json'] == bounded_file(root / RELEASE / 'qualification.json')
+                and historical[Path('LICENSE.md')] == bounded_file(root / 'LICENSE.md'),
+                'Stable-Umfang, native Evidenz oder Lizenz geändert.')
+        # Nur diese sechs festen, begrenzten Gitblobs werden in einem privaten
+        # temporären Lesebaum verwendet. Kein SQL und keine neue Qualifikation.
+        import tempfile
+        with tempfile.TemporaryDirectory(prefix='stable-history-') as temp:
+            previous = Path(temp)
+            for path, data in historical.items():
+                destination = previous / path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(data)
+            return expected_payload(previous)
     source = bounded_file(root / SOURCE, MAX_ARCHIVE)
     checksum = bounded_file(root / (str(SOURCE) + '.sha256')).decode('ascii').split()
     require(len(checksum) == 2 and re.fullmatch('[0-9a-fA-F]{64}', checksum[0]) is not None

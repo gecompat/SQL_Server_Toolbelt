@@ -105,6 +105,7 @@ jobs:
             [void][Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors)
             if ($errors.Count) { throw 'SSIS_CI_NATIVE_ADAPTER_SYNTAX_INVALID' }
           }
+          & Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-ReleaseRightsAdapter.ps1
       - name: Installation example contract without SQL access
         shell: pwsh
         run: ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-InstallationExample.ps1

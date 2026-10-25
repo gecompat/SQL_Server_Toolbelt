@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Text;
 using System.Xml.Linq;
@@ -44,7 +45,44 @@ internal static class ContractTests
     { try { var safety = Safety(new SyntheticCatalog()); var query = safety.Read("SELECT " + expression + " AS Value", "AdventureWorks"); Assert(Projection.Columns(query, safety)[0].SqlType == expected, "EXACT_SQL_TYPE_" + expected); } catch (Exception e) { throw new Exception("PROJECT_TYPE_" + expression, e); } }
     private static void Run(string[] args)
     {
-        if (args[0] == "json")
+        if (args[0] == "cooperative-budget")
+        {
+            var budget = new Budget(); budget.Check(); checks++;
+            System.Threading.Thread.Sleep(30050);
+            Reject(() => budget.Check(), "resource_limit");
+        }
+        else if (args[0] == "release-output-bounds")
+        {
+            // Feste Vertragsgrenzen am echten Providerkern; keine SQL-/Heapmessung.
+            foreach (int n in new[] { 9999,10000,10001 }) {
+                var output = new Artifacts(); Action add = () => { for(int i=0;i<n;i++) output.Add(new Artifact { Kind="Workflow", Content="" }); };
+                if(n<=10000){add();Assert(output.Rows.Count==n,"ARTIFACT_COUNT");}else Reject(add,"resource_limit");
+            }
+            foreach (int n in new[] { 999,1000,1001 }) {
+                var output = new Artifacts(); Action add = () => { for(int i=0;i<n;i++) output.Diagnostic("synthetic","synthetic",""); };
+                if(n<=1000){add();Assert(output.Rows.Count==n,"DIAGNOSTIC_COUNT");}else Reject(add,"resource_limit");
+            }
+            foreach (int n in new[] { 1048575,1048576,1048577 }) {
+                var output=new Artifacts();Action add=()=>output.Add(new Artifact {Kind="StageSql",Content=new string('x',n)});
+                if(n<=1048576){add();Assert(output.Rows.Count==1,"SQL_OUTPUT_BYTES");}else Reject(add,"resource_limit");
+            }
+            foreach (int n in new[] { 4194303,4194304,4194305 }) {
+                var output=new Artifacts();Action add=()=>output.Add(new Artifact {Kind="Workflow",Content=new string('x',n-1),Details="x"});
+                if(n<=4194304){add();Assert(output.Rows.Count==1,"TOTAL_CONTENT_DETAILS_BYTES");}else Reject(add,"resource_limit");
+            }
+            foreach(int n in new[]{127,128,129}) {
+                var safety=Safety(new SyntheticCatalog());Action parse=()=>{for(int i=0;i<n;i++)safety.Parse("SELECT "+i);};
+                if(n<=128){parse();safety.Parse("SELECT 0");checks++;}else Reject(parse,"resource_limit");
+            }
+            // Der feste Command-Guard wird ohne Öffnen einer SQL-Verbindung geprüft.
+            foreach(int n in new[]{127,128,129}) {
+                var catalog=new SqlCatalog(new System.Data.SqlClient.SqlConnection(),new Budget());
+                var command=typeof(SqlCatalog).GetMethod("Command",BindingFlags.Instance|BindingFlags.NonPublic);
+                Action create=()=>{for(int i=0;i<n;i++){try{using(var c=(System.Data.SqlClient.SqlCommand)command.Invoke(catalog,new object[]{"SELECT 1"})) { }}catch(TargetInvocationException e){throw e.InnerException;}}};
+                if(n<=128){create();checks++;}else Reject(create,"resource_limit");
+            }
+        }
+        else if (args[0] == "json")
         {
             Assert(Json.Write(Json.Parse("{\"b\":true,\"a\":18446744073709551615}")) == "{\"a\":18446744073709551615,\"b\":true}", "EXACT_JSON");
             Reject(() => Json.Parse("{\"a\":1,\"a\":2}"), "invalid_template");
@@ -150,6 +188,14 @@ internal static class ContractTests
                 var sql = result.Rows.Where(a => a.Kind == "TargetSql").ToList();
                 foreach (Artifact error in result.Rows.Where(a => a.Kind == "Diagnostic" && a.Code != "nolock_read_uncommitted" && a.Code != "arbitrary_lookup_selection" && a.Code != "lookup_comparison_deviation")) Console.Error.WriteLine(error.Content);
                 Assert(sql.Count == 2, "TWO_TARGETS");
+                var sourceStages=result.Rows.Where(a=>a.Kind=="StageSql" && a.Component=="Package\\Flow\\SourceA").ToList();
+                Assert(sourceStages.Count==2 && sourceStages.Select(a=>a.Target).Distinct().Count()==2,"SOURCE_STAGE_PER_TARGET");
+                foreach(int width in new[]{3999,4000,4001}) {
+                    byte[] longId=Change(bytes,d=>d.Descendants("component").Last().SetAttributeValue("refId",new string('x',width)));
+                    var longOptions=Options("explain");longOptions.Stage="all";
+                    if(width<=4000){longOptions.Bindings=Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()).Rows[0].Content;var full=Engine.Analyze(longId,longOptions,cat,new Budget());Assert(full.Rows.Any(a=>a.Component!=null && a.Component.Length==width),"ORIGINAL_COMPONENT_ID_NOT_TRUNCATED");}
+                    else Reject(()=>Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()),"resource_limit");
+                }
                 Assert(sql.All(a => a.Executable && a.Content.Contains("WITH (NOLOCK)") && a.Content.Contains("ROW_NUMBER() OVER (PARTITION BY") && a.Content.Contains("DECLARE @v")), "SQL_CONTRACT");
                 Assert(result.Rows.Any(a => a.Kind == "StageSql") && result.Rows.Any(a => a.Kind == "CleanupSql"), "STAGES_CLEANUP");
                 Assert(sql.All(a => a.Details != null && a.Details.Contains("catalogBinding") && a.Details.Contains("catalogSha256")), "CATALOG_BINDING_EXPORTED");
