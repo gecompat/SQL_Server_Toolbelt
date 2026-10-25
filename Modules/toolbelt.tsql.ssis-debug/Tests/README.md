@@ -524,3 +524,12 @@ Die Exchange-Gegenproben prüfen zusätzlich `--bundle` auf beiden Hosts. Fehlen
 ungültige, namespacefremd überschattete und doppelte DTSIDs bleiben ausdrücklich
 getrennte Fälle; Paketbytehash und Modellvorkommen müssen übereinstimmen. Diese
 synthetischen Kernproben belegen weder eine SSISDB-Ausführung noch deren Revision.
+
+### Pipelineidentitäten im gemeinsamen Austausch
+
+Der optionale Pipelinebundle wird durch denselben Austauschtest gegen externen
+und Frameworkhost verglichen. Die Gegenfälle prüfen gleiche Modellkennungen,
+Ports und Kanten, den Unterschied zwischen Pfadname und SDK-Identifikationsstring
+sowie unqualifizierte native Referenzsyntax. Die bestehenden Generatorfälle
+bleiben Regressionen. Diese Prüfung führt weder SSISDB-Pakete noch neue
+CLR-Releaseartefakte aus; die native Analyze-Abnahme bleibt getrennt.

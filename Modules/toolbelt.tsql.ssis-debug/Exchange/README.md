@@ -164,3 +164,28 @@ konkreten Befunden. Weitere Reviews werden dadurch nicht ausgelöst.
 Die externe Hostausführung ist unter Windows mit .NET 10 geprüft. Ein eigener
 Linux-Hostlauf, umfassende Ressourcenqualifikation, SDK-Parität, aktuelle
 Head-CI und eine Veröffentlichung sind getrennte Nachweise.
+
+## Optionale Pipelineidentitäten
+
+`--pipeline-bundle` liefert den bisherigen Scopebundle einschließlich neutralem
+Modell und Identitätssidecar 1.2.0 sowie zusätzlich `pipelineIdentities`.
+Der neue Sidecar `ssis-pipeline-identities` 1.0.0 verwendet unverändert
+`document-order-v1`, Paketbytehash und dieselben Knoten-, Port- und Kanten-IDs.
+Das [Schema](../Contracts/Exchange/SSIS_Pipeline_Identities_V1.schema.json)
+begrenzt die Ausgabe. Alte Hostmodi und SQL-Schnittstellen bleiben erhalten.
+
+Der gemeinsame Parser merkt sich native Pfadreferenz und Pfadname während
+seines vorhandenen Durchlaufs. Die Projektion verwendet diese Daten und die
+bereits aufgebauten Beziehungen; sie startet keine zweite XML-Auswertung und
+berechnet keine weitere Lineage. Qualifizierte Komponenten benötigen eine
+exakte native Referenz und einen innerhalb ihres Dataflows eindeutigen Namen.
+Der Identifikationsstring eines Pfads wird aus Quellkomponente und Ausgang
+gebildet. Er unterscheidet sich vom frei vergebenen Pfadnamen.
+
+Analyze kann diese Referenzen mit getrennt gebundenen SSISDB-Belegen verbinden.
+Der Sidecar selbst beweist weder eine Ausführung noch Komponenten-GUIDs in
+Katalogphasen oder eine bestimmte Zeilenzahl. Nicht qualifizierte Referenzen
+bleiben `UNQUALIFIED`. Der externe Modus verändert keine Loggingeinstellungen,
+führt keine Pakete aus und exportiert keine Datenwerte. Native Korrelation,
+Loggingabdeckung und die Laufzeitqualifikation des Empfängers bleiben eigene
+Nachweise. Der neue Modus liefert keinen aktualisierten CLR-Release oder ZIP.

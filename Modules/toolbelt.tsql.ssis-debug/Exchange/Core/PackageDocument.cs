@@ -95,7 +95,7 @@ namespace Toolbelt.Ssis.Exchange
         }
         internal sealed class Link
         {
-            internal string Kind, Scope, From, To, Resolution, Rule, Mapping; internal int Order;
+            internal string Kind, Scope, From, To, Resolution, Rule, Mapping, NativeReference, NativeName; internal int Order;
             internal object Export(int ordinal) { return Obj("id", "edge" + ordinal, "kind", Kind, "scopeId", Scope, "fromId", From, "toId", To, "resolution", Resolution, "evidence", Rule == null ? "DECLARED" : "DERIVED", "ruleId", Rule, "mappingRole", Mapping); }
         }
         private static string Classify(XElement e, XElement root)
@@ -250,7 +250,11 @@ namespace Toolbelt.Ssis.Exchange
                 if (e.Name == "path" && e.Parent.Name == "paths" && e.Parent.Parent.Name == "pipeline")
                 {
                     Definition owner = byElement[e.Ancestors().First(x => byElement.ContainsKey(x) && byElement[x].Kind == "EXECUTABLE")];
+                    int before = links.Count;
                     link("PIPELINE_PATH", resolve(Attribute(e, "startId"), "PORT", owner.Id), resolve(Attribute(e, "endId"), "PORT", owner.Id), owner.Id, position, null);
+                    // Der optionale Ausführungssidecar verwendet die bereits
+                    // hier materialisierte Deklaration; kein zweiter Pfadparser.
+                    if (links.Count > before) { links[links.Count - 1].NativeReference = (string)e.Attribute("refId"); links[links.Count - 1].NativeName = (string)e.Attribute("name"); }
                 }
                 if (e.Name == Dts + "PrecedenceConstraint")
                 {

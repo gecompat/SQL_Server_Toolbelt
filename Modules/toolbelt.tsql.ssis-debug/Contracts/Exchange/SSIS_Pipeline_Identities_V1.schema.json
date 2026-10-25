@@ -1,0 +1,178 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "identityProfile",
+    "packageSha256",
+    "pipelines"
+  ],
+  "properties": {
+    "contract": {
+      "const": "ssis-pipeline-identities"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "identityProfile": {
+      "const": "document-order-v1"
+    },
+    "packageSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "pipelines": {
+      "type": "array",
+      "maxItems": 20000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nodeId",
+          "profileStatus",
+          "components",
+          "paths"
+        ],
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^(pkg|exe|cmp|port)[1-9][0-9]{0,7}$"
+          },
+          "profileStatus": {
+            "enum": [
+              "SUPPORTED",
+              "UNQUALIFIED"
+            ]
+          },
+          "components": {
+            "type": "array",
+            "maxItems": 20000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "nodeId",
+                "name",
+                "nativeRefId",
+                "profileStatus"
+              ],
+              "properties": {
+                "nodeId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "pattern": "^(pkg|exe|cmp|port)[1-9][0-9]{0,7}$"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 256
+                },
+                "nativeRefId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 4000
+                },
+                "profileStatus": {
+                  "enum": [
+                    "SUPPORTED",
+                    "UNQUALIFIED"
+                  ]
+                }
+              }
+            }
+          },
+          "paths": {
+            "type": "array",
+            "maxItems": 50000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "edgeId",
+                "nativeRefId",
+                "name",
+                "identificationString",
+                "fromPortId",
+                "toPortId",
+                "sourceComponentId",
+                "destinationComponentId",
+                "profileStatus"
+              ],
+              "properties": {
+                "edgeId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "pattern": "^edge[1-9][0-9]{0,7}$"
+                },
+                "nativeRefId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 4000
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 4000
+                },
+                "identificationString": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 4000
+                },
+                "fromPortId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "toPortId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "sourceComponentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "destinationComponentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "profileStatus": {
+                  "enum": [
+                    "SUPPORTED",
+                    "UNQUALIFIED"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/SSIS_Pipeline_Identities_V1.schema.json",
+  "title": "SSIS pipeline execution references 1.0.0"
+}
