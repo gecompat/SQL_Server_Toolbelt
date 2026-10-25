@@ -26,8 +26,10 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den passenden Artefaktsatz einschließlich DLLs, SQL-/PowerShell-Skripten und
-SSMS-Beispiel zum Testen ohne eigenen Build.
+den bisherigen qualifizierten Artefaktsatz einschließlich DLLs, SQL-/PowerShell-
+Skripten und SSMS-Beispiel zum Testen ohne eigenen Build. Der neue gemeinsame
+Kern und der Exporthost sind noch nicht in diesem ZIP ausgeliefert; seine
+Buildnachweise stehen getrennt in der Prüfmatrix.
 
 Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
 Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz
@@ -48,9 +50,10 @@ im SQLCMD-Modus mit `DeploymentMode=local` oder `central` ausführen. Der
 UNSAFE-/Strict-Security-Vertrag wird nicht aufgeweicht. Shared Dependencies
 und Trusteinträge werden beim Uninstall nicht entfernt.
 
-Die begrenzte native V1-Fachmatrix besteht auf Windows SQL Server 2019/2022/2025
-jeweils lokal und zentral. Aktuelle Head-/Integrations-CI und Release bleiben
-gesondert offen. Seit der Benutzerklarstellung
+Die begrenzten nativen Fachnachweise umfassen Windows SQL Server 2019/2022/2025
+jeweils lokal und zentral. Die [Prüfmatrix](Tests/README.md) trennt deren
+Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Das Modul
+bleibt unveröffentlicht. Seit der Benutzerklarstellung
 vom 2026-10-16 verwendet sie `TestPurpose=Functional` mit dem ausdrücklich
 gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
 ist Serverzertifikatsprüfung keine fachliche Voraussetzung. Die getrennte
@@ -60,7 +63,7 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: gemeinsamer Exchange-Kern, externer .NET-10-Host, Framework Full und SQL2025 local/central Full`
-- Scope: Gemeinsames typisiertes Paketmodell für Generator und Exporthost; reproduzierbarer CLR-Build,21 Generator-Frameworkfälle und47 gemeinsame Schema-/Modellgegenproben bestanden. Windows SQL2025 lokal und zentral jeweils181 Kern-,61 API- und15 Lifecycleassertionen,514 insgesamt, mit eigenem Cleanup. Funktionales TLS gemäß Labvertrag; authentifizierte TLS-Abnahme, Linux-Hostlauf, SDK-Parität, Vorgängerupgrade für diesen Build und Veröffentlichung separat offen. Historische SQL2019/2022-Nachweise bleiben an ihre ursprünglichen Binaries gebunden.
+- Nachweis: `local: Invoke-LabContract.ps1 Full je Windows2019/2022 und local/central, echte SSIS-Build-/Parser-/Table-Clone-Upgrades; unabhängige Abschlussaudits`
+- Scope: Vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

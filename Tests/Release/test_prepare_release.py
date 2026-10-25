@@ -597,8 +597,12 @@ class ApiQualificationTests(unittest.TestCase):
         for case in cases.values():
             self.assertTrue(case['independent_cleanup_and_pin_audit'])
             self.assertEqual(case['result'], 'partially validated' if case['blocked_fixture_calls'] else 'validated')
-        for path, digest in api['fixture_source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+        # Auch die damals ausgeführten Fixtures gehören zum gebundenen Snapshot.
+        # Neue Testadapter werden separat qualifiziert; die alte Ausführung bleibt unverändert.
+        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+            for path, digest in api['fixture_source_sha256'].items():
+                recorded = archive.read('SQL-Server-Toolbelt-1.0.0-candidate-source/' + path).replace(b'\r\n', b'\n')
+                self.assertEqual(hashlib.sha256(recorded).hexdigest(), digest)
         module_results = {m['module_id']: m for m in api['module_results']}
         self.assertEqual(set(module_results), {t['module_id'] for t in spec['tests']})
         self.assertEqual(api['functional_calls_passed'], sum(c['passed_fixture_calls'] + c['reused_fixture_calls'] for c in cases.values()))

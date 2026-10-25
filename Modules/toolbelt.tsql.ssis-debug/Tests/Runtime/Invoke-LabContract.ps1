@@ -28,7 +28,11 @@ foreach($name in @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-La
  if($definition.Count -ne 1){throw 'LAB_DISCOVERY_NOT_UNIQUE'};. ([scriptblock]::Create($definition[0].Extent.Text))
 }
 $ssisNativeScopeClock=[Diagnostics.Stopwatch]::new();$ssisNativeCleanupPhase=$false
+$ssisNativeBoundedInvocation=$Modes.Count -eq 1
 function Get-SsisNativeTimeout([int]$Maximum=45){
+ # Bestehende Mehrfachmodus-Aufrufe behalten ihre bisherigen Einzelkommandogrenzen.
+ # Die neue Qualifikation ruft jeden Modus als eigenen begrenzten Fall auf.
+ if(-not $ssisNativeBoundedInvocation){return $Maximum}
  $deadline=if($ssisNativeCleanupPhase){360}else{300}
  $left=[Math]::Floor($deadline-$ssisNativeScopeClock.Elapsed.TotalSeconds)
  if($left -lt 1){throw 'SSIS_NATIVE_SCOPE_DEADLINE'}
