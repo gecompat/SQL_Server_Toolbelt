@@ -26,7 +26,7 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den qualifizierten SSIS-Build mit gemeinsamem Pipeline-Identitätskern einschließlich
+den qualifizierten SSIS-Build mit Pipeline-Identitäten und qualifizierten Lookup-Ausgangsrollen einschließlich
 passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
 Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
 Build- und Paketnachweise stehen getrennt in der Prüfmatrix.
@@ -67,8 +67,8 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: Pipeline-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 189-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Scope 1.2-Build; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im bisherigen SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
+- Nachweis: `local: Lookup-Ausgangsrollen Full 12 Windows/CL/Modus, Framework 23, gemeinsame 165 Modellgegenproben`
+- Scope: Build aus PR #447 mit unveränderter SQL-API und Parserpins. Zwölf explizite Windows-Ziel-/CL-/Modusfälle, 3516 Assertions mit Callerrechten, Grenzen, Lifecycle und echtem Upgrade vom ausgelieferten Pipelinebuild. Zwölf frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Grenzen 300/360/400 und Functional Encrypt=True mit explizitem Lab-Trust unverändert. ZIP-/Gesamtpaket, Windows-Identität/SSMS-GUI, authentifiziertes TLS, externer Linux-Host, Ressourcen-/Produktions- und Veröffentlichungsgates getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
