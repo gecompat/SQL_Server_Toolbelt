@@ -14,8 +14,10 @@ lokale/direkt zentrale Ziel-/CL-Kombinationen genau dieser Callerprofile.
 
 Die [Queue-Frontend-Callerrechte vom 2026-10-25](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen fünf Einzelgrants und einen Legacyproducer mit zusätzlicher
-Handler-Metadatensicht; zwölf lokale/direkt zentrale Ziel-/CL-Kombinationen.
-Leere Blockerview, Workerprofile und die frühere Policyqualifikation bleiben getrennt.
+Handler-Metadatensicht. Die [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+fügen sieben Worker-APIs und die befüllte Blockerview auf zwölf lokalen/direkt
+zentralen Ziel-/CL-Kombinationen hinzu. Provider-/Managed-/Ausgabevarianten
+und frühere Policyfälle behalten ihren eigenen Scope.
 
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad

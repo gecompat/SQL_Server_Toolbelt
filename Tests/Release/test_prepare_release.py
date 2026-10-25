@@ -505,6 +505,39 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_queue_worker_rights_binds_tokens_and_populated_blocker_states(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/queue-worker-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'product_sources_changed', 'module_status_changed', 'package_payload_changed',
+                     'managed_qualified', 'worker_host_provider_qualified', 'resulttable_worker_paths_qualified', 'barrier_snapshot_creation_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertTrue(report['fixed_own_claim_policy_required'])
+        self.assertTrue(report['claim_requires_handler_execute'])
+        self.assertEqual(report['public_apis'], {name: ('SELECT' if name.startswith('VW_') else 'EXECUTE') for name in
+                         ('USP_ClaimWork', 'USP_RenewWorkLease', 'USP_RecoverExpiredWork', 'USP_CompleteWork',
+                          'USP_FailWork', 'USP_ScheduleWorkRetry', 'USP_RequeueDeadLetter', 'VW_WorkQueueBarrierBlockers')})
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 192), ('strict_sql229_denials', 4776), ('strict_wrong_token_denials', 96),
+                             ('no_claim_reservations_without_handler_execute', 24), ('populated_barrier_view_states', 48)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        self.assertEqual(report['single_grant_api_profiles'], 168)
+        self.assertEqual(report['claim_with_handler_execute_profiles'], 24)
+        self.assertEqual(set(report['wrong_token_error_numbers'].values()), {51952, 51923, 51928, 51987})
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 26)
+        self.assertTrue(report['remaining_gates'])
+
     def test_split_cl_completion_reuses_only_identical_bound_inputs(self):
         import hashlib
         prior_path = ROOT / 'Releases/1.0.0/split-advanced-rights-qualification.json'

@@ -295,10 +295,11 @@ Lookup-/Helperpfad auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen.
 Großwert-/Konkurrenz-/Lifecycle-, echte CrossDB- und Recoverygates bleiben separat.
 
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
-ergänzen sechs Producer-/Status-/Viewprofile auf zwölf Ziel-/CL-Kombinationen.
-Der Legacyproducer braucht zusätzliche Handler-Metadatensicht; die Blockerview
-ist ausschließlich leer geprüft. Sieben andere öffentliche Worker-/Recovery-
-APIs, volle Blocker-/Managed-/Provider- und Recoveryverträge bleiben offen.
+und [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) belegen direkte
+Callerprofile aller 13 öffentlichen Queue-APIs auf zwölf Ziel-/CL-Kombinationen.
+Die befüllte Blockerview ist vor/nach eigenem Complete geprüft; Snapshotanlage,
+Managed-/Provider-/Workerhost-, ResultTable-Ausgabe-, volle Lifecycle-/
+Parallelitäts-/Ressourcen- und harte Recoveryverträge bleiben separat.
 
 Die [Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
 sind durch den [ergänzenden CL-Abschluss](SPLIT-ADVANCED-CL-COMPLETION.md)

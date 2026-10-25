@@ -17,7 +17,10 @@ Das Modul bleibt `unreleased`.
 Der [zusätzliche Callerrechtebericht](../../Releases/1.0.0/QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 prüft sechs Producer-/Status-/Viewprofile. Das ältere Enqueue benötigt
 zusätzliche Handler-Metadatensicht; die Blockerview ist nur leer geprüft.
-Andere Worker-/Recoveryprofile behalten ihre eigenen offenen Nachweise.
+Die [Worker-Callerrechte](../../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+ergänzen sieben Worker-APIs und eine befüllte Blockerview auf zwölf Ziel-/CL-
+Kombinationen. Direkte Callerprofile sind damit abgedeckt; Managed-/Provider-/
+Workerhost-, ResultTable- und andere Betriebsvarianten behalten eigene Gates.
 
 ### Historischer Stand 2.0
 

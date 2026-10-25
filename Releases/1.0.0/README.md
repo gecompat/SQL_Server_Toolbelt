@@ -47,9 +47,11 @@ neue niedrigere CL-Fälle und sechs unverändert wiederverwendete Fälle.
 Drei Einzelgrants und der Helperpfad bleiben getrennt; weitere Modulpflichtfälle offen.
 
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
-ergänzen sechs Producer-/Status-/Viewprofile auf zwölf Ziel-/CL-Kombinationen.
-Der Legacyproducer benötigt zusätzlich enge Handler-Metadatensicht; die
-Blockerview ist nur leer geprüft. Worker-/Recoveryprofile bleiben separat.
+ergänzen sechs Producer-/Status-/Viewprofile. Die
+[Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) ergänzen sieben
+Worker-APIs und die befüllte Blockerview auf zwölf Ziel-/CL-Kombinationen.
+Damit bestehen direkte Callerprofile aller 13 öffentlichen APIs; Managed-/
+Provider-/ResultTable- und weitere Betriebsvarianten bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad
