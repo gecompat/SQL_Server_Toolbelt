@@ -1,5 +1,7 @@
 # Directional TRIM Compatibility
 
+Aktuelle [Utility-Callerrechte](../../Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md): einzelne SELECT-/EXECUTE-Grants für16 öffentliche Funktionen lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; andere APIs, direkte Dependencies und Helper bleiben unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren Scope; keine Statusaufwertung.
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 Das Modul setzt `LEADING`, `TRAILING` und `BOTH` als zwei kanonische inline TVFs um. `TVF_TrimDirectionalVarchar` und `TVF_TrimDirectionalNvarchar` erhalten ihren jeweiligen Rückgabetyp und sind für `CROSS APPLY` vorgesehen.
