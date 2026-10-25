@@ -300,6 +300,12 @@ Der Legacyproducer braucht zusätzliche Handler-Metadatensicht; die Blockerview
 ist ausschließlich leer geprüft. Sieben andere öffentliche Worker-/Recovery-
 APIs, volle Blocker-/Managed-/Provider- und Recoveryverträge bleiben offen.
 
+Die [Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+ergänzen drei Einzelgrants und den getrennten Helperpfad auf Windows/Linux
+SQL2019 CL150, SQL2022 CL160 und SQL2025 CL170. Windows/Linux SQL2022 CL150
+und SQL2025 CL150/160 bleiben in diesem Callerprofil-Scope nicht ausgeführt;
+weitere Lifecycle-/CrossDB-/Recoveryverträge behalten ihre eigenen Gates.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |

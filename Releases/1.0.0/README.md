@@ -40,6 +40,12 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Die [Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+sind auf allen sechs physischen Versions-/Plattformzielen mit SQL2019 CL150,
+SQL2022 CL160 und SQL2025 CL170 lokal/direkt zentral geprüft. Drei Einzelgrants
+und der Helperpfad bleiben getrennt; sechs niedrigere CL-Kombinationen sind
+in diesem Scope ausdrücklich nicht ausgeführt.
+
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen sechs Producer-/Status-/Viewprofile auf zwölf Ziel-/CL-Kombinationen.
 Der Legacyproducer benötigt zusätzlich enge Handler-Metadatensicht; die

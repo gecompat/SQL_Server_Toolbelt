@@ -12,6 +12,11 @@ Heartbeat dient ausschließlich als letzte Instanz zur Leerlauferkennung.
 Die laufenden SSIS-Themen verbleiben beim separaten aktiven Chat; hier werden
 weder dessen Dateien, Branches, Tests noch Ressourcen übernommen.
 
+Der Benutzer hat den gemeinsamen endlichen Rahmen ausdrücklich auf insgesamt
+acht eigene PR-Wellen und 100 native Zielprüfungen erweitert. Das ursprüngliche
+Achtstundenfenster und sämtlicher bisheriger Verbrauch bleiben unverändert;
+keine Budgetresets. Nach Abschluss der achten Welle beginnt keine neue Entwicklung.
+
 Der Arbeitsplan beginnt mit dem Abschluss von v1.0.0 und der noch fehlenden
 Rechtequalifikation außerhalb von SSIS. Danach folgen Datei-/Identitätsgates,
 Worker-/Recovery- und weitere Preview-Nachweise nach Ausführbarkeit. TLS bleibt
@@ -118,6 +123,20 @@ Objektdokumentation erklären den aktuellen 2.1-Stand und diese vorhandene
 Voraussetzung. Keine Produkt-/Manifest-/Status-/Server-/Paketänderung; sieben
 andere positive Workerprofile, volle Blocker-/Managed-/Recoveryverträge und
 aktuelle Head-/Main-CI bleiben getrennt.
+
+### Achte Welle: Split-Advanced-Callerrechte
+
+Vor Umsetzung geplant: die beiden TVFs und die USP getrennt mit einem
+Objektrecht prüfen, den ResultTable-/Helperpfad gesondert zählen. Feste
+Originaltokens, Unquoting, NULL-/Konfigurationsfälle, SQL229/51680 und
+Bereinigung sind im [Rechtebericht](../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+gebunden. Die sechs physischen Windows-/Linux-/SQL-Ziele sind bei jeweils
+höchstem CL geprüft; sechs niedrigere CL-Kombinationen bleiben ausdrücklich
+ungeprüft. Zwei Orakelkontrollen wurden erwartungsgemäß verworfen; alle
+14 eigenen Datenbanknamen sind frisch unabhängig als abwesend geprüft. Keine
+Produkt-/Manifest-/Status-/Server-/Paketänderung; Head-/Main-CI und die
+verbleibenden Releasegates bleiben getrennt. Nach Integration und Main-CI dieser
+achten eigenen PR-Welle endet der endliche autonome Entwicklungsauftrag.
 
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
