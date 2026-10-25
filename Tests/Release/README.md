@@ -1,5 +1,36 @@
 # Releasevorbereitung prüfen
 
+## Event-Log-Caller mit exakter Rollback-Abschlussprüfung
+
+`prepare_event_log_rights.py` verwendet unverändert den bisherigen Composer
+und ergänzt ausschließlich `Runtime/EventLog.PostAssertions.sql` hinter dessen
+gemeinsamer Abschlussprüfung. Reihenfolge: gemeinsamer Prelude,
+`EventLog.FunctionCases.sql`, gemeinsame Assertions, eigener Postlude. Diese
+vierte Datei prüft nach REVERT/Principal-Cleanup den Transaktions- und
+Identitätszustand sowie die vollständige ursprüngliche synthetische Zeilenmenge.
+Transaktions- und Metadatenprüfungen laufen in getrennten Statements.
+
+```powershell
+python -B Tests/Release/test_event_log_composition.py
+python -B Tests/Release/prepare_event_log_rights.py --output .runtime/contoso-event-log-inputs
+```
+
+Erwartet werden drei Offlineprüfungen und zwei Dateien in einem neuen privaten
+Ausgabeordner: `FunctionRights.sql` und `composition.json`. Der Compiler führt
+kein SQL aus und verweigert vorhandene oder öffentliche Ausgabeziele. Bestehende
+Evidenz wird nicht überschrieben. Der unveränderte native T-SQL-Runsetvertrag
+bindet danach alle vier SQL-Teile, beide Composer und die tatsächlichen
+Installations-/Treiberbytes. Die bestehende Release-Regressionsprüfung bindet
+auch die vierteilige Komposition und den [Callerbericht](../../Releases/1.0.0/EVENT-LOG-CALLER-QUALIFICATION.md).
+Es entstehen keine neuen CI-Jobs oder Trigger und keine Wiederholung älterer
+unveränderter grüner Matrixfälle. Bei Kompositions-/Pinfehlern zuerst die festen
+Quellteile und den neuen privaten Zielordner prüfen; den nativen Lauf nicht mit
+veränderten Altjournalen wiederholen. Frühere bereinigte Versuche bleiben im
+Bericht getrennt erhalten.
+
+
+[Event Log: Lesen und lokale Retention mit Einzelrechten](../../Releases/1.0.0/EVENT-LOG-CALLER-QUALIFICATION.md): 3 APIs, zwölf Fälle lokal/direkt zentral, 72 Einzelgrantprofile und 648 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 [Providerview mit einzelnem SELECT-Recht](../../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 [JSON Pointer mit einzelnem SELECT-Recht](../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
