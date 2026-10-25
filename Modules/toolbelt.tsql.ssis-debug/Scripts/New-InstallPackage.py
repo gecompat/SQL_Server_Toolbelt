@@ -33,7 +33,7 @@ def build(args):
         require(path in names, 'source missing: ' + path)
         return subprocess.check_output(['git', 'show', commit + ':' + path], cwd=ROOT)
     payload = {p: source(p) for p in names if any(p.startswith('Modules/' + m + '/') for m in MODULES)
-               and '/InstallPackages/' not in p}
+               and ('/InstallPackages/' not in p or p == MODULE + 'InstallPackages/README.md')}
     for p in ('LICENSE.md', 'Documentation/Standards/USP_CONTRACT.md',
               'Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md',
               'Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md',

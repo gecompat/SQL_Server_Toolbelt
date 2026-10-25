@@ -120,6 +120,8 @@ def main(archive_path=None):
             'canonical native qualification')
     qualification = json.loads(payload[qualification_path])
     explicit_cl = release_pins['qualification_evidence'] == 'Tests/Qualification/Release.Windows.CL.20261025.json'
+    if explicit_cl:
+        require(ssis + 'InstallPackages/README.md' in payload, 'human package navigation missing')
     expected = {(v,cl,m) for v,levels in (('2019',(150,)),('2022',(150,160)),('2025',(150,160,170)))
                 for cl in levels for m in ('local','central')} if explicit_cl else {
                     (v,m) for v in ('2019','2022','2025') for m in ('local','central')}
