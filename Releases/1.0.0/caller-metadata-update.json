@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "publication_authorized": false,
+  "kind": "exact_caller_metadata_only",
+  "public_baseline_commit": "f6a7daa3a176510d04dc2914c958ca91954e7feb",
+  "previous_product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
+  "previous_product_tree": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
+  "previous_source_zip_sha256": "0e41757e83da5a304c3e877080548798db66125e42cb7dc05e35b0146b8f81cf",
+  "manifests": {
+    "Modules/toolbelt.conversion.base64/module.yaml": {
+      "executed_sha256": "7f97edb71c229d90673a9a928d14f44b8b3fc59c30bed3ebfd0e8d9904e3f62a",
+      "current_sha256": "44ab4a7b4fc9720b7d8ea49623611bc6bcff3dfceee10bd6de6479a998269d50"
+    },
+    "Modules/toolbelt.conversion.integer-base/module.yaml": {
+      "executed_sha256": "9523d8e7d375c064d9c70726aaddc7bae86264a3997361a1b6f92a17010fffdc",
+      "current_sha256": "038df454c1dd9a6abbcdd3b0c4364dc9f0a72dc28db480f309578850d2d86ac4"
+    },
+    "Modules/toolbelt.conversion.uri-component/module.yaml": {
+      "executed_sha256": "821d5920645d301216d8ad7cf08b77b9dc3220e2d80aa9684ed06d8c5c02a380",
+      "current_sha256": "a56294ce87c0e91ec4291a6ac663b2c07480e75c6673b86b0bedbab829b22e28"
+    },
+    "Modules/toolbelt.metadata.identifier/module.yaml": {
+      "executed_sha256": "ba6e6facc3155598fa3ba55ebe8225479b94e3b48c4e6d032e83174e8f202207",
+      "current_sha256": "41c79c56c290915c2dcaf4e1bab4bdf704375a299752bb3ee09add5cf613066a"
+    },
+    "Modules/toolbelt.validation.semantic-version/module.yaml": {
+      "executed_sha256": "bc8e2e6c5ed64e3312902bd5b40e632d2800d4e9850e6ff2824851d7c8167949",
+      "current_sha256": "423ea97e4a08a9899f788ec65bdd321410c595c1fca87955642ff14be10a4f2f"
+    },
+    "Modules/toolbelt.json.schema/module.yaml": {
+      "executed_sha256": "5d79eec3773e39ee35c38647eaa912fd08494c433ccf88eb8e311cbc84d90c47",
+      "current_sha256": "335b37830257c62e2f212585ba13327a1a6bd6963fd7bbb7d8b2609f8cb9a0bf"
+    }
+  },
+  "historical_reports_sha256": {
+    "Releases/1.0.0/conversion-caller-qualification.json": "45852b68adb0815c14e014f368e3235d072ffd6951a768e8eafcba7ca589c63f",
+    "Releases/1.0.0/utility-caller-qualification.json": "e2c0c840b41c6961db810db0c21e2ecf104be2e732366f9cbf5986e2d492577b",
+    "Releases/1.0.0/json-schema-caller-profile.json": "48326cc25ee911480e238ef2e79e0dbee8df3e5a7fc6ce7a2ea4c6f29684e0fb"
+  },
+  "native_replay_performed": false,
+  "automatic_grants_added": false,
+  "module_statuses_changed": false,
+  "product_sql_or_binary_changed": false
+}

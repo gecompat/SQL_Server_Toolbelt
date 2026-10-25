@@ -60,7 +60,8 @@ objects:
   - { type: TVF, schema: "toolbelt_conversion", name: "TVF_Base64DecodeStatus", visibility: public }
 
 permissions_required:
-  - "SELECT oder REFERENCES auf den Scalar-valued Functions"
+  - "SELECT auf toolbelt_conversion.TVF_Base64Encode, TVF_Base64Decode, TVF_Base64EncodeStatus und TVF_Base64DecodeStatus"
+  - "EXECUTE auf toolbelt_conversion.SVF_Base64Encode und SVF_Base64Decode"
   - "DDL-Rechte für Deploy und Uninstall"
 
 collation_contract: "Base64 ist ein ASCII-Vertrag; der Encode-Rückgabewert verwendet die Datenbank-Default-Collation."

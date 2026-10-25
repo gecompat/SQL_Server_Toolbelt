@@ -1,5 +1,9 @@
 # JSON Schema: nachgewiesenes Caller-Rechteprofil
 
+Die damals offene Manifest-/Paketlücke ist durch die spätere
+[exakte Metadatenkorrektur](CALLER-METADATA-UPDATE.md) geschlossen.
+Der folgende Ausführungsbericht behält seine ursprünglichen Quellen und Grenzen.
+
 Stand 2026-10-25. Die vorhandene JSON-Schema-USP 1.0.1 besteht auf zwölf
 Windows-/Linux-Ziel-/CL-Kombinationen lokal und direkt zentral. Die neue
 SQL-Fixture belegt 168 Rechtezustände,24 positive Profile, 240 feste Fachfälle,

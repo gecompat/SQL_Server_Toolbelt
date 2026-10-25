@@ -21,6 +21,9 @@ Es enthält genau die beiden bereits qualifizierten SQL-Payloads, unveränderte
 Lizenz, Anleitung, Herkunftsmanifest und Dateiprüfsummen. Dies ergänzt die
 Lieferform; Modulstatus, Support- und Veröffentlichungsgrenzen bleiben bestehen.
 
+Die [Caller-Rechteübersicht](CALLER-METADATA-UPDATE.md) erklärt die korrigierten
+Einzelrechte für sechs Module und die getrennten historischen Nachweise.
+
 ## Was enthalten ist
 
 Alle 45 implementierten Module mit ihren unveränderten Modulversionen,

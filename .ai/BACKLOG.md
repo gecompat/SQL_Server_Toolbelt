@@ -1,5 +1,15 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Caller-Metadaten und Paketbindung — 2026-10-25
+
+Unmittelbarer Auftrag: verbleibende Releasegates autonom abarbeiten und mit dem anderen
+Toolbelt-Chat abstimmen; Heartbeat als Sicherheitsnetz, keine Veröffentlichung.
+Übernommener endlicher Scope: sechs nachgewiesene Caller-Rechtefelder, exakte
+Metadatendeltaprüfung, gekoppelte Lesewege und Paketbindung. Originale native
+Quellpins bleiben erhalten, keine neue SQL-Funktion oder automatische Grants.
+[Nachweis und Grenzen](../Releases/1.0.0/CALLER-METADATA-UPDATE.md).
+
+
 ## Siebter endlicher Release-Rahmen
 
 Direkt am 2026-10-25 erneut autorisiert; vor Entwicklung auf eine PR-Welle, zwei Stunden ab Originalstart und höchstens 20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Sechs frühere Rahmen bleiben abgeschlossen und unverändert. Entwickelt und nativ geprüft wurden ein eigener JSON-Schema-Caller-Testtreiber und eine feste SQL-Fixture für die bestehende USP 1.0.1. 14 native Versuche einschließlich zweier gezielt abgewiesener Kontrollen; kein neuer Produktcode. SSIS und fremde Arbeit bleiben ausgenommen.

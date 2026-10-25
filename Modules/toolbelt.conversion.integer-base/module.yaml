@@ -53,7 +53,8 @@ objects:
     visibility: public
 
 permissions_required:
-  - "SELECT oder REFERENCES auf den Scalar-valued Functions"
+  - "SELECT auf toolbelt_conversion.TVF_IntegerToBase und TVF_TryBaseToInteger"
+  - "EXECUTE auf toolbelt_conversion.SVF_IntegerToBase und SVF_TryBaseToInteger"
   - "DDL-Rechte für Deploy und Uninstall"
 
 collation_contract: "Alphabet-Eindeutigkeit und Ziffernzuordnung verwenden Latin1_General_100_BIN2; Groß- und Kleinschreibung bleiben verschieden."

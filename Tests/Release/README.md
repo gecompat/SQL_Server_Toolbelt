@@ -1,5 +1,11 @@
 # Releasevorbereitung prüfen
 
+Die [Caller-Metadatenprüfung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md)
+läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:
+`python -B Tests/Release/test_caller_metadata.py`; ursprüngliche Caller-Pins
+bleiben erhalten, Runtime-/Vertragsänderungen werden abgewiesen.
+
+
 ## JSON-Schema-Caller mit drei Objektrechten
 
 Der [JSON-Schema-Bericht](../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) beschreibt `Invoke-JsonSchemaCallerLab.ps1`, `Runtime/JsonSchema.CallerRights.sql`, das genaue Rechteprofil, private Runset-/Pin-Anforderungen und die separate Offlineprüfung `python -B Tests/Release/test_json_schema_caller_profile.py`. Die vorhandenen gemeinsamen Konfigurations-/Trusthelfer bleiben unverändert. Neue Tests ändern keine Produktfunktion; alle ursprünglichen Nachweise bleiben gebunden.
