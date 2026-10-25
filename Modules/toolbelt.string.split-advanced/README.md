@@ -18,10 +18,12 @@ markerbasiert ersetzt. Sourcehash ist nur diagnostisch.
 
 Uninstall: `sqlcmd -d ToolbeltDemo -b -i Uninstall.sql -v ConfirmNoExternalConsumers=0`; zentral ausschließlich mit `-v ConfirmNoExternalConsumers=1`. Lokale referenzierende Objekte verhindern Deinstallation. Betreiber müssen externe Verbraucher vor zentraler Deinstallation prüfen.
 
-Der [zusätzliche Callerrechtebericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
-belegt drei Einzelgrantprofile und einen getrennten ResultTable-/Helperpfad
-auf Windows/Linux SQL2019 CL150, SQL2022 CL160 und SQL2025 CL170. Die weiteren
-CL-Kombinationen, Lifecycle- und echten CrossDB-Kontexte bleiben separat.
+Der [ursprüngliche Callerrechtebericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+belegt drei Einzelgrantprofile und den getrennten ResultTable-/Helperpfad auf
+sechs physischen Zielen bei höchstem CL. Der
+[ergänzende CL-Abschluss](../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
+fügt die sechs niedrigeren CL-Fälle hinzu, ohne unveränderte grüne Fälle zu
+wiederholen. Lifecycle- und echte CrossDB-Kontexte bleiben separat.
 
 ## Aktuelle Validierungsevidenz
 
