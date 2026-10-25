@@ -1233,5 +1233,134 @@ if(-not $caught){throw 'CALLBACK_DEADLINE_LOST'}
         self.assertIn('PASS OFFLINE_API_GUARDS', result.stdout)
 
 
+class StableSqlPackageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('stable_sql_package', ROOT / 'Scripts/Release/prepare_stable_sql_package.py')
+        cls.package = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.package)
+        cls.payload = cls.package.expected_payload()
+
+    def test_committed_standalone_zip_and_payload_lineage(self):
+        import hashlib
+        package = self.package
+        data = (ROOT / package.PACKAGE).read_bytes()
+        package.verify(data)
+        self.assertEqual((ROOT / (str(package.PACKAGE) + '.sha256')).read_text().split(),
+                         [hashlib.sha256(data).hexdigest(), package.PACKAGE.name])
+        manifest = json.loads(self.payload['PACKAGE-MANIFEST.json'])
+        self.assertEqual(len(manifest['stable_candidates']), 19)
+        self.assertEqual(len({m['module_id'] for m in manifest['stable_candidates']}), 19)
+        self.assertTrue(manifest['payload_native_qualification_reused'])
+        self.assertFalse(manifest['standalone_archive_native_execution'])
+        self.assertFalse(manifest['publication_authorized'])
+        self.assertNotEqual(manifest['source_archive_sha256'], manifest['historical_native_archive_sha256'])
+        self.assertEqual(self.payload['LICENSE.md'], (ROOT / 'LICENSE.md').read_bytes())
+
+    def test_deterministic_bytes_and_reject_payload_manifest_guide_license_drift(self):
+        package = self.package
+        self.assertEqual(package.zip_payload(self.payload), package.zip_payload(dict(reversed(list(self.payload.items())))))
+        for name in ('Install-Stable-local.sql', 'Install-Stable-central.sql', 'PACKAGE-MANIFEST.json',
+                     'START-HERE.md', 'LICENSE.md', 'SHA256SUMS'):
+            with self.subTest(name=name):
+                payload = dict(self.payload)
+                payload[name] += b'\n-- synthetic drift\n'
+                with self.assertRaises(ValueError):
+                    package.verify(package.zip_payload(payload))
+
+    def test_reject_path_escape_extra_missing_duplicate_and_symlink_entries(self):
+        package = self.package
+        for name in ('../escape.sql', '/absolute.sql', 'nested/extra.sql', 'foreign.sql'):
+            with self.subTest(name=name):
+                payload = dict(self.payload)
+                payload[name] = b'SELECT 1;'
+                with self.assertRaises(ValueError):
+                    package.verify(package.zip_payload(payload))
+        payload = dict(self.payload)
+        payload.pop('LICENSE.md')
+        with self.assertRaises(ValueError):
+            package.verify(package.zip_payload(payload))
+        for duplicate in (False, True):
+            output = io.BytesIO()
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', UserWarning)
+                with zipfile.ZipFile(output, 'w') as archive:
+                    for name, data in self.payload.items():
+                        info = zipfile.ZipInfo(package.NAME + '/' + name)
+                        info.create_system = 3
+                        info.external_attr = ((stat.S_IFLNK if name == 'LICENSE.md' and not duplicate else stat.S_IFREG) | 0o644) << 16
+                        archive.writestr(info, data)
+                    if duplicate:
+                        archive.writestr(package.NAME + '/LICENSE.md', b'synthetic duplicate')
+            with self.assertRaises(ValueError):
+                package.verify(output.getvalue())
+
+    def test_reject_changed_source_checksum_qualified_sql_pin_and_license(self):
+        import tempfile
+        package = self.package
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for path in (package.SOURCE, Path(str(package.SOURCE) + '.sha256'), package.RELEASE / 'release-plan.json',
+                         package.RELEASE / 'qualification.json', package.RELEASE / 'STABLE-SQL-INSTALL.md', Path('LICENSE.md')):
+                target = root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / path, target)
+            for path in (Path(str(package.SOURCE) + '.sha256'), package.RELEASE / 'qualification.json', Path('LICENSE.md')):
+                original = (root / path).read_bytes()
+                if path.name == 'qualification.json':
+                    document = json.loads(original)
+                    document['native_package']['sql_payload_sha256']['Install-Stable-local.sql'] = '0' * 64
+                    altered = json.dumps(document).encode()
+                else:
+                    altered = b'synthetic drift'
+                (root / path).write_bytes(altered)
+                with self.assertRaises(ValueError):
+                    package.expected_payload(root)
+                (root / path).write_bytes(original)
+
+    def test_no_overwrite_of_zip_or_checksum(self):
+        import tempfile
+        package = self.package
+        data = package.zip_payload(self.payload)
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'synthetic.zip'
+            checksum = Path(str(output) + '.sha256')
+            checksum.write_bytes(b'existing checksum')
+            with self.assertRaises(ValueError):
+                package.write_artifacts(output, data)
+            self.assertFalse(output.exists())
+            self.assertEqual(checksum.read_bytes(), b'existing checksum')
+            checksum.unlink()
+            package.write_artifacts(output, data)
+            with self.assertRaises(ValueError):
+                package.write_artifacts(output, b'drift')
+            self.assertEqual(output.read_bytes(), data)
+
+    def test_failed_checksum_write_preserves_intervening_foreign_output_drift(self):
+        import tempfile
+        from unittest.mock import patch
+        package = self.package
+        data = package.zip_payload(self.payload)
+        original_open = Path.open
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'synthetic.zip'
+            checksum = Path(str(output) + '.sha256')
+            def fail_checksum(path, *args, **kwargs):
+                if path == checksum:
+                    output.write_bytes(b'synthetic intervening foreign drift')
+                    raise OSError('synthetic checksum write failure')
+                return original_open(path, *args, **kwargs)
+            with patch.object(Path, 'open', fail_checksum):
+                with self.assertRaises(OSError):
+                    package.write_artifacts(output, data)
+            self.assertEqual(output.read_bytes(), b'synthetic intervening foreign drift')
+
+    def test_reject_oversized_zip_entry(self):
+        payload = dict(self.payload)
+        payload['Install-Stable-local.sql'] = b'x' * (self.package.MAX_ENTRY + 1)
+        with self.assertRaises(ValueError):
+            self.package.verify(self.package.zip_payload(payload))
+
+
 if __name__ == "__main__":
     unittest.main()

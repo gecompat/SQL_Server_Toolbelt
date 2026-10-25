@@ -33,17 +33,17 @@ erteilt keine Rechte und konfiguriert keinen SQL Server.
 
 ## 1. Das vorbereitete Paket herunterladen
 
-1. Öffne die [ZIP-Dateiseite im Repository](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip).
+1. Öffne die [ZIP-Dateiseite im Repository](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip).
    Lade die Datei über **Download raw file** beziehungsweise das Downloadsymbol
-   herunter. Ihr Name ist `SQL-Server-Toolbelt-1.0.0-candidate-source.zip`.
-2. Lade daneben die [SHA-256-Prüfsumme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip.sha256)
+   herunter. Ihr Name ist `SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip`.
+2. Lade daneben die [SHA-256-Prüfsumme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip.sha256)
    aus demselben Repositorystand herunter. Die erste Zeichenfolge in dieser
    Textdatei ist der erwartete Hash.
 3. Prüfe vor dem Auspacken in PowerShell, ob der Download vollständig
    ist. Ersetze den Beispielpfad durch den Speicherort deiner ZIP:
 
    ```powershell
-   Get-FileHash -LiteralPath 'C:\Temp\SQL-Server-Toolbelt-1.0.0-candidate-source.zip' -Algorithm SHA256
+   Get-FileHash -LiteralPath 'C:\Temp\SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip' -Algorithm SHA256
    ```
 
    Vergleiche die 64 Zeichen unter `Hash` mit der Prüfsummendatei. Groß- und
@@ -52,11 +52,17 @@ erteilt keine Rechte und konfiguriert keinen SQL Server.
    Dieser Vergleich prüft Dateiintegrität; eine digitale Signatur ersetzt er nicht.
 4. Klicke die ZIP im Windows-Explorer mit der rechten Maustaste an und wähle
    **Alle extrahieren**. Öffne anschließend den entpackten Ordner
-   `SQL-Server-Toolbelt-1.0.0-candidate-source`.
+   `SQL-Server-Toolbelt-1.0.0-Stable-SQL`.
 
-Du bist im richtigen Ordner, wenn du dort `START-HERE.md`, `INSTALL.md` und
-`Install-Stable-local.sql` siehst. Die SQL-Datei muss vollständig entpackt
+Du bist im richtigen Ordner, wenn du dort `START-HERE.md`, `Install-Stable-local.sql` und
+`Install-Stable-central.sql` siehst. Die SQL-Datei muss vollständig entpackt
 vorliegen. Für diesen Weg ist sie bereits fertig erzeugt.
+
+Die [kurze Paketanleitung](Releases/1.0.0/STABLE-SQL-INSTALL.md) liegt als
+`START-HERE.md` bei. Das kleine ZIP enthält genau die stabilen SQL-Installer;
+für Quellen und modulweise Deinstallation gibt es weiterhin das
+[vollständige Quellpaket](Releases/1.0.0/README.md#was-enthalten-ist).
+Die SQL-Payloads bleiben bytegleich zum qualifizierten Kandidaten.
 
 ## 2. Mit SQL Server verbinden
 
