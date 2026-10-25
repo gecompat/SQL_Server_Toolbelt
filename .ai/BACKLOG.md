@@ -2,6 +2,41 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Dritter endlicher Release-Rahmen — 2026-10-25
+
+Erneuter unmittelbarer Benutzerauftrag: die verbleibenden ausführbaren bereits
+freigegebenen Releasegates autonom fortsetzen, stündlichen Heartbeat reaktivieren
+und grüne Wellen per PR integrieren; SSIS verbleibt beim anderen Chat.
+Vor Entwicklung: höchstens vier zusätzliche PR-Wellen, vier Stunden und 60
+neue native Zielversuche einschließlich Fehlern/Nachfolgern. Die früheren
+acht PRs/94 Versuche und vier PRs/34 Versuche bleiben getrennt abgeschlossen.
+Ein Owner, keine zusätzlichen Agenten/CI-Jobs; Kosten/Tokens unbekannt.
+
+Plan nach Quelleninventar: Konvertierungs-Callerprofile; GenerateSeries und
+DateSpine; übrige native Utilityprofile aus BitOperations/DirectionalTrim/
+SplitCharacters sowie Identifier/SemanticVersion. Die zwei kleinen Utility-
+Gruppen sind vor ihrer Entwicklung zu einer vergleichbar großen kohärenten
+Qualifikationswelle gebündelt; keine Funktion oder Plattform entfällt. Eine
+vierte Welle benötigt einen vorab konkret geplanten, weiterhin freigegebenen
+und ausführbaren Restscope sowie ausreichendes gemeinsames Budget.
+
+Die erste Welle belegt [16 Konvertierungsprofile](../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md)
+auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral: 384 Einzelgrantprofile,
+7.680 SQL229-Abweisungen, zwei verworfene Kontrollen, drei beibehaltene frühere
+Zeilenenden-Bindungen und einen bereinigten Installationsfehler mit geprüftem
+frischem Nachfolger. Alle 27 aktuellen Datenbanknamen sind frisch unabhängig
+als abwesend bestätigt. Produkt-SQL, Modulstatus und Pakete bleiben unverändert.
+
+Konkrete Metadatenlücke: Die pauschalen `permissions_required`-Labels von
+Base64/IntegerBase/UriComponent nennen SELECT/REFERENCES für Scalarwrapper.
+Der tatsächliche direkte Caller benötigt das hier geprüfte EXECUTE; TVFs
+bleiben beim einzeln geprüften SELECT. Die an den eingefrorenen Quellpaket-
+stand gebundenen Labels werden separat zusammen mit dem zuständigen Paket-
+refresh korrigiert, sobald dessen parallele SSIS-Ownership reconciled ist.
+Ownerrolle: Releasepflege; Trigger: freier abgestimmter Snapshot-/Paketscope.
+Dies blockiert keine unabhängigen eigenen Callerqualifikationen und ist
+keine neue Funktions- oder Veröffentlichungsfreigabe.
+
 ## Zweiter endlicher Release-Rahmen — 2026-10-25
 
 Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene
