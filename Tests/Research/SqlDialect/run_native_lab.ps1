@@ -11,6 +11,9 @@ param(
 # Vertragsauswahl und zweckgebundene Transportpolicy kommen aus dem kanonischen Runner.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../../CI/LabQualifiedContract.ps1')
+
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 
 function Assert-ProbeResult {

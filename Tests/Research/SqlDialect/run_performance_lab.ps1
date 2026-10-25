@@ -9,6 +9,9 @@ param(
 # keine Dienste, Serveroptionen, Cacheleerung oder Produktobjekte verändern.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../../CI/LabQualifiedContract.ps1')
+
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $reportPath = [IO.Path]::GetFullPath((Join-Path $repoRoot $Output))
 $runtimeRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '.runtime')) + [IO.Path]::DirectorySeparatorChar

@@ -10,6 +10,9 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $module=Join-Path $repo 'Modules/toolbelt.pseudonymization.deterministic'
 $legacy=(Resolve-Path -LiteralPath $LegacyDirectory).Path

@@ -1,5 +1,7 @@
 # Second Session
 
+Aktuelle [Callerrechte](../../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): getrennte Objektrechte auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Weitere Funktions-, Client-, Lifecycle- und Ressourcengates sowie Modulstatus bleiben separat.
+
 ## Status
 
 `toolbelt.core.second-session` Version `1.1.0` ist implementiert und `validated`. Der vollständige Adapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich.

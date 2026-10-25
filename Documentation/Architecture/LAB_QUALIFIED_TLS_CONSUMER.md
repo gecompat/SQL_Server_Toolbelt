@@ -40,6 +40,31 @@ keine nachfolgende Dateilesung. V2 wird auch für `Functional` geprüft;
 `AuthenticatedTls` verlangt V2 und False. Weder `GITHUB_ACTIONS` noch READY
 ersetzen die Prüfung. V1 bleibt für unabhängige Functional-Tests erhalten.
 
+### Eigenständige Runner mit AST-Import
+
+Einige Modul-, Release-, CI- und Research-Runner übernehmen ausgewählte
+Funktionsdefinitionen aus `Tests/CI/run-lab-local.ps1`, ohne dessen Top-Level-Code
+auszuführen. Vor diesem AST-Import laden sie den gemeinsamen
+[`LabQualifiedContract.ps1`](../../Tests/CI/LabQualifiedContract.ps1)-Helper
+aus dem eigenen Repository. Dazu gehören auch die begrenzte Byte-Lesefunktion
+und die V2-Prüfungen, die der Resolver transitiv benötigt. Es entsteht weder
+ein zweiter Resolver noch ein aus dem Export abgeleiteter Codepfad.
+
+Ein solcher Import erweitert die Capability des aufrufenden Runners nicht.
+Ein Functional-Aufruf ohne expliziten V2-Kontext darf keinen V2-Export als
+unqualifizierten Vertrag lesen. Windows-/Versions-, Signatur-, Frische- und
+Zielbindungen bleiben unverändert; ein Linux-Clienthost bleibt für die
+qualifizierte Lane gesperrt.
+
+Der Table-Clone-Runner bindet seinen Resolver zusätzlich an den bereits
+geschlossenen Inputkatalog. JSON-Bytes und Schema stammen aus diesen
+Snapshots. Der begrenzte Snapshotzugriff liefert eine eigene Kopie der zuvor
+erfassten Bytes und weist leere oder mehr als vier MiB große Eingaben ab.
+UTF-8-, Schema- und V2-Prüfungen im gemeinsamen Resolver bleiben erhalten;
+seine Datei-/ACL-Prüfung verlangt weiterhin einen echten FileStream.
+Der private Seam wird vor Verwendung auf
+die erwartete Resolverform geprüft und bricht bei Drift ab.
+
 ## Clientaufruf und Lebensdauer
 
 Der Parent schreibt genau diesen Snapshot in eine neue private temporäre
@@ -93,6 +118,48 @@ V1-Functional-Tests benötigen keine neue CA, keinen neuen Trust und keinen
 Labimport. Ein gemeinsamer unabhängiger Reviewer prüft die gekoppelte
 Sicherheitsfrage; keine Review-von-Review-Kette. Kosten und Tokens sind unbekannt.
 
+Die [zusätzliche Definitionsprüfung](../../Tests/CI/test-cold-lab-consumer-contract.ps1)
+läuft über dieselbe Consumerfixture in genau einem frischen PowerShell-Prozess.
+Sie prüfte im Ausgangsstand 38 Helperimportstellen statisch und führt neun
+tatsächliche begrenzte Importfamilien mit ihren jeweiligen Auswahllisten aus.
+Ein über Main integrierter Geo-Consumer besitzt den gemeinsamen Import bereits;
+die erneute Quellinventur zählt deshalb 39 Stellen bei unveränderten neun
+Importfamilien. Dazu gehören Zwei-,
+Vier-, Fünf-, Sechs- und Siebener-Auswahlen, der Release-Importer, sammelnde
+Imports und die geschlossene Snapshot-Variante. Mutierende Treiber-Top-Levels
+werden nicht ausgeführt. Synthetische V1-Verträge werden im jeweiligen
+Definitionsscope gelesen. V1 im
+AuthenticatedTls-Modus, unbekannte Versionen sowie V2 ohne Caller-Kontext
+müssen scheitern. Die lokale Prüfung vom 2026-10-25 bestand mit 40 Fällen,
+einschließlich unveränderter Snapshotbytes trotz Dateiaustausch, eigener
+Bytekopie sowie leerer und übergroßer Inputs. Die bisherigen 15 synthetischen V2-Fälle bestanden separat
+im selben Fixtureaufruf. Das sind keine SQL-, Kryptografie- oder Linux-TLS-Nachweise.
+Der gesamte lokale Fixtureaufruf dauerte 5,4 Sekunden.
+
+Die CI-Auswahl berücksichtigt dafür die PowerShell-Consumer unter Tests/CI,
+Tests/Release, Tests/Research, den Modul-Testverzeichnissen und dem
+XlsxMemory-Spike. Diese begrenzte Erweiterung erhält den Test auch dann,
+wenn nur ein aufrufender Runner geändert wird. Sie startet keine zusätzlichen
+SQL-/Provider-Matrizen und ergänzt keine Review- oder Modellaufrufkette.
+
+Die historischen Execution-Context- und ResultTable-/Error-Envelope-Rechtebelege
+bleiben an ihre ursprünglichen CSV-Runnerbytes gebunden. Der Releaseaudit prüft
+diese Quellen aus dem hashgeprüften Recoverypaket. Für die aktuelle CSV-Quelle
+ist ausschließlich der zusätzliche feste Readerimport an seiner festgelegten
+Stelle zulässig; nach dessen Entfernung müssen sämtliche ursprünglichen Bytes
+übereinstimmen. Der Reader selbst bleibt exakt an seine ursprünglichen Bytes
+gebunden. Abweichender Import, weitere Quelländerungen oder Readerdrift werden
+abgewiesen. Diese begrenzte Anwendbarkeitsprüfung ist keine erneute native
+Rightsabnahme und ändert weder historische Ergebnisdateien noch Paketbytes.
+
+Die später integrierte Geo-Qualifikation bindet ebenfalls die ursprünglichen
+Geo- und Translate-Runner. Auch dort ist ausschließlich derselbe feste Import
+an derselben Position zulässig; der jeweilige ursprüngliche SHA-256 muss nach Entfernung
+der drei Zeilen exakt übereinstimmen. Die drei zulässigen Pfade und ihre
+unterschiedlichen Originalhashes sind geschlossen festgelegt. Andere Pfade,
+Importe, übrige Quelländerungen, vertauschte Pins oder Readerdrift bleiben
+gesperrt; Geo-Beleg und kanonische SQL-Fixtures werden nicht verändert.
+
 Die betroffene CI-Auswahl bindet sämtliche Consumer-Helfer an den bestehenden
 Validator. Ein zusätzlicher begrenzter Windows-Job führt ausschließlich die
 private Consumerfixture mit PowerShell 7.5 oder neuer aus: Ubuntu kann deren
@@ -100,6 +167,33 @@ Windows-ACL-Fälle nicht ausführen. Dieser notwendige Plattformnachweis ersetzt
 keine SQL-/Providerabnahme und erzeugt keine Labs. AuthenticatedTls oder auch
 nur ein Teil des Qualified-Kontexts sperrt vor jedem Runner-Kurzpfad; normale
 Functional-Runner ohne Kontext behalten ihren bisherigen Weg.
+
+## Begrenzter funktionaler V1-Preflight vom 2026-10-25
+
+Die [Lab-Consumerinventur](https://github.com/gecompat/SQL_Server_Lab/blob/main/Documentation/Project_Planning/TLS_001_CONSUMER_INVENTORY.md#begrenzter-echter-v1-preflight-vom-2026-10-25)
+führt den gekoppelten Nachweis und dessen Grenzen. Zehn begrenzte Importfamilien
+lasen den echten öffentlichen V1-Export eines eigenen kompakten
+Docker-/SQL-2025-CU9-Labs. Der CSV-Consumer bestand den kanonischen
+`System.Data.SqlClient`-Functional-Preflight und einen getrennten ODBC-18-Fall;
+beide lieferten Build `17.0.5005.3`. .NET erzwingt `Encrypt=True`, erhebt im
+Functional-Zweig aber keinen zusätzlichen DMV-Sitzungswert. ODBC prüfte
+zusätzlich `encrypt_option=TRUE`. Der Modus True/True prüft keine
+Serveridentität.
+
+Workerresultate, ganze Jobleere vor Remove, beide abgeschlossenen
+Cleanupschritte und frische eigene Container-/Volume-/Exportabwesenheit
+sind belegt und unabhängig ohne offene Findings geprüft. Der übergeordnete
+Kontrolllauf bleibt wegen beobachteter paralleler fremder Git-/Runtimeänderungen
+**FAIL**. Seine nicht abgeholten Parentzahlen und `Preserved=false` bleiben
+unverändert; tatsächliche zehn Reader- und zwei Clientresultate werden getrennt
+ausgewiesen. Eine globale Bestandsgleichheit wird nicht behauptet. Die zwei
+vorherigen Kontroll-FAILs vor Labanlage bleiben erhalten. Originalexporte sind
+bereinigt, ihre Bytehashes erhalten; eine Kopie der ursprünglichen Exportbytes
+wird nicht behauptet.
+
+Das ist ein funktionaler Windows-Consumerbeleg, keine Wiederholung oder
+Erweiterung der folgenden V2-/Zertifikatsmatrix und kein Lauf sämtlicher
+Modulruntimes. Aktuelle CI und Integrationsheads gehören zu den jeweiligen PRs.
 
 ## Gemeinsame native Windows-Abnahme vom 2026-10-22
 

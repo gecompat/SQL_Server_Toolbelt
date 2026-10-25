@@ -1,6 +1,9 @@
 param([string]$Version='2019',[string]$Platform='linux',[string]$Patch='latest')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $tree=[Management.Automation.Language.Parser]::ParseFile((Join-Path $repo 'Tests/CI/run-lab-local.ps1'),[ref]$null,[ref]$null)
 foreach($name in @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-LabTargetReady','Get-LabTargetsForSelector','New-LabConnectionString')){
