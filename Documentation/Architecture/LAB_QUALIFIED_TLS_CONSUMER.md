@@ -120,8 +120,11 @@ Sicherheitsfrage; keine Review-von-Review-Kette. Kosten und Tokens sind unbekann
 
 Die [zusätzliche Definitionsprüfung](../../Tests/CI/test-cold-lab-consumer-contract.ps1)
 läuft über dieselbe Consumerfixture in genau einem frischen PowerShell-Prozess.
-Sie prüft 38 Helperimportstellen statisch und führt neun tatsächliche begrenzte
-Importfamilien mit ihren jeweiligen Auswahllisten aus. Dazu gehören Zwei-,
+Sie prüfte im Ausgangsstand 38 Helperimportstellen statisch und führt neun
+tatsächliche begrenzte Importfamilien mit ihren jeweiligen Auswahllisten aus.
+Ein über Main integrierter Geo-Consumer besitzt den gemeinsamen Import bereits;
+die erneute Quellinventur zählt deshalb 39 Stellen bei unveränderten neun
+Importfamilien. Dazu gehören Zwei-,
 Vier-, Fünf-, Sechs- und Siebener-Auswahlen, der Release-Importer, sammelnde
 Imports und die geschlossene Snapshot-Variante. Mutierende Treiber-Top-Levels
 werden nicht ausgeführt. Synthetische V1-Verträge werden im jeweiligen
@@ -148,6 +151,14 @@ Stelle zulässig; nach dessen Entfernung müssen sämtliche ursprünglichen Byte
 gebunden. Abweichender Import, weitere Quelländerungen oder Readerdrift werden
 abgewiesen. Diese begrenzte Anwendbarkeitsprüfung ist keine erneute native
 Rightsabnahme und ändert weder historische Ergebnisdateien noch Paketbytes.
+
+Die später integrierte Geo-Qualifikation bindet ebenfalls die ursprünglichen
+Geo- und Translate-Runner. Auch dort ist ausschließlich derselbe feste Import
+an derselben Position zulässig; der jeweilige ursprüngliche SHA-256 muss nach Entfernung
+der drei Zeilen exakt übereinstimmen. Die drei zulässigen Pfade und ihre
+unterschiedlichen Originalhashes sind geschlossen festgelegt. Andere Pfade,
+Importe, übrige Quelländerungen, vertauschte Pins oder Readerdrift bleiben
+gesperrt; Geo-Beleg und kanonische SQL-Fixtures werden nicht verändert.
 
 Die betroffene CI-Auswahl bindet sämtliche Consumer-Helfer an den bestehenden
 Validator. Ein zusätzlicher begrenzter Windows-Job führt ausschließlich die

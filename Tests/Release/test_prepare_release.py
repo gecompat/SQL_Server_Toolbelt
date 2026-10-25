@@ -18,13 +18,20 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
-def csv_reader_import_equivalent(path, digest, current, reader):
+def reader_import_only_equivalent(path, digest, current, reader):
     """Enge aktuelle Anwendbarkeit; kein neuer nativer Qualifikationsnachweis."""
     import hashlib
     addition = ("# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.\n"
                 ". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')\n\n").encode('utf-8')
-    return (path == 'Tests/CI/run-csv-memory-lab.ps1'
-            and digest == '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a'
+    originals = {
+        'Tests/CI/run-csv-memory-lab.ps1':
+            '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a',
+        'Tests/CI/run-deterministic-geo-lab.ps1':
+            '1e7a576f1e508aaf96d56f4c7b0f4d2712833b8068886440ecd79179e985f368',
+        'Tests/CI/run-deterministic-translate-lab.ps1':
+            '0abda10d0c167512b40a94ed4acac269f150f4c82f896bd0a83a623d83e60b8d',
+    }
+    return (path in originals and digest == originals[path]
             and hashlib.sha256(reader).hexdigest() ==
             'f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15'
             and current.count(addition) == 1
@@ -434,7 +441,7 @@ class ApiQualificationTests(unittest.TestCase):
             current = (ROOT / path).read_bytes()
             if path == 'Tests/CI/run-csv-memory-lab.ps1' and hashlib.sha256(current).hexdigest() != digest:
                 reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
-                self.assertTrue(csv_reader_import_equivalent(path, digest, current, reader),
+                self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
                                 'CSV-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
             else:
                 self.assertEqual(hashlib.sha256(current).hexdigest(), digest)
@@ -444,17 +451,38 @@ class ApiQualificationTests(unittest.TestCase):
         digest = '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a'
         current = (ROOT / path).read_bytes()
         reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
-        self.assertTrue(csv_reader_import_equivalent(path, digest, current, reader))
+        self.assertTrue(reader_import_only_equivalent(path, digest, current, reader))
         for changed in (current + b'\n', current.replace(b"'LabQualifiedContract.ps1'", b"'Other.ps1'"),
                         current.replace(b"$ErrorActionPreference='Stop'", b"$ErrorActionPreference='Continue'"),
                         current.replace(b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')",
                                         b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')\n"
                                         b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')")):
             with self.subTest(change=changed[:32]):
-                self.assertFalse(csv_reader_import_equivalent(path, digest, changed, reader))
-        self.assertFalse(csv_reader_import_equivalent('Tests/CI/Other.ps1', digest, current, reader))
-        self.assertFalse(csv_reader_import_equivalent(path, '0' * 64, current, reader))
-        self.assertFalse(csv_reader_import_equivalent(path, digest, current, reader + b'\n'))
+                self.assertFalse(reader_import_only_equivalent(path, digest, changed, reader))
+        self.assertFalse(reader_import_only_equivalent('Tests/CI/Other.ps1', digest, current, reader))
+        self.assertFalse(reader_import_only_equivalent(path, '0' * 64, current, reader))
+        self.assertFalse(reader_import_only_equivalent(path, digest, current, reader + b'\n'))
+
+    def test_geo_import_delta_rejects_unqualified_source_changes(self):
+        reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+        originals = {
+            'Tests/CI/run-deterministic-geo-lab.ps1':
+                '1e7a576f1e508aaf96d56f4c7b0f4d2712833b8068886440ecd79179e985f368',
+            'Tests/CI/run-deterministic-translate-lab.ps1':
+                '0abda10d0c167512b40a94ed4acac269f150f4c82f896bd0a83a623d83e60b8d',
+        }
+        for path, digest in originals.items():
+            with self.subTest(path=path):
+                current = (ROOT / path).read_bytes()
+                self.assertTrue(reader_import_only_equivalent(path, digest, current, reader))
+                for changed in (current + b'\n', current.replace(b"'LabQualifiedContract.ps1'", b"'Other.ps1'"),
+                                current.replace(b"$ErrorActionPreference='Stop'\n", b"$ErrorActionPreference='Continue'\n")):
+                    self.assertFalse(reader_import_only_equivalent(path, digest, changed, reader))
+                for other in set(originals.values()) - {digest}:
+                    self.assertFalse(reader_import_only_equivalent(path, other, current, reader))
+                self.assertFalse(reader_import_only_equivalent(path,
+                                 '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a', current, reader))
+                self.assertFalse(reader_import_only_equivalent(path, digest, current, reader + b'\n'))
 
     @classmethod
     def setUpClass(cls):
@@ -571,7 +599,13 @@ class ApiQualificationTests(unittest.TestCase):
         composed = b'\nGO\n'.join((ROOT / p).read_bytes() for p in paths) + b'\n'
         self.assertEqual(hashlib.sha256(composed).hexdigest(), report['composed_fixture_sha256'])
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            current = (ROOT / path).read_bytes()
+            if path in ('Tests/CI/run-deterministic-geo-lab.ps1', 'Tests/CI/run-deterministic-translate-lab.ps1') and hashlib.sha256(current).hexdigest() != digest:
+                reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+                self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
+                                'Geo-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
+            else:
+                self.assertEqual(hashlib.sha256(current).hexdigest(), digest, path)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
