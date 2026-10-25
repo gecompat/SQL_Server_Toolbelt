@@ -140,3 +140,15 @@ Fälle werden dafür nicht wiederholt; der36er-Rahmen bleibt bei34 Versuchen.
 Die drei historischen Release-Regressionen vergleichen alte ODBC-/Rechte-/
 Adapterausführungen mit ihrem tatsächlich qualifizierten Vorgängerarchiv und
 verändern weder deren Hashes noch die Fehlerorakel.
+
+
+Die vollständige Offline-Regressionssuite behält ihre120-Sekunden-Grenze.
+Wiederholtes Entpacken und Rekonstruieren derselben historischen Quellen wird
+nur innerhalb dieses Testprozesses gemeinsam genutzt. Der Cachekey bindet
+Repositoryscope, Produkt-ID, Quellarchiv, Prüfsummensidecar und beide relevanten
+Anwendbarkeitsnachweise jeweils an aktuelle Inhalts-Hashes. Unbekannte oder
+geänderte Inputs laufen durch den ursprünglichen Validator; Fehler werden
+nicht gecacht. Kopierte Rückgabedictionaries verhindern Fixtureveränderungen
+durch negative Gegenproben. Eine zusätzliche Regression prüft Treffer,
+Dependencyänderung, isolierte Rückgaben und wiederholte Ablehnungen.
+Das ändert weder Produktvalidatoren noch native Testorakel oder Zeitbudgets.
