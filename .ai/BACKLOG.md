@@ -103,6 +103,22 @@ Abwesenheitsaudits aller 26 eigenen Datenbanknamen. Keine Produkt-, Status-,
 Serverkonfigurations- oder Paketänderung; weitere Modul-/CrossDB-/Recoverygates
 und aktuelle Head-/Main-CI bleiben getrennt.
 
+### Siebte Welle: Queue-Frontend-Callerrechte
+
+Vor Umsetzung geplant: drei Producer, Statusabfrage und beide Views getrennt
+unter fester eigener ENQUEUE-Policy prüfen; andere Worker-/interne Objekte
+abweisen. Der erste Fixtureversuch zeigte die fehlende Handler-Metadatensicht
+des Legacyproducers. Vor dem Nachfolger wurde der Plan auf einen separaten
+Legacyproducer-/VIEW-DEFINITION-Pfad und genaue SQL51902-Abweisung ergänzt;
+der erste Verbrauch bleibt erhalten. Der
+[Rechtebericht](../Releases/1.0.0/QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md) bindet
+zwölf lokale/direkt zentrale Fälle, zwei erwartete verworfene Kontrollen und
+frische Abwesenheitsaudits aller 27 eigenen Datenbanknamen. Moduleinstieg und
+Objektdokumentation erklären den aktuellen 2.1-Stand und diese vorhandene
+Voraussetzung. Keine Produkt-/Manifest-/Status-/Server-/Paketänderung; sieben
+andere positive Workerprofile, volle Blocker-/Managed-/Recoveryverträge und
+aktuelle Head-/Main-CI bleiben getrennt.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit

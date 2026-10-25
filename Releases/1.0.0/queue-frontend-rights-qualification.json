@@ -1,0 +1,287 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Queue 2.1.0 six producer/status/view profiles under a fixed own ENQUEUE policy; five single object grants and legacy producer plus narrow handler metadata visibility; local/direct central",
+  "publication_authorized": false,
+  "result": "PASS",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.core.work-type": "1.2.0",
+    "toolbelt.core.work-queue": "2.1.0"
+  },
+  "module_status_changed": false,
+  "product_sources_changed": false,
+  "package_payload_changed": false,
+  "execution_source_baseline_commit": "5ed4b29b7bfb019cc5256fac96e626204ca786eb",
+  "public_apis": {
+    "USP_EnqueueWork": "EXECUTE",
+    "USP_EnqueueWorkWithPolicy": "EXECUTE",
+    "USP_EnqueueBarrierWork": "EXECUTE",
+    "USP_GetWorkStatus": "EXECUTE",
+    "VW_WorkQueue": "SELECT",
+    "VW_WorkQueueBarrierBlockers": "SELECT"
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.work-queue/Deployment/Deploy.sql": "8f72b31f9a3b1b53f70880f63d98c3afcdcb2ed4beeb3503cbdc6d82958843ca",
+    "Modules/toolbelt.core.work-queue/Deployment/RepeatInstalledControl.Cleanup.sql": "84776ec1632a54a33882e152c28821386ef6ec22dee8203d23385c9ce0111475",
+    "Modules/toolbelt.core.work-queue/Deployment/RepeatInstalledControl.Preflight.sql": "b5e706eb648065ac98101eeb7f567eb828806e9ab8ae6384a5616cbb201818df",
+    "Modules/toolbelt.core.work-queue/Deployment/Uninstall.sql": "f1caf79bc88a9aaedf84506b4de08634e412d64c896645d35ce0442de4d817e3",
+    "Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql": "c75a415ed7bda879f948a1e6d489e6b75230f5587c660b5b2e8a6822ec236bc9",
+    "Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql": "5ffb4016ee5b2f8fff276b2c65c1734d3b8c20f0d6a270cde6e481174c3adb81",
+    "Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql": "3a827962c807a1d3bf7c7a133be0e3862228640ddf86bf8b8fb08cb899e4ab91",
+    "Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql": "95c807e3329393cc7af700a1ba1356357704ef3df85d4764b04ea93b7576e969",
+    "Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql": "64a0b53aa5932dd9e9a791a068262859f78dcb64a3cd8c709140b6638b9f537f",
+    "Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql": "bfb04148cdfc81092d7aec38dcf89479a22b93ee86e26276de6e7f11fa1955df",
+    "Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql": "6fb2e2d1cf2c6dedf4643cf2f28a2828864139bd0180be80a507c55a2f9fd314",
+    "Modules/toolbelt.core.work-queue/Source/USP_FailWorkCore.sql": "5b7d457cfbb361c43127887a56f4f20b0312e8d04f1555e7299236d687e668c6",
+    "Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql": "f612ad9e4ff64c626ed0c6a9956250768db79838ea6fc593162fbca68d828c88",
+    "Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql": "6501b41d810deb2cb65e3d63a3f9cc99cd4b24d0d7e9635afbf84029aea06d55",
+    "Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql": "2ed19504b7e524b71da41f6ea03b223286c030435787b4e870917d35f9d9aaf4",
+    "Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql": "1f8e1f0508aab17fe37d7057d58111a8b33983088ad32991b7e2c8e73dd955ca",
+    "Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql": "f2ce13d7ef9bea6d5ee46f1c7f6bd1bf92c85fd21cab3642eecb3a0256cbddff",
+    "Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetryCore.sql": "d3efdad4d9f34ac6888eb1844ede973a97661fe8c835d667232beefe2f49bb90",
+    "Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql": "e0e11a3162dd6adb49482f281903e6839fc0838ff2bf27fc73889036d6513f5b",
+    "Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql": "f2b1d7a9d938c96bd64b97d58966f2e250529d4037de8a2a0f974a43b566d063",
+    "Modules/toolbelt.core.work-queue/Source/WorkItem.sql": "a34e2862e1f866235437a12edac468427a5fb0647ca38e59209e21932b3c14da",
+    "Modules/toolbelt.core.work-queue/Source/WorkQueueManagedGate.sql": "0c0b67bf50a41536f9a0d58aa18da27194f93ef419ac7838b1c52e3bdae5645e",
+    "Modules/toolbelt.core.work-queue/module.yaml": "6ebc04dc4157b9dc3afc6513d7038af273e03da7e49b6a070fb1273ffa646d8b",
+    "Modules/toolbelt.core.work-type/Deployment/Deploy.sql": "7125adbae0bb33406cb0dedd2fe2be1c6ae59fa0a8742c75ddd176b4c63d2744",
+    "Modules/toolbelt.core.work-type/Deployment/Uninstall.sql": "74492991e514c5a0297b67bcf9a27153bbaa6bfb9c31f4985cf61cfd9b6f372d",
+    "Modules/toolbelt.core.work-type/Source/TVF_WorkTypeAuthorization.sql": "603449105768a1d99d05935481ea8e50bba7bd078ca1de69a5b4d685420358a1",
+    "Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql": "b48c18870fe5b8d6f7377bce5b54867adb2a86d5c39648f2e632aaef4d5975db",
+    "Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql": "a5fc3c546a308dc9bf4f1da045788d655d58c69230a5eedf9b3cab101cfd7d1f",
+    "Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql": "addbc463724b2d6f6d2617f156d069a6f8b92beefb399c8a991a47888ce5d855",
+    "Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql": "fc1290cb14276272ed7a2e142c7bbd4551d97d122d53c8f7e9ca677a98f3c710",
+    "Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql": "0e6d39125ee70358ce3e622331fbfb483f02c2ca6483d1cb4d77a66ad7a9692c",
+    "Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql": "2d3f8939ee96a649eae88414c5cde58e50ff9d06885aea2c86f34c60518739e7",
+    "Modules/toolbelt.core.work-type/Source/WorkType.sql": "5fecf47bbda65b810cb313f367fc78170866e32b608238b3ab4f53adc32cfdca",
+    "Modules/toolbelt.core.work-type/Source/WorkTypePermission.sql": "e443e327cde58f2ae1be0c406775ed8365f890f644dbaeb72ae81cbe5502dec5",
+    "Modules/toolbelt.core.work-type/module.yaml": "a0858bd39eaaee5db1605d68fb5fd17c0baa2bb2cb635c20b85e20a8a9084e07",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/Runtime/QueueFrontend.Rights.sql": "1497e53f5e57b6962338eea0f9e3f8f7b9ad4af37e849db56237d83a8745e7c1"
+  },
+  "offline_export_sha256": {
+    "local": "d45515bb5f311c5e325c2bc9c467699f17e0dff425605bde6f7cbfc5d415b80f",
+    "central": "464e7f2025e60ec682182c59ffcb8ba9559625d35ec996b3fa1550ebf40e53fd"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 288,
+      "strict_sql51902_metadata_denials": 2,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "positive_api_profiles": 144,
+  "single_grant_api_profiles": 120,
+  "strict_sql229_denials": 3456,
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-object",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "final_independent_audit": {
+    "terminal_attempts_audited": 15,
+    "positive_case_databases_absent": 24,
+    "all_attempt_databases_absent": 27,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "remaining_gates": [
+    "Seven other public worker/recovery APIs need their own positive minimal-rights profiles",
+    "Populated blocker view, managed/claim/lease/recovery/parallel lifecycle and provider contracts",
+    "Genuine lowpriv CrossDB mappings and hard recovery",
+    "Authenticated TLS, final package refresh and publication authorization"
+  ],
+  "legacy_producer_with_metadata_profiles": 24,
+  "strict_sql51902_metadata_denials": 24,
+  "fixed_own_enqueue_policy_required": true,
+  "barrier_view_scope": "empty public view and metadata only",
+  "initial_unaccepted_fixture_attempts": 1,
+  "initial_fixture_failure": {
+    "result": "FAILED_CLEANED",
+    "sql_error": 51902,
+    "accepted_as_expected_oracle_control": false,
+    "reason": "Legacy producer requires handler metadata visibility; scope corrected before successor, original consumption retained"
+  }
+}

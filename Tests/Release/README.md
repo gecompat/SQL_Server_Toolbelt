@@ -400,6 +400,13 @@ sind isoliert; das zusätzliche Lookup-/Helperprofil bleibt getrennt. Der
 [Pseudonymisierungsbericht](../../Releases/1.0.0/DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 bindet Festwerte, NULL-/Fehlerfälle, interne Abweisungen und Bereinigung.
 
+`Runtime/QueueFrontend.Rights.sql` prüft Queue 2.1.0 mit ResultTable 1.0.0
+und Work Type 1.2.0. Fünf Einzelgrants und der Legacyproducer mit zusätzlicher
+Handler-Metadatensicht bleiben ausdrücklich getrennt. Der
+[Queue-Frontend-Bericht](../../Releases/1.0.0/QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+bindet Initialzustände, SQL229/51902, den leeren Blockerview-Scope und die
+Bereinigung einschließlich des nicht akzeptierten ersten Fixtureversuchs.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen

@@ -505,6 +505,40 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_queue_frontend_rights_binds_producer_policy_and_narrow_view_scope(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/queue-frontend-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed'):
+            self.assertIs(report[flag], False)
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0',
+                          'toolbelt.core.work-type': '1.2.0', 'toolbelt.core.work-queue': '2.1.0'})
+        self.assertEqual(report['public_apis'], {name: ('SELECT' if name.startswith('VW_') else 'EXECUTE') for name in
+                         ('USP_EnqueueWork', 'USP_EnqueueWorkWithPolicy', 'USP_EnqueueBarrierWork',
+                          'USP_GetWorkStatus', 'VW_WorkQueue', 'VW_WorkQueueBarrierBlockers')})
+        self.assertTrue(report['fixed_own_enqueue_policy_required'])
+        self.assertEqual(report['single_grant_api_profiles'], 120)
+        self.assertEqual(report['legacy_producer_with_metadata_profiles'], 24)
+        self.assertEqual(report['strict_sql51902_metadata_denials'], 24)
+        self.assertEqual(report['barrier_view_scope'], 'empty public view and metadata only')
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 144), ('strict_sql229_denials', 3456)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 27)
+        self.assertEqual(report['initial_unaccepted_fixture_attempts'], 1)
+        self.assertTrue(report['remaining_gates'])
+
     def test_deterministic_rights_binds_single_grants_and_separate_helper_profile(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/deterministic-rights-qualification.json').read_bytes())

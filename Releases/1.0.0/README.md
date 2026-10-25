@@ -40,6 +40,11 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+ergänzen sechs Producer-/Status-/Viewprofile auf zwölf Ziel-/CL-Kombinationen.
+Der Legacyproducer benötigt zusätzlich enge Handler-Metadatensicht; die
+Blockerview ist nur leer geprüft. Worker-/Recoveryprofile bleiben separat.
+
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad
 lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft. Weitere
