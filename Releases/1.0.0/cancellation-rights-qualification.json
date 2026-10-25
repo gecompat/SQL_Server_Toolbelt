@@ -1,0 +1,234 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Three Execution Cancellation APIs with exact individual object grants; direct/requester/context/idempotency status and denied internal table access; local/direct central only",
+  "publication_authorized": false,
+  "result": "PASS",
+  "module_versions": {
+    "toolbelt.core.execution-context": "1.0.0",
+    "toolbelt.core.execution-cancel": "1.0.0"
+  },
+  "module_status_changed": false,
+  "product_sources_changed": false,
+  "package_payload_changed": false,
+  "execution_source_baseline_commit": "276f1540208a51f512081b5e3f8cc23df3045af0",
+  "public_apis": {
+    "USP_RequestExecutionCancellation": "EXECUTE",
+    "TVF_ExecutionCancellationStatus": "SELECT",
+    "SVF_IsCancellationRequested": "EXECUTE"
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.execution-cancel/Deployment/Deploy.sql": "ddef65feca1ba9ac97618db9977b29c13539a79cf620f101814360e99efe9a81",
+    "Modules/toolbelt.core.execution-cancel/Deployment/Uninstall.sql": "cfec6cdecc282db74a4e609adfd2da7a78aa508befeaf808817f7275ea0bcc51",
+    "Modules/toolbelt.core.execution-cancel/module.yaml": "f8ce0f89078e930eb2b3622650d505fed7bca70095dd113f5eb4ee4b12e2656b",
+    "Modules/toolbelt.core.execution-cancel/Source/ExecutionCancellation.sql": "33d4432f4a5d727a360ca2d7d3b7e633f6706f75e2ee251ae1da09eaccfa6cf8",
+    "Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql": "353a1abc0bcffb2d2ceae582c6ac8547e6d2c802f9678a824823eaf0026b0181",
+    "Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql": "aadea3547a3162348329135d01e341b6dec181b3942285c8912d14051e6154f9",
+    "Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql": "ffa3ecbaeda7a1357f48e5b5e082d5dc46bf24e8d1304f8f901f2686e12d264b",
+    "Modules/toolbelt.core.execution-context/Deployment/Deploy.sql": "1ef5aa673107155318c52c7314391b769ed14112e27648e10004c76fae6258d2",
+    "Modules/toolbelt.core.execution-context/Deployment/Uninstall.sql": "4ef50cb08d29f14c345e2ab17117dacbb6b516878801dc8ef75560a4d2228998",
+    "Modules/toolbelt.core.execution-context/module.yaml": "e544a50988babb69cf8fe40f517ad010b7d197c7cfa2d1e25685e837e20ea06b",
+    "Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql": "cf18c7c7963ef2a3daa955ae8d2eaaebe7d9cd4326063a198f6b586e5425f372",
+    "Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql": "8e879b4c2001683b1db7261e063555226767c04110f953d051e5757fe7c1369a",
+    "Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql": "0bda5296677e26424e40e184030c5f511f5391f0b6531c3ff616fb8257e8bdb2",
+    "Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql": "0af2d75b11e5bb0f4e4c9b5a8c92b33c05792a368b142d5949177fa6a561be15",
+    "Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql": "e315d831d6e83657187c40424c699cef058f8a0315fcf3d6995c89ed6c74e74d",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/Runtime/Cancellation.Rights.sql": "f40d4e953cbcbc9bcbd86a372d3892042f7d79633cc20e5d8831cc7666330b3e"
+  },
+  "offline_export_sha256": {
+    "local": "80839cbb67963d7bcf26c0ef1efa46dfc883206c4cc33008e68bc6287f3296ec",
+    "central": "d1125d02a17bf14c74365d6cee7a6752eaff03b5bfd2013ef31199117e3c1778"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 6,
+      "strict_sql229_denials": 36,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "positive_api_profiles": 72,
+  "strict_sql229_denials": 432,
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-object",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "final_independent_audit": {
+    "terminal_attempts_audited": 14,
+    "positive_case_databases_absent": 24,
+    "all_attempt_databases_absent": 26,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "remaining_gates": [
+    "Genuine lowpriv CrossDB mappings",
+    "Full quota/concurrency/retention/lifecycle/resource contracts outside three caller profiles",
+    "Other module, worker/provider and hard recovery gates",
+    "Authenticated TLS, complete release packaging and publication authorization"
+  ]
+}

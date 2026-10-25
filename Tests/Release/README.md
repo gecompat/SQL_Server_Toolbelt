@@ -387,6 +387,13 @@ Wert-/Fehlerorakeln und strikten Abweisungen der anderen APIs. Der
 bindet die zwölf bestandenen Fälle und die verworfenen Orakelkontrollen.
 Weitere Lifecycle-/CrossDB-/Recoverygates bleiben separat.
 
+`Runtime/Cancellation.Rights.sql` verwendet denselben Treiber mit genau
+Execution Context und Execution Cancellation 1.0.0. Drei isolierte Objektrechte
+prüfen Request, TVF und SVF, ihre unbekannten/NULL-Zustände, Requesterbindung,
+Context, Idempotenz und die gesperrte interne Tabelle. Der
+[Cancellation-Bericht](../../Releases/1.0.0/CANCELLATION-RIGHTS-QUALIFICATION.md)
+grenzt die zwölf Fälle von weiteren Quoten-/Lifecycle-/Recoveryverträgen ab.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen

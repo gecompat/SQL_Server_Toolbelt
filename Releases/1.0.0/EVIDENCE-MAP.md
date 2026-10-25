@@ -6,6 +6,11 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
+Die [Cancellation-Callerrechte vom 2026-10-25](CANCELLATION-RIGHTS-QUALIFICATION.md)
+ergänzen drei isolierte API-Profile lokal/direkt zentral auf zwölf Ziel-/CL-
+Kombinationen. Historische Vollmatrizen, Manifest-Snapshots und weitere
+Quoten-/Lifecycle-/Recoverygates behalten ihren eigenen Scope.
+
 Die [Safe-Cast-Callerrechte vom 2026-10-25](SAFE-CAST-RIGHTS-QUALIFICATION.md)
 ergänzen für die sechs TVFs zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit
 genau einem SELECT und sieben festen Datenorakeln je positivem Profil.

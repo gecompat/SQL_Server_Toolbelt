@@ -40,6 +40,11 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Die [Cancellation-Callerrechte](CANCELLATION-RIGHTS-QUALIFICATION.md) bestehen
+für alle drei APIs mit getrennten EXECUTE-/SELECT-Grants lokal/direkt zentral
+auf zwölf Ziel-/CL-Kombinationen. Quoten-/Konkurrenz-/Lifecycle- und echte
+CrossDB-Verträge bleiben eigene offene Nachweise.
+
 Die [Safe-Cast-Callerrechte](SAFE-CAST-RIGHTS-QUALIFICATION.md) sind für alle
 sechs TVFs mit je genau einem SELECT lokal/direkt zentral auf zwölf
 Ziel-/CL-Kombinationen geprüft. Die bestehende volle Funktionsmatrix bleibt

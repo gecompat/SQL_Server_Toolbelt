@@ -79,6 +79,19 @@ Status-, CLR- oder Serverkonfigurationswechsel; Head-/Main-CI und Integration
 bleiben am jeweiligen PR nachzuweisen. Alle 26 eigenen Datenbanknamen sind
 unabhängig als abwesend geprüft; weitere Lifecycle-/CrossDB-/Recoverygates offen.
 
+### Fünfte Welle: Cancellation-Callerrechte
+
+Vor Umsetzung geplant: die drei bestehenden Cancellation-APIs mit getrennten
+EXECUTE-/SELECT-Rechten, bekanntem/unbekanntem/NULL-Status, expliziter und
+aktueller ID, Requesterbindung, Idempotenz sowie abgewiesener interner
+Tabellennutzung prüfen. Derselbe begrenzte T-SQL-Treiber installiert nur
+Execution Context und Execution Cancellation. Der
+[Rechtebericht](../Releases/1.0.0/CANCELLATION-RIGHTS-QUALIFICATION.md) bindet
+zwölf lokale/direkt zentrale Fälle, zwei verworfene Orakelkontrollen und
+frische unabhängige Audits aller 26 eigenen Datenbanknamen. Keine Produkt-,
+Status- oder Serverkonfigurationsänderung; übrige Quoten-/Lifecycle-/CrossDB-/
+Recoverygates und aktuelle Head-/Main-CI bleiben getrennt.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit
