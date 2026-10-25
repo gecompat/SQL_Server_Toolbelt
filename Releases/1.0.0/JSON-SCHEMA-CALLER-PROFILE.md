@@ -41,8 +41,8 @@ Die Offlineprüfung ist separat auszuführen:
 python -B Tests/Release/test_json_schema_caller_profile.py
 ```
 
-Der native Aufruf benötigt einen privaten schema-validierten zwölfteiligen
-Runset mit `schema_version=json-schema-caller-contract/v1`, beiden exakten
+Der native Aufruf benötigt einen schema-validierten Labvertrag und einen privaten
+zwölfteiligen Runset mit `schema_version=json-schema-caller-contract/v1`, beiden exakten
 reproduzierbaren DLLs und allen Pflichtpins:
 
 ```powershell

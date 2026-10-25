@@ -3706,7 +3706,7 @@ Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode
 
 Vertrag und Quelle: [USP_ValidateJsonSchema.sql](../../Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql), [USP_ValidateJsonSchema.md](../../Modules/toolbelt.json.schema/Documentation/USP_ValidateJsonSchema.md).
 
-<!-- Source/Vertrag SHA256: cb89a74c6d6f969403daf8eecc02c560e08e92291a5022b4016cf30e95e42dc5 -->
+<!-- Source/Vertrag SHA256: 2f09582977f8402af0c80421c24f43e62faac406858c33fc0a96fc6e62d6feae -->
 
 Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies in derselben Datenbank, ResultTable >=1.0.0, vorhandene Aufrufrechte. Nur Teilqualifikation, unreleased.
 
