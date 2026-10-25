@@ -131,3 +131,12 @@ Der eigenständige SSIS-Installationssatz bleibt der exakt nativ geprüfte
 unveränderter Snapshot seines Paket-Sourcecommits. Spätere Abnahmeprojektionen
 und generierte Statuspflege stehen im Repository und im aktualisierten
 Gesamtquellpaket; sie ändern keine enthaltenen SQL-/DLL-Bytes oder Installationsschritte.
+
+
+Auch die abschließende Korrektur der generierten Dokumentationskopplung löst
+wegen dieses bestehenden breiten Buildguards einen weiteren Offline-Doppelbau
+aus. Alle zwölf Binaries sind über alle drei Buildwellen bytegleich. Native
+Fälle werden dafür nicht wiederholt; der36er-Rahmen bleibt bei34 Versuchen.
+Die drei historischen Release-Regressionen vergleichen alte ODBC-/Rechte-/
+Adapterausführungen mit ihrem tatsächlich qualifizierten Vorgängerarchiv und
+verändern weder deren Hashes noch die Fehlerorakel.

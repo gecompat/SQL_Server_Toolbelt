@@ -353,8 +353,10 @@
     "other12_delivered_dlls_unchanged": true,
     "ssis": "Exact new Full12-qualified standalone ZIP binary; no rebuild during packaging",
     "original_double_build_source_commit": "66ed4fa9d0818d41d736d096a37736028df118d5",
-    "delivery_double_build_source_commit": "bba38bf0ef9352eab3cdb5423f4057abbcda1cb8",
-    "both_double_build_waves_byteidentical": true
+    "delivery_double_build_source_commit": "a318669e4d81e027e261707246a4861d9f825027",
+    "both_double_build_waves_byteidentical": true,
+    "prior_delivery_double_build_source_commit": "bba38bf0ef9352eab3cdb5423f4057abbcda1cb8",
+    "all_three_double_build_waves_byteidentical": true
   },
   "functional_transport": {
     "encrypt_required": true,
