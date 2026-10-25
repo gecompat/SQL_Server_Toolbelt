@@ -675,3 +675,13 @@ Gegenproben schützen Projektwahl12 statt externem Host13, exakte Lieferbytes,
 explizite Nachweisauswahl und beibehaltene historische Quellen. Vollständiger
 Offlineaudit und echte aktuelle Head-CI ergänzen die Nativevidenz; sie ersetzen
 keine noch offenen fachlichen oder externen Gates. Allgemeine Autonomie pausiert.
+
+
+Die Recovery-Regressionen prüfen auch einen fehlenden lokalen synthetischen
+Produktcommit. Der Baum muss aus dem bereits prüfsummen- und commitgebundenen
+Bundle stammen; ein abweichender Baum oder ein beschädigtes Paket bleibt ein
+Fehler. Historische CLR-Methoden werden ausschließlich bei Übereinstimmung mit
+ihrem unveränderten ursprünglichen SHA-256 aus dem Quellen- oder Produktsnapshot
+desselben Bundles gelesen. Änderungen ausgelieferter Installer- oder Methodenbytes
+bleiben durch die bestehenden Paket-Negativtests gesperrt. Der Checkout-Objektstore
+und seine Refs werden bei dieser Prüfung nicht ergänzt oder verändert.

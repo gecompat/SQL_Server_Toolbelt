@@ -296,7 +296,8 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
         metadata = json.loads(inner[prefix + 'CLR-PACKAGE.json'])
         qualified = json.loads(files[clr_qualification_path(metadata)])
         require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
-        validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified, files)
+        validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified,
+                                   clr_qualification_method_sources(qualified))
 
 
 def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, bytes],
@@ -391,7 +392,15 @@ def validate_ssis_product_applicability(previous: str, current: str, current_fil
     if current_files is None:
         _, current_files, current_tree = qualification_sources(current)
     else:
-        current_tree = git('rev-parse', current + '^{tree}').decode().strip()
+        # Synthetische Produktcommits sind in frischen Checkouts nicht
+        # erreichbar. Nur bei fehlendem Commit den bereits hash- und
+        # commitgebundenen Paketsnapshot verwenden; keine Ersatzquelle.
+        available = subprocess.run(['git', 'cat-file', '-e', current + '^{commit}'],
+                                   cwd=ROOT, capture_output=True).returncode == 0
+        if available:
+            current_tree = git('rev-parse', current + '^{tree}').decode().strip()
+        else:
+            _, _, current_tree = qualification_sources(current)
     require(old_tree == record['previous_product_tree'] and current_tree == record['current_product_tree'],
             'SSIS-Produktbaum driftet.')
     _, baseline = snapshot(record['public_baseline_commit'])
@@ -487,6 +496,7 @@ def validate_regex_product_applicability(previous_product: str, current_product:
 
 def clr_qualification_method_sources(qualification: dict, additional_bindings: dict | None = None) -> dict[str, bytes]:
     """Historische Methoden aus ihrem geprüften Recoverypaket, niemals vom aktuellen Checkout."""
+    product_sources = None
     if qualification.get('kind') == 'ssis_current_delivery':
         # Vor dem Packen des neuen Recoveryarchivs ist der tatsächlich
         # ausgeführte, unveränderliche Methodencommit bereits lokal vorhanden.
@@ -498,7 +508,7 @@ def clr_qualification_method_sources(qualification: dict, additional_bindings: d
                 'CLR-Methoden-Recoveryarchiv beschädigt.')
         delivered_product = json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit']
         if delivered_product == qualification['product_commit']:
-            sources, _, _ = qualification_sources(qualification['product_commit'])
+            sources, product_sources, _ = qualification_sources(qualification['product_commit'])
         else:
             require(json.loads((ROOT / SSIS_CLR_QUALIFICATION).read_bytes()) == qualification
                     and json.loads((ROOT / SSIS_UPDATE).read_bytes())['current_product_commit'] == qualification['product_commit'],
@@ -511,6 +521,14 @@ def clr_qualification_method_sources(qualification: dict, additional_bindings: d
         require(path not in bindings or bindings[path] == expected, 'CLR-Methoden-Recoverybindung widersprüchlich.')
         bindings[path] = expected
     for path, expected in bindings.items():
+        # Spätere Offline-Prüfer dürfen die tatsächlich ausgeführten Methoden
+        # nicht ersetzen. Beide Kandidaten stammen aus demselben geprüften
+        # Bundle; ausschließlich der ursprüngliche exakte Quellhash gilt.
+        if path not in sources or sha(sources[path]) != expected:
+            require(product_sources is not None and path in product_sources
+                    and sha(product_sources[path]) == expected, 'CLR-Methoden-Recoverybindung veraltet.')
+            sources = dict(sources)
+            sources[path] = product_sources[path]
         require(path in sources and sha(sources[path]) == expected, 'CLR-Methoden-Recoverybindung veraltet.')
     return {path:sources[path] for path in bindings}
 

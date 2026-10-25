@@ -152,3 +152,12 @@ nicht gecacht. Kopierte Rückgabedictionaries verhindern Fixtureveränderungen
 durch negative Gegenproben. Eine zusätzliche Regression prüft Treffer,
 Dependencyänderung, isolierte Rückgaben und wiederholte Ablehnungen.
 Das ändert weder Produktvalidatoren noch native Testorakel oder Zeitbudgets.
+
+
+Die Offline-Paketprüfung löst einen im frischen Checkout fehlenden synthetischen
+Produktbaum aus dem geprüften Bundle auf. Native Methodenbindungen behalten ihre
+ursprünglichen Hashes; spätere Offline-Prüfer ersetzen die ausgeführten Methoden
+nicht. Zulässig ist ausschließlich die exakt hashgleiche historische Quelle aus
+dem Quellen- oder Produktsnapshot desselben Bundles. Abweichende Bäume, beschädigte
+Pakete und geänderte ausgelieferte Methoden bleiben Fehler. Diese Korrektur ändert
+keine DLL, keinen SQL-Payload und keinen nativen Ausführungsnachweis.
