@@ -505,6 +505,34 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_split_rights_binds_selected_targets_without_full_cl_matrix_claim(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/split-advanced-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed', 'full_cl_matrix_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0', 'toolbelt.string.split-advanced': '1.1.0'})
+        self.assertEqual(report['public_apis'], {'TVF_SplitAdvanced': 'SELECT', 'TVF_UnquoteToken': 'SELECT', 'USP_SplitAdvanced': 'EXECUTE'})
+        expected = {(p, v, cl) for p in ('linux', 'windows') for v, cl in (('2019', 150), ('2022', 160), ('2025', 170))}
+        self.assertEqual(len(report['native_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        missing = {(p, v, cl) for p in ('linux', 'windows') for v, cl in (('2022', 150), ('2025', 150), ('2025', 160))}
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['unexecuted_compatibility_combinations']}, missing)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        for field, total in [('positive_api_profiles', 48), ('strict_sql229_denials', 228), ('strict_sql51680_business_denials', 24)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        self.assertEqual(report['single_grant_api_profiles'], 36)
+        self.assertEqual(report['usp_with_helper_profiles'], 12)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['all_attempt_databases_absent'], 14)
+        self.assertTrue(report['remaining_gates'])
+
     def test_queue_frontend_rights_binds_producer_policy_and_narrow_view_scope(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/queue-frontend-rights-qualification.json').read_bytes())

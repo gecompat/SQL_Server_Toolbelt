@@ -6,6 +6,11 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
+Die [Split-Advanced-Callerrechte vom 2026-10-25](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+ergänzen drei Einzelgrants und einen gesonderten Helperpfad auf sechs
+physischen Zielkombinationen bei jeweils höchstem CL. Sechs zusätzliche
+CL-Kombinationen bleiben in diesem Scope `not executed`.
+
 Die [Queue-Frontend-Callerrechte vom 2026-10-25](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen fünf Einzelgrants und einen Legacyproducer mit zusätzlicher
 Handler-Metadatensicht; zwölf lokale/direkt zentrale Ziel-/CL-Kombinationen.

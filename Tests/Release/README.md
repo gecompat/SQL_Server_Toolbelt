@@ -407,6 +407,12 @@ Handler-Metadatensicht bleiben ausdrücklich getrennt. Der
 bindet Initialzustände, SQL229/51902, den leeren Blockerview-Scope und die
 Bereinigung einschließlich des nicht akzeptierten ersten Fixtureversuchs.
 
+`Runtime/SplitAdvanced.Rights.sql` prüft Split Advanced 1.1.0 mit ResultTable
+1.0.0: zwei SELECT-TVFs, direkten USP-EXECUTE-Pfad und separaten Helperpfad.
+Der [Split-Bericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+bindet Originaltokens, Unquote, NULL-/Fehlerfälle und sechs physische Ziele
+bei jeweils höchstem CL; sechs zusätzliche CL-Kombinationen bleiben ungeprüft.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen
