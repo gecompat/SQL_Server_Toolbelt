@@ -1,5 +1,9 @@
 # Split Advanced mit getrennten Callerrechten verwenden
 
+> Späterer Nachtrag vom 2026-10-25: Der [CL-Abschluss](SPLIT-ADVANCED-CL-COMPLETION.md)
+> ergänzt sechs neue niedrigere CL-Fälle. Dieser ursprüngliche Bericht und
+> seine JSON-Projektion bewahren den damaligen begrenzten Ausführungsumfang.
+
 Stand 2026-10-25. Die beiden TVFs von Split Advanced 1.1.0 sind mit je einem
 SELECT, die USP mit einem EXECUTE geprüft. Ein zusätzliches, getrennt gezähltes
 USP-Profil verwendet EXECUTE auf `toolbelt_core.USP_PrepareResultTable` für

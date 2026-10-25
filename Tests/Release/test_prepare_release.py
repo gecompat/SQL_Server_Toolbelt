@@ -505,6 +505,35 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_split_cl_completion_reuses_only_identical_bound_inputs(self):
+        import hashlib
+        prior_path = ROOT / 'Releases/1.0.0/split-advanced-rights-qualification.json'
+        prior = json.loads(prior_path.read_bytes())
+        report = json.loads((ROOT / 'Releases/1.0.0/split-advanced-cl-completion.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        self.assertTrue(report['caller_profile_cl_matrix_complete'])
+        self.assertEqual(report['reused_report_sha256'], hashlib.sha256(prior_path.read_bytes()).hexdigest())
+        self.assertEqual(report['reused_native_cases'], prior['native_cases'])
+        self.assertEqual(report['source_sha256'], prior['source_sha256'])
+        self.assertEqual(report['offline_export_sha256'], prior['offline_export_sha256'])
+        self.assertEqual(report['reused_oracle_controls'], prior['oracle_rejection_controls'])
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        all_cases = report['new_native_cases'] + report['reused_native_cases']
+        self.assertEqual(len(report['new_native_cases']), 6)
+        self.assertEqual(len(all_cases), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in all_cases}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in all_cases))
+        for field, total in [('positive_api_profiles', 96), ('strict_sql229_denials', 456), ('strict_sql51680_business_denials', 48)]:
+            self.assertEqual(report['combined_totals'][field], total)
+            self.assertEqual(sum(c[field] for c in all_cases), total)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual(report['final_independent_audit']['new_case_databases_absent'], 12)
+        self.assertFalse(report['publication_authorized'])
+        self.assertTrue(report['remaining_gates'])
+
     def test_split_rights_binds_selected_targets_without_full_cl_matrix_claim(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/split-advanced-rights-qualification.json').read_bytes())
