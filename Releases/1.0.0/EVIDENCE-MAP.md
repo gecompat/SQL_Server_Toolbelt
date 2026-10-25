@@ -1,5 +1,10 @@
 # Nachweiszuordnung aller 45 Module
 
+Die [eigenständige Stable-SQL-Lieferform](STABLE-SQL-INSTALL.md) bindet ihre
+beiden SQL-Dateien bytegleich an die vorhandene native Paketqualifikation.
+Die neue ZIP-Verpackung ist offline geprüft; weitergehende API-/Modul-, GUI-
+und Identitätsabnahmen werden daraus nicht abgeleitet.
+
 Diese Zuordnung verknüpft den eingefrorenen Releasekandidaten mit den
 kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 [zusätzlichen API-/Grenzprüfungen](API-QUALIFICATION.md). Die originale

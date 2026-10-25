@@ -1,5 +1,39 @@
 # Releasevorbereitung prüfen
 
+## Eigenständiges Stable-SQL-Paket reproduzieren
+
+`Scripts/Release/prepare_stable_sql_package.py` benötigt nur Python3.10+ und die
+versionierten Releaseinputs. Es führt kein SQL, keinen Build und keinen
+Netzwerkaufruf aus. Die bestehende 19-Modul-Kanalzuordnung bleibt maßgeblich.
+
+```powershell
+python -B Scripts/Release/prepare_stable_sql_package.py verify
+# Einen neuen vorhandenen privaten Ordner verwenden; Dateien dürfen nicht existieren:
+python -B Scripts/Release/prepare_stable_sql_package.py build `
+  --output .runtime/stable-sql-new/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip
+python -B Scripts/Release/prepare_stable_sql_package.py verify `
+  --output .runtime/stable-sql-new/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip
+```
+
+Das Werkzeug liest nur drei feste Dateinamen aus dem prüfsummenverifizierten
+Quellarchiv und extrahiert nichts. Beide SQL-Hashes müssen exakt zur kanonischen
+nativen Qualifikation passen, die Lizenz zu `LICENSE.md`; hinzu kommen die
+[Paketanleitung](../../Releases/1.0.0/STABLE-SQL-INSTALL.md), Manifest und
+Dateiprüfsummen. Geänderte Herkunftsinputs, Dateien, ZIP-Metadaten, zusätzliche/
+fehlende/doppelte/Pfad-/Symlink-Einträge, Größenüberschreitungen oder vorhandene
+Ausgaben werden abgewiesen. Ein Fehler erfordert Prüfung des betroffenen Inputs;
+keinen Hash anpassen, um eine Abweisung zu umgehen. Erneut in einen neuen
+Ausgabeort bauen. ZIP und Prüfsumme immer gemeinsam aus demselben Stand liefern.
+Die Einträge verwenden ZIP_STORED mit festem Datum und festen Dateiattributen;
+dadurch hängt der exakte Containervergleich nicht von Deflate-/zlib-Versionen ab.
+
+Die Tests in `test_prepare_release.py` prüfen Reproduktion und gezielte Drift.
+Das Manifest unterscheidet heutigen Quellarchivhash und historischen nativen
+Archivhash; nur die exakt gleichen SQL-Payloads übernehmen ihren bisherigen
+12-Fall-Scope. Die neue Verpackung erhält keinen neuen nativen GUI-/Anmeldungs-,
+TLS-, API- oder Lifecycle-Nachweis. Das Gesamtquell-/CLR-/SSIS-Paket wird dabei
+nicht neu gebaut; `prepared_not_published` bleibt verbindlich.
+
 ## API- und Grenzqualifikation
 
 `api-qualification-spec.json` benennt die 165 ausgewählten kanonischen

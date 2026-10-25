@@ -10,6 +10,14 @@ Für den ersten praktischen Test beginne mit der
 stabilen T-SQL-Kandidaten keinen eigenen Build. Die folgenden Abschnitte
 erklären Lieferumfang, Paketpflege und Freigabegrenzen.
 
+Für den schnellen SQL-Einstieg gibt es das eigenständige
+[Stable-SQL-ZIP](InstallPackages/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip) mit
+[SHA-256-Prüfsumme](InstallPackages/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip.sha256).
+Die [kurze Anleitung](STABLE-SQL-INSTALL.md) beschreibt Installation und Kontrolle.
+Es enthält genau die beiden bereits qualifizierten SQL-Payloads, unveränderte
+Lizenz, Anleitung, Herkunftsmanifest und Dateiprüfsummen. Dies ergänzt die
+Lieferform; Modulstatus, Support- und Veröffentlichungsgrenzen bleiben bestehen.
+
 ## Was enthalten ist
 
 Alle 45 implementierten Module mit ihren unveränderten Modulversionen,
