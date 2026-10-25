@@ -1,5 +1,7 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+[Event Log: Lesen und lokale Retention mit Einzelrechten](../Releases/1.0.0/EVENT-LOG-CALLER-QUALIFICATION.md): 3 APIs, zwölf Fälle lokal/direkt zentral, 72 Einzelgrantprofile und 648 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 [Providerview mit einzelnem SELECT-Recht](../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 ## Fünfter endlicher Release-Rahmen
