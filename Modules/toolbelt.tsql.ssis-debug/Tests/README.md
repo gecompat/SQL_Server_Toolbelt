@@ -1,6 +1,6 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
-Stand 2026-10-19. Die nativen Nachweise unten behalten ihre ursprünglichen
+Stand 2026-10-25. Die nativen Nachweise unten behalten ihre ursprünglichen
 Ausführungsdaten und Buildbindungen. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
 mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.
 
@@ -215,10 +215,95 @@ Der Benutzer hat am 2026-10-18 die Veröffentlichung mit eingebettetem lokalen
 Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikation
 freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
 
+## Neuer gemeinsamer Build: Windows SQL2019/2022 und Upgrade
+
+Die zusätzliche Qualifikation vom 2026-10-25 gilt für den Produktquellstand
+`e718accba206153c7af6aece1bf180cb23a16203`. Sie verwendet denselben SSIS-Binary
+und dasselbe Deployment-SQL wie der separat dokumentierte SQL2025-Nachweis
+zum gemeinsamen Modellkern. SQL2025 wurde nicht wiederholt. Die
+[maschinenlesbare Projektion](Qualification/Windows2019-2022.20261025.json)
+bindet die tatsächlichen Eingaben, Fälle und Ergebnisgrenzen.
+
+| Engine / eigene Datenbankcollation | Modus | Kern | API | Lifecycle | SSIS-Buildupgrade |
+|---|---|---:|---:|---:|---:|
+| Windows SQL2019 / BIN2 | local | 181 | 61 | 15 | 8 |
+| Windows SQL2019 / BIN2 | central | 181 | 61 | 15 | 8 |
+| Windows SQL2022 / CS_AS | local | 181 | 61 | 15 | 8 |
+| Windows SQL2022 / CS_AS | central | 181 | 61 | 15 | 8 |
+
+Der später über PR #411 integrierte Objektkennungsexport verändert den
+geteilten CLR-Kern. Die Nachweise hier bleiben am vorigen Binary gebunden;
+sie qualifizieren keinen daraus neu gebauten CLR-Binary. Der Objektkennungsexport
+hat eigene Offlinegegenproben. Vor einer neuen CLR-Lieferung ist deren nativer
+Nachweis getrennt zu erbringen; erfolgreiche alte Läufe werden nicht umetikettiert.
+
+Alle vier Fälle bestanden, insgesamt 1.060 Assertions. Der öffentliche
+Generator verwendet dabei SQL150; weitere Dialekte und andere Nachweise
+behalten ihre getrennte ursprüngliche Bindung.
+
+`Invoke-SsisBuildUpgradeCases.ps1` installiert den tatsächlich ausgelieferten
+SSIS-1.0.0-Binary aus dem bisherigen qualifizierten ZIP. Danach wird er durch
+den neuen, unterschiedlichen 1.0.0-Build ersetzt. Die Tests lesen beide
+Assemblyinhalte zurück, prüfen erhaltene Assembly-/Prozeduridentitäten und
+verwenden eine zuvor erzeugte JSON-Vorlage am neuen öffentlichen Einstieg.
+Es wird keine fiktive Vorgängerversion angelegt. Zusätzlich bestehen in jedem
+Kontext die echten Parser-2.0.0→2.0.1-/Table-Clone-4.1.0→4.1.1-Upgrades mit
+beiden Triggerfixtures, Repeat sowie Uninstall/Absent-Repeat.
+
+Die begrenzten Aufrufe verwenden je genau einen Modus:
+
+```powershell
+foreach ($mode in 'local','central') {
+    $journal = Join-Path $privateEvidenceRoot ('native-' + $mode + '-' + [guid]::NewGuid().ToString('N'))
+    & Tests/Runtime/Invoke-LabContract.ps1 -Version 2019 -Patch base `
+        -Modes $mode -Full -PredecessorRoot $genuineParserPredecessorRoot `
+        -SsisPredecessorReleaseDirectory $shippedSsisReleaseDirectory `
+        -SsisReleaseDirectory $verifiedNewReleaseDirectory `
+        -ParserReleaseDirectory $exactPinnedParserReleaseDirectory `
+        -QualifiedProviderSha512 $verifiedNewProviderHash `
+        -JournalDirectory $journal -DatabaseCollation Latin1_General_100_BIN2
+}
+```
+
+Das Beispiel wird aus dem Modulverzeichnis ausgeführt. Die angegebenen
+Verzeichnisse enthalten vorab geprüfte Original-/Releaseartefakte; der
+Journalpfad muss für jeden Aufruf neu sein. Für SQL2022 wurde derselbe Ablauf
+mit `-DatabaseCollation Latin1_General_100_CS_AS` ausgeführt. Der Runner prüft Hashes vor SQL und kann den eingefrorenen
+Labvertrag und Zielschlüssel zusätzlich explizit binden. Er verwendet keine
+abweichende lokale Parser-DLL als Ersatz für den festgelegten Dependency-Pin.
+
+Ein erster SQL2019-local-Versuch scheiterte im neuen Testadapter an der
+Sichtbarkeit seiner Zeitbudgetvariablen im Unterskript. Er bleibt
+`FAILED_CLEANED`; sein Cleanup wurde vor der Korrektur und nochmals abschließend
+mit den ursprünglichen Eingabebytes unabhängig geprüft. Der korrigierte
+Einzelmoduspfad bestand anschließend alle vier Fälle. Das Arbeitsbudget bleibt
+300 Sekunden, die Cleanupdeadline 360 Sekunden ab Zielstart. Für die dokumentierte
+Qualifikation überwachte zusätzlich ein privater 400-Sekunden-Watchdog jeden
+Aufruf und ließ bei unklarem Zustand keinen Folgefall zu.
+Die vorhandenen 40-/45-Sekunden-Kommandogrenzen werden nicht erhöht.
+
+Der finale Adapter erhält außerdem das bisherige Verhalten von Aufrufen mit
+mehreren Modi. Die vier qualifizierten Aufrufe hatten jeweils genau einen Modus;
+ihr SQL-, Budget- und Orakelpfad bleibt unverändert. Ausführung und aktuelle
+Anwendbarkeit sind in der Projektion getrennt. Sieben Offlinegegenproben in
+`Framework/Invoke-NativeDeadline.ps1` prüfen Vererbung über eine echte
+Skriptgrenze, Ablaufgrenzen und den bisherigen Mehrfachmoduspfad. Im vorhandenen
+Windows-CI-Job kommt dafür ein kurzer PowerShell-Schritt hinzu, ohne neue Jobs,
+Labzugriffe oder eine Verdopplung der Generator-Frameworkprozesse.
+
+Vier positive und ein historischer Abschlussaudit bestätigten alle zehn eigenen
+Datenbanknamen als abwesend, alle 25 geprüften Trustzustände als wiederhergestellt
+und die Konfigurationsbaselines als erhalten. Originale, Journale und Rohlogs
+bleiben lokal. Produktquellen und der versionierte Installationssatz wurden
+nicht geändert. Das vorhandene ZIP liefert weiterhin den früheren Binary und
+keinen Exporthost. Neuer Paketlieferstand, SQL2025-Upgrade, Linux-Hostlauf und
+weitere Ressourcen-/SDK-/Produktionsaussagen bleiben separat; authentifizierte
+TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
+
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: gemeinsamer Exchange-Kern, externer .NET-10-Host, Framework Full und SQL2025 local/central Full`
-- Scope: Gemeinsames typisiertes Paketmodell für Generator und Exporthost; reproduzierbarer CLR-Build,21 Generator-Frameworkfälle und47 gemeinsame Schema-/Modellgegenproben bestanden. Windows SQL2025 lokal und zentral jeweils181 Kern-,61 API- und15 Lifecycleassertionen,514 insgesamt, mit eigenem Cleanup. Funktionales TLS gemäß Labvertrag; authentifizierte TLS-Abnahme, Linux-Hostlauf, SDK-Parität, Vorgängerupgrade für diesen Build und Veröffentlichung separat offen. Historische SQL2019/2022-Nachweise bleiben an ihre ursprünglichen Binaries gebunden.
+- Nachweis: `local: Invoke-LabContract.ps1 Full je Windows2019/2022 und local/central, echte SSIS-Build-/Parser-/Table-Clone-Upgrades; unabhängige Abschlussaudits`
+- Scope: Produktquellstand e718 vor dem späteren Objektkennungsexport: vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

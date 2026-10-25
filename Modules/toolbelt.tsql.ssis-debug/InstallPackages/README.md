@@ -5,6 +5,12 @@ SSIS-Debug **1.0.0**, Script Parser **2.0.1**, die exakt passende Microsoft
 ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.
 Es ist ein Entwicklungs-/Testpaket; der Status bleibt `unreleased`.
 
+Der neue gemeinsame Modellkern ist separat auf Windows qualifiziert.
+Dieses Archiv enthält weiterhin den zuvor qualifizierten SSIS-Binary und
+keinen externen Exporthost. Die [aktuellen Buildnachweise](../Tests/README.md)
+ändern den Inhalt dieses ZIPs nicht; ein aktualisierter Lieferstand bleibt
+separat vorzubereiten.
+
 ## Download und Installation
 
 1. Die ZIP-Datei über GitHubs Download-Schaltfläche herunterladen und vollständig

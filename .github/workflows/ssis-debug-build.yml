@@ -89,6 +89,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'SSIS_EXCHANGE_TEST_DEPENDENCY_FAILED' }
           python Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/test_contract.py --host Modules/toolbelt.tsql.ssis-debug/Exchange/Host/bin/Release/net10.0/Toolbelt.Ssis.Export.dll --framework-assembly Modules/toolbelt.tsql.ssis-debug/Clr/bin/Release/Toolbelt.Tsql.SsisDebug.dll
           if ($LASTEXITCODE -ne 0) { throw 'SSIS_EXCHANGE_PARITY_FAILED' }
+      - name: Native deadline inheritance without SQL
+        shell: pwsh
+        run: '& Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-NativeDeadline.ps1'
       - name: Source and SSMS example syntax SQL150 SQL160 SQL170
         shell: pwsh
         run: >-

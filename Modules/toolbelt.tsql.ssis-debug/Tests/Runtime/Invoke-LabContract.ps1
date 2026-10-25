@@ -6,6 +6,10 @@ param(
  [switch]$Full,
  [switch]$ApiOnly,
  [string]$PredecessorRoot,
+ [string]$SsisPredecessorReleaseDirectory,
+ [string]$JournalDirectory,
+ [string]$ExpectedTargetKey,
+ [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedContractSha256,
  [string]$SsisReleaseDirectory,
  [string]$ParserReleaseDirectory,
  [ValidatePattern('^[0-9A-F]{128}$')][string]$QualifiedProviderSha512='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC',
@@ -23,12 +27,23 @@ foreach($name in @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-La
  $definition=@($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name},$true))
  if($definition.Count -ne 1){throw 'LAB_DISCOVERY_NOT_UNIQUE'};. ([scriptblock]::Create($definition[0].Extent.Text))
 }
+$ssisNativeScopeClock=[Diagnostics.Stopwatch]::new();$ssisNativeCleanupPhase=$false
+$ssisNativeBoundedInvocation=$Modes.Count -eq 1
+function Get-SsisNativeTimeout([int]$Maximum=45){
+ # Bestehende Mehrfachmodus-Aufrufe behalten ihre bisherigen Einzelkommandogrenzen.
+ # Die neue Qualifikation ruft jeden Modus als eigenen begrenzten Fall auf.
+ if(-not $ssisNativeBoundedInvocation){return $Maximum}
+ $deadline=if($ssisNativeCleanupPhase){360}else{300}
+ $left=[Math]::Floor($deadline-$ssisNativeScopeClock.Elapsed.TotalSeconds)
+ if($left -lt 1){throw 'SSIS_NATIVE_SCOPE_DEADLINE'}
+ return [int][Math]::Min($Maximum,$left)
+}
 function Query([Data.SqlClient.SqlConnection]$Connection,[string]$Text){
- $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=45
+ $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=Get-SsisNativeTimeout 45
  try{$table=[Data.DataTable]::new();$reader=$cmd.ExecuteReader();try{if($reader.FieldCount -gt 0){$table.Load($reader)}}finally{$reader.Dispose()};return ,$table}finally{$cmd.Dispose()}
 }
 function NonQuery([Data.SqlClient.SqlConnection]$Connection,[string]$Text){
- $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=45
+ $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=Get-SsisNativeTimeout 45
  try{[void]$cmd.ExecuteNonQuery()}finally{$cmd.Dispose()}
 }
 function ReconfigureProtected([Data.SqlClient.SqlConnection]$Connection){
@@ -68,6 +83,17 @@ $qualifiedProvider=$QualifiedProviderSha512
 if($manifest.sha512 -cne $qualifiedProvider -or (Get-FileHash (Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash -cne $qualifiedProvider -or
  (Get-FileHash (Join-Path $ssisRelease 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $manifest.deploymentArtifactSha256){throw 'SSIS_LAB_QUALIFIED_RELEASE_MISMATCH'}
 $trustInputs=@(@{File=(Join-Path $parserRelease 'Microsoft.SqlServer.TransactSql.ScriptDom.dll');Hash=$manifest.scriptDomSha512},@{File=(Join-Path $parserRelease 'Toolbelt.Tsql.ScriptParser.dll');Hash=$manifest.parserSha512},@{File=(Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll');Hash=$manifest.sha512})
+if($SsisPredecessorReleaseDirectory){
+ $SsisPredecessorReleaseDirectory=[IO.Path]::GetFullPath($SsisPredecessorReleaseDirectory)
+ $ssisOldManifest=Get-Content -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Raw|ConvertFrom-Json
+ # Tatsächlich ausgelieferter qualifizierter V1-Satz, keine erfundene Vorgängerversion.
+ $oldQualified='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'
+ if($ssisOldManifest.moduleId -cne 'toolbelt.tsql.ssis-debug' -or $ssisOldManifest.moduleVersion -cne '1.0.0' -or $ssisOldManifest.sha512 -cne $oldQualified -or
+    (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash -cne $oldQualified -or
+    (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $ssisOldManifest.deploymentArtifactSha256 -or
+    $ssisOldManifest.parserSha512 -cne $manifest.parserSha512 -or $ssisOldManifest.scriptDomSha512 -cne $manifest.scriptDomSha512 -or $oldQualified -ceq $qualifiedProvider){throw 'SSIS_GENUINE_BUILD_PREDECESSOR_INVALID'}
+ $trustInputs+=@{File=(Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll');Hash=$oldQualified}
+}
 if($PredecessorRoot){
  $PredecessorRoot=[IO.Path]::GetFullPath($PredecessorRoot)
  $oldRoot=Join-Path $PredecessorRoot 'Modules/toolbelt.tsql.script-parser'
@@ -84,12 +110,16 @@ if($PredecessorRoot){
 }
 foreach($input in $trustInputs){if((Get-FileHash -LiteralPath $input.File -Algorithm SHA512).Hash -cne $input.Hash){throw 'SSIS_LAB_BINARY_PIN_MISMATCH'}}
 $lab=Resolve-LabContract
+if($ExpectedContractSha256 -and (Get-FileHash -LiteralPath $lab.Path -Algorithm SHA256).Hash -cne $ExpectedContractSha256){throw 'SSIS_LAB_FROZEN_CONTRACT_CHANGED'}
 $targets=@(Get-LabTargetsForSelector -Contract $lab.Contract -Selector ([pscustomobject]@{Platform='windows';Version=$Version;Patch=$Patch}))
 if(-not $targets.Count){throw 'SSIS_LAB_NO_READY_TARGET'}
-$journalRoot=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltSsisNative-'+[guid]::NewGuid().ToString('N'))
+if($ExpectedTargetKey -and ($targets.Count -ne 1 -or [string]$targets[0].key -cne $ExpectedTargetKey)){throw 'SSIS_LAB_FROZEN_TARGET_CHANGED'}
+$journalRoot=if($JournalDirectory){[IO.Path]::GetFullPath($JournalDirectory)}else{Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltSsisNative-'+[guid]::NewGuid().ToString('N'))}
+if(Test-Path -LiteralPath $journalRoot){throw 'SSIS_LAB_JOURNAL_COLLISION'}
 New-Item -ItemType Directory -Path $journalRoot|Out-Null
 $targetOrdinal=0
 foreach($target in $targets){
+ $ssisNativeScopeClock.Restart();$ssisNativeCleanupPhase=$false
  $targetOrdinal++;[void](Invoke-LabPreflight -Entry $target -TestPurpose Functional)
  $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $target -TestPurpose Functional));$builder['Initial Catalog']='master';$builder['Pooling']=$false
  $master=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString);$master.Open()
@@ -160,7 +190,12 @@ foreach($target in $targets){
      NonQuery $connection 'DROP TABLE #TriggerMap,#TriggerPlan;'
      "SSIS_GENUINE_UPGRADE_TRIGGER_PASS Windows $Version $mode"
     }
-    $phase=$mode+'-ssis';Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Deploy.WithAssembly.sql'))) $mode
+    $phase=$mode+'-ssis'
+    if($SsisPredecessorReleaseDirectory){
+     $phase=$mode+'-ssis-build-upgrade'
+     & (Join-Path $PSScriptRoot 'Invoke-SsisBuildUpgradeCases.ps1') -Connection $connection -Mode $mode -PreviousRelease $SsisPredecessorReleaseDirectory -CurrentRelease $ssisRelease -ExpectedOldHash $oldQualified -ExpectedNewHash $qualifiedProvider
+     $journal['ssisBuildUpgrade']='PASS';SaveJournal
+    }else{Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Deploy.WithAssembly.sql'))) $mode}
     $phase=$mode+'-repeat';Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Deploy.WithAssembly.sql'))) $mode
     if(-not $ApiOnly){$phase=$mode+'-core'; & (Join-Path $PSScriptRoot 'Invoke-CoreContract.ps1') -Connection $connection -Full:$Full -CrossDatabase $clientDatabase}
     $phase=$mode+'-api'; & (Join-Path $PSScriptRoot 'Invoke-ApiCases.ps1') -Connection $connection
@@ -201,6 +236,7 @@ foreach($target in $targets){
   if($detail.Length -gt 3000){$detail=$detail.Substring(0,3000)}
   Write-Output ('SSIS_LAB_FAILURE '+$phase+' '+$failed+' '+$detail)
  }finally{
+  $ssisNativeCleanupPhase=$true
   $cleanupOk=$true
   if($uncertainDatabase){$unknown=Query $master ("SELECT COUNT_BIG(*) AS N FROM sys.databases WITH (NOLOCK) WHERE name=N'"+$uncertainDatabase+"';");if($unknown.Rows[0].N -ne 0){$cleanupOk=$false}}
   foreach($database in $ownedDatabases){try{NonQuery $master ('IF DB_ID(N'''+$database+''') IS NOT NULL DROP DATABASE ['+$database+'];')}catch{$cleanupOk=$false}}
