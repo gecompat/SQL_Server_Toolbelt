@@ -9,7 +9,7 @@ Dieses Archiv enthält den auf Windows SQL2019/2022/2025 lokal und zentral
 qualifizierten SSIS-Iterationsbuild. Es enthält
 keinen externen Exporthost. Die [Prüfmatrix](../Tests/README.md) trennt die
 sechs nativen Buildnachweise von den Prüfungen des entpackten Installationspakets.
-Die [Paketprojektion](../Tests/Qualification/InstallPackage.20261025.json) bindet
+Die [Paketprojektion](../Tests/Qualification/Iterations.InstallPackage.20261025.json) bindet
 den finalen ZIP-Hash an die tatsächlich ausgeführte Neuinstallation und
 Upgradefolge auf Windows SQL2025 lokal und zentral, einschließlich echtem
 ODBC-sqlcmd und unabhängigen Cleanup-Audits. Der öffentliche PowerShell-Aufruf
