@@ -7,6 +7,7 @@ param(
  [switch]$ApiOnly,
  [string]$PredecessorRoot,
  [string]$SsisPredecessorReleaseDirectory,
+ [ValidateSet('Identities.Windows2019-2025.20261025.json')][string]$SsisQualifiedPredecessorEvidence,
  [string]$SsisIntermediateReleaseDirectory,
  [string]$InstallationPackageRoot,
  [string]$PackageSqlcmdPath,
@@ -117,11 +118,19 @@ $qualifiedProvider=$QualifiedProviderSha512
 if($manifest.sha512 -cne $qualifiedProvider -or (Get-FileHash (Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash -cne $qualifiedProvider -or
  (Get-FileHash (Join-Path $ssisRelease 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $manifest.deploymentArtifactSha256){throw 'SSIS_LAB_QUALIFIED_RELEASE_MISMATCH'}
 $trustInputs=@(@{File=(Join-Path $parserRelease 'Microsoft.SqlServer.TransactSql.ScriptDom.dll');Hash=$manifest.scriptDomSha512},@{File=(Join-Path $parserRelease 'Toolbelt.Tsql.ScriptParser.dll');Hash=$manifest.parserSha512},@{File=(Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll');Hash=$manifest.sha512})
+if($SsisQualifiedPredecessorEvidence -and (-not $SsisPredecessorReleaseDirectory -or $SsisIntermediateReleaseDirectory)){throw 'SSIS_QUALIFIED_PREDECESSOR_SCOPE_INVALID'}
 if($SsisPredecessorReleaseDirectory){
  $SsisPredecessorReleaseDirectory=[IO.Path]::GetFullPath($SsisPredecessorReleaseDirectory)
  $ssisOldManifest=Get-Content -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Raw|ConvertFrom-Json
  # Tatsächlich ausgelieferter qualifizierter V1-Satz, keine erfundene Vorgängerversion.
  $oldQualified='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'
+ if($SsisQualifiedPredecessorEvidence){
+  $previousRecord=Get-Content -LiteralPath (Join-Path $moduleRoot ('Tests/Qualification/'+$SsisQualifiedPredecessorEvidence)) -Raw|ConvertFrom-Json
+  if($previousRecord.result -cne 'PASS' -or $previousRecord.product_source_commit -cne 'bab9188d0af72c0ca852019ad5bc039070903c94' -or
+     (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $previousRecord.qualified_assembly_sha256 -or
+     (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $previousRecord.qualified_deploy_sql_sha256){throw 'SSIS_QUALIFIED_PREDECESSOR_BINDING_INVALID'}
+  $oldQualified=(Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash
+ }
  if($ssisOldManifest.moduleId -cne 'toolbelt.tsql.ssis-debug' -or $ssisOldManifest.moduleVersion -cne '1.0.0' -or $ssisOldManifest.sha512 -cne $oldQualified -or
     (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash -cne $oldQualified -or
     (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $ssisOldManifest.deploymentArtifactSha256 -or

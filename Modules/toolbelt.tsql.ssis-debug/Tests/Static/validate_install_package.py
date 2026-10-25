@@ -110,13 +110,19 @@ def main(archive_path=None):
                 relative, expected = item.split(':', 1)
                 path = posixpath.normpath(root + '/' + relative)
                 require(path in payload and sha(payload[path]) == expected, 'qualified build source hash')
-    qualification_path = ssis + 'Tests/Qualification/Identities.Windows2019-2025.20261025.json'
+    allowed = {'Tests/Qualification/Identities.Windows2019-2025.20261025.json':1626,
+               'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590}
+    require(release_pins['qualification_evidence'] in allowed, 'explicit qualification contract')
+    qualification_path = ssis + release_pins['qualification_evidence']
     require(manifest['nativeBinaryQualification'] == qualification_path, 'native qualification path')
-    require(json.loads(payload[qualification_path]) == json.loads((MODULE / 'Tests/Qualification/Identities.Windows2019-2025.20261025.json').read_bytes()),
+    require(json.loads(payload[qualification_path]) == json.loads((MODULE / release_pins['qualification_evidence']).read_bytes()),
             'canonical native qualification')
     qualification = json.loads(payload[qualification_path])
     require(qualification['result'] == 'PASS' and len(qualification['cases']) == 6 and
-            qualification['total_native_assertions'] == 1626 and
+            qualification['total_native_assertions'] == allowed[release_pins['qualification_evidence']] and
+            {(c['sql_version'],c['deployment_mode']) for c in qualification['cases']} ==
+            {(v,m) for v in ('2019','2022','2025') for m in ('local','central')} and
+            all(c['result'] == 'PASS' for c in qualification['cases']) and
             sha(payload[ssis + 'Artifacts/Toolbelt.Tsql.SsisDebug.dll']).lower() == qualification['qualified_assembly_sha256'] and
             sha(payload[ssis + 'Artifacts/Deploy.WithAssembly.sql']).lower() == qualification['qualified_deploy_sql_sha256'],
             'exact native DLL and deployment qualification')
