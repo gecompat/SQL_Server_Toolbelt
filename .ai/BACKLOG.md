@@ -2,6 +2,34 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Geordnete autonome Fortsetzung — 2026-10-25
+
+Direkter Benutzerauftrag: offene Entwicklungen in der besprochenen Reihenfolge
+autonom abarbeiten, bereits freigegebene Arbeiten fortführen, echte Blocker
+melden und kohärente Wellen nach grünen Pflichtprüfungen per PR nach
+`origin/main` integrieren. Immer zuerst planen, dann entwickeln. Ein stündlicher
+Heartbeat dient ausschließlich als letzte Instanz zur Leerlauferkennung.
+Die laufenden SSIS-Themen verbleiben beim separaten aktiven Chat; hier werden
+weder dessen Dateien, Branches, Tests noch Ressourcen übernommen.
+
+Der Arbeitsplan beginnt mit dem Abschluss von v1.0.0 und der noch fehlenden
+Rechtequalifikation außerhalb von SSIS. Danach folgen Datei-/Identitätsgates,
+Worker-/Recovery- und weitere Preview-Nachweise nach Ausführbarkeit. TLS bleibt
+ein eigener externer Nachweis. RunAs, Dialekttransformation und neue Utilities
+behalten ihre jeweils noch offenen konkreten Vertrags-/Implementierungsgates;
+die Reihenfolge ist keine neue Funktionsfreigabe. Veröffentlichung bleibt separat.
+
+Erste kohärente Welle, vor Umsetzung im Chat geplant: die sechs bestehenden
+Work-Type-APIs mit isolierten Callerrechten und ihren zusätzlichen Handler-/
+Policyrechten prüfen. Umsetzung ohne Produktänderung, ausschließlich eigene
+synthetische Datenbanken und Benutzer ohne Login; keine CLR-/Serverkonfiguration.
+Der [Rechtebericht](../Releases/1.0.0/WORK-TYPE-RIGHTS-QUALIFICATION.md)
+bindet zwölf bestandene Ziel-/CL-Fälle lokal/direkt zentral, zwei verworfene
+Orakelkontrollen und den bereinigten ersten Fixturefehler. Alle 27 eigenen
+Datenbanknamen sind frisch unabhängig als abwesend geprüft. Integration und
+aktuelle Head-/Main-CI werden am zugehörigen PR nachgewiesen; kein vorweggenommener
+Merge-, Veröffentlichungs- oder vollständiger Modulabnahmestatus.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit

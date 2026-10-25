@@ -260,6 +260,14 @@ Vor Veröffentlichung sind die unterschiedlichen ResultTable-Statusangaben auf
 Objektseite und kanonischem Manifest mit gebundener Paketpflege abzugleichen.
 Bestehende gültige Nachweise werden weder umetikettiert noch pauschal verworfen.
 
+Am 2026-10-25 sind zusätzlich die sechs öffentlichen
+[Work-Type-Callerprofile](WORK-TYPE-RIGHTS-QUALIFICATION.md) auf zwölf
+Ziel-/CL-Kombinationen lokal und direkt zentral geprüft: 144 positive Profile,
+1.368 strikte Abweisungen und unabhängige Audits aller eigenen Ressourcen.
+Notwendige Handler-/Policyrechte sind ausdrücklich getrennt. Produktquellen,
+Paketbytes und Modulstatus blieben unverändert; echte CrossDB-Identitäten und
+weitere Policy-/Rollen-/Lifecycleverträge bleiben offen.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
