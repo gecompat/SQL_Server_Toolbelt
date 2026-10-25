@@ -215,6 +215,48 @@ Der Benutzer hat am 2026-10-18 die Veröffentlichung mit eingebettetem lokalen
 Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikation
 freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
 
+## Iterationsbuild: vollständige Windows-Buildqualifikation
+
+Die [Iterationsprojektion](Qualification/Iterations.Windows2019-2025.20261025.json)
+bindet den neuen gemeinsamen Kern, DLL und Deployment-SQL an die tatsächlichen
+Build- und Testinputs. Das zusätzliche `iterationContainer` des optionalen
+Identitätstransports1.1.0 stammt aus demselben Kern; öffentliche SQL-Parameter,
+Resultsets, Legacy-Modell und Identitätstransport1.0.0 bleiben unverändert.
+
+| Engine / eigene Datenbankcollation | Modi | Kern je Modus | API | Lifecycle | Upgrade | Ergebnis |
+|---|---|---:|---:|---:|---:|---|
+| Windows SQL2019 / BIN2 | local / central | 181 | 61 | 15 | 8 | bestanden |
+| Windows SQL2022 / CS_AS | local / central | 181 | 61 | 15 | 8 | bestanden |
+| Windows SQL2025 / CI_AS_SC_UTF8 | local / central | 181 | 61 | 15 | 8 | bestanden |
+
+Sechs vollständige neue Kontexte ergeben1.590 Assertions. Upgrade bedeutet
+hier: tatsächlich ausgelieferter #411-Binary → unterschiedlicher Iterationsbinary,
+beide weiterhin1.0.0. Der Vorgänger wird zusätzlich gegen seinen vorhandenen
+qualifizierten DLL-/Deploymentnachweis geprüft. Assembly- und öffentliche/interne
+Prozeduridentitäten sowie die alte JSON-Vorlage bleiben verwendbar. Frühere
+Legacy-/Parser-/Table-Clone-Upgrades werden nicht erneut ausgeführt oder auf
+diesen Build umetikettiert. Die Defaultdialekte und risikobasiert verteilten
+Collations behalten ihren bisherigen Scope; keine kartesische Vollmatrix.
+
+Der Release-Doppelbuild ist byteidentisch; Full21 und97 gemeinsame
+Modell-/Iterations-/Paritätsgegenproben am exakten neuen Binary bestehen.
+Parser-/ScriptDom-Pins bleiben unverändert. Nach jedem Lauf und nochmals
+abschließend bestätigten sechs unabhängige Audits zwölf eigene DB-Namen als
+abwesend,24 Trustzustände und die Konfigurationsbaselines als wiederhergestellt
+sowie unveränderte Laufinputs. Alle sechs Versuche bestanden.
+
+Arbeits-/Cleanup-/äußere Grenzen300/360/400 und Kommandogrenzen40/45 Sekunden
+bleiben erhalten. Functional verwendet erforderliche Verschlüsselung und den
+expliziten Lab-Trustwert ohne Fallback. Windows-Anmeldung/SSMS-GUI,
+authentifizierte TLS-Abnahme, Linux-Exporthost, SDK-/Ressourcen-/Produktions-
+und Releaseabnahme behalten ihre eigenen offenen Grenzen.
+
+Paketpins und der reine ZIP-Packer werden nicht als CLR-Deploymentinputs in
+das Release-Trustmanifest aufgenommen: Sie binden dieses Manifest erst nach
+seiner Qualifikation und wären andernfalls zyklisch. CLR-Quellen, SQL-Quellen,
+Runtimeverträge und Releasebuilder bleiben vollständig gebunden. Die exakten
+Paketquellen, Manifeste und Containerbytes haben eigene Integritätsgates.
+
 ## Aktualisiertes Installations-ZIP mit qualifiziertem Objektkennungsexport
 
 Die [Paketprojektion vom 2026-10-25](Qualification/InstallPackage.20261025.json)
@@ -433,8 +475,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: deterministischer ZIP-Doppelbau, Integritäts-/Manipulationssuite6, Installer-Orakel55, extrahiertes ValidateOnly und ODBC-Paketläufe Windows2025 local/central mit unabhängigen Audits`
-- Scope: Aktualisiertes SSIS-ZIP mit exakt qualifiziertem PR411-Binary, unverändertem Deployment-SQL/Trustmanifest und Parser-/ScriptDom-Pins; keine neue Assembly gebaut.175 Dateien einschließlich exakter Buildquellroots, Installationsanleitung und SSMS-Beispiel. Zwei native Paketkontexte mit je8 Neuinstallations-/Lifecycle-,14 echten SSIS-Upgrade-,36 Kern- und61 API-Assertions,238 insgesamt. Ursprünglicher Lieferbuild → gemeinsamer Kern → Objektkennungsexport, alte Vorlagen und Identitäten erhalten. Zwei frische Abschlussaudits: zwei eigene DB-Namen abwesend, zehn Trustzustände und Konfiguration wiederhergestellt, Eingabepins unverändert. Grenzen300/360/400 und40/45 erhalten; echter ODBC-Client mit expliziter Functional-Labanmeldung und Encrypt=True ohne Fallback. Frühere sechs Full-Enginekontexte bleiben separat gebunden. Öffentlicher Windows-Authentifizierungsprozess, authentifizierte TLS-/SSMS-GUI-Abnahme, Gesamtpaket-Update und Veröffentlichung nicht belegt.
+- Nachweis: `local: reproduzierbarer Iterations-CLR-Build, Full21, gemeinsame97 Modell-/Iterationsgegenproben und Full Windows2019/2022/2025 local/central mit qualifiziertem ausgeliefertem Vorgänger`
+- Scope: Neuer gemeinsamer Iterationskern mit unveränderter öffentlicher SQL-API und Dependency-Pins. Sechs neue physische Windows-Kontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 echten PR411→Iterations-Buildupgradeassertionen,1590 insgesamt. Assembly-/Prozeduridentitäten und alte JSON-Vorlage erhalten. Sechs frische Abschlussaudits: zwölf eigene DB-Namen abwesend,24 Trustzustände und Konfiguration wiederhergestellt, Pins unverändert. Grenzen300/360/400 und40/45 unverändert; Functional Encrypt=True und expliziter Lab-Trust ohne Fallback. Frühere Legacy-/Dependency-Nachweise bleiben separat; Paketlieferung wird gegen den finalen ZIP-Hash gesondert geprüft. Windows-Identitäts-/SSMS-, authentifizierte TLS-, Linux-Host-, SDK-/Ressourcen-/Produktions- und Releasegates bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
