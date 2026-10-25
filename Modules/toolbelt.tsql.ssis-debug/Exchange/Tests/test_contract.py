@@ -112,6 +112,13 @@ def main():
         check(scoped["identities"]["objects"][1]["callTarget"]=="SyntheticChild.dtsx","explicit same-project call target")
         task.find("UseProjectReference").text="False"
         check(bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)["identities"]["objects"][1]["callTarget"] is None,"external package reference remains unqualified")
+        task.find("UseProjectReference").text="True"
+        duplicate_target=ET.SubElement(task,"PackageName");duplicate_target.text="SyntheticOther.dtsx"
+        check(bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)["identities"]["objects"][1]["callTarget"] is None,"duplicate call target cannot select first property")
+        task.remove(duplicate_target)
+        expression=ET.SubElement(scope_exe,DTS+"PropertyExpression",{DTS+"Name":"PackageName"});expression.text='"SyntheticChild.dtsx"'
+        check(bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)["identities"]["objects"][1]["callTarget"] is None,"expression target remains unqualified")
+        scope_exe.remove(expression)
         handlers=ET.SubElement(scope_xml,DTS+"EventHandlers")
         handler=ET.SubElement(handlers,DTS+"EventHandler",{DTS+"refId":"Package.EventHandlers[OnError]",DTS+"EventName":"OnError"})
         scoped=bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)

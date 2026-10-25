@@ -62,7 +62,9 @@ namespace Toolbelt.Ssis.Exchange
                 if (call)
                 {
                     var data = d.Element.Elements(Dts + "ObjectData").Elements("ExecutePackageTask").ToList();
-                    if (data.Count == 1 && !d.Element.Elements(Dts + "PropertyExpression").Any())
+                    if (data.Count == 1 && !d.Element.Descendants(Dts + "PropertyExpression").Any() &&
+                        data[0].Elements("UseProjectReference").Count() == 1 && data[0].Elements("PackageName").Count() == 1 &&
+                        data[0].Elements("ExecuteOutOfProcess").Count() <= 1)
                     {
                         string project = (string)data[0].Element("UseProjectReference"), outside = (string)data[0].Element("ExecuteOutOfProcess");
                         string name = (string)data[0].Element("PackageName");
