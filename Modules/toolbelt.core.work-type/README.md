@@ -6,6 +6,12 @@ Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` 
 
 `toolbelt.core.work-type` Version `1.2.0` ist implementiert und teilweise validiert. Die neue Policy wurde auf Linux SQL Server 2019 nativ geprüft; historische 1.1.0-Plattformnachweise sind keine neue Policyqualifikation.
 
+Die [zusätzliche Rechtequalifikation vom 2026-10-25](../../Releases/1.0.0/WORK-TYPE-RIGHTS-QUALIFICATION.md)
+prüft alle sechs öffentlichen APIs lokal und direkt zentral auf Windows/Linux
+SQL2019/2022/2025 mit den unterstützten CLs. Sie belegt abgegrenzte Caller-,
+Handler- und Policyrechte; weitergehende Rollen-/Lifecycle-/CrossDB-Verträge
+und vollständige Releasequalifikation bleiben separat.
+
 ## Zweck
 
 Das Modul registriert ausschließlich vorhandene Stored Procedures als benannte Work Types. Es akzeptiert und speichert keinen frei ausführbaren SQL-Text.
@@ -21,6 +27,7 @@ Version `1.1.0` ergänzt die kontrollierte Entfernung eines deaktivierten Work T
 - `toolbelt_core.USP_DisableWorkType`
 - `toolbelt_core.USP_RemoveWorkType`
 - `toolbelt_core.USP_ResolveWorkType`
+- `toolbelt_core.USP_SetWorkTypePermission`
 
 Registrierung, Änderung, Deaktivierung und Entfernung sind administrative Vorgänge. Ein registrierender Principal muss `EXECUTE` auf die Zielprocedure besitzen. Ausführungsprovider erhalten einen getrennten Berechtigungs- und Ausführungsvertrag.
 

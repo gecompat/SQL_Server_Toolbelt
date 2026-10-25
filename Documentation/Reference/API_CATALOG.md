@@ -1866,7 +1866,7 @@ Zeigt registrierte Work Types und deren Konfiguration.
 
 Vertrag und Quelle: [VW_WorkTypes.sql](../../Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: dfd05a6bd0405fc86a2f0d633940733fb64aabc1f41fa1e42f72ca41ce645a8d -->
+<!-- Source/Vertrag SHA256: ab0a25fb241da16a32a1ae59c9b59352913586eab6cde051920a03eeeb5a8ec2 -->
 
 Keine Eingabeparameter.
 
@@ -1882,7 +1882,7 @@ Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work 
 
 Vertrag und Quelle: [USP_RegisterWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: c77e9eb8f2d4fc19323644963eadc6b0b56fe6b7e7e611af4ab9513309d5fb59 -->
+<!-- Source/Vertrag SHA256: ff34bd54b22fa1d93427b396d2f6d0136947baf5c3c8b5fe6a9c43b06968065b -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1924,7 +1924,7 @@ Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfigura
 
 Vertrag und Quelle: [USP_DisableWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 8f2067e9cd12a2ad4125f5fa054dd53ec473e0fadf688413846b143f5fd8fdf0 -->
+<!-- Source/Vertrag SHA256: 595660c12b4720a323732688538c6f0b01d54467cd2d8fdb06cc37e27dcba56e -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1958,7 +1958,7 @@ Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Da
 
 Vertrag und Quelle: [USP_RemoveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: d5a3cd5542f29d851526b3e8455e8f49028ba354508d1ff57b5492ae5a7d5f6c -->
+<!-- Source/Vertrag SHA256: de182cf82c9872cc66e0aa3cef538db172dabb18fc337f2d4b6f60503b0bdf2c -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1992,7 +1992,7 @@ Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-
 
 Vertrag und Quelle: [USP_ResolveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 45e600782a599da349be5b3f7f9bda3326b50a0281243e213dc91356502bab08 -->
+<!-- Source/Vertrag SHA256: 089a2a6fa38b38431c2c587d6c2cf5301d675d84a5a7d84e2502c7b90ea34f92 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 

@@ -493,6 +493,42 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_work_type_rights_preserves_exact_scope_sources_and_failed_controls(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/work-type-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed'):
+            self.assertIs(report[flag], False)
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(sum(c['positive_api_profiles'] for c in report['native_cases']), report['positive_api_profiles'])
+        self.assertEqual(report['positive_api_profiles'], 144)
+        self.assertEqual(sum(c['strict_denials'] for c in report['native_cases']), report['strict_denial_probes'])
+        self.assertEqual(report['expected_denial_sql_numbers'], {'229': 1296, '51509': 24, '51534': 24, '51591': 24})
+        self.assertEqual(report['strict_denial_probes'], sum(report['expected_denial_sql_numbers'].values()))
+        apis = {a['name']: a for a in report['public_apis']}
+        self.assertEqual(set(apis), {'USP_RegisterWorkType', 'USP_DisableWorkType', 'USP_RemoveWorkType',
+                                     'USP_ResolveWorkType', 'VW_WorkTypes', 'USP_SetWorkTypePermission'})
+        self.assertEqual(apis['VW_WorkTypes']['permission'], 'SELECT')
+        self.assertEqual(apis['USP_SetWorkTypePermission']['additional_required_permission'], 'CONTROL on WorkTypePermission')
+        self.assertTrue(all(a['permission'] == 'EXECUTE' for n, a in apis.items() if n != 'VW_WorkTypes'))
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-api'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['historical_test_failure']['result'], 'FAILED_CLEANED')
+        self.assertFalse(report['historical_test_failure']['product_failure'])
+        audit = report['final_independent_audit']
+        self.assertEqual((audit['positive_case_databases_absent'], audit['all_attempt_databases_absent'], audit['terminal_attempts_audited']), (24, 27, 15))
+        self.assertTrue(audit['fresh_audit_after_all_consumers'])
+        self.assertFalse(audit['server_configuration_changes'] or audit['assembly_trust_changes'])
+        self.assertTrue(report['remaining_gates'])
+
     def test_execution_context_rights_report_binds_isolated_scope_and_current_payload(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/execution-context-rights-qualification.json').read_bytes())

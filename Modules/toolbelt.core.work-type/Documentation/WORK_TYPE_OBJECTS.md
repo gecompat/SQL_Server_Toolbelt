@@ -1,5 +1,18 @@
 # Öffentliche Work-Type-Objekte
 
+## Direkte Callerrechte
+
+Registrierung, Disable, Remove und Resolve benötigen EXECUTE auf ihre jeweilige
+Procedure; die View benötigt SELECT. Registrierung verlangt zusätzlich
+Handler-EXECUTE, Resolve mit unverändertem `RequireExecutableByCaller=1`
+ebenfalls. Metadatensicht allein ersetzt dieses Recht nicht.
+`USP_SetWorkTypePermission` benötigt EXECUTE und CONTROL auf
+`toolbelt_core.WorkTypePermission`; ihre
+[Detailseite](USP_SetWorkTypePermission.md) erklärt den administrativen Vertrag.
+Der [abgegrenzte Rechtebeleg](../../../Releases/1.0.0/WORK-TYPE-RIGHTS-QUALIFICATION.md)
+zeigt diese Profile mit Benutzern ohne Login. Direkte Rechte auf den internen
+WorkType-Katalog gehören nicht zur normalen API-Nutzung.
+
 ## `VW_WorkTypes`
 
 Read-only-Sicht auf registrierte Work Types. `HandlerExists` zeigt, ob die Zielprocedure aktuell vorhanden ist. Die View ist kein Ausführungsprovider.
