@@ -40,11 +40,17 @@ try{
  [void](Sql "EXECUTE AS USER=N'SyntheticSsisReleaseCaller';");$impersonated=$true
  Check ([int](Sql "SELECT IS_MEMBER(N'db_owner') AS N;").Rows[0].N -eq 0) 'NOT_DB_OWNER'
  Check ((Call -Operation 'explain' -Help $true).Rows.Count -gt 0) 'HELP_EXECUTE_ONLY'
- $template=Call -Operation 'bindings-template'
- Check (@($template.Select("ArtifactKind='BindingsTemplate'")).Count -eq 1) 'TEMPLATE_EXECUTE_ONLY'
- $bindings=[string]$template.Select("ArtifactKind='BindingsTemplate'")[0].Content
+ # Auch der Vorlagenpfad prüft die exakten Assembly-/ResultTable-Dependencies.
+ # Ohne Metadatensicht darf er deren Unsichtbarkeit nicht als PASS behandeln.
+ Denied {Call -Operation 'bindings-template'} 50000 'TBX_SSISDBG_unresolved_dependency'
  [void](Sql 'REVERT;');$impersonated=$false
  [void](Sql 'GRANT VIEW DEFINITION TO SyntheticSsisReleaseCaller;GRANT SELECT ON OBJECT::sys.sql_expression_dependencies TO SyntheticSsisReleaseCaller;GRANT SELECT ON OBJECT::sys.security_predicates TO SyntheticSsisReleaseCaller;')
+ [void](Sql "EXECUTE AS USER=N'SyntheticSsisReleaseCaller';");$impersonated=$true
+ try{
+  $template=Call -Operation 'bindings-template'
+  Check (@($template.Select("ArtifactKind='BindingsTemplate'")).Count -eq 1) 'TEMPLATE_WITH_METADATA'
+  $bindings=[string]$template.Select("ArtifactKind='BindingsTemplate'")[0].Content
+ }finally{[void](Sql 'REVERT;');$impersonated=$false}
  foreach($missing in @('none','execute','view','dependencies','predicates')){
   $deny=switch($missing){'execute' {'DENY EXECUTE ON OBJECT::toolbelt_tsql.USP_ExplainSsisDataFlow TO SyntheticSsisReleaseCaller;'} 'view' {'DENY VIEW DEFINITION TO SyntheticSsisReleaseCaller;'} 'dependencies' {'DENY SELECT ON OBJECT::sys.sql_expression_dependencies TO SyntheticSsisReleaseCaller;'} 'predicates' {'DENY SELECT ON OBJECT::sys.security_predicates TO SyntheticSsisReleaseCaller;'} default {''}}
   if($deny){[void](Sql $deny)}
@@ -60,6 +66,7 @@ try{
     Check ($stage.Count -eq 1) 'SOURCE_STAGE_WITNESS'
     Denied {Sql ([string]$stage[0].Content)} 229 ''
    }elseif($missing -eq 'execute'){Denied {Call -Operation 'explain' -Help $true} 229 ''}
+   elseif($missing -eq 'view'){Denied {Call -Operation 'explain' -Bindings $bindings} 50000 'TBX_SSISDBG_unresolved_dependency'}
    else{Denied {Call -Operation 'explain' -Bindings $bindings} 50000 'TBX_SSISDBG_catalog_visibility'}
   }finally{[void](Sql 'REVERT;');$impersonated=$false}
   $restore=switch($missing){'execute' {'GRANT EXECUTE ON OBJECT::toolbelt_tsql.USP_ExplainSsisDataFlow TO SyntheticSsisReleaseCaller;'} 'view' {'GRANT VIEW DEFINITION TO SyntheticSsisReleaseCaller;'} 'dependencies' {'GRANT SELECT ON OBJECT::sys.sql_expression_dependencies TO SyntheticSsisReleaseCaller;'} 'predicates' {'GRANT SELECT ON OBJECT::sys.security_predicates TO SyntheticSsisReleaseCaller;'} default {''}}

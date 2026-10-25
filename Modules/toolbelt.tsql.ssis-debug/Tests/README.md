@@ -21,7 +21,7 @@ Der Adapter setzt und verifiziert den Wert ausschließlich in seinen eigenen
 Test- und Consumerdatenbanken und hält die tatsächlichen Werte privat fest.
 Ohne den Parameter bleibt der bisherige Engine-Default unverändert.
 `-ReleaseRights` verlangt `-Full` und ergänzt einen loginlosen eigenen Caller:
-Help/Vorlage mit EXECUTE, Analyse mit expliziter Metadatensicht ohne Quell-SELECT,
+Help mit EXECUTE, Vorlage/Analyse mit expliziter Metadatensicht ohne Quell-SELECT,
 einzeln verweigerte Rechte mit strikten SQL-Fehlerorakeln sowie Erhalt einer
 befüllten ResultTable bei Überschreitung der Paketbytegrenze. Keine Server-Logins,
 CrossDB-Identitätsverwaltung oder Erweiterung der Funktions-/Sicherheitsbudgets.
