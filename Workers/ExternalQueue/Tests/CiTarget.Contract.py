@@ -97,7 +97,7 @@ docker() {
     [[ "$scenario" != extra_fields ]] || printf ' extra'
     printf '\n'
   elif [[ "$1" == rm ]]; then
-    [[ "$#" == 3 && "$2" == -f && "$3" == $(printf 'b%.0s' {1..64}) ]] || { touch "$state/invalid"; return 2; }
+    [[ "$#" == 4 && "$2" == -f && "$3" == --volumes && "$4" == $(printf 'b%.0s' {1..64}) ]] || { touch "$state/invalid"; return 2; }
     touch "$state/removed"
     [[ "$scenario" != remove_fail ]] || return 17
   else

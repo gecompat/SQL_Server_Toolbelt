@@ -18,6 +18,14 @@ Workflowblock des ZIP-Spikes. Die Tests starten keine SQL-Instanz. Ein
 unabfangbarer Prozessabbruch oder verlorener Runner kann keinen Shelltrap
 ausführen; diese Grenze wird nicht als erfolgreicher Cleanup ausgewiesen.
 
+Die manuellen Pointer-Last- und Hard-Interrupt-Proben entfernen ebenfalls die
+frisch an ihr Ownerlabel gebundene vollständige Container-ID samt anonymen
+Volumes. Ihr Elternprozess führt bei `TERM` den Cleanup aus; weitere Signale
+unterbrechen ihn dabei nicht. Ein unbestätigter Cleanup der Lastprobe behält
+das private Ownerjournal, statt die Zuordnung mit dem temporären Verzeichnis
+zu löschen. `python Tests/CI/test_pointer_probe_cleanup.py` prüft die echten
+Cleanupfunktionen und diesen frühen Fehlerpfad ohne Docker oder SQL.
+
 Die [Impact- und Aufwandsprüfung vom 2026-10-19](CHANGE_IMPACT_REVIEW_2026-10-19.md)
 dokumentiert gemeinsame Adapter-/Consumer-Abhängigkeiten und offene
 Attestierungsvoraussetzungen. `python -B Tests/CI/validate_lab_selector.py`

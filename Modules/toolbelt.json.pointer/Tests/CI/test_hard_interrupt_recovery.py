@@ -6,9 +6,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -53,9 +55,14 @@ def absent(name: str) -> bool:
 
 
 def recover(name: str, owner: str) -> bool:
-    if label_for(name) != owner:
+    identity = docker(['container', 'inspect', '--format',
+                       '{{.Id}}|{{index .Config.Labels "' + LABEL + '"}}', name])
+    if identity.returncode != 0:
+        return absent(name)
+    parts = identity.stdout.strip().split('|')
+    if len(parts) != 2 or not re.fullmatch('[0-9a-f]{64}', parts[0]) or parts[1] != owner:
         return False
-    removed = docker(["rm", "-f", name], timeout=30)
+    removed = docker(["rm", "-f", '--volumes', parts[0]], timeout=30)
     if removed.returncode != 0:
         raise ProbeError("Eigene Containerentfernung unbestätigt")
     return absent(name)
@@ -94,6 +101,8 @@ def one_case(case: str) -> None:
     journal.write_text(json.dumps({"owner": owner, "name": name}), encoding="utf-8")
     process: subprocess.Popen[str] | None = None
     cleaned = False
+    previous_int = signal.getsignal(signal.SIGINT)
+    previous_term = signal.getsignal(signal.SIGTERM)
     try:
         process = subprocess.Popen([
             sys.executable, str(Path(__file__).resolve()), "--child",
@@ -123,6 +132,8 @@ def one_case(case: str) -> None:
             raise ProbeError("Frischer Cleanup-Audit fehlgeschlagen")
         print(f"PASS: Pointer {case} local hard-child-kill owner recovery")
     finally:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
         if process is not None and process.poll() is None:
             process.kill()
             process.wait(timeout=10)
@@ -137,6 +148,8 @@ def one_case(case: str) -> None:
         else:
             print("INCONCLUSIVE: privates Owner-Journal für manuelle Zuordnung erhalten",
                   file=sys.stderr)
+        signal.signal(signal.SIGINT, previous_int)
+        signal.signal(signal.SIGTERM, previous_term)
 
 
 def main() -> int:
@@ -149,6 +162,9 @@ def main() -> int:
         if options.journal is None or options.case is None:
             parser.error("Kindprozess benötigt Journal und Fall")
         return child(options.journal, options.case)
+    def cancel(_signum, _frame):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, cancel)
     if options.journal is not None or options.case is not None:
         parser.error("Journal und Fall sind interne Kindprozessparameter")
     if os.environ.get("TBX_SQL_TARGET", "runner") != "runner":
