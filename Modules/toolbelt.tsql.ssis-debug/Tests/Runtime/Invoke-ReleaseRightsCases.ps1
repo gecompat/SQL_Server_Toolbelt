@@ -64,8 +64,9 @@ try{
     $result=Call -Operation 'explain' -Bindings $bindings
     Check (@($result.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 2) 'METADATA_ONLY_ANALYSIS'
     $stage=@($result.Select("ArtifactKind='StageSql' AND IsExecutable=true")|Where-Object ComponentId -eq 'Package\Flow\SourceA')
-    Check ($stage.Count -eq 1) 'SOURCE_STAGE_WITNESS'
-    Denied {Sql ([string]$stage[0].Content)} 229 ''
+    # Die gemeinsame Quelle erscheint einmal je tatsächlichem Zielfluss.
+    Check ($stage.Count -eq 2) 'SOURCE_STAGE_PER_TARGET_WITNESS'
+    foreach($sourceStage in $stage){Denied {Sql ([string]$sourceStage.Content)} 229 ''}
    }elseif($missing -eq 'execute'){Denied {Call -Operation 'explain' -Help $true} 229 ''}
    elseif($missing -eq 'view'){Denied {Call -Operation 'explain' -Bindings $bindings} 50000 'TBX_SSISDBG_unresolved_dependency'}
    else{Denied {Call -Operation 'explain' -Bindings $bindings} 50000 'TBX_SSISDBG_catalog_visibility'}
