@@ -359,6 +359,68 @@ zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
 Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
 automatischer Labstart oder Replay einer bereits grünen Vollmatrix.
 
+## Queue-Autorisierungsvertrag physisch prüfen
+
+`prepare_queue_authorization.py` bindet den unveränderten kanonischen
+`Authorization.Contract.sql` an den eigenen markierten Scope und schreibt
+ausschließlich eine neue private SQL-Datei unter `.runtime`. Er setzt den
+NULL-Default der eigenen Capture-Tabelle explizit; die ursprünglichen
+fachlichen Orakel werden nicht verändert. Ein als Alias beziehungsweise
+Reparse Point umgelenktes Runtimeverzeichnis wird vor der Ausgabe abgewiesen.
+
+```powershell
+python Tests/Release/prepare_queue_authorization.py --output .runtime/queue-wave/fixture.sql
+& Tests/Release/Invoke-QueueAuthorizationLab.ps1 -RunsetPath $privateRunset -CaseIndex 0
+# In einem neuen Prozess nach terminalem Fall:
+& Tests/Release/Invoke-QueueAuthorizationLab.ps1 -RunsetPath $privateRunset -CaseIndex 0 -AuditOnly
+```
+
+Das private Runset hat dieselben Felder und Pflichtpins wie der folgende
+Work-Type-Testweg, aber `schema_version=queue-authorization/v1`. Seine
+verbindungslosen lokalen/zentralen Exports enthalten genau ResultTable,
+Work Type und Work Queue. Generator, kanonischer Vertrag und ausgeführte
+Fixturebytes sind ebenfalls gebunden. Der Caller reserviert Originalbudget,
+300/360/400-Sekunden-Grenzen und separaten Audit; vorhandene Journale werden
+nicht erneut ausgeführt. Ein unbekannter Cleanupzustand stoppt Folgeverbraucher.
+
+Der [Qualifikationsbericht](../../Releases/1.0.0/QUEUE-AUTHORIZATION-QUALIFICATION.md)
+und seine JSON-Projektion trennen zwölf bestandene Fälle und zwei verworfene
+Orakelkontrollen. Sie belegen nur den aufgeführten Autorisierungsvertrag,
+keinen vollständigen API-Mindestrechtesatz oder externen Workerbetrieb.
+
+## Work Type mit getrennten Handler- und Policyrechten prüfen
+
+`Invoke-WorkTypeRightsLab.ps1` prüft die feste `Runtime/WorkType.Rights.sql`
+in eigenen markierten Datenbanken. Voraussetzung sind ein schema-valider,
+explizit ausgewählter Labvertrag und ein privates eingefrorenes Runset unter
+`.runtime`: `schema_version=work-type-rights/v1`, zwölf Ziel-/CL-Einträge in
+`cases`, `contract_sha256`, `fixture`, die beiden verbindungslos erzeugten
+`exports.local`/`exports.central` sowie vollständige SHA256-`pins`. Die Pins
+umfassen Fixture, Exports, Harness, importierte Helfer, Labvertrag und Schema.
+Die Exports enthalten nur `toolbelt.core.result-table` und
+`toolbelt.core.work-type`; CLR- oder Serverkonfigurationsänderungen entfallen.
+
+```powershell
+& Tests/Release/Invoke-WorkTypeRightsLab.ps1 -RunsetPath $privateRunset -CaseIndex 0
+# Erst nach terminalem Fall in einem neuen Prozess ausführen:
+& Tests/Release/Invoke-WorkTypeRightsLab.ps1 -RunsetPath $privateRunset -CaseIndex 0 -AuditOnly
+```
+
+Ein erfolgreicher Fall meldet PASS für local/direct-central. Der neue Prozess
+prüft anschließend erneut die Inputpins und die Abwesenheit eigener
+Datenbanken. Jeder Index ist einmalig; vorhandene Journale verhindern Replay.
+Ein Fehler verlangt Einsicht in das private Journal. `CLEANUP_BLOCKED` stoppt
+abhängige Tests; Ownershipdrift wird niemals durch erzwungenes Löschen umgangen.
+Arbeits-/Cleanup-/äußere Grenzen bleiben 300/360/400 Sekunden; der Caller
+reserviert sein gemeinsames Budget und den separaten Audit vor dem Start.
+
+Der [Rechtebericht](../../Releases/1.0.0/WORK-TYPE-RIGHTS-QUALIFICATION.md)
+trennt zwölf erfolgreiche Fälle, zwei verworfene Orakelkontrollen und den
+bereinigten ersten Fixturefehler. Die Prüfung ergänzt sechs isolierte APIs
+einschließlich notwendiger Handler-/Policyrechte und interner DML-Abweisungen.
+Sie verspricht weder echte CrossDB-Identitätsmappings noch vollständige
+Work-Type- oder TLS-Qualifikation und startet keinen automatischen Labjob.
+
 ## ResultTable-/Error-Envelope-Callerprofile prüfen
 
 `Runtime/ResultTable.ErrorEnvelope.Rights.sql` prüft die dokumentierten

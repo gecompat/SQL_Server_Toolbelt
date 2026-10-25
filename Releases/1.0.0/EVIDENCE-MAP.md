@@ -6,6 +6,16 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
+Der [Queue-Autorisierungsvertrag vom 2026-10-25](QUEUE-AUTHORIZATION-QUALIFICATION.md)
+ergänzt auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral die Producer-,
+Handler-, DENY-/Idempotenz- und Callertransaktionsprofile. Vollständige isolierte
+API-Minimalrechte und externe Worker-/Recoveryfälle bleiben offen.
+
+Die [Work-Type-Rechtequalifikation vom 2026-10-25](WORK-TYPE-RIGHTS-QUALIFICATION.md)
+ergänzt sechs öffentliche Callerprofile auf zwölf Ziel-/CL-Kombinationen lokal
+und direkt zentral. Sie verändert weder den historischen Manifest-Snapshot
+noch die Paketbytes oder Modulstatuswerte.
+
 Tabelle und JSON-Projektion bewahren die zusätzliche Welle vom 2026-10-23.
 Spätere Nachprüfungen werden darunter getrennt zugeordnet. Insbesondere ist
 das damalige Capture-Timeout-Gate inzwischen für die gebundene DLL mit

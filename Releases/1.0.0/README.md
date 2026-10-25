@@ -40,6 +40,16 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Der [Queue-Autorisierungsvertrag](QUEUE-AUTHORIZATION-QUALIFICATION.md) besteht
+auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Er prüft Producer-Policy,
+Handler-Ausführbarkeit, DENY vor Idempotenzauskunft und Callertransaktionsschutz;
+isolierte API-Minimalrechte und externer Workerbetrieb bleiben separat.
+
+Die [Work-Type-Rechtequalifikation](WORK-TYPE-RIGHTS-QUALIFICATION.md) prüft
+alle sechs öffentlichen APIs mit getrennten Objekt-, Handler- und Policyrechten
+auf zwölf Ziel-/CL-Kombinationen lokal und direkt zentral. Sie ergänzt die
+vorhandenen Funktionsbelege; Modulstatus und Paketbytes bleiben unverändert.
+
 Die [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
 hat zwölf Ziel-/CL-Kombinationen lokal und direkt zentral bestanden. Der
 begrenzte Rechtebeleg und die vier früheren bereinigten Testfehler sind getrennt

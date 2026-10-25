@@ -256,9 +256,28 @@ zentral abgeschlossen: 120 Profilszenarien und 360 strikte Rechteabweisungen.
 Eine neue Breitenkontrolle wurde nach bestandener Baseline gezielt verworfen.
 Vier frühere bereinigte Testfehler und ihre originalen Eingabebytes bleiben
 historisch erhalten; der Produktcode und die Paket-SQL-/DLL-Bytes blieben gleich.
-Vor Veröffentlichung sind die unterschiedlichen ResultTable-Statusangaben auf
-Objektseite und kanonischem Manifest mit gebundener Paketpflege abzugleichen.
+Der ResultTable-Lesepfad verweist seit 2026-10-25 auf den kanonischen
+Manifeststatus und die aktuelle V0c-Abnahme; frühere Statustexte sind als
+Historie getrennt. Dies ist eine Dokumentationskorrektur ohne Statusaufwertung.
+Der unveränderte archivierte Paketstand bleibt an seine ursprünglichen
+Dokumentationsbytes gebunden; der endgültige Releasekandidat muss den
+korrigierten Lesepfad samt passenden Quellen-/Paketbindungen übernehmen.
 Bestehende gültige Nachweise werden weder umetikettiert noch pauschal verworfen.
+
+Am 2026-10-25 sind zusätzlich die sechs öffentlichen
+[Work-Type-Callerprofile](WORK-TYPE-RIGHTS-QUALIFICATION.md) auf zwölf
+Ziel-/CL-Kombinationen lokal und direkt zentral geprüft: 144 positive Profile,
+1.368 strikte Abweisungen und unabhängige Audits aller eigenen Ressourcen.
+Notwendige Handler-/Policyrechte sind ausdrücklich getrennt. Produktquellen,
+Paketbytes und Modulstatus blieben unverändert; echte CrossDB-Identitäten und
+weitere Policy-/Rollen-/Lifecycleverträge bleiben offen.
+
+Der [Queue-Autorisierungsvertrag vom 2026-10-25](QUEUE-AUTHORIZATION-QUALIFICATION.md)
+ist ebenfalls auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral geprüft.
+Producer-Policy, ausführbarer Handler, DENY vor Idempotenzauskunft und
+Callertransaktionsschutz sind für die bestehende feste Fixture belegt;
+vollständige API-Minimalrechte, Managed-/Providerparallelität und harte
+Recovery bleiben davon unabhängig offen.
 
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 

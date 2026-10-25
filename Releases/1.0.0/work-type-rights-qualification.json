@@ -1,0 +1,274 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "publication_authorized": false,
+  "result": "PASS",
+  "module_id": "toolbelt.core.work-type",
+  "module_version": "1.2.0",
+  "module_status_changed": false,
+  "product_sources_changed": false,
+  "package_payload_changed": false,
+  "execution_source_baseline_commit": "bab9188d0af72c0ca852019ad5bc039070903c94",
+  "scope": "Six public Work Type APIs with isolated object and contract-required secondary grants; local/direct central; no login mappings or full module acceptance",
+  "public_apis": [
+    {
+      "name": "USP_RegisterWorkType",
+      "permission": "EXECUTE",
+      "additional_required_permission": "EXECUTE on handler"
+    },
+    {
+      "name": "USP_DisableWorkType",
+      "permission": "EXECUTE",
+      "additional_required_permission": null
+    },
+    {
+      "name": "USP_RemoveWorkType",
+      "permission": "EXECUTE",
+      "additional_required_permission": null
+    },
+    {
+      "name": "USP_ResolveWorkType",
+      "permission": "EXECUTE",
+      "additional_required_permission": "EXECUTE on handler with default RequireExecutableByCaller=1"
+    },
+    {
+      "name": "VW_WorkTypes",
+      "permission": "SELECT",
+      "additional_required_permission": null
+    },
+    {
+      "name": "USP_SetWorkTypePermission",
+      "permission": "EXECUTE",
+      "additional_required_permission": "CONTROL on WorkTypePermission"
+    }
+  ],
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.work-type/Deployment/Deploy.sql": "7125adbae0bb33406cb0dedd2fe2be1c6ae59fa0a8742c75ddd176b4c63d2744",
+    "Modules/toolbelt.core.work-type/Deployment/Uninstall.sql": "74492991e514c5a0297b67bcf9a27153bbaa6bfb9c31f4985cf61cfd9b6f372d",
+    "Modules/toolbelt.core.work-type/Source/TVF_WorkTypeAuthorization.sql": "603449105768a1d99d05935481ea8e50bba7bd078ca1de69a5b4d685420358a1",
+    "Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql": "b48c18870fe5b8d6f7377bce5b54867adb2a86d5c39648f2e632aaef4d5975db",
+    "Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql": "a5fc3c546a308dc9bf4f1da045788d655d58c69230a5eedf9b3cab101cfd7d1f",
+    "Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql": "addbc463724b2d6f6d2617f156d069a6f8b92beefb399c8a991a47888ce5d855",
+    "Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql": "fc1290cb14276272ed7a2e142c7bbd4551d97d122d53c8f7e9ca677a98f3c710",
+    "Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql": "0e6d39125ee70358ce3e622331fbfb483f02c2ca6483d1cb4d77a66ad7a9692c",
+    "Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql": "2d3f8939ee96a649eae88414c5cde58e50ff9d06885aea2c86f34c60518739e7",
+    "Modules/toolbelt.core.work-type/Source/WorkType.sql": "5fecf47bbda65b810cb313f367fc78170866e32b608238b3ab4f53adc32cfdca",
+    "Modules/toolbelt.core.work-type/Source/WorkTypePermission.sql": "e443e327cde58f2ae1be0c406775ed8365f890f644dbaeb72ae81cbe5502dec5",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-WorkTypeRightsLab.ps1": "777836a25dc92900eb4be9c1ec27b87e7e270a108d99c431070a89f132a580f5",
+    "Tests/Release/Runtime/WorkType.Rights.sql": "f8bc88f39bb915e9eb384f9cefe8392076b7adf1035545174e7edcd6b788b146"
+  },
+  "offline_export_sha256": {
+    "local": "adea3e93174255bc340bd36c5edf02ead25a02a7158dc9f2f6d5455d50118ddb",
+    "central": "bd03202084a09ea2fef38e68036b651b212329c9e4a6013c8602019d7434ddfa"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_denials": 114,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "positive_api_profiles": 144,
+  "strict_denial_probes": 1368,
+  "expected_denial_sql_numbers": {
+    "229": 1296,
+    "51509": 24,
+    "51534": 24,
+    "51591": 24
+  },
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "expected_fixture_error": "Work-Type-Wertorakel verletzt",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-api",
+      "actual_state": "FAILED_CLEANED",
+      "expected_fixture_error": "Nicht exakt das vorgesehene oeffentliche Objektrecht",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "historical_test_failure": {
+    "result": "FAILED_CLEANED",
+    "cause": "Capture columns lacked explicit NULL under inherited ANSI_NULL_DFLT; original exact fixture and runset preserved privately",
+    "product_failure": false,
+    "independent_cleanup_and_pin_audit": true
+  },
+  "final_independent_audit": {
+    "positive_case_databases_absent": 24,
+    "all_attempt_databases_absent": 27,
+    "terminal_attempts_audited": 15,
+    "fresh_audit_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "remaining_gates": [
+    "True low-privilege cross-database login mappings",
+    "Other Work Type policy/role/concurrency/lifecycle contracts outside these six profiles",
+    "Other module API, resources, recovery, identity and client qualifications",
+    "Authenticated TLS remains separate",
+    "Final release packaging/head CI and explicit publication authorization"
+  ]
+}

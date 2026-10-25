@@ -2,6 +2,64 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Geordnete autonome Fortsetzung — 2026-10-25
+
+Direkter Benutzerauftrag: offene Entwicklungen in der besprochenen Reihenfolge
+autonom abarbeiten, bereits freigegebene Arbeiten fortführen, echte Blocker
+melden und kohärente Wellen nach grünen Pflichtprüfungen per PR nach
+`origin/main` integrieren. Immer zuerst planen, dann entwickeln. Ein stündlicher
+Heartbeat dient ausschließlich als letzte Instanz zur Leerlauferkennung.
+Die laufenden SSIS-Themen verbleiben beim separaten aktiven Chat; hier werden
+weder dessen Dateien, Branches, Tests noch Ressourcen übernommen.
+
+Der Arbeitsplan beginnt mit dem Abschluss von v1.0.0 und der noch fehlenden
+Rechtequalifikation außerhalb von SSIS. Danach folgen Datei-/Identitätsgates,
+Worker-/Recovery- und weitere Preview-Nachweise nach Ausführbarkeit. TLS bleibt
+ein eigener externer Nachweis. RunAs, Dialekttransformation und neue Utilities
+behalten ihre jeweils noch offenen konkreten Vertrags-/Implementierungsgates;
+die Reihenfolge ist keine neue Funktionsfreigabe. Veröffentlichung bleibt separat.
+
+Erste kohärente Welle, vor Umsetzung im Chat geplant: die sechs bestehenden
+Work-Type-APIs mit isolierten Callerrechten und ihren zusätzlichen Handler-/
+Policyrechten prüfen. Umsetzung ohne Produktänderung, ausschließlich eigene
+synthetische Datenbanken und Benutzer ohne Login; keine CLR-/Serverkonfiguration.
+Der [Rechtebericht](../Releases/1.0.0/WORK-TYPE-RIGHTS-QUALIFICATION.md)
+bindet zwölf bestandene Ziel-/CL-Fälle lokal/direkt zentral, zwei verworfene
+Orakelkontrollen und den bereinigten ersten Fixturefehler. Alle 27 eigenen
+Datenbanknamen sind frisch unabhängig als abwesend geprüft. Integration und
+aktuelle Head-/Main-CI werden am zugehörigen PR nachgewiesen; kein vorweggenommener
+Merge-, Veröffentlichungs- oder vollständiger Modulabnahmestatus.
+
+### Zweite Welle: ResultTable-Statuslesepfad
+
+Vor Umsetzung geplant: den widersprüchlichen eigenen Validierungsstatus der
+Objektseite entfernen und den Moduleinstieg vor die historische Chronologie
+stellen. Die aktuellen Statuswerte werden weiterhin ausschließlich aus dem
+Manifest abgeleitet; datierte Belege und bisherige Abschnittsanker bleiben
+erhalten. Die Objektseite verweist auf diesen Einstieg und die bestehende
+V0c-Abnahme. Kein Produkt-, Modulstatus-, Manifest- oder Vertragswechsel.
+
+Die historische Paketkopie bleibt unverändert. Eine gebundene Übernahme des
+korrigierten Lesepfads gehört zum finalen Releasekandidaten; diese reine
+Dokumentationswelle behauptet keinen neuen Paket- oder Runtime-Nachweis.
+
+### Dritte Welle: Queue-Autorisierungsvertrag
+
+Vor Umsetzung geplant: den unveränderten kanonischen Queue-Policyvertrag auf
+zwölf physischen Ziel-/CL-Kombinationen lokal und direkt zentral prüfen.
+Der eigene Releaseharness installiert nur die drei vorhandenen T-SQL-Module;
+keine neue Fachfunktion, kein Workerprovider, keine CLR-/Serverkonfiguration.
+Der [Bericht](../Releases/1.0.0/QUEUE-AUTHORIZATION-QUALIFICATION.md) bindet
+Producer-/Handler-/DENY-/Idempotenz- und Callertransaktionsverhalten,
+zwei verworfene Orakelkontrollen sowie unabhängige Schlussaudits. Alle 26
+eigenen Datenbanknamen sind abwesend. Die abschließend verstärkte reine
+Generator-Ausgabegrenze erzeugt identische Fixturebytes und erhält den
+ursprünglich ausgeführten Generatorbezug getrennt; kein Testreplay.
+
+Vollständige isolierte API-Minimalrechte, echter CrossDB-Kontext und
+Worker-/Recoverygates bleiben separat. Head-/Main-CI und reguläre Integration
+werden im PR nachgewiesen; keine vorweggenommene Vollabnahme oder Veröffentlichung.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit
