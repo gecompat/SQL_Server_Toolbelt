@@ -204,7 +204,15 @@ namespace Toolbelt.Ssis.Exchange
                         break;
                     case "PORT":
                         string sync = a("synchronousInputId"); var syncDefinitions = sync == "" || sync == "0" ? new List<Definition>() : items.Where(x => x.Kind == "PORT" && x.Parent == item.Parent && Attribute(x.Element, "refId") == sync).Take(2).ToList(); Definition syncDefinition = syncDefinitions.Count == 1 ? syncDefinitions[0] : null;
-                        item.Attributes = Obj("direction", e.Name == "input" ? "INPUT" : "OUTPUT", "portRole", Flag(a("isErrorOut")) as bool? == true ? "ERROR" : "UNKNOWN", "synchronousInputPortId", syncDefinition == null ? null : syncDefinition.Id); break;
+                        string portRole = Flag(a("isErrorOut")) as bool? == true ? "ERROR" : "UNKNOWN";
+                        var owner = items.SingleOrDefault(x => x.Id == item.Parent && x.Kind == "COMPONENT");
+                        if (e.Name == "output" && portRole != "ERROR" && owner != null && owner.ComponentKind == "lookup")
+                        {
+                            var normal = owner.Element.Element("outputs").Elements("output").Where(x => Flag(Attribute(x,"isErrorOut")) as bool? != true).ToList();
+                            string mode; owner.Properties.TryGetValue("NoMatchBehavior",out mode);
+                            if (normal.Count == 2 && (mode == "0" || mode == "1") && ComponentProfiles.IsLookupNoMatchOutput(normal.IndexOf(e))) portRole = "NO_MATCH";
+                        }
+                        item.Attributes = Obj("direction", e.Name == "input" ? "INPUT" : "OUTPUT", "portRole", portRole, "synchronousInputPortId", syncDefinition == null ? null : syncDefinition.Id); break;
                     case "COLUMN":
                         Func<string, string, object> number = (key, cached) => Number(a(key) == "" ? a(cached) : a(key));
                         item.Attributes = Obj("columnRole", e.Name == "externalMetadataColumn" ? "EXTERNAL_METADATA" : "DATA", "typeCode", Text(a("dataType") == "" ? a("cachedDataType") : a("dataType")), "length", number("length", "cachedLength"), "precision", number("precision", "cachedPrecision"), "scale", number("scale", "cachedScale"), "codePage", number("codePage", "cachedCodePage"), "isNullable", Flag(a("isNullable"))); break;

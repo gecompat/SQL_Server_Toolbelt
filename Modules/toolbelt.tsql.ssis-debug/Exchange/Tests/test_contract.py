@@ -1,4 +1,4 @@
-"""Gemeinsame synthetische Sollfälle für CLR- und externen SSIS-Modellkern."""
+"""Gemeinsame synthetische SollfÃ¤lle für CLR- und externen SSIS-Modellkern."""
 from __future__ import annotations
 
 import argparse
@@ -152,6 +152,27 @@ def main():
         identity_xml.set(DTS+"DTSID","{11111111-1111-1111-1111-111111111111}")
         identity_exe=identity_xml.find(f"{DTS}Executables/{DTS}Executable")
         identity_exe.set(DTS+"refId","Package\\SyntheticFlow")
+        # Rollen folgen dem qualifizierten Komponentenprofil und der nativen
+        # Ausgangsreihenfolge; beliebige Anzeigenamen sind keine Semantik.
+        role_xml=ET.fromstring(fixture)
+        role_component=next(role_xml.iter("component"))
+        role_component.set("componentClassID","Microsoft.Lookup");role_component.set("version","6")
+        props=role_component.find("properties")
+        if props is None: props=ET.SubElement(role_component,"properties")
+        ET.SubElement(props,"property",{"name":"NoMatchBehavior"}).text="1"
+        outputs=role_component.find("outputs")
+        for child in list(outputs): outputs.remove(child)
+        for index in range(2):
+            ET.SubElement(outputs,"output",{"refId":"SyntheticRoleOutput"+str(index),"name":"SyntheticRenamed"+str(index),"isErrorOut":"false"})
+        roles=run(ET.tostring(role_xml,encoding="utf-8",xml_declaration=True))
+        check(next(n for n in roles["nodes"] if n["name"]=="SyntheticRenamed1")["attributes"]["portRole"]=="NO_MATCH","lookup ordered second output without name inference")
+        role_component.set("version","999")
+        roles=run(ET.tostring(role_xml,encoding="utf-8",xml_declaration=True))
+        check(next(n for n in roles["nodes"] if n["name"]=="SyntheticRenamed1")["attributes"]["portRole"]=="UNKNOWN","unknown profile has no no-match role")
+        role_component.set("version","6")
+        ET.SubElement(outputs,"output",{"refId":"SyntheticRoleOutput2","name":"SyntheticRenamed2","isErrorOut":"false"})
+        roles=run(ET.tostring(role_xml,encoding="utf-8",xml_declaration=True))
+        check(next(n for n in roles["nodes"] if n["name"]=="SyntheticRenamed1")["attributes"]["portRole"]=="UNKNOWN","ambiguous output shape remains unknown")
         identity_exe.set(DTS+"DTSID","{ABCDEF12-2222-2222-2222-222222222222}")
         identity_exe.set("DTSID","33333333-3333-3333-3333-333333333333")
         identified=bundle_run(ET.tostring(identity_xml,encoding="utf-8",xml_declaration=True))

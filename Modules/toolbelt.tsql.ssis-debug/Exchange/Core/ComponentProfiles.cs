@@ -15,6 +15,10 @@ namespace Toolbelt.Ssis.Exchange
         }
         private static string Get(Dictionary<string,string> properties, string key)
         { string value; return properties.TryGetValue(key, out value) ? value : ""; }
+        // Im qualifizierten Lookupprofil folgt der No-Match-Ausgang auf den
+        // Match-Ausgang. Anzeigenamen dürfen beide Ausgänge beliebig umbenennen.
+        public static bool IsLookupNoMatchOutput(int nonErrorOutputIndex)
+        { return nonErrorOutputIndex == 1; }
         public static string Kind(string id, int version, Dictionary<string, string> properties)
         {
             // Nur strukturell qualifizierte native Komponentenprofile.

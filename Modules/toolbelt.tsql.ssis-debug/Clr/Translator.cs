@@ -317,7 +317,7 @@ namespace Toolbelt.Tsql.SsisDebug
             var keys = c.Inputs[0].Columns.Where(x => PackageReader.P(x.Properties, "JoinToReferenceColumn") != "").ToList();
             if (keys.Count == 0) throw new DebugFault("invalid_lineage", "Vollständiger Lookupschlüssel fehlt.");
             string mode = PackageReader.P(c.Properties, "NoMatchBehavior", "0");
-            bool noMatch = c.Outputs.Where(p => !p.Error).ToList().IndexOf(port) == 1;
+            bool noMatch = Toolbelt.Ssis.Exchange.ComponentProfiles.IsLookupNoMatchOutput(c.Outputs.Where(p => !p.Error).ToList().IndexOf(port));
             if (mode != "0" && mode != "1" && mode != "2") throw new DebugFault("unsupported_component", "Lookup-NoMatch-Disposition unbekannt.");
             LookupCache savedCache;
             if (lookupCaches.TryGetValue(c.Id, out savedCache)) { stage.Caches.Add(savedCache); stage.Inputs.UnionWith(savedCache.Inputs); RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); if (mode == "0") LookupMatchView(c, stage, parent); return; }
