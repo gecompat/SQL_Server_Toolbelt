@@ -81,6 +81,22 @@ try{
  Check ($before -gt 0) 'RESULT_TABLE_SEEDED'
  Denied {Call -Operation 'bindings-template' -Bytes ([byte[]]::new(16777217)) -ResultTable '#SsisReleaseRows'} 50000 'TBX_SSISDBG_resource_limit'
  Check ([long](Sql 'SELECT COUNT_BIG(*) AS N FROM #SsisReleaseRows WITH(NOLOCK);').Rows[0].N -eq $before) 'RESOURCE_OUTPUT_ATOMIC'
+ # Auch die feste öffentliche nvarchar(4000)-Spalte muss verlustfrei bleiben.
+ foreach($width in @(3999,4000,4001)){
+  [xml]$doc=[Text.Encoding]::UTF8.GetString($package)
+  $components=$doc.SelectNodes('//*[local-name()="component"]')
+  $components[$components.Count-1].SetAttribute('refId',('x' * $width))
+  $longPackage=[Text.Encoding]::UTF8.GetBytes($doc.OuterXml)
+  if($width -le 4000){
+   $longTemplate=Call -Operation 'bindings-template' -Bytes $longPackage
+   $longBindings=[string]$longTemplate.Select("ArtifactKind='BindingsTemplate'")[0].Content
+   $longResult=Call -Operation 'explain' -Bytes $longPackage -Bindings $longBindings
+   Check (@($longResult.Rows|Where-Object {$null -ne $_.ComponentId -and $_.ComponentId -is [string] -and $_.ComponentId.Length -eq $width}).Count -gt 0) 'ORIGINAL_COMPONENT_ID_EXACT'
+  }else{
+   Denied {Call -Operation 'explain' -Bytes $longPackage -Bindings $bindings -ResultTable '#SsisReleaseRows'} 50000 'TBX_SSISDBG_resource_limit'
+   Check ([long](Sql 'SELECT COUNT_BIG(*) AS N FROM #SsisReleaseRows WITH(NOLOCK);').Rows[0].N -eq $before) 'COMPONENT_WIDTH_OUTPUT_ATOMIC'
+  }
+ }
  [void](Sql 'DROP TABLE #SsisReleaseRows;')
 }finally{
  if($impersonated){[void](Sql 'REVERT;')}

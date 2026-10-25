@@ -190,6 +190,12 @@ internal static class ContractTests
                 Assert(sql.Count == 2, "TWO_TARGETS");
                 var sourceStages=result.Rows.Where(a=>a.Kind=="StageSql" && a.Component=="Package\\Flow\\SourceA").ToList();
                 Assert(sourceStages.Count==2 && sourceStages.Select(a=>a.Target).Distinct().Count()==2,"SOURCE_STAGE_PER_TARGET");
+                foreach(int width in new[]{3999,4000,4001}) {
+                    byte[] longId=Change(bytes,d=>d.Descendants("component").Last().SetAttributeValue("refId",new string('x',width)));
+                    var longOptions=Options("explain");longOptions.Stage="all";
+                    if(width<=4000){longOptions.Bindings=Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()).Rows[0].Content;var full=Engine.Analyze(longId,longOptions,cat,new Budget());Assert(full.Rows.Any(a=>a.Component!=null && a.Component.Length==width),"ORIGINAL_COMPONENT_ID_NOT_TRUNCATED");}
+                    else Reject(()=>Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()),"resource_limit");
+                }
                 Assert(sql.All(a => a.Executable && a.Content.Contains("WITH (NOLOCK)") && a.Content.Contains("ROW_NUMBER() OVER (PARTITION BY") && a.Content.Contains("DECLARE @v")), "SQL_CONTRACT");
                 Assert(result.Rows.Any(a => a.Kind == "StageSql") && result.Rows.Any(a => a.Kind == "CleanupSql"), "STAGES_CLEANUP");
                 Assert(sql.All(a => a.Details != null && a.Details.Contains("catalogBinding") && a.Details.Contains("catalogSha256")), "CATALOG_BINDING_EXPORTED");

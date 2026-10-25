@@ -26,6 +26,11 @@ einzeln verweigerte Rechte mit strikten SQL-Fehlerorakeln sowie Erhalt einer
 befüllten ResultTable bei Überschreitung der Paketbytegrenze. Keine Server-Logins,
 CrossDB-Identitätsverwaltung oder Erweiterung der Funktions-/Sicherheitsbudgets.
 Dies beschreibt den Harness; tatsächliche Ergebnisse werden separat gebunden.
+Der Ausgabegrenztest umfasst außerdem ursprüngliche Komponenten-IDs mit
+3999/4000/4001 UTF-16-Einheiten. Die öffentliche Spalte bleibt `nvarchar(4000)`;
+eine längere ID wird vor der SQL-Materialisierung als `resource_limit` abgewiesen.
+Zulässige IDs müssen vollständig erhalten bleiben; eine bereits befüllte
+ResultTable darf durch die Abweisung nicht verändert werden.
 
 Bestanden: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
 Lookup-Dezimalprodukt, Textlängen, SUM/AVG/LEN, Integerpräzedenz,
