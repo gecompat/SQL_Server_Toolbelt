@@ -83,6 +83,15 @@ und Scalar-EXECUTE, direkte Dependencyabweisung und intern erlaubte Ownershipket
 Für Sort Keys gelten opake Ordnungs-/Präzedenzorakel statt eines erfundenen
 versionsübergreifenden Binärformats. Keine neuen Jobs oder automatischen Labtests.
 
+Die [ausgewählte Date-Math-Qualifikation](../../Releases/1.0.0/DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
+verwendet `Runtime/DateMath.FunctionCases.sql` mit ResultTable/DateBucket/
+CalendarDifference. Aus dem unveränderten zwölfteiligen Runset werden vorab
+nur die sechs höchsten CL je Plattform/Engine ausgewählt: Indizes0/2/5/6/8/11.
+Die übrigen sechs Einträge werden nicht ausgeführt und separat als not executed
+projiziert. Zwei frische Gegenkontrollen und alle eigenen Abschlussaudits
+bleiben Pflicht. Ein eigener Teilscope-Test ersetzt oder lockert keinen der
+bestehenden zwölfteiligen Callerberichtstests.
+
 ## API- und Grenzqualifikation
 
 `api-qualification-spec.json` benennt die 165 ausgewählten kanonischen

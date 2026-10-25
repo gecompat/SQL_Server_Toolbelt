@@ -47,6 +47,11 @@ Grants auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen. Opake Sort Ke
 werden nach ihrem Ordnungsvertrag geprüft; breite Rechte bleiben ausgeschlossen.
 Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
 
+Die [ausgewählten Date-Math-Callerprofile](DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
+belegen vier TVFs auf Windows/Linux SQL2019/CL150,SQL2022/CL160 undSQL2025/CL170
+lokal/direkt zentral. Das ist ausdrücklich ein Teilscope: sechs niedrigere
+CL-Kombinationen bleiben not executed;keine volle CL-Matrix- oder Statusaufwertung.
+
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
 lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; keine volle Modulabnahme.

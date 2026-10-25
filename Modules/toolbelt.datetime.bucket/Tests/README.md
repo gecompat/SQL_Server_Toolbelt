@@ -1,5 +1,7 @@
 # Teststatus: Date/Time Bucket
 
+Aktuelle [ausgewählte Date-Math-Callerrechte](../../../Releases/1.0.0/DATE-MATH-HIGHEST-CL-QUALIFICATION.md): je ein SELECT lokal/direkt zentral auf Windows/Linux SQL2019/CL150,SQL2022/CL160,SQL2025/CL170. Sechs niedrigere CL-Callerfälle bleiben ausdrücklich not executed;frühere volle Fach-/Client-/Lifecycle-Belege behalten ihren Scope,Modulstatus unverändert.
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 | Datum | Scope | Ergebnis | Einschränkung |
