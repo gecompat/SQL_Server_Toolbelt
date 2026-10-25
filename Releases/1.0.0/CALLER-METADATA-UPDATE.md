@@ -65,7 +65,7 @@ bleiben `unreleased`; Zielkanäle und Supportumfang werden nicht erweitert.
 Veröffentlichung, Tag und GitHub-Release bleiben separat nicht autorisiert.
 
 Für die Pflege wurden keine zusätzlichen CI-Jobs oder Modellreviewketten
-eingeführt. Die vorhandenen fünf durch Manifeständerungen ausgelösten
+eingeführt. Die vorhandenen sechs durch Manifeständerungen ausgelösten
 Runtimeworkflows bleiben erhalten; ihre aktuellen Head-/Main-Prüfungen werden
 nicht durch historische Callerbelege ersetzt. Unveränderte lokale native
 Callerfälle werden nach exakter Quellbindung wiederverwendet. Der neue SSIS-

@@ -432,7 +432,7 @@ def validate_product_applicability(previous: str, current: str,
     if (ROOT / SSIS_UPDATE).is_file():
         record = json.loads((ROOT / SSIS_UPDATE).read_bytes())
         if record['current_product_commit'] == current:
-            validate_ssis_product_applicability(record['previous_product_commit'], current)
+            validate_ssis_product_applicability(record['previous_product_commit'], current, current_files)
             if previous != record['previous_product_commit']:
                 validate_regex_product_applicability(previous, record['previous_product_commit'])
             return

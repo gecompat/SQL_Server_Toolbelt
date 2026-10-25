@@ -161,17 +161,8 @@ def build(build_directory: Path, output: Path, unqualified_candidate: bool = Fal
     report = json.loads((build_directory / 'build-check.json').read_bytes())
     release.require(report['scope'] == 'OFFLINE_BUILD_ONLY' and len(report['builds']) == 12, 'Buildnachweis fehlt.')
     _, built_sources = release.snapshot(report['source_commit'])
-    current_inputs = {p:b for p,b in files.items() if p.startswith(('Modules/','Deployment/'))}
-    built_inputs = {p:b for p,b in built_sources.items() if p.startswith(('Modules/','Deployment/'))}
-    if current_inputs != built_inputs:
-        # Keine erneute Kompilation identischer C#/SQL-Inputs: ausschließlich
-        # die sechs exakten Rechtefelder und bereits öffentliche Lesepfade.
-        record = json.loads((release.ROOT / release.caller_metadata.RECORD).read_bytes())
-        _, previous, _ = release.qualification_sources(record['previous_product_commit'])
-        release.require(built_inputs == {p:b for p,b in previous.items() if p.startswith(('Modules/','Deployment/'))},
-                        'Buildinput gehört nicht zur gebundenen vorherigen Lieferung.')
-        _, baseline = release.snapshot(release.caller_metadata.BASELINE)
-        release.caller_metadata.validate_product_delta(built_sources, files, record, baseline)
+    release.require({p:b for p,b in files.items() if p.startswith(('Modules/','Deployment/'))} ==
+                    {p:b for p,b in built_sources.items() if p.startswith(('Modules/','Deployment/'))}, 'Buildquellen abweichend.')
     old = zipfile.ZipFile(io.BytesIO(files[SSIS]))
     artifacts, payload = [], {}
     for project in clr_projects(files):

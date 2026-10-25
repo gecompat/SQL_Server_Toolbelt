@@ -253,6 +253,15 @@ class PreparationTests(unittest.TestCase):
     def test_product_and_foundation_bindings(self):
         release.validate_plan(self.files, self.plan)
 
+    def test_supplied_candidate_sources_cannot_hide_behind_valid_disk_package(self):
+        record = json.loads((ROOT / release.SSIS_UPDATE).read_bytes())
+        broken = dict(self.files)
+        path = 'Modules/toolbelt.conversion.base64/module.yaml'
+        broken[path] += b'\nadditional_runtime_contract: true\n'
+        with self.assertRaises(ValueError):
+            release.validate_product_applicability(
+                record['previous_product_commit'], record['current_product_commit'], broken)
+
     def test_missing_local_ssis_commit_uses_only_bound_package_tree(self):
         from unittest.mock import patch
         record = json.loads((ROOT / release.SSIS_UPDATE).read_bytes())
