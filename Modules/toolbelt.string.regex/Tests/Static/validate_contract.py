@@ -237,7 +237,7 @@ def main() -> int:
     require(cleanup, "CI-Cleanup", "local result=$?", "trap - EXIT",
             'if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then',
             "{{.Id}} {{ index .Config.Labels \"tbx.regex.ci.owner\" }}",
-            '^([0-9a-f]{64})\\ ([0-9a-f]{32})$', 'docker rm -f "${container_id}"',
+            '^([0-9a-f]{64})\\ ([0-9a-f]{32})$', 'docker rm -f --volumes "${container_id}"',
             'rm -rf -- "${private_dir}"', "REGEX_CI_CLEANUP_UNVERIFIED",
             "REGEX_CI_CLEANUP_VERIFIED", 'exit "${result}"')
     runner_cleanup = cleanup.split("  # Runnerzustand", 1)[1]
