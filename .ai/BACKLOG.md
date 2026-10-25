@@ -70,6 +70,22 @@ Der zunächst geprüfte separate Stable-SQL-Herkunftsfix wird hier nicht umgeset
 Der Read-only-Abgleich fand diese Datei bereits im aktiven SSIS-/Gesamtpaket-
 Scope des anderen Chats. Keine konkurrierende Implementierung oder Übernahme.
 
+### Vierte Welle im dritten Rahmen: ausgewählte Date-Math-Callerprofile
+
+Nach Read-only-Abgleich und vor Entwicklung als zusätzlicher unabhängiger
+Restscope geplant: vier vorhandene DateBucket-/CalendarDifference-TVFs mit je
+einem SELECT auf sechs höchsten CL je physischer Plattform-/Versionskombination.
+Der [Teilbericht](../Releases/1.0.0/DATE-MATH-HIGHEST-CL-QUALIFICATION.md) bindet48
+Einzelgrantprofile,336 SQL229-Abweisungen,zwei verworfene Kontrollen und14
+frisch unabhängig als abwesend bestätigte eigene Datenbanknamen.
+
+Noch offen bleiben genau Linux/Windows SQL2022/CL150 undSQL2025/CL150/160 für
+diese Callerfixture. Keine Gleichwertigkeit oder Ausführung dieser sechs Fälle
+behauptet,keine Modul-/Support-/Releaseaufwertung. Die drei vorherigen Wellen
+behalten ihre vollständigen zwölf Fälle. Die vierte Welle schließt den endlichen
+Rahmen;keine automatische fünfte Entwicklung. Produkt-SQL,Manifeste und Pakete
+bleiben unverändert,Veröffentlichung und weitere Releasegates separat.
+
 ## Zweiter endlicher Release-Rahmen — 2026-10-25
 
 Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene

@@ -1419,5 +1419,53 @@ class FunctionCallerQualificationTests(unittest.TestCase):
             self.assertEqual(data, b'\n'.join((ROOT / p).read_bytes() for p in manifest['composition_order']) + b'\n')
 
 
+class DateMathSelectedCallerTests(unittest.TestCase):
+    def test_selected_scope_cannot_claim_unexecuted_lower_cl_cases(self):
+        import hashlib
+        import re
+        report = json.loads((ROOT / 'Releases/1.0.0/date-math-highest-cl-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS_SELECTED_SCOPE')
+        self.assertEqual(report['qualification_matrix'], 'six-highest-cl-only')
+        self.assertIs(report['full_target_cl_matrix_qualified'], False)
+        expected = {(p, v, cl) for p in ('windows', 'linux') for v, cl in
+                    [('2019', 150), ('2022', 160), ('2025', 170)]}
+        remaining = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
+                     [('2022', [150]), ('2025', [150, 160])] for cl in cls}
+        self.assertEqual(len(report['native_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(len(report['remaining_unexecuted_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level'])
+                          for c in report['remaining_unexecuted_cases']}, remaining)
+        self.assertTrue(all(c['result'] == 'not executed' for c in report['remaining_unexecuted_cases']))
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0',
+                         'toolbelt.datetime.bucket': '1.0.0', 'toolbelt.datetime.calendar-difference': '1.0.0'})
+        self.assertEqual({a['name'] for a in report['public_apis']}, {'TVF_DateBucketDate', 'TVF_DateBucketDateTime2',
+                         'TVF_DateBucketDateTimeOffset', 'TVF_CalendarDifference'})
+        self.assertTrue(all(a['schema'] == 'toolbelt_datetime' and a['permission'] == 'SELECT' for a in report['public_apis']))
+        parts = report['composition_order']
+        self.assertEqual(parts, ['Tests/Release/Runtime/FunctionCaller.Prelude.sql',
+                                'Tests/Release/Runtime/DateMath.FunctionCases.sql',
+                                'Tests/Release/Runtime/FunctionCaller.Assertions.sql'])
+        data = b'\n'.join((ROOT / p).read_bytes() for p in parts) + b'\n'
+        self.assertEqual(hashlib.sha256(data).hexdigest(), report['composed_fixture_sha256'])
+        for source, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+        cases = (ROOT / parts[1]).read_text(encoding='utf-8')
+        self.assertIn('@ExpectedApiCount int=4', cases)
+        self.assertEqual(report['positive_profiles'], 48)
+        self.assertEqual(report['strict_sql229_denials'], 336)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['accepted_terminal_attempts'], 8)
+        self.assertEqual(report['final_independent_audit']['accepted_database_names_absent'], 14)
+        self.assertTrue(report['final_independent_audit']['fresh_after_all_consumers'])
+        for flag in ('publication_authorized', 'product_sql_changed', 'module_status_changed',
+                     'package_payload_changed', 'genuine_crossdb_identity_qualified', 'authenticated_tls_qualified'):
+            self.assertIs(report[flag], False)
+
+
 if __name__ == "__main__":
     unittest.main()
