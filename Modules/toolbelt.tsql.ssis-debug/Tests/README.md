@@ -269,6 +269,17 @@ Modellparitätsprüfungen bleiben ihre vorgeschriebenen eigenen CI-Gates.
 Die Gesamtpakete unter `Releases/1.0.0/`, ausführbare Exporthost-Lieferung,
 SSISDB-/SDK-/Produktionsnachweise und Veröffentlichung bleiben separat.
 
+Die Paketquellen bleiben am im ZIP ausgewiesenen Commit eingefroren. Spätere
+unabhängige Dokumentationsänderungen auf `main` schreiben diesen bereits
+geprüften Container nicht um. Der historische CLR-Gesamtpaketprüfer liest seine
+Methoden aus dem checksumgeprüften Recoveryarchiv und Git-Bundle. Er verifiziert
+weiterhin die unveränderten Methodenhashes und die mitgelieferten Methodenquellen;
+der aktuelle Checkout ersetzt nicht nachträglich die damaligen Testinputs.
+Gegenproben für falsches Recoveryprodukt sowie SQL-, DLL-, Methoden- und
+eingebetteten Quellendrift bleiben aktiv. Alte Paketbytes und Nachweise wurden
+dafür nicht geändert. Die zusätzliche lokale Recoveryprüfung bleibt auf diese
+Integritätsgrenze begrenzt und startet keine nativen Wiederholungsläufe.
+
 ## Build mit Objektkennungsexport: Windows SQL2019/2022/2025
 
 Die eigenständige Qualifikation vom 2026-10-25 gilt für den aus PR #411
