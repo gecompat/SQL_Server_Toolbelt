@@ -1,5 +1,7 @@
 # JSON Pointer Resolution
 
+Aktuelle [Callerrechte](../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md): getrennte Objektrechte auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Weitere Funktions-, Client-, Lifecycle- und Ressourcengates sowie Modulstatus bleiben separat.
+
 `toolbelt.json.pointer` 1.0.0 enthält genau eine lesende native T-SQL-MSTVF:
 `toolbelt_json.TVF_ResolveJsonPointer`. Sie löst die Stringform nach RFC6901
 auf, vergleicht decodierte Keys exakt und prüft das vollständige Dokument

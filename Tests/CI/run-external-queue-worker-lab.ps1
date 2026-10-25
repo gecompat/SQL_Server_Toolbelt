@@ -4,6 +4,9 @@ param([ValidateSet('linux','windows')][string]$Platform,
  [switch]$SkipLongHeartbeat,[switch]$IdentityGuardsOnly,[switch]$ManagedOnly,[switch]$ManagedSqlOnly,[switch]$QueueUpgradeOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 if(-not $Platform -or -not $Version -or -not $Patch){throw 'Explicit Lab platform/version/patch selection required.'}
 if(([int]$ManagedOnly.IsPresent+[int]$ManagedSqlOnly.IsPresent+[int]$QueueUpgradeOnly.IsPresent)-gt1){throw 'Select exactly one focused contract consumer.'}
 $root=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path

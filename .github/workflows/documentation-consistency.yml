@@ -165,7 +165,7 @@ jobs:
           run_scope=false
           if [ "$EVENT_NAME" = workflow_dispatch ]; then
             run_scope=true
-          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py Tests/CI/run-lab-target.sh Tests/CI/test_lab_tls.py Tests/CI/test_lab_cleanup.py Tests/CI/Set-SqlClientTlsPolicy.ps1 Tests/CI/LabQualifiedContract.ps1 Tests/CI/Assert-LabQualifiedTlsBinding.ps1 Tests/CI/test-lab-qualified-contract.ps1 Tests/CI/run-authenticated-tls-lab.sh .github/workflows/documentation-consistency.yml; then
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py Tests/CI/run-lab-target.sh Tests/CI/test_lab_tls.py Tests/CI/test_lab_cleanup.py Tests/CI/Set-SqlClientTlsPolicy.ps1 Tests/CI/LabQualifiedContract.ps1 Tests/CI/Assert-LabQualifiedTlsBinding.ps1 Tests/CI/test-lab-qualified-contract.ps1 Tests/CI/run-authenticated-tls-lab.sh .github/workflows/documentation-consistency.yml ':(glob)Tests/CI/*.ps1' ':(glob)Tests/Release/*.ps1' ':(glob)Tests/Research/**/*.ps1' ':(glob)Modules/**/Tests/**/*.ps1' ':(glob)Spikes/XlsxMemory/*.ps1'; then
             :
           else
             scope_result=$?
@@ -197,7 +197,7 @@ jobs:
         run: |
           $runScope = $env:EVENT_NAME -eq 'workflow_dispatch'
           if (-not $runScope) {
-            git diff --quiet $env:BASE_SHA $env:HEAD_SHA -- Tests/CI/run-lab-local.ps1 Tests/CI/LabQualifiedContract.ps1 Tests/CI/Assert-LabQualifiedTlsBinding.ps1 Tests/CI/test-lab-qualified-contract.ps1 Tests/CI/Set-SqlClientTlsPolicy.ps1 .github/workflows/documentation-consistency.yml
+            git diff --quiet $env:BASE_SHA $env:HEAD_SHA -- Tests/CI/run-lab-local.ps1 Tests/CI/LabQualifiedContract.ps1 Tests/CI/Assert-LabQualifiedTlsBinding.ps1 Tests/CI/test-lab-qualified-contract.ps1 Tests/CI/Set-SqlClientTlsPolicy.ps1 .github/workflows/documentation-consistency.yml ':(glob)Tests/CI/*.ps1' ':(glob)Tests/Release/*.ps1' ':(glob)Tests/Research/**/*.ps1' ':(glob)Modules/**/Tests/**/*.ps1' ':(glob)Spikes/XlsxMemory/*.ps1'
             $scopeResult = $LASTEXITCODE
             if ($scopeResult -notin 0,1) { throw 'QUALIFIED_CONSUMER_SCOPE_DIFF_FAILED' }
             $LASTEXITCODE = 0

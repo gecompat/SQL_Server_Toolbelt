@@ -12,6 +12,9 @@ param([Parameter(Mandatory)][ValidateSet('linux','windows',IgnoreCase=$false)][s
  [Parameter(Mandatory)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedPromptSHA256)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $output=[IO.Path]::GetFullPath($OutputDirectory)
 $prefix=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))+[IO.Path]::DirectorySeparatorChar

@@ -5,8 +5,20 @@ zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz 
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
 Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
 Linux-Payloads behalten ihre ursprünglichen Nachweise; keine neue Linux-Ausführung
-und keine automatische Modul- oder Gesamtfreigabe. Die allgemeine Autonomie
-bleibt pausiert.
+und keine automatische Modul- oder Gesamtfreigabe.
+
+[Providerview mit einzelnem SELECT-Recht](PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Capability-Katalog mit einzelnem SELECT-Recht](CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Konsolenausgabe mit einzelnem EXECUTE-Recht](CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON-Pfade mit getrennten SELECT-Rechten](JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+
+Die [additive Date-Math-Ergänzung](DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
 
 Basisbericht vom 2026-10-23 mit Nachträgen vom 2026-10-24. Dies ist der Prüfbericht zur unveröffentlichten
 [Releasevorbereitung](README.md), keine Freigabe von Supportkombinationen.
@@ -337,6 +349,12 @@ Bit-/Trim-/Split-/Identifier-/SemVer-Funktionen mit getrennten SELECT-/EXECUTE-
 Grants auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen. Opake Sort Keys
 werden nach ihrem Ordnungsvertrag geprüft; breite Rechte bleiben ausgeschlossen.
 Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
+
+Die [ausgewählten Date-Math-Callerprofile](DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
+belegen vier TVFs auf Windows/Linux SQL2019/CL150,SQL2022/CL160 undSQL2025/CL170
+lokal/direkt zentral als damaligen Teilscope. Die [additive Ergänzung](DATE-MATH-CL-COMPLETION.md)
+schließt inzwischen die sechs niedrigeren CL-Fälle mit identischen Inputs.
+Die volle Caller-Matrix umfasst zwölf Fälle; Modulstatus und weitere Gates bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten

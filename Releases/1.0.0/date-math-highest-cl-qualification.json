@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Four DateBucket and CalendarDifference caller profiles on six selected highest-CL targets only",
+  "result": "PASS_SELECTED_SCOPE",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "df435af0c482f4e21bef933df858d93419c391ad",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.datetime.bucket": "1.0.0",
+    "toolbelt.datetime.calendar-difference": "1.0.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketDate",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketDateTime2",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketDateTimeOffset",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_CalendarDifference",
+      "permission": "SELECT"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 48,
+  "strict_sql229_denials": 336,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/DateMath.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "a130c92eaa295854ce1009c66b1641e612d967e0a3f58d6ab6f996c3756b0553",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.datetime.bucket/Deployment/Deploy.sql": "f084fd0c276c99168c00c767af8270faa4e9b6f7dbbebba7225288b697724857",
+    "Modules/toolbelt.datetime.bucket/Deployment/Uninstall.sql": "fb363a820854afb62855d4997593132d6e16829db380c3f13dce2352faa06c38",
+    "Modules/toolbelt.datetime.bucket/module.yaml": "841c8d0b23002a01755a573fa46e49b67077de64f08399f0c2811a71ef683f31",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketCore.sql": "8263dfb8cdd665e3379da375ff0d92ea0f5535de6a9f5410b7b49408002bf30e",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql": "24a0e837a32afd9653b8af993f72809b42f8b8f86f4e275b6fdf1fa234424b35",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql": "c4bc959c279d03156edbe362613e2e9d2573292bb583f3675c0d53ec1e1db9e9",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql": "4de627d36a738b095ed995cb68557f615e32813cf9c0732bfc475962bdee7224",
+    "Modules/toolbelt.datetime.calendar-difference/Deployment/Deploy.sql": "5a50b9b4d7c8e70bbc0fb0164e468b3324557c1afdb17e73595aa64ac222f06f",
+    "Modules/toolbelt.datetime.calendar-difference/Deployment/Uninstall.sql": "db6296ab54eda183b80ff402dd8a0362382de595fea990ecccbad20740c52cc6",
+    "Modules/toolbelt.datetime.calendar-difference/module.yaml": "c41863e8cda1c3ef8d6da4c5e8e2c903cdf67898ffbdc12194fdee74a9180503",
+    "Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql": "00b5cf6f0f2e1b46cca8c309740d3962f970a6104f41e6e31187e3cbb720f32d",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f",
+    "Tests/Release/Runtime/DateMath.FunctionCases.sql": "048e51e126d5e91863b29c5d151ad27ad0f7c9063478e28272a6af67b974f711",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2"
+  },
+  "offline_export_sha256": {
+    "local": "869b4a0ea90172dcf08a9154ab9f4f88a032ae7ef19c4d52e51cc82454fc0ada",
+    "central": "ca35d6e084a26fb32e1d307b27731c8d5496a9cab51fd76b31f2edbf12199dfa"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 8,
+      "strict_sql229_denials": 56,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 8,
+      "strict_sql229_denials": 56,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 8,
+      "strict_sql229_denials": 56,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 8,
+      "strict_sql229_denials": 56,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 8,
+      "strict_sql229_denials": 56,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 8,
+      "strict_sql229_denials": 56,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "failed_setup_attempts_consumed": 0,
+  "setup_recovery_note": null,
+  "superseded_binding_attempts_consumed": 0,
+  "superseded_binding_note": null,
+  "final_independent_audit": {
+    "accepted_terminal_attempts": 8,
+    "accepted_database_names_absent": 14,
+    "all_current_terminal_attempts": 8,
+    "all_current_database_names_absent": 14,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "legacy_manifest_permission_wording_pending": [],
+  "remaining_gates": [
+    "Full output/client/lifecycle/resource contracts retain their own scope",
+    "Genuine lowpriv CrossDB identity mappings and authenticated TLS",
+    "Frozen package/manifest metadata refresh requires coordinated ownership;no publication/tags"
+  ],
+  "qualification_matrix": "six-highest-cl-only",
+  "full_target_cl_matrix_qualified": false,
+  "remaining_unexecuted_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "not executed"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "not executed"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "not executed"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "not executed"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "not executed"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "not executed"
+    }
+  ]
+}

@@ -1,5 +1,25 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+[Providerview mit einzelnem SELECT-Recht](../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+## Fünfter endlicher Release-Rahmen
+
+Am 2026-10-25 direkt erneut autorisiert und vor Entwicklung geplant: drei PR-Wellen, drei Stunden und höchstens 52 neue native Zielversuche einschließlich Fehlern und Nachfolgern. Vier frühere Rahmen bleiben abgeschlossen und unverändert. Die nächste Reihenfolge umfasst den vorhandenen JSON-Pointer-Caller, die reine Second-Session-Providerview und Event-Log-Lesen/lokale Retention. Jede Welle wird vor Umsetzung konkret abgegrenzt. Keine Linked-Server-/Infrastrukturverwaltung, keine neue Fachfunktion; SSIS und fremde TLS-Arbeit bleiben ausgenommen.
+
+[JSON Pointer mit einzelnem SELECT-Recht](../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Capability-Katalog mit einzelnem SELECT-Recht](../Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[Konsolenausgabe mit einzelnem EXECUTE-Recht](../Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON-Pfade mit getrennten SELECT-Rechten](../Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+## Vierter endlicher Release-Rahmen: Date-Math-CL-Ergänzung
+
+Direkt am 2026-10-25 autorisiert: höchstens vier PR-Wellen, vier Stunden, 60 neue native Versuche; frühere Rahmen bleiben abgeschlossen. Vor Entwicklung konkret geplant: zunächst die sechs fehlenden niedrigeren Date-Math-CL-Fälle, danach die vorhandenen JSON-Pfad-, Konsolen- und Capability-Katalog-Callerrechte. SSIS und fremde TLS-Arbeit bleiben ausgenommen.
+
+Die [Date-Math-Ergänzung](../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md) schließt sechs tatsächlich neu ausgeführte Fälle mit exakt gebundener Wiederverwendung der sechs bisherigen Fälle und zwei Kontrollen. Keine neue Fachfunktion, keine Produkt-, Manifest-, Status- oder Paketänderung. Weitere Wellen werden vor Umsetzung einzeln abgegrenzt; Veröffentlichung bleibt offen.
+
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
 ## Dritter endlicher Release-Rahmen — 2026-10-25
@@ -69,6 +89,22 @@ Snapshot-/Paketscope frei und nachvollziehbar gebunden ist.
 Der zunächst geprüfte separate Stable-SQL-Herkunftsfix wird hier nicht umgesetzt:
 Der Read-only-Abgleich fand diese Datei bereits im aktiven SSIS-/Gesamtpaket-
 Scope des anderen Chats. Keine konkurrierende Implementierung oder Übernahme.
+
+### Vierte Welle im dritten Rahmen: ausgewählte Date-Math-Callerprofile
+
+Nach Read-only-Abgleich und vor Entwicklung als zusätzlicher unabhängiger
+Restscope geplant: vier vorhandene DateBucket-/CalendarDifference-TVFs mit je
+einem SELECT auf sechs höchsten CL je physischer Plattform-/Versionskombination.
+Der [Teilbericht](../Releases/1.0.0/DATE-MATH-HIGHEST-CL-QUALIFICATION.md) bindet48
+Einzelgrantprofile,336 SQL229-Abweisungen,zwei verworfene Kontrollen und14
+frisch unabhängig als abwesend bestätigte eigene Datenbanknamen.
+
+Noch offen bleiben genau Linux/Windows SQL2022/CL150 undSQL2025/CL150/160 für
+diese Callerfixture. Keine Gleichwertigkeit oder Ausführung dieser sechs Fälle
+behauptet,keine Modul-/Support-/Releaseaufwertung. Die drei vorherigen Wellen
+behalten ihre vollständigen zwölf Fälle. Die vierte Welle schließt den endlichen
+Rahmen;keine automatische fünfte Entwicklung. Produkt-SQL,Manifeste und Pakete
+bleiben unverändert,Veröffentlichung und weitere Releasegates separat.
 
 ## Zweiter endlicher Release-Rahmen — 2026-10-25
 

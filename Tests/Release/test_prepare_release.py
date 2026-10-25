@@ -97,6 +97,26 @@ class SourceFixtureCacheTests(unittest.TestCase):
                     fake.qualification_sources('rejected')
             self.assertEqual(calls[-2:], ['rejected', 'rejected'])
 
+def reader_import_only_equivalent(path, digest, current, reader):
+    """Enge aktuelle Anwendbarkeit; kein neuer nativer Qualifikationsnachweis."""
+    import hashlib
+    addition = ("# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.\n"
+                ". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')\n\n").encode('utf-8')
+    originals = {
+        'Tests/CI/run-csv-memory-lab.ps1':
+            '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a',
+        'Tests/CI/run-deterministic-geo-lab.ps1':
+            '1e7a576f1e508aaf96d56f4c7b0f4d2712833b8068886440ecd79179e985f368',
+        'Tests/CI/run-deterministic-translate-lab.ps1':
+            '0abda10d0c167512b40a94ed4acac269f150f4c82f896bd0a83a623d83e60b8d',
+    }
+    return (path in originals and digest == originals[path]
+            and hashlib.sha256(reader).hexdigest() ==
+            'f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15'
+            and current.count(addition) == 1
+            and b"$ErrorActionPreference='Stop'\n" + addition in current
+            and hashlib.sha256(current.replace(addition, b'', 1)).hexdigest() == digest)
+
 
 class PreparationTests(unittest.TestCase):
     @classmethod
@@ -609,6 +629,58 @@ class ClrPackageTests(unittest.TestCase):
 
 
 class ApiQualificationTests(unittest.TestCase):
+    def assert_current_rights_sources(self, report):
+        import hashlib
+        qualification = json.loads((ROOT / 'Releases/1.0.0/clr-qualification.json').read_bytes())
+        historical = release.clr_qualification_method_sources(qualification, report['source_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256(historical[path]).hexdigest(), digest)
+            current = (ROOT / path).read_bytes()
+            if path == 'Tests/CI/run-csv-memory-lab.ps1' and hashlib.sha256(current).hexdigest() != digest:
+                reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+                self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
+                                'CSV-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
+            else:
+                self.assertEqual(hashlib.sha256(current).hexdigest(), digest)
+
+    def test_csv_import_delta_rejects_unqualified_source_changes(self):
+        path = 'Tests/CI/run-csv-memory-lab.ps1'
+        digest = '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a'
+        current = (ROOT / path).read_bytes()
+        reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+        self.assertTrue(reader_import_only_equivalent(path, digest, current, reader))
+        for changed in (current + b'\n', current.replace(b"'LabQualifiedContract.ps1'", b"'Other.ps1'"),
+                        current.replace(b"$ErrorActionPreference='Stop'", b"$ErrorActionPreference='Continue'"),
+                        current.replace(b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')",
+                                        b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')\n"
+                                        b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')")):
+            with self.subTest(change=changed[:32]):
+                self.assertFalse(reader_import_only_equivalent(path, digest, changed, reader))
+        self.assertFalse(reader_import_only_equivalent('Tests/CI/Other.ps1', digest, current, reader))
+        self.assertFalse(reader_import_only_equivalent(path, '0' * 64, current, reader))
+        self.assertFalse(reader_import_only_equivalent(path, digest, current, reader + b'\n'))
+
+    def test_geo_import_delta_rejects_unqualified_source_changes(self):
+        reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+        originals = {
+            'Tests/CI/run-deterministic-geo-lab.ps1':
+                '1e7a576f1e508aaf96d56f4c7b0f4d2712833b8068886440ecd79179e985f368',
+            'Tests/CI/run-deterministic-translate-lab.ps1':
+                '0abda10d0c167512b40a94ed4acac269f150f4c82f896bd0a83a623d83e60b8d',
+        }
+        for path, digest in originals.items():
+            with self.subTest(path=path):
+                current = (ROOT / path).read_bytes()
+                self.assertTrue(reader_import_only_equivalent(path, digest, current, reader))
+                for changed in (current + b'\n', current.replace(b"'LabQualifiedContract.ps1'", b"'Other.ps1'"),
+                                current.replace(b"$ErrorActionPreference='Stop'\n", b"$ErrorActionPreference='Continue'\n")):
+                    self.assertFalse(reader_import_only_equivalent(path, digest, changed, reader))
+                for other in set(originals.values()) - {digest}:
+                    self.assertFalse(reader_import_only_equivalent(path, other, current, reader))
+                self.assertFalse(reader_import_only_equivalent(path,
+                                 '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a', current, reader))
+                self.assertFalse(reader_import_only_equivalent(path, digest, current, reader + b'\n'))
+
     @classmethod
     def setUpClass(cls):
         sys.path.insert(0, str(ROOT / 'Tests/Release'))
@@ -657,8 +729,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertTrue(report['functional_transport']['encrypt_required'])
         self.assertTrue(report['functional_transport']['explicit_lab_trust_preserved'])
         self.assertFalse(report['functional_transport']['authenticated_tls_claim'])
-        for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assert_current_rights_sources(report)
         complete = json.loads((ROOT / 'Releases/1.0.0/complete-qualification.json').read_bytes())
         self.assertEqual(report['qualification_package_sql_sha256'], complete['sql_payload_sha256'])
         evidence = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
@@ -726,7 +797,13 @@ class ApiQualificationTests(unittest.TestCase):
         composed = b'\nGO\n'.join((ROOT / p).read_bytes() for p in paths) + b'\n'
         self.assertEqual(hashlib.sha256(composed).hexdigest(), report['composed_fixture_sha256'])
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            current = (ROOT / path).read_bytes()
+            if path in ('Tests/CI/run-deterministic-geo-lab.ps1', 'Tests/CI/run-deterministic-translate-lab.ps1') and hashlib.sha256(current).hexdigest() != digest:
+                reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+                self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
+                                'Geo-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
+            else:
+                self.assertEqual(hashlib.sha256(current).hexdigest(), digest, path)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1091,8 +1168,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-depth', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['expected_sql_number'] == 52095
                             and c['independent_cleanup_and_pin_audit'] for c in report['oracle_rejection_controls']))
-        for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assert_current_rights_sources(report)
         package = json.loads((ROOT / 'Releases/1.0.0/complete-qualification.json').read_bytes())
         self.assertEqual(report['product_commit'], package['product_commit'])
         self.assertEqual(report['qualification_package_sql_sha256'], package['sql_payload_sha256'])
@@ -1616,6 +1692,54 @@ class FunctionCallerQualificationTests(unittest.TestCase):
         for path in (ROOT / 'Tests/Release/Runtime').glob('*.FunctionCases.sql'):
             data, manifest = composer.compose(path)
             self.assertEqual(data, b'\n'.join((ROOT / p).read_bytes() for p in manifest['composition_order']) + b'\n')
+
+
+class DateMathSelectedCallerTests(unittest.TestCase):
+    def test_selected_scope_cannot_claim_unexecuted_lower_cl_cases(self):
+        import hashlib
+        import re
+        report = json.loads((ROOT / 'Releases/1.0.0/date-math-highest-cl-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS_SELECTED_SCOPE')
+        self.assertEqual(report['qualification_matrix'], 'six-highest-cl-only')
+        self.assertIs(report['full_target_cl_matrix_qualified'], False)
+        expected = {(p, v, cl) for p in ('windows', 'linux') for v, cl in
+                    [('2019', 150), ('2022', 160), ('2025', 170)]}
+        remaining = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
+                     [('2022', [150]), ('2025', [150, 160])] for cl in cls}
+        self.assertEqual(len(report['native_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(len(report['remaining_unexecuted_cases']), 6)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level'])
+                          for c in report['remaining_unexecuted_cases']}, remaining)
+        self.assertTrue(all(c['result'] == 'not executed' for c in report['remaining_unexecuted_cases']))
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0',
+                         'toolbelt.datetime.bucket': '1.0.0', 'toolbelt.datetime.calendar-difference': '1.0.0'})
+        self.assertEqual({a['name'] for a in report['public_apis']}, {'TVF_DateBucketDate', 'TVF_DateBucketDateTime2',
+                         'TVF_DateBucketDateTimeOffset', 'TVF_CalendarDifference'})
+        self.assertTrue(all(a['schema'] == 'toolbelt_datetime' and a['permission'] == 'SELECT' for a in report['public_apis']))
+        parts = report['composition_order']
+        self.assertEqual(parts, ['Tests/Release/Runtime/FunctionCaller.Prelude.sql',
+                                'Tests/Release/Runtime/DateMath.FunctionCases.sql',
+                                'Tests/Release/Runtime/FunctionCaller.Assertions.sql'])
+        data = b'\n'.join((ROOT / p).read_bytes() for p in parts) + b'\n'
+        self.assertEqual(hashlib.sha256(data).hexdigest(), report['composed_fixture_sha256'])
+        for source, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+        cases = (ROOT / parts[1]).read_text(encoding='utf-8')
+        self.assertIn('@ExpectedApiCount int=4', cases)
+        self.assertEqual(report['positive_profiles'], 48)
+        self.assertEqual(report['strict_sql229_denials'], 336)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['final_independent_audit']['accepted_terminal_attempts'], 8)
+        self.assertEqual(report['final_independent_audit']['accepted_database_names_absent'], 14)
+        self.assertTrue(report['final_independent_audit']['fresh_after_all_consumers'])
+        for flag in ('publication_authorized', 'product_sql_changed', 'module_status_changed',
+                     'package_payload_changed', 'genuine_crossdb_identity_qualified', 'authenticated_tls_qualified'):
+            self.assertIs(report[flag], False)
 
 
 if __name__ == "__main__":

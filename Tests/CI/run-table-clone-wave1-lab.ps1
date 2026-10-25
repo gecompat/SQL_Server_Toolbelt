@@ -14,6 +14,9 @@ $preparationComplete=$true
 if($ExecuteReviewed -and !$preparationComplete){Write-Output 'CLONE_PREPARATION_INCOMPLETE';exit 1}
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $record=$null;$journal=$null;$control=$null
 $journalContext=@{Stream=$null;ExpectedBytes=$null;ExpectedHash=$null;ExpectedLength=0;Tuple=$null;Prepared=$false;Failed=$false}
 $boundRun=$PSBoundParameters.ContainsKey('ExpectedRunId');$boundPath=$PSBoundParameters.ContainsKey('JournalPath')
@@ -42,6 +45,15 @@ try {
   $full=[IO.Path]::GetFullPath($path)
   if(!$snapshots.ContainsKey($full)){throw 'CLONE_INPUT_NOT_CLOSED'}
   return [Text.UTF8Encoding]::new($false,$true).GetString($snapshots[$full]).TrimStart([char]0xFEFF)
+ }
+ function Get-InputBytes([string]$path){
+  $full=[IO.Path]::GetFullPath($path)
+  if(!$snapshots.ContainsKey($full)){throw 'CLONE_INPUT_NOT_CLOSED'}
+  # Der Resolver erhält eine eigene Kopie der bereits erfassten Bytes mit
+  # derselben 4-MiB-Grenze; die separate Datei-Leseroutine bleibt unverändert.
+  $bytes=$snapshots[$full]
+  if($bytes.Length -lt 1 -or $bytes.Length -gt 4194304){throw 'LAB_CONTRACT_SIZE_INVALID'}
+  return ,([byte[]]$bytes.Clone())
  }
  function Get-InputLines([string]$path){
   $reader=[IO.StringReader]::new((Get-InputText $path));$lines=[Collections.Generic.List[string]]::new()
@@ -72,9 +84,9 @@ try {
     $functionText=$functionText.Replace($needle,'(Get-InputLines $resolved)')
    }
    if($name -ceq 'Resolve-LabContract'){
-    $needle='Get-Content -LiteralPath $contractPath -Raw';$schemaNeedle='-SchemaFile $schemaPath'
+    $needle='Read-LabContractStreamBytes $stream 4194304';$schemaNeedle='-SchemaFile $schemaPath'
     if(([regex]::Matches($functionText,[regex]::Escape($needle))).Count -ne 1 -or ([regex]::Matches($functionText,[regex]::Escape($schemaNeedle))).Count -ne 1){throw 'CLONE_DISCOVERY_SNAPSHOT_SEAM'}
-    $functionText=$functionText.Replace($needle,'Get-InputText $contractPath').Replace($schemaNeedle,'-Schema (Get-InputText $schemaPath)')
+    $functionText=$functionText.Replace($needle,'Get-InputBytes $contractPath').Replace($schemaNeedle,'-Schema (Get-InputText $schemaPath)')
    }
    . ([scriptblock]::Create($functionText))
   }

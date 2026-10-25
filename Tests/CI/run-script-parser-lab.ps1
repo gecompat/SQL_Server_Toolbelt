@@ -9,6 +9,9 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $moduleRoot = Join-Path $repoRoot 'Modules/toolbelt.tsql.script-parser'
 

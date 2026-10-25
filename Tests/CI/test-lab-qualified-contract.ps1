@@ -2,6 +2,7 @@
 # echte Lab-RSA-/Runtime-/Clientnachweise werden getrennt ausgefuehrt.
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
+& (Join-Path $PSScriptRoot 'test-cold-lab-consumer-contract.ps1')
 . (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
 $tokens=$null;$errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'run-lab-local.ps1'),[ref]$tokens,[ref]$errors)

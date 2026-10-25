@@ -1,5 +1,22 @@
 # Releasevorbereitung prüfen
 
+[Providerview mit einzelnem SELECT-Recht](../../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON Pointer mit einzelnem SELECT-Recht](../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+Die feste `Catalog.FunctionCases.sql` verwendet denselben historischen Composer für die bestehende View: feste Ownerprojektion von fünf Markergruppen, darunter drei synthetische Testgruppen. Das reine SELECT-Callerprofil erlaubt die vertragliche kleinere/leere Metadatensicht und verwirft zusätzliche oder abweichende sichtbare Zeilen. Kein VIEW DEFINITION, keine neue Registry und keine Produktobjektänderung. Die Marker liegen ausschließlich in den eindeutig eigenen, anschließend entfernten Testdatenbanken.
+
+[Capability-Katalog mit einzelnem SELECT-Recht](../../Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+Der historisch benannte Funktions-Composer wird auch für die vorhandene Konsolen-Prozedur verwendet: Die gemeinsame Fixture prüft deklarierte SELECT-/EXECUTE-Objektrechte ohne Annahme eines Funktionstyps. Die feste `Console.FunctionCases.sql` ergänzt nur Rückgabe-/Fehler-/Transaktionsorakel; der native Treiber bleibt unverändert. Nachrichtendarstellung und Clientreader behalten ihren eigenen Nachweis.
+
+[Konsolenausgabe mit einzelnem EXECUTE-Recht](../../Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+[JSON-Pfade mit getrennten SELECT-Rechten](../../Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
+
+Die [additive Date-Math-Ergänzung](../../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
+
 ## Eigenständiges Stable-SQL-Paket reproduzieren
 
 `Scripts/Release/prepare_stable_sql_package.py` benötigt nur Python3.10+ und die
@@ -82,6 +99,17 @@ GenerateSeries/ResultTable. Der identische Controller unterscheidet TVF-SELECT
 und Scalar-EXECUTE, direkte Dependencyabweisung und intern erlaubte Ownershipkette.
 Für Sort Keys gelten opake Ordnungs-/Präzedenzorakel statt eines erfundenen
 versionsübergreifenden Binärformats. Keine neuen Jobs oder automatischen Labtests.
+
+Die [ausgewählte Date-Math-Qualifikation](../../Releases/1.0.0/DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
+verwendet `Runtime/DateMath.FunctionCases.sql` mit ResultTable/DateBucket/
+CalendarDifference. Aus dem unveränderten zwölfteiligen Runset werden vorab
+nur die sechs höchsten CL je Plattform/Engine ausgewählt: Indizes0/2/5/6/8/11.
+Im historischen Teilbericht wurden die übrigen sechs Einträge als not executed
+projiziert. Die [additive CL-Ergänzung](../../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md)
+führt genau diese Indizes1/3/4/7/9/10 neu aus und bindet die bisherigen sechs Fälle
+und zwei Kontrollen nach exaktem Inputvergleich und frischen Abschlussaudits. Zwei frische Gegenkontrollen und alle eigenen Abschlussaudits
+bleiben Pflicht. Ein eigener Teilscope-Test ersetzt oder lockert keinen der
+bestehenden zwölfteiligen Callerberichtstests.
 
 ## API- und Grenzqualifikation
 

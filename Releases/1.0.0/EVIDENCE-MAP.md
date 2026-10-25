@@ -5,8 +5,18 @@ zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz 
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
 Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte
 Linux-Payloads behalten ihre ursprünglichen Nachweise; keine neue Linux-Ausführung
-und keine automatische Modul- oder Gesamtfreigabe. Die allgemeine Autonomie
-bleibt pausiert.
+und keine automatische Modul- oder Gesamtfreigabe.
+
+Die [Providerview-Callerrechte](PROVIDER-CALLER-QUALIFICATION.md) ergänzen zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einem SELECT und rein synthetischem deaktiviertem Datensatz. Reale Linked-Server-Konfiguration, Loginmapping, RPC und neue Sessions bleiben separat.
+
+Die jüngeren Callerberichte ergänzen diese historische Modulzuordnung:
+[JSON-Pfade](JSON-PATH-CALLER-QUALIFICATION.md),
+[Konsolenausgabe](CONSOLE-CALLER-QUALIFICATION.md),
+[Capability-Katalog](CATALOG-CALLER-QUALIFICATION.md) und
+[JSON Pointer](POINTER-CALLER-QUALIFICATION.md). Ihre jeweils zwölf lokalen/direkt
+zentralen Ziel-/CL-Fälle und engen Rechteprofile sind getrennt gebunden. Sie
+ersetzen weder die ursprüngliche JSON-Projektion noch übrige API-/Lifecycle-,
+Client-, Ressourcen-, Identitäts- oder Veröffentlichungsgates.
 
 Die [eigenständige Stable-SQL-Lieferform](STABLE-SQL-INSTALL.md) bindet ihre
 beiden SQL-Dateien bytegleich an die vorhandene native Paketqualifikation.
@@ -54,6 +64,12 @@ Bit-/Trim-/Split-/Identifier-/SemVer-Funktionen mit getrennten SELECT-/EXECUTE-
 Grants auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen. Opake Sort Keys
 werden nach ihrem Ordnungsvertrag geprüft; breite Rechte bleiben ausgeschlossen.
 Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
+
+Die [ausgewählten Date-Math-Callerprofile](DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
+belegen vier TVFs auf Windows/Linux SQL2019/CL150,SQL2022/CL160 undSQL2025/CL170
+lokal/direkt zentral als historischen Teilscope. Die [additive Ergänzung](DATE-MATH-CL-COMPLETION.md)
+schließt inzwischen die sechs niedrigeren CL-Fälle mit identischen Inputs; die
+Caller-Matrix umfasst zwölf Fälle. Weitere Modulpflichten und Status bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
