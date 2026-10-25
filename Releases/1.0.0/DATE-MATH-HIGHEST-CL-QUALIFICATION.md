@@ -1,5 +1,7 @@
 # Date-Math-Callerprofile: sechs ausgewählte höchste CL
 
+Aktueller Nachfolger: [vollständige additive CL-Ergänzung](DATE-MATH-CL-COMPLETION.md). Der folgende Text beschreibt den unveränderten früheren Teilstand.
+
 Stand 2026-10-25, vierte vorab geplante Welle des dritten endlichen Rahmens.
 **Ausgewählter Scope bestanden; keine volle CL-Matrixqualifikation.** Vier
 öffentliche DateBucket-/CalendarDifference-TVFs bestehen mit je einem SELECT

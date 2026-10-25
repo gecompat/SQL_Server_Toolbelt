@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Vierter endlicher Release-Rahmen: Date-Math-CL-Ergänzung
+
+Direkt am 2026-10-25 autorisiert: höchstens vier PR-Wellen, vier Stunden, 60 neue native Versuche; frühere Rahmen bleiben abgeschlossen. Vor Entwicklung konkret geplant: zunächst die sechs fehlenden niedrigeren Date-Math-CL-Fälle, danach die vorhandenen JSON-Pfad-, Konsolen- und Capability-Katalog-Callerrechte. SSIS und fremde TLS-Arbeit bleiben ausgenommen.
+
+Die [Date-Math-Ergänzung](../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md) schließt sechs tatsächlich neu ausgeführte Fälle mit exakt gebundener Wiederverwendung der sechs bisherigen Fälle und zwei Kontrollen. Keine neue Fachfunktion, keine Produkt-, Manifest-, Status- oder Paketänderung. Weitere Wellen werden vor Umsetzung einzeln abgegrenzt; Veröffentlichung bleibt offen.
+
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
 ## Dritter endlicher Release-Rahmen — 2026-10-25

@@ -1,5 +1,8 @@
 # Releasevorbereitung prüfen
 
+
+Die [additive Date-Math-Ergänzung](../../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
+
 ## Eigenständiges Stable-SQL-Paket reproduzieren
 
 `Scripts/Release/prepare_stable_sql_package.py` benötigt nur Python3.10+ und die
@@ -87,8 +90,10 @@ Die [ausgewählte Date-Math-Qualifikation](../../Releases/1.0.0/DATE-MATH-HIGHES
 verwendet `Runtime/DateMath.FunctionCases.sql` mit ResultTable/DateBucket/
 CalendarDifference. Aus dem unveränderten zwölfteiligen Runset werden vorab
 nur die sechs höchsten CL je Plattform/Engine ausgewählt: Indizes0/2/5/6/8/11.
-Die übrigen sechs Einträge werden nicht ausgeführt und separat als not executed
-projiziert. Zwei frische Gegenkontrollen und alle eigenen Abschlussaudits
+Im historischen Teilbericht wurden die übrigen sechs Einträge als not executed
+projiziert. Die [additive CL-Ergänzung](../../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md)
+führt genau diese Indizes1/3/4/7/9/10 neu aus und bindet die bisherigen sechs Fälle
+und zwei Kontrollen nach exaktem Inputvergleich und frischen Abschlussaudits. Zwei frische Gegenkontrollen und alle eigenen Abschlussaudits
 bleiben Pflicht. Ein eigener Teilscope-Test ersetzt oder lockert keinen der
 bestehenden zwölfteiligen Callerberichtstests.
 
