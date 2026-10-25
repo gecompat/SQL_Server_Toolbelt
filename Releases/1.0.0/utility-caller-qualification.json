@@ -1,0 +1,384 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Sixteen BitOperations,Trim,Split,Identifier and SemanticVersion caller profiles",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "a3b02b1fc7f1a076567bb2e65213ca9e6e9775eb",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.core.generate-series": "1.0.0",
+    "toolbelt.binary.bit-operations": "1.0.0",
+    "toolbelt.string.directional-trim": "1.0.0",
+    "toolbelt.string.split-characters": "1.0.0",
+    "toolbelt.metadata.identifier": "1.0.0",
+    "toolbelt.validation.semantic-version": "1.1.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_binary",
+      "name": "TVF_LeftShiftBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_binary",
+      "name": "TVF_RightShiftBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_binary",
+      "name": "TVF_BitCountBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_binary",
+      "name": "TVF_GetBitBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_binary",
+      "name": "TVF_SetBitBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_TrimDirectionalNvarchar",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_TrimDirectionalVarchar",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_SplitByCharacters",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_SplitByCharactersStatus",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_metadata",
+      "name": "TVF_ParseMultipartName",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_metadata",
+      "name": "SVF_QuoteMultipartName",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_validation",
+      "name": "TVF_ParseSemanticVersion",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_validation",
+      "name": "TVF_CompareSemanticVersion",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_validation",
+      "name": "TVF_SemanticVersionSortKey",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_validation",
+      "name": "SVF_SemanticVersionSortKey",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_validation",
+      "name": "SVF_CompareSemanticVersion",
+      "permission": "EXECUTE"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesBigInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesInt",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesBigIntStatus",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 384,
+  "strict_sql229_denials": 8064,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/Utility.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "49ceb1263e9ca7d218f02bd017ccf09f17828f5dea5db542f11e463fbd258b28",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.binary.bit-operations/Deployment/Deploy.sql": "bcf44f41cf3c4059977427f1152cb3c2575459030ee74f73c4997a03291c1c21",
+    "Modules/toolbelt.binary.bit-operations/Deployment/Uninstall.sql": "3330269d815f033b4a038afe5e2f21518e2248117248af35b06bf017202cb8b5",
+    "Modules/toolbelt.binary.bit-operations/module.yaml": "6ef4875b2322db99788a581489657cb37664a29b8f23eb66af3e561cfbabc51d",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_BitCountBigInt.sql": "19a63009cd4c707d9ebe5f2e22d1c792d64db69c0baa5ead8a4f6b1533b174ad",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_GetBitBigInt.sql": "8f98058164695e4455f09066f7a4190977ca383ffc0c0a322a6643c4a9dc8db0",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_LeftShiftBigInt.sql": "cace293806da3d1aea5444ef6b4624984a3f85b6af16b7165dbe0c9d773418a1",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_RightShiftBigInt.sql": "cefde5dd2795dad10cf095a83839a35eac0b7929cf1a7b1f6facb1f31ec0bf95",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_SetBitBigInt.sql": "50389f61ce053f863bce5d38f64feb9806048bab29402a171c5e6aff8396271b",
+    "Modules/toolbelt.core.generate-series/Deployment/Deploy.sql": "1c2e19e69c55684c9a9096af0d2a26b801b4581e114cd19d5008118cab70fa9c",
+    "Modules/toolbelt.core.generate-series/Deployment/Uninstall.sql": "177dd25f2f20111610a19d1026129a1c6a6160e81a7f9d3c5098a2f726535046",
+    "Modules/toolbelt.core.generate-series/module.yaml": "4368b16029d98d2232fc62a10e675d16017f11eacdac28dafb21cb5946d9558a",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql": "99d9090c2cd50edc23b8137bfa3d9ef863c1bf4fa5e1ebd952c1da1722770dd1",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql": "44d8723199f44a22e58e43a3fa4c2e6002420fa03c58210ed16a0bf1ff9d1a3d",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.metadata.identifier/Deployment/Deploy.sql": "1cfc73d811580935487caefeae21736dd9716760fe80130aff62aeff50820f4c",
+    "Modules/toolbelt.metadata.identifier/Deployment/Uninstall.sql": "5ee820d5abf9f6716c0cce683ca79f506af0b4f3654c21566dea455fa9938efc",
+    "Modules/toolbelt.metadata.identifier/module.yaml": "ba6e6facc3155598fa3ba55ebe8225479b94e3b48c4e6d032e83174e8f202207",
+    "Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql": "4919f470ffee06ac6e5107abc3d6f452ef512821036ce10ffdc092db9e9f26c9",
+    "Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql": "0c00005a9a7c72e9994292ac4a555c9943adad4d0db2aea5af3b554361e69c32",
+    "Modules/toolbelt.string.directional-trim/Deployment/Deploy.sql": "7a334d821cfe72cafe0c9238755f52cbfcce4afe80fdf2c765f92ab55c97bfa9",
+    "Modules/toolbelt.string.directional-trim/Deployment/Uninstall.sql": "126445af15d9f2189c554fe096c5623b7220b77cabd26c8e38da21412743f43e",
+    "Modules/toolbelt.string.directional-trim/module.yaml": "4894dced71d9aaee587037177827aaaa89c19aead4e59e09ee809ce06ced23df",
+    "Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql": "05b516ce9c2c79c5fa4bc2b82033a47795bf7f31e0412223141507a2d05224fa",
+    "Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql": "9d4fe90eef7070fd4c4993a71315e6d417a8cd1faa4f5a578b9fe9c6fc2114a5",
+    "Modules/toolbelt.string.split-characters/Deployment/Deploy.sql": "26dbf635b18e745ddbd6d5c2a48b213a0e0c37a901fc21185bf8ad062de06a82",
+    "Modules/toolbelt.string.split-characters/Deployment/Uninstall.sql": "5048c7e829f72ae01e6cb36798dbad0f0fac943b005ec87eb78d3ffd8dc0e687",
+    "Modules/toolbelt.string.split-characters/module.yaml": "04b8345815d203c1f381e4027a6f22606775aa28410e57c3e356d3b03aeff6ff",
+    "Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql": "4889468ccdf091a7d0f4f5ef4f34712c39569a19f09584a72617ff16ae1ab162",
+    "Modules/toolbelt.validation.semantic-version/Deployment/Deploy.sql": "26bd028c803df0796e2f0821af8170d17a5c431c4c4990444fc6a149c0d25ec3",
+    "Modules/toolbelt.validation.semantic-version/Deployment/Uninstall.sql": "75d77d4707d62bddd78d2446ce4b11d66290c3142fff98de9231be45979a3834",
+    "Modules/toolbelt.validation.semantic-version/module.yaml": "bc8e2e6c5ed64e3312902bd5b40e632d2800d4e9850e6ff2824851d7c8167949",
+    "Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql": "712d28096bea73a39445cf5b1f1bd3a9f2698cc8b3170ede3e1046da22943b0d",
+    "Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql": "b9fa0ca5a425ab8c486f5b9268d0ab676654bbe6c76112db8269888935c225b7",
+    "Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql": "ed1a67bc50a677bb5d13d095ba2b2f40bca635643f16d06ba3344e00db8f47fe",
+    "Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql": "5938e54f0f8794893b40243ccde9ce919b0c3cda3591436956ead46b67eddf3c",
+    "Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql": "1d114dd86aae41010acd88c869467dda22e3b47055dba755c63989513f078a5f",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2",
+    "Tests/Release/Runtime/Utility.FunctionCases.sql": "4d8c2115e0b92c822562d0aa01a2e3d7bf3a9cc93f66408f328c4e83cfa622d8"
+  },
+  "offline_export_sha256": {
+    "local": "48f87c07c195d6e4f0cd383b79b03e73a7c351962929ef187b558ad16110fe1a",
+    "central": "db745a5e12b4833f5e3908b623b0b0885d52cd5d4991f84a58ac53b75bfb5f80"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 32,
+      "strict_sql229_denials": 672,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "failed_setup_attempts_consumed": 0,
+  "setup_recovery_note": null,
+  "superseded_binding_attempts_consumed": 0,
+  "superseded_binding_note": null,
+  "final_independent_audit": {
+    "accepted_terminal_attempts": 14,
+    "accepted_database_names_absent": 26,
+    "all_current_terminal_attempts": 14,
+    "all_current_database_names_absent": 26,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "legacy_manifest_permission_wording_pending": [
+    "Modules/toolbelt.metadata.identifier/module.yaml",
+    "Modules/toolbelt.validation.semantic-version/module.yaml"
+  ],
+  "remaining_gates": [
+    "Full output/client/lifecycle/resource contracts retain their own scope",
+    "Genuine lowpriv CrossDB identity mappings and authenticated TLS",
+    "Frozen package/manifest metadata refresh requires coordinated ownership;no publication/tags"
+  ]
+}
