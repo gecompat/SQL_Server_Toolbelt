@@ -1,5 +1,8 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+
+Die [additive Date-Math-Ergänzung](DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
+
 Status: **Releasevorbereitung, nicht veröffentlicht**. Der aktuelle
 Benutzerauftrag erlaubt die autonome Fertigstellung des Gesamtpakets im
 freigegebenen Stable-/Preview-Zielumfang sowie die Integration grüner
@@ -86,8 +89,9 @@ Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
 
 Die [ausgewählten Date-Math-Callerprofile](DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
 belegen vier TVFs auf Windows/Linux SQL2019/CL150,SQL2022/CL160 undSQL2025/CL170
-lokal/direkt zentral. Das ist ausdrücklich ein Teilscope: sechs niedrigere
-CL-Kombinationen bleiben not executed;keine volle CL-Matrix- oder Statusaufwertung.
+lokal/direkt zentral als damaligen Teilscope. Die [additive Ergänzung](DATE-MATH-CL-COMPLETION.md)
+schließt inzwischen die sechs niedrigeren CL-Fälle mit identischen Inputs.
+Die volle Caller-Matrix umfasst zwölf Fälle; Modulstatus und weitere Gates bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad

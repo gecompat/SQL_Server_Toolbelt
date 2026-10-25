@@ -1,5 +1,8 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
+
+Die [additive Date-Math-Ergänzung](DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
+
 Basisbericht vom 2026-10-23 mit Nachträgen vom 2026-10-24. Dies ist der Prüfbericht zur unveröffentlichten
 [Releasevorbereitung](README.md), keine Freigabe von Supportkombinationen.
 Die [Freigabematrix](FREIGABEMATRIX.md) bleibt bei 19 stabilen und 26
@@ -332,8 +335,9 @@ Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
 
 Die [ausgewählten Date-Math-Callerprofile](DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
 belegen vier TVFs auf Windows/Linux SQL2019/CL150,SQL2022/CL160 undSQL2025/CL170
-lokal/direkt zentral. Das ist ausdrücklich ein Teilscope: sechs niedrigere
-CL-Kombinationen bleiben not executed;keine volle CL-Matrix- oder Statusaufwertung.
+lokal/direkt zentral als damaligen Teilscope. Die [additive Ergänzung](DATE-MATH-CL-COMPLETION.md)
+schließt inzwischen die sechs niedrigeren CL-Fälle mit identischen Inputs.
+Die volle Caller-Matrix umfasst zwölf Fälle; Modulstatus und weitere Gates bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten
