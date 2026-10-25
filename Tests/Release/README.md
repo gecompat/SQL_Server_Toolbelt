@@ -34,6 +34,42 @@ Archivhash; nur die exakt gleichen SQL-Payloads übernehmen ihren bisherigen
 TLS-, API- oder Lifecycle-Nachweis. Das Gesamtquell-/CLR-/SSIS-Paket wird dabei
 nicht neu gebaut; `prepared_not_published` bleibt verbindlich.
 
+## Native Funktions-Callerrechte prüfen
+
+`prepare_function_rights.py` komponiert drei feste öffentliche SQL-Teile ohne
+SQL-/Labzugriff: Scope-/Tabellendeklarationen aus `FunctionCaller.Prelude.sql`,
+eine explizite `*.FunctionCases.sql` und `FunctionCaller.Assertions.sql`.
+Die Bytekomposition ist `b'\n'.join(parts) + b'\n'`; öffentliche Teile müssen
+bereits vor dem Einfrieren den kanonischen Git-Bytes entsprechen.
+
+```powershell
+python -B Tests/Release/prepare_function_rights.py `
+  --cases Tests/Release/Runtime/Conversion.FunctionCases.sql `
+  --output .runtime/function-conversion-new
+```
+
+Der Ausgabeordner unter `.runtime` darf nicht existieren. Die Ausgabe besteht
+aus `FunctionRights.sql` und `composition.json`; Pfade/Hashes der drei Teile
+machen die Komposition nachvollziehbar. Nur kanonische Falldateien aus dem
+Runtime-Verzeichnis sind zugelassen. Der Stager installiert oder verbindet nichts.
+
+Danach gilt der [bestehende T-SQL-Runsetvertrag](#weitere-tsql-callerrechte-prüfen):
+exakte Modulclosure, verbindungslos erzeugte lokale/zentrale Exports, Quellen-,
+Kompositions-, Treiber- und Labpins, schema-valider expliziter Zielkontext.
+`Invoke-TsqlContractLab.ps1` bleibt unverändert. Jeder native Fall hat eine
+Budgetreservierung, ein einmaliges eigenes Journal, 300/360/400-Sekunden-
+Arbeits-/Cleanup-/äußere Grenzen und einen separaten 90-Sekunden-Audit.
+Kein Replay vorhandener Journale, kein Fallback, keine fremde Bereinigung.
+
+Die eigene Fixture prüft fehlendes/einzelnes/entzogenes Recht, feste kardinalitäts-
+und NULL-sichere Wertorakel, direkte Geschwister-/Dependency-/Helperabweisungen
+mit genau SQL229 sowie fehlende breite Rechte. Ein falscher Festwert und ein
+zusätzliches Objektrecht dienen als frische negative Kontrollen. Der
+[Konvertierungsbericht](../../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md)
+begrenzt die tatsächliche Matrix und bewahrt alle Vorläufer. Die Tests in
+`test_prepare_release.py` prüfen Komposition, Inputs und Berichtsgrenzen ohne
+Labmutation. Keine neuen Jobs und keine automatische Native-Testausführung.
+
 ## API- und Grenzqualifikation
 
 `api-qualification-spec.json` benennt die 165 ausgewählten kanonischen

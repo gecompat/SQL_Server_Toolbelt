@@ -66,6 +66,12 @@ acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränder
 Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
 Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
 
+Die [Konvertierungs-Callerprofile](CONVERSION-CALLER-QUALIFICATION.md) ergänzen
+16 öffentliche Base64-/IntegerBase-/URI-Funktionen einschließlich Status-TVFs
+und Scalarwrappern: zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einzelnen
+SELECT-/EXECUTE-Grants. Veraltete pauschale Manifestlabels bleiben ausdrücklich
+als getrennte Metadaten-/Paketlücke dokumentiert; keine Statusaufwertung.
+
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad
 lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft. Weitere

@@ -1,5 +1,7 @@
 # Base64-Testevidenz
 
+Aktuelle [Callerrechte-Qualifikation](../../../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md): einzelne SELECT-Grants für TVFs und EXECUTE-Grants für Scalarwrapper, lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Die ältere pauschale SELECT-/REFERENCES-Formulierung im Manifest ist für Scalarwrapper veraltet; ihr gebundener Metadaten-/Paketrefresh bleibt separat offen. Andere Fach-/Lifecycle-/CrossDB-Gates und Modulstatus werden dadurch nicht erweitert.
+
 Lastqualifikation 2026-10-19: Der vollständige Moduladapter einschließlich Pflicht-Lastfall (exakter 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsorakeln) bestand auf SQL Server 2025 Linux/latest CL170. Zusammen mit der unveränderten Windows-/Linux-Fachmatrix gilt `validated`; Release bleibt `unreleased`. Optionale Laufzeitmessungen: `not executed`. [Aktuelle Abnahme](../../../Tests/V0C_RELEASE_GATE_STATUS.md).
 
 Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
