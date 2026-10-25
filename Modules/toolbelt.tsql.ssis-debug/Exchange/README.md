@@ -55,6 +55,23 @@ optional die Originalbytes als Parameter. Analyze lädt keine Toolbelt-Assembly
 und ruft den Host nicht selbst auf. Die bestehende XML-Inventur und beide
 Loganalysen bleiben eigenständig nutzbar.
 
+## Ausgangsrollen für die optionale Laufzeitdiagnose
+
+Die freigegebene neunte SSIS-Welle ergänzt die statische Rolle `NO_MATCH`
+im bestehenden neutralen Kern. Das qualifizierte Lookupprofil mit Version 6
+verlangt genau zwei reguläre Ausgänge und einen bekannten `NoMatchBehavior`
+von 0 oder 1. Deren zweiter Ausgang erhält die Rolle unabhängig von seinem
+Anzeigenamen. Ein unbekanntes Profil oder eine abweichende Ausgangsmenge bleibt
+`UNKNOWN`. Der bestehende Generator verwendet denselben zentralen
+Indexklassifikator. Explizite `isErrorOut`-Metadaten liefern weiterhin `ERROR`.
+
+Das bestehende Modellschema enthält diese Rollen bereits und bleibt 1.0.0.
+Die Änderung ergänzt weder eine Laufzeitanalyse noch neue Lineage. Analyze
+verwendet die Rollen für seine getrennt verantworteten Diagnosehinweise.
+Die [Microsoft-Referenz zu Lookup-Ausgängen](https://learn.microsoft.com/en-us/sql/integration-services/data-flow/transformations/lookup-transformation)
+beschreibt Match-, No-Match- und Fehlerausgänge. Die gemeinsame Konformitätsprüfung
+vergleicht beide Hosts einschließlich umbenannter Ausgänge und unbekannter Profile.
+
 ## Abdeckung des ersten Slices
 
 Der Kern inventarisiert das festgelegte Objektuniversum vor jeder
