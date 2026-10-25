@@ -215,7 +215,10 @@ class PreparationTests(unittest.TestCase):
 
     def test_native_evidence_cannot_cover_changed_inputs(self):
         evidence = json.loads((ROOT / release.QUALIFICATION).read_bytes())
-        files = dict(self.files)
+        with zipfile.ZipFile(io.BytesIO(pre_ssis_delivery_archive())) as archive:
+            prefix = release.NAME + '/'
+            files = {p[len(prefix):]: archive.read(p) for p in archive.namelist()}
+        plan = json.loads(files[release.PLAN])
         paths = (evidence["native_package"]["driver"], evidence["native_package"]["method"],
                  evidence["clr_build_inputs"]["method"])
         # Die positive Baseline stammt aus den tatsächlich qualifizierten
@@ -223,14 +226,14 @@ class PreparationTests(unittest.TestCase):
         for path in paths:
             self.assertIn(path, files)
         files[release.QUALIFICATION] = release.encoded(evidence)
-        release.validate_qualification(files, self.plan)
+        release.validate_qualification(files, plan)
         for path in paths:
             changed = dict(files)
             changed[path] += b"# changed input\n"
             with self.assertRaises(release.ReleaseError):
-                release.validate_qualification(changed, self.plan)
+                release.validate_qualification(changed, plan)
         with self.assertRaises(release.ReleaseError):
-            release.validate_qualification(files, self.plan,
+            release.validate_qualification(files, plan,
                                           {"Install-Stable-local.sql": b"SELECT 1;", "Install-Stable-central.sql": b"SELECT 1;"})
 
 
@@ -426,7 +429,10 @@ class ClrPackageTests(unittest.TestCase):
         self.assertEqual(report['final_independent_audit']['current_owned_database_names_absent'], 36)
         self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
         self.assertEqual(qualification['client_followup']['evidence'], 'Releases/1.0.0/clr-client-qualification.json')
-        with zipfile.ZipFile(self.package) as archive:
+        # Der alte ODBC-Lauf gehört zu seinen tatsächlichen damaligen Bytes.
+        # Der neue SSIS-Binary besitzt eigene neue Windows-/ODBC-Nachweise.
+        old_source = release.read_zip(pre_ssis_delivery_archive())
+        with zipfile.ZipFile(io.BytesIO(old_source[release.NAME + '/' + release.CLR_PACKAGE])) as archive:
             prefix = self.clr.PACKAGE + '/'
             sql = {p[len(prefix):]: archive.read(p) for p in archive.namelist() if p.startswith(prefix + 'SQL/')}
             binaries = {p[len(prefix):]: hashlib.sha512(archive.read(p)).hexdigest()
@@ -544,7 +550,8 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertFalse(report['runtime_product_sql_dll_changed'])
         self.assertFalse(report['module_statuses_changed'])
         plan = json.loads((ROOT / 'Releases/1.0.0/release-plan.json').read_bytes())
-        self.assertEqual(report['product_commit'], plan['product_commit'])
+        if report['product_commit'] != plan['product_commit']:
+            release.validate_ssis_product_applicability(report['product_commit'], plan['product_commit'])
         expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
                     {'2019': [150], '2022': [150, 160], '2025': [150, 160, 170]}.items() for cl in cls}
         self.assertEqual(len(report['native_cases']), 12)
