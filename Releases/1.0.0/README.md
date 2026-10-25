@@ -78,6 +78,12 @@ begrenzten Series-Status-API. Zwölf lokale/direkt zentrale Ziel-/CL-Fälle bele
 je ein SELECT; interne Core-/Helperrechte und andere APIs bleiben getrennt.
 Keine Erweiterung alter Last-/Client-/Lifecycle- oder CrossDB-Nachweise.
 
+Die [Utility-Callerprofile](UTILITY-CALLER-QUALIFICATION.md) ergänzen16 öffentliche
+Bit-/Trim-/Split-/Identifier-/SemVer-Funktionen mit getrennten SELECT-/EXECUTE-
+Grants auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen. Opake Sort Keys
+werden nach ihrem Ordnungsvertrag geprüft; breite Rechte bleiben ausgeschlossen.
+Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
+
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad
 lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft. Weitere
