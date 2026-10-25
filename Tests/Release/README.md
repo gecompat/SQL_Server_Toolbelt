@@ -1,5 +1,7 @@
 # Releasevorbereitung prüfen
 
+[JSON-Pfade mit getrennten SELECT-Rechten](../../Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md): 2 APIs, zwölf Fälle lokal/direkt zentral, 48 Einzelgrantprofile und 192 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 
 Die [additive Date-Math-Ergänzung](../../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md) schließt die sechs niedrigeren CL-Callerfälle. Insgesamt zwölf Fälle mit unveränderter Fixture sind gebunden; der frühere Teilscope bleibt historisch erhalten. Offline zusätzlich prüfen: `python -B Tests/Release/test_additive_caller_qualification.py`.
 
