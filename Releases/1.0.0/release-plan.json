@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "state": "prepared_not_published",
   "publication_authorized": false,
-  "product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
+  "product_commit": "765b630f1a5e049827829adfa4a851244a2bd717",
   "package_kind": "complete_source_candidate",
   "foundation": {
     "version": "1.25.0",
@@ -1066,9 +1066,9 @@
   "product_snapshot": {
     "schema_version": "1.0",
     "kind": "synthetic_product_snapshot",
-    "source_commit": "0a383d9ac4b7806749ca01b777133e2e208c3daa",
-    "product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
-    "base_commit": "bfe45a51376a732b875390118574cdb642cc3587",
-    "tree_oid": "2be6d99a76b28a18195fa145e983194e2eb6a45b"
+    "source_commit": "2e6606565db10e95fa3239be40acbf4a800692b8",
+    "product_commit": "765b630f1a5e049827829adfa4a851244a2bd717",
+    "base_commit": "df435af0c482f4e21bef933df858d93419c391ad",
+    "tree_oid": "db0cfdece5098230ef42bcde4e91fc5db91c2aa3"
   }
 }
