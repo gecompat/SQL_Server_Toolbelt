@@ -311,6 +311,10 @@ namespace Toolbelt.Ssis.Exchange
         /// <summary>Native Paket-/Executablekennungen aus denselben Definitionen; keine Namensauflösung oder Laufzeitbehauptung.</summary>
         public Dictionary<string, object> ExportObjectIdentities()
         {
+            return ExportObjectIdentities(false);
+        }
+        public Dictionary<string, object> ExportObjectIdentities(bool includeIterationRoles)
+        {
             if (XmlProfile == "UNKNOWN") throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
             Build(); Check();
             var objects = new List<object>();
@@ -319,9 +323,17 @@ namespace Toolbelt.Ssis.Exchange
                 Check(); Guid id;
                 // Ungültige oder fehlende DTSIDs bleiben ungebunden; doppelte GUIDs bleiben getrennte Vorkommen.
                 object nativeId = Guid.TryParse(definition.NativeDtsId, out id) ? (object)id.ToString("D").ToLowerInvariant() : null;
-                objects.Add(Obj("nodeId", definition.Id, "nodeKind", definition.Kind, "dtsId", nativeId, "packagePath", definition.NativePackagePath));
+                var identity = Obj("nodeId", definition.Id, "nodeKind", definition.Kind, "dtsId", nativeId, "packagePath", definition.NativePackagePath);
+                if (includeIterationRoles)
+                {
+                    object executableType, eventHandler;
+                    identity["iterationContainer"] = definition.Kind == "EXECUTABLE" &&
+                        definition.Attributes.TryGetValue("isEventHandler", out eventHandler) && Object.Equals(eventHandler, false) &&
+                        definition.Attributes.TryGetValue("executableType", out executableType) && ComponentProfiles.IsIterationContainer(executableType as string);
+                }
+                objects.Add(identity);
             }
-            return Obj("contract", "ssis-object-identities", "version", "1.0.0", "identityProfile", "document-order-v1",
+            return Obj("contract", "ssis-object-identities", "version", includeIterationRoles ? "1.1.0" : "1.0.0", "identityProfile", "document-order-v1",
                 "packageSha256", PackageSha256, "objects", objects);
         }
         private static bool IsHex(string value, int length) { return value != null && value.Length == length && value.All(c => c >= '0' && c <= '9' || c >= 'a' && c <= 'f'); }

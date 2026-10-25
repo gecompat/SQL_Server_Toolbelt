@@ -7,6 +7,12 @@ namespace Toolbelt.Ssis.Exchange
     // Ein kanonischer Komponentenklassifikator für Generator und neutralen Export.
     public static class ComponentProfiles
     {
+        // Nur diese nativen Containerprofile erlauben Iterationssegmente.
+        // Unbekannte Typen werden weder aus Namen noch aus Laufzeitpfaden erraten.
+        public static bool IsIterationContainer(string executableType)
+        {
+            return executableType == "STOCK:FORLOOP" || executableType == "STOCK:FOREACHLOOP";
+        }
         private static string Get(Dictionary<string,string> properties, string key)
         { string value; return properties.TryGetValue(key, out value) ? value : ""; }
         public static string Kind(string id, int version, Dictionary<string, string> properties)

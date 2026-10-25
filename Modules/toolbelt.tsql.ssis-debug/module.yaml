@@ -85,6 +85,7 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
   ssis_object_identities: "1.0.0"
+  ssis_iteration_object_identities: "1.1.0"
   ssis_export_bundle: "1.0.0"
 tests:
   static: "Tests/Static/validate_contract.py"
