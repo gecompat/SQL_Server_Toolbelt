@@ -1,7 +1,7 @@
 SSIS-Debug 1.0.0 - vollständiges Installationspaket für Windows
 Copyright (c) gecompat - Gerhard Pisch. Lizenz: LICENSE.md.
 
-Dieses ZIP enthält den qualifizierten SSIS-Iterationsbuild des gemeinsamen Paketkerns:
+Dieses ZIP enthält den qualifizierten SSIS-Build mit gemeinsamem Pipeline-Identitätskern:
   ResultTable 1.0.0 (T-SQL)
   Script Parser 2.0.1 + Microsoft ScriptDom 180.117.0 (net472)
   SSIS-Debug 1.0.0 (.NET Framework 4.8)

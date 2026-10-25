@@ -32,7 +32,7 @@ eine längere ID wird vor der SQL-Materialisierung als `resource_limit` abgewies
 Zulässige IDs müssen vollständig erhalten bleiben; eine bereits befüllte
 ResultTable darf durch die Abweisung nicht verändert werden.
 
-Bestanden: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
+Historischer Full21-Nachweis: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
 Lookup-Dezimalprodukt, Textlängen, SUM/AVG/LEN, Integerpräzedenz,
 NULLbarkeit und Zeitpräzision, Erhalt von WHERE-Klauseln, Katalogdrift,
 reiner TVF ohne Alias und Unicode-Lookup-Collations. SQL-Vorfilter, JSON,
@@ -569,8 +569,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: finales Scope1.2-ZIP, Doppelpaketierung, Integrität6 plus Navigationsgegenprobe, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 185-Dateien-Installationssatz mit fertigen qualifizierten Assemblies, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen einschließlich interner Paketübersicht. Zwei finale Kontexte mit je113 Assertions,226 insgesamt; reales Iterationsbuild-Upgrade und unabhängige Cleanup-/Pin-/Konfigurationsaudits. Zwei frühere erfolgreiche Paketfälle wegen korrigiertem Dokumentationsumfang behalten und im unveränderten gemeinsamen36er-Rahmen gezählt; fünf bereinigte frühere Testadapterfehlversuche ebenfalls erhalten. SSIS-Phase21 Treiberversuche, Gesamtpaketphase separat. Grenzen300/360/400, Functional Encrypt=True und expliziter Lab-Trust ohne Fallback. Keine Veröffentlichung; allgemeine Autonomie pausiert.
+- Nachweis: `local: Pipeline-Build Full 12 Windows/CL/Modus, Framework 23, gemeinsame 147 Modellgegenproben`
+- Scope: Gemeinsamer Pipeline-Identitätskern aus PR #435; unveränderte öffentliche SQL-API und Dependency-Pins. Zwölf Fälle mit 3516 Assertions einschließlich Callerrechten, Grenzen, Lifecycle und echtem Upgrade vom ausgelieferten Scope 1.2-Build. Zwölf abschließende unabhängige Cleanup-/Pin-/Konfigurationsaudits bestanden. Grenzen 300/360/400 unverändert; Functional Encrypt=True mit explizitem Lab-Trust, kein Fallback. Neuer ZIP-Hash und Gesamtpaket benötigen ihre separaten Nachweise. Clientidentität, SSMS-GUI, authentifizierte TLS-, Linux-Host-, Ressourcen-/Produktions- und Veröffentlichungsgates bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -594,5 +594,15 @@ Der Labrunner akzeptiert mit `-SsisQualifiedPredecessorEvidence` zusätzlich
 `Release.Windows.CL.20261025.json`. Damit kann der tatsächlich ausgelieferte
 Scope-Identitätsbuild als Upgrade-Ausgangspunkt verwendet werden. Originaler
 Quellcommit, DLL- und Deploymenthash sowie Parser-/ScriptDom-Pins bleiben
-verbindlich. Der zusätzliche Selektor ist noch kein Nachweis für den neuen
-Pipeline-Identitätsbuild; dieser benötigt seine eigene gebundene Qualifikation.
+verbindlich. Die [neue Buildprojektion](Qualification/Pipeline.Windows.CL.20261025.json)
+bindet zwölf erfolgreich ausgeführte Windows-/CL-/Modusfälle und3516 Assertions
+an den Pipeline-Identitätsbuild. SQL2019 nutzt CL150, SQL2022 CL150/160 und
+SQL2025 CL150/160/170, jeweils lokal und zentral. Hinzu kommen 23 begrenzte
+Frameworkfälle, 147 gemeinsame Modellgegenproben und zwölf unabhängige
+Abschlussaudits. Der historische Scope 1.2-Nachweis bleibt unverändert.
+
+Die zusätzlichen Pipelinefelder stammen aus derselben bereits begrenzten
+XML-/Graphmaterialisierung. Der öffentliche SQL-Einstieg, Parserprofile,
+Katalogzugriffe und Sicherheitsbudgets sind unverändert; der optionale
+Pipelineexport ist weiterhin eine externe Hostoperation. Eine neue
+SQL-Schnittstelle oder SSIS-Runtime wird daraus nicht abgeleitet.

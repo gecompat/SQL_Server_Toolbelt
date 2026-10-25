@@ -496,6 +496,52 @@ class SsisProductDeltaTests(unittest.TestCase):
             with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
                 release.validate_ssis_product_delta(old, new, record, build, old)
 
+    def test_public_test_maintenance_does_not_authorize_unpublished_or_runtime_changes(self):
+        paths = ('Modules/toolbelt.string.edit-distance/Tests/Runtime/Invoke-LabContract.ps1',
+                 'Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1',
+                 'Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1')
+        for path in paths:
+            old, new, record, build = self.inputs()
+            old[path] = b'previous test adapter'
+            new[path] = b'already public test adapter'
+            baseline = dict(old, **{path: new[path]})
+            changed = sorted(p for p in set(old) | set(new) if old.get(p) != new.get(p))
+            record.update(changed_product_paths=changed,
+                          previous_source_sha256={p: release.sha(old[p]) if p in old else None for p in changed},
+                          current_source_sha256={p: release.sha(new[p]) for p in changed})
+            with self.subTest(path=path):
+                release.validate_ssis_product_delta(old, new, record, build, baseline)
+                with self.assertRaisesRegex(release.ReleaseError, 'Weitere Fach-'):
+                    release.validate_ssis_product_delta(old, new, record, build, old)
+        old, new, record, build = self.inputs()
+        path = 'Modules/toolbelt.synthetic/Source/Test.sql'
+        new[path] = b'already public but out-of-scope runtime change'
+        with self.assertRaisesRegex(release.ReleaseError, 'Weitere Fach-'):
+            release.validate_ssis_product_delta(old, new, record, build, new)
+
+    def test_archive_and_integration_baselines_have_distinct_bindings(self):
+        from unittest.mock import patch
+        old, new, record, build = self.inputs()
+        historical, integration = 'a' * 40, 'b' * 40
+        previous, current = 'c' * 40, 'd' * 40
+        record.update(previous_product_commit=previous, current_product_commit=current,
+                      previous_product_tree='old-tree', current_product_tree='new-tree',
+                      public_baseline_commit=historical,
+                      public_integration_baseline_commit=integration)
+        def recovered(product):
+            return ({}, old, 'old-tree') if product == previous else ({}, new, 'new-tree')
+        with patch.object(Path, 'read_bytes', return_value=release.encoded(record)), \
+                patch.object(release, 'qualification_sources', side_effect=recovered), \
+                patch.object(release, 'snapshot', return_value=(integration, old)) as snapshot:
+            release.validate_ssis_product_applicability(previous, current)
+            snapshot.assert_called_once_with(integration)
+        record['public_integration_baseline_commit'] = '../unbound'
+        with patch.object(Path, 'read_bytes', return_value=release.encoded(record)), \
+                patch.object(release, 'qualification_sources', side_effect=recovered), \
+                patch.object(release, 'snapshot') as snapshot, self.assertRaises(release.ReleaseError):
+            release.validate_ssis_product_applicability(previous, current)
+        snapshot.assert_not_called()
+
     def test_qualification_selection_stays_closed(self):
         self.assertEqual(release.clr_qualification_path({}), 'Releases/1.0.0/clr-qualification.json')
         self.assertEqual(release.clr_qualification_path({'qualification_evidence': release.SSIS_CLR_QUALIFICATION}),
