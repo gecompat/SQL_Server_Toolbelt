@@ -1,5 +1,12 @@
 # Nachweiszuordnung aller 45 Module
 
+[ZIP-Callerrechte](ZIP-CALLER-PROFILE.md): drei vorhandene öffentliche
+Listing-/Extraktions-/Writer-USPs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle,
+432 Rechtezustände, 864 API-Routen, 192 positive feste Ergebniszeilen und
+2.808 strikte SQL-229-Abweisungen. Eine frühere v1-Shape-Fixtureabweichung
+bleibt getrennt erhalten; zwölf Matrixfälle und beide Kontrollen wurden
+abschließend auditiert.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs, zwölf lokale/direkt zentrale Windows-/Linux-Ziel-/CL-Fälle, 336 Rechtemaskenzustände, 672 API-Routen und 720 feste Ergebniszeilen. Ein ursprünglicher Probe-Arityfehler bleibt getrennt von zwölf bestandenen Fällen und zwei gezielt abgewiesenen Kontrollen; 15 frische Abschlussaudits bestanden.
 
 [XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) bindet die Raw- und Zell-Callerrechte aus den unveränderten Berichten an das Modulmanifest und den bestehenden CLR-Satz. SQL- und DLL-Payloads bleiben bytegleich; der Modulstatus bleibt unverändert.

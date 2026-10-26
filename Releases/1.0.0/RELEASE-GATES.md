@@ -1,5 +1,12 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
+[ZIP-Callerrechte](ZIP-CALLER-PROFILE.md): drei bestehende ZIP-Memory-USPs,
+432 Maskenzustände, 864 API-Routen, 192 positive Orakel, 2.808 strikte
+SQL-229-Abweisungen und 15 frische Abschlussaudits. Zwölf Matrixfälle
+bestanden; die falsche Goldenwert- und breite Schema-SELECT-Kontrolle wurden
+erwartungsgemäß bereinigt abgewiesen. Produkt-/Paketstatus und weitere
+Releasegates bleiben getrennt.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwölf ausgewählte Ziel-/CL-Fälle mit 336 Rechtezuständen, 672 API-Routen, 144 positiven Aufrufen und 720 festen Ergebniszeilen; 12 Matrixfälle und 15 frische Abschlussaudits bestanden. Die [Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) übernimmt Raw- und Zellrechte; historische Source-Header bleiben unverändert. Weitere Releasegates bleiben offen; Head- und Main-CI werden getrennt im integrierenden PR nachgewiesen.
 
 [XLSX-Zell-Callerrechte](XLSX-CELL-CALLER-QUALIFICATION.md): zwei öffentliche TVFs mit einzelnem SELECT auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen.48 positive Profile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel; Raw-Reader, volle Typ-/Client-/Ressourcen- und Releasegates bleiben separat.

@@ -1,5 +1,10 @@
 # Tests – ZIP Memory CLR Inspection
 
+Die begrenzten Callerrechte für Listing, Extraktion und Writer sind im
+[ZIP-Callerbericht](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) dokumentiert.
+Diese zusätzliche Rechteprüfung ändert Produktbytes und Modulstatus nicht und
+ersetzt keine vollständige Plattform-, Kapazitäts- oder Releasequalifikation.
+
 Release 1.4, 2026-10-02: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1` auf Linux 2019/latest und Windows 2025/CU8 erfolgreich. Qualifiziert sind echte ZIP-1.3-Assemblyhash-Upgrades, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende Deploy-/Uninstall-Callerablehnung OFF/ON. Unabhängige Writer-Frameworksuite erneut erfolgreich; bekannte übrige Matrix bleibt offen.
 
 ## Aktueller Framework-Binary-Intake (2026-10-08)

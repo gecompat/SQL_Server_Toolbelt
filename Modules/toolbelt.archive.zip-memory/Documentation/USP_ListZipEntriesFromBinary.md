@@ -63,5 +63,10 @@ erteilen insbesondere keine Freigabe für Datei-I/O.
 
 ## Berechtigung
 
-Erforderlich ist `EXECUTE` auf der Procedure. Für `@ResultTable` wird außerdem
-`EXECUTE` auf `toolbelt_core.USP_PrepareResultTable` benötigt.
+Das geprüfte schmale Callerprofil benötigt `EXECUTE` auf dieser Procedure und
+`SELECT` auf `toolbelt_archive.TVF_InternalListZipEntriesClr`. Für
+`@ResultTable` ist zusätzlich `EXECUTE` auf
+`toolbelt_core.USP_PrepareResultTable` erforderlich. Dies ist das im
+[ZIP-Callerbericht](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) geprüfte
+Objektprofil; es behauptet keine mathematische Minimalität oder Ausschließung
+anderer möglicher Profile.
