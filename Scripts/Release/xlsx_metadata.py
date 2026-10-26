@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import io
+from importlib import import_module
 import json
 import subprocess
 import zipfile
@@ -84,8 +85,8 @@ def historical(root, path):
 
 
 def historical_at(root, commit, path):
-    require(path in DOCUMENTATION_TRANSITION_PATHS,
-            'Historischer XLSX-Zugriff nur auf die sieben gebundenen Lesepfade.')
+    require(commit == BASELINE and path in DOCUMENTATION_TRANSITION_PATHS,
+            'Git-Historienzugriff ist nur für die öffentliche XLSX-Basis zulässig.')
     return subprocess.run(['git', 'show', commit + ':' + path], cwd=root,
                           capture_output=True, check=True, timeout=30).stdout
 
@@ -132,6 +133,21 @@ def predecessor_source_binding(root):
         'product_commit': DOCUMENTATION_TRANSITION_START,
         'product_tree': csv_record['current_product_tree'],
     }
+
+
+def predecessor_product_sources(root, record):
+    """Recover the transition predecessor only from its bound public archive."""
+    release = import_module('prepare_release')
+    require(Path(root).resolve() == Path(release.ROOT).resolve(),
+            'XLSX-Übergangsquelle muss aus dem aktuellen Repository rekonstruiert werden.')
+    binding = record['historical_product_source']
+    require(record['product_chain_predecessor'] == DOCUMENTATION_TRANSITION_START
+            and binding == predecessor_source_binding(root),
+            'XLSX-Übergangsquelle ist nicht an die öffentliche Recoverybindung gebunden.')
+    _, product_files, tree = release.qualification_sources(record['product_chain_predecessor'])
+    require(tree == binding['product_tree'],
+            'XLSX-Übergangsvorgängerbaum weicht vom gebundenen Archiv ab.')
+    return product_files
 
 
 def corrected_manifest(original):
@@ -297,11 +313,12 @@ def validate_record(record, original_manifest, current_manifest, previous_packag
     require(record['previous_source_sha256'] == {MANIFEST: digest(original_manifest)}
             and record['current_source_sha256'] == {MANIFEST: digest(current_manifest)},
             'XLSX-Produktquellpins drifteten.')
+    transition_previous_files = predecessor_product_sources(ROOT, record)
     require(record['documentation_transition']['from_commit'] == DOCUMENTATION_TRANSITION_START
             and record['documentation_transition']['to_commit'] == BASELINE
             and record['documentation_transition']['paths'] == list(DOCUMENTATION_TRANSITION_PATHS)
             and record['documentation_transition']['previous_source_sha256'] == {
-                p: digest(historical_at(ROOT, DOCUMENTATION_TRANSITION_START, p))
+                p: digest(transition_previous_files[p])
                 for p in DOCUMENTATION_TRANSITION_PATHS
             }
             and record['documentation_transition']['current_source_sha256'] == {

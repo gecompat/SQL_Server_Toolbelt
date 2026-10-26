@@ -95,7 +95,7 @@ def build_candidate():
     previous_package = metadata.historical(ROOT, metadata.PACKAGE)
     previous_payload = split_package(previous_package)
     _, previous_files = _baseline_snapshot(ROOT, metadata.BASELINE)
-    _, transition_previous_files = _baseline_snapshot(ROOT, metadata.DOCUMENTATION_TRANSITION_START)
+    _, transition_previous_files, _ = release.qualification_sources(metadata.DOCUMENTATION_TRANSITION_START)
     _, transition_current_files = _baseline_snapshot(ROOT, metadata.BASELINE)
     current_files = dict(previous_files)
     current_files[metadata.MANIFEST] = (ROOT / metadata.MANIFEST).read_bytes()
@@ -454,6 +454,10 @@ class XlsxMetadataMixin:
         changed_pins = copy.deepcopy(record)
         changed_pins['native_manifest_pins'][metadata.RAW_REPORT] = '0' * 64
         mutations.append(changed_pins)
+        changed_history = copy.deepcopy(record)
+        changed_history['documentation_transition']['previous_source_sha256'][
+            metadata.DOCUMENTATION_TRANSITION_PATHS[0]] = '0' * 64
+        mutations.append(changed_history)
         for changed in mutations:
             with self.subTest(keys=set(changed) - set(record)), self.assertRaises(ValueError):
                 metadata.validate_record(changed, original, current, previous_package,
