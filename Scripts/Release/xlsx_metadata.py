@@ -5,6 +5,7 @@ import io
 import json
 import subprocess
 import zipfile
+from functools import lru_cache
 import csv_metadata
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -32,6 +33,7 @@ DOCUMENTATION_TRANSITION_START = '62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3'
 DOCUMENTATION_TRANSITION_PATHS = tuple(sorted({
     p for p in PACKAGE_SOURCES if p != MANIFEST
 }))
+HISTORICAL_SOURCE_ARCHIVE = 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip'
 SCOPE_TEXT = ('Selected XLSX manifest and registered reading paths; additive proof and '
               'CLR-PACKAGE file-list/evidence metadata only. SQL and DLL payloads remain byte-identical.')
 RECORD_FIELDS = {
@@ -88,14 +90,33 @@ def historical_at(root, commit, path):
                           capture_output=True, check=True, timeout=30).stdout
 
 
+@lru_cache(maxsize=2)
+def _historical_source_archive(root: str, commit: str, path: str) -> tuple[bytes, bytes]:
+    """Cache only immutable Git ZIP bytes/header, keyed by root, exact OID and path."""
+    result = subprocess.run(['git', 'show', commit + ':' + path], cwd=root,
+                            capture_output=True, check=True, timeout=30)
+    archive = result.stdout
+    prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
+    manifest_path = prefix + 'PACKAGE-MANIFEST.json'
+    with zipfile.ZipFile(io.BytesIO(archive)) as package:
+        matches = [entry for entry in package.infolist() if entry.filename == manifest_path]
+        require(len(matches) == 1, 'Historisches XLSX-Recoverymanifest fehlt oder ist doppelt.')
+        manifest = package.read(matches[0])
+    return archive, manifest
+
+
+def historical_source_archive(root, commit: str, path: str) -> tuple[bytes, bytes]:
+    require(path == HISTORICAL_SOURCE_ARCHIVE
+            and isinstance(commit, str) and len(commit) == 40
+            and all(character in '0123456789abcdef' for character in commit),
+            'Historische ZIP-Cachequelle ist nicht exakt gebunden.')
+    return _historical_source_archive(str(Path(root).resolve()), commit, path)
+
+
 def predecessor_source_binding(root):
     """Pin the predecessor recovery archive and its tree to the CSV evidence."""
-    archive_path = f'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip'
-    archive = subprocess.run(['git', 'show', BASELINE + ':' + archive_path], cwd=root,
-                             capture_output=True, check=True, timeout=30).stdout
-    prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
-    with zipfile.ZipFile(io.BytesIO(archive)) as package:
-        manifest = json.loads(package.read(prefix + 'PACKAGE-MANIFEST.json'))
+    archive, manifest_bytes = historical_source_archive(root, BASELINE, HISTORICAL_SOURCE_ARCHIVE)
+    manifest = json.loads(manifest_bytes)
     csv_record = json.loads((Path(root) / csv_metadata.RECORD).read_bytes())
     require(csv_record['current_product_commit'] == DOCUMENTATION_TRANSITION_START
             and manifest['product_commit'] == DOCUMENTATION_TRANSITION_START,
@@ -106,7 +127,7 @@ def predecessor_source_binding(root):
             'CSV-Vorgängerbaum fehlt für die XLSX-Recovery.')
     return {
         'archive_commit': BASELINE,
-        'archive_path': archive_path,
+        'archive_path': HISTORICAL_SOURCE_ARCHIVE,
         'archive_sha256': digest(archive),
         'product_commit': DOCUMENTATION_TRANSITION_START,
         'product_tree': csv_record['current_product_tree'],

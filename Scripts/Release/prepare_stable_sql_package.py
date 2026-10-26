@@ -81,11 +81,11 @@ def advance_xlsx_product_chain(root: Path, current_product: str, current_plan: d
         manifest = json.loads(archive.read(prefix + 'PACKAGE-MANIFEST.json'))
     require(manifest['product_commit'] == current_product,
             'XLSX Stable recovery product commit drifted.')
-    _, product_files, product_tree = release_validation.qualification_sources(product_source['product_commit'])
-    require(product_tree == product_source['tree_oid'],
-            'XLSX Stable current product tree lacks an archive-backed recovery source.')
+    # This existing exact applicability validator recovers both product trees
+    # from their bound source archives when synthetic commits are absent, then
+    # validates the manifest delta and current product-source tree.
     release_validation.validate_product_applicability(current_product, product_source['product_commit'],
-                                                       product_files)
+                                                       None)
     return product_source['product_commit']
 
 

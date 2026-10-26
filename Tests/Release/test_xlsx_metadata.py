@@ -2,11 +2,13 @@
 from pathlib import Path
 import copy
 import importlib.util
+import io
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -48,6 +50,73 @@ def build_candidate():
 
 
 class XlsxMetadataMixin:
+    def test_historical_archive_cache_is_bounded_and_uses_exact_root_commit_path(self):
+        first = 'a' * 40
+        second = 'b' * 40
+        manifest_path = 'SQL-Server-Toolbelt-1.0.0-candidate-source/PACKAGE-MANIFEST.json'
+
+        def make_archive(product, root):
+            output = io.BytesIO()
+            with zipfile.ZipFile(output, 'w') as archive:
+                archive.writestr(manifest_path,
+                                 json.dumps({'product_commit': product, 'root': root}).encode())
+            return output.getvalue()
+
+        calls = []
+        def run(args, cwd, **kwargs):
+            oid, path = args[2].split(':', 1)
+            calls.append((str(Path(cwd).resolve()), oid, path))
+            payload = make_archive(oid, str(Path(cwd).resolve()))
+            return subprocess.CompletedProcess(args, 0, stdout=payload, stderr=b'')
+
+        metadata._historical_source_archive.cache_clear()
+        self.addCleanup(metadata._historical_source_archive.cache_clear)
+        with tempfile.TemporaryDirectory(dir=ROOT / '.runtime', prefix='xlsx-zip-cache-') as folder:
+            root_a = Path(folder) / 'a'
+            root_b = Path(folder) / 'b'
+            for path in (root_a, root_b):
+                path.mkdir()
+            with patch.object(metadata.subprocess, 'run', side_effect=run):
+                original, header = metadata.historical_source_archive(root_a, first,
+                                                                       metadata.HISTORICAL_SOURCE_ARCHIVE)
+                again, header_again = metadata.historical_source_archive(root_a, first,
+                                                                          metadata.HISTORICAL_SOURCE_ARCHIVE)
+                other_root, _ = metadata.historical_source_archive(root_b, first,
+                                                                     metadata.HISTORICAL_SOURCE_ARCHIVE)
+                other_oid, _ = metadata.historical_source_archive(root_a, second,
+                                                                    metadata.HISTORICAL_SOURCE_ARCHIVE)
+            self.assertEqual((original, header), (again, header_again))
+            self.assertNotEqual(original, other_root)
+            self.assertNotEqual(original, other_oid)
+            self.assertEqual(len(calls), 3)
+            self.assertEqual(metadata._historical_source_archive.cache_info().maxsize, 2)
+            for bad_commit, bad_path in (('c' * 39, metadata.HISTORICAL_SOURCE_ARCHIVE),
+                                         (first, '../candidate-source.zip')):
+                with self.assertRaises(ValueError):
+                    metadata.historical_source_archive(root_a, bad_commit, bad_path)
+
+            current_proof_root = Path(folder) / 'mutable-proof'
+            csv_record_path = current_proof_root / metadata.csv_metadata.RECORD
+            csv_record_path.parent.mkdir(parents=True)
+            csv_record = json.loads((ROOT / metadata.csv_metadata.RECORD).read_bytes())
+            csv_record_path.write_bytes(metadata.encoded(csv_record))
+            proof_calls = []
+            def proof_run(args, cwd, **kwargs):
+                proof_calls.append(args[2])
+                return subprocess.CompletedProcess(args, 0,
+                    stdout=make_archive(metadata.DOCUMENTATION_TRANSITION_START,
+                                        str(Path(cwd).resolve())), stderr=b'')
+            with patch.object(metadata.subprocess, 'run', side_effect=proof_run):
+                before = metadata.predecessor_source_binding(current_proof_root)
+                changed_csv = json.loads(csv_record_path.read_bytes())
+                changed_csv['current_product_tree'] = 'c' * 40
+                csv_record_path.write_bytes(metadata.encoded(changed_csv))
+                after = metadata.predecessor_source_binding(current_proof_root)
+            self.assertEqual(before['archive_sha256'], after['archive_sha256'])
+            self.assertNotEqual(before['product_tree'], after['product_tree'])
+            self.assertEqual(len(proof_calls), 1,
+                             'Mutable CSV proof should be reread while immutable archive is cached.')
+
     def test_manifest_is_exactly_supported_by_the_two_native_profiles(self):
         original = metadata.historical(ROOT, metadata.MANIFEST)
         current = (ROOT / metadata.MANIFEST).read_bytes()
@@ -139,6 +208,8 @@ class XlsxMetadataMixin:
         record = json.loads((ROOT / metadata.RECORD).read_bytes())
         binding = record['historical_product_source']
         real_git = release.git
+        metadata._historical_source_archive.cache_clear()
+        cache_before = metadata._historical_source_archive.cache_info()
         with tempfile.TemporaryDirectory(dir=ROOT / '.runtime', prefix='xlsx-public-only-') as folder:
             public_only = Path(folder) / 'public.git'
             subprocess.run(['git', 'init', '--bare', '--quiet', str(public_only)], check=True)
@@ -158,15 +229,21 @@ class XlsxMetadataMixin:
                 return real_git(*args, **kwargs)
 
             with patch.object(release, 'git', side_effect=public_only_objects):
-                archive = release.qualification_archive(binding['product_commit'])
-                raw = release.read_zip(archive)
-                prefix = release.NAME + '/'
-                manifest = json.loads(raw[prefix + 'PACKAGE-MANIFEST.json'])
-                self.assertEqual(manifest['product_commit'], binding['product_commit'])
-                _, _, tree = release.recovered_snapshot(raw[prefix + 'PREPARATION.bundle'],
-                                                        manifest['source_commit'], binding['product_commit'])
+                recovery_calls = []
+                actual_recovery = release.recovered_snapshot
+                def count_recovery(*args, **kwargs):
+                    recovery_calls.append(args[2])
+                    return actual_recovery(*args, **kwargs)
+                with patch.object(release, 'recovered_snapshot', side_effect=count_recovery):
+                    _, product_files, tree = release.qualification_sources(binding['product_commit'])
+                    archive = release.qualification_archive(binding['product_commit'])
                 self.assertEqual(tree, binding['product_tree'])
                 self.assertEqual(release.sha(archive), binding['archive_sha256'])
+                self.assertEqual(recovery_calls, [binding['product_commit']])
+                self.assertTrue(product_files)
+        cache_after = metadata._historical_source_archive.cache_info()
+        self.assertEqual(cache_after.misses - cache_before.misses, 1)
+        self.assertGreaterEqual(cache_after.hits - cache_before.hits, 1)
 
         changed_binding = dict(binding, archive_sha256='0' * 64)
         with patch.object(release.xlsx_metadata, 'predecessor_source_binding',

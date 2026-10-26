@@ -401,17 +401,13 @@ def qualification_archive(product: str) -> bytes:
             require(binding == xlsx_metadata.predecessor_source_binding(ROOT)
                     and binding['product_commit'] == product,
                     'XLSX-Historienquelle oder Produktbindung driftet.')
-            historical = git('show', binding['archive_commit'] + ':' + binding['archive_path'])
+            historical, manifest_bytes = xlsx_metadata.historical_source_archive(
+                ROOT, binding['archive_commit'], binding['archive_path'])
             require(sha(historical) == binding['archive_sha256'],
                     'Gebundenes XLSX-Recoveryarchiv driftet.')
-            raw = read_zip(historical); prefix = NAME + '/'
-            manifest = json.loads(raw[prefix + 'PACKAGE-MANIFEST.json'])
+            manifest = json.loads(manifest_bytes)
             require(manifest['product_commit'] == product,
                     'XLSX-Recoveryarchiv enthält einen anderen Produktcommit.')
-            _, _, tree = recovered_snapshot(raw[prefix + 'PREPARATION.bundle'],
-                                             manifest['source_commit'], product)
-            require(tree == binding['product_tree'],
-                    'XLSX-Recoveryproduktbaum weicht vom gebundenen Vorgängerbaum ab.')
             return historical
     raise ReleaseError('Recoveryprodukt besitzt keine gebundene historische Qualifikationsquelle.')
 
@@ -419,7 +415,23 @@ def qualification_archive(product: str) -> bytes:
 def qualification_sources(product: str) -> tuple[dict[str, bytes], dict[str, bytes], str]:
     raw = read_zip(qualification_archive(product)); prefix = NAME + '/'
     metadata = json.loads(raw[prefix + 'PACKAGE-MANIFEST.json'])
-    return recovered_snapshot(raw[prefix + 'PREPARATION.bundle'], metadata['source_commit'], product)
+    sources, product_files, tree = recovered_snapshot(
+        raw[prefix + 'PREPARATION.bundle'], metadata['source_commit'], product)
+    xlsx_path = ROOT / xlsx_metadata.RECORD
+    if xlsx_path.is_file():
+        record = json.loads(xlsx_path.read_bytes())
+        if product == record.get('product_chain_predecessor'):
+            binding = record.get('historical_product_source', {})
+            require(binding == xlsx_metadata.predecessor_source_binding(ROOT)
+                    and binding.get('product_commit') == product
+                    and binding.get('product_tree') == tree,
+                    'XLSX-Vorgängerbaum stimmt nicht mit der gebundenen Recoveryquelle überein.')
+        elif product == record.get('current_product_commit'):
+            source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+            require(source.get('product_commit') == product
+                    and source.get('tree_oid') == record.get('current_product_tree') == tree,
+                    'XLSX-Aktuellproduktbaum stimmt nicht mit product-source.json überein.')
+    return sources, product_files, tree
 
 
 def validate_ssis_product_applicability(previous: str, current: str, current_files: dict[str, bytes] | None = None) -> None:
@@ -487,16 +499,17 @@ def validate_product_applicability(previous: str, current: str,
         _, baseline = snapshot(record['public_baseline_commit'])
         xlsx_metadata.validate_documentation_transition(transition_previous, baseline, record)
         if current_files is None:
-            _, current_files = snapshot(current)
+            _, current_files, current_tree = qualification_sources(current)
+        else:
+            available = subprocess.run(['git', 'cat-file', '-e', current + '^{commit}'],
+                                       cwd=ROOT, capture_output=True).returncode == 0
+            current_tree = (git('rev-parse', current + '^{tree}').decode().strip() if available
+                            else qualification_sources(current)[2])
         product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
         require(product_source['product_commit'] == current
                 and product_source['tree_oid'] == record['current_product_tree']
                 and product_source['base_commit'] == record['public_baseline_commit'],
                 'XLSX-Aktuellproduktbaum ist nicht an product-source.json gebunden.')
-        available = subprocess.run(['git', 'cat-file', '-e', current + '^{commit}'],
-                                   cwd=ROOT, capture_output=True).returncode == 0
-        current_tree = (git('rev-parse', current + '^{tree}').decode().strip() if available
-                        else qualification_sources(current)[2])
         require(current_tree == product_source['tree_oid'],
                 'XLSX-Aktuellproduktbaum weicht von seiner Recoveryquelle ab.')
         xlsx_metadata.validate_product_delta(baseline, current_files, record, baseline)
