@@ -1,5 +1,11 @@
 # Releasevorbereitung prüfen
 
+Die [ZIP-Callerprüfung](../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) bindet drei
+bestehende ZIP-Memory-USPs an feste synthetische Orakel, sechs Rechtezustände
+je API und direkte sowie caller-lokale ResultTable-Ausgabe. Vier Berichtstests
+sind in `test_caller_metadata.py` integriert; gezielt lokal:
+`python -B -m unittest Tests.Release.test_caller_metadata.CallerMetadataTests.test_matrix_and_probe_totals_are_arithmetically_bound Tests.Release.test_caller_metadata.CallerMetadataTests.test_public_source_pins_match_current_synthetic_inputs Tests.Release.test_caller_metadata.CallerMetadataTests.test_fixed_reader_and_writer_goldens_are_independent Tests.Release.test_caller_metadata.CallerMetadataTests.test_expected_controls_and_retained_v1_failure_are_distinct -v`.
+
 Die [XLSX-Rohleser-Callerprüfung](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) bindet `Invoke-XlsxRawCallerLab.ps1`, die SQL-Rechtefixture und den deterministischen Workbookcomposer. Die neue Profilprüfung ist als Mixin in `XlsxCellCallerTests` eingebunden; sie läuft damit über die bestehende Release-Suite, ohne neuen CI-Job. Gezielt lokal: `python -m unittest Tests.Release.test_xlsx_raw_caller_evidence Tests.Release.test_xlsx_raw_caller_composer -v`.
 
 Die [XLSX-Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt zwei öffentliche SELECT-Profile mit eigener kanonischer Case-Datei und Zwei-DLL-Labtreiber. Vier Berichtsprüfungen laufen in der vorhandenen Suite; zusätzlich `python -B Tests/Release/test_xlsx_cell_caller_qualification.py`.

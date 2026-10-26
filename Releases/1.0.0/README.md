@@ -1,5 +1,10 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Der ergänzende [ZIP-Callerbericht](ZIP-CALLER-PROFILE.md) belegt begrenzte
+Objektrechte und feste synthetische Ausgabeorakel für die bestehenden
+Listing-, Extraktions- und Writer-USPs. Er ändert weder Modulstatus noch
+Releasefreigabe.
+
 Status: **Releasevorbereitung, nicht veröffentlicht**. Die Lieferpakete sind an
 ihre dokumentierten Quell- und Prüfstände gebunden. Veröffentlichung, Tag und
 GitHub-Release sind nicht freigegeben.

@@ -12,10 +12,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import caller_metadata as metadata
 from test_xlsx_metadata import XlsxMetadataMixin
+from test_zip_caller_composer import ZipCallerComposerMixin
+from test_zip_caller_profile import ZipCallerProfileMixin
 import xlsx_metadata
 
 
-class CallerMetadataTests(XlsxMetadataMixin, unittest.TestCase):
+class CallerMetadataTests(XlsxMetadataMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.originals = {p: metadata.historical_manifest(ROOT, p) for p in metadata.PATHS}

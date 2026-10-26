@@ -1,5 +1,34 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Dreizehnter endlicher Release-Rahmen — 2026-10-26
+
+Der autonome Releasegate-Auftrag lief im gemeinsam begrenzten R13-Rahmen
+weiter: höchstens drei PR-Wellen, sechs Stunden ab unverändertem Originalstart
+und höchstens 36 native Zielversuche einschließlich Fehlern und Kontrollen.
+Die Arbeit blieb bei einem Luna-Implementierungsworker mit Rootkoordination und
+sequentiellen Paketen; es entstanden keine zusätzlichen Agents oder CI-Jobs.
+
+Die erste Welle schloss die gebundene XLSX-Manifest-/Paketmetadatenpflege in
+PR454. Die zweite Welle prüfte die am 2026-10-01 einzeln freigegebenen
+`toolbelt_archive.USP_ListZipEntriesFromBinary`,
+`USP_ExtractZipEntryFromBinary` und `USP_CreateZipFromEntries` anhand fester
+synthetischer ZIPs. Der [ZIP-Callerbericht](../Releases/1.0.0/ZIP-CALLER-PROFILE.md)
+und seine [maschinenlesbare Evidenz](../Releases/1.0.0/zip-caller-profile.json)
+halten zwölf bestandene Ziel-/CL-Fälle, zwei erwartete Kontrollen und einen
+beibehaltenen v1-Shape-Fixturefehler auseinander. Insgesamt wurden 15 native
+Zielversuche und 15 abschließende AuditOnly-Läufe gezählt; die tatsächlichen
+Journale weisen 27 entfernte eigene Datenbanken und 15 entfernte eigene
+Trusteinträge aus. Produktquellen, Modulmanifest und Paket blieben in dieser
+Welle unverändert.
+
+Der Callerbericht zeigt, dass das aktuelle ZIP-Manifest in
+`permissions_required` nur die drei öffentlichen `EXECUTE`-Rechte auflistet,
+während die geprüften Aufrufpfade zusätzlich interne FT-`SELECT`-Rechte und
+den ResultTable-Helper benötigen. Diese getrennte Metadaten-/Paketpflege bleibt
+als möglicher nächster, exakt begrenzter Schritt offen. Releasegates außerhalb
+dieser beiden Wellen, Head-/Main-CI im integrierenden PR sowie Veröffentlichung
+und Tags bleiben separat.
+
 ## Zwölfter endlicher Release-Rahmen — 2026-10-26
 
 Der Nutzerauftrag vom 2026-10-26 setzte die bereits freigegebenen Releasegates

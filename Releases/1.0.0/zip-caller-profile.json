@@ -1,0 +1,302 @@
+{
+  "schema_version": "toolbelt-zip-caller-qualification/v1",
+  "date": "2026-10-26",
+  "scope": "Three existing toolbelt.archive.zip-memory 1.4.0 public ZIP memory APIs in the current ownership layout; fixed synthetic ZIPs and separately granted caller rights.",
+  "result": "PASS_WITH_EXPECTED_REJECTIONS_AND_ONE_RETAINED_FIXTURE_FAILURE",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "product_clr_changed": false,
+  "manifest_or_package_changed": false,
+  "module_status_changed": false,
+  "module_status": "partially validated",
+  "release_status": "unreleased",
+  "authenticated_tls_qualified": false,
+  "genuine_crossdb_identity_qualified": false,
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.archive.zip-memory": "1.4.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_archive",
+      "name": "USP_ListZipEntriesFromBinary",
+      "permission": "EXECUTE",
+      "required_internal_objects": [
+        {
+          "schema": "toolbelt_archive",
+          "name": "TVF_InternalListZipEntriesClr",
+          "permission": "SELECT"
+        }
+      ],
+      "result_table_additional_permission": {
+        "schema": "toolbelt_core",
+        "name": "USP_PrepareResultTable",
+        "permission": "EXECUTE"
+      }
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "USP_ExtractZipEntryFromBinary",
+      "permission": "EXECUTE",
+      "required_internal_objects": [
+        {
+          "schema": "toolbelt_archive",
+          "name": "TVF_InternalExtractZipEntryClr",
+          "permission": "SELECT"
+        }
+      ],
+      "result_table_additional_permission": {
+        "schema": "toolbelt_core",
+        "name": "USP_PrepareResultTable",
+        "permission": "EXECUTE"
+      }
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "USP_CreateZipFromEntries",
+      "permission": "EXECUTE",
+      "required_internal_objects": [
+        {
+          "schema": "toolbelt_archive",
+          "name": "TVF_InternalZipWriterName",
+          "permission": "SELECT"
+        },
+        {
+          "schema": "toolbelt_archive",
+          "name": "TVF_InternalZipWriterArchive",
+          "permission": "SELECT"
+        }
+      ],
+      "additional_permission_for_all_routes": {
+        "schema": "toolbelt_core",
+        "name": "USP_PrepareResultTable",
+        "permission": "EXECUTE"
+      }
+    }
+  ],
+  "permission_conclusion": "The tested narrow object-level profile for list/extract direct output is public EXECUTE plus matching internal FT SELECT; their ResultTable routes additionally require helper EXECUTE. The writer requires public EXECUTE, both internal writer FT SELECTs, and helper EXECUTE for both routes. These tested combinations do not establish mathematical minimality or exclude other possible profiles.",
+  "observed_permission_errors": {
+    "missing_public_execute": "229",
+    "list_or_extract_missing_internal_ft": "51329",
+    "list_or_extract_missing_result_table_helper": "51329",
+    "writer_missing_required_internal_or_helper": "51357"
+  },
+  "tested_profiles": {
+    "per_api_masks": 6,
+    "total_masks_per_context": 18,
+    "context_count": 24,
+    "mask_states": 432
+  },
+  "native_matrix": {
+    "cases": [
+      {
+        "platform": "linux",
+        "sql_version": "2019",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 170
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2019",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 170
+      }
+    ],
+    "case_count": 12,
+    "contexts": [
+      "local",
+      "direct_central"
+    ],
+    "contexts_per_case": 2,
+    "context_count": 24
+  },
+  "probe_counts": {
+    "api_route_calls_per_context": 36,
+    "api_route_calls": 864,
+    "positive_api_routes_per_context": 8,
+    "positive_api_routes": 192,
+    "expected_dependency_denials_per_context": 16,
+    "expected_dependency_denials": 384,
+    "expected_229_api_route_denials_per_context": 12,
+    "expected_229_api_route_denials": 288,
+    "additional_internal_and_counter_api_229_per_context": 105,
+    "additional_internal_and_counter_api_229_denials": 2520,
+    "strict_229_denials_total": 2808,
+    "fixed_result_rows_per_context": 8,
+    "fixed_result_rows_total": 192
+  },
+  "separately_denied_objects": [
+    {
+      "role": "other public ZIP APIs",
+      "permissions_checked": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "TVF_InternalListZipEntriesClr",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "TVF_InternalExtractZipEntryClr",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "TVF_InternalZipWriterName",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "TVF_InternalZipWriterArchive",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "denial_scope_limit": "Only the three named public ZIP APIs and the enumerated internal/provider/helper objects were probed. No claim is made that all ZIP APIs or all internal objects were tested.",
+  "fixed_oracles": {
+    "reader_zip_bytes": 121,
+    "reader_zip_sha256": "c3c875d34d69ec7868fa6dad856df10bd64015022f7ef25c00aa0e7285c7cc81",
+    "reader_entry_name": "hello.txt",
+    "reader_payload_ascii": "Hello",
+    "reader_crc32": "F7D18982",
+    "reader_timestamp_dos": "2020-02-03 04:05:06",
+    "writer_golden_bytes": 121,
+    "writer_golden_sha256": "190222c13438b7c020320790a28be7e8ffdd4ba130ae1b706350ab5afb4ffe66",
+    "writer_timestamp_dos": "1980-01-01 00:00:00",
+    "entry_compression_method": "Stored",
+    "direct_and_result_table_share_same_fixed_rows": true,
+    "transaction_state_checked_separately_before_and_after": true
+  },
+  "native_attempts": {
+    "total": 15,
+    "positive_pass": 12,
+    "expected_control_failed_cleaned": 2,
+    "retained_v1_fixture_failure": 1,
+    "immediate_audits_passed": 15,
+    "fresh_separate_final_audits_passed": 15,
+    "wrong_golden_control_expected_diagnostic": "ZIP writer fixed 121-byte golden mismatch.",
+    "broad_schema_select_control_expected_diagnostic": "Broad caller role or schema/database permission detected.",
+    "original_v1_attempt_note": "The first v1 pilot failed because its result-shape guard treated physical tempdb column_id values as logical ordinals. The underlying helper adds and removes an anchor column, so physical IDs can have gaps. The journal records the actual FAILED_CLEANED attempt; the v1 input remains immutable and a separate final AuditOnly projection remapped only its source pin to archived byte-identical source bytes."
+  },
+  "cleanup": {
+    "owned_database_names_created_and_dropped": 27,
+    "owned_database_names_absent_after_fresh_audits": 27,
+    "owned_trust_entries_removed": 15,
+    "trust_state_restored": true,
+    "configuration_state_restored": true,
+    "owned_database_names_dropped": 27,
+    "owned_trust_removal_journal_events": 15,
+    "trust_removal_events_are_not_unique_hash_count": true
+  },
+  "artifact_binding": {
+    "assembly": "Toolbelt_Archive_ZipMemory",
+    "packaged_version": "toolbelt.archive.zip-memory 1.4.0",
+    "packaged_binary_matches_two_historical_reproducible_builds": true,
+    "complete_compile_inputs_match_historical_build_source": true,
+    "new_builds": 0
+  },
+  "composition": {
+    "source_fixture": "Tests/Release/Runtime/ZipMemory.CallerRights.sql",
+    "composer_source": "Tests/Release/compose_zip_caller.py",
+    "reader_fixture_sha256": "c3c875d34d69ec7868fa6dad856df10bd64015022f7ef25c00aa0e7285c7cc81",
+    "writer_golden_sha256": "190222c13438b7c020320790a28be7e8ffdd4ba130ae1b706350ab5afb4ffe66",
+    "source_fixture_sha256": "2FE0E4738BD5EFB4F470452063A292C32BEDD01D91898966F81EE3FBFF397C17",
+    "composed_fixture_sha256": "2fe0e4738bd5efb4f470452063a292c32bedd01d91898966f81ee3fbff397c17",
+    "source_pin_set": "v2",
+    "native_runset_cases": 14,
+    "native_runset_pin_count": 54
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "CFB2DA9B490193F2592B56AD7795C7B304594C3B6846A4B4984E7D219FE3C19B",
+    "Modules/toolbelt.archive.zip-memory/Clr/ArchiveSession.cs": "7498B00A9FDB7951BF2FCD9878B60F0E2D0FE326308A24A1141747D4156F5A60",
+    "Modules/toolbelt.archive.zip-memory/Clr/Properties/AssemblyInfo.cs": "91A899843830A1DE20B2E28C0F9FF4CE255F9A81CFA783B7CEFE84B0CB31DE16",
+    "Modules/toolbelt.archive.zip-memory/Clr/Toolbelt.Archive.ZipMemory.csproj": "FC2B132DEE270B90631EBAB9FE34E372283328FD332FB6ABBBBD683775FD49AA",
+    "Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs": "C72AAA267BB3E5302463B18600A89255B99AEBE6E826B0CD11379E0C2BC604CA",
+    "Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs": "75A63066EC29C90F9330BE376BDDF611443B92A975A9DE6AF5DC5C2C720E0A66",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Add-TrustedAssembly.sql": "ECD64368DBE924FEB55BE8F529A1FE5DCBCA9C5F8EE1CA656C83549E44BD2E06",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Deploy.sql": "72C753A4DAA5E4F83D1882FCBE91A696234DFFF7BAAE4078E592815CEAE2D4BD",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Uninstall.sql": "A84AB189009B759416D14E94A76F97B0EC7C5BB1F19911B4C6AAFC0715A7CA3B",
+    "Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1": "0964B713EBC75434EFA3D22350D1DE720BC443CE5777F9D4BA05C7692CBFF897",
+    "Modules/toolbelt.archive.zip-memory/Scripts/New-LegacyReleaseFixture.ps1": "1321971A0A1083FE421344B772697CA24D199F3E9B1FC40A87BA3E5DD1E790A6",
+    "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalExtractZipEntryClr.sql": "49B0A3E951565C7444DF9DAF99944072037F5D188F543275EC3364E6AE7ED946",
+    "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalListZipEntriesClr.sql": "CA414EC8609249B2EF07828B5ED32453B57EB60D272307D9B83587711CA0D7BD",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql": "7523C0B3BBAA94704A55227E49899F2987B14E34479B3430CA4F217478AF8A77",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql": "FBADC101FD0524E2B0D43D864E009F503E9471E980062FF1C3FBE9E63697B7DC",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql": "7141D208E3EB9E766DEC079A65E1D1B0C8D9DDAED34331FB448082EE22F5661F",
+    "Modules/toolbelt.archive.zip-memory/Source/ZipWriterClr.sql": "B0954E2F6257A2A64459E8C22FB535C9F86E198D02B2071E28C761B4D8B2AF96",
+    "Modules/toolbelt.archive.zip-memory/module.yaml": "D02E251B453A72B100CB31D54C1677EC2109279962813F5D8552ECEF342D8AB5",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6B2152A4AFBD2B8BFE9EA24DBB41D47901AD8BEE9552E575921B9BDD1046A5CA",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "A4C79F97472C70CDC1EC0858CF06886FD3EA79D8E63E3C7F77B4403E568514E8",
+    "Modules/toolbelt.core.result-table/module.yaml": "BD656FCFA574CA78F19FBC44FD1700255465DC644F9EA499465B67B956C0C721",
+    "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+    "Tests/CI/run-csv-memory-lab.ps1": "E200D4D6FC3CA0EE6FC00F333D67B6A4F8B89652731CA383CECE6731B58FA3FF",
+    "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846",
+    "Tests/Release/ClrCaller.Environment.ps1": "C4923C1DF11E65264276C52D4E4B7DC57236E3087743E05BA19AE9429215FD3D",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50C4344D7172F605176F9FF072C046B50501EFC08FD7460DC1186CACE443F745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04C9EDEB54B09CCA306D007DE11B7A01773425BA1AE76F3198BA1E5DEB660D6A",
+    "Tests/Release/Invoke-ZipCallerLab.ps1": "62F7E70DD3CCF31024577E7DA54EA16B646574F346EF597F3EBA7D0136FC369A",
+    "Tests/Release/Runtime/ZipMemory.CallerRights.sql": "2FE0E4738BD5EFB4F470452063A292C32BEDD01D91898966F81EE3FBFF397C17",
+    "Tests/Release/compose_zip_caller.py": "CFAD09CCB7E81B0849E305729677B4F2D621793F472985F869163111D41396B5"
+  },
+  "offline_validation": {
+    "composer_checks": 4,
+    "profile_evidence_checks": 4,
+    "integrated_existing_release_suite": true,
+    "new_ci_jobs_or_triggers": 0
+  },
+  "head_and_main_ci": "RECORDED_SEPARATELY_IN_INTEGRATING_PR"
+}
