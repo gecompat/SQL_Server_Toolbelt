@@ -747,10 +747,10 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
                         and re.fullmatch(r'[a-f0-9]{40}', product_source['product_commit']) is not None
                         and re.fullmatch(r'[a-f0-9]{40}', product_source['tree_oid']) is not None,
                         'XLSX-Produktquelle besitzt keine gültige Recoverybindung.')
-                resolved, product_files = snapshot(product_source['product_commit'])
-                tree = git('rev-parse', resolved + '^{tree}').decode().strip()
+                _, product_files, tree = qualification_sources(product_source['product_commit'])
                 require(tree == product_source['tree_oid'], 'XLSX-Produktbaum weicht von der Recoverybindung ab.')
-                validate_product_applicability(qualification['product_commit'], resolved, product_files)
+                validate_product_applicability(qualification['product_commit'],
+                                               product_source['product_commit'], product_files)
                 bound_sources = {p: product_files[p] for p in
                                  (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
                 bound_sources[xlsx_metadata.RECORD] = payload.get('XLSX-METADATA-UPDATE.json', b'')
