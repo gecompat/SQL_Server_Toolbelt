@@ -80,7 +80,8 @@ class CsvMetadataTests(unittest.TestCase):
     def test_clr_delta_preserves_all_executables_and_exact_overlay(self):
         _, files, _, record = self.fixture()
         original = {'Binaries/Contoso.dll': b'synthetic binary', 'SQL/Install-Contoso.sql': b'SELECT 1;',
-                    'QUALIFICATION.json': b'{"synthetic":true}', 'LICENSE.md': b'synthetic license'}
+                    'QUALIFICATION.json': b'{"synthetic":true}', 'LICENSE.md': b'synthetic license',
+                    'START-HERE.md': b'synthetic guide\n'}
         original['CLR-PACKAGE.json'] = release.encoded({'source_commit': 'b' * 40, 'publication_authorized': False,
                                                        'profiles': {'synthetic': []}, 'files': {}})
         new = metadata.refreshed_clr_payload(original, files, 'a' * 40, record)
@@ -100,6 +101,8 @@ class CsvMetadataTests(unittest.TestCase):
         unpack = lambda b: {p[len(prefix):]: v for p, v in release.read_zip(b).items()}
         before, after = unpack(old), unpack((ROOT / path).read_bytes())
         release.validate_csv_clr_metadata(after)
+        self.assertEqual((ROOT / metadata.GUIDE).read_bytes(),
+                         metadata.corrected_install_guide(metadata.historical(ROOT, metadata.GUIDE)))
         for p in before:
             if p.startswith(('SQL/', 'Binaries/', 'ThirdParty/')) or p in ('QUALIFICATION.json', 'LICENSE.md', 'Install-ClrPackage.ps1'):
                 self.assertEqual(before[p], after[p], p)

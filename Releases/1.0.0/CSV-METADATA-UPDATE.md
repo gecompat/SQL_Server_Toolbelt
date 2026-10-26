@@ -41,6 +41,9 @@ Modul-README, beide API-Seiten und Testanleitung. Ein additiver
 `METADATA-UPDATE.json` und die Dateiliste im `CLR-PACKAGE.json` erklären den
 neuen Metadatenstand. Alle 13 DLLs, 20 SQL-Dateien, Profile, native
 `QUALIFICATION.json`, Installer, Lizenz und Drittanbietertexte bleiben bytegleich.
+Der Installationseinstieg ergänzt einen direkten Link auf diese Rechteübersicht.
+Die Source-Markdown-Dateien behalten ihre Repositorybezüge; der vollständige
+Offline-Leseweg liegt im Quellpaket, die kanonische Onlinefortsetzung im Projekt.
 Es gibt keinen neuen lokalen Build oder nativen SQL-Lauf. Die neue
 `metadata_update_evidence` ist ausdrücklich von der historischen
 Runtimequalifikation getrennt.

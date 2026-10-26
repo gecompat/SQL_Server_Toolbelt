@@ -8,6 +8,13 @@ BASELINE = '89e17e9879b0ce22e63ecd63e3374fe1323fb9a7'
 RECORD = 'Releases/1.0.0/csv-metadata-update.json'
 MANIFEST = 'Modules/toolbelt.file.csv-memory/module.yaml'
 REPORT = 'Releases/1.0.0/csv-caller-profile.json'
+GUIDE = 'Releases/1.0.0/CLR-INSTALL.md'
+GUIDE_NOTE = ('\n## CSV-Aufrufrechte\n\n'
+              'CSV-Parser und -Writer benötigen unterschiedliche vorhandene Objektrechte; '
+              'ResultTable ergänzt das Helper-EXECUTE. Die [gebundene Rechte- und Paketübersicht]'
+              '(CSV-METADATA-UPDATE.md) nennt die exakten Profile. Die Installation erteilt keine Aufrufrechte. '
+              'Die Sources behalten ihre repositoryrelativen Verweise; zusammenhängendes Offline-Lesen '
+              'verwendet das vollständige Quellpaket, Online-Lesen die verlinkte Projektdokumentation.\n')
 OLD = '  - "Vorhandenes EXECUTE auf den öffentlichen USPs und der verwendeten ResultTable-Runtime; keine Rechtevergabe."'
 RIGHTS = (
     'Datenpfad Parser: EXECUTE auf toolbelt_file.USP_ParseCsv und SELECT auf toolbelt_file.TVF_InternalParseCsv.',
@@ -40,7 +47,7 @@ def digest(data):
 
 
 def historical(root, path):
-    require(path in {MANIFEST, REPORT, *DOCS}, 'Unknown CSV historical source.')
+    require(path in {MANIFEST, REPORT, GUIDE, *DOCS}, 'Unknown CSV historical source.')
     return subprocess.run(['git', 'show', BASELINE + ':' + path], cwd=root,
                           capture_output=True, check=True, timeout=30).stdout
 
@@ -61,6 +68,15 @@ def corrected_documentation(path, original):
 
 def validate_manifest(original, current):
     require(current == corrected_manifest(original), 'CSV changes exceed exact caller permission field.')
+
+
+def corrected_install_guide(original, packaged=False):
+    require(b'## CSV-Aufrufrechte' not in original, 'CSV guide already updated; no implicit replay.')
+    note = GUIDE_NOTE
+    if packaged:
+        note = note.replace('(CSV-METADATA-UPDATE.md)',
+                            '(https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/CSV-METADATA-UPDATE.md)')
+    return original + note.encode()
 
 
 def validate_record(record, original_manifest, current_manifest, report):
@@ -117,6 +133,7 @@ def validate_product_delta(previous, current, record, baseline):
 def refreshed_clr_payload(previous, files, source_commit, record):
     """Only selected CSV Sources and additive provenance; no SQL/binary rebuild."""
     result = dict(previous)
+    result['START-HERE.md'] = corrected_install_guide(previous['START-HERE.md'], packaged=True)
     for path in (MANIFEST, *DOCS):
         result['Sources/' + path] = files[path]
     result['METADATA-UPDATE.json'] = (json.dumps(record, ensure_ascii=False, indent=2) + '\n').encode()
