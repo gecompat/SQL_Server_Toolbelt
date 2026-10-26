@@ -47,6 +47,10 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def canonical_text(data):
+    return data.replace(b'\r\n', b'\n')
+
+
 def historical(root, path):
     require(path in (MANIFEST, REPORT, PACKAGE, SOURCE_ARCHIVE, XLSX_RECORD, *DOCS), 'Unbekannte ZIP-Historienquelle.')
     return subprocess.run(['git', 'show', BASELINE + ':' + path], cwd=root,
@@ -74,14 +78,14 @@ def validate_source(root, path, executed_digest):
     report_bytes = historical(root, REPORT)
     report = json.loads(report_bytes)
     require(digest(original) == executed_digest.lower()
-            and (Path(root) / REPORT).read_bytes() == report_bytes
+            and canonical_text((Path(root) / REPORT).read_bytes()) == canonical_text(report_bytes)
             and report['source_sha256'][MANIFEST].lower() == executed_digest.lower(),
             'ZIP-Manifestpin oder nativer Bericht weicht von der öffentlichen Basis ab.')
     validate_manifest(original, current)
     record = json.loads((Path(root) / RECORD).read_bytes())
     require(record['manifest'] == {'path': MANIFEST, 'executed_sha256': executed_digest.lower(),
                                    'current_sha256': digest(current)}
-            and record['historical_report_sha256'] == digest(report_bytes),
+            and record['historical_report_sha256'] == digest(canonical_text(report_bytes)),
             'ZIP-Metadatenrecord bindet Bericht oder Manifest nicht exakt.')
 
 
@@ -90,11 +94,16 @@ def make_record(root, product_source, old_files, new_files, old_package):
     xlsx_bytes = historical(root, XLSX_RECORD)
     xlsx = json.loads(xlsx_bytes)
     old_source_archive = historical(root, SOURCE_ARCHIVE)
+    source_manifest_path = 'SQL-Server-Toolbelt-1.0.0-candidate-source/PACKAGE-MANIFEST.json'
+    with zipfile.ZipFile(io.BytesIO(old_source_archive)) as archive:
+        source_manifest = json.loads(archive.read(source_manifest_path))
     old_manifest = old_files[MANIFEST]
     current_manifest = new_files[MANIFEST]
     validate_manifest(old_manifest, current_manifest)
     require(json.loads(report)['source_sha256'][MANIFEST].lower() == digest(old_manifest),
             'ZIP-Nativepin stimmt nicht mit der vorigen Produktquelle überein.')
+    require(source_manifest['product_commit'] == xlsx['current_product_commit'],
+            'Öffentliches ZIP-Vorgängerarchiv bindet nicht den aktuellen XLSX-Produktcommit.')
     record = {
         'schema_version': '1.0', 'kind': 'exact_zip_caller_metadata_projection',
         'date': '2026-10-26', 'public_baseline_commit': BASELINE,
@@ -147,10 +156,10 @@ def validate_record(root, record, old_files, current_files, old_package, report_
             and record['executable_package_payload_changed'] is False
             and record['native_sql_attempts'] == 0,
             'ZIP-Metadatenstatus oder Freigabegrenze driftet.')
-    report_bytes = report_bytes or (Path(root) / REPORT).read_bytes()
+    report_bytes = canonical_text(report_bytes or (Path(root) / REPORT).read_bytes())
     report = json.loads(report_bytes)
     xlsx_bytes = historical(root, XLSX_RECORD)
-    require(report_bytes == historical(root, REPORT)
+    require(report_bytes == canonical_text(historical(root, REPORT))
             and (Path(root) / XLSX_RECORD).read_bytes() == xlsx_bytes
             and record['historical_report_sha256'] == digest(report_bytes)
             and record['executed_package_sha256'] == report['artifact_binding']['executed_package_sha256'].lower()
@@ -170,8 +179,13 @@ def validate_record(root, record, old_files, current_files, old_package, report_
                     for k in ('product_chain_predecessor', 'previous_product_tree',
                               'current_product_commit', 'current_product_tree')),
             'Vorherige XLSX-Metadatenebene driftet.')
+    archive_bytes = historical(root, SOURCE_ARCHIVE)
+    archive_manifest_path = 'SQL-Server-Toolbelt-1.0.0-candidate-source/PACKAGE-MANIFEST.json'
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+        archive_manifest = json.loads(archive.read(archive_manifest_path))
     require(record['previous_source_zip_path'] == SOURCE_ARCHIVE
-            and record['previous_source_zip_sha256'] == digest(historical(root, SOURCE_ARCHIVE)),
+            and record['previous_source_zip_sha256'] == digest(archive_bytes)
+            and archive_manifest['product_commit'] == record['product_chain_predecessor'],
             'Historische ZIP-Produktquelle ist nicht an das öffentliche Quellarchiv gebunden.')
     require(record['package_source_paths'] == list(PACKAGE_SOURCES)
             and record['previous_source_sha256'] == {p: digest(old_files[p]) for p in PACKAGE_SOURCES}
