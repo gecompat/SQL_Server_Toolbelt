@@ -271,10 +271,38 @@ def validate_record(record, original_manifest, current_manifest, previous_packag
     require(record['historical_product_source'] == predecessor_source_binding(ROOT),
             'XLSX-Historienquelle ist nicht exakt an Archiv, Produktcommit und Produktbaum gebunden.')
     product_source = json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())
-    require(record['current_product_commit'] == product_source['product_commit']
-            and record['current_product_tree'] == product_source['tree_oid']
-            and product_source['base_commit'] == BASELINE,
-            'XLSX-Aktuellproduktcommit oder Produktbaum driftet.')
+    zip_path = ROOT / 'Releases/1.0.0/zip-metadata-update.json'
+    if zip_path.is_file():
+        import zip_metadata
+        zip_record = json.loads(zip_path.read_bytes())
+    else:
+        zip_metadata = None
+        zip_record = None
+    if zip_record is not None and zip_record.get('product_chain_predecessor') == record['current_product_commit']:
+        # ZIP ist eine spätere Metadatenstufe. XLSX bleibt an seinem aus dem
+        # öffentlichen ZIP-Vorgängerarchiv rekonstruierten e89-Tree gebunden.
+        require((ROOT / RECORD).read_bytes() == zip_metadata.historical(ROOT, RECORD)
+                and zip_record.get('xlsx_record_sha256') == digest(zip_metadata.historical(ROOT, RECORD)),
+                'Historischer XLSX-Produktrecord driftet innerhalb der ZIP-Stufe.')
+        archive = zip_metadata.historical(ROOT, zip_metadata.SOURCE_ARCHIVE)
+        require(digest(archive) == zip_record.get('previous_source_zip_sha256'),
+                'Öffentliche ZIP-Vorgängerquelle für XLSX stimmt nicht mit ihrem Hash überein.')
+        source_prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
+        with zipfile.ZipFile(io.BytesIO(archive)) as source_archive:
+            source_manifest = json.loads(source_archive.read(source_prefix + 'PACKAGE-MANIFEST.json'))
+        release = import_module('prepare_release')
+        _, _, recovered_tree = release.recovered_snapshot(
+            release.read_zip(archive)[source_prefix + 'PREPARATION.bundle'],
+            source_manifest['source_commit'], source_manifest['product_commit'])
+        require(source_manifest['product_commit'] == record['current_product_commit']
+                and recovered_tree == record['current_product_tree']
+                and recovered_tree == zip_record['previous_product_tree'],
+                'Historischer XLSX-Produktcommit oder Produktbaum driftet.')
+    else:
+        require(record['current_product_commit'] == product_source['product_commit']
+                and record['current_product_tree'] == product_source['tree_oid']
+                and product_source['base_commit'] == BASELINE,
+                'XLSX-Aktuellproduktcommit oder Produktbaum driftet.')
     validate_manifest(original_manifest, current_manifest)
     validate_reports(original_manifest, raw_bytes, cell_bytes)
     require(record['manifest'] == {
