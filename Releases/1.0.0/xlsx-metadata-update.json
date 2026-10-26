@@ -4,6 +4,15 @@
   "kind": "exact_xlsx_caller_metadata_projection",
   "public_baseline_commit": "69a69beebccdafd4c5a7a509d33cf374029ef0b6",
   "product_chain_predecessor": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
+  "historical_product_source": {
+    "archive_commit": "69a69beebccdafd4c5a7a509d33cf374029ef0b6",
+    "archive_path": "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip",
+    "archive_sha256": "308cef5a24b15b994f5574ee7ec9a5fe0942c515c334aa5f19ab2509a711f498",
+    "product_commit": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
+    "product_tree": "0ac6229ec4693bab73c1fa512ab4b581d348de60"
+  },
+  "current_product_commit": "e89da195b0e872a71059ceee20e1304498773e4d",
+  "current_product_tree": "e6024e52b1733f36a283602d7b44f46b793e47b8",
   "publication_authorized": false,
   "automatic_grants_added": false,
   "module_status_changed": false,

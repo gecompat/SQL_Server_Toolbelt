@@ -1,8 +1,11 @@
 """Exakter XLSX-Callerrechte-Overlay; native Quellen und CLR-Payload bleiben unverändert."""
 from pathlib import Path
 import hashlib
+import io
 import json
 import subprocess
+import zipfile
+import csv_metadata
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -39,7 +42,8 @@ RECORD_FIELDS = {
     'previous_clr_zip_sha256', 'package_source_paths', 'previous_package_source_sha256',
     'current_package_source_sha256', 'documentation_transition', 'changed_product_paths',
     'previous_source_sha256', 'current_source_sha256', 'executable_package_payload_changed',
-    'clr_package_update_scope',
+    'clr_package_update_scope', 'historical_product_source',
+    'current_product_commit', 'current_product_tree',
 }
 OLD_RAW_PERMISSION = '  - "EXECUTE auf den beiden öffentlichen USPs; ResultTable zusätzlich Helper-EXECUTE."'
 NEW_RAW_PERMISSIONS = (
@@ -82,6 +86,31 @@ def historical_at(root, commit, path):
             'Historischer XLSX-Zugriff nur auf die sieben gebundenen Lesepfade.')
     return subprocess.run(['git', 'show', commit + ':' + path], cwd=root,
                           capture_output=True, check=True, timeout=30).stdout
+
+
+def predecessor_source_binding(root):
+    """Pin the predecessor recovery archive and its tree to the CSV evidence."""
+    archive_path = f'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip'
+    archive = subprocess.run(['git', 'show', BASELINE + ':' + archive_path], cwd=root,
+                             capture_output=True, check=True, timeout=30).stdout
+    prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
+    with zipfile.ZipFile(io.BytesIO(archive)) as package:
+        manifest = json.loads(package.read(prefix + 'PACKAGE-MANIFEST.json'))
+    csv_record = json.loads((Path(root) / csv_metadata.RECORD).read_bytes())
+    require(csv_record['current_product_commit'] == DOCUMENTATION_TRANSITION_START
+            and manifest['product_commit'] == DOCUMENTATION_TRANSITION_START,
+            'XLSX-Vorgänger ist nicht an den historischen CSV-Produktstand gebunden.')
+    tree = csv_record['current_product_tree']
+    require(isinstance(tree, str) and len(tree) == 40
+            and all(character in '0123456789abcdef' for character in tree),
+            'CSV-Vorgängerbaum fehlt für die XLSX-Recovery.')
+    return {
+        'archive_commit': BASELINE,
+        'archive_path': archive_path,
+        'archive_sha256': digest(archive),
+        'product_commit': DOCUMENTATION_TRANSITION_START,
+        'product_tree': csv_record['current_product_tree'],
+    }
 
 
 def corrected_manifest(original):
@@ -202,6 +231,13 @@ def validate_record(record, original_manifest, current_manifest, previous_packag
             and record['executable_package_payload_changed'] is False
             and record['native_sql_attempts'] == 0,
             'XLSX-Metadatenautorität oder Statusgrenze driftet.')
+    require(record['historical_product_source'] == predecessor_source_binding(ROOT),
+            'XLSX-Historienquelle ist nicht exakt an Archiv, Produktcommit und Produktbaum gebunden.')
+    product_source = json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())
+    require(record['current_product_commit'] == product_source['product_commit']
+            and record['current_product_tree'] == product_source['tree_oid']
+            and product_source['base_commit'] == BASELINE,
+            'XLSX-Aktuellproduktcommit oder Produktbaum driftet.')
     validate_manifest(original_manifest, current_manifest)
     validate_reports(original_manifest, raw_bytes, cell_bytes)
     require(record['manifest'] == {
@@ -305,6 +341,9 @@ def make_record(root, previous_package, previous_payload, current_sources,
         'kind': 'exact_xlsx_caller_metadata_projection',
         'public_baseline_commit': BASELINE,
         'product_chain_predecessor': DOCUMENTATION_TRANSITION_START,
+        'historical_product_source': predecessor_source_binding(root),
+        'current_product_commit': json.loads((Path(root) / 'Releases/1.0.0/product-source.json').read_bytes())['product_commit'],
+        'current_product_tree': json.loads((Path(root) / 'Releases/1.0.0/product-source.json').read_bytes())['tree_oid'],
         'publication_authorized': False,
         'automatic_grants_added': False,
         'module_status_changed': False,

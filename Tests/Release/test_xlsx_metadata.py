@@ -1,9 +1,13 @@
 """Begrenzte Manifest- und CLR-Paketprojektion für bereits qualifizierte XLSX-Rechte."""
 from pathlib import Path
 import copy
+import importlib.util
 import json
+import subprocess
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
@@ -120,14 +124,91 @@ class XlsxMetadataMixin:
         _, baseline = release.snapshot(metadata.BASELINE)
         current = dict(baseline)
         current[metadata.MANIFEST] = (ROOT / metadata.MANIFEST).read_bytes()
+        current[release.PRODUCT_SOURCE] = (ROOT / release.PRODUCT_SOURCE).read_bytes()
+        product_commit = json.loads(current[release.PRODUCT_SOURCE])['product_commit']
         release.validate_product_applicability('5f796e599554b55668861ec0dee8d28ae663f082',
-                                                'f' * 40, current)
+                                                product_commit, current)
         altered = dict(current)
         path = 'Modules/toolbelt.file.xlsx-memory/README.md'
         altered[path] += b'\n'
         with self.assertRaises(ValueError):
             release.validate_product_applicability('5f796e599554b55668861ec0dee8d28ae663f082',
-                                                    'f' * 40, altered)
+                                                    product_commit, altered)
+
+    def test_missing_predecessor_commit_recovers_only_from_bound_public_archive(self):
+        record = json.loads((ROOT / metadata.RECORD).read_bytes())
+        binding = record['historical_product_source']
+        real_git = release.git
+        with tempfile.TemporaryDirectory(dir=ROOT / '.runtime', prefix='xlsx-public-only-') as folder:
+            public_only = Path(folder) / 'public.git'
+            subprocess.run(['git', 'init', '--bare', '--quiet', str(public_only)], check=True)
+            subprocess.run(['git', 'fetch', '--depth=4', str(ROOT), metadata.BASELINE],
+                           cwd=public_only, check=True, capture_output=True)
+            subprocess.run(['git', 'update-ref', 'refs/heads/public', metadata.BASELINE],
+                           cwd=public_only, check=True, capture_output=True)
+            absent = subprocess.run(['git', 'cat-file', '-e', binding['product_commit'] + '^{commit}'],
+                                    cwd=public_only, capture_output=True)
+            self.assertNotEqual(absent.returncode, 0, 'Fixture accidentally contains the synthetic predecessor commit.')
+            objects = subprocess.run(['git', 'rev-parse', '--path-format=absolute', '--git-path', 'objects'],
+                                     cwd=public_only, check=True, capture_output=True, text=True).stdout.strip()
+
+            def public_only_objects(*args, **kwargs):
+                if args and args[0] == 'rev-parse' and '--path-format=absolute' in args:
+                    return (objects + '\n').encode()
+                return real_git(*args, **kwargs)
+
+            with patch.object(release, 'git', side_effect=public_only_objects):
+                archive = release.qualification_archive(binding['product_commit'])
+                raw = release.read_zip(archive)
+                prefix = release.NAME + '/'
+                manifest = json.loads(raw[prefix + 'PACKAGE-MANIFEST.json'])
+                self.assertEqual(manifest['product_commit'], binding['product_commit'])
+                _, _, tree = release.recovered_snapshot(raw[prefix + 'PREPARATION.bundle'],
+                                                        manifest['source_commit'], binding['product_commit'])
+                self.assertEqual(tree, binding['product_tree'])
+                self.assertEqual(release.sha(archive), binding['archive_sha256'])
+
+        changed_binding = dict(binding, archive_sha256='0' * 64)
+        with patch.object(release.xlsx_metadata, 'predecessor_source_binding',
+                          return_value=changed_binding), self.assertRaises(ValueError):
+            release.qualification_archive(binding['product_commit'])
+
+    def test_stable_sql_chain_requires_exact_xlsx_predecessor_and_current_snapshot(self):
+        spec = importlib.util.spec_from_file_location(
+            'stable_sql_package_for_xlsx_test', ROOT / 'Scripts/Release/prepare_stable_sql_package.py')
+        package = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(package)
+        record = json.loads((ROOT / metadata.RECORD).read_bytes())
+        product_source = json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())
+        csv_record = json.loads((ROOT / metadata.csv_metadata.RECORD).read_bytes())
+        plan = {'product_commit': product_source['product_commit'], 'product_snapshot': product_source}
+        self.assertEqual(package.advance_xlsx_product_chain(
+            ROOT, record['product_chain_predecessor'], plan, csv_record), product_source['product_commit'])
+        for key in ('historical_product_source', 'current_product_tree', 'product_chain_predecessor'):
+            changed = copy.deepcopy(record)
+            if key == 'historical_product_source':
+                changed[key]['archive_sha256'] = '0' * 64
+            elif key == 'current_product_tree':
+                changed[key] = '0' * 40
+            else:
+                changed[key] = 'f' * 40
+            with patch.object(package, 'bounded_file', side_effect=lambda path: (
+                    metadata.encoded(changed) if path.name == 'xlsx-metadata-update.json'
+                    else (ROOT / 'Releases/1.0.0/product-source.json').read_bytes())):
+                with self.subTest(field=key), self.assertRaises(ValueError):
+                    package.advance_xlsx_product_chain(ROOT, record['product_chain_predecessor'],
+                                                        plan, csv_record)
+        forged = copy.deepcopy(record)
+        forged['current_product_commit'] = 'f' * 40
+        forged['current_product_tree'] = 'a' * 40
+        forged_source = dict(product_source, product_commit='f' * 40, tree_oid='a' * 40)
+        forged_plan = {'product_commit': 'f' * 40, 'product_snapshot': forged_source}
+        with patch.object(package, 'bounded_file', side_effect=lambda path: (
+                metadata.encoded(forged) if path.name == 'xlsx-metadata-update.json'
+                else json.dumps(forged_source).encode('utf-8'))):
+            with self.assertRaises(ValueError):
+                package.advance_xlsx_product_chain(ROOT, record['product_chain_predecessor'],
+                                                    forged_plan, csv_record)
 
     def test_record_rejects_drifted_claims_and_unknown_fields(self):
         previous_package, previous, _, sources, record = build_candidate()
