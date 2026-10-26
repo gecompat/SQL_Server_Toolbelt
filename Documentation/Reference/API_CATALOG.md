@@ -3004,7 +3004,7 @@ Interpretiert den zuvor gelesenen Rohwert einer XLSX-Zelle als begrenzten, typis
 
 Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql), [TVF_InterpretXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: 0247b0ae90bc5daf11ef62c0dd74d267a6fc94f722e18aa12d7b489144a0f512 -->
+<!-- Source/Vertrag SHA256: bb96fc18ca192aece2ed7be71720d94ecb1b4761c2effcd2d8ebfa2095e28763 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3030,7 +3030,7 @@ Formatiert eine XLSX-Einzelzelle mit den unterstützten Literalformaten und Kult
 
 Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql), [TVF_FormatXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: f9962bdcd6906193d9013d52a5f9ed39ee09875379c5ebc303db36be3647fece -->
+<!-- Source/Vertrag SHA256: b2c5513764608dde8f68b8a3e01ea882d66838e36e736636b8915e5da46414dc -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

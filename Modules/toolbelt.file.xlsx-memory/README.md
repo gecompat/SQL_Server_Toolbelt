@@ -1,5 +1,7 @@
 # XLSX Binary Memory Reader
 
+Die [Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt am2026-10-26 die beiden öffentlichen Typ-/Anzeige-TVFs: jeweils ein SELECT, zwölf Windows-/Linux-Ziel-/CL-Fälle lokal/direkt zentral und eigene Bereinigung bestanden. Raw-USPs, volle Modul-/Client-/Ressourcen-/Identitätsgates und Veröffentlichung bleiben separat. Die folgenden datierten Wellen behalten ihren ursprünglichen Scope.
+
 Release 1.2.0 ergänzt [TVF_FormatXlsxCell](Documentation/TVF_FormatXlsxCell.md)
 mit acht Inputs, zehn Literalformaten, drei expliziten Kulturen und zwei Outputs.
 Raw- und Typquellen bleiben bytegleich. Exakte SqlDecimal-Rundung, 1900/1904,

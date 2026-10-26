@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Elfter endlicher Release-Rahmen
+
+Direkt am2026-10-26 erneut autorisiert und vor Entwicklung auf eine PR, drei Stunden ab unverändertem Originalstart und höchstens20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Zehn frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Zwei-DLL-Labtreiber und feste SELECT-Callerfälle der bereits einzeln freigegebenen XLSX-Typ-/Anzeige-TVFs1.2.0. Zwölf Matrixfälle bestanden lokal/direkt zentral;15 Versuche einschließlich eines dokumentierten eigenen Formatliteralfehlers und zweier gezielt abgewiesener Kontrollen. Sämtliche15 frischen Abschlussaudits PASS. Produkt, Manifeste und Pakete unverändert; SSIS bleibt ausgenommen. Keine Veröffentlichung oder Tags.
+
+[XLSX-Zell-Callerrechte](../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md):48 positive Profile,672 SQL229-Abweisungen,144 ausgewählte feste Ergebniszeilenorakel. Raw-Workbook-, volle Typ-/Format-/Client-/Lifecycle-/Ressourcen- und Identitätsgates bleiben separat.
+
 ## Zehnter endlicher Release-Rahmen
 
 Direkt am 2026-10-26 autorisiert; vor Entwicklung auf eine PR-Welle, vier Stunden ab unverändertem Originalstart und keine neuen nativen SQL-Zielversuche begrenzt. Neun frühere Rahmen bleiben unverändert abgeschlossen. Scope: genau das bereits in PR450 belegte CSV-Aufrufrechtefeld, vier ausgewählte Lesepfade, eine getrennte Anwendbarkeits-/CLR-Metadatenprojektion und die erneuerte Quellpaket-/Recoverybindung. Ausführbare SQL-/DLL-Payloads, Status, Dependencies, alte Ausführungsberichte und fremde SSIS-Arbeit bleiben unverändert. Neue negative Offlinegates erweitern die bestehende Release-Suite; CSV-Build-/Framework- und aktuelle Head-/Main-CI bleiben Pflicht. Keine Veröffentlichung oder Tags.

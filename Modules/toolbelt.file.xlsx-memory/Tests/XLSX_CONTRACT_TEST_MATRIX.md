@@ -1,5 +1,7 @@
 # XLSX-Testmatrix
 
+Die [Zell-Callerergänzung vom2026-10-26](../../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) belegt einzeln SELECT auf Typ-/Anzeige-TVF in allen zwölf lokalen/direkt zentralen Ziel-/CL-Fällen. Historische Fach-/Client-/Lifecyclegrenzen bleiben getrennt.
+
 ## Neue 1.1-Typwelle
 
 | Bereich | Tatsächlich ausgeführter Scope | Ergebnis / Grenze |
