@@ -228,6 +228,25 @@ def build(build_directory: Path, output: Path, unqualified_candidate: bool = Fal
     verify(output, allow_unqualified_candidate=unqualified_candidate)
 
 
+def refresh_csv_metadata(output: Path) -> None:
+    """Refresh five CSV source entries and provenance, preserving every SQL/DLL byte."""
+    release.require(not output.exists() and not Path(str(output) + '.sha256').exists(),
+                    'New CSV metadata output required; no overwrite.')
+    record = json.loads((release.ROOT / release.csv_metadata.RECORD).read_bytes())
+    previous = release.git('show', release.csv_metadata.BASELINE + ':' + LOCATION)
+    release.require(digest(previous) == record['previous_clr_zip_sha256'], 'CSV CLR baseline drifted.')
+    prefix = PACKAGE + '/'
+    payload = {p[len(prefix):]: b for p, b in release.read_zip(previous).items()}
+    source, files = release.snapshot(record['metadata_preparation_commit'])
+    desired = release.csv_metadata.refreshed_clr_payload(payload, files, source, record)
+    release.validate_csv_clr_metadata(desired)
+    archive = release.write_zip(desired, PACKAGE)
+    with output.open('xb') as stream:
+        stream.write(archive)
+    Path(str(output) + '.sha256').write_text(digest(archive) + '  ' + output.name + '\n', encoding='ascii')
+    verify(output)
+
+
 def verify(path: Path, allow_unqualified_candidate: bool = False) -> dict:
     checksum = Path(str(path) + '.sha256').read_text(encoding='ascii').split()
     release.require(checksum == [digest(path.read_bytes()), path.name], 'CLR-ZIP-Prüfsumme abweichend.')
@@ -279,9 +298,14 @@ if __name__ == '__main__':
     parser.add_argument('--output',type=Path)
     parser.add_argument('--verify',type=Path)
     parser.add_argument('--unqualified-candidate',action='store_true',help='Expliziter privater Testinput, kein qualifiziertes Releaseasset.')
+    parser.add_argument('--refresh-csv-metadata', action='store_true', help='Exact CSV source metadata overlay; no build/native replay.')
     args = parser.parse_args()
     try:
-        if args.verify:
+        if args.refresh_csv_metadata:
+            release.require(args.output is not None and args.build_directory is None and not args.verify
+                            and not args.unqualified_candidate, 'Only a new CSV metadata output is allowed.')
+            refresh_csv_metadata(args.output)
+        elif args.verify:
             verify(args.verify, allow_unqualified_candidate=args.unqualified_candidate)
         else:
             release.require(args.build_directory is not None and args.output is not None, 'Buildverzeichnis und neue Ausgabe erforderlich.')

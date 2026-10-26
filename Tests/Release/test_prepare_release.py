@@ -14,6 +14,7 @@ import zipfile
 import hashlib
 from test_caller_metadata import CallerMetadataTests
 from test_csv_caller_profile import CsvCallerProfileTests
+from test_csv_metadata import CsvMetadataTests
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")
@@ -32,7 +33,8 @@ def source_fixture_key(module, product):
     paths = (module.ARTIFACTS + module.NAME + '.zip',
              module.ARTIFACTS + module.NAME + '.zip.sha256', module.SSIS_UPDATE,
              module.DIRECTORY + '/runtime-source-equivalence.json',
-             module.DIRECTORY + '/caller-metadata-update.json')
+             module.DIRECTORY + '/caller-metadata-update.json',
+             module.DIRECTORY + '/csv-metadata-update.json')
     return (str(module.ROOT.resolve()), product, tuple(
         (p, hashlib.sha256((module.ROOT / p).read_bytes()).digest()
          if (module.ROOT / p).is_file() else None) for p in paths))

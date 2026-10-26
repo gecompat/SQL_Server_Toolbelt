@@ -1,5 +1,7 @@
 # CSV: getrennte Callerrechte für Parser, Writer und ResultTable
 
+Nachtrag 2026-10-26: Die [CSV-Manifest-/Paketpflege](CSV-METADATA-UPDATE.md) übernimmt die hier belegten Rechte. Der ursprüngliche maschinenlesbare Ausführungsbericht mit seinem damaligen offenen Metadatenpunkt bleibt unverändert; die nachfolgende historische Scopeschilderung wird dadurch nicht umetikettiert.
+
 Stand 2026-10-26: Der begrenzte Caller- und Ausgabewegscope der bereits
 freigegebenen CSV-USPs 1.0.0 ist bestanden. SQL2019 CL150, SQL2022 CL150/160
 und SQL2025 CL150/160/170 wurden auf Windows und Linux geprüft, jeweils lokal

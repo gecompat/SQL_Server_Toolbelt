@@ -1,5 +1,7 @@
 # Caller-Rechte im Releasekandidaten
 
+Die nachfolgende Sechs-Modul-Korrektur bleibt separat gebunden. Die spätere [CSV-Korrektur](CSV-METADATA-UPDATE.md) führt eine eigene exakte Metadaten- und Paketbindung fort.
+
 Die sechs nachstehenden Modulmanifeste nennen jetzt die bereits nativ
 nachgewiesenen einzelnen Objektrechte. Die Installation vergibt diese Rechte
 nicht automatisch. Installations- und DDL-Rechte bleiben von den Rechten für

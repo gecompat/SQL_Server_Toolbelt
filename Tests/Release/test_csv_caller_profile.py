@@ -1,11 +1,13 @@
 """CSV native evidence boundaries; offline only, no credentials or SQL access."""
 from pathlib import Path
-import hashlib
 import json
 import re
 import unittest
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import csv_metadata
 
 
 class CsvCallerProfileTests(unittest.TestCase):
@@ -45,7 +47,7 @@ class CsvCallerProfileTests(unittest.TestCase):
             self.assertFalse(Path(path).is_absolute())
             self.assertNotIn('..', Path(path).parts)
             self.assertRegex(digest, r'^[a-f0-9]{64}$')
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            csv_metadata.validate_source(ROOT, path, digest)
             self.assertNotIn('ssis', path.lower())
         driver = (ROOT / 'Tests/Release/Invoke-CsvCallerLab.ps1').read_text(encoding='utf-8')
         self.assertIn("$runset.artifacts.Count -ne 1", driver)

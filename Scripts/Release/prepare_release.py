@@ -25,6 +25,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import caller_metadata
+import csv_metadata
 sys.path.insert(0, str(ROOT / "Tests/Documentation"))
 import validate_documentation as documentation
 
@@ -296,6 +297,10 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
         inner = read_zip(files[CLR_PACKAGE])
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         metadata = json.loads(inner[prefix + 'CLR-PACKAGE.json'])
+        csv_record = files.get(csv_metadata.RECORD)
+        if csv_record and json.loads(csv_record)['current_product_commit'] == plan['product_commit']:
+            require(metadata.get('metadata_update_evidence') == csv_metadata.RECORD,
+                    'Current CSV product requires its bound CLR metadata overlay.')
         qualified = json.loads(files[clr_qualification_path(metadata)])
         validate_product_applicability(qualified['product_commit'], plan['product_commit'], files)
         validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified,
@@ -374,7 +379,7 @@ def qualification_archive(product: str) -> bytes:
             'Qualifikations-Recoveryarchiv beschädigt.')
     if json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit'] == product:
         return data
-    for path in (caller_metadata.RECORD, SSIS_UPDATE, f'{DIRECTORY}/runtime-source-equivalence.json'):
+    for path in (csv_metadata.RECORD, caller_metadata.RECORD, SSIS_UPDATE, f'{DIRECTORY}/runtime-source-equivalence.json'):
         if not (ROOT / path).is_file():
             continue
         record = json.loads((ROOT / path).read_bytes())
@@ -429,6 +434,15 @@ def validate_product_applicability(previous: str, current: str,
                                  current_files: dict[str, bytes] | None = None) -> None:
     if previous == current:
         return
+    csv_path = ROOT / csv_metadata.RECORD
+    if csv_path.is_file():
+        record = json.loads(csv_path.read_bytes())
+        if record['current_product_commit'] == current:
+            prior = record['previous_product_commit']
+            validate_csv_product_applicability(prior, current, current_files)
+            if previous != prior:
+                validate_product_applicability(previous, prior)
+            return
     if (ROOT / SSIS_UPDATE).is_file():
         record = json.loads((ROOT / SSIS_UPDATE).read_bytes())
         if record['current_product_commit'] == current:
@@ -437,6 +451,25 @@ def validate_product_applicability(previous: str, current: str,
                 validate_regex_product_applicability(previous, record['previous_product_commit'])
             return
     validate_regex_product_applicability(previous, current)
+
+
+def validate_csv_product_applicability(previous: str, current: str,
+                                     current_files: dict[str, bytes] | None = None) -> None:
+    record = json.loads((ROOT / csv_metadata.RECORD).read_bytes())
+    require(record['previous_product_commit'] == previous and record['current_product_commit'] == current,
+            'CSV product applicability chain drifted.')
+    _, old_files, old_tree = qualification_sources(previous)
+    if current_files is None:
+        _, current_files, current_tree = qualification_sources(current)
+    else:
+        available = subprocess.run(['git', 'cat-file', '-e', current + '^{commit}'],
+                                   cwd=ROOT, capture_output=True).returncode == 0
+        current_tree = (git('rev-parse', current + '^{tree}').decode().strip() if available
+                        else qualification_sources(current)[2])
+    require(old_tree == record['previous_product_tree'] and current_tree == record['current_product_tree'],
+            'CSV product tree drifted.')
+    _, baseline = snapshot(csv_metadata.BASELINE)
+    csv_metadata.validate_product_delta(old_files, current_files, record, baseline)
 
 
 def validate_regex_documentation_delta(previous: dict[str, bytes], current: dict[str, bytes]) -> set[str]:
@@ -527,8 +560,11 @@ def clr_qualification_method_sources(qualification: dict, additional_bindings: d
         delivered_product = json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit']
         caller_path = ROOT / caller_metadata.RECORD
         caller_record = json.loads(caller_path.read_bytes()) if caller_path.is_file() else {}
+        csv_path = ROOT / csv_metadata.RECORD
+        csv_record = json.loads(csv_path.read_bytes()) if csv_path.is_file() else {}
         if (delivered_product == qualification['product_commit']
-                or caller_record.get('previous_product_commit') == qualification['product_commit']):
+                or caller_record.get('previous_product_commit') == qualification['product_commit']
+                or csv_record.get('previous_product_commit') == qualification['product_commit']):
             sources, product_sources, _ = qualification_sources(qualification['product_commit'])
         else:
             require(json.loads((ROOT / SSIS_CLR_QUALIFICATION).read_bytes()) == qualification
@@ -554,8 +590,34 @@ def clr_qualification_method_sources(qualification: dict, additional_bindings: d
     return {path:sources[path] for path in bindings}
 
 
+def validate_csv_clr_metadata(payload: dict[str, bytes]) -> None:
+    metadata = json.loads(payload.get('CLR-PACKAGE.json', b'{}'))
+    tagged = metadata.get('metadata_update_evidence')
+    record_path = ROOT / csv_metadata.RECORD
+    if not tagged and 'METADATA-UPDATE.json' not in payload:
+        if record_path.is_file() and 'Sources/' + csv_metadata.MANIFEST in payload:
+            require(payload['Sources/' + csv_metadata.MANIFEST] == csv_metadata.historical(ROOT, csv_metadata.MANIFEST),
+                    'CSV CLR source correction requires explicit metadata provenance.')
+        return
+    require(tagged == csv_metadata.RECORD and record_path.is_file(), 'Unknown CLR metadata overlay.')
+    record = json.loads(record_path.read_bytes())
+    require(payload.get('METADATA-UPDATE.json') == encoded(record), 'CLR metadata proof drifted.')
+    previous = git('show', csv_metadata.BASELINE + ':' + CLR_PACKAGE)
+    require(sha(previous) == record['previous_clr_zip_sha256'], 'Historical CLR package drifted.')
+    prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
+    previous = {p[len(prefix):]: b for p, b in read_zip(previous).items()}
+    original = csv_metadata.historical(ROOT, csv_metadata.MANIFEST)
+    desired = {csv_metadata.MANIFEST: csv_metadata.corrected_manifest(original)}
+    desired.update({p: csv_metadata.corrected_documentation(p, csv_metadata.historical(ROOT, p))
+                    for p in csv_metadata.DOCS})
+    csv_metadata.validate_record(record, original, desired[csv_metadata.MANIFEST],
+                                 csv_metadata.historical(ROOT, csv_metadata.REPORT))
+    csv_metadata.validate_clr_delta(previous, payload, record, desired, record['metadata_preparation_commit'])
+
+
 def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes]) -> None:
     """Aktuelle Lieferbytes an die tatsächlich ausgeführte native Paketwelle binden."""
+    validate_csv_clr_metadata(payload)
     require(qualification['publication_authorized'] is False and qualification['native_cases_passed'] == 12,
             'Keine CLR-Veröffentlichungsfreigabe oder vollständige Paketmatrix.')
     require(qualification.get('kind') in (None, 'ssis_current_delivery'), 'Unbekannter CLR-Qualifikationsscope.')

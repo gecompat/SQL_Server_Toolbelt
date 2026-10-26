@@ -11,6 +11,8 @@ bleiben erhalten, Runtime-/Vertragsänderungen werden abgewiesen.
 
 ## CSV-Caller mit kombinierten Objektrechten
 
+Die anschließende [CSV-Metadaten-/Paketprüfung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) erhält den alten Bericht und prüft Manifestfeld, Produktdelta, CLR-Payload und Recoverygrenzen separat. Einzelprüfung: `python -B Tests/Release/test_csv_metadata.py`; sechs Prüfungen laufen in der vorhandenen Release-Suite.
+
 Die [CSV-Rechteprüfung](../../Releases/1.0.0/CSV-CALLER-PROFILE.md) beschreibt `Invoke-CsvCallerLab.ps1` und `Runtime/Csv.CallerRights.sql`; `python -B Tests/Release/test_csv_caller_profile.py` prüft den Bericht offline. Vier Prüfungen laufen zusätzlich in der bestehenden Release-Regressionssuite, ohne neue CI-Jobs.
 
 ## Textpaar-Caller mit einzelnem EXECUTE
