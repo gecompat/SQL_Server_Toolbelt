@@ -525,13 +525,20 @@ def validate_product_applicability(previous: str, current: str,
                     and product_source.get('tree_oid') == record['current_product_tree']
                     and re.fullmatch(r'[a-f0-9]{40}', product_source.get('source_commit', '')) is not None,
                     'ZIP-Aktuellproduktdescriptor ist nicht exakt gebunden.')
-            source_commit, recovered_current = snapshot(product_source['source_commit'])
-            current_tree = git('rev-parse', source_commit + '^{tree}').decode().strip()
-            require(current_tree == record['current_product_tree'],
-                    'ZIP-Aktuellproduktbaum weicht vom commitgebundenen Source-Tree ab.')
+            # Synthetische Produkt- und Quellcommits fehlen in frischen
+            # Checkouts. Der aktuelle Stand wird deshalb aus dem exakt
+            # gebundenen Qualifikationsarchiv rekonstruiert; Bundle, Descriptor,
+            # Manifest und Baum werden gemeinsam geprüft.
+            recovered_sources, recovered_current, current_tree = qualification_sources(current)
+            require(json.loads(recovered_sources[PRODUCT_SOURCE]) == product_source,
+                    'ZIP-Aktuellproduktdescriptor stimmt nicht mit dem gebundenen Bundle überein.')
             if current_files is not None:
-                require(all(current_files.get(path) == data for path, data in recovered_current.items()
-                            if path.startswith(('Modules/', 'Deployment/', 'Workers/'))),
+                product_paths = ('Modules/', 'Deployment/', 'Workers/')
+                recovered_product = {path: data for path, data in recovered_current.items()
+                                     if path.startswith(product_paths)}
+                supplied_product = {path: data for path, data in current_files.items()
+                                    if path.startswith(product_paths)}
+                require(supplied_product == recovered_product,
                         'Aktuelle ZIP-Produktdateien stimmen nicht bytegenau mit dem gebundenen Source-Tree überein.')
             require(old_tree == record['previous_product_tree']
                     and current_tree == record['current_product_tree']

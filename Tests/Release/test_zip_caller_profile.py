@@ -118,7 +118,7 @@ class ZipCallerProfileMixin:
         record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())
         source = json.loads((ROOT / release.PRODUCT_SOURCE).read_bytes())
         _, previous, previous_tree = release.qualification_sources(record['product_chain_predecessor'])
-        _, current = release.snapshot(source['source_commit'])
+        _, current, _ = release.qualification_sources(source['product_commit'])
         _, baseline = release.snapshot(zip_metadata.BASELINE)
         package = release.git('show', zip_metadata.BASELINE + ':' + release.CLR_PACKAGE)
         self.assertEqual(previous_tree, record['previous_product_tree'])
@@ -138,6 +138,42 @@ class ZipCallerProfileMixin:
         altered['unreviewed_claim'] = True
         with self.assertRaises(ValueError):
             zip_metadata.validate_record(ROOT, altered, previous, current, package)
+
+    def test_zip_product_recovery_does_not_require_synthetic_source_commit(self):
+        record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())
+        source = json.loads((ROOT / release.PRODUCT_SOURCE).read_bytes())
+        product = record['current_product_commit']
+        self.assertEqual(source['product_commit'], product)
+        _, product_files, tree = release.qualification_sources(product)
+        self.assertEqual(tree, record['current_product_tree'])
+        actual_snapshot = release.snapshot
+
+        def reject_synthetic_source_commit(commit, *args, **kwargs):
+            self.assertNotEqual(commit, source['source_commit'])
+            return actual_snapshot(commit, *args, **kwargs)
+
+        with patch.object(release, 'snapshot', side_effect=reject_synthetic_source_commit):
+            release.validate_product_applicability(
+                record['product_chain_predecessor'], product, product_files)
+            with self.assertRaisesRegex(ValueError, 'bytegenau'):
+                release.validate_product_applicability(
+                    record['product_chain_predecessor'], product,
+                    {**product_files, 'Modules/Synthetic.extra/module.yaml': b'unbound'})
+
+        original_read_bytes = Path.read_bytes
+
+        def drifted_descriptor(path):
+            raw = original_read_bytes(path)
+            if path.resolve() == ROOT / release.PRODUCT_SOURCE:
+                changed = json.loads(raw)
+                changed['source_commit'] = '0' * 40
+                return release.encoded(changed)
+            return raw
+
+        with patch.object(Path, 'read_bytes', drifted_descriptor), \
+                self.assertRaisesRegex(ValueError, 'gebundenen Bundle'):
+            release.validate_product_applicability(
+                record['product_chain_predecessor'], product, None)
 
     def test_fixed_reader_and_writer_goldens_are_independent(self):
         report = json.loads(REPORT.read_bytes())

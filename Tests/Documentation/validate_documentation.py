@@ -1800,7 +1800,9 @@ def main() -> int:
         result = subprocess.run(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),
              "--verify", str(REPOSITORY_ROOT / "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=150,
+            # Die kalte Archivwiederherstellung überschritt das bisherige
+            # 150-Sekundenlimit; 240 Sekunden halten den Prüfschritt begrenzt.
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=240,
         )
         if result.returncode:
             raise ValidationError(f"Releasepaket-Integrität:\n{result.stdout}{result.stderr}")
