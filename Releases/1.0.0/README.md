@@ -26,6 +26,8 @@ Einzelrechte für sechs Module und die getrennten historischen Nachweise.
 
 ## Was enthalten ist
 
+[CSV-Callerrechte](CSV-CALLER-PROFILE.md): getrennte Parser-/Writer-/ResultTable-Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 384 Rechtezustände, 504 feste Ergebniszeilenorakel und frische eigene Bereinigungsprüfungen. Manifest-/Paketpflege und weitere Releasegates bleiben separat.
+
 Alle 45 implementierten Module mit ihren unveränderten Modulversionen,
 SQL-Quellen, vorhandenen CLR-Buildskripten, Deployment, Beispielen, Workern,
 Dokumentation, Tests und Lizenzen sind im **Quellpaket-Kandidaten** enthalten.

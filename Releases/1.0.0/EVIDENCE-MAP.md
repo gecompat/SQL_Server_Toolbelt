@@ -1,5 +1,7 @@
 # Nachweiszuordnung aller 45 Module
 
+[CSV-Callerrechte](CSV-CALLER-PROFILE.md): getrennte Parser-/Writer-/ResultTable-Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 384 Rechtezustände, 504 feste Ergebniszeilenorakel und frische eigene Bereinigungsprüfungen. Manifest-/Paketpflege und weitere Releasegates bleiben separat.
+
 Aktuelle [Caller-Metadatenbindung](CALLER-METADATA-UPDATE.md): sechs präzisierte
 Manifeste; ursprüngliche native Ausführungspins bleiben unverändert.
 
