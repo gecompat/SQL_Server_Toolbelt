@@ -25,6 +25,8 @@ spec.loader.exec_module(release)
 _source_fixture_cache = {}
 _archive_fixture_cache = {}
 _snapshot_fixture_cache = {}
+# Five pinned product stages plus one isolated control, within this test process.
+MAX_FROZEN_FIXTURES = 6
 
 
 def source_fixture_key(module, product):
@@ -48,7 +50,7 @@ def share_frozen_source_fixtures(module):
     def recover(product):
         key = source_fixture_key(module, product)
         if key not in _source_fixture_cache:
-            if len(_source_fixture_cache) >= 4:
+            if len(_source_fixture_cache) >= MAX_FROZEN_FIXTURES:
                 _source_fixture_cache.pop(next(iter(_source_fixture_cache)))
             _source_fixture_cache[key] = original(product)
         methods, product_files, tree = _source_fixture_cache[key]
@@ -69,7 +71,7 @@ def share_frozen_snapshot_fixtures(module):
         key = (source_fixture_key(module, product), commit,
                hashlib.sha256(bundle).digest())
         if key not in _snapshot_fixture_cache:
-            if len(_snapshot_fixture_cache) >= 4:
+            if len(_snapshot_fixture_cache) >= MAX_FROZEN_FIXTURES:
                 _snapshot_fixture_cache.pop(next(iter(_snapshot_fixture_cache)))
             _snapshot_fixture_cache[key] = original(bundle, commit, product)
         methods, product_files, tree = _snapshot_fixture_cache[key]
@@ -124,9 +126,14 @@ class SourceFixtureCacheTests(unittest.TestCase):
             (fake.ROOT / fake.SSIS_UPDATE).write_bytes(b'changed dependency')
             fake.recovered_snapshot(b'bundle', 'commit', 'product')
             self.assertEqual(len(calls), 5)
-            fake.ROOT = fake.ROOT / 'other-scope'
+            csv_proof = fake.ROOT / fake.DIRECTORY / 'csv-metadata-update.json'
+            csv_proof.parent.mkdir()
+            csv_proof.write_bytes(b'changed CSV dependency')
             fake.recovered_snapshot(b'bundle', 'commit', 'product')
             self.assertEqual(len(calls), 6)
+            fake.ROOT = fake.ROOT / 'other-scope'
+            fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            self.assertEqual(len(calls), 7)
             for _ in range(2):
                 with self.assertRaisesRegex(ValueError, 'rejected bundle'):
                     fake.recovered_snapshot(b'rejected', 'commit', 'product')
@@ -155,6 +162,11 @@ class SourceFixtureCacheTests(unittest.TestCase):
             (fake.ROOT / fake.SSIS_UPDATE).write_bytes(b'changed synthetic dependency')
             fake.qualification_sources('fixed')
             self.assertEqual(calls, ['fixed', 'fixed'])
+            csv_proof = fake.ROOT / fake.DIRECTORY / 'csv-metadata-update.json'
+            csv_proof.parent.mkdir()
+            csv_proof.write_bytes(b'changed CSV dependency')
+            fake.qualification_sources('fixed')
+            self.assertEqual(calls, ['fixed', 'fixed', 'fixed'])
             for _ in range(2):
                 with self.assertRaisesRegex(ValueError, 'rejected'):
                     fake.qualification_sources('rejected')
