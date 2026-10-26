@@ -23,8 +23,8 @@
   "previous_source_zip_sha256": "e695a77bddb2c09970ff0f88607aef1292f57ed1fc6e6003c7660ed1fbf87568",
   "product_chain_predecessor": "e89da195b0e872a71059ceee20e1304498773e4d",
   "previous_product_tree": "e6024e52b1733f36a283602d7b44f46b793e47b8",
-  "current_product_commit": "4bbcaafaa22dc85c7b0dd227d2a6d264939fb376",
-  "current_product_tree": "be03e6ab7bad4377c4e8dfafb2b72385a273a657",
+  "current_product_commit": "69320089beb25c2bc4323df901307764fa9dccc9",
+  "current_product_tree": "caacf81a505d6fc895de1f8dff2418a0a7480b0c",
   "package_source_paths": [
     "Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md",
     "Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md",
