@@ -1,5 +1,7 @@
 # XLSX-Testmatrix
 
+Die aktuelle [Raw-Reader-Callerergänzung vom 2026-10-26](../../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) deckt ausschließlich `USP_ListXlsxWorksheets` und `USP_ReadXlsxWorksheetCells` im XLSX-1.2.0-/ZIP-1.4.0-Ownershipprofil ab; sie ergänzt die Callerrechte für die vorhandene Blattliste und Rohzellen-Ausgabe, ohne historische 1.0-Workbook- oder Matrixorakel umzuschreiben.
+
 Die [Zell-Callerergänzung vom2026-10-26](../../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) belegt einzeln SELECT auf Typ-/Anzeige-TVF in allen zwölf lokalen/direkt zentralen Ziel-/CL-Fällen. Historische Fach-/Client-/Lifecyclegrenzen bleiben getrennt.
 
 ## Neue 1.1-Typwelle

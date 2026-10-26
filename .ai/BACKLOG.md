@@ -1,5 +1,35 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Zwölfter endlicher Release-Rahmen — 2026-10-26
+
+Der Nutzerauftrag vom 2026-10-26 setzte die bereits freigegebenen Releasegates
+autonom fort. Diese Welle prüfte die am 2026-10-01 einzeln freigegebenen
+`toolbelt_file.USP_ListXlsxWorksheets` und
+`toolbelt_file.USP_ReadXlsxWorksheetCells` im XLSX-1.2.0-Modul; die
+[Funktionsfreigabe und ihr Scope](../Documentation/Architecture/XLSX_READER_PROPOSAL.md)
+bleiben maßgeblich. Der Rahmen war
+auf eine PR, drei Stunden ab Originalstart und höchstens 20 native Zielversuche
+einschließlich Fehlern/Kontrollen begrenzt. Der Nutzer wünschte kleinere
+LLMs und die Aufteilung der Arbeit; die Umsetzung blieb bei einem einzelnen
+Implementierungsworker, koordiniert vom Root, mit getrennten Offline-, Native-
+und Dokumentationspaketen. Keine zusätzlichen Agents oder CI-Jobs.
+
+Das schmale öffentliche Objektprofil, die festen synthetischen Workbookwerte,
+15 native Versuche, 15 frische Abschlussaudits und die genaue Begrenzung stehen
+im [XLSX-Raw-Callerbericht](../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) samt
+[maschinenlesbarer Quellevidenz](../Releases/1.0.0/xlsx-raw-caller-profile.json).
+Zwölf ausgewählte Matrixfälle bestanden; eine Goldenwertkontrolle und eine
+Kontrolle auf zusätzliche Schema-SELECT-Rechte wurden wie vorgesehen
+abgewiesen. Ein älterer Probe-Arityfehler ist erhalten und getrennt
+als nicht fachlicher Fehler dokumentiert. 27 eigene Datenbanknamen wurden
+frisch als abwesend auditiert. Produktbytes, Modulstatus, Manifeste und Pakete
+blieben unverändert. Es gibt keine Veröffentlichungs- oder Tagfreigabe.
+
+Offen bleiben insbesondere die gebundene Pflege unvollständiger Source-Header-,
+Manifest- und Paketlabels, Head-/Main-CI im integrierenden PR sowie alle getrennten
+Modul-, Client-, Lifecycle-, Ressourcen-, Identitäts- und Veröffentlichungs-
+gates. Diese Evidenz ersetzt sie nicht.
+
 ## Elfter endlicher Release-Rahmen
 
 Direkt am2026-10-26 erneut autorisiert und vor Entwicklung auf eine PR, drei Stunden ab unverändertem Originalstart und höchstens20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Zehn frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Zwei-DLL-Labtreiber und feste SELECT-Callerfälle der bereits einzeln freigegebenen XLSX-Typ-/Anzeige-TVFs1.2.0. Zwölf Matrixfälle bestanden lokal/direkt zentral;15 Versuche einschließlich eines dokumentierten eigenen Formatliteralfehlers und zweier gezielt abgewiesener Kontrollen. Sämtliche15 frischen Abschlussaudits PASS. Produkt, Manifeste und Pakete unverändert; SSIS bleibt ausgenommen. Keine Veröffentlichung oder Tags.

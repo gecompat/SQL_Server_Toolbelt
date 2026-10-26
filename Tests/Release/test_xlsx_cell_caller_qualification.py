@@ -8,9 +8,11 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Tests/Release'))
 from prepare_function_rights import compose
+from test_xlsx_raw_caller_composer import XlsxRawCallerComposerMixin
+from test_xlsx_raw_caller_evidence import XlsxRawCallerEvidenceMixin
 
 
-class XlsxCellCallerTests(unittest.TestCase):
+class XlsxCellCallerTests(XlsxRawCallerComposerMixin, XlsxRawCallerEvidenceMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.record = json.loads((ROOT / 'Releases/1.0.0/xlsx-cell-caller-qualification.json').read_bytes())

@@ -1,6 +1,8 @@
 # XLSX Binary Memory Reader
 
-Die [Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt am2026-10-26 die beiden öffentlichen Typ-/Anzeige-TVFs: jeweils ein SELECT, zwölf Windows-/Linux-Ziel-/CL-Fälle lokal/direkt zentral und eigene Bereinigung bestanden. Raw-USPs, volle Modul-/Client-/Ressourcen-/Identitätsgates und Veröffentlichung bleiben separat. Die folgenden datierten Wellen behalten ihren ursprünglichen Scope.
+Dieses Modul verarbeitet ein vom Aufrufer übergebenes XLSX-Binary im Speicher und stellt zwei Raw-Reader-USPs bereit: eine Worksheetliste und die vorhandenen Rohzellen. Es führt keine Workbookinhalte aus und greift nicht auf Dateien oder Netzwerke zu. Die Objektverträge stehen unter [USP_ListXlsxWorksheets](Documentation/USP_ListXlsxWorksheets.md) und [USP_ReadXlsxWorksheetCells](Documentation/USP_ReadXlsxWorksheetCells.md); Type- und Anzeigeausgaben sind getrennte APIs.
+
+Die [Raw-Caller-Evidenz](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) weist ein schmales Objektprofil für direkte und caller-lokale `ResultTable`-Ausgabe auf zwölf ausgewählten Ziel-/CL-Fällen nach. Der [Zell-Callerbericht](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) deckt die getrennten Typ-/Anzeige-TVFs ab. Das Modul bleibt `partially validated`, `unreleased`; weitere Modul-, Client-, Lifecycle-, Ressourcen-, Identitäts- und Releasegates sind separat.
 
 Release 1.2.0 ergänzt [TVF_FormatXlsxCell](Documentation/TVF_FormatXlsxCell.md)
 mit acht Inputs, zehn Literalformaten, drei expliziten Kulturen und zwei Outputs.

@@ -24,6 +24,8 @@ Lieferform; Modulstatus, Support- und Veröffentlichungsgrenzen bleiben bestehen
 Die [Caller-Rechteübersicht](CALLER-METADATA-UPDATE.md) erklärt die korrigierten
 Einzelrechte für sechs Module und die getrennten historischen Nachweise.
 
+[XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs mit einem schmalen Objektprofil auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen. 14 Masken je Kontext, 672 direkte-/ResultTable-Routen, 144 positive Aufrufe und 720 feste Ergebniszeilen. Der [maschinenlesbare Bericht](xlsx-raw-caller-profile.json) bindet Quellen, synthetisches Workbook, Kontrollen und Bereinigung. Weitere Modul-, Paket- und Veröffentlichungsfreigaben bleiben offen.
+
 ## Was enthalten ist
 
 [XLSX-Zell-Callerrechte](XLSX-CELL-CALLER-QUALIFICATION.md): zwei öffentliche TVFs mit einzelnem SELECT auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen.48 positive Profile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel; Raw-Reader, volle Typ-/Client-/Ressourcen- und Releasegates bleiben separat.
