@@ -160,6 +160,21 @@ class ZipCallerProfileMixin:
                     record['product_chain_predecessor'], product,
                     {**product_files, 'Modules/Synthetic.extra/module.yaml': b'unbound'})
 
+        original_read_bytes = Path.read_bytes
+
+        def drifted_descriptor(path):
+            raw = original_read_bytes(path)
+            if path.resolve() == ROOT / release.PRODUCT_SOURCE:
+                changed = json.loads(raw)
+                changed['source_commit'] = '0' * 40
+                return release.encoded(changed)
+            return raw
+
+        with patch.object(Path, 'read_bytes', drifted_descriptor), \
+                self.assertRaisesRegex(ValueError, 'gebundenen Bundle'):
+            release.validate_product_applicability(
+                record['product_chain_predecessor'], product, None)
+
     def test_fixed_reader_and_writer_goldens_are_independent(self):
         report = json.loads(REPORT.read_bytes())
         oracle = report['fixed_oracles']

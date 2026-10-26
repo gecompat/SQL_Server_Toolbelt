@@ -529,7 +529,9 @@ def validate_product_applicability(previous: str, current: str,
             # Checkouts. Der aktuelle Stand wird deshalb aus dem exakt
             # gebundenen Qualifikationsarchiv rekonstruiert; Bundle, Descriptor,
             # Manifest und Baum werden gemeinsam geprüft.
-            _, recovered_current, current_tree = qualification_sources(current)
+            recovered_sources, recovered_current, current_tree = qualification_sources(current)
+            require(json.loads(recovered_sources[PRODUCT_SOURCE]) == product_source,
+                    'ZIP-Aktuellproduktdescriptor stimmt nicht mit dem gebundenen Bundle überein.')
             if current_files is not None:
                 product_paths = ('Modules/', 'Deployment/', 'Workers/')
                 recovered_product = {path: data for path, data in recovered_current.items()
