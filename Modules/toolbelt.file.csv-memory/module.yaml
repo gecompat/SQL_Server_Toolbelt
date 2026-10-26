@@ -38,7 +38,9 @@ objects:
   - {type: CLR_SVF, schema: "toolbelt_file", name: "SVF_InternalQuoteCsvCell", visibility: internal}
   - {type: ASSEMBLY, name: "Toolbelt_File_CsvMemory", visibility: internal}
 permissions_required:
-  - "Vorhandenes EXECUTE auf den öffentlichen USPs und der verwendeten ResultTable-Runtime; keine Rechtevergabe."
+  - "Datenpfad Parser: EXECUTE auf toolbelt_file.USP_ParseCsv und SELECT auf toolbelt_file.TVF_InternalParseCsv."
+  - "Datenpfad Writer: EXECUTE auf toolbelt_file.USP_WriteCsv sowie auf toolbelt_file.SVF_InternalMeasureCsvCell und toolbelt_file.SVF_InternalQuoteCsvCell."
+  - "Nur bei ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable in derselben Datenbank; keine automatische Rechtevergabe."
   - "Lifecycle: Datenbank-VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies und passende Schema-/Assembly-DDL-Rechte."
   - "Lifecycle: Datenbankweite Release-Marker benötigen zusätzlich dafür wirksame Rechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
   - "Getrennter exakter SHA2-512-Trust-Opt-in benötigt vorhandene administrative Rechte."

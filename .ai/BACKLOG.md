@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Zehnter endlicher Release-Rahmen
+
+Direkt am 2026-10-26 autorisiert; vor Entwicklung auf eine PR-Welle, vier Stunden ab unverändertem Originalstart und keine neuen nativen SQL-Zielversuche begrenzt. Neun frühere Rahmen bleiben unverändert abgeschlossen. Scope: genau das bereits in PR450 belegte CSV-Aufrufrechtefeld, vier ausgewählte Lesepfade, eine getrennte Anwendbarkeits-/CLR-Metadatenprojektion und die erneuerte Quellpaket-/Recoverybindung. Ausführbare SQL-/DLL-Payloads, Status, Dependencies, alte Ausführungsberichte und fremde SSIS-Arbeit bleiben unverändert. Neue negative Offlinegates erweitern die bestehende Release-Suite; CSV-Build-/Framework- und aktuelle Head-/Main-CI bleiben Pflicht. Keine Veröffentlichung oder Tags.
+
+[CSV-Metadaten-/Paketpflege](../Releases/1.0.0/CSV-METADATA-UPDATE.md) führt die historischen Nachweise auf die dokumentierten Aufrufrechte zurück. Weitere Modul-/Client-/Ressourcen-/Identitäts-/Releasegates bleiben getrennt.
+
 ## Neunter endlicher Release-Rahmen
 
 Direkt am 2026-10-26 Wiener Zeit erneut autorisiert; vor Entwicklung auf eine PR-Welle, drei Stunden ab unverändertem Originalstart und höchstens 20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Acht frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Single-DLL-Labtreiber und eine feste kombinierte Callerrechte-Fixture für die bereits einzeln freigegebenen CSV-USPs 1.0.0. Tatsächlich 14 Versuche einschließlich zweier gezielt abgewiesener Kontrollen; zwölf Matrixfälle und alle frischen eigenen Abschlussaudits bestanden. Vier Berichtsprüfungen werden in die bestehende Release-Suite eingebunden. Keine neue Fachfunktion, keine Produkt-/Manifest-/Paketänderung oder Veröffentlichung. Der frühere SSIS-Chat ist abgeschlossen; seine Arbeit wird nicht übernommen.

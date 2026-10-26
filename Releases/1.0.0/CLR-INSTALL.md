@@ -195,3 +195,7 @@ Lizenz und ScriptDom-/ANTLR-Attributionen bleiben im Paket enthalten.
 Den begrenzten nativen Nachweis des optionalen ODBC-Helfers mit SQL-Anmeldung
 beschreibt die [Clientqualifikation](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/CLR-CLIENT-QUALIFICATION.md).
 SSMS-GUI und Windows-Anmeldung bleiben dort separat als ungeprüft ausgewiesen.
+
+## CSV-Aufrufrechte
+
+CSV-Parser und -Writer benötigen unterschiedliche vorhandene Objektrechte; ResultTable ergänzt das Helper-EXECUTE. Die [gebundene Rechte- und Paketübersicht](CSV-METADATA-UPDATE.md) nennt die exakten Profile. Die Installation erteilt keine Aufrufrechte. Die Sources behalten ihre repositoryrelativen Verweise; zusammenhängendes Offline-Lesen verwendet das vollständige Quellpaket, Online-Lesen die verlinkte Projektdokumentation.

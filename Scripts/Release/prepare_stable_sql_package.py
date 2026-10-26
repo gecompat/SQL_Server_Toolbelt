@@ -82,8 +82,16 @@ def expected_payload(root: Path = ROOT) -> dict[str, bytes]:
                 'Historische Stable-Quellarchivbindung driftet.')
         old_plan = json.loads(historical[RELEASE / 'release-plan.json'])
         current_plan = json.loads(bounded_file(root / RELEASE / 'release-plan.json'))
+        current_product = record['current_product_commit']
+        csv_path = root / RELEASE / 'csv-metadata-update.json'
+        if csv_path.is_file():
+            csv_record = json.loads(bounded_file(csv_path))
+            require(csv_record['publication_authorized'] is False
+                    and csv_record['previous_product_commit'] == current_product,
+                    'CSV Stable applicability chain drifted.')
+            current_product = csv_record['current_product_commit']
         require(old_plan['product_commit'] == record['previous_product_commit']
-                and current_plan['product_commit'] == record['current_product_commit'],
+                and current_plan['product_commit'] == current_product,
                 'Stable-Produktanwendbarkeit driftet.')
         stable = lambda plan: sorted((m['module_id'], m['module_version']) for m in plan['modules']
                                      if m['proposed_channel'] == 'stable')

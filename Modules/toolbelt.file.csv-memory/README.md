@@ -29,7 +29,7 @@ ein uncommittable Zustand nach einem technischen Fehler bleibt sichtbar.
 
 ## Callerrechte
 
-Die [CSV-Callerprüfung](../../Releases/1.0.0/CSV-CALLER-PROFILE.md) belegt die getrennten vorhandenen Rechte: Parser benötigt EXECUTE auf die USP und SELECT auf den internen Parser; Writer benötigt EXECUTE auf die USP und beide internen Skalare. ResultTable benötigt zusätzlich EXECUTE auf den sameDB-Helfer. Zwölf Ziel-/CL-Fälle bestanden; Manifest-/Paketwortlaut und weitere Gates bleiben separat. Keine automatische Rechtevergabe.
+Die [CSV-Callerprüfung](../../Releases/1.0.0/CSV-CALLER-PROFILE.md) belegt die getrennten vorhandenen Rechte: Parser benötigt EXECUTE auf die USP und SELECT auf den internen Parser; Writer benötigt EXECUTE auf die USP und beide internen Skalare. ResultTable benötigt zusätzlich EXECUTE auf den sameDB-Helfer. Zwölf Ziel-/CL-Fälle bestanden. Das [korrigierte Manifest mit Paketbindung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) nennt diese Rechte; weitere Gates bleiben separat. Keine automatische Rechtevergabe.
 
 ## Build und Lifecycle
 
