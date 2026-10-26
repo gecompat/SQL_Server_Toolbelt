@@ -330,19 +330,16 @@ class XlsxMetadataMixin:
         self.assertNotEqual(metadata.corrected_offline_source(original_test),
                             current_test.replace(b'continue', b'pass', 1))
 
-        _, baseline = _baseline_snapshot(ROOT, metadata.BASELINE)
-        current = dict(baseline)
-        current[metadata.MANIFEST] = (ROOT / metadata.MANIFEST).read_bytes()
-        current[release.PRODUCT_SOURCE] = (ROOT / release.PRODUCT_SOURCE).read_bytes()
-        product_commit = json.loads(current[release.PRODUCT_SOURCE])['product_commit']
-        release.validate_product_applicability('5f796e599554b55668861ec0dee8d28ae663f082',
-                                                product_commit, current)
+        xlsx_product = record['current_product_commit']
+        _, current, _ = release.qualification_sources(xlsx_product)
+        release.validate_product_applicability(record['product_chain_predecessor'],
+                                                xlsx_product, current)
         altered = dict(current)
         path = 'Modules/toolbelt.file.xlsx-memory/README.md'
         altered[path] += b'\n'
         with self.assertRaises(ValueError):
-            release.validate_product_applicability('5f796e599554b55668861ec0dee8d28ae663f082',
-                                                    product_commit, altered)
+            release.validate_product_applicability(record['product_chain_predecessor'],
+                                                    xlsx_product, altered)
 
     def test_missing_predecessor_commit_recovers_only_from_bound_public_archive(self):
         record = json.loads((ROOT / metadata.RECORD).read_bytes())

@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 REPORT = ROOT / 'Releases/1.0.0/zip-caller-profile.json'
 sys.path.insert(0, str(ROOT / 'Tests/Release'))
 import compose_zip_caller as composer
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import zip_metadata
 
 
 class ZipCallerProfileMixin:
@@ -58,15 +60,28 @@ class ZipCallerProfileMixin:
             self.assertRegex(expected, r'^[0-9A-F]{64}$')
             actual = hashlib.sha256((ROOT / path).read_bytes()).hexdigest().upper()
             with self.subTest(path=relative):
-                self.assertEqual(actual, expected)
+                if relative == zip_metadata.MANIFEST:
+                    zip_metadata.validate_source(ROOT, relative, expected)
+                else:
+                    self.assertEqual(actual, expected)
         self.assertIn('Tests/Release/Runtime/ZipMemory.CallerRights.sql', pins)
         self.assertIn('Tests/Release/Invoke-ZipCallerLab.ps1', pins)
         self.assertIn('Tests/Release/compose_zip_caller.py', pins)
         artifact = json.loads(REPORT.read_bytes())['artifact_binding']
         package_path = artifact['package_path']
         self.assertEqual(package_path, 'Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip')
-        package_hash = hashlib.sha256((ROOT / package_path).read_bytes()).hexdigest().upper()
+        old_package = zip_metadata.historical(ROOT, package_path)
+        package_hash = hashlib.sha256(old_package).hexdigest().upper()
         self.assertEqual(package_hash, artifact['executed_package_sha256'])
+
+    def test_zip_manifest_overlay_rejects_every_other_byte_and_wrong_pin(self):
+        original = zip_metadata.historical(ROOT, zip_metadata.MANIFEST)
+        current = (ROOT / zip_metadata.MANIFEST).read_bytes()
+        zip_metadata.validate_manifest(original, current)
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_source(ROOT, zip_metadata.MANIFEST, '0' * 64)
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_manifest(original, current + b'\n# extra')
 
     def test_fixed_reader_and_writer_goldens_are_independent(self):
         report = json.loads(REPORT.read_bytes())

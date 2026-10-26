@@ -49,6 +49,8 @@ def advance_xlsx_product_chain(root: Path, current_product: str, current_plan: d
         return current_product
     record = json.loads(bounded_file(path))
     product_source = json.loads(bounded_file(root / RELEASE / 'product-source.json'))
+    zip_path = root / RELEASE / 'zip-metadata-update.json'
+    zip_record = json.loads(bounded_file(zip_path)) if zip_path.is_file() else None
     previous = record.get('historical_product_source', {})
     valid_sha = lambda value, size: isinstance(value, str) and len(value) == size and all(
         character in '0123456789abcdef' for character in value)
@@ -63,10 +65,16 @@ def advance_xlsx_product_chain(root: Path, current_product: str, current_plan: d
             and valid_sha(previous.get('archive_sha256'), 64)
             and product_source.get('kind') == 'synthetic_product_snapshot'
             and product_source.get('schema_version') == '1.0'
-            and product_source.get('product_commit') == current_plan.get('product_commit')
-            and product_source.get('product_commit') == record.get('current_product_commit')
-            and product_source.get('base_commit') == record.get('public_baseline_commit')
-            and product_source.get('tree_oid') == record.get('current_product_tree')
+            and (product_source.get('product_commit') == current_plan.get('product_commit'))
+            and (product_source.get('product_commit') == record.get('current_product_commit')
+                 if zip_record is None else
+                 zip_record.get('product_chain_predecessor') == record.get('current_product_commit')
+                 and product_source.get('product_commit') == current_plan.get('product_commit')
+                 and product_source.get('product_commit') == zip_record.get('current_product_commit'))
+            and product_source.get('base_commit') == (record.get('public_baseline_commit') if zip_record is None
+                                                       else zip_record.get('public_baseline_commit'))
+            and product_source.get('tree_oid') == (record.get('current_product_tree') if zip_record is None
+                                                   else zip_record.get('current_product_tree'))
             and valid_sha(product_source.get('product_commit'), 40)
             and valid_sha(product_source.get('tree_oid'), 40)
             and current_plan.get('product_snapshot') == product_source,
@@ -81,12 +89,27 @@ def advance_xlsx_product_chain(root: Path, current_product: str, current_plan: d
         manifest = json.loads(archive.read(prefix + 'PACKAGE-MANIFEST.json'))
     require(manifest['product_commit'] == current_product,
             'XLSX Stable recovery product commit drifted.')
-    # This existing exact applicability validator recovers both product trees
-    # from their bound source archives when synthetic commits are absent, then
-    # validates the manifest delta and current product-source tree.
-    release_validation.validate_product_applicability(current_product, product_source['product_commit'],
-                                                       None)
-    return product_source['product_commit']
+    # The ZIP metadata layer may follow the XLSX layer. Both edges stay exact;
+    # the old XLSX product is recovered from the public ZIP archive below.
+    target = product_source['product_commit']
+    if zip_record is not None:
+        require(zip_record.get('product_chain_predecessor') == record.get('current_product_commit')
+                and zip_record.get('previous_product_tree') == record.get('current_product_tree'),
+                'ZIP Stable chain does not bind the historical XLSX product.')
+        archive_path = zip_record.get('previous_source_zip_path')
+        require(archive_path == 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip',
+                'ZIP Stable source archive path is not the fixed public predecessor.')
+        archive = subprocess.run(['git', 'show', zip_record['public_baseline_commit'] + ':' + archive_path],
+                                 cwd=root, capture_output=True, check=True, timeout=30).stdout
+        require(sha(archive) == zip_record.get('previous_source_zip_sha256'),
+                'ZIP Stable historical source archive pin drifted.')
+        prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
+        with zipfile.ZipFile(io.BytesIO(archive)) as source_archive:
+            source_manifest = json.loads(source_archive.read(prefix + 'PACKAGE-MANIFEST.json'))
+        require(source_manifest.get('product_commit') == current_product,
+                'ZIP Stable historical product descriptor drifted.')
+    release_validation.validate_product_applicability(current_product, target, None)
+    return target
 
 
 def bounded_file(path: Path, maximum: int = MAX_ENTRY) -> bytes:
