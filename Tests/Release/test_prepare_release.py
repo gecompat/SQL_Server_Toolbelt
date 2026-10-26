@@ -13,6 +13,7 @@ import warnings
 import zipfile
 import hashlib
 from test_caller_metadata import CallerMetadataTests
+from test_csv_caller_profile import CsvCallerProfileTests
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")

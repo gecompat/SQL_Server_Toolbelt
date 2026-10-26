@@ -5,6 +5,8 @@ Spalten: `RowKind varchar(6) NOT NULL`, `RowOrdinal bigint NOT NULL`,
 `ColumnOrdinal int NOT NULL`, `Value nvarchar(max) NULL`. HEADER ist RowOrdinal0;
 DATA beginnt bei1. Die normale Ausgabe ist nach beiden Ordinals geordnet.
 
+Vorhandene Callerrechte: EXECUTE auf diese USP und SELECT auf `toolbelt_file.TVF_InternalParseCsv`. Bei ResultTable zusätzlich EXECUTE auf `toolbelt_core.USP_PrepareResultTable`. Die [gebundene CSV-Rechteprüfung](../../../Releases/1.0.0/CSV-CALLER-PROFILE.md) belegt diese Kombinationen; Manifest-/Paketwortlaut bleibt als Folgepflege offen. Keine automatische Rechtevergabe.
+
 Parameter in Reihenfolge: `@Text nvarchar(max)=NULL`,
 `@Separator nvarchar(2)=N','`, `@HasHeader bit=0`,
 `@NullToken nvarchar(128)=NULL`, `@MaxRows bigint=100000`,

@@ -6,6 +6,8 @@ mit genau `RowKind varchar(6)`, `RowOrdinal bigint`, `ColumnOrdinal int`,
 Spalten. Tatsächliche RowKind-/Ordinal-NULLs sind unzulässig. Quelle und Ziel
 dürfen nicht dieselbe tatsächliche Temp-Objekt-ID haben.
 
+Vorhandene Callerrechte: EXECUTE auf diese USP sowie auf `toolbelt_file.SVF_InternalMeasureCsvCell` und `toolbelt_file.SVF_InternalQuoteCsvCell`. Bei ResultTable zusätzlich EXECUTE auf `toolbelt_core.USP_PrepareResultTable`. Die [gebundene CSV-Rechteprüfung](../../../Releases/1.0.0/CSV-CALLER-PROFILE.md) belegt diese Kombinationen; Manifest-/Paketwortlaut bleibt als Folgepflege offen. Keine automatische Rechtevergabe.
+
 Parameter in Reihenfolge: `@CellsTable sysname=NULL`,
 `@Separator nvarchar(2)=N','`, `@HasHeader bit=0`,
 `@NullToken nvarchar(128)=NULL`, `@LineEnding varchar(4)='CRLF'`,

@@ -1,0 +1,329 @@
+{
+  "schema_version": "toolbelt-csv-caller-profile/v1",
+  "date": "2026-10-26",
+  "result": "PASS",
+  "scope": "Existing CSV1.0.0 exact composite caller permissions, typed direct/ResultTable output and fixed synthetic parse/write goldens in default installed ownership layout",
+  "execution_source_baseline_commit": "8b5498ea3e123e3a02c12277ee478cd8a64c624e",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.file.csv-memory": "1.0.0"
+  },
+  "direct_object_permissions": {
+    "toolbelt_file.USP_ParseCsv": [
+      "EXECUTE toolbelt_file.USP_ParseCsv",
+      "SELECT toolbelt_file.TVF_InternalParseCsv"
+    ],
+    "toolbelt_file.USP_WriteCsv": [
+      "EXECUTE toolbelt_file.USP_WriteCsv",
+      "EXECUTE toolbelt_file.SVF_InternalMeasureCsvCell",
+      "EXECUTE toolbelt_file.SVF_InternalQuoteCsvCell"
+    ]
+  },
+  "additional_result_table_permission": "EXECUTE toolbelt_core.USP_PrepareResultTable",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.file.csv-memory/Clr/CsvEntryPoints.cs": "9e0b641632bd8867c42e7301757d10dae5d9d9cbd7c8bb9fe358cc39bc277e35",
+    "Modules/toolbelt.file.csv-memory/Clr/CsvKernel.cs": "1a32279ee92410fd87a3e0d4b79ed6e95c6c6e37370f30db0606b40f029cb384",
+    "Modules/toolbelt.file.csv-memory/Clr/Properties/AssemblyInfo.cs": "da46c202bf1fdc2193bb80e150ea4264df886352f9a3b6fc307930c4aa814ab9",
+    "Modules/toolbelt.file.csv-memory/Clr/Toolbelt.File.CsvMemory.csproj": "f51edf4fc6d469c90322b380f419db497fc97060ab484d4d9801ef6d875bd1ce",
+    "Modules/toolbelt.file.csv-memory/Deployment/Add-TrustedAssembly.sql": "a4e3fcf30362ebbcfd7ad5a7ad15ddcc759c04c65da7c67d3e42ae9c34bbfca4",
+    "Modules/toolbelt.file.csv-memory/Deployment/Deploy.sql": "f791b2727f50ea48b8497c145c62b26971c6d6cc8c9ed35bc41d8c1d7ed0a41c",
+    "Modules/toolbelt.file.csv-memory/Deployment/MarkRelease.sql": "f6a166bf69a1edb41b7b557e45d43d540be8431770ef65faeb0b9e71b832d41e",
+    "Modules/toolbelt.file.csv-memory/Deployment/Preflight.sql": "37e0a8aa295df33ca8cd5816a8e94c23d5c600f8ee95e805d5d34bc1e0ea1ae9",
+    "Modules/toolbelt.file.csv-memory/Deployment/Uninstall.sql": "fe71f08abb0d801920571347203710128ac01c927aad527309a4423801718a02",
+    "Modules/toolbelt.file.csv-memory/Scripts/New-ClrReleaseArtifacts.ps1": "49f7a7f339251b7d4ec575443726d1c21f91306b1da4c0e8639180de45b676e2",
+    "Modules/toolbelt.file.csv-memory/Source/SVF_InternalMeasureCsvCell.sql": "1f6c911d5eb2358c0c865f625adb5c74ecbad8b669b256937cc97a10ae01d477",
+    "Modules/toolbelt.file.csv-memory/Source/SVF_InternalQuoteCsvCell.sql": "81338711d5e0f8428b7c14d5df75f7308b549b06e3be415ef575e54c228c627c",
+    "Modules/toolbelt.file.csv-memory/Source/TVF_InternalParseCsv.sql": "6506b8ed667c4ebe97f01fdf8a0b85a51ebb6037985619c9d58195bb48a1a13b",
+    "Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql": "e9b3374ce0952e33474760c7f73355b0408518a254bfdc030e9f1a3816cdef7e",
+    "Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql": "3b75a2387e98be99413cfc6987251be5fdccfb2058ff059322d118337a4a1de2",
+    "Modules/toolbelt.file.csv-memory/module.yaml": "2ba19891a0e367828e47bd0a3957e32eeb95830f30d36ee02a9d217f9f4de6e9",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-CsvCallerLab.ps1": "4630fa739b9ce1ef5862c8617308c5b7016aa2b17e4d66174c22bf0455851621",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Runtime/Csv.CallerRights.sql": "550f692c17c9731ae1533cb602d474bca5a46aca02f6118994214b1156d7d2a3"
+  },
+  "offline_export_sha256": {
+    "local": "a963ce5b7d4b7eda5051286287ab57b2d3094edde311b3350a9e1114924c3e89",
+    "central": "2dc35dab1dbebf94f9375ec0c1e4342699687373d98bc4ac6945bbedaff52932"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true,
+      "permission_states": 32,
+      "full_permission_profiles": 4,
+      "positive_route_executions": 12,
+      "strict_sql229_denials": 56,
+      "strict_dependency_55309_denials": 28,
+      "fixed_result_row_oracles": 42
+    }
+  ],
+  "permission_states": 384,
+  "full_permission_profiles": 48,
+  "positive_route_executions": 144,
+  "strict_sql229_denials": 672,
+  "strict_dependency_55309_denials": 336,
+  "fixed_result_row_oracles": 504,
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "intended_oracle_rejected": true,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "intended_oracle_rejected": true,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "artifact_origin": {
+    "assemblies": [
+      "Toolbelt_File_CsvMemory"
+    ],
+    "historical_reproducible_build_source_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+    "two_isolated_builds_equal_packaged_binary": true,
+    "complete_current_compile_inputs_equal": true,
+    "unknown_or_rebuilt_binary_used": false,
+    "trust_hashes_published": false
+  },
+  "native_attempts_consumed": 14,
+  "configuration_safety": {
+    "parameter_values_published": false,
+    "strict_security_maintained": true,
+    "no_restart_or_override": true,
+    "no_server_or_login_grants": true,
+    "no_memory_option_writes": true,
+    "genuine_pending_changes_and_foreign_consumers_block_mutation": true,
+    "own_state_restored_or_preexisting_state_preserved": true,
+    "shared_environment_guard_reused_unchanged": true
+  },
+  "final_independent_audit": {
+    "fresh_after_all_consumers": true,
+    "separate_read_only_process_per_attempt": true,
+    "all_terminal_attempts": 14,
+    "passed_terminal_attempts": 14,
+    "all_database_names_absent": 26,
+    "owned_trust_entries_absent_and_preexisting_trust_fingerprints_preserved": true,
+    "configuration_original_state_verified": true,
+    "source_pins_stable": true
+  },
+  "legacy_manifest_permission_wording_pending": true,
+  "remaining_gates": [
+    "CSV manifest/package caller-permission wording requires a separately bound metadata/package refresh",
+    "Existing API/client/lifecycle/boundary/resource and genuine lowpriv CrossDB identity scopes remain separate",
+    "No general heap/parallel/maximum-workload or authenticated TLS qualification",
+    "Module and release approval remain separate; no publication or tags"
+  ],
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false
+}

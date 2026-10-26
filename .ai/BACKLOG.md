@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Neunter endlicher Release-Rahmen
+
+Direkt am 2026-10-26 Wiener Zeit erneut autorisiert; vor Entwicklung auf eine PR-Welle, drei Stunden ab unverändertem Originalstart und höchstens 20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Acht frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Single-DLL-Labtreiber und eine feste kombinierte Callerrechte-Fixture für die bereits einzeln freigegebenen CSV-USPs 1.0.0. Tatsächlich 14 Versuche einschließlich zweier gezielt abgewiesener Kontrollen; zwölf Matrixfälle und alle frischen eigenen Abschlussaudits bestanden. Vier Berichtsprüfungen werden in die bestehende Release-Suite eingebunden. Keine neue Fachfunktion, keine Produkt-/Manifest-/Paketänderung oder Veröffentlichung. Der frühere SSIS-Chat ist abgeschlossen; seine Arbeit wird nicht übernommen.
+
+[CSV-Callerrechte](../Releases/1.0.0/CSV-CALLER-PROFILE.md): getrennte Parser-/Writer-/ResultTable-Objektrechte, 384 Rechtezustände und 504 feste Ergebniszeilenorakel. Noch offen: gebundene CSV-Manifest-/Paketpflege, weitergehende Modul-/Client-/Ressourcen-/CrossDB-Gates und abschließende Releasefreigabe.
+
 ## Achter endlicher Release-Rahmen
 
 Direkt am 2026-10-25 erneut autorisiert; vor Entwicklung auf eine PR-Welle, zwei Stunden ab unverändertem Originalstart und höchstens 20 native Versuche inklusive Fehlern/Nachfolgern begrenzt. Sieben frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Single-DLL-Labtreiber und feste Caller-Fixtures für die einzeln freigegebene USP_CompareTextPairs 1.0.0. Tatsächlich 15 Versuche inklusive eines erhaltenen eigenen Fixturefehlers und zweier gezielt abgewiesener Kontrollen; aktuelle Matrix und sämtliche eigenen Abschlussaudits bestanden. SSIS und der Sechs-Modul-Manifest-/Nachweis-/Paketscope bleiben beim anderen Chat.

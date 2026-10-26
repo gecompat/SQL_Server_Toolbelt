@@ -8,6 +8,8 @@ ihren genannten Stand; eine neue Welle übernimmt daraus keinen Gesamt-PASS.
 
 ## Testumfang auswählen
 
+Für den getrennten kombinierten Callerrechtescope gelten der [Releasebericht](../../../Releases/1.0.0/CSV-CALLER-PROFILE.md) und sein eigener `Invoke-CsvCallerLab.ps1`, kein neuer `TestScope` des allgemeinen CSV-Adapters. Zwölf Windows-/Linux-Ziel-/CL-Fälle bestanden am 2026-10-26 lokal/direkt zentral. 384 Rechtezustände, 504 feste Ergebniszeilenorakel, zwei gezielt abgewiesene Kontrollen und sämtliche 14 frischen Abschlussaudits sind gebunden. Gesamtqualifikation und Manifest-/Paketpflege bleiben separat.
+
 1. Bestimme den betroffenen Vertrag und den festen Kandidaten. Die öffentliche
    Syntax des [Labdrivers](../../../Tests/CI/run-csv-memory-lab.ps1) ist maßgeblich:
    `TestScope` ist eine geschlossene, case-sensitive Auswahl. Seine Zuordnung

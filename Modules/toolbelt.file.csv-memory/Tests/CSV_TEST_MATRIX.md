@@ -1,5 +1,7 @@
 # CSV-Testmatrix
 
+Ergänzung 2026-10-26: [kombinierte Callerrechte](../../../Releases/1.0.0/CSV-CALLER-PROFILE.md) für beide CSV-USPs auf Windows/Linux SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170 jeweils lokal/direkt zentral bestanden. 384 Rechtezustände, 144 erfolgreiche Ausgabewege, 672 SQL229- und 336 SQL55309-Abweisungen, 504 feste Ergebniszeilenorakel. Dies ergänzt ausschließlich diesen Scope; folgende historische Nachweise und deren Grenzen bleiben erhalten.
+
 Stand 2026-10-21: `partially validated`, `unreleased`. Vorhandene Assertions sind
 kein Ausführungsnachweis. Der achte öffentliche Gesamtadapter bestand auf
 Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 local/central mit
