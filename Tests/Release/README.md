@@ -1,5 +1,7 @@
 # Releasevorbereitung prüfen
 
+Die [XLSX-Rohleser-Callerprüfung](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) bindet `Invoke-XlsxRawCallerLab.ps1`, die SQL-Rechtefixture und den deterministischen Workbookcomposer. Die neue Profilprüfung ist als Mixin in `XlsxCellCallerTests` eingebunden; sie läuft damit über die bestehende Release-Suite, ohne neuen CI-Job. Gezielt lokal: `python -m unittest Tests.Release.test_xlsx_raw_caller_evidence Tests.Release.test_xlsx_raw_caller_composer -v`.
+
 Die [XLSX-Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt zwei öffentliche SELECT-Profile mit eigener kanonischer Case-Datei und Zwei-DLL-Labtreiber. Vier Berichtsprüfungen laufen in der vorhandenen Suite; zusätzlich `python -B Tests/Release/test_xlsx_cell_caller_qualification.py`.
 
 Die [aktuelle SSIS-Lookup-Paketbindung](../../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)

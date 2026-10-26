@@ -2917,7 +2917,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql), [USP_ListXlsxWorksheets.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md).
 
-<!-- Source/Vertrag SHA256: a7deb3d507443bfe721b81182473a53841e5930687778d18135c87f85a4d380b -->
+<!-- Source/Vertrag SHA256: 5fe94b83e6e488201cc1f63d6beea8a762d40d34f1b8f08e741f6d007aebf998 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2960,7 +2960,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql), [USP_ReadXlsxWorksheetCells.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md).
 
-<!-- Source/Vertrag SHA256: 2d9033f89ea96a1b4678b913a5acadb433e3c8ee17cddc9a0c01d7dcde50ecab -->
+<!-- Source/Vertrag SHA256: a9b6d6b307897b7b7520cfa46086daa48ab8d147a5b617f4d9732ec4d285c405 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
