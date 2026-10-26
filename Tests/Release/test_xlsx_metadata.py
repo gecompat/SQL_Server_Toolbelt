@@ -326,8 +326,12 @@ class XlsxMetadataMixin:
         record = json.loads((ROOT / metadata.RECORD).read_bytes())
         original_test = metadata.historical(ROOT, metadata.OFFLINE_SOURCE)
         current_test = (ROOT / metadata.OFFLINE_SOURCE).read_bytes()
-        self.assertEqual(metadata.corrected_offline_source(original_test), current_test)
-        self.assertNotEqual(metadata.corrected_offline_source(original_test),
+        expected_test = metadata.corrected_offline_source(original_test)
+        if (ROOT / 'Releases/1.0.0/zip-metadata-update.json').is_file():
+            import zip_metadata
+            expected_test = zip_metadata.corrected_xlsx_offline_source(expected_test)
+        self.assertEqual(expected_test, current_test)
+        self.assertNotEqual(expected_test,
                             current_test.replace(b'continue', b'pass', 1))
 
         xlsx_product = record['current_product_commit']
