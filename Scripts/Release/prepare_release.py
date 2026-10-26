@@ -516,9 +516,10 @@ def validate_product_applicability(previous: str, current: str,
     if zip_path.is_file():
         record = json.loads(zip_path.read_bytes())
         if record.get('current_product_commit') == current:
-            if previous != record['product_chain_predecessor']:
-                validate_product_applicability(previous, record['product_chain_predecessor'])
-            _, old_files, old_tree = qualification_sources(previous)
+            predecessor = record['product_chain_predecessor']
+            if previous != predecessor:
+                validate_product_applicability(previous, predecessor)
+            _, old_files, old_tree = qualification_sources(predecessor)
             product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
             require(product_source.get('product_commit') == current
                     and product_source.get('tree_oid') == record['current_product_tree']
@@ -538,8 +539,6 @@ def validate_product_applicability(previous: str, current: str,
                     'ZIP-Produktbäume sind nicht an die historische und aktuelle Quelle gebunden.')
             _, baseline = snapshot(zip_metadata.BASELINE)
             package = git('show', zip_metadata.BASELINE + ':' + CLR_PACKAGE)
-            xlsx_record = json.loads((ROOT / xlsx_metadata.RECORD).read_bytes())
-            validate_product_applicability(xlsx_record['product_chain_predecessor'], previous)
             zip_metadata.validate_product_delta(ROOT, old_files, recovered_current, record, baseline, package)
             return
     xlsx_path = ROOT / xlsx_metadata.RECORD

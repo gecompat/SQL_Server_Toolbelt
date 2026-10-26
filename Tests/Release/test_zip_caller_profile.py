@@ -96,6 +96,8 @@ class ZipCallerProfileMixin:
         self.assertEqual(source['product_commit'], record['current_product_commit'])
         changed = zip_metadata.validate_product_delta(ROOT, previous, current, record, baseline, package)
         self.assertEqual(changed, {zip_metadata.MANIFEST, *zip_metadata.DOCS})
+        release.validate_product_applicability(
+            '5f796e599554b55668861ec0dee8d28ae663f082', record['current_product_commit'], current)
         for field, value in (('module_status', 'validated'),
                              ('previous_source_zip_sha256', '0' * 64),
                              ('executable_package_payload_changed', True)):
