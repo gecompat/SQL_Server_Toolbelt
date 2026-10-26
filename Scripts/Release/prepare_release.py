@@ -815,16 +815,27 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
         elif package_metadata.get('xlsx_metadata_update_evidence') == xlsx_metadata.RECORD:
             bound_sources = product_sources
             if bound_sources is None:
-                product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
-                require(product_source['schema_version'] == '1.0'
-                        and product_source['kind'] == 'synthetic_product_snapshot'
-                        and re.fullmatch(r'[a-f0-9]{40}', product_source['product_commit']) is not None
-                        and re.fullmatch(r'[a-f0-9]{40}', product_source['tree_oid']) is not None,
-                        'XLSX-Produktquelle besitzt keine gültige Recoverybindung.')
-                _, product_files, tree = qualification_sources(product_source['product_commit'])
-                require(tree == product_source['tree_oid'], 'XLSX-Produktbaum weicht von der Recoverybindung ab.')
-                validate_product_applicability(qualification['product_commit'],
-                                               product_source['product_commit'], product_files)
+                zip_path = ROOT / zip_metadata.RECORD
+                zip_record = json.loads(zip_path.read_bytes()) if zip_path.is_file() else None
+                if zip_record is not None and 'zip_metadata_update_evidence' not in package_metadata:
+                    # Beim öffentlichen Vorgängerpaket bleibt XLSX an seinen
+                    # tatsächlichen e89-Quellen gebunden; die ZIP-Schicht wird
+                    # anschließend separat darübergelegt.
+                    xlsx_product = zip_record['product_chain_predecessor']
+                    _, product_files, tree = qualification_sources(xlsx_product)
+                    require(tree == zip_record['previous_product_tree'],
+                            'Historische XLSX-Paketquelle weicht vom ZIP-Vorgängerbaum ab.')
+                else:
+                    product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+                    require(product_source['schema_version'] == '1.0'
+                            and product_source['kind'] == 'synthetic_product_snapshot'
+                            and re.fullmatch(r'[a-f0-9]{40}', product_source['product_commit']) is not None
+                            and re.fullmatch(r'[a-f0-9]{40}', product_source['tree_oid']) is not None,
+                            'XLSX-Produktquelle besitzt keine gültige Recoverybindung.')
+                    _, product_files, tree = qualification_sources(product_source['product_commit'])
+                    require(tree == product_source['tree_oid'], 'XLSX-Produktbaum weicht von der Recoverybindung ab.')
+                    validate_product_applicability(qualification['product_commit'],
+                                                   product_source['product_commit'], product_files)
                 bound_sources = {p: product_files[p] for p in
                                  (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
                 bound_sources[xlsx_metadata.RECORD] = payload.get('XLSX-METADATA-UPDATE.json', b'')
