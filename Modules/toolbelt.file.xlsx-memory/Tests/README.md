@@ -1,5 +1,9 @@
 # XLSX-Vertragsqualifizierung
 
+## Zell-Callerrechte – 2026-10-26
+
+Der [gebundene Releasebericht](../../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) beschreibt den eigenen Zwei-DLL-Treiber, kanonische Case-Komposition, selektierte Sollwerte und Quellenpins. Zwölf lokale/direkt zentrale Windows-/Linux-Fälle bestanden;48 Einzelgrantprofile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel.15 native Versuche einschließlich eines erhaltenen Fixturefehlers und zweier Kontrollen; sämtliche15 frischen Abschlussaudits PASS. Keine zusätzliche Raw-/Client-/Lifecycle-/Heapabnahme.
+
 ## Additive 1.1-Typwelle – 2026-10-02
 
 Frameworkqualifikation: 19311 Assertions in drei Kulturen PASS. Der begrenzte unabhängige Scannervergleich führte 12370 Vergleiche ohne Abweichung aus. Aktuelle Releasebuild-/IL-/NoIO-Prüfungen sind separate Offline-Evidenz, keine Heapgarantie.

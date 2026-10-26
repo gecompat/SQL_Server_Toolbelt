@@ -1,0 +1,408 @@
+{
+  "schema_version": "toolbelt-function-caller-qualification/v1",
+  "date": "2026-10-26",
+  "scope": "Existing XLSX1.2.0 Interpret/Format cell TVFs with isolated SELECT in default installed ownership layout; selected fixed typed values",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "7495122d2c169284690a5ff173205163fb5e199f",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.archive.zip-memory": "1.4.0",
+    "toolbelt.file.xlsx-memory": "1.2.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_file",
+      "name": "TVF_InterpretXlsxCell",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "TVF_FormatXlsxCell",
+      "permission": "SELECT"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_file",
+      "name": "TVF_InternalXlsxSheets",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "TVF_InternalXlsxCells",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "TVF_InternalInterpretXlsxCell",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "TVF_InternalFormatXlsxCell",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "USP_ListXlsxWorksheets",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "USP_ReadXlsxWorksheetCells",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_file",
+      "name": "USP_InternalXlsxRead",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "USP_CreateZipFromEntries",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "USP_ExtractZipEntryFromBinary",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_archive",
+      "name": "USP_ListZipEntriesFromBinary",
+      "permission": "EXECUTE"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 48,
+  "strict_sql229_denials": 672,
+  "fixed_value_null_and_shape_oracles": 144,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/XlsxCell.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "cdab07fd7ceaa77f0808c297ca5a707191edbf85d90d14ea3cc2a4ccd542b68b",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.archive.zip-memory/Clr/ArchiveSession.cs": "7498b00a9fdb7951bf2fcd9878b60f0e2d0fe326308a24a1141747d4156f5a60",
+    "Modules/toolbelt.archive.zip-memory/Clr/Properties/AssemblyInfo.cs": "91a899843830a1de20b2e28c0f9ff4ce255f9a81cfa783b7cefe84b0cb31de16",
+    "Modules/toolbelt.archive.zip-memory/Clr/Toolbelt.Archive.ZipMemory.csproj": "fc2b132dee270b90631ebab9fe34e372283328fd332fb6abbbbd683775fd49aa",
+    "Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs": "c72aaa267bb3e5302463b18600a89255b99aebe6e826b0cd11379e0c2bc604ca",
+    "Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs": "75a63066ec29c90f9330be376bddf611443b92a975a9de6af5dc5c2c720e0a66",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Add-TrustedAssembly.sql": "ecd64368dbe924feb55be8f529a1fe5dcbca9c5f8ee1ca656c83549e44bd2e06",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Deploy.sql": "72c753a4daa5e4f83d1882fcbe91a696234dfff7baae4078e592815ceae2d4bd",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Uninstall.sql": "a84ab189009b759416d14e94a76f97b0ec7c5bb1f19911b4c6aafc0715a7ca3b",
+    "Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1": "0964b713ebc75434efa3d22350d1de720bc443ce5777f9d4ba05c7692cbff897",
+    "Modules/toolbelt.archive.zip-memory/Scripts/New-LegacyReleaseFixture.ps1": "1321971a0a1083fe421344b772697ca24d199f3e9b1fc40a87ba3e5dd1e790a6",
+    "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalExtractZipEntryClr.sql": "49b0a3e951565c7444df9daf99944072037f5d188f543275ec3364e6ae7ed946",
+    "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalListZipEntriesClr.sql": "ca414ec8609249b2ef07828b5ed32453b57eb60d272307d9b83587711ca0d7bd",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql": "7523c0b3bbaa94704a55227e49899f2987b14e34479b3430ca4f217478af8a77",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql": "fbadc101fd0524e2b0d43d864e009f503e9471e980062ff1c3fbe9e63697b7dc",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql": "7141d208e3eb9e766dec079a65e1d1b0c8d9ddaed34331fb448082ee22f5661f",
+    "Modules/toolbelt.archive.zip-memory/Source/ZipWriterClr.sql": "b0954e2f6257a2a64459e8c22fb535c9f86e198d02b2071e28c761b4d8b2af96",
+    "Modules/toolbelt.archive.zip-memory/module.yaml": "d02e251b453a72b100cb31d54c1677ec2109279962813f5d8552ecef342d8ab5",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.file.xlsx-memory/Clr/AssemblyInfo.cs": "cb94d2f59c0617fbb8dfdb85e95e05ed8a515b146c1e2e1069dd11f46b640245",
+    "Modules/toolbelt.file.xlsx-memory/Clr/Toolbelt.File.XlsxMemory.csproj": "b073d3636496749f1ed9db235b9ed876581bde90e9f5dafdf7988337496d1b7e",
+    "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs": "a834d0b53a309e6836efc2ca077b48d2aebc48533a838723268416361a49812a",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplay.cs": "25838f5bbac749f539b65a5e49c692189b19994a36028bd119995233ce746ab8",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplayBridge.cs": "e2df235c1ab524f565090bfd36a16bafc47a44d38295da219df5c3c12c0d5b05",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellType.cs": "564162b8c6fef1145842e92a6ceef2f8478bcbe8d30fe4bce360a160d659a300",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs": "99f6f2c7120ce68dfff28f78196f767b97ea93590d7665c8c59df6162a80cdcd",
+    "Modules/toolbelt.file.xlsx-memory/Deployment/Add-TrustedAssembly.sql": "55d4923a61384c1118478be253b2c7fcfa1743b59f738c35e8d0720c3b5fc92c",
+    "Modules/toolbelt.file.xlsx-memory/Deployment/Deploy.sql": "1f23932345e407020354f48e8da8611fb3f24bdc3431a503a34316f5a3616512",
+    "Modules/toolbelt.file.xlsx-memory/Deployment/Uninstall.sql": "68f73cc63f81f66fc2a7b57ef139bbee9d6d32fdd13e475d84b0cf3f9272ca5b",
+    "Modules/toolbelt.file.xlsx-memory/Scripts/Invoke-XlsxBuildProcess.ps1": "6af8b22042279c5aff0c0c4d4cf6bc7dc576c8543b3c0afb4bb7c52d706590f7",
+    "Modules/toolbelt.file.xlsx-memory/Scripts/New-ClrReleaseArtifacts.ps1": "82e35c3c6c391019bbd8dd62d80773a44758cfe361963e0b82c77d236e198eca",
+    "Modules/toolbelt.file.xlsx-memory/Scripts/New-Xlsx10LegacyFixture.ps1": "4f0d0c65adab32a10237be57867e3894b313c91c8a445b15c07f649f71f9cb84",
+    "Modules/toolbelt.file.xlsx-memory/Scripts/New-Xlsx11LegacyFixture.ps1": "9993b73de931e63fc69c55d83d833174c1a44955c42e1dbfe82348d28bf1128a",
+    "Modules/toolbelt.file.xlsx-memory/Scripts/New-Zip13LegacyFixture.ps1": "b17a8288d85059fdc5d18335d884b4f406f9cce9b075703dd2b9a9304dfb173d",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql": "0486ecef2cefd4eb37a057592459c57601ac479705a7a58bd3183acfe2a95975",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalFormatXlsxCell.sql": "a95a0e3d842a2b44c58cc188b0275d21fbd1706d1ca46589faad7a6e311c8701",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalInterpretXlsxCell.sql": "f8889112c0a49b1ae34612c3d30bfa46105ca964f589e7ea9770ccdab24c193e",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalXlsxCells.sql": "d84336b10f4b5064cfc31f0e6fad888b42252637fcfe34d4d23312b12e710b42",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalXlsxSheets.sql": "59cc885a02245857f6d7b32f96c5cb7e1ba182c99e6eca05d67fce9b575b6b9e",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql": "5da7aca180f52b8128f819c72e5003fb9c632516a5ac5f3f4a4d4999c2e3616d",
+    "Modules/toolbelt.file.xlsx-memory/Source/USP_InternalXlsxRead.sql": "cae40b23b3b17d0fe98699d66684bfc96ea5188c9183a0cfa0b3af58da16da68",
+    "Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql": "2a8b4e8368e529c9a0d882ad784d0a4fa38bdf83a15a87b2e772705bb61e31c1",
+    "Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql": "ced8e5ccc754303317ed06a1d72adfe79d60cc31d3d4970902e65d032316b825",
+    "Modules/toolbelt.file.xlsx-memory/module.yaml": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-XlsxCellCallerLab.ps1": "145a217b1b54eea85c8e3efd4be8689dc9412e80f37867c8f4108901c40187b2",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2",
+    "Tests/Release/Runtime/XlsxCell.FunctionCases.sql": "9a3754cdd8ff9ecd56ce5cba4f663af6c5309768a8db235e574527ff8a9e1bd6",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f"
+  },
+  "offline_export_sha256": {
+    "local": "5d2dc054e2e9fcab71963d17dfe132843836f5cf47d507c9b8ee8e561b865293",
+    "central": "85c410df83e94630b805d2ec21de98afcf7ae3fb6464e4e250f05b8fc7510d53"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 4,
+      "strict_sql229_denials": 56,
+      "fixed_value_null_and_shape_oracles": 12,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "intended_oracle_rejected": true,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "intended_oracle_rejected": true,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "artifact_origin": {
+    "assemblies": [
+      "Toolbelt_Archive_ZipMemory",
+      "Toolbelt_File_XlsxMemory"
+    ],
+    "historical_reproducible_build_source_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+    "two_isolated_builds_equal_packaged_binary": true,
+    "complete_current_compile_inputs_equal": true,
+    "unknown_or_rebuilt_binary_used": false,
+    "trust_hashes_published": false,
+    "xlsx_zip_reference_bound": true
+  },
+  "native_attempts_consumed": 15,
+  "configuration_safety": {
+    "parameter_values_published": false,
+    "strict_security_maintained": true,
+    "no_restart_or_override": true,
+    "no_server_or_login_grants": true,
+    "no_memory_option_writes": true,
+    "genuine_pending_changes_and_foreign_consumers_block_mutation": true,
+    "own_state_restored_or_preexisting_state_preserved": true,
+    "shared_environment_guard_reused_unchanged": true
+  },
+  "final_independent_audit": {
+    "fresh_after_all_consumers": true,
+    "accepted_database_names_absent": 26,
+    "all_database_names_absent": 27,
+    "all_terminal_attempts": 15,
+    "owned_configuration_restoration_verified": true,
+    "owned_trust_entries_absent_and_preexisting_trust_fingerprints_preserved": true,
+    "source_pins_stable": true
+  },
+  "legacy_manifest_permission_wording_pending": false,
+  "remaining_gates": [
+    "Raw workbook USPs, complete type/display/client/ceiling/lifecycle/upgrade/resource scopes remain separate",
+    "No genuine CrossDB identity, other owners, heap/parallel or authenticated TLS qualification",
+    "Module release and publication remain separate; no tags"
+  ],
+  "retained_failed_fixture_attempt": {
+    "qualified_as_success": false,
+    "stage": "CONTRACT_local",
+    "reason": "Fixture input used yyyy-MM-dd instead of the exact contracted yyyy-mm-dd; input corrected with unchanged fixed status7 and product bytes",
+    "original_runset_and_journal_unchanged": true,
+    "original_executed_case_bytes_preserved": true,
+    "same_digest_original_content_audit_projection_only": true,
+    "independent_cleanup_and_final_audit_passed": true
+  },
+  "result_routes": [
+    "typed_direct_SELECT_capture"
+  ],
+  "initial_fixture_failure": {
+    "stage": "CONTRACT_local",
+    "actual_state": "FAILED_CLEANED",
+    "cause": "Fixture used a C# date format spelling rather than the case-sensitive contracted Excel literal",
+    "original_input": "yyyy-MM-dd",
+    "corrected_input": "yyyy-mm-dd",
+    "expected_status_unchanged": 7,
+    "original_runset_journal_and_source_retained": true,
+    "original_case_final_audit_uses_identical_saved_source_digest": true
+  },
+  "numeric_probe_scope": "Selected42.5 probe uses DECIMAL(38,10) equality plus numeric sql_variant base and precision<=38; not full38-digit domain qualification"
+}

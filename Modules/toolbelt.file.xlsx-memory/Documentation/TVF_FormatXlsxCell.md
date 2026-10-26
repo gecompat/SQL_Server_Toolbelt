@@ -1,5 +1,7 @@
 # TVF_FormatXlsxCell
 
+Die [Callerergänzung vom2026-10-26](../../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) belegt genau ein SELECT auf diese öffentliche TVF auf Windows/Linux SQL2019 CL150,SQL2022 CL150/160 undSQL2025 CL150/160/170 lokal/direkt zentral. Andere Zugriffe bleiben gesperrt; vollständige Fach-/Client-/Lifecycle- und Ressourcenabnahme bleibt getrennt. Die folgenden datierten Nachweise behalten ihren ursprünglichen Scope.
+
 Version 1.2.0 ergänzt genau eine Anzeige-TVF im bestehenden SAFE-Workbookprovider.
 [Genehmigter Vertrag](../../../Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md).
 Vorhandenes SELECT genügt; Deployment erteilt keine Rechte.

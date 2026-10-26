@@ -1,5 +1,7 @@
 # Releasevorbereitung prüfen
 
+Die [XLSX-Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt zwei öffentliche SELECT-Profile mit eigener kanonischer Case-Datei und Zwei-DLL-Labtreiber. Vier Berichtsprüfungen laufen in der vorhandenen Suite; zusätzlich `python -B Tests/Release/test_xlsx_cell_caller_qualification.py`.
+
 Die [aktuelle SSIS-Lookup-Paketbindung](../../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)
 verknüpft die zwölf Build-, zwei Standalone- und je sechs CLR-/Gesamtpaketfälle.
 Historische Pipeline-Nachweise behalten ihre ursprünglichen Artefakte.

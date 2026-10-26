@@ -15,6 +15,7 @@ import hashlib
 from test_caller_metadata import CallerMetadataTests
 from test_csv_caller_profile import CsvCallerProfileTests
 from test_csv_metadata import CsvMetadataTests
+from test_xlsx_cell_caller_qualification import XlsxCellCallerTests
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")
