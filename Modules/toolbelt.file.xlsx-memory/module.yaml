@@ -74,7 +74,9 @@ objects:
     name: TVF_FormatXlsxCell
     visibility: public
 permissions_required:
-  - "EXECUTE auf den beiden öffentlichen USPs; ResultTable zusätzlich Helper-EXECUTE."
+  - "Worksheetliste: EXECUTE auf toolbelt_file.USP_ListXlsxWorksheets sowie SELECT auf toolbelt_file.TVF_InternalXlsxSheets."
+  - "Rohzellen: EXECUTE auf toolbelt_file.USP_ReadXlsxWorksheetCells sowie SELECT auf toolbelt_file.TVF_InternalXlsxCells."
+  - "Bei ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable."
   - "DDL-Rechte und bestehender exakter Hashtrust für Deployment; keine Rechteausweitung."
   - "Lifecycle: vorhandenes Datenbank-VIEW DEFINITION und SELECT auf sys.sql_expression_dependencies; unklare Sicht blockiert 51535/2, keine Rechtevergabe."
   - "Vorhandenes SELECT auf TVF_InterpretXlsxCell und TVF_FormatXlsxCell; keine Berechtigungserteilung."

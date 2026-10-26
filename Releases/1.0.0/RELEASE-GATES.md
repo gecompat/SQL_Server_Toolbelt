@@ -1,6 +1,6 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
-[XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwölf ausgewählte Ziel-/CL-Fälle mit 336 Rechtezuständen, 672 API-Routen, 144 positiven Aufrufen und 720 festen Ergebniszeilen; 12 Matrixfälle und 15 frische Abschlussaudits bestanden. Source-Header-/Manifest-/Paketlabels und weitere Releasegates bleiben offen; Head- und Main-CI werden getrennt im integrierenden PR nachgewiesen.
+[XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwölf ausgewählte Ziel-/CL-Fälle mit 336 Rechtezuständen, 672 API-Routen, 144 positiven Aufrufen und 720 festen Ergebniszeilen; 12 Matrixfälle und 15 frische Abschlussaudits bestanden. Die [Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) übernimmt Raw- und Zellrechte; historische Source-Header bleiben unverändert. Weitere Releasegates bleiben offen; Head- und Main-CI werden getrennt im integrierenden PR nachgewiesen.
 
 [XLSX-Zell-Callerrechte](XLSX-CELL-CALLER-QUALIFICATION.md): zwei öffentliche TVFs mit einzelnem SELECT auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen.48 positive Profile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel; Raw-Reader, volle Typ-/Client-/Ressourcen- und Releasegates bleiben separat.
 

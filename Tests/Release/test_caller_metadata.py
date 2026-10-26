@@ -4,14 +4,18 @@ import copy
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import caller_metadata as metadata
+from test_xlsx_metadata import XlsxMetadataMixin
+import xlsx_metadata
 
 
-class CallerMetadataTests(unittest.TestCase):
+class CallerMetadataTests(XlsxMetadataMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.originals = {p: metadata.historical_manifest(ROOT, p) for p in metadata.PATHS}
@@ -31,6 +35,33 @@ class CallerMetadataTests(unittest.TestCase):
                                       capture_output=True, timeout=30, check=True).stdout
             self.assertEqual((ROOT / path).read_bytes(), original)
             self.assertEqual(record['historical_reports_sha256'][path], metadata.digest(original))
+
+    def test_xlsx_manifest_source_uses_only_its_exact_overlay_validator(self):
+        path = xlsx_metadata.MANIFEST
+        raw_bytes = (ROOT / xlsx_metadata.RAW_REPORT).read_bytes()
+        executed_digest = json.loads(raw_bytes)['source_sha256'][path]
+        metadata.validate_source(ROOT, path, executed_digest)
+        with self.assertRaises(ValueError):
+            metadata.validate_source(ROOT, path, '0' * 64)
+
+        historical = {path: xlsx_metadata.historical(ROOT, path)}
+        current_files = (path, xlsx_metadata.RECORD, xlsx_metadata.RAW_REPORT,
+                         xlsx_metadata.CELL_REPORT)
+        with tempfile.TemporaryDirectory(dir=ROOT / '.runtime', prefix='caller-xlsx-source-') as folder:
+            root = Path(folder)
+            for relative in current_files:
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / relative).read_bytes())
+            changed = (root / path).read_bytes() + b'\n# unqualified change\n'
+            (root / path).write_bytes(changed)
+            with patch.object(xlsx_metadata, 'historical',
+                              side_effect=lambda _root, selected: historical[selected]):
+                with self.assertRaises(ValueError):
+                    metadata.validate_source(root, path, executed_digest)
+
+        with self.assertRaises(ValueError):
+            metadata.validate_source(ROOT, 'Modules/toolbelt.file.xlsx-memory/Tests/README.md', '0' * 64)
 
     def test_other_manifest_changes_are_rejected(self):
         for path, original in self.originals.items():

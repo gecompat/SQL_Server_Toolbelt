@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import csv_metadata as metadata
 import prepare_release as release
+import xlsx_metadata
 
 
 class CsvMetadataTests(unittest.TestCase):
@@ -100,7 +101,13 @@ class CsvMetadataTests(unittest.TestCase):
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         unpack = lambda b: {p[len(prefix):]: v for p, v in release.read_zip(b).items()}
         before, after = unpack(old), unpack((ROOT / path).read_bytes())
-        release.validate_csv_clr_metadata(after)
+        product_source = json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())
+        _, product_files, product_tree = release.qualification_sources(product_source['product_commit'])
+        self.assertEqual(product_tree, product_source['tree_oid'])
+        xlsx_sources = {p: product_files[p]
+                        for p in (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
+        xlsx_sources[xlsx_metadata.RECORD] = (ROOT / xlsx_metadata.RECORD).read_bytes()
+        release.validate_xlsx_clr_metadata(after, xlsx_sources)
         self.assertEqual((ROOT / metadata.GUIDE).read_bytes(),
                          metadata.corrected_install_guide(metadata.historical(ROOT, metadata.GUIDE)))
         for p in before:

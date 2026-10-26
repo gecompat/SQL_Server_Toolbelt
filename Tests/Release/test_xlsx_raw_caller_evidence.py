@@ -7,7 +7,9 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Tests/Release'))
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 from compose_xlsx_raw_caller import compose
+import xlsx_metadata
 
 REPORT_PATH = ROOT / 'Releases/1.0.0/xlsx-raw-caller-profile.json'
 
@@ -54,6 +56,12 @@ def validate_source_bindings(report, root):
         path = Path(relative)
         if path.is_absolute() or '..' in path.parts:
             raise ValueError(f'unsafe source pin path: {relative}')
+        if relative == xlsx_metadata.MANIFEST:
+            xlsx_metadata.validate_source(root, relative, digest)
+            continue
+        if relative == xlsx_metadata.OFFLINE_SOURCE:
+            xlsx_metadata.validate_source(root, relative, digest)
+            continue
         current = hashlib.sha256((root / path).read_bytes()).hexdigest().upper()
         expected = by_path.get(relative, {}).get('current_sha256', digest)
         if current != expected.upper():
