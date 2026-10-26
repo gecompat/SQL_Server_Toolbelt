@@ -237,7 +237,8 @@ def refresh_csv_metadata(output: Path) -> None:
     release.require(digest(previous) == record['previous_clr_zip_sha256'], 'CSV CLR baseline drifted.')
     prefix = PACKAGE + '/'
     payload = {p[len(prefix):]: b for p, b in release.read_zip(previous).items()}
-    source, files = release.snapshot(record['metadata_preparation_commit'])
+    source = record['metadata_preparation_commit']
+    files = release.csv_metadata_product_sources(record)
     desired = release.csv_metadata.refreshed_clr_payload(payload, files, source, record)
     release.validate_csv_clr_metadata(desired)
     archive = release.write_zip(desired, PACKAGE)

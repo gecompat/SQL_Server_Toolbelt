@@ -123,10 +123,13 @@ class CsvMetadataTests(unittest.TestCase):
                  patch.object(release, 'qualification_sources', side_effect=sources) as recovered, \
                  patch.object(release.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1)):
                 release.validate_csv_product_applicability('a' * 40, 'b' * 40, current)
+                self.assertEqual(release.csv_metadata_product_sources(record), current)
                 self.assertIn(unittest.mock.call('b' * 40), recovered.call_args_list)
                 with patch.object(release, 'qualification_sources', return_value=({}, old, 'e' * 40)):
                     with self.assertRaisesRegex(ValueError, 'product tree'):
                         release.validate_csv_product_applicability('a' * 40, 'b' * 40, current)
+                    with self.assertRaisesRegex(ValueError, 'product tree'):
+                        release.csv_metadata_product_sources(record)
                 broken = dict(current); broken['Deployment/Contoso.sql'] += b' changed'
                 with self.assertRaises(ValueError):
                     release.validate_csv_product_applicability('a' * 40, 'b' * 40, broken)

@@ -453,6 +453,20 @@ def validate_product_applicability(previous: str, current: str,
     validate_regex_product_applicability(previous, current)
 
 
+def csv_metadata_product_sources(record: dict) -> dict[str, bytes]:
+    """Use the frozen product tree, including after branch/squash cleanup."""
+    product = record['current_product_commit']
+    available = subprocess.run(['git', 'cat-file', '-e', product + '^{commit}'],
+                               cwd=ROOT, capture_output=True).returncode == 0
+    if available:
+        _, files = snapshot(product)
+        tree = git('rev-parse', product + '^{tree}').decode().strip()
+    else:
+        _, files, tree = qualification_sources(product)
+    require(tree == record['current_product_tree'], 'CSV metadata product tree drifted.')
+    return files
+
+
 def validate_csv_product_applicability(previous: str, current: str,
                                      current_files: dict[str, bytes] | None = None) -> None:
     record = json.loads((ROOT / csv_metadata.RECORD).read_bytes())
