@@ -4,6 +4,8 @@ Die [XLSX-Rohleser-Callerprüfung](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.
 
 Die [XLSX-Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt zwei öffentliche SELECT-Profile mit eigener kanonischer Case-Datei und Zwei-DLL-Labtreiber. Vier Berichtsprüfungen laufen in der vorhandenen Suite; zusätzlich `python -B Tests/Release/test_xlsx_cell_caller_qualification.py`.
 
+Die [XLSX-Manifest- und Paketpflege](../../Releases/1.0.0/XLSX-METADATA-UPDATE.md) erhält beide ursprünglichen Berichtepins und prüft das additive Overlay auf dem bestehenden CLR-Paket. Sechs fokussierte Regressionen sind in `test_caller_metadata.py` integriert; gezielt lokal: `python -B -m unittest Tests.Release.test_xlsx_metadata -v`.
+
 Die [aktuelle SSIS-Lookup-Paketbindung](../../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)
 verknüpft die zwölf Build-, zwei Standalone- und je sechs CLR-/Gesamtpaketfälle.
 Historische Pipeline-Nachweise behalten ihre ursprünglichen Artefakte.

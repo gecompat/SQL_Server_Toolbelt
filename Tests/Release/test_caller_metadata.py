@@ -9,9 +9,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import caller_metadata as metadata
+from test_xlsx_metadata import XlsxMetadataMixin
 
 
-class CallerMetadataTests(unittest.TestCase):
+class CallerMetadataTests(XlsxMetadataMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.originals = {p: metadata.historical_manifest(ROOT, p) for p in metadata.PATHS}

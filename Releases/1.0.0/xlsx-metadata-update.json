@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-26",
+  "kind": "exact_xlsx_caller_metadata_projection",
+  "public_baseline_commit": "69a69beebccdafd4c5a7a509d33cf374029ef0b6",
+  "product_chain_predecessor": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
+  "publication_authorized": false,
+  "automatic_grants_added": false,
+  "module_status_changed": false,
+  "module_status": "partially validated",
+  "release_status": "unreleased",
+  "executable_source_bytes_changed": false,
+  "native_sql_attempts": 0,
+  "manifest": {
+    "path": "Modules/toolbelt.file.xlsx-memory/module.yaml",
+    "executed_sha256": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0",
+    "current_sha256": "f4392e554b0efaf8238dc5475bfc2262dc10d3b7b92c44df8afe30e2602795be"
+  },
+  "offline_source_update": {
+    "path": "Tests/Release/test_xlsx_cell_caller_qualification.py",
+    "executed_sha256": "00CE6AB62B3B58EDAC0F013807DCB78107EF9AE0193700BDF3AF1FD382DD12D0",
+    "current_sha256": "90b9ca3a4f733ed970de6e1857802bde710be57d60c908cd971181af6009f853"
+  },
+  "historical_reports_sha256": {
+    "Releases/1.0.0/xlsx-raw-caller-profile.json": "1decbd3513a442e2f7419ea339154a8cd4ac8bf2f872cfaac7a77e7bd8e42ced",
+    "Releases/1.0.0/xlsx-cell-caller-qualification.json": "10a7a3f8bd8d666837cd8a61b45e3e8932f6f006f2add7d66161738890854dc2"
+  },
+  "native_manifest_pins": {
+    "Releases/1.0.0/xlsx-raw-caller-profile.json": "388090B1FFF2A50AD1DD1BCADF296A26D130F631282249F9A37F83FF821543A0",
+    "Releases/1.0.0/xlsx-cell-caller-qualification.json": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0"
+  },
+  "previous_clr_zip_sha256": "2fc9f5c15b27ac131d1a1d939cb086e86add5eaea21a9d97539385a0174e45cf",
+  "package_source_paths": [
+    "Modules/toolbelt.file.xlsx-memory/module.yaml",
+    "Modules/toolbelt.file.xlsx-memory/README.md",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md",
+    "Modules/toolbelt.file.xlsx-memory/Tests/README.md",
+    "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md"
+  ],
+  "previous_package_source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/module.yaml": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0",
+    "Modules/toolbelt.file.xlsx-memory/README.md": "83a993cf487a4c74dda51cde273a84288067cd846dadc8efbee6d9d16439cd06",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md": "06622363b74aa43154ad24124c391bdcbca93bfa2f2329791d9fc598e14ffcf9",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md": "6804f7b57a4e3bcabff8fb36bf245d6ca6a8070325ce97664117f9ca87c809f1",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "803ebb1f296cdf9d9e155229b2509fa0aa30d95d371c02665137b744db25800c",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "6f6a1a42097282cdd13a0a65d6166f60bcdfe2a9270a05a07fbdc0cecad10300",
+    "Modules/toolbelt.file.xlsx-memory/Tests/README.md": "fe6dceec3fd84e7bad0b47ba3711af22efbf5c2c8c68b4f0c027b9071ba316f4",
+    "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md": "ee82d8480d87cba4220cc6daed685b46e11b075311a862603b7058145db0701d"
+  },
+  "current_package_source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/module.yaml": "f4392e554b0efaf8238dc5475bfc2262dc10d3b7b92c44df8afe30e2602795be",
+    "Modules/toolbelt.file.xlsx-memory/README.md": "ae5859383cbc30f1119f7717491178734e9ea4860e8e54d544aefa04ff470ca6",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md": "42032abd279fe1040e5def79e745168c000ad29eb3c3fd771982a6b39e9d95fd",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md": "d47aa0335d4be64a15d5153101c5dba972c803e65c4ecea70108fdc28068719a",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "045167e135141f62282570a094a4a9cab9ec5f5ca0dd21c361a27f67d7a0f848",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "640d6d221bf171ab0fb28c1df2cdf66e2e32b95826ff5382f97c7eebae530ed3",
+    "Modules/toolbelt.file.xlsx-memory/Tests/README.md": "ec7c4bb4ad989f382bf72207ea95a0ce765df0645b758cdcde99bf07fa2cdfc6",
+    "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md": "5c606d8a30e26fe4898b2266c441493a722122c0b661a4b5d99316511e8108c1"
+  },
+  "documentation_transition": {
+    "from_commit": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
+    "to_commit": "69a69beebccdafd4c5a7a509d33cf374029ef0b6",
+    "paths": [
+      "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md",
+      "Modules/toolbelt.file.xlsx-memory/README.md",
+      "Modules/toolbelt.file.xlsx-memory/Tests/README.md",
+      "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md"
+    ],
+    "previous_source_sha256": {
+      "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md": "06622363b74aa43154ad24124c391bdcbca93bfa2f2329791d9fc598e14ffcf9",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md": "6804f7b57a4e3bcabff8fb36bf245d6ca6a8070325ce97664117f9ca87c809f1",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "803ebb1f296cdf9d9e155229b2509fa0aa30d95d371c02665137b744db25800c",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "6f6a1a42097282cdd13a0a65d6166f60bcdfe2a9270a05a07fbdc0cecad10300",
+      "Modules/toolbelt.file.xlsx-memory/README.md": "83a993cf487a4c74dda51cde273a84288067cd846dadc8efbee6d9d16439cd06",
+      "Modules/toolbelt.file.xlsx-memory/Tests/README.md": "fe6dceec3fd84e7bad0b47ba3711af22efbf5c2c8c68b4f0c027b9071ba316f4",
+      "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md": "ee82d8480d87cba4220cc6daed685b46e11b075311a862603b7058145db0701d"
+    },
+    "current_source_sha256": {
+      "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md": "42032abd279fe1040e5def79e745168c000ad29eb3c3fd771982a6b39e9d95fd",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md": "d47aa0335d4be64a15d5153101c5dba972c803e65c4ecea70108fdc28068719a",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "045167e135141f62282570a094a4a9cab9ec5f5ca0dd21c361a27f67d7a0f848",
+      "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "640d6d221bf171ab0fb28c1df2cdf66e2e32b95826ff5382f97c7eebae530ed3",
+      "Modules/toolbelt.file.xlsx-memory/README.md": "ae5859383cbc30f1119f7717491178734e9ea4860e8e54d544aefa04ff470ca6",
+      "Modules/toolbelt.file.xlsx-memory/Tests/README.md": "ec7c4bb4ad989f382bf72207ea95a0ce765df0645b758cdcde99bf07fa2cdfc6",
+      "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md": "5c606d8a30e26fe4898b2266c441493a722122c0b661a4b5d99316511e8108c1"
+    }
+  },
+  "changed_product_paths": [
+    "Modules/toolbelt.file.xlsx-memory/module.yaml"
+  ],
+  "previous_source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/module.yaml": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0"
+  },
+  "current_source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/module.yaml": "f4392e554b0efaf8238dc5475bfc2262dc10d3b7b92c44df8afe30e2602795be"
+  },
+  "executable_package_payload_changed": false,
+  "clr_package_update_scope": "Selected XLSX manifest and registered reading paths; additive proof and CLR-PACKAGE file-list/evidence metadata only. SQL and DLL payloads remain byte-identical."
+}

@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import caller_metadata
 import csv_metadata
+import xlsx_metadata
 sys.path.insert(0, str(ROOT / "Tests/Documentation"))
 import validate_documentation as documentation
 
@@ -304,7 +305,7 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
         qualified = json.loads(files[clr_qualification_path(metadata)])
         validate_product_applicability(qualified['product_commit'], plan['product_commit'], files)
         validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified,
-                                   clr_qualification_method_sources(qualified))
+                                   clr_qualification_method_sources(qualified), files)
 
 
 def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, bytes],
@@ -450,6 +451,21 @@ def validate_product_applicability(previous: str, current: str,
             if previous != record['previous_product_commit']:
                 validate_regex_product_applicability(previous, record['previous_product_commit'])
             return
+    xlsx_path = ROOT / xlsx_metadata.RECORD
+    if xlsx_path.is_file():
+        record = json.loads(xlsx_path.read_bytes())
+        require(record['public_baseline_commit'] == xlsx_metadata.BASELINE
+                and record['product_chain_predecessor'] == xlsx_metadata.DOCUMENTATION_TRANSITION_START,
+                'XLSX-Metadaten-Produktkette driftet.')
+        if previous != record['product_chain_predecessor']:
+            validate_product_applicability(previous, record['product_chain_predecessor'])
+        _, transition_previous = snapshot(record['product_chain_predecessor'])
+        _, baseline = snapshot(record['public_baseline_commit'])
+        xlsx_metadata.validate_documentation_transition(transition_previous, baseline, record)
+        if current_files is None:
+            _, current_files = snapshot(current)
+        xlsx_metadata.validate_product_delta(baseline, current_files, record, baseline)
+        return
     validate_regex_product_applicability(previous, current)
 
 
@@ -629,7 +645,8 @@ def validate_csv_clr_metadata(payload: dict[str, bytes]) -> None:
     csv_metadata.validate_clr_delta(previous, payload, record, desired, record['metadata_preparation_commit'])
 
 
-def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes]) -> None:
+def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes],
+                               product_sources: dict[str,bytes] | None = None) -> None:
     """Aktuelle Lieferbytes an die tatsächlich ausgeführte native Paketwelle binden."""
     require(qualification['publication_authorized'] is False and qualification['native_cases_passed'] == 12,
             'Keine CLR-Veröffentlichungsfreigabe oder vollständige Paketmatrix.')
@@ -672,9 +689,58 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
             if alias in payload:
                 require(sha(payload[alias]) == expected, 'CLR-Paketmethodenquelle abweichend.')
     try:
-        validate_csv_clr_metadata(payload)
+        package_metadata = json.loads(payload.get('CLR-PACKAGE.json', b'{}'))
+        if package_metadata.get('xlsx_metadata_update_evidence') == xlsx_metadata.RECORD:
+            bound_sources = product_sources
+            if bound_sources is None:
+                product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+                require(product_source['schema_version'] == '1.0'
+                        and product_source['kind'] == 'synthetic_product_snapshot'
+                        and re.fullmatch(r'[a-f0-9]{40}', product_source['product_commit']) is not None
+                        and re.fullmatch(r'[a-f0-9]{40}', product_source['tree_oid']) is not None,
+                        'XLSX-Produktquelle besitzt keine gültige Recoverybindung.')
+                resolved, product_files = snapshot(product_source['product_commit'])
+                tree = git('rev-parse', resolved + '^{tree}').decode().strip()
+                require(tree == product_source['tree_oid'], 'XLSX-Produktbaum weicht von der Recoverybindung ab.')
+                validate_product_applicability(qualification['product_commit'], resolved, product_files)
+                bound_sources = {p: product_files[p] for p in
+                                 (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
+                bound_sources[xlsx_metadata.RECORD] = payload.get('XLSX-METADATA-UPDATE.json', b'')
+            validate_xlsx_clr_metadata(payload, bound_sources)
+        else:
+            require(package_metadata.get('xlsx_metadata_update_evidence') is None,
+                    'Unbekannte XLSX CLR-Metadatenmarkierung.')
+            validate_csv_clr_metadata(payload)
     except ValueError as error:
         raise ReleaseError(str(error)) from error
+
+
+def validate_xlsx_clr_metadata(payload: dict[str, bytes], sources: dict[str, bytes]) -> None:
+    """Validate the composed XLSX metadata overlay over the unchanged CSV package."""
+    metadata = json.loads(payload.get('CLR-PACKAGE.json', b'{}'))
+    record_bytes = sources.get(xlsx_metadata.RECORD)
+    tagged = metadata.get('xlsx_metadata_update_evidence')
+    if record_bytes is None:
+        require(tagged is None and 'XLSX-METADATA-UPDATE.json' not in payload,
+                'Unknown XLSX CLR metadata overlay.')
+        validate_csv_clr_metadata(payload)
+        return
+    require(tagged == xlsx_metadata.RECORD
+            and payload.get('XLSX-METADATA-UPDATE.json') == record_bytes,
+            'XLSX metadata proof or package marker drifted.')
+    record = json.loads(record_bytes)
+    previous_package = git('show', xlsx_metadata.BASELINE + ':' + CLR_PACKAGE)
+    require(sha(previous_package) == record['previous_clr_zip_sha256'],
+            'Historical XLSX CLR package drifted.')
+    previous = read_zip(previous_package)
+    prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
+    previous_inner = {p[len(prefix):]: b for p, b in previous.items() if p.startswith(prefix)}
+    require(len(previous_inner) == len(previous), 'Historisches XLSX CLR-Paketprefix driftet.')
+    # The previous package already carries CSV metadata. Re-validate that overlay
+    # independently before composing the XLSX layer over its exact bytes.
+    validate_csv_clr_metadata(previous_inner)
+    xlsx_metadata.validate_clr_delta(ROOT, previous_package, previous_inner, payload,
+                                     record, sources)
 
 
 def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[str, bytes] | None = None) -> None:
