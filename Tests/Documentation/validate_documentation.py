@@ -1787,12 +1787,12 @@ def main() -> int:
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
     if "release_preparation" in checks:
-        # Die 120 Releaseprüfungen bauen große ZIPs und rekonstruieren kalte
-        # Git-Bundles; der bestätigte Lauf dauert etwa 186 Sekunden. Die
-        # 240-s-Reserve bleibt endlich, alle Tests und Prozesslimits unverändert.
+        # Der kalte Windows-Clone maß 131 Releaseprüfungen in 355 Sekunden;
+        # 480 Sekunden geben begrenzte Reserve für ZIP- und Bundle-Recovery.
+        # Tests, Assertions und Prozesslimits bleiben unverändert.
         result = subprocess.run(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=240,
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=480,
         )
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")

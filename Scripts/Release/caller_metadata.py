@@ -111,6 +111,12 @@ def validate_source(root, path, executed_digest):
         import xlsx_metadata
         xlsx_metadata.validate_source(root, path, executed_digest)
         return
+    zip_manifest = 'Modules/toolbelt.archive.zip-memory/module.yaml'
+    if path == zip_manifest:
+        # ZIP gilt nur für sein exakt gebundenes Rechtefeld; keine generische Ausnahme.
+        import zip_metadata
+        zip_metadata.validate_source(root, path, executed_digest)
+        return
     current = (Path(root) / path).read_bytes()
     if digest(current) == executed_digest:
         return

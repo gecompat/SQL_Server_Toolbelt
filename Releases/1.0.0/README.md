@@ -5,6 +5,11 @@ Objektrechte und feste synthetische Ausgabeorakel für die bestehenden
 Listing-, Extraktions- und Writer-USPs. Er ändert weder Modulstatus noch
 Releasefreigabe.
 
+Die [ZIP-Manifest- und Paketpflege](ZIP-METADATA-UPDATE.md) übernimmt die
+separat nachgewiesenen internen FT- und ResultTable-Helperrechte exakt in das
+Manifest und die gebundene CLR-Paketprojektion; SQL-/DLL-Payloads bleiben
+unverändert.
+
 Status: **Releasevorbereitung, nicht veröffentlicht**. Die Lieferpakete sind an
 ihre dokumentierten Quell- und Prüfstände gebunden. Veröffentlichung, Tag und
 GitHub-Release sind nicht freigegeben.

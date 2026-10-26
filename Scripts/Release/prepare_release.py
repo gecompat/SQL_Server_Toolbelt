@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import caller_metadata
 import csv_metadata
 import xlsx_metadata
+import zip_metadata
 sys.path.insert(0, str(ROOT / "Tests/Documentation"))
 import validate_documentation as documentation
 
@@ -409,6 +410,19 @@ def qualification_archive(product: str) -> bytes:
             require(manifest['product_commit'] == product,
                     'XLSX-Recoveryarchiv enthält einen anderen Produktcommit.')
             return historical
+    zip_path = ROOT / zip_metadata.RECORD
+    if zip_path.is_file():
+        record = json.loads(zip_path.read_bytes())
+        if record.get('product_chain_predecessor') == product:
+            require(record['previous_source_zip_path'] == ARTIFACTS + NAME + '.zip',
+                    'ZIP-Vorgängersource hat keinen festen öffentlichen Archivpfad.')
+            historical = git('show', zip_metadata.BASELINE + ':' + record['previous_source_zip_path'])
+            require(sha(historical) == record['previous_source_zip_sha256'],
+                    'Gebundenes ZIP-Vorgängerquellarchiv driftet.')
+            manifest = json.loads(read_zip(historical)[NAME + '/PACKAGE-MANIFEST.json'])
+            require(manifest['product_commit'] == product,
+                    'Öffentliches ZIP-Vorgängerarchiv enthält einen anderen Produktcommit.')
+            return historical
     raise ReleaseError('Recoveryprodukt besitzt keine gebundene historische Qualifikationsquelle.')
 
 
@@ -418,6 +432,17 @@ def qualification_sources(product: str) -> tuple[dict[str, bytes], dict[str, byt
     sources, product_files, tree = recovered_snapshot(
         raw[prefix + 'PREPARATION.bundle'], metadata['source_commit'], product)
     xlsx_path = ROOT / xlsx_metadata.RECORD
+    zip_path = ROOT / zip_metadata.RECORD
+    zip_record = json.loads(zip_path.read_bytes()) if zip_path.is_file() else None
+    if zip_record is not None:
+        if product == zip_record.get('product_chain_predecessor'):
+            require(tree == zip_record.get('previous_product_tree'),
+                    'ZIP-Vorgängerbaum stimmt nicht mit dem gebundenen XLSX-Produktstand überein.')
+        elif product == zip_record.get('current_product_commit'):
+            source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+            require(source.get('product_commit') == product
+                    and source.get('tree_oid') == zip_record.get('current_product_tree') == tree,
+                    'ZIP-Aktuellproduktbaum stimmt nicht mit product-source.json überein.')
     if xlsx_path.is_file():
         record = json.loads(xlsx_path.read_bytes())
         if product == record.get('product_chain_predecessor'):
@@ -427,10 +452,14 @@ def qualification_sources(product: str) -> tuple[dict[str, bytes], dict[str, byt
                     and binding.get('product_tree') == tree,
                     'XLSX-Vorgängerbaum stimmt nicht mit der gebundenen Recoveryquelle überein.')
         elif product == record.get('current_product_commit'):
-            source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
-            require(source.get('product_commit') == product
-                    and source.get('tree_oid') == record.get('current_product_tree') == tree,
-                    'XLSX-Aktuellproduktbaum stimmt nicht mit product-source.json überein.')
+            if zip_record is not None and zip_record.get('product_chain_predecessor') == product:
+                require(tree == zip_record.get('previous_product_tree') == record.get('current_product_tree'),
+                        'Historische XLSX-Schicht stimmt nicht mit dem ZIP-Vorgängerbaum überein.')
+            else:
+                source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+                require(source.get('product_commit') == product
+                        and source.get('tree_oid') == record.get('current_product_tree') == tree,
+                        'XLSX-Aktuellproduktbaum stimmt nicht mit product-source.json überein.')
     return sources, product_files, tree
 
 
@@ -483,6 +512,35 @@ def validate_product_applicability(previous: str, current: str,
             if previous != record['previous_product_commit']:
                 validate_regex_product_applicability(previous, record['previous_product_commit'])
             return
+    zip_path = ROOT / zip_metadata.RECORD
+    if zip_path.is_file():
+        record = json.loads(zip_path.read_bytes())
+        if record.get('current_product_commit') == current:
+            predecessor = record['product_chain_predecessor']
+            if previous != predecessor:
+                validate_product_applicability(previous, predecessor)
+            _, old_files, old_tree = qualification_sources(predecessor)
+            product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+            require(product_source.get('product_commit') == current
+                    and product_source.get('tree_oid') == record['current_product_tree']
+                    and re.fullmatch(r'[a-f0-9]{40}', product_source.get('source_commit', '')) is not None,
+                    'ZIP-Aktuellproduktdescriptor ist nicht exakt gebunden.')
+            source_commit, recovered_current = snapshot(product_source['source_commit'])
+            current_tree = git('rev-parse', source_commit + '^{tree}').decode().strip()
+            require(current_tree == record['current_product_tree'],
+                    'ZIP-Aktuellproduktbaum weicht vom commitgebundenen Source-Tree ab.')
+            if current_files is not None:
+                require(all(current_files.get(path) == data for path, data in recovered_current.items()
+                            if path.startswith(('Modules/', 'Deployment/', 'Workers/'))),
+                        'Aktuelle ZIP-Produktdateien stimmen nicht bytegenau mit dem gebundenen Source-Tree überein.')
+            require(old_tree == record['previous_product_tree']
+                    and current_tree == record['current_product_tree']
+                    and product_source['product_commit'] == current,
+                    'ZIP-Produktbäume sind nicht an die historische und aktuelle Quelle gebunden.')
+            _, baseline = snapshot(zip_metadata.BASELINE)
+            package = git('show', zip_metadata.BASELINE + ':' + CLR_PACKAGE)
+            zip_metadata.validate_product_delta(ROOT, old_files, recovered_current, record, baseline, package)
+            return
     xlsx_path = ROOT / xlsx_metadata.RECORD
     if xlsx_path.is_file():
         record = json.loads(xlsx_path.read_bytes())
@@ -505,13 +563,19 @@ def validate_product_applicability(previous: str, current: str,
                                        cwd=ROOT, capture_output=True).returncode == 0
             current_tree = (git('rev-parse', current + '^{tree}').decode().strip() if available
                             else qualification_sources(current)[2])
-        product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
-        require(product_source['product_commit'] == current
-                and product_source['tree_oid'] == record['current_product_tree']
-                and product_source['base_commit'] == record['public_baseline_commit'],
-                'XLSX-Aktuellproduktbaum ist nicht an product-source.json gebunden.')
-        require(current_tree == product_source['tree_oid'],
-                'XLSX-Aktuellproduktbaum weicht von seiner Recoveryquelle ab.')
+        zip_record_path = ROOT / zip_metadata.RECORD
+        zip_record = json.loads(zip_record_path.read_bytes()) if zip_record_path.is_file() else None
+        if zip_record is not None and zip_record.get('product_chain_predecessor') == current:
+            require(current_tree == zip_record['previous_product_tree'] == record['current_product_tree'],
+                    'Historischer XLSX-Produktbaum stimmt nicht mit dem ZIP-Vorgänger überein.')
+        else:
+            product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+            require(product_source['product_commit'] == current
+                    and product_source['tree_oid'] == record['current_product_tree']
+                    and product_source['base_commit'] == record['public_baseline_commit'],
+                    'XLSX-Aktuellproduktbaum ist nicht an product-source.json gebunden.')
+            require(current_tree == product_source['tree_oid'],
+                    'XLSX-Aktuellproduktbaum weicht von seiner Recoveryquelle ab.')
         xlsx_metadata.validate_product_delta(baseline, current_files, record, baseline)
         return
     validate_regex_product_applicability(previous, current)
@@ -738,19 +802,40 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
                 require(sha(payload[alias]) == expected, 'CLR-Paketmethodenquelle abweichend.')
     try:
         package_metadata = json.loads(payload.get('CLR-PACKAGE.json', b'{}'))
-        if package_metadata.get('xlsx_metadata_update_evidence') == xlsx_metadata.RECORD:
+        if package_metadata.get('zip_metadata_update_evidence') == zip_metadata.RECORD:
             bound_sources = product_sources
             if bound_sources is None:
                 product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
-                require(product_source['schema_version'] == '1.0'
-                        and product_source['kind'] == 'synthetic_product_snapshot'
-                        and re.fullmatch(r'[a-f0-9]{40}', product_source['product_commit']) is not None
-                        and re.fullmatch(r'[a-f0-9]{40}', product_source['tree_oid']) is not None,
-                        'XLSX-Produktquelle besitzt keine gültige Recoverybindung.')
                 _, product_files, tree = qualification_sources(product_source['product_commit'])
-                require(tree == product_source['tree_oid'], 'XLSX-Produktbaum weicht von der Recoverybindung ab.')
-                validate_product_applicability(qualification['product_commit'],
-                                               product_source['product_commit'], product_files)
+                require(tree == product_source['tree_oid'], 'ZIP-Produktbaum weicht von der Recoverybindung ab.')
+                validate_product_applicability(qualification['product_commit'], product_source['product_commit'], product_files)
+                bound_sources = {p: product_files[p] for p in zip_metadata.PACKAGE_SOURCES}
+                bound_sources[zip_metadata.RECORD] = payload.get('ZIP-METADATA-UPDATE.json', b'')
+            validate_zip_clr_metadata(payload, bound_sources)
+        elif package_metadata.get('xlsx_metadata_update_evidence') == xlsx_metadata.RECORD:
+            bound_sources = product_sources
+            if bound_sources is None:
+                zip_path = ROOT / zip_metadata.RECORD
+                zip_record = json.loads(zip_path.read_bytes()) if zip_path.is_file() else None
+                if zip_record is not None and 'zip_metadata_update_evidence' not in package_metadata:
+                    # Beim öffentlichen Vorgängerpaket bleibt XLSX an seinen
+                    # tatsächlichen e89-Quellen gebunden; die ZIP-Schicht wird
+                    # anschließend separat darübergelegt.
+                    xlsx_product = zip_record['product_chain_predecessor']
+                    _, product_files, tree = qualification_sources(xlsx_product)
+                    require(tree == zip_record['previous_product_tree'],
+                            'Historische XLSX-Paketquelle weicht vom ZIP-Vorgängerbaum ab.')
+                else:
+                    product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+                    require(product_source['schema_version'] == '1.0'
+                            and product_source['kind'] == 'synthetic_product_snapshot'
+                            and re.fullmatch(r'[a-f0-9]{40}', product_source['product_commit']) is not None
+                            and re.fullmatch(r'[a-f0-9]{40}', product_source['tree_oid']) is not None,
+                            'XLSX-Produktquelle besitzt keine gültige Recoverybindung.')
+                    _, product_files, tree = qualification_sources(product_source['product_commit'])
+                    require(tree == product_source['tree_oid'], 'XLSX-Produktbaum weicht von der Recoverybindung ab.')
+                    validate_product_applicability(qualification['product_commit'],
+                                                   product_source['product_commit'], product_files)
                 bound_sources = {p: product_files[p] for p in
                                  (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
                 bound_sources[xlsx_metadata.RECORD] = payload.get('XLSX-METADATA-UPDATE.json', b'')
@@ -789,6 +874,37 @@ def validate_xlsx_clr_metadata(payload: dict[str, bytes], sources: dict[str, byt
     validate_csv_clr_metadata(previous_inner)
     xlsx_metadata.validate_clr_delta(ROOT, previous_package, previous_inner, payload,
                                      record, sources)
+
+
+def validate_zip_clr_metadata(payload: dict[str, bytes], sources: dict[str, bytes]) -> None:
+    """Validate ZIP metadata as one exact layer over the already checked XLSX package."""
+    metadata = json.loads(payload.get('CLR-PACKAGE.json', b'{}'))
+    record_bytes = sources.get(zip_metadata.RECORD)
+    require(metadata.get('zip_metadata_update_evidence') == zip_metadata.RECORD
+            and payload.get('ZIP-METADATA-UPDATE.json') == record_bytes and record_bytes is not None,
+            'ZIP-Metadatenbeleg oder Paketmarkierung fehlt.')
+    record = json.loads(record_bytes)
+    previous_package = git('show', zip_metadata.BASELINE + ':' + CLR_PACKAGE)
+    require(sha(previous_package) == record['previous_clr_zip_sha256']
+            and sha(previous_package) == record['executed_package_sha256'],
+            'ZIP-Historienpaket oder ursprünglicher Ausführungspaketpin driftet.')
+    previous = read_zip(previous_package)
+    prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
+    previous_inner = {p[len(prefix):]: b for p, b in previous.items() if p.startswith(prefix)}
+    require(len(previous_inner) == len(previous), 'Historisches ZIP-Paketpräfix driftet.')
+    xlsx_record = json.loads((ROOT / xlsx_metadata.RECORD).read_bytes())
+    _, xlsx_sources, xlsx_tree = qualification_sources(xlsx_record['current_product_commit'])
+    require(xlsx_tree == record['previous_product_tree'], 'ZIP-Paketvorgängerbaum driftet.')
+    xlsx_bound = {p: xlsx_sources[p] for p in (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
+    xlsx_bound[xlsx_metadata.RECORD] = (ROOT / xlsx_metadata.RECORD).read_bytes()
+    validate_xlsx_clr_metadata(previous_inner, xlsx_bound)
+    old_product = qualification_sources(record['product_chain_predecessor'])[1]
+    zip_metadata.validate_record(ROOT, record, old_product, sources, previous_package)
+    expected = zip_metadata.refreshed_clr_payload(previous_inner, sources, record)
+    require(payload == expected, 'CLR-Paketdelta überschreitet das exakte ZIP-Metadatenoverlay.')
+    for path in set(payload) | set(previous_inner):
+        if path.startswith(('SQL/', 'Binaries/')):
+            require(payload.get(path) == previous_inner.get(path), 'ZIP-Overlay änderte SQL- oder DLL-Bytes.')
 
 
 def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[str, bytes] | None = None) -> None:

@@ -1,9 +1,11 @@
 """Offline binding checks for the ZIP caller-rights evidence projection."""
 from pathlib import Path
 import hashlib
+import copy
 import json
 import sys
 import unittest
+from unittest.mock import patch
 import zipfile
 import io
 
@@ -11,6 +13,9 @@ ROOT = Path(__file__).resolve().parents[2]
 REPORT = ROOT / 'Releases/1.0.0/zip-caller-profile.json'
 sys.path.insert(0, str(ROOT / 'Tests/Release'))
 import compose_zip_caller as composer
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import zip_metadata
+import prepare_release as release
 
 
 class ZipCallerProfileMixin:
@@ -58,15 +63,81 @@ class ZipCallerProfileMixin:
             self.assertRegex(expected, r'^[0-9A-F]{64}$')
             actual = hashlib.sha256((ROOT / path).read_bytes()).hexdigest().upper()
             with self.subTest(path=relative):
-                self.assertEqual(actual, expected)
+                if relative == zip_metadata.MANIFEST:
+                    zip_metadata.validate_source(ROOT, relative, expected)
+                else:
+                    self.assertEqual(actual, expected)
         self.assertIn('Tests/Release/Runtime/ZipMemory.CallerRights.sql', pins)
         self.assertIn('Tests/Release/Invoke-ZipCallerLab.ps1', pins)
         self.assertIn('Tests/Release/compose_zip_caller.py', pins)
         artifact = json.loads(REPORT.read_bytes())['artifact_binding']
         package_path = artifact['package_path']
         self.assertEqual(package_path, 'Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip')
-        package_hash = hashlib.sha256((ROOT / package_path).read_bytes()).hexdigest().upper()
+        old_package = zip_metadata.historical(ROOT, package_path)
+        package_hash = hashlib.sha256(old_package).hexdigest().upper()
         self.assertEqual(package_hash, artifact['executed_package_sha256'])
+
+    def test_zip_manifest_overlay_rejects_every_other_byte_and_wrong_pin(self):
+        original = zip_metadata.historical(ROOT, zip_metadata.MANIFEST)
+        current = (ROOT / zip_metadata.MANIFEST).read_bytes()
+        zip_metadata.validate_manifest(original, current)
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_source(ROOT, zip_metadata.MANIFEST, '0' * 64)
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_manifest(original, current + b'\n# extra')
+
+    def test_xlsx_offline_adapter_transition_is_exact_and_publicly_anchored(self):
+        record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())
+        zip_metadata.validate_xlsx_offline_source(
+            ROOT, record)
+        altered = copy.deepcopy(record)
+        altered['offline_source_update']['previous_current_sha256'] = '0' * 64
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_xlsx_offline_source(ROOT, altered)
+        altered = copy.deepcopy(record)
+        altered['offline_source_update']['current_sha256'] = '0' * 64
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_xlsx_offline_source(ROOT, altered)
+        altered = copy.deepcopy(record)
+        altered['offline_source_update']['execution_sha256'] = '0' * 64
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_xlsx_offline_source(ROOT, altered)
+        original_read_bytes = Path.read_bytes
+
+        def tampered_read_bytes(path):
+            value = original_read_bytes(path)
+            if path.resolve() == ROOT / zip_metadata.XLSX_OFFLINE_SOURCE:
+                return value + b'\n'
+            return value
+
+        with patch.object(Path, 'read_bytes', tampered_read_bytes):
+            with self.assertRaises(ValueError):
+                zip_metadata.validate_xlsx_offline_source(ROOT, record)
+
+    def test_zip_metadata_record_binds_public_xlsx_predecessor_and_exact_product_delta(self):
+        record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())
+        source = json.loads((ROOT / release.PRODUCT_SOURCE).read_bytes())
+        _, previous, previous_tree = release.qualification_sources(record['product_chain_predecessor'])
+        _, current = release.snapshot(source['source_commit'])
+        _, baseline = release.snapshot(zip_metadata.BASELINE)
+        package = release.git('show', zip_metadata.BASELINE + ':' + release.CLR_PACKAGE)
+        self.assertEqual(previous_tree, record['previous_product_tree'])
+        self.assertEqual(source['product_commit'], record['current_product_commit'])
+        changed = zip_metadata.validate_product_delta(ROOT, previous, current, record, baseline, package)
+        self.assertEqual(changed, {zip_metadata.MANIFEST, *zip_metadata.DOCS})
+        release.validate_product_applicability(
+            '5f796e599554b55668861ec0dee8d28ae663f082', record['current_product_commit'], current)
+        for field, value in (('module_status', 'validated'),
+                             ('previous_source_zip_sha256', '0' * 64),
+                             ('executable_package_payload_changed', True)):
+            altered = copy.deepcopy(record)
+            altered[field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                zip_metadata.validate_record(ROOT, altered, previous, current, package)
+        altered = copy.deepcopy(record)
+        altered['unreviewed_claim'] = True
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_record(ROOT, altered, previous, current, package)
 
     def test_fixed_reader_and_writer_goldens_are_independent(self):
         report = json.loads(REPORT.read_bytes())

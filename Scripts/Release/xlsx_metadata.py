@@ -187,14 +187,23 @@ def validate_source(root, path, executed_digest):
     if path == OFFLINE_SOURCE:
         original = historical(root, OFFLINE_SOURCE)
         raw = json.loads(historical(root, RAW_REPORT))
-        require(raw['source_sha256'].get(OFFLINE_SOURCE, '').lower() == executed_digest.lower()
-                and current == corrected_offline_source(original),
+        prior_current = corrected_offline_source(original)
+        require(raw['source_sha256'].get(OFFLINE_SOURCE, '').lower() == executed_digest.lower(),
                 'XLSX-Evidenztest änderte mehr als den exakten Manifest-Overlayhook.')
         record = json.loads((Path(root) / RECORD).read_bytes())
+        if current != prior_current:
+            import zip_metadata
+            zip_record = json.loads((Path(root) / zip_metadata.RECORD).read_bytes())
+            zip_metadata.validate_xlsx_offline_source(root, zip_record)
+            require(zip_record['offline_source_update']['execution_sha256'].lower() == executed_digest.lower(),
+                    'ZIP-Folgeprojektion ist nicht an den nativen XLSX-Testpin gebunden.')
+            return
+        require(current == prior_current,
+                'XLSX-Evidenztest änderte mehr als den exakten Manifest-Overlayhook.')
         require(record['offline_source_update'] == {
             'path': OFFLINE_SOURCE,
             'executed_sha256': raw['source_sha256'][OFFLINE_SOURCE],
-            'current_sha256': digest(current),
+            'current_sha256': digest(prior_current),
         }, 'XLSX-Evidenztest-Ausführungspin driftet.')
         return
     require(path == MANIFEST, 'XLSX-Overlay gilt ausschließlich für das Modulmanifest.')
@@ -271,10 +280,38 @@ def validate_record(record, original_manifest, current_manifest, previous_packag
     require(record['historical_product_source'] == predecessor_source_binding(ROOT),
             'XLSX-Historienquelle ist nicht exakt an Archiv, Produktcommit und Produktbaum gebunden.')
     product_source = json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())
-    require(record['current_product_commit'] == product_source['product_commit']
-            and record['current_product_tree'] == product_source['tree_oid']
-            and product_source['base_commit'] == BASELINE,
-            'XLSX-Aktuellproduktcommit oder Produktbaum driftet.')
+    zip_path = ROOT / 'Releases/1.0.0/zip-metadata-update.json'
+    if zip_path.is_file():
+        import zip_metadata
+        zip_record = json.loads(zip_path.read_bytes())
+    else:
+        zip_metadata = None
+        zip_record = None
+    if zip_record is not None and zip_record.get('product_chain_predecessor') == record['current_product_commit']:
+        # ZIP ist eine spätere Metadatenstufe. XLSX bleibt an seinem aus dem
+        # öffentlichen ZIP-Vorgängerarchiv rekonstruierten e89-Tree gebunden.
+        require((ROOT / RECORD).read_bytes() == zip_metadata.historical(ROOT, RECORD)
+                and zip_record.get('xlsx_record_sha256') == digest(zip_metadata.historical(ROOT, RECORD)),
+                'Historischer XLSX-Produktrecord driftet innerhalb der ZIP-Stufe.')
+        archive = zip_metadata.historical(ROOT, zip_metadata.SOURCE_ARCHIVE)
+        require(digest(archive) == zip_record.get('previous_source_zip_sha256'),
+                'Öffentliche ZIP-Vorgängerquelle für XLSX stimmt nicht mit ihrem Hash überein.')
+        source_prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
+        with zipfile.ZipFile(io.BytesIO(archive)) as source_archive:
+            source_manifest = json.loads(source_archive.read(source_prefix + 'PACKAGE-MANIFEST.json'))
+        release = import_module('prepare_release')
+        _, _, recovered_tree = release.recovered_snapshot(
+            release.read_zip(archive)[source_prefix + 'PREPARATION.bundle'],
+            source_manifest['source_commit'], source_manifest['product_commit'])
+        require(source_manifest['product_commit'] == record['current_product_commit']
+                and recovered_tree == record['current_product_tree']
+                and recovered_tree == zip_record['previous_product_tree'],
+                'Historischer XLSX-Produktcommit oder Produktbaum driftet.')
+    else:
+        require(record['current_product_commit'] == product_source['product_commit']
+                and record['current_product_tree'] == product_source['tree_oid']
+                and product_source['base_commit'] == BASELINE,
+                'XLSX-Aktuellproduktcommit oder Produktbaum driftet.')
     validate_manifest(original_manifest, current_manifest)
     validate_reports(original_manifest, raw_bytes, cell_bytes)
     require(record['manifest'] == {
@@ -373,6 +410,8 @@ def make_record(root, previous_package, previous_payload, current_sources,
     raw_bytes = historical(root, RAW_REPORT)
     cell_bytes = historical(root, CELL_REPORT)
     raw, cell = validate_reports(original_manifest, raw_bytes, cell_bytes)
+    product_commit, product_tree = _current_product_binding(root)
+    offline_source = corrected_offline_source(historical(root, OFFLINE_SOURCE))
     record = {
         'schema_version': '1.0',
         'date': '2026-10-26',
@@ -380,8 +419,10 @@ def make_record(root, previous_package, previous_payload, current_sources,
         'public_baseline_commit': BASELINE,
         'product_chain_predecessor': DOCUMENTATION_TRANSITION_START,
         'historical_product_source': predecessor_source_binding(root),
-        'current_product_commit': json.loads((Path(root) / 'Releases/1.0.0/product-source.json').read_bytes())['product_commit'],
-        'current_product_tree': json.loads((Path(root) / 'Releases/1.0.0/product-source.json').read_bytes())['tree_oid'],
+        # Eine spätere ZIP-Metadatenstufe besitzt den aktuellen Produktdeskriptor.
+        # Die XLSX-Projektion bleibt an ihren eigenen Produktstand gebunden.
+        'current_product_commit': product_commit,
+        'current_product_tree': product_tree,
         'publication_authorized': False,
         'automatic_grants_added': False,
         'module_status_changed': False,
@@ -397,7 +438,7 @@ def make_record(root, previous_package, previous_payload, current_sources,
         'offline_source_update': {
             'path': OFFLINE_SOURCE,
             'executed_sha256': raw['source_sha256'][OFFLINE_SOURCE],
-            'current_sha256': digest((Path(root) / OFFLINE_SOURCE).read_bytes()),
+            'current_sha256': digest(offline_source),
         },
         'historical_reports_sha256': {
             RAW_REPORT: digest(canonical_text(raw_bytes)),
@@ -493,3 +534,13 @@ def validate_clr_delta(root, previous_package, previous, current, record, source
         if path.startswith(('SQL/', 'Binaries/')):
             require(previous.get(path) == current.get(path), 'XLSX-Overlay änderte SQL- oder DLL-Payloadbytes.')
     return {p for p in set(previous) | set(current) if previous.get(p) != current.get(p)}
+
+
+def _current_product_binding(root):
+    """Liefert den Produktstand dieser Metadatenebene, nicht spätere Overlays."""
+    zip_path = Path(root) / 'Releases/1.0.0/zip-metadata-update.json'
+    if zip_path.is_file():
+        zip_record = json.loads(zip_path.read_bytes())
+        return zip_record['product_chain_predecessor'], zip_record['previous_product_tree']
+    product = json.loads((Path(root) / 'Releases/1.0.0/product-source.json').read_bytes())
+    return product['product_commit'], product['tree_oid']

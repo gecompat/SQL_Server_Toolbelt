@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / 'Tests/Release'))
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 from compose_xlsx_raw_caller import compose
 import xlsx_metadata
+import zip_metadata
 
 REPORT_PATH = ROOT / 'Releases/1.0.0/xlsx-raw-caller-profile.json'
 
@@ -58,6 +59,9 @@ def validate_source_bindings(report, root):
             raise ValueError(f'unsafe source pin path: {relative}')
         if relative == xlsx_metadata.MANIFEST:
             xlsx_metadata.validate_source(root, relative, digest)
+            continue
+        if relative == zip_metadata.MANIFEST:
+            zip_metadata.validate_source(root, relative, digest)
             continue
         if relative == xlsx_metadata.OFFLINE_SOURCE:
             xlsx_metadata.validate_source(root, relative, digest)

@@ -275,6 +275,28 @@ def refresh_xlsx_metadata(output: Path) -> None:
     verify(output)
 
 
+def refresh_zip_metadata(output: Path) -> None:
+    """Compose the exact ZIP metadata layer over the already XLSX-bound package."""
+    release.require(not output.exists() and not Path(str(output) + '.sha256').exists(),
+                    'New ZIP metadata output required; no overwrite.')
+    record = json.loads((release.ROOT / release.zip_metadata.RECORD).read_bytes())
+    previous = release.git('show', release.zip_metadata.BASELINE + ':' + LOCATION)
+    release.require(digest(previous) == record['previous_clr_zip_sha256'], 'ZIP CLR baseline drifted.')
+    _, product_files, tree = release.qualification_sources(record['current_product_commit'])
+    release.require(tree == record['current_product_tree'], 'ZIP CLR source tree drifted.')
+    sources = {path: product_files[path] for path in release.zip_metadata.PACKAGE_SOURCES}
+    sources[release.zip_metadata.RECORD] = (release.ROOT / release.zip_metadata.RECORD).read_bytes()
+    prefix = PACKAGE + '/'
+    payload = {p[len(prefix):]: b for p, b in release.read_zip(previous).items()}
+    desired = release.zip_metadata.refreshed_clr_payload(payload, sources, record)
+    release.validate_zip_clr_metadata(desired, sources)
+    archive = release.write_zip(desired, PACKAGE)
+    with output.open('xb') as stream:
+        stream.write(archive)
+    Path(str(output) + '.sha256').write_text(digest(archive) + '  ' + output.name + '\n', encoding='ascii')
+    verify(output)
+
+
 def verify(path: Path, allow_unqualified_candidate: bool = False) -> dict:
     checksum = Path(str(path) + '.sha256').read_text(encoding='ascii').split()
     release.require(checksum == [digest(path.read_bytes()), path.name], 'CLR-ZIP-Prüfsumme abweichend.')
@@ -328,6 +350,7 @@ if __name__ == '__main__':
     parser.add_argument('--unqualified-candidate',action='store_true',help='Expliziter privater Testinput, kein qualifiziertes Releaseasset.')
     parser.add_argument('--refresh-csv-metadata', action='store_true', help='Exact CSV source metadata overlay; no build/native replay.')
     parser.add_argument('--refresh-xlsx-metadata', action='store_true', help='Exact XLSX recovery/source metadata overlay; no build/native replay.')
+    parser.add_argument('--refresh-zip-metadata', action='store_true', help='Exact ZIP caller metadata overlay over XLSX; no build/native replay.')
     args = parser.parse_args()
     try:
         if args.refresh_csv_metadata:
@@ -338,6 +361,10 @@ if __name__ == '__main__':
             release.require(args.output is not None and args.build_directory is None and not args.verify
                             and not args.unqualified_candidate, 'Only a new XLSX metadata output is allowed.')
             refresh_xlsx_metadata(args.output)
+        elif args.refresh_zip_metadata:
+            release.require(args.output is not None and args.build_directory is None and not args.verify
+                            and not args.unqualified_candidate, 'Only a new ZIP metadata output is allowed.')
+            refresh_zip_metadata(args.output)
         elif args.verify:
             verify(args.verify, allow_unqualified_candidate=args.unqualified_candidate)
         else:
