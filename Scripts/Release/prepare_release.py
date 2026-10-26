@@ -617,7 +617,6 @@ def validate_csv_clr_metadata(payload: dict[str, bytes]) -> None:
 
 def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes]) -> None:
     """Aktuelle Lieferbytes an die tatsächlich ausgeführte native Paketwelle binden."""
-    validate_csv_clr_metadata(payload)
     require(qualification['publication_authorized'] is False and qualification['native_cases_passed'] == 12,
             'Keine CLR-Veröffentlichungsfreigabe oder vollständige Paketmatrix.')
     require(qualification.get('kind') in (None, 'ssis_current_delivery'), 'Unbekannter CLR-Qualifikationsscope.')
@@ -658,6 +657,10 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
         for alias in aliases:
             if alias in payload:
                 require(sha(payload[alias]) == expected, 'CLR-Paketmethodenquelle abweichend.')
+    try:
+        validate_csv_clr_metadata(payload)
+    except ValueError as error:
+        raise ReleaseError(str(error)) from error
 
 
 def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[str, bytes] | None = None) -> None:
