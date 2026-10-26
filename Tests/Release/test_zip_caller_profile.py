@@ -1,6 +1,7 @@
 """Offline binding checks for the ZIP caller-rights evidence projection."""
 from pathlib import Path
 import hashlib
+import copy
 import json
 import sys
 import unittest
@@ -13,6 +14,7 @@ sys.path.insert(0, str(ROOT / 'Tests/Release'))
 import compose_zip_caller as composer
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import zip_metadata
+import prepare_release as release
 
 
 class ZipCallerProfileMixin:
@@ -82,6 +84,29 @@ class ZipCallerProfileMixin:
             zip_metadata.validate_source(ROOT, zip_metadata.MANIFEST, '0' * 64)
         with self.assertRaises(ValueError):
             zip_metadata.validate_manifest(original, current + b'\n# extra')
+
+    def test_zip_metadata_record_binds_public_xlsx_predecessor_and_exact_product_delta(self):
+        record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())
+        source = json.loads((ROOT / release.PRODUCT_SOURCE).read_bytes())
+        _, previous, previous_tree = release.qualification_sources(record['product_chain_predecessor'])
+        _, current = release.snapshot(source['source_commit'])
+        _, baseline = release.snapshot(zip_metadata.BASELINE)
+        package = release.git('show', zip_metadata.BASELINE + ':' + release.CLR_PACKAGE)
+        self.assertEqual(previous_tree, record['previous_product_tree'])
+        self.assertEqual(source['product_commit'], record['current_product_commit'])
+        changed = zip_metadata.validate_product_delta(ROOT, previous, current, record, baseline, package)
+        self.assertEqual(changed, {zip_metadata.MANIFEST, *zip_metadata.DOCS})
+        for field, value in (('module_status', 'validated'),
+                             ('previous_source_zip_sha256', '0' * 64),
+                             ('executable_package_payload_changed', True)):
+            altered = copy.deepcopy(record)
+            altered[field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                zip_metadata.validate_record(ROOT, altered, previous, current, package)
+        altered = copy.deepcopy(record)
+        altered['unreviewed_claim'] = True
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_record(ROOT, altered, previous, current, package)
 
     def test_fixed_reader_and_writer_goldens_are_independent(self):
         report = json.loads(REPORT.read_bytes())

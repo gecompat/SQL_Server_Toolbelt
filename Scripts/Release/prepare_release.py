@@ -519,16 +519,22 @@ def validate_product_applicability(previous: str, current: str,
             if previous != record['product_chain_predecessor']:
                 validate_product_applicability(previous, record['product_chain_predecessor'])
             _, old_files, old_tree = qualification_sources(previous)
-            _, recovered_current, current_tree = qualification_sources(current)
+            product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+            require(product_source.get('product_commit') == current
+                    and product_source.get('tree_oid') == record['current_product_tree']
+                    and re.fullmatch(r'[a-f0-9]{40}', product_source.get('source_commit', '')) is not None,
+                    'ZIP-Aktuellproduktdescriptor ist nicht exakt gebunden.')
+            source_commit, recovered_current = snapshot(product_source['source_commit'])
+            current_tree = git('rev-parse', source_commit + '^{tree}').decode().strip()
+            require(current_tree == record['current_product_tree'],
+                    'ZIP-Aktuellproduktbaum weicht vom commitgebundenen Source-Tree ab.')
             if current_files is not None:
                 require(all(current_files.get(path) == data for path, data in recovered_current.items()
                             if path.startswith(('Modules/', 'Deployment/', 'Workers/'))),
-                        'Aktuelle ZIP-Produktdateien stimmen nicht bytegenau mit dem gebundenen Bundle überein.')
-            product_source = json.loads((ROOT / PRODUCT_SOURCE).read_bytes())
+                        'Aktuelle ZIP-Produktdateien stimmen nicht bytegenau mit dem gebundenen Source-Tree überein.')
             require(old_tree == record['previous_product_tree']
                     and current_tree == record['current_product_tree']
-                    and product_source['product_commit'] == current
-                    and product_source['tree_oid'] == current_tree,
+                    and product_source['product_commit'] == current,
                     'ZIP-Produktbäume sind nicht an die historische und aktuelle Quelle gebunden.')
             _, baseline = snapshot(zip_metadata.BASELINE)
             package = git('show', zip_metadata.BASELINE + ':' + CLR_PACKAGE)
