@@ -245,7 +245,9 @@
     "packaged_version": "toolbelt.archive.zip-memory 1.4.0",
     "packaged_binary_matches_two_historical_reproducible_builds": true,
     "complete_compile_inputs_match_historical_build_source": true,
-    "new_builds": 0
+    "new_builds": 0,
+    "package_path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "executed_package_sha256": "84B5E9A0F3FB888D270ABFE0E542B7560C3AD5A2E1F2C725D5BDBF066203A99C"
   },
   "composition": {
     "source_fixture": "Tests/Release/Runtime/ZipMemory.CallerRights.sql",

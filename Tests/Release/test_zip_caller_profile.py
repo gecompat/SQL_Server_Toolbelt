@@ -21,8 +21,17 @@ class ZipCallerProfileMixin:
         self.assertEqual(matrix['case_count'], 12)
         self.assertEqual(matrix['context_count'], matrix['case_count'] * 2)
         self.assertEqual(len(matrix['cases']), matrix['case_count'])
-        self.assertEqual(len({(x['platform'], x['sql_version'], x['compatibility_level'])
-                              for x in matrix['cases']}), 12)
+        expected = {
+            (platform, version, cl)
+            for platform in ('linux', 'windows')
+            for version, levels in (('2019', (150,)),
+                                    ('2022', (150, 160)),
+                                    ('2025', (150, 160, 170)))
+            for cl in levels
+        }
+        actual = {(x['platform'], x['sql_version'], x['compatibility_level'])
+                  for x in matrix['cases']}
+        self.assertEqual(actual, expected)
         states = matrix['context_count'] * 3 * report['tested_profiles']['per_api_masks']
         routes = states * 2
         self.assertEqual(report['tested_profiles']['mask_states'], states)
@@ -53,6 +62,11 @@ class ZipCallerProfileMixin:
         self.assertIn('Tests/Release/Runtime/ZipMemory.CallerRights.sql', pins)
         self.assertIn('Tests/Release/Invoke-ZipCallerLab.ps1', pins)
         self.assertIn('Tests/Release/compose_zip_caller.py', pins)
+        artifact = json.loads(REPORT.read_bytes())['artifact_binding']
+        package_path = artifact['package_path']
+        self.assertEqual(package_path, 'Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip')
+        package_hash = hashlib.sha256((ROOT / package_path).read_bytes()).hexdigest().upper()
+        self.assertEqual(package_hash, artifact['executed_package_sha256'])
 
     def test_fixed_reader_and_writer_goldens_are_independent(self):
         report = json.loads(REPORT.read_bytes())
