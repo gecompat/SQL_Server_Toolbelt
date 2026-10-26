@@ -1,6 +1,7 @@
 """Begrenzte Manifest- und CLR-Paketprojektion für bereits qualifizierte XLSX-Rechte."""
 from pathlib import Path
 import copy
+import hashlib
 import importlib.util
 import io
 import json
@@ -9,12 +10,74 @@ import sys
 import tempfile
 import unittest
 import zipfile
+from functools import lru_cache
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import prepare_release as release
 import xlsx_metadata as metadata
+
+_ORIGINAL_SNAPSHOT = release.snapshot
+_ORIGINAL_RECOVERED_SNAPSHOT = release.recovered_snapshot
+_BASELINE_COMMITS = frozenset((metadata.BASELINE, metadata.DOCUMENTATION_TRANSITION_START))
+
+
+def _load_baseline_snapshot(root, commit):
+    if root != str(ROOT.resolve()) or commit not in _BASELINE_COMMITS:
+        raise ValueError('Only the exact XLSX metadata baseline snapshots may be shared.')
+    resolved, files = _ORIGINAL_SNAPSHOT(commit)
+    if resolved != commit:
+        raise ValueError('The immutable baseline snapshot resolved to another commit.')
+    return resolved, tuple(sorted((path, bytes(data)) for path, data in files.items()))
+
+
+@lru_cache(maxsize=6)
+def _immutable_baseline_snapshot(root, commit):
+    if len(commit) != 40 or any(character not in '0123456789abcdef' for character in commit):
+        raise ValueError('A complete lowercase commit OID is required for a shared baseline.')
+    return _load_baseline_snapshot(root, commit)
+
+
+def _baseline_snapshot(root, commit):
+    resolved, frozen_files = _immutable_baseline_snapshot(str(Path(root).resolve()), commit)
+    return resolved, dict(frozen_files)
+
+
+def _snapshot_with_test_fixture(commit, repository=None, env=None):
+    root = Path(repository).resolve() if repository is not None else ROOT.resolve()
+    if env is None and root == ROOT.resolve() and commit in _BASELINE_COMMITS:
+        return _baseline_snapshot(root, commit)
+    return _ORIGINAL_SNAPSHOT(commit, repository=repository, env=env)
+
+
+def _load_recovered_fixture(root, bundle_sha256, commit, product_commit, bundle_bytes):
+    if root != str(ROOT.resolve()):
+        raise ValueError('Only this test repository may reuse a recovered bundle fixture.')
+    if hashlib.sha256(bundle_bytes).hexdigest() != bundle_sha256:
+        raise ValueError('Recovered bundle fixture hash mismatch.')
+    sources, product, tree = _ORIGINAL_RECOVERED_SNAPSHOT(bundle_bytes, commit, product_commit)
+    return (tuple(sorted((path, bytes(data)) for path, data in sources.items())),
+            tuple(sorted((path, bytes(data)) for path, data in product.items())), tree)
+
+
+@lru_cache(maxsize=6)
+def _immutable_recovered_fixture(root, bundle_sha256, commit, product_commit, bundle_bytes):
+    for value in (commit, product_commit):
+        if not isinstance(value, str) or len(value) != 40 \
+                or any(character not in '0123456789abcdef' for character in value):
+            raise ValueError('Recovered fixture requires exact lowercase commit OIDs.')
+    if not isinstance(bundle_bytes, bytes) or len(bundle_bytes) > 16 * 1024 * 1024:
+        raise ValueError('Recovered fixture bundle exceeds its immutable input bound.')
+    return _load_recovered_fixture(root, bundle_sha256, commit, product_commit, bundle_bytes)
+
+
+def _recovered_snapshot_with_test_fixture(bundle_bytes, commit, product_commit):
+    root = str(ROOT.resolve())
+    bundle_sha256 = hashlib.sha256(bundle_bytes).hexdigest()
+    sources, product, tree = _immutable_recovered_fixture(
+        root, bundle_sha256, commit, product_commit, bundle_bytes)
+    return dict(sources), dict(product), tree
 
 
 def split_package(data):
@@ -31,9 +94,9 @@ def split_package(data):
 def build_candidate():
     previous_package = metadata.historical(ROOT, metadata.PACKAGE)
     previous_payload = split_package(previous_package)
-    _, previous_files = release.snapshot(metadata.BASELINE)
-    _, transition_previous_files = release.snapshot(metadata.DOCUMENTATION_TRANSITION_START)
-    _, transition_current_files = release.snapshot(metadata.BASELINE)
+    _, previous_files = _baseline_snapshot(ROOT, metadata.BASELINE)
+    _, transition_previous_files = _baseline_snapshot(ROOT, metadata.DOCUMENTATION_TRANSITION_START)
+    _, transition_current_files = _baseline_snapshot(ROOT, metadata.BASELINE)
     current_files = dict(previous_files)
     current_files[metadata.MANIFEST] = (ROOT / metadata.MANIFEST).read_bytes()
     current_sources = dict(current_files)
@@ -50,6 +113,83 @@ def build_candidate():
 
 
 class XlsxMetadataMixin:
+    def setUp(self):
+        self._snapshot_fixture_patch = patch.object(release, 'snapshot', side_effect=_snapshot_with_test_fixture)
+        self._snapshot_fixture_patch.start()
+        self.addCleanup(self._snapshot_fixture_patch.stop)
+        self._recovered_fixture_patch = patch.object(
+            release, 'recovered_snapshot', side_effect=_recovered_snapshot_with_test_fixture)
+        self._recovered_fixture_patch.start()
+        self.addCleanup(self._recovered_fixture_patch.stop)
+
+    def test_recovered_bundle_fixture_uses_exact_hash_oids_root_and_fresh_mappings(self):
+        _immutable_recovered_fixture.cache_clear()
+        self.addCleanup(_immutable_recovered_fixture.cache_clear)
+        bundle = b'fixed immutable synthetic bundle'
+        bundle_hash = hashlib.sha256(bundle).hexdigest()
+        calls = []
+
+        def load(root, digest, commit, product, data):
+            calls.append((root, digest, commit, product, data))
+            return ((('source.sql', b'source'),), (('module.yaml', b'product'),), 'c' * 40)
+
+        with patch(__name__ + '._load_recovered_fixture', side_effect=load):
+            root_a = str((ROOT / '.runtime' / 'recovered-root-a').resolve())
+            root_b = str((ROOT / '.runtime' / 'recovered-root-b').resolve())
+            sources, product, _ = _immutable_recovered_fixture(
+                root_a, bundle_hash, metadata.BASELINE, metadata.BASELINE, bundle)
+            sources = dict(sources); sources['caller-only'] = b'mutation'
+            again, _, _ = _immutable_recovered_fixture(
+                root_a, bundle_hash, metadata.BASELINE, metadata.BASELINE, bundle)
+            _immutable_recovered_fixture(root_b, bundle_hash, metadata.BASELINE, metadata.BASELINE, bundle)
+            changed = bundle + b'!'
+            _immutable_recovered_fixture(
+                root_a, hashlib.sha256(changed).hexdigest(), metadata.BASELINE, metadata.BASELINE, changed)
+            _immutable_recovered_fixture(
+                root_a, bundle_hash, metadata.DOCUMENTATION_TRANSITION_START, metadata.BASELINE, bundle)
+            _immutable_recovered_fixture(
+                root_a, bundle_hash, metadata.BASELINE, metadata.DOCUMENTATION_TRANSITION_START, bundle)
+            wrapped_sources, _, _ = _recovered_snapshot_with_test_fixture(
+                bundle, metadata.BASELINE, metadata.BASELINE)
+            wrapped_sources['caller-only'] = b'mutation'
+            fresh_sources, _, _ = _recovered_snapshot_with_test_fixture(
+                bundle, metadata.BASELINE, metadata.BASELINE)
+        self.assertNotIn('caller-only', dict(again))
+        self.assertNotIn('caller-only', fresh_sources)
+        self.assertEqual(product, (('module.yaml', b'product'),))
+        self.assertEqual(len(calls), 6)
+        self.assertEqual(_immutable_recovered_fixture.cache_info().maxsize, 6)
+        with self.assertRaises(ValueError):
+            _immutable_recovered_fixture(str(ROOT.resolve()), '0' * 64,
+                                          metadata.BASELINE, metadata.BASELINE, bundle)
+        with self.assertRaises(ValueError):
+            _immutable_recovered_fixture(root_a, bundle_hash, 'A' * 40, metadata.BASELINE, bundle)
+        _immutable_recovered_fixture.cache_clear()
+
+    def test_git_baseline_snapshot_fixture_is_bounded_and_returns_fresh_mappings(self):
+        _immutable_baseline_snapshot.cache_clear()
+        self.addCleanup(_immutable_baseline_snapshot.cache_clear)
+        loader = lambda root, commit: (commit, ((f'{root}/{commit}', b'fixed'),))
+        with patch(__name__ + '._load_baseline_snapshot', side_effect=loader) as load:
+            first_root = str((ROOT / '.runtime' / 'snapshot-root-a').resolve())
+            second_root = str((ROOT / '.runtime' / 'snapshot-root-b').resolve())
+            first, files = _baseline_snapshot(first_root, metadata.BASELINE)
+            files['mutated'] = b'caller-local'
+            again, clean_files = _baseline_snapshot(first_root, metadata.BASELINE)
+            _baseline_snapshot(second_root, metadata.BASELINE)
+            _baseline_snapshot(first_root, metadata.DOCUMENTATION_TRANSITION_START)
+            for digit in 'cdef':
+                _baseline_snapshot(first_root, digit * 40)
+            _baseline_snapshot(first_root, metadata.BASELINE)
+        self.assertEqual(first, metadata.BASELINE)
+        self.assertEqual(again, metadata.BASELINE)
+        self.assertNotIn('mutated', clean_files)
+        self.assertEqual(_immutable_baseline_snapshot.cache_info().maxsize, 6)
+        self.assertEqual(load.call_count, 8)
+        with self.assertRaises(ValueError):
+            _baseline_snapshot(first_root, 'A' * 40)
+        _immutable_baseline_snapshot.cache_clear()
+
     def test_historical_archive_cache_is_bounded_and_uses_exact_root_commit_path(self):
         first = 'a' * 40
         second = 'b' * 40
@@ -159,7 +299,7 @@ class XlsxMetadataMixin:
 
     def test_product_delta_and_proof_reject_unselected_fields(self):
         _, _, _, _, record = build_candidate()
-        _, baseline = release.snapshot(metadata.BASELINE)
+        _, baseline = _baseline_snapshot(ROOT, metadata.BASELINE)
         current = dict(baseline)
         current[metadata.MANIFEST] = (ROOT / metadata.MANIFEST).read_bytes()
         changed = metadata.validate_product_delta(baseline, current, record, baseline)
@@ -190,7 +330,7 @@ class XlsxMetadataMixin:
         self.assertNotEqual(metadata.corrected_offline_source(original_test),
                             current_test.replace(b'continue', b'pass', 1))
 
-        _, baseline = release.snapshot(metadata.BASELINE)
+        _, baseline = _baseline_snapshot(ROOT, metadata.BASELINE)
         current = dict(baseline)
         current[metadata.MANIFEST] = (ROOT / metadata.MANIFEST).read_bytes()
         current[release.PRODUCT_SOURCE] = (ROOT / release.PRODUCT_SOURCE).read_bytes()
@@ -208,6 +348,11 @@ class XlsxMetadataMixin:
         record = json.loads((ROOT / metadata.RECORD).read_bytes())
         binding = record['historical_product_source']
         real_git = release.git
+        # This case must cold-reconstruct from the real public-only object
+        # database; no immutable test fixture may satisfy it.
+        _immutable_baseline_snapshot.cache_clear()
+        _immutable_recovered_fixture.cache_clear()
+        recovered_cache_before = _immutable_recovered_fixture.cache_info()
         metadata._historical_source_archive.cache_clear()
         cache_before = metadata._historical_source_archive.cache_info()
         with tempfile.TemporaryDirectory(dir=ROOT / '.runtime', prefix='xlsx-public-only-') as folder:
@@ -244,6 +389,10 @@ class XlsxMetadataMixin:
         cache_after = metadata._historical_source_archive.cache_info()
         self.assertEqual(cache_after.misses - cache_before.misses, 1)
         self.assertGreaterEqual(cache_after.hits - cache_before.hits, 1)
+        recovered_cache_after = _immutable_recovered_fixture.cache_info()
+        self.assertEqual(recovered_cache_after.misses - recovered_cache_before.misses, 1)
+        self.assertEqual(recovered_cache_after.hits - recovered_cache_before.hits, 0,
+                         'Public-only predecessor must cold-recover from its bound bundle.')
 
         changed_binding = dict(binding, archive_sha256='0' * 64)
         with patch.object(release.xlsx_metadata, 'predecessor_source_binding',
