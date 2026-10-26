@@ -5,6 +5,7 @@ import copy
 import json
 import sys
 import unittest
+from unittest.mock import patch
 import zipfile
 import io
 
@@ -84,6 +85,34 @@ class ZipCallerProfileMixin:
             zip_metadata.validate_source(ROOT, zip_metadata.MANIFEST, '0' * 64)
         with self.assertRaises(ValueError):
             zip_metadata.validate_manifest(original, current + b'\n# extra')
+
+    def test_xlsx_offline_adapter_transition_is_exact_and_publicly_anchored(self):
+        record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())
+        zip_metadata.validate_xlsx_offline_source(
+            ROOT, record)
+        altered = copy.deepcopy(record)
+        altered['offline_source_update']['previous_current_sha256'] = '0' * 64
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_xlsx_offline_source(ROOT, altered)
+        altered = copy.deepcopy(record)
+        altered['offline_source_update']['current_sha256'] = '0' * 64
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_xlsx_offline_source(ROOT, altered)
+        altered = copy.deepcopy(record)
+        altered['offline_source_update']['execution_sha256'] = '0' * 64
+        with self.assertRaises(ValueError):
+            zip_metadata.validate_xlsx_offline_source(ROOT, altered)
+        original_read_bytes = Path.read_bytes
+
+        def tampered_read_bytes(path):
+            value = original_read_bytes(path)
+            if path.resolve() == ROOT / zip_metadata.XLSX_OFFLINE_SOURCE:
+                return value + b'\n'
+            return value
+
+        with patch.object(Path, 'read_bytes', tampered_read_bytes):
+            with self.assertRaises(ValueError):
+                zip_metadata.validate_xlsx_offline_source(ROOT, record)
 
     def test_zip_metadata_record_binds_public_xlsx_predecessor_and_exact_product_delta(self):
         record = json.loads((ROOT / zip_metadata.RECORD).read_bytes())

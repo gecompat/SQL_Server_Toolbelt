@@ -106,7 +106,8 @@ def advance_xlsx_product_chain(root: Path, current_product: str, current_plan: d
         prefix = 'SQL-Server-Toolbelt-1.0.0-candidate-source/'
         with zipfile.ZipFile(io.BytesIO(archive)) as source_archive:
             source_manifest = json.loads(source_archive.read(prefix + 'PACKAGE-MANIFEST.json'))
-        require(source_manifest.get('product_commit') == current_product,
+        require(source_manifest.get('product_commit') == zip_record.get('product_chain_predecessor')
+                and zip_record.get('previous_product_tree') == record.get('current_product_tree'),
                 'ZIP Stable historical product descriptor drifted.')
     release_validation.validate_product_applicability(current_product, target, None)
     return target

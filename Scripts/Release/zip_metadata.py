@@ -25,6 +25,7 @@ DOCS = tuple(sorted((
     'Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md',
 )))
 PACKAGE_SOURCES = tuple(sorted((MANIFEST, *DOCS)))
+XLSX_OFFLINE_SOURCE = 'Tests/Release/test_xlsx_cell_caller_qualification.py'
 OLD_PERMISSION_LINES = (
     '  - "EXECUTE auf toolbelt_archive.USP_CreateZipFromEntries"',
     '  - "EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary"',
@@ -52,7 +53,8 @@ def canonical_text(data):
 
 
 def historical(root, path):
-    require(path in (MANIFEST, REPORT, PACKAGE, SOURCE_ARCHIVE, XLSX_RECORD, *DOCS), 'Unbekannte ZIP-Historienquelle.')
+    require(path in (MANIFEST, REPORT, PACKAGE, SOURCE_ARCHIVE, XLSX_RECORD, *XLSX_REPORTS,
+                     XLSX_OFFLINE_SOURCE, *DOCS), 'Unbekannte ZIP-Historienquelle.')
     return subprocess.run(['git', 'show', BASELINE + ':' + path], cwd=root,
                           capture_output=True, check=True, timeout=30).stdout
 
@@ -89,10 +91,61 @@ def validate_source(root, path, executed_digest):
             'ZIP-Metadatenrecord bindet Bericht oder Manifest nicht exakt.')
 
 
+def corrected_xlsx_offline_source(previous):
+    import_before = b'import xlsx_metadata\n'
+    import_after = b'import xlsx_metadata\nimport zip_metadata\n'
+    body_before = (b'            if path == xlsx_metadata.MANIFEST:\n'
+                   b'                xlsx_metadata.validate_source(ROOT, path, digest)\n'
+                   b'                continue\n')
+    body_after = (body_before + b'            if path == zip_metadata.MANIFEST:\n'
+                  b'                zip_metadata.validate_source(ROOT, path, digest)\n'
+                  b'                continue\n')
+    require(previous.count(import_before) == 1 and previous.count(body_before) == 1,
+            'Historischer XLSX-Offlineadapter hat eine andere Form als die exakte ZIP-Dispatchänderung.')
+    return previous.replace(import_before, import_after).replace(body_before, body_after)
+
+
+def validate_xlsx_offline_source(root, record):
+    import xlsx_metadata
+    update = record.get('offline_source_update')
+    raw = json.loads(historical(root, XLSX_REPORTS[0]))
+    xlsx_record_bytes = historical(root, XLSX_RECORD)
+    current_xlsx_record = (Path(root) / XLSX_RECORD).read_bytes()
+    require(canonical_text(current_xlsx_record) == canonical_text(xlsx_record_bytes)
+            and record.get('xlsx_record_sha256') == digest(canonical_text(xlsx_record_bytes)),
+            'XLSX-Vorgängerrecord stimmt nicht mit dem unveränderten öffentlichen ZIP-Basisrecord überein.')
+    previous = xlsx_metadata.corrected_offline_source(
+        xlsx_metadata.historical(root, XLSX_OFFLINE_SOURCE))
+    xlsx_record = json.loads(xlsx_record_bytes)
+    actual = (Path(root) / XLSX_OFFLINE_SOURCE).read_bytes()
+    expected = corrected_xlsx_offline_source(previous)
+    previous_update = xlsx_record.get('offline_source_update', {})
+    require(update == {'path': XLSX_OFFLINE_SOURCE,
+                       'execution_sha256': raw['source_sha256'][XLSX_OFFLINE_SOURCE],
+                       'previous_current_sha256': digest(previous),
+                       'current_sha256': digest(expected)}
+            and previous_update == {'path': XLSX_OFFLINE_SOURCE,
+                                    'executed_sha256': raw['source_sha256'][XLSX_OFFLINE_SOURCE],
+                                    'current_sha256': digest(previous)}
+            and update['execution_sha256'].lower() == raw['source_sha256'][XLSX_OFFLINE_SOURCE].lower()
+            and actual == expected,
+            'Nachgelagerter XLSX-Offlineadapter ist nicht exakt aus der öffentlichen Ausgangsquelle abgeleitet.')
+
+
 def make_record(root, product_source, old_files, new_files, old_package):
     report = historical(root, REPORT)
     xlsx_bytes = historical(root, XLSX_RECORD)
     xlsx = json.loads(xlsx_bytes)
+    import xlsx_metadata
+    xlsx_report = json.loads(historical(root, XLSX_REPORTS[0]))
+    previous_offline = xlsx_metadata.corrected_offline_source(
+        xlsx_metadata.historical(root, XLSX_OFFLINE_SOURCE))
+    current_offline = corrected_xlsx_offline_source(previous_offline)
+    xlsx_native_update = xlsx.get('offline_source_update', {})
+    require(xlsx_native_update == {'path': XLSX_OFFLINE_SOURCE,
+                                   'executed_sha256': xlsx_report['source_sha256'][XLSX_OFFLINE_SOURCE],
+                                   'current_sha256': digest(previous_offline)},
+            'Vorherige XLSX-Offlinequellprojektion weicht vom öffentlichen Bericht ab.')
     old_source_archive = historical(root, SOURCE_ARCHIVE)
     source_manifest_path = 'SQL-Server-Toolbelt-1.0.0-candidate-source/PACKAGE-MANIFEST.json'
     with zipfile.ZipFile(io.BytesIO(old_source_archive)) as archive:
@@ -128,6 +181,12 @@ def make_record(root, product_source, old_files, new_files, old_package):
         'previous_documentation_sha256': {p: digest(old_files[p]) for p in DOCS},
         'current_documentation_sha256': {p: digest(new_files[p]) for p in DOCS},
         'xlsx_record_sha256': digest(xlsx_bytes),
+        'offline_source_update': {
+            'path': XLSX_OFFLINE_SOURCE,
+            'execution_sha256': xlsx_report['source_sha256'][XLSX_OFFLINE_SOURCE],
+            'previous_current_sha256': digest(previous_offline),
+            'current_sha256': digest(current_offline),
+        },
     }
     return record
 
@@ -142,7 +201,7 @@ def validate_record(root, record, old_files, current_files, old_package, report_
               'product_chain_predecessor', 'previous_product_tree', 'current_product_commit',
               'current_product_tree', 'package_source_paths', 'previous_source_sha256',
               'current_source_sha256', 'previous_documentation_sha256',
-              'current_documentation_sha256', 'xlsx_record_sha256'}
+              'current_documentation_sha256', 'xlsx_record_sha256', 'offline_source_update'}
     require(set(record) == fields and record['schema_version'] == '1.0'
             and record['kind'] == 'exact_zip_caller_metadata_projection'
             and record['date'] == '2026-10-26'
@@ -179,6 +238,7 @@ def validate_record(root, record, old_files, current_files, old_package, report_
                     for k in ('product_chain_predecessor', 'previous_product_tree',
                               'current_product_commit', 'current_product_tree')),
             'Vorherige XLSX-Metadatenebene driftet.')
+    validate_xlsx_offline_source(root, record)
     archive_bytes = historical(root, SOURCE_ARCHIVE)
     archive_manifest_path = 'SQL-Server-Toolbelt-1.0.0-candidate-source/PACKAGE-MANIFEST.json'
     with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:

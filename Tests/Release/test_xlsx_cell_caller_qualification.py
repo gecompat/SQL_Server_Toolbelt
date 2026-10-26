@@ -11,6 +11,7 @@ from prepare_function_rights import compose
 from test_xlsx_raw_caller_composer import XlsxRawCallerComposerMixin
 from test_xlsx_raw_caller_evidence import XlsxRawCallerEvidenceMixin
 import xlsx_metadata
+import zip_metadata
 
 
 class XlsxCellCallerTests(XlsxRawCallerComposerMixin, XlsxRawCallerEvidenceMixin, unittest.TestCase):
@@ -44,6 +45,9 @@ class XlsxCellCallerTests(XlsxRawCallerComposerMixin, XlsxRawCallerEvidenceMixin
             self.assertNotIn('..', Path(path).parts)
             if path == xlsx_metadata.MANIFEST:
                 xlsx_metadata.validate_source(ROOT, path, digest)
+                continue
+            if path == zip_metadata.MANIFEST:
+                zip_metadata.validate_source(ROOT, path, digest)
                 continue
             self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
         self.assertEqual({a['name'] for a in r['public_apis']}, {'TVF_InterpretXlsxCell', 'TVF_FormatXlsxCell'})

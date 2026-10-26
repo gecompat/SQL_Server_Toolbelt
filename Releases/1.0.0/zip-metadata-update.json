@@ -68,5 +68,11 @@
     "Modules/toolbelt.archive.zip-memory/Tests/README.md": "2430b4fb39fdb3c4246db89e01edf2ed5a9edfc060c16ea414534a77d566ab08",
     "Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md": "5058d9740385a65df7c3be8d02c54174174f15f975ce7acba81c697ea7b505df"
   },
-  "xlsx_record_sha256": "9359496ade25307abc584f648545155a89854b54bb779d195e0835b6a5466bed"
+  "xlsx_record_sha256": "9359496ade25307abc584f648545155a89854b54bb779d195e0835b6a5466bed",
+  "offline_source_update": {
+    "path": "Tests/Release/test_xlsx_cell_caller_qualification.py",
+    "execution_sha256": "00CE6AB62B3B58EDAC0F013807DCB78107EF9AE0193700BDF3AF1FD382DD12D0",
+    "previous_current_sha256": "90b9ca3a4f733ed970de6e1857802bde710be57d60c908cd971181af6009f853",
+    "current_sha256": "bd17ae9b33aa84d598af119f39c81916f07fec3a7e9453ac285bf2714badbec1"
+  }
 }
