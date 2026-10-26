@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-26",
+  "kind": "exact_csv_caller_metadata_projection",
+  "public_baseline_commit": "89e17e9879b0ce22e63ecd63e3374fe1323fb9a7",
+  "publication_authorized": false,
+  "automatic_grants_added": false,
+  "module_statuses_changed": false,
+  "metadata_preparation_commit": "83b94d5a940d0e94c0861d5e8ea56faeb193f8e1",
+  "previous_product_commit": "5f796e599554b55668861ec0dee8d28ae663f082",
+  "current_product_commit": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
+  "previous_product_tree": "704100a2a4d7d7b78f8b4d856df9205268ac295d",
+  "current_product_tree": "0ac6229ec4693bab73c1fa512ab4b581d348de60",
+  "previous_source_zip_sha256": "2cba72464f873706aef0623109a42b66e5aae9ce93a99a14abe470008dcdc1da",
+  "previous_clr_zip_sha256": "65550a966b34f189a639699744face3b1d008cc4c7f46512e1ee1c56c7a5d363",
+  "manifest": {
+    "path": "Modules/toolbelt.file.csv-memory/module.yaml",
+    "executed_sha256": "2ba19891a0e367828e47bd0a3957e32eeb95830f30d36ee02a9d217f9f4de6e9",
+    "current_sha256": "ff5f2864fd622581a03fa408e563b2cfd1685e19b1bef7a06cf457e02996ccb5"
+  },
+  "historical_report_sha256": "e3c316a6d29474fb3df5b13ca44589d384db27848fd5d43ce622081c38bab335",
+  "changed_product_paths": [
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md",
+    "Modules/toolbelt.file.csv-memory/README.md",
+    "Modules/toolbelt.file.csv-memory/Tests/CSV_TEST_MATRIX.md",
+    "Modules/toolbelt.file.csv-memory/Tests/README.md",
+    "Modules/toolbelt.file.csv-memory/module.yaml",
+    "Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md",
+    "Modules/toolbelt.string.text-pairs/README.md",
+    "Modules/toolbelt.string.text-pairs/Tests/README.md",
+    "Modules/toolbelt.string.text-pairs/Tests/TEXT_PAIRS_TEST_MATRIX.md"
+  ],
+  "previous_source_sha256": {
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md": "5cebb1b532009cb10ede2516a22aaecf62fa5115509dd87b40cf16958af7bc54",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md": "c383c443a2033983d35a91f0e5e21aba94bf84dbf350fb13a1e0ac220976ba62",
+    "Modules/toolbelt.file.csv-memory/README.md": "6dc73d8c969f0465aee94d7b60242d67c694d3afbeb5c3086c6446b877f7f1bc",
+    "Modules/toolbelt.file.csv-memory/Tests/CSV_TEST_MATRIX.md": "fdc7ca4f0e705be133e7948caa3f5cb7d26be15ce647518c0a8f9d79b21265b8",
+    "Modules/toolbelt.file.csv-memory/Tests/README.md": "b9409b508c2298022daf4e248f2b4a92180e998181cb294f18ec9244b5afb181",
+    "Modules/toolbelt.file.csv-memory/module.yaml": "2ba19891a0e367828e47bd0a3957e32eeb95830f30d36ee02a9d217f9f4de6e9",
+    "Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md": "031e303c06a4d8d882f56573b6461c6b3de359d935fc8f1530506ae57022fbc5",
+    "Modules/toolbelt.string.text-pairs/README.md": "8e3f4c8fe75ea21fe40acbb17a316352fc5bb8d5212f0bf4e484f7485eb07d72",
+    "Modules/toolbelt.string.text-pairs/Tests/README.md": "b2c5cab8ca314f18672bfcf6d6958a062589252849a5ed3972da01f3a41d595d",
+    "Modules/toolbelt.string.text-pairs/Tests/TEXT_PAIRS_TEST_MATRIX.md": "8411d920e9ef576eff58d72285120d0cca7ce5a7c72d4f62307de0b9ba54ecbb"
+  },
+  "current_source_sha256": {
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md": "a5195b9167cb2cbfa8085ce8f1c7fb1772fcbf8547b61234804c3c7e58b270f0",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md": "c5ca9d141b9c7e0a3e597a8268b70b5f8f49f7f146aadc7aa08cf4680c1ad32a",
+    "Modules/toolbelt.file.csv-memory/README.md": "c4ae4f413a7e508ac8823efc23e45711e819ef16ed847c3edda4cf267e5a36af",
+    "Modules/toolbelt.file.csv-memory/Tests/CSV_TEST_MATRIX.md": "a3d9d8a5e34e1327c4dec667022eb12246e42a93e5985c3049c1d39b963362f4",
+    "Modules/toolbelt.file.csv-memory/Tests/README.md": "d199275586806b94de747dab0c167d393538a481fac436e5ca60984cc52be6dc",
+    "Modules/toolbelt.file.csv-memory/module.yaml": "ff5f2864fd622581a03fa408e563b2cfd1685e19b1bef7a06cf457e02996ccb5",
+    "Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md": "819209ce6485aeb1a822890e84f2213ec78616ff779cdadb157fb2f7e30a5472",
+    "Modules/toolbelt.string.text-pairs/README.md": "353066f631830c948a7b993dac2bad0622ac8d6c16c6c8deea40280cf409d6bd",
+    "Modules/toolbelt.string.text-pairs/Tests/README.md": "44a35bcfd1c4431bcfae7cc8b35d0c98727dad6c57c9e8d5279cb3da5a5c41b3",
+    "Modules/toolbelt.string.text-pairs/Tests/TEXT_PAIRS_TEST_MATRIX.md": "e6e9c4d9ef10d506040b0ce40fae9bf1a3494b1bddb8853084de4affa2631baf"
+  },
+  "executable_source_bytes_changed": false,
+  "native_sql_attempts": 0,
+  "clr_payload_scope": "Five CSV source entries, additive metadata proof/file list and linked installation guide only; all13 DLLs/20 SQL files and native evidence retained exactly",
+  "remaining_gates": [
+    "Existing full module/client/lifecycle/resource/identity/CrossDB gates remain separate",
+    "Authenticated TLS and complete support qualification remain separate",
+    "No publication or tags"
+  ]
+}
