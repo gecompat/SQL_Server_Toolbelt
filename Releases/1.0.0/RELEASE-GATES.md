@@ -1,5 +1,10 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
+[XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md):
+19 bestehende XLSX-Candidate-Frameworkphasen und sieben ZIP-Entry-Security-Fälle
+mit dem bestehenden Writer-Body bestanden. Paket-/Modulstatus blieb unverändert;
+SQL, Deployment und Veröffentlichung sind nicht freigegeben.
+
 [ZIP-Callerrechte](ZIP-CALLER-PROFILE.md): drei bestehende ZIP-Memory-USPs,
 432 Maskenzustände, 864 API-Routen, 192 positive Orakel, 2.808 strikte
 SQL-229-Abweisungen und 15 frische Abschlussaudits. Zwölf Matrixfälle

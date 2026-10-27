@@ -1,0 +1,282 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "EXISTING_XLSX_CANDIDATE_AND_ZIP_WRITER_PACKAGE_FRAMEWORK_CONTRACTS_ONLY",
+  "publication_authorized": false,
+  "native_sql": "NOT_EXECUTED",
+  "product_build_executed": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "deployment_executed": false,
+  "assembly_installed_or_trusted": false,
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+    "sidecar_sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c"
+  },
+  "modules": {
+    "xlsx": {
+      "module_id": "toolbelt.file.xlsx-memory",
+      "module_version": "1.2.0",
+      "assembly": "Toolbelt.File.XlsxMemory.dll",
+      "assembly_size": 37376,
+      "assembly_sha256": "15bff87fad9695dca6f2127f49a8f509a34825b2d855545dc4b875a1a5af71ec",
+      "matches_delivered_package_entry": true,
+      "scope": "EXISTING_XLSX_CANDIDATE_FRAMEWORK_CONTRACTS_ONLY",
+      "framework": {
+        "status": "PASS",
+        "phases": 19,
+        "metadata_clr_slots": 4,
+        "metadata_sql_source_count": 9,
+        "sql_sources_executed": false,
+        "type_assertions_per_culture": 6437,
+        "display_cases_per_culture": 5619,
+        "cultures": [
+          "en-US",
+          "de-DE",
+          "tr-TR"
+        ],
+        "transport_assertions": 55,
+        "raw_fixed_oracle": "PASS RAW EXISTING_ORACLE",
+        "sandbox_phases": 3,
+        "sandbox_scope": "restricted Framework execution and deny canaries; not OS syscall observation",
+        "own_il_scope": "bounded own-provider IL/reference inspection",
+        "transitive_framework_no_io_claim": false
+      },
+      "sql_executed": false,
+      "full_module_qualified": false
+    },
+    "zip_writer": {
+      "module_id": "toolbelt.archive.zip-memory",
+      "module_version": "1.4.0",
+      "assembly": "Toolbelt.Archive.ZipMemory.dll",
+      "assembly_size": 40960,
+      "assembly_sha256": "bae312b3a125ffa157da72a5ae1b5bf29b6abbe604509638df2cc5e7136b575d",
+      "matches_delivered_package_entry": true,
+      "scope": "EXISTING_ZIP_WRITER_AND_ENTRY_SECURITY_FIXED_CONTRACTS_ONLY",
+      "framework": {
+        "status": "PASS",
+        "phases": 2,
+        "entry_security_cases": 7,
+        "writer_body_reused_unmodified": true,
+        "added_writer_oracles": 0,
+        "main_assembly_identity_binding_before_after": true,
+        "expected_assembly_version": "1.4.0.0",
+        "markers": [
+          "ZIP_ENTRY_SECURITY_PASS cases=7",
+          "ZIP Writer Framework: independent ZipArchive roundtrips, empty Deflate, deterministic Stored, boundaries, names, malformed transport and parallel calls PASS.",
+          "ZIP_WRITER_PACKAGE_FRAMEWORK_PASS"
+        ]
+      },
+      "sql_executed": false,
+      "full_module_qualified": false
+    }
+  },
+  "input_pins": {
+    "repo_relative_count": 48,
+    "pins": [
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Clr/ArchiveSession.cs",
+        "sha256": "7498b00a9fdb7951bf2fcd9878b60f0e2d0fe326308a24a1141747d4156f5a60"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Clr/Properties/AssemblyInfo.cs",
+        "sha256": "91a899843830a1de20b2e28c0f9ff4ce255f9a81cfa783b7cefe84b0cb31de16"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Clr/Toolbelt.Archive.ZipMemory.csproj",
+        "sha256": "fc2b132dee270b90631ebab9fe34e372283328fd332fb6abbbbd683775fd49aa"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs",
+        "sha256": "c72aaa267bb3e5302463b18600a89255b99aebe6e826b0cd11379e0c2bc604ca"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs",
+        "sha256": "75a63066ec29c90f9330be376bddf611443b92a975a9de6af5dc5c2c720e0a66"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Deployment/Deploy.sql",
+        "sha256": "72c753a4daa5e4f83d1882fcbe91a696234dfff7baae4078e592815ceae2d4bd"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/EntrySecurity.Framework.cs",
+        "sha256": "2224dbb06d356f8c2e6285da0179b59c43d8b523757f8d55366742118128ae34"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1",
+        "sha256": "bcb1368b5799ba77961d38215ee2272cd05c6ce210446ed538aa2df7491caa41"
+      },
+      {
+        "path": "Modules/toolbelt.archive.zip-memory/module.yaml",
+        "sha256": "e0632c0b1bcdddbf13bf4f6dcf36f69da63d0e58852deb9f17f11c786d5029e9"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/AssemblyInfo.cs",
+        "sha256": "cb94d2f59c0617fbb8dfdb85e95e05ed8a515b146c1e2e1069dd11f46b640245"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/Toolbelt.File.XlsxMemory.csproj",
+        "sha256": "b073d3636496749f1ed9db235b9ed876581bde90e9f5dafdf7988337496d1b7e"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs",
+        "sha256": "a834d0b53a309e6836efc2ca077b48d2aebc48533a838723268416361a49812a"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplay.cs",
+        "sha256": "25838f5bbac749f539b65a5e49c692189b19994a36028bd119995233ce746ab8"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplayBridge.cs",
+        "sha256": "e2df235c1ab524f565090bfd36a16bafc47a44d38295da219df5c3c12c0d5b05"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellType.cs",
+        "sha256": "564162b8c6fef1145842e92a6ceef2f8478bcbe8d30fe4bce360a160d659a300"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs",
+        "sha256": "99f6f2c7120ce68dfff28f78196f767b97ea93590d7665c8c59df6162a80cdcd"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Deployment/Deploy.sql",
+        "sha256": "1f23932345e407020354f48e8da8611fb3f24bdc3431a503a34316f5a3616512"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Deployment/Uninstall.sql",
+        "sha256": "68f73cc63f81f66fc2a7b57ef139bbee9d6d32fdd13e475d84b0cf3f9272ca5b"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Scripts/Invoke-XlsxBuildProcess.ps1",
+        "sha256": "6af8b22042279c5aff0c0c4d4cf6bc7dc576c8543b3c0afb4bb7c52d706590f7"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Scripts/New-ClrReleaseArtifacts.ps1",
+        "sha256": "82e35c3c6c391019bbd8dd62d80773a44758cfe361963e0b82c77d236e198eca"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql",
+        "sha256": "0486ecef2cefd4eb37a057592459c57601ac479705a7a58bd3183acfe2a95975"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalFormatXlsxCell.sql",
+        "sha256": "a95a0e3d842a2b44c58cc188b0275d21fbd1706d1ca46589faad7a6e311c8701"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalInterpretXlsxCell.sql",
+        "sha256": "f8889112c0a49b1ae34612c3d30bfa46105ca964f589e7ea9770ccdab24c193e"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalXlsxCells.sql",
+        "sha256": "d84336b10f4b5064cfc31f0e6fad888b42252637fcfe34d4d23312b12e710b42"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalXlsxSheets.sql",
+        "sha256": "59cc885a02245857f6d7b32f96c5cb7e1ba182c99e6eca05d67fce9b575b6b9e"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql",
+        "sha256": "5da7aca180f52b8128f819c72e5003fb9c632516a5ac5f3f4a4d4999c2e3616d"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/USP_InternalXlsxRead.sql",
+        "sha256": "cae40b23b3b17d0fe98699d66684bfc96ea5188c9183a0cfa0b3af58da16da68"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql",
+        "sha256": "2a8b4e8368e529c9a0d882ad784d0a4fa38bdf83a15a87b2e772705bb61e31c1"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql",
+        "sha256": "ced8e5ccc754303317ed06a1d72adfe79d60cc31d3d4970902e65d032316b825"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/CandidateMetadataExpectations.json",
+        "sha256": "9242bd22f97b427587610e516df478a63bb9cba89467bb27f71460ed2ff590d9"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/DisplayCandidateHarness.cs",
+        "sha256": "5f60aba3429459861a52b99b8fdbf25b4c20a31c5436c0568e77202e97610347"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/DisplayTransportHarness.cs",
+        "sha256": "4d46075d5569d3608596dfc27f142f1d29ff12bc47af33a4f7ac69d867950834"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidateQualification.ps1",
+        "sha256": "8f3206c98e6deaadf4ed880fd6e97594d6973eb12b500d5a1121d94c42153572"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/RawCandidateHarness.cs",
+        "sha256": "19538ebaf8ec71c1cf700369a92f2bce6e5e9d10a88bbbe09341b85d1339f9e7"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/Test-CandidateMetadata.ps1",
+        "sha256": "883601730a84ae2cbfc206ada81e2d7bd4447d45db473a5f272e41f380b5ded6"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/TypeCandidateHarness.cs",
+        "sha256": "d152f1c1c01873519cfd48ad65a5367ffeb6e62b4f7cd0914e4e3eaa2ecc335e"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/api-goldens.tsv",
+        "sha256": "ac79cb10445204f4a61e43ce5170cc7d5f21ea0fe992280d838841b76bfaa8e4"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/display-numeric-goldens.tsv",
+        "sha256": "d091b140e05d51b36f71d88d00fc2728e4ab655a4bce2217578d9b9927d2c6a9"
+      },
+      {
+        "path": "Modules/toolbelt.file.xlsx-memory/Tests/Framework/numeric-goldens.txt",
+        "sha256": "950446bfedc3bfbe57c7488fc84d6ddc1f7cc1998bb1b86464ddcbc8f66fb8ec"
+      },
+      {
+        "path": "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1",
+        "sha256": "ff2cce9c0c33335892effac843d90bf2b131b597c68e9514850cc91c80cac993"
+      },
+      {
+        "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+        "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
+      },
+      {
+        "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256",
+        "sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c"
+      },
+      {
+        "path": "Spikes/XlsxMemory/QualificationEntryPoints.cs",
+        "sha256": "c4771f094b380730d5be5839aa71b15fddbf99ec46a59d8b74a7724ca6702278"
+      },
+      {
+        "path": "Spikes/XlsxMemory/Sandbox.cs",
+        "sha256": "323caee9caadf2415bf363562013baf1cdacf469409e9c75bb20e0e21995e563"
+      },
+      {
+        "path": "Spikes/XlsxMemory/Test-ProviderIL.ps1",
+        "sha256": "bf1ae44917a2a6d84365b82a109ac1333b3aada4347adfba534e8eb7689cef78"
+      },
+      {
+        "path": "Tests/Release/Invoke-ZipWriterPackageFramework.ps1",
+        "sha256": "20678922935c2fe3fd8540d5f8e0d4f835bab4ebf01ad8de6e75d814bb99537d"
+      },
+      {
+        "path": "Tests/Release/Prepare-XlsxPackageFrameworkArtifacts.ps1",
+        "sha256": "2f5256da470ccdb0d71ca596ae968804c424a5f84c98c7aae1c83c64ccadc259"
+      },
+      {
+        "path": "Tests/Release/ZipWriterPackageHarness.cs",
+        "sha256": "0d7d32af4bb2b8b1324b557a8770c96f87d05658f4f5c430fd2840aa907cec13"
+      }
+    ],
+    "source_map_sha256": "9f129bd638674bbc316e1f0c83d23dd8b7e6972007d0df6d7b59f89933f90f55"
+  },
+  "limits": [
+    "XLSX umfasst nur die 19 Phasen des bestehenden Candidate-Frameworkrunners gegen die DLLs aus dem Installationspaket; die Paketvorbereitung erzeugte private Sidecars und änderte keine ursprünglichen Releaseartefakte.",
+    "Die XLSX-Sandbox prüft eingeschränkte Framework-Ausführung und Deny-Canaries, keine Betriebssystem-Systemaufrufe. Die eigene IL-Prüfung ist auf den Provider begrenzt und behauptet keine transitive No-I/O-Eigenschaft des Frameworks.",
+    "ZIP umfasst sieben vorhandene EntrySecurity-Fälle und den unveränderten WriterFramework-Body; ein separater Main prüfte Paketpfad, Assemblyversion und DLL-SHA256 vor und nach dem Lauf.",
+    "Es gab keine SQL-/Lab-/Deployment-Ausführung, keine Assemblyinstallation oder Truständerung und keinen Produktbuild. Dies ist keine vollständige Modul-, Plattform-, Rechte-, Ressourcen- oder Sicherheitsqualifikation.",
+    "Modulstatus, Paketpayload und Veröffentlichungsfreigabe blieben unverändert; Veröffentlichung ist nicht autorisiert."
+  ]
+}

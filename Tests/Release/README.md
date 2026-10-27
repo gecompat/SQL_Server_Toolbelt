@@ -1,5 +1,11 @@
 # Releasevorbereitung prüfen
 
+Der [XLSX-/ZIP-Writer-Paketnachweis](../../Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md)
+hat drei gezielte Report-/Guardprüfungen in `test_caller_metadata.py`.
+Sie prüfen Quellenpins, Paket-DLLs, Scope und die Fail-closed-Pfade des
+Paketpreparers ohne Compiler oder Frameworklauf. Der lokale Lauf erfolgt über
+den versteckten Python-Launcher; die Pflichtsuite läuft unverändert über CI.
+
 Die [ZIP-Callerprüfung](../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) bindet drei
 bestehende ZIP-Memory-USPs an feste synthetische Orakel, sechs Rechtezustände
 je API und direkte sowie caller-lokale ResultTable-Ausgabe. Vier Berichtstests

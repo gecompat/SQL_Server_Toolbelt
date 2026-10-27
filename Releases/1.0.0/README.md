@@ -1,5 +1,10 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Der [XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md)
+bindet 19 bestehende XLSX-Candidate-Frameworkphasen und den bestehenden
+ZIP-Writer-/Entry-Security-Vertrag an die Installationspaket-DLLs. Er ersetzt
+keine vollständige Modul- oder SQL-Qualifikation.
+
 Der ergänzende [ZIP-Callerbericht](ZIP-CALLER-PROFILE.md) belegt begrenzte
 Objektrechte und feste synthetische Ausgabeorakel für die bestehenden
 Listing-, Extraktions- und Writer-USPs. Er ändert weder Modulstatus noch
