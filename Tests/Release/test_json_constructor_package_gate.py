@@ -171,6 +171,7 @@ class JsonConstructorPackageGateMixin:
     def test_extraction_requires_fresh_private_runtime_scope(self):
         with self.assertRaisesRegex(gate.PackageBindingError, "PACKAGE_OUTPUT_SCOPE_INVALID"):
             gate.extract_package(ROOT, ROOT / "outside-package-output")
+        (ROOT / ".runtime").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / ".runtime", prefix="json-package-gate-") as temp:
             parent = Path(temp)
             target = parent / "extracted"
