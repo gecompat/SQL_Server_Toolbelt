@@ -17,6 +17,18 @@ HISTORICAL = {
     WORKBOOK: 'a834d0b53a309e6836efc2ca077b48d2aebc48533a838723268416361a49812a',
     PROVIDER_IL: 'bf1ae44917a2a6d84365b82a109ac1333b3aada4347adfba534e8eb7689cef78',
 }
+HISTORICAL_REPORT_EOL = {
+    'Releases/1.0.0/xlsx-boundary-qualification.json': {
+        'original_local_sha256': '2d5d150841288e31cd113e40b225a15119fcffecc83f21b2a2f076527c9a7b07',
+        'canonical_lf_sha256': 'a1ff6a3281c27ae69a8fbf2dcef0b8b60a2c3884bc473a602bc319456ca2edce',
+        'lf_count': 476,
+    },
+    'Releases/1.0.0/xlsx-raw-caller-profile.json': {
+        'original_local_sha256': 'ccf857e5d149a6b20423bc71c32a69022c9a3fd7b98cccc9d277ac549d3d7079',
+        'canonical_lf_sha256': '1decbd3513a442e2f7419ea339154a8cd4ac8bf2f872cfaac7a77e7bd8e42ced',
+        'lf_count': 321,
+    },
+}
 PREVIOUS_CELL_TEST_SHA256 = 'bd17ae9b33aa84d598af119f39c81916f07fec3a7e9453ac285bf2714badbec1'
 IMPORT_BEFORE = b'import zip_metadata\n'
 IMPORT_AFTER = IMPORT_BEFORE + b'import xlsx_sst_budget\n'
@@ -114,11 +126,29 @@ def reconstruct_executed_workbook(canonical):
     return b''.join(lines)
 
 
+def validate_historical_report(path, data, expected):
+    projection = HISTORICAL_REPORT_EOL.get(path)
+    if projection is None:
+        require(digest(data) == expected, 'historical report changed: ' + path)
+        return data
+    canonical = data.replace(b'\r\n', b'\n')
+    rebuilt = canonical.replace(b'\n', b'\r\n')
+    require(expected == projection['canonical_lf_sha256']
+            and b'\r' not in canonical and canonical.count(b'\n') == projection['lf_count']
+            and digest(canonical) == expected
+            and digest(rebuilt) == projection['original_local_sha256']
+            and data in (canonical, rebuilt),
+            'historical report differs beyond exact LF/CRLF projection: ' + path)
+    return canonical
+
+
 def validate_current(root):
     root = Path(root)
     record = read_record(root)
     require(record['candidate_bundle']['path'] == CANDIDATE_BUNDLE,
             'unexpected SST candidate archive path')
+    require(record['historical_report_eol_projections'] == HISTORICAL_REPORT_EOL,
+            'historical report EOL bindings differ')
     for path, expected in record['current_source_sha256'].items():
         require(not Path(path).is_absolute() and '..' not in Path(path).parts,
                 'unsafe SST source path')
@@ -126,7 +156,7 @@ def validate_current(root):
     for path, expected in record['historical_reports_sha256'].items():
         require(path.startswith('Releases/1.0.0/') and '..' not in Path(path).parts,
                 'unsafe historical SST report path')
-        require(digest((root / path).read_bytes()) == expected, 'historical report changed: ' + path)
+        validate_historical_report(path, (root / path).read_bytes(), expected)
     for path, expected in HISTORICAL.items():
         validate_historical_source(root, path, expected)
     workbook = (root / WORKBOOK).read_bytes()

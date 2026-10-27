@@ -229,3 +229,13 @@ class XlsxBoundaryEvidenceMixin:
             with patch.object(xlsx_sst_budget, 'read_record', return_value=altered):
                 with self.assertRaisesRegex(ValueError, 'candidate archive path'):
                     xlsx_sst_budget.validate_current(ROOT)
+
+    def test_sst_old_report_projection_rejects_content_and_mixed_endings(self):
+        for path, projection in xlsx_sst_budget.HISTORICAL_REPORT_EOL.items():
+            canonical = (ROOT / path).read_bytes().replace(b'\r\n', b'\n')
+            expected = projection['canonical_lf_sha256']
+            for data in (canonical, canonical.replace(b'\n', b'\r\n')):
+                self.assertEqual(xlsx_sst_budget.validate_historical_report(path, data, expected), canonical)
+            for data in (canonical + b' ', canonical.replace(b'\n', b'\r\n', 1)):
+                with self.assertRaisesRegex(ValueError, 'exact LF/CRLF'):
+                    xlsx_sst_budget.validate_historical_report(path, data, expected)

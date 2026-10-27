@@ -1891,7 +1891,11 @@ class FunctionCallerQualificationTests(unittest.TestCase):
                 self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
                                     and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
                 for source, digest in report['source_sha256'].items():
-                    release.caller_metadata.validate_source(ROOT, source, digest)
+                    if source == 'Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs':
+                        import xlsx_sst_budget
+                        xlsx_sst_budget.validate_historical_source(ROOT, source, digest)
+                    else:
+                        release.caller_metadata.validate_source(ROOT, source, digest)
                 self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
                 self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                                     for c in report['oracle_rejection_controls']))

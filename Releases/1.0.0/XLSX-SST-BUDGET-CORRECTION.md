@@ -54,6 +54,11 @@ Der neue Workbook-Nachweis trennt die ausgeführte Quelle mit genau einer
 CRLF-Zeile von ihrer verlustfrei rekonstruierten LF-Fassung im Repository.
 Die private Kopie des bestehenden SQL-Grenztreibers änderte ausschließlich
 die Repository-/Helperpfadbindung; Orakel und Bereinigung bleiben erhalten.
+Zwei historische JSON-Berichte lagen im lokalen Kontext mit vollständigen
+CRLF-Zeilenenden vor. Ihre ursprünglichen lokalen Hashes und die exakten
+LF-Fassungen sind getrennt gebunden; nur diese verlustfreie Projektion wird
+für Cold-Checkouts akzeptiert. Inhalte und native Ausführungspins bleiben
+unverändert.
 
 ## Verbleibende Releasegates
 
