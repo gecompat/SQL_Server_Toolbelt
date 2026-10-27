@@ -1,5 +1,19 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Fünfzehnter endlicher Release-Rahmen — 2026-10-27
+
+Der autorisierte R15-Releasegate-Slice prüft das bestehende
+`toolbelt.json.constructors`-Framework-/IL-Profil gegen die gelieferten
+`Toolbelt.JsonConstructors.dll`- und `Toolbelt.JsonCore.dll`-Bytes. Der
+vorhandene Quell-Frameworklauf vergleicht beide DLLs bytegenau mit dem Paket;
+der JSON-Core-Closure-IL-Gate läuft direkt auf dem Constructor-Binary aus dem
+Paket. 27 Frameworkphasen und die festen BridgeGoldens bestanden. Sieben
+Paketbindungs-, Report- und Pfadprüfungen laufen in der bestehenden
+Release-Suite. Die JSON-Schema-DLL wird dadurch nicht als
+Paketqualifikation ausgewiesen. Es gab keine SQL-/Labverbindung und keine
+Produkt-, Manifest-, Paket- oder Modulstatusänderung; der Bericht bleibt auf
+dieses bestehende Offlinegate begrenzt.
+
 ## Dreizehnter endlicher Release-Rahmen — 2026-10-26
 
 Der autonome Releasegate-Auftrag lief im gemeinsam begrenzten R13-Rahmen
@@ -21,13 +35,20 @@ Journale weisen 27 entfernte eigene Datenbanken und 15 entfernte eigene
 Trusteinträge aus. Produktquellen, Modulmanifest und Paket blieben in dieser
 Welle unverändert.
 
-Der Callerbericht zeigt, dass das aktuelle ZIP-Manifest in
+Der Callerbericht zeigte, dass das damalige ZIP-Manifest in
 `permissions_required` nur die drei öffentlichen `EXECUTE`-Rechte auflistet,
 während die geprüften Aufrufpfade zusätzlich interne FT-`SELECT`-Rechte und
-den ResultTable-Helper benötigen. Diese getrennte Metadaten-/Paketpflege bleibt
-als möglicher nächster, exakt begrenzter Schritt offen. Releasegates außerhalb
-dieser beiden Wellen, Head-/Main-CI im integrierenden PR sowie Veröffentlichung
-und Tags bleiben separat.
+den ResultTable-Helper benötigen.
+
+~~Diese getrennte Metadaten-/Paketpflege bleibt als möglicher nächster, exakt
+begrenzter Schritt offen.~~
+
+Korrektur 2026-10-27 — Codex: Dieser offene Punkt wurde in R14 geschlossen.
+PR456 ergänzte die gebundene ZIP-Manifest-/Paketprojektion; PR457 reparierte
+die Recovery der gebundenen Produktquellen nach dem Squash-Merge. Beide PRs
+sind gemergt; Main-CI bestätigte 132 Release-Tests. Die alten R13-Läufe und
+ihre Fehlerkontrollen bleiben in ihren Originalberichten erhalten. Andere
+Releasegates, Veröffentlichung und Tags bleiben separat.
 
 ## Zwölfter endlicher Release-Rahmen — 2026-10-26
 
