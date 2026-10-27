@@ -322,6 +322,13 @@
     "Tests/Release/ZipEntryCount.DeploymentDiscovery.ps1": "c96a8bdd7cb682921f04d597f60745cbefe0c89734df095b6ba56615a58c19a5",
     "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c"
   },
+  "source_transition": {
+    "path": "Tests/Release/Prepare-ZipEntryCountRunset.ps1",
+    "original_execution_sha256": "8b87d3c69eab6ee63d708db829a3e399bbb297364386981646b6f1ec37edb46f",
+    "original_execution_commit": "9044a2cb829d13e905ff08a26f580a97564ce60b",
+    "current_source_sha256": "2d6873659c8436e8a7c81c143383bc04c2aaa5017776c1039026e83a7f92a369",
+    "change_scope": "The runset preparer now dot-sources the same lab contract through the direct literal Join-Path form required by the existing cold-checkout AST gate. No SQL or preparation run was repeated after this syntax-only adjustment."
+  },
   "limits": [
     "Only the two fixed entry-count rejection conditions and positive metadata output are covered.",
     "No extraction/payload-integrity behavior, ResultTable route, object-rights matrix, full ZIP-format compliance or complete module qualification is claimed.",

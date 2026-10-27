@@ -39,6 +39,19 @@ Insgesamt wurden 30 SQL-Prozessinvokationen ausgeführt: zwölf Testfälle,
 zwölf unmittelbare Audits und sechs zusätzliche Abschlussaudits. Die weiteren
 Prüfungen bestätigten den wiederhergestellten Trust- und Konfigurationszustand.
 
+## Nachgelagerte CI-Korrektur
+
+Der erste CI-Lauf am ursprünglichen PR-Head scheiterte ausschließlich an der
+Cold-Checkout-AST-Prüfung für die explizite Labvertrag-Abhängigkeit im
+Runset-Preparer. Der Preparer verwendet jetzt dieselbe direkte
+`Join-Path`-Dot-Command-Form wie der Labtreiber. Der Report behält den
+ausgeführten Original-Preparer-Pin und dessen öffentlichen Commitanker;
+der Regressionstest rekonstruiert die Originalbytes durch genau die inverse
+Zweizeilenänderung, prüft den ursprünglichen SHA-256 und bindet den aktuellen
+Quellhash separat. Diese syntaktische Korrektur wurde nicht erneut ausgeführt
+und löste keinen SQL- oder Frameworklauf aus. Der ursprüngliche CI-Fehler
+bleibt in der PR-Historie erhalten.
+
 ## Grenzen
 
 Dieser Nachweis deckt die aufgelistete Entryanzahl-Grenze und die feste

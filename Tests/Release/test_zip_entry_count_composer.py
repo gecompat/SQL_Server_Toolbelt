@@ -57,7 +57,12 @@ class ZipEntryCountComposerMixin:
         self.assertEqual(report['repository_input_pin_count'], 115)
         self.assertNotIn('sha512', json.dumps(report).lower())
 
+        overlay_path = report['source_transition']['path']
+        self.assertEqual(report['source_transition']['original_execution_sha256'],
+                         report['source_sha256'][overlay_path])
         for relative, expected_sha256 in report['source_sha256'].items():
+            if relative == overlay_path:
+                continue
             path = Path(relative)
             self.assertFalse(path.is_absolute())
             self.assertNotIn('..', path.parts)
@@ -83,6 +88,25 @@ class ZipEntryCountComposerMixin:
             self.assertEqual(hashlib.sha256(binary).hexdigest(), report['binary']['sha256'])
             self.assertEqual(artifact['sql_name'], report['binary']['sql_assembly_name'])
             self.assertEqual(artifact['origin'], report['package']['zip_module_origin'])
+
+    def test_zip_entry_count_preparer_ast_overlay_reconstructs_pinned_original_bytes(self):
+        report = json.loads((ROOT / 'Releases/1.0.0/zip-entry-count-qualification.json').read_bytes())
+        transition = report['source_transition']
+        path = transition['path']
+        self.assertEqual(path, 'Tests/Release/Prepare-ZipEntryCountRunset.ps1')
+        self.assertEqual(transition['original_execution_commit'],
+                         '9044a2cb829d13e905ff08a26f580a97564ce60b')
+        self.assertEqual(transition['original_execution_sha256'], report['source_sha256'][path])
+        current = (ROOT / path).read_bytes()
+        self.assertEqual(hashlib.sha256(current).hexdigest(), transition['current_source_sha256'])
+        old_dot_source = (b"$labQualified = Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'\n"
+                          b'. $labQualified')
+        new_dot_source = b". (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1')"
+        self.assertEqual(current.count(new_dot_source), 1)
+        reconstructed_original = current.replace(new_dot_source, old_dot_source)
+        self.assertEqual(hashlib.sha256(reconstructed_original).hexdigest(),
+                         transition['original_execution_sha256'])
+        self.assertEqual(reconstructed_original.replace(old_dot_source, new_dot_source), current)
 
     def test_zip_entry_count_composition_uses_fixed_archives_and_input_pins(self):
         fixture = FIXTURE.read_bytes()

@@ -25,8 +25,7 @@ if (-not (Test-Path -LiteralPath $PythonPath -PathType Leaf)) { throw 'ZIP_ENTRY
 . (Join-Path $PSScriptRoot 'ZipEntryCount.DeploymentDiscovery.ps1')
 . (Join-Path $repo 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1')
 $pythonPathResolved = [IO.Path]::GetFullPath($PythonPath)
-$labQualified = Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'
-. $labQualified
+. (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1')
 $labSource = Join-Path $repo 'Tests/CI/run-lab-local.ps1'
 $labParseErrors = $null
 $labAst = [Management.Automation.Language.Parser]::ParseFile($labSource, [ref]$null, [ref]$labParseErrors)
