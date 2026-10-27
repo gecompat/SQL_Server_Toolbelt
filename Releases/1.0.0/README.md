@@ -10,6 +10,8 @@ Objektrechte und feste synthetische Ausgabeorakel für die bestehenden
 Listing-, Extraktions- und Writer-USPs. Er ändert weder Modulstatus noch
 Releasefreigabe.
 
+Die [ZIP-Entryanzahl-Grenzprüfung](ZIP-ENTRY-COUNT-QUALIFICATION.md) ergänzt den bestehenden ZIP-Callerbericht um feste 10.000-/10.001-Entry-Grenzfälle der Listing-API. Sie ist keine vollständige ZIP- oder Modulqualifikation; Modulstatus und Veröffentlichung bleiben unverändert. Die [Evidenzdatei](zip-entry-count-qualification.json) bindet Paket-DLL und Eingabepins.
+
 Die [ZIP-Manifest- und Paketpflege](ZIP-METADATA-UPDATE.md) übernimmt die
 separat nachgewiesenen internen FT- und ResultTable-Helperrechte exakt in das
 Manifest und die gebundene CLR-Paketprojektion; SQL-/DLL-Payloads bleiben

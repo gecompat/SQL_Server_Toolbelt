@@ -20,10 +20,11 @@ from test_edit_distance_package_gate import EditDistancePackageGateMixin
 from test_script_parser_package_gate import ScriptParserPackageGateMixin
 from test_clr_framework_package_profile import ClrFrameworkCandidateProfileMixin
 from test_xlsx_zip_package_framework import XlsxZipPackageFrameworkMixin
+from test_zip_entry_count_composer import ZipEntryCountComposerMixin
 import xlsx_metadata
 
 
-class CallerMetadataTests(XlsxMetadataMixin, JsonConstructorPackageGateMixin, JsonSchemaPackageGateMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, EditDistancePackageGateMixin, ScriptParserPackageGateMixin, ClrFrameworkCandidateProfileMixin, XlsxZipPackageFrameworkMixin, unittest.TestCase):
+class CallerMetadataTests(XlsxMetadataMixin, JsonConstructorPackageGateMixin, JsonSchemaPackageGateMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, EditDistancePackageGateMixin, ScriptParserPackageGateMixin, ClrFrameworkCandidateProfileMixin, XlsxZipPackageFrameworkMixin, ZipEntryCountComposerMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         runtime = ROOT / '.runtime'
