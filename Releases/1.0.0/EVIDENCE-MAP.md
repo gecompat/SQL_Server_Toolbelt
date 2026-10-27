@@ -30,6 +30,12 @@ die gelieferte DLL besteht den festen Distance-/Jaro-Contract und eine
 begrenzte IL-Inspektion. Weitere CLR-, SQL-, Rechte- und Lifecycle-Gates bleiben
 separat.
 
+[Scriptparser-Paketbindung](SCRIPT-PARSER-PACKAGE-QUALIFICATION.md): 63 feste
+paketgebundene Providerfälle plus ein separat gebauter 60-Assertions-
+Source-Guard. Der Nachweis umfasst weder vollständige Modul-/Plattform- noch
+transitive IL-, SQL- oder Deploymentqualifikation. Die [Evidenzdatei](SCRIPT-PARSER-PACKAGE-QUALIFICATION.json)
+bindet 16 repo-relative Eingabepins.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs, zwölf lokale/direkt zentrale Windows-/Linux-Ziel-/CL-Fälle, 336 Rechtemaskenzustände, 672 API-Routen und 720 feste Ergebniszeilen. Ein ursprünglicher Probe-Arityfehler bleibt getrennt von zwölf bestandenen Fällen und zwei gezielt abgewiesenen Kontrollen; 15 frische Abschlussaudits bestanden.
 
 [XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) bindet die Raw- und Zell-Callerrechte aus den unveränderten Berichten an das Modulmanifest und den bestehenden CLR-Satz. SQL- und DLL-Payloads bleiben bytegleich; der Modulstatus bleibt unverändert.
