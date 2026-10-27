@@ -1,5 +1,12 @@
 # Nachweiszuordnung aller 45 Module
 
+[XLSX-Blatt- und Shared-String-Grenzen](XLSX-BOUNDARY-QUALIFICATION.md): die
+feste 32/33-Blattgrenze der bestehenden Listing-API besteht auf zwölf
+Ziel-/CL-Fällen. Der separate 50.000-Shared-String-Test blieb nach zwei
+lokalen Budgetfehlern blockiert; Overflow und zentrale Route wurden nicht
+ausgeführt. Die [Evidenz](xlsx-boundary-qualification.json) hält beide Scopes
+getrennt.
+
 [XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md):
 19 bestehende XLSX-Candidate-Frameworkphasen und zwei ZIP-Writer-Laufphasen
 gegen gebundene Installationspaket-DLLs. Die XLSX-Sandbox ist keine
