@@ -1,5 +1,18 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Sechzehnter endlicher Release-Rahmen — 2026-10-27
+
+Der erste genehmigte Offline-Slice bindet den bestehenden
+`toolbelt.tsql.script-parser`-Provider an 63 feste Paketfälle. Ein separater
+Source-Guard besteht 60 Assertions, ist jedoch kein Paketnachweis. Die
+[maschinenlesbare Evidenz](../Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.json)
+und der [Bericht](../Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.md)
+halten 16 repo-relative Eingabepins, den begrenzten Umfang, zwei frühe
+Runnerfehler und die anschließende LF-Neubindung fest. Vier gezielte Paket-/Pfadkontrollen sowie Report- und
+Korpusdriftprüfungen laufen über die bestehende Release-Suite. Es gab keine
+SQL-/Labverbindung und keine Produkt-, Modul-, Manifest- oder Paketänderung.
+Vollständige Modul-, Plattform-, IL- und Deploymentgates bleiben offen.
+
 ## Fünfzehnter endlicher Release-Rahmen — 2026-10-27
 
 Der autorisierte R15-Releasegate-Slice prüft das bestehende

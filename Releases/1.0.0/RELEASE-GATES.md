@@ -38,6 +38,13 @@ in drei Kulturen und 109.333 feste Contract-Assertions. Eine begrenzte
 IL-Inspektion bestand; Gesamt-CLR, SQL, API-Rechte und Veröffentlichung sind
 nicht Teil des Nachweises.
 
+[Scriptparser-Paketbindung](SCRIPT-PARSER-PACKAGE-QUALIFICATION.md): 63
+ausgewählte feste Providerfälle bestanden gegen die DLL aus dem Paket. Der
+separate Source-Guard umfasst 60 Assertions; kein SQL-/Lablauf und keine
+vollständige Modul-, Plattform- oder transitive IL-Qualifikation. Die
+[Evidenz](SCRIPT-PARSER-PACKAGE-QUALIFICATION.json) bindet 16 repo-relative
+Eingabepins.
+
 Die [SSIS-Qualifikation vom 2026-10-25](SSIS-LOOKUP-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-

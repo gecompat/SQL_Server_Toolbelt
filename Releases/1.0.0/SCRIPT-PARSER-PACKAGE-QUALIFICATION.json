@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "SCRIPT_PARSER_PACKAGE_BOUND_FIXED_CORPUS_AND_SEPARATE_SOURCE_GUARD",
+  "publication_authorized": false,
+  "native_sql": "NOT_EXECUTED",
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
+  },
+  "module": {
+    "id": "toolbelt.tsql.script-parser",
+    "version": "2.0.1",
+    "assembly": "Toolbelt.Tsql.ScriptParser.dll",
+    "assembly_size": 20992,
+    "assembly_sha256": "51dcb066f373d8a91c61320c04139c62332c9ad1b1e2db4d42bea6e703e7e75f",
+    "matches_package_entry": true,
+    "dependency": {
+      "assembly": "Microsoft.SqlServer.TransactSql.ScriptDom.dll",
+      "size": 6970680,
+      "sha256": "c467c638ed53caba55ec1a4ae534990326ac1811046ef12775f5bbd46478b7cb",
+      "matches_package_entry": true
+    }
+  },
+  "qualification": {
+    "provider_profile": "PASS",
+    "provider_children": 63,
+    "provider_cases": {
+      "parameter_contract": 1,
+      "legacy_parser_versions": 10,
+      "fixed_corpus": 48,
+      "version_boundaries": 4
+    },
+    "provider_output": {
+      "line": "FRAMEWORK_PASS",
+      "line_ending": "LF"
+    },
+    "legacy_parser_versions": [80, 90, 100, 110, 120, 130, 140, 150, 160, 170],
+    "fixed_corpus": {
+      "cases": 16,
+      "parser_versions": [150, 160, 170],
+      "fixture_sha256": "9d12f047c8b41badf0221135815fb2ae6e541bece775b2b0b6cec8f934429b21"
+    },
+    "version_boundaries": [
+      "WINDOW_AGGREGATE_150_REJECTED_160_ACCEPTED",
+      "JSON_ARRAYAGG_160_REJECTED_170_ACCEPTED"
+    ],
+    "separate_source_guard": {
+      "status": "PASS",
+      "assertions": 60,
+      "package_bound": false
+    },
+    "captured_stages": 67,
+    "hidden_process_chain": "PASS",
+    "input_tool_and_output_pins": "MATCH_BEFORE_AND_AFTER",
+    "negative_controls": [
+      "PACKAGE_SHA256_REJECTED",
+      "SIDECAR_REJECTED",
+      "QUALIFICATION_SHA256_REJECTED",
+      "ZIP_PATH_TRAVERSAL_REJECTED"
+    ],
+    "sql_or_lab": "NOT_EXECUTED"
+  },
+  "input_sha256": {
+    "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+    "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c",
+    "Releases/1.0.0/clr-qualification.json": "d484d87d8e5322b8ab55dbf8ee8901626df7ff4cb066f48b0bdd2dd90486936d",
+    "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1": "ff2cce9c0c33335892effac843d90bf2b131b597c68e9514850cc91c80cac993",
+    "Scripts/Release/script_parser_package.py": "04d8b26af2f2911f7f7b327e24efcdb84b5869f7b1b6f303def34d67c8f2bf52",
+    "Tests/Release/ScriptParserPackageContractInputs.json": "9d12f047c8b41badf0221135815fb2ae6e541bece775b2b0b6cec8f934429b21",
+    "Tests/Release/Invoke-ScriptParserPackageQualification.ps1": "dbedd6484b19bb008e83482b0990bf269e93eecd602a841bde72bd1bf5f057da",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/ProviderTests.cs": "a71f44051612ecccfca70855d040dabb63473c6d581b59079e8910840402d221",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/TestInputs.cs": "b799543722356fc943d1013dde23a78bfd0f96fd8a8e19e159c0661fe640e730",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/GuardTests.cs": "ac0fa07e9cc714148d273a47c6fa0ddc436aeee8e42c057d0de69db9fcc8c776",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/Invoke-Contract.ps1": "83acc923eb17f76767e7da6d46028b252590849e1d2498ecd4fc583a3b3ea6df",
+    "Modules/toolbelt.tsql.script-parser/Clr/PreparseGuard.cs": "83a84fbda92b416fae56db0c52030547fa9e482d9d671971c2e64d748e3c366e",
+    "Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs": "33331e397100720c2413ac75d22ac25cd23cda4b7816bfa30338c2f14808829b",
+    "Modules/toolbelt.tsql.script-parser/Clr/Properties/AssemblyInfo.cs": "3aa4b3107eaa7c75cecd06bc9e41e78b08bf6110958c909b2002bb320fdface4",
+    "Modules/toolbelt.tsql.script-parser/Clr/Toolbelt.Tsql.ScriptParser.csproj": "a1a097e654154c57d108a859fdb28d10a913854dbf0caf5668fe6f85a5ff965e",
+    "Modules/toolbelt.tsql.script-parser/module.yaml": "9aa29956f866987964c9972abe05b430ad2b02be84923d031de73c60909a8358"
+  },
+  "setup_history": [
+    {
+      "status": "REJECTED_BEFORE_PROVIDER_START",
+      "diagnostic": "SCRIPT_PARSER_RUNSET_SCHEMA",
+      "provider_children": 0
+    },
+    {
+      "status": "REJECTED_AFTER_PROVIDER_CASES",
+      "diagnostic": "SCRIPT_PARSER_CORPUS_BINDING",
+      "provider_children": 11
+    },
+    {
+      "status": "PASS_SUPERSEDED_BY_CANONICAL_LF_REBINDING",
+      "provider_children": 63,
+      "source_guard_assertions": 60
+    },
+    {
+      "status": "PASS",
+      "provider_children": 63,
+      "source_guard_assertions": 60,
+      "fixture_line_endings": "GIT_CANONICAL_LF"
+    }
+  ],
+  "limits": [
+    "Der Provider wurde gegen das ausgewiesene feste Korpus und die ausgewählten Parser-Versionsgrenzen geprüft; dies ist keine vollständige Modul- oder Plattformmatrix.",
+    "Der 60-Assert-Source-Guard wurde separat aus Quellcode gebaut und ist kein paketgebundener DLL-Nachweis.",
+    "Der Nachweis ist keine vollständige transitive IL-, No-I/O-, SQL-, Lab-, Deployment- oder Gesamt-CLR-Qualifikation.",
+    "Modulstatus, Manifest, Paketbytes und Veröffentlichungsfreigabe wurden nicht geändert."
+  ]
+}

@@ -56,6 +56,15 @@ Scopegrenzen; sie laufen über `test_caller_metadata.py`. Der separate
 Qualifikationsrunner verwendet die geprüfte versteckte Prozesskette; SQL und
 Lab werden nicht gestartet.
 
+## T-SQL-Scriptparser-Paketbindung
+
+Der [Scriptparser-Bericht](../../Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.md)
+bindet 63 feste Provideraufrufe an die Paket-DLL. Ein separat aus Quellen
+gebauter Guard prüft 60 Assertions und ist kein Paketnachweis. Vier gezielte
+Offlinekontrollen (Paket, Sidecar, Qualifikationshash, ZIP-Traversal) sowie
+Report- und Korpusdriftprüfungen sind in `test_caller_metadata.py` integriert.
+Es gibt keinen SQL- oder Labstart.
+
 ## CSV-Caller mit kombinierten Objektrechten
 
 Die anschließende [CSV-Metadaten-/Paketprüfung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) erhält den alten Bericht und prüft Manifestfeld, Produktdelta, CLR-Payload und Recoverygrenzen separat. Einzelprüfung: `python -B Tests/Release/test_csv_metadata.py`; sechs Prüfungen laufen in der vorhandenen Release-Suite.
