@@ -176,6 +176,8 @@ def validate_current(root):
                 'SST candidate entries differ')
         for name, expected in candidate['files'].items():
             require(digest(archive.read(name)) == expected, 'SST candidate entry differs: ' + name)
+        require(archive.read('LICENSE.md') == (root / 'LICENSE.md').read_bytes().replace(b'\r\n', b'\n'),
+                'SST candidate license or attribution differs')
         require(digest(archive.read('Binaries/Toolbelt.File.XlsxMemory.dll')) == record['candidate_dll_sha256'],
                 'qualified candidate DLL differs')
         require(archive.read('ExecutedSources/Workbook.cs') == reconstruct_executed_workbook(workbook),

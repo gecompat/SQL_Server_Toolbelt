@@ -8,6 +8,8 @@ alle übrigen Größen-, XML-, Allokations- und Sicherheitsgrenzen bleiben erhal
 Die [gebundene Evidenz](xlsx-sst-budget-correction.json) und der
 [Kandidaten-Snapshot](Artifacts/Xlsx-Sst-Budget-Candidate.zip) enthalten die
 konkrete neue DLL- und Quellenbindung.
+Das Kandidatenarchiv enthält die vollständige unveränderte Repositorylizenz
+einschließlich Urheberangabe in der kanonischen LF-Fassung.
 
 ## Korrektur und feste Orakel
 
