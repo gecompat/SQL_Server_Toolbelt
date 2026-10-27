@@ -21,6 +21,24 @@ läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:
 `python -B Tests/Release/test_caller_metadata.py`; ursprüngliche Caller-Pins
 bleiben erhalten, Runtime-/Vertragsänderungen werden abgewiesen.
 
+Die [JSON-Constructor-Paketqualifikation](../../Releases/1.0.0/JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md)
+bindet den vorhandenen Framework- und Closure-IL-Lauf an die Constructor-/Core-
+DLLs des CLR-Pakets. Sieben Offlineprüfungen zu Paketbindung, Evidenz und
+Pfadgrenzen sind in
+`test_caller_metadata.py` eingebunden. Der private qualifizierende Lauf ist:
+
+```powershell
+pwsh -NoProfile -NonInteractive -File Tests/Release/Invoke-JsonConstructorsPackageQualification.ps1 `
+  -CompilerPath <vorhandener Roslyn-csc> `
+  -ReferenceDirectory <vorhandene .NET-Framework-Referenzen> `
+  -FrameworkPowerShell <Windows-PowerShell-5.1> `
+  -OutputDirectory .runtime/<neues-Ausgabeverzeichnis>
+```
+
+Er läuft ohne SQL oder Labverbindung und bindet die beiden extrahierten DLLs
+bytegenau an die Frameworkausgaben; ein vorhandenes Ziel oder abweichende
+Paket-/DLL-Bytes werden abgewiesen.
+
 ## CSV-Caller mit kombinierten Objektrechten
 
 Die anschließende [CSV-Metadaten-/Paketprüfung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) erhält den alten Bericht und prüft Manifestfeld, Produktdelta, CLR-Payload und Recoverygrenzen separat. Einzelprüfung: `python -B Tests/Release/test_csv_metadata.py`; sechs Prüfungen laufen in der vorhandenen Release-Suite.

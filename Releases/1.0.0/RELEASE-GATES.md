@@ -19,6 +19,13 @@ Releasegates bleiben getrennt.
 
 [JSON-Schema-Callerrechte](JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Die [gebundene Metadatenkorrektur](CALLER-METADATA-UPDATE.md) übernimmt diese Rechte jetzt in Manifest und Paket.
 
+[JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
+27 bestehende Frameworkphasen bestanden; die gelieferten Constructor-/Core-DLLs
+stimmen bytegenau mit den erzeugten Framework-DLLs überein. Der vorhandene
+JSON-Core-Closure-IL-Gate bestand direkt mit der Constructor-DLL aus dem Paket.
+Keine SQL-/Labverbindung, keine Schema-Paketqualifikation und keine
+Gesamtfreigabe.
+
 Die [SSIS-Qualifikation vom 2026-10-25](SSIS-LOOKUP-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
@@ -58,7 +65,7 @@ ausdrücklich freigegeben. Alle 45 Modulmanifeste bleiben `unreleased`.
 | Bereinigung | 36 eigene Datenbanken entfernt; zwölf separate lesende Auditprozesse bestätigten Abwesenheit und Inputpins | Keine fremden Ressourcen, Server-, Rechte-, Login- oder Truständerungen |
 | CLR-Buildinputs | Zwölf vorhandene Projekte jeweils zweimal isoliert gebaut; identische DLL-Bytes, keine CodeView-Einträge und keine geprüften privaten Buildpfade | Der erste Offlinebuild allein war keine vollständige IL-/Framework-/SQL-Abnahme; die anschließende Paketlieferung ist unten getrennt beschrieben |
 | JSON-Binarybindung | Die drei erneut erzeugten JSON-Binaries stimmen exakt mit den kanonischen bekannten Closure-Pins überein | Keine Erweiterung des vorhandenen nativen Supportumfangs |
-| Ausgewählte Frameworkprüfungen | Sieben bestehende Suiten auf den neuen Kandidaten bestanden: CSV, Phonetic, ZIP-Writer, drei Regex-Suiten und SSIS Full | Fünf CLR-Module in begrenzten Frameworkprofilen; keine vollständige IL-/Framework- oder SQL-Qualifikation aller zwölf Projekte |
+| Ausgewählte Frameworkprüfungen | Sieben frühere Suiten auf ihren Kandidaten bestanden: CSV, Phonetic, ZIP-Writer, drei Regex-Suiten und SSIS Full; zusätzlich 27 Phasen für den JSON-Constructor mit exakt gebundenen Paket-DLLs | Begrenzte Frameworkprofile für einzelne Module; keine vollständige IL-/Framework- oder SQL-Qualifikation aller zwölf Projekte |
 
 Der native Aufruf war
 `Tests/Release/Invoke-StablePackageMatrix.ps1 -EvidenceDirectory <neues privates .runtime-Verzeichnis>`.
