@@ -13,12 +13,13 @@ sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import caller_metadata as metadata
 from test_xlsx_metadata import XlsxMetadataMixin
 from test_json_constructor_package_gate import JsonConstructorPackageGateMixin
+from test_json_schema_package_gate import JsonSchemaPackageGateMixin
 from test_zip_caller_composer import ZipCallerComposerMixin
 from test_zip_caller_profile import ZipCallerProfileMixin
 import xlsx_metadata
 
 
-class CallerMetadataTests(XlsxMetadataMixin, JsonConstructorPackageGateMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, unittest.TestCase):
+class CallerMetadataTests(XlsxMetadataMixin, JsonConstructorPackageGateMixin, JsonSchemaPackageGateMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.originals = {p: metadata.historical_manifest(ROOT, p) for p in metadata.PATHS}

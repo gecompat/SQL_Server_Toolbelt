@@ -19,6 +19,12 @@ Constructor-/Core-DLLs; beide stimmen bytegenau mit dem Framework-Quelllauf
 dem Paket. Die JSON-Schema-DLL, SQL, API-Minimalrechte und Gesamt-CLR sind nicht
 Teil dieses Nachweises.
 
+[JSON-Schema-Paket-IL](JSON-SCHEMA-PACKAGE-QUALIFICATION.md): bindet den
+unveränderten erfolgreichen 27-Phasen-Source-Receipt an die Schema-/Core-
+Paketbytes und führt den bestehenden IL-Guard direkt auf der Schema-DLL aus
+dem Paket aus. Der Constructor-Bericht bleibt unverändert; SQL, API-Rechte und
+vollständige CLR-Qualifikation bleiben außerhalb des Scopes.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs, zwölf lokale/direkt zentrale Windows-/Linux-Ziel-/CL-Fälle, 336 Rechtemaskenzustände, 672 API-Routen und 720 feste Ergebniszeilen. Ein ursprünglicher Probe-Arityfehler bleibt getrennt von zwölf bestandenen Fällen und zwei gezielt abgewiesenen Kontrollen; 15 frische Abschlussaudits bestanden.
 
 [XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) bindet die Raw- und Zell-Callerrechte aus den unveränderten Berichten an das Modulmanifest und den bestehenden CLR-Satz. SQL- und DLL-Payloads bleiben bytegleich; der Modulstatus bleibt unverändert.
