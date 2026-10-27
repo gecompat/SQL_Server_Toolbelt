@@ -460,6 +460,14 @@
     "sheet_count": 129,
     "shared_strings": 132
   },
+  "source_eol_projection": {
+    "path": "Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md",
+    "executed_raw_sha256": "24a67dde40e0073f6f1d6d1bc6493ab36294bef85fca0ea9d8e063bc28ac10ec",
+    "canonical_lf_sha256": "5c606d8a30e26fe4898b2266c441493a722122c0b661a4b5d99316511e8108c1",
+    "lf_line_count": 85,
+    "accepted_representations": ["exact_executed_crlf_bytes", "exact_canonical_lf_bytes"],
+    "transformation": "Replace CRLF with LF; reverse by replacing each LF with CRLF. The original executed source pin remains unchanged."
+  },
   "limits": [
     "Der Sheet-Nachweis gilt nur für die feste 32/33-Blattgrenze der angegebenen Listing-API.",
     "Die Shared-String-Grenze ist nicht qualifiziert: 50.000 Einträge lieferten auf zwei lokalen Zielen keine erfolgreichen Ergebniszeilen; der 50.001-Overflow und zentrale Routen wurden nicht ausgeführt.",

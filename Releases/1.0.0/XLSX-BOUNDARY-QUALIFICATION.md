@@ -3,7 +3,10 @@
 Dieser Bericht trennt zwei bestehende XLSX-Verträge. Die maschinenlesbare
 [Evidenz](xlsx-boundary-qualification.json) bindet die verwendeten
 Installationspaket-DLLs und die repository-relativen Eingaben der beiden
-Läufe. Sie ändert weder Produktcode noch Modul- oder Veröffentlichungsstatus.
+Läufe. Für die gepinnte XLSX-Matrixdatei bleiben die ausgeführten CRLF-Bytes
+und ihr SHA-256 erhalten; zusätzlich ist nur die verlustfreie LF-Projektion
+für Cold-Checkouts gebunden. Sie ändert weder Produktcode noch Modul- oder
+Veröffentlichungsstatus.
 
 ## Blattanzahl: PASS für 32/33
 

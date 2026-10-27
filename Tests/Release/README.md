@@ -2,7 +2,7 @@
 
 Die [XLSX-Grenzprüfung](../../Releases/1.0.0/XLSX-BOUNDARY-QUALIFICATION.md)
 trennt die bestandene 32/33-Blattgrenze vom nicht qualifizierten
-50.000-Shared-String-Scope. Vier neue Evidenzprüfungen kontrollieren Zähler,
+50.000-Shared-String-Scope. Fünf neue Evidenzprüfungen kontrollieren Zähler,
 Grenzstatus und aktuelle öffentliche Quellpins; sie laufen in
 `CallerMetadataTests` über die bestehende Release-Suite.
 

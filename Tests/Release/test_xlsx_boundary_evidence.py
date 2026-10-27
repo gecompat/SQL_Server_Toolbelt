@@ -88,5 +88,33 @@ class XlsxBoundaryEvidenceMixin:
                 self.assertNotIn('..', Path(relative).parts)
                 self.assertNotIn('.runtime', relative.lower())
                 self.assertEqual(len(expected), 64)
-                actual = hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+                data = (ROOT / relative).read_bytes()
+                if relative == report['source_eol_projection']['path']:
+                    projection = report['source_eol_projection']
+                    normalized = data.replace(b'\r\n', b'\n')
+                    self.assertNotIn(b'\r', normalized)
+                    self.assertEqual(normalized.count(b'\n'), projection['lf_line_count'])
+                    self.assertEqual(hashlib.sha256(normalized).hexdigest(),
+                                     projection['canonical_lf_sha256'])
+                    rebuilt = normalized.replace(b'\n', b'\r\n')
+                    self.assertEqual(hashlib.sha256(rebuilt).hexdigest(), expected)
+                    self.assertIn(data, (normalized, rebuilt), relative)
+                    actual = expected
+                else:
+                    actual = hashlib.sha256(data).hexdigest()
                 self.assertEqual(actual, expected, relative)
+
+    def test_xlsx_boundary_eol_projection_accepts_only_exact_line_endings(self):
+        report = self._xlsx_boundary_report()
+        projection = report['source_eol_projection']
+        self.assertEqual(projection['path'],
+                         'Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md')
+        raw = (ROOT / projection['path']).read_bytes()
+        normalized = raw.replace(b'\r\n', b'\n')
+        rebuilt = normalized.replace(b'\n', b'\r\n')
+        self.assertIn(raw, (normalized, rebuilt))
+        self.assertEqual(hashlib.sha256(rebuilt).hexdigest(),
+                         projection['executed_raw_sha256'])
+        modified = normalized.replace(b'32', b'33', 1)
+        self.assertNotEqual(hashlib.sha256(modified).hexdigest(),
+                            projection['canonical_lf_sha256'])
