@@ -2,8 +2,14 @@
 from pathlib import Path
 import hashlib
 import json
+import sys
+import tempfile
+from unittest.mock import patch
+import copy
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import xlsx_sst_budget
 REPORT = ROOT / 'Releases/1.0.0/xlsx-boundary-qualification.json'
 
 
@@ -77,7 +83,7 @@ class XlsxBoundaryEvidenceMixin:
         self.assertEqual(totals['trust_removal_events'], 28)
         self.assertIs(totals['trust_hashes_unique_counted'], False)
 
-    def test_xlsx_boundary_public_source_pins_match_current_files(self):
+    def test_xlsx_boundary_public_source_pins_bind_exact_executed_sources(self):
         report = self._xlsx_boundary_report()
         expected_counts = report['source_pin_counts']
         self.assertEqual(expected_counts, {'sheet_count': 129, 'shared_strings': 132})
@@ -88,7 +94,8 @@ class XlsxBoundaryEvidenceMixin:
                 self.assertNotIn('..', Path(relative).parts)
                 self.assertNotIn('.runtime', relative.lower())
                 self.assertEqual(len(expected), 64)
-                data = (ROOT / relative).read_bytes()
+                data = (xlsx_sst_budget.validate_historical_source(ROOT, relative, expected)
+                        if relative == xlsx_sst_budget.WORKBOOK else (ROOT / relative).read_bytes())
                 if relative == report['source_eol_projection']['path']:
                     projection = report['source_eol_projection']
                     normalized = data.replace(b'\r\n', b'\n')
@@ -118,3 +125,117 @@ class XlsxBoundaryEvidenceMixin:
         modified = normalized.replace(b'32', b'33', 1)
         self.assertNotEqual(hashlib.sha256(modified).hexdigest(),
                             projection['canonical_lf_sha256'])
+
+    def test_sst_correction_binds_current_candidate_and_immutable_prior_evidence(self):
+        record = xlsx_sst_budget.validate_current(ROOT)
+        self.assertEqual(record['candidate_dll_sha256'],
+                         'f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd')
+        self.assertEqual(record['budget'], {
+            'maximum_milliseconds': 5000, 'minimum_milliseconds': 1,
+            'precise_for_budgets_up_to_milliseconds': 32,
+            'coarse_clock_role': 'advisory_inner_check_scheduling',
+            'precise_materialization_and_final_acceptance': True,
+            'hard_wallclock_guarantee': False,
+        })
+        self.assertEqual(record['historical_source_sha256'], xlsx_sst_budget.HISTORICAL)
+        self.assertFalse(record['package_payload_changed'])
+        self.assertFalse(record['publication_authorized'])
+
+    def test_sst_correction_native_matrix_and_composed_framework_are_bounded(self):
+        record = xlsx_sst_budget.read_record(ROOT)
+        native = record['native']
+        expected = {(p, v, cl) for p in ('windows', 'linux')
+                    for v, levels in (('2019', (150,)), ('2022', (150, 160)),
+                                      ('2025', (150, 160, 170))) for cl in levels}
+        actual = [(c['platform'], c['sql_version'], c['compatibility_level'])
+                  for c in native['cases']]
+        self.assertEqual(len(actual), 12)
+        self.assertEqual(set(actual), expected)
+        self.assertTrue(all(c['status'] == 'PASS' and c['independent_audit']
+                            and c['contexts'] == ['local', 'direct_central']
+                            for c in native['cases']))
+        self.assertEqual((native['positive_routes'], native['fixed_result_rows'],
+                          native['overflow_rejections'], native['overflow_result_rows']),
+                         (24, 72, 24, 0))
+        self.assertEqual(native['overflow_error'], {'number': 51520,
+                         'message': 'TBX_XLSX_SHARED_STRING_COUNT_LIMIT'})
+        self.assertEqual((native['immediate_audits'], native['final_physical_target_audits'],
+                          native['own_databases_removed'], native['trust_removal_events']),
+                         (12, 6, 24, 24))
+        self.assertEqual(record['native_attempts'], {'diagnostics_including_failure_and_audits': 8,
+                         'boundary_cases': 12, 'immediate_audits': 12, 'final_audits': 6, 'total': 38})
+        framework = record['framework']
+        self.assertEqual(framework['original_run'], {'status': 'FAILED', 'passed_phases': 18,
+                         'failed_phase': 'OwnIL', 'final_pins_unchanged': True})
+        self.assertEqual(framework['successor']['status'], 'PASS')
+        self.assertEqual(framework['composed_passed_phases'], 19)
+        self.assertEqual(framework['successor']['allowed_member'], 'System.Environment.get_TickCount')
+        self.assertEqual(framework['successor']['rejected_members'],
+                         ['System.Environment.get_MachineName', 'System.Environment.GetEnvironmentVariable(string)'])
+        self.assertEqual(record['clock_gate_assertions'], 35)
+
+    def test_sst_history_adapter_rejects_current_drift_and_replaced_archive(self):
+        record_bytes = (ROOT / xlsx_sst_budget.REPORT).read_bytes()
+        workbook = (ROOT / xlsx_sst_budget.WORKBOOK).read_bytes()
+        with tempfile.TemporaryDirectory(prefix='sst-proof-', dir=ROOT / '.runtime') as folder:
+            root = Path(folder)
+            current = root / xlsx_sst_budget.WORKBOOK
+            current.parent.mkdir(parents=True)
+            report = root / xlsx_sst_budget.REPORT
+            report.parent.mkdir(parents=True)
+            report.write_bytes(record_bytes)
+            current.write_bytes(workbook + b'\n')
+            with self.assertRaisesRegex(ValueError, 'current SST source differs'):
+                xlsx_sst_budget.validate_historical_source(root, xlsx_sst_budget.WORKBOOK,
+                    xlsx_sst_budget.HISTORICAL[xlsx_sst_budget.WORKBOOK])
+            current.write_bytes(workbook)
+            archive = root / xlsx_sst_budget.ARCHIVE
+            archive.parent.mkdir(parents=True)
+            archive.write_bytes(b'not the immutable source archive')
+            with self.assertRaisesRegex(ValueError, 'historical source archive differs'):
+                xlsx_sst_budget.validate_historical_source(root, xlsx_sst_budget.WORKBOOK,
+                    xlsx_sst_budget.HISTORICAL[xlsx_sst_budget.WORKBOOK])
+        with self.assertRaisesRegex(ValueError, 'unsupported historical'):
+            xlsx_sst_budget.validate_historical_source(ROOT, '../unexpected', '0' * 64)
+
+    def test_sst_source_projections_allow_only_the_bound_changes(self):
+        current = (ROOT / xlsx_sst_budget.CELL_TEST).read_bytes()
+        previous = xlsx_sst_budget.restore_previous_cell_test(ROOT, current)
+        self.assertEqual(xlsx_sst_budget.digest(previous), xlsx_sst_budget.PREVIOUS_CELL_TEST_SHA256)
+        self.assertEqual(xlsx_sst_budget.project_cell_test(previous), current)
+        with self.assertRaisesRegex(ValueError, 'exact SST dispatch'):
+            xlsx_sst_budget.restore_previous_cell_test(ROOT, current.replace(b'continue', b'pass', 1))
+        workbook = (ROOT / xlsx_sst_budget.WORKBOOK).read_bytes()
+        executed = xlsx_sst_budget.reconstruct_executed_workbook(workbook)
+        self.assertEqual(executed.replace(b'\r\n', b'\n'), workbook)
+        self.assertEqual(executed.count(b'\r\n'), 1)
+        self.assertEqual(xlsx_sst_budget.digest(executed),
+                         'c6774184c0ae8aa1d718198708fbe431fef315c8e307dd0ea012ee7c083d3504')
+        with self.assertRaisesRegex(ValueError, 'timer anchor'):
+            xlsx_sst_budget.reconstruct_executed_workbook(workbook.replace(b'Stopwatch.StartNew()', b'null', 1))
+        path = 'Tests/Release/Invoke-XlsxSharedStringBoundaryLab.ps1'
+        original = (ROOT / path).read_bytes()
+        projected = xlsx_sst_budget.project_boundary_driver(original)
+        cleanup = b'} finally {\n    foreach ($connection in $script:connections)'
+        self.assertIn(cleanup, original)
+        self.assertEqual(original[original.index(cleanup):], projected[projected.index(cleanup):])
+
+    def test_sst_candidate_path_is_fixed_before_file_access(self):
+        record = xlsx_sst_budget.read_record(ROOT)
+        for path in ('../candidate.zip', '/tmp/candidate.zip', 'C:/candidate.zip',
+                     'Releases/1.0.0/Artifacts/unexpected.zip'):
+            altered = copy.deepcopy(record)
+            altered['candidate_bundle']['path'] = path
+            with patch.object(xlsx_sst_budget, 'read_record', return_value=altered):
+                with self.assertRaisesRegex(ValueError, 'candidate archive path'):
+                    xlsx_sst_budget.validate_current(ROOT)
+
+    def test_sst_old_report_projection_rejects_content_and_mixed_endings(self):
+        for path, projection in xlsx_sst_budget.HISTORICAL_REPORT_EOL.items():
+            canonical = (ROOT / path).read_bytes().replace(b'\r\n', b'\n')
+            expected = projection['canonical_lf_sha256']
+            for data in (canonical, canonical.replace(b'\n', b'\r\n')):
+                self.assertEqual(xlsx_sst_budget.validate_historical_report(path, data, expected), canonical)
+            for data in (canonical + b' ', canonical.replace(b'\n', b'\r\n', 1)):
+                with self.assertRaisesRegex(ValueError, 'exact LF/CRLF'):
+                    xlsx_sst_budget.validate_historical_report(path, data, expected)
