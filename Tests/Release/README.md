@@ -47,6 +47,15 @@ Schema-DLL aus dem geprüften Paket; neun Offlineprüfungen sind in
 nicht erforderlich, solange der gebundene Receipt und seine Quellpins bestehen.
 Gezielt lokal: `python -B -m unittest Tests.Release.test_caller_metadata.CallerMetadataTests.test_public_predecessor_and_framework_inputs_are_exactly_bound Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_public_evidence_binds_the_package_and_reused_receipt Tests.Release.test_caller_metadata.CallerMetadataTests.test_framework_receipt_requires_complete_phases_and_fresh_sources Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_manifest_hash_is_checked_even_with_matching_outer_hash Tests.Release.test_caller_metadata.CallerMetadataTests.test_package_archive_hash_and_fixed_oracle_pins_reject_drift Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_framework_output_must_equal_the_package_binary Tests.Release.test_caller_metadata.CallerMetadataTests.test_output_scope_rejects_external_path_before_creating_it`.
 
+## Edit-Distance-Paketqualifikation
+
+Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
+bindet die DLL aus dem Installationspaket an feste Distance- und Jaro-Orakel.
+Vier Berichtstests prüfen aktuelle Quellpins, Paket-/Oraclewerte und
+Scopegrenzen; sie laufen über `test_caller_metadata.py`. Der separate
+Qualifikationsrunner verwendet die geprüfte versteckte Prozesskette; SQL und
+Lab werden nicht gestartet.
+
 ## CSV-Caller mit kombinierten Objektrechten
 
 Die anschließende [CSV-Metadaten-/Paketprüfung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) erhält den alten Bericht und prüft Manifestfeld, Produktdelta, CLR-Payload und Recoverygrenzen separat. Einzelprüfung: `python -B Tests/Release/test_csv_metadata.py`; sechs Prüfungen laufen in der vorhandenen Release-Suite.

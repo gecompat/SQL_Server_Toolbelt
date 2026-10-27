@@ -25,6 +25,11 @@ Paketbytes und führt den bestehenden IL-Guard direkt auf der Schema-DLL aus
 dem Paket aus. Der Constructor-Bericht bleibt unverändert; SQL, API-Rechte und
 vollständige CLR-Qualifikation bleiben außerhalb des Scopes.
 
+[Edit-Distance-Paketqualifikation](EDIT-DISTANCE-PACKAGE-QUALIFICATION.md):
+die gelieferte DLL besteht den festen Distance-/Jaro-Contract und eine
+begrenzte IL-Inspektion. Weitere CLR-, SQL-, Rechte- und Lifecycle-Gates bleiben
+separat.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs, zwölf lokale/direkt zentrale Windows-/Linux-Ziel-/CL-Fälle, 336 Rechtemaskenzustände, 672 API-Routen und 720 feste Ergebniszeilen. Ein ursprünglicher Probe-Arityfehler bleibt getrennt von zwölf bestandenen Fällen und zwei gezielt abgewiesenen Kontrollen; 15 frische Abschlussaudits bestanden.
 
 [XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) bindet die Raw- und Zell-Callerrechte aus den unveränderten Berichten an das Modulmanifest und den bestehenden CLR-Satz. SQL- und DLL-Payloads bleiben bytegleich; der Modulstatus bleibt unverändert.

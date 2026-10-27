@@ -32,6 +32,12 @@ Paket. Der abgeschlossene Source-Receipt wurde mit allen 27 Phasen und frischen
 Eingaben wiederverwendet; ein neuer Frameworklauf fand nicht statt. SQL-, API-,
 Gesamt-CLR- und Veröffentlichungsfreigaben bleiben getrennt.
 
+[Edit-Distance-Paketqualifikation](EDIT-DISTANCE-PACKAGE-QUALIFICATION.md):
+die DLL aus dem CLR-Paket besteht 27.104 Distance-Golden-Zeilen, 60 Jaro-Paare
+in drei Kulturen und 109.333 feste Contract-Assertions. Eine begrenzte
+IL-Inspektion bestand; Gesamt-CLR, SQL, API-Rechte und Veröffentlichung sind
+nicht Teil des Nachweises.
+
 Die [SSIS-Qualifikation vom 2026-10-25](SSIS-LOOKUP-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-

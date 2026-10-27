@@ -45,6 +45,11 @@ den vorhandenen IL-Guard direkt auf dieser Paket-DLL aus. Sie verwendet den
 unveränderten erfolgreichen Source-Framework-Receipt; SQL, Modulstatus und
 Veröffentlichungsfreigabe bleiben davon unberührt.
 
+Die [Edit-Distance-Paketqualifikation](EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
+bindet die gelieferte DLL an feste Distance- und Jaro-Frameworkorakel sowie
+eine begrenzte IL-Inspektion. Sie ist keine vollständige CLR- oder
+Sicherheitsqualifikation und ändert weder Modulstatus noch Veröffentlichung.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs mit einem schmalen Objektprofil auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen. 14 Masken je Kontext, 672 direkte-/ResultTable-Routen, 144 positive Aufrufe und 720 feste Ergebniszeilen. Der [maschinenlesbare Bericht](xlsx-raw-caller-profile.json) bindet Quellen, synthetisches Workbook, Kontrollen und Bereinigung. Weitere Modul-, Paket- und Veröffentlichungsfreigaben bleiben offen.
 
 [XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) übernimmt die in PR #452 und #453 gebundenen Zell- und Rohleserrechte in das Manifest und den bestehenden CLR-Installationssatz. Native Quellberichte bleiben unverändert; SQL- und DLL-Payloads bleiben bytegleich.
