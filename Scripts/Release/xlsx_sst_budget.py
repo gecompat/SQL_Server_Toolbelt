@@ -1,5 +1,6 @@
 """Bind the SST correction separately from immutable earlier qualifications."""
 from pathlib import Path
+import ast
 import hashlib
 import io
 import json
@@ -9,6 +10,12 @@ REPORT = 'Releases/1.0.0/xlsx-sst-budget-correction.json'
 WORKBOOK = 'Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs'
 PROVIDER_IL = 'Spikes/XlsxMemory/Test-ProviderIL.ps1'
 CELL_TEST = 'Tests/Release/test_xlsx_cell_caller_qualification.py'
+OFFLINE_TEST_PATH = 'Tests/Release/test_prepare_release.py'
+OFFLINE_TEST_ARCHIVE = 'Releases/1.0.0/Artifacts/Xlsx-Sst-Offline-Test-Source.zip'
+OFFLINE_TEST_QUALIFIED_SHA256 = 'c3ef16ee699d40a1992bbbbcb90a88b30ffc4d9af8f87cfae6db8ba2bb4276c7'
+OFFLINE_TEST_CLASS = 'FunctionCallerQualificationTests'
+OFFLINE_TEST_METHOD = 'test_fixed_function_compositions_and_current_native_reports'
+OFFLINE_TEST_FIXTURES = ('setUp', 'setUpClass', 'tearDown', 'tearDownClass')
 CANDIDATE_BUNDLE = 'Releases/1.0.0/Artifacts/Xlsx-Sst-Budget-Candidate.zip'
 ARCHIVE = 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip'
 ARCHIVE_SHA256 = '333a7d6ceb2a36523ea642ac1dd5a78b5fc86b8aaa25998db14c8ea035f068e6'
@@ -126,6 +133,144 @@ def reconstruct_executed_workbook(canonical):
     return b''.join(lines)
 
 
+def offline_test_projection(data):
+    """Bind fixed Python source blocks without version-specific function AST fields."""
+    require(b'\r' not in data.replace(b'\r\n', b''),
+            'offline qualification source has noncanonical line endings')
+    canonical = data.replace(b'\r\n', b'\n')
+    try:
+        source = canonical.decode('utf-8')
+        module = ast.parse(source)
+    except (UnicodeDecodeError, SyntaxError) as error:
+        raise ValueError('offline qualification test is not valid UTF-8 Python') from error
+    lines = source.splitlines(keepends=True)
+
+    def node_source(node):
+        start = min([node.lineno] + [item.lineno for item in getattr(node, 'decorator_list', ())])
+        return ''.join(lines[start - 1:node.end_lineno])
+
+    definitions = {}
+    for node in module.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            definitions.setdefault(node.name, []).append(node)
+    selected_name_definitions = definitions.get(OFFLINE_TEST_CLASS, [])
+    require(len(selected_name_definitions) == 1 and selected_name_definitions[0].__class__ is ast.ClassDef,
+            'offline qualification class is rebound at module scope')
+    classes = [node for node in module.body
+               if isinstance(node, ast.ClassDef) and node.name == OFFLINE_TEST_CLASS]
+    require(len(classes) == 1, 'offline qualification class is missing or duplicated')
+    cls = classes[0]
+    methods = [node for node in cls.body
+               if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    selected = [node for node in methods if node.name == OFFLINE_TEST_METHOD]
+    require(len(selected) == 1, 'offline qualification method is missing or duplicated')
+    require(not getattr(cls, 'type_params', ()),
+            'offline qualification class has unsupported type parameters')
+    fixture_nodes = {}
+    for name in OFFLINE_TEST_FIXTURES:
+        matches = [node for node in methods if node.name == name]
+        require(len(matches) <= 1, 'offline qualification fixture is duplicated: ' + name)
+        if matches:
+            fixture_nodes[name] = node_source(matches[0])
+    module_context = [node for node in module.body
+                      if not isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))]
+    scoped_nodes = [*cls.bases, *cls.keywords, *cls.decorator_list, selected[0]]
+    scoped_nodes.extend(node for name in OFFLINE_TEST_FIXTURES
+                        for node in methods if node.name == name)
+
+    def referenced_names(nodes):
+        return {node.id for item in nodes for node in ast.walk(item)
+                if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)}
+
+    pending = referenced_names([*module_context, *scoped_nodes])
+    included_helpers = {}
+    while pending:
+        name = pending.pop()
+        matches = definitions.get(name, [])
+        if not matches:
+            continue
+        require(len(matches) == 1,
+                'offline qualification referenced helper is duplicated: ' + name)
+        helper = matches[0]
+        if helper is cls or name in included_helpers:
+            continue
+        require(not (isinstance(helper, ast.ClassDef)
+                     and getattr(helper, 'type_params', ())),
+                'offline qualification helper has unsupported type parameters: ' + name)
+        included_helpers[name] = node_source(helper)
+        if isinstance(helper, ast.ClassDef):
+            pending.update(referenced_names([*helper.bases, *helper.keywords,
+                                             *helper.decorator_list, *helper.body]))
+        else:
+            pending.update(referenced_names([helper]))
+    projection = {
+        'class': {
+            'name': cls.name,
+            'bases': [ast.dump(node, annotate_fields=True, include_attributes=False) for node in cls.bases],
+            'keywords': [ast.dump(node, annotate_fields=True, include_attributes=False) for node in cls.keywords],
+            'decorators': [ast.dump(node, annotate_fields=True, include_attributes=False)
+                           for node in cls.decorator_list],
+        },
+        'method': node_source(selected[0]),
+        'fixtures': fixture_nodes,
+        'module_context': [node_source(node) for node in module_context],
+        'referenced_helpers': included_helpers,
+    }
+    return json.dumps(projection, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
+
+
+def validate_offline_test_source(root, record):
+    """Bind only the fixed qualification method, not unrelated test-file helpers."""
+    binding = record.get('offline_test_source')
+    require(isinstance(binding, dict) and set(binding) == {
+        'path', 'qualified_file_sha256', 'class_name', 'method_name', 'projection_sha256', 'archive'
+    }, 'offline qualification source fields differ')
+    require(binding['path'] == OFFLINE_TEST_PATH
+            and binding['qualified_file_sha256'] == OFFLINE_TEST_QUALIFIED_SHA256
+            and binding['class_name'] == OFFLINE_TEST_CLASS
+            and binding['method_name'] == OFFLINE_TEST_METHOD
+            and OFFLINE_TEST_PATH not in record['current_source_sha256'],
+            'offline qualification source scope differs')
+    archive_binding = binding['archive']
+    require(isinstance(archive_binding, dict) and set(archive_binding) == {'path', 'sha256', 'files'}
+            and archive_binding['path'] == OFFLINE_TEST_ARCHIVE,
+            'offline qualification archive binding differs')
+    archive_path = Path(root) / OFFLINE_TEST_ARCHIVE
+    archive_bytes = archive_path.read_bytes()
+    require(len(archive_binding['sha256']) == 64
+            and digest(archive_bytes) == archive_binding['sha256'],
+            'offline qualification archive hash differs')
+    current = (Path(root) / OFFLINE_TEST_PATH).read_bytes()
+    current_projection = offline_test_projection(current)
+    require(digest(current_projection) == binding['projection_sha256'],
+            'offline qualification projection differs')
+    license_bytes = (Path(root) / 'LICENSE.md').read_bytes()
+    require(b'\r' not in license_bytes.replace(b'\r\n', b'') , 'license has noncanonical line endings')
+    canonical_license = license_bytes.replace(b'\r\n', b'\n')
+    expected_files = {
+        OFFLINE_TEST_PATH: OFFLINE_TEST_QUALIFIED_SHA256,
+        'LICENSE.md': digest(canonical_license),
+    }
+    require(archive_binding['files'] == expected_files,
+            'offline qualification archive file pins differ')
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+        entries = archive.infolist()
+        names = [entry.filename for entry in entries]
+        require(len(entries) == 2 and len(set(names)) == 2 and set(names) == set(expected_files),
+                'offline qualification archive entries differ')
+        for entry in entries:
+            mode = (entry.external_attr >> 16) & 0xF000
+            require(not entry.is_dir() and mode == 0x8000,
+                    'offline qualification archive entry is not a regular file')
+        old_source = archive.read(OFFLINE_TEST_PATH)
+        old_license = archive.read('LICENSE.md')
+    require(digest(old_source) == OFFLINE_TEST_QUALIFIED_SHA256
+            and digest(old_license) == expected_files['LICENSE.md']
+            and offline_test_projection(old_source) == current_projection,
+            'offline qualification source projection differs from its qualified archive')
+    return current_projection
+
+
 def validate_historical_report(path, data, expected):
     projection = HISTORICAL_REPORT_EOL.get(path)
     if projection is None:
@@ -153,6 +298,7 @@ def validate_current(root):
         require(not Path(path).is_absolute() and '..' not in Path(path).parts,
                 'unsafe SST source path')
         require(digest((root / path).read_bytes()) == expected, 'current SST source differs: ' + path)
+    validate_offline_test_source(root, record)
     for path, expected in record['historical_reports_sha256'].items():
         require(path.startswith('Releases/1.0.0/') and '..' not in Path(path).parts,
                 'unsafe historical SST report path')

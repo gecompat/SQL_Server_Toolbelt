@@ -220,6 +220,61 @@ class XlsxBoundaryEvidenceMixin:
         self.assertIn(cleanup, original)
         self.assertEqual(original[original.index(cleanup):], projected[projected.index(cleanup):])
 
+    def test_sst_offline_source_projection_is_method_scoped(self):
+        current = (ROOT / xlsx_sst_budget.OFFLINE_TEST_PATH).read_bytes()
+        record = xlsx_sst_budget.read_record(ROOT)
+        binding = record['offline_test_source']
+        projection = xlsx_sst_budget.offline_test_projection(current)
+        self.assertEqual(xlsx_sst_budget.digest(projection), binding['projection_sha256'])
+
+        class_header = b'class FunctionCallerQualificationTests(unittest.TestCase):\n'
+        method_header = (b'    def test_fixed_function_compositions_and_current_native_reports(self):\n')
+        self.assertEqual(current.count(class_header), 1)
+        self.assertEqual(current.count(method_header), 1)
+        unrelated = current.replace(class_header,
+            b'def foreign_hidden_runner_helper():\n    return None\n\n\n' + class_header, 1)
+        self.assertEqual(xlsx_sst_budget.offline_test_projection(unrelated), projection)
+
+        changed_method = current.replace(method_header,
+            method_header + b"        raise AssertionError('changed selected test')\n", 1)
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_method), projection)
+        changed_decorator = current.replace(method_header,
+            b"    @unittest.skip('changed decorator')\n" + method_header, 1)
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_decorator), projection)
+        changed_base = current.replace(class_header,
+            b'class FunctionCallerQualificationTests(object):\n', 1)
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_base), projection)
+        changed_fixture = current.replace(class_header,
+            class_header + b'    def setUp(self):\n        pass\n\n', 1)
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_fixture), projection)
+
+        changed_global = current + b'\nrelease = None\n'
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_global), projection)
+        rebound_class = current + b'\ndef FunctionCallerQualificationTests():\n    pass\n'
+        with self.assertRaisesRegex(ValueError, 'class is rebound'):
+            xlsx_sst_budget.offline_test_projection(rebound_class)
+
+        loader_source = (
+            b'import unittest\nrelease = load_release()\n'
+            b'def load_release():\n    return 1\n'
+            b'class FunctionCallerQualificationTests(unittest.TestCase):\n'
+            b'    def test_fixed_function_compositions_and_current_native_reports(self):\n'
+            b'        return release\n'
+        )
+        loader_projection = xlsx_sst_budget.offline_test_projection(loader_source)
+        changed_loader = loader_source.replace(b'    return 1\n', b'    return 2\n', 1)
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_loader), loader_projection)
+
+        duplicate_method = current.replace(method_header,
+            b'    def test_fixed_function_compositions_and_current_native_reports(self):\n'
+            b'        pass\n\n' + method_header, 1)
+        with self.assertRaisesRegex(ValueError, 'missing or duplicated'):
+            xlsx_sst_budget.offline_test_projection(duplicate_method)
+        missing_method = current.replace(method_header,
+            method_header.replace(b'current_native_reports', b'current_native_reports_changed'), 1)
+        with self.assertRaisesRegex(ValueError, 'missing or duplicated'):
+            xlsx_sst_budget.offline_test_projection(missing_method)
+
     def test_sst_candidate_path_is_fixed_before_file_access(self):
         record = xlsx_sst_budget.read_record(ROOT)
         for path in ('../candidate.zip', '/tmp/candidate.zip', 'C:/candidate.zip',
@@ -229,6 +284,31 @@ class XlsxBoundaryEvidenceMixin:
             with patch.object(xlsx_sst_budget, 'read_record', return_value=altered):
                 with self.assertRaisesRegex(ValueError, 'candidate archive path'):
                     xlsx_sst_budget.validate_current(ROOT)
+
+    def test_sst_offline_archive_prevents_method_rebinding_and_path_escape(self):
+        record = xlsx_sst_budget.read_record(ROOT)
+        altered = copy.deepcopy(record)
+        altered['offline_test_source']['archive']['path'] = '../unexpected.zip'
+        with self.assertRaisesRegex(ValueError, 'archive binding differs'):
+            xlsx_sst_budget.validate_offline_test_source(ROOT, altered)
+        with tempfile.TemporaryDirectory(prefix='sst-scope-', dir=ROOT / '.runtime') as folder:
+            root = Path(folder)
+            self.assertTrue(root.resolve().is_relative_to((ROOT / '.runtime').resolve()))
+            source = (ROOT / xlsx_sst_budget.OFFLINE_TEST_PATH).read_bytes()
+            header = b'    def test_fixed_function_compositions_and_current_native_reports(self):\n'
+            changed = source.replace(header, header + b"        raise AssertionError('changed oracle')\n", 1)
+            current = root / xlsx_sst_budget.OFFLINE_TEST_PATH
+            current.parent.mkdir(parents=True)
+            current.write_bytes(changed)
+            (root / 'LICENSE.md').write_bytes((ROOT / 'LICENSE.md').read_bytes())
+            archive = root / xlsx_sst_budget.OFFLINE_TEST_ARCHIVE
+            archive.parent.mkdir(parents=True)
+            archive.write_bytes((ROOT / xlsx_sst_budget.OFFLINE_TEST_ARCHIVE).read_bytes())
+            altered = copy.deepcopy(record)
+            altered['offline_test_source']['projection_sha256'] = xlsx_sst_budget.digest(
+                xlsx_sst_budget.offline_test_projection(changed))
+            with self.assertRaisesRegex(ValueError, 'differs from its qualified archive'):
+                xlsx_sst_budget.validate_offline_test_source(root, altered)
 
     def test_sst_old_report_projection_rejects_content_and_mixed_endings(self):
         for path, projection in xlsx_sst_budget.HISTORICAL_REPORT_EOL.items():

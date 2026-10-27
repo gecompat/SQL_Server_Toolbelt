@@ -62,6 +62,30 @@ LF-Fassungen sind getrennt gebunden; nur diese verlustfreie Projektion wird
 für Cold-Checkouts akzeptiert. Inhalte und native Ausführungspins bleiben
 unverändert.
 
+## Gemeinsame Offline-Testdatei
+
+Eine nachfolgende unabhängige Änderung zur Fensterunterdrückung ergänzte
+Hilfsfunktionen in `Tests/Release/test_prepare_release.py`. Die zunächst
+verwendete Bindung der gesamten Sammeldatei war dafür zu breit. Der
+[unveränderte qualifizierte Dateistand](Artifacts/Xlsx-Sst-Offline-Test-Source.zip)
+bleibt mit seinem ursprünglichen SHA-256 einschließlich Lizenz erhalten.
+Die aktuelle Bindung prüft gezielt die Klasse
+`FunctionCallerQualificationTests`, ihre Basen und Decorators, vorhandene
+Setup-/Teardown-Fixtures und den vollständigen Quelltext der Methode
+`test_fixed_function_compositions_and_current_native_reports` einschließlich
+ihrer Decorators. AST-Positionen grenzen die Quelltextblöcke ein;
+LF-/CRLF-Zeilenenden werden dabei kanonisch verglichen.
+Modulimporte, globale Initialisierung und rekursiv referenzierte Helfer
+gehören ebenfalls zur Bindung. Ein Austausch des Release-Loaders oder
+eine globale Umbindung der Klasse kann die Prüfung damit nicht umgehen.
+
+Unabhängige Top-Level-Helfer und andere Tests werden dadurch nicht als
+SST-Ausführungsquellen eingefroren. Änderungen an der gebundenen Methode,
+ihren Decorators, der Klassenbasis oder den Fixtures sowie fehlende oder
+doppelte Methoden werden weiterhin erkannt. Produkt-DLL, native Orakel,
+vorherige Berichtspins und fremde Fensterunterdrückungsänderungen bleiben
+unverändert; es wurden keine SQL-Läufe wiederholt.
+
 ## Verbleibende Releasegates
 
 Das vorbereitete CLR-Installationspaket enthält weiterhin die frühere DLL.
