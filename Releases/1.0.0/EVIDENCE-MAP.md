@@ -36,6 +36,12 @@ Source-Guard. Der Nachweis umfasst weder vollständige Modul-/Plattform- noch
 transitive IL-, SQL- oder Deploymentqualifikation. Die [Evidenzdatei](SCRIPT-PARSER-PACKAGE-QUALIFICATION.json)
 bindet 16 repo-relative Eingabepins.
 
+[CSV-/Phonetic-Framework-Paketprofile](CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md):
+die vorhandenen drei Kulturphasen je Harness wurden gegen die gelieferten
+Paket-DLLs ausgeführt. Phonetic besteht 223 feste Assertions je Kultur; die
+CSV-Assertionszahlen sind als Laufmetadaten festgehalten. Keine SQL-, vollständige
+Modul- oder transitive No-I/O-Qualifikation.
+
 [XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs, zwölf lokale/direkt zentrale Windows-/Linux-Ziel-/CL-Fälle, 336 Rechtemaskenzustände, 672 API-Routen und 720 feste Ergebniszeilen. Ein ursprünglicher Probe-Arityfehler bleibt getrennt von zwölf bestandenen Fällen und zwei gezielt abgewiesenen Kontrollen; 15 frische Abschlussaudits bestanden.
 
 [XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) bindet die Raw- und Zell-Callerrechte aus den unveränderten Berichten an das Modulmanifest und den bestehenden CLR-Satz. SQL- und DLL-Payloads bleiben bytegleich; der Modulstatus bleibt unverändert.

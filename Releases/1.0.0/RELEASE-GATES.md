@@ -86,6 +86,14 @@ ausdrücklich freigegeben. Alle 45 Modulmanifeste bleiben `unreleased`.
 | JSON-Binarybindung | Die drei erneut erzeugten JSON-Binaries stimmen exakt mit den kanonischen bekannten Closure-Pins überein | Keine Erweiterung des vorhandenen nativen Supportumfangs |
 | Ausgewählte Frameworkprüfungen | Sieben frühere Suiten auf ihren Kandidaten bestanden: CSV, Phonetic, ZIP-Writer, drei Regex-Suiten und SSIS Full; zusätzlich 27 Phasen für den JSON-Constructor mit exakt gebundenen Paket-DLLs | Begrenzte Frameworkprofile für einzelne Module; keine vollständige IL-/Framework- oder SQL-Qualifikation aller zwölf Projekte |
 
+Am 27.10.2026 wurden die bestehenden CSV- und Phonetic-Harnesses zusätzlich
+mit den DLL-Bytes aus dem CLR-Installationspaket ausgeführt. Die
+[Paketprofile](CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md) binden drei
+Kulturphasen je Modul und begrenzen den Scope auf diese CLR-Verträge. Die
+früheren Kandidatenläufe bleiben als historische Evidenz erhalten; diese
+neuen Paketläufe ersetzen weder eine vollständige Modul-/Plattformmatrix noch
+SQL-, Deployment-, transitive IL- oder Sicherheitsqualifikationen.
+
 Der native Aufruf war
 `Tests/Release/Invoke-StablePackageMatrix.ps1 -EvidenceDirectory <neues privates .runtime-Verzeichnis>`.
 Er konsumierte den auf Commit `5b83a73aab3639b0d45b56e334fb38dc24509279`

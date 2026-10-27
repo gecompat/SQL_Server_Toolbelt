@@ -65,6 +65,20 @@ Offlinekontrollen (Paket, Sidecar, Qualifikationshash, ZIP-Traversal) sowie
 Report- und Korpusdriftprüfungen sind in `test_caller_metadata.py` integriert.
 Es gibt keinen SQL- oder Labstart.
 
+## CSV-/Phonetic-Framework-Paketprofile
+
+Der [gebundene Bericht](../../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
+verknüpft die unveränderten Frameworkharnesses mit den CSV- und Phonetic-DLLs
+aus dem Installationspaket. Zwei Berichtstests prüfen den exakten Scope,
+aktuelle zehn Quellpins, Paketbytes und Negativkontrollen; beide sind in
+`test_caller_metadata.py` integriert. Gezielter Lauf:
+
+```powershell
+python -B Tests/Release/test_caller_metadata.py CallerMetadataTests.test_candidate_framework_public_evidence_is_exactly_package_bound CallerMetadataTests.test_candidate_framework_report_scope_and_pin_drift_are_rejected -v
+```
+
+Die Prüfungen führen kein SQL aus und wiederholen die Frameworkharnesses nicht.
+
 ## CSV-Caller mit kombinierten Objektrechten
 
 Die anschließende [CSV-Metadaten-/Paketprüfung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) erhält den alten Bericht und prüft Manifestfeld, Produktdelta, CLR-Payload und Recoverygrenzen separat. Einzelprüfung: `python -B Tests/Release/test_csv_metadata.py`; sechs Prüfungen laufen in der vorhandenen Release-Suite.

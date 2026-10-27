@@ -2,6 +2,11 @@
 
 Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentation.
 
+Die [CSV-/Phonetic-Framework-Paketprofile](../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
+verknüpfen zwei vorhandene CLR-Harnesses mit den ausgelieferten DLL-Bytes.
+Es handelt sich um begrenzte Offlinebelege ohne SQL-Ausführung oder Änderung
+des Modulstatus.
+
 Die [workflowübergreifende Impact-Prüfung](CI/CHANGE_IMPACT_REVIEW_2026-10-19.md)
 beschreibt die tatsächlichen Consumer-Trigger, den deterministischen lokalen
 Cleanup-Test und die Grenzen einer späteren Local-to-Remote-Wiederverwendung.
