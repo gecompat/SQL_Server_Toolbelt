@@ -1,5 +1,11 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [XLSX-Grenzprüfung](XLSX-BOUNDARY-QUALIFICATION.md) besteht für die feste
+32/33-Blattgrenze von `USP_ListXlsxWorksheets`. Der getrennte 50.000-Shared-
+String-Test blieb nach zwei lokalen Budgetfehlern `BLOCKED_BUDGET`; 50.001 und
+zentrale Routen wurden nicht ausgeführt. Die [Evidenzdatei](xlsx-boundary-qualification.json)
+bindet Paket-DLLs und Eingabepins.
+
 Der [XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md)
 bindet 19 bestehende XLSX-Candidate-Frameworkphasen und den bestehenden
 ZIP-Writer-/Entry-Security-Vertrag an die Installationspaket-DLLs. Er ersetzt
