@@ -1,5 +1,17 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Achtzehnter endlicher Release-Rahmen — 2026-10-27
+
+Der gebundene XLSX-Candidate-Frameworklauf bestand 19 Phasen gegen die
+Installationspaket-DLLs. Ein separater ZIP-Writer-Lauf bestand die sieben
+vorhandenen Entry-Security-Fälle und den unveränderten Writer-Framework-Body.
+Die [Evidenz](../Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.json)
+bindet 48 repo-relative Eingabepins und grenzt Sandbox-/IL-Claims ein. Drei
+gezielte Report-/Guardprüfungen laufen in der vorhandenen Release-Suite. Es gab
+keine SQL-/Lab-Ausführung, keinen Produktbuild, keine Modulstatus- oder
+Paketänderung und keine Veröffentlichung. Vollständige Modul-, Plattform-,
+Deployment-, SQL-Rechte- und Sicherheitsqualifikationen bleiben offen.
+
 ## Siebzehnter endlicher Release-Rahmen — 2026-10-27
 
 Die vorhandenen CSV- und Phonetic-Framework-Harnesses wurden mit den

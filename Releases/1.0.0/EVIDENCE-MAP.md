@@ -1,5 +1,11 @@
 # Nachweiszuordnung aller 45 Module
 
+[XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md):
+19 bestehende XLSX-Candidate-Frameworkphasen und zwei ZIP-Writer-Laufphasen
+gegen gebundene Installationspaket-DLLs. Die XLSX-Sandbox ist keine
+Systemaufrufbeobachtung; die eigene IL-Prüfung ist nicht transitiv. Der
+Nachweis umfasst keine SQL- oder vollständige Modulqualifikation.
+
 [ZIP-Callerrechte](ZIP-CALLER-PROFILE.md): drei vorhandene öffentliche
 Listing-/Extraktions-/Writer-USPs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle,
 432 Rechtezustände, 864 API-Routen, 192 positive feste Ergebniszeilen und
