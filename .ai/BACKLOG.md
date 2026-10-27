@@ -9,8 +9,18 @@ vorhandene Quell-Frameworklauf vergleicht beide DLLs bytegenau mit dem Paket;
 der JSON-Core-Closure-IL-Gate läuft direkt auf dem Constructor-Binary aus dem
 Paket. 27 Frameworkphasen und die festen BridgeGoldens bestanden. Sieben
 Paketbindungs-, Report- und Pfadprüfungen laufen in der bestehenden
-Release-Suite. Die JSON-Schema-DLL wird dadurch nicht als
-Paketqualifikation ausgewiesen. Es gab keine SQL-/Labverbindung und keine
+Release-Suite. ~~Die JSON-Schema-DLL wird dadurch nicht als
+Paketqualifikation ausgewiesen.~~
+
+Korrektur 2026-10-27 — Codex: Ein separater JSON-Schema-Paket-IL-Nachweis
+verwendet den unveränderten, erneut vollständig geprüften 27-Phasen-Receipt
+und bindet die Schema-DLL bytegenau an das Installationspaket. Der vorhandene
+IL-Guard besteht direkt auf der Paket-DLL; der Constructor-Bericht und dessen
+Pins bleiben unverändert. Neun gezielte Offlineprüfungen laufen in der
+bestehenden Suite. SQL/Lab, vollständige CLR-Qualifikation und Veröffentlichung
+bleiben außerhalb dieses Scopes.
+
+Es gab keine SQL-/Labverbindung und keine
 Produkt-, Manifest-, Paket- oder Modulstatusänderung; der Bericht bleibt auf
 dieses bestehende Offlinegate begrenzt.
 

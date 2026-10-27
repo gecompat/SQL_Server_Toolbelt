@@ -39,6 +39,14 @@ Er läuft ohne SQL oder Labverbindung und bindet die beiden extrahierten DLLs
 bytegenau an die Frameworkausgaben; ein vorhandenes Ziel oder abweichende
 Paket-/DLL-Bytes werden abgewiesen.
 
+Die getrennte [JSON-Schema-Paket-IL-Prüfung](../../Releases/1.0.0/JSON-SCHEMA-PACKAGE-QUALIFICATION.md)
+verwendet den unveränderten privaten Framework-Receipt und bindet alle Phasen,
+Eingaben und Outputs erneut. Der vorhandene IL-Guard läuft direkt auf der
+Schema-DLL aus dem geprüften Paket; neun Offlineprüfungen sind in
+`test_caller_metadata.py` integriert. Ein neuer kompletter Frameworklauf ist
+nicht erforderlich, solange der gebundene Receipt und seine Quellpins bestehen.
+Gezielt lokal: `python -B -m unittest Tests.Release.test_caller_metadata.CallerMetadataTests.test_public_predecessor_and_framework_inputs_are_exactly_bound Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_public_evidence_binds_the_package_and_reused_receipt Tests.Release.test_caller_metadata.CallerMetadataTests.test_framework_receipt_requires_complete_phases_and_fresh_sources Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_manifest_hash_is_checked_even_with_matching_outer_hash Tests.Release.test_caller_metadata.CallerMetadataTests.test_package_archive_hash_and_fixed_oracle_pins_reject_drift Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_framework_output_must_equal_the_package_binary Tests.Release.test_caller_metadata.CallerMetadataTests.test_output_scope_rejects_external_path_before_creating_it`.
+
 ## CSV-Caller mit kombinierten Objektrechten
 
 Die anschließende [CSV-Metadaten-/Paketprüfung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) erhält den alten Bericht und prüft Manifestfeld, Produktdelta, CLR-Payload und Recoverygrenzen separat. Einzelprüfung: `python -B Tests/Release/test_csv_metadata.py`; sechs Prüfungen laufen in der vorhandenen Release-Suite.

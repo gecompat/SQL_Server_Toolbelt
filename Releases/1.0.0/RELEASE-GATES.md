@@ -26,6 +26,12 @@ JSON-Core-Closure-IL-Gate bestand direkt mit der Constructor-DLL aus dem Paket.
 Keine SQL-/Labverbindung, keine Schema-Paketqualifikation und keine
 Gesamtfreigabe.
 
+[JSON-Schema-Paket-IL](JSON-SCHEMA-PACKAGE-QUALIFICATION.md) ergänzt den
+separaten direkten IL-Lauf für die Schema-DLL aus demselben unveränderten
+Paket. Der abgeschlossene Source-Receipt wurde mit allen 27 Phasen und frischen
+Eingaben wiederverwendet; ein neuer Frameworklauf fand nicht statt. SQL-, API-,
+Gesamt-CLR- und Veröffentlichungsfreigaben bleiben getrennt.
+
 Die [SSIS-Qualifikation vom 2026-10-25](SSIS-LOOKUP-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
