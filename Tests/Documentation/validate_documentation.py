@@ -16,6 +16,14 @@ import os
 import re
 import subprocess
 import sys
+
+
+def run_hidden(*args, **kwargs):
+    """Preserve subprocess results while suppressing Windows console creation."""
+    if sys.platform == "win32":
+        kwargs["creationflags"] = kwargs.get("creationflags", 0) | subprocess.CREATE_NO_WINDOW
+    return subprocess.run(*args, **kwargs)
+
 from pathlib import Path
 
 import generate_api_catalog
@@ -92,7 +100,7 @@ def read(path: Path) -> str:
 
 
 def run_git(*arguments: str) -> str:
-    result = subprocess.run(
+    result = run_hidden(
         ("git", "-C", str(REPOSITORY_ROOT), *arguments),
         check=False,
         capture_output=True,
@@ -1246,7 +1254,7 @@ def run_result_table_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1270,7 +1278,7 @@ def run_base64_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1294,7 +1302,7 @@ def run_generate_series_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1318,7 +1326,7 @@ def run_date_spine_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1341,7 +1349,7 @@ def run_regex_research_static() -> None:
         / "Regex"
         / "validate_research.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1358,7 +1366,7 @@ def run_regex_research_static() -> None:
 
 def run_phonetic_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.string.phonetic/Tests/Static/validate_contract.py"
-    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+    result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                             check=False, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
         raise ValidationError("Statische Phonetik-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
@@ -1368,7 +1376,7 @@ def run_foundation_redirects() -> None:
     # Nur synthetischer HTTP-Transport; keine optionalen Runtimes aktivieren.
     script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_redirects.py"
     try:
-        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+        result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                                 check=False, capture_output=True, text=True,
                                 encoding="utf-8", timeout=10)
     except subprocess.TimeoutExpired as error:
@@ -1382,7 +1390,7 @@ def run_foundation_http_responses() -> None:
     # Skalierte Offline-Transportfälle; kein echter Endpoint oder Clientstart.
     script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_http_response.py"
     try:
-        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+        result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                                 check=False, capture_output=True, text=True,
                                 encoding="utf-8", timeout=10)
     except subprocess.TimeoutExpired as error:
@@ -1390,7 +1398,7 @@ def run_foundation_http_responses() -> None:
     if result.returncode != 0:
         raise ValidationError("Foundation-Response-Regression fehlgeschlagen:\n" + result.stdout + result.stderr)
     print(result.stdout.strip())
-    handles = subprocess.run((sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_foundation_handles.py")),
+    handles = run_hidden((sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_foundation_handles.py")),
                              cwd=REPOSITORY_ROOT, check=False, capture_output=True,
                              text=True, encoding="utf-8", timeout=30)
     if handles.returncode:
@@ -1402,7 +1410,7 @@ def run_foundation_discovery() -> None:
     # Nur isolierte Discovery-Caller mit Fake-HTTP; keine Config oder Runtime.
     script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_discovery.py"
     try:
-        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+        result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                                 check=False, capture_output=True, text=True,
                                 encoding="utf-8", timeout=10)
     except subprocess.TimeoutExpired as error:
@@ -1413,7 +1421,7 @@ def run_foundation_discovery() -> None:
 
 
 def run_security_maintenance() -> None:
-    result = subprocess.run((sys.executable, '-B', str(REPOSITORY_ROOT / 'Tests/Documentation/test_security_maintenance.py')),
+    result = run_hidden((sys.executable, '-B', str(REPOSITORY_ROOT / 'Tests/Documentation/test_security_maintenance.py')),
                             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding='utf-8', timeout=30)
     if result.returncode:
         raise ValidationError('Security-Maintenance-Regression fehlgeschlagen:\n' + result.stdout + result.stderr)
@@ -1424,7 +1432,7 @@ def run_foundation_processing() -> None:
     # Synthetic session consumers; no native client/config/cache attestation.
     script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_processing.py"
     try:
-        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+        result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                                 check=False, capture_output=True, text=True,
                                 encoding="utf-8", timeout=10)
     except subprocess.TimeoutExpired as error:
@@ -1436,14 +1444,14 @@ def run_foundation_processing() -> None:
 
 def run_edit_distance_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py"
-    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+    result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                             check=False, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
         raise ValidationError("Statische Editierdistanz-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
 
 def run_text_pairs_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.string.text-pairs/Tests/Static/validate_contract.py"
-    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+    result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                             check=False, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
         raise ValidationError("Statische Paarvergleich-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
@@ -1451,7 +1459,7 @@ def run_text_pairs_static() -> None:
 
 def run_csv_memory_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.file.csv-memory/Tests/Static/validate_contract.py"
-    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+    result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                             check=False, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
         raise ValidationError("Statische CSV-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
@@ -1460,7 +1468,7 @@ def run_csv_memory_static() -> None:
 def run_safe_cast_static() -> None:
     # Der Modulvalidator führt den kanonischen Generator im Checkmodus mit aus.
     script = REPOSITORY_ROOT / "Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py"
-    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+    result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                             check=False, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
         raise ValidationError("Statische Safe-Cast-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
@@ -1468,7 +1476,7 @@ def run_safe_cast_static() -> None:
 
 def run_json_pointer_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py"
-    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+    result = run_hidden((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
                             check=False, capture_output=True, text=True, encoding="utf-8")
     if result.returncode != 0:
         raise ValidationError("Statische JSON-Pointer-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
@@ -1483,7 +1491,7 @@ def run_regex_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1507,7 +1515,7 @@ def run_identifier_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1531,7 +1539,7 @@ def run_split_characters_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1555,7 +1563,7 @@ def run_split_advanced_static() -> None:
         / "Static"
         / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1575,7 +1583,7 @@ def run_semantic_version_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.validation.semantic-version"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1595,7 +1603,7 @@ def run_integer_base_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.conversion.integer-base"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1615,7 +1623,7 @@ def run_json_path_exists_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.json.path-exists"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1636,7 +1644,7 @@ def run_json_constructors_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.json.constructors"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)), cwd=REPOSITORY_ROOT,
         check=False, capture_output=True, text=True, encoding="utf-8",
     )
@@ -1653,7 +1661,7 @@ def run_deterministic_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.pseudonymization.deterministic"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)), cwd=REPOSITORY_ROOT,
         check=False, capture_output=True, text=True, encoding="utf-8",
     )
@@ -1669,7 +1677,7 @@ def run_table_clone_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.metadata.table-clone"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)), cwd=REPOSITORY_ROOT,
         check=False, capture_output=True, text=True, encoding="utf-8",
     )
@@ -1685,7 +1693,7 @@ def run_console_message_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.core.console-message"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1705,7 +1713,7 @@ def run_capability_catalog_static() -> None:
         REPOSITORY_ROOT / "Modules" / "toolbelt.metadata.capability-catalog"
         / "Tests" / "Static" / "validate_contract.py"
     )
-    result = subprocess.run(
+    result = run_hidden(
         (sys.executable, str(script)),
         cwd=REPOSITORY_ROOT,
         check=False,
@@ -1790,14 +1798,14 @@ def main() -> int:
         # Die Suite prüft große ZIPs und isolierte Git-Bundle-Recovery mehrfach.
         # Ein 30-s-Gesamtlimit ist dafür auf kalten CI-Läufen zu knapp; alle
         # Testfälle und ihre eigenen Prozessgrenzen bleiben unverändert.
-        result = subprocess.run(
+        result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=120,
         )
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
-        result = subprocess.run(
+        result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),
              "--verify", str(REPOSITORY_ROOT / "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=150,
@@ -1806,7 +1814,7 @@ def main() -> int:
             raise ValidationError(f"Releasepaket-Integrität:\n{result.stdout}{result.stderr}")
         print(result.stdout.strip())
     if "publication_contract" in checks:
-        result = subprocess.run(
+        result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_publication.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
         )
@@ -1814,7 +1822,7 @@ def main() -> int:
             raise ValidationError(f"Publication-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
     if "change_impact_selftests" in checks:
-        result = subprocess.run(
+        result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_change_impact.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
         )
@@ -1837,7 +1845,7 @@ def main() -> int:
         except (ValueError, KeyError, AttributeError) as error:
             raise ValidationError(f"API-Katalog: {error}") from error
     if "public_api_catalog_selftests" in checks:
-        result = subprocess.run(
+        result = run_hidden(
             [sys.executable, str(REPOSITORY_ROOT / "Tests/Documentation/test_api_catalog.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True,
         )
@@ -1914,7 +1922,7 @@ def main() -> int:
     if "json_constructors_static" in checks:
         run_json_constructors_static()
     if "json_schema_core_static" in checks:
-        result = subprocess.run(
+        result = run_hidden(
             (sys.executable, str(REPOSITORY_ROOT / "Modules/toolbelt.json.schema/Tests/Static/validate_contract.py")),
             cwd=REPOSITORY_ROOT, check=False, capture_output=True, text=True, encoding="utf-8",
         )

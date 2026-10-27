@@ -8,6 +8,14 @@ import stat
 import shutil
 import subprocess
 import sys
+
+
+def run_hidden(*args, **kwargs):
+    """Preserve subprocess results while suppressing Windows console creation."""
+    if sys.platform == "win32":
+        kwargs["creationflags"] = kwargs.get("creationflags", 0) | subprocess.CREATE_NO_WINDOW
+    return subprocess.run(*args, **kwargs)
+
 import unittest
 import warnings
 import zipfile
@@ -426,7 +434,7 @@ class PreparationTests(unittest.TestCase):
         pwsh = shutil.which("pwsh")
         if pwsh is None:
             self.skipTest("PowerShell 7 fehlt; kein SQL-Ersatzlauf")
-        result = subprocess.run([pwsh, "-NoProfile", "-NonInteractive", "-File",
+        result = run_hidden([pwsh, "-NoProfile", "-NonInteractive", "-File",
                                  str(ROOT / "Tests/Release/Test-StablePackageHarness.ps1")],
                                 capture_output=True, timeout=30)
         self.assertEqual(result.returncode, 0, "Native Harnessguards fehlgeschlagen")
@@ -795,7 +803,7 @@ class ClrPackageTests(unittest.TestCase):
                 self.clr.verify(path)
 
     def test_clr_budget_regression_without_sql(self):
-        result = subprocess.run([shutil.which('pwsh'),'-NoProfile','-NonInteractive','-File',
+        result = run_hidden([shutil.which('pwsh'),'-NoProfile','-NonInteractive','-File',
                                  str(ROOT / 'Tests/Release/Test-ClrPackageHarness.ps1')],capture_output=True,timeout=30)
         self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
         self.assertIn(b'PASS CLR_HARNESS',result.stdout)
@@ -1036,7 +1044,7 @@ class ApiQualificationTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline Geo execution guards')
     def test_geo_execution_caps_without_sql_connection(self):
-        result = subprocess.run([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
+        result = run_hidden([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
                                  str(ROOT / 'Tests/Release/Test-GeoContractHarness.ps1')], capture_output=True, timeout=20)
         self.assertEqual(result.returncode, 0, 'Geo canonical/remaining budget and disposal guards failed')
 
@@ -1609,7 +1617,7 @@ class ApiQualificationTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
     def test_capture_failure_diagnostic_without_sql(self):
-        result = subprocess.run([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
+        result = run_hidden([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
                                  str(ROOT / 'Tests/Release/Test-ApiCaptureDiagnostic.ps1')],
                                 cwd=ROOT, capture_output=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors='replace'))
@@ -1723,7 +1731,7 @@ try{& $consumer {param($callback) & $callback} $providers.Read}catch{if($_.Excep
 if(-not $caught){throw 'CALLBACK_DEADLINE_LOST'}
 'PASS OFFLINE_API_GUARDS'
 '''
-        result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
+        result = run_hidden(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('PASS OFFLINE_API_GUARDS', result.stdout)
 

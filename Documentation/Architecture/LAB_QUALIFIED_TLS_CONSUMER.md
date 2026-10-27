@@ -13,6 +13,38 @@ Hyper-V-Lane erhält hierdurch keinen Nachweis. Die gemeinsame native
 Windows-Teilmatrix ist für Docker und Podman mit SQL 2019 CU32, 2022 CU27
 und 2025 CU9 separat bestanden.
 
+Der zusätzliche ausdrücklich isolierte Linuxclient befindet sich in
+Entwicklung und ist noch nicht nativ freigegeben. Sein dedizierter
+[read-only Preflight](../../Tests/CI/Invoke-LabLinuxPreflight.ps1) wird durch
+die gekoppelte öffentliche Lab-Vordergrundsitzung aufgerufen. Er ersetzt
+weder die Windows-Abnahmen noch die bestehenden Feature-/Deploymentadapter.
+Der gemeinsame Reader verlangt unter Linux zusätzlich eine bereits privat
+gebundene opaque Sitzung, LinuxClientRef und Contextdigest. Er erzeugt diese
+nicht selbst und liest einen Windows-StateRoot nicht als Linuxpfad.
+
+Die Sitzung liefert denselben V2-Bytesnapshot. Vor jedem tatsächlichen
+System.Data.SqlClient-Open und sqlcmd-Start wird der öffentliche Labreader
+frisch für den betreffenden Stack aufgerufen. Ein weiterlaufendes monotones
+Fenster erhält nach Abzug des gesamten Austauschs mindestens 30 Sekunden;
+Linux- und Controllerwanduhr werden nicht voneinander subtrahiert. Der
+Preflight prüft erwarteten SQL-Build, Verschlüsselung, Binary- und geladenen
+ODBC-18-Hash ohne SQL-Objekte, Pooling, Retry oder Trustoverride.
+
+Der Linuxpfad verwendet den getrennten
+[LabLinuxQualifiedContract.ps1](../../Tests/CI/LabLinuxQualifiedContract.ps1).
+Der bisherige gemeinsame Windowshelper und run-lab-local.ps1 bleiben
+byteidentisch; historische Runtime-, Rechte- und Sourcebindungen werden
+nicht umgedeutet. Der direkte öffentliche Windowsreader weist einen
+Linux-Namespaceexport ab. Der Linux-Consumer wird über die explizite
+Lab-Vordergrundsitzung aufgerufen.
+
+Der Operator wählt den vertrauenswürdigen Toolbeltcheckout ausdrücklich im
+Labaufruf aus. Lab hält den festen transitiven Quellsatz und prüft Gastkopien.
+Weder Export noch Schema-/Umgebungsangaben wählen Code aus. Credentials
+gelangen nur über die eigene stdin-Verbindung in den Gastprozess. Diese
+Fähigkeit macht den allgemeinen Dateiresolver oder Shelladapter nicht
+pauschal Linuxfähig; deren bisherige Capabilitygrenzen bleiben bestehen.
+
 ## Discovery und Autorität
 
 Die bestehende Discovery bleibt erhalten: Prozess vor Benutzer für

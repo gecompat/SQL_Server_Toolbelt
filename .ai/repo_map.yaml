@@ -1095,6 +1095,9 @@ change_impact:
         - Tests/CI/run-lab-local.ps1
         - Tests/CI/run-lab-target.sh
         - Tests/CI/LabQualifiedContract.ps1
+        - Tests/CI/LabLinuxQualifiedContract.ps1
+        - Tests/CI/Invoke-LabLinuxPreflight.ps1
+        - Tests/CI/test-lab-linux-session-context.ps1
         - Tests/CI/Assert-LabQualifiedTlsBinding.ps1
         - Tests/CI/test-lab-qualified-contract.ps1
         - Tests/CI/test-cold-lab-consumer-contract.ps1
