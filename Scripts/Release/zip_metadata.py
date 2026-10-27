@@ -119,6 +119,9 @@ def validate_xlsx_offline_source(root, record):
     xlsx_record = json.loads(xlsx_record_bytes)
     actual = (Path(root) / XLSX_OFFLINE_SOURCE).read_bytes()
     expected = corrected_xlsx_offline_source(previous)
+    if actual != expected:
+        import xlsx_sst_budget
+        actual = xlsx_sst_budget.restore_previous_cell_test(root, actual)
     previous_update = xlsx_record.get('offline_source_update', {})
     require(update == {'path': XLSX_OFFLINE_SOURCE,
                        'execution_sha256': raw['source_sha256'][XLSX_OFFLINE_SOURCE],

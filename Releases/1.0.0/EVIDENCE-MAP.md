@@ -1,5 +1,10 @@
 # Nachweiszuordnung aller 45 Module
 
+[XLSX-SST-Quellkorrektur](XLSX-SST-BUDGET-CORRECTION.md): neuer, separat
+gebundener Kandidat mit unverändertem 5.000-ms-Budget; 50.000/50.001 auf
+zwölf lokalen/direkt zentralen Ziel-/CL-Fällen bestanden. Die frühere
+Paket-DLL und ihre ursprünglichen Nachweise bleiben unverändert.
+
 [XLSX-Blatt- und Shared-String-Grenzen](XLSX-BOUNDARY-QUALIFICATION.md): die
 feste 32/33-Blattgrenze der bestehenden Listing-API besteht auf zwölf
 Ziel-/CL-Fällen. Der separate 50.000-Shared-String-Test blieb nach zwei

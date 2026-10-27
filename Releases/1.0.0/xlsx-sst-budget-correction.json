@@ -1,0 +1,279 @@
+{
+  "schema_version": "toolbelt-xlsx-sst-budget-correction/v1",
+  "date": "2026-10-27",
+  "status": "PASS_SOURCE_CANDIDATE_ONLY",
+  "publication_authorized": false,
+  "package_payload_changed": false,
+  "module_status": "partially validated",
+  "release_status": "unreleased",
+  "candidate_dll_sha256": "f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd",
+  "original_package_sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+  "original_package_xlsx_dll_sha256": "15bff87fad9695dca6f2127f49a8f509a34825b2d855545dc4b875a1a5af71ec",
+  "zip_dependency_sha256": "bae312b3a125ffa157da72a5ae1b5bf29b6abbe604509638df2cc5e7136b575d",
+  "budget": {
+    "maximum_milliseconds": 5000,
+    "minimum_milliseconds": 1,
+    "precise_for_budgets_up_to_milliseconds": 32,
+    "coarse_clock_role": "advisory_inner_check_scheduling",
+    "precise_materialization_and_final_acceptance": true,
+    "hard_wallclock_guarantee": false
+  },
+  "clock_gate_assertions": 35,
+  "clock_test_source_projection": {
+    "executed_sha256": "8a04001ce9532175a204efaae5f56cab93c6d4c167836e07474d1e907a2e8e29",
+    "canonical_lf_sha256": "8a04001ce9532175a204efaae5f56cab93c6d4c167836e07474d1e907a2e8e29"
+  },
+  "source_projection": {
+    "path": "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs",
+    "executed_sha256": "c6774184c0ae8aa1d718198708fbe431fef315c8e307dd0ea012ee7c083d3504",
+    "canonical_lf_sha256": "f5b59ed8f625ea8cff21342ff22a2bd4c32ac1428db534d52c7e71556d0b7806",
+    "executed_crlf_lines": [
+      22
+    ],
+    "lf_count": 436
+  },
+  "driver_projection": {
+    "path": "Tests/Release/Invoke-XlsxSharedStringBoundaryLab.ps1",
+    "original_sha256": "d59b0e8ab956d3576bc265fbf7139f123edce1dcdee995205ebee53d9c4d39cb",
+    "executed_sha256": "9c529c944ac40bfe0107a6b356ad24c7d2126fee5a02fc4f4e110858cb4215d7",
+    "helper_path_substitutions": 8,
+    "unchanged_finally_blocks": 4
+  },
+  "historical_source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs": "a834d0b53a309e6836efc2ca077b48d2aebc48533a838723268416361a49812a",
+    "Spikes/XlsxMemory/Test-ProviderIL.ps1": "bf1ae44917a2a6d84365b82a109ac1333b3aada4347adfba534e8eb7689cef78"
+  },
+  "current_source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/Clr/AssemblyInfo.cs": "cb94d2f59c0617fbb8dfdb85e95e05ed8a515b146c1e2e1069dd11f46b640245",
+    "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs": "f5b59ed8f625ea8cff21342ff22a2bd4c32ac1428db534d52c7e71556d0b7806",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplay.cs": "25838f5bbac749f539b65a5e49c692189b19994a36028bd119995233ce746ab8",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplayBridge.cs": "e2df235c1ab524f565090bfd36a16bafc47a44d38295da219df5c3c12c0d5b05",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellType.cs": "564162b8c6fef1145842e92a6ceef2f8478bcbe8d30fe4bce360a160d659a300",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs": "99f6f2c7120ce68dfff28f78196f767b97ea93590d7665c8c59df6162a80cdcd",
+    "Releases/1.0.0/EVIDENCE-MAP.md": "29cf8aa393f4dbd2d3296fab60d74bd5ffb560e4fc72aaf5af4b227a0dc0bbe8",
+    "Releases/1.0.0/README.md": "8edf478282bfebe41e3b9af76eff5b3f878a162ff320111ceb1473e565b17db3",
+    "Releases/1.0.0/RELEASE-GATES.md": "5e70269381947a5eb57b86df211ebf04af9cf491fd4093cc0ff58c64d7b771e4",
+    "Releases/1.0.0/XLSX-SST-BUDGET-CORRECTION.md": "14b53b9b27ab2fa99a27c310f55fae4523944ee874c9e04375b429a55409f76d",
+    "Scripts/Release/xlsx_sst_budget.py": "e5f3b327c651a1181a1b22b84f82b543cc1b2a055662de0d81a695d114b159ef",
+    "Scripts/Release/zip_metadata.py": "d8cba17aa0c17dec6fc579d8b19b8e637fb56ad7a0f7d9457e3edb5970219b5d",
+    "Spikes/XlsxMemory/Test-ProviderIL.ps1": "ac5dc8e61cb0dcb22127ec862eeb9b9af8b2367e8272e9616769918406bdf31c",
+    "Tests/Release/Runtime/XlsxBudget.ClockGate.cs": "8a04001ce9532175a204efaae5f56cab93c6d4c167836e07474d1e907a2e8e29",
+    "Tests/Release/test_xlsx_boundary_evidence.py": "329c635ce7fc4b00b323a7342afbf6cf0921640cb4570a8c31c6cdef539685eb",
+    "Tests/Release/test_xlsx_cell_caller_qualification.py": "2b8e756283236f5ddee87af3241fcc046306272f9d32429a43cf1bf088f8d886",
+    "Tests/Release/test_xlsx_metadata.py": "6e71519987a874ded010d3656ca352e9180ee63d24dce98a532d831d309b1f6e",
+    "Tests/Release/test_xlsx_raw_caller_evidence.py": "51d9d192814f1110c40f1973885c9a305c1f0e9e8cab10d2653e0b81a372288f",
+    "Tests/Release/test_xlsx_zip_package_framework.py": "09016ffd43fc25c65a30c305c3024640bc7c7e5ec03a846dccc7fd73b8ab2b04"
+  },
+  "historical_reports_sha256": {
+    "Releases/1.0.0/xlsx-boundary-qualification.json": "2d5d150841288e31cd113e40b225a15119fcffecc83f21b2a2f076527c9a7b07",
+    "Releases/1.0.0/xlsx-cell-caller-qualification.json": "10a7a3f8bd8d666837cd8a61b45e3e8932f6f006f2add7d66161738890854dc2",
+    "Releases/1.0.0/xlsx-raw-caller-profile.json": "ccf857e5d149a6b20423bc71c32a69022c9a3fd7b98cccc9d277ac549d3d7079",
+    "Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.json": "0ff0f60ca19d673e26502a18931d189df7f199c91232e2edf3ee8916828baafc",
+    "Releases/1.0.0/xlsx-metadata-update.json": "9359496ade25307abc584f648545155a89854b54bb779d195e0835b6a5466bed",
+    "Releases/1.0.0/zip-metadata-update.json": "43e94aace951c23f89d90d07b47884f394519803a7d86f75104b4fb01afff956",
+    "Releases/1.0.0/XLSX-BOUNDARY-QUALIFICATION.md": "26d86a13d4d5ab30156bbe0b905953de2c4488e2756c1593524e8f65fc6d735e"
+  },
+  "compiled_sources": [
+    "Modules/toolbelt.file.xlsx-memory/Clr/AssemblyInfo.cs",
+    "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellType.cs",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplay.cs",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplayBridge.cs"
+  ],
+  "candidate_bundle": {
+    "path": "Releases/1.0.0/Artifacts/Xlsx-Sst-Budget-Candidate.zip",
+    "sha256": "fa9b2e585afb4be2179fa90bbdcc8c1a50b91c51ebbce8d2311132cfbabf34fb",
+    "files": {
+      "Binaries/Toolbelt.Archive.ZipMemory.dll": "bae312b3a125ffa157da72a5ae1b5bf29b6abbe604509638df2cc5e7136b575d",
+      "Binaries/Toolbelt.File.XlsxMemory.dll": "f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd",
+      "CANDIDATE.json": "9738c812c28d2997e6c0dbaff86ea375e4cef7bf8c7bdc2b7f0d319e67033d01",
+      "ExecutedSources/Workbook.cs": "c6774184c0ae8aa1d718198708fbe431fef315c8e307dd0ea012ee7c083d3504",
+      "Sources/Modules/toolbelt.file.xlsx-memory/Clr/AssemblyInfo.cs": "cb94d2f59c0617fbb8dfdb85e95e05ed8a515b146c1e2e1069dd11f46b640245",
+      "Sources/Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs": "f5b59ed8f625ea8cff21342ff22a2bd4c32ac1428db534d52c7e71556d0b7806",
+      "Sources/Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplay.cs": "25838f5bbac749f539b65a5e49c692189b19994a36028bd119995233ce746ab8",
+      "Sources/Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplayBridge.cs": "e2df235c1ab524f565090bfd36a16bafc47a44d38295da219df5c3c12c0d5b05",
+      "Sources/Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellType.cs": "564162b8c6fef1145842e92a6ceef2f8478bcbe8d30fe4bce360a160d659a300",
+      "Sources/Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs": "99f6f2c7120ce68dfff28f78196f767b97ea93590d7665c8c59df6162a80cdcd"
+    }
+  },
+  "native": {
+    "cases": [
+      {
+        "platform": "linux",
+        "sql_version": "2019",
+        "compatibility_level": 150,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 150,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 160,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 150,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 160,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 170,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2019",
+        "compatibility_level": 150,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 150,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 160,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 150,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 160,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 170,
+        "status": "PASS",
+        "contexts": [
+          "local",
+          "direct_central"
+        ],
+        "independent_audit": true
+      }
+    ],
+    "positive_routes": 24,
+    "fixed_result_rows": 72,
+    "overflow_rejections": 24,
+    "overflow_result_rows": 0,
+    "overflow_error": {
+      "number": 51520,
+      "message": "TBX_XLSX_SHARED_STRING_COUNT_LIMIT"
+    },
+    "immediate_audits": 12,
+    "final_physical_target_audits": 6,
+    "own_databases_removed": 24,
+    "trust_removal_events": 24
+  },
+  "native_attempts": {
+    "diagnostics_including_failure_and_audits": 8,
+    "boundary_cases": 12,
+    "immediate_audits": 12,
+    "final_audits": 6,
+    "total": 38
+  },
+  "framework": {
+    "original_run": {
+      "status": "FAILED",
+      "passed_phases": 18,
+      "failed_phase": "OwnIL",
+      "final_pins_unchanged": true
+    },
+    "successor": {
+      "status": "PASS",
+      "allowed_member": "System.Environment.get_TickCount",
+      "rejected_members": [
+        "System.Environment.get_MachineName",
+        "System.Environment.GetEnvironmentVariable(string)"
+      ],
+      "source_sha256": "ac5dc8e61cb0dcb22127ec862eeb9b9af8b2367e8272e9616769918406bdf31c",
+      "unchanged_provider_binaries": true
+    },
+    "composed_passed_phases": 19
+  },
+  "remaining_gates": [
+    "Prepared CLR install package still contains the earlier DLL; qualify refreshed package bytes.",
+    "Remaining v1.0.0 release gates and final exact-head evidence remain open.",
+    "Authenticated TLS and publication are not qualified or authorized by this functional wave."
+  ]
+}

@@ -2,6 +2,23 @@ param([string]$BinaryDirectory = (Join-Path $PSScriptRoot 'bin/Release'))
 $ErrorActionPreference = 'Stop'
 # Nur eigene Providerbinaries. Kein Anspruch auf Prüfung sämtlicher Framework-
 # Implementierungen; deren Zugriffsgrenze wird separat adversarial qualifiziert.
+function Test-AllowedTickCountMember([Reflection.MemberInfo]$Member) {
+    if ($Member -isnot [Reflection.MethodInfo] -or
+        $Member.DeclaringType.FullName -cne 'System.Environment' -or
+        $Member.Name -cne 'get_TickCount') { return $false }
+    $method = [Reflection.MethodInfo]$Member
+    return $method.IsStatic -and
+        $method.ReturnType -eq [int] -and
+        $method.GetParameters().Count -eq 0
+}
+$environment = [Environment]
+$tickCount = $environment.GetMethod('get_TickCount', [Reflection.BindingFlags]'Public,Static')
+if (-not (Test-AllowedTickCountMember $tickCount)) { throw 'TickCount-Ausnahme ist nicht exakt gebunden.' }
+$machineName = $environment.GetProperty('MachineName', [Reflection.BindingFlags]'Public,Static').GetGetMethod()
+$getEnvironmentVariable = $environment.GetMethod('GetEnvironmentVariable', [Type[]]@([string]))
+foreach ($canary in @($machineName, $getEnvironmentVariable)) {
+    if (Test-AllowedTickCountMember $canary) { throw 'Environment-Negativcanary wurde zugelassen.' }
+}
 $opcodes = @{}
 foreach ($field in [Reflection.Emit.OpCodes].GetFields([Reflection.BindingFlags]'Public,Static')) {
     $op = $field.GetValue($null); $opcodes[[int]$op.Value -band 65535] = $op
@@ -45,7 +62,8 @@ foreach ($file in @('Toolbelt.Archive.ZipMemory.dll','Toolbelt.File.XlsxMemory.d
                         $namespace = $declaring.Namespace
                         $simpleSystem = @('Object','String','StringComparer','StringComparison','Array','Buffer','BitConverter','Convert','DateTime','TimeSpan','Math','Decimal','Boolean','Byte','Char','Int16','Int32','Int64','UInt16','UInt32','UInt64','Double','Single','Exception','ArgumentException','ArgumentNullException','InvalidOperationException','NotSupportedException','OverflowException','IDisposable','Nullable`1','Action','Action`1','Func`1','Comparison`1','Delegate','Type','Enum')
                         $allowedNamespaces = @('Toolbelt.Archive.ZipMemory','Toolbelt.Xlsx.Qualification','System.Collections','System.Collections.Generic','System.Text','System.Globalization','System.Data.SqlTypes','Microsoft.SqlServer.Server')
-                        $special = $name -eq 'System.Diagnostics.Stopwatch' -or $name -eq 'System.Runtime.CompilerServices.RuntimeHelpers' -or
+                        $special = (Test-AllowedTickCountMember $member) -or
+                            $name -eq 'System.Diagnostics.Stopwatch' -or $name -eq 'System.Runtime.CompilerServices.RuntimeHelpers' -or
                             $name -in @('System.Xml.XmlReader','System.Xml.XmlReaderSettings','System.Xml.XmlNodeType','System.Xml.DtdProcessing','System.Xml.XmlException')
                         if ($namespace -notin $allowedNamespaces -and -not ($namespace -eq 'System' -and $declaring.Name -in $simpleSystem) -and
                             -not $special -and $namespace -notin @('System.IO','System.IO.Compression')) { throw ('Provider-API außerhalb der Allowlist: ' + $name) }

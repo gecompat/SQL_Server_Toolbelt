@@ -20,6 +20,7 @@ namespace Toolbelt.Xlsx.Qualification
         private const string OfficeRelations = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
         private readonly ZipEntryProvider.ArchiveSession archive;
         private readonly Stopwatch clock = Stopwatch.StartNew();
+        private readonly int coarseStartTickCount = Environment.TickCount;
         private readonly Dictionary<string, byte[]> parts = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         private readonly Dictionary<string, string> contentTypes = new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly List<Sheet> sheets = new List<Sheet>();
@@ -90,12 +91,12 @@ namespace Toolbelt.Xlsx.Qualification
         }
 
         public long CountedAllocationBytes { get { return charged; } }
-        public void Checkpoint() { Check(); }
+        public void Checkpoint() { CheckPrecise(); }
         public Sheet[] ListSheets()
         {
             Check();
             foreach (var sheet in sheets) { OutputCharge(sheet.Name); OutputCharge(sheet.Visibility); }
-            Charge((long)sheets.Count * 16); Check(); return sheets.ToArray();
+            Charge((long)sheets.Count * 16); CheckPrecise(); return sheets.ToArray();
         }
 
         public Cell[] ReadCells(int sheetOrdinal)
@@ -137,7 +138,7 @@ namespace Toolbelt.Xlsx.Qualification
                 if (!rootSeen || !sheetDataSeen) Fail("WORKSHEET_EMPTY");
             }
             cells.Sort((a,b) => a.Row == b.Row ? a.Column.CompareTo(b.Column) : a.Row.CompareTo(b.Row));
-            Charge((long)cells.Count * 16); Check(); return cells.ToArray();
+            Charge((long)cells.Count * 16); CheckPrecise(); return cells.ToArray();
         }
 
         private Cell ReadCell(XmlReader reader, int row, List<string> strings)
@@ -370,7 +371,25 @@ namespace Toolbelt.Xlsx.Qualification
         private long charged;
         private void OutputCharge(string value) { if (value != null) Charge(checked((long)value.Length * 4)); }
         private void Charge(long bytes) { if (bytes < 0 || bytes > limits.AllocationBytes - charged) Fail("COUNTED_ALLOCATION_LIMIT"); charged += bytes; }
-        private void Check() { if (clock.ElapsedMilliseconds >= limits.BudgetMilliseconds) Fail("BUDGET_EXCEEDED"); }
+        internal static bool ShouldCheckPrecise(int budgetMilliseconds, uint coarseElapsedMilliseconds)
+        {
+            const int schedulingMarginMilliseconds = 32;
+            return budgetMilliseconds <= schedulingMarginMilliseconds ||
+                coarseElapsedMilliseconds >= (uint)(budgetMilliseconds - schedulingMarginMilliseconds);
+        }
+        internal static uint CoarseElapsedMilliseconds(int startTickCount, int currentTickCount)
+        { return unchecked((uint)(currentTickCount - startTickCount)); }
+        internal static bool IsBudgetExpired(long elapsedMilliseconds, int budgetMilliseconds)
+        { return elapsedMilliseconds >= budgetMilliseconds; }
+        private void Check()
+        {
+            int budget = limits.BudgetMilliseconds;
+            if (budget <= 32) { CheckPrecise(); return; }
+            uint coarseElapsed = CoarseElapsedMilliseconds(coarseStartTickCount, Environment.TickCount);
+            if (ShouldCheckPrecise(budget, coarseElapsed)) CheckPrecise();
+        }
+        private void CheckPrecise()
+        { if (IsBudgetExpired(clock.ElapsedMilliseconds, limits.BudgetMilliseconds)) Fail("BUDGET_EXCEEDED"); }
         private static void Fail(string category) { throw new InvalidDataException("TBX_XLSX_" + category); }
         private static void Root(XmlReader r, string name, string ns) { if (r.Depth != 0 || r.LocalName != name || r.NamespaceURI != ns) Fail("XML_ROOT_UNSUPPORTED"); }
         private static int Nonnegative(string text, int max, string error)

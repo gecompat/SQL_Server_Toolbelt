@@ -330,6 +330,8 @@ class XlsxMetadataMixin:
         if (ROOT / 'Releases/1.0.0/zip-metadata-update.json').is_file():
             import zip_metadata
             expected_test = zip_metadata.corrected_xlsx_offline_source(expected_test)
+        import xlsx_sst_budget
+        expected_test = xlsx_sst_budget.project_cell_test(expected_test)
         self.assertEqual(expected_test, current_test)
         self.assertNotEqual(expected_test,
                             current_test.replace(b'continue', b'pass', 1))
