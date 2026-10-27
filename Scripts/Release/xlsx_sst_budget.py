@@ -146,9 +146,16 @@ def offline_test_projection(data):
     lines = source.splitlines(keepends=True)
 
     def node_source(node):
-        start = min([node.lineno] + [item.lineno for item in node.decorator_list])
+        start = min([node.lineno] + [item.lineno for item in getattr(node, 'decorator_list', ())])
         return ''.join(lines[start - 1:node.end_lineno])
 
+    definitions = {}
+    for node in module.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            definitions.setdefault(node.name, []).append(node)
+    selected_name_definitions = definitions.get(OFFLINE_TEST_CLASS, [])
+    require(len(selected_name_definitions) == 1 and selected_name_definitions[0].__class__ is ast.ClassDef,
+            'offline qualification class is rebound at module scope')
     classes = [node for node in module.body
                if isinstance(node, ast.ClassDef) and node.name == OFFLINE_TEST_CLASS]
     require(len(classes) == 1, 'offline qualification class is missing or duplicated')
@@ -165,6 +172,37 @@ def offline_test_projection(data):
         require(len(matches) <= 1, 'offline qualification fixture is duplicated: ' + name)
         if matches:
             fixture_nodes[name] = node_source(matches[0])
+    module_context = [node for node in module.body
+                      if not isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))]
+    scoped_nodes = [*cls.bases, *cls.keywords, *cls.decorator_list, selected[0]]
+    scoped_nodes.extend(node for name in OFFLINE_TEST_FIXTURES
+                        for node in methods if node.name == name)
+
+    def referenced_names(nodes):
+        return {node.id for item in nodes for node in ast.walk(item)
+                if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)}
+
+    pending = referenced_names([*module_context, *scoped_nodes])
+    included_helpers = {}
+    while pending:
+        name = pending.pop()
+        matches = definitions.get(name, [])
+        if not matches:
+            continue
+        require(len(matches) == 1,
+                'offline qualification referenced helper is duplicated: ' + name)
+        helper = matches[0]
+        if helper is cls or name in included_helpers:
+            continue
+        require(not (isinstance(helper, ast.ClassDef)
+                     and getattr(helper, 'type_params', ())),
+                'offline qualification helper has unsupported type parameters: ' + name)
+        included_helpers[name] = node_source(helper)
+        if isinstance(helper, ast.ClassDef):
+            pending.update(referenced_names([*helper.bases, *helper.keywords,
+                                             *helper.decorator_list, *helper.body]))
+        else:
+            pending.update(referenced_names([helper]))
     projection = {
         'class': {
             'name': cls.name,
@@ -173,8 +211,10 @@ def offline_test_projection(data):
             'decorators': [ast.dump(node, annotate_fields=True, include_attributes=False)
                            for node in cls.decorator_list],
         },
-          'method': node_source(selected[0]),
+        'method': node_source(selected[0]),
         'fixtures': fixture_nodes,
+        'module_context': [node_source(node) for node in module_context],
+        'referenced_helpers': included_helpers,
     }
     return json.dumps(projection, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
 

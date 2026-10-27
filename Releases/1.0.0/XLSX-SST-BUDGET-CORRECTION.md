@@ -75,6 +75,9 @@ Setup-/Teardown-Fixtures und den vollständigen Quelltext der Methode
 `test_fixed_function_compositions_and_current_native_reports` einschließlich
 ihrer Decorators. AST-Positionen grenzen die Quelltextblöcke ein;
 LF-/CRLF-Zeilenenden werden dabei kanonisch verglichen.
+Modulimporte, globale Initialisierung und rekursiv referenzierte Helfer
+gehören ebenfalls zur Bindung. Ein Austausch des Release-Loaders oder
+eine globale Umbindung der Klasse kann die Prüfung damit nicht umgehen.
 
 Unabhängige Top-Level-Helfer und andere Tests werden dadurch nicht als
 SST-Ausführungsquellen eingefroren. Änderungen an der gebundenen Methode,

@@ -248,6 +248,23 @@ class XlsxBoundaryEvidenceMixin:
             class_header + b'    def setUp(self):\n        pass\n\n', 1)
         self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_fixture), projection)
 
+        changed_global = current + b'\nrelease = None\n'
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_global), projection)
+        rebound_class = current + b'\ndef FunctionCallerQualificationTests():\n    pass\n'
+        with self.assertRaisesRegex(ValueError, 'class is rebound'):
+            xlsx_sst_budget.offline_test_projection(rebound_class)
+
+        loader_source = (
+            b'import unittest\nrelease = load_release()\n'
+            b'def load_release():\n    return 1\n'
+            b'class FunctionCallerQualificationTests(unittest.TestCase):\n'
+            b'    def test_fixed_function_compositions_and_current_native_reports(self):\n'
+            b'        return release\n'
+        )
+        loader_projection = xlsx_sst_budget.offline_test_projection(loader_source)
+        changed_loader = loader_source.replace(b'    return 1\n', b'    return 2\n', 1)
+        self.assertNotEqual(xlsx_sst_budget.offline_test_projection(changed_loader), loader_projection)
+
         duplicate_method = current.replace(method_header,
             b'    def test_fixed_function_compositions_and_current_native_reports(self):\n'
             b'        pass\n\n' + method_header, 1)
