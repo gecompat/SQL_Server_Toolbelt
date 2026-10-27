@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "EDIT_DISTANCE_1_1_0_PACKAGE_BOUND_FIXED_DISTANCE_AND_JARO_CONTRACT_AND_BOUNDED_IL_INSPECTION",
+  "publication_authorized": false,
+  "native_sql": "NOT_EXECUTED",
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
+  },
+  "module": {
+    "id": "toolbelt.string.edit-distance",
+    "version": "1.1.0",
+    "assembly": "Toolbelt.String.EditDistance.dll",
+    "assembly_sha256": "db74ba68d7cf2370a88f7b6bf5f190904145ab5da0614a57918957f307f3a29b",
+    "matches_extracted_package_bytes": true
+  },
+  "fixed_contract": {
+    "independent_reference_assertions": 21185,
+    "distance_golden_rows": 27104,
+    "jaro_golden_pairs": 60,
+    "jaro_cultures": ["de-DE", "en-US", "tr-TR"],
+    "contract_assertions": 109333,
+    "generated_golden_sha256": "1e8990b437fb85494f9334e307f07007839b92231f985c94cadcf2dd8c8f504f",
+    "oracle_sources": {
+      "Modules/toolbelt.string.edit-distance/Tests/Framework/reference.py": "f35f66a40bc74338c4b73530b23eaf6f445618e0c0c89d05972541cc1e5d5078",
+      "Modules/toolbelt.string.edit-distance/Tests/Framework/make_goldens.py": "59793d3b7c0305b6094c6c193e65ba0312f3486b85e6e11daaf2f6f3b3cf24e4",
+      "Modules/toolbelt.string.edit-distance/Tests/Framework/JaroContract.cs": "237fed560d5a04b6ba0501b4fa20db5b1c44263ac4feb449894069055a9e67ef",
+      "Modules/toolbelt.string.edit-distance/Tests/Framework/DistanceContract.cs": "7cebd7bf64015860b76d7c50eb2bfa32438ebc514bc45c36b3d768fcabb95128"
+    }
+  },
+  "module_source_sha256": {
+    "Modules/toolbelt.string.edit-distance/Clr/DistanceKernel.cs": "0027414594aab5dfea22ab613dc26c52bca4882922eebc3bc905e1f40b599cf8",
+    "Modules/toolbelt.string.edit-distance/Clr/DistanceProvider.cs": "53fc1c85c76e57aab8a1ff363c5f17372c582631625c79870345807f7339223d",
+    "Modules/toolbelt.string.edit-distance/Clr/JaroKernel.cs": "14b52a54361f0b7e5c247aeb62b6683c78b91a15794035c382e36ac695908f44",
+    "Modules/toolbelt.string.edit-distance/Clr/JaroProvider.cs": "4615bec4e09d6373e1e097bd2c056aee6109e809ec0a8d6ed78c4dbfeb0d917c",
+    "Modules/toolbelt.string.edit-distance/Clr/Properties/AssemblyInfo.cs": "312dcf9cfdc02a660f29f3d58aa9fd755d42ac02dcaae79a6e2a869b2e3c2b89",
+    "Modules/toolbelt.string.edit-distance/Clr/Toolbelt.String.EditDistance.csproj": "e397cc962dce69cd8542b9a7f2daa0ebab07f52bbb1d9aab17185a2764446aec",
+    "Modules/toolbelt.string.edit-distance/Clr/UnicodeScalar.cs": "f977eb54171a6de3e6194ac94427fde47d0936ccacc45a5456a4bffb69c03965",
+    "Modules/toolbelt.string.edit-distance/Deployment/Add-TrustedAssembly.sql": "7bb6e58cac487d0010a493b275c163df0337c6e7cac72aa52a43d923305922ae",
+    "Modules/toolbelt.string.edit-distance/Deployment/Deploy.sql": "1a0a5ed34d84a4b9e4e432dd2d53975affc4502d4fcd2bdfcca47abf1fe25247",
+    "Modules/toolbelt.string.edit-distance/Deployment/Uninstall.sql": "d66d859f491fd1ea325160825542c1f0ab6852ba439ce5f13f603f326f741412",
+    "Modules/toolbelt.string.edit-distance/Source/EditDistance.sql": "93f3392f2da914a75e5f26aa06af03832e7b64b3293b3ad74e8599716a8d769b",
+    "Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql": "e4cf8b205034d9bec3f5f16ea29ca23a30f7554d75286bcec575af3becad8390",
+    "Modules/toolbelt.string.edit-distance/module.yaml": "d7c4b70e0c4ae3c6db7a8a31eb69dc85139f0a0b8d96f545f8063a6317bd2238"
+  },
+  "implementation_sha256": {
+    "Scripts/Release/edit_distance_package.py": "bd371a5215542fbe66555c576292efe817e9dbdbaf7b6a943c4a9980bd511285",
+    "Tests/Release/Invoke-EditDistancePackageQualification.ps1": "c63d7220e8057f8c89bab69f54606a2a86463ef19f40a1c9b6129b76a320a69e",
+    "Tests/Release/EditDistancePackageContract.cs": "c11dbeddf97e5301916bed3f9e271daeecb027c839114cf4d876a2bdd19c4cee",
+    "Tests/Release/Test-EditDistancePackageIL.ps1": "7a15fb8f6adc85621844911d9c2503e0a6dc46eae153dfed73be5f83a4869051",
+    "Tests/Release/run_hidden_python.py": "dd103670e5346a9070e89317721bcc8153472167f12f02fd37a230b938ea4cad",
+    "Tests/Release/hidden_python_probe.py": "0ac48c28494e9793bd64a001b9689d4260a723bc8e639e4fb0dd454f23a87cb5"
+  },
+  "qualification": {
+    "status": "PASS",
+    "framework_stages": ["python_reference", "package_binding", "golden_generation", "framework_compile", "framework_contract"],
+    "bounded_il_inspection": "PASS",
+    "hidden_process_chain": "PASS",
+    "final_package_byte_comparison": "PASS",
+    "sql_or_lab": "NOT_EXECUTED"
+  },
+  "setup_history": [
+    {"status": "REJECTED_BEFORE_CHILD_START", "cause": "Ausgabepfad außerhalb des festgelegten privaten Zielbereichs"},
+    {"status": "FUNCTIONAL_STAGES_PASS_FINAL_AUDIT_FAILED", "cause": "Unvollständige Pfadliste im abschließenden Eingabepin-Audit"},
+    {"status": "PASS", "framework_stages": 5}
+  ],
+  "limits": [
+    "Der Nachweis gilt für die festen Edit-Distance- und Jaro-Verträge mit den gebundenen Goldenquellen.",
+    "Die IL-Prüfung ist eine begrenzte Inspektion und kein vollständiger No-I/O- oder Sicherheitsnachweis.",
+    "Keine vollständige CLR-, API-, Minimalrechte-, Ressourcen-, Lifecycle-, SQL- oder Modulstatusqualifikation.",
+    "Modulstatus, Paketinhalt und Veröffentlichungsfreigabe bleiben unverändert."
+  ]
+}

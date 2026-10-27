@@ -41,7 +41,9 @@ Reservierte `#tbx_`-Ziele und bereits vorhandene private XLSX-Temptabellen sind 
 
 ## Dependencies, Berechtigungen und Grenzen
 
-Zielmatrix: SQL Server 2019/2022/2025 auf Windows/Linux; SAFE .NET Framework 4.8. Die tatsächlich qualifizierten Kombinationen stehen in der Testmatrix. Das Modul referenziert kanonischen ZIP-CLR der Major-1-Linie ab 1.4.0 und benötigt same-database ResultTable der Major-1-Linie ab 1.0.0 für den Zielpfad. Aufrufer benötigen EXECUTE auf die öffentliche USP, beim Zielpfad zusätzlich Helper-EXECUTE; keine automatische Rechtevergabe.
+Zielmatrix: SQL Server 2019/2022/2025 auf Windows/Linux; SAFE .NET Framework 4.8. Das Modul referenziert kanonischen ZIP-CLR der Major-1-Linie ab 1.4.0 und benötigt same-database ResultTable der Major-1-Linie ab 1.0.0 für den Zielpfad.
+
+Für fachliche direkte Ausgabe weist ein enges Objektprofil `EXECUTE` auf dieser USP und `SELECT` auf `toolbelt_file.TVF_InternalXlsxSheets` nach. Für `@ResultTable` kommt `EXECUTE` auf `toolbelt_core.USP_PrepareResultTable` hinzu. In den geprüften Rechtemasken führte öffentliches `EXECUTE` ohne sichtbares internes FT zu 51529; ohne öffentliches `EXECUTE` wurde 229 verlangt. Dies ist ein nachgewiesenes schmales Profil, keine Aussage über mathematische Minimalität oder alle möglichen Rechtekombinationen. Die [Raw-Caller-Evidenz](../../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) bindet die zwölf ausgewählten Ziel-/CL-Fälle. Deployment vergibt keine Rechte.
 
 Die Liste validiert Paket-/Worksheet-Metadaten und sämtliche Relationships, aber nicht jeden ungelesenen Zellpart. Unterstützt sind Transitional XLSX und kanonische Stored-/Deflate-Parts; ausgeschlossene Varianten und Memory-/Budgetaussagegrenzen stehen in [README](../README.md). Keine File-/Netzwerk-/SDK-/Workerfallbacks, Streaming-, copy-free-, Gesamtpeak- oder SQL-Memory-Grant-Zusage.
 

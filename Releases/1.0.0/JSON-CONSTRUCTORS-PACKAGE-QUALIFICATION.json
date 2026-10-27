@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "JSON_CONSTRUCTORS_RELEASE_PACKAGE_FRAMEWORK_AND_CORE_CLOSURE_IL",
+  "publication_authorized": false,
+  "native_sql": "NOT_EXECUTED",
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
+  },
+  "package_binaries": {
+    "Toolbelt.JsonConstructors.dll": {
+      "sha256": "c61bc00d7cbfffc00b37974cb05b5df51683ba5cfbfd1f808e787ab123099e2b",
+      "framework_source_binary_byte_match": true,
+      "direct_il": "PASS"
+    },
+    "Toolbelt.JsonCore.dll": {
+      "sha256": "73517dd6071058aa48cfa10ff9b5a82bd573ccb135f5685d94724753a43ba4cb",
+      "framework_source_binary_byte_match": true,
+      "direct_package_il": false,
+      "source_closure_il": "BESTANDEN; Paketbytes sind exakt bytegleich"
+    }
+  },
+  "framework_suite": "Bestehende JSON-Constructor-Bridge-Goldens und Quellvergleich",
+  "implementation_pins": {
+    "Tests/Release/Invoke-JsonConstructorsPackageQualification.ps1": "af9b005e6c2a1c8668873f8dffc1805e15718652f19a5b75e61b5ec56b6edbc6",
+    "Scripts/Release/json_constructor_package.py": "89e7bec6b3527b7304d609e45204f39e1daed9bed1b750223e2421f8cc697dac",
+    "Modules/toolbelt.json.constructors/Tests/Framework/Invoke-Framework.ps1": "c8b0998eea25355ca962cb18fa2819ff80484de39038ff83244426f55390f871",
+    "Modules/toolbelt.json.schema/Tests/Framework/Invoke-SourceQualification.ps1": "1987d892440ae355dc773032179c69be3a52150cbabb376ea7838aec9c971c16",
+    "Modules/toolbelt.json.core/Tests/Framework/Test-JsonClosureIL.ps1": "d1a2c065d0d10197786820cf31cb93b9d02c359874daea2fca7042c14092b153"
+  },
+  "framework_input_pins": {
+    "Modules/toolbelt.json.core/Clr/Toolbelt.JsonCore.csproj": "3e0b43a3d247c18a88088e66fa322af3d23cbdaacee74fb868a692d852646802",
+    "Modules/toolbelt.json.constructors/Clr/Toolbelt.JsonConstructors.csproj": "49dad3b3e612028d2c45b4168731c16ba28ab4052fb7ac04f72a02b1c9b4cf5d",
+    "Modules/toolbelt.json.schema/Clr/Toolbelt.JsonSchema.csproj": "b1b4b66275f2bda37959c93b6f2b996cee09012ce66aacc2397a8f79a0e3905f",
+    "Modules/toolbelt.json.core/Tests/Framework/Test-JsonClosureIL.ps1": "d1a2c065d0d10197786820cf31cb93b9d02c359874daea2fca7042c14092b153",
+    "Modules/toolbelt.json.core/Tests/Framework/Test-RejectedClosure.ps1": "2a0f0c70f9d6361dda4da7bd6fba150e7dbdbd78507b62af8c823ba15832e656",
+    "Modules/toolbelt.json.core/Tests/Framework/RejectedClosureFixture.cs": "fe0e8ecba17192a25599e4b515a6aeb64a4dfdf9ff3ddc00d935db1aaeab49c1",
+    "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1": "7b3e838ee5d294b3decf3153d2d02276be401e6f76ee8d810f20c5dcc51d1bd4",
+    "Modules/toolbelt.json.schema/Tests/Framework/Invoke-SourceQualification.ps1": "1987d892440ae355dc773032179c69be3a52150cbabb376ea7838aec9c971c16",
+    "Modules/toolbelt.json.constructors/Tests/Framework/BridgeGoldens.tsv": "6dec6c30b8a362d1ee55408c69e84f92a7a902e5977be9eee801dbea9aa16fbf",
+    "Modules/toolbelt.json.schema/Tests/Framework/NumberOracles.tsv": "681f720bbd0d49ae22aa259ed964b2acd19108320e9a9a46b6f111b95765fb2c",
+    "Modules/toolbelt.json.schema/Tests/Framework/generate-number-oracles.py": "0c3b7a08436c0b38f18d6e6058f5e3eebbe9dc8e328d97b9a1b1ba5c88c7af47",
+    "Modules/toolbelt.json.constructors/Tests/Framework/ProductHarness.cs": "4db5161434a4cfd423f7d6b1d3314084dfd85c5dcf988646a9c93c6a7d5a647f",
+    "Modules/toolbelt.json.core/Tests/Framework/TokenHarness.cs": "235826815ad5bd0b6a450708acc025fb6519fa6447433491deac0ade35788c8c",
+    "Modules/toolbelt.json.core/Tests/Framework/WorkBudgetHarness.cs": "5839305dba73c00087a5c95b4c87c286e83214c12f3d2d42bf371dd08cb14e44",
+    "Modules/toolbelt.json.schema/Tests/Framework/NumberHarness.cs": "8560b89bb82d5b24702b507f4ffb2217caf0931fff3038c85b7557208903380a",
+    "Modules/toolbelt.json.schema/Tests/Framework/SchemaHarness.cs": "16d462bde2384193501ef8987ba210f5144db60c626606d1062d3aeafededa56",
+    "Modules/toolbelt.json.schema/Tests/Framework/BridgeHarness.cs": "e58d11cac32176204e3e479d44a55803fb9c0cd6db8690e5973ee1648d54cc61",
+    "Modules/toolbelt.json.constructors/Clr/AgfValidCodec.cs": "c61702bb01337089bba9f1f6b2e4105ee0e166a315f1bae55d4975715aa5eecc",
+    "Modules/toolbelt.json.constructors/Clr/AgfFaultCodec.cs": "04e8d7b6c1851e063796cbfd52f87f0b8b51ed71fdab4c5651de3245852c84c3",
+    "Modules/toolbelt.json.constructors/Clr/AgfDispatcher.cs": "e838d33430f9410deb1f0141e3ca27713cf0c7362669d786821d05be15ca6c56",
+    "Modules/toolbelt.json.constructors/Clr/OwnedAggregateBuilder.cs": "047b983c71ab6f36ff50e3865fa3383f24cdb16b3c1cb2910de94434a45eb439",
+    "Modules/toolbelt.json.constructors/Clr/JsonAggregates.cs": "6a87b485c7862097a46164c077c875cbd32b76f2336a0757b25729684772350c",
+    "Modules/toolbelt.json.constructors/Clr/JsonEntryEvaluateBridge.cs": "fcb13d767b7e0e449f8c7bdadcce8344d4d4953d7ea098d07a3d4d115fcd868e",
+    "Modules/toolbelt.json.constructors/Clr/Properties/AssemblyInfo.cs": "30c176d1a995719679021428991700afb5056a6d7f07fba28f1f60893b5f66d6",
+    "Modules/toolbelt.json.core/Clr/JsonCanonicalCore.cs": "72ec1c63829ad5570561188a8a6b5cdebf3513901bb886fab447639270528675",
+    "Modules/toolbelt.json.core/Clr/JsonWorkBudget.cs": "7730b92e56188f61189c6d871f8815ce7fbe5f791cb361bc01f423538b29158f",
+    "Modules/toolbelt.json.core/Clr/JsonTokenDocument.cs": "3a1a4dec2717414163d6d7ae841b6b88e846aaccd48baa595756980851d398f9",
+    "Modules/toolbelt.json.core/Clr/JsonOrdinalComparer.cs": "df37f5fb9f41887485b1a80e98b7a4bece973193896736a3b05f7da4362a6a82",
+    "Modules/toolbelt.json.core/Clr/JsonSyntaxScanner.cs": "0574a89286fb3a2c4f7fc8919a6046ebe322d1a4111683218e3a8c8cd98c96df",
+    "Modules/toolbelt.json.core/Clr/Properties/AssemblyInfo.cs": "437aa3b23ad2b55aa6539b17837a51a6b0488d869009023c3646d1f820bbdc30",
+    "Modules/toolbelt.json.schema/Clr/SignedDecimalDigits.cs": "c667e05d9a3e4b810bc19fe15b54719b0972924fa8a782e0aa629c0ef1203add",
+    "Modules/toolbelt.json.schema/Clr/ExactJsonNumber.cs": "2c95953f2cef6502707f6e891db56d0e9c8ce515c9469ae94198d1a67151757e",
+    "Modules/toolbelt.json.schema/Clr/SchemaTree.cs": "90037d202b430901b5ab865a46beb8bdcbf3e1fb485dcfd3b4f8ea9388294027",
+    "Modules/toolbelt.json.schema/Clr/LocalSchemaReference.cs": "0fececbcac0ec25e9410778d29a1552d1d65cd75e4e2c23fa2e406ea6c9a8ce6",
+    "Modules/toolbelt.json.schema/Clr/SchemaPreflight.cs": "8af0018294fb9d3b8d03cfef3293a8b3dd5dedb00b2b7cf14057b9e295900a70",
+    "Modules/toolbelt.json.schema/Clr/SchemaValidator.cs": "bd67486293e5944691148cb91d56e585736d023d3de4e51b97d8b189427f8669",
+    "Modules/toolbelt.json.schema/Clr/JsonSchemaBridge.cs": "397ea2b4513f32b3a887bbc2a33aabe228005da13ecc6acc12d6757d0913a274",
+    "Modules/toolbelt.json.schema/Clr/Properties/AssemblyInfo.cs": "14759817172bd11b3066920c0767273511d7c1b7dc4a6efa7b4a007b65eb3387"
+  },
+  "oracles": {
+    "path": "Modules/toolbelt.json.constructors/Tests/Framework/BridgeGoldens.tsv",
+    "sha256": "6dec6c30b8a362d1ee55408c69e84f92a7a902e5977be9eee801dbea9aa16fbf",
+    "cultures": ["de-DE", "en-US", "tr-TR"],
+    "constructor_small_runs": 3,
+    "rows_per_run": 37,
+    "assertions_per_run": 960,
+    "constructor_large_runs": 1,
+    "large_rows": 3,
+    "large_assertions": 67
+  },
+  "framework": {
+    "completed_phases": 27,
+    "post_pins": true,
+    "source_binaries_match_package": true,
+    "schema_binary_package_bound": false
+  },
+  "release_regression_suite": {
+    "command": "python -B Tests/Release/test_prepare_release.py",
+    "tests": 139,
+    "status": "PASS",
+    "elapsed_seconds": 298.935
+  },
+  "post_run_evidence_binding_test": {
+    "test": "CallerMetadataTests.test_public_evidence_binds_current_sources_package_and_scope",
+    "status": "PASS",
+    "tests": 1,
+    "elapsed_seconds": 0.266
+  },
+  "setup_history": [
+    {
+      "status": "FAILED_BEFORE_FRAMEWORK_PHASES",
+      "framework_phases": 0,
+      "cause": "Abweichende PowerShell-Hostauswahl; keine Qualifikationsphase gestartet"
+    },
+    {
+      "status": "PASS",
+      "framework_phases": 27
+    }
+  ],
+  "limits": [
+    "Keine SQL- oder Labverbindung wurde verwendet.",
+    "Der Nachweis gilt nur für den bestehenden festen Framework- und IL-Scope der JSON-Constructor/Core-Paketclosure.",
+    "Der JSON-Schema-Quelllauf ist keine Paketqualifikation der Schema-DLL.",
+    "Es folgt keine vollständige CLR-, API-, Minimalrechte-, Ressourcen-, Lifecycle- oder Modulstatusfreigabe."
+  ]
+}

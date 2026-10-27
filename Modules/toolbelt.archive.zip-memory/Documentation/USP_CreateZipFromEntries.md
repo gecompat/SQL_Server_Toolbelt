@@ -42,6 +42,16 @@ Genau eine Zeile mit fünf NOT-NULL-Spalten: `ArchivePayload varbinary(max)`, `A
 
 Messages beginnen mit `TBX_ZIP_WRITE_`. Erwartete CLR-Fehler liefern eine interne Statuszeile, aus der T-SQL ein THROW erzeugt. Ein SQL6522-Messageparser ist keine Vertragsgrundlage. Unerwartete Enginefehler bleiben Originalfehler. Die internen `TVF_InternalZipWriterName` und `TVF_InternalZipWriterArchive` sind keine öffentliche Fach-API.
 
+## Berechtigung
+
+Das geprüfte schmale Callerprofil benötigt `EXECUTE` auf dieser Procedure,
+`SELECT` auf `toolbelt_archive.TVF_InternalZipWriterName` und
+`toolbelt_archive.TVF_InternalZipWriterArchive` sowie `EXECUTE` auf
+`toolbelt_core.USP_PrepareResultTable` für beide Ausgabewege. Der
+[ZIP-Callerbericht](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) begrenzt den
+Nachweis; er behauptet weder mathematische Minimalität noch den Ausschluss
+anderer möglicher Profile.
+
 ## Ressourcen, Transaktion, Sicherheit
 
 HOLDLOCK stabilisiert Preflight und Snapshot innerhalb einer eigenen Transaktion oder eines Caller-Savepoints bis zur Ergebnisübergabe. Locks und Transaktionslog bleiben damit über Snapshot, Serialisierung und Kompression gehalten. Konkurrierendes MARS oder Mutieren derselben Temps wird nicht unterstützt. Ein Savepoint wird erst nach erfolgreichem SAVE als gesetzt geführt. Die vollständige Callertransaktion wird niemals zurückgerollt; ein nicht mehr committbarer Callerzustand bleibt dessen Verantwortung. Zielmutationen sind rückrollbar.

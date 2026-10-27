@@ -1,5 +1,28 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [XLSX-Grenzprüfung](XLSX-BOUNDARY-QUALIFICATION.md) besteht für die feste
+32/33-Blattgrenze von `USP_ListXlsxWorksheets`. Der getrennte 50.000-Shared-
+String-Test blieb nach zwei lokalen Budgetfehlern `BLOCKED_BUDGET`; 50.001 und
+zentrale Routen wurden nicht ausgeführt. Die [Evidenzdatei](xlsx-boundary-qualification.json)
+bindet Paket-DLLs und Eingabepins.
+
+Der [XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md)
+bindet 19 bestehende XLSX-Candidate-Frameworkphasen und den bestehenden
+ZIP-Writer-/Entry-Security-Vertrag an die Installationspaket-DLLs. Er ersetzt
+keine vollständige Modul- oder SQL-Qualifikation.
+
+Der ergänzende [ZIP-Callerbericht](ZIP-CALLER-PROFILE.md) belegt begrenzte
+Objektrechte und feste synthetische Ausgabeorakel für die bestehenden
+Listing-, Extraktions- und Writer-USPs. Er ändert weder Modulstatus noch
+Releasefreigabe.
+
+Die [ZIP-Entryanzahl-Grenzprüfung](ZIP-ENTRY-COUNT-QUALIFICATION.md) ergänzt den bestehenden ZIP-Callerbericht um feste 10.000-/10.001-Entry-Grenzfälle der Listing-API. Sie ist keine vollständige ZIP- oder Modulqualifikation; Modulstatus und Veröffentlichung bleiben unverändert. Die [Evidenzdatei](zip-entry-count-qualification.json) bindet Paket-DLL und Eingabepins.
+
+Die [ZIP-Manifest- und Paketpflege](ZIP-METADATA-UPDATE.md) übernimmt die
+separat nachgewiesenen internen FT- und ResultTable-Helperrechte exakt in das
+Manifest und die gebundene CLR-Paketprojektion; SQL-/DLL-Payloads bleiben
+unverändert.
+
 Status: **Releasevorbereitung, nicht veröffentlicht**. Die Lieferpakete sind an
 ihre dokumentierten Quell- und Prüfstände gebunden. Veröffentlichung, Tag und
 GitHub-Release sind nicht freigegeben.
@@ -23,6 +46,39 @@ Lieferform; Modulstatus, Support- und Veröffentlichungsgrenzen bleiben bestehen
 
 Die [Caller-Rechteübersicht](CALLER-METADATA-UPDATE.md) erklärt die korrigierten
 Einzelrechte für sechs Module und die getrennten historischen Nachweise.
+
+Die [JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md)
+bindet den vorhandenen Framework-/IL-Nachweis an die Constructor- und Core-DLLs
+aus dem CLR-Installationspaket. Sie ist ein begrenzter Offlinebeleg und ändert
+keinen Modulstatus.
+
+Die getrennte [JSON-Schema-Paket-IL-Qualifikation](JSON-SCHEMA-PACKAGE-QUALIFICATION.md)
+bindet die Schema-DLL bytegenau an das geprüfte Installationspaket und führt
+den vorhandenen IL-Guard direkt auf dieser Paket-DLL aus. Sie verwendet den
+unveränderten erfolgreichen Source-Framework-Receipt; SQL, Modulstatus und
+Veröffentlichungsfreigabe bleiben davon unberührt.
+
+Die [Edit-Distance-Paketqualifikation](EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
+bindet die gelieferte DLL an feste Distance- und Jaro-Frameworkorakel sowie
+eine begrenzte IL-Inspektion. Sie ist keine vollständige CLR- oder
+Sicherheitsqualifikation und ändert weder Modulstatus noch Veröffentlichung.
+
+Die [begrenzte Scriptparser-Paketbindung](SCRIPT-PARSER-PACKAGE-QUALIFICATION.md)
+prüft den gelieferten Provider gegen 63 festgelegte Parserfälle. Ein separater
+60-Assertions-Source-Guard ist nicht paketgebunden. Vollständige Modul-,
+SQL-, IL- und Deploymentqualifikationen bleiben davon unberührt. Die
+[maschinenlesbare Evidenz](SCRIPT-PARSER-PACKAGE-QUALIFICATION.json) enthält
+die 16 repo-relativen Eingabepins.
+
+Die [CSV- und Phonetic-Framework-Paketprofile](CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
+binden die beiden unveränderten Frameworkharnesses an die gelieferten DLL-Bytes.
+CSV besteht drei Kulturphasen mit gemessenen Assertionzahlen; Phonetic besteht
+223 feste Assertions je Kultur. Die Prüfung führt kein SQL aus und ist keine
+vollständige Modul-, Plattform-, Sicherheits- oder CLR-Suitequalifikation.
+
+[XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs mit einem schmalen Objektprofil auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen. 14 Masken je Kontext, 672 direkte-/ResultTable-Routen, 144 positive Aufrufe und 720 feste Ergebniszeilen. Der [maschinenlesbare Bericht](xlsx-raw-caller-profile.json) bindet Quellen, synthetisches Workbook, Kontrollen und Bereinigung. Weitere Modul-, Paket- und Veröffentlichungsfreigaben bleiben offen.
+
+[XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) übernimmt die in PR #452 und #453 gebundenen Zell- und Rohleserrechte in das Manifest und den bestehenden CLR-Installationssatz. Native Quellberichte bleiben unverändert; SQL- und DLL-Payloads bleiben bytegleich.
 
 ## Was enthalten ist
 

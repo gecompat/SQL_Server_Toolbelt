@@ -99,7 +99,7 @@ Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload var
 
 Vertrag und Quelle: [USP_CreateZipFromEntries.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql), [USP_CreateZipFromEntries.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 7748c659d851d66b3787d02f2486b3ed9ce0d576484f1d0bac02bd09c3ced227 -->
+<!-- Source/Vertrag SHA256: e72a8a3ee38ff50d481edc3a2eca061a7e57fae471a98d8817641c083267d6dc -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -137,7 +137,7 @@ Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv i
 
 Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 0213598844439a2f6098dd2c9137f5f0e3dc75d9105ab363c649d36d5facda91 -->
+<!-- Source/Vertrag SHA256: 3b058bc5a3c01faeb727eddd404888e6a453e679872aa259b3016e0c408b8b7e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -173,7 +173,7 @@ Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen S
 
 Vertrag und Quelle: [USP_ListZipEntriesFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql), [USP_ListZipEntriesFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 501082fd8e593d78a0248a8010fab579e56768b5d4f56272f6a33e398d1c74aa -->
+<!-- Source/Vertrag SHA256: 8467d6fa605f0adeeb7a21daf0f64545773fa65a9e630be4cdda21c7c000bdd2 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2917,7 +2917,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql), [USP_ListXlsxWorksheets.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md).
 
-<!-- Source/Vertrag SHA256: a7deb3d507443bfe721b81182473a53841e5930687778d18135c87f85a4d380b -->
+<!-- Source/Vertrag SHA256: 5fe94b83e6e488201cc1f63d6beea8a762d40d34f1b8f08e741f6d007aebf998 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2960,7 +2960,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql), [USP_ReadXlsxWorksheetCells.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md).
 
-<!-- Source/Vertrag SHA256: 2d9033f89ea96a1b4678b913a5acadb433e3c8ee17cddc9a0c01d7dcde50ecab -->
+<!-- Source/Vertrag SHA256: a9b6d6b307897b7b7520cfa46086daa48ab8d147a5b617f4d9732ec4d285c405 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

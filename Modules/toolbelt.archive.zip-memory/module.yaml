@@ -63,10 +63,9 @@ objects:
     name: "Toolbelt_Archive_ZipMemory"
     visibility: internal
 permissions_required:
-  - "EXECUTE auf toolbelt_archive.USP_CreateZipFromEntries"
-  - "EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary"
-  - "EXECUTE auf toolbelt_archive.USP_ListZipEntriesFromBinary"
-  - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
+  - "Liste: EXECUTE auf toolbelt_archive.USP_ListZipEntriesFromBinary und SELECT auf toolbelt_archive.TVF_InternalListZipEntriesClr; bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable"
+  - "Extraktion: EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary und SELECT auf toolbelt_archive.TVF_InternalExtractZipEntryClr; bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable"
+  - "Writer: EXECUTE auf toolbelt_archive.USP_CreateZipFromEntries, SELECT auf toolbelt_archive.TVF_InternalZipWriterName und TVF_InternalZipWriterArchive sowie EXECUTE auf toolbelt_core.USP_PrepareResultTable für beide Ausgaberouten"
   - "CREATE ASSEMBLY beziehungsweise ALTER ANY ASSEMBLY für Deploy"
   - "CREATE FUNCTION, CREATE PROCEDURE und Schema-ALTER für Deploy"
   - "sysadmin ausschließlich für das separate Trust-Opt-in"

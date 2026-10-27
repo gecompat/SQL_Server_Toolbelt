@@ -1,5 +1,9 @@
 # XLSX-Vertragsqualifizierung
 
+## Raw-Reader-Callerrechte – 2026-10-26
+
+Der [gebundene Raw-Callerbericht](../../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) beschreibt die getrennten `USP_ListXlsxWorksheets`- und `USP_ReadXlsxWorksheetCells`-Profile. Zwölf Ziel-/CL-Fälle liefen lokal und direkt zentral; 14 Rechtemasken je Kontext wurden gegen direkte und caller-lokale `ResultTable`-Ausgabe geprüft. Die festen Orakel verwenden neun synthetische Zellen und die dazugehörige Blattliste. Die Abweisungskontrollen und der erhaltene ursprüngliche Probe-Arityfehler sind getrennt ausgewiesen. Type-/Anzeige-, Lifecycle-, Client-, vollständige Workbook- und Heapabnahmen bleiben separat.
+
 ## Zell-Callerrechte – 2026-10-26
 
 Der [gebundene Releasebericht](../../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) beschreibt den eigenen Zwei-DLL-Treiber, kanonische Case-Komposition, selektierte Sollwerte und Quellenpins. Zwölf lokale/direkt zentrale Windows-/Linux-Fälle bestanden;48 Einzelgrantprofile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel.15 native Versuche einschließlich eines erhaltenen Fixturefehlers und zweier Kontrollen; sämtliche15 frischen Abschlussaudits PASS. Keine zusätzliche Raw-/Client-/Lifecycle-/Heapabnahme.

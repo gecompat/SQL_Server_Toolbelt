@@ -1,5 +1,66 @@
 # Nachweiszuordnung aller 45 Module
 
+[XLSX-Blatt- und Shared-String-Grenzen](XLSX-BOUNDARY-QUALIFICATION.md): die
+feste 32/33-Blattgrenze der bestehenden Listing-API besteht auf zwölf
+Ziel-/CL-Fällen. Der separate 50.000-Shared-String-Test blieb nach zwei
+lokalen Budgetfehlern blockiert; Overflow und zentrale Route wurden nicht
+ausgeführt. Die [Evidenz](xlsx-boundary-qualification.json) hält beide Scopes
+getrennt.
+
+[XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md):
+19 bestehende XLSX-Candidate-Frameworkphasen und zwei ZIP-Writer-Laufphasen
+gegen gebundene Installationspaket-DLLs. Die XLSX-Sandbox ist keine
+Systemaufrufbeobachtung; die eigene IL-Prüfung ist nicht transitiv. Der
+Nachweis umfasst keine SQL- oder vollständige Modulqualifikation.
+
+[ZIP-Callerrechte](ZIP-CALLER-PROFILE.md): drei vorhandene öffentliche
+Listing-/Extraktions-/Writer-USPs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle,
+432 Rechtezustände, 864 API-Routen, 192 positive feste Ergebniszeilen und
+2.808 strikte SQL-229-Abweisungen. Eine frühere v1-Shape-Fixtureabweichung
+bleibt getrennt erhalten; zwölf Matrixfälle und beide Kontrollen wurden
+abschließend auditiert.
+
+[ZIP-Entryanzahl-Grenzprüfung](ZIP-ENTRY-COUNT-QUALIFICATION.md): zwölf Windows-/Linux-Ziel-/CL-Fälle prüfen das feste 10.000-Entry-Limit der bestehenden Listing-API. 24 positive Routen und 48 erwartete Fehler-Routen wurden lokal und direkt zentral ausgeführt; alle drei Fehler-/Outputorakel bleiben auf diese API begrenzt. Die [maschinenlesbare Evidenz](zip-entry-count-qualification.json) bindet 115 repo-relative Eingabepins.
+
+[ZIP-Manifest- und Paketpflege](ZIP-METADATA-UPDATE.md): übernimmt genau die
+berichteten Objektprofile über eine getrennte, historisch gebundene
+Metadatenprojektion; ursprüngliche ZIP-Berichts-Pins sowie SQL-/DLL-Bytes
+bleiben erhalten.
+
+[JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
+der vorhandene Frameworklauf besteht mit den packagegebundenen
+Constructor-/Core-DLLs; beide stimmen bytegenau mit dem Framework-Quelllauf
+überein. Der JSON-Core-Closure-IL-Gate besteht auf dem Constructor-Binary aus
+dem Paket. Die JSON-Schema-DLL, SQL, API-Minimalrechte und Gesamt-CLR sind nicht
+Teil dieses Nachweises.
+
+[JSON-Schema-Paket-IL](JSON-SCHEMA-PACKAGE-QUALIFICATION.md): bindet den
+unveränderten erfolgreichen 27-Phasen-Source-Receipt an die Schema-/Core-
+Paketbytes und führt den bestehenden IL-Guard direkt auf der Schema-DLL aus
+dem Paket aus. Der Constructor-Bericht bleibt unverändert; SQL, API-Rechte und
+vollständige CLR-Qualifikation bleiben außerhalb des Scopes.
+
+[Edit-Distance-Paketqualifikation](EDIT-DISTANCE-PACKAGE-QUALIFICATION.md):
+die gelieferte DLL besteht den festen Distance-/Jaro-Contract und eine
+begrenzte IL-Inspektion. Weitere CLR-, SQL-, Rechte- und Lifecycle-Gates bleiben
+separat.
+
+[Scriptparser-Paketbindung](SCRIPT-PARSER-PACKAGE-QUALIFICATION.md): 63 feste
+paketgebundene Providerfälle plus ein separat gebauter 60-Assertions-
+Source-Guard. Der Nachweis umfasst weder vollständige Modul-/Plattform- noch
+transitive IL-, SQL- oder Deploymentqualifikation. Die [Evidenzdatei](SCRIPT-PARSER-PACKAGE-QUALIFICATION.json)
+bindet 16 repo-relative Eingabepins.
+
+[CSV-/Phonetic-Framework-Paketprofile](CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md):
+die vorhandenen drei Kulturphasen je Harness wurden gegen die gelieferten
+Paket-DLLs ausgeführt. Phonetic besteht 223 feste Assertions je Kultur; die
+CSV-Assertionszahlen sind als Laufmetadaten festgehalten. Keine SQL-, vollständige
+Modul- oder transitive No-I/O-Qualifikation.
+
+[XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwei bestehende Rohleser-USPs, zwölf lokale/direkt zentrale Windows-/Linux-Ziel-/CL-Fälle, 336 Rechtemaskenzustände, 672 API-Routen und 720 feste Ergebniszeilen. Ein ursprünglicher Probe-Arityfehler bleibt getrennt von zwölf bestandenen Fällen und zwei gezielt abgewiesenen Kontrollen; 15 frische Abschlussaudits bestanden.
+
+[XLSX-Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) bindet die Raw- und Zell-Callerrechte aus den unveränderten Berichten an das Modulmanifest und den bestehenden CLR-Satz. SQL- und DLL-Payloads bleiben bytegleich; der Modulstatus bleibt unverändert.
+
 [XLSX-Zell-Callerrechte](XLSX-CELL-CALLER-QUALIFICATION.md): zwei öffentliche TVFs mit einzelnem SELECT auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen.48 positive Profile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel; Raw-Reader, volle Typ-/Client-/Ressourcen- und Releasegates bleiben separat.
 
 [CSV-Manifest- und Paketpflege](CSV-METADATA-UPDATE.md): die in PR450 belegten getrennten Parser-/Writer-/ResultTable-Rechte werden exakt übernommen. Historische Ausführungspins bleiben erhalten; ausführbare SQL-/DLL-Payloads und weitere Releasegrenzen bleiben unverändert.

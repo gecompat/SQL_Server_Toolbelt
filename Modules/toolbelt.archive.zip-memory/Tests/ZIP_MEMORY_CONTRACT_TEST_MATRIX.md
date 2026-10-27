@@ -1,5 +1,11 @@
 # Contract-Testmatrix: ZIP Memory CLR Inspection
 
+Der ergänzende Callerrechte-Nachweis umfasst ausschließlich die drei
+bestehenden öffentlichen Listing-, Extraktions- und Writer-USPs mit festen
+synthetischen ZIPs: [ZIP-Callerprofil](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md).
+Er verändert keine historische Matrix und erweitert keine Produkt- oder
+Plattformzusage.
+
 Release 1.4, 2026-10-02: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1` auf Linux 2019/latest und Windows 2025/CU8 erfolgreich; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende Lifecycle-Callerablehnung OFF/ON. Kein Ersatznachweis für offene Kapazitäts-/Plattformfälle.
 
 ## Writer 1.3.0: Zusatzscope

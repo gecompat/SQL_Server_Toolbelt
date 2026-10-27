@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "kind": "exact_zip_caller_metadata_projection",
+  "date": "2026-10-26",
+  "public_baseline_commit": "e3b7aa4171181bc96d3df70bbde7f8200e47e303",
+  "publication_authorized": false,
+  "automatic_grants_added": false,
+  "module_status_changed": false,
+  "module_status": "partially validated",
+  "release_status": "unreleased",
+  "executable_source_bytes_changed": false,
+  "executable_package_payload_changed": false,
+  "native_sql_attempts": 0,
+  "manifest": {
+    "path": "Modules/toolbelt.archive.zip-memory/module.yaml",
+    "executed_sha256": "d02e251b453a72b100cb31d54c1677ec2109279962813f5d8552ecef342d8ab5",
+    "current_sha256": "e0632c0b1bcdddbf13bf4f6dcf36f69da63d0e58852deb9f17f11c786d5029e9"
+  },
+  "historical_report_sha256": "e9ba633e7f97bf8b38b3c66f1b7f4fdd34b43ab432e09b822e0046bbc32e8e2f",
+  "executed_package_sha256": "84b5e9a0f3fb888d270abfe0e542b7560c3ad5a2e1f2c725d5bdbf066203a99c",
+  "previous_clr_zip_sha256": "84b5e9a0f3fb888d270abfe0e542b7560c3ad5a2e1f2c725d5bdbf066203a99c",
+  "previous_source_zip_path": "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip",
+  "previous_source_zip_sha256": "e695a77bddb2c09970ff0f88607aef1292f57ed1fc6e6003c7660ed1fbf87568",
+  "product_chain_predecessor": "e89da195b0e872a71059ceee20e1304498773e4d",
+  "previous_product_tree": "e6024e52b1733f36a283602d7b44f46b793e47b8",
+  "current_product_commit": "69320089beb25c2bc4323df901307764fa9dccc9",
+  "current_product_tree": "caacf81a505d6fc895de1f8dff2418a0a7480b0c",
+  "package_source_paths": [
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md",
+    "Modules/toolbelt.archive.zip-memory/README.md",
+    "Modules/toolbelt.archive.zip-memory/Tests/README.md",
+    "Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md",
+    "Modules/toolbelt.archive.zip-memory/module.yaml"
+  ],
+  "previous_source_sha256": {
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md": "9083b32c4adccb2a01db148fc29b51705a8f65e8d6df48ac8e905e708acd9223",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md": "8a7e56f1a38a6088dfa3f339903174ac87e3343756c5e88f33d2e7cea5a4e450",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md": "d67abba58d016812a246776922fce54cfcafe0ad35cae581d24ac3756462a005",
+    "Modules/toolbelt.archive.zip-memory/README.md": "3e5ccf9d557b6346e1b8d33ce24cbf80d5acb6443f2bce553951fff94996aa41",
+    "Modules/toolbelt.archive.zip-memory/Tests/README.md": "19b9c33bd18bc289fc846fcefae6ca1a12b359c252d8c1ac120d72bb3664a0ce",
+    "Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md": "61126d2bcc06d9a40abefb9b62797caeb2662493aaa2183821094827d1691005",
+    "Modules/toolbelt.archive.zip-memory/module.yaml": "d02e251b453a72b100cb31d54c1677ec2109279962813f5d8552ecef342d8ab5"
+  },
+  "current_source_sha256": {
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md": "469788ae45aa00fad24f29633619a6d71e2949320fcece6e97e6015462c374d3",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md": "8a259f29983866c6a4b8a8de7b6a56ba2d429caf8abde7501717684d4826faf9",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md": "a1920cb7d81017d22ba8b428246612cee87494461e7a4943153599f158cc158b",
+    "Modules/toolbelt.archive.zip-memory/README.md": "40ed8d6b365ac84999360c395fe56bfbaa7a53457bcdde06707bbdd66076fb0d",
+    "Modules/toolbelt.archive.zip-memory/Tests/README.md": "2430b4fb39fdb3c4246db89e01edf2ed5a9edfc060c16ea414534a77d566ab08",
+    "Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md": "5058d9740385a65df7c3be8d02c54174174f15f975ce7acba81c697ea7b505df",
+    "Modules/toolbelt.archive.zip-memory/module.yaml": "e0632c0b1bcdddbf13bf4f6dcf36f69da63d0e58852deb9f17f11c786d5029e9"
+  },
+  "previous_documentation_sha256": {
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md": "9083b32c4adccb2a01db148fc29b51705a8f65e8d6df48ac8e905e708acd9223",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md": "8a7e56f1a38a6088dfa3f339903174ac87e3343756c5e88f33d2e7cea5a4e450",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md": "d67abba58d016812a246776922fce54cfcafe0ad35cae581d24ac3756462a005",
+    "Modules/toolbelt.archive.zip-memory/README.md": "3e5ccf9d557b6346e1b8d33ce24cbf80d5acb6443f2bce553951fff94996aa41",
+    "Modules/toolbelt.archive.zip-memory/Tests/README.md": "19b9c33bd18bc289fc846fcefae6ca1a12b359c252d8c1ac120d72bb3664a0ce",
+    "Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md": "61126d2bcc06d9a40abefb9b62797caeb2662493aaa2183821094827d1691005"
+  },
+  "current_documentation_sha256": {
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md": "469788ae45aa00fad24f29633619a6d71e2949320fcece6e97e6015462c374d3",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md": "8a259f29983866c6a4b8a8de7b6a56ba2d429caf8abde7501717684d4826faf9",
+    "Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md": "a1920cb7d81017d22ba8b428246612cee87494461e7a4943153599f158cc158b",
+    "Modules/toolbelt.archive.zip-memory/README.md": "40ed8d6b365ac84999360c395fe56bfbaa7a53457bcdde06707bbdd66076fb0d",
+    "Modules/toolbelt.archive.zip-memory/Tests/README.md": "2430b4fb39fdb3c4246db89e01edf2ed5a9edfc060c16ea414534a77d566ab08",
+    "Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md": "5058d9740385a65df7c3be8d02c54174174f15f975ce7acba81c697ea7b505df"
+  },
+  "xlsx_record_sha256": "9359496ade25307abc584f648545155a89854b54bb779d195e0835b6a5466bed",
+  "offline_source_update": {
+    "path": "Tests/Release/test_xlsx_cell_caller_qualification.py",
+    "execution_sha256": "00CE6AB62B3B58EDAC0F013807DCB78107EF9AE0193700BDF3AF1FD382DD12D0",
+    "previous_current_sha256": "90b9ca3a4f733ed970de6e1857802bde710be57d60c908cd971181af6009f853",
+    "current_sha256": "bd17ae9b33aa84d598af119f39c81916f07fec3a7e9453ac285bf2714badbec1"
+  }
+}

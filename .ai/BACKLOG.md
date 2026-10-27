@@ -1,5 +1,132 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Achtzehnter endlicher Release-Rahmen — 2026-10-27
+
+Der gebundene XLSX-Candidate-Frameworklauf bestand 19 Phasen gegen die
+Installationspaket-DLLs. Ein separater ZIP-Writer-Lauf bestand die sieben
+vorhandenen Entry-Security-Fälle und den unveränderten Writer-Framework-Body.
+Die [Evidenz](../Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.json)
+bindet 48 repo-relative Eingabepins und grenzt Sandbox-/IL-Claims ein. Drei
+gezielte Report-/Guardprüfungen laufen in der vorhandenen Release-Suite. Es gab
+keine SQL-/Lab-Ausführung, keinen Produktbuild, keine Modulstatus- oder
+Paketänderung und keine Veröffentlichung. Vollständige Modul-, Plattform-,
+Deployment-, SQL-Rechte- und Sicherheitsqualifikationen bleiben offen.
+
+## Siebzehnter endlicher Release-Rahmen — 2026-10-27
+
+Die vorhandenen CSV- und Phonetic-Framework-Harnesses wurden mit den
+entsprechenden DLL-Bytes aus dem CLR-Installationspaket ausgeführt. Drei
+Kulturphasen je Profil bestanden; Phonetic meldet 223 feste Assertions pro
+Kultur, die CSV-Zahlen sind gemessene Harness-Metadaten. Die
+[maschinenlesbare Evidenz](../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.json)
+und der [Bericht](../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
+halten zehn repo-relative Eingabepins und die Scopegrenzen fest. SQL, Produkt-
+und Paketänderungen fanden nicht statt. Vollständige Modul-, Plattform-,
+Deployment- und Sicherheitsqualifikationen bleiben offen.
+
+## Sechzehnter endlicher Release-Rahmen — 2026-10-27
+
+Der erste genehmigte Offline-Slice bindet den bestehenden
+`toolbelt.tsql.script-parser`-Provider an 63 feste Paketfälle. Ein separater
+Source-Guard besteht 60 Assertions, ist jedoch kein Paketnachweis. Die
+[maschinenlesbare Evidenz](../Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.json)
+und der [Bericht](../Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.md)
+halten 16 repo-relative Eingabepins, den begrenzten Umfang, zwei frühe
+Runnerfehler und die anschließende LF-Neubindung fest. Vier gezielte Paket-/Pfadkontrollen sowie Report- und
+Korpusdriftprüfungen laufen über die bestehende Release-Suite. Es gab keine
+SQL-/Labverbindung und keine Produkt-, Modul-, Manifest- oder Paketänderung.
+Vollständige Modul-, Plattform-, IL- und Deploymentgates bleiben offen.
+
+## Fünfzehnter endlicher Release-Rahmen — 2026-10-27
+
+Der autorisierte R15-Releasegate-Slice prüft das bestehende
+`toolbelt.json.constructors`-Framework-/IL-Profil gegen die gelieferten
+`Toolbelt.JsonConstructors.dll`- und `Toolbelt.JsonCore.dll`-Bytes. Der
+vorhandene Quell-Frameworklauf vergleicht beide DLLs bytegenau mit dem Paket;
+der JSON-Core-Closure-IL-Gate läuft direkt auf dem Constructor-Binary aus dem
+Paket. 27 Frameworkphasen und die festen BridgeGoldens bestanden. Sieben
+Paketbindungs-, Report- und Pfadprüfungen laufen in der bestehenden
+Release-Suite. ~~Die JSON-Schema-DLL wird dadurch nicht als
+Paketqualifikation ausgewiesen.~~
+
+Korrektur 2026-10-27 — Codex: Ein separater JSON-Schema-Paket-IL-Nachweis
+verwendet den unveränderten, erneut vollständig geprüften 27-Phasen-Receipt
+und bindet die Schema-DLL bytegenau an das Installationspaket. Der vorhandene
+IL-Guard besteht direkt auf der Paket-DLL; der Constructor-Bericht und dessen
+Pins bleiben unverändert. Neun gezielte Offlineprüfungen laufen in der
+bestehenden Suite. SQL/Lab, vollständige CLR-Qualifikation und Veröffentlichung
+bleiben außerhalb dieses Scopes.
+
+Es gab keine SQL-/Labverbindung und keine
+Produkt-, Manifest-, Paket- oder Modulstatusänderung; der Bericht bleibt auf
+dieses bestehende Offlinegate begrenzt.
+
+## Dreizehnter endlicher Release-Rahmen — 2026-10-26
+
+Der autonome Releasegate-Auftrag lief im gemeinsam begrenzten R13-Rahmen
+weiter: höchstens drei PR-Wellen, sechs Stunden ab unverändertem Originalstart
+und höchstens 36 native Zielversuche einschließlich Fehlern und Kontrollen.
+Die Arbeit blieb bei einem Luna-Implementierungsworker mit Rootkoordination und
+sequentiellen Paketen; es entstanden keine zusätzlichen Agents oder CI-Jobs.
+
+Die erste Welle schloss die gebundene XLSX-Manifest-/Paketmetadatenpflege in
+PR454. Die zweite Welle prüfte die am 2026-10-01 einzeln freigegebenen
+`toolbelt_archive.USP_ListZipEntriesFromBinary`,
+`USP_ExtractZipEntryFromBinary` und `USP_CreateZipFromEntries` anhand fester
+synthetischer ZIPs. Der [ZIP-Callerbericht](../Releases/1.0.0/ZIP-CALLER-PROFILE.md)
+und seine [maschinenlesbare Evidenz](../Releases/1.0.0/zip-caller-profile.json)
+halten zwölf bestandene Ziel-/CL-Fälle, zwei erwartete Kontrollen und einen
+beibehaltenen v1-Shape-Fixturefehler auseinander. Insgesamt wurden 15 native
+Zielversuche und 15 abschließende AuditOnly-Läufe gezählt; die tatsächlichen
+Journale weisen 27 entfernte eigene Datenbanken und 15 entfernte eigene
+Trusteinträge aus. Produktquellen, Modulmanifest und Paket blieben in dieser
+Welle unverändert.
+
+Der Callerbericht zeigte, dass das damalige ZIP-Manifest in
+`permissions_required` nur die drei öffentlichen `EXECUTE`-Rechte auflistet,
+während die geprüften Aufrufpfade zusätzlich interne FT-`SELECT`-Rechte und
+den ResultTable-Helper benötigen.
+
+~~Diese getrennte Metadaten-/Paketpflege bleibt als möglicher nächster, exakt
+begrenzter Schritt offen.~~
+
+Korrektur 2026-10-27 — Codex: Dieser offene Punkt wurde in R14 geschlossen.
+PR456 ergänzte die gebundene ZIP-Manifest-/Paketprojektion; PR457 reparierte
+die Recovery der gebundenen Produktquellen nach dem Squash-Merge. Beide PRs
+sind gemergt; Main-CI bestätigte 132 Release-Tests. Die alten R13-Läufe und
+ihre Fehlerkontrollen bleiben in ihren Originalberichten erhalten. Andere
+Releasegates, Veröffentlichung und Tags bleiben separat.
+
+## Zwölfter endlicher Release-Rahmen — 2026-10-26
+
+Der Nutzerauftrag vom 2026-10-26 setzte die bereits freigegebenen Releasegates
+autonom fort. Diese Welle prüfte die am 2026-10-01 einzeln freigegebenen
+`toolbelt_file.USP_ListXlsxWorksheets` und
+`toolbelt_file.USP_ReadXlsxWorksheetCells` im XLSX-1.2.0-Modul; die
+[Funktionsfreigabe und ihr Scope](../Documentation/Architecture/XLSX_READER_PROPOSAL.md)
+bleiben maßgeblich. Der Rahmen war
+auf eine PR, drei Stunden ab Originalstart und höchstens 20 native Zielversuche
+einschließlich Fehlern/Kontrollen begrenzt. Der Nutzer wünschte kleinere
+LLMs und die Aufteilung der Arbeit; die Umsetzung blieb bei einem einzelnen
+Implementierungsworker, koordiniert vom Root, mit getrennten Offline-, Native-
+und Dokumentationspaketen. Keine zusätzlichen Agents oder CI-Jobs.
+
+Das schmale öffentliche Objektprofil, die festen synthetischen Workbookwerte,
+15 native Versuche, 15 frische Abschlussaudits und die genaue Begrenzung stehen
+im [XLSX-Raw-Callerbericht](../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) samt
+[maschinenlesbarer Quellevidenz](../Releases/1.0.0/xlsx-raw-caller-profile.json).
+Zwölf ausgewählte Matrixfälle bestanden; eine Goldenwertkontrolle und eine
+Kontrolle auf zusätzliche Schema-SELECT-Rechte wurden wie vorgesehen
+abgewiesen. Ein älterer Probe-Arityfehler ist erhalten und getrennt
+als nicht fachlicher Fehler dokumentiert. 27 eigene Datenbanknamen wurden
+frisch als abwesend auditiert. Produktbytes, Modulstatus, Manifeste und Pakete
+blieben unverändert. Es gibt keine Veröffentlichungs- oder Tagfreigabe.
+
+Offen bleiben insbesondere die gebundene Pflege unvollständiger Source-Header-,
+Manifest- und Paketlabels, Head-/Main-CI im integrierenden PR sowie alle getrennten
+Modul-, Client-, Lifecycle-, Ressourcen-, Identitäts- und Veröffentlichungs-
+gates. Diese Evidenz ersetzt sie nicht.
+
 ## Elfter endlicher Release-Rahmen
 
 Direkt am2026-10-26 erneut autorisiert und vor Entwicklung auf eine PR, drei Stunden ab unverändertem Originalstart und höchstens20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Zehn frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Zwei-DLL-Labtreiber und feste SELECT-Callerfälle der bereits einzeln freigegebenen XLSX-Typ-/Anzeige-TVFs1.2.0. Zwölf Matrixfälle bestanden lokal/direkt zentral;15 Versuche einschließlich eines dokumentierten eigenen Formatliteralfehlers und zweier gezielt abgewiesener Kontrollen. Sämtliche15 frischen Abschlussaudits PASS. Produkt, Manifeste und Pakete unverändert; SSIS bleibt ausgenommen. Keine Veröffentlichung oder Tags.
@@ -427,6 +554,14 @@ und Neuaufbauen des Text-Pairs-Consumers mit Verlust seiner Annotationen
 werden nicht verwendet. Die erweiterte endliche Korrekturqualifikation
 behält ursprünglichen Start, Versuche und Teilnachweise im gemeinsamen
 privaten Budget; keine neue autonome Entwicklungswelle.
+
+> Statuskorrektur 2026-10-27 — Codex: Der Benutzer hat anschließend ausdrücklich
+> beauftragt, die nächsten bereits freigegebenen Releasegates autonom mit
+> kleineren Modellen und sequenziellen Paketen fortzuführen. Die begrenzte
+> Edit-Distance-Paketqualifikation ist in
+> [ihrem Bericht](../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
+> dokumentiert. Das ändert weder Produktfunktion noch Modulstatus oder
+> Veröffentlichungsfreigabe.
 
 Abschluss der nativen Korrekturqualifikation am 2026-10-23: zwölf vollständige
 gemeinsame und zwölf eigenständige CLR-Paketfälle bestanden auf Windows/Linux

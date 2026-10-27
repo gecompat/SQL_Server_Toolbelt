@@ -1,6 +1,30 @@
 # Releasevorbereitung prüfen
 
+Die [XLSX-Grenzprüfung](../../Releases/1.0.0/XLSX-BOUNDARY-QUALIFICATION.md)
+trennt die bestandene 32/33-Blattgrenze vom nicht qualifizierten
+50.000-Shared-String-Scope. Fünf neue Evidenzprüfungen kontrollieren Zähler,
+Grenzstatus und aktuelle öffentliche Quellpins; sie laufen in
+`CallerMetadataTests` über die bestehende Release-Suite.
+
+Der [XLSX-/ZIP-Writer-Paketnachweis](../../Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md)
+hat drei gezielte Report-/Guardprüfungen in `test_caller_metadata.py`.
+Sie prüfen Quellenpins, Paket-DLLs, Scope und die Fail-closed-Pfade des
+Paketpreparers ohne Compiler oder Frameworklauf. Der lokale Lauf erfolgt über
+den versteckten Python-Launcher; die Pflichtsuite läuft unverändert über CI.
+
+Die [ZIP-Callerprüfung](../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) bindet drei
+bestehende ZIP-Memory-USPs an feste synthetische Orakel, sechs Rechtezustände
+je API und direkte sowie caller-lokale ResultTable-Ausgabe. Vier Berichtstests
+sind in `test_caller_metadata.py` integriert; gezielt lokal:
+`python -B -m unittest Tests.Release.test_caller_metadata.CallerMetadataTests.test_matrix_and_probe_totals_are_arithmetically_bound Tests.Release.test_caller_metadata.CallerMetadataTests.test_public_source_pins_match_current_synthetic_inputs Tests.Release.test_caller_metadata.CallerMetadataTests.test_fixed_reader_and_writer_goldens_are_independent Tests.Release.test_caller_metadata.CallerMetadataTests.test_expected_controls_and_retained_v1_failure_are_distinct -v`.
+
+Die [ZIP-Entryanzahl-Grenzprüfung](../../Releases/1.0.0/ZIP-ENTRY-COUNT-QUALIFICATION.md) ergänzt die bestehende Listing-API um feste 10.000-/10.001-Entry-Orakel, einen direkten Reader-Fehlerpfad ohne erste Zeile und eine Prüfung der gefundenen Deploy-All-Modulmenge. Sechs Offlineprüfungen laufen über `CallerMetadataTests`; gezielt im Verzeichnis `Tests/Release`: `python -B -m unittest test_caller_metadata.CallerMetadataTests -k zip_entry_count -v`. Der negative Discoverytest startet PowerShell 7 mit `CREATE_NO_WINDOW`; es wird kein SQL ausgeführt.
+
+Die [XLSX-Rohleser-Callerprüfung](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) bindet `Invoke-XlsxRawCallerLab.ps1`, die SQL-Rechtefixture und den deterministischen Workbookcomposer. Die neue Profilprüfung ist als Mixin in `XlsxCellCallerTests` eingebunden; sie läuft damit über die bestehende Release-Suite, ohne neuen CI-Job. Gezielt lokal: `python -m unittest Tests.Release.test_xlsx_raw_caller_evidence Tests.Release.test_xlsx_raw_caller_composer -v`.
+
 Die [XLSX-Zell-Callerprüfung](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) ergänzt zwei öffentliche SELECT-Profile mit eigener kanonischer Case-Datei und Zwei-DLL-Labtreiber. Vier Berichtsprüfungen laufen in der vorhandenen Suite; zusätzlich `python -B Tests/Release/test_xlsx_cell_caller_qualification.py`.
+
+Die [XLSX-Manifest- und Paketpflege](../../Releases/1.0.0/XLSX-METADATA-UPDATE.md) erhält beide ursprünglichen Berichtepins und prüft das additive Overlay auf dem bestehenden CLR-Paket. Sechs fokussierte Regressionen sind in `test_caller_metadata.py` integriert; gezielt lokal: `python -B -m unittest Tests.Release.test_xlsx_metadata -v`.
 
 Die [aktuelle SSIS-Lookup-Paketbindung](../../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)
 verknüpft die zwölf Build-, zwei Standalone- und je sechs CLR-/Gesamtpaketfälle.
@@ -10,6 +34,64 @@ Die [Caller-Metadatenprüfung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md)
 läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:
 `python -B Tests/Release/test_caller_metadata.py`; ursprüngliche Caller-Pins
 bleiben erhalten, Runtime-/Vertragsänderungen werden abgewiesen.
+
+Die [JSON-Constructor-Paketqualifikation](../../Releases/1.0.0/JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md)
+bindet den vorhandenen Framework- und Closure-IL-Lauf an die Constructor-/Core-
+DLLs des CLR-Pakets. Sieben Offlineprüfungen zu Paketbindung, Evidenz und
+Pfadgrenzen sind in
+`test_caller_metadata.py` eingebunden. Der private qualifizierende Lauf ist:
+
+```powershell
+pwsh -NoProfile -NonInteractive -File Tests/Release/Invoke-JsonConstructorsPackageQualification.ps1 `
+  -CompilerPath <vorhandener Roslyn-csc> `
+  -ReferenceDirectory <vorhandene .NET-Framework-Referenzen> `
+  -FrameworkPowerShell <Windows-PowerShell-5.1> `
+  -OutputDirectory .runtime/<neues-Ausgabeverzeichnis>
+```
+
+Er läuft ohne SQL oder Labverbindung und bindet die beiden extrahierten DLLs
+bytegenau an die Frameworkausgaben; ein vorhandenes Ziel oder abweichende
+Paket-/DLL-Bytes werden abgewiesen.
+
+Die getrennte [JSON-Schema-Paket-IL-Prüfung](../../Releases/1.0.0/JSON-SCHEMA-PACKAGE-QUALIFICATION.md)
+verwendet den unveränderten privaten Framework-Receipt und bindet alle Phasen,
+Eingaben und Outputs erneut. Der vorhandene IL-Guard läuft direkt auf der
+Schema-DLL aus dem geprüften Paket; neun Offlineprüfungen sind in
+`test_caller_metadata.py` integriert. Ein neuer kompletter Frameworklauf ist
+nicht erforderlich, solange der gebundene Receipt und seine Quellpins bestehen.
+Gezielt lokal: `python -B -m unittest Tests.Release.test_caller_metadata.CallerMetadataTests.test_public_predecessor_and_framework_inputs_are_exactly_bound Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_public_evidence_binds_the_package_and_reused_receipt Tests.Release.test_caller_metadata.CallerMetadataTests.test_framework_receipt_requires_complete_phases_and_fresh_sources Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_manifest_hash_is_checked_even_with_matching_outer_hash Tests.Release.test_caller_metadata.CallerMetadataTests.test_package_archive_hash_and_fixed_oracle_pins_reject_drift Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_framework_output_must_equal_the_package_binary Tests.Release.test_caller_metadata.CallerMetadataTests.test_output_scope_rejects_external_path_before_creating_it`.
+
+## Edit-Distance-Paketqualifikation
+
+Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
+bindet die DLL aus dem Installationspaket an feste Distance- und Jaro-Orakel.
+Vier Berichtstests prüfen aktuelle Quellpins, Paket-/Oraclewerte und
+Scopegrenzen; sie laufen über `test_caller_metadata.py`. Der separate
+Qualifikationsrunner verwendet die geprüfte versteckte Prozesskette; SQL und
+Lab werden nicht gestartet.
+
+## T-SQL-Scriptparser-Paketbindung
+
+Der [Scriptparser-Bericht](../../Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.md)
+bindet 63 feste Provideraufrufe an die Paket-DLL. Ein separat aus Quellen
+gebauter Guard prüft 60 Assertions und ist kein Paketnachweis. Vier gezielte
+Offlinekontrollen (Paket, Sidecar, Qualifikationshash, ZIP-Traversal) sowie
+Report- und Korpusdriftprüfungen sind in `test_caller_metadata.py` integriert.
+Es gibt keinen SQL- oder Labstart.
+
+## CSV-/Phonetic-Framework-Paketprofile
+
+Der [gebundene Bericht](../../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
+verknüpft die unveränderten Frameworkharnesses mit den CSV- und Phonetic-DLLs
+aus dem Installationspaket. Zwei Berichtstests prüfen den exakten Scope,
+aktuelle zehn Quellpins, Paketbytes und Negativkontrollen; beide sind in
+`test_caller_metadata.py` integriert. Gezielter Lauf:
+
+```powershell
+python -B Tests/Release/test_caller_metadata.py CallerMetadataTests.test_candidate_framework_public_evidence_is_exactly_package_bound CallerMetadataTests.test_candidate_framework_report_scope_and_pin_drift_are_rejected -v
+```
+
+Die Prüfungen führen kein SQL aus und wiederholen die Frameworkharnesses nicht.
 
 ## CSV-Caller mit kombinierten Objektrechten
 

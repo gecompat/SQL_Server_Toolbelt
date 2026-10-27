@@ -50,6 +50,11 @@ unterstützt bei der Extraktion Compression Methods `0` (`Stored`) und `8`
 `toolbelt.core.result-table` ab Version `1.0.0` wird für den optionalen
 `@ResultTable`-Pfad benötigt.
 
+Die geprüften Callerrechte der drei öffentlichen ZIP-Memory-USPs stehen im
+[ZIP-Callerbericht](../../Releases/1.0.0/ZIP-CALLER-PROFILE.md). Der Bericht
+begrenzt sich auf feste synthetische Werte und die dort genannten Objektprofile;
+er ersetzt keine übrige Modul- oder Releasequalifikation.
+
 ## Build-, Trust- und Deploymentmodell
 
 `Scripts/New-ClrReleaseArtifacts.ps1` erzeugt aus dem C#-Quellcode:

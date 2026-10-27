@@ -8,9 +8,13 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Tests/Release'))
 from prepare_function_rights import compose
+from test_xlsx_raw_caller_composer import XlsxRawCallerComposerMixin
+from test_xlsx_raw_caller_evidence import XlsxRawCallerEvidenceMixin
+import xlsx_metadata
+import zip_metadata
 
 
-class XlsxCellCallerTests(unittest.TestCase):
+class XlsxCellCallerTests(XlsxRawCallerComposerMixin, XlsxRawCallerEvidenceMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.record = json.loads((ROOT / 'Releases/1.0.0/xlsx-cell-caller-qualification.json').read_bytes())
@@ -39,6 +43,12 @@ class XlsxCellCallerTests(unittest.TestCase):
         for path, digest in r['source_sha256'].items():
             self.assertFalse(Path(path).is_absolute())
             self.assertNotIn('..', Path(path).parts)
+            if path == xlsx_metadata.MANIFEST:
+                xlsx_metadata.validate_source(ROOT, path, digest)
+                continue
+            if path == zip_metadata.MANIFEST:
+                zip_metadata.validate_source(ROOT, path, digest)
+                continue
             self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
         self.assertEqual({a['name'] for a in r['public_apis']}, {'TVF_InterpretXlsxCell', 'TVF_FormatXlsxCell'})
         self.assertTrue(all(a['permission'] == 'SELECT' for a in r['public_apis']))

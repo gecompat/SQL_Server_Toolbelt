@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import csv_metadata as metadata
 import prepare_release as release
+import xlsx_metadata
 
 
 class CsvMetadataTests(unittest.TestCase):
@@ -100,7 +101,18 @@ class CsvMetadataTests(unittest.TestCase):
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         unpack = lambda b: {p[len(prefix):]: v for p, v in release.read_zip(b).items()}
         before, after = unpack(old), unpack((ROOT / path).read_bytes())
-        release.validate_csv_clr_metadata(after)
+        product_source = json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())
+        _, product_files, product_tree = release.qualification_sources(product_source['product_commit'])
+        self.assertEqual(product_tree, product_source['tree_oid'])
+        xlsx_sources = {p: product_files[p]
+                        for p in (*xlsx_metadata.PACKAGE_SOURCES, *xlsx_metadata.REPORTS)}
+        xlsx_sources[xlsx_metadata.RECORD] = (ROOT / xlsx_metadata.RECORD).read_bytes()
+        zip_record = json.loads((ROOT / 'Releases/1.0.0/zip-metadata-update.json').read_bytes())
+        _, zip_files, zip_tree = release.qualification_sources(zip_record['current_product_commit'])
+        self.assertEqual(zip_tree, json.loads((ROOT / 'Releases/1.0.0/product-source.json').read_bytes())['tree_oid'])
+        zip_sources = {p: zip_files[p] for p in release.zip_metadata.PACKAGE_SOURCES}
+        zip_sources[release.zip_metadata.RECORD] = (ROOT / release.zip_metadata.RECORD).read_bytes()
+        release.validate_zip_clr_metadata(after, zip_sources)
         self.assertEqual((ROOT / metadata.GUIDE).read_bytes(),
                          metadata.corrected_install_guide(metadata.historical(ROOT, metadata.GUIDE)))
         for p in before:
@@ -108,7 +120,7 @@ class CsvMetadataTests(unittest.TestCase):
                 self.assertEqual(before[p], after[p], p)
         missing = dict(after); del missing['METADATA-UPDATE.json']
         with self.assertRaises(ValueError):
-            release.validate_csv_clr_metadata(missing)
+            release.validate_zip_clr_metadata(missing, zip_sources)
 
     def test_missing_product_commit_recovers_bound_tree_and_rejects_drift(self):
         old, current, baseline, record = self.fixture()

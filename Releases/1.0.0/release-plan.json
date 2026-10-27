@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "state": "prepared_not_published",
   "publication_authorized": false,
-  "product_commit": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
+  "product_commit": "69320089beb25c2bc4323df901307764fa9dccc9",
   "package_kind": "complete_source_candidate",
   "foundation": {
     "version": "1.25.0",
@@ -50,7 +50,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "d02e251b453a72b100cb31d54c1677ec2109279962813f5d8552ecef342d8ab5",
+      "manifest_sha256": "e0632c0b1bcdddbf13bf4f6dcf36f69da63d0e58852deb9f17f11c786d5029e9",
       "evidence_references": [
         "Modules/toolbelt.archive.zip-memory/module.yaml",
         "Modules/toolbelt.archive.zip-memory/README.md",
@@ -564,7 +564,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0",
+      "manifest_sha256": "f4392e554b0efaf8238dc5475bfc2262dc10d3b7b92c44df8afe30e2602795be",
       "evidence_references": [
         "Modules/toolbelt.file.xlsx-memory/module.yaml",
         "Modules/toolbelt.file.xlsx-memory/README.md",
@@ -1066,9 +1066,9 @@
   "product_snapshot": {
     "schema_version": "1.0",
     "kind": "synthetic_product_snapshot",
-    "source_commit": "83b94d5a940d0e94c0861d5e8ea56faeb193f8e1",
-    "product_commit": "62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3",
-    "base_commit": "89e17e9879b0ce22e63ecd63e3374fe1323fb9a7",
-    "tree_oid": "0ac6229ec4693bab73c1fa512ab4b581d348de60"
+    "source_commit": "1815222d1388ef033ebf6c28871e462c3e4d3a9c",
+    "product_commit": "69320089beb25c2bc4323df901307764fa9dccc9",
+    "base_commit": "e3b7aa4171181bc96d3df70bbde7f8200e47e303",
+    "tree_oid": "caacf81a505d6fc895de1f8dff2418a0a7480b0c"
   }
 }

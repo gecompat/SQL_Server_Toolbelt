@@ -1,5 +1,21 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
+[XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md):
+19 bestehende XLSX-Candidate-Frameworkphasen und sieben ZIP-Entry-Security-Fälle
+mit dem bestehenden Writer-Body bestanden. Paket-/Modulstatus blieb unverändert;
+SQL, Deployment und Veröffentlichung sind nicht freigegeben.
+
+[ZIP-Callerrechte](ZIP-CALLER-PROFILE.md): drei bestehende ZIP-Memory-USPs,
+432 Maskenzustände, 864 API-Routen, 192 positive Orakel, 2.808 strikte
+SQL-229-Abweisungen und 15 frische Abschlussaudits. Zwölf Matrixfälle
+bestanden; die falsche Goldenwert- und breite Schema-SELECT-Kontrolle wurden
+erwartungsgemäß bereinigt abgewiesen. Produkt-/Paketstatus und weitere
+Releasegates bleiben getrennt.
+
+[ZIP-Entryanzahl-Grenzprüfung](ZIP-ENTRY-COUNT-QUALIFICATION.md): zwölf Ziel-/CL-Fälle prüfen das 10.000-Entry-Limit der bestehenden Listing-API lokal und direkt zentral. 24 positive Routen lieferten 240.000 feste Metadatenzeilen; 48 direkte Reader-Pfade wurden ohne erste Zeile mit den festgelegten Fehlercodes abgewiesen. Zwölf unmittelbare und sechs zusätzliche Abschlussaudits bestanden. Der 256-MiB-Archivgrenzwert und vollständige Modulpflichten bleiben außerhalb dieses Scopes.
+
+[XLSX-Raw-Callerrechte](XLSX-RAW-CALLER-PROFILE.md): zwölf ausgewählte Ziel-/CL-Fälle mit 336 Rechtezuständen, 672 API-Routen, 144 positiven Aufrufen und 720 festen Ergebniszeilen; 12 Matrixfälle und 15 frische Abschlussaudits bestanden. Die [Manifest- und Paketpflege](XLSX-METADATA-UPDATE.md) übernimmt Raw- und Zellrechte; historische Source-Header bleiben unverändert. Weitere Releasegates bleiben offen; Head- und Main-CI werden getrennt im integrierenden PR nachgewiesen.
+
 [XLSX-Zell-Callerrechte](XLSX-CELL-CALLER-QUALIFICATION.md): zwei öffentliche TVFs mit einzelnem SELECT auf zwölf lokalen/direkt zentralen Windows-/Linux-Ziel-/CL-Fällen.48 positive Profile,672 SQL229-Abweisungen und144 feste Ergebniszeilenorakel; Raw-Reader, volle Typ-/Client-/Ressourcen- und Releasegates bleiben separat.
 
 [CSV-Manifest- und Paketpflege](CSV-METADATA-UPDATE.md): die in PR450 belegten getrennten Parser-/Writer-/ResultTable-Rechte werden exakt übernommen. Historische Ausführungspins bleiben erhalten; ausführbare SQL-/DLL-Payloads und weitere Releasegrenzen bleiben unverändert.
@@ -9,6 +25,32 @@
 [Textpaar-Callerrechte](TEXT-PAIRS-CALLER-QUALIFICATION.md): ein EXECUTE-Grant, drei Algorithmen, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 24 positive Profile und 216 SQL229-Abweisungen. 1008 feste Zeilenorakel und eigene Bereinigung sind belegt; weitergehende Gates bleiben separat.
 
 [JSON-Schema-Callerrechte](JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Die [gebundene Metadatenkorrektur](CALLER-METADATA-UPDATE.md) übernimmt diese Rechte jetzt in Manifest und Paket.
+
+[JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
+27 bestehende Frameworkphasen bestanden; die gelieferten Constructor-/Core-DLLs
+stimmen bytegenau mit den erzeugten Framework-DLLs überein. Der vorhandene
+JSON-Core-Closure-IL-Gate bestand direkt mit der Constructor-DLL aus dem Paket.
+Keine SQL-/Labverbindung, keine Schema-Paketqualifikation und keine
+Gesamtfreigabe.
+
+[JSON-Schema-Paket-IL](JSON-SCHEMA-PACKAGE-QUALIFICATION.md) ergänzt den
+separaten direkten IL-Lauf für die Schema-DLL aus demselben unveränderten
+Paket. Der abgeschlossene Source-Receipt wurde mit allen 27 Phasen und frischen
+Eingaben wiederverwendet; ein neuer Frameworklauf fand nicht statt. SQL-, API-,
+Gesamt-CLR- und Veröffentlichungsfreigaben bleiben getrennt.
+
+[Edit-Distance-Paketqualifikation](EDIT-DISTANCE-PACKAGE-QUALIFICATION.md):
+die DLL aus dem CLR-Paket besteht 27.104 Distance-Golden-Zeilen, 60 Jaro-Paare
+in drei Kulturen und 109.333 feste Contract-Assertions. Eine begrenzte
+IL-Inspektion bestand; Gesamt-CLR, SQL, API-Rechte und Veröffentlichung sind
+nicht Teil des Nachweises.
+
+[Scriptparser-Paketbindung](SCRIPT-PARSER-PACKAGE-QUALIFICATION.md): 63
+ausgewählte feste Providerfälle bestanden gegen die DLL aus dem Paket. Der
+separate Source-Guard umfasst 60 Assertions; kein SQL-/Lablauf und keine
+vollständige Modul-, Plattform- oder transitive IL-Qualifikation. Die
+[Evidenz](SCRIPT-PARSER-PACKAGE-QUALIFICATION.json) bindet 16 repo-relative
+Eingabepins.
 
 Die [SSIS-Qualifikation vom 2026-10-25](SSIS-LOOKUP-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
@@ -49,7 +91,15 @@ ausdrücklich freigegeben. Alle 45 Modulmanifeste bleiben `unreleased`.
 | Bereinigung | 36 eigene Datenbanken entfernt; zwölf separate lesende Auditprozesse bestätigten Abwesenheit und Inputpins | Keine fremden Ressourcen, Server-, Rechte-, Login- oder Truständerungen |
 | CLR-Buildinputs | Zwölf vorhandene Projekte jeweils zweimal isoliert gebaut; identische DLL-Bytes, keine CodeView-Einträge und keine geprüften privaten Buildpfade | Der erste Offlinebuild allein war keine vollständige IL-/Framework-/SQL-Abnahme; die anschließende Paketlieferung ist unten getrennt beschrieben |
 | JSON-Binarybindung | Die drei erneut erzeugten JSON-Binaries stimmen exakt mit den kanonischen bekannten Closure-Pins überein | Keine Erweiterung des vorhandenen nativen Supportumfangs |
-| Ausgewählte Frameworkprüfungen | Sieben bestehende Suiten auf den neuen Kandidaten bestanden: CSV, Phonetic, ZIP-Writer, drei Regex-Suiten und SSIS Full | Fünf CLR-Module in begrenzten Frameworkprofilen; keine vollständige IL-/Framework- oder SQL-Qualifikation aller zwölf Projekte |
+| Ausgewählte Frameworkprüfungen | Sieben frühere Suiten auf ihren Kandidaten bestanden: CSV, Phonetic, ZIP-Writer, drei Regex-Suiten und SSIS Full; zusätzlich 27 Phasen für den JSON-Constructor mit exakt gebundenen Paket-DLLs | Begrenzte Frameworkprofile für einzelne Module; keine vollständige IL-/Framework- oder SQL-Qualifikation aller zwölf Projekte |
+
+Am 27.10.2026 wurden die bestehenden CSV- und Phonetic-Harnesses zusätzlich
+mit den DLL-Bytes aus dem CLR-Installationspaket ausgeführt. Die
+[Paketprofile](CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md) binden drei
+Kulturphasen je Modul und begrenzen den Scope auf diese CLR-Verträge. Die
+früheren Kandidatenläufe bleiben als historische Evidenz erhalten; diese
+neuen Paketläufe ersetzen weder eine vollständige Modul-/Plattformmatrix noch
+SQL-, Deployment-, transitive IL- oder Sicherheitsqualifikationen.
 
 Der native Aufruf war
 `Tests/Release/Invoke-StablePackageMatrix.ps1 -EvidenceDirectory <neues privates .runtime-Verzeichnis>`.
@@ -297,6 +347,40 @@ Lowpriv-CrossDB-Mappings und übrige Modulpflichtfälle bleiben offen.
 | Gemeinsamer Paket-Lifecycle | Erledigt für die vier abgegrenzten Profile: Erst-/Repeat-/Uninstall-/Absent-Repeat und zentrale Consumer in zwölf physischen Ziel-/CL-Fällen; eigenständige CLR-Profile nochmals separat geprüft | Kein universeller historischer Upgradepfad und keine vollständige neue APIabnahme aller 45 Module |
 | Finaler Releasekandidat | Paketintegrität, Dokumentationsaudit und echte CI am endgültigen Head bestätigen; geänderte Inputs mit betroffenem Nachweis abgleichen | Nach Abschluss der noch offenen Inhalte; heutige grüne CI qualifiziert keine späteren Änderungen |
 | Öffentliche Veröffentlichung | Separater ausdrücklicher Auftrag; danach tatsächlichen Tag, Release-URL, Zeitpunkt, Assethashes und `publication_record` je veröffentlichter Modulversion pflegen | Noch nicht autorisiert; kein Tag, kein GitHub-Release und keine Statusaufwertung |
+
+### Aktueller Restgate-Status und Voraussetzungen
+
+Diese Übersicht ordnet den verbleibenden Scope den bestehenden Nachweisen zu.
+`PASS` gilt jeweils nur für den angegebenen Fall; es erweitert weder den
+Modulstatus noch den zugesagten Produktumfang. Unkonkretisierte
+manifesteigene Pflichtfälle bleiben offen, bis sie pro Modul und Kombination
+benannt sind. Sie werden nicht pauschal als durch externe Voraussetzungen
+blockiert behandelt.
+
+| Gate | Status | Verbleibender Scope und Grenze | Voraussetzung | Kanonische Evidenz |
+|---|---|---|---|---|
+| XLSX-Listing: feste Blattanzahl | **PASS FÜR 32/33 BLÄTTER** | `USP_ListXlsxWorksheets` lieferte auf 24 Routen jeweils 32 feste Zeilen; 24 33-Blatt-Aufrufe wurden mit 51520 und null gelesenen Zeilen abgewiesen. | Kein weiteres Ziel für diesen Grenzfall. Andere XLSX-APIs und Modulpflichten bleiben separat. | [XLSX-Grenzbericht](XLSX-BOUNDARY-QUALIFICATION.md) |
+| XLSX-Rohleser: 50.000 Shared Strings | **BLOCKED_BUDGET / NICHT QUALIFIZIERT** | Zwei positive lokale Aufrufe endeten mit 51520 / `TBX_XLSX_BUDGET_EXCEEDED`, bevor Ergebniszeilen zurückkamen. 50.001 und zentrale Routen wurden nicht ausgeführt. | Kein Orakel- oder Budgetwechsel; ein erneuter Lauf erfordert eine separat freigegebene Änderung der Ausführungsbedingungen. | [XLSX-Grenzbericht](XLSX-BOUNDARY-QUALIFICATION.md), [maschinenlesbare Evidenz](xlsx-boundary-qualification.json) |
+| Modulpflichten je zugesagter Kombination | **OFFEN / noch nicht vollständig aufgeschlüsselt** | Fehlende API-, Ausgabe-, Lifecycle-, Upgrade-, Heap- oder Parallelfälle sind anhand des jeweiligen Manifests und seiner Matrix zu bestimmen. Ausgewählte grüne Fixtures sind keine Vollabnahme aller 45 Module. | Für jeden konkretisierten Fall die zugehörigen festen Eingaben und ein begrenztes Testziel; Voraussetzungen hängen vom Modul ab. | [API- und Grenzbericht](API-QUALIFICATION.md), [Modulzuordnung](EVIDENCE-MAP.md), jeweilige Modulmatrix |
+| ZIP-Listing: feste Entryanzahl-Grenzen | **PASS FÜR DEN GEBUNDENEN GRENZSCOPE** | Das bestehende `USP_ListZipEntriesFromBinary` gab 10.000 synthetische Einträge mit festen Metadaten aus; 10.001 Archiv-Entries und `@MaxEntries = 10001` wurden vor einer direkt gelesenen Zeile abgewiesen. Dies ist keine ZIP-Modul- oder sonstige API-Vollabnahme. | Kein weiteres Ziel für diese beiden festen Grenzfälle. Andere ZIP-Formate, Payload- und Modulpflichten bleiben separat. | [ZIP-Entryanzahl-Nachweis](ZIP-ENTRY-COUNT-QUALIFICATION.md), [maschinenlesbare Evidenz](zip-entry-count-qualification.json) |
+| Echte Minimalrechte und CrossDB-Identität | **TEILWEISE BELEGT; CROSSDB OFFEN** | Ausgewählte Callerprofile mit engen Objektgrants sind belegt. Tests mit getrenntem Login, User-Mapping oder echten Lowpriv-CrossDB-Aufrufen bleiben eigenständige Fälle; DBO- oder direkte Consumer-Profile ersetzen sie nicht. | Geeignete getrennte Principals und ausdrücklich zugeordnete CrossDB-Mappings; kein Grant aus den vorhandenen Profilen ableiten. | [Callerrechteübersicht](CALLER-METADATA-UPDATE.md), [API- und Grenzbericht](API-QUALIFICATION.md), jeweilige Callerprofile |
+| Serverseitige Dateien und Windows-Identitäten | **NICHT AUSGEFÜHRT** | ZIP-Dateien, File-Content und Windows-Filesystemzugriffe sind getrennte Verträge. SQL-API- und Paketprofile belegen weder Serverdateizugriff noch Caller-/ServiceAccount-, NTFS- oder Reparseverhalten. | Synthetische serverseitige Dateien und Fixture-Ownership; für Windows-Fälle geklärte Caller-/ServiceAccount-Identität sowie NTFS-/Reparse-Fixtures. | [API- und Grenzbericht](API-QUALIFICATION.md), [Dateimodule in der Modulzuordnung](EVIDENCE-MAP.md) |
+| Zweite Session, EventLog und administrierter Provider | **NICHT AUSGEFÜHRT** | Direkte API-, Rollback- und Sessionunabhängigkeitsprüfungen qualifizieren keinen administrierten externen Provider. | Vorkonfigurierter administrierter Provider und eine passende bestehende Testfixture. | [API- und Grenzbericht](API-QUALIFICATION.md), [EventLog-Callerprofil](EVENT-LOG-CALLER-QUALIFICATION.md) |
+| Queue 2.1 Managed-/Providerparallelität | **TEILWEISE BELEGT; PROVIDERLAUF OFFEN** | Die Vier-Sessions-/Ein-Claim-Fixture und die getrennten SQL-Managedfälle belegen nicht den vollständigen parallelen Worker-/Providerlauf. | Passende vorkonfigurierte Worker-/Providerkombinationen. | [Queue-Testmatrix](../../Modules/toolbelt.core.work-queue/Tests/WORK_QUEUE_CONTRACT_TEST_MATRIX.md), [Queue-Autorisierungsnachweis](QUEUE-AUTHORIZATION-QUALIFICATION.md), [Worker-Callerprofil](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) |
+| Transport-/Host-Recovery | **NICHT AUSGEFÜHRT** | Keine harte Unterbrechung eines laufenden mutierenden Tests als Ersatz für einen kontrollierten Recoveryvertrag. | Gesonderte kontrollierte Recoveryumgebung und ein sicher abbrechbarer, eigener Testfall. | [API- und Grenzbericht](API-QUALIFICATION.md), [Releasegates](#was-vor-veröffentlichung-offen-bleibt) |
+| Regex-Capture-Outputgrenze | **PASS FÜR DIE GEBUNDENE 16-MiB-GRENZE; SEPARATER CAPTURE-TEILFALL PARTIAL** | `Captures.Metadata.ps1` prüfte den Large-Output exakt bei 16 MiB (8.388.480 Capture-Codeunits plus 128 Codeunits Gruppenname) und wies anschließend die um 2 Bytes größere Ausgabe mit `TBX_REGEX_OUTPUT_TOO_LARGE` ab. Das originale `Captures.Contract.sql` hatte separat unter Linux SQL Server 2019/CL150 einen Timeout; dieser Teilfall bleibt `PARTIAL` und wurde nur mit dokumentiertem Restrisiko angenommen. Das ist keine vollständige Regex-Modulabnahme. | Kein erneuter Lauf dieser unveränderten Evidenz; andere Capture-, Rechte-, Ressourcen-, Client- und Recoverypflichten bleiben separat. | [Regex-Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md), [Capture-Akzeptanz](CAPTURE-RELEASE-ACCEPTANCE.md), [Capture-Diagnose](CAPTURE-TIMEOUT-INVESTIGATION.md) |
+| Pflicht-Lastfälle für ResultTable, Base64 und Generate Series | **PASS IM ANGEGEBENEN SQL-2025-UMFANG** | ResultTable: 100.000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen und zehn Schemawechsel. Base64: exakter 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsorakeln. Generate Series: zehn Millionen eindeutige Werte mit Grenzen 1 bis 10.000.000. Diese Ergebnisse sind funktionale Pflichtlastfälle, keine Zeit- oder Produktionskapazitätszusage. | Die protokollierten SQL-Server-2025/Linux/CL170-Fälle ergänzen die jeweiligen unveränderten Plattformmatrizen; weitere Modulpflichten bleiben eigenständig. | [V0c-Pflichtlaststatus](../../Tests/V0C_RELEASE_GATE_STATUS.md), [DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen), [ResultTable](../../Modules/toolbelt.core.result-table/README.md), [Base64](../../Modules/toolbelt.conversion.base64/README.md), [Generate Series](../../Modules/toolbelt.core.generate-series/README.md) |
+| Optionale Laufzeitmessungen | **NOT EXECUTED; KEIN PFLICHTGATE** | Die drei vorstehenden funktionalen Lastorakel bleiben Pflicht. Optionale Laufzeitmessungen sind getrennt und werden nicht als fehlender Pflichtlasttest oder als PASS gewertet. | Gesonderter Auftrag für eine Messung; ein solcher Auftrag ändert nicht die fachlichen Ergebnisorakel. | [DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen), [V0c-Pflichtlaststatus](../../Tests/V0C_RELEASE_GATE_STATUS.md) |
+| Endanwender-Clients | **TEILWEISE BELEGT; GUI-/WINDOWS-LOGIN NICHT AUSGEFÜHRT** | Der ODBC-PowerShell-Helper ist separat belegt. Dieser Nachweis deckt weder SSMS-GUI noch Windows-Authentifizierung ab. | Für die fehlenden Clientwege jeweils konkreter Supportumfang und ein geeignetes Testziel. | [Clientqualifikation](CLR-CLIENT-QUALIFICATION.md), [API- und Grenzbericht](API-QUALIFICATION.md) |
+| Authentifizierte TLS | **NOT EXECUTED; SEPARATER TRANSPORTNACHWEIS** | Funktionale Läufe mit explizitem Lab-Trust sind kein Serveridentitätsnachweis und blockieren keine unabhängigen Funktionstests. | Separater TLS-Vertrag und dafür qualifiziertes Ziel; keine automatische Trustumschaltung. | [TLS-Consumervertrag](../../Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md), [API- und Grenzbericht](API-QUALIFICATION.md) |
+| Finaler Releasekandidat | **AUSSTEHEND** | Paketintegrität, Dokumentationsaudit und erforderliche CI müssen am endgültigen integrierten Head belegt sein; danach sind alle noch anwendbaren Pflichtnachweise abzugleichen. | Abgeschlossene Pflichtnachweise und exakter finaler Head. | Dieses Dokument; [Evidenzzuordnung](EVIDENCE-MAP.md) |
+| Veröffentlichung | **NICHT AUTORISIERT** | Kein Tag, Release oder Statusupgrade aus der vorhandenen Abnahme ableiten. | Separater ausdrücklicher Veröffentlichungsauftrag. | [Supportumfang und Freigabe](SUPPORT.md#freigabe) |
+
+Die ältere Aussage in `Modules/toolbelt.string.regex/Tests/README.md`, die
+16-MiB-Capturegrenze sei noch nicht in SQL ausgeführt, ist durch die spätere
+gebundene Regex-Evidenz überholt. Diese Releaseübersicht ordnet den neueren
+Nachweis ein, ändert aber weder die alte Moduldatei noch den getrennten
+`Captures.Contract.sql`-Teilbefund.
 
 Preview ersetzt keine Pflichtprüfung im zugesagten Scope. Authentifizierte
 TLS-Abnahme bleibt getrennt; die optionalen Laufzeitmessungen für ResultTable,

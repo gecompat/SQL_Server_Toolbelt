@@ -81,6 +81,16 @@ ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung, Deflate64, weitere Methods
 zusätzliche Central-Directory-Datensätze, Archiv-Erzeugung, Multi-Entry- oder
 Verzeichnisextraktion sowie Dateisystem-, Netzwerk- oder Prozesszugriff.
 
+## Berechtigung
+
+Das geprüfte schmale Callerprofil benötigt `EXECUTE` auf dieser Procedure und
+`SELECT` auf `toolbelt_archive.TVF_InternalExtractZipEntryClr`. Für
+`@ResultTable` ist zusätzlich `EXECUTE` auf
+`toolbelt_core.USP_PrepareResultTable` erforderlich. Der
+[ZIP-Callerbericht](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) beschreibt
+den geprüften Umfang; daraus folgt keine mathematische Minimalität und keine
+Aussage, dass andere Rechteprofile ausgeschlossen sind.
+
 ## Deployment
 
 Die Procedure wird gemeinsam mit

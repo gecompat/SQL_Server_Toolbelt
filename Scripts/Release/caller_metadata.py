@@ -104,6 +104,19 @@ def historical_manifest(root, path):
 
 def validate_source(root, path, executed_digest):
     """Unveränderte Quellen exakt prüfen; sechs Metadatenänderungen getrennt belegen."""
+    xlsx_manifest = 'Modules/toolbelt.file.xlsx-memory/module.yaml'
+    if path == xlsx_manifest:
+        # Keep the XLSX exception exact and lazy: xlsx_metadata is loaded by
+        # prepare_release after this module, so an eager import would cycle.
+        import xlsx_metadata
+        xlsx_metadata.validate_source(root, path, executed_digest)
+        return
+    zip_manifest = 'Modules/toolbelt.archive.zip-memory/module.yaml'
+    if path == zip_manifest:
+        # ZIP gilt nur für sein exakt gebundenes Rechtefeld; keine generische Ausnahme.
+        import zip_metadata
+        zip_metadata.validate_source(root, path, executed_digest)
+        return
     current = (Path(root) / path).read_bytes()
     if digest(current) == executed_digest:
         return

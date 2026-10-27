@@ -1795,12 +1795,12 @@ def main() -> int:
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
     if "release_preparation" in checks:
-        # Die Suite prüft große ZIPs und isolierte Git-Bundle-Recovery mehrfach.
-        # Ein 30-s-Gesamtlimit ist dafür auf kalten CI-Läufen zu knapp; alle
-        # Testfälle und ihre eigenen Prozessgrenzen bleiben unverändert.
+        # The cold Windows clone measured 131 release checks in 355 seconds;
+        # 480 seconds allow bounded reserve for ZIP and bundle recovery.
+        # Keep the hidden process boundary so no console window steals focus.
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=120,
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=480,
         )
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
@@ -1808,7 +1808,9 @@ def main() -> int:
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),
              "--verify", str(REPOSITORY_ROOT / "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=150,
+            # Die kalte Archivwiederherstellung überschritt das bisherige
+            # 150-Sekundenlimit; 240 Sekunden halten den Prüfschritt begrenzt.
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=240,
         )
         if result.returncode:
             raise ValidationError(f"Releasepaket-Integrität:\n{result.stdout}{result.stderr}")
