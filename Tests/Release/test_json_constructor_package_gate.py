@@ -88,7 +88,8 @@ class JsonConstructorPackageGateMixin:
             xml = ET.parse(ROOT / project).getroot()
             for node in xml.iter():
                 if node.tag.endswith("Compile"):
-                    expected_inputs.add((ROOT / Path(project).parent / node.attrib["Include"]).resolve().relative_to(ROOT).as_posix())
+                    include = node.attrib["Include"].replace("\\", "/")
+                    expected_inputs.add((ROOT / Path(project).parent / include).resolve().relative_to(ROOT).as_posix())
         self.assertEqual(set(report["framework_input_pins"]), expected_inputs)
         self.assertTrue(all(path.startswith("Modules/") for path in report["framework_input_pins"]))
         for relative, digest in report["framework_input_pins"].items():
