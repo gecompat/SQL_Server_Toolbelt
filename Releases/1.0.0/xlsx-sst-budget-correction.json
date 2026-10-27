@@ -53,13 +53,12 @@
     "Releases/1.0.0/EVIDENCE-MAP.md": "29cf8aa393f4dbd2d3296fab60d74bd5ffb560e4fc72aaf5af4b227a0dc0bbe8",
     "Releases/1.0.0/README.md": "8edf478282bfebe41e3b9af76eff5b3f878a162ff320111ceb1473e565b17db3",
     "Releases/1.0.0/RELEASE-GATES.md": "5e70269381947a5eb57b86df211ebf04af9cf491fd4093cc0ff58c64d7b771e4",
-    "Releases/1.0.0/XLSX-SST-BUDGET-CORRECTION.md": "be2a68012d2ce737cf8a40b4e34a6a80ad012d012f3153807ef24126345f14a3",
-    "Scripts/Release/xlsx_sst_budget.py": "8d1b4ecd31d1cbe2db6bcd3891254d087e1e687934b01efc25bc2b38d871a0f4",
+    "Releases/1.0.0/XLSX-SST-BUDGET-CORRECTION.md": "2e5779348992c321e5a32de22bab98682f708768619e772a2591f3fe0c566a7f",
+    "Scripts/Release/xlsx_sst_budget.py": "d315d460dde13b5b5a7d95a0f13b587d934164c4cfbacf78a9959888bf6751eb",
     "Scripts/Release/zip_metadata.py": "d8cba17aa0c17dec6fc579d8b19b8e637fb56ad7a0f7d9457e3edb5970219b5d",
     "Spikes/XlsxMemory/Test-ProviderIL.ps1": "ac5dc8e61cb0dcb22127ec862eeb9b9af8b2367e8272e9616769918406bdf31c",
     "Tests/Release/Runtime/XlsxBudget.ClockGate.cs": "8a04001ce9532175a204efaae5f56cab93c6d4c167836e07474d1e907a2e8e29",
-    "Tests/Release/test_prepare_release.py": "c3ef16ee699d40a1992bbbbcb90a88b30ffc4d9af8f87cfae6db8ba2bb4276c7",
-    "Tests/Release/test_xlsx_boundary_evidence.py": "147c7e594122723fdc14ca31672ff99d6fcbaa798739a9cbc66fecc73a03124d",
+    "Tests/Release/test_xlsx_boundary_evidence.py": "82163a845d3edae362b51d16e810c612e434ebfc98960f251ae032925529f0fb",
     "Tests/Release/test_xlsx_cell_caller_qualification.py": "2b8e756283236f5ddee87af3241fcc046306272f9d32429a43cf1bf088f8d886",
     "Tests/Release/test_xlsx_metadata.py": "6e71519987a874ded010d3656ca352e9180ee63d24dce98a532d831d309b1f6e",
     "Tests/Release/test_xlsx_raw_caller_evidence.py": "51d9d192814f1110c40f1973885c9a305c1f0e9e8cab10d2653e0b81a372288f",
@@ -289,5 +288,29 @@
     "Prepared CLR install package still contains the earlier DLL; qualify refreshed package bytes.",
     "Remaining v1.0.0 release gates and final exact-head evidence remain open.",
     "Authenticated TLS and publication are not qualified or authorized by this functional wave."
-  ]
+  ],
+  "offline_test_source": {
+    "path": "Tests/Release/test_prepare_release.py",
+    "qualified_file_sha256": "c3ef16ee699d40a1992bbbbcb90a88b30ffc4d9af8f87cfae6db8ba2bb4276c7",
+    "class_name": "FunctionCallerQualificationTests",
+    "method_name": "test_fixed_function_compositions_and_current_native_reports",
+    "projection_sha256": "cabed76210dcbc7a62dcf874499050cf47215539d1e7bcfc146f458c885640ba",
+    "archive": {
+      "path": "Releases/1.0.0/Artifacts/Xlsx-Sst-Offline-Test-Source.zip",
+      "sha256": "000f851f2d64dc40ff4670b3019321fa8d3f9ae0a00010fe6651c9af6d241e99",
+      "files": {
+        "Tests/Release/test_prepare_release.py": "c3ef16ee699d40a1992bbbbcb90a88b30ffc4d9af8f87cfae6db8ba2bb4276c7",
+        "LICENSE.md": "b513a23d5ca4484aa6f1ce78179da5a90edc3bf7929eb5cd5c726c8c08ca6ecd"
+      }
+    }
+  },
+  "main_recovery": {
+    "scope": "shared_offline_qualification_source_only",
+    "original_sst_merge": "10952d6c78ac2dfafa104e0b15c3be1bd42cd409",
+    "integration_base": "629f4acba5b945dd282bb7750ee06ba8bf8ff2a5",
+    "product_dll_changed": false,
+    "native_sql_repeated": false,
+    "whole_shared_file_current_bytes_frozen": false,
+    "original_qualified_file_archived": true
+  }
 }
