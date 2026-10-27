@@ -518,6 +518,14 @@ werden nicht verwendet. Die erweiterte endliche Korrekturqualifikation
 behält ursprünglichen Start, Versuche und Teilnachweise im gemeinsamen
 privaten Budget; keine neue autonome Entwicklungswelle.
 
+> Statuskorrektur 2026-10-27 — Codex: Der Benutzer hat anschließend ausdrücklich
+> beauftragt, die nächsten bereits freigegebenen Releasegates autonom mit
+> kleineren Modellen und sequenziellen Paketen fortzuführen. Die begrenzte
+> Edit-Distance-Paketqualifikation ist in
+> [ihrem Bericht](../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
+> dokumentiert. Das ändert weder Produktfunktion noch Modulstatus oder
+> Veröffentlichungsfreigabe.
+
 Abschluss der nativen Korrekturqualifikation am 2026-10-23: zwölf vollständige
 gemeinsame und zwölf eigenständige CLR-Paketfälle bestanden auf Windows/Linux
 SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170 jeweils lokal/zentral

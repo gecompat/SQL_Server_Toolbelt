@@ -16,12 +16,17 @@ from test_json_constructor_package_gate import JsonConstructorPackageGateMixin
 from test_json_schema_package_gate import JsonSchemaPackageGateMixin
 from test_zip_caller_composer import ZipCallerComposerMixin
 from test_zip_caller_profile import ZipCallerProfileMixin
+from test_edit_distance_package_gate import EditDistancePackageGateMixin
 import xlsx_metadata
 
 
-class CallerMetadataTests(XlsxMetadataMixin, JsonConstructorPackageGateMixin, JsonSchemaPackageGateMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, unittest.TestCase):
+class CallerMetadataTests(XlsxMetadataMixin, JsonConstructorPackageGateMixin, JsonSchemaPackageGateMixin, ZipCallerComposerMixin, ZipCallerProfileMixin, EditDistancePackageGateMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        runtime = ROOT / '.runtime'
+        if runtime.is_symlink():
+            raise RuntimeError('Release-Testlaufzeitverzeichnis darf kein Symlink sein.')
+        runtime.mkdir(exist_ok=True)
         cls.originals = {p: metadata.historical_manifest(ROOT, p) for p in metadata.PATHS}
 
     def test_six_exact_fields_preserve_original_native_pins(self):
