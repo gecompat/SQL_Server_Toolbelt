@@ -1,5 +1,17 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Siebzehnter endlicher Release-Rahmen — 2026-10-27
+
+Die vorhandenen CSV- und Phonetic-Framework-Harnesses wurden mit den
+entsprechenden DLL-Bytes aus dem CLR-Installationspaket ausgeführt. Drei
+Kulturphasen je Profil bestanden; Phonetic meldet 223 feste Assertions pro
+Kultur, die CSV-Zahlen sind gemessene Harness-Metadaten. Die
+[maschinenlesbare Evidenz](../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.json)
+und der [Bericht](../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
+halten zehn repo-relative Eingabepins und die Scopegrenzen fest. SQL, Produkt-
+und Paketänderungen fanden nicht statt. Vollständige Modul-, Plattform-,
+Deployment- und Sicherheitsqualifikationen bleiben offen.
+
 ## Sechzehnter endlicher Release-Rahmen — 2026-10-27
 
 Der erste genehmigte Offline-Slice bindet den bestehenden

@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "CSV_AND_PHONETIC_DELIVERED_CLR_DLLS_ON_EXISTING_FRAMEWORK_HARNESSES",
+  "publication_authorized": false,
+  "native_sql": "NOT_EXECUTED",
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+    "sidecar_sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c"
+  },
+  "historical_qualification": {
+    "path": "Releases/1.0.0/qualification.json",
+    "sha256": "48e89b12dccf6fd936547729c6344c03b6e059007cbe3aa20d9d7a979890082d",
+    "role": "Bindet den früheren Bericht der ausgewählten Frameworkkandidaten; dieser Bericht ergänzt den Abgleich mit den gelieferten Paket-DLLs."
+  },
+  "source_pins": [
+    {"path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip", "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"},
+    {"path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256", "sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c"},
+    {"path": "Releases/1.0.0/qualification.json", "sha256": "48e89b12dccf6fd936547729c6344c03b6e059007cbe3aa20d9d7a979890082d"},
+    {"path": "Tests/Release/bind_clr_framework_candidate.py", "sha256": "aa630a6a1c8faa4ebe56844a9d2a0952efde11b5d246b40b00c792258dcffcdb"},
+    {"path": "Modules/toolbelt.string.phonetic/Tests/Framework/run-framework-phonetic.ps1", "sha256": "3e11140b2f6fe2df39f88b8baaab058ad4becd207cbc5c3a0dfdd71f46204801"},
+    {"path": "Modules/toolbelt.string.phonetic/Tests/Framework/PhoneticHarness.cs", "sha256": "b36acbd84a72a3acdefecc570049e16eaa585bf067a2da6fb53f403377b9fd85"},
+    {"path": "Modules/toolbelt.string.phonetic/Scripts/Invoke-OwnedProcess.ps1", "sha256": "ff2cce9c0c33335892effac843d90bf2b131b597c68e9514850cc91c80cac993"},
+    {"path": "Modules/toolbelt.file.csv-memory/Tests/Framework/run-framework-csv.ps1", "sha256": "6f213ec43895235cb51e3544d9256cd3b1dbd0099df5ac654c24090541dfe1f7"},
+    {"path": "Modules/toolbelt.file.csv-memory/Tests/Framework/CsvHarness.cs", "sha256": "026b3391eaa3f3a517536fd5a04b77ab406550d2f434bf7bcf19ffbf11fe8165"},
+    {"path": "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1", "sha256": "ff2cce9c0c33335892effac843d90bf2b131b597c68e9514850cc91c80cac993"}
+  ],
+  "profiles": {
+    "phonetic": {
+      "module_id": "toolbelt.string.phonetic",
+      "module_version": "1.0.0",
+      "assembly": "Toolbelt.String.Phonetic.dll",
+      "assembly_size": 19456,
+      "assembly_sha256": "8309e0b8defeea9e0586fd0e264c784f2fd1662bc8624b08229a4e43af839f88",
+      "matches_delivered_package_entry": true,
+      "scope": "EXISTING_PHONETIC_BRIDGE_FIXED_CONTRACTS_ONLY",
+      "cultures": [
+        {"name": "en-US", "status": "PASS", "assertions": 223},
+        {"name": "de-DE", "status": "PASS", "assertions": 223},
+        {"name": "tr-TR", "status": "PASS", "assertions": 223}
+      ],
+      "fixed_contract": {
+        "bridge_cases_per_culture": 34,
+        "cologne_cases": 18,
+        "double_metaphone_cases": 16,
+        "wrong_row_binding_controls_per_culture": 2,
+        "assembly_identity_assertions_per_culture": 1
+      },
+      "sql_executed": false,
+      "full_module_qualified": false
+    },
+    "csv": {
+      "module_id": "toolbelt.file.csv-memory",
+      "module_version": "1.0.0",
+      "assembly": "Toolbelt.File.CsvMemory.dll",
+      "assembly_size": 12800,
+      "assembly_sha256": "8e925d5627235b154c81cb4d85fa01550aa96e89d90fe045e4a627dda7a40201",
+      "matches_delivered_package_entry": true,
+      "scope": "EXISTING_CSV_CLR_FRAMEWORK_CONTRACTS_ONLY",
+      "cultures": [
+        {"name": "en-US", "status": "PASS", "assertions": 1728},
+        {"name": "de-DE", "status": "PASS", "assertions": 1704},
+        {"name": "tr-TR", "status": "PASS", "assertions": 1704}
+      ],
+      "fixed_contract": {
+        "quote_parse_combinations_per_corpus_culture": 208,
+        "corpus_cultures": ["en-US", "de-DE", "tr-TR"],
+        "direct_il_inspection": "BOUNDED_DIRECT_PRODUCT_IL_ONLY",
+        "transitive_no_io_or_security_claim": false
+      },
+      "sql_core_dependency_exercised": false,
+      "sql_executed": false,
+      "full_module_qualified": false
+    },
+    "shared": {
+      "framework_phases_per_profile": 3,
+      "package_binding": true,
+      "tool_and_framework_reference_fingerprints_published": false,
+      "sql_executed": false,
+      "full_clr_suite_qualified": false,
+      "module_status_changed": false,
+      "package_changed": false,
+      "publication_authorized": false
+    }
+  },
+  "limits": [
+    "Nur die unveränderten bestehenden Framework-Harnesses wurden mit den gelieferten CSV- und Phonetic-DLL-Bytes ausgeführt.",
+    "Phonetic prüft feste In-Process-Bridgefälle, Zeilenbindung und Assemblyidentität; dies ist keine SQL-TVF- oder vollständige Modulqualifikation.",
+    "CSV umfasst die bestehenden Parser-/Writer-/Grenzverträge und eine begrenzte direkte IL-Inspektion; keine vollständige transitive No-I/O- oder Sicherheitsqualifikation.",
+    "Keine SQL-, Lab-, Deployment-, Plattformmatrix- oder vollständige CLR-Suite wurde ausgeführt; Modulstatus und Paketbytes blieben unverändert."
+  ]
+}
