@@ -1,0 +1,332 @@
+{
+  "schema_version": "toolbelt-zip-entry-count-boundary/v1",
+  "date": "2026-10-27",
+  "scope": "Ein begrenzter direkter Caller-Test der bestehenden toolbelt.archive.zip-memory 1.4.0 USP_ListZipEntriesFromBinary-Grenzen für @MaxEntries und die deklarierte Entry-Anzahl.",
+  "result": "PASS_FOR_FIXED_ENTRY_COUNT_BOUNDARY",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "product_clr_changed": false,
+  "manifest_or_package_changed": false,
+  "module_status_changed": false,
+  "module_status": "partially validated",
+  "release_status": "unreleased",
+  "authenticated_tls_qualified": false,
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.archive.zip-memory": "1.4.0"
+  },
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+    "sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+    "zip_module_origin": "reproducible_double_build"
+  },
+  "binary": {
+    "module_id": "toolbelt.archive.zip-memory",
+    "sql_assembly_name": "Toolbelt_Archive_ZipMemory",
+    "sha256": "bae312b3a125ffa157da72a5ae1b5bf29b6abbe604509638df2cc5e7136b575d"
+  },
+  "tested_api": {
+    "schema": "toolbelt_archive",
+    "name": "USP_ListZipEntriesFromBinary",
+    "execution_contexts": [
+      "local",
+      "direct_central"
+    ],
+    "result_order_contract": "No SQL delivery-order assumption; each row is validated against its unique EntryOrdinal."
+  },
+  "matrix": {
+    "case_count": 12,
+    "cases": [
+      {
+        "platform": "linux",
+        "sql_version": "2019",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 170
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2019",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 160
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 170
+      }
+    ],
+    "case_routes": 24,
+    "route_definition": "one local and one direct-central deployment per target/compatibility case"
+  },
+  "synthetic_archives": {
+    "entry_name_pattern": "eNNNNN.txt",
+    "payload_bytes_per_entry": 0,
+    "compression": "Stored",
+    "crc32": 0,
+    "dos_timestamp": "2020-02-03 04:05:06",
+    "positive_entry_count": 10000,
+    "overflow_entry_count": 10001,
+    "positive_archive_bytes": 960022,
+    "overflow_archive_bytes": 960118,
+    "positive_archive_sha256": "1c7934368525251aff0454ca518111acf5226281a5dcf1054cd45699f3357662",
+    "overflow_archive_sha256": "5c1339ec1411548457b6f50e31e1f72f41f29d951c7815619827cba6980ff29d",
+    "declared_archive_byte_limit_not_tested": 268435456
+  },
+  "fixed_result_shape": {
+    "columns": [
+      [
+        "EntryOrdinal",
+        "int"
+      ],
+      [
+        "EntryName",
+        "nvarchar"
+      ],
+      [
+        "IsDirectory",
+        "bit"
+      ],
+      [
+        "CompressedBytes",
+        "bigint"
+      ],
+      [
+        "UncompressedBytes",
+        "bigint"
+      ],
+      [
+        "CompressionMethod",
+        "int"
+      ],
+      [
+        "Crc32",
+        "int"
+      ],
+      [
+        "IsEncrypted",
+        "bit"
+      ],
+      [
+        "IsExtractionSupported",
+        "bit"
+      ],
+      [
+        "DuplicateCount",
+        "int"
+      ],
+      [
+        "IsPathSafe",
+        "bit"
+      ],
+      [
+        "PathStatus",
+        "varchar"
+      ],
+      [
+        "LastModifiedAt",
+        "datetime2"
+      ]
+    ],
+    "entry_metadata": "For each ordinal n=1..10000: name e(n-1).txt, non-directory, zero sizes, Stored method, CRC 0, not encrypted, extraction supported, duplicate count 1, safe path and fixed DOS date."
+  },
+  "results": {
+    "positive_calls": 24,
+    "positive_rows_per_call": 10000,
+    "positive_rows_total": 240000,
+    "expected_direct_reader_rejections": 48,
+    "overflow_archive": {
+      "calls": 24,
+      "sql_error_number": 51325,
+      "rows_observed_before_error": 0
+    },
+    "invalid_max_entries": {
+      "calls": 24,
+      "sql_error_number": 51320,
+      "rows_observed_before_error": 0
+    }
+  },
+  "cleanup": {
+    "matrix_cases_complete": 12,
+    "immediate_audits_passed": 12,
+    "final_configuration_audits_passed": 6,
+    "own_database_entries_created_and_dropped": 24,
+    "own_trust_removal_events": 12,
+    "trust_state_restored": true,
+    "configuration_state_restored": true,
+    "final_audit_scope": "Six additional read-only audits, one selected case for each Windows/Linux SQL-version target; all 24 database entries were checked absent in the 12 immediate per-case audits."
+  },
+  "attempts": {
+    "case_processes": 12,
+    "immediate_audit_processes": 12,
+    "final_audit_processes": 6,
+    "total_sql_process_invocations": 30,
+    "unexpected_statuses": 0
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.archive.zip-files/Deployment/Deploy.sql": "65f8e4992e661b9e5440d98e3be6d61865fc37b7afae88fc231f27ce9c8ccc21",
+    "Modules/toolbelt.archive.zip-files/module.yaml": "f68dc93584d0a4a8acc8a70092ef75372885539b6a10916a087fa0d757b844e0",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Add-TrustedAssembly.sql": "ecd64368dbe924feb55be8f529a1fe5dcbca9c5f8ee1ca656c83549e44bd2e06",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Deploy.sql": "72c753a4daa5e4f83d1882fcbe91a696234dfff7baae4078e592815ceae2d4bd",
+    "Modules/toolbelt.archive.zip-memory/Deployment/Uninstall.sql": "a84ab189009b759416d14e94a76f97b0ec7c5bb1f19911b4c6aafc0715a7ca3b",
+    "Modules/toolbelt.archive.zip-memory/module.yaml": "e0632c0b1bcdddbf13bf4f6dcf36f69da63d0e58852deb9f17f11c786d5029e9",
+    "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalExtractZipEntryClr.sql": "49b0a3e951565c7444df9daf99944072037f5d188f543275ec3364e6ae7ed946",
+    "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalListZipEntriesClr.sql": "ca414ec8609249b2ef07828b5ed32453b57eb60d272307d9b83587711ca0d7bd",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql": "7523c0b3bbaa94704a55227e49899f2987b14e34479b3430ca4f217478af8a77",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql": "fbadc101fd0524e2b0d43d864e009f503e9471e980062ff1c3fbe9e63697b7dc",
+    "Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql": "7141d208e3eb9e766dec079a65e1d1b0c8d9ddaed34331fb448082ee22f5661f",
+    "Modules/toolbelt.archive.zip-memory/Source/ZipWriterClr.sql": "b0954e2f6257a2a64459e8c22fb535c9f86e198d02b2071e28c761b4d8b2af96",
+    "Modules/toolbelt.binary.bit-operations/Deployment/Deploy.sql": "bcf44f41cf3c4059977427f1152cb3c2575459030ee74f73c4997a03291c1c21",
+    "Modules/toolbelt.binary.bit-operations/module.yaml": "6ef4875b2322db99788a581489657cb37664a29b8f23eb66af3e561cfbabc51d",
+    "Modules/toolbelt.conversion.base64/Deployment/Deploy.sql": "c3b6c8bf521e9ef5a1c15369e88665ed7163ddd7bc0fbaa7d983bd0eaec856f4",
+    "Modules/toolbelt.conversion.base64/module.yaml": "44ab4a7b4fc9720b7d8ea49623611bc6bcff3dfceee10bd6de6479a998269d50",
+    "Modules/toolbelt.conversion.integer-base/Deployment/Deploy.sql": "03c336628d1db0fb98a41d28e40fbabc328f59338ae43dac460400b7a318c357",
+    "Modules/toolbelt.conversion.integer-base/module.yaml": "038df454c1dd9a6abbcdd3b0c4364dc9f0a72dc28db480f309578850d2d86ac4",
+    "Modules/toolbelt.conversion.safe-cast/Deployment/Deploy.sql": "fbc75c2ccc019e2b4b49f34aa525b40a05c99268af1ebf9fda922d59ee28fdc9",
+    "Modules/toolbelt.conversion.safe-cast/module.yaml": "3afcbf3f9ba2c59770f7fd8409692a33a99ea5751b8065413d55aa388f37a847",
+    "Modules/toolbelt.conversion.uri-component/Deployment/Deploy.sql": "c6cfe8664858e88e1101eb441bb267b3ff2df6ae7fd8089102b115ef7f7c3461",
+    "Modules/toolbelt.conversion.uri-component/module.yaml": "a56294ce87c0e91ec4291a6ac663b2c07480e75c6673b86b0bedbab829b22e28",
+    "Modules/toolbelt.core.console-message/Deployment/Deploy.sql": "a1167cacd2cf0e1ec379901bd9299b5d49c8cad88f91dfdf7c775eb9027e7d39",
+    "Modules/toolbelt.core.console-message/module.yaml": "da7ff5edefc88024f28ccfda58e5c4f1dc47246a00b9338ab8cfa2c8be142875",
+    "Modules/toolbelt.core.error-envelope/Deployment/Deploy.sql": "13cb36299d634fd58a0fd4ed3c85de4302a42e773bf22ae6b76ebe09ec9b51ea",
+    "Modules/toolbelt.core.error-envelope/module.yaml": "1c1a1f892095aeb9f11e17c85283919b206be0b119f6854a5f50a0430921ad52",
+    "Modules/toolbelt.core.event-log/Deployment/Deploy.sql": "5f5ba652a9e673c5295f669aee4bc4e9718418c3e4a5d49db13deeae473907c9",
+    "Modules/toolbelt.core.event-log/module.yaml": "6135e50252ad0884cd7bf452938ba11a60fbe7e910ff1324c63895f30d160825",
+    "Modules/toolbelt.core.execution-cancel/Deployment/Deploy.sql": "ddef65feca1ba9ac97618db9977b29c13539a79cf620f101814360e99efe9a81",
+    "Modules/toolbelt.core.execution-cancel/module.yaml": "f8ce0f89078e930eb2b3622650d505fed7bca70095dd113f5eb4ee4b12e2656b",
+    "Modules/toolbelt.core.execution-context/Deployment/Deploy.sql": "1ef5aa673107155318c52c7314391b769ed14112e27648e10004c76fae6258d2",
+    "Modules/toolbelt.core.execution-context/module.yaml": "e544a50988babb69cf8fe40f517ad010b7d197c7cfa2d1e25685e837e20ea06b",
+    "Modules/toolbelt.core.generate-series/Deployment/Deploy.sql": "1c2e19e69c55684c9a9096af0d2a26b801b4581e114cd19d5008118cab70fa9c",
+    "Modules/toolbelt.core.generate-series/module.yaml": "4368b16029d98d2232fc62a10e675d16017f11eacdac28dafb21cb5946d9558a",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.second-session/Deployment/Deploy.sql": "ec344388d2bfb008298c71833e1957c5010727e9c86c85eebe6947dce2fed8b9",
+    "Modules/toolbelt.core.second-session/module.yaml": "2c965d0db90c4769695aabf4d1e8824ccd77fe2414d74b5170bc4b1b8adbb96a",
+    "Modules/toolbelt.core.work-queue/Deployment/Deploy.sql": "8f72b31f9a3b1b53f70880f63d98c3afcdcb2ed4beeb3503cbdc6d82958843ca",
+    "Modules/toolbelt.core.work-queue/module.yaml": "6ebc04dc4157b9dc3afc6513d7038af273e03da7e49b6a070fb1273ffa646d8b",
+    "Modules/toolbelt.core.work-type/Deployment/Deploy.sql": "7125adbae0bb33406cb0dedd2fe2be1c6ae59fa0a8742c75ddd176b4c63d2744",
+    "Modules/toolbelt.core.work-type/module.yaml": "a0858bd39eaaee5db1605d68fb5fd17c0baa2bb2cb635c20b85e20a8a9084e07",
+    "Modules/toolbelt.core.worker-control/Deployment/Deploy.sql": "c7c10eac54564010633b6fe4c911a8629b7ccf7432be600afb712ff44b945531",
+    "Modules/toolbelt.core.worker-control/module.yaml": "a285d4e4f76ca548135051ce11df0244d7acdb584eb385bd53b1e314fb7d8449",
+    "Modules/toolbelt.datetime.bucket/Deployment/Deploy.sql": "f084fd0c276c99168c00c767af8270faa4e9b6f7dbbebba7225288b697724857",
+    "Modules/toolbelt.datetime.bucket/module.yaml": "841c8d0b23002a01755a573fa46e49b67077de64f08399f0c2811a71ef683f31",
+    "Modules/toolbelt.datetime.calendar-difference/Deployment/Deploy.sql": "5a50b9b4d7c8e70bbc0fb0164e468b3324557c1afdb17e73595aa64ac222f06f",
+    "Modules/toolbelt.datetime.calendar-difference/module.yaml": "c41863e8cda1c3ef8d6da4c5e8e2c903cdf67898ffbdc12194fdee74a9180503",
+    "Modules/toolbelt.datetime.date-spine/Deployment/Deploy.sql": "66cfe82f9ff77069b77b4611b1bca4770464e0e7e4ac376da5aeee1f8862d76d",
+    "Modules/toolbelt.datetime.date-spine/module.yaml": "31909eb3105bde36828c49cc51c5c3c3a0048fc8922b81b7c633c00e594e8089",
+    "Modules/toolbelt.datetime.truncate/Deployment/Deploy.sql": "555f643b0798c833ecc7527595955389c5030f446dbd2ae9ac457ec3afe16d54",
+    "Modules/toolbelt.datetime.truncate/module.yaml": "4b88a67c9eb6ebbc38165d59c39305d3fc3847d33f33277aa51637ffb9f5b1d4",
+    "Modules/toolbelt.file.content/Deployment/Deploy.sql": "a6281a46f0df3291b336a22e497697e55081549a035768830b44dd6193c3e058",
+    "Modules/toolbelt.file.content/module.yaml": "c3e50a4bf68f7c3a4a057ac0b629660958b62c5883257bd3080a46952b2f6fae",
+    "Modules/toolbelt.file.csv-memory/Deployment/Deploy.sql": "f791b2727f50ea48b8497c145c62b26971c6d6cc8c9ed35bc41d8c1d7ed0a41c",
+    "Modules/toolbelt.file.csv-memory/module.yaml": "ff5f2864fd622581a03fa408e563b2cfd1685e19b1bef7a06cf457e02996ccb5",
+    "Modules/toolbelt.file.xlsx-memory/Deployment/Deploy.sql": "1f23932345e407020354f48e8da8611fb3f24bdc3431a503a34316f5a3616512",
+    "Modules/toolbelt.file.xlsx-memory/module.yaml": "f4392e554b0efaf8238dc5475bfc2262dc10d3b7b92c44df8afe30e2602795be",
+    "Modules/toolbelt.filesystem.windows/Deployment/Deploy.sql": "69d9cff36cc03f5947daa6be4684a65af62523b47ffbdaf485e2f120d4234b23",
+    "Modules/toolbelt.filesystem.windows/module.yaml": "b7a46d58161f133d3315af0d4666b4a2727831b2f193f1006c2476c7c5351124",
+    "Modules/toolbelt.json.constructors/Deployment/Deploy.sql": "bcaecc385eb21703718931d7281d32afbbbaeca25c64293954d8174614c9c294",
+    "Modules/toolbelt.json.constructors/module.yaml": "bb56f8dee396c0a4f833f59266a47231980c96a7d8c9eac674d7f111e663cab1",
+    "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1": "7b3e838ee5d294b3decf3153d2d02276be401e6f76ee8d810f20c5dcc51d1bd4",
+    "Modules/toolbelt.json.core/Deployment/Deploy.sql": "ddab0c6bffe63773da4ed9fa3d45e9fdce9b856c171ec9c9c77e523f3dd585ca",
+    "Modules/toolbelt.json.core/module.yaml": "a233fa3adebdb0aa1ddee2641e9656bede7174c848989583c489aaa3a35b2efc",
+    "Modules/toolbelt.json.path-exists/Deployment/Deploy.sql": "a48acb3cf0076e0d3c518e896817acf7ef46ac7f4c0a6dd6b4e2545128c3d291",
+    "Modules/toolbelt.json.path-exists/module.yaml": "f7491deefa31c5ed0709906423d42799786b554495a4b3d290291fa6f02348e6",
+    "Modules/toolbelt.json.pointer/Deployment/Deploy.sql": "4246eadba3dcedf79dbc9e02cd9c8bd655b83d693341eff9b128c9a87857cfe5",
+    "Modules/toolbelt.json.pointer/module.yaml": "c11d38eb55b2130ad23350a93f3b81ae10deff6d56e86c478114fc77643261a1",
+    "Modules/toolbelt.json.schema/Deployment/Deploy.sql": "259286742450923ec06675fdea1c6f0dc95c97b8f47f023a998ab5449e43f739",
+    "Modules/toolbelt.json.schema/module.yaml": "335b37830257c62e2f212585ba13327a1a6bd6963fd7bbb7d8b2609f8cb9a0bf",
+    "Modules/toolbelt.metadata.capability-catalog/Deployment/Deploy.sql": "d1fd441566d6206b466522426f043dd73b264a773fb109acea47b199d2e08649",
+    "Modules/toolbelt.metadata.capability-catalog/module.yaml": "e775f6f2aab4e869beadc9b9b44bbf6902e2a25d5a8b8781a8df23ab36edb6be",
+    "Modules/toolbelt.metadata.identifier/Deployment/Deploy.sql": "1cfc73d811580935487caefeae21736dd9716760fe80130aff62aeff50820f4c",
+    "Modules/toolbelt.metadata.identifier/module.yaml": "41c79c56c290915c2dcaf4e1bab4bdf704375a299752bb3ee09add5cf613066a",
+    "Modules/toolbelt.metadata.table-clone/Deployment/Deploy.sql": "ca18262abc58854e2d604b57e847bc77933ecec947b7681f81b85b9519e02a77",
+    "Modules/toolbelt.metadata.table-clone/module.yaml": "081e44156b7b304ebd25c840a54efd09efb8d3dfab33e0e31cba7df85eb2414c",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/Deploy.sql": "05907ec2cad74234aa37a9dacb8026288fe1a93941061dbe6c3a9acdcd04eeb1",
+    "Modules/toolbelt.pseudonymization.deterministic/module.yaml": "47ba50cbdfa2d2f8448911043f83fdf61a42acb8f1379da9d55525e82d8498ee",
+    "Modules/toolbelt.string.directional-trim/Deployment/Deploy.sql": "7a334d821cfe72cafe0c9238755f52cbfcce4afe80fdf2c765f92ab55c97bfa9",
+    "Modules/toolbelt.string.directional-trim/module.yaml": "4894dced71d9aaee587037177827aaaa89c19aead4e59e09ee809ce06ced23df",
+    "Modules/toolbelt.string.edit-distance/Deployment/Deploy.sql": "1a0a5ed34d84a4b9e4e432dd2d53975affc4502d4fcd2bdfcca47abf1fe25247",
+    "Modules/toolbelt.string.edit-distance/module.yaml": "d7c4b70e0c4ae3c6db7a8a31eb69dc85139f0a0b8d96f545f8063a6317bd2238",
+    "Modules/toolbelt.string.phonetic/Deployment/Deploy.sql": "775c8c0102e59fec7a0a618550856634bb89ba762e550efd283fe71e0d3ceeaf",
+    "Modules/toolbelt.string.phonetic/module.yaml": "6c089a998710af96cd2c6852f681be343ce2f5eea204e0ac3e54813b635c10e0",
+    "Modules/toolbelt.string.regex/Deployment/Deploy.sql": "e8c14f47c7a652ec0496df4c839af3b23610cfc4e6b2482c7a8b98138521b4ee",
+    "Modules/toolbelt.string.regex/module.yaml": "58ab69d53b10c93e529d72f514618d55da18de1d85c63b14e18f1c3fd328878b",
+    "Modules/toolbelt.string.split-advanced/Deployment/Deploy.sql": "e78a5a0b9984b991001d336d3d02d21de1b6cb49a7a776842870cf77fe8dbbad",
+    "Modules/toolbelt.string.split-advanced/module.yaml": "8f2e97983e42de3b7170fa5e06b265bf93ae04a830b0dd719ada902c853d6276",
+    "Modules/toolbelt.string.split-characters/Deployment/Deploy.sql": "26dbf635b18e745ddbd6d5c2a48b213a0e0c37a901fc21185bf8ad062de06a82",
+    "Modules/toolbelt.string.split-characters/module.yaml": "04b8345815d203c1f381e4027a6f22606775aa28410e57c3e356d3b03aeff6ff",
+    "Modules/toolbelt.string.text-pairs/Deployment/Deploy.sql": "799cc8648169273b18ca2d4c6fc81f3a982aae84a5162354bc346f60d83f08aa",
+    "Modules/toolbelt.string.text-pairs/module.yaml": "bea5986f10343e72cb24f944d61be35226d615a1cef431cb4f0396f3d16a7b45",
+    "Modules/toolbelt.tsql.script-parser/Deployment/Deploy.sql": "d60b535f463745bb5f6d307097090a726ab7d647a22ee94e60d73ae7d6450ad9",
+    "Modules/toolbelt.tsql.script-parser/module.yaml": "9aa29956f866987964c9972abe05b430ad2b02be84923d031de73c60909a8358",
+    "Modules/toolbelt.tsql.ssis-debug/Deployment/Deploy.sql": "85378e4030f6c74b0a3e2ceb10d94ca4efbcaf2d416cfc67f73b656565ddb85d",
+    "Modules/toolbelt.tsql.ssis-debug/module.yaml": "ab519faa5743e872f44e70499ebafcdeeed065e079eec2e95e8d5c518286bf8f",
+    "Modules/toolbelt.validation.semantic-version/Deployment/Deploy.sql": "26bd028c803df0796e2f0821af8170d17a5c431c4c4990444fc6a149c0d25ec3",
+    "Modules/toolbelt.validation.semantic-version/module.yaml": "423ea97e4a08a9899f788ec65bdd321410c595c1fca87955642ff14be10a4f2f",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/Release/compose_zip_entry_count.py": "fe7e47d9cb438237165067a7e103c00d4d4fb06401bb147c4d13784ac3f844aa",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-ZipEntryCountLab.ps1": "c834b4d237d422b16ab6d3bb099cc3948894c4eab93b2b9ba2a115993a204400",
+    "Tests/Release/Prepare-ZipEntryCountRunset.ps1": "8b87d3c69eab6ee63d708db829a3e399bbb297364386981646b6f1ec37edb46f",
+    "Tests/Release/Runtime/ZipEntryCount.Contract.sql": "8210a9e2aa4e15b3a4c8317e6e56e14aa9b6ff978a1073396e6be31d24cbd0ac",
+    "Tests/Release/ZipEntryCount.DeploymentDiscovery.ps1": "c96a8bdd7cb682921f04d597f60745cbefe0c89734df095b6ba56615a58c19a5",
+    "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256": "350826f0cbac147d3c78cc457445f562ec0e7f27418ae48d7f365c838c5dd27c"
+  },
+  "limits": [
+    "Only the two fixed entry-count rejection conditions and positive metadata output are covered.",
+    "No extraction/payload-integrity behavior, ResultTable route, object-rights matrix, full ZIP-format compliance or complete module qualification is claimed.",
+    "Product module validation status and release status remain unchanged.",
+    "No public claim is made about SQL result delivery order, authenticated TLS, publication, or unique trust-hash counts."
+  ],
+  "repository_input_pin_count": 115
+}

@@ -13,6 +13,8 @@ Listing-/Extraktions-/Writer-USPs, zwölf lokale/direkt zentrale Ziel-/CL-Fälle
 bleibt getrennt erhalten; zwölf Matrixfälle und beide Kontrollen wurden
 abschließend auditiert.
 
+[ZIP-Entryanzahl-Grenzprüfung](ZIP-ENTRY-COUNT-QUALIFICATION.md): zwölf Windows-/Linux-Ziel-/CL-Fälle prüfen das feste 10.000-Entry-Limit der bestehenden Listing-API. 24 positive Routen und 48 erwartete Fehler-Routen wurden lokal und direkt zentral ausgeführt; alle drei Fehler-/Outputorakel bleiben auf diese API begrenzt. Die [maschinenlesbare Evidenz](zip-entry-count-qualification.json) bindet 115 repo-relative Eingabepins.
+
 [ZIP-Manifest- und Paketpflege](ZIP-METADATA-UPDATE.md): übernimmt genau die
 berichteten Objektprofile über eine getrennte, historisch gebundene
 Metadatenprojektion; ursprüngliche ZIP-Berichts-Pins sowie SQL-/DLL-Bytes
