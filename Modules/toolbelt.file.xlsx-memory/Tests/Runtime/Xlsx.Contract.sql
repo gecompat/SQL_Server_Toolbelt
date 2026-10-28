@@ -39,6 +39,20 @@ EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @XlsxBinary=NULL,@SheetOrdinal=NUL
 IF (SELECT COUNT(*) FROM #Cells)<>9 THROW 51590,N'NULL target no-op oracle failed.',1;
 EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary=NULL,@MaxParts=0,@ResultTable=N'not a temp table';
 
+DECLARE @Help TABLE
+(
+ HelpContractVersion varchar(16) NOT NULL,SchemaName sysname NOT NULL,ObjectName sysname NOT NULL,
+ Section varchar(32) NOT NULL,Ordinal int NOT NULL,ItemName sysname NULL,SqlDataType varchar(256) NULL,
+ IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL
+);
+INSERT @Help EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe=1;
+IF NOT EXISTS(SELECT 1 FROM @Help WHERE ObjectName=N'USP_ListXlsxWorksheets' AND Section='EXAMPLE' AND ExampleSql LIKE N'%@XlsxBinary=@SyntheticWorkbook%' AND ExampleSql NOT LIKE N'%@Hilfe=1%')
+ THROW 51590,N'ListXlsxWorksheets Hilfe benötigt ein funktionales Beispiel.',1;
+DELETE FROM @Help;
+INSERT @Help EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @Hilfe=1;
+IF NOT EXISTS(SELECT 1 FROM @Help WHERE ObjectName=N'USP_ReadXlsxWorksheetCells' AND Section='EXAMPLE' AND ExampleSql LIKE N'%@XlsxBinary=@SyntheticWorkbook%' AND ExampleSql LIKE N'%@SheetOrdinal=1%')
+ THROW 51590,N'ReadXlsxWorksheetCells Hilfe benötigt ein funktionales Beispiel.',1;
+
 -- Compilergrenze: absichtlich fremdes Caller-Privatschema darf keine Engine207
 -- auslösen. Help und NULL umgehen Namespace und Core-Kompilierung weiterhin.
 CREATE TABLE #tbx_ListXlsxWorksheets_ResultSource(Sentinel int NOT NULL);

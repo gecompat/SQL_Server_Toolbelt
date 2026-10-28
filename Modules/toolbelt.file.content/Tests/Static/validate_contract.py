@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 
 root = Path(__file__).resolve().parents[2]
 required = (
@@ -38,10 +39,13 @@ for marker in (
         raise SystemExit(f"Allowlist-Lifecycle-Marker fehlt: {marker}")
 for marker in (
     "CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadBinaryFile]",
-    "@FilePath  nvarchar(4000)",
+    "@FilePath  nvarchar(4000) = NULL",
     "@MaxBytes  bigint       = NULL",
     "@Debug     tinyint      = 0",
     "@Hilfe     bit          = 0",
+    "@ResultTable sysname    = NULL",
+    "@KeepData bit           = 0",
+    "toolbelt_core.USP_PrepareResultTable",
     "OPENROWSET(BULK",
     "SINGLE_BLOB",
     "51320",
@@ -57,13 +61,22 @@ for marker in (
         raise SystemExit(f"LoadBinaryFile-Vertragsmarker fehlt: {marker}")
 
 text_source = (root / "Source/USP_LoadTextFile.sql").read_text("utf-8")
+for name, source in (("LoadBinaryFile", binary_source), ("LoadTextFile", text_source)):
+    signature = re.search(r"CREATE OR ALTER PROCEDURE[^\(]*\((.*?)\)\s*AS", source, re.S | re.I)
+    if not signature or re.findall(r"@([A-Za-z]\w*)", signature.group(1))[-4:] != [
+        "ResultTable", "KeepData", "Debug", "Hilfe"
+    ]:
+        raise SystemExit(f"{name}: Standardparameter-Reihenfolge verletzt USP_CONTRACT.")
 for marker in (
     "CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]",
-    "@FilePath          nvarchar(4000)",
+    "@FilePath          nvarchar(4000) = NULL",
     "@FallbackEncoding  nvarchar(128) = N'Windows-1252'",
     "@MaxBytes          bigint        = NULL",
     "@Debug             tinyint       = 0",
     "@Hilfe             bit           = 0",
+    "@ResultTable       sysname       = NULL",
+    "@KeepData          bit           = 0",
+    "toolbelt_core.USP_PrepareResultTable",
     "OPENROWSET(BULK",
     "SINGLE_BLOB",
     "EncodingDetected",
@@ -98,6 +111,19 @@ for source in (binary_source, text_source):
         raise SystemExit("Beide Fassaden müssen dasselbe kanonische Root-Prädikat verwenden.")
     if "FROM [toolbelt_file].[FileContentRootAllowlist]" in source:
         raise SystemExit("Kein paralleles Root-Prädikat in einer Fassade.")
+    preflight = re.search(r"(?m)^\s*EXEC toolbelt_core\.USP_PrepareResultTable\b", source)
+    sql_assignment = source.find("SET @Sql = N")
+    file_read = source.find("OPENROWSET(BULK", sql_assignment)
+    if preflight is None or sql_assignment < 0 or file_read < 0 or preflight.start() > file_read:
+        raise SystemExit("ResultTable-Preflight muss vor Datei-I/O erfolgen.")
+    if "ROLLBACK TRANSACTION @SavepointName" not in source or "ROLLBACK TRANSACTION;" not in source:
+        raise SystemExit("ResultTable-Fehlerpfad muss eigene Transaktion und Savepoint kontrolliert zurückrollen.")
+    if "@SavepointCreated bit = 0" not in source or source.count("SET @SavepointCreated = 1;") != 1:
+        raise SystemExit("Savepoint-Rollback benötigt einen expliziten Nachweis des erfolgreich angelegten Savepoints.")
+    if source.count("ELSE IF @SavepointCreated = 1 AND XACT_STATE() = 1 ROLLBACK TRANSACTION @SavepointName") != 2:
+        raise SystemExit("Beide ResultTable-CATCH-Pfade müssen nur einen tatsächlich angelegten Savepoint zurückrollen.")
+    if "IF @ResultTable IS NOT NULL AND @InitialTransactionCount > 0 AND XACT_STATE() <> 1" not in source:
+        raise SystemExit("Ein uncommittable Callerzustand muss vor dem ResultTable-Tempobjekt abgewiesen werden.")
     if "Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung:" not in source:
         raise SystemExit("OPENROWSET-Fehler muss einen Kontext vor der Engine-Meldung ausgeben.")
 if "@HeaderProviderError" not in text_source or "@ContentProviderError" not in text_source:

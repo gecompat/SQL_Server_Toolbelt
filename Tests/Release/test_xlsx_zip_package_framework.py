@@ -16,6 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import xlsx_sst_budget
+import help_contract_source
 REPORT = "Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.json"
 PACKAGE = "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip"
 PACKAGE_SHA256 = "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
@@ -122,8 +123,12 @@ def validate_xlsx_zip_package_report(report: dict, root: Path = ROOT) -> None:
         path = item["path"]
         if not isinstance(path, str) or path.startswith(("/", "\\")) or ".." in Path(path).parts:
             raise ValueError("XLSX_ZIP_REPORT_PIN_PATH")
-        source = (xlsx_sst_budget.validate_historical_source(root, path, item['sha256'])
-                  if path in xlsx_sst_budget.HISTORICAL else (root / path).read_bytes())
+        if path in xlsx_sst_budget.HISTORICAL:
+            source = xlsx_sst_budget.validate_historical_source(root, path, item['sha256'])
+        elif path in help_contract_source.source_paths(root):
+            source = help_contract_source.validate_historical_source(root, path, item['sha256'])
+        else:
+            source = (root / path).read_bytes()
         if _xlsx_zip_digest(source) != item["sha256"]:
             raise ValueError("XLSX_ZIP_CURRENT_SOURCE_PIN")
 

@@ -5,6 +5,7 @@ IF toolbelt_core.SVF_IsCancellationRequested('00000000-0000-0000-0000-0000000000
 
 DECLARE @Help TABLE
 (
+    HelpContractVersion varchar(16) NOT NULL, SchemaName sysname NOT NULL, ObjectName sysname NOT NULL,
     Section varchar(32), Ordinal int, ItemName sysname NULL, SqlDataType varchar(256) NULL,
     IsRequired bit NULL, IsNullable bit NULL, DefaultValue nvarchar(4000) NULL,
     Description nvarchar(max) NULL, ExampleSql nvarchar(max) NULL
@@ -12,7 +13,10 @@ DECLARE @Help TABLE
 INSERT INTO @Help EXEC toolbelt_core.USP_RequestExecutionCancellation @Hilfe=1;
 IF NOT EXISTS(SELECT 1 FROM @Help WHERE Section='DESCRIPTION')
  OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='PARAMETER' AND ItemName=N'@ExecutionId')
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='PARAMETER' AND ItemName=N'@Hilfe')
  OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='RESULT_COLUMN')
+ OR EXISTS(SELECT 1 FROM @Help WHERE HelpContractVersion<>'1.0' OR SchemaName<>N'toolbelt_core' OR ObjectName<>N'USP_RequestExecutionCancellation')
+ OR EXISTS(SELECT 1 FROM (VALUES('DESCRIPTION'),('PARAMETER'),('RESULT_COLUMN'),('EXAMPLE'))s(Section) WHERE NOT EXISTS(SELECT 1 FROM @Help h WHERE h.Section=s.Section))
     THROW 52701, N'Der Help-Vertrag ist unvollständig.', 1;
 
 DECLARE @ExecutionId uniqueidentifier;

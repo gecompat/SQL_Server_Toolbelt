@@ -34,6 +34,10 @@ DOCUMENTATION_TRANSITION_START = '62ca5f4acc24d6e594f8d60db53fe1bb0d263ec3'
 DOCUMENTATION_TRANSITION_PATHS = tuple(sorted({
     p for p in PACKAGE_SOURCES if p != MANIFEST
 }))
+HELP_DOCUMENTATION_PATHS = (
+    'Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md',
+    'Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md',
+)
 HISTORICAL_SOURCE_ARCHIVE = 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip'
 SCOPE_TEXT = ('Selected XLSX manifest and registered reading paths; additive proof and '
               'CLR-PACKAGE file-list/evidence metadata only. SQL and DLL payloads remain byte-identical.')
@@ -407,6 +411,8 @@ def make_record(root, previous_package, previous_payload, current_sources,
             'Vorheriger XLSX-Dokumentationsübergang ist nicht exakt der veröffentlichte Lesepfad.')
     require(all(current_sources[p] == transition_current_files[p] for p in DOCUMENTATION_TRANSITION_PATHS),
             'Aktuelle XLSX-Lesepfade weichen vom gebundenen Integrationsstand ab.')
+    historical_transition_current_files = restore_help_documentation_transition(
+        root, transition_current_files)
     raw_bytes = historical(root, RAW_REPORT)
     cell_bytes = historical(root, CELL_REPORT)
     raw, cell = validate_reports(original_manifest, raw_bytes, cell_bytes)
@@ -464,7 +470,8 @@ def make_record(root, previous_package, previous_payload, current_sources,
                 p: digest(transition_previous_files[p]) for p in DOCUMENTATION_TRANSITION_PATHS
             },
             'current_source_sha256': {
-                p: digest(transition_current_files[p]) for p in DOCUMENTATION_TRANSITION_PATHS
+                p: digest(historical_transition_current_files[p])
+                for p in DOCUMENTATION_TRANSITION_PATHS
             },
         },
         'changed_product_paths': sorted(changed),
@@ -473,6 +480,8 @@ def make_record(root, previous_package, previous_payload, current_sources,
         'executable_package_payload_changed': False,
         'clr_package_update_scope': SCOPE_TEXT,
     }
+    validate_documentation_transition(
+        transition_previous_files, historical_transition_current_files, record)
     validate_record(record, original_manifest, current_manifest, previous_package,
                     previous_payload, current_sources, raw_bytes, cell_bytes)
     return record
@@ -516,6 +525,23 @@ def validate_documentation_transition(previous, current, record):
             and transition['current_source_sha256'] == {p: digest(current[p]) for p in sorted(paths)},
             'Historischer XLSX-Dokumentationsübergang driftet.')
     return changed
+
+
+def restore_help_documentation_transition(root, current_files):
+    """Restore the XLSX snapshot while validating the exact later Help overlay."""
+    import help_contract_source
+    restored = dict(current_files)
+    for path in HELP_DOCUMENTATION_PATHS:
+        require(path in current_files,
+                'Frozen XLSX documentation snapshot is missing: ' + path)
+        import xlsx_sst_budget
+        original = help_contract_source.validate_historical_source(
+            root, path, xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256[path])
+        require(current_files[path] == original,
+                'Frozen XLSX documentation snapshot differs from its immutable baseline: ' + path)
+        help_contract_source.validate_current_source(root, path)
+        restored[path] = original
+    return restored
 
 
 def validate_clr_delta(root, previous_package, previous, current, record, sources):

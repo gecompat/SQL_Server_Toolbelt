@@ -22,11 +22,19 @@ INSERT INTO @Help EXEC toolbelt_core.USP_RecoverExpiredWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_CompleteWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_FailWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_GetWorkStatus @Hilfe=1;
-IF (SELECT COUNT(DISTINCT ObjectName) FROM @Help)<>7 OR EXISTS
+INSERT INTO @Help EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @Hilfe=1,@ResultTable=N'##ignored',@KeepData=NULL,@Debug=255;
+INSERT INTO @Help EXEC toolbelt_core.USP_EnqueueBarrierWork @Hilfe=1,@ResultTable=N'##ignored',@KeepData=NULL,@Debug=255;
+INSERT INTO @Help EXEC toolbelt_core.USP_RequeueDeadLetter @Hilfe=1,@WorkItemId=-1,@ResultTable=N'##ignored',@KeepData=NULL,@Debug=255;
+INSERT INTO @Help EXEC toolbelt_core.USP_ScheduleWorkRetry @Hilfe=1;
+IF (SELECT COUNT(DISTINCT ObjectName) FROM @Help)<>11 OR EXISTS
 (
-    SELECT n.ObjectName FROM (VALUES(N'USP_EnqueueWork'),(N'USP_ClaimWork'),(N'USP_RenewWorkLease'),(N'USP_RecoverExpiredWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_GetWorkStatus'))n(ObjectName)
+    SELECT n.ObjectName FROM (VALUES(N'USP_EnqueueWork'),(N'USP_ClaimWork'),(N'USP_RenewWorkLease'),(N'USP_RecoverExpiredWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_GetWorkStatus'),(N'USP_EnqueueWorkWithPolicy'),(N'USP_EnqueueBarrierWork'),(N'USP_RequeueDeadLetter'),(N'USP_ScheduleWorkRetry'))n(ObjectName)
     WHERE EXISTS(SELECT 1 FROM (VALUES('DESCRIPTION'),('PARAMETER'),('RESULT_COLUMN'),('EXAMPLE'))s(Section) WHERE NOT EXISTS(SELECT 1 FROM @Help h WHERE h.ObjectName=n.ObjectName AND h.Section=s.Section))
 )
+ OR EXISTS(SELECT 1 FROM @Help WHERE HelpContractVersion<>'1.0' OR SchemaName<>N'toolbelt_core')
+ OR EXISTS(SELECT 1 FROM @Help WHERE Section='EXAMPLE' AND (ExampleSql IS NULL OR ExampleSql LIKE N'%@Hilfe=1%'))
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE ObjectName=N'USP_EnqueueBarrierWork' AND ItemName=N'@Priority' AND IsRequired=1 AND DefaultValue=N'NULL')
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE ObjectName=N'USP_EnqueueBarrierWork' AND Section='EXAMPLE' AND ExampleSql LIKE N'%@Priority=10%')
     THROW 52900,N'Der Help-Vertrag ist unvollständig.',1;
 
 CREATE TABLE #Status(Dummy int NULL);
@@ -176,9 +184,23 @@ DROP TABLE #Recovery;
 DROP TABLE #Lease;
 
 -- W6c: persistierte Retry-Policy, Idempotenz, Dead Letter und Gruppen-Barrier.
-EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@IdempotencyKey='retry-key',@ExecutionGroup='retry',@Priority=7,@MaxAttempts=2,@RetryBaseDelaySeconds=1,@RetryMaxDelaySeconds=1;
+CREATE TABLE #PolicyResult(Sentinel int NULL);
+INSERT #PolicyResult VALUES(99);
+EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@IdempotencyKey='retry-key',@ExecutionGroup='retry',@Priority=7,@MaxAttempts=2,@RetryBaseDelaySeconds=1,@RetryMaxDelaySeconds=1,@ResultTable=N'#PolicyResult';
 DECLARE @RetryId bigint=(SELECT WorkItemId FROM toolbelt_core.WorkItem WHERE IdempotencyKey='retry-key');
-EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@IdempotencyKey='retry-key',@ExecutionGroup='retry',@Priority=7,@MaxAttempts=2,@RetryBaseDelaySeconds=1,@RetryMaxDelaySeconds=1;
+IF (SELECT COUNT(*) FROM #PolicyResult)<>1 OR NOT EXISTS(SELECT 1 FROM #PolicyResult WHERE WasCreated=1 AND WorkItemId=@RetryId) THROW 52954,N'Enqueue-ResultTable hat die Ergebniszeile nicht atomar geliefert.',2;
+EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@IdempotencyKey='retry-key',@ExecutionGroup='retry',@Priority=7,@MaxAttempts=2,@RetryBaseDelaySeconds=1,@RetryMaxDelaySeconds=1,@ResultTable=N'#PolicyResult',@KeepData=1;
+IF (SELECT COUNT(*) FROM #PolicyResult)<>2 OR NOT EXISTS(SELECT 1 FROM #PolicyResult WHERE WasCreated=0 AND WorkItemId=@RetryId) THROW 52954,N'Enqueue-ResultTable KeepData/Idempotenz ist inkonsistent.',3;
+BEGIN TRY
+    EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.missing',@ExecutionGroup='retry',@Priority=7,@ResultTable=N'#PolicyResult';
+    THROW 52954,N'Ein unbekannter Work Type wurde beim ResultTable-Routing akzeptiert.',4;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER()=52954 OR ERROR_NUMBER()<>51969 THROW;
+END CATCH;
+IF (SELECT COUNT(*) FROM #PolicyResult)<>2 OR NOT EXISTS(SELECT 1 FROM #PolicyResult WHERE WasCreated=0 AND WorkItemId=@RetryId)
+    THROW 52954,N'Ein Queue-Fehler muss vorhandene ResultTable-Zeilen wiederherstellen.',5;
+DROP TABLE #PolicyResult;
 IF (SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE IdempotencyKey='retry-key')<>1 THROW 52954,N'Idempotentes Enqueue legte eine zweite Zeile an.',1;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 DECLARE @RetryToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
@@ -189,7 +211,18 @@ EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 SET @RetryToken=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
 EXEC toolbelt_core.USP_ScheduleWorkRetry @WorkItemId=@RetryId,@ClaimToken=@RetryToken,@FailureCode='TEST.DEADLETTER';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='DEAD_LETTER' AND DeadLetteredAtUtc IS NOT NULL) THROW 52956,N'Dead Letter wurde nicht erzeugt.',1;
-EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@RetryId,@RequeueReason=N'Synthetischer Vertragstest';
+CREATE TABLE #RequeueResult(Sentinel int NULL);
+EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@RetryId,@RequeueReason=N'Synthetischer Vertragstest',@ResultTable=N'#RequeueResult';
+IF (SELECT COUNT(*) FROM #RequeueResult)<>1 OR NOT EXISTS(SELECT 1 FROM #RequeueResult WHERE WorkItemId=@RetryId AND Status='QUEUED') THROW 52957,N'Requeue-ResultTable lieferte keine aktualisierte Statuszeile.',2;
+BEGIN TRY
+    EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@RetryId,@ResultTable=N'#RequeueResult';
+    THROW 52957,N'Ein nicht Dead-Letter-Item wurde requeued.',3;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER()=52957 OR ERROR_NUMBER()<>51991 THROW;
+END CATCH;
+IF (SELECT COUNT(*) FROM #RequeueResult)<>1 OR NOT EXISTS(SELECT 1 FROM #RequeueResult WHERE WorkItemId=@RetryId AND Status='QUEUED')
+    THROW 52957,N'Ein Requeue-Fehler muss vorhandene ResultTable-Zeilen wiederherstellen.',4;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='QUEUED' AND RetryCycleNumber=2 AND CycleAttemptCount=0) THROW 52957,N'Dead-Letter-Requeue startete keinen neuen Zyklus.',1;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 SET @RetryToken=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
@@ -201,8 +234,10 @@ DECLARE @BarrierBlockerId bigint=(SELECT MAX(WorkItemId) FROM toolbelt_core.Work
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 DECLARE @BarrierBlockerToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierBlockerId AND Status='CLAIMED');
 IF @BarrierBlockerToken IS NULL THROW 52962,N'Der vorgelagerte Gruppenauftrag wurde nicht geclaimt.',1;
-EXEC toolbelt_core.USP_EnqueueBarrierWork @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=9;
+CREATE TABLE #BarrierResult(Sentinel int NULL);
+EXEC toolbelt_core.USP_EnqueueBarrierWork @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=9,@ResultTable=N'#BarrierResult';
 DECLARE @BarrierId bigint=(SELECT MAX(WorkItemId) FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='DRAIN_BARRIER');
+IF (SELECT COUNT(*) FROM #BarrierResult)<>1 OR NOT EXISTS(SELECT 1 FROM #BarrierResult WHERE WorkItemId=@BarrierId AND Status='BARRIER_WAIT') THROW 52958,N'Barrier-ResultTable wurde nicht an die Policy-Procedure weitergereicht.',3;
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=255;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED' AND WorkItemId<>@BarrierBlockerId) THROW 52958,N'Die Barrier sperrte neue Shared Claims ihrer Gruppe nicht.',1;
@@ -216,6 +251,7 @@ IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierId A
 DECLARE @BarrierToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierId AND Status='CLAIMED');
 IF @BarrierToken IS NULL THROW 52963,N'Die Barrier besitzt keinen aktiven ClaimToken.',1;
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@BarrierId,@ClaimToken=@BarrierToken;
+DROP TABLE #BarrierResult;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED') THROW 52961,N'Die Gruppe blieb nach Barrier-Abschluss blockiert.',1;
 DECLARE @PostBarrierId bigint=(SELECT WorkItemId FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED'),@PostBarrierToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED');

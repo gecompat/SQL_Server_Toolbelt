@@ -16,12 +16,14 @@ T-SQL-Kandidaten brauchst du keinen eigenen Build, Git oder Python.
 | [Supportumfang](SUPPORT.md) | Freigegebener Zielumfang und die Grenze zur tatsächlichen öffentlichen Supportzusage |
 | [Paketpflege und Prüfung](README.md) | Vollständiger verbindungsfreier Source-/Paketcheck und reproduzierbarer Neubau für Maintainer |
 | [Offene Releasegates](RELEASE-GATES.md) | Was geprüft ist und welche Freigaben beziehungsweise Nachweise noch fehlen |
+| [Hilfe- und Parameterkorrekturen](HELP-CONTRACT-MAINTENANCE.md) | Verbesserte Objekt-Hilfe, ResultTable-Routen und nötige Anpassung positionsgebundener FileContent-Aufrufe |
 
 Das Gesamtpaket ist eine **unveröffentlichte Quellpaket-Vorbereitung** mit
 45 Modulen: 19 stabile und 26 Preview-Kandidaten. Die Kennzeichnung ist noch
 keine Produktions- oder Plattformzusage. Alle Modulmanifeste bleiben `unreleased`.
-Das Gesamt-ZIP enthält zusätzlich den CLR-Installationskandidaten unter
-`Releases/1.0.0/InstallPackages/`. Windows-/Portable- und lokale/zentrale Profile
+Das eingefrorene Gesamt-ZIP enthält zusätzlich den historischen CLR-Basisstand unter
+`Releases/1.0.0/InstallPackages/`. Den aktuellen XLSX-Wartungskandidaten separat
+über die [CLR-Anleitung](CLR-INSTALL.md) beziehen. Windows-/Portable- und lokale/zentrale Profile
 erhalten die Modulgrenzen. Die Paketprüfung ersetzt keine vollständige neue
 API-/Rechte-/Releaseabnahme sämtlicher Preview-Module.
 

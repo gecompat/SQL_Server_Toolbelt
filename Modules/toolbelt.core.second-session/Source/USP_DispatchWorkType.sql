@@ -5,21 +5,50 @@ GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_core].[USP_DispatchWorkType]
 (
-      @WorkTypeName       varchar(128)
+      @WorkTypeName       varchar(128) = NULL
     , @PayloadJson        nvarchar(max) = NULL
-    , @ExecutionId        uniqueidentifier
-    , @CorrelationId      uniqueidentifier
+    , @ExecutionId        uniqueidentifier = NULL
+    , @CorrelationId      uniqueidentifier = NULL
     , @Actor              nvarchar(256) = NULL
     , @Tenant             nvarchar(256) = NULL
-    , @RemoteSessionId    int OUTPUT
-    , @HandlerReturnCode  int OUTPUT
-    , @StartedAtUtc       datetime2(7) OUTPUT
-    , @CompletedAtUtc     datetime2(7) OUTPUT
+    , @RemoteSessionId    int = NULL OUTPUT
+    , @HandlerReturnCode  int = NULL OUTPUT
+    , @StartedAtUtc       datetime2(7) = NULL OUTPUT
+    , @CompletedAtUtc     datetime2(7) = NULL OUTPUT
+    , @Hilfe              bit = 0
 )
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
+
+    IF ISNULL(@Hilfe,0)=1
+    BEGIN
+        SELECT CONVERT(varchar(16),'1.0') HelpContractVersion,CONVERT(sysname,N'toolbelt_core') SchemaName,
+            CONVERT(sysname,N'USP_DispatchWorkType') ObjectName,v.Section,v.Ordinal,v.ItemName,v.SqlDataType,
+            v.IsRequired,v.IsNullable,v.DefaultValue,v.Description,v.ExampleSql
+        FROM (VALUES
+          (CAST('DESCRIPTION' AS varchar(32)),1,CAST(NULL AS sysname),CAST(NULL AS varchar(256)),CAST(NULL AS bit),CAST(NULL AS bit),CAST(NULL AS nvarchar(4000)),CAST(N'Interner Second-Session-Dispatcher. Führt den registrierten Handler mit gebundenem Execution-Kontext aus; Hilfe liest keine Work-Type- oder Sessiondaten.' AS nvarchar(max)),CAST(NULL AS nvarchar(max))),
+          ('PARAMETER',1,N'@WorkTypeName','varchar(128)',1,0,N'NULL',N'Exakter registrierter Work Type.',NULL),
+          ('PARAMETER',2,N'@PayloadJson','nvarchar(max)',0,1,N'NULL',N'JSON-Objekt nur bei ParameterMode JSON_PAYLOAD.',NULL),
+          ('PARAMETER',3,N'@ExecutionId','uniqueidentifier',1,0,N'NULL',N'Vom Caller gebundene Ausführungs-ID.',NULL),
+          ('PARAMETER',4,N'@CorrelationId','uniqueidentifier',1,0,N'NULL',N'Vom Caller gebundene Korrelations-ID.',NULL),
+          ('PARAMETER',5,N'@Actor','nvarchar(256)',0,1,N'NULL',N'Optionaler Actor des Remote-Kontexts.',NULL),
+          ('PARAMETER',6,N'@Tenant','nvarchar(256)',0,1,N'NULL',N'Optionaler Tenant des Remote-Kontexts.',NULL),
+          ('PARAMETER',7,N'@RemoteSessionId','int OUTPUT',0,1,N'NULL',N'OUTPUT-SPID der zweiten Session.',NULL),
+          ('PARAMETER',8,N'@HandlerReturnCode','int OUTPUT',0,1,N'NULL',N'Returncode des registrierten Handlers.',NULL),
+          ('PARAMETER',9,N'@StartedAtUtc','datetime2(7) OUTPUT',0,1,N'NULL',N'Startzeit des Remote-Kontexts in UTC.',NULL),
+          ('PARAMETER',10,N'@CompletedAtUtc','datetime2(7) OUTPUT',0,1,N'NULL',N'Abschlusszeit nach erfolgreicher Handlerausführung.',NULL),
+          ('PARAMETER',11,N'@Hilfe','bit',0,0,N'0',N'1 liefert ausschließlich diese Hilfe; alle OUTPUT-Werte bleiben unberührt.',NULL),
+          ('RESULT_COLUMN',1,NULL,NULL,NULL,NULL,NULL,N'Kein fachliches Resultset; Status und Zeitwerte werden über OUTPUT-Parameter geliefert.',NULL),
+          ('ERROR',1,N'51628-51638',NULL,NULL,NULL,NULL,N'Payload-, Work-Type-, Berechtigungs- oder Handlervertrag ist ungültig.',NULL),
+          ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'Nur über den autorisierten Dispatchpfad; Handler-EXECUTE wird vor Ausführung geprüft.',NULL),
+          ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Payload höchstens 1 MiB; ParameterMode ist NONE oder JSON_PAYLOAD.',NULL),
+          ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Fachlicher Aufruf über die öffentliche Fassade; registrierter JSON-Work-Type und konfigurierter Loopback sind Voraussetzung.',N'EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @WorkTypeName=''registered-json-type'',@PayloadJson=N''{"value":1}'';')
+        )v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1 WHEN 'RESULT_COLUMN' THEN 2 ELSE 3 END,v.Ordinal;
+        RETURN 0;
+    END;
 
     SET @RemoteSessionId = @@SPID;
     SET @HandlerReturnCode = NULL;
@@ -84,10 +113,71 @@ BEGIN
           AND p.parameter_id > 0
     );
 
+    DECLARE @IsCanonicalEventLogHandler bit = 0;
+    IF @WorkTypeName COLLATE Latin1_General_100_BIN2 = 'toolbelt.event-log.write'
+       AND @HandlerSchema COLLATE Latin1_General_100_BIN2 = N'toolbelt_core'
+       AND @HandlerProcedure COLLATE Latin1_General_100_BIN2 = N'USP_WriteEventInternal'
+       AND @ParameterMode COLLATE Latin1_General_100_BIN2 = 'JSON_PAYLOAD'
+       AND @InputParameterCount = 2
+       AND EXISTS
+       (
+           SELECT 1
+           FROM sys.parameters AS p
+           WHERE p.object_id = @HandlerObjectId
+             AND p.parameter_id = 1
+             AND p.name COLLATE Latin1_General_100_BIN2 = N'@PayloadJson'
+             AND TYPE_NAME(p.user_type_id) COLLATE Latin1_General_100_BIN2 = N'nvarchar'
+             AND p.max_length = -1
+             AND p.is_output = 0
+       )
+       AND EXISTS
+       (
+           SELECT 1
+           FROM sys.parameters AS p
+           WHERE p.object_id = @HandlerObjectId
+             AND p.parameter_id = 2
+             AND p.name COLLATE Latin1_General_100_BIN2 = N'@Hilfe'
+             AND TYPE_NAME(p.user_type_id) COLLATE Latin1_General_100_BIN2 = N'bit'
+             AND p.max_length = 1
+             AND p.is_output = 0
+       )
+       AND EXISTS
+       (
+           SELECT 1
+           FROM sys.extended_properties AS ep
+           WHERE ep.class = 1
+             AND ep.major_id = @HandlerObjectId
+             AND ep.minor_id = 0
+             AND ep.name COLLATE Latin1_General_100_BIN2 = N'Toolbelt.ModuleId'
+             AND CONVERT(nvarchar(256), ep.value) COLLATE Latin1_General_100_BIN2 = N'toolbelt.core.event-log'
+       )
+       AND EXISTS
+       (
+           SELECT 1
+           FROM sys.extended_properties AS ep
+           WHERE ep.class = 1
+             AND ep.major_id = @HandlerObjectId
+             AND ep.minor_id = 0
+             AND ep.name COLLATE Latin1_General_100_BIN2 = N'Toolbelt.ModuleVersion'
+             AND CONVERT(nvarchar(32), ep.value) COLLATE Latin1_General_100_BIN2 = N'1.0.0'
+       )
+       AND EXISTS
+       (
+           SELECT 1
+           FROM sys.extended_properties AS ep
+           WHERE ep.class = 0
+             AND ep.major_id = 0
+             AND ep.minor_id = 0
+             AND ep.name COLLATE Latin1_General_100_BIN2 = N'Toolbelt.Module.toolbelt.core.event-log.Version'
+             AND CONVERT(nvarchar(32), ep.value) COLLATE Latin1_General_100_BIN2 = N'1.0.0'
+       )
+        SET @IsCanonicalEventLogHandler = 1;
+
     IF @ParameterMode = 'NONE' AND @InputParameterCount <> 0
         THROW 51637, N'Ein NONE-Handler darf keine Eingabe- oder Ausgabeparameter besitzen.', 1;
 
     IF @ParameterMode = 'JSON_PAYLOAD'
+       AND @IsCanonicalEventLogHandler = 0
        AND
        (
            @InputParameterCount <> 1
@@ -124,6 +214,10 @@ BEGIN
             SET @HandlerSql =
                 N'EXEC @HandlerReturnCode = ' + @HandlerQualifiedName
                 + N' WITH RESULT SETS NONE;';
+        ELSE IF @IsCanonicalEventLogHandler = 1
+            SET @HandlerSql =
+                N'EXEC @HandlerReturnCode = ' + @HandlerQualifiedName
+                + N' @PayloadJson = @PayloadJson, @Hilfe = 0 WITH RESULT SETS NONE;';
         ELSE
             SET @HandlerSql =
                 N'EXEC @HandlerReturnCode = ' + @HandlerQualifiedName

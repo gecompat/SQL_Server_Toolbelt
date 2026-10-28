@@ -3,10 +3,12 @@
 -- Typ:             Stored Procedure
 -- Zweck:           Liest eine Datei als varbinary(max) über OPENROWSET(BULK...).
 -- Vertrag:         Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md
--- Parameter:       @FilePath nvarchar(4000)
+-- Parameter:       @FilePath nvarchar(4000) = NULL (nur Help-Aufruf)
 --                  @MaxBytes bigint = NULL
 --                  @Debug tinyint = 0
 --                  @Hilfe bit = 0
+--                  @ResultTable sysname = NULL
+--                  @KeepData bit = 0
 -- Resultset:       Genau eine Zeile mit Content, BytesRead, IsValid,
 --                  ValidationCode, ValidationMessage.
 -- Dependencies:    toolbelt_file.FileContentRootAllowlist
@@ -31,8 +33,10 @@ GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadBinaryFile]
 (
-      @FilePath  nvarchar(4000)
+      @FilePath  nvarchar(4000) = NULL
     , @MaxBytes  bigint       = NULL
+    , @ResultTable sysname    = NULL
+    , @KeepData bit           = 0
     , @Debug     tinyint      = 0
     , @Hilfe     bit          = 0
 )
@@ -40,9 +44,6 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    SET @FilePath = NULLIF(LTRIM(RTRIM(@FilePath)), N'');
-    SET @MaxBytes = NULLIF(@MaxBytes, 0);
-    SET @Debug    = ISNULL(@Debug, 0);
     SET @Hilfe    = ISNULL(@Hilfe, 0);
 
     IF @Hilfe = 1
@@ -84,20 +85,28 @@ BEGIN
           , N'Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unter einem Eintrag der Root-Allowlist liegen.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 1
-          , N'@FilePath', 'nvarchar(4000)', 1, 0, NULL
+          , N'@FilePath', 'nvarchar(4000)', 1, 0, N'NULL'
           , N'Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 2
           , N'@MaxBytes', 'bigint', 0, 1, N'NULL'
           , N'Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.'
           , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 3
+        , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 5
           , N'@Debug', 'tinyint', 0, 1, N'0'
-          , N'Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages.'
+          , N'Beim ResultTable-Routing Diagnosemeldungen des kanonischen Helpers; keine zusätzlichen fachlichen Resultsets. Im SELECT-Pfad keine Debug-Messages.'
           , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 4
+        , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 6
           , N'@Hilfe', 'bit', 0, 1, N'0'
           , N'1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter.'
+          , NULL )
+        , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 3
+          , N'@ResultTable', 'sysname', 0, 1, N'NULL'
+          , N'Optionaler lokaler Temp-Tabellenname. Bei erfolgreicher Validierung oder fachlichem Validierungsresultat wird genau die vorhandene Ergebniszeile in die vorbereitete ResultTable geschrieben.'
+          , NULL )
+        , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PARAMETER', 4
+          , N'@KeepData', 'bit', 0, 1, N'0'
+          , N'Bei ResultTable-Routing bleiben vorhandene Zeilen erhalten, wenn 1; sonst wird die Zieltabelle gemäß ResultTable-Vertrag geleert.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'RESULT_COLUMN', 1
           , N'Content', 'varbinary(max)', 0, 1, NULL
@@ -137,11 +146,11 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'PERMISSION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadBinaryFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...).'
+          , N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadBinaryFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...). Für @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Dateigröße ist durch varbinary(max) auf ca. 2 GB begrenzt. OPENROWSET(BULK...) liert die gesamte Datei; @MaxBytes prüft erst nach dem Lesen.'
+          , N'Dateigröße ist durch varbinary(max) auf ca. 2 GB begrenzt. OPENROWSET(BULK...) liest die gesamte Datei; @MaxBytes prüft erst nach dem Lesen. ResultTable-Änderung und Datei-I/O liegen in derselben Transaktion.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadBinaryFile', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -178,15 +187,55 @@ BEGIN
         RETURN 0;
     END;
 
+    DECLARE @InitialTransactionCount int = @@TRANCOUNT
+          , @StartedTransaction bit = 0
+          , @SavepointCreated bit = 0
+          , @SavepointName varchar(32) = CONVERT(varchar(32), 'tbx_file_' + LEFT(REPLACE(CONVERT(varchar(36), NEWID()), '-', ''), 23))
+          , @InsertResultSql nvarchar(max);
+
+    IF @ResultTable IS NOT NULL SET XACT_ABORT OFF;
+    SET @KeepData = ISNULL(@KeepData, 0);
+    SET @Debug = ISNULL(@Debug, 0);
+    IF @ResultTable IS NOT NULL AND @InitialTransactionCount > 0 AND XACT_STATE() <> 1
+        THROW 51028, N'Der Callertransaktionszustand erlaubt keinen kontrollierten ResultTable-Savepoint.', 1;
+    CREATE TABLE #tbx_LoadBinaryFileResult
+    (
+          Content varbinary(max) NULL
+        , BytesRead bigint NOT NULL
+        , IsValid bit NOT NULL
+        , ValidationCode int NULL
+        , ValidationMessage nvarchar(4000) NULL
+    );
+    BEGIN TRY
+    IF @ResultTable IS NOT NULL
+    BEGIN
+        IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable', N'P') IS NULL
+            THROW 51908, N'Für @ResultTable fehlt toolbelt.core.result-table.', 1;
+        IF @InitialTransactionCount = 0
+        BEGIN
+            BEGIN TRANSACTION;
+            SET @StartedTransaction = 1;
+        END
+        ELSE
+        BEGIN
+            IF XACT_STATE() <> 1 THROW 51028, N'Der Callertransaktionszustand erlaubt keinen kontrollierten ResultTable-Savepoint.', 1;
+            SAVE TRANSACTION @SavepointName;
+            SET @SavepointCreated = 1;
+        END;
+        EXEC toolbelt_core.USP_PrepareResultTable
+              @ResultTableToAlter = @ResultTable
+            , @LikeTable = N'#tbx_LoadBinaryFileResult'
+            , @KeepData = @KeepData
+            , @Debug = @Debug;
+    END;
+    SET @FilePath = NULLIF(LTRIM(RTRIM(@FilePath)), N'');
+    SET @MaxBytes = NULLIF(@MaxBytes, 0);
+    SET @Debug    = ISNULL(@Debug, 0);
+    SET @KeepData = ISNULL(@KeepData, 0);
     IF @FilePath IS NULL
     BEGIN
-        SELECT
-              CAST(NULL AS varbinary(max)) AS Content
-            , CAST(0 AS bigint)            AS BytesRead
-            , CAST(0 AS bit)               AS IsValid
-            , 51320                        AS ValidationCode
-            , N'Ungültiger oder leerer Dateipfad.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadBinaryFileResult VALUES(NULL, 0, 0, 51320, N'Ungültiger oder leerer Dateipfad.');
+        GOTO EmitResult;
     END;
 
     DECLARE @NormalizedPath nvarchar(4000) = @FilePath;
@@ -199,13 +248,8 @@ BEGIN
     IF @NormalizedPath LIKE N'%/../%' OR @NormalizedPath LIKE N'%/..'
        OR @NormalizedPath LIKE N'../%'
     BEGIN
-        SELECT
-              CAST(NULL AS varbinary(max)) AS Content
-            , CAST(0 AS bigint)            AS BytesRead
-            , CAST(0 AS bit)               AS IsValid
-            , 51322                        AS ValidationCode
-            , N'Pfad enthält verbotene relative Segmente oder Traversal.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadBinaryFileResult VALUES(NULL, 0, 0, 51322, N'Pfad enthält verbotene relative Segmente oder Traversal.');
+        GOTO EmitResult;
     END;
 
     -- Pfad muss absolut sein: lokaler Buchstabe oder UNC.
@@ -213,13 +257,8 @@ BEGIN
        AND @NormalizedPath NOT LIKE N'//%'
        AND @NormalizedPath NOT LIKE N'/%'
     BEGIN
-        SELECT
-              CAST(NULL AS varbinary(max)) AS Content
-            , CAST(0 AS bigint)            AS BytesRead
-            , CAST(0 AS bit)               AS IsValid
-            , 51320                        AS ValidationCode
-            , N'Ungültiger oder leerer Dateipfad.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadBinaryFileResult VALUES(NULL, 0, 0, 51320, N'Ungültiger oder leerer Dateipfad.');
+        GOTO EmitResult;
     END;
 
     -- Allowlist-Prüfung (Latin1_General_100_BIN2 für byteidentischen Vergleich).
@@ -228,13 +267,8 @@ BEGIN
 :r ../Source/FileContentRootPredicate.sql
        )
     BEGIN
-        SELECT
-              CAST(NULL AS varbinary(max)) AS Content
-            , CAST(0 AS bigint)            AS BytesRead
-            , CAST(0 AS bit)               AS IsValid
-            , 51321                        AS ValidationCode
-            , N'Pfad liegt außerhalb der konfigurierten Root-Allowlist.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadBinaryFileResult VALUES(NULL, 0, 0, 51321, N'Pfad liegt außerhalb der konfigurierten Root-Allowlist.');
+        GOTO EmitResult;
     END;
 
     DECLARE @Sql nvarchar(max)
@@ -255,28 +289,45 @@ BEGIN
 
         IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
         BEGIN
-            SELECT
-                  CAST(NULL AS varbinary(max)) AS Content
-                , @BytesRead                   AS BytesRead
-                , CAST(0 AS bit)               AS IsValid
-                , 51323                        AS ValidationCode
-                , N'Datei überschreitet @MaxBytes.' AS ValidationMessage;
-            RETURN 0;
+            INSERT #tbx_LoadBinaryFileResult VALUES(NULL, @BytesRead, 0, 51323, N'Datei überschreitet @MaxBytes.');
+            GOTO EmitResult;
         END;
 
-        SELECT
-              @Content        AS Content
-            , @BytesRead      AS BytesRead
-            , CAST(1 AS bit)  AS IsValid
-            , NULL            AS ValidationCode
-            , NULL            AS ValidationMessage;
-
-        RETURN 0;
+        INSERT #tbx_LoadBinaryFileResult VALUES(@Content, @BytesRead, 1, NULL, NULL);
+        GOTO EmitResult;
     END TRY
     BEGIN CATCH
       DECLARE @ProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
         + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
       THROW 51326, @ProviderError, 1;
     END CATCH;
+    END TRY
+    BEGIN CATCH
+        IF @StartedTransaction = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        ELSE IF @SavepointCreated = 1 AND XACT_STATE() = 1 ROLLBACK TRANSACTION @SavepointName;
+        THROW;
+    END CATCH;
+
+EmitResult:
+    IF @ResultTable IS NULL
+    BEGIN
+        SELECT Content, BytesRead, IsValid, ValidationCode, ValidationMessage
+        FROM #tbx_LoadBinaryFileResult;
+        RETURN 0;
+    END;
+
+    BEGIN TRY
+        SET @InsertResultSql = N'INSERT INTO ' + QUOTENAME(@ResultTable)
+            + N' (Content,BytesRead,IsValid,ValidationCode,ValidationMessage)'
+            + N' SELECT Content,BytesRead,IsValid,ValidationCode,ValidationMessage FROM #tbx_LoadBinaryFileResult;';
+        EXEC sys.sp_executesql @InsertResultSql;
+        IF @StartedTransaction = 1 COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @StartedTransaction = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        ELSE IF @SavepointCreated = 1 AND XACT_STATE() = 1 ROLLBACK TRANSACTION @SavepointName;
+        THROW;
+    END CATCH;
+    RETURN 0;
 END;
 GO

@@ -1,0 +1,21 @@
+{
+  "schema_version": "toolbelt-release-navigation-delta/v1",
+  "date": "2026-10-28",
+  "status": "DOCUMENTATION_DELTA_ONLY",
+  "native_requalification_claimed": false,
+  "publication_authorized": false,
+  "baseline_commit": "e2c932a5906fc65a2af8cbc6ab106b7bdb51b58e",
+  "baseline_archive": "Releases/1.0.0/Artifacts/Help-Contract-Navigation-Baseline.zip",
+  "baseline_archive_sha256": "b1838c27f64bd762cc623a5027d61852ec207e5abd94342e4915e9fd896c65fc",
+  "scope": "Three release navigation pages describe the separately qualified XLSX maintenance package; historical reports remain unchanged",
+  "baseline_source_sha256": {
+    "Releases/1.0.0/README.md": "8edf478282bfebe41e3b9af76eff5b3f878a162ff320111ceb1473e565b17db3",
+    "Releases/1.0.0/EVIDENCE-MAP.md": "29cf8aa393f4dbd2d3296fab60d74bd5ffb560e4fc72aaf5af4b227a0dc0bbe8",
+    "Releases/1.0.0/RELEASE-GATES.md": "5e70269381947a5eb57b86df211ebf04af9cf491fd4093cc0ff58c64d7b771e4"
+  },
+  "current_source_sha256": {
+    "Releases/1.0.0/README.md": "e60daa78a47e69d8ec0a7c87ed088231bd09357a3ccb50a92a0fb86e6fc32bf4",
+    "Releases/1.0.0/EVIDENCE-MAP.md": "4845ee28c48d71fd30d4e202aca40329c65475e6b3ac61efb6c61153d6cfdd64",
+    "Releases/1.0.0/RELEASE-GATES.md": "39d44ea5f043642d938410bc746c32736072cf8b07e9f0bdf7220f31379c9be7"
+  }
+}

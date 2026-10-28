@@ -1,5 +1,13 @@
 # Nachweiszuordnung aller 45 Module
 
+[Aktueller CLR-Wartungskandidat](CLR-MAINTENANCE.md): genau eine korrigierte
+XLSX-DLL, zwölf bytegleiche übernommene DLLs und zwölf neue lokale/direkt
+zentrale Installations-/Hilfe-/SST-Fälle mit zwölf unabhängigen Audits.
+Die alten Ausführungsnachweise bleiben an ihre ursprünglichen Paketbytes
+gebunden; Vollprofil-Lifecycle, SSIS und authentifizierte TLS-Abnahme werden
+dadurch nicht neu qualifiziert. Die [Hilfe-/Parameterkorrekturen](HELP-CONTRACT-MAINTENANCE.md)
+beschreiben den getrennten Quellübergang der vierzehn bestehenden Prozeduren.
+
 [XLSX-SST-Quellkorrektur](XLSX-SST-BUDGET-CORRECTION.md): neuer, separat
 gebundener Kandidat mit unverändertem 5.000-ms-Budget; 50.000/50.001 auf
 zwölf lokalen/direkt zentralen Ziel-/CL-Fällen bestanden. Die frühere

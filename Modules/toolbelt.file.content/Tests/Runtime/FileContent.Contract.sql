@@ -11,6 +11,12 @@ IF OBJECT_ID(N'toolbelt_file.USP_LoadBinaryFile', N'P') IS NULL
     THROW 52932, N'USP_LoadBinaryFile fehlt oder besitzt den falschen Typ.', 1;
 IF OBJECT_ID(N'toolbelt_file.USP_LoadTextFile', N'P') IS NULL
     THROW 52932, N'USP_LoadTextFile fehlt oder besitzt den falschen Typ.', 1;
+IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable', N'P') IS NULL
+   OR NOT EXISTS
+      (SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0
+       AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version'
+       AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),N'1.0.0'))
+    THROW 52932, N'Die FileContent-Dependency ResultTable 1.0.0 fehlt.', 2;
 
 DECLARE @Parameters TABLE
 (
@@ -32,7 +38,7 @@ INNER JOIN sys.types AS types
 WHERE parameters.object_id =
       OBJECT_ID(N'toolbelt_file.USP_LoadBinaryFile');
 
-IF (SELECT COUNT(*) FROM @Parameters) <> 4
+IF (SELECT COUNT(*) FROM @Parameters) <> 6
    OR NOT EXISTS
       (
           SELECT 1 FROM @Parameters
@@ -48,13 +54,25 @@ IF (SELECT COUNT(*) FROM @Parameters) <> 4
    OR NOT EXISTS
       (
           SELECT 1 FROM @Parameters
-          WHERE ParameterId = 3 AND ParameterName = N'@Debug'
+          WHERE ParameterId = 5 AND ParameterName = N'@Debug'
             AND TypeName = N'tinyint'
       )
    OR NOT EXISTS
       (
           SELECT 1 FROM @Parameters
-          WHERE ParameterId = 4 AND ParameterName = N'@Hilfe'
+          WHERE ParameterId = 6 AND ParameterName = N'@Hilfe'
+            AND TypeName = N'bit'
+      )
+   OR NOT EXISTS
+      (
+          SELECT 1 FROM @Parameters
+          WHERE ParameterId = 3 AND ParameterName = N'@ResultTable'
+            AND TypeName = N'sysname'
+      )
+   OR NOT EXISTS
+      (
+          SELECT 1 FROM @Parameters
+          WHERE ParameterId = 4 AND ParameterName = N'@KeepData'
             AND TypeName = N'bit'
       )
     THROW 52933, N'Die öffentliche LoadBinaryFile-Signatur ist falsch.', 1;
@@ -73,7 +91,7 @@ INNER JOIN sys.types AS types
 WHERE parameters.object_id =
       OBJECT_ID(N'toolbelt_file.USP_LoadTextFile');
 
-IF (SELECT COUNT(*) FROM @Parameters) <> 5
+IF (SELECT COUNT(*) FROM @Parameters) <> 7
    OR NOT EXISTS
       (
           SELECT 1 FROM @Parameters
@@ -95,16 +113,32 @@ IF (SELECT COUNT(*) FROM @Parameters) <> 5
    OR NOT EXISTS
       (
           SELECT 1 FROM @Parameters
-          WHERE ParameterId = 4 AND ParameterName = N'@Debug'
+          WHERE ParameterId = 6 AND ParameterName = N'@Debug'
             AND TypeName = N'tinyint'
       )
    OR NOT EXISTS
       (
           SELECT 1 FROM @Parameters
-          WHERE ParameterId = 5 AND ParameterName = N'@Hilfe'
+          WHERE ParameterId = 7 AND ParameterName = N'@Hilfe'
+            AND TypeName = N'bit'
+      )
+   OR NOT EXISTS
+      (
+          SELECT 1 FROM @Parameters
+          WHERE ParameterId = 4 AND ParameterName = N'@ResultTable'
+            AND TypeName = N'sysname'
+      )
+   OR NOT EXISTS
+      (
+          SELECT 1 FROM @Parameters
+          WHERE ParameterId = 5 AND ParameterName = N'@KeepData'
             AND TypeName = N'bit'
       )
     THROW 52933, N'Die öffentliche LoadTextFile-Signatur ist falsch.', 1;
+
+IF CHARINDEX(N'@FilePath  nvarchar(4000) = NULL',OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_file.USP_LoadBinaryFile'))) = 0
+ OR CHARINDEX(N'@FilePath          nvarchar(4000) = NULL',OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_file.USP_LoadTextFile'))) = 0
+    THROW 52933,N'Die technischen NULL-Defaults für den Help-Aufruf fehlen.',2;
 
 -- Hilfe-Contract prüfen.
 DECLARE @Help TABLE
@@ -125,8 +159,9 @@ DECLARE @Help TABLE
 
 INSERT INTO @Help
 EXEC toolbelt_file.USP_LoadBinaryFile
-      @FilePath = N'Darf im Help-Modus nicht gelesen werden.'
-    , @Debug = 255
+      @Debug = 255
+    , @ResultTable = N'##ignored'
+    , @KeepData = NULL
     , @Hilfe = 1;
 
 IF NOT EXISTS
@@ -135,14 +170,23 @@ IF NOT EXISTS
        WHERE Section = N'DESCRIPTION'
          AND ObjectName = N'USP_LoadBinaryFile'
    )
+   OR NOT EXISTS
+   (
+       SELECT 1 FROM @Help
+       WHERE Section=N'PARAMETER' AND ItemName=N'@FilePath'
+         AND IsRequired=1 AND DefaultValue=N'NULL'
+   )
+   OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section=N'PARAMETER' AND ItemName=N'@ResultTable' AND DefaultValue=N'NULL')
+   OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section=N'PARAMETER' AND ItemName=N'@KeepData' AND DefaultValue=N'0')
     THROW 52934, N'Der Help-Contract von USP_LoadBinaryFile ist unvollständig.', 1;
 
 DELETE FROM @Help;
 
 INSERT INTO @Help
 EXEC toolbelt_file.USP_LoadTextFile
-      @FilePath = N'Darf im Help-Modus nicht gelesen werden.'
-    , @Debug = 255
+      @Debug = 255
+    , @ResultTable = N'##ignored'
+    , @KeepData = NULL
     , @Hilfe = 1;
 
 IF NOT EXISTS
@@ -151,6 +195,14 @@ IF NOT EXISTS
        WHERE Section = N'DESCRIPTION'
          AND ObjectName = N'USP_LoadTextFile'
    )
+   OR NOT EXISTS
+   (
+       SELECT 1 FROM @Help
+       WHERE Section=N'PARAMETER' AND ItemName=N'@FilePath'
+         AND IsRequired=1 AND DefaultValue=N'NULL'
+   )
+   OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section=N'PARAMETER' AND ItemName=N'@ResultTable' AND DefaultValue=N'NULL')
+   OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section=N'PARAMETER' AND ItemName=N'@KeepData' AND DefaultValue=N'0')
     THROW 52934, N'Der Help-Contract von USP_LoadTextFile ist unvollständig.', 1;
 
 -- Fachliche Validierungsfälle (ohne echtes Dateisystem).
@@ -237,6 +289,35 @@ IF NOT EXISTS
    )
     THROW 52936, N'Binärdatei konnte nicht korrekt gelesen werden.', 1;
 
+CREATE TABLE #BinaryResultTable
+(
+      Content varbinary(max) NULL
+    , BytesRead bigint NOT NULL
+    , IsValid bit NOT NULL
+    , ValidationCode int NULL
+    , ValidationMessage nvarchar(4000) NULL
+);
+INSERT #BinaryResultTable VALUES(0xCAFE,2,0,50000,N'vorhandener Zielinhalt');
+EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=@FixturePath,@ResultTable=N'#BinaryResultTable';
+IF (SELECT COUNT(*) FROM #BinaryResultTable)<>1
+   OR NOT EXISTS(SELECT 1 FROM #BinaryResultTable WHERE IsValid=1 AND BytesRead=7)
+    THROW 52936,N'Binary ResultTable muss standardmäßig ersetzen und die Ergebniszeile schreiben.',2;
+EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=@FixturePath,@ResultTable=N'#BinaryResultTable',@KeepData=1;
+IF (SELECT COUNT(*) FROM #BinaryResultTable)<>2
+    THROW 52936,N'@KeepData=1 muss vorhandene Binary ResultTable-Zeilen behalten.',3;
+
+INSERT #BinaryResultTable VALUES(0xCAFE,2,0,50000,N'Rollback-Sentinel');
+SET @FixturePath=@FixtureRoot+N'/missing-resulttable.bin';
+BEGIN TRY
+    EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=@FixturePath,@ResultTable=N'#BinaryResultTable';
+    THROW 52936,N'Fehlende Datei wurde beim ResultTable-Routing akzeptiert.',4;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER()<>51326 THROW;
+END CATCH;
+IF NOT EXISTS(SELECT 1 FROM #BinaryResultTable WHERE ValidationCode=50000 AND ValidationMessage=N'Rollback-Sentinel')
+    THROW 52936,N'Dateifehler muss vorhandene Binary ResultTable-Daten wiederherstellen.',5;
+
 DECLARE @TextResult TABLE
 (
       Content           nvarchar(max)  NULL
@@ -260,6 +341,22 @@ IF NOT EXISTS
        WHERE IsValid = 1 AND EncodingDetected = N'UTF-8' AND BomPresent = 1 AND BytesRead = 43
    )
     THROW 52936, N'UTF-8-BOM-Erkennung schlug fehl.', 1;
+
+CREATE TABLE #TextResultTable
+(
+      Content nvarchar(max) NULL
+    , BytesRead bigint NOT NULL
+    , EncodingDetected nvarchar(128) NULL
+    , BomPresent bit NOT NULL
+    , IsValid bit NOT NULL
+    , ValidationCode int NULL
+    , ValidationMessage nvarchar(4000) NULL
+);
+INSERT #TextResultTable VALUES(N'vorhandener Inhalt',18,N'old',0,0,50000,N'Sentinel');
+EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath,@ResultTable=N'#TextResultTable';
+IF (SELECT COUNT(*) FROM #TextResultTable)<>1
+   OR NOT EXISTS(SELECT 1 FROM #TextResultTable WHERE IsValid=1 AND EncodingDetected=N'UTF-8' AND BomPresent=1)
+    THROW 52936,N'Text ResultTable muss standardmäßig ersetzen und die Ergebniszeile schreiben.',6;
 
 DELETE FROM @TextResult;
 
@@ -355,5 +452,34 @@ BEGIN TRY
     EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath;
     THROW 52936,N'Ungerades UTF-16 akzeptiert.',5;
 END TRY BEGIN CATCH IF ERROR_NUMBER()<>51326 THROW; END CATCH;
+
+-- Ein uncommittable Callerzustand darf keinen noch nicht erzeugten Savepoint zurückrollen.
+CREATE TABLE #NoSavepointResult(Dummy int NULL);
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+BEGIN TRY
+    THROW 52937,N'Synthetischer Callerfehler vor dem ResultTable-Aufruf.',1;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE()<>-1 THROW 52937,N'Der synthetische Fehler hat die Callertransaktion nicht uncommittable gemacht.',2;
+END CATCH;
+BEGIN TRY
+    EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=@FixturePath,@ResultTable=N'#NoSavepointResult';
+    THROW 52937,N'Binary ResultTable akzeptierte einen uncommittable Callerzustand.',3;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER()<>51028 THROW;
+END CATCH;
+BEGIN TRY
+    EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath,@ResultTable=N'#NoSavepointResult';
+    THROW 52937,N'Text ResultTable akzeptierte einen uncommittable Callerzustand.',4;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER()<>51028 THROW;
+END CATCH;
+IF @@TRANCOUNT<>1 OR XACT_STATE()<>-1
+    THROW 52937,N'Die ResultTable-Ablehnung hat den Callertransaktionszustand verändert.',5;
+ROLLBACK TRANSACTION;
+SET XACT_ABORT OFF;
 
 PRINT N'File Content Contract-Test: erfolgreich';

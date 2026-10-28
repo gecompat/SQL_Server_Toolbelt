@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import prepare_release as release
 import xlsx_metadata as metadata
+import xlsx_sst_budget
+import help_contract_source
 
 _ORIGINAL_SNAPSHOT = release.snapshot
 _ORIGINAL_RECOVERED_SNAPSHOT = release.recovered_snapshot
@@ -273,6 +275,36 @@ class XlsxMetadataMixin:
             with self.subTest(field=before), self.assertRaises(ValueError):
                 metadata.validate_manifest(original, current.replace(before, after, 1))
 
+    def test_help_documentation_transition_reverses_only_the_two_bound_files(self):
+        current = {path: help_contract_source.validate_historical_source(
+                       ROOT, path, xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256[path])
+                   for path in metadata.HELP_DOCUMENTATION_PATHS}
+        restored = metadata.restore_help_documentation_transition(ROOT, current)
+        for path in metadata.HELP_DOCUMENTATION_PATHS:
+            expected = xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256[path]
+            original = help_contract_source.validate_historical_source(ROOT, path, expected)
+            self.assertEqual(help_contract_source.validate_current_source(ROOT, path),
+                             (ROOT / path).read_bytes())
+            self.assertEqual(restored[path], original)
+        changed = dict(current)
+        path = metadata.HELP_DOCUMENTATION_PATHS[0]
+        changed[path] += b'\nUnapproved content.\n'
+        with self.assertRaisesRegex(ValueError, 'snapshot differs'):
+            metadata.restore_help_documentation_transition(ROOT, changed)
+
+    def test_boundary_checker_help_transition_keeps_the_old_sst_pin(self):
+        path = help_contract_source.BOUNDARY_TEST
+        record = xlsx_sst_budget.read_record(ROOT)
+        current = (ROOT / path).read_bytes()
+        restored = help_contract_source.restore_boundary_checker(
+            ROOT, current, record['current_source_sha256'][path])
+        self.assertEqual(hashlib.sha256(restored).hexdigest(),
+                         help_contract_source.BOUNDARY_BASELINE_SHA256)
+        with self.assertRaisesRegex(ValueError, 'exact Help projection'):
+            help_contract_source.restore_boundary_checker(
+                ROOT, current + b'\n# unrelated checker change\n',
+                record['current_source_sha256'][path])
+
     def test_clr_package_overlay_preserves_sql_dll_and_csv_provenance(self):
         previous_package, previous, current, sources, record = build_candidate()
         self.assertEqual(record['previous_clr_zip_sha256'], metadata.digest(previous_package))
@@ -332,6 +364,7 @@ class XlsxMetadataMixin:
             expected_test = zip_metadata.corrected_xlsx_offline_source(expected_test)
         import xlsx_sst_budget
         expected_test = xlsx_sst_budget.project_cell_test(expected_test)
+        expected_test = xlsx_sst_budget.project_help_cell_test(expected_test)
         self.assertEqual(expected_test, current_test)
         self.assertNotEqual(expected_test,
                             current_test.replace(b'continue', b'pass', 1))

@@ -26,6 +26,28 @@ from test_csv_metadata import CsvMetadataTests
 from test_xlsx_cell_caller_qualification import XlsxCellCallerTests
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def assert_report_source_pin(test, path, expected_sha256):
+    """Check old report bytes and the one exact current Help overlay when applicable."""
+    import help_contract_source
+    if path in help_contract_source.source_paths(ROOT):
+        help_contract_source.validate_historical_source(ROOT, path, expected_sha256)
+        return
+    current = (ROOT / path).read_bytes()
+    test.assertEqual(hashlib.sha256(current).hexdigest(), expected_sha256, path)
+
+
+def report_source_bytes(test, path, expected_sha256):
+    """Return the pinned bytes, resolving only an exact Help source transition."""
+    import help_contract_source
+    if path in help_contract_source.source_paths(ROOT):
+        return help_contract_source.validate_historical_source(ROOT, path, expected_sha256)
+    current = (ROOT / path).read_bytes()
+    test.assertEqual(hashlib.sha256(current).hexdigest(), expected_sha256, path)
+    return current
+
+
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
@@ -708,7 +730,7 @@ class ClrPackageTests(unittest.TestCase):
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['expected_sql_number'] == 52094
                             and c['independent_cleanup_and_pin_audit'] for c in report['oracle_rejection_controls']))
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual(report['final_independent_audit']['positive_case_database_names_absent'], 36)
         self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
         self.assertTrue(report['remaining_gates'])
@@ -998,7 +1020,7 @@ class ApiQualificationTests(unittest.TestCase):
             capture['corrected_literal'].encode(), capture['original_literal'].encode())).hexdigest(),
                          report['extra_view_guard_applicability']['unchanged_source_after_declared_test_deltas_sha256'])
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual(report['required_followup']['positive_target_cl_cases'], 12)
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
@@ -1022,7 +1044,8 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(paths, ['Tests/Release/Runtime/OwnedTsqlScope.Guard.sql'] + [
             'Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/' + name
             for name in ('GeoJitter.Contract.sql', 'GeoJitter.Safety.sql', 'InstalledMetadata.Contract.sql')])
-        composed = b'\nGO\n'.join((ROOT / p).read_bytes() for p in paths) + b'\n'
+        composed = b'\nGO\n'.join(report_source_bytes(self, p, report['source_sha256'][p])
+                                    for p in paths) + b'\n'
         self.assertEqual(hashlib.sha256(composed).hexdigest(), report['composed_fixture_sha256'])
         for path, digest in report['source_sha256'].items():
             current = (ROOT / path).read_bytes()
@@ -1031,7 +1054,7 @@ class ApiQualificationTests(unittest.TestCase):
                 self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
                                 'Geo-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
             else:
-                self.assertEqual(hashlib.sha256(current).hexdigest(), digest, path)
+                assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1088,7 +1111,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['claim_with_handler_execute_profiles'], 24)
         self.assertEqual(set(report['wrong_token_error_numbers'].values()), {51952, 51923, 51928, 51987})
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1119,7 +1142,7 @@ class ApiQualificationTests(unittest.TestCase):
             self.assertEqual(report['combined_totals'][field], total)
             self.assertEqual(sum(c[field] for c in all_cases), total)
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual(report['final_independent_audit']['new_case_databases_absent'], 12)
         self.assertFalse(report['publication_authorized'])
         self.assertTrue(report['remaining_gates'])
@@ -1145,7 +1168,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['single_grant_api_profiles'], 36)
         self.assertEqual(report['usp_with_helper_profiles'], 12)
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1178,7 +1201,7 @@ class ApiQualificationTests(unittest.TestCase):
             self.assertEqual(report[field], total)
             self.assertEqual(sum(c[field] for c in report['native_cases']), total)
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1209,7 +1232,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['single_grant_api_profiles'], 120)
         self.assertEqual(report['lookup_with_helper_profiles'], 24)
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1234,7 +1257,7 @@ class ApiQualificationTests(unittest.TestCase):
             self.assertEqual(report[field], total)
             self.assertEqual(sum(c[field] for c in report['native_cases']), total)
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1260,7 +1283,7 @@ class ApiQualificationTests(unittest.TestCase):
             self.assertEqual(report[field], total)
             self.assertEqual(sum(c[field] for c in report['native_cases']), total)
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1292,7 +1315,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertTrue(report['generation_applicability']['fixture_bytes_unchanged'])
         self.assertFalse(report['generation_applicability']['native_sql_or_harness_changed'])
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-policy-error', 'wrong-claim-count'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1361,7 +1384,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(apis['USP_SetWorkTypePermission']['additional_required_permission'], 'CONTROL on WorkTypePermission')
         self.assertTrue(all(a['permission'] == 'EXECUTE' for n, a in apis.items() if n != 'VW_WorkTypes'))
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            assert_report_source_pin(self, path, digest)
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-api'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                             for c in report['oracle_rejection_controls']))
@@ -1972,6 +1995,12 @@ class DateMathSelectedCallerTests(unittest.TestCase):
         for flag in ('publication_authorized', 'product_sql_changed', 'module_status_changed',
                      'package_payload_changed', 'genuine_crossdb_identity_qualified', 'authenticated_tls_qualified'):
             self.assertIs(report[flag], False)
+
+
+def load_tests(loader, tests, pattern):
+    from test_clr_maintenance import ClrMaintenanceTests
+    tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
+    return tests
 
 
 if __name__ == "__main__":

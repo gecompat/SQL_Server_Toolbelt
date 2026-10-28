@@ -2,9 +2,13 @@
 
 Der [korrigierte XLSX-SST-Quellkandidat](XLSX-SST-BUDGET-CORRECTION.md)
 besteht 50.000/50.001 Shared Strings auf zwölf lokalen/direkt zentralen
-Ziel-/CL-Fällen bei unverändertem 5.000-ms-Budget. Das vorbereitete
-Installationspaket bleibt auf dem früheren Stand; seine Paketnachweise
-und der dortige Budgetblocker bleiben getrennt erhalten.
+Ziel-/CL-Fällen bei unverändertem 5.000-ms-Budget. Der aktuelle
+[CLR-Wartungskandidat](CLR-MAINTENANCE.md) übernimmt diese DLL und besteht
+zwölf neue lokale/direkt zentrale Installations-, Hilfe- und SST-Fälle samt
+zwölf unabhängigen Audits. Das historische Basispaket, seine früheren
+Paketnachweise und der dortige Budgetblocker bleiben getrennt erhalten.
+Die [Hilfe-/Parameterkorrekturen](HELP-CONTRACT-MAINTENANCE.md) erläutern
+die weiteren bestehenden Prozeduren und die fünf freigegebenen ResultTable-Routen.
 
 Die [XLSX-Grenzprüfung](XLSX-BOUNDARY-QUALIFICATION.md) besteht für die feste
 32/33-Blattgrenze von `USP_ListXlsxWorksheets`. Der getrennte 50.000-Shared-

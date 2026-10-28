@@ -3,11 +3,13 @@
 -- Typ:             Stored Procedure
 -- Zweck:           Liest eine Datei als nvarchar(max) mit Encoding-Erkennung.
 -- Vertrag:         Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md
--- Parameter:       @FilePath nvarchar(4000)
+-- Parameter:       @FilePath nvarchar(4000) = NULL (nur Help-Aufruf)
 --                  @FallbackEncoding nvarchar(128) = 'Windows-1252'
 --                  @MaxBytes bigint = NULL
 --                  @Debug tinyint = 0
 --                  @Hilfe bit = 0
+--                  @ResultTable sysname = NULL
+--                  @KeepData bit = 0
 -- Resultset:       Genau eine Zeile mit Content, BytesRead, EncodingDetected,
 --                  BomPresent, IsValid, ValidationCode, ValidationMessage.
 -- Dependencies:    toolbelt_file.FileContentRootAllowlist
@@ -32,9 +34,11 @@ GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 (
-      @FilePath          nvarchar(4000)
+      @FilePath          nvarchar(4000) = NULL
     , @FallbackEncoding  nvarchar(128) = N'Windows-1252'
     , @MaxBytes          bigint        = NULL
+    , @ResultTable       sysname       = NULL
+    , @KeepData          bit           = 0
     , @Debug             tinyint       = 0
     , @Hilfe             bit           = 0
 )
@@ -42,10 +46,6 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    SET @FilePath         = NULLIF(LTRIM(RTRIM(@FilePath)), N'');
-    SET @FallbackEncoding = ISNULL(NULLIF(LTRIM(RTRIM(@FallbackEncoding)), N''), N'Windows-1252');
-    SET @MaxBytes         = NULLIF(@MaxBytes, 0);
-    SET @Debug            = ISNULL(@Debug, 0);
     SET @Hilfe            = ISNULL(@Hilfe, 0);
 
     IF @Hilfe = 1
@@ -87,7 +87,7 @@ BEGIN
           , N'Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM und decodiert entsprechend; Inhalt ohne BOM wird mit @FallbackEncoding gelesen.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 1
-          , N'@FilePath', 'nvarchar(4000)', 1, 0, NULL
+          , N'@FilePath', 'nvarchar(4000)', 1, 0, N'NULL'
           , N'Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 2
@@ -98,13 +98,21 @@ BEGIN
           , N'@MaxBytes', 'bigint', 0, 1, N'NULL'
           , N'Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.'
           , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 4
+        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 6
           , N'@Debug', 'tinyint', 0, 1, N'0'
-          , N'Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages.'
+          , N'Beim ResultTable-Routing Diagnosemeldungen des kanonischen Helpers; keine zusätzlichen fachlichen Resultsets. Im SELECT-Pfad keine Debug-Messages.'
           , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 5
+        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 7
           , N'@Hilfe', 'bit', 0, 1, N'0'
           , N'1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter.'
+          , NULL )
+        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 4
+          , N'@ResultTable', 'sysname', 0, 1, N'NULL'
+          , N'Optionaler lokaler Temp-Tabellenname für das Ergebnis.'
+          , NULL )
+        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 5
+          , N'@KeepData', 'bit', 0, 1, N'0'
+          , N'Bei ResultTable-Routing bleiben vorhandene Zielzeilen erhalten, wenn 1.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 1
           , N'Content', 'nvarchar(max)', 0, 1, NULL
@@ -160,11 +168,11 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PERMISSION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadTextFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...).'
+          , N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadTextFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...). Für @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Ein SINGLE_BLOB-Snapshot bindet Größe, BOM und Text. UTF-8 und Windows-1252 werden mit expliziten Collations, UTF-16-LE aus geraden Bytefolgen dekodiert. UTF-16-BE und UTF-32 bleiben ausgeschlossen. Die erste BLOB-Allokation ist kein Vorallokationsbudget.'
+          , N'Ein SINGLE_BLOB-Snapshot bindet Größe, BOM und Text. UTF-8 und Windows-1252 werden mit expliziten Collations, UTF-16-LE aus geraden Bytefolgen dekodiert. UTF-16-BE und UTF-32 bleiben ausgeschlossen. Die erste BLOB-Allokation ist kein Vorallokationsbudget. ResultTable-Änderung und Datei-I/O liegen in derselben Transaktion.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -201,30 +209,63 @@ BEGIN
         RETURN 0;
     END;
 
+    DECLARE @InitialTransactionCount int = @@TRANCOUNT
+          , @StartedTransaction bit = 0
+          , @SavepointCreated bit = 0
+          , @SavepointName varchar(32) = CONVERT(varchar(32), 'tbx_file_' + LEFT(REPLACE(CONVERT(varchar(36), NEWID()), '-', ''), 23))
+          , @InsertResultSql nvarchar(max);
+    IF @ResultTable IS NOT NULL SET XACT_ABORT OFF;
+    SET @KeepData = ISNULL(@KeepData, 0);
+    SET @Debug = ISNULL(@Debug, 0);
+    IF @ResultTable IS NOT NULL AND @InitialTransactionCount > 0 AND XACT_STATE() <> 1
+        THROW 51028, N'Der Callertransaktionszustand erlaubt keinen kontrollierten ResultTable-Savepoint.', 1;
+    CREATE TABLE #tbx_LoadTextFileResult
+    (
+          Content nvarchar(max) NULL
+        , BytesRead bigint NOT NULL
+        , EncodingDetected nvarchar(128) NULL
+        , BomPresent bit NOT NULL
+        , IsValid bit NOT NULL
+        , ValidationCode int NULL
+        , ValidationMessage nvarchar(4000) NULL
+    );
+    BEGIN TRY
+    IF @ResultTable IS NOT NULL
+    BEGIN
+        IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable', N'P') IS NULL
+            THROW 51908, N'Für @ResultTable fehlt toolbelt.core.result-table.', 1;
+        IF @InitialTransactionCount = 0
+        BEGIN
+            BEGIN TRANSACTION;
+            SET @StartedTransaction = 1;
+        END
+        ELSE
+        BEGIN
+            IF XACT_STATE() <> 1 THROW 51028, N'Der Callertransaktionszustand erlaubt keinen kontrollierten ResultTable-Savepoint.', 1;
+            SAVE TRANSACTION @SavepointName;
+            SET @SavepointCreated = 1;
+        END;
+        EXEC toolbelt_core.USP_PrepareResultTable
+              @ResultTableToAlter = @ResultTable
+            , @LikeTable = N'#tbx_LoadTextFileResult'
+            , @KeepData = @KeepData
+            , @Debug = @Debug;
+    END;
+
+    SET @FilePath         = NULLIF(LTRIM(RTRIM(@FilePath)), N'');
+    SET @FallbackEncoding = ISNULL(NULLIF(LTRIM(RTRIM(@FallbackEncoding)), N''), N'Windows-1252');
+    SET @MaxBytes         = NULLIF(@MaxBytes, 0);
+    SET @Debug            = ISNULL(@Debug, 0);
     IF @FilePath IS NULL
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
-            , NULL                        AS EncodingDetected
-            , CAST(0 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51320                       AS ValidationCode
-            , N'Ungültiger oder leerer Dateipfad.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, 0, NULL, 0, 0, 51320, N'Ungültiger oder leerer Dateipfad.');
+        GOTO EmitResult;
     END;
 
     IF @FallbackEncoding NOT IN (N'Windows-1252', N'SQL_Latin1_General_CP1_CI_AS')
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
-            , NULL                        AS EncodingDetected
-            , CAST(0 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51324                       AS ValidationCode
-            , N'Fallback-Encoding wird nicht unterstützt.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, 0, NULL, 0, 0, 51324, N'Fallback-Encoding wird nicht unterstützt.');
+        GOTO EmitResult;
     END;
 
     -- UTF-8 als Fallback-Encoding ist nicht sinnvoll, weil BOM-lose UTF-8-Dateien
@@ -240,30 +281,16 @@ BEGIN
     IF @NormalizedPath LIKE N'%/../%' OR @NormalizedPath LIKE N'%/..'
        OR @NormalizedPath LIKE N'../%'
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
-            , NULL                        AS EncodingDetected
-            , CAST(0 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51322                       AS ValidationCode
-            , N'Pfad enthält verbotene relative Segmente oder Traversal.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, 0, NULL, 0, 0, 51322, N'Pfad enthält verbotene relative Segmente oder Traversal.');
+        GOTO EmitResult;
     END;
 
     IF @NormalizedPath NOT LIKE N'[A-Za-z]:/%'
        AND @NormalizedPath NOT LIKE N'//%'
        AND @NormalizedPath NOT LIKE N'/%'
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
-            , NULL                        AS EncodingDetected
-            , CAST(0 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51320                       AS ValidationCode
-            , N'Ungültiger oder leerer Dateipfad.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, 0, NULL, 0, 0, 51320, N'Ungültiger oder leerer Dateipfad.');
+        GOTO EmitResult;
     END;
 
     IF NOT EXISTS
@@ -271,15 +298,8 @@ BEGIN
 :r ../Source/FileContentRootPredicate.sql
        )
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
-            , NULL                        AS EncodingDetected
-            , CAST(0 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51321                       AS ValidationCode
-            , N'Pfad liegt außerhalb der konfigurierten Root-Allowlist.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, 0, NULL, 0, 0, 51321, N'Pfad liegt außerhalb der konfigurierten Root-Allowlist.');
+        GOTO EmitResult;
     END;
 
     DECLARE @Sql nvarchar(max)
@@ -314,32 +334,15 @@ BEGIN
 
     IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , @BytesRead                  AS BytesRead
-            , NULL                        AS EncodingDetected
-            , CAST(0 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51323                       AS ValidationCode
-            , N'Datei überschreitet @MaxBytes.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, @BytesRead, NULL, 0, 0, 51323, N'Datei überschreitet @MaxBytes.');
+        GOTO EmitResult;
     END;
 
     -- Vierbyteige BOMs müssen vor den zweibyteigen Präfixen geprüft werden.
     IF @Header = 0xFFFE0000 OR @Header = 0x0000FEFF
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , @BytesRead                  AS BytesRead
-            , CASE @Header
-                  WHEN 0xFFFE0000 THEN N'UTF-32-LE'
-                  ELSE N'UTF-32-BE'
-              END                         AS EncodingDetected
-            , CAST(1 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51325                       AS ValidationCode
-            , N'UTF-32 wird nicht unterstützt.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, @BytesRead, CASE @Header WHEN 0xFFFE0000 THEN N'UTF-32-LE' ELSE N'UTF-32-BE' END, 1, 0, 51325, N'UTF-32 wird nicht unterstützt.');
+        GOTO EmitResult;
     END
     ELSE IF SUBSTRING(@Header, 1, 3) = 0xEFBBBF
     BEGIN
@@ -353,15 +356,8 @@ BEGIN
     END
     ELSE IF SUBSTRING(@Header, 1, 2) = 0xFEFF
     BEGIN
-        SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , @BytesRead                  AS BytesRead
-            , N'UTF-16-BE'                AS EncodingDetected
-            , CAST(1 AS bit)              AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51325                       AS ValidationCode
-            , N'UTF-16-BE wird nicht unterstützt.' AS ValidationMessage;
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(NULL, @BytesRead, N'UTF-16-BE', 1, 0, 51325, N'UTF-16-BE wird nicht unterstützt.');
+        GOTO EmitResult;
     END
     ELSE
     BEGIN
@@ -398,21 +394,40 @@ BEGIN
             SELECT @Content = CONVERT(nvarchar(max), Value) FROM @Cp1252Bytes;
         END;
 
-        SELECT
-              @Content        AS Content
-            , @BytesRead      AS BytesRead
-            , @EncodingDetected AS EncodingDetected
-            , @BomPresent     AS BomPresent
-            , CAST(1 AS bit)  AS IsValid
-            , NULL            AS ValidationCode
-            , NULL            AS ValidationMessage;
-
-        RETURN 0;
+        INSERT #tbx_LoadTextFileResult VALUES(@Content, @BytesRead, @EncodingDetected, @BomPresent, 1, NULL, NULL);
+        GOTO EmitResult;
     END TRY
     BEGIN CATCH
       DECLARE @ContentProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
         + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
       THROW 51326, @ContentProviderError, 1;
     END CATCH;
+    END TRY
+    BEGIN CATCH
+        IF @StartedTransaction = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        ELSE IF @SavepointCreated = 1 AND XACT_STATE() = 1 ROLLBACK TRANSACTION @SavepointName;
+        THROW;
+    END CATCH;
+
+EmitResult:
+    IF @ResultTable IS NULL
+    BEGIN
+        SELECT Content,BytesRead,EncodingDetected,BomPresent,IsValid,ValidationCode,ValidationMessage
+        FROM #tbx_LoadTextFileResult;
+        RETURN 0;
+    END;
+    BEGIN TRY
+        SET @InsertResultSql = N'INSERT INTO ' + QUOTENAME(@ResultTable)
+            + N' (Content,BytesRead,EncodingDetected,BomPresent,IsValid,ValidationCode,ValidationMessage)'
+            + N' SELECT Content,BytesRead,EncodingDetected,BomPresent,IsValid,ValidationCode,ValidationMessage FROM #tbx_LoadTextFileResult;';
+        EXEC sys.sp_executesql @InsertResultSql;
+        IF @StartedTransaction = 1 COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @StartedTransaction = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        ELSE IF @SavepointCreated = 1 AND XACT_STATE() = 1 ROLLBACK TRANSACTION @SavepointName;
+        THROW;
+    END CATCH;
+    RETURN 0;
 END;
 GO

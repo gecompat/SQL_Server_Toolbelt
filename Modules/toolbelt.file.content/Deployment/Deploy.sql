@@ -17,6 +17,30 @@ IF @ProductMajorVersion NOT IN (15, 16, 17)
 IF @DeploymentMode NOT IN (N'local', N'central')
     THROW 51271, N'Die SQLCMD-Variable DeploymentMode muss local oder central sein.', 1;
 
+DECLARE @ResultTableDependencyVersion nvarchar(64) =
+    (SELECT TRY_CONVERT(nvarchar(64), value) FROM sys.extended_properties
+     WHERE class=0 AND major_id=0 AND minor_id=0
+       AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version');
+DECLARE @ResultTableVersionMajor int = TRY_CONVERT(int, PARSENAME(@ResultTableDependencyVersion, 3))
+      , @ResultTableVersionMinor int = TRY_CONVERT(int, PARSENAME(@ResultTableDependencyVersion, 2))
+      , @ResultTableVersionPatch int = TRY_CONVERT(int, PARSENAME(@ResultTableDependencyVersion, 1));
+IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable', N'P') IS NULL
+   OR @ResultTableDependencyVersion IS NULL
+   OR PARSENAME(@ResultTableDependencyVersion, 4) IS NOT NULL
+   OR @ResultTableVersionMajor IS NULL OR @ResultTableVersionMinor IS NULL OR @ResultTableVersionPatch IS NULL
+   OR @ResultTableVersionMajor < 1 OR @ResultTableVersionMinor < 0 OR @ResultTableVersionPatch < 0
+   OR NOT EXISTS
+      (SELECT 1 FROM sys.extended_properties
+       WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P')
+         AND minor_id=0 AND name=N'Toolbelt.ModuleId'
+         AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),value))=CONVERT(varbinary(max),N'toolbelt.core.result-table'))
+   OR NOT EXISTS
+      (SELECT 1 FROM sys.extended_properties
+       WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P')
+         AND minor_id=0 AND name=N'Toolbelt.ModuleVersion'
+         AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@ResultTableDependencyVersion))
+    THROW 51275, N'Die Dependency toolbelt.core.result-table fehlt, liegt unter 1.0.0 oder besitzt keinen kanonischen Objektvertrag.', 1;
+
 SELECT @InstalledVersion = TRY_CONVERT(nvarchar(64), value)
 FROM sys.extended_properties
 WHERE class = 0 AND major_id = 0 AND minor_id = 0

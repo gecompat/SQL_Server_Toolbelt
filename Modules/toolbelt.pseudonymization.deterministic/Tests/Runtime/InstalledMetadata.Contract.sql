@@ -44,5 +44,12 @@ IF NOT EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=OBJECT_ID(N'toolbelt_
  AND column_id=2 AND name=N'ErrorCode' AND system_type_id=56 AND is_nullable=0)
  OR (SELECT COUNT(*) FROM sys.columns WHERE object_id=OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicGeoJitter'))<>2
  THROW 54090,N'Deterministic: GeoJitter geography-/Spaltenvertrag verletzt.',1;
+DECLARE @CoreHelp TABLE(HelpContractVersion varchar(16) NOT NULL,SchemaName sysname NOT NULL,ObjectName sysname NOT NULL,Section varchar(32) NOT NULL,Ordinal int NOT NULL,ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
+INSERT @CoreHelp EXEC toolbelt_pseudonymization.USP_DeterministicLookupCore @Hilfe=1;
+IF EXISTS(SELECT 1 FROM @CoreHelp WHERE HelpContractVersion<>'1.0' OR SchemaName<>N'toolbelt_pseudonymization' OR ObjectName<>N'USP_DeterministicLookupCore')
+ OR NOT EXISTS(SELECT 1 FROM @CoreHelp WHERE Section='PARAMETER' AND ItemName=N'@InputObjectId')
+ OR NOT EXISTS(SELECT 1 FROM @CoreHelp WHERE Section='PARAMETER' AND ItemName=N'@Hilfe')
+ OR NOT EXISTS(SELECT 1 FROM @CoreHelp WHERE Section='RESULT_COLUMN' AND ItemName=N'InputOrdinal')
+ THROW 54091,N'DeterministicLookupCore-Hilfevertrag ist unvollständig.',1;
 PRINT N'PASS: Deterministic Release/API/Hashes ohne Rechteaenderung';
 GO

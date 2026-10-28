@@ -24,7 +24,10 @@ deployment_capabilities:
   central_with_synonyms: false
   local_required: false
   central_preferred: false
-dependencies: []
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "ResultTable-Integration für die vorhandenen Ergebnisverträge (@ResultTable, @KeepData)."
 schemas:
   - "toolbelt_file"
 objects:
@@ -43,6 +46,7 @@ objects:
 permissions_required:
   - "EXECUTE auf toolbelt_file.USP_LoadBinaryFile"
   - "EXECUTE auf toolbelt_file.USP_LoadTextFile"
+  - "Für ResultTable-Routing zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable"
   - "ADMINISTER BULK OPERATIONS oder ad-hoc Distributed Queries für OPENROWSET(BULK...)"
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Root-Pfade werden literal an einer Verzeichnisgrenze mit Latin1_General_100_BIN2 und exakter UTF-16-Länge verglichen; Zeichensatz-Erkennung erfolgt über BOM-Heuristik."

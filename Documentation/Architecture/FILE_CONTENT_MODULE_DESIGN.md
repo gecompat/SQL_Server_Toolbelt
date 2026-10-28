@@ -87,6 +87,14 @@ werden nicht umklassifiziert und propagieren als `THROW`.
 | ValidationCode | `int` |
 | ValidationMessage | `nvarchar(4000)` |
 
+Beide USPs können ihre vorhandene Ergebniszeile optional über
+`@ResultTable sysname = NULL, @KeepData bit = 0` in eine lokale Temp-Tabelle
+schreiben. Dafür ist `toolbelt.core.result-table` ab Version `1.0.0`
+erforderlich. Die ResultTable wird vor dem Datei-I/O innerhalb derselben
+Transaktion vorbereitet; ein Datei-/Providerfehler rollt Shape- und
+Zeilenänderungen zum eigenen Transaktionsanfang oder Caller-Savepoint zurück.
+Das direkte Resultset bleibt bei `@ResultTable = NULL` unverändert.
+
 ## Encoding-Erkennung
 
 Die Datei wird genau einmal als `SINGLE_BLOB` aufgenommen. Bytezahl, erste vier
@@ -100,9 +108,10 @@ UTF-16 BE und UTF-32 bleiben nicht unterstützt (51325).
 
 ## Abhängigkeiten
 
-Keine Runtime-Abhängigkeiten zu anderen Toolbelt-Modulen. Für zukünftige
-Slices können `TC-2026-022` (Work-Type-Katalog) und `TC-2026-017`
-(Error Envelope) relevant werden.
+`toolbelt.core.result-table` ab Version `1.0.0` wird nur für den optionalen
+ResultTable-Ausgabepfad benötigt. Für zukünftige Slices können
+`TC-2026-022` (Work-Type-Katalog) und `TC-2026-017` (Error Envelope) relevant
+werden.
 
 ## Offene Punkte für spätere Slices
 

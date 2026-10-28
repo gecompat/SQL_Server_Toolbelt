@@ -15,9 +15,11 @@ ein abschließender Slash ist optional. Geschwisterpräfixe und durch
 ```sql
 CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 (
-      @FilePath          nvarchar(4000)
+      @FilePath          nvarchar(4000) = NULL
     , @FallbackEncoding  nvarchar(128) = N'Windows-1252'
     , @MaxBytes          bigint        = NULL
+    , @ResultTable       sysname       = NULL
+    , @KeepData          bit           = 0
     , @Debug             tinyint       = 0
     , @Hilfe             bit           = 0
 )
@@ -25,13 +27,30 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 
 ## Parameter
 
+Der technische `NULL`-Default für `@FilePath` ermöglicht `@Hilfe = 1`; im
+normalen Aufruf bleibt der Pfad fachlich erforderlich. Hilfe wird vor
+Pfadnormalisierung und Dateizugriff zurückgegeben.
+
+Die Standardparameter stehen jetzt in der vereinbarten Reihenfolge
+`@ResultTable, @KeepData, @Debug, @Hilfe`. Bisherige positionsgebundene
+Aufrufe mit Debug-/Hilfe-Werten müssen auf benannte Parameter umgestellt
+werden; benannte Aufrufe behalten ihre Bedeutung.
+
 | Parameter | Typ | Pflicht | Standard | Beschreibung |
 |---|---|---|---|---|
-| `@FilePath` | `nvarchar(4000)` | ja | - | Absoluter Pfad; UNC erlaubt. |
+| `@FilePath` | `nvarchar(4000)` | ja | `NULL` (technischer Help-Default) | Bei normalem Aufruf absoluter Pfad; UNC erlaubt. |
 | `@FallbackEncoding` | `nvarchar(128)` | nein | `Windows-1252` | Codepage für BOM-lose Dateien. |
 | `@MaxBytes` | `bigint` | nein | `NULL` | Optionales Größenlimit. |
-| `@Debug` | `tinyint` | nein | `0` | Reserviert. |
+| `@Debug` | `tinyint` | nein | `0` | Diagnosemeldungen des ResultTable-Helpers beim Routing; keine zusätzlichen fachlichen Resultsets. |
 | `@Hilfe` | `bit` | nein | `0` | `1` gibt Help-Resultset aus. |
+| `@ResultTable` | `sysname` | nein | `NULL` | Optionaler Name einer lokalen Temp-Tabelle für die Ergebniszeile. |
+| `@KeepData` | `bit` | nein | `0` | Mit ResultTable: 1 erhält bestehende Zeilen; 0 ersetzt Inhalt und Shape gemäß ResultTable-Vertrag. |
+
+`toolbelt.core.result-table` Version `1.0.0` wird nur für `@ResultTable`
+benötigt. Das Ziel wird innerhalb derselben Transaktion vor dem Datei-I/O
+präpariert. Ein Datei-/Provider- oder Decoderfehler rollt die ResultTable-
+Änderung zurück; eine vorhandene Callertransaktion wird über einen Savepoint
+behandelt.
 
 ## Resultset
 
@@ -73,11 +92,19 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 ```sql
 EXEC toolbelt_file.USP_LoadTextFile
       @FilePath = N'/var/opt/mssql/data/allowed/sample.txt';
+
+CREATE TABLE #TextResult (Content nvarchar(max) NULL, BytesRead bigint NOT NULL,
+    EncodingDetected nvarchar(128) NULL, BomPresent bit NOT NULL, IsValid bit NOT NULL,
+    ValidationCode int NULL, ValidationMessage nvarchar(4000) NULL);
+EXEC toolbelt_file.USP_LoadTextFile
+      @FilePath = N'/var/opt/mssql/data/allowed/sample.txt'
+    , @ResultTable = N'#TextResult';
 ```
 
 ## Berechtigungen
 
 - `EXECUTE` auf `toolbelt_file.USP_LoadTextFile`
+- Bei `@ResultTable`: zusätzlich `EXECUTE` auf `toolbelt_core.USP_PrepareResultTable`
 - Lesezugriff auf den Dateipfad
 - `ADMINISTER BULK OPERATIONS` oder `ad hoc distributed queries`
 

@@ -12,6 +12,7 @@ from compose_xlsx_raw_caller import compose
 import xlsx_metadata
 import zip_metadata
 import xlsx_sst_budget
+import help_contract_source
 
 REPORT_PATH = ROOT / 'Releases/1.0.0/xlsx-raw-caller-profile.json'
 
@@ -70,7 +71,13 @@ def validate_source_bindings(report, root):
         if relative == xlsx_sst_budget.WORKBOOK:
             xlsx_sst_budget.validate_historical_source(root, relative, digest)
             continue
-        current = hashlib.sha256((root / path).read_bytes()).hexdigest().upper()
+        if relative in help_contract_source.source_paths(root):
+            help_contract_source.validate_historical_source(root, relative, digest)
+            continue
+        current_bytes = (root / path).read_bytes()
+        if relative == xlsx_sst_budget.CELL_TEST:
+            current_bytes = xlsx_sst_budget.restore_help_cell_test(root, current_bytes)
+        current = hashlib.sha256(current_bytes).hexdigest().upper()
         expected = by_path.get(relative, {}).get('current_sha256', digest)
         if current != expected.upper():
             raise ValueError(f'source bytes differ from bound hash: {relative}')
@@ -78,6 +85,9 @@ def validate_source_bindings(report, root):
         path = Path(relative)
         if path.is_absolute() or '..' in path.parts:
             raise ValueError(f'unsafe documentation source path: {relative}')
+        if relative in help_contract_source.source_paths(root):
+            help_contract_source.validate_historical_source(root, relative, digest)
+            continue
         current = hashlib.sha256((root / path).read_bytes()).hexdigest().upper()
         if current != digest.upper():
             raise ValueError(f'documentation bytes differ from bound hash: {relative}')

@@ -1,9 +1,9 @@
 # CLR-Module ohne eigenen Build installieren
 
-Der [aktuelle SSIS-Paketnachweis](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md) bindet den neuen
-SSIS-Binary an zwölf explizite Windows-Buildkontexte und die aktualisierte
-CLR-Lieferung an sechs neue Windows-Paketkontexte. Die übrigen DLLs behalten
-ihre qualifizierten Bytes; die unten beschriebene Installation benötigt keinen Build.
+Der aktuelle Wartungskandidat enthält die korrigierte XLSX-DLL und die
+ergänzte XLSX-Hilfe. Die übrigen zwölf DLLs behalten ihre bisherigen Bytes.
+Der [Wartungsnachweis](CLR-MAINTENANCE.md) erklärt die neuen Prüfungen und
+die übernommenen Nachweise. Die Installation benötigt keinen eigenen Build.
 Die öffentliche Windows-Anmeldung und SSMS-GUI bleiben separat offen.
 
 Das optionale CLR-Paket enthält alle zwölf bestehenden Toolbelt-CLR-Module
@@ -22,14 +22,15 @@ deinem Windows-Rechner und ein vorhandenes administratives SQL-Konto.
 Visual Studio, MSBuild, ein .NET-SDK, Python oder ein eigener Build sind für
 die Installation nicht erforderlich. SSMS kann auch einen Linux-Server bedienen.
 
-Lade [das CLR-ZIP](InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip)
-und [seine Prüfsumme](InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256)
-aus demselben Repositorystand herunter. Im Gesamt-ZIP liegen diese Dateien
-unter `Releases/1.0.0/InstallPackages/`. Prüfe die heruntergeladene ZIP in
+Lade [das aktuelle CLR-ZIP](InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Maintenance.zip)
+und [seine Prüfsumme](InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Maintenance.zip.sha256)
+aus demselben Repositorystand herunter. Das ältere Gesamt-Quell-ZIP enthält
+weiterhin den historischen CLR-Basisstand; beziehe den Wartungskandidaten
+deshalb separat über diese Links. Prüfe die heruntergeladene ZIP in
 PowerShell, bevor du sie mit **Alle extrahieren** vollständig entpackst:
 
 ```powershell
-Get-FileHash -LiteralPath 'C:\Temp\SQL-Server-Toolbelt-1.0.0-CLR-Install.zip' -Algorithm SHA256
+Get-FileHash -LiteralPath 'C:\Temp\SQL-Server-Toolbelt-1.0.0-CLR-Maintenance.zip' -Algorithm SHA256
 ```
 
 Die 64 Zeichen müssen mit der Prüfsummendatei übereinstimmen. Bei Abweichung

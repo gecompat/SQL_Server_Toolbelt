@@ -50,9 +50,43 @@ for marker in (
     "JSON_PAYLOAD",
     "HAS_PERMS_BY_NAME",
     "@SuppressResult",
+    "@Hilfe",
+    "IF ISNULL(@Hilfe,0)=1",
 ):
     if marker not in source:
         raise SystemExit("Vertragsmarker fehlt: " + marker)
+
+dispatch = (root / "Source/USP_DispatchWorkType.sql").read_text(encoding="utf-8")
+for marker in (
+    "@WorkTypeName COLLATE Latin1_General_100_BIN2 = 'toolbelt.event-log.write'",
+    "@HandlerSchema COLLATE Latin1_General_100_BIN2 = N'toolbelt_core'",
+    "@HandlerProcedure COLLATE Latin1_General_100_BIN2 = N'USP_WriteEventInternal'",
+    "@InputParameterCount = 2",
+    "p.parameter_id = 1",
+    "p.name COLLATE Latin1_General_100_BIN2 = N'@PayloadJson'",
+    "p.parameter_id = 2",
+    "p.name COLLATE Latin1_General_100_BIN2 = N'@Hilfe'",
+    "TYPE_NAME(p.user_type_id) COLLATE Latin1_General_100_BIN2 = N'bit'",
+    "p.max_length = 1",
+    "p.is_output = 0",
+    "N'Toolbelt.ModuleId'",
+    "N'Toolbelt.ModuleVersion'",
+    "N'Toolbelt.Module.toolbelt.core.event-log.Version'",
+    "AND @IsCanonicalEventLogHandler = 0",
+    "@PayloadJson = @PayloadJson, @Hilfe = 0 WITH RESULT SETS NONE",
+):
+    if marker not in dispatch:
+        raise SystemExit("Der Event-Log-Ausnahmepfad ist unvollständig: " + marker)
+if dispatch.count("SET @IsCanonicalEventLogHandler = 1;") != 1:
+    raise SystemExit("Der kanonische Event-Log-Ausnahmepfad muss genau einmal gesetzt werden.")
+if ("IF @ParameterMode = 'JSON_PAYLOAD'\n"
+        "       AND @IsCanonicalEventLogHandler = 0\n"
+        "       AND\n       (\n           @InputParameterCount <> 1" not in dispatch):
+    raise SystemExit("Andere JSON-Handler müssen weiterhin exakt einen Payloadparameter besitzen.")
+if "IF @ParameterMode = 'NONE' AND @InputParameterCount <> 0" not in dispatch:
+    raise SystemExit("Der NONE-Handler muss weiterhin parameterlos bleiben.")
+if "+ N' @PayloadJson = @PayloadJson WITH RESULT SETS NONE;'" not in dispatch:
+    raise SystemExit("Der generische JSON-Handler muss seinen bisherigen Aufruf behalten.")
 
 module_text = "\n".join(
     (root / path).read_text(encoding="utf-8")

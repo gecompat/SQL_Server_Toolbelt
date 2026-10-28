@@ -10,6 +10,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import csv_metadata as metadata
+import help_contract_source
 import prepare_release as release
 import xlsx_metadata
 
@@ -113,8 +114,16 @@ class CsvMetadataTests(unittest.TestCase):
         zip_sources = {p: zip_files[p] for p in release.zip_metadata.PACKAGE_SOURCES}
         zip_sources[release.zip_metadata.RECORD] = (ROOT / release.zip_metadata.RECORD).read_bytes()
         release.validate_zip_clr_metadata(after, zip_sources)
-        self.assertEqual((ROOT / metadata.GUIDE).read_bytes(),
-                         metadata.corrected_install_guide(metadata.historical(ROOT, metadata.GUIDE)))
+        original_guide = metadata.historical(ROOT, metadata.GUIDE)
+        csv_projection = metadata.corrected_install_guide(original_guide)
+        source_delta = json.loads((ROOT / help_contract_source.RECORD).read_bytes())
+        baseline_guide = help_contract_source.validate_historical_source(
+            ROOT, metadata.GUIDE, source_delta['baseline_source_sha256'][metadata.GUIDE])
+        self.assertEqual(baseline_guide, csv_projection)
+        current_guide = help_contract_source.validate_current_source(ROOT, metadata.GUIDE)
+        self.assertIn(b'## CSV-Aufrufrechte', current_guide)
+        self.assertIn(b'CSV-Parser und -Writer', current_guide)
+        self.assertIn(b'CSV-METADATA-UPDATE.md', current_guide)
         for p in before:
             if p.startswith(('SQL/', 'Binaries/', 'ThirdParty/')) or p in ('QUALIFICATION.json', 'LICENSE.md', 'Install-ClrPackage.ps1'):
                 self.assertEqual(before[p], after[p], p)

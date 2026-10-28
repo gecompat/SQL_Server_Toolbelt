@@ -4,12 +4,15 @@ import hashlib
 import json
 import sys
 import tempfile
+import shutil
 from unittest.mock import patch
 import copy
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import xlsx_sst_budget
+import caller_metadata
+import help_contract_source
 REPORT = ROOT / 'Releases/1.0.0/xlsx-boundary-qualification.json'
 
 
@@ -94,8 +97,12 @@ class XlsxBoundaryEvidenceMixin:
                 self.assertNotIn('..', Path(relative).parts)
                 self.assertNotIn('.runtime', relative.lower())
                 self.assertEqual(len(expected), 64)
-                data = (xlsx_sst_budget.validate_historical_source(ROOT, relative, expected)
-                        if relative == xlsx_sst_budget.WORKBOOK else (ROOT / relative).read_bytes())
+                if relative == xlsx_sst_budget.WORKBOOK:
+                    data = xlsx_sst_budget.validate_historical_source(ROOT, relative, expected)
+                elif relative in help_contract_source.source_paths(ROOT):
+                    data = help_contract_source.validate_historical_source(ROOT, relative, expected)
+                else:
+                    data = (ROOT / relative).read_bytes()
                 if relative == report['source_eol_projection']['path']:
                     projection = report['source_eol_projection']
                     normalized = data.replace(b'\r\n', b'\n')
@@ -110,6 +117,16 @@ class XlsxBoundaryEvidenceMixin:
                 else:
                     actual = hashlib.sha256(data).hexdigest()
                 self.assertEqual(actual, expected, relative)
+
+    def test_xlsx_help_sources_keep_old_pins_with_exact_current_projection(self):
+        for path, executed in xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256.items():
+            original = help_contract_source.validate_historical_source(ROOT, path, executed)
+            current = help_contract_source.validate_current_source(ROOT, path)
+            self.assertEqual(hashlib.sha256(original).hexdigest(), executed)
+            self.assertTrue(current)
+            caller_metadata.validate_source(ROOT, path, executed)
+            with self.assertRaisesRegex(ValueError, 'Historical Help source pin differs'):
+                caller_metadata.validate_source(ROOT, path, '0' * 64)
 
     def test_xlsx_boundary_eol_projection_accepts_only_exact_line_endings(self):
         report = self._xlsx_boundary_report()
@@ -198,12 +215,46 @@ class XlsxBoundaryEvidenceMixin:
         with self.assertRaisesRegex(ValueError, 'unsupported historical'):
             xlsx_sst_budget.validate_historical_source(ROOT, '../unexpected', '0' * 64)
 
+    def test_xlsx_help_source_transition_is_exact_and_archive_bound(self):
+        runtime = ROOT / '.runtime'
+        runtime.mkdir(exist_ok=True)
+        path = 'Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql'
+        expected = xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256[path]
+        original = help_contract_source.validate_historical_source(ROOT, path, expected)
+        current = help_contract_source.validate_current_source(ROOT, path)
+        with self.assertRaisesRegex(ValueError, 'Historical Help source pin differs'):
+            help_contract_source.validate_historical_source(ROOT, path, '0' * 64)
+        with self.assertRaisesRegex(ValueError, 'unsupported XLSX help source path'):
+            xlsx_sst_budget.project_historical_xlsx_help('../unexpected', original)
+
+        with tempfile.TemporaryDirectory(prefix='xlsx-help-pin-', dir=runtime) as folder:
+            sandbox = Path(folder)
+            target = sandbox / path
+            target.parent.mkdir(parents=True)
+            target.write_bytes(current + b'-- unrelated SQL change\n')
+            (sandbox / help_contract_source.RECORD).parent.mkdir(parents=True)
+            shutil.copyfile(ROOT / help_contract_source.RECORD, sandbox / help_contract_source.RECORD)
+            archive_target = sandbox / help_contract_source.ARCHIVE
+            archive_target.parent.mkdir(parents=True)
+            shutil.copyfile(ROOT / help_contract_source.ARCHIVE, archive_target)
+            with self.assertRaisesRegex(ValueError, 'Current Help source differs'):
+                help_contract_source.validate_historical_source(sandbox, path, expected)
+            target.write_bytes(current)
+            archive_target.write_bytes(archive_target.read_bytes() + b'corruption')
+            with self.assertRaisesRegex(ValueError, 'Help baseline archive differs'):
+                help_contract_source.validate_historical_source(sandbox, path, expected)
+
     def test_sst_source_projections_allow_only_the_bound_changes(self):
         current = (ROOT / xlsx_sst_budget.CELL_TEST).read_bytes()
         previous = xlsx_sst_budget.restore_previous_cell_test(ROOT, current)
         self.assertEqual(xlsx_sst_budget.digest(previous), xlsx_sst_budget.PREVIOUS_CELL_TEST_SHA256)
-        self.assertEqual(xlsx_sst_budget.project_cell_test(previous), current)
-        with self.assertRaisesRegex(ValueError, 'exact SST dispatch'):
+        r21 = xlsx_sst_budget.project_cell_test(previous)
+        self.assertEqual(xlsx_sst_budget.restore_help_cell_test(ROOT, current), r21)
+        self.assertEqual(xlsx_sst_budget.project_help_cell_test(r21), current)
+        with self.assertRaisesRegex(ValueError, 'outside the exact help dispatch'):
+            xlsx_sst_budget.restore_help_cell_test(
+                ROOT, current.replace(xlsx_sst_budget.CELL_HELP_HOOK, b'            pass\n', 1))
+        with self.assertRaisesRegex(ValueError, 'outside the exact help dispatch'):
             xlsx_sst_budget.restore_previous_cell_test(ROOT, current.replace(b'continue', b'pass', 1))
         workbook = (ROOT / xlsx_sst_budget.WORKBOOK).read_bytes()
         executed = xlsx_sst_budget.reconstruct_executed_workbook(workbook)

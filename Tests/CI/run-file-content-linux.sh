@@ -94,6 +94,9 @@ deploy_file_content() {
   local target_database="$1"
   local mode="$2"
   run_file "${target_database}" \
+    /workspace/Modules/toolbelt.core.result-table/Deployment \
+    Deploy.sql -v DeploymentMode="${mode}"
+  run_file "${target_database}" \
     /workspace/Modules/toolbelt.file.content/Deployment \
     Deploy.sql -v DeploymentMode="${mode}"
 }
