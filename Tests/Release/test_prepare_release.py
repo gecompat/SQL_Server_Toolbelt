@@ -24,7 +24,6 @@ from test_caller_metadata import CallerMetadataTests
 from test_csv_caller_profile import CsvCallerProfileTests
 from test_csv_metadata import CsvMetadataTests
 from test_xlsx_cell_caller_qualification import XlsxCellCallerTests
-from test_base64_ddl_help_transition import Base64DdlHelpTransitionTests
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -2007,7 +2006,9 @@ class DateMathSelectedCallerTests(unittest.TestCase):
 
 def load_tests(loader, tests, pattern):
     from test_clr_maintenance import ClrMaintenanceTests
+    from test_base64_ddl_help_transition import Base64DdlHelpTransitionTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
+    tests.addTests(loader.loadTestsFromTestCase(Base64DdlHelpTransitionTests))
     return tests
 
 
