@@ -32,7 +32,7 @@ foreach($relative in $tracked){
     if($dots.Count -ne 1){throw ('COLD_LAB_EXPLICIT_READER_DEPENDENCY_REQUIRED: '+$relative)}
     $literal=@($dots[0].FindAll({param($n)$n -is [Management.Automation.Language.StringConstantExpressionAst] -and $n.Value -match 'LabQualifiedContract\.ps1$'},$true))
     if($literal.Count -ne 1){throw 'COLD_LAB_DEPENDENCY_PATH_LITERAL'}
-    $base=if($dots[0].Extent.Text -match '\$PSScriptRoot'){[IO.Path]::GetDirectoryName($path)}elseif($dots[0].Extent.Text -match '\$(repo|repoRoot)\b'){$root}else{throw 'COLD_LAB_DEPENDENCY_BASE_UNKNOWN'}
+    $base=if($dots[0].Extent.Text -match '\$PSScriptRoot'){[IO.Path]::GetDirectoryName($path)}elseif($dots[0].Extent.Text -match '\$(?:script:)?(?:repo|repoRoot)\b'){$root}else{throw 'COLD_LAB_DEPENDENCY_BASE_UNKNOWN'}
     if(-not [string]::Equals([IO.Path]::GetFullPath((Join-Path $base $literal[0].Value)),[IO.Path]::GetFullPath($shared),[StringComparison]::OrdinalIgnoreCase)){throw 'COLD_LAB_DEPENDENCY_WRONG_FILE'}
     $consumers+=@{Path=$path;Relative=$relative;Ast=$a;Dot=$dots[0]}
 }

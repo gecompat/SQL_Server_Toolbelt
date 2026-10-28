@@ -41,6 +41,11 @@ Die [aktuelle SSIS-Teilqualifikation und Paketbindung](SSIS-LOOKUP-QUALIFICATION
 trennt neue Windows-Nachweise von unverändert übernommenen Linux-Payloads und
 nennt die weiterhin offenen Client-, Ressourcen- und Releasegates.
 
+Der [eigenständige SSIS-T-SQL-Installer](SSIS-INSTALL-TSQL.md) bündelt die
+bereits qualifizierten SQL-CLR-Objekte samt exakten DLLs in einem ausführbaren
+T-SQL-Batch. Er ändert weder die bestehende Paketqualifikation noch den
+Veröffentlichungsstatus; DTSX-Paketberichte werden getrennt behandelt.
+
 Für den ersten praktischen Test beginne mit der
 [Installationsanleitung für SSMS](../../INSTALL.md). Sie benötigt für die
 stabilen T-SQL-Kandidaten keinen eigenen Build. Die folgenden Abschnitte

@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "kind": "standalone_tsql_installer_runtime_qualification",
+  "date": "2026-10-28",
+  "publication_authorized": false,
+  "installer": {
+    "path": "Releases/1.0.0/SSIS-INSTALL-TSQL.sql",
+    "sha256": "D0BE57AF8A6819294E660EED4C9AE93ADF514221A04547BD12832DF0503DC594"
+  },
+  "execution": {
+    "driver": "Tests/Release/Invoke-StandaloneTsqlInstallerLab.ps1",
+    "command_method": "Submit the complete rendered batch as one SqlClient CommandText; no SQLCMD parser is used.",
+    "mode_bindings": {
+      "local": {
+        "command_sha256": "D0BE57AF8A6819294E660EED4C9AE93ADF514221A04547BD12832DF0503DC594",
+        "header_override_count": 0
+      },
+      "central": {
+        "command_sha256": "3AD62550FAF04A9769B68684BCAE58C72A48F0244101456A5171115696960F75",
+        "header_override": {
+          "from": "DECLARE @DeploymentMode nvarchar(16)=N'local';",
+          "to": "DECLARE @DeploymentMode nvarchar(16)=N'central';",
+          "count": 1
+        }
+      }
+    }
+  },
+  "qualified_package": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip",
+    "sha256": "A256929FF32DAEE4087DC61C70BB8D4DFFEBB55772878BE53C658088F4E33049",
+    "qualification_path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.InstallPackage.20261025.json",
+    "qualification_sha256": "6FBF48508A1F13BB9F629353BBCE8908DC729C9AD2E7779B3C689DBFB62A692F"
+  },
+  "scope": {
+    "modules": [
+      { "id": "toolbelt.core.result-table", "version": "1.0.0" },
+      { "id": "toolbelt.tsql.script-parser", "version": "2.0.1" },
+      { "id": "toolbelt.tsql.ssis-debug", "version": "1.0.0" }
+    ],
+    "targets": [
+      { "platform": "Windows", "sql_server": "2019", "compatibility_level": 150 },
+      { "platform": "Windows", "sql_server": "2025", "compatibility_level": 170 }
+    ],
+    "deployment_modes": ["local", "central"],
+    "case_count": 2,
+    "coverage": [
+      "Install and repeat in both deployment modes",
+      "Existing synthetic SSIS API and metadata checks",
+      "Help and sanity checks",
+      "Fresh-session and reserved temporary-table rejection guards",
+      "Independent cleanup audit after each target case"
+    ],
+    "results": {
+      "target_cases": "PASS",
+      "cleanup_audits": "PASS",
+      "case_count_passed": 2,
+      "cleanup_audits_passed": 2
+    },
+    "assembly_trust": {
+      "test_setup": "Exact required assembly hashes were preseeded by the guarded harness.",
+      "installer_registration_opt_in_exercised": false
+    },
+    "not_qualified": [
+      "The full SQL Server version/platform matrix",
+      "SSISDB, DTSX package execution, or package-specific reports",
+      "External model or identity exports",
+      "The installer's opt-in assembly-trust registration branch",
+      "Publication or release authorization"
+    ]
+  },
+  "execution_input_pins": [
+    { "path": "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1", "sha256": "FF2CCE9C0C33335892EFFAC843D90BF2B131B597C68E9514850CC91C80CAC993" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json", "sha256": "9F99B9A24D3A0535E156A313DEF1ED723FF62F17AA2E4859AC58C41E51BC1001" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip", "sha256": "A256929FF32DAEE4087DC61C70BB8D4DFFEBB55772878BE53C658088F4E33049" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip.sha256", "sha256": "761090C1FFF299604EF91BC3C2B839F9C770ADA1FBAD30649824EAE54BE031AA" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx", "sha256": "DEA7DC971972882B2A090D489ECFC2DC1E85635936A0ECD8C89C8443D746BF3E" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.InstallPackage.20261025.json", "sha256": "6FBF48508A1F13BB9F629353BBCE8908DC729C9AD2E7779B3C689DBFB62A692F" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1", "sha256": "F0E235F3CBF984D611DEC6B6A12676D08145185010CEC2FAF5499C4DD51FBCFC" },
+    { "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1", "sha256": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570" },
+    { "path": "Releases/1.0.0/SSIS-INSTALL-TSQL.sql", "sha256": "D0BE57AF8A6819294E660EED4C9AE93ADF514221A04547BD12832DF0503DC594" },
+    { "path": "Releases/1.0.0/ssis-standalone-installer.json", "sha256": "8A4D5B21B881CB5CE3762FA1992AD9352698C5E575B9C73B3A08990C504DC00B" },
+    { "path": "Tests/CI/LabQualifiedContract.ps1", "sha256": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15" },
+    { "path": "Tests/CI/run-csv-memory-lab.ps1", "sha256": "E200D4D6FC3CA0EE6FC00F333D67B6A4F8B89652731CA383CECE6731B58FA3FF" },
+    { "path": "Tests/CI/run-lab-local.ps1", "sha256": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846" },
+    { "path": "Tests/Release/Invoke-StablePackageLab.ps1", "sha256": "04C9EDEB54B09CCA306D007DE11B7A01773425BA1AE76F3198BA1E5DEB660D6A" },
+    { "path": "Tests/Release/Invoke-StandaloneTsqlInstallerLab.ps1", "sha256": "A87FD76C819CA0BCCE3CFC5F0C33C2867E89EE31D622327DD256C047E039602D" },
+    { "path": "Tests/Release/Prepare-StandaloneTsqlInstallerRunset.ps1", "sha256": "1F1EDA10AB0E67CE7B1E4912C51B3F5429D24937025C5E8899BC71C80A84426D" }
+  ]
+}
