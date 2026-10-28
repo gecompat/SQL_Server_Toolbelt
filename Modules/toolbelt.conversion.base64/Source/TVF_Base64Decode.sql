@@ -15,6 +15,13 @@ RETURNS @Result TABLE(DecodedValue varbinary(max) NULL,Status varchar(16) NOT NU
 WITH SCHEMABINDING
 AS
 BEGIN
+    /* DDL-Hilfe: Decodiert Base64/Base64URL und meldet den festen Status.
+       Parameter: @Value varchar(max), NULL erlaubt; Space, Tab, CR und LF werden
+       ignoriert. Eingabe höchstens 25165824 Bytes, Ergebnis höchstens 16777216.
+       Ergebnis: genau eine Zeile (DecodedValue varbinary(max), Status varchar(16));
+       Status ist SQL_NULL, LIMIT, INVALID oder OK. Für den Aufruf ist SELECT erforderlich.
+       Beispiel: SELECT * FROM toolbelt_conversion.TVF_Base64DecodeStatus('yv7K_g');
+       Erwartet: DecodedValue=0xCAFECAFE, Status='OK'. */
     IF @Value IS NULL BEGIN INSERT @Result VALUES(NULL,'SQL_NULL'); RETURN; END;
     IF DATALENGTH(@Value)>25165824 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
     DECLARE @Canonical varchar(max),@InvalidFormat bit=0,@Expected bigint,@Decoded varbinary(max),
@@ -48,6 +55,14 @@ GO
 -- Vertrag: Documentation/TVF_Base64Decode.md
 CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Decode](@Value varchar(max))
 RETURNS TABLE AS RETURN
+/* DDL-Hilfe: Decodiert eine Base64/Base64URL-Wertzeile; ungültige Eingabe
+   löst einen SQL-Engine-Konvertierungsfehler aus.
+   Parameter: @Value varchar(max), NULL erlaubt; Space, Tab, CR und LF werden
+   ignoriert. Eingabe höchstens 25165824 Bytes, decodierte Ausgabe höchstens 16777216.
+   Ergebnis: DecodedValue varbinary(max), genau eine Zeile; bei Größen-LIMIT NULL.
+   Für den Aufruf ist SELECT erforderlich.
+   Beispiel: SELECT DecodedValue FROM toolbelt_conversion.TVF_Base64Decode('yv7K_g');
+   Erwartet: 0xCAFECAFE. */
 (SELECT DecodedValue=CASE WHEN Status='INVALID'
     THEN CONVERT(varbinary(max),CONVERT(int,LEFT('toolbelt.invalid.base64'+ISNULL(@Value,''),23)))
     ELSE DecodedValue END FROM toolbelt_conversion.TVF_Base64DecodeStatus(@Value));

@@ -39,6 +39,12 @@ SELECT OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_file.TVF_InterpretXlsxCell'));
 SELECT OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_file.TVF_FormatXlsxCell'));
 ```
 
+Die sechs öffentlichen Base64-Funktionen enthalten ebenfalls Zweck-, Parameter-,
+Rückgabe- und Beispielhinweise im gespeicherten DDL. Ihr enger, archivgebundener
+Quellübergang ist im [Base64-DDL-Hilferecord](base64-ddl-help-transition.json)
+beschrieben; dieser ergänzt die Kommentare, ohne frühere Ausführungsnachweise
+umzudatieren oder eine neue vollständige native Abnahme zu behaupten.
+
 Der [Quellübergangsrecord](help-contract-source-delta.json) bindet die
 betroffenen aktuellen Dateien getrennt von den unveränderten früheren
 Ausführungsnachweisen. Das [öffentliche Vorgängerarchiv](Artifacts/Help-Contract-Baseline.zip)

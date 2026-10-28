@@ -109,6 +109,16 @@ def validate_source(root, path, executed_digest):
     if path in help_contract_source.source_paths(root):
         help_contract_source.validate_historical_source(root, path, executed_digest)
         return
+    base64_paths = {
+        'Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql',
+        'Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql',
+        'Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql',
+        'Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql',
+    }
+    if path in base64_paths:
+        base64_ddl_help = import_module('base64_ddl_help')
+        base64_ddl_help.validate_historical_source(root, path, executed_digest)
+        return
     xlsx_manifest = 'Modules/toolbelt.file.xlsx-memory/module.yaml'
     if path == xlsx_manifest:
         # Keep the XLSX exception exact and lazy: xlsx_metadata is loaded by

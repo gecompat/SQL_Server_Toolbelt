@@ -15,6 +15,13 @@ RETURNS @Result TABLE(EncodedValue varchar(max) NULL,Status varchar(16) NOT NULL
 WITH SCHEMABINDING
 AS
 BEGIN
+    /* DDL-Hilfe: Codiert varbinary(max) als Base64/Base64URL.
+       Parameter: @Value varbinary(max), NULL erlaubt; @UrlSafe bit = 0,
+       NULL entspricht 0. Höchstens 16777216 Eingabebytes; darüber Status LIMIT.
+       Ergebnis: genau eine Zeile (EncodedValue varchar(max), Status varchar(16));
+       Status ist SQL_NULL, LIMIT oder OK. Für den Aufruf ist SELECT erforderlich.
+       Beispiel: SELECT * FROM toolbelt_conversion.TVF_Base64EncodeStatus(0xCAFECAFE,0);
+       Erwartet: EncodedValue='yv7K/g==', Status='OK'. */
     IF @Value IS NULL BEGIN INSERT @Result VALUES(NULL,'SQL_NULL'); RETURN; END;
     IF DATALENGTH(@Value)>16777216 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
     DECLARE @Encoded varchar(max);
@@ -70,5 +77,12 @@ GO
 CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Encode]
 (@Value varbinary(max),@UrlSafe bit=0)
 RETURNS TABLE AS RETURN
+/* DDL-Hilfe: Liefert eine Base64-Wertzeile für Binärdaten.
+   Parameter: @Value varbinary(max), NULL erlaubt; @UrlSafe bit = 0,
+   NULL entspricht 0. Höchstens 16777216 Eingabebytes; bei Überschreitung NULL.
+   Ergebnis: EncodedValue varchar(max), genau eine Zeile; bei Größen-LIMIT NULL.
+   Für den Aufruf ist SELECT erforderlich.
+   Beispiel: SELECT EncodedValue FROM toolbelt_conversion.TVF_Base64Encode(0xCAFECAFE,0);
+   Erwartet: yv7K/g==. */
 (SELECT EncodedValue FROM toolbelt_conversion.TVF_Base64EncodeStatus(@Value,@UrlSafe));
 GO
