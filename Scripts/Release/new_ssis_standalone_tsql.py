@@ -316,7 +316,7 @@ def append_license_comment(lines: list[str], label: str, data: bytes) -> None:
     if not text.endswith("\n"):
         raise ValueError("LICENSE_TERMINATOR_INVALID")
     lines.append(f"-- BEGIN LICENSE TEXT: {label}")
-    lines.extend("-- " + line for line in text[:-1].split("\n"))
+    lines.extend(("-- " + line) if line else "--" for line in text[:-1].split("\n"))
     lines.append(f"-- END LICENSE TEXT: {label}")
 
 

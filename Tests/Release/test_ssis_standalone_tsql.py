@@ -38,7 +38,7 @@ class StandaloneTsqlInstallerTests(unittest.TestCase):
         self.assertEqual(execution["mode_bindings"]["local"]["command_sha256"], report["installer"]["sha256"])
         self.assertEqual(execution["mode_bindings"]["local"]["header_override_count"], 0)
         central = execution["mode_bindings"]["central"]
-        self.assertEqual(central["command_sha256"], "94F9A4B6D6A555388BDF81D21F716A4AD61A87DC156C1EF0FFA222036B70ACD5")
+        self.assertEqual(central["command_sha256"], "3AD62550FAF04A9769B68684BCAE58C72A48F0244101456A5171115696960F75")
         self.assertEqual(central["header_override"], {
             "from": "DECLARE @DeploymentMode nvarchar(16)=N'local';",
             "to": "DECLARE @DeploymentMode nvarchar(16)=N'central';",
@@ -46,6 +46,17 @@ class StandaloneTsqlInstallerTests(unittest.TestCase):
         })
         self.assertEqual(len(report["execution_input_pins"]), 16)
         self.assertTrue(all(not Path(pin["path"]).is_absolute() for pin in report["execution_input_pins"]))
+        sql = (ROOT / report["installer"]["path"]).read_bytes()
+        self.assertEqual(hashlib.sha256(sql).hexdigest().upper(), report["installer"]["sha256"])
+        central_override = central["header_override"]
+        old_header = central_override["from"].encode("utf-8")
+        new_header = central_override["to"].encode("utf-8")
+        self.assertEqual(sql.count(old_header), central_override["count"])
+        central_sql = sql.replace(old_header, new_header, central_override["count"])
+        self.assertEqual(hashlib.sha256(central_sql).hexdigest().upper(), central["command_sha256"])
+        for pin in report["execution_input_pins"]:
+            pinned_bytes = (ROOT / pin["path"]).read_bytes()
+            self.assertEqual(hashlib.sha256(pinned_bytes).hexdigest().upper(), pin["sha256"], pin["path"])
         guide = (ROOT / "Releases/1.0.0/SSIS-INSTALL-TSQL.md").read_text(encoding="utf-8")
         self.assertIn("ssis-standalone-installer-runtime-qualification.json", guide)
 
@@ -228,8 +239,8 @@ GO
             )
             self.assertIsNotNone(block)
             comment_lines = block.group(1).splitlines()
-            self.assertTrue(all(line.startswith("-- ") for line in comment_lines))
-            recovered = "\n".join(line[3:] for line in comment_lines) + "\n"
+            self.assertTrue(all(line == "--" or line.startswith("-- ") for line in comment_lines))
+            recovered = "\n".join("" if line == "--" else line[3:] for line in comment_lines) + "\n"
             self.assertEqual(recovered, installer.decode_sql(payloads[payload_key]))
         binary_literals = re.findall(rb"(?i)0x([0-9a-f]+)", generated)
         self.assertTrue(binary_literals)
