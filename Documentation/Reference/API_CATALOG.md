@@ -875,7 +875,7 @@ Zeigt protokollierte Toolbelt-Events.
 
 Vertrag und Quelle: [VW_Events.sql](../../Modules/toolbelt.core.event-log/Source/VW_Events.sql), [EVENT_LOG_OBJECTS.md](../../Modules/toolbelt.core.event-log/Documentation/EVENT_LOG_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: ab14e1b100d66df4a942d02b712bca00a37aa82fab097c9b8f32b925c3a749b7 -->
+<!-- Source/Vertrag SHA256: c239b7620fa0e411d32a97f1fbde8e4d1d26716c1e38aeb3115948974b6bf022 -->
 
 Keine Eingabeparameter.
 
@@ -891,7 +891,7 @@ Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. D
 
 Vertrag und Quelle: [USP_WriteEvent.sql](../../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [EVENT_LOG_OBJECTS.md](../../Modules/toolbelt.core.event-log/Documentation/EVENT_LOG_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 214e8f440f1a03cbaa88f924bc546e95492cf65c7e36a30ad16b42d751080d31 -->
+<!-- Source/Vertrag SHA256: f83471f82500eafbe2a66c02d0dbb97f9654dcddbd5ef45b5e1fa563775ef86c -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -938,7 +938,7 @@ Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine a
 
 Vertrag und Quelle: [USP_DeleteEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql), [EVENT_LOG_OBJECTS.md](../../Modules/toolbelt.core.event-log/Documentation/EVENT_LOG_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: bccf57d65f7af15cc12b43c70a45c9e14460a40dc4ff5bdb6d94b1765a036c2d -->
+<!-- Source/Vertrag SHA256: 6a01230462791033fbe2efe3fbeab4b9d3831a954e70d2968dad7b148e014a05 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1004,7 +1004,7 @@ Liest den registrierten kooperativen Abbruchstatus einer Ausführung.
 
 Vertrag und Quelle: [TVF_ExecutionCancellationStatus.sql](../../Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql), [EXECUTION_CANCELLATION_OBJECTS.md](../../Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 18228015c20b540a8d55de9b0df9c8b1886142d8bd94da40b589c7be7d619fbe -->
+<!-- Source/Vertrag SHA256: 364b59e1530dd4e591ec7b50ae095dfce358b53bcf1324ea75716aabe4ed6f35 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1024,7 +1024,7 @@ Prüft, ob für eine Ausführung ein kooperativer Abbruch angefordert wurde.
 
 Vertrag und Quelle: [SVF_IsCancellationRequested.sql](../../Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql), [EXECUTION_CANCELLATION_OBJECTS.md](../../Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: eb6abfacd5b08e76ba484f1b051f6e90517d7069dfb4681bbc4eb57fb5753ed2 -->
+<!-- Source/Vertrag SHA256: b30c23fc41c840367ae0a8de4943fc2d77d54f8b857e190e2023725172a4d3db -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1044,7 +1044,7 @@ Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedur
 
 Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [EXECUTION_CANCELLATION_OBJECTS.md](../../Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 0061d44b02a333d61fe43435414acc85af49119e16b0942585032f9f80e897d5 -->
+<!-- Source/Vertrag SHA256: 5ba97e8d276a939c76c9dd13669474d387c7c9e3bb0c132e8ac780da7c665d8c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1316,7 +1316,7 @@ Zeigt konfigurierte Second-Session-Provider.
 
 Vertrag und Quelle: [VW_SecondSessionProviders.sql](../../Modules/toolbelt.core.second-session/Source/VW_SecondSessionProviders.sql), [SECOND_SESSION_OBJECTS.md](../../Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 604192e568944cd8c4fe0f0b7cd82e3443d8529838ea8b2bd5afde3e66f28074 -->
+<!-- Source/Vertrag SHA256: aa683172390f09e36cb25e6aa9b4115cc75a308ef643f03a937179762e28fe99 -->
 
 Keine Eingabeparameter.
 
@@ -1332,7 +1332,7 @@ Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Lin
 
 Vertrag und Quelle: [USP_ConfigureSecondSessionLoopback.sql](../../Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql), [SECOND_SESSION_OBJECTS.md](../../Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: d84e897c7b2ce050ed1bee6049aba4a9ff0a21ca1593c53db6a3a52ca077f740 -->
+<!-- Source/Vertrag SHA256: 330662209a67b38d943deee20d55deb1c9369f35781f6458275e615908eb87ce -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1366,7 +1366,7 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [SECOND_SESSION_OBJECTS.md](../../Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: f8311fa60114c48f5420eaaec3497190f2765a8b8513d849639292540fe5afd7 -->
+<!-- Source/Vertrag SHA256: 309cd5256f194b8e6be12a5164fabf430f3d2e68edcedd11f45d4a51144a6785 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1404,7 +1404,7 @@ Zeigt Queue-Status und Auditmetadaten ohne Payload und ClaimToken.
 
 Vertrag und Quelle: [VW_WorkQueue.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: b973ebb347e074d42c7f8ee97d7666ac02b48afa1f51006ea1b337f320d49067 -->
+<!-- Source/Vertrag SHA256: 37ceb06c26c7fc4798ad021a6437798b03e2394b034e080d599ad36e7f49f4c9 -->
 
 Keine Eingabeparameter.
 
@@ -1420,7 +1420,7 @@ Zeigt aktive Claim-Generationen, die eine Gruppenbarriere blockieren.
 
 Vertrag und Quelle: [VW_WorkQueueBarrierBlockers.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: c0047964b9122d607acabe3818d12f60562e4a5eb8a5c38d95baa89420995fc4 -->
+<!-- Source/Vertrag SHA256: efaa329714bc6f28ed02e7e23b30bb6e1360681ed4af5243db2f2dd8b29abb90 -->
 
 Keine Eingabeparameter.
 
@@ -1436,7 +1436,7 @@ Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wi
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 1b8352462dbf68e6310704e9788aa6a204c63db04f7dc163a7b0ed4f89739249 -->
+<!-- Source/Vertrag SHA256: 420849d3b8762272c2750db19b3bc127984ce0cbf9279e4618de0aa0e60bb2bd -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1469,7 +1469,7 @@ Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlic
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 013ba6a6f336dc8346961b7a8d78185d60d6ca12254598f14f00f7a222916ae8 -->
+<!-- Source/Vertrag SHA256: fb0a96585b6a8d30ff643e933719f3eeede5724e583b16b17c3437524ec39be6 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1513,7 +1513,7 @@ Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten ak
 
 Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 2b9b5528e5bbea592767280a892c671702498547c980004f29bbed58ef55510f -->
+<!-- Source/Vertrag SHA256: 6ea55ba8e53038def617bfb492d60e396fbdd644be500fa987661e12355978cd -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1554,7 +1554,7 @@ Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffne
 
 Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: d8f112f033c2e87200e2831e2434060659068a246f5c3625b7dbc1b930999d01 -->
+<!-- Source/Vertrag SHA256: 2f73cb733bf6eb750fa1a9236bdc3a36d3da320e4ba5595eb693c3e83d280db7 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1586,7 +1586,7 @@ Verlängert eine noch aktive Lease mit passendem ClaimToken um ihre beim Claim f
 
 Vertrag und Quelle: [USP_RenewWorkLease.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: aa71267293017f4b1a3d0a05e23abf832192cb6d3351ea997f53eb04a39f5427 -->
+<!-- Source/Vertrag SHA256: ee0a57f32ea12b0a01349ec81f6156e95c76c05c518a18108dc5e88fd224ddae -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1621,7 +1621,7 @@ Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT ode
 
 Vertrag und Quelle: [USP_RecoverExpiredWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 389ccb39fc3001fcc079047e78f00f2724669c43c6ad840573370d0d1032d2ab -->
+<!-- Source/Vertrag SHA256: da07ba7fc42ed4bfb929be05b8ee1a9102dd5d59a1dbdc173acc6b4a21ee2549 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1653,7 +1653,7 @@ Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED
 
 Vertrag und Quelle: [USP_CompleteWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 8790e79ecc3a3f49f1732d83698642a337ff0f86498b1b5430f884e3f66150e1 -->
+<!-- Source/Vertrag SHA256: 47e7a068d8f382e68c8229bb16452cd6f4f931a840c4bdd9c6812250cf7ae91e -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1688,7 +1688,7 @@ Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Ge
 
 Vertrag und Quelle: [USP_FailWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: febd7526e8f76e13a43d330e45e89038dace810dc43a739f19122ec2d51a0d86 -->
+<!-- Source/Vertrag SHA256: 1577fd80242b5a2901b18516e9ff7fbd9a82624c2766608d39fa0fd58ed0bdf7 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1725,7 +1725,7 @@ Plant einen tokengebundenen Retry oder verschiebt nach Dead Letter.
 
 Vertrag und Quelle: [USP_ScheduleWorkRetry.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: eb8f918064a99e428b12b4efb5733680794df8a7029b130c789754a4589223f0 -->
+<!-- Source/Vertrag SHA256: 504cd670f544e72eb64de17294cd33c593744b2528511b39e2ca0b8b5b077fc1 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1763,7 +1763,7 @@ Beginnt für ein Dead-Letter-Item einen neuen Retry-Zyklus.
 
 Vertrag und Quelle: [USP_RequeueDeadLetter.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 729254fba6c65d5f6bedeb4ab22488cf8d87a212554f7d31204c94c60f8bff78 -->
+<!-- Source/Vertrag SHA256: ae9d66423f9b23b9fe44a902dab310cde9ec42dbf4110953f004d5d1c4acba7b -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1799,7 +1799,7 @@ Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden
 
 Vertrag und Quelle: [USP_GetWorkStatus.sql](../../Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 3dae733b7c965dbc533644f9dab0fb1b9550f4e7e3620379995998f36fa9c7c8 -->
+<!-- Source/Vertrag SHA256: bb460e7637452a19245c75808b9e5aacf902a45b2a89cfc98e9e3bf133a07182 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -2772,16 +2772,18 @@ Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unt
 
 Vertrag und Quelle: [USP_LoadBinaryFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [USP_LoadBinaryFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 5a806c2ee458b1237984350caed9647a5af79139bfe7a5c779305de8262ee250 -->
+<!-- Source/Vertrag SHA256: aa548b1de2ba444172c777977900ecd55859a8ffb6b868c86bae64bad21220eb -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@FilePath` | `nvarchar(4000)` | `kein Default` | Input | Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt. |
+| `@FilePath` | `nvarchar(4000)` | `NULL` | Input | Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt. |
 | `@MaxBytes` | `bigint` | `NULL` | Input | Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL. |
-| `@Debug` | `tinyint` | `0` | Input | Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages. |
-| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter. |
+| `@ResultTable` | `sysname` | `NULL` | Input | Optionaler Name einer lokalen Temp-Tabelle für die Ergebniszeile. Erfordert toolbelt.core.result-table ab Version 1.0.0. |
+| `@KeepData` | `bit` | `0` | Input | Wirkt mit @ResultTable: 1 erhält vorhandene Zeilen; 0 ersetzt Inhalt und Shape gemäß ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | Input | Steuert Diagnosemeldungen des ResultTable-Helpers beim Routing; erzeugt keine zusätzlichen fachlichen Resultsets. |
+| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich dieses Help-Resultset aus und ignoriert die übrigen Parameter. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -2793,7 +2795,7 @@ EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=N'C:\ExampleRoot\sample.bin', @M
 Hilfe:
 
 ```sql
-EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=NULL, @Hilfe=1;
+EXEC toolbelt_file.USP_LoadBinaryFile @Hilfe=1;
 ```
 
 ## toolbelt_file.USP_LoadTextFile
@@ -2804,17 +2806,19 @@ Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM un
 
 Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md).
 
-<!-- Source/Vertrag SHA256: 61efbc6fa936fba286a5887d1b5ce51f2900fd6badf4a5b241f4ce74b4817ddc -->
+<!-- Source/Vertrag SHA256: b339d9b2c364edb69b3aeb4c18215fb4e624d17c0efbb045fdbb0802dbb93eab -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@FilePath` | `nvarchar(4000)` | `kein Default` | Input | Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt. |
+| `@FilePath` | `nvarchar(4000)` | `NULL` | Input | Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt. |
 | `@FallbackEncoding` | `nvarchar(128)` | `N'Windows-1252'` | Input | Codepage für Dateien ohne BOM. Unterstützt werden Windows-1252 und SQL_Latin1_General_CP1_CI_AS äquivalente 8-Bit-Codepages. |
 | `@MaxBytes` | `bigint` | `NULL` | Input | Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL. |
-| `@Debug` | `tinyint` | `0` | Input | Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages. |
-| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter. |
+| `@ResultTable` | `sysname` | `NULL` | Input | Optionaler Name einer lokalen Temp-Tabelle für die Ergebniszeile. Erfordert toolbelt.core.result-table ab Version 1.0.0. |
+| `@KeepData` | `bit` | `0` | Input | Wirkt mit @ResultTable: 1 erhält vorhandene Zeilen; 0 ersetzt Inhalt und Shape gemäß ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | Input | Steuert Diagnosemeldungen des ResultTable-Helpers beim Routing; erzeugt keine zusätzlichen fachlichen Resultsets. |
+| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich dieses Help-Resultset aus und ignoriert die übrigen Parameter. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -2826,7 +2830,7 @@ EXEC toolbelt_file.USP_LoadTextFile @FilePath=N'C:\ExampleRoot\sample.txt', @Max
 Hilfe:
 
 ```sql
-EXEC toolbelt_file.USP_LoadTextFile @FilePath=NULL, @Hilfe=1;
+EXEC toolbelt_file.USP_LoadTextFile @Hilfe=1;
 ```
 
 ## toolbelt_file.USP_ParseCsv
@@ -2917,7 +2921,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql), [USP_ListXlsxWorksheets.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md).
 
-<!-- Source/Vertrag SHA256: 5fe94b83e6e488201cc1f63d6beea8a762d40d34f1b8f08e741f6d007aebf998 -->
+<!-- Source/Vertrag SHA256: 3bec41c78e9dceb2a491f87765d62db31f50255a90b96562ff6cd6ef59b6af56 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2960,7 +2964,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql), [USP_ReadXlsxWorksheetCells.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md).
 
-<!-- Source/Vertrag SHA256: a9b6d6b307897b7b7520cfa46086daa48ab8d147a5b617f4d9732ec4d285c405 -->
+<!-- Source/Vertrag SHA256: 29c053712ebac25845b3b8f0cdb2a2cd04f38eb26b8d64aecc67f033e8a872c0 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3004,7 +3008,7 @@ Interpretiert den zuvor gelesenen Rohwert einer XLSX-Zelle als begrenzten, typis
 
 Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql), [TVF_InterpretXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: bb96fc18ca192aece2ed7be71720d94ecb1b4761c2effcd2d8ebfa2095e28763 -->
+<!-- Source/Vertrag SHA256: b32d7da4f18eba796707d11018fcbf73aa03b4ef9acc968b9cb9a5c26ce88d89 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3030,7 +3034,7 @@ Formatiert eine XLSX-Einzelzelle mit den unterstützten Literalformaten und Kult
 
 Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql), [TVF_FormatXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: b2c5513764608dde8f68b8a3e01ea882d66838e36e736636b8915e5da46414dc -->
+<!-- Source/Vertrag SHA256: a9c47af47704beef0559c0a0e5c8de65f271c4f166c67846da0140cb67daff92 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

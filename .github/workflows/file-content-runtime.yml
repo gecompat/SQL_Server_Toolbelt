@@ -9,6 +9,9 @@ on:
       - "Modules/toolbelt.file.content/Tests/Runtime/**"
       - "Modules/toolbelt.file.content/Tests/Static/**"
       - "Modules/toolbelt.file.content/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/run-file-content-linux.sh"
       - ".github/workflows/file-content-runtime.yml"
   push:
@@ -20,6 +23,9 @@ on:
       - "Modules/toolbelt.file.content/Tests/Runtime/**"
       - "Modules/toolbelt.file.content/Tests/Static/**"
       - "Modules/toolbelt.file.content/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/run-file-content-linux.sh"
       - ".github/workflows/file-content-runtime.yml"
   workflow_dispatch:
