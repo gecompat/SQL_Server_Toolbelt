@@ -539,7 +539,8 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
- foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='EE77ED5511EE23C42D83CC5DF010FA9FD2EBC9C960ECE768E64049BF448C2CA4'},@{Name='ExportQueue11.Assert.sql';Hash='92518C163F47DBDF792E30074D494166C6E12E8CCD7F02143BD8D9F5DE2FB575'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='71F5270AE92932B7ABAF204F99F855A7895F4FCA8448F4CFAE5C258F9FF970B3'})){
+ # 2026-10-28: Der Handler-Metadatencheck bindet zusätzlich @Hilfe bit; der Genuine-Queue-1.1-Quellstand blieb unverändert. Vorheriger Setup-Pin: 04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC.
+ foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='941294341177A35EEBA61167642530A69FBF7CD709CBDCC9CBD2A260688CFE41'},@{Name='ExportQueue11.Capture.sql';Hash='EE77ED5511EE23C42D83CC5DF010FA9FD2EBC9C960ECE768E64049BF448C2CA4'},@{Name='ExportQueue11.Assert.sql';Hash='92518C163F47DBDF792E30074D494166C6E12E8CCD7F02143BD8D9F5DE2FB575'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='71F5270AE92932B7ABAF204F99F855A7895F4FCA8448F4CFAE5C258F9FF970B3'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  }
 }
