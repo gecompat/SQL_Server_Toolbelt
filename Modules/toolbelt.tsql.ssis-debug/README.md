@@ -11,6 +11,11 @@ Debug-SELECT-Schnittstellen bleiben erhalten.
 
 Die verbindliche Semantik steht im
 [V1-Vertrag](../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md).
+Der ausdrücklich opt-in gewählte Komponentenmodus `bindings-template-v2`
+folgt dem [Komponenten-V2-Vertrag](../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
+Er verwendet `schemaVersion: 2` und `profile: "ssis-debug-components-v2"`;
+`explain` akzeptiert dieses vollständige Profil, während V1-Aufrufe unverändert
+bleiben.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
 ausgewiesen. Das Modul ist teilweise validiert und unveröffentlicht.

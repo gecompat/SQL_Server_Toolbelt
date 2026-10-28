@@ -1,5 +1,15 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
+Die zusätzliche, ausdrücklich gewählte V2-Komponentenfunktion folgt dem
+[V2-Vertrag](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
+Ihre aktuelle Implementierung und Qualifikation bilden einen eigenen Kandidaten;
+die nachfolgenden historischen V1-Nachweise gelten weiterhin nur für ihre
+ursprünglichen Builds. Der zusätzliche Treiber `Runtime/Invoke-ComponentsV2Lab.ps1`
+bindet den unveränderten bisherigen Labtreiber und die neuen Fälle getrennt.
+`Runtime/Invoke-ComponentsV2Audit.ps1` prüft dessen private Abschlussjournale mit
+einer eigenen ausschließlich lesenden Verbindung. Eine Syntax- oder
+Adapterprüfung allein ist kein nativer Funktionsnachweis.
+
 Stand 2026-10-25. Die nativen Nachweise unten behalten ihre ursprünglichen
 Ausführungsdaten und Buildbindungen. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
 mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.

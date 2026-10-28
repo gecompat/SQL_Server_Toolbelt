@@ -1013,6 +1013,7 @@ change_impact:
         - .github/workflows/ssis-debug-build.yml
         - Modules/toolbelt.tsql.ssis-debug/**
         - Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md
+        - Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md
         - Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md
       checks:
         - markdown_links

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "contract": "ssis-debug-components-v2",
+  "baseContract": "Contracts/Api.json",
+  "operation": "bindings-template-v2",
+  "bindingProfile": "ssis-debug-components-v2",
+  "projectContext": {
+    "schemaVersion": 2,
+    "resourceOptionsSchemaVersion": 1,
+    "presets": ["large10x", "unlimited"],
+    "controlProtocolBytes": 4194304,
+    "resourceOptionsJsonBytes": 16384
+  },
+  "catalogBindings": {
+    "schemaVersion": 2,
+    "extension": "flatFileInputs",
+    "fileAccess": false,
+    "sqlTextFields": false
+  },
+  "help": [
+    {
+      "section": "DESCRIPTION",
+      "ordinal": 2,
+      "description": "Komponentenprofil V2 ist ein ausdrückliches Opt-in über bindings-template-v2, V2-Bindings oder ProjectContext schemaVersion 2. V1-Binding- und ResultTableformen bleiben unverändert."
+    },
+    {
+      "section": "LIMITATION",
+      "ordinal": 2,
+      "description": "ProjectContext schemaVersion 2 erlaubt resourceOptions schemaVersion 1 mit preset large10x (Standard) oder unlimited und positiven exakten Int64-Grenzen. Der Kontrollumschlag bleibt auf 4 MiB UTF-16, resourceOptions auf 16 KiB und JSON-Tiefe auf 32 begrenzt."
+    },
+    {
+      "section": "LIMITATION",
+      "ordinal": 3,
+      "description": "CatalogBindings schemaVersion 2 darf flatFileInputs für ausdrücklich bereitgestellte relationale Zeilenbestände enthalten. Es werden keine Dateibytes gelesen, keine Zieldateien serialisiert und keine Zielschreibvorgänge ausgeführt."
+    },
+    {
+      "section": "EXAMPLE",
+      "ordinal": 2,
+      "description": "V2-Vorlage ausdrücklich anfordern; alle vorhandenen USP-Parameterpositionen bleiben gleich.",
+      "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template-v2';"
+    },
+    {
+      "section": "EXAMPLE",
+      "ordinal": 3,
+      "description": "V2-Ressourcenprofil ausdrücklich über ProjectContext schemaVersion 2 auswählen.",
+      "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@ProjectContext=N'{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"unlimited\"}}';"
+    }
+  ]
+}

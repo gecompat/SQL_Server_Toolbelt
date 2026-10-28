@@ -4,6 +4,7 @@
 -- Zweck: DTSX2 erklären, JSON-Vorlage und lesende CTE-Debugskripte erzeugen.
 -- Vertrag: SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md; USP_CONTRACT1.0; Version1.0.0.
 -- Parameter/Resultset: vollständig in Contracts/Api.json und @Hilfe=1.
+-- V2-Ergänzungen: schema-validiertes Contracts/ComponentsV2.json Help-Overlay.
 -- Dependencies: Parser exakt2.0.1 mit gepinntem ScriptDom; ResultTable>=1.0.0.
 -- Rechte: CALLER, EXECUTE; explizite Same-instance-Katalogvollsicht.
 -- Plattform: Windows SQL Server2019/2022/2025 CL150/160/170; UNSAFE.

@@ -75,12 +75,14 @@ documentation:
     - "InstallPackages/README.md"
   architecture:
     - "../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md"
+    - "../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md"
     - "Exchange/README.md"
   test_matrix:
     - "Tests/README.md"
   evidence:
     - "Tests/README.md"
 contracts:
+  ssis_components: "2.0.0"
   usp: "1.0"
   deployment: "1.0"
   validation: "1.0"

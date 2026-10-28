@@ -29,6 +29,13 @@ def main():
     schema=json.loads((MODULE/"Contracts/Exchange/SSIS_Exchange_V1.schema.json").read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
     validator=Draft202012Validator(schema)
+    schema_v2=json.loads((MODULE/"Contracts/Exchange/SSIS_Exchange_V2.schema.json").read_text(encoding="utf-8"))
+    Draft202012Validator.check_schema(schema_v2)
+    validator_v2=Draft202012Validator(schema_v2)
+    components_overlay=json.loads((MODULE/"Contracts/ComponentsV2.json").read_text(encoding="utf-8"))
+    components_schema=json.loads((MODULE/"Contracts/ComponentsV2.schema.json").read_text(encoding="utf-8"))
+    Draft202012Validator.check_schema(components_schema)
+    Draft202012Validator(components_schema).validate(components_overlay)
     fixture=(MODULE/"Contracts/Exchange/Fixtures/direct-8.dtsx").read_bytes()
     oracle=json.loads((MODULE/"Contracts/Exchange/Fixtures/direct-8.expected.json").read_text(encoding="utf-8"))
     checks=0
@@ -36,6 +43,9 @@ def main():
         nonlocal checks
         if not condition: raise AssertionError(label)
         checks+=1
+    api_contract=json.loads((MODULE/"Contracts/Api.json").read_text(encoding="utf-8"))
+    check(components_overlay["baseContract"]=="Contracts/Api.json" and components_overlay["operation"]=="bindings-template-v2", "components V2 overlay identity")
+    check([p["name"] for p in api_contract["parameters"]]==["@PackageBytes","@Operation","@ProjectContext","@Bindings","@CatalogBindings","@TargetFlow","@InspectStage","@LookupPolicies","@ComparisonCollation","@TSqlVersion","@ResultTable","@KeepData","@Debug","@Hilfe"], "V2 preserves V1 parameter positions")
     def canonical(value):
         value=copy.deepcopy(value)
         value.pop("producer")
@@ -57,7 +67,7 @@ def main():
                 check(external.returncode==3 and framework.returncode==3,"invalid source rejected by both hosts")
                 check(not external.stdout and not framework.stdout,"no partial output on invalid source")
                 return None
-            check(external.returncode==0 and framework.returncode==0,"both core hosts succeed")
+            check(external.returncode==0 and framework.returncode==0,"both core hosts succeed: host="+str(external.returncode)+" framework="+str(framework.returncode)+" hostStderr="+external.stderr[:512]+" frameworkStderr="+framework.stderr[:512])
             a,b=json.loads(external.stdout),json.loads(framework.stdout)
             validator.validate(a);validator.validate(b)
             check(canonical(a)==canonical(b),"same typed structure and lineage on net48 and external host")
@@ -65,7 +75,32 @@ def main():
             check(a["source"]["byteLength"]==len(data),"exact original byte length")
             check(len({n["id"] for n in a["nodes"]})==len(a["nodes"]),"unique occurrence IDs")
             return a
+        def run_components_v2(data,expected=True):
+            path=root/"synthetic-v2.dtsx";path.write_bytes(data)
+            external=subprocess.run(["dotnet",str(args.host),"--components-v2",str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
+            framework=subprocess.run([str(parity),"--components-v2",str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
+            if not expected:
+                check(external.returncode==3 and framework.returncode==3,"invalid V2 source rejected by both hosts")
+                check(not external.stdout and not framework.stdout,"no partial V2 output on invalid source")
+                return None
+            check(external.returncode==0 and framework.returncode==0,"both V2 core hosts succeed")
+            a,b=json.loads(external.stdout),json.loads(framework.stdout)
+            validator_v2.validate(a);validator_v2.validate(b)
+            check(canonical(a)==canonical(b),"same V2 provenance and component profiles on net48 and external host")
+            check(a["contract"]=="ssis-package-model-components-v2" and a["profiles"]["components"]=="2.0.0","explicit V2 exchange contract")
+            check(a["source"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"V2 exact original byte hash")
+            return a
         basic=run(fixture)
+        v2_fixture=(MODULE/"Tests/Fixtures/synthetic-8.dtsx").read_bytes()
+        v2_xml=ET.fromstring(v2_fixture)
+        derived=next(x for x in v2_xml.iter("component") if x.get("componentClassID")=="Microsoft.DerivedColumn")
+        derived.attrib.pop("version",None)
+        v2_missing=run_components_v2(ET.tostring(v2_xml,encoding="utf-8",xml_declaration=True))
+        version_node=next(n for n in v2_missing["nodes"] if n["kind"]=="COMPONENT" and n["attributes"]["componentClassId"]=="Microsoft.DerivedColumn")
+        check(version_node["attributes"]["versionPresent"] is False and version_node["attributes"]["effectiveVersion"]==0 and version_node["attributes"]["versionOrigin"]=="schema-default-0","V2 schema default provenance exact")
+        v2_invalid=ET.fromstring(v2_fixture)
+        next(x for x in v2_invalid.iter("component") if x.get("componentClassID")=="Microsoft.DerivedColumn").set("version","")
+        run_components_v2(ET.tostring(v2_invalid,encoding="utf-8",xml_declaration=True),False)
         check([[n["id"],n["kind"],n["parentId"]] for n in basic["nodes"]]==oracle["nodeSignatures"],"fixed independent object oracle")
         check([[e["kind"],e["fromId"],e["toId"],e["ruleId"]] for e in basic["edges"]]==oracle["edgeSignatures"],"fixed independent lineage oracle")
         check(all(c["status"]==oracle["coverageStatus"] for c in basic["coverage"]),"bounded direct-profile coverage")

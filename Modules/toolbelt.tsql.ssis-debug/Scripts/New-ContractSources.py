@@ -13,9 +13,26 @@ def literal(value):
 
 def generate():
     api = json.loads((ROOT / "Contracts/Api.json").read_text(encoding="utf-8"))
+    v2 = json.loads((ROOT / "Contracts/ComponentsV2.json").read_text(encoding="utf-8"))
+    # V2 is a strict help overlay: it can add profile prose/examples but cannot
+    # change the public parameter sequence or ResultTable column contract.
+    if v2.keys() != {"schemaVersion", "contract", "baseContract", "operation", "bindingProfile", "projectContext", "catalogBindings", "help"}:
+        raise ValueError("COMPONENTS_V2_OVERLAY_SHAPE")
+    if v2["baseContract"] != "Contracts/Api.json" or v2["contract"] != "ssis-debug-components-v2":
+        raise ValueError("COMPONENTS_V2_OVERLAY_BASE")
+    for item in v2["help"]:
+        if item.get("section") not in {"DESCRIPTION", "EXAMPLE", "LIMITATION"} or not isinstance(item.get("ordinal"), int) or not isinstance(item.get("description"), str):
+            raise ValueError("COMPONENTS_V2_OVERLAY_HELP")
+        if item["section"] == "EXAMPLE" and not isinstance(item.get("exampleSql"), str):
+            raise ValueError("COMPONENTS_V2_OVERLAY_EXAMPLE")
+        if item["section"] != "EXAMPLE" and "exampleSql" in item:
+            raise ValueError("COMPONENTS_V2_OVERLAY_EXAMPLE")
+    if v2["operation"] != "bindings-template-v2" or v2["bindingProfile"] != "ssis-debug-components-v2":
+        raise ValueError("COMPONENTS_V2_OVERLAY_PROFILE")
     rows = [("DESCRIPTION", 1, None, None, None, None, None, api["description"], None)]
     for i, p in enumerate(api["parameters"], 1): rows.append(("PARAMETER", i, p["name"], p["type"], p["required"], p["nullable"], p["default"], p["description"], None))
     for i, c in enumerate(api["columns"], 1): rows.append(("RESULT_COLUMN", i, c["name"], c["type"], True, c["nullable"], None, c["description"], None))
+    for entry in v2["help"]: rows.append((entry["section"], entry["ordinal"], None, None, None, None, None, entry["description"], entry.get("exampleSql")))
     rows += [("EXAMPLE", 1, None, None, None, None, None, "Reine Hilfe ohne Paket oder Katalogprüfung.", "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;"),
              ("PERMISSION", 1, None, None, None, None, None, "CALLER; EXECUTE und vollständige Katalogsicht der ausdrücklich erlaubten Datenbanken. Keine Rechtevergabe.", None),
              ("LIMITATION", 1, None, None, None, None, None, "Windows SQL Server 2019/2022/2025; UNSAFE/ScriptDom. NOLOCK erlaubt Dirty Reads und garantiert keine Sperrfreiheit. Keine Ausführung von Paket-SQL.", None)]
@@ -36,6 +53,7 @@ FROM (VALUES
 -- Zweck: DTSX2 erklären, JSON-Vorlage und lesende CTE-Debugskripte erzeugen.
 -- Vertrag: SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md; USP_CONTRACT1.0; Version1.0.0.
 -- Parameter/Resultset: vollständig in Contracts/Api.json und @Hilfe=1.
+-- V2-Ergänzungen: schema-validiertes Contracts/ComponentsV2.json Help-Overlay.
 -- Dependencies: Parser exakt2.0.1 mit gepinntem ScriptDom; ResultTable>=1.0.0.
 -- Rechte: CALLER, EXECUTE; explizite Same-instance-Katalogvollsicht.
 -- Plattform: Windows SQL Server2019/2022/2025 CL150/160/170; UNSAFE.

@@ -1,4 +1,4 @@
-name: SSIS Debug V1 offline contract
+name: SSIS Debug offline contracts
 
 on:
   pull_request:
@@ -89,6 +89,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'SSIS_EXCHANGE_TEST_DEPENDENCY_FAILED' }
           python Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/test_contract.py --host Modules/toolbelt.tsql.ssis-debug/Exchange/Host/bin/Release/net10.0/Toolbelt.Ssis.Export.dll --framework-assembly Modules/toolbelt.tsql.ssis-debug/Clr/bin/Release/Toolbelt.Tsql.SsisDebug.dll
           if ($LASTEXITCODE -ne 0) { throw 'SSIS_EXCHANGE_PARITY_FAILED' }
+          python -c "import json,jsonschema; from pathlib import Path; p=Path('Modules/toolbelt.tsql.ssis-debug/Contracts'); jsonschema.Draft202012Validator(json.loads((p/'ComponentsV2.schema.json').read_text())).validate(json.loads((p/'ComponentsV2.json').read_text())); print('SSIS_V2_HELP_OVERLAY_SCHEMA_PASS')"
+          if ($LASTEXITCODE -ne 0) { throw 'SSIS_V2_HELP_OVERLAY_SCHEMA_FAILED' }
       - name: Native deadline inheritance without SQL
         shell: pwsh
         run: '& Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-NativeDeadline.ps1'
@@ -106,6 +108,7 @@ jobs:
             if ($errors.Count) { throw 'SSIS_CI_NATIVE_ADAPTER_SYNTAX_INVALID' }
           }
           & Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-ReleaseRightsAdapter.ps1
+          & Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-ComponentsV2Adapter.ps1
       - name: Installation example contract without SQL access
         shell: pwsh
         run: ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-InstallationExample.ps1

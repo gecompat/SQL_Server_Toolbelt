@@ -7,6 +7,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $moduleRoot=Split-Path -Parent $PSScriptRoot
+$repoRoot=Split-Path -Parent (Split-Path -Parent $moduleRoot)
+. (Join-Path $repoRoot 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1')
 $pin=Get-Content -LiteralPath (Join-Path $moduleRoot 'Contracts/DependencyPins.json') -Raw | ConvertFrom-Json
 $parserManifest=Get-Content -LiteralPath (Join-Path $ParserReleaseDirectory 'Toolbelt.Tsql.ScriptParser.trust-manifest.json') -Raw | ConvertFrom-Json
 if($parserManifest.moduleVersion -cne $pin.parserVersion -or $parserManifest.sha512 -cne $pin.parserSha512 -or
@@ -19,13 +21,19 @@ if([IO.Path]::GetFullPath($ScriptDomDllPath).StartsWith($outputRoot,[StringCompa
 $builder=Get-Command msbuild -ErrorAction SilentlyContinue
 if(-not $builder){
  $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
- if(Test-Path -LiteralPath $vswhere){$path=& $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1; if($path){$builder=[pscustomobject]@{Source=$path}}}
+ if(Test-Path -LiteralPath $vswhere){
+  $discovery=Invoke-OwnedProcess -FileName $vswhere -Arguments @('-latest','-products','*','-requires','Microsoft.Component.MSBuild','-find','MSBuild/**/Bin/MSBuild.exe') -TimeoutMilliseconds 30000
+  if($discovery.ExitCode -ne 0){throw 'SSIS_BUILD_MSBUILD_DISCOVERY_FAILED'}
+  $path=($discovery.Stdout -split '\r?\n' | Where-Object {$_} | Select-Object -First 1)
+  if($path){$builder=[pscustomobject]@{Source=$path}}
+ }
 }
 if(-not $builder){throw 'SSIS_BUILD_MSBUILD_UNAVAILABLE'}
 $log=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltSsisBuild-'+[guid]::NewGuid().ToString('N')+'.log')
 function Build-Release {
- & $builder.Source $project /t:Rebuild /p:Configuration=Release "/p:ScriptDomDllPath=$ScriptDomDllPath" /m:1 /v:minimal /nologo *> $log
- if($LASTEXITCODE -ne 0){throw 'SSIS_RELEASE_BUILD_FAILED_PRIVATE_LOG_AVAILABLE'}
+ $build=Invoke-OwnedProcess -FileName $builder.Source -Arguments @($project,'/t:Rebuild','/p:Configuration=Release',"/p:ScriptDomDllPath=$ScriptDomDllPath",'/m:1','/v:minimal','/nologo') -TimeoutMilliseconds 120000
+ [IO.File]::WriteAllText($log,$build.Stdout+"`n"+$build.Stderr,[Text.UTF8Encoding]::new($false))
+ if($build.ExitCode -ne 0){throw 'SSIS_RELEASE_BUILD_FAILED_PRIVATE_LOG_AVAILABLE'}
  if([Reflection.AssemblyName]::GetAssemblyName($assembly).Version.ToString() -cne '1.0.0.0'){throw 'SSIS_RELEASE_ASSEMBLY_VERSION_MISMATCH'}
 }
 Build-Release
@@ -36,7 +44,7 @@ function Fingerprint([string[]]$Entries){
  $h=[Security.Cryptography.SHA256]::Create()
  try{[BitConverter]::ToString($h.ComputeHash([Text.Encoding]::UTF8.GetBytes(($Entries -join "`n")))).Replace('-','')}finally{$h.Dispose()}
 }
-$sources=@(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File | Where-Object {$_.Extension -in '.cs','.csproj' -and $_.FullName -notmatch '[\\/](bin|obj)[\\/]'} | Sort-Object {$_.FullName.Substring($moduleRoot.Length).Replace('\','/')} | ForEach-Object {$_.FullName.Substring($moduleRoot.Length+1).Replace('\','/')+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
+$sources=@(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File | Where-Object {$_.Extension -in '.cs','.csproj' -and $_.FullName -notmatch '[\\/](bin|obj|\.runtime)[\\/]'} | Sort-Object {$_.FullName.Substring($moduleRoot.Length).Replace('\','/')} | ForEach-Object {$_.FullName.Substring($moduleRoot.Length+1).Replace('\','/')+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
 $shared=Join-Path (Split-Path -Parent $moduleRoot) 'toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs'
 $sources += @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Exchange/Core') -File -Filter '*.cs' | Sort-Object Name | ForEach-Object {'Exchange/Core/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
 $sources += '../toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs:'+(Get-FileHash -LiteralPath $shared -Algorithm SHA256).Hash

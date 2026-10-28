@@ -37,7 +37,7 @@ namespace Toolbelt.Tsql.ScriptParser
      else {if(++rawUnits>profile.RawUnitLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT";i++;}
     }continue;
    }
-   atoms++;rawUnits++;if(atoms>profile.AtomLimit||rawUnits>profile.RawUnitLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT";
+   atoms++;rawUnits++;if(atoms>profile.AtomLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT sqlAtoms="+atoms.ToString(System.Globalization.CultureInfo.InvariantCulture)+" limit="+profile.AtomLimit.ToString(System.Globalization.CultureInfo.InvariantCulture);if(rawUnits>profile.RawUnitLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT sqlRawUnits="+rawUnits.ToString(System.Globalization.CultureInfo.InvariantCulture)+" limit="+profile.RawUnitLimit.ToString(System.Globalization.CultureInfo.InvariantCulture);
    if(c=='\''||c=='"'||c=='[') {
     char close=c=='['?']':c;i++;
     while(i<sql.Length){if(sql[i]==close){if(i+1<sql.Length&&sql[i+1]==close){i+=2;continue;}i++;break;}i++;}continue;
@@ -48,15 +48,15 @@ namespace Toolbelt.Tsql.ScriptParser
     if(!numeric){string word=sql.Substring(start,i-start);
      // Nur das neue Profil begrenzt zusätzliche Rekursionsketten vor ScriptDom.
      if(profile.OperatorLimit>0 && (String.Equals(word,"AND",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"OR",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"NOT",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"LIKE",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"IN",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"BETWEEN",StringComparison.OrdinalIgnoreCase)))
-      if(++operators>profile.OperatorLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT";
-     if(profile.QueryOperatorLimit>0 && (String.Equals(word,"UNION",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"INTERSECT",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"EXCEPT",StringComparison.OrdinalIgnoreCase)))
-      if(++queryOperators>profile.QueryOperatorLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT";
+       if(++operators>profile.OperatorLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT sqlOperators="+operators.ToString(System.Globalization.CultureInfo.InvariantCulture)+" limit="+profile.OperatorLimit.ToString(System.Globalization.CultureInfo.InvariantCulture);
+       if(profile.QueryOperatorLimit>0 && (String.Equals(word,"UNION",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"INTERSECT",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"EXCEPT",StringComparison.OrdinalIgnoreCase)))
+       if(++queryOperators>profile.QueryOperatorLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT sqlQueryOperators="+queryOperators.ToString(System.Globalization.CultureInfo.InvariantCulture)+" limit="+profile.QueryOperatorLimit.ToString(System.Globalization.CultureInfo.InvariantCulture);
      if(String.Equals(word,"CASE",StringComparison.OrdinalIgnoreCase)||String.Equals(word,"BEGIN",StringComparison.OrdinalIgnoreCase))stack.Push('B');
      else if(String.Equals(word,"END",StringComparison.OrdinalIgnoreCase)&&stack.Count>0&&stack.Peek()=='B')stack.Pop();
     }
    }else {
     if(c=='?' && parameterOffsets!=null)parameterOffsets.Add(i);
-    if(profile.OperatorLimit>0 && "+-*/%&|^~!=<>".IndexOf(c)>=0 && ++operators>profile.OperatorLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT";
+      if(profile.OperatorLimit>0 && "+-*/%&|^~!=<>".IndexOf(c)>=0 && ++operators>profile.OperatorLimit)return "TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT sqlOperators="+operators.ToString(System.Globalization.CultureInfo.InvariantCulture)+" limit="+profile.OperatorLimit.ToString(System.Globalization.CultureInfo.InvariantCulture);
     if(c=='(')stack.Push(c);
     else if(c==')'&&stack.Count>0&&stack.Peek()=='(')stack.Pop();
     i++;

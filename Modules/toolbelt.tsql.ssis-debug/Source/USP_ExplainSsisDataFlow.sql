@@ -4,6 +4,7 @@
 -- Zweck: DTSX2 erklären, JSON-Vorlage und lesende CTE-Debugskripte erzeugen.
 -- Vertrag: SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md; USP_CONTRACT1.0; Version1.0.0.
 -- Parameter/Resultset: vollständig in Contracts/Api.json und @Hilfe=1.
+-- V2-Ergänzungen: schema-validiertes Contracts/ComponentsV2.json Help-Overlay.
 -- Dependencies: Parser exakt2.0.1 mit gepinntem ScriptDom; ResultTable>=1.0.0.
 -- Rechte: CALLER, EXECUTE; explizite Same-instance-Katalogvollsicht.
 -- Plattform: Windows SQL Server2019/2022/2025 CL150/160/170; UNSAFE.
@@ -73,6 +74,11 @@ FROM (VALUES
 (N'RESULT_COLUMN',11,N'IsExecutable',N'bit',1,0,NULL,N'Vollständiger, im gebundenen Profil geprüfter Batch; kein bereits ausgeführter Runtime-Nachweis.',NULL),
 (N'RESULT_COLUMN',12,N'Content',N'nvarchar(max)',1,0,NULL,N'Artefaktinhalt, insbesondere vollständiger SQL-Prüfblock oder JSON-Vorlage.',NULL),
 (N'RESULT_COLUMN',13,N'DetailsJson',N'nvarchar(max)',1,1,NULL,N'Zusätzliche gültige JSON-Metadaten.',NULL),
+(N'DESCRIPTION',2,NULL,NULL,NULL,NULL,NULL,N'Komponentenprofil V2 ist ein ausdrückliches Opt-in über bindings-template-v2, V2-Bindings oder ProjectContext schemaVersion 2. V1-Binding- und ResultTableformen bleiben unverändert.',NULL),
+(N'LIMITATION',2,NULL,NULL,NULL,NULL,NULL,N'ProjectContext schemaVersion 2 erlaubt resourceOptions schemaVersion 1 mit preset large10x (Standard) oder unlimited und positiven exakten Int64-Grenzen. Der Kontrollumschlag bleibt auf 4 MiB UTF-16, resourceOptions auf 16 KiB und JSON-Tiefe auf 32 begrenzt.',NULL),
+(N'LIMITATION',3,NULL,NULL,NULL,NULL,NULL,N'CatalogBindings schemaVersion 2 darf flatFileInputs für ausdrücklich bereitgestellte relationale Zeilenbestände enthalten. Es werden keine Dateibytes gelesen, keine Zieldateien serialisiert und keine Zielschreibvorgänge ausgeführt.',NULL),
+(N'EXAMPLE',2,NULL,NULL,NULL,NULL,NULL,N'V2-Vorlage ausdrücklich anfordern; alle vorhandenen USP-Parameterpositionen bleiben gleich.',N'EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation=''bindings-template-v2'';'),
+(N'EXAMPLE',3,NULL,NULL,NULL,NULL,NULL,N'V2-Ressourcenprofil ausdrücklich über ProjectContext schemaVersion 2 auswählen.',N'EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@ProjectContext=N''{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}'';'),
 (N'EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Reine Hilfe ohne Paket oder Katalogprüfung.',N'EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;'),
 (N'PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'CALLER; EXECUTE und vollständige Katalogsicht der ausdrücklich erlaubten Datenbanken. Keine Rechtevergabe.',NULL),
 (N'LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Windows SQL Server 2019/2022/2025; UNSAFE/ScriptDom. NOLOCK erlaubt Dirty Reads und garantiert keine Sperrfreiheit. Keine Ausführung von Paket-SQL.',NULL)
