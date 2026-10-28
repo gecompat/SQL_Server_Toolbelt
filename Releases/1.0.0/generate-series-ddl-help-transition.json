@@ -19,11 +19,11 @@
   "sources": {
     "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql": {
       "baseline_sha256": "99d9090c2cd50edc23b8137bfa3d9ef863c1bf4fa5e1ebd952c1da1722770dd1",
-      "current_sha256": "90331712f9b6abdccc11bbf7b3bfa6e5d7ad6b24553ec68b51ae18ff0411c6de"
+      "current_sha256": "1a95881ccabd5fab68dccb9b2615c4ff4afacd01df8f7a76d5a6c58b51115797"
     },
     "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql": {
       "baseline_sha256": "44d8723199f44a22e58e43a3fa4c2e6002420fa03c58210ed16a0bf1ff9d1a3d",
-      "current_sha256": "1e454c2cd9844240bfba50f0da546a32f2af8d5db4fad4f734ad89bdf1fab67e"
+      "current_sha256": "2f0e261820fd215c2080b883b71187c611b51c348b22ac7794fd0801eafe66ff"
     }
   },
   "comment_insertions": [

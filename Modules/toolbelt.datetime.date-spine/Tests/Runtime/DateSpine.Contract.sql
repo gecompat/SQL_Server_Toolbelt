@@ -13,6 +13,25 @@ IF OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineCore', N'IF') IS NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineMonth', N'IF') IS NULL
     THROW 52952, N'Die Date-Spine-Inline-TVFs fehlen.', 1;
 
+DECLARE @DayDefinition nvarchar(max) =
+    OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineDay'));
+DECLARE @IsoWeekDefinition nvarchar(max) =
+    OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineIsoWeek'));
+DECLARE @MonthDefinition nvarchar(max) =
+    OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineMonth'));
+
+IF CHARINDEX(N'DDL-Hilfe: Liefert jeden Kalendertag', COALESCE(@DayDefinition, N'')) = 0
+   OR CHARINDEX(N'@RangeStart date und @RangeEndExclusive date', COALESCE(@DayDefinition, N'')) = 0
+   OR CHARINDEX(N'ORDER BY Ordinal', COALESCE(@DayDefinition, N'')) = 0
+   OR CHARINDEX(N'TVF_DateSpineDay(''20260227'',''20260303'')', COALESCE(@DayDefinition, N'')) = 0
+   OR CHARINDEX(N'DDL-Hilfe: Liefert ISO-Wochen', COALESCE(@IsoWeekDefinition, N'')) = 0
+   OR CHARINDEX(N'DATEFIRST', COALESCE(@IsoWeekDefinition, N'')) = 0
+   OR CHARINDEX(N'TVF_DateSpineIsoWeek(''20251231'',''20260108'')', COALESCE(@IsoWeekDefinition, N'')) = 0
+   OR CHARINDEX(N'DDL-Hilfe: Liefert Kalendermonate', COALESCE(@MonthDefinition, N'')) = 0
+   OR CHARINDEX(N'Monatserste', COALESCE(@MonthDefinition, N'')) = 0
+   OR CHARINDEX(N'TVF_DateSpineMonth(''20260115'',''20260402'')', COALESCE(@MonthDefinition, N'')) = 0
+    THROW 52963, N'Die gespeicherten Date-Spine-DDL-Hilfen fehlen oder sind unvollständig.', 1;
+
 IF EXISTS
    (
        SELECT expected.ObjectName

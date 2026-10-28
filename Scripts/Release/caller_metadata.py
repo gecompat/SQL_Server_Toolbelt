@@ -127,6 +127,15 @@ def validate_source(root, path, executed_digest):
         series_help = import_module('generate_series_ddl_help')
         series_help.validate_historical_source(root, path, executed_digest)
         return
+    date_spine_help_paths = {
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql',
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql',
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql',
+    }
+    if path in date_spine_help_paths:
+        date_spine_help = import_module('date_spine_ddl_help')
+        date_spine_help.validate_historical_source(root, path, executed_digest)
+        return
     xlsx_manifest = 'Modules/toolbelt.file.xlsx-memory/module.yaml'
     if path == xlsx_manifest:
         # Keep the XLSX exception exact and lazy: xlsx_metadata is loaded by

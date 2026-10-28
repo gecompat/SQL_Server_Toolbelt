@@ -1,0 +1,40 @@
+{
+  "schema_version": "toolbelt-date-spine-ddl-help/v1",
+  "date": "2026-10-28",
+  "status": "SOURCE_DELTA_ONLY",
+  "native_requalification_claimed": false,
+  "current_head_ci_required": true,
+  "publication_authorized": false,
+  "scope": "Three saved DateSpine DDL help comment insertions only",
+  "archive": {
+    "path": "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip",
+    "sha256": "333a7d6ceb2a36523ea642ac1dd5a78b5fc86b8aaa25998db14c8ea035f068e6",
+    "size_bytes": 27274364
+  },
+  "baseline_report_sha256": {
+    "Releases/1.0.0/series-date-caller-qualification.json": "d1e8104ba569beec8ef11713e48b2a6735d2533184e1390f1095d06188a64974"
+  },
+  "core_source_sha256": {
+    "path": "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineCore.sql",
+    "sha256": "39898bc83c9c198113b539f69cc0485d3157d7358420e1f3dda53a0165fb42b6"
+  },
+  "sources": {
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql": {
+      "baseline_sha256": "50ce950301627e93bb741f34a56133d3806552d9075a7e2228b60c04cbb5b6f4",
+      "current_sha256": "6f9c577bf010297bdbbb6d9afb4561295ff825d004391d34e160007f1e273b33"
+    },
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql": {
+      "baseline_sha256": "cca24cdcbd8f1fba1d63e7b368d612f9b67c2ce89a1b04413e0a23e3da7a6bb1",
+      "current_sha256": "356b77355a9deaf10195db8bc4857d7b09f6d6afd44fef23d7cc32c2896a0c38"
+    },
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql": {
+      "baseline_sha256": "6843046c4f45470d73a5470aeabbcf14b9d8e9098bb99175e1e49493c6de032e",
+      "current_sha256": "1bef5ca7920abaf27f8aed5184938f7dcaba328dcdba3123164cc894a420a9c5"
+    }
+  },
+  "comment_insertions": [
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql#TVF_DateSpineDay",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql#TVF_DateSpineIsoWeek",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql#TVF_DateSpineMonth"
+  ]
+}

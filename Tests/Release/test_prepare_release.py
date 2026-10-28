@@ -42,6 +42,15 @@ def assert_report_source_pin(test, path, expected_sha256):
         import generate_series_ddl_help
         generate_series_ddl_help.validate_historical_source(ROOT, path, expected_sha256)
         return
+    date_spine_paths = {
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql',
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql',
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql',
+    }
+    if path in date_spine_paths:
+        import date_spine_ddl_help
+        date_spine_ddl_help.validate_historical_source(ROOT, path, expected_sha256)
+        return
     current = (ROOT / path).read_bytes()
     test.assertEqual(hashlib.sha256(current).hexdigest(), expected_sha256, path)
 
@@ -58,6 +67,14 @@ def report_source_bytes(test, path, expected_sha256):
     if path in series_paths:
         import generate_series_ddl_help
         return generate_series_ddl_help.validate_historical_source(ROOT, path, expected_sha256)
+    date_spine_paths = {
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql',
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql',
+        'Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql',
+    }
+    if path in date_spine_paths:
+        import date_spine_ddl_help
+        return date_spine_ddl_help.validate_historical_source(ROOT, path, expected_sha256)
     current = (ROOT / path).read_bytes()
     test.assertEqual(hashlib.sha256(current).hexdigest(), expected_sha256, path)
     return current
@@ -898,6 +915,7 @@ class ApiQualificationTests(unittest.TestCase):
         import hashlib
         import base64_ddl_help
         import generate_series_ddl_help
+        import date_spine_ddl_help
         qualification = json.loads((ROOT / 'Releases/1.0.0/clr-qualification.json').read_bytes())
         historical = release.clr_qualification_method_sources(qualification, report['source_sha256'])
         base64_paths = set(base64_ddl_help.SOURCE_PATHS)
@@ -919,6 +937,19 @@ class ApiQualificationTests(unittest.TestCase):
             }
             self.assertEqual(historical_series, {p: historical[p] for p in series_paths})
             generate_series_ddl_help.validate_transition(ROOT, historical_series, current_series)
+        date_spine_paths = set(date_spine_ddl_help.SOURCE_PATHS)
+        reported_date_spine_paths = date_spine_paths & set(report['source_sha256'])
+        if reported_date_spine_paths:
+            self.assertEqual(reported_date_spine_paths, date_spine_paths)
+            current_date_spine = {p: (ROOT / p).read_bytes() for p in date_spine_paths}
+            historical_date_spine = {
+                p: date_spine_ddl_help.validate_historical_source(
+                    ROOT, p, report['source_sha256'][p]
+                )
+                for p in date_spine_paths
+            }
+            self.assertEqual(historical_date_spine, {p: historical[p] for p in date_spine_paths})
+            date_spine_ddl_help.validate_transition(ROOT, historical_date_spine, current_date_spine)
         for path, digest in report['source_sha256'].items():
             self.assertEqual(hashlib.sha256(historical[path]).hexdigest(), digest)
             current = (ROOT / path).read_bytes()
@@ -926,7 +957,8 @@ class ApiQualificationTests(unittest.TestCase):
                 reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
                 self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
                                 'CSV-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
-            elif path not in reported_base64_paths and path not in reported_series_paths:
+            elif path not in reported_base64_paths and path not in reported_series_paths \
+                    and path not in reported_date_spine_paths:
                 self.assertEqual(hashlib.sha256(current).hexdigest(), digest)
 
     def test_csv_import_delta_rejects_unqualified_source_changes(self):
@@ -2037,9 +2069,11 @@ def load_tests(loader, tests, pattern):
     from test_clr_maintenance import ClrMaintenanceTests
     from test_base64_ddl_help_transition import Base64DdlHelpTransitionTests
     from test_generate_series_ddl_help_transition import GenerateSeriesDdlHelpTransitionTests
+    from test_date_spine_ddl_help_transition import DateSpineDdlHelpTransitionTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
     tests.addTests(loader.loadTestsFromTestCase(Base64DdlHelpTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(GenerateSeriesDdlHelpTransitionTests))
+    tests.addTests(loader.loadTestsFromTestCase(DateSpineDdlHelpTransitionTests))
     return tests
 
 

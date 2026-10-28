@@ -25,7 +25,7 @@ RETURN
      * Parameter: @Start int NULL, @Stop int NULL, @Step int NULL
      * (Default NULL). NULL oder DEFAULT für @Step wählt +1 bei Start <= Stop,
      * sonst -1. Der Start ist enthalten; Stop nur, wenn die Schrittfolge ihn
-     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop
+     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop ergibt
      * keine Zeile. Schritt 0 bleibt der
      * unveränderte Enginefehler, auch wenn eine Grenze NULL ist. Sehr große
      * gültige Reihen werden nicht gekürzt und können erhebliche Ressourcen
