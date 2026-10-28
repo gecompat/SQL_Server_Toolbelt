@@ -56,8 +56,11 @@ UTF-16-Eingabe und JSON-Tiefe 32 begrenzt; dies ist die feste
 zusätzlich `jsonDocumentBytes`, `allJsonBytes` und `jsonNodes` als wirksame
 Ressourcenzähler aus.
 Die Vorlage und der V2-Workflow geben Profil, effektive Zähler und einen
-separaten Policyhash aus. Eine V2-Bindung muss zu genau dieser Richtlinie
-passen. `unlimited` schaltet konfigurierbare Mengenkappen und den
+separaten Policyhash aus. Die in einer Vorlage gespeicherte Richtlinie muss
+in sich gültig sein; sie dokumentiert deren Erzeugung. Für einen späteren
+Aufruf gelten die aktuell gewählten Ressourcenlimits. Eine Änderung dieser
+Limits verändert die fachliche Paket-/Kontextbindung nicht und wird separat
+ausgewiesen. `unlimited` schaltet konfigurierbare Mengenkappen und den
 Analysezeitmesser aus, nicht die harten Tiefen-, Parser- und SQL-Sicherheits-
 grenzen. V1 behält seine bisherigen Ressourcengrenzen.
 
@@ -67,6 +70,17 @@ Vorbereitung, StageSql, TargetSql, Cleanup, ColumnLineage und Diagnose.
 Artefakt. Ein ausführbares Script wird als vollständiger Batch in einer
 SSMS-Sitzung im angegebenen `defaultDatabase` ausgeführt. Es gibt kein `GO`
 zwischen `DECLARE`, Cachevorbereitung, `WITH` und `SELECT`.
+
+Im V2-Modus können zusätzlich `PlanManifest`, `PlanUnitSql` und `RowCountSql`
+entstehen. Den gewünschten Plan über seinen `planHash` auswählen, dessen
+`PlanUnitSql`-Batches in der Manifestreihenfolge genau einmal in derselben
+SQL-Sitzung ausführen und danach die zugehörige Stufen-/Zielprojektion oder
+Zählabfrage lesen. Eine Zielabfrage vor vollständiger Vorbereitung wird
+abgewiesen. Die einzelnen Batches bleiben getrennte Prüfeinheiten; sie werden
+nicht zu einem großen SQL-Batch zusammengesetzt. Die zugehörigen
+`CleanupSql`-Batches anschließend auch bei teilweiser Vorbereitung in ihrer
+ausgewiesenen Reihenfolge ausführen. Fremde oder veränderte Zustände verhindern
+deren Bereinigung.
 
 Der `StageIndex` liefert die stabilen Ziel-/Stufen-IDs. Eine konkrete
 `@InspectStage` verlangt `@TargetFlow`; `all` liefert die unterstützten

@@ -1,5 +1,21 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+## Separater Komponenten-V2-Kandidat
+
+Die zusätzliche Lieferung `SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip`
+enthält den ausdrücklich gewählten Komponentenmodus V2. Er ergänzt fehlende
+Versionsattribute mit nachvollziehbarem Schema-Default, Row Count sowie
+Flatfile-Metadaten und explizit bereitgestellte SQL-Zeilenbestände. Die
+[V2-Vertragsbeschreibung](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md)
+erklärt auch die parametrierbaren Ressourcenbudgets einschließlich `unlimited`.
+V1- und V2-Lieferungen vollständig getrennt entpacken; die unveränderte
+Modulversionsnummer ersetzt keine Prüfung des jeweiligen Artefakthashes.
+
+Die neue Lieferung und ihr reiner T-SQL-Installer werden erst nach ihren
+eigenen nativen Paketprüfungen als verwendbarer Kandidat ausgewiesen.
+Die nachfolgende Anleitung und die historischen Nachweise beschreiben die
+bestehende V1-Lieferung. Beide bleiben unveröffentlicht.
+
 Das [ZIP-Installationspaket](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip) enthält
 SSIS-Debug **1.0.0**, Script Parser **2.0.1**, die exakt passende Microsoft
 ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.

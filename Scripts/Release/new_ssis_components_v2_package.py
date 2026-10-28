@@ -104,7 +104,8 @@ def build(args):
                case["deployment_mode"]) for case in cases}
     require(actual == expected and len(cases) == len(expected) and
             all(case.get("result") == "PASS" and
-                case.get("cleanup_audit") == "PASS" for case in cases),
+                case.get("cleanup_audit") == "PASS" and
+                case.get("legacy_baseline") == "PASS" for case in cases),
             "complete finite Windows version/CL/mode qualification")
     with zipfile.ZipFile(guard.ARCHIVE) as archive:
         payload = {name[len(LEGACY) + 1:]: archive.read(name)
@@ -139,7 +140,8 @@ def build(args):
     require(sha(binary, "sha512") == manifest["sha512"] and
             sha(binary).lower() == record["qualified_assembly_sha256"] and
             sha(deploy) == manifest["deploymentArtifactSha256"] and
-            sha(deploy).lower() == record["qualified_deploy_sql_sha256"],
+            sha(deploy).lower() == record["qualified_deploy_sql_sha256"] and
+            sha(payload[MODULE + "Artifacts/Uninstall.Expanded.sql"]).lower() == record["qualified_uninstall_sql_sha256"],
             "native-qualified candidate bytes")
     guard.no_codeview(binary)
     for key in ("sourceFiles", "deploymentFiles"):
@@ -159,12 +161,14 @@ def build(args):
             manifest["scriptDomSha512"] == parser["scriptDomSha512"] == dependency["scriptDomSha512"],
             "unchanged parser closure")
     payload[qualification_path] = qualification_bytes
+    legacy_start = payload["START-HERE.txt"]
     payload["START-HERE.txt"] = (
         "SSIS Components V2 development/test installation; unreleased.\n"
         "Read Modules/toolbelt.tsql.ssis-debug/README.md and the V2 contract.\n"
         "Windows SQL Server only; no file parsing/writes or package execution.\n"
         "V1 API remains available; V2 requires explicit opt-in.\n"
-        "Source commit: " + commit + "\n").encode("utf-8")
+        "Source commit: " + commit + "\n\n"
+        "The preserved installation guide below remains applicable. Select the V2 context explicitly.\n\n").encode("utf-8") + legacy_start
     old_manifest = json.loads(payload["PACKAGE-MANIFEST.json"])
     output_manifest = dict(old_manifest)
     output_manifest.update(

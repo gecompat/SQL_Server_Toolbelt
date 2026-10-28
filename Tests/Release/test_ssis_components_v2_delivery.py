@@ -89,6 +89,12 @@ class PackageIntegrity(PrivateTemporary):
     def test_self_consistent_wrong_binary(self):
         self.altered(lambda payload: payload.__setitem__(composer.MODULE + "Artifacts/Toolbelt.Tsql.SsisDebug.dll", b"synthetic-wrong"), "qualified candidate bytes")
 
+    def test_self_consistent_wrong_uninstall(self):
+        self.altered(lambda payload: payload.__setitem__(composer.MODULE + "Artifacts/Uninstall.Expanded.sql", b"SELECT 1;"), "qualified candidate bytes")
+
+    def test_removed_guide_and_attribution(self):
+        self.altered(lambda payload: payload.__setitem__("START-HERE.txt", b"synthetic"), "preserved installation guide and attribution")
+
     def test_self_consistent_rewritten_source_manifest(self):
         def mutate(payload):
             key = composer.MODULE + "Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json"

@@ -57,6 +57,8 @@ jobs:
         run: python Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_contract.py
       - name: Versioned ZIP integrity, exact build sources and tampering controls without SQL
         run: python -m unittest discover -s Modules/toolbelt.tsql.ssis-debug/Tests/Static -p test_install_package.py
+      - name: Components V2 package integrity and tampering controls without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_components_v2_delivery.py
       - name: Reproduce current provider build
         shell: pwsh
         run: |
@@ -109,6 +111,8 @@ jobs:
           }
           & Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-ReleaseRightsAdapter.ps1
           & Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-ComponentsV2Adapter.ps1
+          & Tests/Release/Prepare-ComponentsV2StandaloneTsqlInstallerRunset.ps1 -EvidenceDirectory .runtime/ci-v2-validation -ValidateOnly
+          & Tests/Release/Invoke-ComponentsV2StandaloneTsqlInstallerLab.ps1 -RunsetPath .runtime/ci-v2-validation/runset.json -ExpectedRunsetSha256 ('0' * 64) -CaseIndex 0 -ValidateOnly
       - name: Installation example contract without SQL access
         shell: pwsh
         run: ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-InstallationExample.ps1

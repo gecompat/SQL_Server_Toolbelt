@@ -65,7 +65,8 @@ def validate(path):
     cases = record["cases"]
     require(len(cases) == len(expected) and
             {(case["sql_version"], case["compatibility_level"], case["deployment_mode"]) for case in cases} == expected and
-            all(case["result"] == "PASS" and case["cleanup_audit"] == "PASS" for case in cases),
+            all(case["result"] == "PASS" and case["cleanup_audit"] == "PASS" and
+                case.get("legacy_baseline") == "PASS" for case in cases),
             "native qualification matrix")
     release_bytes = payload[MODULE + "Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json"]
     require(sha(release_bytes) == record["qualified_trust_manifest_sha256"],
@@ -77,6 +78,7 @@ def validate(path):
             sha(binary).lower() == record["qualified_assembly_sha256"] and
             sha(deploy) == release["deploymentArtifactSha256"] and
             sha(deploy).lower() == record["qualified_deploy_sql_sha256"] and
+            sha(payload[MODULE + "Artifacts/Uninstall.Expanded.sql"]).lower() == record["qualified_uninstall_sql_sha256"] and
             release["reproducedBuild"] is True, "qualified candidate bytes")
     for key in ("sourceFiles", "deploymentFiles"):
         for entry in release[key]:
@@ -92,6 +94,8 @@ def validate(path):
     require(manifest["predecessorPackageSha256"] == sha(legacy.ARCHIVE.read_bytes()),
             "predecessor package")
     with zipfile.ZipFile(legacy.ARCHIVE) as archive:
+        require(payload["START-HERE.txt"].endswith(archive.read(LEGACY + "/START-HERE.txt")),
+                "preserved installation guide and attribution")
         for name in archive.namelist():
             relative = name[len(LEGACY) + 1:]
             if relative.startswith(MODULE) or relative in ("PACKAGE-MANIFEST.json", "SHA256SUMS.txt", "START-HERE.txt"):
