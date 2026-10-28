@@ -1,0 +1,34 @@
+{
+  "schema_version": "toolbelt-generate-series-ddl-help/v1",
+  "date": "2026-10-28",
+  "status": "SOURCE_DELTA_ONLY",
+  "native_requalification_claimed": false,
+  "current_head_ci_required": true,
+  "publication_authorized": false,
+  "scope": "Three existing Generate Series DDL help comment insertions only",
+  "archive": {
+    "path": "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip",
+    "sha256": "333a7d6ceb2a36523ea642ac1dd5a78b5fc86b8aaa25998db14c8ea035f068e6",
+    "size_bytes": 27274364
+  },
+  "baseline_reports_sha256": {
+    "Releases/1.0.0/conversion-caller-qualification.json": "45852b68adb0815c14e014f368e3235d072ffd6951a768e8eafcba7ca589c63f",
+    "Releases/1.0.0/series-date-caller-qualification.json": "d1e8104ba569beec8ef11713e48b2a6735d2533184e1390f1095d06188a64974",
+    "Releases/1.0.0/utility-caller-qualification.json": "e2c0c840b41c6961db810db0c21e2ecf104be2e732366f9cbf5986e2d492577b"
+  },
+  "sources": {
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql": {
+      "baseline_sha256": "99d9090c2cd50edc23b8137bfa3d9ef863c1bf4fa5e1ebd952c1da1722770dd1",
+      "current_sha256": "90331712f9b6abdccc11bbf7b3bfa6e5d7ad6b24553ec68b51ae18ff0411c6de"
+    },
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql": {
+      "baseline_sha256": "44d8723199f44a22e58e43a3fa4c2e6002420fa03c58210ed16a0bf1ff9d1a3d",
+      "current_sha256": "1e454c2cd9844240bfba50f0da546a32f2af8d5db4fad4f734ad89bdf1fab67e"
+    }
+  },
+  "comment_insertions": [
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql#TVF_GenerateSeriesBigInt",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql#TVF_GenerateSeriesBigIntStatus",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql#TVF_GenerateSeriesInt"
+  ]
+}

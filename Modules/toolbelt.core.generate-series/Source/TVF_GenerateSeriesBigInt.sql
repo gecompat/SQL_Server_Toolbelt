@@ -21,6 +21,21 @@ AS
 RETURN
 (
     /*
+     * DDL-Hilfe: Erzeugt eine portable bigint-Reihe ohne internes Zeilenlimit.
+     * Parameter: @Start bigint NULL, @Stop bigint NULL, @Step bigint NULL
+     * (Default NULL). NULL oder DEFAULT für @Step wählt +1 bei Start <= Stop,
+     * sonst -1. Der Start ist enthalten; Stop nur, wenn die Schrittfolge ihn
+     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop
+     * keine Zeile. Schritt 0 bleibt der
+     * unveränderte Enginefehler, auch wenn eine Grenze NULL ist. Eine
+     * Zeilenzahl außerhalb bigint löst Engine-Overflow statt Kürzung aus.
+     * Ergebnis: Value bigint; keine Reihenfolge ohne ORDER BY. Für SELECT-
+     * Aufrufe ist SELECT auf der Funktion erforderlich.
+     * Beispiel: SELECT Value FROM toolbelt_core.TVF_GenerateSeriesBigInt
+     * (CONVERT(bigint,10),CONVERT(bigint,1),CONVERT(bigint,-4)) ORDER BY Value DESC;
+     * Erwartete Werte: 10, 6, 2.
+     */
+    /*
      * Die binäre Stapelung stellt 2^64 logische Quellzeilen bereit. TOP
      * begrenzt die tatsächlich angeforderte Menge durch einen Row Goal; die
      * Zwischenmenge wird nicht materialisiert. decimal(38,0) verhindert
@@ -146,6 +161,23 @@ CREATE OR ALTER FUNCTION [toolbelt_core].[TVF_GenerateSeriesBigIntStatus]
 RETURNS @Result TABLE(Value bigint NULL,Status varchar(16) NOT NULL,RequestedRows decimal(38,0) NULL)
 AS
 BEGIN
+    /*
+     * DDL-Hilfe: Liefert Werte oder eine begrenzte Statuszeile für nicht
+     * vertrauenswürdige
+     * Aufrufe. Parameter: @Start bigint NULL, @Stop bigint NULL,
+     * @Step bigint NULL (Default NULL; Richtung automatisch). NULL bei Start
+     * oder Stop hat Vorrang und ergibt (NULL,SQL_NULL,NULL). Schritt 0 ergibt
+     * (NULL,INVALID,NULL); falsche Richtung ergibt (NULL,EMPTY,0). Mehr als
+     * 1000000 angeforderte Werte ergibt (NULL,LIMIT,exakte RequestedRows).
+     * Gültige Werte ergeben je eine Zeile mit Status=OK und der Gesamtzahl.
+     * Ergebnis: Value bigint NULL, Status varchar(16),
+     * RequestedRows decimal(38,0) NULL; keine Reihenfolge ohne ORDER BY.
+     * Für SELECT-Aufrufe ist SELECT auf der Funktion erforderlich.
+     * Beispiel: SELECT Value,Status,RequestedRows
+     * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,2)
+     * ORDER BY Value;
+     * Erwartet: (1,OK,3), (3,OK,3), (5,OK,3).
+     */
     IF @Start IS NULL OR @Stop IS NULL
     BEGIN INSERT @Result VALUES(NULL,'SQL_NULL',NULL); RETURN; END;
     SET @Step=COALESCE(@Step,CASE WHEN @Start<=@Stop THEN CONVERT(bigint,1) ELSE CONVERT(bigint,-1) END);

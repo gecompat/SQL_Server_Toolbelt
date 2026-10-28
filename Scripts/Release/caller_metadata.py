@@ -119,6 +119,14 @@ def validate_source(root, path, executed_digest):
         base64_ddl_help = import_module('base64_ddl_help')
         base64_ddl_help.validate_historical_source(root, path, executed_digest)
         return
+    series_help_paths = {
+        'Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql',
+        'Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql',
+    }
+    if path in series_help_paths:
+        series_help = import_module('generate_series_ddl_help')
+        series_help.validate_historical_source(root, path, executed_digest)
+        return
     xlsx_manifest = 'Modules/toolbelt.file.xlsx-memory/module.yaml'
     if path == xlsx_manifest:
         # Keep the XLSX exception exact and lazy: xlsx_metadata is loaded by
