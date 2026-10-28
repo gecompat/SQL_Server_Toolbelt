@@ -22,6 +22,48 @@ APPROVED_RESULTTABLE_ROUTES = [
 ]
 RESULTTABLE_CONTRACT = ('Existing SELECT or local #Temp through canonical helper, replace/append, '
                         'preflight before queue DML/file IO; unchanged result columns and rights boundaries')
+SOURCE_PATHS = frozenset({
+    'Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md',
+    'Modules/toolbelt.core.event-log/Documentation/EVENT_LOG_OBJECTS.md',
+    'Modules/toolbelt.core.event-log/Source/USP_WriteEventInternal.sql',
+    'Modules/toolbelt.core.event-log/Tests/Runtime/Lifecycle.Contract.sql',
+    'Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md',
+    'Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql',
+    'Modules/toolbelt.core.execution-cancel/Tests/Runtime/ExecutionCancellation.Contract.sql',
+    'Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md',
+    'Modules/toolbelt.core.second-session/Source/USP_DispatchWorkType.sql',
+    'Modules/toolbelt.core.second-session/Source/USP_SecondSessionProbe.sql',
+    'Modules/toolbelt.core.second-session/Tests/Runtime/Lifecycle.Contract.sql',
+    'Modules/toolbelt.core.second-session/Tests/Static/validate_contract.py',
+    'Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md',
+    'Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql',
+    'Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql',
+    'Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql',
+    'Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql',
+    'Modules/toolbelt.core.work-queue/Tests/Runtime/WorkQueue.Contract.sql',
+    'Modules/toolbelt.file.content/Deployment/Deploy.sql',
+    'Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md',
+    'Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md',
+    'Modules/toolbelt.file.content/README.md',
+    'Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql',
+    'Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql',
+    'Modules/toolbelt.file.content/Tests/Runtime/FileContent.Contract.sql',
+    'Modules/toolbelt.file.content/Tests/Static/validate_contract.py',
+    'Modules/toolbelt.file.content/module.yaml',
+    'Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md',
+    'Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md',
+    'Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql',
+    'Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql',
+    'Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql',
+    'Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql',
+    'Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Contract.sql',
+    'Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql',
+    'Modules/toolbelt.metadata.table-clone/Tests/Runtime/Lifecycle.Contract.sql',
+    'Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookupCore.sql',
+    'Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/InstalledMetadata.Contract.sql',
+    'Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_geo.py',
+    'Releases/1.0.0/CLR-INSTALL.md',
+})
 RECORD_KEYS = {
     'schema_version', 'date', 'status', 'native_requalification_claimed',
     'current_head_ci_required', 'publication_authorized', 'baseline_commit',
@@ -32,7 +74,7 @@ RECORD_KEYS = {
 BOUNDARY_TEST = 'Tests/Release/test_xlsx_boundary_evidence.py'
 BOUNDARY_BASELINE_COMMIT = BASELINE_COMMIT
 BOUNDARY_BASELINE_SHA256 = 'b497d2ddd1d4fd2691b2753dff8e71e7208cd4e10ff29b7f408bf3bb154465c6'
-BOUNDARY_CURRENT_SHA256 = '8ea1c9eafeFe2068d629c054357b7258b1beafdf883cf6579d0fe8d009ceb3cc'.lower()
+BOUNDARY_CURRENT_SHA256 = 'bf78685fcef66a6d5b681e701fa9521dcea1c1fb3f451405d297725dc5059a88'
 XLSX_METADATA_TEST = 'Tests/Release/test_xlsx_metadata.py'
 XLSX_METADATA_BASELINE_SHA256 = '6e71519987a874ded010d3656ca352e9180ee63d24dce98a532d831d309b1f6e'
 XLSX_METADATA_CURRENT_SHA256 = '9fc40865664197c720286b62762a81d8ee939ec69f0e8e723ce30bfff4681435'
@@ -95,7 +137,8 @@ def _record(root):
     baseline = record['baseline_source_sha256']
     current = record['current_source_sha256']
     _require(isinstance(baseline, dict) and isinstance(current, dict)
-             and len(baseline) == 40 and set(baseline) == set(current),
+             and len(baseline) == 40 and set(baseline) == SOURCE_PATHS
+             and set(current) == SOURCE_PATHS,
              'Help source-delta path sets differ')
     for path, digest in baseline.items():
         pure = PurePosixPath(path)
@@ -168,9 +211,8 @@ def validate_historical_source(root, path, expected_sha256):
 
 
 def source_paths(root):
-    """Return the exact fixed set of source paths in the current delta record."""
-    _, record = _record(root)
-    return frozenset(record['baseline_source_sha256'])
+    """Return only known delta paths without requiring their record for unrelated paths."""
+    return SOURCE_PATHS
 
 
 def validate_current_source(root, path):
@@ -297,6 +339,7 @@ def _boundary_projection(original):
                      b"            archive_target = sandbox / help_contract_source.ARCHIVE\n"
                      b"            archive_target.parent.mkdir(parents=True)\n"
                      b"            shutil.copyfile(ROOT / help_contract_source.ARCHIVE, archive_target)\n"
+                     b"            shutil.copyfile(ROOT / 'LICENSE.md', sandbox / 'LICENSE.md')\n"
                      b"            with self.assertRaisesRegex(ValueError, 'Current Help source differs'):\n"
                      b"                help_contract_source.validate_historical_source(sandbox, path, expected)\n"
                      b"            target.write_bytes(current)\n"

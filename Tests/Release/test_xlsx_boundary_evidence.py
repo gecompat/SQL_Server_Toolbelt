@@ -237,6 +237,7 @@ class XlsxBoundaryEvidenceMixin:
             archive_target = sandbox / help_contract_source.ARCHIVE
             archive_target.parent.mkdir(parents=True)
             shutil.copyfile(ROOT / help_contract_source.ARCHIVE, archive_target)
+            shutil.copyfile(ROOT / 'LICENSE.md', sandbox / 'LICENSE.md')
             with self.assertRaisesRegex(ValueError, 'Current Help source differs'):
                 help_contract_source.validate_historical_source(sandbox, path, expected)
             target.write_bytes(current)
