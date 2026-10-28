@@ -102,6 +102,33 @@ NAV_CURRENT_SHA256 = {
     'Releases/1.0.0/EVIDENCE-MAP.md': '4845ee28c48d71fd30d4e202aca40329c65475e6b3ac61efb6c61153d6cfdd64',
     'Releases/1.0.0/RELEASE-GATES.md': '39d44ea5f043642d938410bc746c32736072cf8b07e9f0bdf7220f31379c9be7',
 }
+SSIS_INSTALL_NAV_RECORD = 'Releases/1.0.0/ssis-standalone-installer-navigation-delta.json'
+SSIS_INSTALL_NAV_PATHS = frozenset({
+    'Releases/1.0.0/README.md',
+    'Releases/1.0.0/EVIDENCE-MAP.md',
+})
+SSIS_INSTALL_NAV_BASELINE_SHA256 = {
+    path: NAV_CURRENT_SHA256[path] for path in SSIS_INSTALL_NAV_PATHS
+}
+SSIS_INSTALL_NAV_CURRENT_SHA256 = {
+    'Releases/1.0.0/README.md': '95f817e0ff7a450481a43df715f9dd0593c672f3f0a383424183c2327e38d1e3',
+    'Releases/1.0.0/EVIDENCE-MAP.md': '7e00b3763cfc94789eca6a86d2f7267588093d66e9c352757daf08b8ac2f157b',
+}
+SSIS_INSTALL_NAV_BLOCKS = {
+    'Releases/1.0.0/README.md': (
+        'Der [eigenständige SSIS-T-SQL-Installer](SSIS-INSTALL-TSQL.md) bündelt die\n'
+        'bereits qualifizierten SQL-CLR-Objekte samt exakten DLLs in einem ausführbaren\n'
+        'T-SQL-Batch. Er ändert weder die bestehende Paketqualifikation noch den\n'
+        'Veröffentlichungsstatus; DTSX-Paketberichte werden getrennt behandelt.\n\n'
+    ).encode('utf-8'),
+    'Releases/1.0.0/EVIDENCE-MAP.md': (
+        'Der [eigenständige T-SQL-Installer](SSIS-INSTALL-TSQL.md) liefert die bereits\n'
+        'qualifizierten ResultTable-, Script-Parser- und SSIS-Debug-Assemblies ohne\n'
+        'SQLCMD-Batchverarbeitung. Seine ausgewählten Installationsprüfungen aktualisieren\n'
+        'weder die bestehenden Paketberichte noch den Veröffentlichungsstatus. Ein\n'
+        'DTSX-Bericht ist ein separater Nachweisumfang.\n\n'
+    ).encode('utf-8'),
+}
 
 
 def _require(condition, message):
@@ -111,6 +138,48 @@ def _require(condition, message):
 
 def _digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def validate_ssis_installer_navigation(root, path, source=None):
+    """Restore only the two exact additive installer-link blocks."""
+    root = Path(root).resolve()
+    _require(path in SSIS_INSTALL_NAV_PATHS,
+             'unsupported standalone installer navigation path')
+    record_path = root / SSIS_INSTALL_NAV_RECORD
+    record = json.loads(record_path.read_text(encoding='utf-8'))
+    required = {
+        'schema_version', 'date', 'status', 'native_requalification_claimed',
+        'publication_authorized', 'scope', 'baseline_source_sha256',
+        'current_source_sha256',
+    }
+    _require(isinstance(record, dict) and set(record) == required
+             and record['schema_version'] == 'toolbelt-ssis-installer-navigation-delta/v1'
+             and record['date'] == '2026-10-28'
+             and record['status'] == 'DOCUMENTATION_DELTA_ONLY'
+             and record['native_requalification_claimed'] is False
+             and record['publication_authorized'] is False
+             and record['scope'] == 'Two exact release-page links to the standalone T-SQL installer; no historic qualification is changed',
+             'standalone installer navigation delta claims differ')
+    baseline = record['baseline_source_sha256']
+    current = record['current_source_sha256']
+    _require(isinstance(baseline, dict) and set(baseline) == SSIS_INSTALL_NAV_PATHS
+             and baseline == SSIS_INSTALL_NAV_BASELINE_SHA256
+             and isinstance(current, dict) and set(current) == SSIS_INSTALL_NAV_PATHS
+             and current == SSIS_INSTALL_NAV_CURRENT_SHA256,
+             'standalone installer navigation source pins differ')
+    source = (root / path).read_bytes() if source is None else source
+    _require(isinstance(source, bytes)
+             and _digest(source) == current[path],
+             'standalone installer navigation current bytes differ')
+    block = SSIS_INSTALL_NAV_BLOCKS[path]
+    _require(source.count(block) == 1,
+             'standalone installer navigation block is missing or duplicated')
+    block_start = source.index(block)
+    restored = source[:block_start] + source[block_start + len(block):]
+    _require(_digest(restored) == baseline[path]
+             and restored[:block_start] + block + restored[block_start:] == source,
+             'standalone installer navigation transition is not exactly reversible')
+    return restored
 
 
 def _record(root):
@@ -271,9 +340,12 @@ def validate_navigation_source(root, path, expected_sha256):
                  'navigation archive entries differ')
         original = archive.read(matches[0])
         archived_license = archive.read(licenses[0])
+    current_bytes = (root / path).read_bytes()
+    if path in SSIS_INSTALL_NAV_PATHS:
+        current_bytes = validate_ssis_installer_navigation(root, path, current_bytes)
     _require(_digest(original) == baseline[path]
              and archived_license == (root / 'LICENSE.md').read_bytes()
-             and _digest((root / path).read_bytes()) == current[path],
+             and _digest(current_bytes) == current[path],
              'navigation baseline/current binding differs')
     return original
 

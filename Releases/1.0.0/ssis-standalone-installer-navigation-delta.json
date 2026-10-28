@@ -1,0 +1,16 @@
+{
+  "schema_version": "toolbelt-ssis-installer-navigation-delta/v1",
+  "date": "2026-10-28",
+  "status": "DOCUMENTATION_DELTA_ONLY",
+  "native_requalification_claimed": false,
+  "publication_authorized": false,
+  "scope": "Two exact release-page links to the standalone T-SQL installer; no historic qualification is changed",
+  "baseline_source_sha256": {
+    "Releases/1.0.0/README.md": "e60daa78a47e69d8ec0a7c87ed088231bd09357a3ccb50a92a0fb86e6fc32bf4",
+    "Releases/1.0.0/EVIDENCE-MAP.md": "4845ee28c48d71fd30d4e202aca40329c65475e6b3ac61efb6c61153d6cfdd64"
+  },
+  "current_source_sha256": {
+    "Releases/1.0.0/README.md": "95f817e0ff7a450481a43df715f9dd0593c672f3f0a383424183c2327e38d1e3",
+    "Releases/1.0.0/EVIDENCE-MAP.md": "7e00b3763cfc94789eca6a86d2f7267588093d66e9c352757daf08b8ac2f157b"
+  }
+}
