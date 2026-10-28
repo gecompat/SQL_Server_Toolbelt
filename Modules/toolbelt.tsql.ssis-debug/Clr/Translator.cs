@@ -838,7 +838,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 string tempAbsent = "OBJECT_ID(" + Util.L("tempdb.." + cleanupCaches[i].Name) + ", N'U') IS NULL AND OBJECT_ID(" + Util.L("tempdb.." + cleanupCaches[i].StateName) + ", N'U') IS NULL";
                 string cleanup = bindings.Declarations(inputs) + "\n" + databaseGuard +
                     "IF OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U') IS NULL\nBEGIN\nIF NOT (" + tempAbsent + ") THROW 50000, N'TBX_SSISDBG_plan_ownership: Tempcache ohne Planstate.', 1;\nEND\nELSE\nBEGIN\n" +
-                    "DECLARE " + stateId + " int = OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U');\n" + CacheSql.PlanStateGuard(planState, planOwner, planHash, valuesHash, stateId, true, -1, bindings.Collation, true, true, i == 0 ? 0 : i, units.Count);
+                    "DECLARE " + stateId + " int = OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U');\n" + CacheSql.PlanStateGuard(planState, planOwner, planHash, valuesHash, stateId, true, -1, bindings.Collation, true, true, i == 0 ? -1 : i, units.Count);
                 string stateTable = Util.Q(planState);
                 string beforeDrop = i == 0
                     ? "UPDATE " + stateTable + " SET [CleanupOrdinal] = 0 WHERE [Owner]=0x" + planOwner + " AND [PlanHash]=0x" + planHash + " AND [CleanupOrdinal]=-1;\nIF NOT EXISTS (SELECT 1 FROM " + stateTable + " WITH (NOLOCK) WHERE [Owner]=0x" + planOwner + " AND [PlanHash]=0x" + planHash + " AND [CleanupOrdinal]=0) THROW 50000, N'TBX_SSISDBG_plan_cleanup_order: Cleanup konnte nicht begonnen werden.', 1;\n"
