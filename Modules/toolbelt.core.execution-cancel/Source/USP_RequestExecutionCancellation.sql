@@ -17,13 +17,17 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT v.Section, v.Ordinal, v.ItemName, v.SqlDataType, v.IsRequired,
+        SELECT CONVERT(varchar(16), '1.0') AS HelpContractVersion,
+               CONVERT(sysname, N'toolbelt_core') AS SchemaName,
+               CONVERT(sysname, N'USP_RequestExecutionCancellation') AS ObjectName,
+               v.Section, v.Ordinal, v.ItemName, v.SqlDataType, v.IsRequired,
                v.IsNullable, v.DefaultValue, v.Description, v.ExampleSql
         FROM (VALUES
           (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedure beendet keine Session und verändert keine Work-Queue-Einträge.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
         , ('PARAMETER', 1, N'@ExecutionId', 'uniqueidentifier', 0, 1, NULL, N'Zielausführung; ohne Wert wird die aktuelle sessiongebundene ExecutionId verwendet.', NULL)
         , ('PARAMETER', 2, N'@CancellationReason', 'nvarchar(512)', 0, 1, NULL, N'Optionaler, nicht sensibler Grund. Nur die erste Anforderung speichert ihn.', NULL)
         , ('PARAMETER', 3, N'@Debug', 'tinyint', 0, 0, N'0', N'Gibt eine Fortschrittsmeldung aus.', NULL)
+        , ('PARAMETER', 4, N'@Hilfe', 'bit', 0, 0, N'0', N'1 liefert ausschließlich dieses Help-Resultset und überspringt fachliche Prüfungen und Änderungen.', NULL)
         , ('ERROR', 1, N'52600-52606', NULL, NULL, NULL, NULL, N'Parameter-, Context-, Transaktions- oder Quotenfehler: 52605 bei 100000 DBrequests, 52606 bei 10000 je Principal; bestehende IDs bleiben idempotent.', NULL)
         , ('RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, N'Kein fachliches Resultset; den Status liefert TVF_ExecutionCancellationStatus.', NULL)
         , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Fordert Cancellation für die aktuelle Ausführung an.', N'EXEC toolbelt_core.USP_RequestExecutionCancellation @CancellationReason=N''planned maintenance'';')

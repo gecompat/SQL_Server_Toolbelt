@@ -23,8 +23,9 @@ IF EXISTS(SELECT 1 FROM(VALUES(N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueue
  THROW 54990,N'Die ursprünglichen typisierten Queue-Tabellenmarker fehlen.',7;
 -- Kanonischer vorhandener JSON-Handler erfüllt den Registrierungsvertrag; er wird niemals aufgerufen.
 DECLARE @Handler int=OBJECT_ID(N'toolbelt_core.USP_WriteEventInternal',N'P');
-IF @Handler IS NULL OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@Handler)<>1
- OR NOT EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=@Handler AND parameter_id=1 AND name=N'@PayloadJson' AND system_type_id=231 AND max_length=-1 AND is_output=0)
+IF @Handler IS NULL OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@Handler)<>2
+ OR NOT EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=@Handler AND parameter_id=1 AND name=N'@PayloadJson' AND system_type_id=231 AND user_type_id=231 AND max_length=-1 AND is_output=0 AND is_readonly=0)
+ OR NOT EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=@Handler AND parameter_id=2 AND name=N'@Hilfe' AND system_type_id=104 AND user_type_id=104 AND max_length=1 AND is_output=0 AND is_readonly=0)
  THROW 54990,N'Der vorhandene JSON-Payload-Handler besitzt nicht den erwarteten Vertrag.',3;
 CREATE TABLE #ExportUpgradeStatus(Dummy int NULL);
 CREATE TABLE #ExportUpgradeClaim(Dummy int NULL);

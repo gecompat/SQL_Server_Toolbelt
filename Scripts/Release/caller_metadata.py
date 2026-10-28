@@ -9,6 +9,7 @@ from pathlib import Path
 import hashlib
 import json
 import subprocess
+from importlib import import_module
 
 BASELINE = 'f6a7daa3a176510d04dc2914c958ca91954e7feb'
 RECORD = 'Releases/1.0.0/caller-metadata-update.json'
@@ -104,6 +105,10 @@ def historical_manifest(root, path):
 
 def validate_source(root, path, executed_digest):
     """Unveränderte Quellen exakt prüfen; sechs Metadatenänderungen getrennt belegen."""
+    help_contract_source = import_module('help_contract_source')
+    if path in help_contract_source.source_paths(root):
+        help_contract_source.validate_historical_source(root, path, executed_digest)
+        return
     xlsx_manifest = 'Modules/toolbelt.file.xlsx-memory/module.yaml'
     if path == xlsx_manifest:
         # Keep the XLSX exception exact and lazy: xlsx_metadata is loaded by

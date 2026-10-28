@@ -13,6 +13,18 @@ OLD = ("TVF_DeterministicIntegerBytes.sql", "TVF_DeterministicRangeCore.sql",
        "USP_DeterministicLookupCore.sql", "USP_DeterministicLookup.sql", "DeterministicTranslate.sql")
 
 
+def without_lookup_core_help(text):
+    """Vergleicht den eingefrorenen Fachkern getrennt von der Help-only-Projektion."""
+    start_marker = "    IF @Hilfe=1"
+    end_marker = "    DECLARE @OwnTransaction"
+    assert text.count(start_marker) == 1
+    assert text.count(end_marker) == 1
+    start = text.index(start_marker)
+    end = text.index(end_marker, start)
+    assert end > start
+    return text[:start] + "    -- Hilfezweig nur für den Fachkernvergleich ausgeblendet.\n" + text[end:]
+
+
 COORDINATE_TOLERANCE = 1e-9
 NUMBER = r"-?\d+(?:\.\d+)?"
 KEY = r"(?:0x[0-9a-fA-F]+|CONVERT\(varbinary\(max\),REPLICATE\(CONVERT\(varchar\(max\),'x'\),8000\)\))"
@@ -51,7 +63,14 @@ def main():
         file = MODULE / "Source" / name
         old = subprocess.check_output(["git", "show", f"{BASE}:{file.relative_to(ROOT).as_posix()}"], cwd=ROOT)
         # Git-Checkoutrepräsentation LF/CRLF ist ausdrücklich kein Source-Drift.
-        assert file.read_bytes().replace(b"\r\n", b"\n") == old.replace(b"\r\n", b"\n"), name
+        current_bytes = file.read_bytes().replace(b"\r\n", b"\n")
+        old_bytes = old.replace(b"\r\n", b"\n")
+        if name == "USP_DeterministicLookupCore.sql":
+            current_text = without_lookup_core_help(current_bytes.decode("utf-8"))
+            old_text = without_lookup_core_help(old_bytes.decode("utf-8"))
+            assert current_text == old_text, name
+        else:
+            assert current_bytes == old_bytes, name
     source = (MODULE / "Source/DeterministicGeoJitter.sql").read_text(encoding="utf-8")
     assert len(re.findall(r"CREATE\s+OR\s+ALTER\s+FUNCTION", source, re.I)) == 1
     assert re.search(r"RETURNS\s+TABLE\s+AS\s+RETURN\s*\(", source, re.I)

@@ -17,7 +17,7 @@ $historicalFiles=[Collections.Generic.List[object]]::new()
 $historicalDirectories=[Collections.Generic.List[string]]::new()
 $journalPath=Join-Path $ownedRoot 'Ownership.json';$journalHash=$null
 $utf8=[Text.UTF8Encoding]::new($false,$true)
-$expectedModules=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.work-queue','toolbelt.core.event-log','toolbelt.core.worker-control')
+$expectedModules=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.file.content','toolbelt.core.second-session','toolbelt.core.work-queue','toolbelt.core.event-log','toolbelt.core.worker-control')
 $selectedModules=@('toolbelt.core.worker-control','toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel')
 if($Scenario-ceq'ParameterMetadata'){
  $expectedModules=@('toolbelt.core.result-table','toolbelt.core.work-type','toolbelt.core.work-queue')
@@ -344,7 +344,7 @@ function New-UpgradeBootstrap([string]$Mode){
  & (Join-Path $repositoryRoot 'Deployment/Deploy-All.ps1') -DeploymentMode $Mode -ModuleId @('toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel') -OutputSqlFile $path *> $null
  $bytes=[IO.File]::ReadAllBytes($path);$text=$utf8.GetString($bytes)
  Assert-ExportRepeat (-not($bytes[0]-eq239-and$bytes[1]-eq187-and$bytes[2]-eq191)) 'EXPORT_BOM'
- $expected=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.event-log')
+ $expected=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.file.content','toolbelt.core.second-session','toolbelt.core.event-log')
  $actual=@([regex]::Matches($text,'(?m)^-- BEGIN MODULE ([a-z0-9.-]+)$')|ForEach-Object {$_.Groups[1].Value})
  Assert-ExportRepeat (($actual-join ',')-ceq($expected-join ',')) 'BOOTSTRAP_CLOSURE'
  Assert-ExportRepeat ([regex]::Matches($text,'(?m)^-- END MODULE ').Count-eq7-and[regex]::Matches($text,'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count-eq8) 'BOOTSTRAP_MARKERS'
@@ -539,7 +539,8 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
- foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='EE77ED5511EE23C42D83CC5DF010FA9FD2EBC9C960ECE768E64049BF448C2CA4'},@{Name='ExportQueue11.Assert.sql';Hash='92518C163F47DBDF792E30074D494166C6E12E8CCD7F02143BD8D9F5DE2FB575'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='71F5270AE92932B7ABAF204F99F855A7895F4FCA8448F4CFAE5C258F9FF970B3'})){
+ # 2026-10-28: Der Handler-Metadatencheck bindet zusätzlich @Hilfe bit; der Genuine-Queue-1.1-Quellstand blieb unverändert. Vorheriger Setup-Pin: 04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC.
+ foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='941294341177A35EEBA61167642530A69FBF7CD709CBDCC9CBD2A260688CFE41'},@{Name='ExportQueue11.Capture.sql';Hash='EE77ED5511EE23C42D83CC5DF010FA9FD2EBC9C960ECE768E64049BF448C2CA4'},@{Name='ExportQueue11.Assert.sql';Hash='92518C163F47DBDF792E30074D494166C6E12E8CCD7F02143BD8D9F5DE2FB575'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='71F5270AE92932B7ABAF204F99F855A7895F4FCA8448F4CFAE5C258F9FF970B3'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  }
 }

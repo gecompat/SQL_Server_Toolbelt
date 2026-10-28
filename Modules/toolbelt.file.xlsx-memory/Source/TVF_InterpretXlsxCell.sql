@@ -1,3 +1,13 @@
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE OR ALTER FUNCTION toolbelt_file.TVF_InterpretXlsxCell
+(
+ @StoredType nvarchar(max) = NULL, @ValuePresent bit = NULL, @RawValue nvarchar(max) = NULL,
+ @TextValue nvarchar(max) = NULL, @TargetType nvarchar(max) = NULL,
+ @FormatCode nvarchar(max) = NULL, @Date1904 bit = NULL
+)
 /*
 -- Objekt: toolbelt_file.TVF_InterpretXlsxCell
 -- Zweck: Bereits gelesene XLSX-Einzelzelle invariant typisieren, ohne Anzeigeformatierung.
@@ -18,23 +28,12 @@
 -- bei Fehler NULL; Status3/11 verwirft Echos atomar. Andere Enginefehler original.
 -- Dependencies: Interne FT derselben vorhandenen SAFE-XLSX-Assembly; Moduldependencies
 -- ZIP>=1.4.0/ResultTable>=1.0.0 bleiben. Caller benötigt bestehendes SELECT auf der TVF;
--- Deployment erstellt keine Berechtigungen. SQL2019/2022/2025 Windows/Linux Zielmatrix,
--- neue API dort erst nach tatsächlicher integrierter Qualifikation als PASS behandeln.
+-- Deployment erstellt keine Berechtigungen. SQL2019/2022/2025 Windows/Linux Zielmatrix.
 -- Performance: Input32/32/128/65536/65536 UTF16; Number-/Serialparser128; Ausgabecharge
 -- 262144=256+4*Stringunits, keine gesamte Heap-/SQL-Memorygrant-/Laufzeitgarantie.
 -- Grenzen: Keine Workbook-/SST-/Style-Neulesung, Cultureinferenz oder Formelberechnung.
 -- Beispiel: SELECT * FROM toolbelt_file.TVF_InterpretXlsxCell(N'n',1,N'1',NULL,NULL,NULL,NULL);
 */
-SET ANSI_NULLS ON;
-GO
-SET QUOTED_IDENTIFIER ON;
-GO
-CREATE OR ALTER FUNCTION toolbelt_file.TVF_InterpretXlsxCell
-(
- @StoredType nvarchar(max) = NULL, @ValuePresent bit = NULL, @RawValue nvarchar(max) = NULL,
- @TextValue nvarchar(max) = NULL, @TargetType nvarchar(max) = NULL,
- @FormatCode nvarchar(max) = NULL, @Date1904 bit = NULL
-)
 RETURNS TABLE
 AS
 RETURN

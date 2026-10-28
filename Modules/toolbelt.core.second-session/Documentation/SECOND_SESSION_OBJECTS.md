@@ -21,3 +21,15 @@ Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszus
 ## Resultsetfreie Infrastrukturaufrufe
 
 `USP_ExecuteWorkTypeInNewSession` unterstützt ab Version `1.1.0` `@SuppressResult = 1`. Der Remote-Handler und dessen Returncode werden vollständig ausgeführt und geprüft; lediglich das lokale Infrastruktur-Resultset entfällt. `@SuppressResult` und `@ResultTable` schließen einander aus.
+
+Die internen `USP_DispatchWorkType`- und `USP_SecondSessionProbe`-Hilfen
+beschreiben ihre OUTPUT-Werte und den fehlenden fachlichen Resultset-Vertrag.
+`@Hilfe = 1` wird vor Remote-Session- oder Datenbankabfragen ausgewertet und
+startet keinen Handler.
+
+Der Dispatcher akzeptiert JSON-Handler grundsätzlich nur mit genau einem
+`@PayloadJson nvarchar(max)`-Eingabeparameter. Eine eng gebundene Ausnahme gilt
+für den registrierten `toolbelt.event-log.write`-Handler: Bei passender
+Event-Log-Modulidentität und exakt `@PayloadJson` plus technischem
+`@Hilfe bit` führt der Dispatcher den Handler mit `@Hilfe = 0` aus. Andere
+Work Types und Handler bleiben beim bestehenden Einparametervertrag.

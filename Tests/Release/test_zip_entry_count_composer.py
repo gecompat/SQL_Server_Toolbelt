@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import uuid
 import zipfile
 
@@ -16,6 +17,8 @@ from compose_zip_entry_count import (
     compose_sources,
     write_output,
 )
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import help_contract_source
 
 
 class ZipEntryCountComposerMixin:
@@ -67,7 +70,10 @@ class ZipEntryCountComposerMixin:
             self.assertFalse(path.is_absolute())
             self.assertNotIn('..', path.parts)
             self.assertNotIn('.runtime', path.parts)
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected_sha256)
+            if relative in help_contract_source.source_paths(ROOT):
+                help_contract_source.validate_historical_source(ROOT, relative, expected_sha256)
+            else:
+                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected_sha256)
 
         package_path = ROOT / report['package']['path']
         package_bytes = package_path.read_bytes()

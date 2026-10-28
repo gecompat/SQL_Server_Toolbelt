@@ -50,7 +50,9 @@ Die Liste validiert Paket-/Worksheet-Metadaten und sämtliche Relationships, abe
 ## Synthetisches Beispiel
 
 ```sql
-EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe = 1;
 -- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.
 EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary = @SyntheticWorkbook;
 ```
+
+`@Hilfe = 1` liefert separat das standardisierte Help-Resultset ohne
+Workbook-Eingabe oder Runtime-Dependency.

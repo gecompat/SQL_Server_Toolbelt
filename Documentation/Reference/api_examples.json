@@ -1113,8 +1113,10 @@
     "parameter_notes": {
       "@FilePath": "Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.",
       "@MaxBytes": "Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.",
-      "@Debug": "Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages.",
-      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter."
+      "@ResultTable": "Optionaler Name einer lokalen Temp-Tabelle für die Ergebniszeile. Erfordert toolbelt.core.result-table ab Version 1.0.0.",
+      "@KeepData": "Wirkt mit @ResultTable: 1 erhält vorhandene Zeilen; 0 ersetzt Inhalt und Shape gemäß ResultTable-Vertrag.",
+      "@Debug": "Steuert Diagnosemeldungen des ResultTable-Helpers beim Routing; erzeugt keine zusätzlichen fachlichen Resultsets.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert die übrigen Parameter."
     }
   },
   "toolbelt_file.USP_LoadTextFile": {
@@ -1129,8 +1131,10 @@
       "@FilePath": "Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.",
       "@FallbackEncoding": "Codepage für Dateien ohne BOM. Unterstützt werden Windows-1252 und SQL_Latin1_General_CP1_CI_AS äquivalente 8-Bit-Codepages.",
       "@MaxBytes": "Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.",
-      "@Debug": "Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages.",
-      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter."
+      "@ResultTable": "Optionaler Name einer lokalen Temp-Tabelle für die Ergebniszeile. Erfordert toolbelt.core.result-table ab Version 1.0.0.",
+      "@KeepData": "Wirkt mit @ResultTable: 1 erhält vorhandene Zeilen; 0 ersetzt Inhalt und Shape gemäß ResultTable-Vertrag.",
+      "@Debug": "Steuert Diagnosemeldungen des ResultTable-Helpers beim Routing; erzeugt keine zusätzlichen fachlichen Resultsets.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert die übrigen Parameter."
     }
   },
   "toolbelt_file.TVF_FormatXlsxCell": {

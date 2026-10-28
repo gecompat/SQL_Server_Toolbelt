@@ -31,7 +31,9 @@ aber nicht `/safe-old/file.bin`. `%`, `_` und Klammern sind normale Pfadzeichen.
 
 ## Abhängigkeiten
 
-Keine Runtime-Modulabhängigkeit.
+`toolbelt.core.result-table` ab Version `1.0.0` wird nur benötigt, wenn
+`@ResultTable` zum Ablegen des vorhandenen Datei-Ergebnisresultsets verwendet
+wird. Ohne diesen Parameter bleibt das direkte Resultset unverändert.
 
 ## Deployment
 
@@ -44,7 +46,8 @@ Queryfragment `Source/FileContentRootPredicate.sql` ein.
 
 ## Vertrag
 
-- Nur Lesen; kein Schreiben im Version-1-Slice.
+- Datei-I/O bleibt ausschließlich lesend; ResultTable betrifft nur die lokale
+  Temp-Tabelle der aufrufenden Session.
 - Pfad muss absolut sein; UNC-Pfade sind erlaubt.
 - Pfad muss unter einem Eintrag der Root-Allowlist liegen.
 - Binärer Inhalt wird 1:1 als `varbinary(max)` zurückgegeben.

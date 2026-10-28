@@ -38,7 +38,7 @@ BEGIN
         ('ERROR',1,NULL,NULL,NULL,NULL,NULL,N'53900 Argumente/Zweck,53901 Sicht,53902 Ziele,53903 Unsupported/FK-Abweichung,53904 Kollision,53905 Definitionen,53906 Budgets,53907 Dependency; Enginefehler unverändert.',NULL),
         ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'Vorhandene datenbankweite VIEW DEFINITION und erforderliche Katalog-/Helperrechte; Trigger-Opt-in zusätzlich vollständige exakt gepinnte Parserbindung. Keine Rechtevergabe.',NULL),
         ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Interner Zweck ist kein zusätzlicher öffentlicher Planner-Modus. COPY_FK rendert gemeinsame FK-Logik; Copy prüft DML-Form/Admission separat. Map64, global2048 und2MiB Scriptbudget.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Seiteneffektfreier interner Hilfeaufruf.',N'EXEC toolbelt_metadata.USP_ScriptTableCloneInternal @Hilfe=1;');
+        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Vorschau über die öffentliche Fassade; dbo.SourceTable muss existieren, dbo.TargetTable ist das geplante neue Ziel.',N'EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N''dbo'',@SourceTable=N''SourceTable'',@TargetSchema=N''dbo'',@TargetTable=N''TargetTable'';');
         SELECT CONVERT(varchar(16),'1.0') HelpContractVersion,CONVERT(sysname,N'toolbelt_metadata') SchemaName,
             CONVERT(sysname,N'USP_ScriptTableCloneInternal') ObjectName,Section,Ordinal,ItemName,SqlDataType,
             IsRequired,IsNullable,DefaultValue,Description,ExampleSql FROM @Help

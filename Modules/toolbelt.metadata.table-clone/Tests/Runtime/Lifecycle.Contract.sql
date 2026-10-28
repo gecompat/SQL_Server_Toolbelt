@@ -56,3 +56,11 @@ IF (SELECT COUNT(*) FROM sys.parameters WHERE object_id=OBJECT_ID(N'toolbelt_met
       EXCEPT SELECT p.parameter_id,p.name,t.name,p.max_length FROM sys.parameters p JOIN sys.types t ON t.user_type_id=p.user_type_id
       WHERE p.object_id=OBJECT_ID(N'toolbelt_metadata.USP_CopyTableCloneData'))
     THROW 54920,N'Copy parameter metadata failed.',6;
+
+DECLARE @Help TABLE(HelpContractVersion varchar(16) NOT NULL,SchemaName sysname NOT NULL,ObjectName sysname NOT NULL,Section varchar(32) NOT NULL,Ordinal int NOT NULL,ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
+INSERT @Help EXEC toolbelt_metadata.USP_ScriptTableCloneInternal @Hilfe=1;
+IF EXISTS(SELECT 1 FROM @Help WHERE HelpContractVersion<>'1.0' OR SchemaName<>N'toolbelt_metadata' OR ObjectName<>N'USP_ScriptTableCloneInternal')
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='PARAMETER' AND ItemName=N'@InternalPurpose')
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='RESULT_COLUMN' AND ItemName=N'Ordinal')
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='EXAMPLE' AND ExampleSql=N'EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N''dbo'',@SourceTable=N''SourceTable'',@TargetSchema=N''dbo'',@TargetTable=N''TargetTable'';')
+ THROW 54921,N'Interner ScriptTableClone-Hilfevertrag ist unvollständig.',7;

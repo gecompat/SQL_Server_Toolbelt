@@ -1,0 +1,187 @@
+{
+  "schema_version": "toolbelt-clr-maintenance/v1",
+  "date": "2026-10-28",
+  "status": "PASS_XLSX_INSTALL_HELP_SST_DELTA",
+  "publication_authorized": false,
+  "release_status": "unreleased",
+  "baseline_package_sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+  "replacement_dll_sha256": "f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd",
+  "unchanged_other_dlls": 12,
+  "maximum_milliseconds": 5000,
+  "qualification_scope": {
+    "new": "XLSX+ZIP dependency+ResultTable selected installation, help, stored TVF comments, exact 50000/50001 boundary on 12 cases local/central",
+    "inherited": "Unchanged remaining DLLs and lifecycle qualification from immutable baseline package",
+    "not_executed": [
+      "New full-profile SSIS execution",
+      "New full-profile lifecycle replay",
+      "Authenticated TLS qualification"
+    ]
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "version": "2019",
+      "cl": 150,
+      "patch": "latest",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "linux",
+      "version": "2022",
+      "cl": 150,
+      "patch": "latest",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "linux",
+      "version": "2022",
+      "cl": 160,
+      "patch": "latest",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "linux",
+      "version": "2025",
+      "cl": 150,
+      "patch": "latest",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "linux",
+      "version": "2025",
+      "cl": 160,
+      "patch": "latest",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "linux",
+      "version": "2025",
+      "cl": 170,
+      "patch": "latest",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "version": "2019",
+      "cl": 150,
+      "patch": "cu32",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "version": "2022",
+      "cl": 150,
+      "patch": "cu26",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "version": "2022",
+      "cl": 160,
+      "patch": "cu26",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "version": "2025",
+      "cl": 150,
+      "patch": "cu8",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "version": "2025",
+      "cl": 160,
+      "patch": "cu8",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "version": "2025",
+      "cl": 170,
+      "patch": "cu8",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_audit": "PASS"
+    }
+  ],
+  "current_sources_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql": "e937776c509e7d7da35f377eb1c7cf425d3d5a58cea92f806c77bf168422e0a7",
+    "Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql": "a938616926c6830ed2c500162a15d91004aa9cb1103d232fbd9258a1ac7061ac",
+    "Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql": "ace27efd71495ca365233836d7ea829fd4529e166a90541d6e16f282c43301f4",
+    "Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql": "4cd75cce77e72b186cd035f41141dcec474bdb188f107d4b7ad9e4e04dae896d",
+    "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs": "f5b59ed8f625ea8cff21342ff22a2bd4c32ac1428db534d52c7e71556d0b7806",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "e4d72003bb10d3eb13e6703db368247210294e2a8507517d1080e349207c889c",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "f88217be833aa0f97c56b7006c7a79008eab6a0478c8474b5bdd922d9e8f9fa2"
+  },
+  "method_sha256": {
+    "Scripts/Release/clr_maintenance.py": "a7da3964e5b7f3f200db29e5a0c693ff284d424ff951c932f693b253ba6e93a8",
+    "Tests/Release/Runtime/Xlsx.MaintenanceHelp.sql": "f23dc6dcc6de88dce2ec90a1a6b52d0a3e67d982772a5914ca0582e3948f0180",
+    "Tests/Release/Invoke-XlsxSharedStringBoundaryLab.ps1": "d59b0e8ab956d3576bc265fbf7139f123edce1dcdee995205ebee53d9c4d39cb",
+    "Tests/Release/Runtime/Xlsx.SharedStringCount.sql": "939b47ca1d9a9ac34c50782a752fd7a39f9a446bcd345bfa33633f0d7a757f62"
+  },
+  "executed_driver_sha256": "9c529c944ac40bfe0107a6b356ad24c7d2126fee5a02fc4f4e110858cb4215d7",
+  "executed_fixture_sha256": "647faab53159e5c852b1e8e068957ba220c98e07d6416baa2e89f4ac00677bc6",
+  "selected_install_sha256": {
+    "local": "2fd062d0990b837943bccad3975d31d0ee5550a6a3606749519edb5654cebb4c",
+    "central": "139d6fd9d842b3382dff83cdaf587f77851ec5718e194c89d54b2474e77a7d6c"
+  }
+}

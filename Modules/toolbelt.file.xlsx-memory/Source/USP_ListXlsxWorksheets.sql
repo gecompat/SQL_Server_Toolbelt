@@ -83,7 +83,7 @@ BEGIN
         ('ERROR',2,N'51529',NULL,NULL,NULL,NULL,N'Fehlende oder inkonsistente registrierte Dependency bzw. interner Providervertrag.',NULL),
         ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'EXECUTE auf USP; ResultTable zusätzlich Helper-EXECUTE und Sichtbarkeit der caller-lokalen Tabelle. Keine Rechteausweitung.',NULL),
         ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Transitional XLSX, klassische Stored-/Deflate-ZIPs. Kein ZIP64, externe Beziehungen, Makros oder Strict Open XML. Unicode bleibt unverändert, Tabellen brauchen explizite Ordinals zum Sortieren.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Hilfe ohne fachliche Eingaben.',N'EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe=1;');
+        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Listet die Sheets eines vom Caller bereitgestellten synthetischen XLSX-Binarys.',N'EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary=@SyntheticWorkbook;');
         SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
                CAST(N'toolbelt_file' AS sysname) AS SchemaName,
                CAST(N'USP_ListXlsxWorksheets' AS sysname) AS ObjectName,

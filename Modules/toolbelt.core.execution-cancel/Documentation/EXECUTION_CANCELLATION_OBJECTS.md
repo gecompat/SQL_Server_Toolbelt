@@ -25,6 +25,11 @@ Der Aufruf benötigt eine Session ohne aktive Transaktion. Fehler `52600` bis
 `52604` bezeichnen Parameter-, Context- oder Transaktionsfehler. Die Procedure
 führt weder `KILL` aus noch requeued oder terminalisiert sie Work-Queue-Items.
 
+`@Hilfe = 1` gibt vor Transaktions- und Contextprüfung das standardisierte
+12-Spalten-Help-Resultset mit Parametern, Fehlerbereich, fehlendem Fachresultset
+und vollständigem Beispielaufruf aus. Der Help-Aufruf speichert keine
+Cancellation-Anforderung.
+
 ```sql
 EXEC toolbelt_core.USP_RequestExecutionCancellation
     @CancellationReason = N'planned maintenance';

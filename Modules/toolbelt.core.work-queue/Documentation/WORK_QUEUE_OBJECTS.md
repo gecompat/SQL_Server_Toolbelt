@@ -32,6 +32,16 @@ weiterhin Handler-EXECUTE. Rechte müssen dem tatsächlichen Aufrufpfad entsprec
 
 `USP_EnqueueBarrierWork` ist die getrennt berechtigte Kurzform für `DRAIN_BARRIER`. Beim Enqueue speichert sie unter dem Scheduler-Mutex die zugehörigen aktiven Claim-Generationen als Blocker-Snapshot. Die öffentliche Sicht `VW_WorkQueueBarrierBlockers` zeigt diese Blocker ohne Payload oder Claim-Token.
 
+Beide Prozeduren liefern über `@Hilfe = 1` einen eigenen Help-Vertrag mit
+Objektname, Parametern, Queue-Resultspalten, Berechtigung und Beispiel.
+`USP_EnqueueBarrierWork` dokumentiert `@Priority` als fachlich erforderlich,
+obwohl der technische Default `NULL` einen reinen Help-Aufruf ermöglicht.
+`USP_EnqueueWorkWithPolicy` und die Barrier-Kurzform unterstützen
+`@ResultTable` über `toolbelt.core.result-table`. Die Shape-Änderung, die
+Queue-Mutation und das Einfügen der Statuszeile liegen in derselben
+Transaktion; ein Fehler rollt die Änderung zum eigenen Transaktionsanfang
+oder Savepoint zurück. `@KeepData = 1` erhält bestehende Zielzeilen.
+
 ## `USP_ClaimWork`
 
 `@LeaseDurationSeconds` besitzt den Default 300 und erlaubt 5 bis 86.400 Sekunden. Claim darf nicht in einer Caller-Transaktion laufen. Er liefert null oder eine Zeile mit Work Item, Work Type, Payload, geheimem ClaimToken, Claimzeit, Generation, Leasegrenze und Heartbeatzeit.
@@ -46,6 +56,10 @@ Heartbeat verlangt `WorkItemId` und das aktuelle `ClaimToken`, läuft in einer k
 
 Recovery ist ein ausdrücklicher Supervisor-Aufruf. `@MaxItems` begrenzt den Batch auf 1 bis 1.000, Default 100. Abgelaufene Claims wechseln nach ihrer gespeicherten Retry-Policy entweder in `RETRY_WAIT` oder `DEAD_LETTER`. `USP_ScheduleWorkRetry` trifft dieselbe tokengebundene Entscheidung für einen aktiven Worker-Claim. Der Backoff ist `min(Basis × 2^(Versuch−1), Maximum)` ohne Jitter. Claim- und Leasefelder werden gelöscht; eine Barrier gibt dadurch ihre Gruppe frei. Beide Procedures lehnen eine Caller-Transaktion ab.
 
+`USP_ScheduleWorkRetry @Hilfe = 1` gibt die vollständigen Parameter und die
+Statusspalten des Queue-Resultsets aus. Die Procedure unterstützt derzeit kein
+ResultTable-Routing; Nicht-NULL wird mit Fehler 51989 abgewiesen.
+
 ## `USP_CompleteWork` und `USP_FailWork`
 
 Beide verlangen WorkItemId und ClaimToken. Unter demselben Row Lock werden Status, Token und aktive Lease geprüft. Complete speichert kein fachliches Ergebnis. Fail speichert einen stabilen ASCII-Code und optional höchstens 1.000 bereits bereinigte Unicode-Codeeinheiten. `USP_FailWork` bleibt terminal; einen Retry plant nur `USP_ScheduleWorkRetry`.
@@ -53,6 +67,11 @@ Beide verlangen WorkItemId und ClaimToken. Unter demselben Row Lock werden Statu
 ## `USP_RequeueDeadLetter`
 
 `USP_RequeueDeadLetter` beginnt für ein `DEAD_LETTER`-Item einen neuen Retry-Zyklus. Es unterstützt eine optionale `rowversion`-Prüfung und speichert den Requeue-Grund. Lifetime-Attempts, bereinigte letzte Fehlerdaten und der Idempotency Key bleiben erhalten. Eine Barrier erzeugt dabei einen neuen Claim-Snapshot.
+
+Die eigene Hilfe nennt die tatsächlichen Spalten aus `VW_WorkQueue`, die
+Rowversion-Option und den Requeue-Vertrag. `@ResultTable` verwendet dieselbe
+transaktionale Ausgabe wie die Queue-Mutation; Callertransaktionen bleiben
+für diesen USP ausgeschlossen.
 
 ## `USP_GetWorkStatus` und `VW_WorkQueue`
 
