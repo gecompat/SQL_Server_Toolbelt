@@ -10,7 +10,7 @@ import zipfile
 
 
 RECORD_PATH = "Releases/1.0.0/generate-series-ddl-help-transition.json"
-RECORD_SHA256 = "dff491a0f8883550c9c9b82523d2893b670f5163d9e211eb4b5a0dc003430aab"
+RECORD_SHA256 = "13856a65a1c8bb8d16f789de7914f12c45c52eb3a7f79b1fdd3057cf90ebbbe8"
 ARCHIVE_PATH = "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip"
 ARCHIVE_PREFIX = "SQL-Server-Toolbelt-1.0.0-candidate-source/"
 ARCHIVE_SHA256 = "333a7d6ceb2a36523ea642ac1dd5a78b5fc86b8aaa25998db14c8ea035f068e6"
@@ -32,8 +32,8 @@ BASELINE_REPORTS = {
         "e2c0c840b41c6961db810db0c21e2ecf104be2e732366f9cbf5986e2d492577b",
 }
 CURRENT_SOURCE_SHA256 = {
-    SOURCE_PATHS[0]: "90331712f9b6abdccc11bbf7b3bfa6e5d7ad6b24553ec68b51ae18ff0411c6de",
-    SOURCE_PATHS[1]: "1e454c2cd9844240bfba50f0da546a32f2af8d5db4fad4f734ad89bdf1fab67e",
+    SOURCE_PATHS[0]: "1a95881ccabd5fab68dccb9b2615c4ff4afacd01df8f7a76d5a6c58b51115797",
+    SOURCE_PATHS[1]: "2f0e261820fd215c2080b883b71187c611b51c348b22ac7794fd0801eafe66ff",
 }
 INSERTIONS = {
     SOURCE_PATHS[0]: (
@@ -43,7 +43,7 @@ INSERTIONS = {
             "     * Parameter: @Start bigint NULL, @Stop bigint NULL, @Step bigint NULL\n"
             "     * (Default NULL). NULL oder DEFAULT für @Step wählt +1 bei Start <= Stop,\n"
             "     * sonst -1. Der Start ist enthalten; Stop nur, wenn die Schrittfolge ihn\n"
-            "     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop\n"
+            "     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop ergibt\n"
             "     * keine Zeile. Schritt 0 bleibt der\n"
             "     * unveränderte Enginefehler, auch wenn eine Grenze NULL ist. Eine\n"
             "     * Zeilenzahl außerhalb bigint löst Engine-Overflow statt Kürzung aus.\n"
@@ -85,7 +85,7 @@ INSERTIONS = {
             "     * Parameter: @Start int NULL, @Stop int NULL, @Step int NULL\n"
             "     * (Default NULL). NULL oder DEFAULT für @Step wählt +1 bei Start <= Stop,\n"
             "     * sonst -1. Der Start ist enthalten; Stop nur, wenn die Schrittfolge ihn\n"
-            "     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop\n"
+            "     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop ergibt\n"
             "     * keine Zeile. Schritt 0 bleibt der\n"
             "     * unveränderte Enginefehler, auch wenn eine Grenze NULL ist. Sehr große\n"
             "     * gültige Reihen werden nicht gekürzt und können erhebliche Ressourcen\n"

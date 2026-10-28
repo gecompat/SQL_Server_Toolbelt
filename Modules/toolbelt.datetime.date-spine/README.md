@@ -22,6 +22,8 @@ die einen halboffenen `date`-Bereich schneiden.
 Alle Funktionen liefern `Ordinal int` und `PeriodStart date`. Der Bereich ist
 `[RangeStart, RangeEndExclusive)`; partielle Wochen oder Monate werden
 einschließlich ihres tatsächlichen Periodenanfangs geliefert.
+Die gespeicherten Funktionsdefinitionen enthalten dieselbe Hilfe; Reihenfolge
+ist nur mit `ORDER BY Ordinal` festgelegt.
 
 ## Dependencies
 

@@ -23,6 +23,21 @@ RETURNS TABLE
 AS
 RETURN
 (
+    /*
+     * DDL-Hilfe: Liefert ISO-Wochen, die den halboffenen Bereich
+     * [@RangeStart,@RangeEndExclusive) schneiden. Pflichtparameter:
+     * @RangeStart date und @RangeEndExclusive date; beide ohne Default.
+     * NULL, gleiche oder umgekehrte
+     * Grenzen liefern keine Zeilen. PeriodStart ist der Montag der
+     * geschnittenen ISO-Woche und kann vor @RangeStart liegen; DATEFIRST hat
+     * keinen Einfluss. Das Resultset ist Ordinal int (nullfrei, ab 0) und
+     * PeriodStart date (nullfrei). Für Reihenfolge ORDER BY Ordinal verwenden.
+     * Für SELECT-Aufrufe wird SELECT auf der Funktion benötigt.
+     * Beispiel: SELECT Ordinal,PeriodStart
+     * FROM toolbelt_datetime.TVF_DateSpineIsoWeek('20251231','20260108')
+     * ORDER BY Ordinal;
+     * Erwartet: (0,2025-12-29),(1,2026-01-05).
+     */
     SELECT spine.Ordinal, spine.PeriodStart
     FROM toolbelt_datetime.TVF_DateSpineCore
          (@RangeStart, @RangeEndExclusive, 'iso_week') AS spine

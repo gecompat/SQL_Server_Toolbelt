@@ -49,5 +49,26 @@ for object_name in public_objects:
     wrapper = (root / f"Source/{object_name}.sql").read_text("utf-8")
     if "TVF_DateSpineCore" not in wrapper:
         raise SystemExit(f"Öffentlicher Wrapper umgeht den Kern: {object_name}")
+    for marker in (
+        "DDL-Hilfe:",
+        "@RangeStart date und @RangeEndExclusive date",
+        "beide ohne Default",
+        "NULL, gleiche oder umgekehrte",
+        "keine Zeilen",
+        "Ordinal int",
+        "nullfrei, ab 0",
+        "PeriodStart date",
+        "ORDER BY Ordinal",
+        "SELECT auf der Funktion benötigt",
+        "Erwartet:",
+    ):
+        if marker not in wrapper:
+            raise SystemExit(f"Gespeicherte DDL-Hilfe unvollständig: {object_name}: {marker}")
+if "DATEFIRST hat\n     * keinen Einfluss" not in (root / "Source/TVF_DateSpineIsoWeek.sql").read_text("utf-8"):
+    raise SystemExit("Die gespeicherte ISO-Wochen-Hilfe muss DATEFIRST-Unabhängigkeit nennen.")
+if "kann vor @RangeStart liegen" not in (root / "Source/TVF_DateSpineIsoWeek.sql").read_text("utf-8"):
+    raise SystemExit("Die ISO-Wochen-Hilfe muss den früheren Periodenanfang erklären.")
+if "kann vor @RangeStart liegen" not in (root / "Source/TVF_DateSpineMonth.sql").read_text("utf-8"):
+    raise SystemExit("Die Monats-Hilfe muss den früheren Periodenanfang erklären.")
 
 print("Date-Spine statische Vertragsprüfung: erfolgreich")

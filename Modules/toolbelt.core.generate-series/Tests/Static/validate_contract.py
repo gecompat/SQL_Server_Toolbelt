@@ -134,7 +134,7 @@ def main() -> int:
         raise ContractError("int-DDL-Hilfe fehlt den typisierten Schrittparameter.")
     for marker in (
         "auch wenn eine Grenze NULL ist",
-        "Eine falsche Schrittrichtung oder NULL bei Start/Stop",
+        "Eine falsche Schrittrichtung oder NULL bei Start/Stop ergibt",
         "Zeilenzahl außerhalb bigint",
         "SELECT auf der Funktion erforderlich",
     ):
@@ -142,7 +142,7 @@ def main() -> int:
             raise ContractError(f"bigint-DDL-Hilfe fehlt Vertragsdetail: {marker}")
     if "SELECT auf der Funktion erforderlich" not in int_source:
         raise ContractError("int-DDL-Hilfe fehlt dem SELECT-Rechtehinweis.")
-    if "Eine falsche Schrittrichtung oder NULL bei Start/Stop" not in int_source:
+    if "Eine falsche Schrittrichtung oder NULL bei Start/Stop ergibt" not in int_source:
         raise ContractError("int-DDL-Hilfe muss die falsche Schrittrichtung erklären.")
     if "ORDER BY Value DESC" not in bigint_source:
         raise ContractError("bigint-DDL-Hilfe-Beispiel muss die Ausgabe sichtbar absteigend sortieren.")

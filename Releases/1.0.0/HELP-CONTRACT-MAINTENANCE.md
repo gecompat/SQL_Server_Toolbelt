@@ -52,6 +52,12 @@ bindet ausschließlich diese Kommentarergänzungen an die unveränderten
 historischen Quellen und Callerberichte; die bestehende CI prüft die aktuelle
 gespeicherte DDL-Hilfe.
 
+Die drei öffentlichen Date-Spine-TVFs enthalten ebenfalls Zweck, erforderliche
+Bereichsparameter, Randverhalten, Rückgabespalten und geordnete Beispiele im
+gespeicherten DDL. Ihr [Date-Spine-DDL-Hilferecord](date-spine-ddl-help-transition.json)
+bindet nur diese drei Kommentarergänzungen und erhält den direkten Core-Pin
+sowie den bisherigen Callerbericht unverändert.
+
 Der [Quellübergangsrecord](help-contract-source-delta.json) bindet die
 betroffenen aktuellen Dateien getrennt von den unveränderten früheren
 Ausführungsnachweisen. Das [öffentliche Vorgängerarchiv](Artifacts/Help-Contract-Baseline.zip)
