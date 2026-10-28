@@ -62,5 +62,5 @@ INSERT @Help EXEC toolbelt_metadata.USP_ScriptTableCloneInternal @Hilfe=1;
 IF EXISTS(SELECT 1 FROM @Help WHERE HelpContractVersion<>'1.0' OR SchemaName<>N'toolbelt_metadata' OR ObjectName<>N'USP_ScriptTableCloneInternal')
  OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='PARAMETER' AND ItemName=N'@InternalPurpose')
  OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='RESULT_COLUMN' AND ItemName=N'Ordinal')
- OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='EXAMPLE' AND ExampleSql=N'EXEC toolbelt_metadata.USP_ScriptTableCloneInternal @Hilfe=1;')
+ OR NOT EXISTS(SELECT 1 FROM @Help WHERE Section='EXAMPLE' AND ExampleSql=N'EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N''dbo'',@SourceTable=N''SourceTable'',@TargetSchema=N''dbo'',@TargetTable=N''TargetTable'';')
  THROW 54921,N'Interner ScriptTableClone-Hilfevertrag ist unvollständig.',7;

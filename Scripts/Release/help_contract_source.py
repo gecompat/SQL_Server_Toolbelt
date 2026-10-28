@@ -8,7 +8,7 @@ import zipfile
 
 
 RECORD = 'Releases/1.0.0/help-contract-source-delta.json'
-RECORD_SHA256 = '870314028a7a52af2ef8dff892024bc59bd081d0aa32eca0770dc1adc1e821d3'
+RECORD_SHA256 = '70fed4351d4a6d7a98f386a5086738a76ceb65f43a379db394c168c0c6354c3c'
 ARCHIVE = 'Releases/1.0.0/Artifacts/Help-Contract-Baseline.zip'
 ARCHIVE_SHA256 = '5296d100269ab116f133f26c07164c6183d3fd8fed5f5db299a5b5323f9d0922'
 BASELINE_COMMIT = 'e2c932a5906fc65a2af8cbc6ab106b7bdb51b58e'

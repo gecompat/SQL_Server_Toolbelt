@@ -34,10 +34,16 @@ die ausgeführten Fälle, festen Quellen, Prüfmethode und ausgewählten SQL-Exp
 Der Generator [clr_maintenance.py](../../Scripts/Release/clr_maintenance.py)
 erlaubt nur eine bekannte DLL-Ersetzung und sieben ausdrücklich benannte
 XLSX-Quellen; alle anderen Nutzdaten stammen aus dem exakten Basispaket.
+Der ursprüngliche Generator, Native-Report und qualifizierte ZIP-Container
+bleiben unverändert. Der separate [Lieferpin](clr-maintenance-delivery.json)
+bindet Container, Report und aktuellen
+[Prüfer](../../Scripts/Release/verify_clr_maintenance.py). Dieser vergleicht
+alle entpackten Dateien bytegenau und prüft den konkreten Containerhash;
+eine plattformabhängige Neukompression dient nicht als Integritätsbeweis.
 Die Verifikation arbeitet ohne Build, SQL-Verbindung oder Veröffentlichung:
 
 ```powershell
-python Scripts/Release/clr_maintenance.py --verify Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Maintenance.zip
+python Scripts/Release/verify_clr_maintenance.py --verify Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Maintenance.zip
 ```
 
 Ein Fehler bedeutet, dass Paket, Quellen oder Nachweise voneinander abweichen.

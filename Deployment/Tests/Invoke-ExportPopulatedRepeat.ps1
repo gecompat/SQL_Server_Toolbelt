@@ -17,7 +17,7 @@ $historicalFiles=[Collections.Generic.List[object]]::new()
 $historicalDirectories=[Collections.Generic.List[string]]::new()
 $journalPath=Join-Path $ownedRoot 'Ownership.json';$journalHash=$null
 $utf8=[Text.UTF8Encoding]::new($false,$true)
-$expectedModules=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.work-queue','toolbelt.core.event-log','toolbelt.core.worker-control')
+$expectedModules=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.file.content','toolbelt.core.second-session','toolbelt.core.work-queue','toolbelt.core.event-log','toolbelt.core.worker-control')
 $selectedModules=@('toolbelt.core.worker-control','toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel')
 if($Scenario-ceq'ParameterMetadata'){
  $expectedModules=@('toolbelt.core.result-table','toolbelt.core.work-type','toolbelt.core.work-queue')
@@ -344,7 +344,7 @@ function New-UpgradeBootstrap([string]$Mode){
  & (Join-Path $repositoryRoot 'Deployment/Deploy-All.ps1') -DeploymentMode $Mode -ModuleId @('toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel') -OutputSqlFile $path *> $null
  $bytes=[IO.File]::ReadAllBytes($path);$text=$utf8.GetString($bytes)
  Assert-ExportRepeat (-not($bytes[0]-eq239-and$bytes[1]-eq187-and$bytes[2]-eq191)) 'EXPORT_BOM'
- $expected=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.event-log')
+ $expected=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.file.content','toolbelt.core.second-session','toolbelt.core.event-log')
  $actual=@([regex]::Matches($text,'(?m)^-- BEGIN MODULE ([a-z0-9.-]+)$')|ForEach-Object {$_.Groups[1].Value})
  Assert-ExportRepeat (($actual-join ',')-ceq($expected-join ',')) 'BOOTSTRAP_CLOSURE'
  Assert-ExportRepeat ([regex]::Matches($text,'(?m)^-- END MODULE ').Count-eq7-and[regex]::Matches($text,'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count-eq8) 'BOOTSTRAP_MARKERS'

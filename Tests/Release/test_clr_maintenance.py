@@ -5,11 +5,15 @@ import json
 import sys
 import tempfile
 import unittest
+import zipfile
+import stat
+import io
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import clr_maintenance as maintenance
+import verify_clr_maintenance as verifier
 
 
 class ClrMaintenanceTests(unittest.TestCase):
@@ -17,7 +21,7 @@ class ClrMaintenanceTests(unittest.TestCase):
         return json.loads((ROOT / maintenance.RECORD).read_bytes())
 
     def test_actual_delivery_is_exact_qualified_derivation(self):
-        record = maintenance.verify(ROOT)
+        record = verifier.verify(ROOT)
         self.assertEqual(len(record['native_cases']), 12)
         self.assertFalse(record['publication_authorized'])
 
@@ -86,7 +90,32 @@ class ClrMaintenanceTests(unittest.TestCase):
             Path(str(target) + '.sha256').write_text(
                 maintenance.sha(changed) + '  ' + target.name + '\n', encoding='ascii')
             with self.assertRaises(ValueError):
-                maintenance.verify(ROOT, target)
+                verifier.verify(ROOT, target)
+
+    def test_different_zip_container_with_same_payload_needs_delivery_pin(self):
+        report = self.record()
+        payload = maintenance.qualified_payload(ROOT, report)
+        target_payload = io.BytesIO()
+        with zipfile.ZipFile(target_payload, 'w') as archive:
+            for name, content in sorted(payload.items()):
+                info = zipfile.ZipInfo(maintenance.package.PACKAGE + '/' + name,
+                                       date_time=(1980, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.create_system = 3
+                info.external_attr = (stat.S_IFREG | 0o644) << 16
+                archive.writestr(info, content, compress_type=zipfile.ZIP_DEFLATED,
+                                 compresslevel=1)
+        alternate = target_payload.getvalue()
+        self.assertNotEqual(maintenance.sha(alternate),
+                            maintenance.sha((ROOT / maintenance.LOCATION).read_bytes()))
+        self.assertEqual(verifier._read_package_payload(alternate, payload), payload)
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / 'maintenance.zip'
+            target.write_bytes(alternate)
+            Path(str(target) + '.sha256').write_text(
+                maintenance.sha(alternate) + '  ' + target.name + '\n', encoding='ascii')
+            with self.assertRaisesRegex(ValueError, 'delivery package digest differs'):
+                verifier.verify(ROOT, target)
 
 
 if __name__ == '__main__':
