@@ -881,8 +881,15 @@ class ClrPackageTests(unittest.TestCase):
 class ApiQualificationTests(unittest.TestCase):
     def assert_current_rights_sources(self, report):
         import hashlib
+        import base64_ddl_help
         qualification = json.loads((ROOT / 'Releases/1.0.0/clr-qualification.json').read_bytes())
         historical = release.clr_qualification_method_sources(qualification, report['source_sha256'])
+        base64_paths = set(base64_ddl_help.SOURCE_PATHS)
+        reported_base64_paths = base64_paths & set(report['source_sha256'])
+        if reported_base64_paths:
+            self.assertEqual(reported_base64_paths, base64_paths)
+            current_base64 = {p: (ROOT / p).read_bytes() for p in base64_paths}
+            base64_ddl_help.validate_transition(ROOT, report, historical, current_base64)
         for path, digest in report['source_sha256'].items():
             self.assertEqual(hashlib.sha256(historical[path]).hexdigest(), digest)
             current = (ROOT / path).read_bytes()
@@ -890,7 +897,7 @@ class ApiQualificationTests(unittest.TestCase):
                 reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
                 self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
                                 'CSV-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
-            else:
+            elif path not in reported_base64_paths:
                 self.assertEqual(hashlib.sha256(current).hexdigest(), digest)
 
     def test_csv_import_delta_rejects_unqualified_source_changes(self):
@@ -1999,7 +2006,9 @@ class DateMathSelectedCallerTests(unittest.TestCase):
 
 def load_tests(loader, tests, pattern):
     from test_clr_maintenance import ClrMaintenanceTests
+    from test_base64_ddl_help_transition import Base64DdlHelpTransitionTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
+    tests.addTests(loader.loadTestsFromTestCase(Base64DdlHelpTransitionTests))
     return tests
 
 

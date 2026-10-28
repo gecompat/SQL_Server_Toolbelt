@@ -28,6 +28,29 @@ def require(text: str, pattern: str, description: str) -> None:
         raise ContractError(f"Vertrag fehlt: {description}")
 
 
+def require_ddl_help(source: str, object_name: str, markers: tuple[str, ...]) -> None:
+    """Prüft, dass die Funktionshilfe Bestandteil des gespeicherten CREATE-DDL ist."""
+    pattern = (
+        r"(?is)CREATE\s+OR\s+ALTER\s+FUNCTION\s+"
+        r"\[toolbelt_conversion\]\.\["
+        + re.escape(object_name)
+        + r"\]"
+    )
+    matches = list(re.finditer(pattern, source))
+    if len(matches) != 1:
+        raise ContractError(f"CREATE-DDL fehlt oder ist doppelt: {object_name}")
+    start = matches[0].start()
+    end = source.find("\nGO", start)
+    definition = source[start:] if end < 0 else source[start:end]
+    help_match = re.search(r"/\*\s*DDL-Hilfe:(.*?)\*/", definition, re.DOTALL)
+    if help_match is None:
+        raise ContractError(f"DDL-interne Hilfe fehlt: {object_name}")
+    help_text = help_match.group(1)
+    for marker in markers:
+        if marker not in help_text:
+            raise ContractError(f"DDL-Hilfe für {object_name} lässt {marker} aus.")
+
+
 def main() -> int:
     encode_tvf = read("Source/TVF_Base64Encode.sql")
     decode_tvf = read("Source/TVF_Base64Decode.sql")
@@ -47,6 +70,19 @@ def main() -> int:
 
     if "Load.Contract.sql" not in ci_adapter or "load:" not in manifest:
         raise ContractError("Der Pflicht-Lastfall muss im Adapter und Manifest gekoppelt sein.")
+    for marker in ("OBJECT_DEFINITION", "DDL-Hilfe:", "Beispiel:", "52317"):
+        if marker not in runtime:
+            raise ContractError(f"Gespeicherte DDL-Hilfe wird nicht geprüft: {marker}")
+
+    for source, object_name, markers in (
+        (encode_tvf, "TVF_Base64EncodeStatus", ("Parameter:", "varbinary(max)", "@UrlSafe", "16777216", "EncodedValue", "Status", "Beispiel:", "SELECT erforderlich")),
+        (encode_tvf, "TVF_Base64Encode", ("Parameter:", "varbinary(max)", "@UrlSafe", "16777216", "EncodedValue", "Beispiel:", "SELECT erforderlich", "Größen-LIMIT NULL")),
+        (decode_tvf, "TVF_Base64DecodeStatus", ("Parameter:", "varchar(max)", "25165824", "16777216", "DecodedValue", "Status", "Beispiel:", "SELECT erforderlich")),
+        (decode_tvf, "TVF_Base64Decode", ("Parameter:", "varchar(max)", "25165824", "16777216", "DecodedValue", "Beispiel:", "SELECT erforderlich", "Größen-LIMIT NULL")),
+        (encode_svf, "SVF_Base64Encode", ("Parameter:", "varbinary(max)", "@UrlSafe", "16777216", "Rückgabe:", "Beispiel:", "EXECUTE")),
+        (decode_svf, "SVF_Base64Decode", ("Parameter:", "varchar(max)", "25165824", "16777216", "Rückgabe:", "Größenüberschreitung NULL", "Beispiel:", "EXECUTE")),
+    ):
+        require_ddl_help(source, object_name, markers)
     if ci_adapter.index("Load.Contract.sql") > ci_adapter.index('if [[ "${run_performance_workload}" == "1" ]]'):
         raise ContractError("Der Pflicht-Lastfall darf nicht vom Performance-Opt-in abhängen.")
 

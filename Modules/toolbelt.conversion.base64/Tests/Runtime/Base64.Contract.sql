@@ -31,6 +31,44 @@ BEGIN
     THROW 52301, N'Die öffentlichen Base64-Funktionen fehlen.', 1;
 END;
 
+DECLARE @DdlHelp TABLE
+(
+      ObjectName sysname NOT NULL
+    , RequiredParameter nvarchar(128) NOT NULL
+    , RequiredResult nvarchar(128) NOT NULL
+);
+INSERT @DdlHelp(ObjectName,RequiredParameter,RequiredResult)
+VALUES
+      (N'TVF_Base64EncodeStatus',N'@UrlSafe',N'Status varchar(16)')
+    , (N'TVF_Base64Encode',N'@UrlSafe',N'EncodedValue')
+    , (N'TVF_Base64DecodeStatus',N'@Value varchar(max)',N'Status varchar(16)')
+    , (N'TVF_Base64Decode',N'@Value varchar(max)',N'DecodedValue')
+    , (N'SVF_Base64Encode',N'@UrlSafe',N'Rückgabe: varchar(max)')
+    , (N'SVF_Base64Decode',N'@Value varchar(max)',N'Rückgabe: varbinary(max)');
+
+IF EXISTS
+(
+    SELECT 1
+    FROM @DdlHelp AS expected
+    CROSS APPLY
+    (
+        VALUES
+        (
+            OBJECT_DEFINITION
+            (
+                OBJECT_ID(N'toolbelt_conversion.' + QUOTENAME(expected.ObjectName))
+            )
+        )
+    ) AS actual(DefinitionText)
+    WHERE actual.DefinitionText IS NULL
+       OR CHARINDEX(N'DDL-Hilfe:',actual.DefinitionText)=0
+       OR CHARINDEX(N'Parameter:',actual.DefinitionText)=0
+       OR CHARINDEX(expected.RequiredParameter,actual.DefinitionText)=0
+       OR CHARINDEX(expected.RequiredResult,actual.DefinitionText)=0
+       OR CHARINDEX(N'Beispiel:',actual.DefinitionText)=0
+)
+    THROW 52317, N'Eine öffentliche Funktion enthält keine vollständige DDL-interne Hilfe.', 1;
+
 IF NOT EXISTS
    (
        SELECT 1

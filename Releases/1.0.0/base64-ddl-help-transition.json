@@ -1,0 +1,41 @@
+{
+  "schema_version": "toolbelt-base64-ddl-help-transition/v1",
+  "date": "2026-10-28",
+  "scope": "SOURCE_DELTA_ONLY",
+  "publication_authorized": false,
+  "native_requalification_claimed": false,
+  "baseline_report": {
+    "path": "Releases/1.0.0/conversion-caller-qualification.json",
+    "sha256": "45852b68adb0815c14e014f368e3235d072ffd6951a768e8eafcba7ca589c63f"
+  },
+  "baseline_archive": {
+    "path": "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip",
+    "sha256": "333a7d6ceb2a36523ea642ac1dd5a78b5fc86b8aaa25998db14c8ea035f068e6"
+  },
+  "sources": {
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql": {
+      "baseline_sha256": "2dae80de048c0af34147d783211627ba695436187f5d36b547770c08e1f6b6eb",
+      "current_sha256": "bea0a7a3f21a94ea747b73fcd79e9697ed0dfc87021e565adf0de773a7d7766f"
+    },
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql": {
+      "baseline_sha256": "5464db5a1916b2626b9c0c244e91b7963649ddebdaaa80be1ec72ae6ab1dd98b",
+      "current_sha256": "13a08d4186de4536653a63bf253dbdda01f1e843004275d479bd4584e2d5f51b"
+    },
+    "Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql": {
+      "baseline_sha256": "a1a984b12e01b35d03af4a37380af63dca70b856e3fb98e8a78715a42e43dafd",
+      "current_sha256": "8085e4077790aa4b08562122a35cfe836d5a04824b2b4e0615efe62c92deaf2b"
+    },
+    "Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql": {
+      "baseline_sha256": "f5d014fe26a384c45d63a3ef67ca8df1cd0b9099c7074625f7ae72e411e3faf5",
+      "current_sha256": "e97eb5844ea98307151d91b942c4a3613b14cc394728a0c0cec6e8bf038bdc80"
+    }
+  },
+  "comment_insertions": [
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql#TVF_Base64EncodeStatus",
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql#TVF_Base64Encode",
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql#TVF_Base64DecodeStatus",
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql#TVF_Base64Decode",
+    "Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql#SVF_Base64Encode",
+    "Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql#SVF_Base64Decode"
+  ]
+}

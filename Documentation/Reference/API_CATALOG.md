@@ -311,7 +311,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: 5e33aae78b8591a9cc3033662712efe765a0fe1881cb1301d6945d0d33790176 -->
+<!-- Source/Vertrag SHA256: 76b6d7a81555541cf6a46f40521695a8f0ec9c60ad3df4281e502a02f3e08bfc -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -332,7 +332,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 84c1ff8683ef434d33dcd58b9c7c8b066d83d56748062a0b9df6c02c80aec09c -->
+<!-- Source/Vertrag SHA256: 3ffd5d849799d4f71ae8252d7dd21a6814fe05498b8aeda5ea20806ff871c7cf -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -352,7 +352,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: 827792b9dde8b8826638489dc9e5d5dbba6d16dbf91ba269558d0e3a94987d72 -->
+<!-- Source/Vertrag SHA256: 63a3dea612b52a8ffc15520cbe60a556692f4a720119f86267eb735859873d1e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -373,7 +373,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: c5d94f1866fe1c40fe8f6b244449401e2a19880601e0fec663befc2e4542109b -->
+<!-- Source/Vertrag SHA256: 4a3fae3d9fc8e3072854fc49315aaac8f8d4480576cebf790ad7c1696abd1492 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -393,7 +393,7 @@ Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der k
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64EncodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 6ffbef94eb6fc17850cc665bc5839ef66b2d8d54ddc361a46f43ece7aef0ef95 -->
+<!-- Source/Vertrag SHA256: 165c3bdfc8a4a8388af9b96774d51f0066dbd92228ad0c958921df9fc6017334 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -416,7 +416,7 @@ Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE,
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64DecodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 88dfdb95dce6901397711b0879966d1ee18e2c7af6c9830b163becf7be909cfb -->
+<!-- Source/Vertrag SHA256: d1f9f9d3e4b6f2f8f8d03cca2f34627e886be27ec630a52043fc650d9f068019 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 

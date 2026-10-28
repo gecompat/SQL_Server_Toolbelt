@@ -18,6 +18,12 @@ CREATE OR ALTER FUNCTION [toolbelt_conversion].[SVF_Base64Encode]
 RETURNS varchar(max)
 AS
 BEGIN
+    /* DDL-Hilfe: Codiert einen einzelnen Binärwert als Base64/Base64URL.
+       Parameter: @Value varbinary(max), NULL erlaubt; @UrlSafe bit = 0,
+       NULL entspricht 0. Grenze 16777216 Eingabebytes; darüber NULL.
+       Rückgabe: varchar(max), NULL bleibt NULL; EXECUTE erforderlich.
+       Beispiel: SELECT toolbelt_conversion.SVF_Base64Encode(0xCAFECAFE, 0);
+       Erwartet: yv7K/g==. Für Mengen die TVF verwenden. */
     DECLARE @EncodedValue varchar(max);
 
     SELECT @EncodedValue = encoded.EncodedValue

@@ -6,6 +6,13 @@ Lastqualifikation 2026-10-19: Der vollständige Moduladapter einschließlich Pfl
 
 Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
 
+Die sechs öffentlichen Funktionen enthalten Zweck-, Parameter-, Rückgabe-,
+Rechte- und Beispielhinweise als Kommentar in ihrer gespeicherten DDL. Die
+Definition lässt sich beispielsweise mit
+`SELECT OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode'));`
+anzeigen, sofern SQL Server die Objektdefinition für den Aufrufer sichtbar
+macht. Die Laufzeitprüfung liest diese gespeicherten Definitionen direkt.
+
 Historischer Zwischenstand vor der Abnahmeänderung am 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Die abgegrenzte Performance-Abnahme bleibt offen; Runtime: `partially validated`, Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
 
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; breitere Large-LOB-Performance-Evidenz bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
