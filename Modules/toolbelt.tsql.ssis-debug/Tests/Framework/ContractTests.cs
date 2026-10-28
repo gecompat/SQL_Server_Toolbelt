@@ -767,8 +767,9 @@ internal static class ContractTests
     }
     internal static int Main(string[] args)
     {
-        if (args.Length == 3 && args[0] == "v1-resource-probe")
+        if (args.Length == 3 && (args[0] == "v1-resource-probe" || args[0] == "v2-resource-probe"))
         {
+            bool v2 = args[0] == "v2-resource-probe";
             try
             {
                 var file = new FileInfo(args[2]);
@@ -783,17 +784,21 @@ internal static class ContractTests
                 }
                 else throw new DebugFault("probe_input", "Offline probe input format is invalid.");
                 var options = new Options { Operation = "explain", Version = 150 };
+                if (v2) options.ProjectContext = "{\"schemaVersion\":2}";
                 Engine.Analyze(package, options, new NullCatalog(), new Budget());
-                Console.WriteLine("SSIS_V1_RESOURCE_PROBE first=none counter=none");
+                Console.WriteLine((v2 ? "SSIS_V2_RESOURCE_PROBE" : "SSIS_V1_RESOURCE_PROBE") + " first=none counter=none");
             }
             catch (DebugFault error)
             {
                 string counter = "none", marker = "counter=";
                 int start = error.Message.IndexOf(marker, StringComparison.Ordinal);
                 if (start >= 0) { start += marker.Length; int end = error.Message.IndexOf(';', start); if (end > start) counter = error.Message.Substring(start, end - start); }
-                Console.WriteLine("SSIS_V1_RESOURCE_PROBE first=" + error.Code + " counter=" + counter);
+                Console.WriteLine((v2 ? "SSIS_V2_RESOURCE_PROBE" : "SSIS_V1_RESOURCE_PROBE") + " first=" + error.Code + " counter=" + counter);
             }
-            catch { Console.WriteLine("SSIS_V1_RESOURCE_PROBE first=probe_failure counter=none"); }
+            catch
+            {
+                Console.WriteLine((v2 ? "SSIS_V2_RESOURCE_PROBE" : "SSIS_V1_RESOURCE_PROBE") + " first=probe_failure counter=none");
+            }
             return 0;
         }
         Exception failure = null;

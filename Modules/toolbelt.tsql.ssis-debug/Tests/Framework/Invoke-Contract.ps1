@@ -5,6 +5,7 @@ param(
     [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Branch')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
+    [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
     [ValidateSet('Bytes','Utf16Nvarchar')][string]$ResourceProbeFormat = 'Bytes',
     [string]$FixtureExportRoot,
     [ValidateRange(1,4096)][int]$PlanBenchmarkGroups = 0,
@@ -59,7 +60,9 @@ if ($ResourceProbePath) {
     $probeCursor = Split-Path -Parent $resolvedProbe
     while ($probeCursor) { $probeDirectory = Get-Item -LiteralPath $probeCursor -Force; if (($probeDirectory.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'SSIS_RESOURCE_PROBE_INPUT_SCOPE' }; $parent = Split-Path -Parent $probeCursor; if ($parent -eq $probeCursor) { break }; $probeCursor = $parent }
     $probeEncoding = 'bytes'; if ($ResourceProbeFormat -eq 'Utf16Nvarchar') { $probeEncoding = 'utf16-nvarchar' }
-    try { $result = Invoke-Case -Arguments @('v1-resource-probe',$probeEncoding,$resolvedProbe) -ExpectedPattern '\ASSIS_V1_RESOURCE_PROBE first=[a-z_]+ counter=[A-Za-z0-9_]+\s*\z' -ReturnOutput; if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }; $result; return }
+    $probeOperation=if($ResourceProbeProfile -eq 'V2'){'v2-resource-probe'}else{'v1-resource-probe'}
+    $probePattern=if($ResourceProbeProfile -eq 'V2'){'\ASSIS_V2_RESOURCE_PROBE first=[a-z_]+ counter=[A-Za-z0-9_]+\s*\z'}else{'\ASSIS_V1_RESOURCE_PROBE first=[a-z_]+ counter=[A-Za-z0-9_]+\s*\z'}
+    try { $result = Invoke-Case -Arguments @($probeOperation,$probeEncoding,$resolvedProbe) -ExpectedPattern $probePattern -ReturnOutput; if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }; $result; return }
     finally { Remove-FrameworkTemp }
 }
 if ($Profile -eq 'ComponentsV2Branch') {
