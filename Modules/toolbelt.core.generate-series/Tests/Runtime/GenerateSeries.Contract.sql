@@ -28,8 +28,28 @@ END;
 
 IF OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt', N'IF') IS NULL
    OR OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesInt', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigIntStatus', N'TF') IS NULL
 BEGIN
     THROW 52401, N'Die öffentlichen Generate-Series-Funktionen fehlen.', 1;
+END;
+
+IF COALESCE
+   (
+       OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt', N'IF')),
+       N''
+   ) NOT LIKE N'%DDL-Hilfe: Erzeugt eine portable bigint-Reihe%'
+   OR COALESCE
+      (
+          OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesInt', N'IF')),
+          N''
+      ) NOT LIKE N'%DDL-Hilfe: Erzeugt eine typstabile int-Reihe%'
+   OR COALESCE
+      (
+          OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigIntStatus', N'TF')),
+          N''
+      ) NOT LIKE N'%DDL-Hilfe: Liefert Werte oder eine begrenzte Statuszeile%'
+BEGIN
+    THROW 52417, N'Die DDL-Hilfe muss in allen drei gespeicherten Funktionsdefinitionen stehen.', 1;
 END;
 
 IF EXISTS

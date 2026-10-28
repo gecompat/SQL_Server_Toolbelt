@@ -51,7 +51,7 @@ ORDER BY Value DESC;
 
 ## Rechte, Dependencies und Plattformen
 
-Erforderlich ist `SELECT` oder `REFERENCES` auf der Funktion. Es gibt keine
+Für SELECT-Aufrufe ist `SELECT` auf der Funktion erforderlich. Es gibt keine
 Dependency zu einem anderen Toolbelt-Modul. Der T-SQL-Provider ist für SQL
 Server 2019, 2022 und 2025 auf Windows und Linux vorgesehen.
 

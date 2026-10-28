@@ -21,6 +21,21 @@ AS
 RETURN
 (
     /*
+     * DDL-Hilfe: Erzeugt eine typstabile int-Reihe ohne internes Zeilenlimit.
+     * Parameter: @Start int NULL, @Stop int NULL, @Step int NULL
+     * (Default NULL). NULL oder DEFAULT für @Step wählt +1 bei Start <= Stop,
+     * sonst -1. Der Start ist enthalten; Stop nur, wenn die Schrittfolge ihn
+     * erreicht. Eine falsche Schrittrichtung oder NULL bei Start/Stop
+     * keine Zeile. Schritt 0 bleibt der
+     * unveränderte Enginefehler, auch wenn eine Grenze NULL ist. Sehr große
+     * gültige Reihen werden nicht gekürzt und können erhebliche Ressourcen
+     * beanspruchen. Ergebnis: Value int; keine Reihenfolge ohne ORDER BY.
+     * Für SELECT-Aufrufe ist SELECT auf der Funktion erforderlich.
+     * Beispiel: SELECT Value FROM toolbelt_core.TVF_GenerateSeriesInt(2,10,3)
+     * ORDER BY Value;
+     * Erwartete Werte: 2, 5, 8.
+     */
+    /*
      * Die gesamte Reihenlogik liegt im bigint-Kern. Die Rückkonvertierung
      * erhält einen int-typisierten Join- und APPLY-Vertrag ohne zweite
      * Fachimplementierung.

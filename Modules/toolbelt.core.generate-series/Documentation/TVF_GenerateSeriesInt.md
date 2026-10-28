@@ -46,7 +46,7 @@ Das synthetische Beispiel ergibt `2`, `5` und `8`.
 
 ## Rechte, Dependencies und Plattformen
 
-Erforderlich ist `SELECT` oder `REFERENCES` auf der Funktion. Die einzige
+Für SELECT-Aufrufe ist `SELECT` auf der Funktion erforderlich. Die einzige
 interne Abhängigkeit ist der `bigint`-Kern desselben Moduls. Der Provider ist
 für SQL Server 2019, 2022 und 2025 auf Windows und Linux vorgesehen.
 

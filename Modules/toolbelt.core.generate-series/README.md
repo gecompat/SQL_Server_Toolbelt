@@ -36,6 +36,11 @@ portable, typstabile Inline TVFs für `int` und `bigint` bereit.
 |---|---|---|---|
 | `TVF_GenerateSeriesBigInt` | Inline TVF | `toolbelt_core` | gemeinsamer Kern für `bigint`-Reihen |
 | `TVF_GenerateSeriesInt` | Inline TVF | `toolbelt_core` | typstabiler `int`-Wrapper über dem Kern |
+| `TVF_GenerateSeriesBigIntStatus` | Multi-statement TVF | `toolbelt_core` | begrenzte Statusoberfläche für untrusted Aufrufe |
+
+Die gespeicherten Funktionsdefinitionen enthalten eine kompakte DDL-Hilfe mit
+Parametern, Grenzverhalten und einem ausführbaren Beispiel. Sie ist direkt über
+`OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_core.<Funktionsname>'))` sichtbar.
 
 ## Vertrag
 
@@ -110,6 +115,7 @@ Very-large-series-Performance-Evidenz bleibt der Modulstatus
 - [Moduldesign](../../Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md)
 - [TVF_GenerateSeriesBigInt](./Documentation/TVF_GenerateSeriesBigInt.md)
 - [TVF_GenerateSeriesInt](./Documentation/TVF_GenerateSeriesInt.md)
+- [TVF_GenerateSeriesBigIntStatus](./Documentation/TVF_GenerateSeriesBigIntStatus.md)
 - [Contract-Testmatrix](./Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md)
 - [Test-Evidenz](./Tests/README.md)
 

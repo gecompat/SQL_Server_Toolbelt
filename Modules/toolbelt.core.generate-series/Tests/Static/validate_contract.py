@@ -107,6 +107,45 @@ def main() -> int:
     ):
         if marker not in bigint_source:
             raise ContractError(f"bigint-Kernbestandteil fehlt: {marker}")
+    for source, marker, description in (
+        (bigint_source, "DDL-Hilfe: Erzeugt eine portable bigint-Reihe", "bigint DDL-Hilfe"),
+        (int_source, "DDL-Hilfe: Erzeugt eine typstabile int-Reihe", "int DDL-Hilfe"),
+        (bigint_source, "DDL-Hilfe: Liefert Werte oder eine begrenzte Statuszeile", "Status DDL-Hilfe"),
+    ):
+        if source.count(marker) != 1:
+            raise ContractError(f"Gespeicherte DDL-Hilfe fehlt oder ist nicht eindeutig: {description}")
+    for marker in (
+        "@Step bigint NULL",
+        "NULL bei Start",
+        "hat Vorrang",
+        "(NULL,SQL_NULL,NULL)",
+        "(NULL,INVALID,NULL)",
+        "(NULL,EMPTY,0)",
+        "falsche Richtung ergibt",
+        "1000000 angeforderte Werte",
+        "LIMIT,exakte RequestedRows",
+        "Status=OK",
+        "RequestedRows decimal(38,0) NULL",
+        "ORDER BY Value",
+    ):
+        if marker not in bigint_source:
+            raise ContractError(f"Status-DDL-Hilfe fehlt Vertragsdetail: {marker}")
+    if "@Step int NULL" not in int_source:
+        raise ContractError("int-DDL-Hilfe fehlt den typisierten Schrittparameter.")
+    for marker in (
+        "auch wenn eine Grenze NULL ist",
+        "Eine falsche Schrittrichtung oder NULL bei Start/Stop",
+        "Zeilenzahl außerhalb bigint",
+        "SELECT auf der Funktion erforderlich",
+    ):
+        if marker not in bigint_source:
+            raise ContractError(f"bigint-DDL-Hilfe fehlt Vertragsdetail: {marker}")
+    if "SELECT auf der Funktion erforderlich" not in int_source:
+        raise ContractError("int-DDL-Hilfe fehlt dem SELECT-Rechtehinweis.")
+    if "Eine falsche Schrittrichtung oder NULL bei Start/Stop" not in int_source:
+        raise ContractError("int-DDL-Hilfe muss die falsche Schrittrichtung erklären.")
+    if "ORDER BY Value DESC" not in bigint_source:
+        raise ContractError("bigint-DDL-Hilfe-Beispiel muss die Ausgabe sichtbar absteigend sortieren.")
     if re.search(r",\s*RowCount\s*=", bigint_source, re.IGNORECASE):
         raise ContractError(
             "Der unquotierte Alias RowCount kollidiert mit dem ROWCOUNT-Keyword."
@@ -182,6 +221,7 @@ def main() -> int:
     for object_name in (
         "TVF_GenerateSeriesBigInt",
         "TVF_GenerateSeriesInt",
+        "TVF_GenerateSeriesBigIntStatus",
     ):
         for text, location in (
             (manifest, "Manifest"),

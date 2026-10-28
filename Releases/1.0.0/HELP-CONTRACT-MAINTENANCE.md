@@ -45,6 +45,13 @@ Quellübergang ist im [Base64-DDL-Hilferecord](base64-ddl-help-transition.json)
 beschrieben; dieser ergänzt die Kommentare, ohne frühere Ausführungsnachweise
 umzudatieren oder eine neue vollständige native Abnahme zu behaupten.
 
+Die drei öffentlichen Generate-Series-Funktionen enthalten Zweck, Parameter,
+Grenzverhalten und ausführbare Beispiele ebenfalls innerhalb ihrer gespeicherten
+DDL-Definitionen. Der [Generate-Series-DDL-Hilferecord](generate-series-ddl-help-transition.json)
+bindet ausschließlich diese Kommentarergänzungen an die unveränderten
+historischen Quellen und Callerberichte; die bestehende CI prüft die aktuelle
+gespeicherte DDL-Hilfe.
+
 Der [Quellübergangsrecord](help-contract-source-delta.json) bindet die
 betroffenen aktuellen Dateien getrennt von den unveränderten früheren
 Ausführungsnachweisen. Das [öffentliche Vorgängerarchiv](Artifacts/Help-Contract-Baseline.zip)
