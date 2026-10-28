@@ -50,7 +50,7 @@ $artifacts=[Data.DataTable]::new()
 foreach($name in @('ArtifactKind','Content','DetailsJson','StageId','SafetyStatus')){[void]$artifacts.Columns.Add($name,[string])}
 [void]$artifacts.Columns.Add('IsExecutable',[bool])
 $sql='SELECT 1;'
-$hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($sql))).ToLowerInvariant()
+$hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($sql)))
 $unit=$artifacts.NewRow();$unit.ArtifactKind='PlanUnitSql';$unit.Content=$sql;$unit.DetailsJson='{"planHash":"synthetic","ordinal":0,"unitContentSha256":"'+$hash+'"}';$unit.StageId='s1';$unit.SafetyStatus='passed';$unit.IsExecutable=$true;$artifacts.Rows.Add($unit)
 $manifest=$artifacts.NewRow();$manifest.ArtifactKind='PlanManifest';$manifest.Content='{"planHash":"synthetic","units":[{"unitId":"s1"}]}';$artifacts.Rows.Add($manifest)
 $cleanup=$artifacts.NewRow();$cleanup.ArtifactKind='CleanupSql';$cleanup.DetailsJson='{"planHash":"synthetic","cleanupOrdinal":0}';$artifacts.Rows.Add($cleanup)

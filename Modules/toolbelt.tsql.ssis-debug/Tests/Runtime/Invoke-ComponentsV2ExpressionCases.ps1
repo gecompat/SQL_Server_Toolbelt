@@ -14,6 +14,7 @@ $expressionCases=@(
 )
 $expressionOrdinal=0
 foreach($case in $expressionCases){
+    Write-Output ('SSIS_V2_NATIVE_EXPRESSION_CASE '+$case.name)
     [xml]$packageXml=[IO.File]::ReadAllText((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     foreach($component in $packageXml.SelectNodes('//component[@name="Derived" or @name="Split"]')){
         $component.RemoveAttribute('version')

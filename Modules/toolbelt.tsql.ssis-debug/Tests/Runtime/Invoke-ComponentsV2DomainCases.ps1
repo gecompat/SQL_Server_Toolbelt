@@ -15,7 +15,7 @@ function Get-V2PlanParts($Artifacts,$TargetRow){
     Assert-V2 ($manifest.units.Count -eq $units.Count) 'PLAN_MANIFEST_UNITS'
     for($i=0;$i -lt $units.Count;$i++){
         $unit=([string]$units[$i].DetailsJson)|ConvertFrom-Json -Depth 32
-        $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$units[$i].Content))).ToLowerInvariant()
+        $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$units[$i].Content)))
         Assert-V2 ($unit.ordinal -eq $i -and $manifest.units[$i].unitId -ceq [string]$units[$i].StageId -and $unit.unitContentSha256 -ceq $hash) 'PLAN_TRANSPORT_ORDER_HASH'
         Assert-V2 ($units[$i].IsExecutable -eq $true -and $units[$i].SafetyStatus -ceq 'passed') 'PLAN_UNIT_SAFETY'
     }
@@ -29,7 +29,7 @@ function Get-V2PlanParts($Artifacts,$TargetRow){
 function Invoke-V2Units($Parts){foreach($unit in $Parts.Units){[void](Invoke-V2Sql ([string]$unit.Content))}}
 function Clear-V2Plan($Parts){foreach($cleanup in $Parts.Cleanups){[void](Invoke-V2Sql ([string]$cleanup.Content))}}
 function Get-V2Catalog([bool]$Flat=$false){
-    $catalog=@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database}}
+    $catalog=@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database};flatFileInputs=@{}}
     if($Flat){
         $catalog.flatFileInputs=@{'Package.ConnectionManagers[FlatInput]'=@{
             database=$database;schema='dbo';object='SyntheticFlatFileRows';columns=@{
@@ -87,7 +87,7 @@ try{
         $lastUnit=$parts.Units[-1]
         $lastDetail=([string]$lastUnit.DetailsJson)|ConvertFrom-Json -Depth 32
         $marker=[regex]::Match([string]$lastUnit.Content,'CREATE TABLE \[(#tbx_SsisDebug_Q_[A-Za-z0-9_]+)\]').Groups[1].Value
-        Assert-V2 ($marker -and $lastDetail.ownerSha256 -cmatch '^[a-f0-9]{64}$') 'OWN_GENERATION_MARKER_IDENTIFIED'
+        Assert-V2 ($marker -and $lastDetail.ownerSha256 -cmatch '^[A-F0-9]{64}$') 'OWN_GENERATION_MARKER_IDENTIFIED'
         $markerSql='['+$marker+']'
         $before=Invoke-V2Sql ('SELECT [Fingerprint] FROM '+$markerSql+' WHERE [Owner]=0x'+$lastDetail.ownerSha256+';')
         Assert-V2 ($before.Rows.Count -eq 1) 'OWN_GENERATION_MARKER_SINGLE_ROW'

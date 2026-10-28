@@ -12,6 +12,7 @@ param(
     [string]$InstallationPackageRoot,
     [string]$SsisPredecessorReleaseDirectory,
     [switch]$ExtendedExpressions,
+    [switch]$ComponentsOnly,
     [Parameter(Mandatory)][ValidatePattern('^[0-9A-F]{128}$')][string]$QualifiedProviderSha512,
     [Parameter(Mandatory)][ValidatePattern('^[0-9A-F]{64}$')][string]$CasesExpectedSha256,
     [string]$InputManifestPath,
@@ -73,12 +74,41 @@ if(([regex]::Matches($text,[regex]::Escape($anchor))).Count -ne 1){throw 'SSIS_V
 $insertion=$anchor+"`n    `$phase=`$mode+'-components-v2'; & (Join-Path `$PSScriptRoot 'Invoke-ComponentsV2Cases.ps1') -Connection `$connection -CrossDatabase `$clientDatabase -FixtureModuleRoot `$moduleRoot"
 if($ExtendedExpressions){$insertion+=' -ExtendedExpressions'}
 $adapted=$text.Replace($anchor,$insertion)
+if($ComponentsOnly){
+    # Focused development retries have separate evidence; they cannot stand in
+    # for the full legacy baseline in the final native qualification matrix.
+    foreach($line in @($text -split "`n" | Where-Object {
+        $_ -match 'Invoke-(CoreContract|ApiCases|ReleaseRightsCases|LifecycleCases)\.ps1'
+    })){
+        if(([regex]::Matches($adapted,[regex]::Escape($line))).Count -ne 1){throw 'SSIS_V2_FOCUSED_HOOK_NOT_UNIQUE'}
+        $adapted=$adapted.Replace($line,'')
+    }
+    Write-Output 'SSIS_V2_COMPONENTS_ONLY; legacy baseline not executed'
+}
 if($InstallationPackageRoot){
     $packageAnchor="`$package.packageName -cne 'SSIS-Debug-1.0.0-Install-Windows'"
     if(([regex]::Matches($adapted,[regex]::Escape($packageAnchor))).Count -ne 1){throw 'SSIS_V2_PACKAGE_HOOK_NOT_UNIQUE'}
     $adapted=$adapted.Replace($packageAnchor,"`$package.packageName -cne 'SSIS-Debug-ComponentsV2-1.0.0-Install-Windows'")
     $packageCases=Join-Path $InstallationPackageRoot 'Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Cases.ps1'
     if((Get-FileHash -LiteralPath $packageCases -Algorithm SHA256).Hash -cne $CasesExpectedSha256){throw 'SSIS_V2_PACKAGE_CASES_CHANGED'}
+}
+if($SsisPredecessorReleaseDirectory){
+    # The frozen legacy harness predates the last shipped Lookup-role build.
+    # Extend its exact predecessor pin only from that immutable native record;
+    # self-consistent caller-supplied manifests are insufficient authority.
+    $repository=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
+    $recordPath=Join-Path $repository 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.Windows.CL.20261025.json'
+    if((Get-FileHash -LiteralPath $recordPath -Algorithm SHA256).Hash -cne 'B6D88F62AFBBA738E7EF758EC171482B129675E6DDB51C1B351EA5592966F254'){throw 'SSIS_V2_PREDECESSOR_RECORD_CHANGED'}
+    $record=Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
+    $oldBinary=Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll'
+    if($record.result -cne 'PASS' -or $record.publication_authorized -ne $false -or
+       $record.product_source_commit -cne 'd228163a945678044032d3868dd11425f5f6a457' -or
+       (Get-FileHash -LiteralPath $oldBinary -Algorithm SHA256).Hash.ToLowerInvariant() -cne $record.qualified_assembly_sha256 -or
+       (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $record.qualified_deploy_sql_sha256 -or
+       (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $record.qualified_release_manifest_sha256){throw 'SSIS_V2_PREDECESSOR_NOT_ORIGINALLY_QUALIFIED'}
+    $oldAnchor="`$oldQualified='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'"
+    if(([regex]::Matches($adapted,[regex]::Escape($oldAnchor))).Count -ne 1){throw 'SSIS_V2_PREDECESSOR_PIN_HOOK_NOT_UNIQUE'}
+    $adapted=$adapted.Replace($oldAnchor,"`$oldQualified='"+(Get-FileHash -LiteralPath $oldBinary -Algorithm SHA512).Hash+"'")
 }
 $adapted=Bind-ComponentsV2ScriptRoot -Text $adapted -Root $PSScriptRoot
 $errors=$null
