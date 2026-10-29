@@ -813,3 +813,25 @@ nicht ausgeführt. Ein vollständiger Dokumentationsaudit ist wegen des globalen
 Abnahmevertrags und der gekoppelten Statuspflege erforderlich. Runtime-Logs
 bleiben lokal, Repository/PR enthalten nur abstrahierte Ergebnisse. Keine
 neue Reviewkette, Telemetrie oder behauptete Token-/Kostenmessung.
+
+## DEC-2026-037: Aktuelle Entwicklungsverträge ohne Toolbelt-Legacy-Zwang
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-29 |
+| Status | accepted; ausdrücklicher unmittelbarer Benutzerauftrag |
+| Entscheidung | Unveröffentlichte Toolbelt-APIs verwenden den aktuell freigegebenen Vertrag als Standard. Frühere Entwicklungsstände begründen keine Pflicht zu Legacy-Pfaden, Versions-Opt-ins oder unveränderten Parameterpositionen. Dies gilt projektweit. |
+| Begründung | Der Benutzer möchte während des Projektaufbaus ausdrücklich keine rückwärtskompatibilitätsbedingten Implementierungseinschränkungen. SSIS-V2-Opt-in und Limitsteuerung in JSON führten zu unerwarteten alten Grenzen und schwer auffindbarer Funktionalität. |
+| Scope | Projektweite Entwicklungsregel; konkrete SSIS-Änderung gemäß aktuellem Vertrag. Keine pauschale Implementierungsfreigabe weiterer Fachfunktionen oder Änderungen fremder Arbeitsstände. SQL-Server-Plattformmatrix und unterstützte DTSX-Eingabeformate bleiben getrennte fachliche Anforderungen. |
+| Auswirkungen | Aktuelle Hilfe, Beispiele, Tests und Lieferungen folgen demselben aktuellen Vertrag. Historische Artefakte und Ausführungspins bleiben unverändert und werden gegen ihre ursprünglichen Snapshots geprüft; sie behaupten keine Qualifikation des neuen Stands. Aktuelle Implementierungen erhalten neue Nachweise. |
+| Alternativen | V1 als impliziten Standard behalten oder jede Erweiterung hinter einem Versionsschalter verstecken wurde vom Benutzer ausdrücklich verworfen. |
+| Grenzen | Datenschutz, Lizenzschutz, Sicherheits-/Rechtegrenzen, sichere Bereinigung und konkrete Funktionsfreigaben bleiben erhalten. Keine Veröffentlichung oder Tags. |
+| Betroffene Quellen | [Projektregel](../../.ai/PROJECT_RULES.md#entwicklungsverträge-ohne-legacy-zwang), [aktueller SSIS-Vertrag](SSIS_CURRENT_API_CONTRACT.md). |
+
+Prüfaufwand: ein wiederverwendeter Luna-Implementierer und Root für Vertrags-/
+Sicherheitsreview sowie Integration. Gezielte geänderte Checks lokal, vollständige
+Pflichtbaseline am stabilen Head und tatsächliche Main-CI. Keine neue Reviewkette
+oder Prozessrunner. Der gemeinsame endliche Rahmen wird privat vor Entwicklung
+festgelegt; native Prüfungen, Fehlversuche und Audits zählen gemeinsam. Kosten
+und Tokens sind unbekannt. Historische Tests erzwingen keine Wiederholung alter
+Kompatibilitätsmatrizen; aktuelle Sicherheits- und Funktionsorakel bleiben Pflicht.

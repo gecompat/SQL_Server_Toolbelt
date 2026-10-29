@@ -1,5 +1,24 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktuelles SSIS-Profil als Standard und Entwicklungsfreiheit — 2026-10-29
+
+Direkter Benutzerauftrag: V2 soll Standard von `USP_ExplainSsisDataFlow` sein;
+Installer, Hilfe und Beispiele autonom mit Luna anpassen, nicht veröffentlichen.
+Limits dürfen nicht über JSON konfiguriert werden. Frühere Toolbelt-Versionen
+sollen während des Projektaufbaus ausdrücklich keine Kompatibilitätslast erzeugen;
+diese Entscheidung gilt projektweit. Weiterhin ausdrücklich verlangt ist die
+editierbare JSON-Vorlage der ermittelten SSIS-Parameter/Variablen mit vorhandenen
+Defaults und Rückgabe als `@Bindings`. Das Werte-JSON ist vom unerwünschten
+Limit-JSON zu unterscheiden.
+
+Der [aktuelle Vertrag](../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)
+begrenzt die Umsetzung auf das aktuelle Komponentenprofil als Normalfall,
+benannte SQL-Limits, sichtbare Parameterherkunft, präzise Zuweisungs-/Erstursachen
+und direkt auffindbare vollständige Debug-Scripte. Unbekannter Laufzeit-SQL-Text
+wird nicht erfunden. Eine vollständige Strukturübersicht bleibt auch bei fehlenden
+Werten erhalten. Aktuelle Funktion benötigt neue Nachweise; historische Artefakte
+und Ausführungspins bleiben unverändert. Status: beauftragt, Umsetzung offen.
+
 ## SSIS-Komponenten-V2, Variante A — 2026-10-28
 
 Nach konkreter Vertragsbesprechung ausdrücklich freigegeben:

@@ -1,5 +1,12 @@
 # SSIS-Komponenten-V2 – Erweiterungsvertrag, Variante A
 
+**Fortschreibung 2026-10-29:** Für den aktuellen Entwicklungsstand ersetzt der
+[aktuelle SSIS-Vertrag](SSIS_CURRENT_API_CONTRACT.md) die nachfolgenden Klauseln
+über V1-Kompatibilität, V2-Opt-in und Ressourcenkonfiguration im Eingabe-JSON.
+Fachliche Komponenten-/Typsemantik und Sicherheitsgrenzen gelten weiter.
+Die bisherigen Lieferungen und Nachweise bleiben an ihren ursprünglichen Stand
+gebunden; diese Fortschreibung ist noch kein Nachweis der neuen Umsetzung.
+
 Stand: 2026-10-28 · Autor: Codex.
 Status: **nach Besprechung ausdrücklich zur Implementierung freigegeben;
 Implementierung und Qualifikation noch offen; unveröffentlicht**.

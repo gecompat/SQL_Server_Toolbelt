@@ -12,6 +12,28 @@
 
 Details: [MODULE_AND_DEPENDENCY_MODEL.md](../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md) und [DEPLOYMENT_MODEL.md](../Documentation/Architecture/DEPLOYMENT_MODEL.md)
 
+### Entwicklungsverträge ohne Legacy-Zwang
+
+Benutzerentscheidung vom 2026-10-29, projektweit: Solange eine Toolbelt-API nicht
+veröffentlicht ist, wird der aktuelle konkret freigegebene Vertrag unmittelbar
+zum Standard. Eine bisherige Parameterposition, Vorlagenversion, Fehlersemantik
+oder ein altes Laufzeitprofil ist kein eigenständiger Grund für einen Wrapper,
+Versionsschalter, Legacy-Pfad oder eine Implementierungseinschränkung.
+Beauftragte Änderungen dürfen solche Entwicklungsverträge bewusst ersetzen;
+Hilfe, Beispiele, Deployment und aktuelle Tests werden gemeinsam angepasst.
+Das erlaubt keine unbeauftragte Änderung aller anderen Module oder neuer
+Fachfunktionen. Die Funktionsfreigabe und die unterstützte Plattformmatrix
+bleiben erforderlich; Unterstützung realer DTSX-Eingabeformate ist von der
+Kompatibilität früherer Toolbelt-APIs zu unterscheiden.
+
+Alte Pakete, Ausführungspins und Qualifikationsberichte bleiben unverändert.
+Historische Prüfungen binden diese ursprünglichen Bytes; sie verlangen nicht,
+dass der aktuelle Entwicklungsstand weiterhin den alten Vertrag implementiert.
+Aktuelle Funktionalität benötigt eigene aktuelle Nachweise. Sicherheits-,
+Datenschutz-, Lizenz-, Ownership- und Bereinigungsgrenzen werden dadurch nicht
+abgeschwächt. Nach einer ausdrücklich freigegebenen Veröffentlichung ist deren
+Kompatibilitäts-/Migrationsvertrag separat festzulegen.
+
 ## 2. SQL-Namenskonventionen
 
 - Stored Procedure: `USP_{CamelCase}`

@@ -37,6 +37,17 @@ SQL Server Toolbelt liefert modulare, wiederverwendbare SQL-Server-Objekte für 
 
 Performance-, Konfigurations-, Diagnose- und Security-Analysen gehören in `gecompat/SQL_Server_Analyze` und werden hier nicht implementiert. Geeignete Ideen werden ausschließlich als Backlog-Input erfasst.
 
+### Unveröffentlichte Entwicklung ohne Abwärtskompatibilitätslast
+
+Auf ausdrücklichen Benutzerauftrag vom 2026-10-29 gilt projektweit der aktuelle
+freigegebene Vertrag als Standard. Unveröffentlichte Toolbelt-APIs erhalten keine
+parallelen Legacy-Pfade oder Opt-ins allein zur Erhaltung früherer Toolbelt-
+Versionen. Die kanonische Ausgestaltung steht in
+[PROJECT_RULES.md](.ai/PROJECT_RULES.md#entwicklungsverträge-ohne-legacy-zwang).
+Historische Nachweise bleiben unverändert und qualifizieren ausschließlich ihre
+ursprünglichen Artefakte. Datenschutz, Sicherheit, Implementierungsfreigaben und
+die ausdrücklich unterstützten SQL-Server-/DTSX-Eingabeformate bleiben erhalten.
+
 ## Lokale SQL-Server-Tests
 
 SQL-Server-Integrations- und Kompatibilitätstests sollen vorrangig die lokalen
