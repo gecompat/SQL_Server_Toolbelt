@@ -1,11 +1,25 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+## Aktueller Standard
+
+Für den aktuellen API-Vertrag verwende
+[`SSIS-Debug-Current-Install-Windows.zip`](SSIS-Debug-Current-Install-Windows.zip)
+oder den [reinen T-SQL-Installer](../../../Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
+Die [aktuelle Anleitung](../Documentation/CurrentInstallation.md) zeigt
+Installation, Parameter-Vorlage, benannte SQL-Limits und `DebugScript`.
+Der [Buildnachweis](../Tests/Qualification/Current.Windows.CL.20261029.json),
+die [getrennte Paketqualifikation](../Tests/Qualification/Current.InstallPackage.20261029.json)
+und die [Installer-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-standalone-runtime-qualification.json)
+haben jeweils ihren eigenen Umfang und ihre eigenen Eingabepins.
+Spätere Paket-/Installerberichte stehen im Repository; sie verändern die
+unveränderlichen Quellen des im ZIP enthaltenen Snapshots nicht.
+Der Stand bleibt unveröffentlicht und nur teilweise validiert.
+
 ## Historische Komponentenlieferungen
 
 Die folgenden Komponentenpakete und Installer sind historische, unveränderte
 Qualifikationsartefakte. Sie implementieren nicht den aktuellen API-Vertrag.
-Eine aktuelle installierbare Lieferung des neuen Vertrags ist noch nicht
-qualifiziert.
+Ihre historischen Nachweise werden nicht auf den aktuellen Vertrag übertragen.
 
 Die zusätzliche historische Lieferung `SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip`
 enthält den damaligen opt-in Komponentenmodus. Ihre Berichte belegen ausschließlich
