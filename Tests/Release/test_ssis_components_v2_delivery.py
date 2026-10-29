@@ -1,5 +1,7 @@
 """V2 package tampering and output-boundary controls; no SQL or DLL loading."""
 import contextlib
+import copy
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -11,6 +13,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import new_ssis_components_v2_package as composer
+import new_ssis_components_v2_standalone_tsql as installer_renderer
 import validate_ssis_components_v2_package as guard
 
 
@@ -116,6 +119,106 @@ class PackageIntegrity(PrivateTemporary):
 
     def test_traversal_payload(self):
         self.altered(lambda payload: payload.__setitem__("../synthetic-escape.txt", b"synthetic"), "unsafe ZIP path")
+
+
+class InstallQualification(unittest.TestCase):
+    def setUp(self):
+        self.package_sha = "a" * 64
+        self.record = {
+            "schema_version": "1.0",
+            "kind": "ssis_components_v2_install_package_qualification",
+            "profile": "ssis-debug-components-v2",
+            "result": "PASS",
+            "publication_authorized": False,
+            "package_sha256": self.package_sha,
+            "cases": [
+                {"platform": "windows", "sql_version": "2019",
+                 "compatibility_level": 150, "deployment_mode": "local",
+                 "result": "PASS", "final_independent_audit": "PASS"},
+                {"platform": "windows", "sql_version": "2025",
+                 "compatibility_level": 170, "deployment_mode": "central",
+                 "result": "PASS", "final_independent_audit": "PASS"},
+            ],
+            "final_audit": {
+                "case_audits": 2,
+                "owned_database_names_absent": 2,
+                "trust_states_restored": 4,
+                "configuration_baselines_restored": True,
+                "input_pins_unchanged": True,
+                "failed_package_attempts": 0,
+            },
+        }
+
+    def encoded(self, record=None):
+        value = self.record if record is None else record
+        return json.dumps(value, separators=(",", ":")).encode("utf-8")
+
+    def validate(self, record=None):
+        raw = self.encoded(record)
+        return installer_renderer.validate_install_package_qualification(
+            raw, hashlib.sha256(raw).hexdigest().upper(), self.package_sha)
+
+    def test_complete_bound_local_and_central_qualification(self):
+        self.assertEqual(self.validate()["package_sha256"], self.package_sha)
+
+    def test_record_hash_is_required(self):
+        raw = self.encoded()
+        with self.assertRaisesRegex(ValueError, "exact package qualification source"):
+            installer_renderer.validate_install_package_qualification(raw, "0" * 64, self.package_sha)
+
+    def test_schema_kind_profile_result_and_authorization_are_required(self):
+        mutations = (
+            ("schema_version", "2.0"),
+            ("kind", "standalone_tsql_installer_runtime_qualification"),
+            ("profile", "ssis-debug-v1"),
+            ("result", "FAIL"),
+            ("publication_authorized", True),
+        )
+        for key, value in mutations:
+            with self.subTest(key=key):
+                changed = copy.deepcopy(self.record)
+                changed[key] = value
+                with self.assertRaises(ValueError):
+                    self.validate(changed)
+
+    def test_package_hash_must_match(self):
+        changed = copy.deepcopy(self.record)
+        changed["package_sha256"] = "b" * 64
+        with self.assertRaisesRegex(ValueError, "exact qualified package hash"):
+            self.validate(changed)
+
+    def test_exact_local_and_central_cases_with_independent_audits_are_required(self):
+        mutations = []
+        changed = copy.deepcopy(self.record)
+        changed["cases"].pop()
+        mutations.append(changed)
+        changed = copy.deepcopy(self.record)
+        changed["cases"][1]["deployment_mode"] = "local"
+        mutations.append(changed)
+        changed = copy.deepcopy(self.record)
+        changed["cases"][0]["compatibility_level"] = 160
+        mutations.append(changed)
+        changed = copy.deepcopy(self.record)
+        changed["cases"][1]["final_independent_audit"] = "FAIL"
+        mutations.append(changed)
+        for changed in mutations:
+            with self.subTest(cases=changed["cases"]):
+                with self.assertRaises(ValueError):
+                    self.validate(changed)
+
+    def test_final_cleanup_audit_is_required(self):
+        changed = copy.deepcopy(self.record)
+        changed["final_audit"]["configuration_baselines_restored"] = False
+        with self.assertRaisesRegex(ValueError, "final independent cleanup audit"):
+            self.validate(changed)
+        changed = copy.deepcopy(self.record)
+        changed["final_audit"]["case_audits"] = 1
+        with self.assertRaisesRegex(ValueError, "final independent cleanup audit"):
+            self.validate(changed)
+        changed = copy.deepcopy(self.record)
+        changed["final_audit"]["failed_package_attempts"] = False
+        with self.assertRaisesRegex(ValueError, "final independent cleanup audit"):
+            self.validate(changed)
 
 
 if __name__ == "__main__":
