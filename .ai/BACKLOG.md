@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktueller SSIS-T-SQL-Installer: fehlende Windows-CL-Kontexte — 2026-10-29
+
+Direkter Benutzerauftrag r31: den unveränderten aktuellen reinen T-SQL-Installer
+auf Windows SQL Server 2022/CL150 und CL160 sowie SQL Server 2025/CL150 und
+CL160 lokal und zentral qualifizieren. Die vier bereits belegten
+2019/CL150- und 2025/CL170-Kontexte bleiben byte- und berichtsunverändert;
+zusammen mit acht neuen Fällen entsteht ein eigener Matrixnachweis für genau
+zwölf Windows-/Engine-/CL-/Moduskontexte des festen Installers. Der
+Standalone-Treiber und sein Preparer werden als getrennte, exakt gebundene
+Geschwisteradapter aus den bestehenden geschützten Harnesses abgeleitet.
+Ein Offline-Validator bindet Originalreport, Installer-Provenienz, unveränderte
+Paketbytes, geschützte Harnesses, acht neue PASS-Fälle und unabhängige Audits.
+Negativkontrollen prüfen falsche Pins, Scope und unvollständige Matrix. Ein
+gezielter SSIS-CI-Offlinegate ergänzt die bestehenden Prüfungen; Native SQL
+und Audits führt ausschließlich der Root aus. Keine Produkt-, API-, DLL-,
+ZIP-, Installer- oder bestehenden Reportänderung; keine Veröffentlichung.
+
 ## Aktuelle SSIS-Lieferung: fehlende Paket-/CL-Kontexte — 2026-10-29
 
 Direkter Folgeauftrag des Benutzers: verbleibende bereits freigegebene
