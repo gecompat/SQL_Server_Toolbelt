@@ -768,11 +768,13 @@ internal static class ContractTests
             var json = Json.Object(Json.Parse(template.Rows[0].Content)); Assert(Json.Array(json["availableInputs"]).Count == 4, "INPUTS");
             if (args[0] == "import")
             {
+                Assert(Json.Text(json["profile"]) == "ssis-debug-components-v2" &&
+                       ((JsonNumber)json["schemaVersion"]).Text == "2", "CURRENT_BINDING_TEMPLATE_CONTRACT");
                 var options = Options("explain"); options.Bindings = Json.Write(json);
-                var package = PackageReader.Read(bytes, new Budget()); var bindings = new Bindings(package, options, cat, new Artifacts());
+                var package = PackageReader.Read(bytes, new Budget(), true); var bindings = new Bindings(package, options, cat, new Artifacts());
                 Assert(bindings.Template().Count == 6, "ROUNDTRIP");
                 Json.Object(json["values"])["v0001"] = "5";
-                bindings = new Bindings(PackageReader.Read(bytes, new Budget()), new Options { Operation = "bindings-template", Version = 150 }, cat, new Artifacts());
+                bindings = new Bindings(PackageReader.Read(bytes, new Budget(), true), new Options { Operation = "bindings-template", Version = 150 }, cat, new Artifacts());
                 Assert(package.Flows[0].Components.Count == 8, "COMPONENTS_TWO_SOURCES_UNION_DERIVED_LOOKUP_SPLIT_TWO_DESTINATIONS");
             }
             else if (args[0] == "translate")
