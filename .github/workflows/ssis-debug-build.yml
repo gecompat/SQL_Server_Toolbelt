@@ -10,8 +10,10 @@ on:
       - 'Tests/Release/*ComponentsV2*.ps1'
       - 'Tests/Release/test_ssis_components_v2_delivery.py'
       - 'Scripts/Release/*ssis_current*.py'
+      - 'Scripts/Release/validate_ssis_current_matrix.py'
       - 'Tests/Release/*CurrentStandalone*.ps1'
       - 'Tests/Release/test_ssis_current_delivery.py'
+      - 'Tests/Release/test_ssis_current_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
       - '!Modules/*/Documentation/**/*.md'
       - '!Modules/*/README.md'
@@ -28,8 +30,10 @@ on:
       - 'Tests/Release/*ComponentsV2*.ps1'
       - 'Tests/Release/test_ssis_components_v2_delivery.py'
       - 'Scripts/Release/*ssis_current*.py'
+      - 'Scripts/Release/validate_ssis_current_matrix.py'
       - 'Tests/Release/*CurrentStandalone*.ps1'
       - 'Tests/Release/test_ssis_current_delivery.py'
+      - 'Tests/Release/test_ssis_current_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
       - '!Modules/*/Documentation/**/*.md'
       - '!Modules/*/README.md'
@@ -75,6 +79,8 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_components_v2_delivery.py
       - name: Current package, standalone runtime binding and tampering controls without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_delivery.py
+      - name: Current package full 12-context matrix provenance without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_current_matrix.py
       - name: Reproduce current provider build
         shell: pwsh
         run: |
