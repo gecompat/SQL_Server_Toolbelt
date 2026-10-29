@@ -17,9 +17,10 @@ namespace Toolbelt.Tsql.SsisDebug
         internal Dictionary<string, object> Metadata()
         {
             return Json.Obj("key", Key, "kind", Kind, "scope", Scope, "name", Name, "ssisType", Type, "sqlType", SqlType,
-                "defaultAvailable", HasDefault && SqlType != null && !Sensitive && !RuntimeAssigned, "defaultValue", Sensitive || RuntimeAssigned || SqlType == null ? null : Default,
+                "defaultAvailable", HasDefault && SqlType != null && !Sensitive, "defaultValue", Sensitive || SqlType == null ? null : Default,
                 "expression", Sensitive ? null : Expression, "valueOrigin", Origin, "requiredForSelectedFlow", Required,
-                "sensitive", Sensitive, "state", Sensitive ? "redacted" : SqlType == null ? "unsupported" : RuntimeAssigned ? "needs-value" : Expression != null ? "derived" : HasDefault ? "literal" : "needs-value");
+                "sensitive", Sensitive, "runtimeAssigned", RuntimeAssigned,
+                "state", Sensitive ? "redacted" : SqlType == null ? "unsupported" : Expression != null ? "derived" : RuntimeAssigned && HasDefault ? "runtime-assigned-design-default" : RuntimeAssigned ? "runtime-assignment-needs-value" : HasDefault ? "literal" : "needs-value");
         }
     }
     internal sealed class Column

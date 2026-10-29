@@ -1,16 +1,17 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
-Die zusätzliche, ausdrücklich gewählte V2-Komponentenfunktion folgt dem
-[V2-Vertrag](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
-Ihre aktuelle Implementierung und Qualifikation bilden einen eigenen Kandidaten;
-die nachfolgenden historischen V1-Nachweise gelten weiterhin nur für ihre
-ursprünglichen Builds. Der zusätzliche Treiber `Runtime/Invoke-ComponentsV2Lab.ps1`
+Der aktuelle Entwicklungsvertrag steht im
+[SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
+Die nachfolgenden V1- und Komponenten-V2-Aufzeichnungen sind historische
+Nachweise ausschließlich ihrer ursprünglichen Builds und Inputs; sie
+qualifizieren den aktuellen Defaultvertrag nicht. Der Treiber
+`Runtime/Invoke-ComponentsV2Lab.ps1`
 bindet den unveränderten bisherigen Labtreiber und die neuen Fälle getrennt.
 `Runtime/Invoke-ComponentsV2Audit.ps1` prüft dessen private Abschlussjournale mit
 einer eigenen ausschließlich lesenden Verbindung. Eine Syntax- oder
 Adapterprüfung allein ist kein nativer Funktionsnachweis.
 
-Die [separat gebundene V2-Binarymatrix](Qualification/ComponentsV2.Windows.CL.20261028.json)
+Die historische [V2-Binarymatrix](Qualification/ComponentsV2.Windows.CL.20261028.json)
 bestand zwölf Windows-Engine-/CL-/Modusfälle mit jeweils eigenem
 Bereinigungsaudit. Der [gezielte Variablenplannachweis](Qualification/ComponentsV2.VariablePlan.20261028.json)
 bestand den vollständigen 256-Gruppen-Ausdruck und feste NULL-/Unicode-Orakel
@@ -18,7 +19,7 @@ mit explizitem `unlimited` und endlichen äußeren Watchdogs. Die separaten
 30-Sekunden-Budgetfehler der vollständigen Zielentdeckung bleiben erhalten;
 dieser Nachweis behauptet keine Default-Budget-Abnahme dafür.
 
-Das neue V2-ZIP ist offline auf gebundene Artefakte, Quellen, Attribution und
+Das damalige V2-ZIP ist offline auf gebundene Artefakte, Quellen, Attribution und
 Manipulation geprüft. Die [native ZIP-Qualifikation](Qualification/ComponentsV2.InstallPackage.20261028.json)
 bestand zwei Windows-Paketfälle mit insgesamt 1190 Assertions und zwei
 unabhängigen Cleanup-Audits. Die [Standalone-Installer-Qualifikation](../../../Releases/1.0.0/ssis-components-v2-standalone-installer-runtime-qualification.json)

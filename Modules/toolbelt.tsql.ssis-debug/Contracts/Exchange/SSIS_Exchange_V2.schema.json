@@ -242,7 +242,7 @@
       "required": ["schemaVersion", "preset", "unlimited", "effectiveLimits", "resourcePolicyHash"],
       "properties": {
         "schemaVersion": {"const": 1},
-        "preset": {"enum": ["large10x", "unlimited"]},
+        "preset": {"enum": ["current", "large10x", "unlimited"]},
         "unlimited": {"type": "boolean"},
         "resourcePolicyHash": {"$ref": "#/$defs/sha256"},
         "effectiveLimits": {

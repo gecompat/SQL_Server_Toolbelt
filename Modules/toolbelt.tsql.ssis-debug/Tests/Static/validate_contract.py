@@ -1,4 +1,4 @@
-"""Quellkopplung des SSIS-V1-Vertrags; kein SQL-/Runtime-Nachweis."""
+"""Quellkopplung des aktuellen SSIS-API-Vertrags; kein SQL-/Runtime-Nachweis."""
 from pathlib import Path
 import hashlib
 import json
@@ -10,10 +10,15 @@ ROOT = Path(__file__).resolve().parents[2]
 api = json.loads((ROOT / "Contracts/Api.json").read_text(encoding="utf-8-sig"))
 public = (ROOT / "Source/USP_ExplainSsisDataFlow.sql").read_text(encoding="utf-8")
 internal = (ROOT / "Source/USP_ExplainSsisDataFlowInternal.sql").read_text(encoding="utf-8")
-assert re.findall(r"^\s*@(\w+)\s+", public.split("AS\nBEGIN", 1)[0], re.M) == [
-    "PackageBytes", "Operation", "ProjectContext", "Bindings", "CatalogBindings",
-    "TargetFlow", "InspectStage", "LookupPolicies", "ComparisonCollation", "TSqlVersion",
-    "ResultTable", "KeepData", "Debug", "Hilfe"], "ordered public signature"
+assert re.findall(r"^\s*@(\w+)\s+", public.split("AS\nBEGIN", 1)[0], re.M) == [p["name"][1:] for p in api["parameters"]], "ordered public signature"
+assert [p["name"] for p in api["parameters"]][-4:] == ["@ResultTable", "@KeepData", "@Debug", "@Hilfe"], "canonical common tail"
+assert len([p for p in api["parameters"] if p["name"].startswith("@Max")]) == 24, "named resource parameters"
+adapter = (ROOT / "Clr/SqlAdapter.cs").read_text(encoding="utf-8")
+signature = re.search(r"public static void ExplainSsisDataFlow\((.*?)\)\s*\{", adapter, re.S)
+assert signature, "CLR provider signature"
+clr_names = re.findall(r"\bSql(?:Bytes|String|Int16|Int64|Boolean|Byte)\s+(\w+)\b", signature.group(1))
+expected_clr_names = [p["name"][1:2].lower() + p["name"][2:] for p in api["parameters"]]
+assert clr_names == expected_clr_names, "ordered CLR provider signature"
 before = {p: p.read_bytes() for p in [ROOT / "Source/USP_ExplainSsisDataFlow.sql", ROOT / "Source/USP_ExplainSsisDataFlowInternal.sql", ROOT / "Clr/HelpContract.Generated.cs"]}
 subprocess.run([sys.executable, str(ROOT / "Scripts/New-ContractSources.py")], check=True)
 assert all(p.read_bytes() == content for p, content in before.items()), "generated contract drift"

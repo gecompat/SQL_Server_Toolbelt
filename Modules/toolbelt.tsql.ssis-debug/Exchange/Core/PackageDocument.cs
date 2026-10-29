@@ -452,7 +452,7 @@ namespace Toolbelt.Ssis.Exchange
             model["version"] = "2.0.0";
             model["profiles"] = Obj("format", "1.0.0", "components", "2.0.0", "lineage", "1.0.0");
             model["contract"] = "ssis-package-model-components-v2";
-            model["resourcePolicy"] = ResourceLimits.Create("large10x", true).Metadata();
+            model["resourcePolicy"] = Limits.Metadata();
             return model;
         }
         /// <summary>Native Paket-/Executablekennungen aus denselben Definitionen; keine Namensauflösung oder Laufzeitbehauptung.</summary>

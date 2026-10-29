@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -64,8 +65,8 @@ internal static class ContractTests
     }
     private static byte[] Change(byte[] bytes, Action<XDocument> edit)
     { var document = XDocument.Parse(Encoding.UTF8.GetString(bytes)); edit(document); return Encoding.UTF8.GetBytes(document.ToString()); }
-    private static Artifacts ExplainV2(byte[] bytes, string target = null, string projectContext = null, SyntheticCatalog catalog = null)
-    { catalog = catalog ?? new SyntheticCatalog(); var templateOptions = Options("bindings-template-v2"); templateOptions.ProjectContext = projectContext; var template = Engine.Analyze(bytes, templateOptions, catalog, new Budget()).Rows.Single().Content; var options = Options("explain"); options.ProjectContext = projectContext; options.Target = target; options.Bindings = template; return Engine.Analyze(bytes, options, catalog, new Budget()); }
+    private static Artifacts ExplainV2(byte[] bytes, string target = null, string projectContext = null, SyntheticCatalog catalog = null, ResourceLimits resourceLimits = null)
+    { catalog = catalog ?? new SyntheticCatalog(); var templateOptions = Options("bindings-template"); templateOptions.ProjectContext = projectContext; templateOptions.Limits = resourceLimits; var template = Engine.Analyze(bytes, templateOptions, catalog, new Budget()).Rows.Single().Content; var options = Options("explain"); options.ProjectContext = projectContext; options.Target = target; options.Bindings = template; options.Limits = resourceLimits; return Engine.Analyze(bytes, options, catalog, new Budget()); }
     private static byte[] SerializeUtf16(XDocument document)
     { using (var stream = new MemoryStream()) { var settings = new System.Xml.XmlWriterSettings { Encoding = Encoding.Unicode, Indent = false, OmitXmlDeclaration = false }; using (var writer = System.Xml.XmlWriter.Create(stream, settings)) document.Save(writer); return stream.ToArray(); } }
     private static void ExportSyntheticFixture(string root, string name, byte[] package, string projectContext, string template, string catalog)
@@ -189,7 +190,7 @@ internal static class ContractTests
                 try
                 {
                     byte[] variant = Change(package, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Descendants("property").Single(x => (string)x.Attribute("name") == "Expression").Value = expression);
-                    var templateOptions = Options("bindings-template-v2"); templateOptions.ProjectContext = "{\"schemaVersion\":2}"; templateOptions.Version = 170;
+                    var templateOptions = Options("bindings-template"); templateOptions.ProjectContext = "{\"schemaVersion\":2}"; templateOptions.Version = 170;
                     string template = Engine.Analyze(variant, templateOptions, catalog, new Budget()).Rows.Single().Content;
                     var options = Options("explain"); options.ProjectContext = "{\"schemaVersion\":2}"; options.Version = 170; options.ComparisonCollation = "Latin1_General_100_BIN2"; options.Bindings = template; options.CatalogBindings = catalogJson;
                     var index = Engine.Analyze(variant, options, catalog, new Budget());
@@ -207,89 +208,40 @@ internal static class ContractTests
         else if (args[0] == "components-v2")
         {
             byte[] original = File.ReadAllBytes(args[1]);
-            var v1 = Engine.Analyze(original, Options("bindings-template"), new SyntheticCatalog(), new Budget());
-            var v1Template = Json.Object(Json.Parse(v1.Rows[0].Content));
-            Assert(((JsonNumber)v1Template["schemaVersion"]).Text == "1" && Json.Text(v1Template["profile"]) == "ssis-debug-v1", "V1_TEMPLATE_UNCHANGED");
-            var v2 = Engine.Analyze(original, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget());
-            var v2Template = Json.Object(Json.Parse(v2.Rows[0].Content));
-            Assert(((JsonNumber)v2Template["schemaVersion"]).Text == "2" && Json.Text(v2Template["profile"]) == "ssis-debug-components-v2", "V2_TEMPLATE_PROFILE");
-            var resourceContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionBytes\":10}}}";
-            bool contextV2;
-            var customLimits = ResourceOptions.Parse(resourceContext, "explain", null, out contextV2);
-            Assert(contextV2 && customLimits.IsV2 && customLimits.Maximum("expressionBytes") == 10 && customLimits.Maximum("packageBytes") == 134217728, "V2_RESOURCE_OPTIONS_OVERRIDE");
-            string oversizedResourceOptions = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionBytes\":10" + new string(' ', 16385) + "}}}";
-            Reject(() => ResourceOptions.Parse(oversizedResourceOptions, "explain", null, out contextV2), "resource_limit");
-            string overControlProtocol = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\"},\"padding\":\"" + new string('x', 2097150) + "\"}";
-            try { ResourceOptions.Parse(overControlProtocol, "explain", null, out contextV2); throw new Exception("CONTROL_PROTOCOL_LIMIT_NOT_REJECTED"); }
-            catch (DebugFault error) { Assert(error.Code == "resource_limit" && error.Message.Contains("counter=controlProtocolBytes"), "CONTROL_PROTOCOL_BYTES_COUNTER"); }
-            string manyNodes = "[" + String.Join(",", Enumerable.Repeat("0", 131073)) + "]";
-            Reject(() => ResourceOptions.Parse("{\"schemaVersion\":1,\"data\":" + manyNodes + "}", "explain", null, out contextV2), "resource_limit");
-            ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"limits\":{\"jsonNodes\":200000}},\"data\":" + manyNodes + "}", "explain", null, out contextV2);
-            Assert(contextV2, "V2_CONTEXT_NODE_PROFILE");
-            var largeProfile = ResourceLimits.Create("large10x", true);
+            var templateResult = Engine.Analyze(original, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var template = Json.Object(Json.Parse(templateResult.Rows.Single().Content));
+            Assert(((JsonNumber)template["schemaVersion"]).Text == "2" && Json.Text(template["profile"]) == "ssis-debug-components-v2", "CURRENT_TEMPLATE_SCHEMA2_DEFAULT");
+            Assert(!template.ContainsKey("resourcePolicy") && template.ContainsKey("values") && template.ContainsKey("availableInputs"), "CURRENT_TEMPLATE_VALUES_WITHOUT_RESOURCE_POLICY");
+            var defaults = new long[] {134217728,134217728,1048576,262144,1048576,4096,8192,65536,8192,4194304,8388608,131072,4194304,262144,131072,8192,4096,4096,32768,65536,16384,2097152,134217728,0};
+            var defaultValues = defaults.Select(x => new SqlInt64(x)).ToArray();
+            var currentLimits = ResourceOptions.FromSqlParameters(defaultValues);
+            Assert(currentLimits.IsV2 && currentLimits.Preset == "current" && currentLimits.Maximum("packageBytes") == 134217728 && currentLimits.IsUnlimitedCounter("analysisMilliseconds"), "CURRENT_SQL_PARAMETER_DEFAULTS");
+            var parameterNames = new[] { "@MaxPackageBytes", "@MaxXmlCharacters", "@MaxXmlNodes", "@MaxModelNodes", "@MaxModelEdges", "@MaxComponents", "@MaxPaths", "@MaxColumns", "@MaxInputs", "@MaxJsonDocumentBytes", "@MaxAllJsonBytes", "@MaxJsonNodes", "@MaxExpressionBytes", "@MaxExpressionTokens", "@MaxExpressionNodes", "@MaxPlanUnits", "@MaxCatalogObjects", "@MaxCatalogQueries", "@MaxParserCalls", "@MaxArtifacts", "@MaxDiagnostics", "@MaxSqlArtifactBytes", "@MaxTotalOutputBytes", "@MaxAnalysisMilliseconds" };
+            Assert(ResourceOptions.SqlParameterNames.SequenceEqual(parameterNames), "CURRENT_SQL_PARAMETER_ORDER");
+            Assert(ResourceLimits.CounterNames.Count() == defaults.Length, "CURRENT_SQL_PARAMETER_COUNTER_COUNT");
             foreach (string counter in ResourceLimits.CounterNames)
             {
-                long maximum = largeProfile.Maximum(counter); largeProfile.Check(counter, maximum - 1); largeProfile.Check(counter, maximum);
-                try { largeProfile.Check(counter, maximum + 1); throw new Exception("V2_RESOURCE_COUNTER_OVER_NOT_REJECTED_" + counter); }
-                catch (ResourceLimitException error) { Assert(error.Counter == counter && error.Actual == maximum + 1 && !error.ActualIsLowerBound && error.Maximum == maximum, "V2_RESOURCE_COUNTER_BOUNDARY_" + counter); }
+                int index = Array.IndexOf(ResourceLimits.CounterNames.ToArray(), counter);
+                Assert(index >= 0, "CURRENT_SQL_LIMIT_COUNTER_MAP_" + counter);
+                var values = defaults.Select(x => new SqlInt64(x)).ToArray(); values[index] = new SqlInt64(17);
+                Assert(ResourceOptions.FromSqlParameters(values).Maximum(counter) == 17, "CURRENT_SQL_LIMIT_OVERRIDE_" + counter);
+                values[index] = new SqlInt64(0);
+                Assert(ResourceOptions.FromSqlParameters(values).IsUnlimitedCounter(counter), "CURRENT_SQL_LIMIT_ZERO_" + counter);
+                values[index] = SqlInt64.Null; Reject(() => ResourceOptions.FromSqlParameters(values), "unresolved_binding");
+                values[index] = new SqlInt64(-1); Reject(() => ResourceOptions.FromSqlParameters(values), "unresolved_binding");
             }
-            string xmlBoundary = "<DTS:Executable xmlns:DTS=\"www.microsoft.com/SqlServer/Dts\"><DTS:Property DTS:Name=\"PackageFormatVersion\">8</DTS:Property></DTS:Executable>";
-            byte[] xmlBoundaryBytes = Encoding.UTF8.GetBytes(xmlBoundary);
-            var xmlExact = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "xmlCharacters", xmlBoundary.Length.ToString(CultureInfo.InvariantCulture) } });
-            PackageDocument.Read(xmlBoundaryBytes, null, true, xmlExact);
-            var xmlUnder = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "xmlCharacters", (xmlBoundary.Length - 1).ToString(CultureInfo.InvariantCulture) } });
-            try { PackageDocument.Read(xmlBoundaryBytes, null, true, xmlUnder); throw new Exception("V2_XML_CHARACTER_CAP_NOT_REPORTED"); }
-            catch (ResourceLimitException error) { Assert(error.Counter == "xmlCharacters" && error.ActualIsLowerBound && error.Actual == xmlBoundary.Length && error.Maximum == xmlBoundary.Length - 1, "V2_XML_CHARACTER_CAP_LOWER_BOUND_DIAGNOSTIC"); }
-            var xmlEngineOptions = Options("bindings-template-v2"); xmlEngineOptions.ProjectContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"limits\":{\"xmlCharacters\":" + (xmlBoundary.Length - 1).ToString(CultureInfo.InvariantCulture) + "}}}";
-            try { Engine.Analyze(xmlBoundaryBytes, xmlEngineOptions, new NullCatalog(), new Budget()); throw new Exception("V2_XML_ENGINE_LOWER_BOUND_NOT_REPORTED"); }
-            catch (DebugFault error) { Assert(error.Code == "resource_limit" && error.Message.Contains("actualAtLeast=" + xmlBoundary.Length.ToString(CultureInfo.InvariantCulture)) && !error.Message.Contains(" actual="), "V2_XML_ENGINE_LOWER_BOUND_FORMAT: " + error.Message); }
-            var xmlMalformed = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "xmlCharacters", "8" } });
-            try { PackageDocument.Read(Encoding.UTF8.GetBytes("<invalid"), null, true, xmlMalformed); throw new Exception("V2_XML_MALFORMED_ACCEPTED"); }
-            catch (ModelException error) { Assert(error.Code == "UNSUPPORTED_PACKAGE_FORMAT", "V2_XML_MALFORMED_NOT_RESOURCE_LIMIT"); }
-            var jsonLimits = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "jsonDocumentBytes", "8" } });
-            Assert(Json.Text(Json.Parse("\"xy\"", jsonLimits)) == "xy", "V2_JSON_DOCUMENT_EXACT");
-            Reject(() => Json.Parse("\"xyz\"", jsonLimits), "resource_limit");
-            var nodeLimits = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "jsonNodes", "3" } });
-            Json.Parse("[0,0]", nodeLimits);
-            Reject(() => Json.Parse("[0,0,0]", nodeLimits), "resource_limit");
-            var boundedExpression = new ExpressionParser("1    ", null, null, new Dictionary<string, ExpressionValue>(), null, true, null, customLimits).Parse();
-            Assert(boundedExpression.Type == "int", "V2_RESOURCE_EXPRESSION_EXACT");
-            try { new ExpressionParser("1     ", null, null, new Dictionary<string, ExpressionValue>(), null, true, null, customLimits); throw new Exception("V2_RESOURCE_EXPRESSION_OVER_NOT_REJECTED"); }
-            catch (DebugFault error) { Assert(error.Code == "resource_limit" && error.Message.Contains("counter=expressionBytes") && error.Message.Contains("limit=10"), "V2_RESOURCE_EXPRESSION_OVER"); }
-            var unlimited = ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"unlimited\",\"limits\":{\"expressionBytes\":10}}}", "explain", null, out contextV2);
-            Assert(!unlimited.IsUnlimited && unlimited.Maximum("expressionBytes") == 10 && unlimited.Maximum("packageBytes") == Int64.MaxValue && unlimited.IsUnlimitedCounter("packageBytes") && !unlimited.IsUnlimitedCounter("expressionBytes"), "V2_RESOURCE_UNLIMITED_OVERRIDE");
-            var oneUnlimited = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "packageBytes", "unlimited" } });
-            var oneUnlimitedMetadata = Json.Object(Json.Parse(Json.Write(oneUnlimited.Metadata()))); var oneUnlimitedEffective = Json.Object(oneUnlimitedMetadata["effectiveLimits"]);
-            Assert(!oneUnlimited.IsUnlimited && oneUnlimited.IsUnlimitedCounter("packageBytes") && oneUnlimitedEffective["packageBytes"] as string == "unlimited" && oneUnlimitedEffective["jsonNodes"] is JsonNumber, "V2_RESOURCE_SINGLE_UNLIMITED_METADATA");
-            var finiteMax = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "packageBytes", Int64.MaxValue.ToString(CultureInfo.InvariantCulture) } });
-            var finiteMaxMetadata = Json.Object(Json.Parse(Json.Write(finiteMax.Metadata())));
-            var finiteMaxValue = Json.Object(finiteMaxMetadata["effectiveLimits"])["packageBytes"] as JsonNumber;
-            Assert(!finiteMax.IsUnlimitedCounter("packageBytes") && finiteMaxValue != null && finiteMaxValue.Text == Int64.MaxValue.ToString(CultureInfo.InvariantCulture) && finiteMax.PolicyHash != oneUnlimited.PolicyHash, "V2_RESOURCE_INT64_MAX_IS_FINITE");
-            Assert(!ResourceOptions.Parse("{\"schemaVersion\":2}", "explain", null, out contextV2).IsUnlimited && contextV2, "V2_CONTEXT_DEFAULT_WITHOUT_RESOURCEOPTIONS");
-            Reject(() => ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionBytes\":0}}}", "explain", null, out contextV2), "invalid_template");
-            var resourceContextLarge = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\"}}";
-            var tinyDataJsonContext = Options("bindings-template-v2"); tinyDataJsonContext.ProjectContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"limits\":{\"jsonDocumentBytes\":8}}}";
-            var tinyDataJsonTemplate = Engine.Analyze(original, tinyDataJsonContext, new SyntheticCatalog(), new Budget());
-            Assert(tinyDataJsonTemplate.Rows.Single().Kind == "BindingsTemplate", "V2_CONTROL_CONTEXT_EXEMPT_FROM_DATA_JSON_DOCUMENT_CAP");
-            var contextOptIn = Options("explain"); contextOptIn.ProjectContext = resourceContextLarge;
-            var contextOptInResult = Engine.Analyze(original, contextOptIn, new SyntheticCatalog(), new Budget());
-            Assert(contextOptInResult.Rows.Any(x => x.Kind == "Workflow" && x.Content.Contains("resourcePolicyHash")), "V2_PROJECT_CONTEXT_EXPLICIT_OPT_IN");
-            var contextBoundTemplateOptions = Options("bindings-template-v2"); contextBoundTemplateOptions.ProjectContext = resourceContextLarge;
-            var contextBoundTemplate = Json.Object(Json.Parse(Engine.Analyze(original, contextBoundTemplateOptions, new SyntheticCatalog(), new Budget()).Rows[0].Content));
-            var otherPolicyOptions = Options("bindings-template-v2"); otherPolicyOptions.ProjectContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"unlimited\"}}";
-            var otherPolicyTemplate = Json.Object(Json.Parse(Engine.Analyze(original, otherPolicyOptions, new SyntheticCatalog(), new Budget()).Rows[0].Content));
-            Assert(Json.Text(contextBoundTemplate["contextSha256"]) == Json.Text(otherPolicyTemplate["contextSha256"]) && Json.Text(Json.Object(contextBoundTemplate["resourcePolicy"])["resourcePolicyHash"]) != Json.Text(Json.Object(otherPolicyTemplate["resourcePolicy"])["resourcePolicyHash"]), "V2_RESOURCE_HASH_SEPARATE_FROM_BUSINESS_CONTEXT");
-            var changedPolicyOptions = Options("explain"); changedPolicyOptions.ProjectContext = otherPolicyOptions.ProjectContext; changedPolicyOptions.Bindings = Json.Write(contextBoundTemplate);
-            var changedPolicyResult = Engine.Analyze(original, changedPolicyOptions, new SyntheticCatalog(), new Budget());
-            var changedPolicyWorkflow = Json.Object(Json.Parse(changedPolicyResult.Rows.Single(x => x.Kind == "Workflow" && x.Content.Contains("resourcePolicyHash")).Content));
-            Assert(Json.Bool(changedPolicyWorkflow, "resourcePolicyChanged") && Json.Text(changedPolicyWorkflow["bindingResourcePolicyHash"]) == Json.Text(Json.Object(contextBoundTemplate["resourcePolicy"])["resourcePolicyHash"]), "V2_VALID_TEMPLATE_ACCEPTS_NEW_RUNTIME_POLICY");
-            var changedContextBindings = Json.Object(Json.Parse(Json.Write(contextBoundTemplate))); changedContextBindings["contextSha256"] = new string('0', 64);
-            changedPolicyOptions.Bindings = Json.Write(changedContextBindings);
-            Reject(() => Engine.Analyze(original, changedPolicyOptions, new SyntheticCatalog(), new Budget()), "invalid_template");
-            var mixedV1 = Options("bindings-template"); mixedV1.Bindings = v2.Rows[0].Content;
-            Reject(() => Engine.Analyze(original, mixedV1, new SyntheticCatalog(), new Budget()), "invalid_template");
-            var mixedV2 = Options("bindings-template-v2"); mixedV2.Bindings = v1.Rows[0].Content;
-            Reject(() => Engine.Analyze(original, mixedV2, new SyntheticCatalog(), new Budget()), "invalid_template");
+            bool contextV2;
+            ResourceOptions.Parse("{\"schemaVersion\":2}", "explain", null, out contextV2);
+            Assert(contextV2, "CURRENT_PROJECT_CONTEXT_SCHEMA2");
+            Reject(() => ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{}}", "explain", null, out contextV2), "invalid_template");
+            var inputs = Json.Array(template["availableInputs"]).Select(Json.Object).ToList();
+            Assert(inputs.Any(x => Json.Bool(x, "defaultAvailable") && !Json.Bool(x, "sensitive")) && Json.Object(template["values"]).Count > 0, "CURRENT_DESIGN_DEFAULTS_EDITABLE");
+            var roundtrip = Options("explain"); roundtrip.Bindings = Json.Write(template); roundtrip.Limits = currentLimits;
+            var currentExplain = Engine.Analyze(original, roundtrip, new SyntheticCatalog(), new Budget());
+            Assert(currentExplain.Rows.Any(x => x.Kind == "Workflow"), "CURRENT_TEMPLATE_ROUNDTRIP");
+            var injectedPolicy = Json.Object(Json.Parse(Json.Write(template))); injectedPolicy.Add("resourcePolicy", ResourceLimits.CreateCurrent().Metadata()); roundtrip.Bindings = Json.Write(injectedPolicy);
+            Reject(() => Engine.Analyze(original, roundtrip, new SyntheticCatalog(), new Budget()), "invalid_template");
+            Reject(() => Engine.Analyze(original, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget()), "unresolved_binding");
             byte[] v2ExpressionPackage = Change(original, d => {
                 var component = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
                 component.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", component.Element("inputs").Element("input").Attribute("refId").Value);
@@ -297,7 +249,7 @@ internal static class ContractTests
                 var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split"); string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
                 foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
             });
-            var v2ExpressionTemplate = Engine.Analyze(v2ExpressionPackage, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget());
+            var v2ExpressionTemplate = Engine.Analyze(v2ExpressionPackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
             var v2ExplainOptions = Options("explain"); v2ExplainOptions.Bindings = v2ExpressionTemplate.Rows[0].Content;
             var v2Explain = Engine.Analyze(v2ExpressionPackage, v2ExplainOptions, new SyntheticCatalog(), new Budget());
             Assert(v2Explain.Rows.Any(x => x.Kind == "PlanUnitSql" && x.Content.Contains("LEN(N'x  ' + N'.') - 1")), "V2_DERIVED_EXPRESSION_TRANSLATION");
@@ -324,14 +276,15 @@ internal static class ContractTests
             string branchGroup = "((" + branchTerm + ") && (" + branchTerm2 + "))";
             string longBoolean = planBench ? String.Join(" || ", Enumerable.Repeat(branchGroup, longBooleanTerms)) : String.Join(" && ", Enumerable.Repeat("TRUE", longBooleanTerms));
             if (planBench && longBoolean.Length < 1440000) longBoolean += new string(' ', 1440000 - longBoolean.Length);
-            string longPlanContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionNodes\":524288,\"analysisMilliseconds\":120000}}}";
+            string longPlanContext = "{\"schemaVersion\":2}";
+            var longPlanLimits = ResourceLimits.CreateCurrent(new Dictionary<string, long> { { "expressionNodes", 524288 }, { "analysisMilliseconds", 120000 } });
             var benchmarkColumns = new Dictionary<string, ExpressionValue> { { "KeyA", new ExpressionValue { Sql = "m.[KeyA]", Type = "int", Nullable = true, Total = true } }, { "KeyB", new ExpressionValue { Sql = "m.[KeyB]", Type = "int", Total = true } } };
             var longParser = new ExpressionParser(longBoolean, null, null, benchmarkColumns, null, true, cp => cp == 1252 ? "Latin1_General_100_BIN2" : null, ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "expressionNodes", "524288" } }));
             var longValue = longParser.Parse(); int exactTokens = longParser.ParsedTokenCount, exactNodes = longParser.ParsedNodeCount, exactExpressionBytes = longBoolean.Length * 2;
             Assert((planBench || longBoolean.Length > 16384) && longValue.Type == "bit" && longValue.BooleanTerms.Count == longBooleanTerms, "V2_LONG_BOOLEAN_EXPRESSION_REMAINS_STRUCTURED_UNTIL_PLAN_LOWERING");
             byte[] longBooleanPackage = Change(v2ExpressionPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Descendants("property").Single(x => (string)x.Attribute("name") == "Expression").Value = longBoolean);
             var planWatch = System.Diagnostics.Stopwatch.StartNew();
-            var longBooleanExplain = ExplainV2(longBooleanPackage, "f0001", longPlanContext, new SyntheticCatalog { NullableKeys = true });
+            var longBooleanExplain = ExplainV2(longBooleanPackage, "f0001", longPlanContext, new SyntheticCatalog { NullableKeys = true }, longPlanLimits);
             planWatch.Stop();
             if (planBench) { var planUnits = longBooleanExplain.Rows.Where(x => x.Kind == "PlanUnitSql").ToList(); Console.WriteLine("SSIS_V2_PLAN_BENCH terms=" + longBooleanTerms.ToString(CultureInfo.InvariantCulture) + " expressionUtf16Bytes=" + (longBoolean.Length * 2L).ToString(CultureInfo.InvariantCulture) + " units=" + planUnits.Count.ToString(CultureInfo.InvariantCulture) + " sqlUtf16Bytes=" + longBooleanExplain.Rows.Sum(x => (long)x.Content.Length * 2L).ToString(CultureInfo.InvariantCulture) + " maxUnitUtf16Bytes=" + (planUnits.Count == 0 ? 0L : planUnits.Max(x => (long)x.Content.Length * 2L)).ToString(CultureInfo.InvariantCulture) + " ms=" + planWatch.ElapsedMilliseconds.ToString(CultureInfo.InvariantCulture)); return; }
             Assert(longBooleanExplain.Rows.Any(x => x.Kind == "TargetSql" && x.Complete) && longBooleanExplain.Rows.Count(x => x.Kind == "PlanUnitSql") >= 2730 && longBooleanExplain.Rows.Where(x => x.Kind == "PlanUnitSql").All(x => x.Executable && x.Safety == "passed"), "V2_2730_UNIT_BOOLEAN_PLAN_PASSES_PER_UNIT_SQL_SAFETY");
@@ -410,7 +363,7 @@ internal static class ContractTests
             var rowCountModel = PackageDocument.Read(rowCountPackage, null, true);
             var rowCountDefinition = rowCountModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "RowCount");
             Assert(rowCountDefinition.ComponentKind == "rowcount", "V2_ROWCOUNT_PROFILE_ACCEPTED " + rowCountDefinition.ComponentKind);
-            var rowCountTemplateOptions = Options("bindings-template-v2");
+            var rowCountTemplateOptions = Options("bindings-template");
             var rowCountTemplate = Engine.Analyze(rowCountPackage, rowCountTemplateOptions, new SyntheticCatalog(), new Budget());
             var rowCountTemplateDoc = Json.Object(Json.Parse(rowCountTemplate.Rows.Single().Content));
             string rowCountVariableKey = Json.Text(Json.Object(Json.Array(Json.Get(rowCountTemplateDoc, "availableInputs")).Single(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::RowsProcessed"))["key"]);
@@ -468,7 +421,7 @@ internal static class ContractTests
                 "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks"),
                 "flatFileInputs", Json.Obj("Package.ConnectionManagers[FlatInput]", Json.Obj("database", "AdventureWorks", "schema", "dbo", "object", "SyntheticFlatFileRows", "columns", Json.Obj(flatSourceId, "KeyA", flatAmountId, "Amount")))));
             Json.Parse(flatBindings); checks++;
-            var flatTemplateOptions = Options("bindings-template-v2"); flatTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
+            var flatTemplateOptions = Options("bindings-template"); flatTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
             string flatTemplate = Engine.Analyze(flatFilePackage, flatTemplateOptions, new SyntheticCatalog(), new Budget()).Rows.Single().Content;
             var flatExplainOptions = Options("explain"); flatExplainOptions.ProjectContext = "{\"schemaVersion\":2}";
             flatExplainOptions.Bindings = flatTemplate; flatExplainOptions.CatalogBindings = flatBindings;
@@ -486,8 +439,8 @@ internal static class ContractTests
             {
                 string exportRoot = Path.GetFullPath(args[2]);
                 if (!exportRoot.Contains(Path.DirectorySeparatorChar + ".runtime" + Path.DirectorySeparatorChar)) throw new Exception("V2_FIXTURE_EXPORT_OUTSIDE_RUNTIME");
-                string context2 = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\"}}";
-                var rowTemplateOptions = Options("bindings-template-v2"); rowTemplateOptions.ProjectContext = context2;
+                string context2 = "{\"schemaVersion\":2}";
+                var rowTemplateOptions = Options("bindings-template"); rowTemplateOptions.ProjectContext = context2;
                 string rowTemplate = Engine.Analyze(rowCountPackage, rowTemplateOptions, new SyntheticCatalog(), new Budget()).Rows.Single().Content;
                 string rowCatalog = Json.Write(Json.Obj("schemaVersion", new JsonNumber("2"), "defaultDatabase", "AdventureWorks", "databases", new List<object> { "AdventureWorks" }, "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks")));
                 ExportSyntheticFixture(exportRoot, "rowcount", rowCountPackage, context2, rowTemplate, rowCatalog);
@@ -508,7 +461,7 @@ internal static class ContractTests
                     foreach (var splitOutput in splitComponentXml.Element("outputs").Elements("output")) splitOutput.SetAttributeValue("synchronousInputId", splitComponentXml.Element("inputs").Element("input").Attribute("refId").Value);
                 });
                 string variableCatalog = Json.Write(Json.Obj("schemaVersion", new JsonNumber("2"), "defaultDatabase", "AdventureWorks", "databases", new List<object> { "AdventureWorks" }, "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks"), "flatFileInputs", Json.Obj()));
-                var variableTemplateOptions = Options("bindings-template-v2"); variableTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
+                var variableTemplateOptions = Options("bindings-template"); variableTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
                 string variableTemplate = Engine.Analyze(variableStringPackage, variableTemplateOptions, new SyntheticCatalog { TextKeys = true }, new Budget()).Rows.Single().Content;
                 var variableExplainOptions = Options("explain"); variableExplainOptions.ProjectContext = "{\"schemaVersion\":2}"; variableExplainOptions.Bindings = variableTemplate; variableExplainOptions.CatalogBindings = variableCatalog;
                 var variableExplain = Engine.Analyze(variableStringPackage, variableExplainOptions, new SyntheticCatalog { TextKeys = true }, new Budget());

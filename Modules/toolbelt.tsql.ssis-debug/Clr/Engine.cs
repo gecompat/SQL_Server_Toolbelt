@@ -21,7 +21,7 @@ namespace Toolbelt.Tsql.SsisDebug
         private static Artifacts AnalyzeCore(byte[] bytes, Options options, ICatalog catalog, Budget budget)
         {
             if (bytes == null) throw new DebugFault("unresolved_binding", "PackageBytes erforderlich.");
-            if (options.Operation != "bindings-template" && options.Operation != "bindings-template-v2" && options.Operation != "explain") throw new DebugFault("unresolved_binding", "Operation ungültig.");
+            if (options.Operation != "bindings-template" && options.Operation != "explain") throw new DebugFault("unresolved_binding", "Operation muss bindings-template oder explain sein.");
             if (options.Version != 150 && options.Version != 160 && options.Version != 170) throw new DebugFault("unresolved_binding", "TSqlVersion muss 150, 160 oder 170 sein.");
             if (options.Stage != null && options.Stage != "all" && options.Target == null) throw new DebugFault("unresolved_binding", "Konkrete Stufe verlangt Zielfluss.");
             bool contextV2;
@@ -34,8 +34,8 @@ namespace Toolbelt.Tsql.SsisDebug
                 Json.CheckJsonLimit(options.Limits, "jsonNodes", controlNodes);
             }
             if (options.BindingProfile == null && options.Bindings != null) options.BindingProfile = Json.Text(Json.Get(Json.Object(Json.Parse(options.Bindings, options.Limits)), "profile"));
-            bool componentsV2 = options.Operation == "bindings-template-v2" || contextV2 || options.BindingProfile == "ssis-debug-components-v2";
-            if (contextV2 && options.BindingProfile != null && options.BindingProfile != "ssis-debug-components-v2") throw new DebugFault("invalid_template", "ProjectContext V2 und Bindingprofil stimmen nicht überein.");
+            bool componentsV2 = true;
+            if (options.BindingProfile != null && options.BindingProfile != "ssis-debug-components-v2") throw new DebugFault("invalid_template", "Bindingprofil muss ssis-debug-components-v2 sein.");
             budget.Limits = options.Limits;
             long jsonBytes = 0;
             foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies })
@@ -48,7 +48,7 @@ namespace Toolbelt.Tsql.SsisDebug
             var output = new Artifacts(options.Limits); Package package = PackageReader.Read(bytes, budget, componentsV2, options.Limits);
             if (package.Profile == "unsupported") { output.Diagnostic("unsupported_package_format", null, "Wohlgeformtes Paket ohne unterstütztes DTSX2-Formatprofil 6/8."); return output; }
             var bindings = new Bindings(package, options, catalog, output);
-            if (options.Operation == "bindings-template" || options.Operation == "bindings-template-v2")
+            if (options.Operation == "bindings-template")
             { output.Add(new Artifact { Kind = "BindingsTemplate", Content = Json.Write(bindings.Template(), options.Limits) }); return output; }
             var workflow = Json.Obj("formatProfile", package.Profile, "tasks", package.Workflow, "dataFlows", package.Flows.Select(f => (object)Json.Obj("id", f.Id, "name", f.Name, "paths", f.Paths.Select(p => (object)Json.Obj("from", p.Value, "to", p.Key)).ToList())).ToList());
             if (componentsV2)

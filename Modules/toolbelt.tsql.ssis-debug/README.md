@@ -1,7 +1,7 @@
 # SSIS Data Flow Debug SELECT
 
-Version 1.0.0 erzeugt aus DTSX-Bytes eine bearbeitbare JSON-Vorlage und lesende
-Debug-Scripts für SQL-Server-Datenflüsse. Jede ausgegebene Prüfstufe enthält
+Der aktuelle Entwicklungsvertrag erzeugt aus DTSX-Bytes eine bearbeitbare
+JSON-Vorlage und lesende Debug-Scripts für SQL-Server-Datenflüsse. Jede ausgegebene Prüfstufe enthält
 ihre `DECLARE`s, alle Vorgänger-CTEs und den abschließenden `SELECT`.
 
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
@@ -9,22 +9,24 @@ denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
 das Modell ohne CLR- oder Toolbelt-Installation. Die bestehenden
 Debug-SELECT-Schnittstellen bleiben erhalten.
 
-Die verbindliche Semantik steht im
-[V1-Vertrag](../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md).
-Der ausdrücklich opt-in gewählte Komponentenmodus `bindings-template-v2`
-folgt dem [Komponenten-V2-Vertrag](../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
-Er verwendet `schemaVersion: 2` und `profile: "ssis-debug-components-v2"`;
-`explain` akzeptiert dieses vollständige Profil, während V1-Aufrufe unverändert
-bleiben.
+Der aktuelle Standard verwendet `bindings-template` und `explain` ohne
+Profil-Opt-in. Die bearbeitbare Vorlage verwendet `schemaVersion: 2` und
+`profile: "ssis-debug-components-v2"`; ein `bindings-template-v2`-Alias oder
+ein öffentlicher V1-API-Pfad wird nicht angeboten. Die verbindliche
+[API-Semantik](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)
+ergänzt den weiterhin geltenden [Komponentenvertrag](../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
+Ressourcenlimits werden über 24 benannte `bigint`-Parameter gesetzt; `0` ist
+unbegrenzt und JSON-Ressourcenoptionen sind ungültig.
 
-Die [V2-Installation](Documentation/ComponentsV2Installation.md) beschreibt
-das separate ZIP und den eigenständigen T-SQL-Installer sowie den ersten
-Aufruf mit Standardbudget oder ausdrücklich unbegrenzten Ressourcenbudgets.
+Die [historische Komponenten-V2-Installation](Documentation/ComponentsV2Installation.md)
+beschreibt die bereits qualifizierten, unveränderten Vorgängerartefakte. Sie ist
+kein Nachweis des aktuellen SQL-Parametervertrags oder einer aktuellen Lieferung.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
-ausgewiesen. Das V2-ZIP und der eigenständige Installer haben begrenzte,
-nativ gebundene Windows-Nachweise; Head-/Main-CI bleibt offen. Der Modulstatus
-ist teilweise validiert und unveröffentlicht.
+ausgewiesen. Die historischen ZIP- und Installerbytes haben begrenzte,
+nativ gebundene Windows-Nachweise; sie qualifizieren den aktuellen Vertrag
+nicht. Aktuelle Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head
+separat nachgewiesen. Der Modulstatus ist teilweise validiert und unveröffentlicht.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit
 [`SsmsDebugWalkthrough.sql`](Examples/SsmsDebugWalkthrough.sql) und synthetischer

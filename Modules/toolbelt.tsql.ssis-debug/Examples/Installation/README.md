@@ -170,7 +170,7 @@ gelesenen Quellen benötigt. Das Demobeispiel legt außerdem eigene Tabellen an.
 ## Quellen und Gültigkeit
 
 - [Öffentlicher Objektvertrag](../../Documentation/USP_ExplainSsisDataFlow.md)
-- [V1-Vertrag](../../../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md)
+- [Aktueller API-Vertrag](../../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)
 - [Microsoft: CLR aktivieren und Voraussetzungen](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/clr-enabled-server-configuration-option?view=sql-server-ver17)
 - [Microsoft: sys.sp_add_trusted_assembly](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-add-trusted-assembly-transact-sql?view=sql-server-ver17)
 - [Microsoft: sqlcmd-Optionen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17)

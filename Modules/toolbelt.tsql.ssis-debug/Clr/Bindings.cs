@@ -41,21 +41,23 @@ namespace Toolbelt.Tsql.SsisDebug
         internal Bindings(Package package, Options options, ICatalog catalog, Artifacts output)
         {
             Package = package; artifacts = output; this.catalog = catalog; Limits = options.Limits ?? Toolbelt.Ssis.Exchange.ResourceLimits.Legacy;
-            ComponentsV2 = options.Operation == "bindings-template-v2" || options.Bindings == null && options.Limits != null && options.Limits.IsV2;
+            ComponentsV2 = true;
             Dictionary<string, object> suppliedBindings = null;
             if (options.Bindings != null)
             {
                 suppliedBindings = Json.Object(Json.Parse(options.Bindings, Limits));
                 string suppliedProfile = Json.Text(Json.Get(suppliedBindings, "profile"));
-                if (suppliedProfile != "ssis-debug-v1" && suppliedProfile != "ssis-debug-components-v2") throw new DebugFault("invalid_template", "Bindingprofil ungültig.");
-                ComponentsV2 = suppliedProfile == "ssis-debug-components-v2";
+                if (suppliedProfile != "ssis-debug-components-v2") throw new DebugFault("invalid_template", "Bindingprofil muss ssis-debug-components-v2 sein.");
+                ComponentsV2 = true;
             }
             if (ComponentsV2 != package.ComponentsV2) throw new DebugFault("invalid_template", "Paketmodell und Bindingprofil stimmen nicht überein.");
             if (options.ProjectContext != null && (long)options.ProjectContext.Length * 2 > 4194304) throw new DebugFault("resource_limit", "counter=controlProtocolBytes; actual=" + ((long)options.ProjectContext.Length * 2).ToString(CultureInfo.InvariantCulture) + "; limit=4194304; profile=control-protocol.");
-            var context = options.ProjectContextValue ?? (options.ProjectContext == null ? Json.Obj("schemaVersion", new JsonNumber("1")) : Json.Object(Json.Parse(options.ProjectContext, ResourceOptions.ControlBootstrap)));
-            bool contextV2 = context.ContainsKey("resourceOptions") || context.ContainsKey("schemaVersion") && context["schemaVersion"] is JsonNumber && ((JsonNumber)context["schemaVersion"]).Text == "2"; Json.Version(context, contextV2 ? 2 : 1); Json.Keys(context, contextV2 ? new[] { "schemaVersion", "projectParameters", "connectionManagers", "resourceOptions" } : new[] { "schemaVersion", "projectParameters", "connectionManagers" });
-            string selectedProfile = ComponentsV2 ? "ssis-debug-components-v2" : "ssis-debug-v1";
-            var canonical = Json.Obj("schemaVersion", new JsonNumber("1"), "profile", selectedProfile);
+            var context = options.ProjectContextValue ?? (options.ProjectContext == null ? Json.Obj("schemaVersion", new JsonNumber("2")) : Json.Object(Json.Parse(options.ProjectContext, ResourceOptions.ControlBootstrap)));
+            object contextVersion = Json.Get(context, "schemaVersion");
+            if (!(contextVersion is JsonNumber) || (((JsonNumber)contextVersion).Text != "1" && ((JsonNumber)contextVersion).Text != "2")) throw new DebugFault("invalid_template", "ProjectContext schemaVersion muss 1 oder 2 sein.");
+            Json.Keys(context, "schemaVersion", "projectParameters", "connectionManagers");
+            string selectedProfile = "ssis-debug-components-v2";
+            var canonical = Json.Obj("schemaVersion", new JsonNumber("2"), "profile", selectedProfile);
             foreach (string field in new[] { "projectParameters", "connectionManagers" })
             {
                 object raw = Json.Get(context, field); if (raw == null) { canonical.Add(field, new List<object>()); continue; }
@@ -93,23 +95,17 @@ namespace Toolbelt.Tsql.SsisDebug
             if (options.Bindings != null)
             {
                 var root = suppliedBindings;
-                Json.Version(root, ComponentsV2 ? 2 : 1);
-                Json.Keys(root, ComponentsV2 ? new[] { "schemaVersion", "profile", "packageSha256", "contextSha256", "values", "availableInputs", "resourcePolicy" } : new[] { "schemaVersion", "profile", "packageSha256", "contextSha256", "values", "availableInputs" });
-                if (ComponentsV2)
-                {
-                    if (!root.ContainsKey("resourcePolicy")) throw new DebugFault("invalid_template", "V2-Bindung ohne ResourcePolicy.");
-                    BoundResourcePolicyHash = ValidateResourcePolicy(root["resourcePolicy"]);
-                    ResourcePolicyChanged = BoundResourcePolicyHash != Limits.PolicyHash;
-                }
+                Json.Version(root, 2);
+                Json.Keys(root, "schemaVersion", "profile", "packageSha256", "contextSha256", "values", "availableInputs");
                 if (Json.Text(Json.Get(root, "profile")) != selectedProfile || Json.Text(Json.Get(root, "packageSha256")) != package.Hash || Json.Text(Json.Get(root, "contextSha256")) != ContextHash) throw new DebugFault("invalid_template", "Vorlage gehört zu anderem Paket oder Kontext.");
                 var metadata = Json.Array(Json.Get(root, "availableInputs"));
                 if (metadata.Count != package.Inputs.Count) throw new DebugFault("invalid_template", "Eingabeverzeichnis geändert.");
                 var byKey = new Dictionary<string, Dictionary<string, object>>(StringComparer.Ordinal);
                 foreach (object v in metadata)
                 {
-                    var e = Json.Object(v); Json.Keys(e, "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "state");
-                    foreach (string required in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "state" }) if (!e.ContainsKey(required)) throw new DebugFault("invalid_template", "Unvollständige Eingabemetadaten.");
-                    foreach (string flag in new[] { "defaultAvailable", "requiredForSelectedFlow", "sensitive" }) if (!(e[flag] is bool)) throw new DebugFault("invalid_template", "Boolean-Metadaten erwartet.");
+                    var e = Json.Object(v); Json.Keys(e, "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "runtimeAssigned", "state");
+                    foreach (string required in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "runtimeAssigned", "state" }) if (!e.ContainsKey(required)) throw new DebugFault("invalid_template", "Unvollständige Eingabemetadaten.");
+                    foreach (string flag in new[] { "defaultAvailable", "requiredForSelectedFlow", "sensitive", "runtimeAssigned" }) if (!(e[flag] is bool)) throw new DebugFault("invalid_template", "Boolean-Metadaten erwartet.");
                     foreach (string text in new[] { "valueOrigin", "state" }) Json.Text(e[text]);
                     if (e["expression"] != null) Json.Text(e["expression"]);
                     string key = Json.Text(e["key"]); if (byKey.ContainsKey(key)) throw new DebugFault("invalid_template", "Doppelte Eingabeidentität."); byKey.Add(key, e);
@@ -118,7 +114,8 @@ namespace Toolbelt.Tsql.SsisDebug
                 {
                     Dictionary<string, object> e; if (!byKey.TryGetValue(input.Key, out e)) throw new DebugFault("invalid_template", "Eingabe fehlt.");
                     var expected = input.Metadata();
-                    foreach (string key in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType" }) if (Json.Write(e[key], Limits) != Json.Write(expected[key], Limits)) throw new DebugFault("invalid_template", "Identitäts-/Typmetadaten geändert.");
+                    foreach (string key in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "sensitive", "runtimeAssigned", "state" })
+                        if (Json.Write(e[key], Limits) != Json.Write(expected[key], Limits)) throw new DebugFault("invalid_template", "Eingabeherkunft oder Identitätsmetadaten geändert.");
                 }
                 foreach (var v in Json.Object(Json.Get(root, "values")))
                 {
@@ -127,7 +124,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     Types.Literal(input, v.Value); Values.Add(v.Key, v.Value);
                 }
             }
-            if (options.Operation == "bindings-template" || options.Operation == "bindings-template-v2")
+            if (options.Operation == "bindings-template")
             {
                 if (options.Bindings != null || options.CatalogBindings != null) throw new DebugFault("invalid_template", "Template-Modus verlangt Bindings und CatalogBindings NULL.");
                 return;
@@ -177,35 +174,6 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (order.Count == 0) throw new DebugFault("invalid_template", "Leere Lookupordnung."); LookupOrders.Add(entry.Key, order);
                 }
             }
-        }
-        private string ValidateResourcePolicy(object raw)
-        {
-            var policy = Json.Object(raw); Json.Version(policy); Json.Keys(policy, "schemaVersion", "preset", "unlimited", "effectiveLimits", "resourcePolicyHash");
-            string preset = Json.Text(Json.Get(policy, "preset")); var effective = Json.Object(Json.Get(policy, "effectiveLimits"));
-            string[] names = Toolbelt.Ssis.Exchange.ResourceLimits.CounterNames.ToArray();
-            if (effective.Count != names.Length) throw new DebugFault("invalid_template", "ResourcePolicy-Zähler unvollständig.");
-            Json.Keys(effective, names);
-            var overrides = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach (string name in names)
-            {
-                object value = effective[name];
-                if (value is string && (string)value == "unlimited") overrides.Add(name, "unlimited");
-                else if (value is JsonNumber)
-                {
-                    string text = ((JsonNumber)value).Text; long number;
-                    if (!Regex.IsMatch(text, "\\A[1-9][0-9]*\\z") || !Int64.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out number)) throw new DebugFault("invalid_template", "ResourcePolicy-Grenze ungültig.");
-                    overrides.Add(name, text);
-                }
-                else throw new DebugFault("invalid_template", "ResourcePolicy-Grenze ungültig.");
-            }
-            Toolbelt.Ssis.Exchange.ResourceLimits policyLimits;
-            try { policyLimits = Toolbelt.Ssis.Exchange.ResourceLimits.Create(preset, true, overrides); }
-            catch (ArgumentException) { throw new DebugFault("invalid_template", "ResourcePolicy-Preset ungültig."); }
-            if (Json.Bool(policy, "unlimited") != policyLimits.IsUnlimited || Json.Text(Json.Get(policy, "resourcePolicyHash")) != policyLimits.PolicyHash)
-                throw new DebugFault("invalid_template", "ResourcePolicy-Hash oder Unlimited-Metadaten ungültig.");
-            var expected = policyLimits.Metadata()["effectiveLimits"] as Dictionary<string, object>;
-            foreach (string name in names) if (Json.Write(effective[name]) != Json.Write(expected[name])) throw new DebugFault("invalid_template", "ResourcePolicy-Hash oder Grenzwerte ungültig.");
-            return policyLimits.PolicyHash;
         }
         private static IEnumerable<string> Expressions(Component c)
         {
@@ -270,9 +238,8 @@ namespace Toolbelt.Tsql.SsisDebug
         {
             var values = Json.Obj();
             foreach (Input input in Package.Inputs)
-                if (input.HasDefault && !input.RuntimeAssigned && !input.Sensitive && input.SqlType != null && input.Expression == null) values.Add(input.Key, input.Default);
-            var template = Json.Obj("schemaVersion", new JsonNumber(ComponentsV2 ? "2" : "1"), "profile", ComponentsV2 ? "ssis-debug-components-v2" : "ssis-debug-v1", "packageSha256", Package.Hash, "contextSha256", ContextHash, "values", values, "availableInputs", Package.Inputs.Select(v => (object)v.Metadata()).ToList());
-            if (ComponentsV2) template.Add("resourcePolicy", Limits.Metadata());
+                if (input.HasDefault && !input.Sensitive && input.SqlType != null && input.Expression == null) values.Add(input.Key, input.Default);
+            var template = Json.Obj("schemaVersion", new JsonNumber("2"), "profile", "ssis-debug-components-v2", "packageSha256", Package.Hash, "contextSha256", ContextHash, "values", values, "availableInputs", Package.Inputs.Select(v => (object)v.Metadata()).ToList());
             return template;
         }
         internal ExpressionValue Resolve(Input input)
