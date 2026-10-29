@@ -2,6 +2,9 @@
 
 ## Separater Komponenten-V2-Kandidat
 
+Die [V2-Installationsanleitung](../Documentation/ComponentsV2Installation.md)
+führt zur getrennten ZIP-Lieferung und zum reinen T-SQL-Installer.
+
 Die zusätzliche Lieferung `SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip`
 enthält den ausdrücklich gewählten Komponentenmodus V2. Er ergänzt fehlende
 Versionsattribute mit nachvollziehbarem Schema-Default, Row Count sowie

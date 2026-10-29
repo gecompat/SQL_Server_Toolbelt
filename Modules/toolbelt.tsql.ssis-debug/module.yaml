@@ -65,6 +65,7 @@ documentation:
   public_objects:
     - "Documentation/USP_ExplainSsisDataFlow.md"
   examples:
+    - "Documentation/ComponentsV2Installation.md"
     - "Examples/README.md"
     - "Examples/SsmsDebugWalkthrough.sql"
     - "Tests/Fixtures/synthetic-8.dtsx"

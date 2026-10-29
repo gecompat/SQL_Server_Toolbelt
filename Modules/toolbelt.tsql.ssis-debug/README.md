@@ -16,6 +16,10 @@ folgt dem [Komponenten-V2-Vertrag](../../Documentation/Architecture/SSIS_COMPONE
 Er verwendet `schemaVersion: 2` und `profile: "ssis-debug-components-v2"`;
 `explain` akzeptiert dieses vollständige Profil, während V1-Aufrufe unverändert
 bleiben.
+
+Die [V2-Installation](Documentation/ComponentsV2Installation.md) beschreibt
+das separate ZIP und den eigenständigen T-SQL-Installer sowie den ersten
+Aufruf mit Standardbudget oder ausdrücklich unbegrenzten Ressourcenbudgets.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
 ausgewiesen. Das Modul ist teilweise validiert und unveröffentlicht.
