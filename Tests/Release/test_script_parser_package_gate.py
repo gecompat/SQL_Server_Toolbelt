@@ -173,6 +173,13 @@ class ScriptParserPackageGateMixin:
             with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_CURRENT_BYTES'):
                 ssis_history.validate_historical_source(
                     sandbox, 'Modules/toolbelt.tsql.ssis-debug/module.yaml', binding['historical'])
+            current.write_bytes((ROOT / 'Modules/toolbelt.tsql.ssis-debug/module.yaml').read_bytes())
+            archive_bytes = bytearray(archive.read_bytes())
+            archive_bytes[0] ^= 1
+            archive.write_bytes(archive_bytes)
+            with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_ARCHIVE_PIN'):
+                ssis_history.validate_historical_source(
+                    sandbox, 'Modules/toolbelt.tsql.ssis-debug/module.yaml', binding['historical'])
 
     def test_script_parser_report_pins_package_sources_and_scope(self):
         self.assertEqual(sum(name.startswith("test_script_parser_") for name in dir(type(self))), 3)

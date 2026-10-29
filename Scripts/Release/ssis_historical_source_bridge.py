@@ -1,13 +1,18 @@
 """Exact historical SSIS source bytes retained in the frozen CLR installer."""
 from pathlib import Path, PurePosixPath
 import hashlib
+import io
 import stat
 import zipfile
+
+import new_ssis_standalone_tsql as standalone
 
 
 ARCHIVE = 'Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip'
 ARCHIVE_SHA256 = '896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287'
 PREFIX = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/Sources/'
+MAX_ARCHIVE_BYTES = 32 * 1024 * 1024
+MAX_SOURCE_BYTES = 1024 * 1024
 SOURCES = {
     'Modules/toolbelt.tsql.ssis-debug/module.yaml': {
         'historical': 'ab519faa5743e872f44e70499ebafcdeeed065e079eec2e95e8d5c518286bf8f',
@@ -37,19 +42,21 @@ def validate_historical_source(root, path, expected_sha256):
     if not isinstance(expected_sha256, str) or expected_sha256.lower() != binding['historical']:
         raise ValueError('SSIS_HISTORICAL_SOURCE_PIN')
     archive_path = root / ARCHIVE
-    archive_bytes = archive_path.read_bytes()
+    archive_bytes = standalone.read_regular_bounded(archive_path, MAX_ARCHIVE_BYTES)
     if _sha(archive_bytes) != ARCHIVE_SHA256:
         raise ValueError('SSIS_HISTORICAL_ARCHIVE_PIN')
     entry_name = PREFIX + path
-    with zipfile.ZipFile(archive_path) as archive:
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
         matches = [entry for entry in archive.infolist() if entry.filename == entry_name]
         if (len(matches) != 1 or matches[0].is_dir() or
                 (matches[0].external_attr >> 16) & 0o170000 == stat.S_IFLNK):
             raise ValueError('SSIS_HISTORICAL_SOURCE_ENTRY')
+        if matches[0].file_size > MAX_SOURCE_BYTES:
+            raise ValueError('SSIS_HISTORICAL_SOURCE_SIZE')
         original = archive.read(matches[0])
     if _sha(original) != binding['historical']:
         raise ValueError('SSIS_HISTORICAL_SOURCE_ARCHIVE_BYTES')
-    current = (root / PurePosixPath(path)).read_bytes()
+    current = standalone.read_regular_bounded(root / PurePosixPath(path), MAX_SOURCE_BYTES)
     if _sha(current) != binding['current']:
         raise ValueError('SSIS_HISTORICAL_SOURCE_CURRENT_BYTES')
     return original
