@@ -36,7 +36,7 @@ Head-/Main-CI werden getrennt im Pull Request nachgewiesen.
 
 Ergänzung r31: Der unveränderte aktuelle Standalone-T-SQL-Installer besteht
 ebenfalls die feste Windows-/Engine-/CL-/Modusmatrix: vier ursprüngliche und
-acht zusätzliche lokale/zentralen Kontexte, insgesamt zwölf; die vier neuen
+acht zusätzliche lokale/zentrale Kontexte, insgesamt zwölf; die vier neuen
 Zielaudits bestanden. Der gebundene Bericht steht unter
 [`ssis-current-standalone-installer-matrix.json`](../Releases/1.0.0/ssis-current-standalone-installer-matrix.json).
 Zwei vor SQL abgewiesene Parameterbindungsversuche bleiben als Versuche im

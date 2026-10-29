@@ -50,7 +50,7 @@ belegt den gebundenen Paketvertrag auf zwölf Windows-/Engine-/CL-/Moduskontexte
 die [Prüfmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) grenzt
 diesen Nachweis von den übrigen SSIS- und Releasegates ab.
 Die [aktuelle Standalone-Installer-Matrix](ssis-current-standalone-installer-matrix.json)
-ergänzt vier unverändert übernommene und acht neue lokale/zentralen Kontexte für
+ergänzt vier unverändert übernommene und acht neue lokale/zentrale Kontexte für
 denselben festen T-SQL-Installer auf Windows SQL2019/CL150, SQL2022/CL150 und
 CL160 sowie SQL2025/CL150, CL160 und CL170. Sie erweitert weder die getrennte
 Binarymatrix noch die allgemeine Komponenten-/API-Qualifikation; die aktuelle
