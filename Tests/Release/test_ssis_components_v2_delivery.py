@@ -247,5 +247,39 @@ class InstallerOutputProvenance(unittest.TestCase):
         self.assertIs(provenance["publication_authorized"], False)
 
 
+class InstallerRuntimeQualification(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.record_path = ROOT / installer_renderer.RUNTIME_QUALIFICATION
+        cls.record_bytes = cls.record_path.read_bytes()
+
+    def test_runtime_record_and_lf_metadata_bridge_bind_actual_inputs(self):
+        record = installer_renderer.validate_install_runtime_qualification(self.record_bytes)
+        self.assertEqual(record["kind"], "ssis_components_v2_standalone_tsql_runtime_qualification")
+        self.assertEqual(len(record["execution_input_pins"]), 16)
+
+    def test_runtime_bridge_cannot_expand_to_other_paths_or_transforms(self):
+        original = json.loads(self.record_bytes.decode("utf-8"))
+        mutations = []
+        changed = copy.deepcopy(original)
+        changed["integration_binding"]["changes"][0]["transform"] = "generic-newline-normalization"
+        mutations.append(changed)
+        changed = copy.deepcopy(original)
+        changed["integration_binding"]["changes"][0]["path"] = "README.md"
+        mutations.append(changed)
+        changed = copy.deepcopy(original)
+        changed["integration_binding"]["changes"][0]["integrated_sha256"] = "0" * 64
+        mutations.append(changed)
+        changed = copy.deepcopy(original)
+        changed["integration_binding"]["installer_bytes_unchanged"] = False
+        mutations.append(changed)
+        for changed in mutations:
+            with self.subTest(changes=changed["integration_binding"]["changes"]):
+                with self.assertRaises(ValueError):
+                    installer_renderer.validate_install_runtime_qualification(
+                        json.dumps(changed, separators=(",", ":")).encode("utf-8")
+                    )
+
+
 if __name__ == "__main__":
     unittest.main()

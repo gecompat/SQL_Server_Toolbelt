@@ -13,10 +13,18 @@ Flatfile-Metadaten mit expliziten relationalen Ersatzquellen und geprüfte lange
 Ausführungspläne. V1 bleibt erhalten; tatsächliches Dateilesen/-schreiben und
 ein Dateibyteparser sind nicht freigegeben. Drei kohärente Wellen, ein
 Luna-Implementierer mit Root-Vertrags-/Sicherheitsreview; gemeinsame endliche
-Zeit-/PR-/Testgrenzen stehen im Vertrag. Status: V2-Binarymatrix und gezielter
-Unlimited-Variablenplan nativ teilqualifiziert; ZIP offline geprüft, native
-Paket-/Installerprüfungen und Integration offen; unveröffentlicht. Bestehende Lieferungen und Nachweise bleiben
-unverändert; keine automatische Funktions- oder Gesamtfreigabe aus Teilchecks.
+Zeit-/PR-/Testgrenzen stehen im Vertrag. Status 2026-10-29: V2-Binarymatrix
+und gezielter Unlimited-Variablenplan bestanden ihre jeweils gebundenen
+Nachweise. Das separate ZIP bestand zwei native Paketfälle mit insgesamt 1190
+Assertions und zwei unabhängigen Audits. Der eigenständige T-SQL-Installer
+bestand zwei Windows-Zielkontexte mit local/central, vier V2-Opt-in-Prüfungen
+und zwei unabhängigen Audits. Die Berichte sind in der
+[SSIS-Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md)
+verknüpft. Eine getrennte CRLF→LF-Integrationsbindung dokumentiert genau die
+zwei JSON-Metadatenänderungen, bewahrt die ursprünglichen Ausführungspins und
+bestätigt unveränderte Installerbytes; Head-/Main-CI, Merge und
+Veröffentlichung bleiben offen. Der Modulstatus bleibt `partially validated`,
+das Modul unveröffentlicht; keine automatische Gesamtfreigabe aus Teilchecks.
 
 ## Achtzehnter endlicher Release-Rahmen — 2026-10-27
 

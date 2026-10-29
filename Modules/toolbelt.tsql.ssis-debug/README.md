@@ -22,7 +22,9 @@ das separate ZIP und den eigenständigen T-SQL-Installer sowie den ersten
 Aufruf mit Standardbudget oder ausdrücklich unbegrenzten Ressourcenbudgets.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
-ausgewiesen. Das Modul ist teilweise validiert und unveröffentlicht.
+ausgewiesen. Das V2-ZIP und der eigenständige Installer haben begrenzte,
+nativ gebundene Windows-Nachweise; Head-/Main-CI bleibt offen. Der Modulstatus
+ist teilweise validiert und unveröffentlicht.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit
 [`SsmsDebugWalkthrough.sql`](Examples/SsmsDebugWalkthrough.sql) und synthetischer
@@ -75,9 +77,9 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-25`
-- Nachweis: `local: Lookup-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 191-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Pipelinebuild; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
+- Datum: `2026-10-29`
+- Nachweis: `local: SSIS-Komponenten-V2 ZIP- und Standalone-T-SQL-Paketqualifikationen`
+- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung beschränkt Metadatenänderungen auf zwei Qualifikations-JSONs; Ausführungspins und Installerbytes bleiben unverändert. Head-/Main-CI, vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben offen; keine Aufwertung des Modulstatus.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

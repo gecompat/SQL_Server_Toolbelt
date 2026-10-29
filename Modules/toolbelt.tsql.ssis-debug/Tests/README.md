@@ -19,9 +19,21 @@ mit explizitem `unlimited` und endlichen äußeren Watchdogs. Die separaten
 dieser Nachweis behauptet keine Default-Budget-Abnahme dafür.
 
 Das neue V2-ZIP ist offline auf gebundene Artefakte, Quellen, Attribution und
-Manipulation geprüft. Native Tests des entpackten ZIPs und des neuen reinen
-T-SQL-Installers sowie Head-/Main-CI stehen noch aus. Der V1-Installer wird
-nicht als V2-Lieferung umgedeutet; Integration und Veröffentlichung sind offen.
+Manipulation geprüft. Die [native ZIP-Qualifikation](Qualification/ComponentsV2.InstallPackage.20261028.json)
+bestand zwei Windows-Paketfälle mit insgesamt 1190 Assertions und zwei
+unabhängigen Cleanup-Audits. Die [Standalone-Installer-Qualifikation](../../../Releases/1.0.0/ssis-components-v2-standalone-installer-runtime-qualification.json)
+bestand zwei Windows-Zielkontexte in local und central, einschließlich vier
+V2-Opt-in-Vorlagenprüfungen und zwei unabhängigen Audits. Die
+[Installer-Provenienz](../../../Releases/1.0.0/ssis-components-v2-standalone-installer.json)
+bindet die erzeugten T-SQL-Bytes an Paket und Paketqualifikation. Das
+`integration_binding`-Objekt des Runtimeberichts dokumentiert genau zwei
+Metadatenänderungen: CRLF→LF-Normalisierung der ZIP-Qualifikation und den
+zugehörigen Qualifikationshash in der Installerprovenienz. Die ursprünglichen
+nativen Eingabepins bleiben unverändert; Installerbytes und
+Qualifikationssemantik sind gebunden.
+
+Head-/Main-CI und Merge stehen noch aus; das Modul bleibt teilweise validiert
+und unveröffentlicht. Der V1-Installer wird nicht als V2-Lieferung umgedeutet.
 
 Stand 2026-10-25. Die nativen Nachweise unten behalten ihre ursprünglichen
 Ausführungsdaten und Buildbindungen. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
@@ -29,14 +41,15 @@ mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.
 
 `Framework/Invoke-Contract.ps1` prüft den exakten ScriptDom-Pin und führt
 isolierte .NET-Framework-Prozesse mit begrenztem Stack und Watchdog aus.
-Profil `Full` umfasst derzeit 23 Kindprozesse: JSON-Grenzen und exakte Werte,
-Format 6/8, Vorlagen-Roundtrip, Source/Union/Derived/Lookup/Split/Destination,
-CTE-Parsecache, blockierte Komponenten, unzulässige SQL-Statements sowie
-Operator-, Struktur-, Kommentar-, Projektions- und Textgrenzen.
-Die zwei zusätzlichen Releaseprozesse prüfen Artefakt-/Diagnose-/Ausgabebytes,
-128 eindeutige Parser-/Katalogaufrufe und das unveränderte kooperative
-30-Sekunden-Budget. Sie öffnen keine SQL-Verbindung. Frühere Full21-Nachweise
-behalten ihre damaligen Inputs und ihren eigenen Umfang.
+`Full` enthält gemäß aktuellem `Invoke-Contract.ps1` 26 begrenzte Kindprozesse:
+JSON/V1-Grenzen, Format-6/8-Import und -Übersetzung, V2-Grund- und UTF8-Cases,
+kombinierter Scale-Fall, Sicherheits-/SQL-Regressionsfälle, Release- und
+kooperatives Budget sowie fünf Parsergrenzen und sieben Parserformen. Die
+V2-spezifischen Profile `ComponentsV2`, `ComponentsV2Branch` und
+`ComponentsV2Utf8Collation` bleiben separat auswählbar. Frühere Full21- und
+Full23-Nachweise behalten ihre damaligen Eingaben und Umfänge; keiner davon
+ersetzt die aktuellen V2-Installationsrecords. Diese Frameworkprofile öffnen
+keine SQL-Verbindung.
 
 Für die ausdrückliche CL-Abnahme akzeptiert `Invoke-LabContract.ps1`
 `-CompatibilityLevel 150|160|170` nur soweit die gewählte Engine dies unterstützt.
@@ -591,9 +604,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-25`
-- Nachweis: `local: Lookup-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 191-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Pipelinebuild; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
+- Datum: `2026-10-29`
+- Nachweis: `local: SSIS-Komponenten-V2 ZIP- und Standalone-T-SQL-Paketqualifikationen`
+- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung beschränkt Metadatenänderungen auf zwei Qualifikations-JSONs; Ausführungspins und Installerbytes bleiben unverändert. Head-/Main-CI, vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben offen; keine Aufwertung des Modulstatus.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

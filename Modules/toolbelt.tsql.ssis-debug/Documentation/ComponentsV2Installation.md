@@ -60,3 +60,18 @@ Flatfile-Unterstützung nutzt Metadaten und ausdrücklich bereitgestellte
 SQL-Zeilenbestände. Sie liest oder schreibt keine Dateien und führt kein
 SSIS-Paket aus. Die [Prüfmatrix](../Tests/README.md) trennt neue Nachweise von
 historischen V1-Builds und weiterhin offenen Gates.
+
+## Begrenzte native Qualifikation
+
+Das separate [V2-ZIP](../Tests/Qualification/ComponentsV2.InstallPackage.20261028.json)
+bestand zwei native Windows-Paketfälle mit 1190 Assertions und zwei
+unabhängigen Cleanup-Audits. Der getrennte [Standalone-T-SQL-Installerbericht](../../../Releases/1.0.0/ssis-components-v2-standalone-installer-runtime-qualification.json)
+bindet zwei Zielkontexte auf SQL Server 2019/CL150 und 2025/CL170, jeweils
+local und central, mit vier V2-Opt-in-Prüfungen und zwei unabhängigen Audits.
+Die [Provenienz](../../../Releases/1.0.0/ssis-components-v2-standalone-installer.json)
+bindet Installer, ZIP und ZIP-Qualifikation. Diese begrenzten Windows-Fälle
+qualifizieren weder die vollständige Plattform-/Engine-Matrix noch Head-/Main-CI,
+authentifiziertes TLS oder eine Veröffentlichung. Das `integration_binding`-
+Objekt im Runtimebericht dokumentiert die eng begrenzte CRLF→LF-Integration der
+beiden Qualifikations-JSONs; ursprüngliche native Eingabepins und Installerbytes
+bleiben unverändert.
