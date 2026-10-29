@@ -25,6 +25,9 @@ if((Test-Path -LiteralPath $v2PackagePath -PathType Leaf) -and (Test-Path -Liter
 }elseif($ValidateOnly){$script:v2PackageSha256=('0'*64);$script:v2QualificationSha256=('0'*64)}
 else{throw 'SSIS_V2_TSQL_PACKAGE_OR_QUALIFICATION_MISSING'}
 $text=[IO.File]::ReadAllText($sourcePath)
+$caseRangeAnchor='[ValidateRange(0,1)][int]$CaseIndex,'
+if(([regex]::Matches($text,[regex]::Escape($caseRangeAnchor))).Count -ne 1){throw 'SSIS_CURRENT_MATRIX_CASE_INDEX_ANCHOR'}
+$text=$text.Replace($caseRangeAnchor,'[ValidateRange(0,3)][int]$CaseIndex,')
 $replacements=@(
     [pscustomobject]@{old='Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.InstallPackage.20261025.json';new=$v2Qualification},
     [pscustomobject]@{old='Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip';new=$v2Package},

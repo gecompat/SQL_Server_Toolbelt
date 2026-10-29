@@ -33,7 +33,8 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
         ]
         added_targets = [
             {'platform': 'windows', 'sql_server': version, 'compatibility_level': level,
-             'result': 'PASS', 'final_independent_audit': 'PASS'}
+             'result': 'PASS', 'final_independent_audit': 'PASS',
+             'execution_pin_set': 'initial' if version == '2022' else 'corrected'}
             for version, level in matrix.NEW_TARGETS
         ]
         added_cases = [
@@ -63,15 +64,28 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
                 'driver': 'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerMatrixLab.ps1',
                 'preparer': 'Tests/Release/Prepare-CurrentStandaloneTsqlInstallerMatrixRunset.ps1',
                 'source_commit': 'abcdef12',
+                'source_commits': {'initial': matrix.INITIAL_SOURCE_COMMIT, 'corrected': 'abcdef12'},
                 'mode_bindings': deepcopy(original['execution']['mode_bindings']),
                 'new_target_invocations': 4, 'new_independent_audits': 4,
                 'original_successful_contexts_repeated': 0,
-                'command_method': original['execution']['command_method']},
+                'command_method': original['execution']['command_method'],
+                'pre_sql_parameter_rejections': {'target_invocations': 1, 'audit_invocations': 1,
+                    'sql_executed': False, 'reason': 'INNER_CASEINDEX_PARAMETER_VALIDATION'},
+                'native_attempts_including_pre_sql_rejections': 10},
             'final_audit': {'case_audits': 4, 'owned_database_names_absent': 8,
                             'trust_states_restored': 12, 'configuration_baselines_restored': True,
                             'input_pins_unchanged': True},
             'artifact_bindings': bindings,
             'execution_input_pins': [{'path': path, 'sha256': digest} for path, digest in pins.items()],
+            'execution_pin_sets': [
+                {'id': 'initial', 'pins': [
+                    {'path': path,
+                     'sha256': matrix.INITIAL_DRIVER_SHA256 if path ==
+                     'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerMatrixLab.ps1' else digest}
+                    for path, digest in pins.items()]},
+                {'id': 'corrected', 'pins': [{'path': path, 'sha256': digest}
+                                             for path, digest in pins.items()]},
+            ],
             'functional_transport': deepcopy(original['functional_transport']),
             'assembly_trust': deepcopy(original['assembly_trust']),
             'not_qualified': old_not_qualified,
@@ -109,6 +123,18 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
         changed = deepcopy(self.record)
         changed['artifact_bindings']['Tests/Release/Invoke-CurrentStandaloneTsqlInstallerMatrixLab.ps1'] = '0' * 64
         with self.assertRaisesRegex(ValueError, 'execution input pin drift'):
+            matrix.validate_record(changed, self.runtime, self.runtime_sha256)
+
+    def test_rejects_wrong_target_pin_set_or_initial_source_pin(self):
+        changed = deepcopy(self.record)
+        changed['additional_targets'][0]['execution_pin_set'] = 'corrected'
+        with self.assertRaisesRegex(ValueError, 'target execution pin-set binding'):
+            matrix.validate_record(changed, self.runtime, self.runtime_sha256)
+        changed = deepcopy(self.record)
+        driver = next(pin for pin in changed['execution_pin_sets'][0]['pins']
+                      if pin['path'] == 'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerMatrixLab.ps1')
+        driver['sha256'] = '0' * 64
+        with self.assertRaisesRegex(ValueError, 'initial execution driver pin'):
             matrix.validate_record(changed, self.runtime, self.runtime_sha256)
 
 
