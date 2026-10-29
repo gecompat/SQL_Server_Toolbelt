@@ -21,10 +21,14 @@ bestand zwei Windows-Zielkontexte mit local/central, vier V2-Opt-in-Prüfungen
 und zwei unabhängigen Audits. Die Berichte sind in der
 [SSIS-Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md)
 verknüpft. Eine getrennte CRLF→LF-Integrationsbindung dokumentiert genau die
-zwei JSON-Metadatenänderungen, bewahrt die ursprünglichen Ausführungspins und
-bestätigt unveränderte Installerbytes; Head-/Main-CI, Merge und
-Veröffentlichung bleiben offen. Der Modulstatus bleibt `partially validated`,
-das Modul unveröffentlicht; keine automatische Gesamtfreigabe aus Teilchecks.
+beiden Änderungen: Normalisierung des ZIP-Qualifikations-JSONs und Anpassung
+seines Hashfelds in der Installerprovenienz. Sie bewahrt ursprüngliche
+Ausführungspins und unveränderte Installerbytes. Native Records belegen keine
+CI; Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head getrennt
+nachgewiesen. Weitere Plattformen, authentifiziertes TLS und Veröffentlichung
+bleiben unqualifiziert beziehungsweise nicht freigegeben. Der Modulstatus
+bleibt `partially validated`, das Modul unveröffentlicht; keine automatische
+Gesamtfreigabe aus Teilchecks.
 
 ## Achtzehnter endlicher Release-Rahmen — 2026-10-27
 

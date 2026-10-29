@@ -32,8 +32,11 @@ zugehörigen Qualifikationshash in der Installerprovenienz. Die ursprünglichen
 nativen Eingabepins bleiben unverändert; Installerbytes und
 Qualifikationssemantik sind gebunden.
 
-Head-/Main-CI und Merge stehen noch aus; das Modul bleibt teilweise validiert
-und unveröffentlicht. Der V1-Installer wird nicht als V2-Lieferung umgedeutet.
+Native Records belegen keine CI; Head-/Main-CI und Integration werden am
+jeweiligen PR-/Merge-Head getrennt nachgewiesen. Weitere Plattformen und
+authentifiziertes TLS bleiben unqualifiziert; Veröffentlichung ist nicht
+freigegeben. Der Modulstatus bleibt teilweise validiert und unveröffentlicht.
+Der V1-Installer wird nicht als V2-Lieferung umgedeutet.
 
 Stand 2026-10-25. Die nativen Nachweise unten behalten ihre ursprünglichen
 Ausführungsdaten und Buildbindungen. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
@@ -606,7 +609,7 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-29`
 - Nachweis: `local: SSIS-Komponenten-V2 ZIP- und Standalone-T-SQL-Paketqualifikationen`
-- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung beschränkt Metadatenänderungen auf zwei Qualifikations-JSONs; Ausführungspins und Installerbytes bleiben unverändert. Head-/Main-CI, vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben offen; keine Aufwertung des Modulstatus.
+- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung dokumentiert genau zwei Metadatenänderungen: Normalisierung des ZIP-Qualifikations-JSONs und Anpassung seines Hashfelds in der Installerprovenienz; Ausführungspins und Installerbytes bleiben unverändert. Native Records belegen keine CI; Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head getrennt nachgewiesen. Vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben unqualifiziert beziehungsweise nicht freigegeben; der Modulstatus bleibt unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

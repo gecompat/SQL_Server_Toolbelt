@@ -19,8 +19,10 @@ hashgebundene native Nachweise: zwei Paketfälle mit unabhängigen Audits und
 zwei Installer-Zielkontexte in local/central. Die aktuelle
 [Prüfmatrix](../Tests/README.md) verlinkt die Records, die
 [Installerprovenienz](../../../Releases/1.0.0/ssis-components-v2-standalone-installer.json)
-und den separaten Runtimebericht. Head-/Main-CI und Merge stehen noch aus;
-beide Lieferungen bleiben unveröffentlicht.
+und den separaten Runtimebericht. Native Records belegen keine CI; Head-/Main-CI
+und Integration werden am jeweiligen PR-/Merge-Head getrennt nachgewiesen.
+Weitere Plattformen, authentifiziertes TLS und Veröffentlichung bleiben
+unqualifiziert beziehungsweise nicht freigegeben.
 
 Die nachfolgende Download- und Installationsanleitung sowie historischen
 Nachweise beschreiben ausschließlich die bestehende V1-Lieferung. V2 ist ein
