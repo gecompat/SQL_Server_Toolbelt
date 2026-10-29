@@ -836,7 +836,7 @@ festgelegt; native Prüfungen, Fehlversuche und Audits zählen gemeinsam. Kosten
 und Tokens sind unbekannt. Historische Tests erzwingen keine Wiederholung alter
 Kompatibilitätsmatrizen; aktuelle Sicherheits- und Funktionsorakel bleiben Pflicht.
 
-Der vorhandene SSIS-Offlineworkflow erhält fünf Prüfungen der aktuellen
+Der vorhandene SSIS-Offlineworkflow erhält sechs Prüfungen der aktuellen
 Paket-/Installerbindung mit Negativkontrollen sowie eine reine `SqlValue`-
 Adapterprüfung und Syntaxvalidierungen. Sie laufen bei Änderungen ihrer
 Quellen oder Lieferartefakte, nicht als neue SQL-CI oder separate Reviewkette.

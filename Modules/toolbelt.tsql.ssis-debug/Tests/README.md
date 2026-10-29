@@ -25,10 +25,16 @@ beiden Modi: vier Installationskontexte mit Repeat, aktuelle Fachfälle,
 Sitzungs-/Transaktions-Negativkontrollen und zwei unabhängigen Audits.
 Die [Installer-Provenienz](../../../Releases/1.0.0/ssis-current-standalone-installer.json)
 bindet die ausgeführten Bytes an Paket und Paketqualifikation.
+Der aktuelle Runtimebericht ergänzt eine eng begrenzte Integrationsbindung
+für genau zwei synthetische XML-Fixtures: Die ursprünglichen CRLF-
+Ausführungspins bleiben erhalten; für den LF-Checkout ist die exakte
+Rückrekonstruktion gegen beide fest gebundenen Hashes Pflicht. Beliebige
+Textänderungen oder allgemeine Normalisierung werden nicht akzeptiert.
+Installer-, DLL- und Paketbytes werden dadurch nicht verändert.
 
 `Runtime/Invoke-CurrentLab.ps1` verwendet die unveränderte strikte Lab-
 Schutzhülle und eigene aktuelle Fälle. `Invoke-ComponentsV2Audit.ps1` bleibt
-der unabhängige lesende Audit. Fünf Offline-Lieferprüfungen kontrollieren
+der unabhängige lesende Audit. Sechs Offline-Lieferprüfungen kontrollieren
 aktuelle Bindungen und Manipulationsfälle; der SQL-Parameteradapter wird ohne
 Verbindung mit tatsächlicher `SqlValue`-Konvertierung geprüft. Das lange
 Framework-Transportexperiment mit 2730 Einheiten verwendet ausdrücklich

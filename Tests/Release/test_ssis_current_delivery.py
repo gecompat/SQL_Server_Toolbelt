@@ -65,6 +65,30 @@ class CurrentDelivery(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'audits'):
             installer.validate_package_qualification(altered, composer.sha(altered), package_sha)
 
+    def test_exact_xml_line_ending_checkout_and_negative_controls(self):
+        original = installer.renderer.read_regular_bounded
+        corrupt = False
+        def read(path, maximum):
+            data = original(path, maximum)
+            if path.relative_to(ROOT).as_posix() in installer.XML_LINE_ENDINGS:
+                data = data.replace(b'\r\n', b'\n')
+                return data + b'synthetic-corruption' if corrupt else data
+            return data
+        with mock.patch.object(installer.renderer, 'read_regular_bounded', side_effect=read):
+            with contextlib.redirect_stdout(io.StringIO()):
+                record = installer.validate_runtime()
+            self.assertEqual(len(record['integration_binding']['changes']), 2)
+            corrupt = True
+            with self.assertRaisesRegex(ValueError, 'XML fixture checkout'):
+                installer.validate_runtime()
+        changed = json.loads((ROOT / installer.RUNTIME).read_bytes())
+        changed['integration_binding']['changes'][0]['transform'] = 'arbitrary-normalization'
+        def bad_bridge(path, maximum):
+            return composer.encoded(changed) if path == ROOT / installer.RUNTIME else original(path, maximum)
+        with mock.patch.object(installer.renderer, 'read_regular_bounded', side_effect=bad_bridge):
+            with self.assertRaisesRegex(ValueError, 'XML line-ending transformations'):
+                installer.validate_runtime()
+
     def test_rehashed_changed_dependency_is_still_rejected(self):
         runtime = ROOT / '.runtime'
         if runtime.is_symlink():

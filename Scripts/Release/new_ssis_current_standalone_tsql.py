@@ -14,6 +14,14 @@ QUALIFICATION = Path(MODULE + 'Tests/Qualification/Current.InstallPackage.202610
 OUTPUT = Path('Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql')
 PROVENANCE = Path('Releases/1.0.0/ssis-current-standalone-installer.json')
 RUNTIME = Path('Releases/1.0.0/ssis-current-standalone-runtime-qualification.json')
+XML_LINE_ENDINGS = {
+    MODULE + 'Tests/Fixtures/components-v2-flatfile.dtsx': (
+        '1FBE98E8B920EE61101A97ECED896222D5383C22673AB5D8DF7073B2241D3B69',
+        'ABBA5E5D960F31347BFCC653C7DCDAB8921E2E8B9A8FA378CD913296ACC2A93F'),
+    MODULE + 'Tests/Fixtures/components-v2-rowcount.dtsx': (
+        'A6E2A2155B8964978625C9D868B38F4EAA5DDF59FA60A4BEF9DF997E7644FCDA',
+        '8157C20130CCA4F34987B5C73D8FB6DB2F61F69DC8D24AD3231DF88BF97876D1'),
+}
 
 
 def validate_runtime(root=ROOT):
@@ -58,6 +66,17 @@ def validate_runtime(root=ROOT):
             audit.get('trust_states_restored') == 6 and audit.get('configuration_baselines_restored') is True and
             audit.get('input_pins_unchanged') is True, 'current standalone final audit')
     pins = record.get('execution_input_pins', [])
+    bridge = record.get('integration_binding', {})
+    require(bridge.get('kind') == 'ssis_current_xml_line_endings_binding' and
+            bridge.get('native_execution_inputs_preserved') is True and
+            bridge.get('installer_bytes_unchanged') is True and
+            bridge.get('qualification_semantics_unchanged') is True,
+            'exact current XML line-ending binding')
+    changes = bridge.get('changes', [])
+    expected_changes = [{'path': path, 'execution_sha256': old, 'integrated_sha256': new,
+                         'transform': 'lf-to-crlf-exact-reconstruction'}
+                        for path, (old, new) in XML_LINE_ENDINGS.items()]
+    require(changes == expected_changes, 'exact current XML line-ending transformations')
     required = {
         'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1',
         'Tests/Release/Prepare-CurrentStandaloneTsqlInstallerRunset.ps1',
@@ -79,8 +98,18 @@ def validate_runtime(root=ROOT):
         relative = Path(pin['path'])
         require(not relative.is_absolute() and '..' not in relative.parts and
                 re.fullmatch('[0-9A-F]{64}', str(pin.get('sha256', ''))), 'runtime input boundary')
-        require(sha(renderer.read_regular_bounded(root / relative, renderer.MAX_PACKAGE_BYTES)) == pin['sha256'],
-                'current execution input changed: ' + relative.as_posix())
+        data = renderer.read_regular_bounded(root / relative, renderer.MAX_PACKAGE_BYTES)
+        if relative.as_posix() in XML_LINE_ENDINGS:
+            old, new = XML_LINE_ENDINGS[relative.as_posix()]
+            require(pin['sha256'] == old, 'original XML execution pin preserved')
+            if sha(data) == old:
+                require(sha(data.replace(b'\r\n', b'\n')) == new, 'exact executed XML source')
+            else:
+                require(sha(data) == new and b'\r' not in data and
+                        sha(data.replace(b'\n', b'\r\n')) == old,
+                        'exact current XML fixture checkout: ' + relative.as_posix())
+        else:
+            require(sha(data) == pin['sha256'], 'current execution input changed: ' + relative.as_posix())
     source = provenance.get('source_package', {})
     require(source.get('path') == MODULE + 'InstallPackages/' + NAME + '.zip' and
             source.get('qualification') == QUALIFICATION.as_posix(), 'current package source paths')
