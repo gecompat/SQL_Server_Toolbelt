@@ -21,6 +21,9 @@ foreach($replacement in $replacements){
     $text=$text.Replace($replacement.old,$replacement.new)
 }
 $text=$text.Replace('Invoke-ApiCases.ps1','Invoke-CurrentCases.ps1')
+$fixtureAnchor="(Join-Path `$script:repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx'),"
+if(([regex]::Matches($text,[regex]::Escape($fixtureAnchor))).Count -ne 1){throw 'SSIS_CURRENT_TSQL_PREPARER_FIXTURE_ANCHOR'}
+$text=$text.Replace($fixtureAnchor,$fixtureAnchor+"`n    (Join-Path `$script:repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx'),`n    (Join-Path `$script:repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx'),")
 $parseErrors=$null
 $tree=[Management.Automation.Language.Parser]::ParseInput($text,[ref]$null,[ref]$parseErrors)
 if($parseErrors.Count){throw 'SSIS_V2_TSQL_ADAPTED_PREPARER_PARSE'}

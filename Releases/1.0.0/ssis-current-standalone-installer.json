@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "kind": "standalone_tsql_installer_derivation",
+  "publication_authorized": false,
+  "scope": {
+    "modules": [
+      {
+        "id": "toolbelt.core.result-table",
+        "version": "1.0.0"
+      },
+      {
+        "id": "toolbelt.tsql.script-parser",
+        "version": "2.0.1"
+      },
+      {
+        "id": "toolbelt.tsql.ssis-debug",
+        "version": "1.0.0"
+      }
+    ],
+    "target": "current_user_selected_database_only",
+    "dlls": "three_exact_package_bound_dlls_embedded_once_each",
+    "external_file_access": false,
+    "sqlcmd_required_at_runtime": false,
+    "new_builds": false
+  },
+  "source_package": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Current-Install-Windows.zip",
+    "sha256": "6E83F4B534339E106B42C8911178BD09CB82001167A356D5A5D63BF69A15F4D7",
+    "qualification": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.20261029.json",
+    "qualification_sha256": "05D88E2ED0C168D025BA5139C8E965613C049E1B2F88041A016EBF0AB30656D2",
+    "qualification_result": "PASS"
+  },
+  "source_entries": {
+    "LICENSE.md": {
+      "sha256": "B513A23D5CA4484AA6F1CE78179DA5A90EDC3BF7929EB5CD5C726C8C08CA6ECD",
+      "package_manifest_sha256": "B513A23D5CA4484AA6F1CE78179DA5A90EDC3BF7929EB5CD5C726C8C08CA6ECD"
+    },
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": {
+      "sha256": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298",
+      "package_manifest_sha256": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298"
+    },
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": {
+      "sha256": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876",
+      "package_manifest_sha256": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876"
+    },
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": {
+      "sha256": "A4C79F97472C70CDC1EC0858CF06886FD3EA79D8E63E3C7F77B4403E568514E8",
+      "package_manifest_sha256": "A4C79F97472C70CDC1EC0858CF06886FD3EA79D8E63E3C7F77B4403E568514E8"
+    },
+    "Modules/toolbelt.tsql.script-parser/Artifacts/Deploy.WithAssembly.sql": {
+      "sha256": "87BB5EE73B0AA4FADF8B6AD4AADEDAA21492A7BC07888CED10CA1A288777D959",
+      "package_manifest_sha256": "87BB5EE73B0AA4FADF8B6AD4AADEDAA21492A7BC07888CED10CA1A288777D959"
+    },
+    "Modules/toolbelt.tsql.script-parser/Artifacts/Microsoft.SqlServer.TransactSql.ScriptDom.dll": {
+      "sha256": "C467C638ED53CABA55EC1A4AE534990326AC1811046EF12775F5BBD46478B7CB",
+      "package_manifest_sha256": "C467C638ED53CABA55EC1A4AE534990326AC1811046EF12775F5BBD46478B7CB"
+    },
+    "Modules/toolbelt.tsql.script-parser/Artifacts/Toolbelt.Tsql.ScriptParser.dll": {
+      "sha256": "51DCB066F373D8A91C61320C04139C62332C9AD1B1E2DB4D42BEA6E703E7E75F",
+      "package_manifest_sha256": "51DCB066F373D8A91C61320C04139C62332C9AD1B1E2DB4D42BEA6E703E7E75F"
+    },
+    "Modules/toolbelt.tsql.script-parser/Artifacts/Toolbelt.Tsql.ScriptParser.trust-manifest.json": {
+      "sha256": "2A86CED4D1C12F1699DA9A970AFC217E5488C117E7FDF8209DD6CA6543DAA017",
+      "package_manifest_sha256": "2A86CED4D1C12F1699DA9A970AFC217E5488C117E7FDF8209DD6CA6543DAA017"
+    },
+    "Modules/toolbelt.tsql.ssis-debug/Artifacts/Deploy.WithAssembly.sql": {
+      "sha256": "E660514A1F5BC761B66306AA1D81BF2B5BF6FCC6EBFC723C7994309AE99AD46A",
+      "package_manifest_sha256": "E660514A1F5BC761B66306AA1D81BF2B5BF6FCC6EBFC723C7994309AE99AD46A"
+    },
+    "Modules/toolbelt.tsql.ssis-debug/Artifacts/Toolbelt.Tsql.SsisDebug.dll": {
+      "sha256": "F5838193795521943E511EBDE9D22BA9AA1431EA94D7F368AC6364C97DD30760",
+      "package_manifest_sha256": "F5838193795521943E511EBDE9D22BA9AA1431EA94D7F368AC6364C97DD30760"
+    },
+    "Modules/toolbelt.tsql.ssis-debug/Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json": {
+      "sha256": "D1EB3D6D0088316F8B1417E64F5A99AD31A2E2FA7EF0E8570FD188428202AE41",
+      "package_manifest_sha256": "D1EB3D6D0088316F8B1417E64F5A99AD31A2E2FA7EF0E8570FD188428202AE41"
+    },
+    "ThirdParty/ScriptDom-180.117.0/LICENSE": {
+      "sha256": "C2CFCCB812FE482101A8F04597DFC5A9991A6B2748266C47AC91B6A5AAE15383",
+      "package_manifest_sha256": "C2CFCCB812FE482101A8F04597DFC5A9991A6B2748266C47AC91B6A5AAE15383"
+    },
+    "ThirdParty/ScriptDom-180.117.0/NOTICE.txt": {
+      "sha256": "3A32319C0C925FE296FF71D09AD18D381CBFBD5402EE28CE64CE93E67202974A",
+      "package_manifest_sha256": "3A32319C0C925FE296FF71D09AD18D381CBFBD5402EE28CE64CE93E67202974A"
+    },
+    "ThirdParty/ScriptDom-180.117.0/ORIGIN.txt": {
+      "sha256": "10A4D749579538DAA5A91997E8CD55B75CA838165062B024D7A9C0010BFA146E",
+      "package_manifest_sha256": "10A4D749579538DAA5A91997E8CD55B75CA838165062B024D7A9C0010BFA146E"
+    },
+    "ThirdParty/ScriptDom-180.117.0/README.md": {
+      "sha256": "6147AB5B352066376B3305CE6FE7F701CD947F4DF442E4625ACB802CD58FE752",
+      "package_manifest_sha256": "6147AB5B352066376B3305CE6FE7F701CD947F4DF442E4625ACB802CD58FE752"
+    },
+    "ThirdParty/ScriptDom-180.117.0/package.nuspec": {
+      "sha256": "5F23CF8B9289EFAC0CB90FEF6CE1AC5E78D6E0215FA855AB7D6FE8567AA10970",
+      "package_manifest_sha256": "5F23CF8B9289EFAC0CB90FEF6CE1AC5E78D6E0215FA855AB7D6FE8567AA10970"
+    }
+  },
+  "dll_sha512": {
+    "Parser": "7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506",
+    "ScriptDom": "459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7",
+    "Ssis": "D145DF5BFA157E5D6943CF76290B402A805635B338CAF5A9013D129E4B0B6BD06BAF15DC330F333BF6B6103FCB52D55B424BA7F5D96B0FBB11BF2E20781DF80F"
+  },
+  "output": {
+    "path": "Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql",
+    "sha256": "7D49C226E9E656D4022721F49D743778C4BE96E61D6CB8427258CE18A69E2C3C",
+    "bytes": 14931621
+  },
+  "limits": [
+    "SQL Server Windows 2019/2022/2025 and compatibility 150/160/170",
+    "CLR enabled and clr strict security enabled; no configuration changes",
+    "Current database only; database creation and SSISDB/catalog functions are outside scope",
+    "Exact server-level assembly trust is opt-in; default does not add trust",
+    "Per-module stages retain their existing transaction boundaries; earlier successful stages remain on a later-stage failure",
+    "DTSX package analysis and reporting are separate from this SQL CLR installer",
+    "Aktueller Standard ohne Toolbelt-Legacy-Profil; Limits über benannte SQL-Parameter, nicht JSON"
+  ],
+  "component_profile": "ssis-debug-current"
+}

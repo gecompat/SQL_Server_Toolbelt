@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-29",
+  "kind": "ssis_current_install_package_qualification",
+  "profile": "ssis-debug-current",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "Exact current ZIP extracted; current API, limits, editable defaults and executed DebugScript; Windows2019 CL150 local and Windows2025 CL170 central; fresh/repeat/uninstall and independent audits",
+  "package_sha256": "6e83f4b534339e106b42c8911178bd09cb82001167a356d5a5d63bf69a15f4d7",
+  "package_source_commit": "4314e9d9",
+  "native_fixture_execution_commit": "74328281",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "final_audit": {
+    "configuration_baselines_restored": true,
+    "input_pins_unchanged": true,
+    "owned_database_names_absent": 4,
+    "trust_states_restored": 6,
+    "case_audits": 2
+  },
+  "functional_transport": {
+    "authenticated_tls": "not executed",
+    "fallback": false,
+    "encrypt_required": true,
+    "provider": "System.Data.SqlClient",
+    "schema_validated_explicit_boolean_trust": true
+  },
+  "not_qualified": [
+    "Legacy upgrade compatibility",
+    "Full engine/CL matrix for ZIP install",
+    "Authenticated TLS",
+    "Windows-authentication and SSMS GUI",
+    "Real SSIS runtime execution",
+    "Publication"
+  ],
+  "cost_tokens": "UNKNOWN"
+}

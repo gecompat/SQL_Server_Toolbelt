@@ -45,6 +45,9 @@ def validate_runtime(root=ROOT):
         'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1',
         'Tests/Release/Prepare-CurrentStandaloneTsqlInstallerRunset.ps1',
         MODULE + 'Tests/Runtime/Invoke-CurrentCases.ps1',
+        MODULE + 'Tests/Fixtures/synthetic-8.dtsx',
+        MODULE + 'Tests/Fixtures/components-v2-rowcount.dtsx',
+        MODULE + 'Tests/Fixtures/components-v2-flatfile.dtsx',
         MODULE + 'Contracts/Api.json', OUTPUT.as_posix(), PROVENANCE.as_posix(),
         QUALIFICATION.as_posix(), MODULE + 'InstallPackages/' + NAME + '.zip',
     }

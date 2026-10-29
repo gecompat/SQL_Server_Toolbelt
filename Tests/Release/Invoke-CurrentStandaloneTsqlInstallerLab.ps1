@@ -46,6 +46,11 @@ $apiCallCount=([regex]::Matches($text,[regex]::Escape($apiCall))).Count
 if($apiCallCount -ne 1){throw 'SSIS_V2_TSQL_API_HOOK_ANCHOR'}
 $text=$text.Replace($apiCall,$apiCall.Replace('Invoke-ApiCases.ps1','Invoke-CurrentCases.ps1'))
 $text=$text.Replace('Invoke-ApiCases.ps1','Invoke-CurrentCases.ps1')
+$fixtureAnchor="(Join-Path `$repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx'),"
+if(([regex]::Matches($text,[regex]::Escape($fixtureAnchor))).Count -ne 1){throw 'SSIS_CURRENT_TSQL_FIXTURE_PIN_ANCHOR'}
+$text=$text.Replace($fixtureAnchor,$fixtureAnchor+"`n        (Join-Path `$repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx'),`n        (Join-Path `$repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx'),")
+if(([regex]::Matches($text,' -ne 20\b')).Count -ne 4){throw 'SSIS_CURRENT_TSQL_PIN_COUNT_ANCHOR'}
+$text=[regex]::Replace($text,' -ne 20\b',' -ne 22')
 $text=$text.Replace("(Join-Path `$PSScriptRoot 'Prepare-StandaloneTsqlInstallerRunset.ps1')","(Join-Path `$PSScriptRoot 'Prepare-CurrentStandaloneTsqlInstallerRunset.ps1')")
 $text=$text.Replace("(Join-Path `$PSScriptRoot 'Invoke-StandaloneTsqlInstallerLab.ps1')","(Join-Path `$PSScriptRoot 'Invoke-CurrentStandaloneTsqlInstallerLab.ps1')")
 function Bind-StandaloneV2AutomaticVariables([string]$ScriptText,[string]$Root,[string]$CommandPath){
