@@ -136,6 +136,12 @@ SSIS_INSTALL_NAV_BLOCKS = {
         'DTSX-Bericht ist ein separater Nachweisumfang.\n\n'
     ).encode('utf-8'),
 }
+SSIS_MATRIX_RELEASE_GATES_PATH = 'Releases/1.0.0/RELEASE-GATES.md'
+SSIS_MATRIX_RELEASE_GATES_CURRENT_SHA256 = '683aea7d2cf6d2594138969c4cee206c89b4d059e2afa39132ac8e6e9279af19'
+SSIS_MATRIX_RELEASE_GATES_DELTA = (
+    '| SSIS: aktuelles ZIP auf allen Windows-/CL-/Moduskontexten | **PASS FÜR DEN GEBUNDENEN AKTUELLEN PAKETVERTRAG** | Zehn neue Paketfälle mit je 206 festen Assertions und zehn unabhängigen Audits ergänzen zwei unveränderte grüne Fälle: SQL 2019/CL150, SQL 2022/CL150/160 und SQL 2025/CL150/160/170 jeweils lokal und zentral. API-Metadaten, editierbare Defaults, SQL-Limits, ResultTable-Schutz und ausgeführte Row-Count-/Flatfile-Debug-Scripts sind belegt; keine vollständige SSIS-Modulabnahme. | Übrige Komponenten-/Ausdruckskombinationen, Standalone-Installer auf niedrigeren CLs, echte SSIS-Ausführung, Windowsauthentifizierung/GUI, TLS und Recovery bleiben eigene Gates. | [Aktuelle Paketmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.Matrix.20261029.json), [Prüfmatrix mit Grenzen](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) |\n',
+    'Die aktuelle SSIS-Paketmatrix ergänzt zehn fehlende Fälle samt zehn unabhängigen\nAudits und übernimmt zwei unveränderte grüne Fälle ohne erneuten SQL-Lauf.\nEin Luna-Implementierer und das integrierende Vertrags-/Evidenzreview genügen.\nSechs Offlineprüfungen für Zusammensetzung und Manipulationsabwehr laufen im\nbestehenden SSIS-Workflow; es entstehen weder ein weiterer Workflow noch ein\nSQL-CI-Lauf, Prozessrunner oder eine zusätzliche Reviewkette. Lokal werden nur\ngeänderte Prüfungen ausgeführt; Pflichtprüfungen am aktuellen Head und die echte\nMain-Push-CI bleiben erforderlich. Rohprotokolle bleiben privat; Kosten und\nTokens sind unbekannt. Produkt und Paketbytes bleiben unverändert.\n\n',
+)
 
 
 def _require(condition, message):
@@ -189,6 +195,22 @@ def validate_ssis_installer_navigation(root, path):
     _require(_digest(restored) == baseline[path]
              and restored[:block_start] + block + restored[block_start:] == source,
              'standalone installer navigation transition is not exactly reversible')
+    return restored
+
+
+def restore_ssis_matrix_release_gates(current):
+    """Remove only the new current-package navigation from its historical view."""
+    _require(isinstance(current, bytes)
+             and _digest(current) == SSIS_MATRIX_RELEASE_GATES_CURRENT_SHA256,
+             'current SSIS release-gates bytes differ')
+    restored = current
+    for added in SSIS_MATRIX_RELEASE_GATES_DELTA:
+        added_bytes = added.encode('utf-8')
+        _require(restored.count(added_bytes) == 1,
+                 'current SSIS release-gates transition anchor differs')
+        restored = restored.replace(added_bytes, b'', 1)
+    _require(_digest(restored) == NAV_CURRENT_SHA256[SSIS_MATRIX_RELEASE_GATES_PATH],
+             'current SSIS release-gates transition output differs')
     return restored
 
 
@@ -352,6 +374,9 @@ def validate_navigation_source(root, path, expected_sha256):
         archived_license = archive.read(licenses[0])
     if path in SSIS_INSTALL_NAV_PATHS:
         current_bytes = validate_ssis_installer_navigation(root, path)
+    elif path == SSIS_MATRIX_RELEASE_GATES_PATH:
+        current_document = standalone.read_regular_bounded(root / path, 1024 * 1024)
+        current_bytes = restore_ssis_matrix_release_gates(current_document)
     else:
         current_bytes = (root / path).read_bytes()
     _require(_digest(original) == baseline[path]
