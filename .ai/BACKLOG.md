@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktuelle SSIS-Lieferung: fehlende Paket-/CL-Kontexte — 2026-10-29
+
+Direkter Folgeauftrag des Benutzers: verbleibende bereits freigegebene
+Releasegates autonom mit Luna prüfen und grüne PRs regulär integrieren,
+Main-CI prüfen, nicht veröffentlichen. Diese Welle qualifiziert ausschließlich
+die zehn noch unbelegten Windows-/Engine-/CL-/Moduskontexte des unveränderten
+aktuellen SSIS-ZIP. Die zwei vorhandenen grünen Paketkontexte werden unverändert
+übernommen; die sechs niedrigeren CL-Kontexte schließen zugleich die konkrete
+Lücke des aktuellen API-Nachweises. Feste bestehende Fälle und unabhängige
+Abschlussaudits bleiben Pflicht. Keine Produkt-/API-/DDL-/DLL-/Paketänderung
+und keine Übernahme fremder TLS- oder SSIS-Arbeit. Neue Evidenz wird getrennt
+gebunden; historische Berichte und Pins bleiben unverändert. Die zehn neuen
+Paketfälle mit jeweils 206 festen Assertions und zehn unabhängigen Audits sind
+bestanden. Die [gebundene Paketmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
+enthält nun zwölf Kontexte. Status: fachlich geprüft; Integration und aktuelle
+Head-/Main-CI werden getrennt im Pull Request nachgewiesen.
+
 ## Aktuelles SSIS-Profil als Standard und Entwicklungsfreiheit — 2026-10-29
 
 Direkter Benutzerauftrag: V2 soll Standard von `USP_ExplainSsisDataFlow` sein;

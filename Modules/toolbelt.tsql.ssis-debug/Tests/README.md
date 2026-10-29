@@ -18,10 +18,20 @@ erfolgreichem Audit bleibt im Nachweis erhalten.
 Die [aktuelle ZIP-Qualifikation](Qualification/Current.InstallPackage.20261029.json)
 prüft den exakten entpackten Build separat auf SQL2019/CL150 lokal und
 SQL2025/CL170 zentral: Neuinstallation, Wiederholung, aktuelle Fachfälle und
-Deinstallation/Wiederholung mit zwei unabhängigen Abschlussaudits. Die
-[Standalone-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-standalone-runtime-qualification.json)
+Deinstallation/Wiederholung mit zwei unabhängigen Abschlussaudits. Dieser
+ursprüngliche Zwei-Kontext-Report bleibt unverändert. Die zusätzliche
+[Current-ZIP-Matrixqualifikation](Qualification/Current.InstallPackage.Matrix.20261029.json)
+bindet dieselben zwei Originalfälle unverändert und zehn zusätzliche
+Installationsfälle, jeweils mit 206 Assertions und eigenem Abschlussaudit. Sie
+schließt für den unveränderten Current-ZIP und den festen synthetischen
+Vertrag genau die zwölf Windows-Kontexte SQL2019/CL150, SQL2022/CL150 und
+CL160 sowie SQL2025/CL150, CL160 und CL170, jeweils lokal und zentral. Der
+Matrixnachweis erweitert nicht die getrennte Binaryqualifikation mit sechs
+Kontexten und belegt keine allgemeine Abdeckung aller Komponenten oder APIs.
+Die [Standalone-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-standalone-runtime-qualification.json)
 prüft denselben vollständigen reinen T-SQL-Batch auf beiden Enginezielen in
-beiden Modi: vier Installationskontexte mit Repeat, aktuelle Fachfälle,
+beiden Modi auf den jeweils zuvor qualifizierten höchsten CLs: vier
+Installationskontexte mit Repeat, aktuelle Fachfälle,
 Sitzungs-/Transaktions-Negativkontrollen und zwei unabhängigen Audits.
 Die [Installer-Provenienz](../../../Releases/1.0.0/ssis-current-standalone-installer.json)
 bindet die ausgeführten Bytes an Paket und Paketqualifikation.
@@ -40,10 +50,12 @@ Verbindung mit tatsächlicher `SqlValue`-Konvertierung geprüft. Das lange
 Framework-Transportexperiment mit 2730 Einheiten verwendet ausdrücklich
 512 MiB Ausgabebudget und ist kein Nachweis für das 128-MiB-Defaultbudget.
 
-Diese Fälle belegen weder die übrigen CLs neuerer Engines noch tatsächliche
-SSIS-Ausführung, Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den
-administrativen Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und
-Integration sind separate Gates. Modulstatus: teilweise validiert und
+Die zwölf ZIP-Fälle schließen die CL-Matrix nur für den beschriebenen festen
+Current-Paketvertrag; sie erweitern die Binary- und Standalone-Nachweise nicht.
+Keine der Qualifikationen belegt tatsächliche SSIS-Ausführung,
+Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den administrativen
+Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und Integration sind
+separate Gates. Modulstatus: teilweise validiert und
 unveröffentlicht. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
 führt zu den aktuellen Dateien und Ergebnissen.
 

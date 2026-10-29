@@ -104,6 +104,16 @@ class StandaloneTsqlInstallerTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unsupported standalone installer navigation path"):
                 help_contract_source.validate_ssis_installer_navigation(temp_root, "Releases/1.0.0/RELEASE-GATES.md")
 
+    def test_current_ssis_release_gate_transition_is_exact_and_bounded(self):
+        path = ROOT / help_contract_source.SSIS_MATRIX_RELEASE_GATES_PATH
+        current = path.read_bytes()
+        restored = help_contract_source.restore_ssis_matrix_release_gates(current)
+        self.assertEqual(hashlib.sha256(restored).hexdigest(),
+                         help_contract_source.NAV_CURRENT_SHA256[
+                             help_contract_source.SSIS_MATRIX_RELEASE_GATES_PATH])
+        with self.assertRaisesRegex(ValueError, "current SSIS release-gates bytes differ"):
+            help_contract_source.restore_ssis_matrix_release_gates(current + b"\n<!-- drift -->\n")
+
     def test_historical_api_source_bridge_rejects_wrong_pins_and_paths(self):
         path = "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json"
         good = "9f99b9a24d3a0535e156a313def1ed723ff62f17aa2e4859ac58c41e51bc1001"
