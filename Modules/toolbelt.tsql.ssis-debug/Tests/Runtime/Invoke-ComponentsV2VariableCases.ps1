@@ -22,15 +22,26 @@ try{
         $group='(('+ $left +') && ('+$right+'))'
         $variants+=@{name='LONG_TYPED_TERNARY_PLAN';expression='('+((@($group)*256)-join ' || ')+') ? 1 : 0';long=$true}
     }
+    $shortStage=$null
     foreach($variant in $variants){
         Write-Output ('SSIS_V2_NATIVE_VARIABLE_CASE '+$variant.name)
         $expression.InnerText=$variant.expression
         $variableBytes=[Text.Encoding]::UTF8.GetBytes($variable.OuterXml)
-        $index=Invoke-V2Explain -Bytes $variableBytes -Operation 'explain' -Catalog $catalog -Collation 'Latin1_General_100_BIN2'
-        $stage=@($index.Rows|Where-Object {$_.ArtifactKind -ceq 'StageIndex' -and $_.ComponentId -ceq 'Package\Flow\Derived'})[0]
+        $context=if($variant.long){'{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}'}else{'{"schemaVersion":2}'}
+        if($variant.long){
+            if(-not $shortStage){throw 'SSIS_V2_VARIABLE_SHORT_STAGE_IDENTITY_MISSING'}
+            $stage=$shortStage
+        }else{
+            $index=Invoke-V2Explain -Bytes $variableBytes -Operation 'explain' -Context $context -Catalog $catalog -Collation 'Latin1_General_100_BIN2'
+            $stage=@($index.Rows|Where-Object {$_.ArtifactKind -ceq 'StageIndex' -and $_.ComponentId -ceq 'Package\Flow\Derived'})[0]
+            if(-not $stage){throw 'SSIS_V2_VARIABLE_SHORT_STAGE_IDENTITY_UNRESOLVED'}
+            $shortStage=[pscustomobject]@{TargetFlowId=[string]$stage.TargetFlowId;StageId=[string]$stage.StageId}
+        }
         Write-Output ('SSIS_V2_NATIVE_VARIABLE_SELECTED_STAGE '+$variant.name)
-        $artifacts=Invoke-V2Explain -Bytes $variableBytes -Operation 'explain' -Catalog $catalog -Target ([string]$stage.TargetFlowId) -Stage ([string]$stage.StageId) -Collation 'Latin1_General_100_BIN2'
-        $read=@($artifacts.Rows|Where-Object {$_.ArtifactKind -ceq 'StageSql' -and $_.StageId -ceq $stage.StageId})[0]
+        $artifacts=Invoke-V2Explain -Bytes $variableBytes -Operation 'explain' -Context $context -Catalog $catalog -Target ([string]$stage.TargetFlowId) -Stage ([string]$stage.StageId) -Collation 'Latin1_General_100_BIN2'
+        $readRows=@($artifacts.Rows|Where-Object {$_.ArtifactKind -ceq 'StageSql' -and $_.StageId -ceq $stage.StageId -and $_.ComponentId -ceq 'Package\Flow\Derived'})
+        Assert-V2 ($readRows.Count -eq 1) ($variant.name+'_DERIVED_STAGE_IDENTITY')
+        $read=$readRows[0]
         $parts=Get-V2PlanParts $artifacts $read
         if($variant.long){Assert-V2 ($parts.Units.Count -gt 16) 'LONG_TYPED_PLAN_REQUIRES_MULTIPLE_UNITS'}
         Invoke-V2Units $parts

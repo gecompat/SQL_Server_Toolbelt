@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([Parameter(Mandatory)][Data.SqlClient.SqlConnection]$Connection,[string]$CrossDatabase,[string]$FixtureModuleRoot,[switch]$ExtendedExpressions)
+param([Parameter(Mandatory)][Data.SqlClient.SqlConnection]$Connection,[string]$CrossDatabase,[string]$FixtureModuleRoot,[switch]$ExtendedExpressions,[switch]$FocusedVariablePlans)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 if($Connection.State -ne 'Open'){throw 'SSIS_V2_CASE_CONNECTION_NOT_OPEN'}
@@ -13,11 +13,11 @@ function New-ComponentsV2Command(
     [byte[]]$Bytes,[string]$Operation='bindings-template-v2',
     [string]$Context='{"schemaVersion":2}',[string]$Bindings,[string]$Catalog,
     [string]$Target,[string]$Stage,[string]$ResultTable,[bool]$Keep=$false,
-    [bool]$Help=$false,[string]$Collation,[int16]$TSqlVersion=150
+    [bool]$Help=$false,[string]$Collation,[int16]$TSqlVersion=150,[ValidateRange(40,180)][int]$AnalysisTimeoutMaximum=40
 ){
     $command=$Connection.CreateCommand();$command.CommandType='StoredProcedure'
     $command.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
-    $command.CommandTimeout=Get-SsisNativeTimeout 40
+    $command.CommandTimeout=Get-SsisNativeTimeout $AnalysisTimeoutMaximum
     [void]$command.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1)
     if($null -eq $Bytes){$command.Parameters['@PackageBytes'].Value=[DBNull]::Value}
     else{$command.Parameters['@PackageBytes'].Value=$Bytes}
@@ -43,6 +43,7 @@ function Invoke-V2Explain{
     param([byte[]]$Bytes,[string]$Operation='bindings-template-v2',[string]$Context='{"schemaVersion":2}',[string]$Bindings,[string]$Catalog,[string]$Target,[string]$Stage,[string]$ResultTable,[bool]$Keep=$false,[bool]$Help=$false,[string]$Collation,[int16]$TSqlVersion=$script:v2TSqlVersion)
     $forward=@{};foreach($name in $PSBoundParameters.Keys){$forward[$name]=$PSBoundParameters[$name]}
     $forward.TSqlVersion=$TSqlVersion
+    $forward.AnalysisTimeoutMaximum=if($FocusedVariablePlans -and $Context -ceq '{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}'){180}else{40}
     $command=New-ComponentsV2Command @forward
     try{
         $reader=$command.ExecuteReader()
@@ -80,6 +81,7 @@ function Reject-V2([scriptblock]$Action,[string]$Code,[string]$Counter,[switch]$
 $script:v2TSqlVersion=[int16](Invoke-V2Sql 'SELECT compatibility_level AS C FROM sys.databases WITH(NOLOCK) WHERE database_id=DB_ID();').Rows[0].C
 Assert-V2 ($script:v2TSqlVersion -in @(150,160,170)) 'REQUESTED_TSQL_DIALECT_FROM_OWN_DATABASE'
 $bytes=[IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+if(-not $FocusedVariablePlans){
 $template=Invoke-V2Explain -Bytes $bytes
 Assert-V2 ($template.Rows.Count -eq 1 -and $template.Rows[0].ArtifactKind -ceq 'BindingsTemplate') 'TEMPLATE_SINGLE_ROW'
 $binding=([string]$template.Rows[0].Content)|ConvertFrom-Json -Depth 32
@@ -110,4 +112,5 @@ try{
     Assert-V2 ($preserved.Rows.Count -eq 1 -and $preserved.Rows[0].Marker -eq 73) 'RESOURCE_FAILURE_PRESERVES_RESULTTABLE'
 }finally{[void](Invoke-V2Sql 'DROP TABLE #SsisV2Preserve;')}
 "SSIS_V2_NATIVE_RESOURCE_PASS $script:v2Checks assertions; bounded synthetic inputs"
+}
 . (Join-Path $PSScriptRoot 'Invoke-ComponentsV2DomainCases.ps1')

@@ -13,6 +13,7 @@ param(
     [string]$SsisPredecessorReleaseDirectory,
     [switch]$ExtendedExpressions,
     [switch]$ComponentsOnly,
+    [switch]$FocusedVariablePlans,
     [Parameter(Mandatory)][ValidatePattern('^[0-9A-F]{128}$')][string]$QualifiedProviderSha512,
     [Parameter(Mandatory)][ValidatePattern('^[0-9A-F]{64}$')][string]$CasesExpectedSha256,
     [string]$InputManifestPath,
@@ -23,6 +24,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 if($PSVersionTable.PSVersion.Major -ne 7){throw 'SSIS_V2_POWERSHELL_7_REQUIRED'}
+if($FocusedVariablePlans -and -not $ComponentsOnly){throw 'SSIS_V2_FOCUSED_VARIABLE_REQUIRES_COMPONENTS_ONLY'}
 if($InstallationPackageRoot){
     if($SsisReleaseDirectory -or $ParserReleaseDirectory){throw 'SSIS_V2_PACKAGE_EXTERNAL_RELEASE_FORBIDDEN'}
 }elseif(-not $SsisReleaseDirectory -or -not $ParserReleaseDirectory){throw 'SSIS_V2_RELEASE_DIRECTORIES_REQUIRED'}
@@ -72,7 +74,8 @@ $text=[IO.File]::ReadAllText($original)
 $anchor="    `$phase=`$mode+'-api'; & (Join-Path `$PSScriptRoot 'Invoke-ApiCases.ps1') -Connection `$connection"
 if(([regex]::Matches($text,[regex]::Escape($anchor))).Count -ne 1){throw 'SSIS_V2_CASE_HOOK_NOT_UNIQUE'}
 $insertion=$anchor+"`n    `$phase=`$mode+'-components-v2'; & (Join-Path `$PSScriptRoot 'Invoke-ComponentsV2Cases.ps1') -Connection `$connection -CrossDatabase `$clientDatabase -FixtureModuleRoot `$moduleRoot"
-if($ExtendedExpressions){$insertion+=' -ExtendedExpressions'}
+if($ExtendedExpressions -or $FocusedVariablePlans){$insertion+=' -ExtendedExpressions'}
+if($FocusedVariablePlans){$insertion+=' -FocusedVariablePlans'}
 $adapted=$text.Replace($anchor,$insertion)
 if($ComponentsOnly){
     # Focused development retries have separate evidence; they cannot stand in

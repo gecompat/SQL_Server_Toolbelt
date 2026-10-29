@@ -56,8 +56,9 @@ INSERT dbo.SyntheticFlatFileErrorRows VALUES(-1,-999);
 try{
     $rowBytes=[IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/components-v2-rowcount.dtsx'))
     $catalog=(Get-V2Catalog)|ConvertTo-Json -Depth 12 -Compress
-    . (Join-Path $PSScriptRoot 'Invoke-ComponentsV2ExpressionCases.ps1')
+    if(-not $FocusedVariablePlans){. (Join-Path $PSScriptRoot 'Invoke-ComponentsV2ExpressionCases.ps1')}
     . (Join-Path $PSScriptRoot 'Invoke-ComponentsV2VariableCases.ps1')
+    if(-not $FocusedVariablePlans){
     $rowTemplate=Invoke-V2Explain -Bytes $rowBytes
     $rowArtifacts=Invoke-V2Explain -Bytes $rowBytes -Operation 'explain' -Bindings ([string]$rowTemplate.Rows[0].Content) -Catalog $catalog
     $counts=@($rowArtifacts.Select("ArtifactKind='RowCountSql'"))
@@ -141,6 +142,7 @@ try{
         $rows=Invoke-V2Sql ([string]$errorTarget.Content)
         Assert-V2 ($rows.Rows.Count -eq 1 -and $rows.Rows[0].KeyA -eq -1 -and $rows.Rows[0].Amount -eq -999) 'FLATFILE_EXPLICIT_ERROR_ROWSET_FIXED_ORACLE'
     }finally{Clear-V2Plan $errorParts}
+    }
 }finally{
     [void](Invoke-V2Sql 'DROP TABLE dbo.SyntheticSourceA,dbo.SyntheticSourceB,dbo.SyntheticLookup,dbo.SyntheticFlatFileRows,dbo.SyntheticFlatFileErrorRows;')
 }
