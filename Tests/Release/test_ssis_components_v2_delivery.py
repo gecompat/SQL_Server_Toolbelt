@@ -258,6 +258,17 @@ class InstallerRuntimeQualification(unittest.TestCase):
         self.assertEqual(record["kind"], "ssis_components_v2_standalone_tsql_runtime_qualification")
         self.assertEqual(len(record["execution_input_pins"]), 16)
 
+    def test_historical_api_is_bound_to_its_own_frozen_delivery(self):
+        import ssis_historical_source_bridge as history
+        path = 'Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json'
+        expected = '9f99b9a24d3a0535e156a313def1ed723ff62f17aa2e4859ac58c41e51bc1001'
+        original = history.read_r28_api_source(ROOT, path, expected)
+        self.assertEqual(hashlib.sha256(original).hexdigest(), expected)
+        for bad_path, bad_hash in ((path, '0' * 64), ('AGENTS.md', expected), (path, None)):
+            with self.subTest(path=bad_path, sha=bad_hash):
+                with self.assertRaisesRegex(ValueError, 'SSIS_R28_API_SOURCE_PIN'):
+                    history.read_r28_api_source(ROOT, bad_path, bad_hash)
+
     def test_runtime_bridge_cannot_expand_to_other_paths_or_transforms(self):
         original = json.loads(self.record_bytes.decode("utf-8"))
         mutations = []

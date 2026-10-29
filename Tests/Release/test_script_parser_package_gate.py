@@ -182,9 +182,11 @@ class ScriptParserPackageGateMixin:
             current = sandbox / 'Modules/toolbelt.tsql.ssis-debug/module.yaml'
             current.parent.mkdir(parents=True)
             current.write_bytes(b'changed manifest')
-            with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_CURRENT_BYTES'):
-                ssis_history.validate_historical_source(
-                    sandbox, 'Modules/toolbelt.tsql.ssis-debug/module.yaml', binding['historical'])
+            # Ein späterer Entwicklungsstand macht die ursprünglichen Bytes
+            # nicht ungültig und wird durch diesen historischen Test nicht qualifiziert.
+            original = ssis_history.validate_historical_source(
+                sandbox, 'Modules/toolbelt.tsql.ssis-debug/module.yaml', binding['historical'])
+            self.assertEqual(gate.sha(original), binding['historical'])
             current.write_bytes((ROOT / 'Modules/toolbelt.tsql.ssis-debug/module.yaml').read_bytes())
             archive_bytes = bytearray(archive.read_bytes())
             archive_bytes[0] ^= 1
