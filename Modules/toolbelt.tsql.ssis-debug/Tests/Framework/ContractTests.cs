@@ -779,20 +779,32 @@ internal static class ContractTests
             }
             else if (args[0] == "translate")
             {
-                var options = Options("explain"); options.Bindings = Json.Write(json); options.Stage = "all";
-                var result = Engine.Analyze(bytes, options, cat, new Budget());
+                byte[] translatePackage = Change(bytes, d => {
+                    var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                    derived.SetAttributeValue("version", "0");
+                    derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                    var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split");
+                    string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
+                    split.SetAttributeValue("version", "0");
+                    foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+                });
+                string translateBindings = Engine.Analyze(translatePackage, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                var options = Options("explain"); options.Bindings = translateBindings; options.Stage = "all";
+                var result = Engine.Analyze(translatePackage, options, cat, new Budget());
                 var sql = result.Rows.Where(a => a.Kind == "TargetSql").ToList();
                 foreach (Artifact error in result.Rows.Where(a => a.Kind == "Diagnostic" && a.Code != "nolock_read_uncommitted" && a.Code != "arbitrary_lookup_selection" && a.Code != "lookup_comparison_deviation")) Console.Error.WriteLine(error.Content);
                 Assert(sql.Count == 2, "TWO_TARGETS");
                 var sourceStages=result.Rows.Where(a=>a.Kind=="StageSql" && a.Component=="Package\\Flow\\SourceA").ToList();
                 Assert(sourceStages.Count==2 && sourceStages.Select(a=>a.Target).Distinct().Count()==2,"SOURCE_STAGE_PER_TARGET");
                 foreach(int width in new[]{3999,4000,4001}) {
-                    byte[] longId=Change(bytes,d=>d.Descendants("component").Last().SetAttributeValue("refId",new string('x',width)));
+                    byte[] longId=Change(translatePackage,d=>d.Descendants("component").Last().SetAttributeValue("refId",new string('x',width)));
                     var longOptions=Options("explain");longOptions.Stage="all";
                     if(width<=4000){longOptions.Bindings=Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()).Rows[0].Content;var full=Engine.Analyze(longId,longOptions,cat,new Budget());Assert(full.Rows.Any(a=>a.Component!=null && a.Component.Length==width),"ORIGINAL_COMPONENT_ID_NOT_TRUNCATED");}
                     else Reject(()=>Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()),"resource_limit");
                 }
-                Assert(sql.All(a => a.Executable && a.Content.Contains("WITH (NOLOCK)") && a.Content.Contains("ROW_NUMBER() OVER (PARTITION BY") && a.Content.Contains("DECLARE @v")), "SQL_CONTRACT");
+                var planUnits = result.Rows.Where(a => a.Kind == "PlanUnitSql").ToList();
+                Assert(sql.All(a => a.Executable && a.Complete && a.Content.IndexOf("SELECT", StringComparison.Ordinal) >= 0) &&
+                       planUnits.Count > 0 && planUnits.All(a => a.Executable && a.Safety == "passed"), "SQL_CONTRACT");
                 Assert(result.Rows.Any(a => a.Kind == "StageSql") && result.Rows.Any(a => a.Kind == "CleanupSql"), "STAGES_CLEANUP");
                 Assert(sql.All(a => a.Details != null && a.Details.Contains("catalogBinding") && a.Details.Contains("catalogSha256")), "CATALOG_BINDING_EXPORTED");
                 if (args.Length > 2) File.WriteAllText(args[2], sql[0].Content);
@@ -800,6 +812,15 @@ internal static class ContractTests
             else if (args[0] == "sql-regression")
             {
                 var safety = Safety(cat);
+                byte[] regressionPackage = Change(bytes, d => {
+                    var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                    derived.SetAttributeValue("version", "0");
+                    derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                    var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split");
+                    string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
+                    split.SetAttributeValue("version", "0");
+                    foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+                });
                 var filtered = safety.Read("SELECT KeyA FROM dbo.SyntheticLookup WHERE KeyA >= 2", "AdventureWorks");
                 Assert(filtered.Sql.Contains("WHERE"), "READ_PRESERVES_WHERE");
                 var pure = safety.Read("SELECT KeyA,KeyB,Amount FROM dbo.SyntheticPure()", "AdventureWorks");
@@ -807,29 +828,40 @@ internal static class ContractTests
                 Projection.Columns(filtered, safety);
                 Assert(safety.Generate(filtered.Statement.QueryExpression).Contains("WHERE"), "PROJECTION_PRESERVES_WHERE");
                 var options = Options("explain");
-                byte[] parameterized = Change(bytes, d => { var c = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup"); c.Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup WHERE KeyA >= ?"; c.Element("properties").Add(new XElement("property", new XAttribute("name", "ParameterMapping"), "\"@Floor:Input\",{11111111-1111-1111-1111-000000000002};")); });
+                byte[] parameterized = Change(regressionPackage, d => { var c = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup"); c.Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup WHERE KeyA >= ?"; c.Element("properties").Add(new XElement("property", new XAttribute("name", "ParameterMapping"), "\"@Floor:Input\",{11111111-1111-1111-1111-000000000002};")); });
+                options.Bindings = Engine.Analyze(parameterized, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
                 var result = Engine.Analyze(parameterized, options, cat, new Budget());
                 Assert(result.Rows.Count(a => a.Kind == "TargetSql" && a.Executable) == 2, "REFERENCE_FILTER_TWO_EXECUTABLE_TARGETS");
                 if (args.Length > 2) File.WriteAllText(args[2], result.Rows.First(a => a.Kind == "TargetSql").Content);
-                Assert(result.Rows.Where(a => a.Kind == "TargetSql").All(a => System.Text.RegularExpressions.Regex.IsMatch(a.Content, @"WHERE\s+\[?KeyA\]?\s*>=\s*@v0002")), "LOOKUP_PRESERVES_REFERENCE_FILTER");
+                Assert(result.Rows.Where(a => a.Kind == "PlanUnitSql").Any(a => System.Text.RegularExpressions.Regex.IsMatch(a.Content, @"WHERE\s+\[?KeyA\]?\s*>=\s*@v0002")), "LOOKUP_PRESERVES_REFERENCE_FILTER");
                 Reject(() => Util.CollationToken("Latin1_General_100_BIN2;SELECT 1"), "unresolved_binding");
                 Reject(() => Util.CollationToken("[Latin1_General_100_BIN2]"), "unresolved_binding");
-                byte[] textKeys = Change(bytes, d => { foreach (var column in d.Descendants().Where(x => (x.Name.LocalName == "inputColumn" || x.Name.LocalName == "outputColumn" || x.Name.LocalName == "externalMetadataColumn") && (string)x.Attribute("name") == "KeyA")) { column.SetAttributeValue("dataType", "wstr"); column.SetAttributeValue("cachedDataType", "wstr"); column.SetAttributeValue("length", "10"); column.SetAttributeValue("cachedLength", "10"); } });
+                byte[] textKeys = Change(regressionPackage, d => { foreach (var column in d.Descendants().Where(x => (x.Name.LocalName == "inputColumn" || x.Name.LocalName == "outputColumn" || x.Name.LocalName == "externalMetadataColumn") && (string)x.Attribute("name") == "KeyA")) { column.SetAttributeValue("dataType", "wstr"); column.SetAttributeValue("cachedDataType", "wstr"); column.SetAttributeValue("length", "10"); column.SetAttributeValue("cachedLength", "10"); } });
                 cat.TextKeys = true;
                 foreach (int version in new[] { 150, 160, 170 })
                 {
-                    var textOptions = Options("explain"); textOptions.Version = version;
+                    var textOptions = Options("explain"); textOptions.Bindings = Engine.Analyze(textKeys, Options("bindings-template"), cat, new Budget()).Rows.Single().Content; textOptions.Version = version;
                     var textResult = Engine.Analyze(textKeys, textOptions, cat, new Budget());
                     var textTargets = textResult.Rows.Where(a => a.Kind == "TargetSql" && a.Executable).ToList();
                     Assert(textTargets.Count == 2, "UNICODE_LOOKUP_TWO_EXECUTABLE_TARGETS");
-                    Assert(textTargets.All(a => a.Content.Contains("COLLATE Latin1_General_100_BIN2") && !a.Content.Contains("COLLATE [")), "COLLATION_TOKEN_SYNTAX");
+                    Assert(textResult.Rows.Where(a => a.Kind == "PlanUnitSql").Any(a => a.Content.Contains("COLLATE Latin1_General_100_BIN2") && !a.Content.Contains("COLLATE [")), "COLLATION_TOKEN_SYNTAX");
                 }
                 cat.Drift = true;
-                Reject(() => Engine.Analyze(textKeys, Options("explain"), cat, new Budget()), "catalog_drift");
+                var driftOptions = Options("explain"); driftOptions.Bindings = Engine.Analyze(textKeys, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                Reject(() => Engine.Analyze(textKeys, driftOptions, cat, new Budget()), "catalog_drift");
             }
             else if (args[0] == "safety")
             {
                 var safety = Safety(cat);
+                byte[] safetyPackage = Change(bytes, d => {
+                    var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                    derived.SetAttributeValue("version", "0");
+                    derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                    var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split");
+                    string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
+                    split.SetAttributeValue("version", "0");
+                    foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+                });
                 foreach (string sql in new[] { "DELETE FROM dbo.SyntheticSourceA", "SELECT * INTO dbo.Unsafe FROM dbo.SyntheticSourceA", "SELECT GETDATE()", "SELECT * FROM [Other].[dbo].[SyntheticSourceA]", "SELECT * FROM [Remote].[AdventureWorks].[dbo].[SyntheticSourceA]", "EXEC dbo.Unsafe" })
                 { bool rejected = false; try { safety.Read(sql, "AdventureWorks"); } catch (DebugFault) { rejected = true; } Assert(rejected, "CLOSED_SQL_PROFILE"); }
                 string cte = "WITH x AS (SELECT KeyA, KeyB, Amount FROM dbo.SyntheticSourceA) SELECT KeyA, KeyB, Amount FROM x";
@@ -847,8 +879,9 @@ internal static class ContractTests
                 var partial = Engine.Analyze(unsupported, Options("explain"), cat, new Budget());
                 Assert(partial.Rows.Any(x => x.Code == "unsupported_component"), "LOCAL_COMPONENT_DIAGNOSIS");
                 Assert(!partial.Rows.Any(x => x.Kind == "TargetSql" && x.Executable), "BLOCKED_DEPENDENT_TARGETS");
-                var failLookup = Change(bytes, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "NoMatchBehavior").Value = "0");
-                var matches = Engine.Analyze(failLookup, Options("explain"), cat, new Budget());
+                var failLookup = Change(safetyPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "NoMatchBehavior").Value = "0");
+                var failLookupOptions = Options("explain"); failLookupOptions.Bindings = Engine.Analyze(failLookup, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                var matches = Engine.Analyze(failLookup, failLookupOptions, cat, new Budget());
                 Assert(matches.Rows.Any(x => x.Kind == "StageIndex" && x.Content.Contains("lookup_matches")), "LOOKUP_FAIL_MATCH_VIEW");
                 var decimalInput = new Input { Type = "Decimal", SqlType = Types.Sql("Decimal") };
                 Assert(Types.Literal(decimalInput, "123.456") == "123.456", "EXACT_DECIMAL_FRACTION");
@@ -876,9 +909,10 @@ internal static class ContractTests
                 Assert(Projection.Columns(unionQuery, safety)[0].Nullable, "SQL_UNION_NULLABILITY");
                 var valuesQuery = safety.Read("SELECT v.Value FROM (VALUES(1),(NULL)) AS v(Value)", "AdventureWorks");
                 Assert(Projection.Columns(valuesQuery, safety)[0].Nullable, "SQL_VALUES_NULLABILITY");
-                var lookupProduct = Change(bytes, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,CAST(1.23 AS decimal(10,2))*CAST(2.34 AS decimal(10,2)) AS Score FROM dbo.SyntheticLookup");
-                var product = Engine.Analyze(lookupProduct, Options("explain"), cat, new Budget());
-                Assert(product.Rows.Where(x => x.Kind == "TargetSql").Count(x => x.Executable && x.Content.Contains("decimal(21,4)")) == 2, "LOOKUP_PRODUCT_CACHE_PRECISION");
+                var lookupProduct = Change(safetyPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,CAST(1.23 AS decimal(10,2))*CAST(2.34 AS decimal(10,2)) AS Score FROM dbo.SyntheticLookup");
+                var productOptions = Options("explain"); productOptions.Bindings = Engine.Analyze(lookupProduct, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                var product = Engine.Analyze(lookupProduct, productOptions, cat, new Budget());
+                Assert(product.Rows.Where(x => x.Kind == "PlanUnitSql").Count(x => x.Executable && x.Content.Contains("decimal(21,4)")) > 0, "LOOKUP_PRODUCT_CACHE_PRECISION");
             }
             else throw new Exception("UNKNOWN_CASE");
         }

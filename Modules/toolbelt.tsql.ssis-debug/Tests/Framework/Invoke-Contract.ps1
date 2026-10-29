@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
-    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Branch','ComponentsV2Utf8Collation')][string]$Profile = 'Full',
+    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
     [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
@@ -44,6 +44,9 @@ function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRA
         if (-not $child.WaitForExit($TimeoutMilliseconds)) { $child.Kill(); throw ('SSIS_FRAMEWORK_CHILD_TIMEOUT ordinal={0} name={1}' -f $caseOrdinal,$caseName) }
         $output = $stdout.GetAwaiter().GetResult(); $errorOutput = $stderr.GetAwaiter().GetResult()
         if ($child.ExitCode -ne 0 -or $output.Length -gt 4096 -or $errorOutput.Length -gt 16384 -or $output -notmatch $ExpectedPattern -or $errorOutput.Length -ne 0) {
+            if ($Profile -eq 'ComponentsV2Remainder' -and $errorOutput -match '(?m)(?:System\.)?Exception: ([A-Z][A-Z0-9_]+)') {
+                throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1} assertion={2}' -f $caseOrdinal,$caseName,$Matches[1])
+            }
             throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1}' -f $caseOrdinal,$caseName)
         }
         $script:cases++
@@ -81,6 +84,22 @@ if ($Profile -eq 'ComponentsV2Branch') {
 if ($Profile -eq 'ComponentsV2Import') {
     try {
         foreach ($format in @(6,8)) { Invoke-Case @('import', (Join-Path $moduleRoot "Tests/Fixtures/synthetic-$format.dtsx")) }
+        if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
+        "SSIS_FRAMEWORK_PASS $cases bounded children"
+        return
+    } finally { Remove-FrameworkTemp }
+}
+if ($Profile -eq 'ComponentsV2Remainder') {
+    try {
+        foreach ($format in @(8,6)) {
+            $fixture = Join-Path $moduleRoot "Tests/Fixtures/synthetic-$format.dtsx"
+            Invoke-Case @('translate',$fixture)
+        }
+        foreach ($case in @('safety','sql-regression','v1-boundaries','v1-graph-boundaries','release-output-bounds','cooperative-budget')) {
+            Invoke-Case @($case,(Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+        }
+        foreach ($operators in @(32,128,256,257,258)) { Invoke-Case @('parser-boundary',[string]$operators) }
+        foreach ($shape in @('union','nested','unary','boolean','projection','comments','literal')) { Invoke-Case @('parser-shape',$shape) }
         if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
         "SSIS_FRAMEWORK_PASS $cases bounded children"
         return
