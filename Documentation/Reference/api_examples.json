@@ -1,29 +1,54 @@
 {
   "toolbelt_tsql.USP_ExplainSsisDataFlow": {
-    "summary": "DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE-Stufen. Unterstützte Lesereferenzen erhalten NOLOCK; Lookupauswahlen werden sitzungslokal festgehalten. Keine Ausführung von Quell-SQL oder SSIS während der Analyse. Teilweise validiert; native SQL-Gates offen.",
+    "summary": "Aktuelle DTSX-Debuganalyse ohne Profil-Opt-in; editierbare typisierte JSON-Vorlage mit Entwurfswerten und Herkunft, vollständiger Strukturpfad und geordnete DebugScript-Batches für auflösbare Ziele. Ressourcen über benannte SQL-Parameter; keine SSIS-/Quell-SQL-Ausführung während der Analyse. Teilweise validiert und unveröffentlicht.",
     "examples": [
       "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;",
-      "-- @PackageBytes vom Client übergeben.\nDECLARE @PackageBytes varbinary(max)=NULL;\nEXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';"
+      "-- @PackageBytes vom Client übergeben.\nDECLARE @PackageBytes varbinary(max)=NULL;\nEXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';",
+      "-- @PackageBytes vom Client übergeben; konfigurierbare Zähler direkt als SQL-Parameter.\nDECLARE @PackageBytes varbinary(max)=NULL;\nEXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template',@MaxComponents=0,@MaxPackageBytes=0;"
     ],
     "requirements": [
-      "Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.",
-      "DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON."
+      "Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.",
+      "DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON. Nur values der vollständigen Bindings-Vorlage bearbeiten."
     ],
     "parameter_notes": {
-      "@PackageBytes": "Ein DTSX2-Paket als UTF-8-/UTF-16-Bytes; höchstens 16 MiB; im Hilfemodus ignoriert.",
-      "@Operation": "bindings-template erzeugt die Vorlage; explain erzeugt Artefakte.",
-      "@ProjectContext": "JSON-Schema 1 für Projektparameter und logische Connections.",
-      "@Bindings": "Vollständiges Vorlagen-JSON zurückgeben; nur values bearbeiten.",
-      "@CatalogBindings": "JSON mit defaultDatabase, expliziten databases und Connection-ID-Mapping; bei bindings-template NULL.",
-      "@TargetFlow": "Stabile Ziel-ID aus StageIndex; NULL analysiert alle Ziele getrennt.",
-      "@InspectStage": "all oder konkrete Stufen-ID mit TargetFlow; jeder Batch enthält alle Vorgänger.",
-      "@LookupPolicies": "Optionale fachliche Sortierung je Lookup; Standard ist beliebige materialisierte Auswahl.",
-      "@ComparisonCollation": "Explizite bekannte Collation; Default ist die zugeordnete Defaultdatenbank.",
-      "@TSqlVersion": "150, 160 oder 170; Default 150.",
-      "@ResultTable": "Vorhandene lokale Temp-Tabelle oder NULL für ein Resultset.",
-      "@KeepData": "0 ersetzt, 1 hängt an; NULL entspricht 0.",
-      "@Debug": "Redigierte Fortschrittsmeldungen ohne vertrauliche Nutzlast.",
-      "@Hilfe": "1 liefert ausschließlich die Standardhilfe vor jeder fachlichen Validierung."
+      "@PackageBytes": "Genau ein unterstütztes DTSX-Paket als UTF-8-/UTF-16-Binärwert. Die Standardgrenze beträgt128MiB und ist mit @MaxPackageBytes konfigurierbar. Kein Dateizugriff.",
+      "@Operation": "Exakt bindings-template oder explain; NULL ungültig.",
+      "@ProjectContext": "Optionaler Projektparameter-/Connection-Kontext als JSON-Schema2; keine Credentials und keine Ressourcenoptionen.",
+      "@Bindings": "Zurückgegebene Schema-2-Vorlage; values bearbeiten, Herkunftsmetadaten unverändert zurückgeben. Im Template-Modus NULL.",
+      "@CatalogBindings": "Explizite Same-instance-Allowlist mit defaultDatabase, databases und connections; Template verlangt NULL.",
+      "@TargetFlow": "Ausgegebene Zielfluss-ID; NULL berücksichtigt alle Ziele getrennt.",
+      "@InspectStage": "NULL liefert Zielskript und Verzeichnis; all alle Stufen; konkrete ID verlangt TargetFlow.",
+      "@LookupPolicies": "Optionale gebundene Auswahlordnung je Lookup. Standard beliebige, einmal materialisierte Auswahl.",
+      "@ComparisonCollation": "Bekannte explizite Vergleichscollation; NULL verwendet die zugeordnete Defaultdatenbank.",
+      "@TSqlVersion": "Exakt150,160 oder170; kein automatischer Dialektwechsel.",
+      "@MaxPackageBytes": "Maximale Paketgröße in Bytes; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxXmlCharacters": "Maximale XML-Zeichen; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxXmlNodes": "Maximale XML-Knoten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxModelNodes": "Maximale Modellknoten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxModelEdges": "Maximale Modellkanten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxComponents": "Maximale Komponenten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxPaths": "Maximale Datenflusskanten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxColumns": "Maximale Spaltenmetadaten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxInputs": "Maximale gebundene Eingaben; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxJsonDocumentBytes": "Maximale UTF-16-Bytes je Eingabe-JSON; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxAllJsonBytes": "Maximale UTF-16-Bytes aller Eingabe-JSONs; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxJsonNodes": "Maximale JSON-Knoten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxExpressionBytes": "Maximale UTF-16-Bytes je SSIS-Ausdruck; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxExpressionTokens": "Maximale Ausdruckstokens; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxExpressionNodes": "Maximale Ausdrucksknoten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxPlanUnits": "Maximale geprüfte Debugplaneinheiten; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxCatalogObjects": "Maximale Katalogobjekte; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxCatalogQueries": "Maximale Katalogabfragen; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxParserCalls": "Maximale SQL-Parseraufrufe; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxArtifacts": "Maximale Ergebnisartefakte; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxDiagnostics": "Maximale Diagnosen; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxSqlArtifactBytes": "Maximale UTF-16-Bytes je SQL-Artefakt; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxTotalOutputBytes": "Maximale UTF-16-Bytes der Gesamtausgabe; 0 unbegrenzt, NULL oder negativ ungültig.",
+      "@MaxAnalysisMilliseconds": "Analysezeitbudget in Millisekunden; Standard 0 = unbegrenzt, NULL oder negativ ungültig.",
+      "@ResultTable": "NULL liefert ein Resultset; sonst vorhandene lokale Temp-Tabelle nach Standardvertrag.",
+      "@KeepData": "0 ersetzt,1 hängt an; NULL entspricht0. Kanonischer ResultTable-Helper.",
+      "@Debug": "Nur redigierte Messages mit Ablauf/Zählern, keine Secretwerte oder zusätzlichen Resultsets.",
+      "@Hilfe": "1 liefert ausschließlich standardisierte Hilfe, ignoriert alle Fach-/ResultTable-/Debugparameter."
     }
   },
   "toolbelt_json.TVF_ResolveJsonPointer": {

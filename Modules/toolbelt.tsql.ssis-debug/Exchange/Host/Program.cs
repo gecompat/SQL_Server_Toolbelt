@@ -14,13 +14,13 @@ internal static class Program
     private static int Main(string[] args)
     {
         bool pipelines = args.Length == 2 && args[0] == "--pipeline-bundle";
-        bool componentsV2 = args.Length == 2 && args[0] == "--components-v2";
+        bool componentsV2 = true;
         bool scopes = pipelines || args.Length == 2 && args[0] == "--scope-bundle";
         bool iterations = args.Length == 2 && args[0] == "--iteration-bundle";
         bool bundle = args.Length == 2 && (args[0] == "--bundle" || iterations || scopes);
-        bool modeArgument = bundle || componentsV2;
-        if (args.Length != 1 && !modeArgument) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle|--iteration-bundle|--scope-bundle|--pipeline-bundle|--components-v2] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
-        var limits = componentsV2 ? ResourceLimits.Create("large10x", true) : ResourceLimits.Legacy;
+        bool modeArgument = bundle;
+        if (args.Length != 1 && !modeArgument) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle|--iteration-bundle|--scope-bundle|--pipeline-bundle] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
+        var limits = ResourceLimits.CreateCurrent();
         try
         {
             var input = new FileInfo(args[modeArgument ? 1 : 0]);

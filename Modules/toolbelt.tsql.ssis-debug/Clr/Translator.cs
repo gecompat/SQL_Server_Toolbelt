@@ -15,7 +15,7 @@ namespace Toolbelt.Tsql.SsisDebug
     }
     internal sealed class Stage
     {
-        internal string Id, Cte, Query, Component, Error, ErrorText;
+        internal string Id, Cte, Query, Component, Error, ErrorText, RootCauseCode, RootCauseStage, RootCauseComponent, RootCauseText;
         internal string RowCountVariable, RowCountType;
         internal string FlatFileWriteMetadata;
         internal long RowCountMinimum, RowCountMaximum;
@@ -79,10 +79,13 @@ namespace Toolbelt.Tsql.SsisDebug
                 Stage end = BuildDestination(flow, destination);
                 var ancestors = Ancestors(end);
                 bool sharedSnapshotPending = end.Error == null && !bindings.ComponentsV2 && ancestors.Any(s => s.RowCountVariable != null);
+                var pathDetails = Json.Obj("stages", ancestors.Select(s => (object)Json.Obj("stageId", s.Id, "componentId", s.Component, "parentStageIds", s.Parents.Select(p => p.Id).ToList(), "status", s.Error == null ? "available" : "blocked",
+                    "rootCause", s.Error == null ? null : Json.Obj("code", s.RootCauseCode ?? s.Error, "stageId", s.RootCauseStage ?? s.Id, "componentId", s.RootCauseComponent ?? s.Component, "message", s.RootCauseText ?? s.ErrorText))).ToList());
+                if (sharedSnapshotPending) pathDetails.Add("completenessNote", "RowCount und Hauptprojektion nutzen noch keinen gemeinsamen materialisierten Debugstand.");
                 output.Add(new Artifact { Kind = "Workflow", Target = target.Key, Component = destination.Id, Content = Json.Write(Json.Obj("flow", flow.Id, "destination", destination.Id, "components", flow.Components.Select(c => (object)(bindings.ComponentsV2 ? Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "versionRaw", c.VersionRaw, "versionPresent", c.VersionPresent, "versionOrigin", c.VersionOrigin, "name", c.Name) : Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "name", c.Name))).ToList(), "tasks", package.Workflow), bindings.Limits), Complete = end.Error == null && !sharedSnapshotPending,
-                    Details = sharedSnapshotPending ? Json.Write(Json.Obj("completenessNote", "RowCount und Hauptprojektion nutzen noch keinen gemeinsamen materialisierten Debugstand."), bindings.Limits) : null });
+                    Details = Json.Write(pathDetails, bindings.Limits) });
                 foreach (Stage stage in ancestors)
-                    output.Add(new Artifact { Kind = "StageIndex", Target = target.Key, Stage = stage.Id, Component = stage.Component, Content = stage.Cte, Complete = stage.Error == null, Evidence = stage.Error == null ? "pragmatic" : "unsupported", Safety = stage.Error == null ? "not_checked" : "blocked", Details = Json.Write(Json.Obj("parents", stage.Parents.Select(x => (object)x.Id).ToList(), "columns", stage.Columns.Select(c => (object)Json.Obj("lineageId", c.Id, "name", c.Name, "sqlAlias", c.Alias, "sqlType", c.Type)).ToList()), bindings.Limits) });
+                    output.Add(new Artifact { Kind = "StageIndex", Target = target.Key, Stage = stage.Id, Component = stage.Component, Content = stage.Cte, Complete = stage.Error == null, Evidence = stage.Error == null ? "pragmatic" : "unsupported", Safety = stage.Error == null ? "not_checked" : "blocked", Details = Json.Write(Json.Obj("parents", stage.Parents.Select(x => (object)x.Id).ToList(), "columns", stage.Columns.Select(c => (object)Json.Obj("lineageId", c.Id, "name", c.Name, "sqlAlias", c.Alias, "sqlType", c.Type)).ToList(), "status", stage.Error == null ? "available" : "blocked", "rootCause", stage.Error == null ? null : Json.Obj("code", stage.RootCauseCode ?? stage.Error, "stageId", stage.RootCauseStage ?? stage.Id, "componentId", stage.RootCauseComponent ?? stage.Component, "message", stage.RootCauseText ?? stage.ErrorText)), bindings.Limits) });
                 if (options.Stage != null && options.Stage != "all" && !ancestors.Any(s => s.Id == options.Stage)) throw new DebugFault("unresolved_binding", "Stufe gehört nicht zum ausgewählten Zielfluss.");
                 if (options.Stage == "all") foreach (Stage stage in ancestors.Where(s => s.Error == null)) Emit(stage, "StageSql", target.Key);
                 else if (options.Stage != null) { Stage stage = ancestors.Single(s => s.Id == options.Stage); if (stage.Error == null) Emit(stage, "StageSql", target.Key); }
@@ -93,6 +96,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 }
                 else if (end.Error == null) Emit(end, "TargetSql", target.Key);
                 else output.Diagnostic(end.Error, destination.Id, end.ErrorText, target.Key);
+                EmitDebugScript(target.Key, end, ancestors);
             }
             foreach (var pair in stages.Where(p => p.Value.Error != null)) output.Diagnostic(pair.Value.Error, pair.Value.Component, pair.Value.ErrorText);
             output.Diagnostic("nolock_read_uncommitted", null, "NOLOCK: unbestätigte, fehlende oder doppelt gelesene Zeilen möglich; Schemasperren bleiben möglich. Lookupauswahl wird pro lokalem Cachelauf festgehalten.");
@@ -112,7 +116,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (!bindings.ComponentsV2 || c.Inputs.Count != 1 || c.Outputs.Count != 0) throw new DebugFault("unsupported_component", "Flatfile-Zielprofil nicht unterstützt.");
                     string destinationConnectionKind;
                     if (c.Connection == null || !package.ConnectionKinds.TryGetValue(c.Connection, out destinationConnectionKind) || destinationConnectionKind != "FLATFILE") throw new DebugFault("missing_context", "Expliziter Flatfile-Zielconnectionmanager fehlt.");
-                    Stage fileParent = Input(flow, c.Inputs[0]); Inherit(result, fileParent); Need(fileParent);
+                    Stage fileParent = Input(flow, c.Inputs[0]); Inherit(result, fileParent); Need(result, fileParent);
                     var fields = new List<string>(); var mapping = new List<object>(); int ordinal = 0;
                     foreach (Column input in c.Inputs[0].Columns)
                     {
@@ -130,7 +134,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     return result;
                 }
                 if (c.Kind != "destination" || c.Inputs.Count != 1) throw new DebugFault("unsupported_component", "Zielform nicht unterstützt.");
-                Stage parent = Input(flow, c.Inputs[0]); Inherit(result, parent); Need(parent);
+                Stage parent = Input(flow, c.Inputs[0]); Inherit(result, parent); Need(result, parent);
                 var list = new List<string>();
                 foreach (Column input in c.Inputs[0].Columns)
                 {
@@ -164,7 +168,7 @@ namespace Toolbelt.Tsql.SsisDebug
             try
             {
                 foreach (Port input in owner.Inputs) { Stage parent = Input(flow, input); Inherit(result, parent); }
-                foreach (Stage parent in result.Parents) Need(parent);
+                foreach (Stage parent in result.Parents) Need(result, parent);
                 if (port.Error && owner.Kind != "flatfile-source" || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
                 switch (owner.Kind)
                 {
@@ -220,7 +224,7 @@ namespace Toolbelt.Tsql.SsisDebug
             try
             {
                 foreach (Port input in owner.Inputs) { Stage parent = Input(flow, input); Inherit(result, parent); }
-                foreach (Stage parent in result.Parents) Need(parent);
+                foreach (Stage parent in result.Parents) Need(result, parent);
                 if (port.Error && owner.Kind != "flatfile-source" || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
                 switch (owner.Kind)
                 {
@@ -236,8 +240,18 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             catch (DebugFault e) { if (e.Code == "resource_limit" || e.Code == "invalid_template") throw; Block(result, e); }
         }
-        private static void Block(Stage stage, DebugFault e) { stage.Error = e.Code; stage.ErrorText = e.Message; }
-        private static void Need(Stage stage) { if (stage.Error != null) throw new DebugFault("partial_target", "Benötigte Vorgängerstufe " + stage.Id + " ist unvollständig."); }
+        private static void Block(Stage stage, DebugFault e)
+        {
+            stage.Error = e.Code; stage.ErrorText = e.Message;
+            stage.RootCauseCode = e.RootCode ?? e.Code; stage.RootCauseStage = e.RootStage ?? stage.Id;
+            stage.RootCauseComponent = e.RootComponent ?? stage.Component; stage.RootCauseText = e.RootText ?? e.Message;
+        }
+        private static void Need(Stage dependent, Stage parent)
+        {
+            if (parent.Error == null) return;
+            throw new DebugFault("partial_target", "Stufe " + parent.Id + " (Komponente " + parent.Component + ") blockiert diesen Pfad; Erstursache " + parent.RootCauseCode + " an Stufe " + parent.RootCauseStage + ": " + parent.RootCauseText,
+                parent.RootCauseCode ?? parent.Error, parent.RootCauseStage ?? parent.Id, parent.RootCauseComponent ?? parent.Component, parent.RootCauseText ?? parent.ErrorText);
+        }
         private static void Inherit(Stage stage, Stage parent)
         { if (!stage.Parents.Contains(parent)) stage.Parents.Add(parent); stage.Inputs.UnionWith(parent.Inputs); foreach (var cache in parent.Caches) if (!stage.Caches.Contains(cache)) stage.Caches.Add(cache); }
         private static StageColumn Find(Stage stage, string lineage)
@@ -252,8 +266,24 @@ namespace Toolbelt.Tsql.SsisDebug
             if (mode == "0") sql = "SELECT * FROM " + PackageReader.P(c.Properties, "OpenRowset", PackageReader.P(c.Properties, "TableOrViewName"));
             else if (mode == "1" || mode == "3")
             {
-                string var = PackageReader.P(c.Properties, mode == "1" ? "OpenRowsetVariable" : "SqlCommandVariable"); Input input = package.Resolve(var, c.Scope); object value;
-                if (!bindings.Values.TryGetValue(input.Key, out value)) { if (!input.HasDefault || input.RuntimeAssigned || input.Expression != null) throw new DebugFault("unresolved_binding", "Command-/Objektvariable nicht statisch aufgelöst."); value = input.Default; }
+                bool objectName = mode == "1";
+                string valueLabel = objectName ? "Objektname" : "Command-Text";
+                string var = PackageReader.P(c.Properties, objectName ? "OpenRowsetVariable" : "SqlCommandVariable"); Input input = package.Resolve(var, c.Scope); object value;
+                input.Required = true;
+            if (!bindings.Values.TryGetValue(input.Key, out value))
+            {
+                if (!input.HasDefault || input.RuntimeAssigned || input.Expression != null)
+                {
+                        string bindingTarget = input.Sensitive ? "die sensible Eingabe (Name redigiert)" : "den values-Schlüssel " + input.Key + " für " + input.Name;
+                        string reason = input.Sensitive ? "Der benötigte " + valueLabel + " ist sensibel und wird nicht ausgegeben." :
+                            input.AssignmentState == "unknown" ? "Die Zuweisungsstelle ist nicht statisch auflösbar; einen expliziten Debugwert für " + bindingTarget + " binden." :
+                            input.RuntimeAssigned ? "Der benötigte " + valueLabel + " wird an einer Paket-Zuweisungsstelle gesetzt; einen expliziten Debugwert für " + bindingTarget + " binden." :
+                            input.Expression != null ? "Der benötigte " + valueLabel + " stammt aus einem Ausdruck; dessen Eingaben in values binden." :
+                            "Der benötigte " + valueLabel + " fehlt; " + (objectName ? "den Objektnamen" : "den SQL-Text") + " für " + bindingTarget + " in values binden.";
+                    throw new DebugFault("unresolved_binding", reason);
+                }
+                value = input.Default;
+            }
                 if (input.Sensitive || !(value is string)) throw new DebugFault("unresolved_binding", "Commandvariable nicht exportierbar.");
                 var structural = bindings.Resolve(input); stage.Inputs.UnionWith(structural.Inputs); stage.ReferenceInputs.UnionWith(structural.Inputs);
                 // Strukturwerte bleiben sichtbar; ein geänderter SQL-Text muss
@@ -263,7 +293,16 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             else if (mode == "2") sql = PackageReader.P(c.Properties, "SqlCommand");
             else throw new DebugFault("unsupported_component", "Source-AccessMode nicht unterstützt.");
-            if (sql == "") throw new DebugFault("unresolved_binding", "Source-/Lookup-SQL fehlt.");
+            if (sql == "")
+            {
+                if (mode == "1" || mode == "3")
+                {
+                    string reference = PackageReader.P(c.Properties, mode == "1" ? "OpenRowsetVariable" : "SqlCommandVariable");
+                    Input input = package.Resolve(reference, c.Scope);
+                    throw new DebugFault("unresolved_binding", "Der gebundene " + (mode == "1" ? "Objektname" : "Command-Text") + " ist leer; values-Schlüssel " + input.Key + " für " + input.Name + " muss einen nicht-leeren Wert enthalten.");
+                }
+                throw new DebugFault("unresolved_binding", "Source-/Lookup-SQL fehlt.");
+            }
             string mapping = PackageReader.P(c.Properties, "ParameterMapping", PackageReader.P(c.Properties, "ParameterMappings"));
             if (sql.IndexOf('?') >= 0 || mapping != "")
             {
@@ -338,7 +377,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 case "ui8": case "uint64": case "21": minimum = 0; maximum = Int64.MaxValue; break;
                 default: throw new DebugFault("missing_context", "Row Count Zielvariable muss einen unterstützten Integer-Typ haben.");
             }
-            Stage parent = stage.Parents[0]; Inherit(stage, parent); Need(parent);
+            Stage parent = stage.Parents[0]; Inherit(stage, parent); Need(stage, parent);
             stage.Columns.AddRange(parent.Columns);
             stage.Query = "SELECT " + Fields(parent, "m") + " FROM " + Util.Q(parent.Cte) + " AS m";
             stage.RowCountVariable = variable.Name; stage.RowCountType = variable.Type; stage.RowCountMinimum = minimum; stage.RowCountMaximum = maximum;
@@ -660,6 +699,78 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             return result;
         }
+        private void EmitDebugScript(string target, Stage end, List<Stage> ancestors)
+        {
+            if (end.Error != null)
+            {
+                if (bindings.ComponentsV2)
+                {
+                    Stage available = ancestors.LastOrDefault(s => s.Error == null);
+                    if (available != null) Emit(available, "StageSql", target);
+                }
+                var missing = package.Inputs.Where(input => input.Required && !input.Sensitive &&
+                    !bindings.Values.ContainsKey(input.Key) && (input.Expression != null || input.RuntimeAssigned || !input.HasDefault))
+                    .Select(input => (object)Json.Obj("key", input.Key, "name", input.Name, "state", input.AssignmentState == "unknown" ? "assignment-unknown" : input.Expression != null ? "expression-context-required" : input.RuntimeAssigned ? "runtime-value-required" : "value-required")).ToList();
+                if (package.Inputs.Any(input => input.Required && input.Sensitive && !bindings.Values.ContainsKey(input.Key))) missing.Add(Json.Obj("state", "sensitive-input-required", "nameRedacted", true));
+                var rootCause = Json.Obj("code", end.RootCauseCode ?? end.Error, "stageId", end.RootCauseStage ?? end.Id,
+                    "componentId", end.RootCauseComponent ?? end.Component, "message", end.RootCauseText ?? end.ErrorText);
+                var availableStages = output.Rows.Where(a => a.Target == target && a.Kind == "StageSql" && a.Executable && a.Safety == "passed").Select(a => a.Stage).Distinct(StringComparer.Ordinal).ToList();
+                output.Add(new Artifact { Kind = "DebugScript", Target = target, Stage = end.Id, Component = end.Component,
+                    Content = "-- Nicht ausführbar: Zielpfad ist unvollständig. Vollständiger Pfad und Erstursache stehen in Workflow/StageIndex/Diagnostic; verfügbare Teilpläne sind als StageSql-Artefakte enthalten.",
+                    Evidence = "descriptive", Safety = "blocked", Executable = false, Complete = false,
+                    Details = Json.Write(Json.Obj("status", "incomplete", "rootCause", rootCause, "path", ancestors.Select(s => (object)Json.Obj("stageId", s.Id, "componentId", s.Component, "status", s.Error == null ? "available" : "blocked")).ToList(), "missingInputs", missing, "availableStageArtifacts", availableStages), bindings.Limits) });
+                return;
+            }
+            Artifact manifest = output.Rows.LastOrDefault(a => a.Kind == "PlanManifest" && a.Target == target && a.Stage == end.Id);
+            Artifact targetSql = output.Rows.LastOrDefault(a => a.Kind == "TargetSql" && a.Target == target && a.Stage == end.Id);
+            if (!bindings.ComponentsV2 || manifest == null || targetSql == null)
+            {
+                output.Add(new Artifact { Kind = "DebugScript", Target = target, Stage = end.Id, Component = end.Component,
+                    Content = "-- Nicht ausführbar: Für dieses Ziel liegt kein vollständig validierter aktueller Plan vor.", Evidence = "descriptive", Safety = "blocked", Executable = false, Complete = false,
+                    Details = Json.Write(Json.Obj("status", "incomplete", "reason", "validated-current-plan-required"), bindings.Limits) });
+                return;
+            }
+            Func<Artifact, Dictionary<string, object>> details = a => Json.Object(Json.Parse(a.Details, bindings.Limits));
+            string planHash = Json.Text(Json.Get(details(targetSql), "planHash"));
+            Func<Artifact, string> hash = a => Json.Text(Json.Get(details(a), "planHash"));
+            Func<Artifact, string, int> orderValue = (a, name) => Int32.Parse(((JsonNumber)Json.Get(details(a), name)).Text, CultureInfo.InvariantCulture);
+            var units = output.Rows.Where(a => a.Kind == "PlanUnitSql" && a.Target == target && hash(a) == planHash)
+                .OrderBy(a => orderValue(a, "ordinal")).ToList();
+            var counts = output.Rows.Where(a => a.Kind == "RowCountSql" && a.Target == target && hash(a) == planHash).ToList();
+            var cleanup = output.Rows.Where(a => a.Kind == "CleanupSql" && a.Target == target && hash(a) == planHash)
+                .OrderBy(a => orderValue(a, "cleanupOrdinal")).ToList();
+            var core = units.Concat(new[] { targetSql }).Concat(counts).Concat(cleanup).ToList();
+            var referencedTemps = new HashSet<string>(Regex.Matches(String.Join("\n", core.Select(a => a.Content)), @"#tbx_[A-Za-z0-9_]+")
+                .Cast<Match>().Select(m => m.Value), StringComparer.Ordinal);
+            Func<Artifact, bool> preparationIsRelated = a =>
+            {
+                if (!String.IsNullOrEmpty(a.Details))
+                {
+                    object artifactPlanHash = Json.Get(details(a), "planHash");
+                    if (artifactPlanHash != null && Json.Text(artifactPlanHash) == planHash) return true;
+                }
+                return Regex.Matches(a.Content, @"#tbx_[A-Za-z0-9_]+")
+                    .Cast<Match>().Any(m => referencedTemps.Contains(m.Value));
+            };
+            var prepCandidates = output.Rows.Where(a => a.Kind == "PreparationSql" && a.Target == target && preparationIsRelated(a))
+                .OrderBy(a => a.Ordinal).ToList();
+            var preparation = prepCandidates.Where(a => a.Executable && a.Complete && a.Safety == "passed").ToList();
+            var ordered = preparation.Concat(core).ToList();
+            int expectedUnitCount = Int32.Parse(((JsonNumber)Json.Get(details(targetSql), "unitCount")).Text, CultureInfo.InvariantCulture);
+            bool unitOrderComplete = units.Count == expectedUnitCount && units.Select((a, i) => orderValue(a, "ordinal") == i).All(x => x);
+            int expectedCleanupCount = Int32.Parse(((JsonNumber)Json.Get(details(targetSql), "cleanupCount")).Text, CultureInfo.InvariantCulture);
+            int expectedRowCountCount = Json.Array(Json.Get(details(targetSql), "rowCountTargets")).Count;
+            bool cleanupOrderComplete = cleanup.Count == expectedCleanupCount && cleanup.Select((a, i) => orderValue(a, "cleanupOrdinal") == i &&
+                Int32.Parse(((JsonNumber)Json.Get(details(a), "cleanupCount")).Text, CultureInfo.InvariantCulture) == expectedCleanupCount).All(x => x);
+            bool readsComplete = counts.Count == expectedRowCountCount;
+            bool safe = core.Count > 0 && unitOrderComplete && cleanupOrderComplete && readsComplete && !prepCandidates.Any(a => !a.Executable || !a.Complete || a.Safety != "passed") && ordered.All(a => a.Executable && a.Complete && a.Safety == "passed");
+            string script = "-- Neue SQL-Sitzung verwenden. Bei einem Vorbereitungsfehler keine Ergebnislesebatches verwenden; CleanupSql anschließend in derselben Sitzung ausführen.\n-- Keine SSIS-Tasks werden ausgeführt.\n" + String.Join("\nGO\n", ordered.Select(a => a.Content.TrimEnd())) + "\n";
+            var batchDetails = ordered.Select((a, index) => (object)Json.Obj("sequence", index + 1, "resultOrdinal", a.Ordinal, "artifactKind", a.Kind, "stageId", a.Stage, "contentSha256", Util.Hash(a.Content))).ToList();
+            output.Add(new Artifact { Kind = "DebugScript", Target = target, Stage = end.Id, Component = end.Component, Content = script,
+                Evidence = "pragmatic", Safety = safe ? "passed" : "blocked", Executable = safe, Complete = safe,
+                Details = Json.Write(Json.Obj("status", safe ? "complete" : "incomplete", "planHash", planHash, "batchOrder", ordered.Select(a => a.Kind + ":" + a.Stage).ToList(), "batches", batchDetails,
+                    "freshSessionRequired", true, "cleanupAfterPartialFailure", true, "batchSeparator", "GO", "atomicity", "none", "sssisTasksExecuted", false), bindings.Limits) });
+        }
         private void Emit(Stage stage, string kind, string target)
         {
             if (bindings.ComponentsV2) { EmitV2Plan(stage, kind, target); return; }
@@ -820,7 +931,7 @@ namespace Toolbelt.Tsql.SsisDebug
             try { safety.Generated(execution, bindings.DefaultDatabase, readOwned, true); }
             catch (DebugFault error) { throw new DebugFault(error.Code, "Planresult SQLbytes=" + (2L * execution.Length).ToString(CultureInfo.InvariantCulture) + ": " + error.Message); }
             bool flatTarget = targetStage.FlatFileWriteMetadata != null;
-            var details = Json.Obj("planHash", planHash, "planOwnerSha256", planOwner, "planStateTemp", planState, "unitCount", units.Count,
+            var details = Json.Obj("planHash", planHash, "planOwnerSha256", planOwner, "planStateTemp", planState, "unitCount", units.Count, "cleanupCount", allCaches.Count,
                 "snapshotSharedWithProjection", true, "rowCountTargets", units.Where(u => u.Key.RowCountVariable != null).Select(u => (object)Json.Obj("variable", u.Key.RowCountVariable, "ssisType", u.Key.RowCountType, "assignmentTiming", "after-last-row")).ToList());
             if (flatTarget) { details.Add("targetMode", "flatfile-debug-projection"); details.Add("fileWriteSimulated", false); }
             string detailJson = Json.Write(details, bindings.Limits);
@@ -838,7 +949,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     safety.Generated(rowSql, bindings.DefaultDatabase, readOwned, true);
                     output.Add(new Artifact { Kind = "RowCountSql", Target = target, Stage = unit.Key.Id, Component = unit.Key.Component,
                         Content = rowSql, Evidence = "pragmatic", Safety = "passed", Executable = true, Complete = true,
-                        Details = Json.Write(Json.Obj("targetVariable", unit.Key.RowCountVariable, "ssisType", unit.Key.RowCountType, "assignmentTiming", "after-last-row", "snapshotSharedWithProjection", true, "executeWithPlanArtifact", true), bindings.Limits) });
+                        Details = Json.Write(Json.Obj("targetVariable", unit.Key.RowCountVariable, "ssisType", unit.Key.RowCountType, "assignmentTiming", "after-last-row", "snapshotSharedWithProjection", true, "executeWithPlanArtifact", true, "planHash", planHash), bindings.Limits) });
                 }
             var cleanupCaches = allCaches.AsEnumerable().Reverse().ToList();
             for (int i = 0; i < cleanupCaches.Count; i++)

@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-29",
+  "kind": "ssis_current_native_qualification",
+  "profile": "ssis-debug-current",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "Current default API; 24 typed SQL limits; editable design-default bindings; executed ordered RowCount/Flatfile DebugScripts; fresh/repeat/uninstall on six explicitly selected Windows engine/mode contexts",
+  "product_source_commit": "dca517eda7c0be5e53717be9675f2c4ea2cb0b10",
+  "native_fixture_execution_commit": "743282815c89c4c2d03b1e14718838a1f3538e0e",
+  "qualified_assembly_sha256": "f5838193795521943e511ebde9d22ba9aa1431ea94d7f368ac6364c97dd30760",
+  "qualified_deploy_sql_sha256": "e660514a1f5bc761b66306aa1d81bf2b5bf6fcc6ebfc723c7994309ae99ad46a",
+  "qualified_uninstall_sql_sha256": "7c0205e5046253493b2fd130af8734cfb5b97f25b88cd9b504b02fa09cfc124f",
+  "qualified_trust_manifest_sha256": "D1EB3D6D0088316F8B1417E64F5A99AD31A2E2FA7EF0E8570FD188428202AE41",
+  "native_source_sha256": {
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json": "b6239ef20036cd06ba4853d63f7bb097578733f276ab6f7743c31341126c885d",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/build_fixtures.py": "d1c223bc1828ab072c9b0acfb0e52723731a24afe201556693b18f9bb7fb9024",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx": "1fbe98e8b920ee61101a97eced896222d5383c22673ab5d8df7073b2241d3b69",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx": "a6e2a2155b8964978625c9d868b38f4eaa5ddf59fa60a4bef9df997e7644fcda",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-variable-string.dtsx": "f06951156e77f1f6b9f6cbd3fa409f399e8024fb89d04ed9f1d5a1d215916a68",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-6.dtsx": "ccdf0f1b7e8d2501ede1b5af235e1a08ae84fcc3d16ec9278fa0f4f6b8b79d53",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx": "dea7dc971972882b2a090d489ecfc2dc1e85635936a0ecd8c89c8443d746bf3e",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1": "f0e235f3cbf984d611dec6b6a12676d08145185010cec2faf5499c4dd51fbcfc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentCases.ps1": "4904ae530ad3630d666aaec9d51da4c72e526e38b19b990771a9e3c884614643",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1b8d9e877d39d6a52174922016dde89f500d0506807a9fabbb57f6606350d4cc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Cases.ps1": "d0a01bac0ed0638246aff1fa236474c5d3eb9f66d933f76dd342db5809cf0fcc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2DomainCases.ps1": "192b5e8658155ae47d3b3d1b41731b06af131277ad7e909241fe35a1dee68062",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2ExpressionCases.ps1": "59fbbbfdc89d59537987fb3c2403066622b2d7b1f0e56a0a1e558b2a57774758",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Lab.ps1": "2ea3f7296501b393721f98f86b82cf1f7d7710df2c6236059696317cc156b8f2",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2VariableCases.ps1": "f07317a341d4092e4bad9491bca60e4fb9ec1ce236278158234da05062d7637d",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1": "4ed1f632f11122d6759b2b1083aa0bf003509b264004ff160fbecbe3be570999",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1": "30dd642419bc5841f1bea0bfabf54052446ce6c5310ca2d5937230dc65c73dd1",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentLab.ps1": "da2ab56a13e97dcd585d66b62e18f4610914c5e23bd26b599331fe09b8a3465d",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411a966484eaf55fb05778b5e26829d7afed94d6028cb6f77323f92c5c7e570",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LifecycleCases.ps1": "39d296cf1e8251b328873a8454ed60f9a3910581c5dc82dc414d534218ded546",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-PackageInstallCases.ps1": "8a03fa030717571ae17310823ce7d901b2bc2af3c3706c673e7763674c3bc351",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ReleaseRightsCases.ps1": "7c39938f34189fbbb1020a44007e4a2faea077dafc69cc69fe091fcbddbb5f46",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-SsisBuildUpgradeCases.ps1": "c8647491f3e489e9e3a20e84edf79ef9c97c593b87da5cc59b951dd3612890af",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-V1Cases.ps1": "0a918c816618b043a58f7ec25bab84c8e32c7039eea73c9ad6b993dc54d4829e",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846"
+  },
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "current_contract": "PASS",
+      "assertions": 206,
+      "cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "current_contract": "PASS",
+      "assertions": 206,
+      "cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "current_contract": "PASS",
+      "assertions": 206,
+      "cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "current_contract": "PASS",
+      "assertions": 206,
+      "cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "current_contract": "PASS",
+      "assertions": 206,
+      "cleanup_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "current_contract": "PASS",
+      "assertions": 206,
+      "cleanup_audit": "PASS"
+    }
+  ],
+  "final_audit": {
+    "owned_database_names_absent": 12,
+    "input_pins_unchanged": true,
+    "trust_states_restored": 18,
+    "case_audits": 6,
+    "configuration_baselines_restored": true
+  },
+  "prior_adapter_attempt": {
+    "original_execution_inputs_preserved": true,
+    "independent_audit": "PASS",
+    "case_count": 1,
+    "reason": "PowerShell byte-array parameter conversion before domain assertions",
+    "subsequent_fix_commit": "74328281",
+    "execution_fixture_commit": "da2ded17",
+    "result": "FAILED_CLEANED"
+  },
+  "functional_transport": {
+    "fallback": false,
+    "provider": "System.Data.SqlClient",
+    "schema_validated_explicit_boolean_trust": true,
+    "encrypt_required": true,
+    "authenticated_tls": "not executed"
+  },
+  "not_qualified": [
+    "Other compatibility levels on newer engines",
+    "Real SSIS runtime execution",
+    "Authenticated TLS",
+    "Windows-authentication and SSMS GUI",
+    "Unknown runtime Command values",
+    "Publication"
+  ],
+  "offline_checks": {
+    "host_framework_parity_checks": 206,
+    "long_plan_probe": "2730 units; explicit 512MiB output budget; no claim for default128MiB",
+    "components_framework_profile": "PASS before final empty-property correction; exact final Head Full CI required",
+    "parameter_adapter_sqlvalue_checks": 40
+  },
+  "cost_tokens": "UNKNOWN"
+}

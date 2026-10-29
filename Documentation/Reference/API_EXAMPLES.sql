@@ -1239,9 +1239,9 @@ SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;'
 */
 
 -- toolbelt_tsql.USP_ExplainSsisDataFlow
--- DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE-Stufen. Unterstützte Lesereferenzen erhalten NOLOCK; Lookupauswahlen werden sitzungslokal festgehalten. Keine Ausführung von Quell-SQL oder SSIS während der Analyse. Teilweise validiert; native SQL-Gates offen.
--- Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.
--- Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON.
+-- Aktuelle DTSX-Debuganalyse ohne Profil-Opt-in; editierbare typisierte JSON-Vorlage mit Entwurfswerten und Herkunft, vollständiger Strukturpfad und geordnete DebugScript-Batches für auflösbare Ziele. Ressourcen über benannte SQL-Parameter; keine SSIS-/Quell-SQL-Ausführung während der Analyse. Teilweise validiert und unveröffentlicht.
+-- Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.
+-- Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON. Nur values der vollständigen Bindings-Vorlage bearbeiten.
 /* Separat auswählen und ausführen:
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
 */
@@ -1250,6 +1250,12 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
 -- @PackageBytes vom Client übergeben.
 DECLARE @PackageBytes varbinary(max)=NULL;
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';
+*/
+
+/* Separat auswählen und ausführen:
+-- @PackageBytes vom Client übergeben; konfigurierbare Zähler direkt als SQL-Parameter.
+DECLARE @PackageBytes varbinary(max)=NULL;
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template',@MaxComponents=0,@MaxPackageBytes=0;
 */
 
 -- toolbelt_validation.TVF_ParseSemanticVersion

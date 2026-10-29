@@ -1,20 +1,32 @@
 # SSIS-Debug ohne eigenen Build installieren
 
-## Separater Komponenten-V2-Kandidat
+## Aktueller Standard
 
-Die [V2-Installationsanleitung](../Documentation/ComponentsV2Installation.md)
-führt zur getrennten ZIP-Lieferung und zum reinen T-SQL-Installer.
+Für den aktuellen API-Vertrag verwende
+[`SSIS-Debug-Current-Install-Windows.zip`](SSIS-Debug-Current-Install-Windows.zip)
+oder den [reinen T-SQL-Installer](../../../Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
+Die [aktuelle Anleitung](../Documentation/CurrentInstallation.md) zeigt
+Installation, Parameter-Vorlage, benannte SQL-Limits und `DebugScript`.
+Der [Buildnachweis](../Tests/Qualification/Current.Windows.CL.20261029.json),
+die [getrennte Paketqualifikation](../Tests/Qualification/Current.InstallPackage.20261029.json)
+und die [Installer-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-standalone-runtime-qualification.json)
+haben jeweils ihren eigenen Umfang und ihre eigenen Eingabepins.
+Spätere Paket-/Installerberichte stehen im Repository; sie verändern die
+unveränderlichen Quellen des im ZIP enthaltenen Snapshots nicht.
+Der Stand bleibt unveröffentlicht und nur teilweise validiert.
 
-Die zusätzliche Lieferung `SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip`
-enthält den ausdrücklich gewählten Komponentenmodus V2. Er ergänzt fehlende
-Versionsattribute mit nachvollziehbarem Schema-Default, Row Count sowie
-Flatfile-Metadaten und explizit bereitgestellte SQL-Zeilenbestände. Die
-[V2-Vertragsbeschreibung](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md)
-erklärt auch die parametrierbaren Ressourcenbudgets einschließlich `unlimited`.
-V1- und V2-Lieferungen vollständig getrennt entpacken; die unveränderte
-Modulversionsnummer ersetzt keine Prüfung des jeweiligen Artefakthashes.
+## Historische Komponentenlieferungen
 
-Das separate V2-ZIP und sein reiner T-SQL-Installer haben jeweils eigene,
+Die folgenden Komponentenpakete und Installer sind historische, unveränderte
+Qualifikationsartefakte. Sie implementieren nicht den aktuellen API-Vertrag.
+Ihre historischen Nachweise werden nicht auf den aktuellen Vertrag übertragen.
+
+Die zusätzliche historische Lieferung `SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip`
+enthält den damaligen opt-in Komponentenmodus. Ihre Berichte belegen ausschließlich
+die dort gebundenen Bytes und Testfälle. Sie ist keine Lieferung des aktuellen
+Vertrags und darf nicht mit aktuellen Quellständen vermischt werden.
+
+Das historische V2-ZIP und sein reiner T-SQL-Installer haben jeweils eigene,
 hashgebundene native Nachweise: zwei Paketfälle mit unabhängigen Audits und
 zwei Installer-Zielkontexte in local/central. Die aktuelle
 [Prüfmatrix](../Tests/README.md) verlinkt die Records, die
@@ -25,8 +37,9 @@ Weitere Plattformen, authentifiziertes TLS und Veröffentlichung bleiben
 unqualifiziert beziehungsweise nicht freigegeben.
 
 Die nachfolgende Download- und Installationsanleitung sowie historischen
-Nachweise beschreiben ausschließlich die bestehende V1-Lieferung. V2 ist ein
-separater Kandidat und darf nicht mit den V1-Dateien vermischt werden.
+Nachweise beschreiben ausschließlich die bestehenden historischen Lieferungen.
+Der aktuelle Entwicklungsvertrag steht in
+[SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
 Das [ZIP-Installationspaket](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip) enthält
 SSIS-Debug **1.0.0**, Script Parser **2.0.1**, die exakt passende Microsoft

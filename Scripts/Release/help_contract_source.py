@@ -5,6 +5,7 @@ import json
 import stat
 import subprocess
 import zipfile
+import new_ssis_standalone_tsql as standalone
 
 
 RECORD = 'Releases/1.0.0/help-contract-source-delta.json'
@@ -103,10 +104,15 @@ NAV_CURRENT_SHA256 = {
     'Releases/1.0.0/RELEASE-GATES.md': '39d44ea5f043642d938410bc746c32736072cf8b07e9f0bdf7220f31379c9be7',
 }
 SSIS_INSTALL_NAV_RECORD = 'Releases/1.0.0/ssis-standalone-installer-navigation-delta.json'
+SSIS_INSTALL_NAV_SNAPSHOT_ROOT = 'Scripts/Release/HistoricalSources/ssis-standalone-installer-navigation'
 SSIS_INSTALL_NAV_PATHS = frozenset({
     'Releases/1.0.0/README.md',
     'Releases/1.0.0/EVIDENCE-MAP.md',
 })
+SSIS_INSTALL_NAV_SNAPSHOT_FILES = {
+    'Releases/1.0.0/README.md': 'Releases-1.0.0-README.txt',
+    'Releases/1.0.0/EVIDENCE-MAP.md': 'Releases-1.0.0-EVIDENCE-MAP.txt',
+}
 SSIS_INSTALL_NAV_BASELINE_SHA256 = {
     path: NAV_CURRENT_SHA256[path] for path in SSIS_INSTALL_NAV_PATHS
 }
@@ -114,6 +120,7 @@ SSIS_INSTALL_NAV_CURRENT_SHA256 = {
     'Releases/1.0.0/README.md': '95f817e0ff7a450481a43df715f9dd0593c672f3f0a383424183c2327e38d1e3',
     'Releases/1.0.0/EVIDENCE-MAP.md': '7e00b3763cfc94789eca6a86d2f7267588093d66e9c352757daf08b8ac2f157b',
 }
+SSIS_INSTALL_NAV_SNAPSHOT_SHA256 = dict(SSIS_INSTALL_NAV_CURRENT_SHA256)
 SSIS_INSTALL_NAV_BLOCKS = {
     'Releases/1.0.0/README.md': (
         'Der [eigenständige SSIS-T-SQL-Installer](SSIS-INSTALL-TSQL.md) bündelt die\n'
@@ -140,8 +147,8 @@ def _digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def validate_ssis_installer_navigation(root, path, source=None):
-    """Restore only the two exact additive installer-link blocks."""
+def validate_ssis_installer_navigation(root, path):
+    """Replay the closed navigation delta from immutable historical snapshots."""
     root = Path(root).resolve()
     _require(path in SSIS_INSTALL_NAV_PATHS,
              'unsupported standalone installer navigation path')
@@ -165,12 +172,15 @@ def validate_ssis_installer_navigation(root, path, source=None):
     _require(isinstance(baseline, dict) and set(baseline) == SSIS_INSTALL_NAV_PATHS
              and baseline == SSIS_INSTALL_NAV_BASELINE_SHA256
              and isinstance(current, dict) and set(current) == SSIS_INSTALL_NAV_PATHS
-             and current == SSIS_INSTALL_NAV_CURRENT_SHA256,
+             and current == SSIS_INSTALL_NAV_CURRENT_SHA256
+             and SSIS_INSTALL_NAV_SNAPSHOT_SHA256 == current
+             and set(SSIS_INSTALL_NAV_SNAPSHOT_FILES) == SSIS_INSTALL_NAV_PATHS,
              'standalone installer navigation source pins differ')
-    source = (root / path).read_bytes() if source is None else source
-    _require(isinstance(source, bytes)
-             and _digest(source) == current[path],
-             'standalone installer navigation current bytes differ')
+    snapshot_relative = (PurePosixPath(SSIS_INSTALL_NAV_SNAPSHOT_ROOT) /
+                         SSIS_INSTALL_NAV_SNAPSHOT_FILES[path]).as_posix()
+    source = standalone.read_regular_bounded(root / snapshot_relative, 1024 * 1024)
+    _require(_digest(source) == SSIS_INSTALL_NAV_SNAPSHOT_SHA256[path],
+             'standalone installer navigation historical snapshot pin differs')
     block = SSIS_INSTALL_NAV_BLOCKS[path]
     _require(source.count(block) == 1,
              'standalone installer navigation block is missing or duplicated')
@@ -340,9 +350,10 @@ def validate_navigation_source(root, path, expected_sha256):
                  'navigation archive entries differ')
         original = archive.read(matches[0])
         archived_license = archive.read(licenses[0])
-    current_bytes = (root / path).read_bytes()
     if path in SSIS_INSTALL_NAV_PATHS:
-        current_bytes = validate_ssis_installer_navigation(root, path, current_bytes)
+        current_bytes = validate_ssis_installer_navigation(root, path)
+    else:
+        current_bytes = (root / path).read_bytes()
     _require(_digest(original) == baseline[path]
              and archived_license == (root / 'LICENSE.md').read_bytes()
              and _digest(current_bytes) == current[path],

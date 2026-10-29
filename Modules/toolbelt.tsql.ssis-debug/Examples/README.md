@@ -10,6 +10,30 @@ bleibt im Testverzeichnis die gemeinsame Quelle für Beispiel und Tests.
 Die [Installationsanleitung mit SQL- und PowerShell-Skripten](Installation/README.md)
 zeigt die Voraussetzungen einschließlich Parser, ResultTable und Assembly-Trust.
 
+## Aktuelle API-Parameter
+
+Der aktuelle Entwicklungsvertrag verwendet `bindings-template` direkt und
+akzeptiert Limits als benannte SQL-Parameter. Die bestehende
+`SsmsDebugWalkthrough.sql`-Datei und die historischen Installationspakete sind
+an ältere Builds gebunden; sie qualifizieren diese neue Signatur nicht. Mit
+einem Build des aktuellen Vertrags sehen die Aufrufe so aus:
+
+```sql
+-- Vorlage erzeugen; die zurückgegebenen values bearbeiten.
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
+    @PackageBytes = @PackageBytes,
+    @Operation = 'bindings-template';
+
+-- Dieselbe Vorlage zurückgeben; 0 hebt nur dieses konfigurierbare Limit auf.
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
+    @PackageBytes = @PackageBytes,
+    @Bindings = @Bindings,
+    @MaxExpressionBytes = 0;
+```
+
+Andere Limits werden mit den jeweiligen `@Max...`-Parametern gesetzt.
+Ressourcenoptionen gehören nicht in `@ProjectContext` oder `@Bindings`.
+
 ## Voraussetzungen und Start
 
 1. Eine eigene Testdatenbank `ContosoSsisDebug` auf Windows SQL Server
@@ -98,7 +122,7 @@ denselben `@ProjectContext` sowohl beim Vorlagen- als auch beim Analyseaufruf
 übergeben; Credentials und Connection Strings gehören nicht in die JSONs.
 
 Der [öffentliche Aufrufvertrag](../Documentation/USP_ExplainSsisDataFlow.md) und
-der [V1-Vertrag](../../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md)
+der [aktuelle API-Vertrag](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)
 begrenzen die unterstützten Komponenten und Ausdrücke. Die Analyse führt kein
 Paket und keine Quellabfrage aus; erst die manuell gestarteten Prüfblöcke lesen
 die Daten. Das Beispiel ist keine SSIS-Laufzeitausführung.

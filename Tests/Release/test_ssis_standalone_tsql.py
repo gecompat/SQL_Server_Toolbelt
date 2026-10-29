@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import new_ssis_standalone_tsql as installer
 import help_contract_source
+import ssis_historical_source_bridge
 
 
 class StandaloneTsqlInstallerTests(unittest.TestCase):
@@ -55,7 +56,11 @@ class StandaloneTsqlInstallerTests(unittest.TestCase):
         central_sql = sql.replace(old_header, new_header, central_override["count"])
         self.assertEqual(hashlib.sha256(central_sql).hexdigest().upper(), central["command_sha256"])
         for pin in report["execution_input_pins"]:
-            pinned_bytes = (ROOT / pin["path"]).read_bytes()
+            if pin["path"] == "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json":
+                pinned_bytes = ssis_historical_source_bridge.read_r28_api_source(
+                    ROOT, pin["path"], pin["sha256"])
+            else:
+                pinned_bytes = (ROOT / pin["path"]).read_bytes()
             self.assertEqual(hashlib.sha256(pinned_bytes).hexdigest().upper(), pin["sha256"], pin["path"])
         guide = (ROOT / "Releases/1.0.0/SSIS-INSTALL-TSQL.md").read_text(encoding="utf-8")
         self.assertIn("ssis-standalone-installer-runtime-qualification.json", guide)
@@ -72,19 +77,40 @@ class StandaloneTsqlInstallerTests(unittest.TestCase):
             record_path = temp_root / help_contract_source.SSIS_INSTALL_NAV_RECORD
             record_path.parent.mkdir(parents=True)
             shutil.copy2(ROOT / help_contract_source.SSIS_INSTALL_NAV_RECORD, record_path)
+            snapshot_root = temp_root / help_contract_source.SSIS_INSTALL_NAV_SNAPSHOT_ROOT
+            snapshot_root.mkdir(parents=True)
             for path in paths:
                 target = temp_root / path
                 target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(ROOT / path, target)
+                target.write_text("Current navigation is independently maintained.\n", encoding="utf-8")
+                snapshot_name = help_contract_source.SSIS_INSTALL_NAV_SNAPSHOT_FILES[path]
+                shutil.copy2(ROOT / help_contract_source.SSIS_INSTALL_NAV_SNAPSHOT_ROOT / snapshot_name,
+                             snapshot_root / snapshot_name)
                 restored = help_contract_source.validate_ssis_installer_navigation(temp_root, path)
                 self.assertEqual(hashlib.sha256(restored).hexdigest(),
                                  help_contract_source.SSIS_INSTALL_NAV_BASELINE_SHA256[path])
-            mutated = temp_root / paths[0]
-            mutated.write_bytes(mutated.read_bytes() + b"<!-- unrelated text drift -->\n")
-            with self.assertRaisesRegex(ValueError, "current bytes differ"):
+            snapshot_name = help_contract_source.SSIS_INSTALL_NAV_SNAPSHOT_FILES[paths[0]]
+            mutated = snapshot_root / snapshot_name
+            mutated.write_bytes(mutated.read_bytes() + b"<!-- snapshot drift -->\n")
+            with self.assertRaisesRegex(ValueError, "historical snapshot pin differs"):
+                help_contract_source.validate_ssis_installer_navigation(temp_root, paths[0])
+            shutil.copy2(ROOT / help_contract_source.SSIS_INSTALL_NAV_SNAPSHOT_ROOT / snapshot_name,
+                         mutated)
+            record = json.loads(record_path.read_text(encoding="utf-8"))
+            record["baseline_source_sha256"][paths[0]] = "0" * 64
+            record_path.write_text(json.dumps(record), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "source pins differ"):
                 help_contract_source.validate_ssis_installer_navigation(temp_root, paths[0])
             with self.assertRaisesRegex(ValueError, "unsupported standalone installer navigation path"):
                 help_contract_source.validate_ssis_installer_navigation(temp_root, "Releases/1.0.0/RELEASE-GATES.md")
+
+    def test_historical_api_source_bridge_rejects_wrong_pins_and_paths(self):
+        path = "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json"
+        good = "9f99b9a24d3a0535e156a313def1ed723ff62f17aa2e4859ac58c41e51bc1001"
+        with self.assertRaisesRegex(ValueError, "SSIS_R28_API_SOURCE_PIN"):
+            ssis_historical_source_bridge.read_r28_api_source(ROOT, path, "0" * 64)
+        with self.assertRaisesRegex(ValueError, "SSIS_R28_API_SOURCE_PIN"):
+            ssis_historical_source_bridge.read_r28_api_source(ROOT, "unrelated/path", good)
 
     def test_go_split_and_header_removal_respect_sql_lexical_context(self):
         text = """SELECT N'first

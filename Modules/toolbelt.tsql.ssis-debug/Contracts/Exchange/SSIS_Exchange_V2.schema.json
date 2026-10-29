@@ -242,7 +242,7 @@
       "required": ["schemaVersion", "preset", "unlimited", "effectiveLimits", "resourcePolicyHash"],
       "properties": {
         "schemaVersion": {"const": 1},
-        "preset": {"enum": ["large10x", "unlimited"]},
+        "preset": {"enum": ["current", "large10x", "unlimited"]},
         "unlimited": {"type": "boolean"},
         "resourcePolicyHash": {"$ref": "#/$defs/sha256"},
         "effectiveLimits": {
@@ -511,6 +511,44 @@
             "explicit",
             "schema-default-0"
           ]
+        },
+        "assignmentState": {
+          "enum": [
+            "none",
+            "declared",
+            "unknown"
+          ]
+        },
+        "assignmentProducers": {
+          "type": "array",
+          "maxItems": 1048576,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "producerId",
+              "scopeId"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "execute-sql-result",
+                  "foreach-variable-mapping",
+                  "script-read-write-variable",
+                  "for-loop-assignment-expression",
+                  "row-count-variable",
+                  "script-write-scope-unknown"
+                ]
+              },
+              "producerId": {
+                "$ref": "#/$defs/id"
+              },
+              "scopeId": {
+                "$ref": "#/$defs/nullableId"
+              }
+            }
+          }
         }
       }
     },
@@ -738,14 +776,18 @@
                   "namespace",
                   "typeCode",
                   "isReadOnly",
-                  "evaluateAsExpression"
+                  "evaluateAsExpression",
+                  "assignmentState",
+                  "assignmentProducers"
                 ],
                 "propertyNames": {
                   "enum": [
                     "namespace",
                     "typeCode",
                     "isReadOnly",
-                    "evaluateAsExpression"
+                    "evaluateAsExpression",
+                    "assignmentState",
+                    "assignmentProducers"
                   ]
                 }
               }

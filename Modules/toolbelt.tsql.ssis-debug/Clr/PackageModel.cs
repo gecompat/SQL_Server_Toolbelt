@@ -10,16 +10,18 @@ namespace Toolbelt.Tsql.SsisDebug
 {
     internal sealed class Input
     {
-        internal string Key, Kind, Scope, Name, Type, SqlType, Expression, DtsId, Origin = "design";
+        internal string Key, Kind, Scope, Name, Type, SqlType, Expression, DtsId, Origin = "design", AssignmentState = "none";
         internal bool Sensitive, HasDefault, Required, RuntimeAssigned, ReadOnly;
         internal object Default;
+        internal readonly List<object> AssignmentProducers = new List<object>();
         internal string SqlName { get { return "@" + Key; } }
         internal Dictionary<string, object> Metadata()
         {
             return Json.Obj("key", Key, "kind", Kind, "scope", Scope, "name", Name, "ssisType", Type, "sqlType", SqlType,
-                "defaultAvailable", HasDefault && SqlType != null && !Sensitive && !RuntimeAssigned, "defaultValue", Sensitive || RuntimeAssigned || SqlType == null ? null : Default,
+                "defaultAvailable", HasDefault && SqlType != null && !Sensitive, "defaultValue", Sensitive || SqlType == null ? null : Default,
                 "expression", Sensitive ? null : Expression, "valueOrigin", Origin, "requiredForSelectedFlow", Required,
-                "sensitive", Sensitive, "state", Sensitive ? "redacted" : SqlType == null ? "unsupported" : RuntimeAssigned ? "needs-value" : Expression != null ? "derived" : HasDefault ? "literal" : "needs-value");
+                "sensitive", Sensitive, "runtimeAssigned", RuntimeAssigned, "assignmentState", AssignmentState, "assignmentProducers", AssignmentProducers,
+                "state", Sensitive ? "redacted" : SqlType == null ? "unsupported" : Expression != null ? "derived" : RuntimeAssigned && HasDefault ? "runtime-assigned-design-default" : RuntimeAssigned ? "runtime-assignment-needs-value" : HasDefault ? "literal" : "needs-value");
         }
     }
     internal sealed class Column
@@ -177,8 +179,11 @@ namespace Toolbelt.Tsql.SsisDebug
                     var input = new Input { Kind = "variable", DtsId = variable.Get("DTSID") == "" ? null : variable.Get("DTSID"), Scope = variable.LegacyScope, ReadOnly = Util.Flag(variable.Get("ReadOnly")),
                         Name = variable.Get("Namespace")+"::"+variable.Name, Type = variable.VariableDataType, Sensitive = Util.Flag(variable.Get("Sensitive")),
                         Expression = Util.Flag(variable.Get("EvaluateAsExpression")) ? variable.Get("Expression") : null };
-                    input.SqlType=Types.Sql(input.Type); input.HasDefault=variable.HasDefault && input.Expression==null; input.Default=input.HasDefault?Default(variable.ValueText,input):null;
-                    input.RuntimeAssigned=result.Workflow.Any(t => t.IndexOf("Script",StringComparison.OrdinalIgnoreCase)>=0 || t.IndexOf("For",StringComparison.OrdinalIgnoreCase)>=0 || t.IndexOf("ExecuteSQL",StringComparison.OrdinalIgnoreCase)>=0);
+                    input.SqlType=Types.Sql(input.Type); input.HasDefault=variable.HasDefault; input.Default=input.HasDefault?Default(variable.ValueText,input):null;
+                    input.AssignmentState = Json.Text(Json.Get(variable.Attributes, "assignmentState")) ?? "none";
+                    input.RuntimeAssigned = input.AssignmentState != "none";
+                    object producers = Json.Get(variable.Attributes, "assignmentProducers");
+                    if (producers is List<object>) input.AssignmentProducers.AddRange((List<object>)producers);
                     result.Inputs.Add(input);
                 }
                 foreach (var parameter in definitions.Where(x => x.Kind == "PARAMETER"))

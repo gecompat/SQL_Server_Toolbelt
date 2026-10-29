@@ -4722,32 +4722,56 @@ SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;'
 
 Modul `toolbelt.tsql.ssis-debug` · Version `1.0.0` · `USP`
 
-DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE-Stufen. Unterstützte Lesereferenzen erhalten NOLOCK; Lookupauswahlen werden sitzungslokal festgehalten. Keine Ausführung von Quell-SQL oder SSIS während der Analyse. Teilweise validiert; native SQL-Gates offen.
+Aktuelle DTSX-Debuganalyse ohne Profil-Opt-in; editierbare typisierte JSON-Vorlage mit Entwurfswerten und Herkunft, vollständiger Strukturpfad und geordnete DebugScript-Batches für auflösbare Ziele. Ressourcen über benannte SQL-Parameter; keine SSIS-/Quell-SQL-Ausführung während der Analyse. Teilweise validiert und unveröffentlicht.
 
 Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md).
 
-<!-- Source/Vertrag SHA256: 3c35fd657a901c17c90b7fe1a35dac5a94fcaba97880eb1c885314a5c2a451fd -->
+<!-- Source/Vertrag SHA256: fe174f8f264c9c4e179cb91f63a3657bf60fe6e876715c0d6f36d702e604fbf8 -->
 
-Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.
+Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.
 
-Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON.
+Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON. Nur values der vollständigen Bindings-Vorlage bearbeiten.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@PackageBytes` | `varbinary(max)` | `NULL` | Input | Ein DTSX2-Paket als UTF-8-/UTF-16-Bytes; höchstens 16 MiB; im Hilfemodus ignoriert. |
-| `@Operation` | `varchar(32)` | `N'explain'` | Input | bindings-template erzeugt die Vorlage; explain erzeugt Artefakte. |
-| `@ProjectContext` | `nvarchar(max)` | `NULL` | Input | JSON-Schema 1 für Projektparameter und logische Connections. |
-| `@Bindings` | `nvarchar(max)` | `NULL` | Input | Vollständiges Vorlagen-JSON zurückgeben; nur values bearbeiten. |
-| `@CatalogBindings` | `nvarchar(max)` | `NULL` | Input | JSON mit defaultDatabase, expliziten databases und Connection-ID-Mapping; bei bindings-template NULL. |
-| `@TargetFlow` | `varchar(64)` | `NULL` | Input | Stabile Ziel-ID aus StageIndex; NULL analysiert alle Ziele getrennt. |
-| `@InspectStage` | `varchar(64)` | `NULL` | Input | all oder konkrete Stufen-ID mit TargetFlow; jeder Batch enthält alle Vorgänger. |
-| `@LookupPolicies` | `nvarchar(max)` | `NULL` | Input | Optionale fachliche Sortierung je Lookup; Standard ist beliebige materialisierte Auswahl. |
-| `@ComparisonCollation` | `sysname` | `NULL` | Input | Explizite bekannte Collation; Default ist die zugeordnete Defaultdatenbank. |
-| `@TSqlVersion` | `smallint` | `150` | Input | 150, 160 oder 170; Default 150. |
-| `@ResultTable` | `sysname` | `NULL` | Input | Vorhandene lokale Temp-Tabelle oder NULL für ein Resultset. |
-| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 hängt an; NULL entspricht 0. |
-| `@Debug` | `tinyint` | `0` | Input | Redigierte Fortschrittsmeldungen ohne vertrauliche Nutzlast. |
-| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich die Standardhilfe vor jeder fachlichen Validierung. |
+| `@PackageBytes` | `varbinary(max)` | `NULL` | Input | Genau ein unterstütztes DTSX-Paket als UTF-8-/UTF-16-Binärwert. Die Standardgrenze beträgt128MiB und ist mit @MaxPackageBytes konfigurierbar. Kein Dateizugriff. |
+| `@Operation` | `varchar(32)` | `N'explain'` | Input | Exakt bindings-template oder explain; NULL ungültig. |
+| `@ProjectContext` | `nvarchar(max)` | `NULL` | Input | Optionaler Projektparameter-/Connection-Kontext als JSON-Schema2; keine Credentials und keine Ressourcenoptionen. |
+| `@Bindings` | `nvarchar(max)` | `NULL` | Input | Zurückgegebene Schema-2-Vorlage; values bearbeiten, Herkunftsmetadaten unverändert zurückgeben. Im Template-Modus NULL. |
+| `@CatalogBindings` | `nvarchar(max)` | `NULL` | Input | Explizite Same-instance-Allowlist mit defaultDatabase, databases und connections; Template verlangt NULL. |
+| `@TargetFlow` | `varchar(64)` | `NULL` | Input | Ausgegebene Zielfluss-ID; NULL berücksichtigt alle Ziele getrennt. |
+| `@InspectStage` | `varchar(64)` | `NULL` | Input | NULL liefert Zielskript und Verzeichnis; all alle Stufen; konkrete ID verlangt TargetFlow. |
+| `@LookupPolicies` | `nvarchar(max)` | `NULL` | Input | Optionale gebundene Auswahlordnung je Lookup. Standard beliebige, einmal materialisierte Auswahl. |
+| `@ComparisonCollation` | `sysname` | `NULL` | Input | Bekannte explizite Vergleichscollation; NULL verwendet die zugeordnete Defaultdatenbank. |
+| `@TSqlVersion` | `smallint` | `150` | Input | Exakt150,160 oder170; kein automatischer Dialektwechsel. |
+| `@MaxPackageBytes` | `bigint` | `134217728` | Input | Maximale Paketgröße in Bytes; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxXmlCharacters` | `bigint` | `134217728` | Input | Maximale XML-Zeichen; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxXmlNodes` | `bigint` | `1048576` | Input | Maximale XML-Knoten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxModelNodes` | `bigint` | `262144` | Input | Maximale Modellknoten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxModelEdges` | `bigint` | `1048576` | Input | Maximale Modellkanten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxComponents` | `bigint` | `4096` | Input | Maximale Komponenten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxPaths` | `bigint` | `8192` | Input | Maximale Datenflusskanten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxColumns` | `bigint` | `65536` | Input | Maximale Spaltenmetadaten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxInputs` | `bigint` | `8192` | Input | Maximale gebundene Eingaben; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxJsonDocumentBytes` | `bigint` | `4194304` | Input | Maximale UTF-16-Bytes je Eingabe-JSON; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxAllJsonBytes` | `bigint` | `8388608` | Input | Maximale UTF-16-Bytes aller Eingabe-JSONs; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxJsonNodes` | `bigint` | `131072` | Input | Maximale JSON-Knoten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxExpressionBytes` | `bigint` | `4194304` | Input | Maximale UTF-16-Bytes je SSIS-Ausdruck; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxExpressionTokens` | `bigint` | `262144` | Input | Maximale Ausdruckstokens; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxExpressionNodes` | `bigint` | `131072` | Input | Maximale Ausdrucksknoten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxPlanUnits` | `bigint` | `8192` | Input | Maximale geprüfte Debugplaneinheiten; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxCatalogObjects` | `bigint` | `4096` | Input | Maximale Katalogobjekte; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxCatalogQueries` | `bigint` | `4096` | Input | Maximale Katalogabfragen; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxParserCalls` | `bigint` | `32768` | Input | Maximale SQL-Parseraufrufe; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxArtifacts` | `bigint` | `65536` | Input | Maximale Ergebnisartefakte; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxDiagnostics` | `bigint` | `16384` | Input | Maximale Diagnosen; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxSqlArtifactBytes` | `bigint` | `2097152` | Input | Maximale UTF-16-Bytes je SQL-Artefakt; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxTotalOutputBytes` | `bigint` | `134217728` | Input | Maximale UTF-16-Bytes der Gesamtausgabe; 0 unbegrenzt, NULL oder negativ ungültig. |
+| `@MaxAnalysisMilliseconds` | `bigint` | `0` | Input | Analysezeitbudget in Millisekunden; Standard 0 = unbegrenzt, NULL oder negativ ungültig. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein Resultset; sonst vorhandene lokale Temp-Tabelle nach Standardvertrag. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt,1 hängt an; NULL entspricht0. Kanonischer ResultTable-Helper. |
+| `@Debug` | `tinyint` | `0` | Input | Nur redigierte Messages mit Ablauf/Zählern, keine Secretwerte oder zusätzlichen Resultsets. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich standardisierte Hilfe, ignoriert alle Fach-/ResultTable-/Debugparameter. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -4759,6 +4783,12 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
 -- @PackageBytes vom Client übergeben.
 DECLARE @PackageBytes varbinary(max)=NULL;
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';
+```
+
+```sql
+-- @PackageBytes vom Client übergeben; konfigurierbare Zähler direkt als SQL-Parameter.
+DECLARE @PackageBytes varbinary(max)=NULL;
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template',@MaxComponents=0,@MaxPackageBytes=0;
 ```
 
 Hilfe:

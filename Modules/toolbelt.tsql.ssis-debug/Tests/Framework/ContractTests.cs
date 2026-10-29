@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -64,8 +65,8 @@ internal static class ContractTests
     }
     private static byte[] Change(byte[] bytes, Action<XDocument> edit)
     { var document = XDocument.Parse(Encoding.UTF8.GetString(bytes)); edit(document); return Encoding.UTF8.GetBytes(document.ToString()); }
-    private static Artifacts ExplainV2(byte[] bytes, string target = null, string projectContext = null, SyntheticCatalog catalog = null)
-    { catalog = catalog ?? new SyntheticCatalog(); var templateOptions = Options("bindings-template-v2"); templateOptions.ProjectContext = projectContext; var template = Engine.Analyze(bytes, templateOptions, catalog, new Budget()).Rows.Single().Content; var options = Options("explain"); options.ProjectContext = projectContext; options.Target = target; options.Bindings = template; return Engine.Analyze(bytes, options, catalog, new Budget()); }
+    private static Artifacts ExplainV2(byte[] bytes, string target = null, string projectContext = null, SyntheticCatalog catalog = null, ResourceLimits resourceLimits = null)
+    { catalog = catalog ?? new SyntheticCatalog(); var templateOptions = Options("bindings-template"); templateOptions.ProjectContext = projectContext; templateOptions.Limits = resourceLimits; var template = Engine.Analyze(bytes, templateOptions, catalog, new Budget()).Rows.Single().Content; var options = Options("explain"); options.ProjectContext = projectContext; options.Target = target; options.Bindings = template; options.Limits = resourceLimits; return Engine.Analyze(bytes, options, catalog, new Budget()); }
     private static byte[] SerializeUtf16(XDocument document)
     { using (var stream = new MemoryStream()) { var settings = new System.Xml.XmlWriterSettings { Encoding = Encoding.Unicode, Indent = false, OmitXmlDeclaration = false }; using (var writer = System.Xml.XmlWriter.Create(stream, settings)) document.Save(writer); return stream.ToArray(); } }
     private static void ExportSyntheticFixture(string root, string name, byte[] package, string projectContext, string template, string catalog)
@@ -189,7 +190,7 @@ internal static class ContractTests
                 try
                 {
                     byte[] variant = Change(package, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Descendants("property").Single(x => (string)x.Attribute("name") == "Expression").Value = expression);
-                    var templateOptions = Options("bindings-template-v2"); templateOptions.ProjectContext = "{\"schemaVersion\":2}"; templateOptions.Version = 170;
+                    var templateOptions = Options("bindings-template"); templateOptions.ProjectContext = "{\"schemaVersion\":2}"; templateOptions.Version = 170;
                     string template = Engine.Analyze(variant, templateOptions, catalog, new Budget()).Rows.Single().Content;
                     var options = Options("explain"); options.ProjectContext = "{\"schemaVersion\":2}"; options.Version = 170; options.ComparisonCollation = "Latin1_General_100_BIN2"; options.Bindings = template; options.CatalogBindings = catalogJson;
                     var index = Engine.Analyze(variant, options, catalog, new Budget());
@@ -207,89 +208,128 @@ internal static class ContractTests
         else if (args[0] == "components-v2")
         {
             byte[] original = File.ReadAllBytes(args[1]);
-            var v1 = Engine.Analyze(original, Options("bindings-template"), new SyntheticCatalog(), new Budget());
-            var v1Template = Json.Object(Json.Parse(v1.Rows[0].Content));
-            Assert(((JsonNumber)v1Template["schemaVersion"]).Text == "1" && Json.Text(v1Template["profile"]) == "ssis-debug-v1", "V1_TEMPLATE_UNCHANGED");
-            var v2 = Engine.Analyze(original, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget());
-            var v2Template = Json.Object(Json.Parse(v2.Rows[0].Content));
-            Assert(((JsonNumber)v2Template["schemaVersion"]).Text == "2" && Json.Text(v2Template["profile"]) == "ssis-debug-components-v2", "V2_TEMPLATE_PROFILE");
-            var resourceContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionBytes\":10}}}";
-            bool contextV2;
-            var customLimits = ResourceOptions.Parse(resourceContext, "explain", null, out contextV2);
-            Assert(contextV2 && customLimits.IsV2 && customLimits.Maximum("expressionBytes") == 10 && customLimits.Maximum("packageBytes") == 134217728, "V2_RESOURCE_OPTIONS_OVERRIDE");
-            string oversizedResourceOptions = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionBytes\":10" + new string(' ', 16385) + "}}}";
-            Reject(() => ResourceOptions.Parse(oversizedResourceOptions, "explain", null, out contextV2), "resource_limit");
-            string overControlProtocol = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\"},\"padding\":\"" + new string('x', 2097150) + "\"}";
-            try { ResourceOptions.Parse(overControlProtocol, "explain", null, out contextV2); throw new Exception("CONTROL_PROTOCOL_LIMIT_NOT_REJECTED"); }
-            catch (DebugFault error) { Assert(error.Code == "resource_limit" && error.Message.Contains("counter=controlProtocolBytes"), "CONTROL_PROTOCOL_BYTES_COUNTER"); }
-            string manyNodes = "[" + String.Join(",", Enumerable.Repeat("0", 131073)) + "]";
-            Reject(() => ResourceOptions.Parse("{\"schemaVersion\":1,\"data\":" + manyNodes + "}", "explain", null, out contextV2), "resource_limit");
-            ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"limits\":{\"jsonNodes\":200000}},\"data\":" + manyNodes + "}", "explain", null, out contextV2);
-            Assert(contextV2, "V2_CONTEXT_NODE_PROFILE");
-            var largeProfile = ResourceLimits.Create("large10x", true);
+            var templateResult = Engine.Analyze(original, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var template = Json.Object(Json.Parse(templateResult.Rows.Single().Content));
+            Assert(((JsonNumber)template["schemaVersion"]).Text == "2" && Json.Text(template["profile"]) == "ssis-debug-components-v2", "CURRENT_TEMPLATE_SCHEMA2_DEFAULT");
+            Assert(!template.ContainsKey("resourcePolicy") && template.ContainsKey("values") && template.ContainsKey("availableInputs"), "CURRENT_TEMPLATE_VALUES_WITHOUT_RESOURCE_POLICY");
+            var defaults = new long[] {134217728,134217728,1048576,262144,1048576,4096,8192,65536,8192,4194304,8388608,131072,4194304,262144,131072,8192,4096,4096,32768,65536,16384,2097152,134217728,0};
+            var defaultValues = defaults.Select(x => new SqlInt64(x)).ToArray();
+            var currentLimits = ResourceOptions.FromSqlParameters(defaultValues);
+            Assert(currentLimits.IsV2 && currentLimits.Preset == "current" && currentLimits.Maximum("packageBytes") == 134217728 && currentLimits.IsUnlimitedCounter("analysisMilliseconds"), "CURRENT_SQL_PARAMETER_DEFAULTS");
+            var parameterNames = new[] { "@MaxPackageBytes", "@MaxXmlCharacters", "@MaxXmlNodes", "@MaxModelNodes", "@MaxModelEdges", "@MaxComponents", "@MaxPaths", "@MaxColumns", "@MaxInputs", "@MaxJsonDocumentBytes", "@MaxAllJsonBytes", "@MaxJsonNodes", "@MaxExpressionBytes", "@MaxExpressionTokens", "@MaxExpressionNodes", "@MaxPlanUnits", "@MaxCatalogObjects", "@MaxCatalogQueries", "@MaxParserCalls", "@MaxArtifacts", "@MaxDiagnostics", "@MaxSqlArtifactBytes", "@MaxTotalOutputBytes", "@MaxAnalysisMilliseconds" };
+            Assert(ResourceOptions.SqlParameterNames.SequenceEqual(parameterNames), "CURRENT_SQL_PARAMETER_ORDER");
+            Assert(ResourceLimits.CounterNames.Count() == defaults.Length, "CURRENT_SQL_PARAMETER_COUNTER_COUNT");
             foreach (string counter in ResourceLimits.CounterNames)
             {
-                long maximum = largeProfile.Maximum(counter); largeProfile.Check(counter, maximum - 1); largeProfile.Check(counter, maximum);
-                try { largeProfile.Check(counter, maximum + 1); throw new Exception("V2_RESOURCE_COUNTER_OVER_NOT_REJECTED_" + counter); }
-                catch (ResourceLimitException error) { Assert(error.Counter == counter && error.Actual == maximum + 1 && !error.ActualIsLowerBound && error.Maximum == maximum, "V2_RESOURCE_COUNTER_BOUNDARY_" + counter); }
+                int index = Array.IndexOf(ResourceLimits.CounterNames.ToArray(), counter);
+                Assert(index >= 0, "CURRENT_SQL_LIMIT_COUNTER_MAP_" + counter);
+                var values = defaults.Select(x => new SqlInt64(x)).ToArray(); values[index] = new SqlInt64(17);
+                Assert(ResourceOptions.FromSqlParameters(values).Maximum(counter) == 17, "CURRENT_SQL_LIMIT_OVERRIDE_" + counter);
+                values[index] = new SqlInt64(0);
+                Assert(ResourceOptions.FromSqlParameters(values).IsUnlimitedCounter(counter), "CURRENT_SQL_LIMIT_ZERO_" + counter);
+                values[index] = SqlInt64.Null; Reject(() => ResourceOptions.FromSqlParameters(values), "unresolved_binding");
+                values[index] = new SqlInt64(-1); Reject(() => ResourceOptions.FromSqlParameters(values), "unresolved_binding");
             }
-            string xmlBoundary = "<DTS:Executable xmlns:DTS=\"www.microsoft.com/SqlServer/Dts\"><DTS:Property DTS:Name=\"PackageFormatVersion\">8</DTS:Property></DTS:Executable>";
-            byte[] xmlBoundaryBytes = Encoding.UTF8.GetBytes(xmlBoundary);
-            var xmlExact = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "xmlCharacters", xmlBoundary.Length.ToString(CultureInfo.InvariantCulture) } });
-            PackageDocument.Read(xmlBoundaryBytes, null, true, xmlExact);
-            var xmlUnder = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "xmlCharacters", (xmlBoundary.Length - 1).ToString(CultureInfo.InvariantCulture) } });
-            try { PackageDocument.Read(xmlBoundaryBytes, null, true, xmlUnder); throw new Exception("V2_XML_CHARACTER_CAP_NOT_REPORTED"); }
-            catch (ResourceLimitException error) { Assert(error.Counter == "xmlCharacters" && error.ActualIsLowerBound && error.Actual == xmlBoundary.Length && error.Maximum == xmlBoundary.Length - 1, "V2_XML_CHARACTER_CAP_LOWER_BOUND_DIAGNOSTIC"); }
-            var xmlEngineOptions = Options("bindings-template-v2"); xmlEngineOptions.ProjectContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"limits\":{\"xmlCharacters\":" + (xmlBoundary.Length - 1).ToString(CultureInfo.InvariantCulture) + "}}}";
-            try { Engine.Analyze(xmlBoundaryBytes, xmlEngineOptions, new NullCatalog(), new Budget()); throw new Exception("V2_XML_ENGINE_LOWER_BOUND_NOT_REPORTED"); }
-            catch (DebugFault error) { Assert(error.Code == "resource_limit" && error.Message.Contains("actualAtLeast=" + xmlBoundary.Length.ToString(CultureInfo.InvariantCulture)) && !error.Message.Contains(" actual="), "V2_XML_ENGINE_LOWER_BOUND_FORMAT: " + error.Message); }
-            var xmlMalformed = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "xmlCharacters", "8" } });
-            try { PackageDocument.Read(Encoding.UTF8.GetBytes("<invalid"), null, true, xmlMalformed); throw new Exception("V2_XML_MALFORMED_ACCEPTED"); }
-            catch (ModelException error) { Assert(error.Code == "UNSUPPORTED_PACKAGE_FORMAT", "V2_XML_MALFORMED_NOT_RESOURCE_LIMIT"); }
-            var jsonLimits = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "jsonDocumentBytes", "8" } });
-            Assert(Json.Text(Json.Parse("\"xy\"", jsonLimits)) == "xy", "V2_JSON_DOCUMENT_EXACT");
-            Reject(() => Json.Parse("\"xyz\"", jsonLimits), "resource_limit");
-            var nodeLimits = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "jsonNodes", "3" } });
-            Json.Parse("[0,0]", nodeLimits);
-            Reject(() => Json.Parse("[0,0,0]", nodeLimits), "resource_limit");
-            var boundedExpression = new ExpressionParser("1    ", null, null, new Dictionary<string, ExpressionValue>(), null, true, null, customLimits).Parse();
-            Assert(boundedExpression.Type == "int", "V2_RESOURCE_EXPRESSION_EXACT");
-            try { new ExpressionParser("1     ", null, null, new Dictionary<string, ExpressionValue>(), null, true, null, customLimits); throw new Exception("V2_RESOURCE_EXPRESSION_OVER_NOT_REJECTED"); }
-            catch (DebugFault error) { Assert(error.Code == "resource_limit" && error.Message.Contains("counter=expressionBytes") && error.Message.Contains("limit=10"), "V2_RESOURCE_EXPRESSION_OVER"); }
-            var unlimited = ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"unlimited\",\"limits\":{\"expressionBytes\":10}}}", "explain", null, out contextV2);
-            Assert(!unlimited.IsUnlimited && unlimited.Maximum("expressionBytes") == 10 && unlimited.Maximum("packageBytes") == Int64.MaxValue && unlimited.IsUnlimitedCounter("packageBytes") && !unlimited.IsUnlimitedCounter("expressionBytes"), "V2_RESOURCE_UNLIMITED_OVERRIDE");
-            var oneUnlimited = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "packageBytes", "unlimited" } });
-            var oneUnlimitedMetadata = Json.Object(Json.Parse(Json.Write(oneUnlimited.Metadata()))); var oneUnlimitedEffective = Json.Object(oneUnlimitedMetadata["effectiveLimits"]);
-            Assert(!oneUnlimited.IsUnlimited && oneUnlimited.IsUnlimitedCounter("packageBytes") && oneUnlimitedEffective["packageBytes"] as string == "unlimited" && oneUnlimitedEffective["jsonNodes"] is JsonNumber, "V2_RESOURCE_SINGLE_UNLIMITED_METADATA");
-            var finiteMax = ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "packageBytes", Int64.MaxValue.ToString(CultureInfo.InvariantCulture) } });
-            var finiteMaxMetadata = Json.Object(Json.Parse(Json.Write(finiteMax.Metadata())));
-            var finiteMaxValue = Json.Object(finiteMaxMetadata["effectiveLimits"])["packageBytes"] as JsonNumber;
-            Assert(!finiteMax.IsUnlimitedCounter("packageBytes") && finiteMaxValue != null && finiteMaxValue.Text == Int64.MaxValue.ToString(CultureInfo.InvariantCulture) && finiteMax.PolicyHash != oneUnlimited.PolicyHash, "V2_RESOURCE_INT64_MAX_IS_FINITE");
-            Assert(!ResourceOptions.Parse("{\"schemaVersion\":2}", "explain", null, out contextV2).IsUnlimited && contextV2, "V2_CONTEXT_DEFAULT_WITHOUT_RESOURCEOPTIONS");
-            Reject(() => ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionBytes\":0}}}", "explain", null, out contextV2), "invalid_template");
-            var resourceContextLarge = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\"}}";
-            var tinyDataJsonContext = Options("bindings-template-v2"); tinyDataJsonContext.ProjectContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"limits\":{\"jsonDocumentBytes\":8}}}";
-            var tinyDataJsonTemplate = Engine.Analyze(original, tinyDataJsonContext, new SyntheticCatalog(), new Budget());
-            Assert(tinyDataJsonTemplate.Rows.Single().Kind == "BindingsTemplate", "V2_CONTROL_CONTEXT_EXEMPT_FROM_DATA_JSON_DOCUMENT_CAP");
-            var contextOptIn = Options("explain"); contextOptIn.ProjectContext = resourceContextLarge;
-            var contextOptInResult = Engine.Analyze(original, contextOptIn, new SyntheticCatalog(), new Budget());
-            Assert(contextOptInResult.Rows.Any(x => x.Kind == "Workflow" && x.Content.Contains("resourcePolicyHash")), "V2_PROJECT_CONTEXT_EXPLICIT_OPT_IN");
-            var contextBoundTemplateOptions = Options("bindings-template-v2"); contextBoundTemplateOptions.ProjectContext = resourceContextLarge;
-            var contextBoundTemplate = Json.Object(Json.Parse(Engine.Analyze(original, contextBoundTemplateOptions, new SyntheticCatalog(), new Budget()).Rows[0].Content));
-            var otherPolicyOptions = Options("bindings-template-v2"); otherPolicyOptions.ProjectContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"unlimited\"}}";
-            var otherPolicyTemplate = Json.Object(Json.Parse(Engine.Analyze(original, otherPolicyOptions, new SyntheticCatalog(), new Budget()).Rows[0].Content));
-            Assert(Json.Text(contextBoundTemplate["contextSha256"]) == Json.Text(otherPolicyTemplate["contextSha256"]) && Json.Text(Json.Object(contextBoundTemplate["resourcePolicy"])["resourcePolicyHash"]) != Json.Text(Json.Object(otherPolicyTemplate["resourcePolicy"])["resourcePolicyHash"]), "V2_RESOURCE_HASH_SEPARATE_FROM_BUSINESS_CONTEXT");
-            var changedPolicyOptions = Options("explain"); changedPolicyOptions.ProjectContext = otherPolicyOptions.ProjectContext; changedPolicyOptions.Bindings = Json.Write(contextBoundTemplate);
-            var changedPolicyResult = Engine.Analyze(original, changedPolicyOptions, new SyntheticCatalog(), new Budget());
-            var changedPolicyWorkflow = Json.Object(Json.Parse(changedPolicyResult.Rows.Single(x => x.Kind == "Workflow" && x.Content.Contains("resourcePolicyHash")).Content));
-            Assert(Json.Bool(changedPolicyWorkflow, "resourcePolicyChanged") && Json.Text(changedPolicyWorkflow["bindingResourcePolicyHash"]) == Json.Text(Json.Object(contextBoundTemplate["resourcePolicy"])["resourcePolicyHash"]), "V2_VALID_TEMPLATE_ACCEPTS_NEW_RUNTIME_POLICY");
-            var changedContextBindings = Json.Object(Json.Parse(Json.Write(contextBoundTemplate))); changedContextBindings["contextSha256"] = new string('0', 64);
-            changedPolicyOptions.Bindings = Json.Write(changedContextBindings);
-            Reject(() => Engine.Analyze(original, changedPolicyOptions, new SyntheticCatalog(), new Budget()), "invalid_template");
-            var mixedV1 = Options("bindings-template"); mixedV1.Bindings = v2.Rows[0].Content;
-            Reject(() => Engine.Analyze(original, mixedV1, new SyntheticCatalog(), new Budget()), "invalid_template");
-            var mixedV2 = Options("bindings-template-v2"); mixedV2.Bindings = v1.Rows[0].Content;
-            Reject(() => Engine.Analyze(original, mixedV2, new SyntheticCatalog(), new Budget()), "invalid_template");
+            bool contextV2;
+            ResourceOptions.Parse("{\"schemaVersion\":2}", "explain", null, out contextV2);
+            Assert(contextV2, "CURRENT_PROJECT_CONTEXT_SCHEMA2");
+            Reject(() => ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{}}", "explain", null, out contextV2), "invalid_template");
+            bool legacyContextRejected = false; try { ResourceOptions.Parse("{\"schemaVersion\":1}", "explain", null, out contextV2); } catch (DebugFault error) { legacyContextRejected = error.Code == "invalid_template"; }
+            Assert(legacyContextRejected, "CURRENT_PROJECT_CONTEXT_REQUIRES_SCHEMA2");
+            bool resourceOptionsExplained = false; try { ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{}}", "explain", null, out contextV2); } catch (DebugFault error) { resourceOptionsExplained = error.Message.Contains("@MaxPackageBytes") && error.Message.Contains("@MaxAnalysisMilliseconds"); }
+            Assert(resourceOptionsExplained, "CURRENT_RESOURCE_OPTIONS_ERROR_NAMES_SQL_PARAMETERS");
+            var inputs = Json.Array(template["availableInputs"]).Select(Json.Object).ToList();
+            Assert(inputs.Any(x => Json.Bool(x, "defaultAvailable") && !Json.Bool(x, "sensitive")) && Json.Object(template["values"]).Count > 0, "CURRENT_DESIGN_DEFAULTS_EDITABLE");
+            byte[] assignmentPackage = Change(original, d => {
+                XNamespace dts = "www.microsoft.com/SqlServer/Dts";
+                var variables = d.Root.Element(dts + "Variables"); if (variables == null) { variables = new XElement(dts + "Variables"); d.Root.Add(variables); }
+                int id = 900;
+                Action<string, string> addVariable = (name, value) => variables.Add(new XElement(dts + "Variable", new XAttribute(dts + "Namespace", "User"), new XAttribute(dts + "ObjectName", name), new XAttribute(dts + "DTSID", "{" + (++id).ToString("D8", CultureInfo.InvariantCulture) + "-1111-1111-1111-111111111111}"), new XElement(dts + "VariableValue", new XAttribute(dts + "DataType", "Int32"), value)));
+                foreach (var item in new[] { new KeyValuePair<string,string>("Independent", "7"), new KeyValuePair<string,string>("ScriptWritten", "8"), new KeyValuePair<string,string>("LoopValue", "0"), new KeyValuePair<string,string>("LoopAttribute", "0"), new KeyValuePair<string,string>("ScriptAttribute", "0"), new KeyValuePair<string,string>("EmptyWriteList", "3"), new KeyValuePair<string,string>("ExpressionDefault", "42"), new KeyValuePair<string,string>("SqlResult", "0"), new KeyValuePair<string,string>("ForeachValue", "0") }) addVariable(item.Key, item.Value);
+                var expressionDefault = variables.Elements(dts + "Variable").Single(x => (string)x.Attribute(dts + "ObjectName") == "ExpressionDefault");
+                expressionDefault.SetAttributeValue(dts + "EvaluateAsExpression", "True"); expressionDefault.SetAttributeValue(dts + "Expression", "@[User::Independent] + 1");
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\Script"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "Property", new XAttribute(dts + "Name", "ReadWriteVariables"), "User::ScriptWritten")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\Loop"), new XAttribute(dts + "ExecutableType", "STOCK:FORLOOP"), new XElement(dts + "Property", new XAttribute(dts + "Name", "AssignExpression"), "@[User::LoopValue] = @[User::LoopValue] + 1")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\LoopAttribute"), new XAttribute(dts + "ExecutableType", "STOCK:FORLOOP"), new XAttribute(dts + "AssignExpression", "@[User::LoopAttribute] = 1")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ScriptAttribute"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "ScriptTaskData", new XAttribute(dts + "ReadWriteVariables", "User::ScriptAttribute"))));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ScriptEmpty"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XAttribute(dts + "ReadWriteVariables", "")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ScriptEmptyProperty"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "Property", new XAttribute(dts + "Name", "ReadWriteVariables"), "")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ExecuteSql"), new XAttribute(dts + "ExecutableType", "Microsoft.ExecuteSQLTask"), new XElement(dts + "ObjectData", new XElement(dts + "ResultBindings", new XElement(dts + "ResultBinding", new XAttribute(dts + "VariableName", "User::SqlResult"))))));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\Foreach"), new XAttribute(dts + "ExecutableType", "STOCK:FOREACHLOOP"), new XElement(dts + "ObjectData", new XElement(dts + "VariableMappings", new XElement(dts + "VariableMapping", new XAttribute(dts + "VariableName", "User::ForeachValue"))))));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\UnknownScript"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "Variables", new XElement(dts + "Variable", new XAttribute(dts + "Namespace", "User"), new XAttribute(dts + "ObjectName", "UnknownScriptValue"), new XAttribute(dts + "DTSID", "{bbbbbbbb-1111-1111-1111-111111111111}"), new XElement(dts + "VariableValue", new XAttribute(dts + "DataType", "Int32"), "9")))));
+            });
+            var assignmentModel = PackageDocument.Read(assignmentPackage, null, true);
+            var exportedInputs = assignmentModel.Definitions.Where(x => x.Kind == "VARIABLE").ToDictionary(x => x.Name, StringComparer.Ordinal);
+            Func<string, string, bool> hasProducerKind = (name, kind) => Json.Array(Json.Get(exportedInputs[name].Attributes, "assignmentProducers")).Any(x => Json.Text(Json.Get(Json.Object(x), "kind")) == kind);
+            Assert(Json.Text(Json.Get(exportedInputs["Independent"].Attributes, "assignmentState")) == "unknown", "ASSIGNMENT_UNKNOWN_SCRIPT_EFFECTS_ARE_VISIBLE_SCOPE");
+            Assert(Json.Text(Json.Get(exportedInputs["ScriptWritten"].Attributes, "assignmentState")) == "unknown" && hasProducerKind("ScriptWritten", "script-read-write-variable"), "ASSIGNMENT_SCRIPT_READWRITE_VARIABLE_AND_UNKNOWN_VISIBLE_WRITER");
+            Assert(hasProducerKind("LoopValue", "for-loop-assignment-expression"), "ASSIGNMENT_FORLOOP_PROPERTY_TARGET");
+            Assert(hasProducerKind("LoopAttribute", "for-loop-assignment-expression"), "ASSIGNMENT_FORLOOP_ATTRIBUTE_TARGET");
+            Assert(hasProducerKind("ScriptAttribute", "script-read-write-variable"), "ASSIGNMENT_SCRIPT_READWRITE_ATTRIBUTE");
+            Assert(hasProducerKind("SqlResult", "execute-sql-result"), "ASSIGNMENT_EXECUTESQL_RESULT_BINDING");
+            Assert(hasProducerKind("ForeachValue", "foreach-variable-mapping"), "ASSIGNMENT_FOREACH_MAPPING");
+            Assert(Json.Text(Json.Get(exportedInputs["UnknownScriptValue"].Attributes, "assignmentState")) == "unknown", "ASSIGNMENT_UNKNOWN_SCRIPT_SCOPE_REMAINS_UNKNOWN");
+            var assignmentHostModel = assignmentModel.ExportComponentsV2("1.0.0", new string('0', 40), new string('0', 64));
+            var hostIndependent = Json.Object(Json.Array(Json.Get(assignmentHostModel, "nodes")).Select(Json.Object).Single(x => String.Equals(Json.Get(x, "name") as string, "Independent", StringComparison.Ordinal))["attributes"]);
+            Assert(Json.Text(Json.Get(hostIndependent, "assignmentState")) == Json.Text(Json.Get(exportedInputs["Independent"].Attributes, "assignmentState")) && Json.Text(Json.Get(hostIndependent, "assignmentState")) == "unknown", "ASSIGNMENT_CLR_AND_NEUTRAL_HOST_PARITY");
+            var assignmentTemplate = Engine.Analyze(assignmentPackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var assignmentTemplateDoc = Json.Object(Json.Parse(assignmentTemplate.Rows.Single().Content));
+            var independentMetadata = Json.Object(Json.Array(Json.Get(assignmentTemplateDoc, "availableInputs")).Single(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::Independent"));
+            Assert(Json.Bool(independentMetadata, "defaultAvailable") && Json.Text(Json.Get(independentMetadata, "assignmentState")) == "unknown" && Json.Text(Json.Get(independentMetadata, "state")) == "runtime-assigned-design-default", "ASSIGNMENT_UNKNOWN_SCRIPT_PRESERVES_DESIGN_DEFAULT_PROVENANCE");
+            var expressionDefaultMetadata = Json.Object(Json.Array(Json.Get(assignmentTemplateDoc, "availableInputs")).Single(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::ExpressionDefault"));
+            var expressionDefaultKey = Json.Text(Json.Get(expressionDefaultMetadata, "key"));
+            Assert(Json.Bool(expressionDefaultMetadata, "defaultAvailable") && Json.Text(Json.Get(expressionDefaultMetadata, "state")) == "derived" && Json.Get(Json.Object(assignmentTemplateDoc["values"]), expressionDefaultKey) == null, "ASSIGNMENT_EXPRESSION_DESIGN_DEFAULT_VISIBLE_NOT_AUTOBINDING");
+            byte[] emptyWriteListPackage = Change(assignmentPackage, d => { XNamespace assignmentDts = "www.microsoft.com/SqlServer/Dts"; d.Root.Elements(assignmentDts + "Executable").Single(x => (string)x.Attribute(assignmentDts + "refId") == "Package\\Tasks\\UnknownScript").Remove(); });
+            var emptyWriteListModel = PackageDocument.Read(emptyWriteListPackage, null, true);
+            var emptyWriteListVariable = emptyWriteListModel.Definitions.Single(x => x.Kind == "VARIABLE" && x.Name == "EmptyWriteList");
+            var emptyIndependentVariable = emptyWriteListModel.Definitions.Single(x => x.Kind == "VARIABLE" && x.Name == "Independent");
+            Assert(Json.Text(Json.Get(emptyWriteListVariable.Attributes, "assignmentState")) == "none" && Json.Text(Json.Get(emptyIndependentVariable.Attributes, "assignmentState")) == "none", "ASSIGNMENT_EXPLICIT_EMPTY_SCRIPT_LIST_IS_KNOWN_EMPTY");
+            var roundtrip = Options("explain"); roundtrip.Bindings = Json.Write(template); roundtrip.Limits = currentLimits;
+            var currentExplain = Engine.Analyze(original, roundtrip, new SyntheticCatalog(), new Budget());
+            Assert(currentExplain.Rows.Any(x => x.Kind == "Workflow"), "CURRENT_TEMPLATE_ROUNDTRIP");
+            byte[] currentCompletePackage = Change(original, d => {
+                var derivedComplete = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                derivedComplete.SetAttributeValue("version", "0"); derivedComplete.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derivedComplete.Element("inputs").Element("input").Attribute("refId").Value);
+                var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split"); string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value; split.SetAttributeValue("version", "0");
+                foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+            });
+            var currentCompleteTemplate = Engine.Analyze(currentCompletePackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var currentCompleteOptions = Options("explain"); currentCompleteOptions.Bindings = currentCompleteTemplate.Rows.Single().Content;
+            var currentComplete = Engine.Analyze(currentCompletePackage, currentCompleteOptions, new SyntheticCatalog(), new Budget());
+            var currentScript = currentComplete.Rows.Single(x => x.Kind == "DebugScript" && x.Target == "f0001");
+            Assert(currentScript.Executable && currentScript.Complete && currentScript.Safety == "passed" && currentScript.Content.Contains("\nGO\n"), "CURRENT_DEBUG_SCRIPT_COMPLETE_AND_BATCHED");
+            var currentScriptDetails = Json.Object(Json.Parse(currentScript.Details));
+            Assert(Json.Text(Json.Get(currentScriptDetails, "status")) == "complete" && !Json.Bool(currentScriptDetails, "sssisTasksExecuted"), "CURRENT_DEBUG_SCRIPT_PROVENANCE");
+            var scriptBatches = Json.Array(Json.Get(currentScriptDetails, "batches")).Select(Json.Object).ToList();
+            bool scriptBatchPinsValid = scriptBatches.Count > 0;
+            for (int batchIndex = 0; batchIndex < scriptBatches.Count && scriptBatchPinsValid; batchIndex++)
+            {
+                var batch = scriptBatches[batchIndex];
+                int sequence = Int32.Parse(((JsonNumber)Json.Get(batch, "sequence")).Text, CultureInfo.InvariantCulture);
+                int ordinal = Int32.Parse(((JsonNumber)Json.Get(batch, "resultOrdinal")).Text, CultureInfo.InvariantCulture);
+                var sourceArtifact = currentComplete.Rows.Single(a => a.Ordinal == ordinal);
+                scriptBatchPinsValid = sequence == batchIndex + 1 && sourceArtifact.Kind == Json.Text(Json.Get(batch, "artifactKind")) &&
+                    Util.Hash(sourceArtifact.Content) == Json.Text(Json.Get(batch, "contentSha256")) && currentScript.Content.Contains(sourceArtifact.Content.TrimEnd());
+            }
+            Assert(scriptBatchPinsValid && Json.Text(Json.Get(currentScriptDetails, "batchSeparator")) == "GO" && Json.Bool(currentScriptDetails, "freshSessionRequired") && Json.Bool(currentScriptDetails, "cleanupAfterPartialFailure"), "CURRENT_DEBUG_SCRIPT_BATCH_ORDER_AND_CONTENT_BINDING");
+            byte[] missingCommandPackage = Change(original, d => {
+                XNamespace dts = "www.microsoft.com/SqlServer/Dts";
+                var variables = d.Root.Element(dts + "Variables"); if (variables == null) { variables = new XElement(dts + "Variables"); d.Root.Add(variables); }
+                variables.Add(new XElement(dts + "Variable", new XAttribute(dts + "Namespace", "User"), new XAttribute(dts + "ObjectName", "CommandText"), new XAttribute(dts + "DTSID", "{aaaaaaaa-1111-1111-1111-111111111111}")));
+                var source = d.Descendants("component").Single(x => (string)x.Attribute("name") == "SourceA");
+                var properties = source.Element("properties"); properties.Elements("property").Single(x => (string)x.Attribute("name") == "AccessMode").Value = "3";
+                properties.Add(new XElement("property", new XAttribute("name", "SqlCommandVariable"), "User::CommandText"));
+            });
+            var missingCommandTemplate = Engine.Analyze(missingCommandPackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var missingCommandOptions = Options("explain"); missingCommandOptions.Bindings = missingCommandTemplate.Rows.Single().Content;
+            var missingCommand = Engine.Analyze(missingCommandPackage, missingCommandOptions, new SyntheticCatalog(), new Budget());
+            Assert(!missingCommand.Rows.Any(x => (x.Kind == "TargetSql" || x.Kind == "DebugScript") && x.Executable) && missingCommand.Rows.Any(x => x.Kind == "DebugScript" && !x.Executable), "MISSING_COMMAND_TEXT_NEVER_BECOMES_EXECUTABLE");
+            Assert(missingCommand.Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "unresolved_binding" && x.Content.Contains("Command-Text")) && missingCommand.Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "partial_target" && x.Content.Contains("Erstursache unresolved_binding")), "PARTIAL_TARGET_PRESERVES_ROOT_CAUSE");
+            var blockedPath = Json.Array(Json.Get(Json.Object(Json.Parse(missingCommand.Rows.Single(x => x.Kind == "Workflow" && x.Target == "f0001").Details)), "stages"));
+            Assert(blockedPath.Count > 1 && Json.Array(Json.Get(Json.Object(Json.Parse(missingCommand.Rows.Single(x => x.Kind == "DebugScript" && x.Target == "f0001").Details)), "missingInputs")).Any(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::CommandText"), "BLOCKED_PATH_AND_MISSING_INPUT_ARE_EXPLICIT");
+            var injectedPolicy = Json.Object(Json.Parse(Json.Write(template))); injectedPolicy.Add("resourcePolicy", ResourceLimits.CreateCurrent().Metadata()); roundtrip.Bindings = Json.Write(injectedPolicy);
+            Reject(() => Engine.Analyze(original, roundtrip, new SyntheticCatalog(), new Budget()), "invalid_template");
+            Reject(() => Engine.Analyze(original, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget()), "unresolved_binding");
             byte[] v2ExpressionPackage = Change(original, d => {
                 var component = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
                 component.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", component.Element("inputs").Element("input").Attribute("refId").Value);
@@ -297,7 +337,7 @@ internal static class ContractTests
                 var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split"); string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
                 foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
             });
-            var v2ExpressionTemplate = Engine.Analyze(v2ExpressionPackage, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget());
+            var v2ExpressionTemplate = Engine.Analyze(v2ExpressionPackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
             var v2ExplainOptions = Options("explain"); v2ExplainOptions.Bindings = v2ExpressionTemplate.Rows[0].Content;
             var v2Explain = Engine.Analyze(v2ExpressionPackage, v2ExplainOptions, new SyntheticCatalog(), new Budget());
             Assert(v2Explain.Rows.Any(x => x.Kind == "PlanUnitSql" && x.Content.Contains("LEN(N'x  ' + N'.') - 1")), "V2_DERIVED_EXPRESSION_TRANSLATION");
@@ -324,14 +364,15 @@ internal static class ContractTests
             string branchGroup = "((" + branchTerm + ") && (" + branchTerm2 + "))";
             string longBoolean = planBench ? String.Join(" || ", Enumerable.Repeat(branchGroup, longBooleanTerms)) : String.Join(" && ", Enumerable.Repeat("TRUE", longBooleanTerms));
             if (planBench && longBoolean.Length < 1440000) longBoolean += new string(' ', 1440000 - longBoolean.Length);
-            string longPlanContext = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\",\"limits\":{\"expressionNodes\":524288,\"analysisMilliseconds\":120000}}}";
+            string longPlanContext = "{\"schemaVersion\":2}";
+            var longPlanLimits = ResourceLimits.CreateCurrent(new Dictionary<string, long> { { "expressionNodes", 524288 }, { "totalOutputBytes", 536870912 }, { "analysisMilliseconds", 120000 } });
             var benchmarkColumns = new Dictionary<string, ExpressionValue> { { "KeyA", new ExpressionValue { Sql = "m.[KeyA]", Type = "int", Nullable = true, Total = true } }, { "KeyB", new ExpressionValue { Sql = "m.[KeyB]", Type = "int", Total = true } } };
             var longParser = new ExpressionParser(longBoolean, null, null, benchmarkColumns, null, true, cp => cp == 1252 ? "Latin1_General_100_BIN2" : null, ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "expressionNodes", "524288" } }));
             var longValue = longParser.Parse(); int exactTokens = longParser.ParsedTokenCount, exactNodes = longParser.ParsedNodeCount, exactExpressionBytes = longBoolean.Length * 2;
             Assert((planBench || longBoolean.Length > 16384) && longValue.Type == "bit" && longValue.BooleanTerms.Count == longBooleanTerms, "V2_LONG_BOOLEAN_EXPRESSION_REMAINS_STRUCTURED_UNTIL_PLAN_LOWERING");
             byte[] longBooleanPackage = Change(v2ExpressionPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Descendants("property").Single(x => (string)x.Attribute("name") == "Expression").Value = longBoolean);
             var planWatch = System.Diagnostics.Stopwatch.StartNew();
-            var longBooleanExplain = ExplainV2(longBooleanPackage, "f0001", longPlanContext, new SyntheticCatalog { NullableKeys = true });
+            var longBooleanExplain = ExplainV2(longBooleanPackage, "f0001", longPlanContext, new SyntheticCatalog { NullableKeys = true }, longPlanLimits);
             planWatch.Stop();
             if (planBench) { var planUnits = longBooleanExplain.Rows.Where(x => x.Kind == "PlanUnitSql").ToList(); Console.WriteLine("SSIS_V2_PLAN_BENCH terms=" + longBooleanTerms.ToString(CultureInfo.InvariantCulture) + " expressionUtf16Bytes=" + (longBoolean.Length * 2L).ToString(CultureInfo.InvariantCulture) + " units=" + planUnits.Count.ToString(CultureInfo.InvariantCulture) + " sqlUtf16Bytes=" + longBooleanExplain.Rows.Sum(x => (long)x.Content.Length * 2L).ToString(CultureInfo.InvariantCulture) + " maxUnitUtf16Bytes=" + (planUnits.Count == 0 ? 0L : planUnits.Max(x => (long)x.Content.Length * 2L)).ToString(CultureInfo.InvariantCulture) + " ms=" + planWatch.ElapsedMilliseconds.ToString(CultureInfo.InvariantCulture)); return; }
             Assert(longBooleanExplain.Rows.Any(x => x.Kind == "TargetSql" && x.Complete) && longBooleanExplain.Rows.Count(x => x.Kind == "PlanUnitSql") >= 2730 && longBooleanExplain.Rows.Where(x => x.Kind == "PlanUnitSql").All(x => x.Executable && x.Safety == "passed"), "V2_2730_UNIT_BOOLEAN_PLAN_PASSES_PER_UNIT_SQL_SAFETY");
@@ -410,7 +451,9 @@ internal static class ContractTests
             var rowCountModel = PackageDocument.Read(rowCountPackage, null, true);
             var rowCountDefinition = rowCountModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "RowCount");
             Assert(rowCountDefinition.ComponentKind == "rowcount", "V2_ROWCOUNT_PROFILE_ACCEPTED " + rowCountDefinition.ComponentKind);
-            var rowCountTemplateOptions = Options("bindings-template-v2");
+            var rowCountVariableDefinition = rowCountModel.Definitions.Single(x => x.Kind == "VARIABLE" && x.Name == "RowsProcessed");
+            Assert(Json.Text(Json.Get(rowCountVariableDefinition.Attributes, "assignmentState")) == "declared" && Json.Text(Json.Get(Json.Object(Json.Array(Json.Get(rowCountVariableDefinition.Attributes, "assignmentProducers")).Single()), "kind")) == "row-count-variable", "ASSIGNMENT_ROWCOUNT_PRODUCER");
+            var rowCountTemplateOptions = Options("bindings-template");
             var rowCountTemplate = Engine.Analyze(rowCountPackage, rowCountTemplateOptions, new SyntheticCatalog(), new Budget());
             var rowCountTemplateDoc = Json.Object(Json.Parse(rowCountTemplate.Rows.Single().Content));
             string rowCountVariableKey = Json.Text(Json.Object(Json.Array(Json.Get(rowCountTemplateDoc, "availableInputs")).Single(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::RowsProcessed"))["key"]);
@@ -421,6 +464,10 @@ internal static class ContractTests
             Assert(rowCountSql.Complete && rowCountExplain.Rows.Any(x => x.Kind == "TargetSql" && x.Target == rowCountSql.Target && x.Complete) && rowCountExplain.Rows.Any(x => x.Kind == "Workflow" && x.Target == rowCountSql.Target && x.Complete) && rowCountExplain.Rows.Any(x => x.Kind == "PlanUnitSql" && x.Target == rowCountSql.Target), "V2_ROWCOUNT_AND_PROJECTION_USE_VALIDATED_SHARED_PLAN");
             var rowCountDetails = Json.Object(Json.Parse(rowCountSql.Details));
             Assert(Json.Text(rowCountDetails["targetVariable"]) == "User::RowsProcessed" && Json.Text(rowCountDetails["assignmentTiming"]) == "after-last-row" && Json.Bool(rowCountDetails, "snapshotSharedWithProjection") && Json.Bool(rowCountDetails, "executeWithPlanArtifact"), "V2_ROWCOUNT_TYPED_TARGET_AND_POST_FLOW_EFFECT");
+            var rowDebugScript = rowCountExplain.Rows.Single(x => x.Kind == "DebugScript" && x.Target == rowCountSql.Target);
+            var rowDebugBatches = Json.Array(Json.Get(Json.Object(Json.Parse(rowDebugScript.Details)), "batchOrder")).Select(Json.Text).ToList();
+            int rowTargetBatch = rowDebugBatches.FindIndex(x => x.StartsWith("TargetSql:", StringComparison.Ordinal)), rowCountBatch = rowDebugBatches.FindIndex(x => x.StartsWith("RowCountSql:", StringComparison.Ordinal)), cleanupBatch = rowDebugBatches.FindIndex(x => x.StartsWith("CleanupSql:", StringComparison.Ordinal));
+            Assert(rowDebugScript.Executable && rowDebugScript.Complete && rowTargetBatch >= 0 && rowTargetBatch < rowCountBatch && rowCountBatch < cleanupBatch, "V2_DEBUG_SCRIPT_TARGET_COUNT_CLEANUP_ORDER");
             Assert(rowCountSql.Content.Contains("BETWEEN -2147483648 AND 2147483647"), "V2_ROWCOUNT_INT32_RANGE_GUARD");
             byte[] rowCountUnknown = Change(rowCountPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "RowCount").Descendants("property").Single(x => (string)x.Attribute("name") == "VariableName").Value = "User::Unknown");
             Assert(ExplainV2(rowCountUnknown).Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "missing_context" && x.Component == "Package\\Flow\\RowCount"), "V2_ROWCOUNT_UNKNOWN_VARIABLE_REJECTED");
@@ -468,7 +515,7 @@ internal static class ContractTests
                 "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks"),
                 "flatFileInputs", Json.Obj("Package.ConnectionManagers[FlatInput]", Json.Obj("database", "AdventureWorks", "schema", "dbo", "object", "SyntheticFlatFileRows", "columns", Json.Obj(flatSourceId, "KeyA", flatAmountId, "Amount")))));
             Json.Parse(flatBindings); checks++;
-            var flatTemplateOptions = Options("bindings-template-v2"); flatTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
+            var flatTemplateOptions = Options("bindings-template"); flatTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
             string flatTemplate = Engine.Analyze(flatFilePackage, flatTemplateOptions, new SyntheticCatalog(), new Budget()).Rows.Single().Content;
             var flatExplainOptions = Options("explain"); flatExplainOptions.ProjectContext = "{\"schemaVersion\":2}";
             flatExplainOptions.Bindings = flatTemplate; flatExplainOptions.CatalogBindings = flatBindings;
@@ -486,8 +533,8 @@ internal static class ContractTests
             {
                 string exportRoot = Path.GetFullPath(args[2]);
                 if (!exportRoot.Contains(Path.DirectorySeparatorChar + ".runtime" + Path.DirectorySeparatorChar)) throw new Exception("V2_FIXTURE_EXPORT_OUTSIDE_RUNTIME");
-                string context2 = "{\"schemaVersion\":2,\"resourceOptions\":{\"schemaVersion\":1,\"preset\":\"large10x\"}}";
-                var rowTemplateOptions = Options("bindings-template-v2"); rowTemplateOptions.ProjectContext = context2;
+                string context2 = "{\"schemaVersion\":2}";
+                var rowTemplateOptions = Options("bindings-template"); rowTemplateOptions.ProjectContext = context2;
                 string rowTemplate = Engine.Analyze(rowCountPackage, rowTemplateOptions, new SyntheticCatalog(), new Budget()).Rows.Single().Content;
                 string rowCatalog = Json.Write(Json.Obj("schemaVersion", new JsonNumber("2"), "defaultDatabase", "AdventureWorks", "databases", new List<object> { "AdventureWorks" }, "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks")));
                 ExportSyntheticFixture(exportRoot, "rowcount", rowCountPackage, context2, rowTemplate, rowCatalog);
@@ -508,7 +555,7 @@ internal static class ContractTests
                     foreach (var splitOutput in splitComponentXml.Element("outputs").Elements("output")) splitOutput.SetAttributeValue("synchronousInputId", splitComponentXml.Element("inputs").Element("input").Attribute("refId").Value);
                 });
                 string variableCatalog = Json.Write(Json.Obj("schemaVersion", new JsonNumber("2"), "defaultDatabase", "AdventureWorks", "databases", new List<object> { "AdventureWorks" }, "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks"), "flatFileInputs", Json.Obj()));
-                var variableTemplateOptions = Options("bindings-template-v2"); variableTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
+                var variableTemplateOptions = Options("bindings-template"); variableTemplateOptions.ProjectContext = "{\"schemaVersion\":2}";
                 string variableTemplate = Engine.Analyze(variableStringPackage, variableTemplateOptions, new SyntheticCatalog { TextKeys = true }, new Budget()).Rows.Single().Content;
                 var variableExplainOptions = Options("explain"); variableExplainOptions.ProjectContext = "{\"schemaVersion\":2}"; variableExplainOptions.Bindings = variableTemplate; variableExplainOptions.CatalogBindings = variableCatalog;
                 var variableExplain = Engine.Analyze(variableStringPackage, variableExplainOptions, new SyntheticCatalog { TextKeys = true }, new Budget());
@@ -721,29 +768,58 @@ internal static class ContractTests
             var json = Json.Object(Json.Parse(template.Rows[0].Content)); Assert(Json.Array(json["availableInputs"]).Count == 4, "INPUTS");
             if (args[0] == "import")
             {
+                Assert(Json.Text(json["profile"]) == "ssis-debug-components-v2" &&
+                       ((JsonNumber)json["schemaVersion"]).Text == "2", "CURRENT_BINDING_TEMPLATE_CONTRACT");
                 var options = Options("explain"); options.Bindings = Json.Write(json);
-                var package = PackageReader.Read(bytes, new Budget()); var bindings = new Bindings(package, options, cat, new Artifacts());
+                var package = PackageReader.Read(bytes, new Budget(), true); var bindings = new Bindings(package, options, cat, new Artifacts());
                 Assert(bindings.Template().Count == 6, "ROUNDTRIP");
                 Json.Object(json["values"])["v0001"] = "5";
-                bindings = new Bindings(PackageReader.Read(bytes, new Budget()), new Options { Operation = "bindings-template", Version = 150 }, cat, new Artifacts());
+                bindings = new Bindings(PackageReader.Read(bytes, new Budget(), true), new Options { Operation = "bindings-template", Version = 150 }, cat, new Artifacts());
                 Assert(package.Flows[0].Components.Count == 8, "COMPONENTS_TWO_SOURCES_UNION_DERIVED_LOOKUP_SPLIT_TWO_DESTINATIONS");
             }
             else if (args[0] == "translate")
             {
-                var options = Options("explain"); options.Bindings = Json.Write(json); options.Stage = "all";
-                var result = Engine.Analyze(bytes, options, cat, new Budget());
+                byte[] translatePackage = Change(bytes, d => {
+                    var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                    derived.SetAttributeValue("version", "0");
+                    derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                    var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split");
+                    string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
+                    split.SetAttributeValue("version", "0");
+                    foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+                });
+                string translateBindings = Engine.Analyze(translatePackage, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                var options = Options("explain"); options.Bindings = translateBindings; options.Stage = "all";
+                var result = Engine.Analyze(translatePackage, options, cat, new Budget());
                 var sql = result.Rows.Where(a => a.Kind == "TargetSql").ToList();
                 foreach (Artifact error in result.Rows.Where(a => a.Kind == "Diagnostic" && a.Code != "nolock_read_uncommitted" && a.Code != "arbitrary_lookup_selection" && a.Code != "lookup_comparison_deviation")) Console.Error.WriteLine(error.Content);
                 Assert(sql.Count == 2, "TWO_TARGETS");
                 var sourceStages=result.Rows.Where(a=>a.Kind=="StageSql" && a.Component=="Package\\Flow\\SourceA").ToList();
                 Assert(sourceStages.Count==2 && sourceStages.Select(a=>a.Target).Distinct().Count()==2,"SOURCE_STAGE_PER_TARGET");
                 foreach(int width in new[]{3999,4000,4001}) {
-                    byte[] longId=Change(bytes,d=>d.Descendants("component").Last().SetAttributeValue("refId",new string('x',width)));
+                    byte[] longId=Change(translatePackage,d=>d.Descendants("component").Last().SetAttributeValue("refId",new string('x',width)));
                     var longOptions=Options("explain");longOptions.Stage="all";
                     if(width<=4000){longOptions.Bindings=Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()).Rows[0].Content;var full=Engine.Analyze(longId,longOptions,cat,new Budget());Assert(full.Rows.Any(a=>a.Component!=null && a.Component.Length==width),"ORIGINAL_COMPONENT_ID_NOT_TRUNCATED");}
                     else Reject(()=>Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()),"resource_limit");
                 }
-                Assert(sql.All(a => a.Executable && a.Content.Contains("WITH (NOLOCK)") && a.Content.Contains("ROW_NUMBER() OVER (PARTITION BY") && a.Content.Contains("DECLARE @v")), "SQL_CONTRACT");
+                var planUnits = result.Rows.Where(a => a.Kind == "PlanUnitSql").ToList();
+                bool sqlContract = sql.Count == 2 && planUnits.Count > 0 && planUnits.All(a => a.Executable && a.Safety == "passed");
+                Assert(sqlContract, "SQL_CONTRACT_ARTIFACT_SAFETY");
+                foreach (Artifact target in sql)
+                {
+                    // V2 legt Cachevorbereitung in guarded PlanUnitSql ab; separate PreparationSql wird mitgeprüft, falls vorhanden.
+                    var targetArtifacts = result.Rows.Where(a => a.Target == target.Target &&
+                        (a.Kind == "PreparationSql" || a.Kind == "PlanUnitSql" || a.Kind == "TargetSql") &&
+                        a.Executable && a.Safety == "passed").ToList();
+                    string targetPlanSql = String.Join("\n", targetArtifacts.Select(a => a.Content));
+                    Assert(target.Executable && target.Complete && target.Content.IndexOf("SELECT", StringComparison.Ordinal) >= 0,
+                           "SQL_CONTRACT_TARGET_PROJECTION");
+                    Assert(targetArtifacts.Any(a => a.Kind == "PlanUnitSql"), "SQL_CONTRACT_TARGET_PLAN_UNITS");
+                    Assert(targetArtifacts.Any(a => a.Kind == "TargetSql"), "SQL_CONTRACT_TARGET_READ");
+                    Assert(targetPlanSql.Contains("WITH (NOLOCK)"), "SQL_CONTRACT_NOLOCK");
+                    Assert(targetPlanSql.Contains("ROW_NUMBER() OVER (PARTITION BY"), "SQL_CONTRACT_LOOKUP_ROW_NUMBER");
+                    Assert(targetPlanSql.Contains("DECLARE @v"), "SQL_CONTRACT_SCENARIO_DECLARATIONS");
+                }
                 Assert(result.Rows.Any(a => a.Kind == "StageSql") && result.Rows.Any(a => a.Kind == "CleanupSql"), "STAGES_CLEANUP");
                 Assert(sql.All(a => a.Details != null && a.Details.Contains("catalogBinding") && a.Details.Contains("catalogSha256")), "CATALOG_BINDING_EXPORTED");
                 if (args.Length > 2) File.WriteAllText(args[2], sql[0].Content);
@@ -751,6 +827,15 @@ internal static class ContractTests
             else if (args[0] == "sql-regression")
             {
                 var safety = Safety(cat);
+                byte[] regressionPackage = Change(bytes, d => {
+                    var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                    derived.SetAttributeValue("version", "0");
+                    derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                    var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split");
+                    string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
+                    split.SetAttributeValue("version", "0");
+                    foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+                });
                 var filtered = safety.Read("SELECT KeyA FROM dbo.SyntheticLookup WHERE KeyA >= 2", "AdventureWorks");
                 Assert(filtered.Sql.Contains("WHERE"), "READ_PRESERVES_WHERE");
                 var pure = safety.Read("SELECT KeyA,KeyB,Amount FROM dbo.SyntheticPure()", "AdventureWorks");
@@ -758,29 +843,40 @@ internal static class ContractTests
                 Projection.Columns(filtered, safety);
                 Assert(safety.Generate(filtered.Statement.QueryExpression).Contains("WHERE"), "PROJECTION_PRESERVES_WHERE");
                 var options = Options("explain");
-                byte[] parameterized = Change(bytes, d => { var c = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup"); c.Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup WHERE KeyA >= ?"; c.Element("properties").Add(new XElement("property", new XAttribute("name", "ParameterMapping"), "\"@Floor:Input\",{11111111-1111-1111-1111-000000000002};")); });
+                byte[] parameterized = Change(regressionPackage, d => { var c = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup"); c.Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup WHERE KeyA >= ?"; c.Element("properties").Add(new XElement("property", new XAttribute("name", "ParameterMapping"), "\"@Floor:Input\",{11111111-1111-1111-1111-000000000002};")); });
+                options.Bindings = Engine.Analyze(parameterized, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
                 var result = Engine.Analyze(parameterized, options, cat, new Budget());
                 Assert(result.Rows.Count(a => a.Kind == "TargetSql" && a.Executable) == 2, "REFERENCE_FILTER_TWO_EXECUTABLE_TARGETS");
                 if (args.Length > 2) File.WriteAllText(args[2], result.Rows.First(a => a.Kind == "TargetSql").Content);
-                Assert(result.Rows.Where(a => a.Kind == "TargetSql").All(a => System.Text.RegularExpressions.Regex.IsMatch(a.Content, @"WHERE\s+\[?KeyA\]?\s*>=\s*@v0002")), "LOOKUP_PRESERVES_REFERENCE_FILTER");
+                Assert(result.Rows.Where(a => a.Kind == "PlanUnitSql").Any(a => System.Text.RegularExpressions.Regex.IsMatch(a.Content, @"WHERE\s+\[?KeyA\]?\s*>=\s*@v0002")), "LOOKUP_PRESERVES_REFERENCE_FILTER");
                 Reject(() => Util.CollationToken("Latin1_General_100_BIN2;SELECT 1"), "unresolved_binding");
                 Reject(() => Util.CollationToken("[Latin1_General_100_BIN2]"), "unresolved_binding");
-                byte[] textKeys = Change(bytes, d => { foreach (var column in d.Descendants().Where(x => (x.Name.LocalName == "inputColumn" || x.Name.LocalName == "outputColumn" || x.Name.LocalName == "externalMetadataColumn") && (string)x.Attribute("name") == "KeyA")) { column.SetAttributeValue("dataType", "wstr"); column.SetAttributeValue("cachedDataType", "wstr"); column.SetAttributeValue("length", "10"); column.SetAttributeValue("cachedLength", "10"); } });
+                byte[] textKeys = Change(regressionPackage, d => { foreach (var column in d.Descendants().Where(x => (x.Name.LocalName == "inputColumn" || x.Name.LocalName == "outputColumn" || x.Name.LocalName == "externalMetadataColumn") && (string)x.Attribute("name") == "KeyA")) { column.SetAttributeValue("dataType", "wstr"); column.SetAttributeValue("cachedDataType", "wstr"); column.SetAttributeValue("length", "10"); column.SetAttributeValue("cachedLength", "10"); } });
                 cat.TextKeys = true;
                 foreach (int version in new[] { 150, 160, 170 })
                 {
-                    var textOptions = Options("explain"); textOptions.Version = version;
+                    var textOptions = Options("explain"); textOptions.Bindings = Engine.Analyze(textKeys, Options("bindings-template"), cat, new Budget()).Rows.Single().Content; textOptions.Version = version;
                     var textResult = Engine.Analyze(textKeys, textOptions, cat, new Budget());
                     var textTargets = textResult.Rows.Where(a => a.Kind == "TargetSql" && a.Executable).ToList();
                     Assert(textTargets.Count == 2, "UNICODE_LOOKUP_TWO_EXECUTABLE_TARGETS");
-                    Assert(textTargets.All(a => a.Content.Contains("COLLATE Latin1_General_100_BIN2") && !a.Content.Contains("COLLATE [")), "COLLATION_TOKEN_SYNTAX");
+                    Assert(textResult.Rows.Where(a => a.Kind == "PlanUnitSql").Any(a => a.Content.Contains("COLLATE Latin1_General_100_BIN2") && !a.Content.Contains("COLLATE [")), "COLLATION_TOKEN_SYNTAX");
                 }
                 cat.Drift = true;
-                Reject(() => Engine.Analyze(textKeys, Options("explain"), cat, new Budget()), "catalog_drift");
+                var driftOptions = Options("explain"); driftOptions.Bindings = Engine.Analyze(textKeys, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                Reject(() => Engine.Analyze(textKeys, driftOptions, cat, new Budget()), "catalog_drift");
             }
             else if (args[0] == "safety")
             {
                 var safety = Safety(cat);
+                byte[] safetyPackage = Change(bytes, d => {
+                    var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                    derived.SetAttributeValue("version", "0");
+                    derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                    var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split");
+                    string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value;
+                    split.SetAttributeValue("version", "0");
+                    foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+                });
                 foreach (string sql in new[] { "DELETE FROM dbo.SyntheticSourceA", "SELECT * INTO dbo.Unsafe FROM dbo.SyntheticSourceA", "SELECT GETDATE()", "SELECT * FROM [Other].[dbo].[SyntheticSourceA]", "SELECT * FROM [Remote].[AdventureWorks].[dbo].[SyntheticSourceA]", "EXEC dbo.Unsafe" })
                 { bool rejected = false; try { safety.Read(sql, "AdventureWorks"); } catch (DebugFault) { rejected = true; } Assert(rejected, "CLOSED_SQL_PROFILE"); }
                 string cte = "WITH x AS (SELECT KeyA, KeyB, Amount FROM dbo.SyntheticSourceA) SELECT KeyA, KeyB, Amount FROM x";
@@ -798,8 +894,9 @@ internal static class ContractTests
                 var partial = Engine.Analyze(unsupported, Options("explain"), cat, new Budget());
                 Assert(partial.Rows.Any(x => x.Code == "unsupported_component"), "LOCAL_COMPONENT_DIAGNOSIS");
                 Assert(!partial.Rows.Any(x => x.Kind == "TargetSql" && x.Executable), "BLOCKED_DEPENDENT_TARGETS");
-                var failLookup = Change(bytes, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "NoMatchBehavior").Value = "0");
-                var matches = Engine.Analyze(failLookup, Options("explain"), cat, new Budget());
+                var failLookup = Change(safetyPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "NoMatchBehavior").Value = "0");
+                var failLookupOptions = Options("explain"); failLookupOptions.Bindings = Engine.Analyze(failLookup, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                var matches = Engine.Analyze(failLookup, failLookupOptions, cat, new Budget());
                 Assert(matches.Rows.Any(x => x.Kind == "StageIndex" && x.Content.Contains("lookup_matches")), "LOOKUP_FAIL_MATCH_VIEW");
                 var decimalInput = new Input { Type = "Decimal", SqlType = Types.Sql("Decimal") };
                 Assert(Types.Literal(decimalInput, "123.456") == "123.456", "EXACT_DECIMAL_FRACTION");
@@ -827,9 +924,10 @@ internal static class ContractTests
                 Assert(Projection.Columns(unionQuery, safety)[0].Nullable, "SQL_UNION_NULLABILITY");
                 var valuesQuery = safety.Read("SELECT v.Value FROM (VALUES(1),(NULL)) AS v(Value)", "AdventureWorks");
                 Assert(Projection.Columns(valuesQuery, safety)[0].Nullable, "SQL_VALUES_NULLABILITY");
-                var lookupProduct = Change(bytes, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,CAST(1.23 AS decimal(10,2))*CAST(2.34 AS decimal(10,2)) AS Score FROM dbo.SyntheticLookup");
-                var product = Engine.Analyze(lookupProduct, Options("explain"), cat, new Budget());
-                Assert(product.Rows.Where(x => x.Kind == "TargetSql").Count(x => x.Executable && x.Content.Contains("decimal(21,4)")) == 2, "LOOKUP_PRODUCT_CACHE_PRECISION");
+                var lookupProduct = Change(safetyPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Lookup").Descendants("property").Single(x => (string)x.Attribute("name") == "SqlCommand").Value = "SELECT KeyA,KeyB,CAST(1.23 AS decimal(10,2))*CAST(2.34 AS decimal(10,2)) AS Score FROM dbo.SyntheticLookup");
+                var productOptions = Options("explain"); productOptions.Bindings = Engine.Analyze(lookupProduct, Options("bindings-template"), cat, new Budget()).Rows.Single().Content;
+                var product = Engine.Analyze(lookupProduct, productOptions, cat, new Budget());
+                Assert(product.Rows.Where(x => x.Kind == "PlanUnitSql").Count(x => x.Executable && x.Content.Contains("decimal(21,4)")) > 0, "LOOKUP_PRODUCT_CACHE_PRECISION");
             }
             else throw new Exception("UNKNOWN_CASE");
         }

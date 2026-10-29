@@ -1,24 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/Contracts/ComponentsV2.schema.json",
-  "title": "SSIS debug components V2 help overlay",
+  "title": "SSIS debug current profile help overlay",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "contract", "baseContract", "operation", "bindingProfile", "projectContext", "catalogBindings", "help"],
   "properties": {
     "schemaVersion": {"const": 1},
-    "contract": {"const": "ssis-debug-components-v2"},
+    "contract": {"const": "ssis-debug-current"},
     "baseContract": {"const": "Contracts/Api.json"},
-    "operation": {"const": "bindings-template-v2"},
+    "operation": {"const": "bindings-template"},
     "bindingProfile": {"const": "ssis-debug-components-v2"},
     "projectContext": {
       "type": "object", "additionalProperties": false,
-      "required": ["schemaVersion", "resourceOptionsSchemaVersion", "presets", "controlProtocolBytes", "resourceOptionsJsonBytes"],
-      "properties": {
-        "schemaVersion": {"const": 2}, "resourceOptionsSchemaVersion": {"const": 1},
-        "presets": {"const": ["large10x", "unlimited"]}, "controlProtocolBytes": {"const": 4194304},
-        "resourceOptionsJsonBytes": {"const": 16384}
-      }
+      "required": ["schemaVersion", "resourceOptionsAllowed"],
+      "properties": {"schemaVersion": {"const": 2}, "resourceOptionsAllowed": {"const": false}}
     },
     "catalogBindings": {
       "type": "object", "additionalProperties": false,

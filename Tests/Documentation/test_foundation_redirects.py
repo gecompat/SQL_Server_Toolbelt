@@ -384,9 +384,10 @@ class ProvenanceTests(unittest.TestCase):
                          "7dad9be50540af3f67df833ae1fb0aab879bd6b52cbd975f8e8241e53219f07c")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         # 2026-10-22: vollständige 1.25-Projektion einschließlich
-                         # Root-Bridge; alle bisherigen Sicherheitsgründe bleiben erhalten.
-                         "33c38058f194b745811560a6a5d7dcc255ea3132d7ac7b014dfa54ac579a3e51")
+                         # 2026-10-29: nur das bestehende AGENTS-Projektoverride
+                         # folgt der direkten Current-only-Benutzerentscheidung.
+                         # 1.25-Quellidentität, Auswahl und Sicherheitsgründe bleiben erhalten.
+                         "0a31f2e5428557de918e6c03f91e033b0144c863153d48fba972beb8f4981115")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])

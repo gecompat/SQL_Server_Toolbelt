@@ -1,5 +1,5 @@
-"""Exact historical SSIS source bytes retained in the frozen CLR installer."""
-from pathlib import Path, PurePosixPath
+"""Historische Quellen gegen ihre eingefrorenen Artefakte prüfen, nicht gegen HEAD."""
+from pathlib import Path
 import hashlib
 import io
 import stat
@@ -18,11 +18,9 @@ BOUNDARY_TEST_CURRENT_SHA256 = 'c41138df973120e30c6948e779f5cfe92d138214c09da2b9
 SOURCES = {
     'Modules/toolbelt.tsql.ssis-debug/module.yaml': {
         'historical': 'ab519faa5743e872f44e70499ebafcdeeed065e079eec2e95e8d5c518286bf8f',
-        'current': '55e7ea67b219c665f62297821e1eedd931ca3591427899fd51fcbf03903794a7',
     },
     'Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs': {
         'historical': '33331e397100720c2413ac75d22ac25cd23cda4b7816bfa30338c2f14808829b',
-        'current': '0635250f5a30064985d50a1e982f6d66fe022769ae20d72885e9b24505e36b52',
     },
 }
 
@@ -36,7 +34,7 @@ def source_paths():
 
 
 def validate_historical_source(root, path, expected_sha256):
-    """Return exact V1 archive bytes after binding both frozen and current inputs."""
+    """Exakte damalige Bytes liefern; dies qualifiziert keine aktuelle Implementierung."""
     root = Path(root).resolve()
     if not isinstance(path, str) or path not in SOURCES:
         raise ValueError('SSIS_HISTORICAL_SOURCE_PATH')
@@ -58,9 +56,26 @@ def validate_historical_source(root, path, expected_sha256):
         original = archive.read(matches[0])
     if _sha(original) != binding['historical']:
         raise ValueError('SSIS_HISTORICAL_SOURCE_ARCHIVE_BYTES')
-    current = standalone.read_regular_bounded(root / PurePosixPath(path), MAX_SOURCE_BYTES)
-    if _sha(current) != binding['current']:
-        raise ValueError('SSIS_HISTORICAL_SOURCE_CURRENT_BYTES')
+    return original
+
+
+def read_r28_api_source(root, path, expected_sha256):
+    """Die damalige API bleibt im qualifizierten R28-Paket unverändert überprüfbar."""
+    expected = '9f99b9a24d3a0535e156a313def1ed723ff62f17aa2e4859ac58c41e51bc1001'
+    if (path != 'Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json' or
+            not isinstance(expected_sha256, str) or expected_sha256.lower() != expected):
+        raise ValueError('SSIS_R28_API_SOURCE_PIN')
+    archive_path = Path(root) / 'Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip'
+    data = standalone.read_regular_bounded(archive_path, MAX_ARCHIVE_BYTES)
+    if _sha(data) != '73e601da0d57f694b68d2339589c037c72f3905d9855cefff37863cc32183e9a':
+        raise ValueError('SSIS_R28_ARCHIVE_PIN')
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        entry = archive.getinfo('SSIS-Debug-ComponentsV2-1.0.0-Install-Windows/' + path)
+        if entry.is_dir() or entry.file_size > MAX_SOURCE_BYTES:
+            raise ValueError('SSIS_R28_API_SOURCE_SIZE')
+        original = archive.read(entry)
+    if _sha(original) != expected:
+        raise ValueError('SSIS_R28_API_SOURCE_BYTES')
     return original
 
 

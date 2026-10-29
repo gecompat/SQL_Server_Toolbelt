@@ -167,6 +167,11 @@ def validate_install_runtime_qualification(record_bytes, root=ROOT):
             actual = legacy.sha(execution_qualification)
         elif path == provenance_path:
             actual = legacy.sha(execution_provenance)
+        elif path == 'Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json':
+            # R28-Nachweis: damalige API im unveränderten R28-Paket prüfen.
+            # Die aktuelle API besitzt eigene Tests und neue native Nachweise.
+            from ssis_historical_source_bridge import read_r28_api_source
+            actual = legacy.sha(read_r28_api_source(root, path, expected_sha))
         else:
             actual = legacy.sha(_bound_file(root, path, legacy.MAX_PACKAGE_BYTES))
         require(actual == expected_sha, "current runtime input pin bytes")

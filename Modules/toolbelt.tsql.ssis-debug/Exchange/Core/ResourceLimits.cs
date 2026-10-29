@@ -51,6 +51,26 @@ namespace Toolbelt.Ssis.Exchange
             return new ResourceLimits(preset, v2, limits, unlimited);
         }
 
+        /// <summary>Erzeugt das aktuelle Standardprofil aus benannten SQL-Grenzen; 0 steht für unbegrenzt.</summary>
+        public static ResourceLimits CreateCurrent(IDictionary<string, long> sqlLimits = null)
+        {
+            var unlimited = new HashSet<string>(StringComparer.Ordinal);
+            var limits = Defaults(true, false, unlimited);
+            limits["analysisMilliseconds"] = Int64.MaxValue;
+            unlimited.Add("analysisMilliseconds");
+            if (sqlLimits != null)
+            {
+                foreach (var pair in sqlLimits)
+                {
+                    if (!Names.Contains(pair.Key, StringComparer.Ordinal)) throw new ArgumentException("RESOURCE_COUNTER");
+                    if (pair.Value < 0) throw new ArgumentException("RESOURCE_LIMIT_VALUE");
+                    if (pair.Value == 0) { limits[pair.Key] = Int64.MaxValue; unlimited.Add(pair.Key); }
+                    else { limits[pair.Key] = pair.Value; unlimited.Remove(pair.Key); }
+                }
+            }
+            return new ResourceLimits("current", true, limits, unlimited);
+        }
+
         public static ResourceLimits Legacy { get { return new ResourceLimits("legacy-v1", false, Defaults(false, false, null), new HashSet<string>(StringComparer.Ordinal)); } }
         internal static ResourceLimits LegacyProbe { get { return new ResourceLimits("legacy-v1", false, Defaults(false, false, null), new HashSet<string>(StringComparer.Ordinal), true); } }
         public long Maximum(string counter) { long value; return values.TryGetValue(counter, out value) ? value : throw new ArgumentOutOfRangeException("counter"); }

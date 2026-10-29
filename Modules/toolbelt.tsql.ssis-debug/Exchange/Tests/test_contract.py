@@ -26,9 +26,6 @@ def main():
         import sys
         sys.path.insert(0,str(args.jsonschema_path))
     from jsonschema import Draft202012Validator
-    schema=json.loads((MODULE/"Contracts/Exchange/SSIS_Exchange_V1.schema.json").read_text(encoding="utf-8"))
-    Draft202012Validator.check_schema(schema)
-    validator=Draft202012Validator(schema)
     schema_v2=json.loads((MODULE/"Contracts/Exchange/SSIS_Exchange_V2.schema.json").read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema_v2)
     validator_v2=Draft202012Validator(schema_v2)
@@ -44,8 +41,9 @@ def main():
         if not condition: raise AssertionError(label)
         checks+=1
     api_contract=json.loads((MODULE/"Contracts/Api.json").read_text(encoding="utf-8"))
-    check(components_overlay["baseContract"]=="Contracts/Api.json" and components_overlay["operation"]=="bindings-template-v2", "components V2 overlay identity")
-    check([p["name"] for p in api_contract["parameters"]]==["@PackageBytes","@Operation","@ProjectContext","@Bindings","@CatalogBindings","@TargetFlow","@InspectStage","@LookupPolicies","@ComparisonCollation","@TSqlVersion","@ResultTable","@KeepData","@Debug","@Hilfe"], "V2 preserves V1 parameter positions")
+    names=[p["name"] for p in api_contract["parameters"]]
+    check(components_overlay["baseContract"]=="Contracts/Api.json" and components_overlay["contract"]=="ssis-debug-current" and components_overlay["operation"]=="bindings-template", "current profile overlay identity")
+    check(names[:10]==["@PackageBytes","@Operation","@ProjectContext","@Bindings","@CatalogBindings","@TargetFlow","@InspectStage","@LookupPolicies","@ComparisonCollation","@TSqlVersion"] and names[-4:]==["@ResultTable","@KeepData","@Debug","@Hilfe"] and len(names[10:-4])==24, "24 named resource limits before unchanged common tail")
     def canonical(value):
         value=copy.deepcopy(value)
         value.pop("producer")
@@ -69,38 +67,97 @@ def main():
                 return None
             check(external.returncode==0 and framework.returncode==0,"both core hosts succeed: host="+str(external.returncode)+" framework="+str(framework.returncode)+" hostStderr="+external.stderr[:512]+" frameworkStderr="+framework.stderr[:512])
             a,b=json.loads(external.stdout),json.loads(framework.stdout)
-            validator.validate(a);validator.validate(b)
+            validator_v2.validate(a);validator_v2.validate(b)
+            check(a["contract"]=="ssis-package-model-components-v2" and a["profiles"]["components"]=="2.0.0","default host uses current component profile")
+            policy=a["resourcePolicy"]
+            check(policy["preset"]=="current" and policy["effectiveLimits"]["analysisMilliseconds"]=="unlimited" and policy["effectiveLimits"]["packageBytes"]==134217728,"default host publishes its effective current limits")
             check(canonical(a)==canonical(b),"same typed structure and lineage on net48 and external host")
             check(a["source"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"exact original byte hash")
             check(a["source"]["byteLength"]==len(data),"exact original byte length")
             check(len({n["id"] for n in a["nodes"]})==len(a["nodes"]),"unique occurrence IDs")
             return a
-        def run_components_v2(data,expected=True):
+        def run_current(data,expected=True):
             path=root/"synthetic-v2.dtsx";path.write_bytes(data)
-            external=subprocess.run(["dotnet",str(args.host),"--components-v2",str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
-            framework=subprocess.run([str(parity),"--components-v2",str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
+            external=subprocess.run(["dotnet",str(args.host),str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
+            framework=subprocess.run([str(parity),str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
             if not expected:
-                check(external.returncode==3 and framework.returncode==3,"invalid V2 source rejected by both hosts")
-                check(not external.stdout and not framework.stdout,"no partial V2 output on invalid source")
+                check(external.returncode==3 and framework.returncode==3,"invalid current-profile source rejected by both hosts")
+                check(not external.stdout and not framework.stdout,"no partial current-profile output on invalid source")
                 return None
-            check(external.returncode==0 and framework.returncode==0,"both V2 core hosts succeed")
+            check(external.returncode==0 and framework.returncode==0,"both current-profile core hosts succeed")
             a,b=json.loads(external.stdout),json.loads(framework.stdout)
             validator_v2.validate(a);validator_v2.validate(b)
-            check(canonical(a)==canonical(b),"same V2 provenance and component profiles on net48 and external host")
-            check(a["contract"]=="ssis-package-model-components-v2" and a["profiles"]["components"]=="2.0.0","explicit V2 exchange contract")
-            check(a["source"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"V2 exact original byte hash")
+            check(canonical(a)==canonical(b),"same current provenance and component profiles on net48 and external host")
+            check(a["contract"]=="ssis-package-model-components-v2" and a["profiles"]["components"]=="2.0.0","default current exchange contract")
+            policy=a["resourcePolicy"]
+            check(policy["preset"]=="current" and policy["effectiveLimits"]["analysisMilliseconds"]=="unlimited" and policy["effectiveLimits"]["packageBytes"]==134217728,"current profile publishes its effective limits")
+            check(a["source"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"current exact original byte hash")
             return a
         basic=run(fixture)
         v2_fixture=(MODULE/"Tests/Fixtures/synthetic-8.dtsx").read_bytes()
         v2_xml=ET.fromstring(v2_fixture)
         derived=next(x for x in v2_xml.iter("component") if x.get("componentClassID")=="Microsoft.DerivedColumn")
         derived.attrib.pop("version",None)
-        v2_missing=run_components_v2(ET.tostring(v2_xml,encoding="utf-8",xml_declaration=True))
+        v2_missing=run_current(ET.tostring(v2_xml,encoding="utf-8",xml_declaration=True))
         version_node=next(n for n in v2_missing["nodes"] if n["kind"]=="COMPONENT" and n["attributes"]["componentClassId"]=="Microsoft.DerivedColumn")
         check(version_node["attributes"]["versionPresent"] is False and version_node["attributes"]["effectiveVersion"]==0 and version_node["attributes"]["versionOrigin"]=="schema-default-0","V2 schema default provenance exact")
         v2_invalid=ET.fromstring(v2_fixture)
         next(x for x in v2_invalid.iter("component") if x.get("componentClassID")=="Microsoft.DerivedColumn").set("version","")
-        run_components_v2(ET.tostring(v2_invalid,encoding="utf-8",xml_declaration=True),False)
+        run_current(ET.tostring(v2_invalid,encoding="utf-8",xml_declaration=True),False)
+        def assignment_fixture(include_unknown=True):
+            document=ET.fromstring(v2_fixture)
+            variables=document.find(DTS+"Variables")
+            if variables is None:
+                variables=ET.SubElement(document,DTS+"Variables")
+            def add_variable(name,value):
+                variable=ET.SubElement(variables,DTS+"Variable",{
+                    DTS+"Namespace":"User",DTS+"ObjectName":name,
+                    DTS+"DTSID":"{aaaaaaaa-2222-2222-2222-%012d}"%(len(list(variables))+1)})
+                ET.SubElement(variable,DTS+"VariableValue",{DTS+"DataType":"Int32"}).text=value
+            for name,value in (("Independent","7"),("ScriptWritten","8"),("LoopAttribute","0"),("ScriptAttribute","0"),("EmptyWriteList","3")):
+                add_variable(name,value)
+            ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\Script",DTS+"ExecutableType":"Microsoft.ScriptTask"},)
+            script=document.findall(DTS+"Executable")[-1]
+            ET.SubElement(script,DTS+"ScriptTaskData",{DTS+"ReadWriteVariables":"User::ScriptWritten"})
+            script_attribute=ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\ScriptAttribute",DTS+"ExecutableType":"Microsoft.ScriptTask"})
+            ET.SubElement(script_attribute,DTS+"ScriptTaskData",{DTS+"ReadWriteVariables":"User::ScriptAttribute"})
+            ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\LoopAttribute",DTS+"ExecutableType":"STOCK:FORLOOP",
+                DTS+"AssignExpression":"@[User::LoopAttribute] = 1"})
+            empty=ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\ScriptEmpty",DTS+"ExecutableType":"Microsoft.ScriptTask",
+                DTS+"ReadWriteVariables":""})
+            ET.SubElement(empty,DTS+"ScriptTaskData",{DTS+"ReadWriteVariables":""})
+            empty_property=ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\ScriptEmptyProperty",DTS+"ExecutableType":"Microsoft.ScriptTask"})
+            ET.SubElement(empty_property,DTS+"Property",{DTS+"Name":"ReadWriteVariables"}).text=""
+            if include_unknown:
+                unknown=ET.SubElement(document,DTS+"Executable",{
+                    DTS+"refId":"Package\\Tasks\\UnknownScript",DTS+"ExecutableType":"Microsoft.ScriptTask"})
+                local_variables=ET.SubElement(unknown,DTS+"Variables")
+                variable=ET.SubElement(local_variables,DTS+"Variable",{
+                    DTS+"Namespace":"User",DTS+"ObjectName":"UnknownScriptValue",
+                    DTS+"DTSID":"{bbbbbbbb-2222-2222-2222-222222222222}"})
+                ET.SubElement(variable,DTS+"VariableValue",{DTS+"DataType":"Int32"}).text="9"
+            return document
+        assignment_model=run_current(ET.tostring(assignment_fixture(),encoding="utf-8",xml_declaration=True))
+        assignment_nodes={node.get("name"):node for node in assignment_model["nodes"] if node["kind"]=="VARIABLE"}
+        def has_producer(name,kind):
+            return any(producer["kind"]==kind for producer in assignment_nodes[name]["attributes"]["assignmentProducers"])
+        check(assignment_nodes["Independent"]["attributes"]["assignmentState"]=="unknown" and
+              has_producer("ScriptWritten","script-read-write-variable") and
+              has_producer("ScriptAttribute","script-read-write-variable") and
+              has_producer("LoopAttribute","for-loop-assignment-expression") and
+              has_producer("UnknownScriptValue","script-write-scope-unknown"),
+              "variable-scoped producer and unknown visible-writer metadata parity")
+        empty_write_model=run_current(ET.tostring(assignment_fixture(False),encoding="utf-8",xml_declaration=True))
+        empty_write_nodes={node.get("name"):node for node in empty_write_model["nodes"] if node["kind"]=="VARIABLE"}
+        check(empty_write_nodes["EmptyWriteList"]["attributes"]["assignmentState"]=="none" and
+              empty_write_nodes["Independent"]["attributes"]["assignmentState"]=="none" and
+              empty_write_nodes["LoopAttribute"]["attributes"]["assignmentState"]=="declared",
+              "explicit empty script variable list and attribute-based producers")
         check([[n["id"],n["kind"],n["parentId"]] for n in basic["nodes"]]==oracle["nodeSignatures"],"fixed independent object oracle")
         check([[e["kind"],e["fromId"],e["toId"],e["ruleId"]] for e in basic["edges"]]==oracle["edgeSignatures"],"fixed independent lineage oracle")
         check(all(c["status"]==oracle["coverageStatus"] for c in basic["coverage"]),"bounded direct-profile coverage")
@@ -120,7 +177,7 @@ def main():
             check(external.returncode==0 and framework.returncode==0,"both hosts export identity bundle")
             a,b=json.loads(external.stdout),json.loads(framework.stdout)
             check(set(a)==({"contract","version","model","identities","pipelineIdentities"} if pipelines else {"contract","version","model","identities"}) and a["contract"]=="ssis-export-bundle" and a["version"]=="1.0.0","closed separate bundle transport")
-            validator.validate(a["model"]);(scope_validator if scopes or pipelines else iteration_validator if iterations else identity_validator).validate(a["identities"])
+            validator_v2.validate(a["model"]);(scope_validator if scopes or pipelines else iteration_validator if iterations else identity_validator).validate(a["identities"])
             check(canonical(a["model"])==canonical(b["model"]) and a["identities"]==b["identities"],"one common identity core on net48 and external host")
             check(a["identities"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"identity sidecar bound to exact source bytes")
             check([n["nodeId"] for n in a["identities"]["objects"]]==[n["id"] for n in a["model"]["nodes"] if n["kind"] in ("PACKAGE","EXECUTABLE")],"same occurrence universe and order")

@@ -12,7 +12,11 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class DebugFault : Exception
     {
         internal readonly string Code;
-        internal DebugFault(string code, string text) : base("TBX_SSISDBG_" + code + ": " + text) { Code = code; }
+        internal readonly string RootCode, RootStage, RootComponent, RootText;
+        internal DebugFault(string code, string text) : this(code, text, null, null, null, null) { }
+        internal DebugFault(string code, string text, string rootCode, string rootStage, string rootComponent, string rootText)
+            : base("TBX_SSISDBG_" + code + ": " + text)
+        { Code = code; RootCode = rootCode; RootStage = rootStage; RootComponent = rootComponent; RootText = rootText; }
     }
 
     // Pro Aufruf eigener Zustand; kein veränderlicher globaler Cache in SQL CLR.

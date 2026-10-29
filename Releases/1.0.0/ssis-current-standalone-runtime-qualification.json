@@ -1,0 +1,206 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_current_standalone_tsql_runtime_qualification",
+  "profile": "ssis-debug-current",
+  "date": "2026-10-29",
+  "result": "PASS",
+  "publication_authorized": false,
+  "installer": {
+    "path": "Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql",
+    "sha256": "7D49C226E9E656D4022721F49D743778C4BE96E61D6CB8427258CE18A69E2C3C"
+  },
+  "provenance": {
+    "path": "Releases/1.0.0/ssis-current-standalone-installer.json",
+    "sha256": "5DB24C930063E4DEB717F2785C4133C5952FE86EB62BC0537C91B263CFD3E0BD"
+  },
+  "qualified_package": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Current-Install-Windows.zip",
+    "sha256": "6E83F4B534339E106B42C8911178BD09CB82001167A356D5A5D63BF69A15F4D7",
+    "qualification": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.20261029.json",
+    "qualification_sha256": "05D88E2ED0C168D025BA5139C8E965613C049E1B2F88041A016EBF0AB30656D2",
+    "qualification_result": "PASS"
+  },
+  "execution": {
+    "native_fixture_execution_commit": "d5b1068b",
+    "driver": "Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1",
+    "command_method": "Complete rendered batch as one SqlClient CommandText, no SQLCMD parser",
+    "mode_bindings": {
+      "central": {
+        "command_sha256": "98DFDEB1E4A6A4743AC959E10B74B3AD3EB5B15A87342AB534DCDDFF5C4C78E5",
+        "header_override": {
+          "from": "DECLARE @DeploymentMode nvarchar(16)=N'local';",
+          "to": "DECLARE @DeploymentMode nvarchar(16)=N'central';",
+          "count": 1
+        }
+      },
+      "local": {
+        "command_sha256": "7D49C226E9E656D4022721F49D743778C4BE96E61D6CB8427258CE18A69E2C3C",
+        "header_override_count": 0
+      }
+    }
+  },
+  "scope": {
+    "targets": [
+      {
+        "platform": "windows",
+        "sql_server": "2019",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_server": "2025",
+        "compatibility_level": 170
+      }
+    ],
+    "results": {
+      "target_cases": "PASS",
+      "cleanup_audits_passed": 2,
+      "cleanup_audits": "PASS",
+      "case_count_passed": 2
+    },
+    "installed_mode_contexts": 4,
+    "case_count": 2,
+    "deployment_modes": [
+      "local",
+      "central"
+    ],
+    "coverage": [
+      "Fresh installation and repeat in both modes",
+      "Current 38-parameter metadata and help-first",
+      "Editable typed defaults template and replay",
+      "All24 zero limits and negative/NULL controls",
+      "Executed complete RowCount and Flatfile DebugScripts with fixed synthetic oracles",
+      "Failed limit preserves caller ResultTable data",
+      "Fresh-session, caller transaction, reserved temporary-table and invalid-mode rejection guards",
+      "Independent cleanup and immutable-input audit after each target"
+    ]
+  },
+  "execution_input_pins": [
+    {
+      "path": "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1",
+      "sha256": "FF2CCE9C0C33335892EFFAC843D90BF2B131B597C68E9514850CC91C80CAC993"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json",
+      "sha256": "B6239EF20036CD06BA4853D63F7BB097578733F276AB6F7743C31341126C885D"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Current-Install-Windows.zip",
+      "sha256": "6E83F4B534339E106B42C8911178BD09CB82001167A356D5A5D63BF69A15F4D7"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Current-Install-Windows.zip.sha256",
+      "sha256": "64E1E3B96F178EAC1B8570982A7FAB601E1C3F82D50473994CBBD4C09266AC1B"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx",
+      "sha256": "1FBE98E8B920EE61101A97ECED896222D5383C22673AB5D8DF7073B2241D3B69"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx",
+      "sha256": "A6E2A2155B8964978625C9D868B38F4EAA5DDF59FA60A4BEF9DF997E7644FCDA"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx",
+      "sha256": "DEA7DC971972882B2A090D489ECFC2DC1E85635936A0ECD8C89C8443D746BF3E"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.20261029.json",
+      "sha256": "05D88E2ED0C168D025BA5139C8E965613C049E1B2F88041A016EBF0AB30656D2"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1",
+      "sha256": "30DD642419BC5841F1BEA0BFABF54052446CE6C5310CA2D5937230DC65C73DD1"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1",
+      "sha256": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570"
+    },
+    {
+      "path": "Releases/1.0.0/ssis-current-standalone-installer.json",
+      "sha256": "5DB24C930063E4DEB717F2785C4133C5952FE86EB62BC0537C91B263CFD3E0BD"
+    },
+    {
+      "path": "Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql",
+      "sha256": "7D49C226E9E656D4022721F49D743778C4BE96E61D6CB8427258CE18A69E2C3C"
+    },
+    {
+      "path": "Tests/CI/LabQualifiedContract.ps1",
+      "sha256": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15"
+    },
+    {
+      "path": "Tests/CI/run-csv-memory-lab.ps1",
+      "sha256": "E200D4D6FC3CA0EE6FC00F333D67B6A4F8B89652731CA383CECE6731B58FA3FF"
+    },
+    {
+      "path": "Tests/CI/run-lab-local.ps1",
+      "sha256": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846"
+    },
+    {
+      "path": "Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1",
+      "sha256": "DEC3EDF708ADA65ECDB76F170486B9952E593662DF58514E200CE615726E845C"
+    },
+    {
+      "path": "Tests/Release/Invoke-StablePackageLab.ps1",
+      "sha256": "04C9EDEB54B09CCA306D007DE11B7A01773425BA1AE76F3198BA1E5DEB660D6A"
+    },
+    {
+      "path": "Tests/Release/Prepare-CurrentStandaloneTsqlInstallerRunset.ps1",
+      "sha256": "9A046C902F37962EE37C8573CB9E8ECB24BEE8E6AAF1D365AD2165711E2193A0"
+    }
+  ],
+  "final_audit": {
+    "configuration_baselines_restored": true,
+    "failed_installer_attempts": 0,
+    "case_audits": 2,
+    "trust_states_restored": 6,
+    "input_pins_unchanged": true,
+    "owned_database_names_absent": 4
+  },
+  "functional_transport": {
+    "schema_validated_explicit_boolean_trust": true,
+    "provider": "System.Data.SqlClient",
+    "authenticated_tls": "not executed",
+    "encrypt_required": true,
+    "fallback": false
+  },
+  "assembly_trust": {
+    "installer_registration_opt_in_exercised": false,
+    "test_setup": "Exact required release assembly hashes preseeded by guarded harness"
+  },
+  "not_qualified": [
+    "Full engine/CL matrix for standalone installer",
+    "Windows-authentication and SSMS GUI",
+    "Authenticated TLS",
+    "SSISDB or DTSX runtime execution",
+    "Installer administrative trust-registration opt-in",
+    "Publication"
+  ],
+  "limits": {
+    "work_seconds": 300,
+    "installer_command_seconds": 120,
+    "ordinary_command_seconds": 45,
+    "cleanup_deadline_seconds": 360
+  },
+  "cost_tokens": "UNKNOWN",
+  "integration_binding": {
+    "kind": "ssis_current_xml_line_endings_binding",
+    "native_execution_inputs_preserved": true,
+    "installer_bytes_unchanged": true,
+    "qualification_semantics_unchanged": true,
+    "changes": [
+      {
+        "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx",
+        "execution_sha256": "1FBE98E8B920EE61101A97ECED896222D5383C22673AB5D8DF7073B2241D3B69",
+        "integrated_sha256": "ABBA5E5D960F31347BFCC653C7DCDAB8921E2E8B9A8FA378CD913296ACC2A93F",
+        "transform": "lf-to-crlf-exact-reconstruction"
+      },
+      {
+        "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx",
+        "execution_sha256": "A6E2A2155B8964978625C9D868B38F4EAA5DDF59FA60A4BEF9DF997E7644FCDA",
+        "integrated_sha256": "8157C20130CCA4F34987B5C73D8FB6DB2F61F69DC8D24AD3231DF88BF97876D1",
+        "transform": "lf-to-crlf-exact-reconstruction"
+      }
+    ]
+  }
+}

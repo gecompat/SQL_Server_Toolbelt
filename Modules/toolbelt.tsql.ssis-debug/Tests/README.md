@@ -1,16 +1,64 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
-Die zusätzliche, ausdrücklich gewählte V2-Komponentenfunktion folgt dem
-[V2-Vertrag](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
-Ihre aktuelle Implementierung und Qualifikation bilden einen eigenen Kandidaten;
-die nachfolgenden historischen V1-Nachweise gelten weiterhin nur für ihre
-ursprünglichen Builds. Der zusätzliche Treiber `Runtime/Invoke-ComponentsV2Lab.ps1`
+Der aktuelle Entwicklungsvertrag steht im
+[SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
+
+## Aktuelle Lieferung und ihr begrenzter Nachweis
+
+Die [aktuelle Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
+belegt sechs Windows-Kontexte: SQL2019/CL150, SQL2022/CL160 und SQL2025/CL170
+jeweils lokal und zentral. Je 206 Assertions prüfen den aktuellen Default,
+38 geordnete Parameter einschließlich 24 `bigint`-Limits, Hilfe vor Validierung,
+editierbare typisierte Entwurfswerte und Rückgabe der vollständigen Vorlage,
+ResultTable-Schutz sowie tatsächlich ausgeführte geordnete Row-Count-/Flatfile-
+Debug-Scripts mit festen synthetischen Sollwerten. Sechs unabhängige Audits
+bestätigen Bereinigung und Eingabepins. Ein vorheriger Adapterfehler samt
+erfolgreichem Audit bleibt im Nachweis erhalten.
+
+Die [aktuelle ZIP-Qualifikation](Qualification/Current.InstallPackage.20261029.json)
+prüft den exakten entpackten Build separat auf SQL2019/CL150 lokal und
+SQL2025/CL170 zentral: Neuinstallation, Wiederholung, aktuelle Fachfälle und
+Deinstallation/Wiederholung mit zwei unabhängigen Abschlussaudits. Die
+[Standalone-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-standalone-runtime-qualification.json)
+prüft denselben vollständigen reinen T-SQL-Batch auf beiden Enginezielen in
+beiden Modi: vier Installationskontexte mit Repeat, aktuelle Fachfälle,
+Sitzungs-/Transaktions-Negativkontrollen und zwei unabhängigen Audits.
+Die [Installer-Provenienz](../../../Releases/1.0.0/ssis-current-standalone-installer.json)
+bindet die ausgeführten Bytes an Paket und Paketqualifikation.
+Der aktuelle Runtimebericht ergänzt eine eng begrenzte Integrationsbindung
+für genau zwei synthetische XML-Fixtures: Die ursprünglichen CRLF-
+Ausführungspins bleiben erhalten; für den LF-Checkout ist die exakte
+Rückrekonstruktion gegen beide fest gebundenen Hashes Pflicht. Beliebige
+Textänderungen oder allgemeine Normalisierung werden nicht akzeptiert.
+Installer-, DLL- und Paketbytes werden dadurch nicht verändert.
+
+`Runtime/Invoke-CurrentLab.ps1` verwendet die unveränderte strikte Lab-
+Schutzhülle und eigene aktuelle Fälle. `Invoke-ComponentsV2Audit.ps1` bleibt
+der unabhängige lesende Audit. Sechs Offline-Lieferprüfungen kontrollieren
+aktuelle Bindungen und Manipulationsfälle; der SQL-Parameteradapter wird ohne
+Verbindung mit tatsächlicher `SqlValue`-Konvertierung geprüft. Das lange
+Framework-Transportexperiment mit 2730 Einheiten verwendet ausdrücklich
+512 MiB Ausgabebudget und ist kein Nachweis für das 128-MiB-Defaultbudget.
+
+Diese Fälle belegen weder die übrigen CLs neuerer Engines noch tatsächliche
+SSIS-Ausführung, Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den
+administrativen Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und
+Integration sind separate Gates. Modulstatus: teilweise validiert und
+unveröffentlicht. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
+führt zu den aktuellen Dateien und Ergebnissen.
+
+## Historische Nachweise
+
+Die nachfolgenden V1- und Komponenten-V2-Aufzeichnungen sind historische
+Nachweise ausschließlich ihrer ursprünglichen Builds und Inputs; sie
+qualifizieren den aktuellen Defaultvertrag nicht. Der Treiber
+`Runtime/Invoke-ComponentsV2Lab.ps1`
 bindet den unveränderten bisherigen Labtreiber und die neuen Fälle getrennt.
 `Runtime/Invoke-ComponentsV2Audit.ps1` prüft dessen private Abschlussjournale mit
 einer eigenen ausschließlich lesenden Verbindung. Eine Syntax- oder
 Adapterprüfung allein ist kein nativer Funktionsnachweis.
 
-Die [separat gebundene V2-Binarymatrix](Qualification/ComponentsV2.Windows.CL.20261028.json)
+Die historische [V2-Binarymatrix](Qualification/ComponentsV2.Windows.CL.20261028.json)
 bestand zwölf Windows-Engine-/CL-/Modusfälle mit jeweils eigenem
 Bereinigungsaudit. Der [gezielte Variablenplannachweis](Qualification/ComponentsV2.VariablePlan.20261028.json)
 bestand den vollständigen 256-Gruppen-Ausdruck und feste NULL-/Unicode-Orakel
@@ -18,7 +66,7 @@ mit explizitem `unlimited` und endlichen äußeren Watchdogs. Die separaten
 30-Sekunden-Budgetfehler der vollständigen Zielentdeckung bleiben erhalten;
 dieser Nachweis behauptet keine Default-Budget-Abnahme dafür.
 
-Das neue V2-ZIP ist offline auf gebundene Artefakte, Quellen, Attribution und
+Das damalige V2-ZIP ist offline auf gebundene Artefakte, Quellen, Attribution und
 Manipulation geprüft. Die [native ZIP-Qualifikation](Qualification/ComponentsV2.InstallPackage.20261028.json)
 bestand zwei Windows-Paketfälle mit insgesamt 1190 Assertions und zwei
 unabhängigen Cleanup-Audits. Die [Standalone-Installer-Qualifikation](../../../Releases/1.0.0/ssis-components-v2-standalone-installer-runtime-qualification.json)
