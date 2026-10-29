@@ -1,5 +1,35 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SSIS-Komponenten-V2, Variante A — 2026-10-28
+
+Nach konkreter Vertragsbesprechung ausdrücklich freigegeben:
+„Ich gebe den V2-Vertrag mit Variante A frei. Setze ihn im vorgeschlagenen
+Rahmen autonom mit Luna um. Heartbeat 1h, Konsolen verborgen, grüne PRs mergen
+und Main-CI prüfen. Nicht veröffentlichen.“
+
+Der [Erweiterungsvertrag](../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md)
+begrenzt die Versionserkennung, typisierte Ausdruckserweiterung, Row Count,
+Flatfile-Metadaten mit expliziten relationalen Ersatzquellen und geprüfte lange
+Ausführungspläne. V1 bleibt erhalten; tatsächliches Dateilesen/-schreiben und
+ein Dateibyteparser sind nicht freigegeben. Drei kohärente Wellen, ein
+Luna-Implementierer mit Root-Vertrags-/Sicherheitsreview; gemeinsame endliche
+Zeit-/PR-/Testgrenzen stehen im Vertrag. Status 2026-10-29: V2-Binarymatrix
+und gezielter Unlimited-Variablenplan bestanden ihre jeweils gebundenen
+Nachweise. Das separate ZIP bestand zwei native Paketfälle mit insgesamt 1190
+Assertions und zwei unabhängigen Audits. Der eigenständige T-SQL-Installer
+bestand zwei Windows-Zielkontexte mit local/central, vier V2-Opt-in-Prüfungen
+und zwei unabhängigen Audits. Die Berichte sind in der
+[SSIS-Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md)
+verknüpft. Eine getrennte CRLF→LF-Integrationsbindung dokumentiert genau die
+beiden Änderungen: Normalisierung des ZIP-Qualifikations-JSONs und Anpassung
+seines Hashfelds in der Installerprovenienz. Sie bewahrt ursprüngliche
+Ausführungspins und unveränderte Installerbytes. Native Records belegen keine
+CI; Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head getrennt
+nachgewiesen. Weitere Plattformen, authentifiziertes TLS und Veröffentlichung
+bleiben unqualifiziert beziehungsweise nicht freigegeben. Der Modulstatus
+bleibt `partially validated`, das Modul unveröffentlicht; keine automatische
+Gesamtfreigabe aus Teilchecks.
+
 ## Achtzehnter endlicher Release-Rahmen — 2026-10-27
 
 Der gebundene XLSX-Candidate-Frameworklauf bestand 19 Phasen gegen die

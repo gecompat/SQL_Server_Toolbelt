@@ -16,6 +16,9 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class Stage
     {
         internal string Id, Cte, Query, Component, Error, ErrorText;
+        internal string RowCountVariable, RowCountType;
+        internal string FlatFileWriteMetadata;
+        internal long RowCountMinimum, RowCountMaximum;
         internal readonly List<StageColumn> Columns = new List<StageColumn>();
         internal readonly List<Stage> Parents = new List<Stage>();
         internal readonly List<KeyValuePair<string, string>> ExtraCtes = new List<KeyValuePair<string, string>>();
@@ -27,29 +30,38 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class LookupCache
     {
         internal string Name, StateName, Insert, Definition, Owner;
+        internal string PlanSaltState, PlanSaltOwner, PlanHash;
+        internal bool FreshPerExecution;
         internal readonly List<StageColumn> Columns = new List<StageColumn>();
         internal readonly HashSet<string> Inputs = new HashSet<string>(StringComparer.Ordinal);
+        internal readonly List<LookupCache> Dependencies = new List<LookupCache>();
     }
     internal sealed class Translator
     {
+        private sealed class BuildFrame { internal Flow Flow; internal string OutputId; internal Component Owner; internal Port Port; internal bool After; }
         private readonly Package package; private readonly Bindings bindings; private readonly Options options;
         private readonly SqlSafety safety; private readonly ICatalog catalog; private readonly Artifacts output;
         private readonly Dictionary<string, Stage> stages = new Dictionary<string, Stage>(StringComparer.Ordinal);
         private readonly HashSet<string> building = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, string> stageIds = new Dictionary<string, string>(StringComparer.Ordinal), lookupIds = new Dictionary<string, string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Component> outputOwners = new Dictionary<string, Component>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Port> outputPorts = new Dictionary<string, Port>(StringComparer.Ordinal);
         private readonly Dictionary<string, LookupCache> lookupCaches = new Dictionary<string, LookupCache>(StringComparer.Ordinal);
-        private int nextStage, nextColumn; private readonly string runToken, runHash;
+        private int nextStage, nextColumn, nextSyntheticStage; private readonly string runToken, runHash;
+        private readonly HashSet<string> emittedV2Plans = new HashSet<string>(StringComparer.Ordinal);
         internal Translator(Package p, Bindings b, Options o, SqlSafety sql, ICatalog cat, Artifacts result)
         {
             package = p; bindings = b; options = o; safety = sql; catalog = cat; output = result;
             var effective = Json.Obj();
             foreach (Input input in p.Inputs)
             { object v; effective.Add(input.Key, b.Values.TryGetValue(input.Key, out v) ? Types.Literal(input, v) : input.HasDefault && !input.Sensitive && input.SqlType != null ? Types.Literal(input, input.Default) : input.Expression ?? "<runtime>"); }
-            runHash = Util.Hash(p.Hash + b.ContextHash + Json.Write(effective) + (o.CatalogBindings == null ? "" : Json.Write(Json.Parse(o.CatalogBindings))) + (o.LookupPolicies == null ? "" : Json.Write(Json.Parse(o.LookupPolicies))) + b.Collation + o.Version); runToken = runHash.Substring(0, 16);
+            runHash = Util.Hash(p.Hash + b.ContextHash + Json.Write(effective, b.Limits) + (o.CatalogBindings == null ? "" : Json.Write(Json.Parse(o.CatalogBindings, b.Limits), b.Limits)) + (o.LookupPolicies == null ? "" : Json.Write(Json.Parse(o.LookupPolicies, b.Limits), b.Limits)) + b.Collation + o.Version);
+            string generationSalt = bindings.ComponentsV2 ? Guid.NewGuid().ToString("N") : "";
+            runToken = Util.Hash(runHash + "|" + generationSalt).Substring(0, 16);
             int lookups = 0;
             foreach (Flow flow in p.Flows) foreach (Component component in flow.Components)
             {
-                foreach (Port port in component.Outputs) stageIds.Add(port.Id, Util.Id("s", ++nextStage));
+                foreach (Port port in component.Outputs) { stageIds.Add(port.Id, Util.Id("s", ++nextStage)); outputOwners.Add(port.Id, component); outputPorts.Add(port.Id, port); }
                 if (component.Kind == "destination" || component.Outputs.Count == 0 && component.Inputs.Count > 0) stageIds.Add("destination:" + component.Id, Util.Id("s", ++nextStage));
                 if (component.Kind == "lookup") lookupIds.Add(component.Id, Util.Id("l", ++lookups));
                 if (component.Kind == "lookup") stageIds.Add("lookup-match:" + component.Id, Util.Id("s", ++nextStage));
@@ -66,13 +78,20 @@ namespace Toolbelt.Tsql.SsisDebug
                 Flow flow = target.Value.Key; Component destination = target.Value.Value;
                 Stage end = BuildDestination(flow, destination);
                 var ancestors = Ancestors(end);
-                output.Add(new Artifact { Kind = "Workflow", Target = target.Key, Component = destination.Id, Content = Json.Write(Json.Obj("flow", flow.Id, "destination", destination.Id, "components", flow.Components.Select(c => (object)Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "name", c.Name)).ToList(), "tasks", package.Workflow)), Complete = end.Error == null });
+                bool sharedSnapshotPending = end.Error == null && !bindings.ComponentsV2 && ancestors.Any(s => s.RowCountVariable != null);
+                output.Add(new Artifact { Kind = "Workflow", Target = target.Key, Component = destination.Id, Content = Json.Write(Json.Obj("flow", flow.Id, "destination", destination.Id, "components", flow.Components.Select(c => (object)(bindings.ComponentsV2 ? Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "versionRaw", c.VersionRaw, "versionPresent", c.VersionPresent, "versionOrigin", c.VersionOrigin, "name", c.Name) : Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "name", c.Name))).ToList(), "tasks", package.Workflow), bindings.Limits), Complete = end.Error == null && !sharedSnapshotPending,
+                    Details = sharedSnapshotPending ? Json.Write(Json.Obj("completenessNote", "RowCount und Hauptprojektion nutzen noch keinen gemeinsamen materialisierten Debugstand."), bindings.Limits) : null });
                 foreach (Stage stage in ancestors)
-                    output.Add(new Artifact { Kind = "StageIndex", Target = target.Key, Stage = stage.Id, Component = stage.Component, Content = stage.Cte, Complete = stage.Error == null, Evidence = stage.Error == null ? "pragmatic" : "unsupported", Safety = stage.Error == null ? "not_checked" : "blocked", Details = Json.Write(Json.Obj("parents", stage.Parents.Select(x => (object)x.Id).ToList(), "columns", stage.Columns.Select(c => (object)Json.Obj("lineageId", c.Id, "name", c.Name, "sqlAlias", c.Alias, "sqlType", c.Type)).ToList())) });
+                    output.Add(new Artifact { Kind = "StageIndex", Target = target.Key, Stage = stage.Id, Component = stage.Component, Content = stage.Cte, Complete = stage.Error == null, Evidence = stage.Error == null ? "pragmatic" : "unsupported", Safety = stage.Error == null ? "not_checked" : "blocked", Details = Json.Write(Json.Obj("parents", stage.Parents.Select(x => (object)x.Id).ToList(), "columns", stage.Columns.Select(c => (object)Json.Obj("lineageId", c.Id, "name", c.Name, "sqlAlias", c.Alias, "sqlType", c.Type)).ToList()), bindings.Limits) });
                 if (options.Stage != null && options.Stage != "all" && !ancestors.Any(s => s.Id == options.Stage)) throw new DebugFault("unresolved_binding", "Stufe gehört nicht zum ausgewählten Zielfluss.");
                 if (options.Stage == "all") foreach (Stage stage in ancestors.Where(s => s.Error == null)) Emit(stage, "StageSql", target.Key);
                 else if (options.Stage != null) { Stage stage = ancestors.Single(s => s.Id == options.Stage); if (stage.Error == null) Emit(stage, "StageSql", target.Key); }
-                if (end.Error == null) Emit(end, "TargetSql", target.Key);
+                if (end.Error == null && destination.Kind == "flatfile-destination")
+                {
+                    output.Add(new Artifact { Kind = "FlatFileWriteProjection", Target = target.Key, Stage = end.Id, Component = destination.Id, Content = end.FlatFileWriteMetadata, Evidence = "pragmatic", Complete = false, Safety = "not_checked", Details = Json.Write(Json.Obj("limitation", "Metadatenprojektion ohne Dateiserialisierung oder Zielschreibvorgang."), bindings.Limits) });
+                    Emit(end, "TargetSql", target.Key);
+                }
+                else if (end.Error == null) Emit(end, "TargetSql", target.Key);
                 else output.Diagnostic(end.Error, destination.Id, end.ErrorText, target.Key);
             }
             foreach (var pair in stages.Where(p => p.Value.Error != null)) output.Diagnostic(pair.Value.Error, pair.Value.Component, pair.Value.ErrorText);
@@ -88,6 +107,28 @@ namespace Toolbelt.Tsql.SsisDebug
             Stage result = New(c.Id, "destination", key); stages.Add(key, result);
             try
             {
+                if (c.Kind == "flatfile-destination")
+                {
+                    if (!bindings.ComponentsV2 || c.Inputs.Count != 1 || c.Outputs.Count != 0) throw new DebugFault("unsupported_component", "Flatfile-Zielprofil nicht unterstützt.");
+                    string destinationConnectionKind;
+                    if (c.Connection == null || !package.ConnectionKinds.TryGetValue(c.Connection, out destinationConnectionKind) || destinationConnectionKind != "FLATFILE") throw new DebugFault("missing_context", "Expliziter Flatfile-Zielconnectionmanager fehlt.");
+                    Stage fileParent = Input(flow, c.Inputs[0]); Inherit(result, fileParent); Need(fileParent);
+                    var fields = new List<string>(); var mapping = new List<object>(); int ordinal = 0;
+                    foreach (Column input in c.Inputs[0].Columns)
+                    {
+                        StageColumn source = Find(fileParent, input.Lineage); Column external = c.Inputs[0].External.SingleOrDefault(x => x.Id == input.External);
+                        string name = external == null ? input.Name : external.Name;
+                        if (input.SqlType == null) throw new DebugFault("missing_context", "Flatfile-Zieltyp fehlt.");
+                        var col = NewColumn(input.Id, name, input.SqlType, source.Nullable); result.Columns.Add(col);
+                        fields.Add("CAST(m." + Util.Q(source.Alias) + " AS " + col.Type + ") AS " + Util.Q(col.Alias));
+                        mapping.Add(Json.Obj("ordinal", ++ordinal, "inputIdentity", input.Id, "name", name, "sourceLineageId", source.Id, "sqlType", col.Type));
+                    }
+                    if (fields.Count == 0) throw new DebugFault("missing_context", "Flatfile-Zielspaltenprojektion fehlt.");
+                    result.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(fileParent.Cte) + " AS m";
+                    var fileProperties = c.Properties.ToDictionary(x => x.Key, x => (object)x.Value, StringComparer.Ordinal);
+                    result.FlatFileWriteMetadata = Json.Write(Json.Obj("mode", "metadata-only-no-file-write", "connectionManagerRefId", c.Connection, "columns", mapping, "properties", fileProperties, "complete", false), bindings.Limits);
+                    return result;
+                }
                 if (c.Kind != "destination" || c.Inputs.Count != 1) throw new DebugFault("unsupported_component", "Zielform nicht unterstützt.");
                 Stage parent = Input(flow, c.Inputs[0]); Inherit(result, parent); Need(parent);
                 var list = new List<string>();
@@ -110,7 +151,12 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         private Stage Build(Flow flow, string outputId)
         {
-            Budget.Limit(building.Count + 1, 32);
+            if (bindings.ComponentsV2) return BuildV2Iterative(flow, outputId);
+            return BuildLegacy(flow, outputId);
+        }
+        private Stage BuildLegacy(Flow flow, string outputId)
+        {
+            bindings.Limits.Check("planUnits", building.Count + 1);
             Stage saved; if (stages.TryGetValue(outputId, out saved)) { if (building.Contains(outputId)) throw new DebugFault("ambiguous_path", "Zyklischer Datenfluss."); return saved; }
             var owner = flow.Components.SingleOrDefault(c => c.Outputs.Any(p => p.Id == outputId));
             if (owner == null) throw new DebugFault("invalid_lineage", "Output nicht gebunden.");
@@ -119,12 +165,14 @@ namespace Toolbelt.Tsql.SsisDebug
             {
                 foreach (Port input in owner.Inputs) { Stage parent = Input(flow, input); Inherit(result, parent); }
                 foreach (Stage parent in result.Parents) Need(parent);
-                if (port.Error || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
+                if (port.Error && owner.Kind != "flatfile-source" || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
                 switch (owner.Kind)
                 {
                     case "source": Source(owner, port, result); break;
+                    case "flatfile-source": FlatFileSource(owner, port, result); break;
                     case "union": Union(owner, port, result); break;
                     case "derived": case "convert": Derived(owner, port, result); break;
+                    case "rowcount": RowCount(owner, port, result); break;
                     case "split": Split(owner, port, result); break;
                     case "lookup": Lookup(owner, port, result); break;
                     default: throw new DebugFault("unsupported_component", "Komponente nicht im V1-Profil.");
@@ -133,6 +181,60 @@ namespace Toolbelt.Tsql.SsisDebug
             catch (DebugFault e) { if (e.Code == "resource_limit" || e.Code == "invalid_template") throw; Block(result, e); }
             finally { building.Remove(outputId); }
             return result;
+        }
+        private Stage BuildV2Iterative(Flow flow, string outputId)
+        {
+            Stage existing;
+            if (stages.TryGetValue(outputId, out existing)) { if (building.Contains(outputId)) throw new DebugFault("ambiguous_path", "Zyklischer Datenfluss."); return existing; }
+            var pending = new Stack<BuildFrame>(); pending.Push(new BuildFrame { Flow = flow, OutputId = outputId });
+            while (pending.Count != 0)
+            {
+                BuildFrame frame = pending.Pop();
+                if (frame.After)
+                {
+                    try { BuildV2Stage(frame.Flow, frame.OutputId, frame.Owner, frame.Port); }
+                    finally { building.Remove(frame.OutputId); }
+                    continue;
+                }
+                if (stages.ContainsKey(frame.OutputId)) continue;
+                if (!building.Add(frame.OutputId)) throw new DebugFault("ambiguous_path", "Zyklischer Datenfluss.");
+                Component owner; Port port;
+                if (!outputOwners.TryGetValue(frame.OutputId, out owner) || !outputPorts.TryGetValue(frame.OutputId, out port)) { building.Remove(frame.OutputId); throw new DebugFault("invalid_lineage", "Output nicht gebunden."); }
+                bindings.Limits.Check("planUnits", stages.Count + building.Count);
+                pending.Push(new BuildFrame { Flow = frame.Flow, OutputId = frame.OutputId, Owner = owner, Port = port, After = true });
+                for (int i = owner.Inputs.Count - 1; i >= 0; i--)
+                {
+                    string parentOutput;
+                    if (!frame.Flow.Paths.TryGetValue(owner.Inputs[i].Id, out parentOutput)) continue;
+                    if (building.Contains(parentOutput)) throw new DebugFault("ambiguous_path", "Zyklischer Datenfluss.");
+                    if (!stages.ContainsKey(parentOutput)) pending.Push(new BuildFrame { Flow = frame.Flow, OutputId = parentOutput });
+                }
+            }
+            Stage result;
+            if (!stages.TryGetValue(outputId, out result)) throw new DebugFault("invalid_lineage", "Output nicht aufgebaut.");
+            return result;
+        }
+        private void BuildV2Stage(Flow flow, string outputId, Component owner, Port port)
+        {
+            Stage result = New(owner.Id, owner.Kind, outputId); stages.Add(outputId, result);
+            try
+            {
+                foreach (Port input in owner.Inputs) { Stage parent = Input(flow, input); Inherit(result, parent); }
+                foreach (Stage parent in result.Parents) Need(parent);
+                if (port.Error && owner.Kind != "flatfile-source" || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
+                switch (owner.Kind)
+                {
+                    case "source": Source(owner, port, result); break;
+                    case "flatfile-source": FlatFileSource(owner, port, result); break;
+                    case "union": Union(owner, port, result); break;
+                    case "derived": case "convert": Derived(owner, port, result); break;
+                    case "rowcount": RowCount(owner, port, result); break;
+                    case "split": Split(owner, port, result); break;
+                    case "lookup": Lookup(owner, port, result); break;
+                    default: throw new DebugFault("unsupported_component", "Komponente nicht im V1-Profil.");
+                }
+            }
+            catch (DebugFault e) { if (e.Code == "resource_limit" || e.Code == "invalid_template") throw; Block(result, e); }
         }
         private static void Block(Stage stage, DebugFault e) { stage.Error = e.Code; stage.ErrorText = e.Message; }
         private static void Need(Stage stage) { if (stage.Error != null) throw new DebugFault("partial_target", "Benötigte Vorgängerstufe " + stage.Id + " ist unvollständig."); }
@@ -212,6 +314,88 @@ namespace Toolbelt.Tsql.SsisDebug
             if (list.Count == 0) throw new DebugFault("invalid_lineage", "Source-Ausgang hat keine Metadaten.");
             stage.Query = "SELECT " + String.Join(", ", list) + " FROM (" + sql + ") AS src";
         }
+        private void RowCount(Component c, Port port, Stage stage)
+        {
+            if (!bindings.ComponentsV2 || c.Inputs.Count != 1 || stage.Parents.Count != 1 || c.Outputs.Count(x => !x.Error) != 1 || port.Error)
+                throw new DebugFault("unsupported_component", "Row Count Portprofil nicht unterstützt.");
+            string reference = PackageReader.P(c.Properties, "VariableName", PackageReader.P(c.Properties, "Variable"));
+            if (reference == "") throw new DebugFault("missing_context", "Row Count Zielvariable fehlt.");
+            Input variable;
+            try { variable = package.Resolve(reference, c.Scope); }
+            catch (DebugFault) { throw new DebugFault("missing_context", "Row Count Zielvariable ist nicht eindeutig gebunden."); }
+            if (variable.Kind != "variable" || variable.ReadOnly || variable.Sensitive || variable.SqlType == null || variable.Expression != null)
+                throw new DebugFault("missing_context", "Row Count Ziel muss eine beschreibbare Paketvariable sein.");
+            long minimum, maximum;
+            switch ((variable.Type ?? "").ToLowerInvariant())
+            {
+                case "i1": case "sbyte": case "16": minimum = SByte.MinValue; maximum = SByte.MaxValue; break;
+                case "ui1": case "byte": case "17": minimum = 0; maximum = Byte.MaxValue; break;
+                case "i2": case "int16": case "2": minimum = Int16.MinValue; maximum = Int16.MaxValue; break;
+                case "ui2": case "uint16": case "18": minimum = 0; maximum = UInt16.MaxValue; break;
+                case "i4": case "int32": case "3": minimum = Int32.MinValue; maximum = Int32.MaxValue; break;
+                case "ui4": case "uint32": case "19": minimum = 0; maximum = UInt32.MaxValue; break;
+                case "i8": case "int64": case "20": minimum = Int64.MinValue; maximum = Int64.MaxValue; break;
+                case "ui8": case "uint64": case "21": minimum = 0; maximum = Int64.MaxValue; break;
+                default: throw new DebugFault("missing_context", "Row Count Zielvariable muss einen unterstützten Integer-Typ haben.");
+            }
+            Stage parent = stage.Parents[0]; Inherit(stage, parent); Need(parent);
+            stage.Columns.AddRange(parent.Columns);
+            stage.Query = "SELECT " + Fields(parent, "m") + " FROM " + Util.Q(parent.Cte) + " AS m";
+            stage.RowCountVariable = variable.Name; stage.RowCountType = variable.Type; stage.RowCountMinimum = minimum; stage.RowCountMaximum = maximum;
+        }
+        private void FlatFileSource(Component c, Port port, Stage stage)
+        {
+            Bindings.FlatFileInputBinding binding;
+            if (c.Connection == null || !bindings.FlatFileInputs.TryGetValue(c.Connection, out binding)) throw new DebugFault("missing_context", "Expliziter relationaler Flatfile-Zeilenbestand fehlt.");
+            string sourceConnectionKind;
+            if (!package.ConnectionKinds.TryGetValue(c.Connection, out sourceConnectionKind) || sourceConnectionKind != "FLATFILE") throw new DebugFault("missing_context", "Flatfile-Quelle muss an einen Flatfile-Connectionmanager gebunden sein.");
+            if (port.Error)
+            {
+                if (binding.ErrorRows == null) throw new DebugFault("missing_context", "Explizite Fehlerzeilenquelle fehlt.");
+                binding = FlatFileErrorBinding(binding);
+            }
+            var mapping = new List<KeyValuePair<Column, string>>(); var used = new HashSet<string>(StringComparer.Ordinal);
+            foreach (Column column in port.Columns)
+            {
+                string sqlName;
+                if (!binding.Columns.TryGetValue(column.Id, out sqlName) || column.SqlType == null || !used.Add(sqlName)) throw new DebugFault("missing_context", "Explizite Flatfile-Spaltenidentität oder SQL-Typ fehlt.");
+                mapping.Add(new KeyValuePair<Column, string>(column, sqlName));
+            }
+            if (mapping.Count == 0) throw new DebugFault("missing_context", "Flatfile-Ausgang enthält keine gebundenen Spalten.");
+            string db = binding.Database;
+            if (!bindings.Databases.Contains(db, StringComparer.Ordinal)) throw new DebugFault("invalid_template", "Flatfile-Quelle außerhalb der Datenbank-Allowlist.");
+            var selected = mapping.Select((m, i) => Util.Q(m.Value) + " AS " + Util.Q("ff" + i.ToString(CultureInfo.InvariantCulture))).ToList();
+            if (binding.RowOrdinalColumn != null) selected.Add(Util.Q(binding.RowOrdinalColumn) + " AS [ff_ordinal]");
+            string select = String.Join(", ", selected);
+            SqlQuery query = safety.Read("SELECT " + select + " FROM " + Util.Q(db) + "." + Util.Q(binding.Schema) + "." + Util.Q(binding.Object), db);
+            var projected = Projection.Columns(query, safety); string sql = Attach(query, stage, stage.Id + "_ff"); var list = new List<string>();
+            for (int i = 0; i < mapping.Count; i++)
+            {
+                Column input = mapping[i].Key; BoundColumn source = projected.SingleOrDefault(x => x.Name == "ff" + i.ToString(CultureInfo.InvariantCulture));
+                if (source == null) throw new DebugFault("missing_context", "Flatfile-Ersatzquelle enthält eine gebundene SQL-Spalte nicht.");
+                var col = NewColumn(input.Lineage == "" ? input.Id : input.Lineage, input.Name, input.SqlType, source.Nullable); stage.Columns.Add(col);
+                list.Add("CAST(src." + Util.Q(source.Name) + " AS " + col.Type + ") AS " + Util.Q(col.Alias));
+            }
+            stage.Query = "SELECT " + String.Join(", ", list) + " FROM (" + sql + ") AS src";
+            if (binding.RowOrdinalColumn != null)
+            {
+                if (projected.All(x => x.Name != "ff_ordinal")) throw new DebugFault("missing_context", "Angeforderte originale Flatfile-Zeilenreihenfolge fehlt.");
+                output.Diagnostic("flatfile_row_ordinal", c.Id, "Die bereitgestellte Reihenfolgenspalte ist gebunden; der Debugfluss behauptet ohne explizite Sortieroperation keine Zeilenreihenfolge.");
+            }
+            var flatProperties = c.Properties.ToDictionary(x => x.Key, x => (object)x.Value, StringComparer.Ordinal);
+            output.Add(new Artifact { Kind = "FlatFileSourceMetadata", Component = c.Id, Content = Json.Write(Json.Obj("mode", "caller-supplied-relational-rows", "fileBytesRead", false, "errorPort", port.Error, "rowOrdinalProvided", binding.RowOrdinalColumn != null, "properties", flatProperties), bindings.Limits), Evidence = "pragmatic", Complete = false });
+        }
+        private Bindings.FlatFileInputBinding FlatFileErrorBinding(Bindings.FlatFileInputBinding parent)
+        {
+            var value = Json.Object(parent.ErrorRows); Json.Keys(value, "database", "schema", "object", "columns", "rowOrdinalColumn");
+            string db = Json.Text(Json.Get(value, "database")), schema = Json.Text(Json.Get(value, "schema")), name = Json.Text(Json.Get(value, "object"));
+            Util.Q(db); Util.Q(schema); Util.Q(name);
+            if (!bindings.Databases.Contains(db, StringComparer.Ordinal)) throw new DebugFault("invalid_template", "Fehlerzeilenquelle außerhalb der Datenbank-Allowlist.");
+            var result = new Bindings.FlatFileInputBinding { Database = db, Schema = schema, Object = name, RowOrdinalColumn = value.ContainsKey("rowOrdinalColumn") ? Json.Text(value["rowOrdinalColumn"]) : null };
+            foreach (var column in Json.Object(Json.Get(value, "columns"))) { string sqlName = Json.Text(column.Value); Util.Q(sqlName); result.Columns.Add(column.Key, sqlName); }
+            if (result.Columns.Count == 0) throw new DebugFault("missing_context", "Fehlerzeilen-Spaltenzuordnung fehlt.");
+            return result;
+        }
         private void ValidateCodePage(Column column, string collation)
         { if (column.Type == "str" && (column.CodePage <= 0 || collation == null || catalog.CodePage(collation) != column.CodePage)) throw new DebugFault("unresolved_binding", "ANSI-Codepage nicht exakt belegt."); }
         private void Union(Component c, Port port, Stage stage)
@@ -239,40 +423,103 @@ namespace Toolbelt.Tsql.SsisDebug
             var cols = new Dictionary<string, ExpressionValue>(StringComparer.Ordinal); var duplicateNames = new HashSet<string>(StringComparer.Ordinal);
             foreach (StageColumn c in parent.Columns)
             {
-                var value = new ExpressionValue { Sql = "m." + Util.Q(c.Alias), Type = c.Type, Nullable = c.Nullable };
+                var value = new ExpressionValue { Sql = "m." + Util.Q(c.Alias), Type = c.Type, Nullable = c.Nullable, Total = bindings.ComponentsV2 };
                 cols[c.Id] = value; if (!c.Id.StartsWith("#", StringComparison.Ordinal)) cols["#" + c.Id] = value;
                 if (cols.ContainsKey(c.Name)) duplicateNames.Add(c.Name); else cols.Add(c.Name, value);
             }
             foreach (string name in duplicateNames) cols.Remove(name); return cols;
         }
         private ExpressionValue Expression(string expression, Component c, Stage parent, Stage stage)
-        { var result = new ExpressionParser(expression, package, c.Scope, ExpressionColumns(parent), bindings.Resolve).Parse(); stage.Inputs.UnionWith(result.Inputs); return result; }
+        { var result = new ExpressionParser(expression, package, c.Scope, ExpressionColumns(parent), bindings.Resolve, bindings.ComponentsV2, bindings.CollationForCodePage, bindings.Limits).Parse(); stage.Inputs.UnionWith(result.Inputs); return result; }
         private void Derived(Component c, Port port, Stage stage)
         {
             if (stage.Parents.Count != 1 || c.Inputs.Count != 1) throw new DebugFault("unsupported_component", "Transformation benötigt einen Eingang.");
-            Stage parent = stage.Parents[0]; var projections = parent.Columns.ToDictionary(x => x.Id, x => "m." + Util.Q(x.Alias), StringComparer.Ordinal);
+            Stage parent = stage.Parents[0]; Stage originalParent = parent; var projections = parent.Columns.ToDictionary(x => x.Id, x => "m." + Util.Q(x.Alias), StringComparer.Ordinal);
             var existing = parent.Columns.ToDictionary(x => x.Id, x => x, StringComparer.Ordinal);
             var replacements = new Dictionary<string, StageColumn>(StringComparer.Ordinal);
             foreach (Column input in c.Inputs[0].Columns)
             {
                 string expr = PackageReader.P(input.Properties, "Expression"); if (expr == "") continue;
-                var old = Find(parent, input.Lineage); var value = Expression(expr, c, parent, stage);
+                var old = Find(originalParent, input.Lineage); var value = Expression(expr, c, parent, stage);
+                if (value.BooleanTerms != null && (value.BooleanTerms.Count > 16 || !value.Total)) { value = LowerBooleanChain(value, c, ref parent); stage.Parents.Clear(); Inherit(stage, parent); }
                 projections[old.Id] = "CAST(" + value.Sql + " AS " + old.Type + ")";
                 replacements.Add(old.Id, NewColumn(old.Id, old.Name, old.Type, value.Nullable));
             }
-            foreach (StageColumn col in parent.Columns) stage.Columns.Add(replacements.ContainsKey(col.Id) ? replacements[col.Id] : col);
+            foreach (StageColumn col in originalParent.Columns) stage.Columns.Add(replacements.ContainsKey(col.Id) ? replacements[col.Id] : col);
             foreach (Column col in port.Columns)
             {
                 string expr = PackageReader.P(col.Properties, "Expression"); ExpressionValue value;
                 if (c.Kind == "convert")
                 { string source = PackageReader.P(col.Properties, "SourceInputColumnLineageID"); var old = Find(parent, source); value = new ExpressionValue { Sql = "m." + Util.Q(old.Alias), Type = old.Type, Nullable = old.Nullable }; }
                 else value = Expression(expr, c, parent, stage);
+                if (value.DeferredBooleanCondition != null)
+                {
+                    ExpressionValue loweredCondition = LowerBooleanChain(value.DeferredBooleanCondition, c, ref parent);
+                    string condition = loweredCondition.Condition;
+                    value.Sql = "CASE WHEN " + condition + " THEN " + value.DeferredConditionalTrue + " WHEN NOT (" + condition + ") THEN " + value.DeferredConditionalFalse + " ELSE CAST(NULL AS " + value.DeferredConditionalType + ") END";
+                    value.DeferredBooleanCondition = null;
+                    stage.Parents.Clear(); Inherit(stage, parent);
+                }
+                if (value.BooleanTerms != null && (value.BooleanTerms.Count > 16 || !value.Total)) { value = LowerBooleanChain(value, c, ref parent); stage.Parents.Clear(); Inherit(stage, parent); }
                 var target = NewColumn(col.Lineage == "" ? col.Id : col.Lineage, col.Name, col.SqlType, value.Nullable);
                 if (existing.ContainsKey(target.Id)) throw new DebugFault("invalid_lineage", "Neue Spaltenversion kollidiert.");
                 stage.Columns.Add(target); projections.Add(target.Id, "CAST(" + value.Sql + " AS " + target.Type + ")");
             }
             stage.Query = "SELECT " + String.Join(", ", stage.Columns.Select(x => projections[x.Id] + " AS " + Util.Q(x.Alias))) + " FROM " + Util.Q(parent.Cte) + " AS m";
         }
+        private ExpressionValue LowerBooleanChain(ExpressionValue value, Component component, ref Stage parent)
+        {
+            if (!bindings.ComponentsV2 || (value.BooleanOperator != "&&" && value.BooleanOperator != "||") || value.BooleanTerms == null || value.BooleanTerms.Any(t => t.Type != "bit"))
+                throw new DebugFault("unsupported_expression", "Ausdruck ist nicht als typisierter Boolean-Plan beweisbar.");
+            if (!value.Total && value.BooleanTerms.Any(t => !t.Total && t.BooleanTerms != null))
+                throw new DebugFault("unsupported_expression", "Verschachtelte potenziell fehlernde Boolean-Verknüpfung benötigt eine nicht belegte SSIS-Fehlerreihenfolge.");
+            var baseColumns = parent.Columns.Where(c => !c.Id.StartsWith("v2-boolean-", StringComparison.Ordinal)).ToList(); Stage current = parent; StageColumn accumulator = null;
+            int termsPerUnit = value.Total ? (value.BooleanTerms.Any(t => t.BooleanTerms != null) ? 4 : 16) : 1;
+            for (int start = 0; start < value.BooleanTerms.Count; start += termsPerUnit)
+            {
+                bindings.Limits.Check("planUnits", stages.Count + ++nextSyntheticStage);
+                var terms = value.BooleanTerms.Skip(start).Take(termsPerUnit).ToList();
+                string predicate;
+                if (value.Total)
+                {
+                    predicate = "(" + String.Join(value.BooleanOperator == "&&" ? " AND " : " OR ", terms.Select(BranchCondition)) + ")";
+                    if (accumulator != null) predicate = "(m." + Util.Q(accumulator.Alias) + (value.BooleanOperator == "&&" ? " = 1 AND " : " = 1 OR ") + predicate + ")";
+                    predicate = "CASE WHEN " + predicate + " THEN CAST(1 AS bit) WHEN NOT (" + predicate + ") THEN CAST(0 AS bit) ELSE CAST(NULL AS bit) END";
+                }
+                else
+                {
+                    string left = accumulator == null ? null : "m." + Util.Q(accumulator.Alias);
+                    foreach (ExpressionValue term in terms) left = left == null ? BooleanTruth(BranchCondition(term)) : BooleanFold(left, BranchCondition(term), value.BooleanOperator);
+                    predicate = left;
+                }
+                string alias = Util.Id("b", nextSyntheticStage);
+                var column = new StageColumn { Id = "v2-boolean-" + component.Id + "-" + nextSyntheticStage.ToString(CultureInfo.InvariantCulture), Name = "V2BooleanUnit_" + nextSyntheticStage.ToString(CultureInfo.InvariantCulture), Alias = alias, Type = "bit", Nullable = terms.Any(t => t.Nullable) || accumulator != null && accumulator.Nullable };
+                var next = new Stage { Id = "v" + nextSyntheticStage.ToString("D6", CultureInfo.InvariantCulture), Cte = "v2_" + nextSyntheticStage.ToString("D6", CultureInfo.InvariantCulture), Component = component.Id };
+                next.Parents.Add(current); next.Inputs.UnionWith(current.Inputs); next.Columns.AddRange(baseColumns); next.Columns.Add(column);
+                next.Query = "SELECT " + FieldsBy(baseColumns, "m") + ", " + predicate + " AS " + Util.Q(column.Alias) + " FROM " + Util.Q(current.Cte) + " AS m";
+                current = next; accumulator = column;
+            }
+            parent = current;
+            var lowered = new ExpressionValue { Sql = "m." + Util.Q(accumulator.Alias), Type = "bit", Nullable = value.Nullable, Total = true };
+            lowered.Inputs.UnionWith(value.Inputs); return lowered;
+        }
+        private static string BooleanTruth(string term)
+        { return "CASE WHEN " + term + " THEN CAST(1 AS bit) WHEN NOT (" + term + ") THEN CAST(0 AS bit) ELSE CAST(NULL AS bit) END"; }
+        private static string BranchCondition(ExpressionValue value)
+        {
+            if (value.BooleanTerms == null || value.BooleanTerms.Count == 0) return value.Condition;
+            if (value.Total) return value.Condition;
+            if (value.BooleanTerms.Count > 4) throw new DebugFault("unsupported_expression", "Verschachtelte Boolean-Gruppe ist für eine sichere Einzelunit zu groß.");
+            string result = BranchCondition(value.BooleanTerms[0]);
+            for (int i = 1; i < value.BooleanTerms.Count; i++) result = BooleanFold(result, BranchCondition(value.BooleanTerms[i]), value.BooleanOperator);
+            return "(" + result + " = CAST(1 AS bit))";
+        }
+        private static string BooleanFold(string left, string right, string op)
+        {
+            if (op == "&&") return "CASE WHEN " + left + " = CAST(0 AS bit) THEN CAST(0 AS bit) WHEN " + left + " = CAST(1 AS bit) THEN " + BooleanTruth(right) + " ELSE CASE WHEN NOT (" + right + ") THEN CAST(0 AS bit) ELSE CAST(NULL AS bit) END END";
+            return "CASE WHEN " + left + " = CAST(1 AS bit) THEN CAST(1 AS bit) WHEN " + left + " = CAST(0 AS bit) THEN " + BooleanTruth(right) + " ELSE CASE WHEN " + right + " THEN CAST(1 AS bit) ELSE CAST(NULL AS bit) END END";
+        }
+        private static string FieldsBy(IEnumerable<StageColumn> columns, string alias) { return String.Join(", ", columns.Select(c => alias + "." + Util.Q(c.Alias) + " AS " + Util.Q(c.Alias))); }
         private void Split(Component c, Port selected, Stage stage)
         {
             if (stage.Parents.Count != 1) throw new DebugFault("unsupported_component", "Split benötigt einen Eingang.");
@@ -402,11 +649,20 @@ namespace Toolbelt.Tsql.SsisDebug
         private static string Fields(Stage stage, string alias) { return String.Join(", ", stage.Columns.Select(c => alias + "." + Util.Q(c.Alias))); }
         private static List<Stage> Ancestors(Stage stage)
         {
-            var result = new List<Stage>(); var seen = new HashSet<Stage>();
-            Action<Stage> add = null; add = s => { if (!seen.Add(s)) return; foreach (Stage p in s.Parents) add(p); result.Add(s); }; add(stage); return result;
+            var result = new List<Stage>(); var seen = new HashSet<Stage>(); var pending = new Stack<KeyValuePair<Stage, bool>>(); pending.Push(new KeyValuePair<Stage, bool>(stage, false));
+            while (pending.Count != 0)
+            {
+                var frame = pending.Pop();
+                if (frame.Value) { result.Add(frame.Key); continue; }
+                if (!seen.Add(frame.Key)) continue;
+                pending.Push(new KeyValuePair<Stage, bool>(frame.Key, true));
+                for (int i = frame.Key.Parents.Count - 1; i >= 0; i--) pending.Push(new KeyValuePair<Stage, bool>(frame.Key.Parents[i], false));
+            }
+            return result;
         }
         private void Emit(Stage stage, string kind, string target)
         {
+            if (bindings.ComponentsV2) { EmitV2Plan(stage, kind, target); return; }
             var chain = Ancestors(stage); var caches = chain.SelectMany(x => x.Caches).Distinct().ToList(); var inputKeys = new HashSet<string>(chain.SelectMany(x => x.Inputs), StringComparer.Ordinal);
             string declarations = "-- Bearbeitbare Szenariowerte; zusammen mit WITH/SELECT ausführen.\n" + bindings.Declarations(inputKeys) + "\n";
             string preparation = String.Join("\n", caches.Select(c => CacheSql.Prepare(c, bindings)));
@@ -414,16 +670,227 @@ namespace Toolbelt.Tsql.SsisDebug
             string select = "SELECT " + String.Join(", ", stage.Columns.Select(c => Util.Q(c.Alias) + " AS " + Util.Q(c.Name))) + " FROM " + Util.Q(stage.Cte) + ";";
             string guards = "IF CONVERT(varbinary(max), DB_NAME()) <> CONVERT(varbinary(max), " + Util.L(bindings.DefaultDatabase) + ") THROW 50000, 'TBX_SSISDBG_cache_context_changed: Falscher Datenbankkontext.', 1;\n" + String.Join("\n", chain.SelectMany(s => s.StructureGuards));
             string sql = declarations + guards + "\n" + preparation + "\n" + with + "\n" + select;
-            var owned = caches.SelectMany(c => new[] { c.Name, c.StateName }).ToList(); safety.Generated(sql, bindings.DefaultDatabase, owned);
-            output.Add(new Artifact { Kind = kind, Target = target, Stage = stage.Id, Component = stage.Component, Content = sql, Evidence = "pragmatic", Safety = "passed", Executable = true });
-            output.Add(new Artifact { Kind = "ColumnLineage", Target = target, Stage = stage.Id, Component = stage.Component, Content = Json.Write(stage.Columns.Select(c => (object)Json.Obj("name", c.Name, "lineageId", c.Id, "sqlType", c.Type, "sqlAlias", c.Alias)).ToList()) });
+            var owned = caches.SelectMany(c => new[] { c.Name, c.StateName }).ToList(); safety.Generated(sql, bindings.DefaultDatabase, owned, bindings.ComponentsV2);
+            bool sharedSnapshotPending = chain.Any(s => s.RowCountVariable != null);
+            string projectionDetails = null;
+            if (sharedSnapshotPending || stage.FlatFileWriteMetadata != null)
+            {
+                var detailValues = Json.Obj();
+                if (sharedSnapshotPending) detailValues.Add("completenessNote", "RowCount-Zählung ist ein separates COUNT_BIG-Artefakt; keine gemeinsame materialisierte Momentaufnahme mit dieser Projektion.");
+                if (stage.FlatFileWriteMetadata != null) { detailValues.Add("targetMode", "flatfile-debug-projection"); detailValues.Add("fileWriteSimulated", false); }
+                projectionDetails = Json.Write(detailValues, bindings.Limits);
+            }
+            output.Add(new Artifact { Kind = kind, Target = target, Stage = stage.Id, Component = stage.Component, Content = sql, Evidence = "pragmatic", Safety = "passed", Executable = true, Complete = !sharedSnapshotPending,
+                Details = projectionDetails });
+            foreach (Stage countStage in chain.Where(x => x.RowCountVariable != null)) EmitRowCount(countStage, target);
+            output.Add(new Artifact { Kind = "ColumnLineage", Target = target, Stage = stage.Id, Component = stage.Component, Content = Json.Write(stage.Columns.Select(c => (object)Json.Obj("name", c.Name, "lineageId", c.Id, "sqlType", c.Type, "sqlAlias", c.Alias)).ToList(), bindings.Limits) });
             if (caches.Count > 0)
             {
-                string prep = declarations + guards + "\n" + preparation; safety.Generated(prep, bindings.DefaultDatabase, owned);
+                string prep = declarations + guards + "\n" + preparation; safety.Generated(prep, bindings.DefaultDatabase, owned, bindings.ComponentsV2);
                 output.Add(new Artifact { Kind = "PreparationSql", Target = target, Stage = stage.Id, Content = prep, Evidence = "pragmatic", Safety = "passed", Executable = true });
                 string cleanup = CacheSql.Cleanup(caches, bindings.Collation); safety.Generated(cleanup, bindings.DefaultDatabase, owned);
                 output.Add(new Artifact { Kind = "CleanupSql", Target = target, Stage = stage.Id, Content = cleanup, Evidence = "translated", Safety = "passed", Executable = true });
             }
+        }
+        private void EmitRowCount(Stage stage, string target)
+        {
+            var chain = Ancestors(stage); var caches = chain.SelectMany(x => x.Caches).Distinct().ToList(); var inputKeys = new HashSet<string>(chain.SelectMany(x => x.Inputs), StringComparer.Ordinal);
+            string declarations = "-- Zählwert ist ein Debugergebnis; die SSIS-Variable wird nicht verändert.\n" + bindings.Declarations(inputKeys) + "\n";
+            string preparation = String.Join("\n", caches.Select(c => CacheSql.Prepare(c, bindings)));
+            string with = ";WITH " + String.Join(",\n", chain.SelectMany(s => s.ExtraCtes).Select(p => p.Key + " AS (" + p.Value + ")").Concat(chain.Select(s => Util.Q(s.Cte) + " AS (\n" + s.Query + "\n)")));
+            string guards = "IF CONVERT(varbinary(max), DB_NAME()) <> CONVERT(varbinary(max), " + Util.L(bindings.DefaultDatabase) + ") THROW 50000, 'TBX_SSISDBG_cache_context_changed: Falscher Datenbankkontext.', 1;\n" + String.Join("\n", chain.SelectMany(s => s.StructureGuards));
+            string select = "SELECT COUNT_BIG(*) AS [CountValue], CASE WHEN COUNT_BIG(*) BETWEEN " + stage.RowCountMinimum.ToString(CultureInfo.InvariantCulture) + " AND " + stage.RowCountMaximum.ToString(CultureInfo.InvariantCulture) + " THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS [FitsTargetVariable] FROM " + Util.Q(stage.Cte) + ";";
+            string sql = declarations + guards + "\n" + preparation + "\n" + with + "\n" + select;
+            var owned = caches.SelectMany(c => new[] { c.Name, c.StateName }).ToList(); safety.Generated(sql, bindings.DefaultDatabase, owned, bindings.ComponentsV2);
+            output.Add(new Artifact { Kind = "RowCountSql", Target = target, Stage = stage.Id, Component = stage.Component, Content = sql, Evidence = "pragmatic", Safety = "passed", Executable = true, Complete = false,
+                Details = Json.Write(Json.Obj("targetVariable", stage.RowCountVariable, "ssisType", stage.RowCountType, "assignmentTiming", "after-last-row", "snapshotSharedWithProjection", false, "warning", "Count and projection are separate executions until a materialized shared debug snapshot is available."), bindings.Limits) });
+        }
+
+        private void EmitV2Plan(Stage targetStage, string kind, string target)
+        {
+            string emittedPlanKey = targetStage.Id + "|" + target;
+            if (!emittedV2Plans.Add(emittedPlanKey))
+            {
+                Artifact prior = output.Rows.LastOrDefault(x => (x.Kind == "StageSql" || x.Kind == "TargetSql") && x.Stage == targetStage.Id && x.Target == target);
+                if (prior != null && prior.Kind != kind) output.Add(new Artifact { Kind = kind, Target = target, Stage = prior.Stage, Component = prior.Component, Content = prior.Content, Evidence = prior.Evidence, Safety = prior.Safety, Executable = prior.Executable, Complete = prior.Complete, Details = prior.Details });
+                return;
+            }
+            var chain = Ancestors(targetStage);
+            var inputs = new HashSet<string>(chain.SelectMany(s => s.Inputs), StringComparer.Ordinal);
+            var lookup = new List<LookupCache>(); var lookupSet = new HashSet<LookupCache>();
+            var stageCaches = new Dictionary<Stage, LookupCache>();
+            var units = new List<KeyValuePair<Stage, LookupCache>>();
+            var cteToTemp = new Dictionary<string, string>(StringComparer.Ordinal);
+
+            foreach (Stage stage in chain)
+            {
+                foreach (LookupCache c in stage.Caches) if (lookupSet.Add(c)) lookup.Add(c);
+                if (stage.Error != null) throw new DebugFault(stage.Error, stage.ErrorText);
+                string suffix = runToken + "_" + stage.Id;
+                var cache = new LookupCache { Name = "#tbx_SsisDebug_P_" + suffix, StateName = "#tbx_SsisDebug_Q_" + suffix, FreshPerExecution = true };
+                foreach (StageColumn column in stage.Columns) cache.Columns.Add(new StageColumn { Id = column.Id, Name = column.Name, Alias = column.Alias, Type = column.Type, Nullable = column.Nullable, Collation = column.Collation });
+                cache.Definition = String.Join(", ", cache.Columns.Select(c => Util.Q(c.Alias) + " " + c.Type + (TextType(c.Type) ? " COLLATE " + Util.CollationToken(c.Collation ?? bindings.Collation) : "") + (c.Nullable ? " NULL" : " NOT NULL")));
+                cache.Owner = Util.Hash("ssis-components-v2-plan|" + runHash + "|" + stage.Id + "|" + cache.Definition);
+                cache.Inputs.UnionWith(stage.Inputs);
+                foreach (Stage ancestor in stage.Parents)
+                {
+                    LookupCache parentCache;
+                    if (!stageCaches.TryGetValue(ancestor, out parentCache)) throw new DebugFault("invalid_lineage", "Plan-Parent steht nicht vor seiner abhängigen Unit.");
+                    if (!cache.Dependencies.Contains(parentCache)) cache.Dependencies.Add(parentCache);
+                }
+                foreach (LookupCache lookupCache in stage.Caches) if (!cache.Dependencies.Contains(lookupCache)) cache.Dependencies.Add(lookupCache);
+                var allCtes = stage.ExtraCtes.Select(c => c.Key + " AS (" + c.Value + ")").ToList();
+                allCtes.Add(Util.Q(stage.Cte) + " AS (" + stage.Query + ")");
+                string select = (allCtes.Count == 0 ? "" : ";WITH " + String.Join(",\n", allCtes) + "\n") +
+                    "SELECT " + String.Join(", ", stage.Columns.Select(c => Util.Q(c.Alias) + " AS " + Util.Q(c.Alias))) + " FROM " + Util.Q(stage.Cte) + ";";
+                var allowedCtes = new HashSet<string>(stage.Parents.Select(s => s.Cte), StringComparer.Ordinal);
+                var replacements = cteToTemp.Where(p => allowedCtes.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+                string rewritten;
+                try { rewritten = safety.RewriteStageTables(select, replacements); }
+                catch (DebugFault error) { throw new DebugFault(error.Code, "StageSELECT " + stage.Id + " UTF16=" + select.Length.ToString(CultureInfo.InvariantCulture) + ": " + error.Message); }
+                int finalSelect = rewritten.LastIndexOf("\nSELECT ", StringComparison.Ordinal);
+                if (finalSelect < 0) finalSelect = rewritten.StartsWith("SELECT ", StringComparison.Ordinal) ? 0 : -1;
+                if (finalSelect < 0) throw new DebugFault("unsafe_statement", "Generierter Stage-SELECT ist nicht kanonisch.");
+                string withPrefix = finalSelect == 0 ? "" : rewritten.Substring(0, finalSelect) + "\n";
+                string selectTail = rewritten.Substring(finalSelect).Trim().TrimEnd(';');
+                cache.Insert = withPrefix + "INSERT INTO " + Util.Q(cache.Name) + " (" + String.Join(", ", cache.Columns.Select(c => Util.Q(c.Alias))) + ")\n" + selectTail + ";";
+                cache.FreshPerExecution = true;
+                stageCaches.Add(stage, cache); cteToTemp.Add(stage.Cte, cache.Name); units.Add(new KeyValuePair<Stage, LookupCache>(stage, cache));
+            }
+
+            ValidateV2Plan(units, stageCaches, targetStage, inputs);
+            var allCaches = lookup.Concat(units.Select(u => u.Value)).Distinct().ToList();
+            var owned = allCaches.SelectMany(c => new[] { c.Name, c.StateName }).ToList();
+            string planHash = Util.Hash(String.Join("|", units.Select(u => u.Key.Id + ":" + Util.Hash(u.Value.Insert + u.Value.Definition))));
+            string planOwner = Util.Hash("ssis-components-v2-state|" + runHash + "|" + runToken + "|" + targetStage.Id + "|" + planHash);
+            string planState = "#tbx_SsisDebug_Plan_" + runToken + "_" + targetStage.Id;
+            string stateId = "@tbx_ps" + targetStage.Id.Substring(Math.Max(0, targetStage.Id.Length - 5));
+            string valuesHash = CacheSql.PlanValuesHash(package.Inputs.Where(i => inputs.Contains(i.Key)));
+            string declarations = "-- V2-Plan: jede Einheit bindet Ordinal, Owner, Planhash und Snapshot-Salt.\n" + bindings.Declarations(inputs) + "\n";
+            string databaseGuard = "IF CONVERT(varbinary(max), DB_NAME()) <> CONVERT(varbinary(max), " + Util.L(bindings.DefaultDatabase) + ") THROW 50000, 'TBX_SSISDBG_cache_context_changed: Falscher Datenbankkontext.', 1;\n";
+            var remainingLookup = new HashSet<LookupCache>(lookup); var availableTemps = new HashSet<string>(StringComparer.Ordinal); int ordinal = 0;
+            foreach (var unit in units)
+            {
+                unit.Value.PlanSaltState = planState; unit.Value.PlanSaltOwner = planOwner; unit.Value.PlanHash = planHash;
+                string unitSql = declarations + databaseGuard + String.Join("\n", unit.Key.StructureGuards) + "\n";
+                if (ordinal == 0) unitSql += CacheSql.GuardNoTransaction() + CacheSql.PlanStateGuard(planState, planOwner, planHash, valuesHash, null, false, 0, bindings.Collation, true);
+                unitSql += "DECLARE " + stateId + " int = OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U');\n" + CacheSql.PlanStateGuard(planState, planOwner, planHash, valuesHash, stateId, true, ordinal, bindings.Collation, true);
+                foreach (LookupCache c in unit.Key.Caches) if (remainingLookup.Remove(c))
+                {
+                    c.PlanSaltState = planState; c.PlanSaltOwner = planOwner; c.PlanHash = planHash;
+                    unitSql += CacheSql.Prepare(c, bindings);
+                    availableTemps.Add(c.Name); availableTemps.Add(c.StateName);
+                }
+                foreach (LookupCache dependency in unit.Value.Dependencies)
+                {
+                    if (!availableTemps.Contains(dependency.Name) || !availableTemps.Contains(dependency.StateName))
+                        throw new DebugFault("invalid_lineage", "Unit verweist auf eine nicht vorbereitete Vorgängergeneration.");
+                }
+                unitSql += CacheSql.RequireReady(unit.Value.Dependencies, bindings.Collation, bindings);
+                unitSql += CacheSql.Prepare(unit.Value, bindings);
+                var cacheClosure = new HashSet<LookupCache>(unit.Value.Dependencies);
+                cacheClosure.UnionWith(unit.Value.Dependencies.SelectMany(c => c.Dependencies));
+                var unitOwned = new HashSet<string>(cacheClosure.SelectMany(c => new[] { c.Name, c.StateName }), StringComparer.Ordinal) { unit.Value.Name, unit.Value.StateName, planState };
+                unitOwned.UnionWith(unit.Key.Caches.SelectMany(c => new[] { c.Name, c.StateName }));
+                string stateTable = Util.Q(planState);
+                unitSql += "UPDATE " + stateTable + " SET [NextUnit] = " + (ordinal + 1).ToString(CultureInfo.InvariantCulture) + " WHERE [Owner] = 0x" + planOwner + " AND [PlanHash] = 0x" + planHash + " AND [NextUnit] = " + ordinal.ToString(CultureInfo.InvariantCulture) + ";\nIF @@ROWCOUNT <> 1 THROW 50000, N'TBX_SSISDBG_plan_order: Planstate konnte nicht fortgeschrieben werden.', 1;\n";
+                try { safety.Generated(unitSql, bindings.DefaultDatabase, unitOwned, true); }
+                catch (DebugFault error) { throw new DebugFault(error.Code, "Planunit " + ordinal.ToString(CultureInfo.InvariantCulture) + " / " + unit.Key.Id + " SQLbytes=" + (2L * unitSql.Length).ToString(CultureInfo.InvariantCulture) + ": " + error.Message); }
+                output.Add(new Artifact { Kind = "PlanUnitSql", Target = target, Stage = unit.Key.Id, Component = unit.Key.Component, Content = unitSql, Evidence = "translated", Safety = "passed", Executable = true, Complete = true,
+                    Details = Json.Write(Json.Obj("ordinal", ordinal, "unitSha256", Util.Hash(unit.Value.Insert), "unitContentSha256", Util.Hash(unitSql), "ownerSha256", unit.Value.Owner, "planOwnerSha256", planOwner, "planHash", planHash, "outputShapeSha256", Util.Hash(unit.Value.Definition), "dependencies", unit.Key.Parents.Select(p => p.Id).ToList(),
+                        "inputs", unit.Key.Parents.Select(p => (object)Json.Obj("unitId", p.Id, "columns", p.Columns.Select(c => (object)Json.Obj("identity", c.Id, "type", c.Type, "nullable", c.Nullable)).ToList())).ToList(),
+                        "outputs", unit.Value.Columns.Select(c => (object)Json.Obj("identity", c.Id, "type", c.Type, "nullable", c.Nullable)).ToList()), bindings.Limits) });
+                ordinal++;
+                availableTemps.Add(unit.Value.Name); availableTemps.Add(unit.Value.StateName);
+            }
+            owned.Add(planState);
+            string finalStateGuard = "DECLARE " + stateId + " int = OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U');\n" + CacheSql.PlanStateGuard(planState, planOwner, planHash, valuesHash, stateId, true, units.Count, bindings.Collation, true);
+            LookupCache targetCache = stageCaches[targetStage];
+            var readCaches = new List<LookupCache> { targetCache };
+            readCaches.AddRange(units.Where(u => u.Key.RowCountVariable != null).Select(u => u.Value));
+            string readyCaches = CacheSql.RequireReady(readCaches, bindings.Collation, bindings);
+            var readClosure = new HashSet<LookupCache>(readCaches.Distinct());
+            readClosure.UnionWith(readCaches.Distinct().SelectMany(c => c.Dependencies));
+            var readOwned = readClosure.SelectMany(c => new[] { c.Name, c.StateName }).Concat(new[] { planState }).ToList();
+            string readPrelude = bindings.Declarations(inputs) + "\n" + databaseGuard + finalStateGuard + readyCaches;
+            var finalProjection = "SELECT " + String.Join(", ", targetStage.Columns.Select(c => Util.Q(c.Alias) + " AS " + Util.Q(c.Name))) + " FROM " + Util.Q(targetCache.Name) + ";";
+            var counts = units.Where(u => u.Key.RowCountVariable != null).Select(u =>
+                "SELECT COUNT_BIG(*) AS [CountValue], CASE WHEN COUNT_BIG(*) BETWEEN " + u.Key.RowCountMinimum.ToString(CultureInfo.InvariantCulture) + " AND " + u.Key.RowCountMaximum.ToString(CultureInfo.InvariantCulture) + " THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS [FitsTargetVariable] FROM " + Util.Q(u.Value.Name) + ";").ToList();
+            string execution = readPrelude + finalProjection;
+            try { safety.Generated(execution, bindings.DefaultDatabase, readOwned, true); }
+            catch (DebugFault error) { throw new DebugFault(error.Code, "Planresult SQLbytes=" + (2L * execution.Length).ToString(CultureInfo.InvariantCulture) + ": " + error.Message); }
+            bool flatTarget = targetStage.FlatFileWriteMetadata != null;
+            var details = Json.Obj("planHash", planHash, "planOwnerSha256", planOwner, "planStateTemp", planState, "unitCount", units.Count,
+                "snapshotSharedWithProjection", true, "rowCountTargets", units.Where(u => u.Key.RowCountVariable != null).Select(u => (object)Json.Obj("variable", u.Key.RowCountVariable, "ssisType", u.Key.RowCountType, "assignmentTiming", "after-last-row")).ToList());
+            if (flatTarget) { details.Add("targetMode", "flatfile-debug-projection"); details.Add("fileWriteSimulated", false); }
+            string detailJson = Json.Write(details, bindings.Limits);
+            output.Add(new Artifact { Kind = kind, Target = target, Stage = targetStage.Id, Component = targetStage.Component, Content = execution, Evidence = "pragmatic", Safety = "passed", Executable = true, Complete = true, Details = detailJson });
+            var manifestUnits = units.Select((u, i) => (object)Json.Obj("ordinal", i, "unitId", u.Key.Id, "component", u.Key.Component, "unitSha256", Util.Hash(u.Value.Insert), "ownerSha256", u.Value.Owner,
+                "outputShapeSha256", Util.Hash(u.Value.Definition), "dependencies", u.Key.Parents.Select(p => p.Id).ToList(),
+                "inputs", u.Key.Parents.Select(p => (object)Json.Obj("unitId", p.Id, "columns", p.Columns.Select(c => (object)Json.Obj("identity", c.Id, "type", c.Type, "nullable", c.Nullable)).ToList())).ToList(),
+                "outputs", u.Value.Columns.Select(c => (object)Json.Obj("identity", c.Id, "type", c.Type, "nullable", c.Nullable)).ToList())).ToList();
+            output.Add(new Artifact { Kind = "PlanManifest", Target = target, Stage = targetStage.Id, Component = targetStage.Component, Content = Json.Write(Json.Obj("schemaVersion", 1, "planHash", Json.Text(details["planHash"]), "businessBindingHash", bindings.ContextHash, "units", manifestUnits), bindings.Limits), Evidence = "translated", Safety = "passed", Complete = true });
+            output.Add(new Artifact { Kind = "ColumnLineage", Target = target, Stage = targetStage.Id, Component = targetStage.Component, Content = Json.Write(targetStage.Columns.Select(c => (object)Json.Obj("name", c.Name, "lineageId", c.Id, "sqlType", c.Type, "sqlAlias", c.Alias)).ToList(), bindings.Limits) });
+            if (units.Any(u => u.Key.RowCountVariable != null))
+                foreach (var unit in units.Where(u => u.Key.RowCountVariable != null))
+                {
+                    string rowSql = readPrelude + counts[units.Where(u => u.Key.RowCountVariable != null).ToList().IndexOf(unit)];
+                    safety.Generated(rowSql, bindings.DefaultDatabase, readOwned, true);
+                    output.Add(new Artifact { Kind = "RowCountSql", Target = target, Stage = unit.Key.Id, Component = unit.Key.Component,
+                        Content = rowSql, Evidence = "pragmatic", Safety = "passed", Executable = true, Complete = true,
+                        Details = Json.Write(Json.Obj("targetVariable", unit.Key.RowCountVariable, "ssisType", unit.Key.RowCountType, "assignmentTiming", "after-last-row", "snapshotSharedWithProjection", true, "executeWithPlanArtifact", true), bindings.Limits) });
+                }
+            var cleanupCaches = allCaches.AsEnumerable().Reverse().ToList();
+            for (int i = 0; i < cleanupCaches.Count; i++)
+            {
+                string tempAbsent = "OBJECT_ID(" + Util.L("tempdb.." + cleanupCaches[i].Name) + ", N'U') IS NULL AND OBJECT_ID(" + Util.L("tempdb.." + cleanupCaches[i].StateName) + ", N'U') IS NULL";
+                string cleanup = bindings.Declarations(inputs) + "\n" + databaseGuard +
+                    "IF OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U') IS NULL\nBEGIN\nIF NOT (" + tempAbsent + ") THROW 50000, N'TBX_SSISDBG_plan_ownership: Tempcache ohne Planstate.', 1;\nEND\nELSE\nBEGIN\n" +
+                    "DECLARE " + stateId + " int = OBJECT_ID(" + Util.L("tempdb.." + planState) + ", N'U');\n" + CacheSql.PlanStateGuard(planState, planOwner, planHash, valuesHash, stateId, true, -1, bindings.Collation, true, true, i == 0 ? -1 : i, units.Count);
+                string stateTable = Util.Q(planState);
+                string beforeDrop = i == 0
+                    ? "UPDATE " + stateTable + " SET [CleanupOrdinal] = 0 WHERE [Owner]=0x" + planOwner + " AND [PlanHash]=0x" + planHash + " AND [CleanupOrdinal]=-1;\nIF NOT EXISTS (SELECT 1 FROM " + stateTable + " WITH (NOLOCK) WHERE [Owner]=0x" + planOwner + " AND [PlanHash]=0x" + planHash + " AND [CleanupOrdinal]=0) THROW 50000, N'TBX_SSISDBG_plan_cleanup_order: Cleanup konnte nicht begonnen werden.', 1;\n"
+                    : "";
+                string afterDrop = i == cleanupCaches.Count - 1
+                    ? "DROP TABLE " + stateTable + ";\n"
+                    : "UPDATE " + stateTable + " SET [CleanupOrdinal] = " + (i + 1).ToString(CultureInfo.InvariantCulture) + " WHERE [Owner]=0x" + planOwner + " AND [PlanHash]=0x" + planHash + " AND [CleanupOrdinal]=" + i.ToString(CultureInfo.InvariantCulture) + ";\nIF @@ROWCOUNT <> 1 THROW 50000, N'TBX_SSISDBG_plan_cleanup_order: Cleanupgeneration konnte nicht fortgeschrieben werden.', 1;\n";
+                cleanup += CacheSql.CleanupPlan(cleanupCaches[i], bindings.Collation, beforeDrop, afterDrop);
+                cleanup += "END;\n";
+                safety.Generated(cleanup, bindings.DefaultDatabase, new[] { cleanupCaches[i].Name, cleanupCaches[i].StateName, planState });
+                output.Add(new Artifact { Kind = "CleanupSql", Target = target, Stage = targetStage.Id, Content = cleanup, Evidence = "translated", Safety = "passed", Executable = true, Complete = true,
+                    Details = Json.Write(Json.Obj("cleanupOrdinal", i, "cleanupCount", cleanupCaches.Count, "planHash", planHash), bindings.Limits) });
+            }
+            if (flatTarget) output.Add(new Artifact { Kind = "FlatFileWriteProjection", Target = target, Stage = targetStage.Id, Component = targetStage.Component, Content = targetStage.FlatFileWriteMetadata, Evidence = "pragmatic", Safety = "not_applicable", Executable = false, Complete = false,
+                Details = Json.Write(Json.Obj("limitation", "Metadaten ohne Dateiserialisierung oder Zielschreibvorgang.", "debugProjectionIncludedInPlan", true), bindings.Limits) });
+        }
+
+        private void ValidateV2Plan(List<KeyValuePair<Stage, LookupCache>> units, Dictionary<Stage, LookupCache> stageCaches, Stage target, HashSet<string> inputs)
+        {
+            bindings.Limits.Check("planUnits", units.Count);
+            if (units.Count == 0 || units[units.Count - 1].Key != target) throw new DebugFault("invalid_lineage", "Plan endet nicht in der angeforderten Zielstufe.");
+            var seen = new HashSet<Stage>(); var cacheNames = new HashSet<string>(StringComparer.Ordinal); long bytes = 0;
+            foreach (var unit in units)
+            {
+                Stage stage = unit.Key; LookupCache cache = unit.Value;
+                if (!seen.Add(stage) || !cacheNames.Add(cache.Name) || !cacheNames.Add(cache.StateName) || cache.Owner != Util.Hash("ssis-components-v2-plan|" + runHash + "|" + stage.Id + "|" + cache.Definition))
+                    throw new DebugFault("invalid_lineage", "Planunit-ID, Ownership oder Ausgabeform ist dupliziert/abweichend.");
+                foreach (Stage parent in stage.Parents) if (!seen.Contains(parent)) throw new DebugFault("invalid_lineage", "Planabhängigkeit steht nicht vor ihrer Verwendung.");
+                var expectedDependencies = stage.Parents.Select(s => stageCaches[s]).Concat(stage.Caches).Distinct().ToList();
+                if (cache.Dependencies.Count != expectedDependencies.Count || cache.Dependencies.Where((d, i) => !Object.ReferenceEquals(d, expectedDependencies[i])).Any())
+                    throw new DebugFault("invalid_lineage", "Planmanifest und typisierte Cacheabhängigkeiten weichen voneinander ab.");
+                foreach (Stage parent in stage.Parents)
+                {
+                    LookupCache parentCache = stageCaches[parent];
+                    if (parentCache.Columns.Count != parent.Columns.Count || parentCache.Columns.Where((c, i) => c.Id != parent.Columns[i].Id || c.Type != parent.Columns[i].Type || c.Nullable != parent.Columns[i].Nullable).Any())
+                        throw new DebugFault("invalid_lineage", "Planinputstufe ist typmäßig abweichend.");
+                }
+                if (cache.Columns.Count != stage.Columns.Count || cache.Columns.Select(c => c.Alias).Distinct(StringComparer.Ordinal).Count() != cache.Columns.Count ||
+                    cache.Columns.Where((c, i) => c.Alias != stage.Columns[i].Alias || c.Type != stage.Columns[i].Type || c.Nullable != stage.Columns[i].Nullable).Any())
+                    throw new DebugFault("invalid_lineage", "Planoutput ist nicht typidentisch zur Stufe.");
+                bytes = checked(bytes + 2L * (cache.Insert.Length + cache.Definition.Length)); bindings.Limits.Check("sqlArtifactBytes", 2L * cache.Insert.Length);
+            }
+            bindings.Limits.Check("totalOutputBytes", bytes);
+            if (!inputs.SetEquals(units.SelectMany(u => u.Key.Inputs))) throw new DebugFault("invalid_lineage", "Planinputs stimmen nicht mit der gebundenen Zielkette überein.");
         }
     }
 }

@@ -1,0 +1,340 @@
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts" DTS:refId="Package" DTS:ExecutableType="Microsoft.Package">
+  <DTS:Property DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable DTS:Namespace="User" DTS:ObjectName="SourceFloor" DTS:DTSID="{11111111-1111-1111-1111-000000000001}">
+      <DTS:VariableValue DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable DTS:Namespace="User" DTS:ObjectName="LookupFloor" DTS:DTSID="{11111111-1111-1111-1111-000000000002}">
+      <DTS:VariableValue DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable DTS:Namespace="User" DTS:ObjectName="Offset" DTS:DTSID="{11111111-1111-1111-1111-000000000003}">
+      <DTS:VariableValue DTS:DataType="3">1</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable DTS:Namespace="User" DTS:ObjectName="Threshold" DTS:DTSID="{11111111-1111-1111-1111-000000000004}">
+      <DTS:VariableValue DTS:DataType="3">100</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable DTS:Namespace="User" DTS:ObjectName="RowsProcessed" DTS:DTSID="{11111111-1111-1111-1111-000000000099}">
+      <DTS:VariableValue DTS:DataType="Int32">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[Synthetic]" DTS:CreationName="OLEDB" DTS:ObjectName="Synthetic" />
+  </DTS:ConnectionManagers>
+  <DTS:Executables>
+    <DTS:Executable DTS:refId="Package\Flow" DTS:ExecutableType="Microsoft.Pipeline" DTS:ObjectName="Synthetic Flow">
+      <DTS:ObjectData>
+        <pipeline>
+          <components>
+            <component refId="Package\Flow\SourceA" name="SourceA" componentClassID="Microsoft.OLEDBSource" version="7">
+              <properties>
+                <property name="AccessMode">2</property>
+                <property name="SqlCommand">SELECT KeyA, KeyB, Amount FROM dbo.SyntheticSourceA WHERE Amount &gt;= ?</property>
+                <property name="ParameterMapping">"@Floor:Input",{11111111-1111-1111-1111-000000000001};</property>
+              </properties>
+              <connections>
+                <connection connectionManagerRefId="Package.ConnectionManagers[Synthetic]" />
+              </connections>
+              <inputs />
+              <outputs>
+                <output refId="Package\Flow\SourceA.output[Rows]" name="Rows" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <outputColumns>
+                    <outputColumn refId="Package\Flow\SourceA.output[Rows].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceA.output[Rows].Columns[KeyA]" externalMetadataColumnId="Package\Flow\SourceA.output[Rows].External[KeyA]">
+                      <properties />
+                    </outputColumn>
+                    <outputColumn refId="Package\Flow\SourceA.output[Rows].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceA.output[Rows].Columns[KeyB]" externalMetadataColumnId="Package\Flow\SourceA.output[Rows].External[KeyB]">
+                      <properties />
+                    </outputColumn>
+                    <outputColumn refId="Package\Flow\SourceA.output[Rows].Columns[Amount]" name="Amount" cachedName="Amount" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceA.output[Rows].Columns[Amount]" externalMetadataColumnId="Package\Flow\SourceA.output[Rows].External[Amount]">
+                      <properties />
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns>
+                    <externalMetadataColumn refId="Package\Flow\SourceA.output[Rows].External[KeyA]" name="KeyA" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\SourceA.output[Rows].External[KeyB]" name="KeyB" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\SourceA.output[Rows].External[Amount]" name="Amount" dataType="i4" />
+                  </externalMetadataColumns>
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\Flow\SourceB" name="SourceB" componentClassID="Microsoft.OLEDBSource" version="7">
+              <properties>
+                <property name="AccessMode">2</property>
+                <property name="SqlCommand">SELECT KeyA, KeyB, Amount FROM dbo.SyntheticSourceB WHERE Amount &gt;= ?</property>
+                <property name="ParameterMapping">"@Floor:Input",{11111111-1111-1111-1111-000000000001};</property>
+              </properties>
+              <connections>
+                <connection connectionManagerRefId="Package.ConnectionManagers[Synthetic]" />
+              </connections>
+              <inputs />
+              <outputs>
+                <output refId="Package\Flow\SourceB.output[Rows]" name="Rows" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <outputColumns>
+                    <outputColumn refId="Package\Flow\SourceB.output[Rows].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceB.output[Rows].Columns[KeyA]" externalMetadataColumnId="Package\Flow\SourceB.output[Rows].External[KeyA]">
+                      <properties />
+                    </outputColumn>
+                    <outputColumn refId="Package\Flow\SourceB.output[Rows].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceB.output[Rows].Columns[KeyB]" externalMetadataColumnId="Package\Flow\SourceB.output[Rows].External[KeyB]">
+                      <properties />
+                    </outputColumn>
+                    <outputColumn refId="Package\Flow\SourceB.output[Rows].Columns[Amount]" name="Amount" cachedName="Amount" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceB.output[Rows].Columns[Amount]" externalMetadataColumnId="Package\Flow\SourceB.output[Rows].External[Amount]">
+                      <properties />
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns>
+                    <externalMetadataColumn refId="Package\Flow\SourceB.output[Rows].External[KeyA]" name="KeyA" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\SourceB.output[Rows].External[KeyB]" name="KeyB" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\SourceB.output[Rows].External[Amount]" name="Amount" dataType="i4" />
+                  </externalMetadataColumns>
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\Flow\Union" name="Union" componentClassID="Microsoft.UnionAll" version="1">
+              <properties />
+              <inputs>
+                <input refId="Package\Flow\Union.input[Input0]" name="Input0" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns>
+                    <inputColumn refId="Package\Flow\Union.input[Input0].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceA.output[Rows].Columns[KeyA]">
+                      <properties>
+                        <property name="OutputColumnLineageID">Package\Flow\Union.output[Rows].Columns[KeyA]</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\Union.input[Input0].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceA.output[Rows].Columns[KeyB]">
+                      <properties>
+                        <property name="OutputColumnLineageID">Package\Flow\Union.output[Rows].Columns[KeyB]</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\Union.input[Input0].Columns[Amount]" name="Amount" cachedName="Amount" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceA.output[Rows].Columns[Amount]">
+                      <properties>
+                        <property name="OutputColumnLineageID">Package\Flow\Union.output[Rows].Columns[Amount]</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input refId="Package\Flow\Union.input[Input1]" name="Input1" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns>
+                    <inputColumn refId="Package\Flow\Union.input[Input1].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceB.output[Rows].Columns[KeyA]">
+                      <properties>
+                        <property name="OutputColumnLineageID">Package\Flow\Union.output[Rows].Columns[KeyA]</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\Union.input[Input1].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceB.output[Rows].Columns[KeyB]">
+                      <properties>
+                        <property name="OutputColumnLineageID">Package\Flow\Union.output[Rows].Columns[KeyB]</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\Union.input[Input1].Columns[Amount]" name="Amount" cachedName="Amount" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\SourceB.output[Rows].Columns[Amount]">
+                      <properties>
+                        <property name="OutputColumnLineageID">Package\Flow\Union.output[Rows].Columns[Amount]</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\Flow\Union.output[Rows]" name="Rows" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <outputColumns>
+                    <outputColumn refId="Package\Flow\Union.output[Rows].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyA]">
+                      <properties />
+                    </outputColumn>
+                    <outputColumn refId="Package\Flow\Union.output[Rows].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyB]">
+                      <properties />
+                    </outputColumn>
+                    <outputColumn refId="Package\Flow\Union.output[Rows].Columns[Amount]" name="Amount" cachedName="Amount" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[Amount]">
+                      <properties />
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\Flow\Derived" name="Derived" componentClassID="Microsoft.DerivedColumn" version="1">
+              <properties />
+              <inputs>
+                <input refId="Package\Flow\Derived.input[Input]" name="Input" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns />
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\Flow\Derived.output[Rows]" name="Rows" errorRowDisposition="IgnoreFailure" synchronousInputId="Package\Flow\Derived.input[Input]">
+                  <properties />
+                  <outputColumns>
+                    <outputColumn refId="Package\Flow\Derived.output[Rows].Columns[Adjusted]" name="Adjusted" cachedName="Adjusted" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Derived.output[Rows].Columns[Adjusted]">
+                      <properties>
+                        <property name="Expression">[Amount] + @[User::Offset]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\Flow\Lookup" name="Lookup" componentClassID="Microsoft.Lookup" version="6">
+              <properties>
+                <property name="SqlCommand">SELECT KeyA, KeyB, Score FROM dbo.SyntheticLookup</property>
+                <property name="AccessMode">2</property>
+                <property name="NoMatchBehavior">1</property>
+                <property name="CacheType">0</property>
+              </properties>
+              <connections>
+                <connection connectionManagerRefId="Package.ConnectionManagers[Synthetic]" />
+              </connections>
+              <inputs>
+                <input refId="Package\Flow\Lookup.input[Input]" name="Input" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns>
+                    <inputColumn refId="Package\Flow\Lookup.input[Input].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyA]">
+                      <properties>
+                        <property name="JoinToReferenceColumn">KeyA</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\Lookup.input[Input].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyB]">
+                      <properties>
+                        <property name="JoinToReferenceColumn">KeyB</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\Flow\Lookup.output[Match]" name="Match" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <outputColumns>
+                    <outputColumn refId="Package\Flow\Lookup.output[Match].Columns[Score]" name="Score" cachedName="Score" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Lookup.output[Match].Columns[Score]">
+                      <properties>
+                        <property name="CopyFromReferenceColumn">Score</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\Flow\Split" name="Split" componentClassID="Microsoft.ConditionalSplit" version="1">
+              <properties />
+              <inputs>
+                <input refId="Package\Flow\Split.input[Input]" name="Input" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns />
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\Flow\Split.output[High]" name="High" errorRowDisposition="IgnoreFailure" synchronousInputId="Package\Flow\Split.input[Input]">
+                  <properties>
+                    <property name="EvaluationOrder">0</property>
+                    <property name="Expression">[Adjusted] &gt; @[User::Threshold]</property>
+                    <property name="IsDefaultOut">false</property>
+                  </properties>
+                  <outputColumns />
+                  <externalMetadataColumns />
+                </output>
+                <output refId="Package\Flow\Split.output[Default]" name="Default" errorRowDisposition="IgnoreFailure" synchronousInputId="Package\Flow\Split.input[Input]">
+                  <properties>
+                    <property name="EvaluationOrder">1</property>
+                    <property name="IsDefaultOut">true</property>
+                  </properties>
+                  <outputColumns />
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\Flow\DestinationHigh" name="DestinationHigh" componentClassID="Microsoft.OLEDBDestination" version="4">
+              <properties />
+              <inputs>
+                <input refId="Package\Flow\DestinationHigh.input[Input]" name="Input" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns>
+                    <inputColumn refId="Package\Flow\DestinationHigh.input[Input].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyA]" externalMetadataColumnId="Package\Flow\DestinationHigh.input[Input].External[KeyA]">
+                      <properties />
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\DestinationHigh.input[Input].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyB]" externalMetadataColumnId="Package\Flow\DestinationHigh.input[Input].External[KeyB]">
+                      <properties />
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\DestinationHigh.input[Input].Columns[Adjusted]" name="Adjusted" cachedName="Adjusted" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Derived.output[Rows].Columns[Adjusted]" externalMetadataColumnId="Package\Flow\DestinationHigh.input[Input].External[Adjusted]">
+                      <properties />
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\DestinationHigh.input[Input].Columns[Score]" name="Score" cachedName="Score" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Lookup.output[Match].Columns[Score]" externalMetadataColumnId="Package\Flow\DestinationHigh.input[Input].External[Score]">
+                      <properties />
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns>
+                    <externalMetadataColumn refId="Package\Flow\DestinationHigh.input[Input].External[KeyA]" name="KeyA" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\DestinationHigh.input[Input].External[KeyB]" name="KeyB" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\DestinationHigh.input[Input].External[Adjusted]" name="Adjusted" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\DestinationHigh.input[Input].External[Score]" name="Score" dataType="i4" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs />
+            </component>
+            <component refId="Package\Flow\DestinationDefault" name="DestinationDefault" componentClassID="Microsoft.OLEDBDestination" version="4">
+              <properties />
+              <inputs>
+                <input refId="Package\Flow\DestinationDefault.input[Input]" name="Input" errorRowDisposition="IgnoreFailure">
+                  <properties />
+                  <inputColumns>
+                    <inputColumn refId="Package\Flow\DestinationDefault.input[Input].Columns[KeyA]" name="KeyA" cachedName="KeyA" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyA]" externalMetadataColumnId="Package\Flow\DestinationDefault.input[Input].External[KeyA]">
+                      <properties />
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\DestinationDefault.input[Input].Columns[KeyB]" name="KeyB" cachedName="KeyB" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Union.output[Rows].Columns[KeyB]" externalMetadataColumnId="Package\Flow\DestinationDefault.input[Input].External[KeyB]">
+                      <properties />
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\DestinationDefault.input[Input].Columns[Adjusted]" name="Adjusted" cachedName="Adjusted" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Derived.output[Rows].Columns[Adjusted]" externalMetadataColumnId="Package\Flow\DestinationDefault.input[Input].External[Adjusted]">
+                      <properties />
+                    </inputColumn>
+                    <inputColumn refId="Package\Flow\DestinationDefault.input[Input].Columns[Score]" name="Score" cachedName="Score" dataType="i4" cachedDataType="i4" lineageId="Package\Flow\Lookup.output[Match].Columns[Score]" externalMetadataColumnId="Package\Flow\DestinationDefault.input[Input].External[Score]">
+                      <properties />
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns>
+                    <externalMetadataColumn refId="Package\Flow\DestinationDefault.input[Input].External[KeyA]" name="KeyA" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\DestinationDefault.input[Input].External[KeyB]" name="KeyB" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\DestinationDefault.input[Input].External[Adjusted]" name="Adjusted" dataType="i4" />
+                    <externalMetadataColumn refId="Package\Flow\DestinationDefault.input[Input].External[Score]" name="Score" dataType="i4" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs />
+            </component>
+            <component refId="Package\Flow\RowCount" name="RowCount" componentClassID="Microsoft.RowCount">
+              <properties>
+                <property name="VariableName">User::RowsProcessed</property>
+              </properties>
+              <inputs>
+                <input refId="Package\Flow\RowCount.input[Input]" name="Input">
+                  <properties />
+                  <inputColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\Flow\RowCount.output[Rows]" name="Rows" synchronousInputId="Package\Flow\RowCount.input[Input]">
+                  <properties />
+                  <outputColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path refId="path1" startId="Package\Flow\SourceA.output[Rows]" endId="Package\Flow\Union.input[Input0]" />
+            <path refId="path2" startId="Package\Flow\SourceB.output[Rows]" endId="Package\Flow\Union.input[Input1]" />
+            <path refId="path3" startId="Package\Flow\Union.output[Rows]" endId="Package\Flow\Derived.input[Input]" />
+            <path refId="path4" startId="Package\Flow\Derived.output[Rows]" endId="Package\Flow\Lookup.input[Input]" />
+            <path refId="path5" startId="Package\Flow\Lookup.output[Match]" endId="Package\Flow\Split.input[Input]" />
+            <path refId="path6" startId="Package\Flow\RowCount.output[Rows]" endId="Package\Flow\DestinationHigh.input[Input]" />
+            <path refId="path7" startId="Package\Flow\Split.output[Default]" endId="Package\Flow\DestinationDefault.input[Input]" />
+            <path refId="pathRowCount" startId="Package\Flow\Split.output[High]" endId="Package\Flow\RowCount.input[Input]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+</DTS:Executable>

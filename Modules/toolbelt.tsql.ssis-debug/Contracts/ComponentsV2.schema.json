@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/Contracts/ComponentsV2.schema.json",
+  "title": "SSIS debug components V2 help overlay",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contract", "baseContract", "operation", "bindingProfile", "projectContext", "catalogBindings", "help"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "contract": {"const": "ssis-debug-components-v2"},
+    "baseContract": {"const": "Contracts/Api.json"},
+    "operation": {"const": "bindings-template-v2"},
+    "bindingProfile": {"const": "ssis-debug-components-v2"},
+    "projectContext": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "resourceOptionsSchemaVersion", "presets", "controlProtocolBytes", "resourceOptionsJsonBytes"],
+      "properties": {
+        "schemaVersion": {"const": 2}, "resourceOptionsSchemaVersion": {"const": 1},
+        "presets": {"const": ["large10x", "unlimited"]}, "controlProtocolBytes": {"const": 4194304},
+        "resourceOptionsJsonBytes": {"const": 16384}
+      }
+    },
+    "catalogBindings": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "extension", "fileAccess", "sqlTextFields"],
+      "properties": {"schemaVersion": {"const": 2}, "extension": {"const": "flatFileInputs"}, "fileAccess": {"const": false}, "sqlTextFields": {"const": false}}
+    },
+    "help": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["section", "ordinal", "description"],
+        "properties": {
+          "section": {"enum": ["DESCRIPTION", "EXAMPLE", "LIMITATION"]},
+          "ordinal": {"type": "integer", "minimum": 1},
+          "description": {"type": "string", "minLength": 1, "maxLength": 4000},
+          "exampleSql": {"type": "string", "minLength": 1, "maxLength": 4000}
+        },
+        "allOf": [{"if": {"properties": {"section": {"const": "EXAMPLE"}}}, "then": {"required": ["exampleSql"]}}, {"if": {"properties": {"section": {"const": "EXAMPLE"}}}, "else": {"not": {"required": ["exampleSql"]}}}]
+      }
+    }
+  }
+}

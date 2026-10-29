@@ -16,6 +16,13 @@ liegen in diesem Modul. Analyze übernimmt sie unverändert mit Commit- und Hash
 
 ## Build und Übergabe
 
+Der Komponentenvertrag V2 ist ein ausdrücklich opt-in gewählter Exportmodus.
+`--components-v2` bindet denselben neutralen Kern an das separate Schema
+`SSIS_Exchange_V2.schema.json` und exportiert die Komponenten-Version als
+Rohwert, Vorhandensein, effektive Version und Herkunft. Standardaufrufe und das
+Schema V1 bleiben unverändert. Der Modus gibt keine Laufzeit- oder
+Lineage-Vollständigkeit für noch nicht übersetzte Komponenten frei.
+
 Der externe Host benötigt .NET 10. Für den Build wird das entsprechende SDK
 verwendet. SQL Server, SQL CLR, ScriptDom und SSIS SDK werden vom Host nicht
 benötigt. Die bestehende SQL-CLR-Fassade bleibt Windows-spezifisch; ihre

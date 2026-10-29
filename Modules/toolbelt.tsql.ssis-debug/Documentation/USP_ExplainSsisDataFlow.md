@@ -31,12 +31,56 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
     @InspectStage = 'all';
 ```
 
+Der Komponentenvertrag V2 wird ausdrücklich mit `@Operation =
+'bindings-template-v2'` gewählt. Seine Vorlage enthält `schemaVersion: 2` und
+`profile: "ssis-debug-components-v2"`; `explain` akzeptiert nur diese
+vollständige V2-Bindung. V1-Vorlagen werden weder automatisch migriert noch
+durch bloßes Ändern der Schemazahl zu V2. Der freigegebene Umfang und seine
+Grenzen stehen im [Komponenten-V2-Vertrag](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
+
+Die V2-Ressourcenrichtlinie wird getrennt vom Projekt-/Bindingkontext gebunden.
+`bindings-template-v2` verwendet standardmäßig `large10x`. Ein `ProjectContext`
+mit `schemaVersion: 2` und `resourceOptions` schaltet V2 ausdrücklich auch für
+`explain` ohne Bindings ein, zum Beispiel:
+
+```json
+{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"large10x"}}
+```
+
+`resourceOptions` akzeptiert `preset: "large10x"` oder `"unlimited"` und
+positive exakte Int64-Overrides in `limits`; für einzelne Zähler ist auch der
+Wert `"unlimited"` möglich. Das begrenzte Optionsobjekt ist höchstens 16 KiB.
+Der `ProjectContext`-Kontrollumschlag bleibt für alle Profile auf 4 MiB
+UTF-16-Eingabe und JSON-Tiefe 32 begrenzt; dies ist die feste
+`controlProtocolBytes`-Grenze, keine V1-Daten-JSON-Kappe. V2-Metadaten weisen
+zusätzlich `jsonDocumentBytes`, `allJsonBytes` und `jsonNodes` als wirksame
+Ressourcenzähler aus.
+Die Vorlage und der V2-Workflow geben Profil, effektive Zähler und einen
+separaten Policyhash aus. Die in einer Vorlage gespeicherte Richtlinie muss
+in sich gültig sein; sie dokumentiert deren Erzeugung. Für einen späteren
+Aufruf gelten die aktuell gewählten Ressourcenlimits. Eine Änderung dieser
+Limits verändert die fachliche Paket-/Kontextbindung nicht und wird separat
+ausgewiesen. `unlimited` schaltet konfigurierbare Mengenkappen und den
+Analysezeitmesser aus, nicht die harten Tiefen-, Parser- und SQL-Sicherheits-
+grenzen. V1 behält seine bisherigen Ressourcengrenzen.
+
 Die erste Spalte `ArtifactKind` unterscheidet Vorlage, Workflow, StageIndex,
 Vorbereitung, StageSql, TargetSql, Cleanup, ColumnLineage und Diagnose.
 `IsComplete`, `SafetyStatus`, `IsExecutable` und `EvidenceClass` gelten pro
 Artefakt. Ein ausführbares Script wird als vollständiger Batch in einer
 SSMS-Sitzung im angegebenen `defaultDatabase` ausgeführt. Es gibt kein `GO`
 zwischen `DECLARE`, Cachevorbereitung, `WITH` und `SELECT`.
+
+Im V2-Modus können zusätzlich `PlanManifest`, `PlanUnitSql` und `RowCountSql`
+entstehen. Den gewünschten Plan über seinen `planHash` auswählen, dessen
+`PlanUnitSql`-Batches in der Manifestreihenfolge genau einmal in derselben
+SQL-Sitzung ausführen und danach die zugehörige Stufen-/Zielprojektion oder
+Zählabfrage lesen. Eine Zielabfrage vor vollständiger Vorbereitung wird
+abgewiesen. Die einzelnen Batches bleiben getrennte Prüfeinheiten; sie werden
+nicht zu einem großen SQL-Batch zusammengesetzt. Die zugehörigen
+`CleanupSql`-Batches anschließend auch bei teilweiser Vorbereitung in ihrer
+ausgewiesenen Reihenfolge ausführen. Fremde oder veränderte Zustände verhindern
+deren Bereinigung.
 
 Der `StageIndex` liefert die stabilen Ziel-/Stufen-IDs. Eine konkrete
 `@InspectStage` verlangt `@TargetFlow`; `all` liefert die unterstützten

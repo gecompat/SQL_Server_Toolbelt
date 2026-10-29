@@ -11,7 +11,7 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class Input
     {
         internal string Key, Kind, Scope, Name, Type, SqlType, Expression, DtsId, Origin = "design";
-        internal bool Sensitive, HasDefault, Required, RuntimeAssigned;
+        internal bool Sensitive, HasDefault, Required, RuntimeAssigned, ReadOnly;
         internal object Default;
         internal string SqlName { get { return "@" + Key; } }
         internal Dictionary<string, object> Metadata()
@@ -38,8 +38,9 @@ namespace Toolbelt.Tsql.SsisDebug
     }
     internal sealed class Component
     {
-        internal string Id, Name, Kind, Class, Connection, Scope;
+        internal string Id, Name, Kind, Class, Connection, Scope, VersionRaw, VersionOrigin;
         internal int Version;
+        internal bool VersionPresent;
         internal readonly List<Port> Inputs = new List<Port>(), Outputs = new List<Port>();
         internal Dictionary<string, string> Properties;
         internal bool HasPropertyExpressions;
@@ -53,15 +54,17 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class Package
     {
         internal string Hash, Profile;
+        internal bool ComponentsV2;
         internal Toolbelt.Ssis.Exchange.PackageDocument Document;
         internal readonly List<Input> Inputs = new List<Input>();
         internal readonly List<Flow> Flows = new List<Flow>();
         internal readonly Dictionary<string, string> Connections = new Dictionary<string, string>(StringComparer.Ordinal);
+        internal readonly Dictionary<string, string> ConnectionKinds = new Dictionary<string, string>(StringComparer.Ordinal);
         internal readonly List<string> Workflow = new List<string>();
         internal List<KeyValuePair<string, KeyValuePair<Flow, Component>>> Targets()
         {
             int n = 0; var result = new List<KeyValuePair<string, KeyValuePair<Flow, Component>>>();
-            foreach (Flow flow in Flows) foreach (Component c in flow.Components.Where(c => c.Kind == "destination" || c.Outputs.Count == 0 && c.Inputs.Count > 0)) result.Add(new KeyValuePair<string, KeyValuePair<Flow, Component>>(Util.Id("f", ++n), new KeyValuePair<Flow, Component>(flow, c)));
+            foreach (Flow flow in Flows) foreach (Component c in flow.Components.Where(c => c.Kind == "destination" || c.Kind == "flatfile-destination" || c.Outputs.Count == 0 && c.Inputs.Count > 0)) result.Add(new KeyValuePair<string, KeyValuePair<Flow, Component>>(Util.Id("f", ++n), new KeyValuePair<Flow, Component>(flow, c)));
             return result;
         }
         internal Input Resolve(string reference, string scope)
@@ -157,12 +160,13 @@ namespace Toolbelt.Tsql.SsisDebug
     {
         internal static string P(Dictionary<string,string> properties, string key, string fallback = "")
         { string value; return properties.TryGetValue(key,out value) ? value : fallback; }
-        internal static Package Read(byte[] bytes, Budget budget)
+        internal static Package Read(byte[] bytes, Budget budget, bool componentsV2 = false, Toolbelt.Ssis.Exchange.ResourceLimits limits = null)
         {
+            limits = limits ?? (componentsV2 ? Toolbelt.Ssis.Exchange.ResourceLimits.Create("large10x", true) : Toolbelt.Ssis.Exchange.ResourceLimits.Legacy);
             try
             {
-                var document = Toolbelt.Ssis.Exchange.PackageDocument.Read(bytes,budget.Check);
-                var result = new Package { Hash = document.PackageSha256.ToUpperInvariant(), Profile = document.XmlProfile == "UNKNOWN" ? "unsupported" : document.XmlProfile, Document = document };
+                var document = Toolbelt.Ssis.Exchange.PackageDocument.Read(bytes,budget.Check,componentsV2,limits);
+                var result = new Package { Hash = document.PackageSha256.ToUpperInvariant(), Profile = document.XmlProfile == "UNKNOWN" ? "unsupported" : document.XmlProfile, Document = document, ComponentsV2 = componentsV2 };
                 if (result.Profile == "unsupported") return result;
                 var definitions = document.Definitions;
                 if (document.HasDuplicateNativeIds) throw new DebugFault("invalid_lineage","Doppelte refId.");
@@ -170,7 +174,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 foreach (var executable in definitions.Where(x => x.Kind == "PACKAGE" || x.Kind == "EXECUTABLE" && x.Attributes["isEventHandler"] as bool? != true)) result.Workflow.Add(executable.Get("ExecutableType"));
                 foreach (var variable in definitions.Where(x => x.Kind == "VARIABLE"))
                 {
-                    var input = new Input { Kind = "variable", DtsId = variable.Get("DTSID") == "" ? null : variable.Get("DTSID"), Scope = variable.LegacyScope,
+                    var input = new Input { Kind = "variable", DtsId = variable.Get("DTSID") == "" ? null : variable.Get("DTSID"), Scope = variable.LegacyScope, ReadOnly = Util.Flag(variable.Get("ReadOnly")),
                         Name = variable.Get("Namespace")+"::"+variable.Name, Type = variable.VariableDataType, Sensitive = Util.Flag(variable.Get("Sensitive")),
                         Expression = Util.Flag(variable.Get("EvaluateAsExpression")) ? variable.Get("Expression") : null };
                     input.SqlType=Types.Sql(input.Type); input.HasDefault=variable.HasDefault && input.Expression==null; input.Default=input.HasDefault?Default(variable.ValueText,input):null;
@@ -186,30 +190,36 @@ namespace Toolbelt.Tsql.SsisDebug
                 {
                     string id=connection.Get("refId"),kind=connection.Get("CreationName");
                     if(id=="" || result.Connections.ContainsKey(id)) throw new DebugFault("invalid_lineage","Connection-ID ungültig.");
+                    result.ConnectionKinds.Add(id, kind);
                     result.Connections.Add(id,kind.StartsWith("OLEDB",StringComparison.Ordinal)?"sqlserver-oledb":kind.IndexOf("ADO.NET",StringComparison.OrdinalIgnoreCase)>=0?"sqlserver-adonet":"unsupported");
                 }
                 int components=0,columns=0,paths=0;
                 var byId=definitions.ToDictionary(x=>x.Id,StringComparer.Ordinal);
+                var childrenByKindAndParent=definitions.GroupBy(x=>x.Kind+"\0"+x.Parent,StringComparer.Ordinal).ToDictionary(g=>g.Key,g=>g.ToList(),StringComparer.Ordinal);
+                var pathsByScope=document.Relationships.Where(x=>x.Kind=="PIPELINE_PATH").GroupBy(x=>x.Scope,StringComparer.Ordinal).ToDictionary(g=>g.Key,g=>g.ToList(),StringComparer.Ordinal);
+                Func<string,string,IList<Toolbelt.Ssis.Exchange.PackageDocument.Definition>> children=(kind,parent)=>{List<Toolbelt.Ssis.Exchange.PackageDocument.Definition> found;return childrenByKindAndParent.TryGetValue(kind+"\0"+parent,out found)?(IList<Toolbelt.Ssis.Exchange.PackageDocument.Definition>)found:new Toolbelt.Ssis.Exchange.PackageDocument.Definition[0];};
                 foreach (var executable in definitions.Where(x=>x.IsPipeline))
                 {
                     if(!executable.HasPipeline) throw new DebugFault("invalid_lineage","Pipeline-Struktur fehlt.");
                     if(document.IncompletePipelineScopes.Contains(executable.Id)) throw new DebugFault("invalid_lineage","Dangling Pipelinekante.");
                     var flow=new Flow {Id=executable.Get("refId"),Name=executable.Name};
-                    foreach(var definition in definitions.Where(x=>x.Kind=="COMPONENT" && x.Parent==executable.Id))
+                    foreach(var definition in children("COMPONENT",executable.Id))
                     {
-                        Budget.Limit(++components,512);
-                        var component=new Component {Id=definition.Get("refId"),Scope=flow.Id,Name=definition.Name,Class=definition.Get("componentClassID"),Version=definition.Nonnegative("version"),Properties=definition.Properties,HasPropertyExpressions=definition.HasPropertyExpressions,Kind=definition.ComponentKind};
+                        budget.CheckLimit("components", ++components);
+                        var component=new Component {Id=definition.Get("refId"),Scope=flow.Id,Name=definition.Name,Class=definition.Get("componentClassID"),Version=definition.ComponentVersion,VersionRaw=definition.ComponentVersionRaw,VersionPresent=definition.ComponentVersionPresent,VersionOrigin=definition.ComponentVersionOrigin,Properties=definition.Properties,HasPropertyExpressions=definition.HasPropertyExpressions,Kind=definition.ComponentKind};
                         string manager; if(definition.Native.TryGetValue("@singleConnection",out manager)) component.Connection=manager;
-                        foreach(var port in definitions.Where(x=>x.Kind=="PORT" && x.Parent==definition.Id))
+                        foreach(var port in children("PORT",definition.Id))
                         {
-                            var projection=ReadPort(port,definitions,ref columns);
+                            var projection=ReadPort(port,children("COLUMN",port.Id),ref columns,budget);
                             if((string)port.Attributes["direction"]=="INPUT") component.Inputs.Add(projection); else component.Outputs.Add(projection);
                         }
                         if(component.Id=="") throw new DebugFault("invalid_lineage","Komponenten-ID fehlt."); flow.Components.Add(component);
                     }
-                    foreach(var path in document.Relationships.Where(x=>x.Kind=="PIPELINE_PATH" && x.Scope==executable.Id))
+                    List<Toolbelt.Ssis.Exchange.PackageDocument.Link> flowPaths;
+                    if(!pathsByScope.TryGetValue(executable.Id,out flowPaths))flowPaths=new List<Toolbelt.Ssis.Exchange.PackageDocument.Link>();
+                    foreach(var path in flowPaths)
                     {
-                        Budget.Limit(++paths,2048);
+                        budget.CheckLimit("paths", ++paths);
                         if(path.Resolution!="RESOLVED") throw new DebugFault("invalid_lineage","Dangling Pipelinekante.");
                         string input=byId[path.To].Get("refId"),output=byId[path.From].Get("refId");
                         if(flow.Paths.ContainsKey(input)) throw new DebugFault("ambiguous_path","Mehrere Kanten an einem Input.");
@@ -218,7 +228,12 @@ namespace Toolbelt.Tsql.SsisDebug
                     result.Flows.Add(flow);
                 }
                 if(result.Inputs.Where(v=>v.DtsId!=null).GroupBy(v=>v.DtsId,StringComparer.OrdinalIgnoreCase).Any(g=>g.Count()>1)) throw new DebugFault("invalid_lineage","Doppelte Variablen-DTSID.");
-                Budget.Limit(result.Inputs.Count,2048); return result;
+                budget.CheckLimit("inputs", result.Inputs.Count); return result;
+            }
+            catch(Toolbelt.Ssis.Exchange.ResourceLimitException error)
+            {
+                if (!componentsV2 && !limits.DetailedDiagnostics) throw new DebugFault("resource_limit","Feste V1-Grenze überschritten.");
+                throw new DebugFault("resource_limit","counter="+error.Counter+"; "+(error.ActualIsLowerBound?"actualAtLeast=":"actual=")+error.Actual.ToString(CultureInfo.InvariantCulture)+"; limit="+(error.Maximum==Int64.MaxValue?"unlimited":error.Maximum.ToString(CultureInfo.InvariantCulture))+"; profile="+error.Preset+".");
             }
             catch(Toolbelt.Ssis.Exchange.ModelException error)
             { throw new DebugFault(error.Code=="LIMIT_EXCEEDED"?"resource_limit":error.Code=="UNSUPPORTED_PACKAGE_FORMAT"?"unsupported_package_format":"invalid_lineage","Neutraler DTSX-Kern: "+error.Code); }
@@ -232,20 +247,20 @@ namespace Toolbelt.Tsql.SsisDebug
             try { Types.Literal(v, value); } catch (DebugFault) { v.HasDefault = false; v.Origin = "design-unresolved"; }
             return value;
         }
-        private static Port ReadPort(Toolbelt.Ssis.Exchange.PackageDocument.Definition definition, IList<Toolbelt.Ssis.Exchange.PackageDocument.Definition> objects, ref int count)
+        private static Port ReadPort(Toolbelt.Ssis.Exchange.PackageDocument.Definition definition, IList<Toolbelt.Ssis.Exchange.PackageDocument.Definition> objects, ref int count, Budget budget)
         {
             var port=new Port {Id=definition.Get("refId"),Name=definition.Name,Sync=definition.Get("synchronousInputId"),Error=Util.Flag(definition.Get("isErrorOut")),ErrorDisposition=definition.Get("errorRowDisposition"),TruncationDisposition=definition.Get("truncationRowDisposition"),Properties=definition.Properties};
             if(port.Id=="") throw new DebugFault("invalid_lineage","Port-ID fehlt.");
             foreach(var column in objects.Where(x=>x.Kind=="COLUMN" && x.Parent==definition.Id))
             {
-                var projection=ReadColumn(column,ref count);
+                var projection=ReadColumn(column,ref count,budget);
                 if((string)column.Attributes["columnRole"]=="EXTERNAL_METADATA") port.External.Add(projection); else port.Columns.Add(projection);
             }
             return port;
         }
-        private static Column ReadColumn(Toolbelt.Ssis.Exchange.PackageDocument.Definition definition, ref int count)
+        private static Column ReadColumn(Toolbelt.Ssis.Exchange.PackageDocument.Definition definition, ref int count, Budget budget)
         {
-            Budget.Limit(++count,8192); string type=(string)definition.Attributes["typeCode"]??"";
+            budget.CheckLimit("columns", ++count); string type=(string)definition.Attributes["typeCode"]??"";
             int length=definition.Nonnegative("length"),precision=definition.Nonnegative("precision");
             return new Column {Id=definition.Get("refId"),Lineage=definition.Get("lineageId"),Name=definition.Name,Type=type,
                 SqlType=Types.Sql(type,length==0?definition.Nonnegative("cachedLength"):length,precision==0?definition.Nonnegative("cachedPrecision"):precision,definition.Get("scale")==""?definition.Nonnegative("cachedScale"):definition.Nonnegative("scale")),

@@ -24,10 +24,12 @@ namespace Toolbelt.Ssis.Exchange
         public string PackageSha256 { get; private set; }
         public int ByteLength { get; private set; }
         public string XmlProfile { get; private set; }
+        public bool ComponentsV2 { get; private set; }
+        internal ResourceLimits Limits { get; private set; }
         private readonly Stopwatch watch = Stopwatch.StartNew();
         private readonly Action callerCheck;
         private PackageDocument(Action check) { callerCheck = check; }
-        private void Check() { if (watch.ElapsedMilliseconds > 30000) throw new ModelException("LIMIT_EXCEEDED"); if (callerCheck != null) callerCheck(); }
+        private void Check() { Limits.Check("analysisMilliseconds", watch.ElapsedMilliseconds); if (callerCheck != null) callerCheck(); }
         private static void Limit(long value, long limit) { if (value > limit) throw new ModelException("LIMIT_EXCEEDED"); }
         internal static string Attribute(XElement e, string key) { return (string)e.Attribute(key) ?? (string)e.Attribute(Dts + key) ?? ""; }
         private static object Text(string value) { return value == "" ? null : (object)value; }
@@ -41,14 +43,15 @@ namespace Toolbelt.Ssis.Exchange
         private static Dictionary<string, object> Obj(params object[] items)
         { var result = new Dictionary<string, object>(StringComparer.Ordinal); for (int i = 0; i < items.Length; i += 2) result.Add((string)items[i], items[i + 1]); return result; }
 
-        public static PackageDocument Read(byte[] input, Action check = null)
+        public static PackageDocument Read(byte[] input, Action check = null, bool componentsV2 = false, ResourceLimits limits = null)
         {
             if (input == null || input.Length == 0) throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
-            Limit(input.LongLength, 16777216);
+            limits = limits ?? (componentsV2 ? ResourceLimits.Create("large10x", true) : ResourceLimits.Legacy); limits.Check("packageBytes", input.LongLength);
             // Hash und XML beruhen auf demselben privaten Snapshot, auch bei veränderlichem Callerbuffer.
-            byte[] bytes = (byte[])input.Clone(); var result = new PackageDocument(check);
+            byte[] bytes = (byte[])input.Clone(); var result = new PackageDocument(check); result.ComponentsV2 = componentsV2; result.Limits = limits;
             if (bytes.Length >= 4 && ((bytes[0] == 0 && bytes[1] == 0) || (bytes[2] == 0 && bytes[3] == 0))) throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
-            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 16777216, MaxCharactersFromEntities = 0 };
+            bool xmlCharacterLimitUnlimited = limits.IsUnlimitedCounter("xmlCharacters");
+            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = xmlCharacterLimitUnlimited ? 0 : limits.Maximum("xmlCharacters"), MaxCharactersFromEntities = 0 };
             try
             {
                 using (var stream = new MemoryStream(bytes)) using (var reader = XmlReader.Create(stream, settings))
@@ -56,7 +59,7 @@ namespace Toolbelt.Ssis.Exchange
                     int nodes = 0;
                     while (reader.Read())
                     {
-                        result.Check(); Limit(reader.Depth, 128); Limit(++nodes, 262144);
+                        result.Check(); Limit(reader.Depth, 128); limits.Check("xmlNodes", ++nodes);
                         if (reader.NamespaceURI == "http://www.w3.org/2001/XInclude") throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
                         if (reader.NodeType == XmlNodeType.XmlDeclaration)
                         {
@@ -67,7 +70,35 @@ namespace Toolbelt.Ssis.Exchange
                 }
                 using (var stream = new MemoryStream(bytes)) using (var reader = XmlReader.Create(stream, settings)) result.Root = XDocument.Load(reader, LoadOptions.None).Root;
             }
-            catch (XmlException) { throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT"); }
+            catch (XmlException)
+            {
+                // MaxCharactersInDocument reports its limit as XmlException. Reparse
+                // only this failure with the same safe streaming settings and no
+                // character cap: valid XML proves the first parse hit its policy,
+                // while malformed XML and prohibited DTDs keep the format failure.
+                if (limits.IsV2 && !xmlCharacterLimitUnlimited)
+                {
+                    try
+                    {
+                        var verify = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 0, MaxCharactersFromEntities = 0 };
+                        using (var stream = new MemoryStream(bytes)) using (var reader = XmlReader.Create(stream, verify))
+                        {
+                            int nodes = 0;
+                            while (reader.Read())
+                            {
+                                result.Check(); Limit(reader.Depth, 128); limits.Check("xmlNodes", ++nodes);
+                                if (reader.NamespaceURI == "http://www.w3.org/2001/XInclude") throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
+                            }
+                        }
+                        long maximum = limits.Maximum("xmlCharacters");
+                        if (maximum < Int64.MaxValue) throw new ResourceLimitException("xmlCharacters", maximum + 1, maximum, limits.Preset, true);
+                    }
+                    catch (ResourceLimitException) { throw; }
+                    catch (ModelException) { throw; }
+                    catch (XmlException) { }
+                }
+                throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
+            }
             if (result.Root == null || result.Root.Name != Dts + "Executable") throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
             using (var hash = SHA256.Create()) result.PackageSha256 = BitConverter.ToString(hash.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
             result.ByteLength = bytes.Length;
@@ -82,7 +113,9 @@ namespace Toolbelt.Ssis.Exchange
             internal XElement Element; internal string Id, Kind, Parent, Name, LegacyScope, NativeDtsId, NativePackagePath; internal int Order;
             internal Dictionary<string, object> Attributes;
             internal Dictionary<string, string> Native, Properties;
-            internal string ValueText, VariableDataType, ComponentKind;
+            internal string ValueText, VariableDataType, ComponentKind, ComponentVersionRaw, ComponentVersionOrigin;
+            internal bool ComponentVersionPresent;
+            internal int ComponentVersion;
             internal bool HasDefault, HasPropertyExpressions, HasPipeline, IsPipeline;
             internal string Get(string key) { string value; return Native.TryGetValue(key, out value) ? value : ""; }
             internal int Nonnegative(string key)
@@ -128,7 +161,10 @@ namespace Toolbelt.Ssis.Exchange
         {
             if (definitions != null) return;
             var items = new List<Definition>(); var byElement = new Dictionary<XElement, Definition>(); var counts = new Dictionary<string, int>();
-            int order = 0;
+            int order = 0, inputCount = 0;
+            var propertyExpressionOwners = new HashSet<XElement>();
+            foreach (var expressionElement in Root.Descendants(Dts + "PropertyExpression"))
+                foreach (var ancestor in expressionElement.Ancestors()) propertyExpressionOwners.Add(ancestor);
             foreach (var element in Root.DescendantsAndSelf())
             {
                 Check(); string kind = Classify(element, Root); ++order; if (kind == null) continue;
@@ -155,7 +191,7 @@ namespace Toolbelt.Ssis.Exchange
                 }
                 var connections=element.Elements("connections").Elements("connection").ToList();
                 if(connections.Count==1) item.Native.Add("@singleConnection",Attribute(connections[0],"connectionManagerRefId"));
-                item.HasPropertyExpressions = element.Descendants(Dts + "PropertyExpression").Any();
+                item.HasPropertyExpressions = propertyExpressionOwners.Contains(element);
                 if (kind == "VARIABLE")
                 {
                     var value = element.Element(Dts + "VariableValue"); item.HasDefault = value != null;
@@ -168,7 +204,10 @@ namespace Toolbelt.Ssis.Exchange
                 }
                 item.IsPipeline = new[] { "SSIS.Pipeline", "SSIS.Pipeline.3", "STOCK:SSIS.Pipeline", "Microsoft.Pipeline" }.Contains(item.Get("ExecutableType"));
                 item.HasPipeline = element.Element(Dts + "ObjectData") != null && element.Element(Dts + "ObjectData").Element("pipeline") != null;
-                items.Add(item); byElement.Add(element, item); Limit(items.Count, 20000);
+                items.Add(item); byElement.Add(element, item); Limits.Check("modelNodes", items.Count);
+                if (kind == "COMPONENT") Limits.Check("components", counts[kind]);
+                if (kind == "COLUMN") Limits.Check("columns", counts[kind]);
+                if (kind == "VARIABLE" || kind == "PARAMETER") Limits.Check("inputs", ++inputCount);
             }
             var lookup = items.ToDictionary(x => x.Id, StringComparer.Ordinal);
             foreach (var item in items.Where(x => x.Kind != "PACKAGE"))
@@ -181,13 +220,60 @@ namespace Toolbelt.Ssis.Exchange
                     (item.Kind == "PARAMETER" || item.Kind == "CONNECTION") && parent.Kind == "PACKAGE" ||
                     item.Kind == "EXPRESSION" && parent.Kind != "PARAMETER")) throw new ModelException("INVALID_METADATA");
             }
-            Func<Definition, string> scope = item => { Definition current = item; while (current.Kind != "EXECUTABLE" && current.Kind != "PACKAGE") current = lookup[current.Parent]; return current.Id; };
+            var scopes = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var item in items)
+            {
+                Definition current = item;
+                while (current.Kind != "EXECUTABLE" && current.Kind != "PACKAGE") current = lookup[current.Parent];
+                scopes.Add(item.Id, current.Id);
+            }
+            Func<Definition, string> scope = item => scopes[item.Id];
+            // Resolve native references through one bounded index. The old per-reference
+            // scan made a large but otherwise valid pipeline quadratic in component count.
+            var referenceIndex = new Dictionary<string, List<Definition>>(StringComparer.Ordinal);
+            foreach (var item in items)
+            {
+                string reference = Attribute(item.Element, "refId"); if (reference == "") continue;
+                string key = item.Kind + "\0" + scope(item) + "\0" + reference;
+                List<Definition> found; if (!referenceIndex.TryGetValue(key, out found)) referenceIndex.Add(key, found = new List<Definition>(2));
+                if (found.Count < 2) found.Add(item);
+            }
             Func<string, string, string, Definition> resolve = (reference, kind, owner) =>
             {
                 if (reference == "") return null;
-                var found = items.Where(x => x.Kind == kind && scope(x) == owner && Attribute(x.Element, "refId") == reference).Take(2).ToList();
-                return found.Count == 1 ? found[0] : null;
+                List<Definition> found; return referenceIndex.TryGetValue(kind + "\0" + owner + "\0" + reference, out found) && found.Count == 1 ? found[0] : null;
             };
+            var executablesByParentAndReference = new Dictionary<string, List<Definition>>(StringComparer.Ordinal);
+            foreach (var item in items.Where(x => x.Kind == "EXECUTABLE"))
+            {
+                string key = item.Parent + "\0" + Attribute(item.Element, "refId");
+                List<Definition> found; if (!executablesByParentAndReference.TryGetValue(key, out found)) executablesByParentAndReference.Add(key, found = new List<Definition>(2));
+                if (found.Count < 2) found.Add(item);
+            }
+            var pathsByFlowAndEnd = new Dictionary<string, List<XElement>>(StringComparer.Ordinal);
+            foreach (var path in Root.Descendants("path").Where(x => x.Parent.Name == "paths" && x.Parent.Parent.Name == "pipeline"))
+            {
+                var flowElement = path.Ancestors().FirstOrDefault(x => byElement.ContainsKey(x) && byElement[x].Kind == "EXECUTABLE");
+                if (flowElement == null) continue;
+                string key = byElement[flowElement].Id + "\0" + Attribute(path, "endId");
+                List<XElement> found; if (!pathsByFlowAndEnd.TryGetValue(key, out found)) pathsByFlowAndEnd.Add(key, found = new List<XElement>(2));
+                if (found.Count < 2) found.Add(path);
+            }
+            var columnsByParentAndIdentity = new Dictionary<string, List<Definition>>(StringComparer.Ordinal);
+            foreach (var item in items.Where(x => x.Kind == "COLUMN" && x.Element.Name == "outputColumn"))
+                foreach (string identity in new[] { Attribute(item.Element, "lineageId"), Attribute(item.Element, "refId") }.Where(x => x != "").Distinct(StringComparer.Ordinal))
+                {
+                    string key = item.Parent + "\0" + identity;
+                    List<Definition> found; if (!columnsByParentAndIdentity.TryGetValue(key, out found)) columnsByParentAndIdentity.Add(key, found = new List<Definition>(2));
+                    if (found.Count < 2) found.Add(item);
+                }
+            var externalColumnsByParentRef = new Dictionary<string, List<Definition>>(StringComparer.Ordinal);
+            foreach (var item in items.Where(x => x.Kind == "COLUMN" && x.Element.Name == "externalMetadataColumn"))
+            {
+                string key = item.Parent + "\0" + Attribute(item.Element, "refId");
+                List<Definition> found; if (!externalColumnsByParentRef.TryGetValue(key, out found)) externalColumnsByParentRef.Add(key, found = new List<Definition>(2));
+                if (found.Count < 2) found.Add(item);
+            }
             var diagnostics = new List<object>(); bool unknown = false, expressions = Root.DescendantsAndSelf().Any(x => x.Attributes().Any(a => a.Name.LocalName == "Expression")), encrypted = Root.Descendants().Any(x => x.Name.Namespace == Dts && x.Name.LocalName.IndexOf("Encrypted", StringComparison.OrdinalIgnoreCase) >= 0);
             foreach (var item in items)
             {
@@ -198,14 +284,51 @@ namespace Toolbelt.Ssis.Exchange
                     case "EXECUTABLE": item.Attributes = Obj("executableType", Text(a("ExecutableType")), "isDisabled", Flag(a("Disabled")), "isEventHandler", e.Name == Dts + "EventHandler"); break;
                     case "COMPONENT":
                         item.Attributes = Obj("componentClassId", Text(a("componentClassID")));
-                        int version; Int32.TryParse(a("version"), out version);
-                        item.ComponentKind = ComponentProfiles.Kind(a("componentClassID"), version, item.Properties);
+                        string rawVersion = a("version");
+                        bool unqualifiedVersion = e.Attribute("version") != null, namespacedVersion = e.Attribute(Dts + "version") != null;
+                        if (ComponentsV2 && unqualifiedVersion && namespacedVersion) throw new ModelException("INVALID_METADATA");
+                        item.ComponentVersionPresent = unqualifiedVersion || namespacedVersion;
+                        item.ComponentVersionRaw = item.ComponentVersionPresent ? rawVersion : null;
+                        item.ComponentVersionOrigin = item.ComponentVersionPresent ? "explicit" : "schema-default-0";
+                        if (ComponentsV2)
+                        {
+                            int version = 0;
+                            if (item.ComponentVersionPresent && (rawVersion == "" || !Int32.TryParse(rawVersion, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out version))) throw new ModelException("INVALID_METADATA");
+                            if (!item.ComponentVersionPresent) version = 0;
+                            if (version < 0) throw new ModelException("INVALID_METADATA");
+                            item.ComponentVersion = version;
+                            item.ComponentKind = ComponentProfiles.KindV2(a("componentClassID"), version, XmlProfile, item.Properties);
+                            var inputElements = e.Element("inputs") == null ? new List<XElement>() : e.Element("inputs").Elements("input").ToList();
+                            var outputElements = e.Element("outputs") == null ? new List<XElement>() : e.Element("outputs").Elements("output").ToList();
+                            var outputProfiles = outputElements.Select(output => {
+                                XAttribute errorUnqualified = output.Attribute("isErrorOut"), errorNamespaced = output.Attribute(Dts + "isErrorOut");
+                                XAttribute syncUnqualified = output.Attribute("synchronousInputId"), syncNamespaced = output.Attribute(Dts + "synchronousInputId");
+                                if (errorUnqualified != null && errorNamespaced != null || syncUnqualified != null && syncNamespaced != null) throw new ModelException("INVALID_METADATA");
+                                XAttribute errorFlag = errorUnqualified ?? errorNamespaced;
+                                return new ComponentProfiles.V2OutputPort {
+                                    IsErrorOutput = Flag(Attribute(output, "isErrorOut")) as bool?,
+                                    ErrorFlagPresent = errorFlag != null,
+                                    SynchronousInputId = Attribute(output, "synchronousInputId")
+                                };
+                            }).ToList();
+                            if (!ComponentProfiles.HasV2PortProfile(item.ComponentKind, inputElements.Count, inputElements.Select(input => Attribute(input, "refId")).ToList(), outputProfiles)) item.ComponentKind = "unsupported";
+                            item.Attributes = Obj("componentClassId", Text(a("componentClassID")), "versionRaw", Text(rawVersion), "versionPresent", item.ComponentVersionPresent, "effectiveVersion", version, "versionOrigin", item.ComponentVersionOrigin);
+                        }
+                        else
+                        {
+                            int version; Int32.TryParse(rawVersion, out version);
+                            item.ComponentVersion = version;
+                            item.ComponentKind = ComponentProfiles.Kind(a("componentClassID"), version, item.Properties);
+                        }
                         if (item.ComponentKind == "unsupported") { unknown = true; diagnostics.Add(Obj("code", "UNKNOWN_COMPONENT", "objectId", item.Id)); }
                         break;
                     case "PORT":
-                        string sync = a("synchronousInputId"); var syncDefinitions = sync == "" || sync == "0" ? new List<Definition>() : items.Where(x => x.Kind == "PORT" && x.Parent == item.Parent && Attribute(x.Element, "refId") == sync).Take(2).ToList(); Definition syncDefinition = syncDefinitions.Count == 1 ? syncDefinitions[0] : null;
-                        string portRole = Flag(a("isErrorOut")) as bool? == true ? "ERROR" : "UNKNOWN";
-                        var owner = items.SingleOrDefault(x => x.Id == item.Parent && x.Kind == "COMPONENT");
+                        string sync = a("synchronousInputId"); List<Definition> syncDefinitions; referenceIndex.TryGetValue("PORT\0" + scopes[item.Id] + "\0" + sync, out syncDefinitions); Definition syncDefinition = sync == "" || sync == "0" || syncDefinitions == null || syncDefinitions.Count != 1 || syncDefinitions[0].Parent != item.Parent ? null : syncDefinitions[0];
+                        Definition owner; if (!lookup.TryGetValue(item.Parent, out owner) || owner.Kind != "COMPONENT") owner = null;
+                        object errorFlagValue = Flag(a("isErrorOut"));
+                        string portRole = errorFlagValue as bool? == true ? "ERROR" : "UNKNOWN";
+                        if (ComponentsV2 && e.Name == "output" && owner != null && (owner.ComponentKind == "derived" || owner.ComponentKind == "split" || owner.ComponentKind == "rowcount" || owner.ComponentKind == "flatfile-source" || owner.ComponentKind == "flatfile-destination") && errorFlagValue as bool? != true)
+                            portRole = errorFlagValue as bool? == false || e.Attribute("isErrorOut") == null && e.Attribute(Dts + "isErrorOut") == null ? "NORMAL" : "UNKNOWN";
                         if (e.Name == "output" && portRole != "ERROR" && owner != null && owner.ComponentKind == "lookup")
                         {
                             var normal = owner.Element.Element("outputs").Elements("output").Where(x => Flag(Attribute(x,"isErrorOut")) as bool? != true).ToList();
@@ -237,11 +360,12 @@ namespace Toolbelt.Ssis.Exchange
                     }
                 }
             }
-            var links = new List<Link>(); bool partial = false;
+            var links = new List<Link>(); bool partial = false; int pathCount = 0;
             Action<string, Definition, Definition, string, int, string> link = (kind, from, to, owner, declarationPosition, mapping) =>
             {
                 if (kind == "PIPELINE_PATH")
                 {
+                    Limits.Check("paths", ++pathCount);
                     if (from != null && (string)from.Attributes["direction"] != "OUTPUT") from = null;
                     if (to != null && (string)to.Attributes["direction"] != "INPUT") to = null;
                     if (from == null || to == null) incompletePipelines.Add(owner);
@@ -249,7 +373,7 @@ namespace Toolbelt.Ssis.Exchange
                 if (from == null && to == null) { partial = true; return; }
                 bool complete = from != null && to != null; partial |= !complete;
                 links.Add(new Link { Kind = kind, From = from == null ? null : from.Id, To = to == null ? null : to.Id, Scope = owner, Order = declarationPosition, Resolution = complete ? "RESOLVED" : "UNRESOLVED", Mapping = mapping });
-                Limit(links.Count, 50000);
+                Limits.Check("modelEdges", links.Count);
             };
             int position = 0;
             foreach (var e in Root.DescendantsAndSelf())
@@ -267,7 +391,7 @@ namespace Toolbelt.Ssis.Exchange
                 if (e.Name == Dts + "PrecedenceConstraint")
                 {
                     var parent = e.Ancestors().First(x => byElement.ContainsKey(x) && (byElement[x].Kind == "PACKAGE" || byElement[x].Kind == "EXECUTABLE")); Definition owner = byElement[parent];
-                    Func<string, Definition> endpoint = reference => { var found = items.Where(x => x.Kind == "EXECUTABLE" && x.Parent == owner.Id && Attribute(x.Element, "refId") == reference).Take(2).ToList(); return found.Count == 1 ? found[0] : null; };
+                    Func<string, Definition> endpoint = reference => { List<Definition> found; return executablesByParentAndReference.TryGetValue(owner.Id + "\0" + reference, out found) && found.Count == 1 ? found[0] : null; };
                     link("CONTROL_FLOW", endpoint(Attribute(e, "From")), endpoint(Attribute(e, "To")), owner.Id, position, null);
                 }
                 Definition column;
@@ -275,24 +399,25 @@ namespace Toolbelt.Ssis.Exchange
                 string externalId = Attribute(e, "externalMetadataColumnId");
                 if (externalId != "" && externalId != "0")
                 {
-                    var external = items.Where(x => x.Kind == "COLUMN" && x.Parent == column.Parent && x.Element.Name == "externalMetadataColumn" && Attribute(x.Element, "refId") == externalId).Take(2).ToList();
+                    List<Definition> external; externalColumnsByParentRef.TryGetValue(column.Parent + "\0" + externalId, out external);
                     link("COLUMN_MAP", column, external.Count == 1 ? external[0] : null, scope(column), position, "METADATA_REFERENCE");
                 }
                 if (e.Name != "inputColumn") continue;
                 Definition port = lookup[column.Parent]; string flow = scope(column), lineage = Attribute(e, "lineageId");
-                var incoming = Root.Descendants("path").Where(x => Attribute(x, "endId") == Attribute(port.Element, "refId") && x.Ancestors().Contains(lookup[flow].Element)).ToList();
-                Definition sourcePort = incoming.Count == 1 ? resolve(Attribute(incoming[0], "startId"), "PORT", flow) : null;
-                var candidates = items.Where(x => x.Kind == "COLUMN" && sourcePort != null && x.Parent == sourcePort.Id && x.Element.Name == "outputColumn" && lineage != "" && (Attribute(x.Element, "lineageId") == lineage || Attribute(x.Element, "refId") == lineage)).Take(2).ToList();
+                List<XElement> incoming; pathsByFlowAndEnd.TryGetValue(flow + "\0" + Attribute(port.Element, "refId"), out incoming);
+                Definition sourcePort = incoming != null && incoming.Count == 1 ? resolve(Attribute(incoming[0], "startId"), "PORT", flow) : null;
+                List<Definition> candidates; columnsByParentAndIdentity.TryGetValue((sourcePort == null ? "" : sourcePort.Id) + "\0" + lineage, out candidates);
+                if (candidates == null) candidates = new List<Definition>();
                 link("COLUMN_MAP", candidates.Count == 1 ? candidates[0] : null, column, flow, position, "DATA_TRANSFER");
             }
             foreach (var declared in links.Where(x => x.Kind == "COLUMN_MAP" && x.Mapping == "DATA_TRANSFER" && x.Resolution == "RESOLVED").ToList())
                 links.Add(new Link { Kind = "VALUE_DEPENDENCY", From = declared.From, To = declared.To, Scope = declared.Scope, Resolution = "RESOLVED", Rule = "MAPPED_VALUE_INPUT" });
-            Limit(links.Count, 50000); Limit(diagnostics.Count, 1000);
+            Limits.Check("modelEdges", links.Count); Limits.Check("diagnostics", diagnostics.Count);
             bool complex = items.Where(x => x.Kind == "COMPONENT").Any(x => { string c = Attribute(x.Element, "componentClassID"); return !(c == "Microsoft.OLEDBSource" || c == "Microsoft.OLEDBDestination"); });
             if (encrypted) diagnostics.Add(Obj("code", "ENCRYPTED_CONTENT", "objectId", "pkg1"));
             if (partial) diagnostics.Add(Obj("code", "PARTIAL_LINEAGE", "objectId", null));
             if (expressions) diagnostics.Add(Obj("code", "EXPRESSION_UNRESOLVED", "objectId", null));
-            Limit(diagnostics.Count, 1000);
+            Limits.Check("diagnostics", diagnostics.Count);
             var coverage = new List<object>();
             foreach (string feature in new[] { "inventory", "controlFlow", "pipelineGraph", "columnMetadata", "directColumnMapping", "valueLineage", "rowLineage", "expressionReferences" })
             {
@@ -319,6 +444,16 @@ namespace Toolbelt.Ssis.Exchange
                 "profiles", Obj("format", "1.0.0", "components", "1.0.0", "lineage", "1.0.0"), "coverage", modelCoverage,
                 "nodes", definitions.Select(x => (object)Obj("id", x.Id, "kind", x.Kind, "parentId", x.Parent, "name", Text(x.Name), "attributes", x.Attributes)).ToList(),
                 "edges", relationships.Select((x, n) => x.Export(n + 1)).ToList(), "diagnostics", modelDiagnostics);
+        }
+        public Dictionary<string, object> ExportComponentsV2(string producerVersion, string sourceCommit, string buildSha256)
+        {
+            if (!ComponentsV2) throw new ModelException("INVALID_PROFILE_MODE");
+            var model = Export(producerVersion, sourceCommit, buildSha256);
+            model["version"] = "2.0.0";
+            model["profiles"] = Obj("format", "1.0.0", "components", "2.0.0", "lineage", "1.0.0");
+            model["contract"] = "ssis-package-model-components-v2";
+            model["resourcePolicy"] = ResourceLimits.Create("large10x", true).Metadata();
+            return model;
         }
         /// <summary>Native Paket-/Executablekennungen aus denselben Definitionen; keine Namensauflösung oder Laufzeitbehauptung.</summary>
         public Dictionary<string, object> ExportObjectIdentities()

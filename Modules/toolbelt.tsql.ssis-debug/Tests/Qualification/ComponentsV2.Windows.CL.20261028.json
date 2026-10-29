@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-29",
+  "kind": "ssis_components_v2_native_qualification",
+  "result": "PASS",
+  "publication_authorized": false,
+  "profile": "ssis-debug-components-v2",
+  "scope": "Reproduced opt-in V2 binary; complete twelve Windows SQL2019/2022/2025 compatibility-level local/central cases with unchanged legacy core/API/rights/lifecycle and genuine shipped Lookup-role upgrade; separate independent cleanup audits",
+  "product_source_commit": "f656888fee08b79d0a3ecee041bb4eb6dd47f147",
+  "native_fixture_execution_commit": "bfa4d7470275ee8ac7eb06666e1132934fd8e9c7",
+  "qualified_assembly_sha256": "222f2503377550cf922292f678c4cdb24649a330937176a4ce4e73fbadde73ad",
+  "qualified_deploy_sql_sha256": "d859cc523bfeaea41c2c92f193fadade197824aeaa9779cc4a2fbb80d77b2591",
+  "qualified_uninstall_sql_sha256": "7c0205e5046253493b2fd130af8734cfb5b97f25b88cd9b504b02fa09cfc124f",
+  "qualified_trust_manifest_sha256": "8FCB01796745594EFCBD42C6B9DA01074CB15A6FFCF237F6B7F27A8AA8B61465",
+  "native_source_sha256": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-6.dtsx": "ccdf0f1b7e8d2501ede1b5af235e1a08ae84fcc3d16ec9278fa0f4f6b8b79d53",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1": "4ed1f632f11122d6759b2b1083aa0bf003509b264004ff160fbecbe3be570999",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-variable-string.dtsx": "f06951156e77f1f6b9f6cbd3fa409f399e8024fb89d04ed9f1d5a1d215916a68",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1": "f0e235f3cbf984d611dec6b6a12676d08145185010cec2faf5499c4dd51fbcfc",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1b8d9e877d39d6a52174922016dde89f500d0506807a9fabbb57f6606350d4cc",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2ExpressionCases.ps1": "59fbbbfdc89d59537987fb3c2403066622b2d7b1f0e56a0a1e558b2a57774758",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411a966484eaf55fb05778b5e26829d7afed94d6028cb6f77323f92c5c7e570",
+    "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json": "9f99b9a24d3a0535e156a313def1ed723ff62f17aa2e4859ac58c41e51bc1001",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LifecycleCases.ps1": "39d296cf1e8251b328873a8454ed60f9a3910581c5dc82dc414d534218ded546",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.Windows.CL.20261025.json": "b6d88f62afbba738e7ef758ec171482b129675e6ddb51c1b351ea5592966f254",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ReleaseRightsCases.ps1": "7c39938f34189fbbb1020a44007e4a2faea077dafc69cc69fe091fcbddbb5f46",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx": "a6e2a2155b8964978625c9d868b38f4eaa5ddf59fa60a4bef9df997e7644fcda",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-SsisBuildUpgradeCases.ps1": "c8647491f3e489e9e3a20e84edf79ef9c97c593b87da5cc59b951dd3612890af",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Cases.ps1": "d0a01bac0ed0638246aff1fa236474c5d3eb9f66d933f76dd342db5809cf0fcc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx": "dea7dc971972882b2a090d489ecfc2dc1e85635936a0ecd8c89c8443d746bf3e",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx": "1fbe98e8b920ee61101a97eced896222d5383c22673ab5d8df7073b2241d3b69",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2DomainCases.ps1": "192b5e8658155ae47d3b3d1b41731b06af131277ad7e909241fe35a1dee68062",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-V1Cases.ps1": "0a918c816618b043a58f7ec25bab84c8e32c7039eea73c9ad6b993dc54d4829e",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2VariableCases.ps1": "f07317a341d4092e4bad9491bca60e4fb9ec1ce236278158234da05062d7637d",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentCases.ps1": "4904ae530ad3630d666aaec9d51da4c72e526e38b19b990771a9e3c884614643",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Lab.ps1": "2ea3f7296501b393721f98f86b82cf1f7d7710df2c6236059696317cc156b8f2",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-PackageInstallCases.ps1": "8a03fa030717571ae17310823ce7d901b2bc2af3c3706c673e7763674c3bc351"
+  },
+  "cases": [
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2019",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "local",
+      "compatibility_level": 150
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2019",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "central",
+      "compatibility_level": 150
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2022",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "local",
+      "compatibility_level": 150
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2022",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "central",
+      "compatibility_level": 150
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2022",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "local",
+      "compatibility_level": 160
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2022",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "central",
+      "compatibility_level": 160
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2025",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "local",
+      "compatibility_level": 150
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2025",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "central",
+      "compatibility_level": 150
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2025",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "local",
+      "compatibility_level": 160
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2025",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "central",
+      "compatibility_level": 160
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2025",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "local",
+      "compatibility_level": 170
+    },
+    {
+      "result": "PASS",
+      "legacy_baseline": "PASS",
+      "assertions": {
+        "v2_domain": 294,
+        "core": 181,
+        "api": 61,
+        "lifecycle": 15,
+        "build_upgrade": 8,
+        "release_rights": 28
+      },
+      "platform": "windows",
+      "sql_version": "2025",
+      "cleanup_audit": "PASS",
+      "deployment_mode": "central",
+      "compatibility_level": 170
+    }
+  ],
+  "supplemental_variable_plan": "ComponentsV2.VariablePlan.20261028.json",
+  "native_case_watchdog_seconds": 300,
+  "native_cleanup_watchdog_seconds": 360,
+  "authenticated_tls": "not executed",
+  "ssis_sdk_package_execution": "not executed",
+  "linux_sql_clr": "not applicable",
+  "extracted_package_qualification": "pending",
+  "standalone_installer_qualification": "pending"
+}

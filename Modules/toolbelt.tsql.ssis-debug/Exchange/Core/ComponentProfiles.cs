@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Toolbelt.Ssis.Exchange
@@ -7,6 +8,12 @@ namespace Toolbelt.Ssis.Exchange
     // Ein kanonischer Komponentenklassifikator für Generator und neutralen Export.
     public static class ComponentProfiles
     {
+        public sealed class V2OutputPort
+        {
+            public bool? IsErrorOutput { get; set; }
+            public bool ErrorFlagPresent { get; set; }
+            public string SynchronousInputId { get; set; }
+        }
         // Nur diese nativen Containerprofile erlauben Iterationssegmente.
         // Unbekannte Typen werden weder aus Namen noch aus Laufzeitpfaden erraten.
         public static bool IsIterationContainer(string executableType)
@@ -42,6 +49,43 @@ namespace Toolbelt.Ssis.Exchange
                     if (Regex.IsMatch(name, "\\AMicrosoft\\.SqlServer\\.Dts\\.Pipeline\\.ADONETDestination, Microsoft\\.SqlServer\\.ADONETDest, Version=(11|12|13|14|15|16|17)\\.0\\.0\\.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91\\z")) return "destination";
                     return "unsupported";
                 default: return "unsupported";
+            }
+        }
+
+        // V2 profiles are selected only from an explicit DTSX2 package profile.
+        // A missing component version is represented by schemaDefaultVersion=0;
+        // callers must reject present-but-invalid values before reaching here.
+        public static string KindV2(string id, int version, string packageProfile, Dictionary<string, string> properties)
+        {
+            if (packageProfile != "2012/01" && packageProfile != "2014/01") return "unsupported";
+            string baseKind = Kind(id, version, properties);
+            if (baseKind != "unsupported") return baseKind;
+            if (version != 0 && version != 1) return "unsupported";
+            switch (id)
+            {
+                case "Microsoft.DerivedColumn": case "{49928E82-9C4E-49F0-AABE-3812B82707EC}": return version == 0 ? "derived" : "unsupported";
+                case "Microsoft.ConditionalSplit": case "{7F88F654-4E20-4D14-84F4-AF9C925D3087}": return version == 0 ? "split" : "unsupported";
+                case "Microsoft.RowCount": return version == 0 ? "rowcount" : "unsupported";
+                case "Microsoft.FlatFileSource": return version == 1 ? "flatfile-source" : "unsupported";
+                case "Microsoft.FlatFileDestination": return version == 0 ? "flatfile-destination" : "unsupported";
+                default: return "unsupported";
+            }
+        }
+        public static bool HasV2PortProfile(string kind, int inputs, IList<string> inputIds, IList<V2OutputPort> outputs)
+        {
+            if (inputIds == null || outputs == null || inputs != inputIds.Count || inputIds.Any(String.IsNullOrEmpty) || inputIds.Distinct(StringComparer.Ordinal).Count() != inputIds.Count) return false;
+            if (outputs.Any(p => p == null || p.ErrorFlagPresent && !p.IsErrorOutput.HasValue)) return false;
+            int normal = outputs.Count(p => p.IsErrorOutput != true), errors = outputs.Count(p => p.IsErrorOutput == true);
+            bool allSynchronous = inputs == 1 && outputs.All(p => p.SynchronousInputId == inputIds[0]);
+            bool sourceSynchronous = inputs == 0 && outputs.All(p => String.IsNullOrEmpty(p.SynchronousInputId) || p.SynchronousInputId == "0");
+            switch (kind)
+            {
+                case "derived": return inputs == 1 && normal == 1 && errors <= 1 && allSynchronous;
+                case "split": return inputs == 1 && normal >= 2 && errors <= 1 && allSynchronous;
+                case "rowcount": return inputs == 1 && normal == 1 && errors == 0 && allSynchronous;
+                case "flatfile-source": return inputs == 0 && normal == 1 && errors <= 1 && sourceSynchronous;
+                case "flatfile-destination": return inputs == 1 && outputs.Count == 0;
+                default: return true;
             }
         }
     }

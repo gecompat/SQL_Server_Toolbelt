@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-29",
+  "kind": "ssis_components_v2_install_package_qualification",
+  "profile": "ssis-debug-components-v2",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "Exact separate V2 ZIP extracted; full synthetic contracts, fresh/repeat/uninstall and shipped Lookup-role upgrade, Windows2019 CL150 local and Windows2025 CL170 central",
+  "package_sha256": "73e601da0d57f694b68d2339589c037c72f3905d9855cefff37863cc32183e9a",
+  "package_source_commit": "87fa770c854676d812f314f598188b5bc469cfc6",
+  "native_fixture_execution_commit": "8a8096ee79a8f31508357fb5dcd9e0ef1b7169d2",
+  "native_source_sha256": {
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json": "9f99b9a24d3a0535e156a313def1ed723ff62f17aa2e4859ac58c41e51bc1001",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx": "1fbe98e8b920ee61101a97eced896222d5383c22673ab5d8df7073b2241d3b69",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx": "a6e2a2155b8964978625c9d868b38f4eaa5ddf59fa60a4bef9df997e7644fcda",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-variable-string.dtsx": "f06951156e77f1f6b9f6cbd3fa409f399e8024fb89d04ed9f1d5a1d215916a68",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-6.dtsx": "ccdf0f1b7e8d2501ede1b5af235e1a08ae84fcc3d16ec9278fa0f4f6b8b79d53",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx": "dea7dc971972882b2a090d489ecfc2dc1e85635936a0ecd8c89c8443d746bf3e",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.Windows.CL.20261025.json": "b6d88f62afbba738e7ef758ec171482b129675e6ddb51c1b351ea5592966f254",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1": "f0e235f3cbf984d611dec6b6a12676d08145185010cec2faf5499c4dd51fbcfc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentCases.ps1": "4904ae530ad3630d666aaec9d51da4c72e526e38b19b990771a9e3c884614643",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1b8d9e877d39d6a52174922016dde89f500d0506807a9fabbb57f6606350d4cc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Cases.ps1": "d0a01bac0ed0638246aff1fa236474c5d3eb9f66d933f76dd342db5809cf0fcc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2DomainCases.ps1": "192b5e8658155ae47d3b3d1b41731b06af131277ad7e909241fe35a1dee68062",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2ExpressionCases.ps1": "59fbbbfdc89d59537987fb3c2403066622b2d7b1f0e56a0a1e558b2a57774758",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Lab.ps1": "2ea3f7296501b393721f98f86b82cf1f7d7710df2c6236059696317cc156b8f2",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2VariableCases.ps1": "f07317a341d4092e4bad9491bca60e4fb9ec1ce236278158234da05062d7637d",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1": "4ed1f632f11122d6759b2b1083aa0bf003509b264004ff160fbecbe3be570999",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411a966484eaf55fb05778b5e26829d7afed94d6028cb6f77323f92c5c7e570",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LifecycleCases.ps1": "39d296cf1e8251b328873a8454ed60f9a3910581c5dc82dc414d534218ded546",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-PackageInstallCases.ps1": "8a03fa030717571ae17310823ce7d901b2bc2af3c3706c673e7763674c3bc351",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ReleaseRightsCases.ps1": "7c39938f34189fbbb1020a44007e4a2faea077dafc69cc69fe091fcbddbb5f46",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-SsisBuildUpgradeCases.ps1": "c8647491f3e489e9e3a20e84edf79ef9c97c593b87da5cc59b951dd3612890af",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-V1Cases.ps1": "0a918c816618b043a58f7ec25bab84c8e32c7039eea73c9ad6b993dc54d4829e",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846"
+  },
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "database_collation": null,
+      "result": "PASS",
+      "assertions": {
+        "rights": 28,
+        "build_upgrade": 8,
+        "core": 181,
+        "components_v2": 294,
+        "package_install": 8,
+        "lifecycle": 15,
+        "api": 61
+      },
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_scope_build_upgrade": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "database_collation": null,
+      "result": "PASS",
+      "assertions": {
+        "rights": 28,
+        "build_upgrade": 8,
+        "core": 181,
+        "components_v2": 294,
+        "package_install": 8,
+        "lifecycle": 15,
+        "api": 61
+      },
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_scope_build_upgrade": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "total_new_native_assertions": 1190,
+  "assemblies_rebuilt_for_packaging": false,
+  "qualified_binary_evidence": "ComponentsV2.Windows.CL.20261028.json",
+  "double_package_build_byteidentical": true,
+  "final_audit": {
+    "trust_states_restored": 8,
+    "owned_database_names_absent": 4,
+    "case_audits": 2,
+    "configuration_baselines_restored": true,
+    "failed_package_attempts": 0,
+    "input_pins_unchanged": true
+  },
+  "input_pin_scope": "All executed payload, runtime, fixture and dependency inputs unchanged. Private orchestration revised between completed cases to repair a missing checkpoint field and select only the remaining case; original per-case input pins retained, no SQL case repeated.",
+  "functional_transport": {
+    "assertion_and_cleanup_client": "System.Data.SqlClient",
+    "schema_selected_authentication": true,
+    "deployment_client": "System.Data.SqlClient",
+    "fallback": false,
+    "odbc_sqlcmd": "not executed for this V2 package",
+    "explicit_schema_validated_lab_trust": true,
+    "encrypt_required": true,
+    "authenticated_tls": "not executed"
+  },
+  "limits": {
+    "cleanup_deadline_seconds": 360,
+    "maximum_command_seconds": 45,
+    "work_seconds": 300
+  },
+  "remaining_scope": [
+    "Pure TSQL V2 installer has separate qualification",
+    "Windows-authentication/SSMS GUI and authenticated TLS not executed",
+    "No Linux CLR runtime, full SSIS runtime, production-load or publication claim"
+  ],
+  "cost_tokens": "UNKNOWN"
+}

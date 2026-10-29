@@ -1,0 +1,21 @@
+Microsoft.SqlServer.TransactSql.ScriptDom 180.117.0
+Copyright (c) Microsoft Corporation. All rights reserved.
+License expression in the original NuGet metadata: MIT.
+
+Package: https://www.nuget.org/packages/Microsoft.SqlServer.TransactSql.ScriptDom/180.117.0
+Download: https://api.nuget.org/v3-flatcontainer/microsoft.sqlserver.transactsql.scriptdom/180.117.0/microsoft.sqlserver.transactsql.scriptdom.180.117.0.nupkg
+The supplied lib/net472 DLL matches this official package byte for byte.
+The original package metadata is included without modification.
+
+The NuGet package does not contain separate license or notice files.
+The accompanying texts were obtained from the upstream Microsoft repository:
+LICENSE: https://github.com/microsoft/SqlScriptDOM/blob/main/LICENSE
+Git blob: 9e841e7a26e4eb057b24511e7b92d42b257a80e5
+NOTICE: https://github.com/microsoft/SqlScriptDOM/blob/main/NOTICE.txt
+Git blob: 8d0d3db98697266852a1406f1231286fe47dda04
+Retrieved: 2026-10-18.
+The notice includes attribution and terms for ANTLR 2.
+
+The Toolbelt-specific license in the package root is independent of these
+third-party terms. No .NET Framework, SQL Server, SSMS, PowerShell or sqlcmd
+runtime or installer is redistributed in this package.

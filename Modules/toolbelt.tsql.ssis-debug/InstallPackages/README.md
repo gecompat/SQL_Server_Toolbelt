@@ -1,5 +1,33 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+## Separater Komponenten-V2-Kandidat
+
+Die [V2-Installationsanleitung](../Documentation/ComponentsV2Installation.md)
+führt zur getrennten ZIP-Lieferung und zum reinen T-SQL-Installer.
+
+Die zusätzliche Lieferung `SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip`
+enthält den ausdrücklich gewählten Komponentenmodus V2. Er ergänzt fehlende
+Versionsattribute mit nachvollziehbarem Schema-Default, Row Count sowie
+Flatfile-Metadaten und explizit bereitgestellte SQL-Zeilenbestände. Die
+[V2-Vertragsbeschreibung](../../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md)
+erklärt auch die parametrierbaren Ressourcenbudgets einschließlich `unlimited`.
+V1- und V2-Lieferungen vollständig getrennt entpacken; die unveränderte
+Modulversionsnummer ersetzt keine Prüfung des jeweiligen Artefakthashes.
+
+Das separate V2-ZIP und sein reiner T-SQL-Installer haben jeweils eigene,
+hashgebundene native Nachweise: zwei Paketfälle mit unabhängigen Audits und
+zwei Installer-Zielkontexte in local/central. Die aktuelle
+[Prüfmatrix](../Tests/README.md) verlinkt die Records, die
+[Installerprovenienz](../../../Releases/1.0.0/ssis-components-v2-standalone-installer.json)
+und den separaten Runtimebericht. Native Records belegen keine CI; Head-/Main-CI
+und Integration werden am jeweiligen PR-/Merge-Head getrennt nachgewiesen.
+Weitere Plattformen, authentifiziertes TLS und Veröffentlichung bleiben
+unqualifiziert beziehungsweise nicht freigegeben.
+
+Die nachfolgende Download- und Installationsanleitung sowie historischen
+Nachweise beschreiben ausschließlich die bestehende V1-Lieferung. V2 ist ein
+separater Kandidat und darf nicht mit den V1-Dateien vermischt werden.
+
 Das [ZIP-Installationspaket](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip) enthält
 SSIS-Debug **1.0.0**, Script Parser **2.0.1**, die exakt passende Microsoft
 ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.

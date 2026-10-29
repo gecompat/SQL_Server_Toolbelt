@@ -17,7 +17,7 @@ namespace Toolbelt.Tsql.SsisDebug
         private readonly Dictionary<string, string> names = new Dictionary<string, string>(StringComparer.Ordinal);
         internal SqlCatalog(SqlConnection c, Budget b) { connection = c; budget = b; }
         private SqlCommand Command(string text)
-        { budget.Check(); Budget.Limit(++budget.CatalogCalls, 128); return new SqlCommand(text, connection); }
+        { budget.Check(); budget.CheckLimit("catalogQueries", ++budget.CatalogCalls); return new SqlCommand(text, connection); }
         public string Collation(string database)
         {
             using (var cmd = Command("SELECT CONVERT(nvarchar(128), DATABASEPROPERTYEX(@db,N'Collation')) WHERE HAS_DBACCESS(@db)=1;"))
@@ -43,7 +43,7 @@ namespace Toolbelt.Tsql.SsisDebug
             var list = candidates.Distinct(StringComparer.Ordinal).OrderBy(x => x, StringComparer.Ordinal).ToList(); if (list.Count == 0) return null;
             // Ordinal gleiche Namen brauchen keine Collation-Heuristik. Mehrere
             // äquivalente Namen werden trotzdem über den tatsächlichen DB-Kontext geprüft.
-            string json = Json.Write(list); string key = database + "\0" + name + "\0" + json, result;
+            string json = Json.Write(list, budget.Limits); string key = database + "\0" + name + "\0" + json, result;
             if (names.TryGetValue(key, out result)) return result;
             using (var cmd = Command("EXEC " + Util.Q(database) + ".sys.sp_executesql N'SELECT CONVERT(nvarchar(128),j.value) FROM OPENJSON(@names) AS j WHERE j.value COLLATE DATABASE_DEFAULT=@name COLLATE DATABASE_DEFAULT;',N'@names nvarchar(max),@name nvarchar(128)',@names,@name;"))
             {
@@ -150,7 +150,7 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
                         // jeder AST-Referenz erfolgt zusätzlich über den gleichen Adapter.
                         facts.Add(Json.Obj("database", r.IsDBNull(1) ? null : r.GetString(1), "schema", r.IsDBNull(2) ? null : r.GetString(2), "entity", r.IsDBNull(3) ? null : r.GetString(3), "id", r.IsDBNull(4) ? null : (object)r.GetInt32(4), "internalComputed", localComputed, "sourceColumnId", r.GetInt32(8), "targetColumnId", r.GetInt32(9)));
                     }
-                    o.Fingerprint = Util.Hash(Json.Write(facts)); return o;
+                    o.Fingerprint = Util.Hash(Json.Write(facts, budget.Limits)); return o;
                 }
             }
         }
@@ -189,13 +189,26 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
                 using (var state = new SqlCommand("SELECT XACT_STATE();", connection)) if (Convert.ToInt32(state.ExecuteScalar(), CultureInfo.InvariantCulture) == -1) throw new DebugFault("unresolved_binding", "Callertransaktion ist nicht schreibfähig.");
                 using (var dependencies = new SqlCommand(DependencyPins.Sql, connection)) { budget.CatalogCalls++; dependencies.ExecuteNonQuery(); }
                 var options = new Options { Operation = Value(operation), ProjectContext = Value(projectContext), Bindings = Value(bindings), CatalogBindings = Value(catalogBindings), Target = Value(targetFlow), Stage = Value(inspectStage), LookupPolicies = Value(lookupPolicies), ComparisonCollation = Value(comparisonCollation), Version = tSqlVersion.IsNull ? -1 : tSqlVersion.Value };
-                foreach (string json in new[] { options.ProjectContext, options.Bindings, options.CatalogBindings, options.LookupPolicies })
+                options.Limits = ResourceOptions.Resolve(options.ProjectContext, options.Operation, options.Bindings, out options.ResourceContextV2, out options.BindingProfile, out options.ProjectContextValue);
+                budget.Limits = options.Limits;
+                long allJsonBytes = 0;
+                foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies })
                 {
-                    if (json == null) continue; Budget.Limit((long)json.Length * 2, 4194304);
+                    if (json == null) continue; budget.CheckLimit("jsonDocumentBytes", (long)json.Length * 2); allJsonBytes += (long)json.Length * 2;
+                }
+                budget.CheckLimit("allJsonBytes", allJsonBytes);
+                foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies })
+                {
+                    if (json == null) continue; Json.Parse(json, options.Limits);
                     using (var validate = new SqlCommand("IF ISJSON(@j)<>1 THROW 50000,N'TBX_SSISDBG_invalid_template: Ungültiges JSON.',1; SELECT COUNT_BIG(*) FROM OPENJSON(@j);", connection))
                     { validate.Parameters.Add("@j", SqlDbType.NVarChar, -1).Value = json; validate.ExecuteScalar(); }
                 }
-                if (packageBytes.IsNull) throw new DebugFault("unresolved_binding", "PackageBytes erforderlich."); Budget.Limit(packageBytes.Length, 16777216);
+                if (options.ProjectContext != null && options.ProjectContextValue != null)
+                {
+                    using (var validate = new SqlCommand("IF ISJSON(@j)<>1 THROW 50000,N'TBX_SSISDBG_invalid_template: Ungültiges JSON.',1; SELECT COUNT_BIG(*) FROM OPENJSON(@j);", connection))
+                    { validate.Parameters.Add("@j", SqlDbType.NVarChar, -1).Value = options.ProjectContext; validate.ExecuteScalar(); }
+                }
+                if (packageBytes.IsNull) throw new DebugFault("unresolved_binding", "PackageBytes erforderlich."); budget.CheckLimit("packageBytes", packageBytes.Length);
                 Artifacts result = Engine.Analyze(packageBytes.Value, options, new SqlCatalog(connection, budget), budget);
                 if (!debug.IsNull && debug.Value > 0) SqlContext.Pipe.Send("SSIS Debug: Analyse abgeschlossen; Artefakte=" + result.Rows.Count.ToString(CultureInfo.InvariantCulture) + "; SQL-Prüfeinheiten=" + budget.SqlCalls.ToString(CultureInfo.InvariantCulture) + ".");
                 Send(connection, result, Value(resultTable), !keepData.IsNull && keepData.Value);
@@ -206,7 +219,7 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
         private static void Send(SqlConnection connection, Artifacts output, string resultTable, bool keep)
         {
             var rows = output.Rows.Select(a => (object)Json.Obj("ArtifactKind", a.Kind, "TargetFlowId", a.Target, "StageId", a.Stage, "Ordinal", a.Ordinal, "ComponentId", a.Component, "EvidenceClass", a.Evidence, "Severity", a.Severity, "DiagnosticCode", a.Code, "IsComplete", a.Complete, "SafetyStatus", a.Safety, "IsExecutable", a.Executable, "Content", a.Content, "DetailsJson", a.Details)).ToList();
-            string json = Json.Write(rows);
+            string json = Json.Write(rows, output.Limits);
             string select = HelpContract.Select;
             if (resultTable == null)
             {

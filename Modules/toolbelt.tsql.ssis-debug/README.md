@@ -11,9 +11,20 @@ Debug-SELECT-Schnittstellen bleiben erhalten.
 
 Die verbindliche Semantik steht im
 [V1-Vertrag](../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md).
+Der ausdrücklich opt-in gewählte Komponentenmodus `bindings-template-v2`
+folgt dem [Komponenten-V2-Vertrag](../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
+Er verwendet `schemaVersion: 2` und `profile: "ssis-debug-components-v2"`;
+`explain` akzeptiert dieses vollständige Profil, während V1-Aufrufe unverändert
+bleiben.
+
+Die [V2-Installation](Documentation/ComponentsV2Installation.md) beschreibt
+das separate ZIP und den eigenständigen T-SQL-Installer sowie den ersten
+Aufruf mit Standardbudget oder ausdrücklich unbegrenzten Ressourcenbudgets.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
-ausgewiesen. Das Modul ist teilweise validiert und unveröffentlicht.
+ausgewiesen. Das V2-ZIP und der eigenständige Installer haben begrenzte,
+nativ gebundene Windows-Nachweise; Head-/Main-CI bleibt offen. Der Modulstatus
+ist teilweise validiert und unveröffentlicht.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit
 [`SsmsDebugWalkthrough.sql`](Examples/SsmsDebugWalkthrough.sql) und synthetischer
@@ -66,9 +77,9 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-25`
-- Nachweis: `local: Lookup-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 191-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Pipelinebuild; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
+- Datum: `2026-10-29`
+- Nachweis: `local: SSIS-Komponenten-V2 ZIP- und Standalone-T-SQL-Paketqualifikationen`
+- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung dokumentiert genau zwei Metadatenänderungen: Normalisierung des ZIP-Qualifikations-JSONs und Anpassung seines Hashfelds in der Installerprovenienz; Ausführungspins und Installerbytes bleiben unverändert. Native Records belegen keine CI; Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head getrennt nachgewiesen. Vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben unqualifiziert beziehungsweise nicht freigegeben; der Modulstatus bleibt unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

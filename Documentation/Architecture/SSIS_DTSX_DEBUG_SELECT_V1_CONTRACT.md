@@ -1,5 +1,10 @@
 # SSIS-/DTSX-Debug-SELECT – V1-Vertrag zur Freigabe
 
+Die am 2026-10-28 gesondert freigegebene
+[Komponenten-V2-Erweiterung, Variante A](SSIS_COMPONENTS_V2_CONTRACT.md)
+hat einen eigenen opt-in Vertrag. Die nachstehenden V1-Regeln und ihre
+historische Freigabe werden dadurch nicht umgeschrieben.
+
 Stand: 2026-10-17 · Autor: Codex · Vertragsfassung: 1.0.
 Status: **am 2026-10-16 ausdrücklich zur Implementierung freigegeben;
 implementiert; native Nachweise und verbleibende Gates siehe

@@ -2,13 +2,17 @@
 import io
 import json
 from pathlib import Path
+import shutil
 import sys
+import tempfile
 import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import script_parser_package as gate
+import ssis_historical_source_bridge as ssis_history
+import help_contract_source
 
 REPORT = "Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.json"
 FIXTURE = "Tests/Release/ScriptParserPackageContractInputs.json"
@@ -128,6 +132,9 @@ def validate_parser_report(report):
     if set(report["input_sha256"]) != set(EXPECTED_INPUTS) or report["input_sha256"] != EXPECTED_INPUTS:
         raise ValueError("SCRIPT_PARSER_REPORT_INPUTS")
     for relative, expected in EXPECTED_INPUTS.items():
+        if relative in ssis_history.source_paths():
+            ssis_history.validate_historical_source(ROOT, relative, expected)
+            continue
         if gate.sha((ROOT / relative).read_bytes()) != expected:
             raise ValueError("SCRIPT_PARSER_REPORT_PIN_DRIFT")
     if report["setup_history"] != [
@@ -146,6 +153,46 @@ def validate_parser_report(report):
 
 
 class ScriptParserPackageGateMixin:
+    def test_ssis_historical_source_bridge_is_exact_and_narrow(self):
+        for path, binding in ssis_history.SOURCES.items():
+            original = ssis_history.validate_historical_source(ROOT, path, binding['historical'])
+            self.assertEqual(gate.sha(original), binding['historical'])
+            with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_PIN'):
+                ssis_history.validate_historical_source(ROOT, path, '0' * 64)
+        with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_PATH'):
+            ssis_history.validate_historical_source(ROOT, 'Modules/unrelated/module.yaml', '0' * 64)
+
+        boundary_current = (ROOT / ssis_history.BOUNDARY_TEST).read_bytes()
+        restored = ssis_history.restore_boundary_test_transition(
+            ROOT, boundary_current, help_contract_source.BOUNDARY_BASELINE_SHA256)
+        self.assertEqual(gate.sha(restored), help_contract_source.BOUNDARY_CURRENT_SHA256)
+        with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_BASELINE_PIN'):
+            ssis_history.restore_boundary_test_transition(ROOT, boundary_current, '0' * 64)
+        with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_CURRENT_BYTES'):
+            ssis_history.restore_boundary_test_transition(
+                ROOT, boundary_current.replace(b'from unittest.mock import patch', b'from unittest.mock import ANY'),
+                help_contract_source.BOUNDARY_BASELINE_SHA256)
+
+        binding = ssis_history.SOURCES['Modules/toolbelt.tsql.ssis-debug/module.yaml']
+        with tempfile.TemporaryDirectory() as temporary:
+            sandbox = Path(temporary)
+            archive = sandbox / ssis_history.ARCHIVE
+            archive.parent.mkdir(parents=True)
+            shutil.copyfile(ROOT / ssis_history.ARCHIVE, archive)
+            current = sandbox / 'Modules/toolbelt.tsql.ssis-debug/module.yaml'
+            current.parent.mkdir(parents=True)
+            current.write_bytes(b'changed manifest')
+            with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_CURRENT_BYTES'):
+                ssis_history.validate_historical_source(
+                    sandbox, 'Modules/toolbelt.tsql.ssis-debug/module.yaml', binding['historical'])
+            current.write_bytes((ROOT / 'Modules/toolbelt.tsql.ssis-debug/module.yaml').read_bytes())
+            archive_bytes = bytearray(archive.read_bytes())
+            archive_bytes[0] ^= 1
+            archive.write_bytes(archive_bytes)
+            with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_ARCHIVE_PIN'):
+                ssis_history.validate_historical_source(
+                    sandbox, 'Modules/toolbelt.tsql.ssis-debug/module.yaml', binding['historical'])
+
     def test_script_parser_report_pins_package_sources_and_scope(self):
         self.assertEqual(sum(name.startswith("test_script_parser_") for name in dir(type(self))), 3)
         report = json.loads((ROOT / REPORT).read_bytes())

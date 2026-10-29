@@ -48,6 +48,7 @@ namespace Toolbelt.Tsql.SsisDebug
         private readonly HashSet<string> checking = new HashSet<string>(StringComparer.Ordinal);
         private readonly HashSet<string> checkedObjects = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, TSqlFragment> parsed = new Dictionary<string, TSqlFragment>(StringComparer.Ordinal);
+        private readonly Dictionary<Type, PropertyInfo[]> propertyDescriptors = new Dictionary<Type, PropertyInfo[]>();
         private readonly Action<string> diagnostic;
         private readonly HashSet<string> variables;
         internal readonly HashSet<string> ReadNames = new HashSet<string>(StringComparer.Ordinal);
@@ -57,6 +58,10 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string Identifier(string database, IEnumerable<string> candidates, string name) { return catalog.BindIdentifier(database, candidates, name); }
         internal SqlSafety(Budget b, int v, ICatalog c, IEnumerable<string> dbs, IEnumerable<string> vars, Action<string> note)
         { budget = b; version = v; catalog = c; databases = new HashSet<string>(dbs, StringComparer.Ordinal); variables = new HashSet<string>(vars, StringComparer.Ordinal); diagnostic = note; }
+        private PropertyInfo[] Properties(Type type)
+        { PropertyInfo[] value; if (!propertyDescriptors.TryGetValue(type, out value)) { value = type.GetProperties(BindingFlags.Public | BindingFlags.Instance); propertyDescriptors.Add(type, value); } return value; }
+        private static bool ScalarProperty(Type type)
+        { Type value = Nullable.GetUnderlyingType(type) ?? type; return value.IsSealed && !typeof(TSqlFragment).IsAssignableFrom(value) && !typeof(IList).IsAssignableFrom(value) && (value.IsPrimitive || value.IsEnum || value == typeof(string) || value == typeof(decimal)); }
 
         // Geschlossene Knotenmengen: neue ScriptDom-Syntax erhält keine implizite Freigabe.
         private static readonly HashSet<string> ReadNodes = new HashSet<string>((
@@ -73,20 +78,22 @@ namespace Toolbelt.Tsql.SsisDebug
             "OverClause WindowFrameClause WindowFrameExtent WindowFrameDelimiter TableHint IndexTableHint " +
             "SchemaObjectFunctionTableReference MultiPartIdentifierCallTarget RowValue").Split(' '), StringComparer.Ordinal);
         private static readonly HashSet<string> GeneratedNodes = new HashSet<string>((
-            "DeclareVariableStatement DeclareVariableElement IfStatement BeginEndBlockStatement StatementList ThrowStatement " +
+            "DeclareVariableStatement DeclareVariableElement IfStatement BeginEndBlockStatement StatementList ThrowStatement UpdateStatement UpdateSpecification SetClause AssignmentSetClause " +
             "TryCatchStatement CreateTableStatement TableDefinition ColumnDefinition NullableConstraintDefinition " +
             "InsertStatement InsertSpecification SelectInsertSource DropTableStatement SetVariableStatement GlobalVariableExpression " +
             "BeginTransactionStatement CommitTransactionStatement RollbackTransactionStatement SaveTransactionStatement " +
-            "IdentifierOrScalarExpression CheckConstraintDefinition").Split(' '), StringComparer.Ordinal);
+            "IdentifierOrScalarExpression CheckConstraintDefinition WithinGroupClause").Split(' '), StringComparer.Ordinal);
+        private static readonly HashSet<string> V2ExpressionNodes = new HashSet<string>(new[] { "CollateExpression" }, StringComparer.Ordinal);
         private static readonly HashSet<string> Functions = new HashSet<string>((
             "ISNULL COALESCE NULLIF ABS CEILING FLOOR ROUND UPPER LOWER LTRIM RTRIM SUBSTRING LEN DATALENGTH DATEADD DATEDIFF DATEFROMPARTS " +
             "COUNT COUNT_BIG SUM AVG MIN MAX ROW_NUMBER").Split(' '), StringComparer.OrdinalIgnoreCase);
-        private static readonly HashSet<string> GuardFunctions = new HashSet<string>(("OBJECT_ID HASHBYTES SQL_VARIANT_PROPERTY COL_LENGTH DB_NAME").Split(' '), StringComparer.OrdinalIgnoreCase);
+        private static readonly HashSet<string> V2ExpressionFunctions = new HashSet<string>(new[] { "TRIM", "REPLACE" }, StringComparer.OrdinalIgnoreCase);
+        private static readonly HashSet<string> GuardFunctions = new HashSet<string>(("OBJECT_ID HASHBYTES SQL_VARIANT_PROPERTY COL_LENGTH DB_NAME NEWID STRING_AGG CONCAT").Split(' '), StringComparer.OrdinalIgnoreCase);
         internal TSqlFragment Parse(string sql)
         {
             budget.Check(); Budget.Limit((long)sql.Length * 2, 2097152);
             TSqlFragment previous; if (parsed.TryGetValue(sql, out previous)) return previous;
-            Budget.Limit(++budget.SqlCalls, 128);
+            budget.CheckLimit("parserCalls", ++budget.SqlCalls);
             Guard(sql);
             TSqlParser parser = version == 150 ? (TSqlParser)new TSql150Parser(true) : version == 160 ? (TSqlParser)new TSql160Parser(true) : new TSql170Parser(true);
             IList<ParseError> errors; IList<TSqlParserToken> tokens;
@@ -94,7 +101,11 @@ namespace Toolbelt.Tsql.SsisDebug
             Budget.Limit(tokens.Count, 65536);
             if (errors.Count != 0) throw new DebugFault("unsafe_statement", "SQL-Lexing fehlgeschlagen.");
             TSqlFragment ast = parser.Parse(tokens, out errors);
-            if (errors.Count != 0 || ast == null) throw new DebugFault("unsafe_statement", "SQL-Syntax ungültig.");
+            if (errors.Count != 0 || ast == null)
+            {
+                ParseError first = errors.Count == 0 ? null : errors[0];
+                throw new DebugFault("unsafe_statement", "SQL-Syntax ungültig; errors=" + errors.Count.ToString(CultureInfo.InvariantCulture) + (first == null ? "" : "; line=" + first.Line.ToString(CultureInfo.InvariantCulture) + "; column=" + first.Column.ToString(CultureInfo.InvariantCulture) + "; number=" + first.Number.ToString(CultureInfo.InvariantCulture)) + ".");
+            }
             // Iterativer, begrenzter Walk statt rekursiver Reflectionvisitor.
             foreach (TSqlFragment node in Walk(ast))
             {
@@ -108,7 +119,7 @@ namespace Toolbelt.Tsql.SsisDebug
         {
             int atoms, structure, comments;
             string status = PreparseGuardCore.Guard(sql, 32, new GuardProfile(4096, 65536, 32, 16, 256, 64), out atoms, out structure, out comments, parameterOffsets);
-            if (status != "ACCEPT") throw new DebugFault("resource_limit", "SQL-Vorfiltergrenze erreicht.");
+            if (status != "ACCEPT") throw new DebugFault("resource_limit", "SQL-Vorfiltergrenze erreicht; counter=" + status + "; atoms=" + atoms.ToString(CultureInfo.InvariantCulture) + "; structure=" + structure.ToString(CultureInfo.InvariantCulture) + ".");
         }
         internal IEnumerable<TSqlFragment> Walk(TSqlFragment root)
         {
@@ -118,10 +129,10 @@ namespace Toolbelt.Tsql.SsisDebug
             {
                 budget.Check(); var work = todo.Pop(); Budget.Limit(work.Value, 100); Budget.Limit(++count, 65536);
                 TSqlFragment node = work.Key; yield return node;
-                foreach (PropertyInfo p in node.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                foreach (PropertyInfo p in Properties(node.GetType()))
                 {
                     Budget.Limit(++properties, 262144);
-                    if (p.GetIndexParameters().Length != 0 || p.Name == "ScriptTokenStream") continue;
+                    if (p.GetIndexParameters().Length != 0 || p.Name == "ScriptTokenStream" || ScalarProperty(p.PropertyType)) continue;
                     object value = p.GetValue(node, null); var child = value as TSqlFragment;
                     if (child != null) todo.Push(new KeyValuePair<TSqlFragment, int>(child, work.Value + 1));
                     else if (value is IList) foreach (object item in (IList)value) if (item is TSqlFragment) todo.Push(new KeyValuePair<TSqlFragment, int>((TSqlFragment)item, work.Value + 1));
@@ -150,7 +161,7 @@ namespace Toolbelt.Tsql.SsisDebug
             while (todo.Count != 0)
             {
                 budget.Check(); Budget.Limit(copies.Count, 65536); var from = todo.Dequeue(); var to = copies[from];
-                foreach (var p in from.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                foreach (var p in Properties(from.GetType()))
                 {
                     Budget.Limit(++properties, 262144); if (p.GetIndexParameters().Length != 0) continue;
                     object value = p.GetValue(from, null);
@@ -174,7 +185,7 @@ namespace Toolbelt.Tsql.SsisDebug
             Validate(statement, database, null, q);
             q.Sql = Generate(statement); return q;
         }
-        private void Validate(TSqlFragment ast, string database, HashSet<string> ownTemps, SqlQuery query)
+        private void Validate(TSqlFragment ast, string database, HashSet<string> ownTemps, SqlQuery query, bool v2Expressions = false)
         {
             var nodes = Walk(ast).ToList();
             var ctes = new HashSet<string>(nodes.OfType<CommonTableExpression>().Select(c => c.ExpressionName.Value), StringComparer.Ordinal);
@@ -184,7 +195,7 @@ namespace Toolbelt.Tsql.SsisDebug
             foreach (TSqlFragment node in nodes)
             {
                 string kind = node.GetType().Name;
-                if (!ReadNodes.Contains(kind) && (ownTemps == null || !GeneratedNodes.Contains(kind))) throw new DebugFault("unsafe_statement", "AST-Knoten nicht im V1-Profil: " + kind + ".");
+                if (!ReadNodes.Contains(kind) && (ownTemps == null || !GeneratedNodes.Contains(kind) && !(v2Expressions && V2ExpressionNodes.Contains(kind)))) throw new DebugFault("unsafe_statement", "AST-Knoten nicht im V1-Profil: " + kind + ".");
                 var select = node as SelectStatement;
                 if (select != null && (select.Into != null || select.OptimizerHints.Count != 0 || select.ComputeClauses.Count != 0)) throw new DebugFault("unsafe_statement", "SELECT-Erweiterung nicht freigegeben.");
                 var variable = node as VariableReference;
@@ -194,7 +205,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 {
                     if (function.CallTarget == null)
                     {
-                        if (!Functions.Contains(function.FunctionName.Value) && !(ownTemps != null && GuardFunctions.Contains(function.FunctionName.Value))) throw new DebugFault("unsafe_statement", "Funktion nicht im V1-Profil.");
+                        if (!Functions.Contains(function.FunctionName.Value) && !(v2Expressions && V2ExpressionFunctions.Contains(function.FunctionName.Value)) && !(ownTemps != null && GuardFunctions.Contains(function.FunctionName.Value))) throw new DebugFault("unsafe_statement", "Funktion nicht im gebundenen Profil.");
                     }
                     else
                     {
@@ -242,10 +253,12 @@ namespace Toolbelt.Tsql.SsisDebug
                     var insert = node as InsertSpecification;
                     if (insert != null)
                     { var t = insert.Target as NamedTableReference; if (t == null || insert.OutputClause != null || insert.OutputIntoClause != null || !(insert.InsertSource is SelectInsertSource)) throw new DebugFault("unsafe_statement", "Nur eigener INSERT SELECT erlaubt."); Own(t.SchemaObject, ownTemps); }
+                    var update = node as UpdateSpecification;
+                    if (update != null) { var t = update.Target as NamedTableReference; if (t == null || update.FromClause != null || update.OutputClause != null) throw new DebugFault("unsafe_statement", "Nur einfaches UPDATE des eigenen Planstates erlaubt."); Own(t.SchemaObject, ownTemps); }
                 }
             }
         }
-        private static bool IsWriteTarget(TSqlFragment node, List<TSqlFragment> nodes) { return nodes.OfType<InsertSpecification>().Any(i => Object.ReferenceEquals(i.Target, node)); }
+        private static bool IsWriteTarget(TSqlFragment node, List<TSqlFragment> nodes) { return nodes.OfType<InsertSpecification>().Any(i => Object.ReferenceEquals(i.Target, node)) || nodes.OfType<UpdateSpecification>().Any(i => Object.ReferenceEquals(i.Target, node)); }
         private static void Own(SchemaObjectName name, HashSet<string> own)
         { if (name.Identifiers.Count != 1 || !own.Contains(name.BaseIdentifier.Value) || !name.BaseIdentifier.Value.StartsWith("#tbx_SsisDebug_", StringComparison.Ordinal)) throw new DebugFault("unsafe_statement", "Fremdes Schreibziel."); }
         private static bool AllowedType(string t)
@@ -266,7 +279,7 @@ namespace Toolbelt.Tsql.SsisDebug
             if (!databases.Contains(db) || name.StartsWith("#", StringComparison.Ordinal)) throw new DebugFault("unresolved_dependency", "Datenbank oder Objekt nicht explizit erlaubt.");
             string key = db + "\0" + schema + "\0" + name; BoundObject found;
             if (objects.TryGetValue(key, out found)) return found;
-            Budget.Limit(objects.Count + 1, 256); found = catalog.Resolve(db, schema, name);
+            budget.CheckLimit("catalogObjects", objects.Count + 1); found = catalog.Resolve(db, schema, name);
             if (found == null) throw new DebugFault("unresolved_dependency", "Objekt nicht vollständig sichtbar.");
             objects.Add(key, found); return found;
         }
@@ -339,7 +352,29 @@ namespace Toolbelt.Tsql.SsisDebug
                 "database", o.Database, "schema", o.Schema, "name", o.Name, "kind", o.Kind,
                 "catalogSha256", o.Fingerprint, "definitionSha256", o.Definition == null ? null : Util.Hash(o.Definition))).ToList());
         }
-        internal void Generated(string sql, string database, IEnumerable<string> owned)
-        { Validate(Parse(sql), database, new HashSet<string>(owned, StringComparer.Ordinal), null); }
+        internal void Generated(string sql, string database, IEnumerable<string> owned, bool v2Expressions = false)
+        { Validate(Parse(sql), database, new HashSet<string>(owned, StringComparer.Ordinal), null, v2Expressions); }
+
+        // Nur echte Tabellenreferenzen mit exakt registriertem Ein-Part-Namen
+        // werden ersetzt. Textuelles Replace könnte sonst Literale, Identifier
+        // oder freie Fragmente verändern. Der Aufrufer führt danach Generated
+        // über den vollständigen resultierenden SQL-Abschnitt aus.
+        internal string RewriteStageTables(string sql, IDictionary<string, string> replacements)
+        {
+            var script = Clone(Parse(sql)) as TSqlScript;
+            if (script == null || script.Batches.Count != 1 || script.Batches[0].Statements.Count != 1 || !(script.Batches[0].Statements[0] is SelectStatement))
+                throw new DebugFault("unsafe_statement", "Stage-Unit ist kein einzelnes SELECT.");
+            foreach (NamedTableReference table in Walk(script).OfType<NamedTableReference>())
+            {
+                if (table.SchemaObject.Identifiers.Count != 1) continue;
+                string name = table.SchemaObject.BaseIdentifier.Value, replacement;
+                if (!replacements.TryGetValue(name, out replacement)) continue;
+                if (String.IsNullOrEmpty(replacement) || !replacement.StartsWith("#tbx_SsisDebug_", StringComparison.Ordinal))
+                    throw new DebugFault("unsafe_statement", "Stage-Temp ist nicht durch den Plan gebunden.");
+                table.SchemaObject.Identifiers[0].Value = replacement;
+                table.SchemaObject.Identifiers[0].QuoteType = QuoteType.SquareBracket;
+            }
+            return Generate(script);
+        }
     }
 }
