@@ -485,5 +485,25 @@
     "Transport/host recovery",
     "Publication"
   ],
-  "cost_tokens": "UNKNOWN"
+  "cost_tokens": "UNKNOWN",
+  "checkout_binding": {
+    "kind": "ssis_current_xml_line_endings_binding",
+    "native_execution_inputs_preserved": true,
+    "installer_bytes_unchanged": true,
+    "qualification_semantics_unchanged": true,
+    "changes": [
+      {
+        "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx",
+        "execution_sha256": "1FBE98E8B920EE61101A97ECED896222D5383C22673AB5D8DF7073B2241D3B69",
+        "integrated_sha256": "ABBA5E5D960F31347BFCC653C7DCDAB8921E2E8B9A8FA378CD913296ACC2A93F",
+        "transform": "lf-to-crlf-exact-reconstruction"
+      },
+      {
+        "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx",
+        "execution_sha256": "A6E2A2155B8964978625C9D868B38F4EAA5DDF59FA60A4BEF9DF997E7644FCDA",
+        "integrated_sha256": "8157C20130CCA4F34987B5C73D8FB6DB2F61F69DC8D24AD3231DF88BF97876D1",
+        "transform": "lf-to-crlf-exact-reconstruction"
+      }
+    ]
+  }
 }
