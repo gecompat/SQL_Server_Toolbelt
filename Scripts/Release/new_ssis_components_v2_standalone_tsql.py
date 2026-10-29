@@ -50,10 +50,10 @@ def validate_install_package_qualification(record_bytes, expected_sha256, packag
             isinstance(audit.get("case_audits"), int) and not isinstance(audit.get("case_audits"), bool) and
             audit["case_audits"] == 2 and
             isinstance(audit.get("owned_database_names_absent"), int) and not isinstance(audit.get("owned_database_names_absent"), bool) and
-            audit["owned_database_names_absent"] == 2 and
+            audit["owned_database_names_absent"] == 4 and
             isinstance(audit.get("trust_states_restored"), int) and
             not isinstance(audit.get("trust_states_restored"), bool) and
-            audit["trust_states_restored"] > 0 and
+            audit["trust_states_restored"] == 8 and
             audit.get("configuration_baselines_restored") is True and
             audit.get("input_pins_unchanged") is True and
             isinstance(audit.get("failed_package_attempts"), int) and

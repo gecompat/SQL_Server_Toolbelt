@@ -141,8 +141,8 @@ class InstallQualification(unittest.TestCase):
             ],
             "final_audit": {
                 "case_audits": 2,
-                "owned_database_names_absent": 2,
-                "trust_states_restored": 4,
+                "owned_database_names_absent": 4,
+                "trust_states_restored": 8,
                 "configuration_baselines_restored": True,
                 "input_pins_unchanged": True,
                 "failed_package_attempts": 0,

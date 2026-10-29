@@ -41,6 +41,39 @@ foreach($replacement in $replacements){
     if($old -like '*sha256*' -and $count -ne 1){throw 'SSIS_V2_TSQL_ADAPTATION_ANCHOR_AMBIGUOUS'}
     $text=$text.Replace($old,$replacement.new)
 }
+$apiCall="        & (Join-Path `$repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1') -Connection `$connection | Out-Null"
+$apiHook=@'
+        $v2FixturePath=Join-Path $repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx'
+        $v2Fixture=[IO.File]::ReadAllBytes($v2FixturePath)
+        $v2Command=$connection.CreateCommand()
+        $v2Command.CommandType='StoredProcedure';$v2Command.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
+        $v2Command.CommandTimeout=Get-SsisNativeTimeout 40
+        [void]$v2Command.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1)
+        $v2Command.Parameters['@PackageBytes'].Value=$v2Fixture
+        [void]$v2Command.Parameters.Add('@Operation',[Data.SqlDbType]::VarChar,32)
+        $v2Command.Parameters['@Operation'].Value='bindings-template-v2'
+        [void]$v2Command.Parameters.Add('@ProjectContext',[Data.SqlDbType]::NVarChar,-1)
+        $v2Command.Parameters['@ProjectContext'].Value='{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}'
+        try{
+            $v2Reader=$v2Command.ExecuteReader()
+            try{
+                if($v2Reader.FieldCount -ne 13 -or -not $v2Reader.Read()){throw 'SSIS_V2_TSQL_API_OPTIN_SHAPE'}
+                $v2Kind=[string]$v2Reader.GetValue($v2Reader.GetOrdinal('ArtifactKind'))
+                $v2Content=[string]$v2Reader.GetValue($v2Reader.GetOrdinal('Content'))
+                if($v2Kind -cne 'BindingsTemplate' -or $v2Reader.Read() -or $v2Reader.NextResult()){throw 'SSIS_V2_TSQL_API_OPTIN_RESULT'}
+                $v2Binding=$v2Content|ConvertFrom-Json -Depth 32
+                if($v2Binding.schemaVersion -ne 2 -or $v2Binding.profile -cne 'ssis-debug-components-v2' -or
+                   $v2Binding.resourcePolicy.schemaVersion -ne 1 -or $v2Binding.resourcePolicy.preset -cne 'unlimited' -or
+                   $v2Binding.resourcePolicy.unlimited -ne $true -or
+                   [string]$v2Binding.resourcePolicy.resourcePolicyHash -notmatch '^[0-9a-f]{64}$'){
+                    throw 'SSIS_V2_TSQL_API_OPTIN_PROVENANCE'
+                }
+            }finally{$v2Reader.Dispose()}
+        }finally{$v2Command.Dispose()}
+'@
+$apiCallCount=([regex]::Matches($text,[regex]::Escape($apiCall))).Count
+if($apiCallCount -ne 1){throw 'SSIS_V2_TSQL_API_HOOK_ANCHOR'}
+$text=$text.Replace($apiCall,$apiCall+"`n"+$apiHook.TrimEnd())
 $text=$text.Replace("(Join-Path `$PSScriptRoot 'Prepare-StandaloneTsqlInstallerRunset.ps1')","(Join-Path `$PSScriptRoot 'Prepare-ComponentsV2StandaloneTsqlInstallerRunset.ps1')")
 $text=$text.Replace("(Join-Path `$PSScriptRoot 'Invoke-StandaloneTsqlInstallerLab.ps1')","(Join-Path `$PSScriptRoot 'Invoke-ComponentsV2StandaloneTsqlInstallerLab.ps1')")
 function Bind-StandaloneV2AutomaticVariables([string]$ScriptText,[string]$Root,[string]$CommandPath){
@@ -67,6 +100,10 @@ if($ValidateOnly){
     [void][Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Prepare-ComponentsV2StandaloneTsqlInstallerRunset.ps1'),[ref]$null,[ref]$prepErrors)
     if($prepErrors.Count){throw 'SSIS_V2_TSQL_PREPARER_SYNTAX'}
     if($adapted -notlike "*'$v2Package'*" -or $adapted -notlike "*'$v2Output'*" -or $adapted -notlike "*'$v2Report'*"){throw 'SSIS_V2_TSQL_ADAPTATION_BINDING_MISSING'}
+    if($adapted -notlike "*bindings-template-v2*" -or $adapted -notlike "*ssis-debug-components-v2*" -or
+       $adapted -notlike "*'unlimited'*" -or $adapted -notlike "*SSIS_V2_TSQL_API_OPTIN_PROVENANCE*"){
+        throw 'SSIS_V2_TSQL_API_OPTIN_HOOK_MISSING'
+    }
     'PASS SSIS_V2_TSQL_ADAPTER_AND_PREPARER_VALIDATED; no SQL';return
 }
 $invoke=@{RunsetPath=$RunsetPath;ExpectedRunsetSha256=$ExpectedRunsetSha256;CaseIndex=$CaseIndex}
