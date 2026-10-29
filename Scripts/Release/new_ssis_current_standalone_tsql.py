@@ -1,0 +1,134 @@
+"""Aktuellen nativen geprüften Installationssatz als reines T-SQL bündeln."""
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import re
+
+import new_ssis_standalone_tsql as renderer
+from new_ssis_current_package import ROOT, MODULE, NAME, require, sha
+from validate_ssis_current_package import validate
+
+QUALIFICATION = Path(MODULE + 'Tests/Qualification/Current.InstallPackage.20261029.json')
+OUTPUT = Path('Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql')
+PROVENANCE = Path('Releases/1.0.0/ssis-current-standalone-installer.json')
+RUNTIME = Path('Releases/1.0.0/ssis-current-standalone-runtime-qualification.json')
+
+
+def validate_runtime(root=ROOT):
+    """Bind the new runtime evidence to its actual installer and execution inputs."""
+    record = json.loads(renderer.read_regular_bounded(root / RUNTIME, 1024 * 1024))
+    require(record.get('kind') == 'ssis_current_standalone_tsql_runtime_qualification' and
+            record.get('schema_version') == '1.0' and record.get('profile') == 'ssis-debug-current' and
+            record.get('result') == 'PASS' and record.get('publication_authorized') is False,
+            'current standalone runtime identity')
+    provenance_bytes = renderer.read_regular_bounded(root / PROVENANCE, 1024 * 1024)
+    provenance = json.loads(provenance_bytes)
+    installer = renderer.read_regular_bounded(root / OUTPUT, renderer.MAX_PACKAGE_BYTES)
+    require(record.get('installer') == {'path': OUTPUT.as_posix(), 'sha256': sha(installer)} and
+            record.get('provenance') == {'path': PROVENANCE.as_posix(), 'sha256': sha(provenance_bytes)} and
+            provenance.get('output') == {'path': OUTPUT.as_posix(), 'bytes': len(installer), 'sha256': sha(installer)} and
+            provenance.get('component_profile') == 'ssis-debug-current' and
+            provenance.get('publication_authorized') is False, 'current installer and provenance bytes')
+    scope = record.get('scope', {})
+    require(scope.get('case_count') == 2 and scope.get('installed_mode_contexts') == 4 and
+            scope.get('results') == {'target_cases': 'PASS', 'cleanup_audits': 'PASS',
+                                     'case_count_passed': 2, 'cleanup_audits_passed': 2},
+            'current standalone runtime cases')
+    audit = record.get('final_audit', {})
+    require(audit.get('case_audits') == 2 and audit.get('owned_database_names_absent') == 4 and
+            audit.get('trust_states_restored') == 6 and audit.get('configuration_baselines_restored') is True and
+            audit.get('input_pins_unchanged') is True, 'current standalone final audit')
+    pins = record.get('execution_input_pins', [])
+    required = {
+        'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1',
+        'Tests/Release/Prepare-CurrentStandaloneTsqlInstallerRunset.ps1',
+        MODULE + 'Tests/Runtime/Invoke-CurrentCases.ps1',
+        MODULE + 'Contracts/Api.json', OUTPUT.as_posix(), PROVENANCE.as_posix(),
+        QUALIFICATION.as_posix(), MODULE + 'InstallPackages/' + NAME + '.zip',
+    }
+    paths = {pin.get('path') for pin in pins if isinstance(pin, dict)}
+    require(len(pins) == len(paths) and required.issubset(paths), 'current runtime input closure')
+    for pin in pins:
+        relative = Path(pin['path'])
+        require(not relative.is_absolute() and '..' not in relative.parts and
+                re.fullmatch('[0-9A-F]{64}', str(pin.get('sha256', ''))), 'runtime input boundary')
+        require(sha(renderer.read_regular_bounded(root / relative, renderer.MAX_PACKAGE_BYTES)) == pin['sha256'],
+                'current execution input changed: ' + relative.as_posix())
+    source = provenance.get('source_package', {})
+    package = renderer.read_regular_bounded(root / source['path'], renderer.MAX_PACKAGE_BYTES)
+    qualification = renderer.read_regular_bounded(root / QUALIFICATION, 1024 * 1024)
+    require(source.get('qualification') == QUALIFICATION.as_posix() and
+            source.get('qualification_sha256') == sha(qualification) and source.get('sha256') == sha(package),
+            'current package provenance')
+    validate_package_qualification(qualification, sha(qualification), sha(package))
+    renderer.validate_installer_guards(installer)
+    validate(root / source['path'])
+    return record
+
+
+def validate_package_qualification(data, expected_sha, package_sha):
+    require(sha(data) == expected_sha, 'exact current package qualification')
+    record = json.loads(data)
+    require(record.get('schema_version') == '1.0' and
+            record.get('kind') == 'ssis_current_install_package_qualification' and
+            record.get('profile') == 'ssis-debug-current' and
+            record.get('result') == 'PASS' and record.get('publication_authorized') is False and
+            record.get('package_sha256') == package_sha.lower(), 'qualified current package')
+    cases = record.get('cases', [])
+    expected = {('2019', 150, 'local'), ('2025', 170, 'central')}
+    actual = {(c.get('sql_version'), c.get('compatibility_level'), c.get('deployment_mode')) for c in cases}
+    require(len(cases) == len(expected) and actual == expected and
+            all(c.get('result') == 'PASS' and c.get('final_independent_audit') == 'PASS' for c in cases),
+            'both current package modes and independent audits')
+    audit = record.get('final_audit', {})
+    require(audit.get('case_audits') == 2 and audit.get('owned_database_names_absent') == 4 and
+            audit.get('trust_states_restored') == 6 and
+            audit.get('configuration_baselines_restored') is True and
+            audit.get('input_pins_unchanged') is True, 'current package cleanup')
+    return record
+
+
+def main(args):
+    archive = Path(MODULE + 'InstallPackages/' + NAME + '.zip')
+    qualification = renderer.read_regular_bounded(ROOT / QUALIFICATION, 1024 * 1024)
+    package = renderer.read_regular_bounded(ROOT / archive, renderer.MAX_PACKAGE_BYTES)
+    validate_package_qualification(qualification, args.qualification_sha256, sha(package))
+    validate(ROOT / archive)
+    renderer.PACKAGE = archive
+    renderer.PACKAGE_SIDECAR = Path(str(archive) + '.sha256')
+    renderer.PACKAGE_QUALIFICATION = QUALIFICATION
+    renderer.PACKAGE_QUALIFICATION_SHA256 = args.qualification_sha256
+    renderer.ARCHIVE_ROOT = NAME + '/'
+    renderer.OUTPUT = OUTPUT
+    renderer.PROVENANCE = PROVENANCE
+    renderer.LICENSE_COPY = Path('Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT-LICENSE.md')
+    renderer.SCRIPTDOM_NOTICE = Path('Releases/1.0.0/ThirdParty/SSIS-Current/ScriptDom-180.117.0')
+    original_render = renderer.render
+
+    def render(payloads, hashes):
+        result = original_render(payloads, hashes)
+        result = result.replace(
+            'Toolbelt SSIS-Debug 1.0.0 – eigenständiger T-SQL-Installer.'.encode('utf-8'),
+            'Toolbelt SSIS-Debug – aktueller eigenständiger T-SQL-Installer.'.encode('utf-8'))
+        result = result.replace(b'SSIS-INSTALL-TSQL-LICENSE.md', b'SSIS-INSTALL-TSQL-CURRENT-LICENSE.md')
+        renderer.validate_installer_guards(result)
+        return result
+
+    renderer.render = render
+    result = renderer.main()
+    provenance = json.loads((ROOT / PROVENANCE).read_bytes())
+    provenance['component_profile'] = 'ssis-debug-current'
+    provenance['limits'].append('Aktueller Standard ohne Toolbelt-Legacy-Profil; Limits über benannte SQL-Parameter, nicht JSON')
+    (ROOT / PROVENANCE).write_text(json.dumps(provenance, indent=2, ensure_ascii=False) + '\n',
+                                   encoding='utf-8', newline='\n')
+    return result
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--qualification-sha256', required=True, type=str.upper)
+    options = parser.parse_args()
+    require(re.fullmatch('[0-9A-F]{64}', options.qualification_sha256), 'qualification digest format')
+    raise SystemExit(main(options))
