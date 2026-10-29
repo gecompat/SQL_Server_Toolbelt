@@ -34,6 +34,24 @@ bestanden. Die [gebundene Paketmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests
 enthält nun zwölf Kontexte. Status: fachlich geprüft; Integration und aktuelle
 Head-/Main-CI werden getrennt im Pull Request nachgewiesen.
 
+Ergänzung r31: Der unveränderte aktuelle Standalone-T-SQL-Installer besteht
+ebenfalls die feste Windows-/Engine-/CL-/Modusmatrix: vier ursprüngliche und
+acht zusätzliche lokale/zentralen Kontexte, insgesamt zwölf; die vier neuen
+Zielaudits bestanden. Der gebundene Bericht steht unter
+[`ssis-current-standalone-installer-matrix.json`](../Releases/1.0.0/ssis-current-standalone-installer-matrix.json).
+Zwei vor SQL abgewiesene Parameterbindungsversuche bleiben als Versuche im
+Bericht erhalten. Diese Welle qualifiziert weder den allgemeinen Modulumfang
+noch SSIS-Runtime, authentifiziertes TLS oder Veröffentlichung.
+
+Verarbeitungsaufwand: ein Implementierer; Root führte die autorisierten
+Nativläufe und Audits aus. Die bestehenden geschützten Harnesses wurden durch
+einen gebundenen Adapter wiederverwendet; die vier bereits erfolgreichen
+Ursprungskontexte wurden nicht wiederholt. Ein gezielter Offline-Validator ist
+in die bestehende SSIS-Release-CI integriert; es entstand kein weiterer
+Nativrunner. Journale und Rohlogs bleiben privat. Der Modulstatus bleibt
+teilweise validiert und unveröffentlicht; Head-/Main-CI und Merge werden am
+jeweiligen Stand getrennt nachgewiesen.
+
 ## Aktuelles SSIS-Profil als Standard und Entwicklungsfreiheit — 2026-10-29
 
 Direkter Benutzerauftrag: V2 soll Standard von `USP_ExplainSsisDataFlow` sein;

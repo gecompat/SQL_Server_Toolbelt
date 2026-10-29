@@ -33,6 +33,14 @@ prüft denselben vollständigen reinen T-SQL-Batch auf beiden Enginezielen in
 beiden Modi auf den jeweils zuvor qualifizierten höchsten CLs: vier
 Installationskontexte mit Repeat, aktuelle Fachfälle,
 Sitzungs-/Transaktions-Negativkontrollen und zwei unabhängigen Audits.
+Die separate [Standalone-Installer-CL-Matrix](../../../Releases/1.0.0/ssis-current-standalone-installer-matrix.json)
+bindet diese vier ursprünglichen Kontexte unverändert und ergänzt acht neue
+Installationskontexte samt vier unabhängigen Audits. Damit sind für den
+unveränderten Installer genau zwölf Windows-/Engine-/CL-/Moduskontexte belegt:
+SQL2019/CL150, SQL2022/CL150 und CL160 sowie SQL2025/CL150, CL160 und CL170,
+jeweils local und central. Der Nachweis gilt für den festen Installervertrag;
+er erweitert weder die sechs Fälle der getrennten Binarymatrix noch die
+allgemeine SSIS-Modul- oder API-Qualifikation.
 Die [Installer-Provenienz](../../../Releases/1.0.0/ssis-current-standalone-installer.json)
 bindet die ausgeführten Bytes an Paket und Paketqualifikation.
 Der aktuelle Runtimebericht ergänzt eine eng begrenzte Integrationsbindung
@@ -51,7 +59,8 @@ Framework-Transportexperiment mit 2730 Einheiten verwendet ausdrücklich
 512 MiB Ausgabebudget und ist kein Nachweis für das 128-MiB-Defaultbudget.
 
 Die zwölf ZIP-Fälle schließen die CL-Matrix nur für den beschriebenen festen
-Current-Paketvertrag; sie erweitern die Binary- und Standalone-Nachweise nicht.
+Current-Paketvertrag; die zwölf Standalone-Fälle schließen separat die CL-Matrix
+für den festen Current-T-SQL-Installer. Beide erweitern die Binarymatrix nicht.
 Keine der Qualifikationen belegt tatsächliche SSIS-Ausführung,
 Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den administrativen
 Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und Integration sind
