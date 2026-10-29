@@ -32,6 +32,10 @@ namespace Toolbelt.Ssis.Exchange
         private void Check() { Limits.Check("analysisMilliseconds", watch.ElapsedMilliseconds); if (callerCheck != null) callerCheck(); }
         private static void Limit(long value, long limit) { if (value > limit) throw new ModelException("LIMIT_EXCEEDED"); }
         internal static string Attribute(XElement e, string key) { return (string)e.Attribute(key) ?? (string)e.Attribute(Dts + key) ?? ""; }
+        private static string LocalAttribute(XElement e, string key)
+        { var attribute = e.Attributes().FirstOrDefault(x => String.Equals(x.Name.LocalName, key, StringComparison.OrdinalIgnoreCase)); return attribute == null ? "" : attribute.Value; }
+        private static bool HasLocalAttribute(XElement e, string key)
+        { return e.Attributes().Any(x => String.Equals(x.Name.LocalName, key, StringComparison.OrdinalIgnoreCase)); }
         private static object Text(string value) { return value == "" ? null : (object)value; }
         private static object Number(string value) { int n; return Int32.TryParse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out n) ? (object)n : null; }
         private static object Flag(string value)
@@ -360,6 +364,7 @@ namespace Toolbelt.Ssis.Exchange
                     }
                 }
             }
+            long assignmentEdges = ResolveVariableAssignments(items);
             var links = new List<Link>(); bool partial = false; int pathCount = 0;
             Action<string, Definition, Definition, string, int, string> link = (kind, from, to, owner, declarationPosition, mapping) =>
             {
@@ -412,7 +417,7 @@ namespace Toolbelt.Ssis.Exchange
             }
             foreach (var declared in links.Where(x => x.Kind == "COLUMN_MAP" && x.Mapping == "DATA_TRANSFER" && x.Resolution == "RESOLVED").ToList())
                 links.Add(new Link { Kind = "VALUE_DEPENDENCY", From = declared.From, To = declared.To, Scope = declared.Scope, Resolution = "RESOLVED", Rule = "MAPPED_VALUE_INPUT" });
-            Limits.Check("modelEdges", links.Count); Limits.Check("diagnostics", diagnostics.Count);
+            Limits.Check("modelEdges", links.Count + assignmentEdges); Limits.Check("diagnostics", diagnostics.Count);
             bool complex = items.Where(x => x.Kind == "COMPONENT").Any(x => { string c = Attribute(x.Element, "componentClassID"); return !(c == "Microsoft.OLEDBSource" || c == "Microsoft.OLEDBDestination"); });
             if (encrypted) diagnostics.Add(Obj("code", "ENCRYPTED_CONTENT", "objectId", "pkg1"));
             if (partial) diagnostics.Add(Obj("code", "PARTIAL_LINEAGE", "objectId", null));
@@ -429,6 +434,115 @@ namespace Toolbelt.Ssis.Exchange
             var references = Root.DescendantsAndSelf().Where(x => x.Name.Namespace == Dts || x.Name.Namespace == XNamespace.None).Select(x => Attribute(x,"refId")).Where(x => x != "").ToList();
             HasDuplicateNativeIds = references.Distinct(StringComparer.Ordinal).Count() != references.Count;
             HasOverlongNativeIds = references.Any(x => x.Length > 4000);
+        }
+
+        private long ResolveVariableAssignments(IList<Definition> items)
+        {
+            var variables = items.Where(x => x.Kind == "VARIABLE").ToList();
+            var scopeIds = new Dictionary<string, string>(StringComparer.Ordinal) { { "Package", items.Single(x => x.Kind == "PACKAGE").Id } };
+            var ambiguousScopes = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var executable in items.Where(x => x.Kind == "EXECUTABLE"))
+            {
+                string path = executable.Get("refId");
+                if (String.IsNullOrEmpty(path)) continue;
+                if (scopeIds.ContainsKey(path)) { scopeIds.Remove(path); ambiguousScopes.Add(path); }
+                else if (!ambiguousScopes.Contains(path)) scopeIds.Add(path, executable.Id);
+            }
+            Func<string, string> scopeId = path => { string id; return !String.IsNullOrEmpty(path) && !ambiguousScopes.Contains(path) && scopeIds.TryGetValue(path, out id) ? id : null; };
+            var seenProducers = new Dictionary<Definition, HashSet<string>>();
+            long assignmentEdges = 0;
+            foreach (var variable in variables)
+            { variable.Attributes["assignmentState"] = "none"; variable.Attributes["assignmentProducers"] = new List<object>(); seenProducers.Add(variable, new HashSet<string>(StringComparer.Ordinal)); }
+            Action<Definition, string, Definition> add = (variable, kind, producer) =>
+            {
+                variable.Attributes["assignmentState"] = "declared";
+                var list = (List<object>)variable.Attributes["assignmentProducers"];
+                if (seenProducers[variable].Add(kind + "\0" + producer.Id))
+                { Limits.Check("modelEdges", ++assignmentEdges); Check();
+                    list.Add(Obj("kind", kind, "producerId", producer.Id, "scopeId", scopeId(producer.LegacyScope)));
+                }
+            };
+            Action<Definition, Definition> unknown = (variable, producer) =>
+            {
+                variable.Attributes["assignmentState"] = "unknown";
+                if (seenProducers[variable].Add("script-write-scope-unknown\0" + producer.Id))
+                { Limits.Check("modelEdges", ++assignmentEdges); Check();
+                    ((List<object>)variable.Attributes["assignmentProducers"]).Add(Obj("kind", "script-write-scope-unknown", "producerId", producer.Id, "scopeId", scopeId(producer.LegacyScope)));
+                }
+            };
+            Action<Definition> markScopeUnknown = producer =>
+            {
+                string path = producer.Get("refId");
+                if (String.IsNullOrEmpty(path)) path = producer.LegacyScope;
+                foreach (var variable in variables.Where(v => v.LegacyScope == "Package" || path == v.LegacyScope || path.StartsWith(v.LegacyScope + "\\", StringComparison.Ordinal))) unknown(variable, producer);
+            };
+            Action<string, string, Definition> resolve = (reference, kind, producer) =>
+            {
+                string name = reference == null ? "" : reference.Trim();
+                if (name.StartsWith("@[", StringComparison.Ordinal) && name.EndsWith("]", StringComparison.Ordinal)) name = name.Substring(2, name.Length - 3);
+                else if (name.StartsWith("@", StringComparison.Ordinal)) name = name.Substring(1);
+                if (name.StartsWith("[", StringComparison.Ordinal)) name = name.Substring(1);
+                if (name.EndsWith("]", StringComparison.Ordinal)) name = name.Substring(0, name.Length - 1);
+                var found = variables.Where(v => String.Equals(Attribute(v.Element, "Namespace") + "::" + v.Name, name, StringComparison.OrdinalIgnoreCase) &&
+                    (producer.LegacyScope == "Package" || v.LegacyScope == producer.LegacyScope || producer.LegacyScope.StartsWith(v.LegacyScope + "\\", StringComparison.Ordinal))).ToList();
+                if (found.Count == 1) add(found[0], kind, producer); else markScopeUnknown(producer);
+            };
+            foreach (var producer in items.Where(x => x.Kind == "EXECUTABLE"))
+            {
+                string executableType = producer.Get("ExecutableType");
+                bool script = executableType.IndexOf("Script", StringComparison.OrdinalIgnoreCase) >= 0, hasScriptWriteList = false;
+                foreach (var node in producer.Element.DescendantsAndSelf().Where(e => e.Ancestors(Dts + "Executable").FirstOrDefault() == producer.Element && (e.Name.LocalName == "ResultBinding" || e.Name.LocalName == "VariableMapping")))
+                {
+                    string reference = LocalAttribute(node, "VariableName");
+                    if (reference != "") resolve(reference, node.Name.LocalName == "ResultBinding" ? "execute-sql-result" : "foreach-variable-mapping", producer);
+                    else if (node.Name.LocalName == "VariableMapping") markScopeUnknown(producer);
+                }
+                foreach (var property in producer.Element.DescendantsAndSelf().Where(e => e.Ancestors(Dts + "Executable").FirstOrDefault() == producer.Element && e.Name.LocalName == "Property"))
+                {
+                    string name = LocalAttribute(property, "Name"), value = property.Value ?? "";
+                    if (script && String.Equals(name, "ReadWriteVariables", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hasScriptWriteList = true;
+                        var matches = System.Text.RegularExpressions.Regex.Matches(value, @"(?:@\[)?(?:User|Project)::[^\],;\s]+\]?");
+                        if (matches.Count == 0 && value.Trim() != "")
+                            markScopeUnknown(producer);
+                        else foreach (System.Text.RegularExpressions.Match match in matches) resolve(match.Value, "script-read-write-variable", producer);
+                    }
+                    if (String.Equals(name, "AssignExpression", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var matches = System.Text.RegularExpressions.Regex.Matches(value, @"@\[(?<name>(?:User|Project)::[^\]]+)\]\s*=");
+                        if (matches.Count == 0 && value.Trim() != "") markScopeUnknown(producer);
+                        foreach (System.Text.RegularExpressions.Match match in matches) resolve(match.Groups["name"].Value, "for-loop-assignment-expression", producer);
+                    }
+                }
+                foreach (var node in producer.Element.DescendantsAndSelf().Where(e => e == producer.Element || e.Ancestors(Dts + "Executable").FirstOrDefault() == producer.Element))
+                {
+                    if (script && HasLocalAttribute(node, "ReadWriteVariables"))
+                    {
+                        hasScriptWriteList = true;
+                        string value = LocalAttribute(node, "ReadWriteVariables");
+                        var matches = System.Text.RegularExpressions.Regex.Matches(value, @"(?:@\[)?(?:User|Project)::[^\],;\s]+\]?");
+                        if (matches.Count == 0 && value.Trim() != "") markScopeUnknown(producer);
+                        else foreach (System.Text.RegularExpressions.Match match in matches) resolve(match.Value, "script-read-write-variable", producer);
+                    }
+                    if (HasLocalAttribute(node, "AssignExpression"))
+                    {
+                        string value = LocalAttribute(node, "AssignExpression");
+                        var matches = System.Text.RegularExpressions.Regex.Matches(value, @"@\[(?<name>(?:User|Project)::[^\]]+)\]\s*=");
+                        if (matches.Count == 0 && value.Trim() != "") markScopeUnknown(producer);
+                        foreach (System.Text.RegularExpressions.Match match in matches) resolve(match.Groups["name"].Value, "for-loop-assignment-expression", producer);
+                    }
+                }
+                if (script && !hasScriptWriteList)
+                    markScopeUnknown(producer);
+            }
+            foreach (var producer in items.Where(x => x.Kind == "COMPONENT" && x.ComponentKind == "rowcount"))
+            {
+                string reference;
+                if (!producer.Properties.TryGetValue("VariableName", out reference)) producer.Properties.TryGetValue("Variable", out reference);
+                if (!String.IsNullOrWhiteSpace(reference)) resolve(reference, "row-count-variable", producer);
+            }
+            return assignmentEdges;
         }
 
         /// <summary>Rendert das einmal materialisierte neutrale Modell; keine erneute XML-Auswertung.</summary>

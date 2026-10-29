@@ -54,7 +54,8 @@ namespace Toolbelt.Tsql.SsisDebug
             if (options.ProjectContext != null && (long)options.ProjectContext.Length * 2 > 4194304) throw new DebugFault("resource_limit", "counter=controlProtocolBytes; actual=" + ((long)options.ProjectContext.Length * 2).ToString(CultureInfo.InvariantCulture) + "; limit=4194304; profile=control-protocol.");
             var context = options.ProjectContextValue ?? (options.ProjectContext == null ? Json.Obj("schemaVersion", new JsonNumber("2")) : Json.Object(Json.Parse(options.ProjectContext, ResourceOptions.ControlBootstrap)));
             object contextVersion = Json.Get(context, "schemaVersion");
-            if (!(contextVersion is JsonNumber) || (((JsonNumber)contextVersion).Text != "1" && ((JsonNumber)contextVersion).Text != "2")) throw new DebugFault("invalid_template", "ProjectContext schemaVersion muss 1 oder 2 sein.");
+            if (!(contextVersion is JsonNumber) || ((JsonNumber)contextVersion).Text != "2") throw new DebugFault("invalid_template", "ProjectContext schemaVersion muss 2 sein.");
+            if (context.ContainsKey("resourceOptions")) throw new DebugFault("invalid_template", "resourceOptions ist nicht zulässig; Ressourcenlimits über @MaxPackageBytes und @MaxAnalysisMilliseconds setzen.");
             Json.Keys(context, "schemaVersion", "projectParameters", "connectionManagers");
             string selectedProfile = "ssis-debug-components-v2";
             var canonical = Json.Obj("schemaVersion", new JsonNumber("2"), "profile", selectedProfile);
@@ -103,10 +104,11 @@ namespace Toolbelt.Tsql.SsisDebug
                 var byKey = new Dictionary<string, Dictionary<string, object>>(StringComparer.Ordinal);
                 foreach (object v in metadata)
                 {
-                    var e = Json.Object(v); Json.Keys(e, "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "runtimeAssigned", "state");
-                    foreach (string required in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "runtimeAssigned", "state" }) if (!e.ContainsKey(required)) throw new DebugFault("invalid_template", "Unvollständige Eingabemetadaten.");
+                    var e = Json.Object(v); Json.Keys(e, "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "runtimeAssigned", "assignmentState", "assignmentProducers", "state");
+                    foreach (string required in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "requiredForSelectedFlow", "sensitive", "runtimeAssigned", "assignmentState", "assignmentProducers", "state" }) if (!e.ContainsKey(required)) throw new DebugFault("invalid_template", "Unvollständige Eingabemetadaten.");
                     foreach (string flag in new[] { "defaultAvailable", "requiredForSelectedFlow", "sensitive", "runtimeAssigned" }) if (!(e[flag] is bool)) throw new DebugFault("invalid_template", "Boolean-Metadaten erwartet.");
                     foreach (string text in new[] { "valueOrigin", "state" }) Json.Text(e[text]);
+                    Json.Text(e["assignmentState"]); Json.Array(e["assignmentProducers"]);
                     if (e["expression"] != null) Json.Text(e["expression"]);
                     string key = Json.Text(e["key"]); if (byKey.ContainsKey(key)) throw new DebugFault("invalid_template", "Doppelte Eingabeidentität."); byKey.Add(key, e);
                 }
@@ -114,7 +116,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 {
                     Dictionary<string, object> e; if (!byKey.TryGetValue(input.Key, out e)) throw new DebugFault("invalid_template", "Eingabe fehlt.");
                     var expected = input.Metadata();
-                    foreach (string key in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "sensitive", "runtimeAssigned", "state" })
+                    foreach (string key in new[] { "key", "kind", "scope", "name", "ssisType", "sqlType", "defaultAvailable", "defaultValue", "expression", "valueOrigin", "sensitive", "runtimeAssigned", "assignmentState", "assignmentProducers", "state" })
                         if (Json.Write(e[key], Limits) != Json.Write(expected[key], Limits)) throw new DebugFault("invalid_template", "Eingabeherkunft oder Identitätsmetadaten geändert.");
                 }
                 foreach (var v in Json.Object(Json.Get(root, "values")))

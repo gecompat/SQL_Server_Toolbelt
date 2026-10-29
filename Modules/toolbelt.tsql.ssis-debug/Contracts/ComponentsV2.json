@@ -31,6 +31,11 @@
       "description": "Die Vorlage zeigt nicht-sensitive Paketdefaults als editierbare Debugwerte. Laufzeitzuweisungen und Ausdrücke bleiben als Herkunft markiert; das ist kein beobachteter SSIS-Laufzeitwert. Sensitive Werte bleiben redigiert."
     },
     {
+      "section": "LIMITATION",
+      "ordinal": 4,
+      "description": "DebugScript ist nur bei vollständigem Pfad und gebundenem SQL-Text ausführbar. Bei fehlendem Kontext nennt Workflow/StageIndex die Erstursache und verfügbare vollständige Teilpläne; SSIS-Aufgaben werden nicht ausgeführt."
+    },
+    {
       "section": "EXAMPLE",
       "ordinal": 2,
       "description": "Aktuelle editierbare Parameter-Vorlage erzeugen.",
@@ -41,6 +46,12 @@
       "ordinal": 3,
       "description": "Eine optionale Grenze direkt am SQL-Parameter setzen; 0 ist unbegrenzt.",
       "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@MaxExpressionBytes=0;"
+    },
+    {
+      "section": "EXAMPLE",
+      "ordinal": 4,
+      "description": "Gebundene Parameterwerte verwenden und bei vollständigem Kontext das gesamte DebugScript ausgeben lassen.",
+      "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='explain',@Bindings=@Bindings,@CatalogBindings=@CatalogBindings;"
     }
   ]
 }

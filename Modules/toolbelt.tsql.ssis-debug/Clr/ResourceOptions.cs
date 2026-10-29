@@ -63,8 +63,10 @@ namespace Toolbelt.Tsql.SsisDebug
             long nodeCount;
             var context = Json.Object(Json.Parse(projectContext, ControlBootstrap, out nodeCount));
             object version = Json.Get(context, "schemaVersion");
-            if (!(version is JsonNumber) || (((JsonNumber)version).Text != "1" && ((JsonNumber)version).Text != "2"))
-                throw new DebugFault("invalid_template", "ProjectContext schemaVersion muss 1 oder 2 sein.");
+            if (!(version is JsonNumber) || ((JsonNumber)version).Text != "2")
+                throw new DebugFault("invalid_template", "ProjectContext schemaVersion muss 2 sein.");
+            if (context.ContainsKey("resourceOptions"))
+                throw new DebugFault("invalid_template", "resourceOptions ist nicht zulässig; Ressourcenlimits über @MaxPackageBytes und @MaxAnalysisMilliseconds setzen.");
             contextV2 = ((JsonNumber)version).Text == "2";
             Json.Keys(context, "schemaVersion", "projectParameters", "connectionManagers");
             Json.CheckJsonLimit(limits, "jsonDocumentBytes", (long)projectContext.Length * 2);

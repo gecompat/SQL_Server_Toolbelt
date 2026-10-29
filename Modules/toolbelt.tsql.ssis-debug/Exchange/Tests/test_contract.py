@@ -104,6 +104,60 @@ def main():
         v2_invalid=ET.fromstring(v2_fixture)
         next(x for x in v2_invalid.iter("component") if x.get("componentClassID")=="Microsoft.DerivedColumn").set("version","")
         run_current(ET.tostring(v2_invalid,encoding="utf-8",xml_declaration=True),False)
+        def assignment_fixture(include_unknown=True):
+            document=ET.fromstring(v2_fixture)
+            variables=document.find(DTS+"Variables")
+            if variables is None:
+                variables=ET.SubElement(document,DTS+"Variables")
+            def add_variable(name,value):
+                variable=ET.SubElement(variables,DTS+"Variable",{
+                    DTS+"Namespace":"User",DTS+"ObjectName":name,
+                    DTS+"DTSID":"{aaaaaaaa-2222-2222-2222-%012d}"%(len(list(variables))+1)})
+                ET.SubElement(variable,DTS+"VariableValue",{DTS+"DataType":"Int32"}).text=value
+            for name,value in (("Independent","7"),("ScriptWritten","8"),("LoopAttribute","0"),("ScriptAttribute","0"),("EmptyWriteList","3")):
+                add_variable(name,value)
+            ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\Script",DTS+"ExecutableType":"Microsoft.ScriptTask"},)
+            script=document.findall(DTS+"Executable")[-1]
+            ET.SubElement(script,DTS+"ScriptTaskData",{DTS+"ReadWriteVariables":"User::ScriptWritten"})
+            script_attribute=ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\ScriptAttribute",DTS+"ExecutableType":"Microsoft.ScriptTask"})
+            ET.SubElement(script_attribute,DTS+"ScriptTaskData",{DTS+"ReadWriteVariables":"User::ScriptAttribute"})
+            ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\LoopAttribute",DTS+"ExecutableType":"STOCK:FORLOOP",
+                DTS+"AssignExpression":"@[User::LoopAttribute] = 1"})
+            empty=ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\ScriptEmpty",DTS+"ExecutableType":"Microsoft.ScriptTask",
+                DTS+"ReadWriteVariables":""})
+            ET.SubElement(empty,DTS+"ScriptTaskData",{DTS+"ReadWriteVariables":""})
+            empty_property=ET.SubElement(document,DTS+"Executable",{
+                DTS+"refId":"Package\\Tasks\\ScriptEmptyProperty",DTS+"ExecutableType":"Microsoft.ScriptTask"})
+            ET.SubElement(empty_property,DTS+"Property",{DTS+"Name":"ReadWriteVariables"}).text=""
+            if include_unknown:
+                unknown=ET.SubElement(document,DTS+"Executable",{
+                    DTS+"refId":"Package\\Tasks\\UnknownScript",DTS+"ExecutableType":"Microsoft.ScriptTask"})
+                local_variables=ET.SubElement(unknown,DTS+"Variables")
+                variable=ET.SubElement(local_variables,DTS+"Variable",{
+                    DTS+"Namespace":"User",DTS+"ObjectName":"UnknownScriptValue",
+                    DTS+"DTSID":"{bbbbbbbb-2222-2222-2222-222222222222}"})
+                ET.SubElement(variable,DTS+"VariableValue",{DTS+"DataType":"Int32"}).text="9"
+            return document
+        assignment_model=run_current(ET.tostring(assignment_fixture(),encoding="utf-8",xml_declaration=True))
+        assignment_nodes={node.get("name"):node for node in assignment_model["nodes"] if node["kind"]=="VARIABLE"}
+        def has_producer(name,kind):
+            return any(producer["kind"]==kind for producer in assignment_nodes[name]["attributes"]["assignmentProducers"])
+        check(assignment_nodes["Independent"]["attributes"]["assignmentState"]=="unknown" and
+              has_producer("ScriptWritten","script-read-write-variable") and
+              has_producer("ScriptAttribute","script-read-write-variable") and
+              has_producer("LoopAttribute","for-loop-assignment-expression") and
+              has_producer("UnknownScriptValue","script-write-scope-unknown"),
+              "variable-scoped producer and unknown visible-writer metadata parity")
+        empty_write_model=run_current(ET.tostring(assignment_fixture(False),encoding="utf-8",xml_declaration=True))
+        empty_write_nodes={node.get("name"):node for node in empty_write_model["nodes"] if node["kind"]=="VARIABLE"}
+        check(empty_write_nodes["EmptyWriteList"]["attributes"]["assignmentState"]=="none" and
+              empty_write_nodes["Independent"]["attributes"]["assignmentState"]=="none" and
+              empty_write_nodes["LoopAttribute"]["attributes"]["assignmentState"]=="declared",
+              "explicit empty script variable list and attribute-based producers")
         check([[n["id"],n["kind"],n["parentId"]] for n in basic["nodes"]]==oracle["nodeSignatures"],"fixed independent object oracle")
         check([[e["kind"],e["fromId"],e["toId"],e["ruleId"]] for e in basic["edges"]]==oracle["edgeSignatures"],"fixed independent lineage oracle")
         check(all(c["status"]==oracle["coverageStatus"] for c in basic["coverage"]),"bounded direct-profile coverage")

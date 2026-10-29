@@ -234,11 +234,99 @@ internal static class ContractTests
             ResourceOptions.Parse("{\"schemaVersion\":2}", "explain", null, out contextV2);
             Assert(contextV2, "CURRENT_PROJECT_CONTEXT_SCHEMA2");
             Reject(() => ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{}}", "explain", null, out contextV2), "invalid_template");
+            bool legacyContextRejected = false; try { ResourceOptions.Parse("{\"schemaVersion\":1}", "explain", null, out contextV2); } catch (DebugFault error) { legacyContextRejected = error.Code == "invalid_template"; }
+            Assert(legacyContextRejected, "CURRENT_PROJECT_CONTEXT_REQUIRES_SCHEMA2");
+            bool resourceOptionsExplained = false; try { ResourceOptions.Parse("{\"schemaVersion\":2,\"resourceOptions\":{}}", "explain", null, out contextV2); } catch (DebugFault error) { resourceOptionsExplained = error.Message.Contains("@MaxPackageBytes") && error.Message.Contains("@MaxAnalysisMilliseconds"); }
+            Assert(resourceOptionsExplained, "CURRENT_RESOURCE_OPTIONS_ERROR_NAMES_SQL_PARAMETERS");
             var inputs = Json.Array(template["availableInputs"]).Select(Json.Object).ToList();
             Assert(inputs.Any(x => Json.Bool(x, "defaultAvailable") && !Json.Bool(x, "sensitive")) && Json.Object(template["values"]).Count > 0, "CURRENT_DESIGN_DEFAULTS_EDITABLE");
+            byte[] assignmentPackage = Change(original, d => {
+                XNamespace dts = "www.microsoft.com/SqlServer/Dts";
+                var variables = d.Root.Element(dts + "Variables"); if (variables == null) { variables = new XElement(dts + "Variables"); d.Root.Add(variables); }
+                int id = 900;
+                Action<string, string> addVariable = (name, value) => variables.Add(new XElement(dts + "Variable", new XAttribute(dts + "Namespace", "User"), new XAttribute(dts + "ObjectName", name), new XAttribute(dts + "DTSID", "{" + (++id).ToString("D8", CultureInfo.InvariantCulture) + "-1111-1111-1111-111111111111}"), new XElement(dts + "VariableValue", new XAttribute(dts + "DataType", "Int32"), value)));
+                foreach (var item in new[] { new KeyValuePair<string,string>("Independent", "7"), new KeyValuePair<string,string>("ScriptWritten", "8"), new KeyValuePair<string,string>("LoopValue", "0"), new KeyValuePair<string,string>("LoopAttribute", "0"), new KeyValuePair<string,string>("ScriptAttribute", "0"), new KeyValuePair<string,string>("EmptyWriteList", "3"), new KeyValuePair<string,string>("ExpressionDefault", "42"), new KeyValuePair<string,string>("SqlResult", "0"), new KeyValuePair<string,string>("ForeachValue", "0") }) addVariable(item.Key, item.Value);
+                var expressionDefault = variables.Elements(dts + "Variable").Single(x => (string)x.Attribute(dts + "ObjectName") == "ExpressionDefault");
+                expressionDefault.SetAttributeValue(dts + "EvaluateAsExpression", "True"); expressionDefault.SetAttributeValue(dts + "Expression", "@[User::Independent] + 1");
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\Script"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "Property", new XAttribute(dts + "Name", "ReadWriteVariables"), "User::ScriptWritten")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\Loop"), new XAttribute(dts + "ExecutableType", "STOCK:FORLOOP"), new XElement(dts + "Property", new XAttribute(dts + "Name", "AssignExpression"), "@[User::LoopValue] = @[User::LoopValue] + 1")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\LoopAttribute"), new XAttribute(dts + "ExecutableType", "STOCK:FORLOOP"), new XAttribute(dts + "AssignExpression", "@[User::LoopAttribute] = 1")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ScriptAttribute"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "ScriptTaskData", new XAttribute(dts + "ReadWriteVariables", "User::ScriptAttribute"))));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ScriptEmpty"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XAttribute(dts + "ReadWriteVariables", "")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ScriptEmptyProperty"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "Property", new XAttribute(dts + "Name", "ReadWriteVariables"), "")));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\ExecuteSql"), new XAttribute(dts + "ExecutableType", "Microsoft.ExecuteSQLTask"), new XElement(dts + "ObjectData", new XElement(dts + "ResultBindings", new XElement(dts + "ResultBinding", new XAttribute(dts + "VariableName", "User::SqlResult"))))));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\Foreach"), new XAttribute(dts + "ExecutableType", "STOCK:FOREACHLOOP"), new XElement(dts + "ObjectData", new XElement(dts + "VariableMappings", new XElement(dts + "VariableMapping", new XAttribute(dts + "VariableName", "User::ForeachValue"))))));
+                d.Root.Add(new XElement(dts + "Executable", new XAttribute(dts + "refId", "Package\\Tasks\\UnknownScript"), new XAttribute(dts + "ExecutableType", "Microsoft.ScriptTask"), new XElement(dts + "Variables", new XElement(dts + "Variable", new XAttribute(dts + "Namespace", "User"), new XAttribute(dts + "ObjectName", "UnknownScriptValue"), new XAttribute(dts + "DTSID", "{bbbbbbbb-1111-1111-1111-111111111111}"), new XElement(dts + "VariableValue", new XAttribute(dts + "DataType", "Int32"), "9")))));
+            });
+            var assignmentModel = PackageDocument.Read(assignmentPackage, null, true);
+            var exportedInputs = assignmentModel.Definitions.Where(x => x.Kind == "VARIABLE").ToDictionary(x => x.Name, StringComparer.Ordinal);
+            Func<string, string, bool> hasProducerKind = (name, kind) => Json.Array(Json.Get(exportedInputs[name].Attributes, "assignmentProducers")).Any(x => Json.Text(Json.Get(Json.Object(x), "kind")) == kind);
+            Assert(Json.Text(Json.Get(exportedInputs["Independent"].Attributes, "assignmentState")) == "unknown", "ASSIGNMENT_UNKNOWN_SCRIPT_EFFECTS_ARE_VISIBLE_SCOPE");
+            Assert(Json.Text(Json.Get(exportedInputs["ScriptWritten"].Attributes, "assignmentState")) == "unknown" && hasProducerKind("ScriptWritten", "script-read-write-variable"), "ASSIGNMENT_SCRIPT_READWRITE_VARIABLE_AND_UNKNOWN_VISIBLE_WRITER");
+            Assert(hasProducerKind("LoopValue", "for-loop-assignment-expression"), "ASSIGNMENT_FORLOOP_PROPERTY_TARGET");
+            Assert(hasProducerKind("LoopAttribute", "for-loop-assignment-expression"), "ASSIGNMENT_FORLOOP_ATTRIBUTE_TARGET");
+            Assert(hasProducerKind("ScriptAttribute", "script-read-write-variable"), "ASSIGNMENT_SCRIPT_READWRITE_ATTRIBUTE");
+            Assert(hasProducerKind("SqlResult", "execute-sql-result"), "ASSIGNMENT_EXECUTESQL_RESULT_BINDING");
+            Assert(hasProducerKind("ForeachValue", "foreach-variable-mapping"), "ASSIGNMENT_FOREACH_MAPPING");
+            Assert(Json.Text(Json.Get(exportedInputs["UnknownScriptValue"].Attributes, "assignmentState")) == "unknown", "ASSIGNMENT_UNKNOWN_SCRIPT_SCOPE_REMAINS_UNKNOWN");
+            var assignmentHostModel = assignmentModel.ExportComponentsV2("1.0.0", new string('0', 40), new string('0', 64));
+            var hostIndependent = Json.Object(Json.Array(Json.Get(assignmentHostModel, "nodes")).Select(Json.Object).Single(x => String.Equals(Json.Get(x, "name") as string, "Independent", StringComparison.Ordinal))["attributes"]);
+            Assert(Json.Text(Json.Get(hostIndependent, "assignmentState")) == Json.Text(Json.Get(exportedInputs["Independent"].Attributes, "assignmentState")) && Json.Text(Json.Get(hostIndependent, "assignmentState")) == "unknown", "ASSIGNMENT_CLR_AND_NEUTRAL_HOST_PARITY");
+            var assignmentTemplate = Engine.Analyze(assignmentPackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var assignmentTemplateDoc = Json.Object(Json.Parse(assignmentTemplate.Rows.Single().Content));
+            var independentMetadata = Json.Object(Json.Array(Json.Get(assignmentTemplateDoc, "availableInputs")).Single(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::Independent"));
+            Assert(Json.Bool(independentMetadata, "defaultAvailable") && Json.Text(Json.Get(independentMetadata, "assignmentState")) == "unknown" && Json.Text(Json.Get(independentMetadata, "state")) == "runtime-assigned-design-default", "ASSIGNMENT_UNKNOWN_SCRIPT_PRESERVES_DESIGN_DEFAULT_PROVENANCE");
+            var expressionDefaultMetadata = Json.Object(Json.Array(Json.Get(assignmentTemplateDoc, "availableInputs")).Single(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::ExpressionDefault"));
+            var expressionDefaultKey = Json.Text(Json.Get(expressionDefaultMetadata, "key"));
+            Assert(Json.Bool(expressionDefaultMetadata, "defaultAvailable") && Json.Text(Json.Get(expressionDefaultMetadata, "state")) == "derived" && Json.Get(Json.Object(assignmentTemplateDoc["values"]), expressionDefaultKey) == null, "ASSIGNMENT_EXPRESSION_DESIGN_DEFAULT_VISIBLE_NOT_AUTOBINDING");
+            byte[] emptyWriteListPackage = Change(assignmentPackage, d => { XNamespace assignmentDts = "www.microsoft.com/SqlServer/Dts"; d.Root.Elements(assignmentDts + "Executable").Single(x => (string)x.Attribute(assignmentDts + "refId") == "Package\\Tasks\\UnknownScript").Remove(); });
+            var emptyWriteListModel = PackageDocument.Read(emptyWriteListPackage, null, true);
+            var emptyWriteListVariable = emptyWriteListModel.Definitions.Single(x => x.Kind == "VARIABLE" && x.Name == "EmptyWriteList");
+            var emptyIndependentVariable = emptyWriteListModel.Definitions.Single(x => x.Kind == "VARIABLE" && x.Name == "Independent");
+            Assert(Json.Text(Json.Get(emptyWriteListVariable.Attributes, "assignmentState")) == "none" && Json.Text(Json.Get(emptyIndependentVariable.Attributes, "assignmentState")) == "none", "ASSIGNMENT_EXPLICIT_EMPTY_SCRIPT_LIST_IS_KNOWN_EMPTY");
             var roundtrip = Options("explain"); roundtrip.Bindings = Json.Write(template); roundtrip.Limits = currentLimits;
             var currentExplain = Engine.Analyze(original, roundtrip, new SyntheticCatalog(), new Budget());
             Assert(currentExplain.Rows.Any(x => x.Kind == "Workflow"), "CURRENT_TEMPLATE_ROUNDTRIP");
+            byte[] currentCompletePackage = Change(original, d => {
+                var derivedComplete = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived");
+                derivedComplete.SetAttributeValue("version", "0"); derivedComplete.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derivedComplete.Element("inputs").Element("input").Attribute("refId").Value);
+                var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split"); string splitInput = split.Element("inputs").Element("input").Attribute("refId").Value; split.SetAttributeValue("version", "0");
+                foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", splitInput);
+            });
+            var currentCompleteTemplate = Engine.Analyze(currentCompletePackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var currentCompleteOptions = Options("explain"); currentCompleteOptions.Bindings = currentCompleteTemplate.Rows.Single().Content;
+            var currentComplete = Engine.Analyze(currentCompletePackage, currentCompleteOptions, new SyntheticCatalog(), new Budget());
+            var currentScript = currentComplete.Rows.Single(x => x.Kind == "DebugScript" && x.Target == "f0001");
+            Assert(currentScript.Executable && currentScript.Complete && currentScript.Safety == "passed" && currentScript.Content.Contains("\nGO\n"), "CURRENT_DEBUG_SCRIPT_COMPLETE_AND_BATCHED");
+            var currentScriptDetails = Json.Object(Json.Parse(currentScript.Details));
+            Assert(Json.Text(Json.Get(currentScriptDetails, "status")) == "complete" && !Json.Bool(currentScriptDetails, "sssisTasksExecuted"), "CURRENT_DEBUG_SCRIPT_PROVENANCE");
+            var scriptBatches = Json.Array(Json.Get(currentScriptDetails, "batches")).Select(Json.Object).ToList();
+            bool scriptBatchPinsValid = scriptBatches.Count > 0;
+            for (int batchIndex = 0; batchIndex < scriptBatches.Count && scriptBatchPinsValid; batchIndex++)
+            {
+                var batch = scriptBatches[batchIndex];
+                int sequence = Int32.Parse(((JsonNumber)Json.Get(batch, "sequence")).Text, CultureInfo.InvariantCulture);
+                int ordinal = Int32.Parse(((JsonNumber)Json.Get(batch, "resultOrdinal")).Text, CultureInfo.InvariantCulture);
+                var sourceArtifact = currentComplete.Rows.Single(a => a.Ordinal == ordinal);
+                scriptBatchPinsValid = sequence == batchIndex + 1 && sourceArtifact.Kind == Json.Text(Json.Get(batch, "artifactKind")) &&
+                    Util.Hash(sourceArtifact.Content) == Json.Text(Json.Get(batch, "contentSha256")) && currentScript.Content.Contains(sourceArtifact.Content.TrimEnd());
+            }
+            Assert(scriptBatchPinsValid && Json.Text(Json.Get(currentScriptDetails, "batchSeparator")) == "GO" && Json.Bool(currentScriptDetails, "freshSessionRequired") && Json.Bool(currentScriptDetails, "cleanupAfterPartialFailure"), "CURRENT_DEBUG_SCRIPT_BATCH_ORDER_AND_CONTENT_BINDING");
+            byte[] missingCommandPackage = Change(original, d => {
+                XNamespace dts = "www.microsoft.com/SqlServer/Dts";
+                var variables = d.Root.Element(dts + "Variables"); if (variables == null) { variables = new XElement(dts + "Variables"); d.Root.Add(variables); }
+                variables.Add(new XElement(dts + "Variable", new XAttribute(dts + "Namespace", "User"), new XAttribute(dts + "ObjectName", "CommandText"), new XAttribute(dts + "DTSID", "{aaaaaaaa-1111-1111-1111-111111111111}")));
+                var source = d.Descendants("component").Single(x => (string)x.Attribute("name") == "SourceA");
+                var properties = source.Element("properties"); properties.Elements("property").Single(x => (string)x.Attribute("name") == "AccessMode").Value = "3";
+                properties.Add(new XElement("property", new XAttribute("name", "SqlCommandVariable"), "User::CommandText"));
+            });
+            var missingCommandTemplate = Engine.Analyze(missingCommandPackage, Options("bindings-template"), new SyntheticCatalog(), new Budget());
+            var missingCommandOptions = Options("explain"); missingCommandOptions.Bindings = missingCommandTemplate.Rows.Single().Content;
+            var missingCommand = Engine.Analyze(missingCommandPackage, missingCommandOptions, new SyntheticCatalog(), new Budget());
+            Assert(!missingCommand.Rows.Any(x => (x.Kind == "TargetSql" || x.Kind == "DebugScript") && x.Executable) && missingCommand.Rows.Any(x => x.Kind == "DebugScript" && !x.Executable), "MISSING_COMMAND_TEXT_NEVER_BECOMES_EXECUTABLE");
+            Assert(missingCommand.Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "unresolved_binding" && x.Content.Contains("Command-Text")) && missingCommand.Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "partial_target" && x.Content.Contains("Erstursache unresolved_binding")), "PARTIAL_TARGET_PRESERVES_ROOT_CAUSE");
+            var blockedPath = Json.Array(Json.Get(Json.Object(Json.Parse(missingCommand.Rows.Single(x => x.Kind == "Workflow" && x.Target == "f0001").Details)), "stages"));
+            Assert(blockedPath.Count > 1 && Json.Array(Json.Get(Json.Object(Json.Parse(missingCommand.Rows.Single(x => x.Kind == "DebugScript" && x.Target == "f0001").Details)), "missingInputs")).Any(x => Json.Text(Json.Get(Json.Object(x), "name")) == "User::CommandText"), "BLOCKED_PATH_AND_MISSING_INPUT_ARE_EXPLICIT");
             var injectedPolicy = Json.Object(Json.Parse(Json.Write(template))); injectedPolicy.Add("resourcePolicy", ResourceLimits.CreateCurrent().Metadata()); roundtrip.Bindings = Json.Write(injectedPolicy);
             Reject(() => Engine.Analyze(original, roundtrip, new SyntheticCatalog(), new Budget()), "invalid_template");
             Reject(() => Engine.Analyze(original, Options("bindings-template-v2"), new SyntheticCatalog(), new Budget()), "unresolved_binding");
@@ -277,7 +365,7 @@ internal static class ContractTests
             string longBoolean = planBench ? String.Join(" || ", Enumerable.Repeat(branchGroup, longBooleanTerms)) : String.Join(" && ", Enumerable.Repeat("TRUE", longBooleanTerms));
             if (planBench && longBoolean.Length < 1440000) longBoolean += new string(' ', 1440000 - longBoolean.Length);
             string longPlanContext = "{\"schemaVersion\":2}";
-            var longPlanLimits = ResourceLimits.CreateCurrent(new Dictionary<string, long> { { "expressionNodes", 524288 }, { "analysisMilliseconds", 120000 } });
+            var longPlanLimits = ResourceLimits.CreateCurrent(new Dictionary<string, long> { { "expressionNodes", 524288 }, { "totalOutputBytes", 536870912 }, { "analysisMilliseconds", 120000 } });
             var benchmarkColumns = new Dictionary<string, ExpressionValue> { { "KeyA", new ExpressionValue { Sql = "m.[KeyA]", Type = "int", Nullable = true, Total = true } }, { "KeyB", new ExpressionValue { Sql = "m.[KeyB]", Type = "int", Total = true } } };
             var longParser = new ExpressionParser(longBoolean, null, null, benchmarkColumns, null, true, cp => cp == 1252 ? "Latin1_General_100_BIN2" : null, ResourceLimits.Create("large10x", true, new Dictionary<string, string> { { "expressionNodes", "524288" } }));
             var longValue = longParser.Parse(); int exactTokens = longParser.ParsedTokenCount, exactNodes = longParser.ParsedNodeCount, exactExpressionBytes = longBoolean.Length * 2;
@@ -363,6 +451,8 @@ internal static class ContractTests
             var rowCountModel = PackageDocument.Read(rowCountPackage, null, true);
             var rowCountDefinition = rowCountModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "RowCount");
             Assert(rowCountDefinition.ComponentKind == "rowcount", "V2_ROWCOUNT_PROFILE_ACCEPTED " + rowCountDefinition.ComponentKind);
+            var rowCountVariableDefinition = rowCountModel.Definitions.Single(x => x.Kind == "VARIABLE" && x.Name == "RowsProcessed");
+            Assert(Json.Text(Json.Get(rowCountVariableDefinition.Attributes, "assignmentState")) == "declared" && Json.Text(Json.Get(Json.Object(Json.Array(Json.Get(rowCountVariableDefinition.Attributes, "assignmentProducers")).Single()), "kind")) == "row-count-variable", "ASSIGNMENT_ROWCOUNT_PRODUCER");
             var rowCountTemplateOptions = Options("bindings-template");
             var rowCountTemplate = Engine.Analyze(rowCountPackage, rowCountTemplateOptions, new SyntheticCatalog(), new Budget());
             var rowCountTemplateDoc = Json.Object(Json.Parse(rowCountTemplate.Rows.Single().Content));
@@ -374,6 +464,10 @@ internal static class ContractTests
             Assert(rowCountSql.Complete && rowCountExplain.Rows.Any(x => x.Kind == "TargetSql" && x.Target == rowCountSql.Target && x.Complete) && rowCountExplain.Rows.Any(x => x.Kind == "Workflow" && x.Target == rowCountSql.Target && x.Complete) && rowCountExplain.Rows.Any(x => x.Kind == "PlanUnitSql" && x.Target == rowCountSql.Target), "V2_ROWCOUNT_AND_PROJECTION_USE_VALIDATED_SHARED_PLAN");
             var rowCountDetails = Json.Object(Json.Parse(rowCountSql.Details));
             Assert(Json.Text(rowCountDetails["targetVariable"]) == "User::RowsProcessed" && Json.Text(rowCountDetails["assignmentTiming"]) == "after-last-row" && Json.Bool(rowCountDetails, "snapshotSharedWithProjection") && Json.Bool(rowCountDetails, "executeWithPlanArtifact"), "V2_ROWCOUNT_TYPED_TARGET_AND_POST_FLOW_EFFECT");
+            var rowDebugScript = rowCountExplain.Rows.Single(x => x.Kind == "DebugScript" && x.Target == rowCountSql.Target);
+            var rowDebugBatches = Json.Array(Json.Get(Json.Object(Json.Parse(rowDebugScript.Details)), "batchOrder")).Select(Json.Text).ToList();
+            int rowTargetBatch = rowDebugBatches.FindIndex(x => x.StartsWith("TargetSql:", StringComparison.Ordinal)), rowCountBatch = rowDebugBatches.FindIndex(x => x.StartsWith("RowCountSql:", StringComparison.Ordinal)), cleanupBatch = rowDebugBatches.FindIndex(x => x.StartsWith("CleanupSql:", StringComparison.Ordinal));
+            Assert(rowDebugScript.Executable && rowDebugScript.Complete && rowTargetBatch >= 0 && rowTargetBatch < rowCountBatch && rowCountBatch < cleanupBatch, "V2_DEBUG_SCRIPT_TARGET_COUNT_CLEANUP_ORDER");
             Assert(rowCountSql.Content.Contains("BETWEEN -2147483648 AND 2147483647"), "V2_ROWCOUNT_INT32_RANGE_GUARD");
             byte[] rowCountUnknown = Change(rowCountPackage, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "RowCount").Descendants("property").Single(x => (string)x.Attribute("name") == "VariableName").Value = "User::Unknown");
             Assert(ExplainV2(rowCountUnknown).Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "missing_context" && x.Component == "Package\\Flow\\RowCount"), "V2_ROWCOUNT_UNKNOWN_VARIABLE_REJECTED");

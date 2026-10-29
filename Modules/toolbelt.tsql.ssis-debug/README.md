@@ -21,6 +21,9 @@ unbegrenzt und JSON-Ressourcenoptionen sind ungültig.
 Die [historische Komponenten-V2-Installation](Documentation/ComponentsV2Installation.md)
 beschreibt die bereits qualifizierten, unveränderten Vorgängerartefakte. Sie ist
 kein Nachweis des aktuellen SQL-Parametervertrags oder einer aktuellen Lieferung.
+Die [Anleitung für den aktuellen Entwicklungsstand](Documentation/CurrentInstallation.md)
+beschreibt den neuen T-SQL-Installer, das aktuelle ZIP sowie Vorlage, Parameter
+und `DebugScript`-Verwendung.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
 ausgewiesen. Die historischen ZIP- und Installerbytes haben begrenzte,

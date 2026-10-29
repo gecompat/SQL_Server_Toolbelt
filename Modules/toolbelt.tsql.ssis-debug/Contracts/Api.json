@@ -4,7 +4,7 @@
   "parameters": [
     {"name":"@PackageBytes","type":"varbinary(max)","default":"NULL","required":true,"nullable":false,"description":"Genau ein unterstütztes DTSX-Paket als UTF-8-/UTF-16-Binärwert. Die Standardgrenze beträgt128MiB und ist mit @MaxPackageBytes konfigurierbar. Kein Dateizugriff."},
     {"name":"@Operation","type":"varchar(32)","default":"explain","required":false,"nullable":false,"description":"Exakt bindings-template oder explain; NULL ungültig."},
-    {"name":"@ProjectContext","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Optionaler Projektparameter-/Connection-Kontext als JSON-Schema1 oder2; keine Credentials und keine Ressourcenoptionen."},
+    {"name":"@ProjectContext","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Optionaler Projektparameter-/Connection-Kontext als JSON-Schema2; keine Credentials und keine Ressourcenoptionen."},
     {"name":"@Bindings","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Zurückgegebene Schema-2-Vorlage; values bearbeiten, Herkunftsmetadaten unverändert zurückgeben. Im Template-Modus NULL."},
     {"name":"@CatalogBindings","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Explizite Same-instance-Allowlist mit defaultDatabase, databases und connections; Template verlangt NULL."},
     {"name":"@TargetFlow","type":"varchar(64)","default":"NULL","required":false,"nullable":true,"description":"Ausgegebene Zielfluss-ID; NULL berücksichtigt alle Ziele getrennt."},
@@ -42,7 +42,7 @@
     {"name":"@Hilfe","type":"bit","default":"0","required":false,"nullable":true,"description":"1 liefert ausschließlich standardisierte Hilfe, ignoriert alle Fach-/ResultTable-/Debugparameter."}
   ],
   "columns": [
-    {"name":"ArtifactKind","type":"varchar(32)","nullable":false,"description":"BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, TargetSql, CleanupSql, ColumnLineage oder Diagnostic."},
+    {"name":"ArtifactKind","type":"varchar(32)","nullable":false,"description":"BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql, CleanupSql, DebugScript, FlatFileWriteProjection, ColumnLineage oder Diagnostic."},
     {"name":"TargetFlowId","type":"varchar(64)","nullable":true,"description":"Modellinterne Zielfluss-ID; keine dauerhafte Projektreferenz."},
     {"name":"StageId","type":"varchar(64)","nullable":true,"description":"Modellinterne Prüfpunkt-ID, innerhalb derselben Paketbindung stabil."},
     {"name":"Ordinal","type":"int","nullable":false,"description":"Globale1-basierte Ausgabeordnung."},

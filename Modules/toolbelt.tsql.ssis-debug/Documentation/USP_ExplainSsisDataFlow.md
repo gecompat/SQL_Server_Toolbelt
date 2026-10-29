@@ -14,6 +14,9 @@ Die [vollständige lokale Installationsanleitung](../Examples/Installation/READM
 führt durch Servervorbereitung, Parser-/ResultTable-Installation, exakten
 Assembly-Trust und Kontrolle vor dem SSMS-Walkthrough. SQL- und PowerShell-
 Skripte sind dort getrennt verlinkt.
+Der aktuelle unveröffentlichte T-SQL-Installer und das zugehörige aktuelle ZIP
+sind in der [Installationsanleitung für den aktuellen Entwicklungsstand](CurrentInstallation.md)
+beschrieben; historische Installationsbytes bleiben dort getrennt.
 
 ```sql
 -- @PackageBytes wird vom Client übergeben; keine Dateizugriffe im CLR-Provider.
@@ -59,24 +62,26 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
 ```
 
 Die erste Spalte `ArtifactKind` unterscheidet Vorlage, Workflow, StageIndex,
-Vorbereitung, StageSql, TargetSql, Cleanup, ColumnLineage und Diagnose.
+Vorbereitung, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql,
+Cleanup, DebugScript, FlatFileWriteProjection, ColumnLineage und Diagnose.
 `IsComplete`, `SafetyStatus`, `IsExecutable` und `EvidenceClass` gelten pro
 Artefakt. Ein ausführbares Script wird als vollständiger Batch in einer
 SSMS-Sitzung im angegebenen `defaultDatabase` ausgeführt. Es gibt kein `GO`
 zwischen `DECLARE`, Cachevorbereitung, `WITH` und `SELECT`.
 
 Im aktuellen Profil können zusätzlich `PlanManifest`, `PlanUnitSql` und `RowCountSql`
-entstehen. Den gewünschten Plan über seinen `planHash` auswählen, dessen
-`PlanUnitSql`-Batches in der Manifestreihenfolge genau einmal in derselben
-SQL-Sitzung ausführen und danach die zugehörige Stufen-/Zielprojektion oder
-Zählabfrage lesen. Eine Zielabfrage vor vollständiger Vorbereitung wird
-abgewiesen. Die einzelnen Batches bleiben getrennte Prüfeinheiten; sie werden
-nicht zu einem großen SQL-Batch zusammengesetzt. Die zugehörigen
-`CleanupSql`-Batches anschließend auch bei teilweiser Vorbereitung in ihrer
-ausgewiesenen Reihenfolge ausführen. Fremde oder veränderte Zustände verhindern
-deren Bereinigung.
+entstehen. Bei vollständigem Pfad bündelt `DebugScript` genau den gebundenen
+Plan: vorbereitete Einheiten in Manifestreihenfolge, Zielprojektion, Zählabfragen
+für denselben Snapshot und anschließend Cleanup. `GO` trennt SSMS-Batches;
+das Script behauptet keine globale Atomarität. Die Einzelartefakte bleiben
+separat verfügbar und einzeln sicherheitsgeprüft. Fremde oder veränderte
+Zustände verhindern die Bereinigung. Ein unvollständiges `DebugScript` ist
+nicht ausführbar und verweist auf Erstursache, benötigte Werte und verfügbare
+vollständige Teilpläne.
 
-Der `StageIndex` liefert die stabilen Ziel-/Stufen-IDs. Eine konkrete
+Der `StageIndex` liefert den vollständigen Zielpfad einschließlich Eltern,
+blockiertem Status und Erstursache. Eine Kaskadenmeldung bewahrt den ursprünglichen
+Blocker, statt nur eine nachgelagerte Stufennummer zu nennen. Eine konkrete
 `@InspectStage` verlangt `@TargetFlow`; `all` liefert die unterstützten
 Vorgängerstufen. Jede Stufe enthält ihre eigene vollständige CTE-Kette.
 Zwischenergebnisse werden durch den SQL Server erneut ausgewertet;
