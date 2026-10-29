@@ -26,8 +26,13 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
         original = cls.runtime
         bindings = {path: current_installer.sha(renderer.read_regular_bounded(ROOT / path, renderer.MAX_PACKAGE_BYTES))
                     for path in matrix.ARTIFACT_BINDING_PATHS}
-        pins = {path: current_installer.sha(renderer.read_regular_bounded(ROOT / path, renderer.MAX_PACKAGE_BYTES))
-                for path in matrix.INPUT_PATHS}
+        pins = {}
+        for path in matrix.INPUT_PATHS:
+            if path in current_installer.XML_LINE_ENDINGS:
+                pins[path] = current_installer.XML_LINE_ENDINGS[path][0]
+            else:
+                pins[path] = current_installer.sha(
+                    renderer.read_regular_bounded(ROOT / path, renderer.MAX_PACKAGE_BYTES))
         base = [
             {'platform': 'windows', 'sql_server': '2019', 'compatibility_level': 150},
             {'platform': 'windows', 'sql_server': '2025', 'compatibility_level': 170},
@@ -95,6 +100,23 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
 
     def test_composes_exact_additional_contexts_without_repeating_originals(self):
         self.assertTrue(matrix.validate_record(self.record, self.runtime, self.runtime_sha256))
+
+    def test_composes_full_record_from_exact_lf_checkout(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            temp_root = Path(temporary)
+            paths = matrix.INPUT_PATHS | matrix.ARTIFACT_BINDING_PATHS
+            for relative in paths:
+                source = renderer.read_regular_bounded(ROOT / relative, renderer.MAX_PACKAGE_BYTES)
+                if relative in current_installer.XML_LINE_ENDINGS:
+                    source = source.replace(b'\r\n', b'\n')
+                    self.assertNotIn(b'\r', source)
+                    self.assertEqual(current_installer.sha(source).lower(),
+                                     current_installer.XML_LINE_ENDINGS[relative][1].lower())
+                destination = temp_root / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(source)
+            self.assertTrue(matrix.validate_record(
+                self.record, self.runtime, self.runtime_sha256, root=temp_root))
 
     def test_rejects_duplicate_or_wrong_cl_case(self):
         for mutate in (
