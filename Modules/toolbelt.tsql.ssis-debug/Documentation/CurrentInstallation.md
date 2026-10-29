@@ -141,6 +141,21 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe = 1;
 ```
 
+## Qualifizierter Installationsumfang
+
+Die [Current-ZIP-Matrix](../Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
+und die separate [Standalone-T-SQL-Installer-Matrix](../../../Releases/1.0.0/ssis-current-standalone-installer-matrix.json)
+belegen den festen aktuellen Lieferstand auf Windows SQL2019/CL150,
+SQL2022/CL150 und CL160 sowie SQL2025/CL150, CL160 und CL170, jeweils local
+und central. Die ZIP-Matrix besteht aus zwei unverändert übernommenen und zehn
+zusätzlichen Installationsfällen; die Standalone-Matrix aus vier unverändert
+übernommenen und acht zusätzlichen Fällen. Beide Nachweise sind auf ihren
+beschriebenen synthetischen Vertragsumfang begrenzt und behaupten keine
+allgemeine Vollständigkeit aller SSIS-Komponenten oder APIs. Der Modulstatus
+bleibt teilweise validiert und unveröffentlicht. Head-/Main-CI und Integration
+werden getrennt am jeweiligen PR-/Merge-Head nachgewiesen; authentifiziertes
+TLS, SSMS-GUI und tatsächliche SSIS-Paketausführung bleiben unqualifiziert.
+
 Die konkrete qualifizierte Plattform-/CL-/Modusauswahl sowie verbleibende
 Analysegrenzen stehen in der [Prüfmatrix](../Tests/README.md). Funktionale
 Labprüfungen belegen keine authentifizierte TLS-Verbindung, tatsächliche

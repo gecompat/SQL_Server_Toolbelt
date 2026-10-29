@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktueller SSIS-T-SQL-Installer: fehlende Windows-CL-Kontexte — 2026-10-29
+
+Direkter Benutzerauftrag r31: den unveränderten aktuellen reinen T-SQL-Installer
+auf Windows SQL Server 2022/CL150 und CL160 sowie SQL Server 2025/CL150 und
+CL160 lokal und zentral qualifizieren. Die vier bereits belegten
+2019/CL150- und 2025/CL170-Kontexte bleiben byte- und berichtsunverändert;
+zusammen mit acht neuen Fällen entsteht ein eigener Matrixnachweis für genau
+zwölf Windows-/Engine-/CL-/Moduskontexte des festen Installers. Der
+Standalone-Treiber und sein Preparer werden als getrennte, exakt gebundene
+Geschwisteradapter aus den bestehenden geschützten Harnesses abgeleitet.
+Ein Offline-Validator bindet Originalreport, Installer-Provenienz, unveränderte
+Paketbytes, geschützte Harnesses, acht neue PASS-Fälle und unabhängige Audits.
+Negativkontrollen prüfen falsche Pins, Scope und unvollständige Matrix. Ein
+gezielter SSIS-CI-Offlinegate ergänzt die bestehenden Prüfungen; Native SQL
+und Audits führt ausschließlich der Root aus. Keine Produkt-, API-, DLL-,
+ZIP-, Installer- oder bestehenden Reportänderung; keine Veröffentlichung.
+
 ## Aktuelle SSIS-Lieferung: fehlende Paket-/CL-Kontexte — 2026-10-29
 
 Direkter Folgeauftrag des Benutzers: verbleibende bereits freigegebene
@@ -16,6 +33,24 @@ Paketfälle mit jeweils 206 festen Assertions und zehn unabhängigen Audits sind
 bestanden. Die [gebundene Paketmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
 enthält nun zwölf Kontexte. Status: fachlich geprüft; Integration und aktuelle
 Head-/Main-CI werden getrennt im Pull Request nachgewiesen.
+
+Ergänzung r31: Der unveränderte aktuelle Standalone-T-SQL-Installer besteht
+ebenfalls die feste Windows-/Engine-/CL-/Modusmatrix: vier ursprüngliche und
+acht zusätzliche lokale/zentrale Kontexte, insgesamt zwölf; die vier neuen
+Zielaudits bestanden. Der gebundene Bericht steht unter
+[`ssis-current-standalone-installer-matrix.json`](../Releases/1.0.0/ssis-current-standalone-installer-matrix.json).
+Zwei vor SQL abgewiesene Parameterbindungsversuche bleiben als Versuche im
+Bericht erhalten. Diese Welle qualifiziert weder den allgemeinen Modulumfang
+noch SSIS-Runtime, authentifiziertes TLS oder Veröffentlichung.
+
+Verarbeitungsaufwand: ein Implementierer; Root führte die autorisierten
+Nativläufe und Audits aus. Die bestehenden geschützten Harnesses wurden durch
+einen gebundenen Adapter wiederverwendet; die vier bereits erfolgreichen
+Ursprungskontexte wurden nicht wiederholt. Ein gezielter Offline-Validator ist
+in die bestehende SSIS-Release-CI integriert; es entstand kein weiterer
+Nativrunner. Journale und Rohlogs bleiben privat. Der Modulstatus bleibt
+teilweise validiert und unveröffentlicht; Head-/Main-CI und Merge werden am
+jeweiligen Stand getrennt nachgewiesen.
 
 ## Aktuelles SSIS-Profil als Standard und Entwicklungsfreiheit — 2026-10-29
 
