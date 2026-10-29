@@ -126,7 +126,16 @@ def _validate_paths(root, pins, expected_paths):
                 'execution input pin boundary')
         require(path not in found, 'duplicate execution input pin')
         data = read_regular_bounded(root / relative, MAX_PACKAGE_BYTES)
-        require(sha(data).lower() == pin['sha256'].lower(), 'execution input pin drift')
+        if path in current_installer.XML_LINE_ENDINGS:
+            execution_sha, checkout_sha = current_installer.XML_LINE_ENDINGS[path]
+            require(pin['sha256'].lower() == execution_sha.lower(), 'original XML execution pin preserved')
+            current_sha = sha(data).lower()
+            if current_sha != execution_sha.lower():
+                require(current_sha == checkout_sha.lower() and b'\r' not in data and
+                        sha(data.replace(b'\n', b'\r\n')).lower() == execution_sha.lower(),
+                        'exact current XML fixture checkout')
+        else:
+            require(sha(data).lower() == pin['sha256'].lower(), 'execution input pin drift')
         found[path] = pin['sha256'].lower()
     require(set(found) == set(expected_paths), 'execution input pin closure')
     return found
@@ -194,6 +203,8 @@ def validate_record(record, original_runtime, original_runtime_sha256, root=ROOT
     require(record.get('original_runtime_qualification') == {
         'path': RUNTIME.as_posix(), 'sha256': original_runtime_sha256},
         'unchanged original runtime qualification binding')
+    require(record.get('checkout_binding') == original_runtime.get('integration_binding'),
+            'unchanged original XML checkout binding')
 
     old_targets = original_runtime.get('scope', {}).get('targets')
     require(isinstance(old_targets, list) and

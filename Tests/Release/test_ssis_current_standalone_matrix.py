@@ -3,6 +3,7 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -54,6 +55,7 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
             'qualified_package': deepcopy(original['qualified_package']),
             'original_runtime_qualification': {
                 'path': matrix.RUNTIME.as_posix(), 'sha256': cls.runtime_sha256},
+            'checkout_binding': deepcopy(original['integration_binding']),
             'additional_targets': added_targets,
             'additional_cases': added_cases,
             'scope': {'targets': base + [
@@ -135,6 +137,45 @@ class CurrentStandaloneMatrixTests(unittest.TestCase):
                       if pin['path'] == 'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerMatrixLab.ps1')
         driver['sha256'] = '0' * 64
         with self.assertRaisesRegex(ValueError, 'initial execution driver pin'):
+            matrix.validate_record(changed, self.runtime, self.runtime_sha256)
+
+    def test_accepts_only_the_exact_xml_lf_checkout_bridge(self):
+        fixture = 'Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx'
+        execution_sha, integrated_sha = current_installer.XML_LINE_ENDINGS[fixture]
+        source = renderer.read_regular_bounded(ROOT / fixture, renderer.MAX_PACKAGE_BYTES)
+        if current_installer.sha(source).lower() == execution_sha.lower():
+            executed = source
+        else:
+            self.assertEqual(current_installer.sha(source).lower(), integrated_sha.lower())
+            self.assertNotIn(b'\r', source)
+            executed = source.replace(b'\n', b'\r\n')
+        self.assertEqual(current_installer.sha(executed).lower(), execution_sha.lower())
+        integrated = executed.replace(b'\r\n', b'\n')
+        self.assertEqual(current_installer.sha(integrated).lower(), integrated_sha.lower())
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / fixture
+            target.parent.mkdir(parents=True)
+            target.write_bytes(integrated)
+            pins = [{'path': fixture, 'sha256': execution_sha}]
+            self.assertEqual(matrix._validate_paths(Path(temporary), pins, {fixture}),
+                             {fixture: execution_sha.lower()})
+            target.write_bytes(integrated.replace(b'<', b'!', 1))
+            with self.assertRaisesRegex(ValueError, 'exact current XML fixture checkout'):
+                matrix._validate_paths(Path(temporary), pins, {fixture})
+
+            non_xml = 'Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json'
+            non_xml_data = b'{"synthetic":true}\n'
+            non_xml_execution = non_xml_data.replace(b'\n', b'\r\n')
+            (Path(temporary) / non_xml).parent.mkdir(parents=True)
+            (Path(temporary) / non_xml).write_bytes(non_xml_data)
+            with self.assertRaisesRegex(ValueError, 'execution input pin drift'):
+                matrix._validate_paths(Path(temporary),
+                    [{'path': non_xml, 'sha256': current_installer.sha(non_xml_execution)}], {non_xml})
+
+    def test_rejects_changed_checkout_bridge_metadata(self):
+        changed = deepcopy(self.record)
+        changed['checkout_binding']['changes'][0]['integrated_sha256'] = '0' * 64
+        with self.assertRaisesRegex(ValueError, 'unchanged original XML checkout binding'):
             matrix.validate_record(changed, self.runtime, self.runtime_sha256)
 
 
