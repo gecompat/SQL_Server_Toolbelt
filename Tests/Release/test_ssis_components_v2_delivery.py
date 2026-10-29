@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import new_ssis_components_v2_package as composer
 import new_ssis_components_v2_standalone_tsql as installer_renderer
+import new_ssis_standalone_tsql as legacy_installer_renderer
 import validate_ssis_components_v2_package as guard
 
 
@@ -219,6 +220,31 @@ class InstallQualification(unittest.TestCase):
         changed["final_audit"]["failed_package_attempts"] = False
         with self.assertRaisesRegex(ValueError, "final independent cleanup audit"):
             self.validate(changed)
+
+
+class InstallerOutputProvenance(unittest.TestCase):
+    def test_rendered_installer_and_provenance_are_exactly_bound(self):
+        output = ROOT / "Releases/1.0.0/SSIS-COMPONENTS-V2-INSTALL-TSQL.sql"
+        provenance_path = ROOT / "Releases/1.0.0/ssis-components-v2-standalone-installer.json"
+        package = ROOT / composer.MODULE / "InstallPackages" / (composer.NAME + ".zip")
+        qualification = ROOT / composer.MODULE / "Tests/Qualification/ComponentsV2.InstallPackage.20261028.json"
+        sql = output.read_bytes()
+        provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+
+        legacy_installer_renderer.validate_installer_guards(sql)
+        self.assertEqual(provenance["output"], {
+            "path": "Releases/1.0.0/SSIS-COMPONENTS-V2-INSTALL-TSQL.sql",
+            "sha256": hashlib.sha256(sql).hexdigest().upper(),
+            "bytes": len(sql),
+        })
+        source = provenance["source_package"]
+        self.assertEqual(source["path"], package.relative_to(ROOT).as_posix())
+        self.assertEqual(source["sha256"], hashlib.sha256(package.read_bytes()).hexdigest().upper())
+        self.assertEqual(source["qualification"], qualification.relative_to(ROOT).as_posix())
+        self.assertEqual(source["qualification_sha256"], hashlib.sha256(qualification.read_bytes()).hexdigest().upper())
+        self.assertEqual(source["qualification_result"], "PASS")
+        self.assertEqual(provenance["component_profile"], "ssis-debug-components-v2")
+        self.assertIs(provenance["publication_authorized"], False)
 
 
 if __name__ == "__main__":
