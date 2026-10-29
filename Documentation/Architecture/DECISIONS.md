@@ -847,3 +847,8 @@ Dokumentationsbaseline einmal am stabilen Head. Lokale Wiederholungen
 erfolgen nur nach konkreten geänderten Inputs oder Fehlern. Native Rohlogs
 bleiben privat, öffentliche Nachweise enthalten abstrahierte Sollwerte,
 Artefakt- und Quellbindungen sowie konkrete Qualifikationsgrenzen.
+Der vorhandene Installationseintrag für das absichtlich projektspezifische
+`AGENTS.md` wird auf dessen aktuellen normalisierten Hash und den konkreten
+Benutzerauftrag fortgeschrieben. Foundation-Quellmanifest, Auswahl,
+Installationsdatum und unveränderter Managed-Block bleiben erhalten; dies ist
+kein Foundation-Upgrade und keine Aktivierung optionaler Runtimes.

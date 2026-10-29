@@ -1121,9 +1121,9 @@
       "kind": "entrypoint",
       "merge": "ai_merge_if_exists",
       "source_sha256": "6739868f8cef93f3779a62c61740403005b7c13e01a6a4471a44f43b56040da1",
-      "installed_sha256": "a7f10c7dcbeaafbb5c8e2d727eeaf177006a5423b4d2f13f8657d6a28439d0e6",
+      "installed_sha256": "6308b2f7de55f28a6681a08fc0fc27a1106d4a3a0615947d908ad81f24aa2389",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Preserved project-owned instructions, privacy, legal boundaries and discovery outside the managed block; integrated the exact Foundation1.25.0 bridge including complete documentation paths."
+      "reason": "Preserved project-owned instructions, privacy, legal boundaries and discovery outside the managed block; integrated the exact Foundation1.25.0 bridge including complete documentation paths. User-directed project rule2026-10-29: current unpublished Toolbelt contracts replace legacy compatibility obligations; project-owned section outside the unchanged managed Foundation bridge. No Foundation upgrade or runtime authority change."
     },
     {
       "source": "CLAUDE.md",
