@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Text;
 using System.Xml.Linq;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
 using Toolbelt.Ssis.Exchange;
 using Toolbelt.Tsql.SsisDebug;
 
@@ -69,6 +71,23 @@ internal static class ContractTests
     }
     private static SqlSafety Safety(SyntheticCatalog cat)
     { return new SqlSafety(new Budget(), 150, cat, new[] { "AdventureWorks" }, new string[0], code => { }); }
+    private static void AssertWalkParity(SqlSafety safety, string sql)
+    {
+        TSqlFragment root = safety.Parse(sql); var expected = new List<TSqlFragment>(); var todo = new Stack<TSqlFragment>(); todo.Push(root);
+        while (todo.Count != 0)
+        {
+            TSqlFragment node = todo.Pop(); expected.Add(node);
+            foreach (PropertyInfo property in node.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (property.GetIndexParameters().Length != 0 || property.Name == "ScriptTokenStream") continue;
+                object value = property.GetValue(node, null); TSqlFragment child = value as TSqlFragment;
+                if (child != null) todo.Push(child);
+                else if (value is IList) foreach (object item in (IList)value) if (item is TSqlFragment) todo.Push((TSqlFragment)item);
+            }
+        }
+        var actual = safety.Walk(root).ToList();
+        Assert(actual.Count == expected.Count && !actual.Where((node, index) => !Object.ReferenceEquals(node, expected[index])).Any(), "SQL_AST_WALK_PRESERVES_NODE_SEQUENCE");
+    }
     private static void ProjectType(string expression, string expected)
     { try { var safety = Safety(new SyntheticCatalog()); var query = safety.Read("SELECT " + expression + " AS Value", "AdventureWorks"); Assert(Projection.Columns(query, safety)[0].SqlType == expected, "EXACT_SQL_TYPE_" + expected); } catch (Exception e) { throw new Exception("PROJECT_TYPE_" + expression, e); } }
     private static void Run(string[] args)
@@ -170,6 +189,9 @@ internal static class ContractTests
                     var selected = index.Rows.First(x => x.Kind == "StageIndex" && x.Component == "Package\\Flow\\Derived");
                     options.Target = selected.Target; options.Stage = selected.Stage;
                     var result = Engine.Analyze(variant, options, catalog, new Budget());
+                    var planUnitsForWalk = result.Rows.Where(x => x.Kind == "PlanUnitSql").ToList();
+                    if (planUnitsForWalk.Count > 0) { var walker = Safety(catalog); AssertWalkParity(walker, planUnitsForWalk[0].Content); AssertWalkParity(walker, planUnitsForWalk[planUnitsForWalk.Count - 1].Content); }
+                    AssertWalkParity(Safety(catalog), "SELECT CASE WHEN EXISTS (SELECT 1 FROM (VALUES (1),(2)) AS v(x) WHERE v.x=1) THEN N'a' ELSE N'b' END AS [x];");
                     Assert(result.Rows.Any(x => x.Kind == "StageSql" && x.Stage == selected.Stage && x.Complete && x.Safety == "passed"), "V2_UTF8_DATABASE_COLLATION_STAGE_SQL:" + String.Join(",", result.Rows.Where(x => x.Kind == "Diagnostic").Select(x => x.Code + "/" + x.Component)));
                 }
                 catch (Exception error) { throw new Exception(expression == shortExpression ? "V2_UTF8_SHORT_VARIANT" : "V2_UTF8_LONG_VARIANT", error); }

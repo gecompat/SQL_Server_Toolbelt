@@ -48,6 +48,7 @@ namespace Toolbelt.Tsql.SsisDebug
         private readonly HashSet<string> checking = new HashSet<string>(StringComparer.Ordinal);
         private readonly HashSet<string> checkedObjects = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, TSqlFragment> parsed = new Dictionary<string, TSqlFragment>(StringComparer.Ordinal);
+        private readonly Dictionary<Type, PropertyInfo[]> propertyDescriptors = new Dictionary<Type, PropertyInfo[]>();
         private readonly Action<string> diagnostic;
         private readonly HashSet<string> variables;
         internal readonly HashSet<string> ReadNames = new HashSet<string>(StringComparer.Ordinal);
@@ -57,6 +58,10 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string Identifier(string database, IEnumerable<string> candidates, string name) { return catalog.BindIdentifier(database, candidates, name); }
         internal SqlSafety(Budget b, int v, ICatalog c, IEnumerable<string> dbs, IEnumerable<string> vars, Action<string> note)
         { budget = b; version = v; catalog = c; databases = new HashSet<string>(dbs, StringComparer.Ordinal); variables = new HashSet<string>(vars, StringComparer.Ordinal); diagnostic = note; }
+        private PropertyInfo[] Properties(Type type)
+        { PropertyInfo[] value; if (!propertyDescriptors.TryGetValue(type, out value)) { value = type.GetProperties(BindingFlags.Public | BindingFlags.Instance); propertyDescriptors.Add(type, value); } return value; }
+        private static bool ScalarProperty(Type type)
+        { Type value = Nullable.GetUnderlyingType(type) ?? type; return value.IsSealed && !typeof(TSqlFragment).IsAssignableFrom(value) && !typeof(IList).IsAssignableFrom(value) && (value.IsPrimitive || value.IsEnum || value == typeof(string) || value == typeof(decimal)); }
 
         // Geschlossene Knotenmengen: neue ScriptDom-Syntax erhält keine implizite Freigabe.
         private static readonly HashSet<string> ReadNodes = new HashSet<string>((
@@ -124,10 +129,10 @@ namespace Toolbelt.Tsql.SsisDebug
             {
                 budget.Check(); var work = todo.Pop(); Budget.Limit(work.Value, 100); Budget.Limit(++count, 65536);
                 TSqlFragment node = work.Key; yield return node;
-                foreach (PropertyInfo p in node.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                foreach (PropertyInfo p in Properties(node.GetType()))
                 {
                     Budget.Limit(++properties, 262144);
-                    if (p.GetIndexParameters().Length != 0 || p.Name == "ScriptTokenStream") continue;
+                    if (p.GetIndexParameters().Length != 0 || p.Name == "ScriptTokenStream" || ScalarProperty(p.PropertyType)) continue;
                     object value = p.GetValue(node, null); var child = value as TSqlFragment;
                     if (child != null) todo.Push(new KeyValuePair<TSqlFragment, int>(child, work.Value + 1));
                     else if (value is IList) foreach (object item in (IList)value) if (item is TSqlFragment) todo.Push(new KeyValuePair<TSqlFragment, int>((TSqlFragment)item, work.Value + 1));
@@ -156,7 +161,7 @@ namespace Toolbelt.Tsql.SsisDebug
             while (todo.Count != 0)
             {
                 budget.Check(); Budget.Limit(copies.Count, 65536); var from = todo.Dequeue(); var to = copies[from];
-                foreach (var p in from.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                foreach (var p in Properties(from.GetType()))
                 {
                     Budget.Limit(++properties, 262144); if (p.GetIndexParameters().Length != 0) continue;
                     object value = p.GetValue(from, null);
