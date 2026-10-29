@@ -81,7 +81,11 @@ class PackageIntegrity(PrivateTemporary):
         path = self.temp / self.archive.name
         with zipfile.ZipFile(path, "x", zipfile.ZIP_DEFLATED) as archive:
             for name, data in payload.items():
-                archive.writestr(composer.NAME + "/" + name, data)
+                info = zipfile.ZipInfo(composer.NAME + "/" + name)
+                info.create_system = 3
+                info.external_attr = 0o100644 << 16
+                info.compress_type = zipfile.ZIP_DEFLATED
+                archive.writestr(info, data)
         path.with_suffix(".zip.sha256").write_text(composer.sha(path.read_bytes()) + "  " + path.name + "\n", encoding="ascii")
         with self.assertRaisesRegex(ValueError, reason):
             guard.validate(path)
