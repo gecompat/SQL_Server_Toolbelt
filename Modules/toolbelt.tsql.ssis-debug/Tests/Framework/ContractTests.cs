@@ -51,6 +51,13 @@ internal static class ContractTests
     private static void Assert(bool value, string name) { checks++; if (!value) throw new Exception(name); }
     private static void Reject(Action action, string code)
     { bool failed = false; try { action(); } catch (DebugFault e) { failed = e.Code == code; } Assert(failed, "EXPECTED_" + code); }
+    private static void RejectResourceLimit(Action action, string counter, long actual, long maximum)
+    {
+        bool failed = false;
+        try { action(); }
+        catch (ResourceLimitException error) { failed = error.Counter == counter && error.Actual == actual && error.Maximum == maximum && error.Preset == "legacy-v1"; }
+        Assert(failed, "EXPECTED_RESOURCE_LIMIT_" + counter);
+    }
     private static Options Options(string operation)
     {
         return new Options { Operation = operation, Version = 150, CatalogBindings = operation == "explain" ? "{\"schemaVersion\":1,\"defaultDatabase\":\"AdventureWorks\",\"databases\":[\"AdventureWorks\"],\"connections\":{\"Package.ConnectionManagers[Synthetic]\":\"AdventureWorks\"}}" : null };
@@ -103,19 +110,19 @@ internal static class ContractTests
             // Feste Vertragsgrenzen am echten Providerkern; keine SQL-/Heapmessung.
             foreach (int n in new[] { 9999,10000,10001 }) {
                 var output = new Artifacts(); Action add = () => { for(int i=0;i<n;i++) output.Add(new Artifact { Kind="Workflow", Content="" }); };
-                if(n<=10000){add();Assert(output.Rows.Count==n,"ARTIFACT_COUNT");}else Reject(add,"resource_limit");
+                if(n<=10000){add();Assert(output.Rows.Count==n,"ARTIFACT_COUNT");}else RejectResourceLimit(add,"artifacts",n,10000);
             }
             foreach (int n in new[] { 999,1000,1001 }) {
                 var output = new Artifacts(); Action add = () => { for(int i=0;i<n;i++) output.Diagnostic("synthetic","synthetic",""); };
-                if(n<=1000){add();Assert(output.Rows.Count==n,"DIAGNOSTIC_COUNT");}else Reject(add,"resource_limit");
+                if(n<=1000){add();Assert(output.Rows.Count==n,"DIAGNOSTIC_COUNT");}else RejectResourceLimit(add,"diagnostics",n,1000);
             }
             foreach (int n in new[] { 1048575,1048576,1048577 }) {
                 var output=new Artifacts();Action add=()=>output.Add(new Artifact {Kind="StageSql",Content=new string('x',n)});
-                if(n<=1048576){add();Assert(output.Rows.Count==1,"SQL_OUTPUT_BYTES");}else Reject(add,"resource_limit");
+                if(n<=1048576){add();Assert(output.Rows.Count==1,"SQL_OUTPUT_BYTES");}else RejectResourceLimit(add,"sqlArtifactBytes",(long)n*2,2097152);
             }
             foreach (int n in new[] { 4194303,4194304,4194305 }) {
                 var output=new Artifacts();Action add=()=>output.Add(new Artifact {Kind="Workflow",Content=new string('x',n-1),Details="x"});
-                if(n<=4194304){add();Assert(output.Rows.Count==1,"TOTAL_CONTENT_DETAILS_BYTES");}else Reject(add,"resource_limit");
+                if(n<=4194304){add();Assert(output.Rows.Count==1,"TOTAL_CONTENT_DETAILS_BYTES");}else RejectResourceLimit(add,"totalOutputBytes",(long)n*2,8388608);
             }
             foreach(int n in new[]{127,128,129}) {
                 var safety=Safety(new SyntheticCatalog());Action parse=()=>{for(int i=0;i<n;i++)safety.Parse("SELECT "+i);};

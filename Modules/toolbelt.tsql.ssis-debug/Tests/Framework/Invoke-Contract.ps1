@@ -31,6 +31,9 @@ $compilerResult = Invoke-OwnedProcess -FileName $compiler -Arguments $compilerAr
 if ($compilerResult.ExitCode -ne 0) { throw ('SSIS_HARNESS_BUILD_FAILED: ' + $compilerResult.Stderr + $compilerResult.Stdout) }
 $cases = 0
 function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRAMEWORK_PASS [0-9]+\s*\z',[switch]$ReturnOutput,[ValidateRange(1000,120000)][int]$TimeoutMilliseconds = 40000) {
+    $caseName = if ($Arguments.Count -gt 0 -and $Arguments[0] -match '\A[a-z0-9-]+\z') { $Arguments[0] } else { 'unknown' }
+    $caseOrdinal = $script:cases + 1
+    [Console]::Out.WriteLine(('SSIS_FRAMEWORK_CASE_START ordinal={0} name={1}' -f $caseOrdinal,$caseName))
     $psi = [Diagnostics.ProcessStartInfo]::new($executable)
     $psi.Arguments = ($Arguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }) -join ' '
     $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true; $psi.WindowStyle = 'Hidden'
@@ -38,9 +41,11 @@ function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRA
     $child = [Diagnostics.Process]::Start($psi)
     $stdout = $child.StandardOutput.ReadToEndAsync(); $stderr = $child.StandardError.ReadToEndAsync()
     try {
-        if (-not $child.WaitForExit($TimeoutMilliseconds)) { $child.Kill(); throw 'SSIS_FRAMEWORK_CHILD_TIMEOUT' }
+        if (-not $child.WaitForExit($TimeoutMilliseconds)) { $child.Kill(); throw ('SSIS_FRAMEWORK_CHILD_TIMEOUT ordinal={0} name={1}' -f $caseOrdinal,$caseName) }
         $output = $stdout.GetAwaiter().GetResult(); $errorOutput = $stderr.GetAwaiter().GetResult()
-        if ($child.ExitCode -ne 0 -or $output.Length -gt 4096 -or $errorOutput.Length -gt 16384 -or $output -notmatch $ExpectedPattern -or $errorOutput.Length -ne 0) { throw ('SSIS_FRAMEWORK_CHILD_FAILED: ' + $errorOutput) }
+        if ($child.ExitCode -ne 0 -or $output.Length -gt 4096 -or $errorOutput.Length -gt 16384 -or $output -notmatch $ExpectedPattern -or $errorOutput.Length -ne 0) {
+            throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1}' -f $caseOrdinal,$caseName)
+        }
         $script:cases++
         if ($ReturnOutput) { return $output.Trim() }
     } finally { $child.Dispose() }
@@ -107,7 +112,8 @@ if ($Profile -eq 'ComponentsV2') {
     } finally { Remove-FrameworkTemp }
 }
 Invoke-Case @('json')
-Invoke-Case $v2Case
+if ($Profile -eq 'Full') { Invoke-Case $v2Case -TimeoutMilliseconds 120000 }
+else { Invoke-Case $v2Case }
 $scaleArgs = @('components-v2-combined-scale', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
 if ($ReportScaleMetrics) { $scaleArgs += 'private-metrics'; $scalePattern = '\ASSIS_FRAMEWORK_SCALE_PASS components=3072 columns=57344 inputBytes=134217728 expressionUtf16Bytes=3145728 ms=[0-9]+ peakWorkingSetBytes=[0-9]+\s*\z' }
 else { $scalePattern = '\ASSIS_FRAMEWORK_SCALE_PASS components=3072 columns=57344 inputBytes=134217728 expressionUtf16Bytes=3145728\s*\z' }
