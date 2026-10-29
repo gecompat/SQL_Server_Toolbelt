@@ -147,9 +147,15 @@ def validate():
     require(sha(original_bytes) == ORIGINAL_REPORT_SHA256, "original package qualification source bytes")
     original = json.loads(original_bytes.decode("utf-8"))
     package_bytes = read_regular_bounded(PACKAGE_ARCHIVE, MAX_PACKAGE_BYTES)
+    package_sha256 = sha(package_bytes)
+    original_package_sha256 = original.get("package_sha256")
+    record_package_sha256 = record.get("package_sha256")
+    require(isinstance(original_package_sha256, str) and isinstance(record_package_sha256, str) and
+            package_sha256.lower() == original_package_sha256.lower() == record_package_sha256.lower(),
+            "qualified current package SHA-256")
     # Keep the existing complete package/manifest/dependency validator authoritative.
     package_guard.validate(PACKAGE_ARCHIVE)
-    validate_record(record, original, sha(package_bytes), _package_payload(package_bytes))
+    validate_record(record, original, package_sha256, _package_payload(package_bytes))
     print("SSIS_CURRENT_MATRIX_VALIDATION_PASS; exact current package and 12 Windows contexts; no SQL")
     return record
 

@@ -18,10 +18,14 @@ class CurrentInstallPackageMatrix(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.original_bytes = read_regular_bounded(ROOT / matrix_guard.ORIGINAL_REPORT, 1024 * 1024)
+        if composer.sha(cls.original_bytes) != matrix_guard.ORIGINAL_REPORT_SHA256:
+            raise AssertionError("MATRIX_TEST_ORIGINAL_REPORT_PIN")
         cls.original = json.loads(cls.original_bytes)
         cls.package_sha = cls.original["package_sha256"]
         cls.package_path = matrix_guard.PACKAGE_ARCHIVE
         cls.package_bytes = read_regular_bounded(cls.package_path, MAX_PACKAGE_BYTES)
+        if composer.sha(cls.package_bytes).lower() != cls.package_sha.lower():
+            raise AssertionError("MATRIX_TEST_CURRENT_PACKAGE_PIN")
         cls.package_payload = matrix_guard._package_payload(cls.package_bytes)
         baseline_keys = {("2019", 150, "local"), ("2025", 170, "central")}
         cls.expected = matrix_guard._matrix()
