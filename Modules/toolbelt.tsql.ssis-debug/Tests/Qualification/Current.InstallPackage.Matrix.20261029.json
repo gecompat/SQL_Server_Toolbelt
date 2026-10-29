@@ -1,0 +1,304 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-29",
+  "kind": "ssis_current_install_package_matrix_qualification",
+  "profile": "ssis-debug-current",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "Exact unchanged current ZIP: ten newly executed missing Windows engine/CL/mode contexts plus two unchanged original package cases; complete12-context matrix for the current fixed synthetic contract only",
+  "package_sha256": "6e83f4b534339e106b42c8911178bd09cb82001167a356d5a5d63bf69a15f4d7",
+  "original_package_qualification": {
+    "package_sha256": "6e83f4b534339e106b42c8911178bd09cb82001167a356d5a5d63bf69a15f4d7",
+    "sha256": "05D88E2ED0C168D025BA5139C8E965613C049E1B2F88041A016EBF0AB30656D2",
+    "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.20261029.json"
+  },
+  "artifact_bindings": {
+    "assembly_sha256": "F5838193795521943E511EBDE9D22BA9AA1431EA94D7F368AC6364C97DD30760",
+    "deploy_sql_sha256": "E660514A1F5BC761B66306AA1D81BF2B5BF6FCC6EBFC723C7994309AE99AD46A",
+    "uninstall_sql_sha256": "7C0205E5046253493B2FD130AF8734CFB5B97F25B88CD9B504B02FA09CFC124F",
+    "trust_manifest_sha256": "D1EB3D6D0088316F8B1417E64F5A99AD31A2E2FA7EF0E8570FD188428202AE41",
+    "cases_sha256": "30DD642419BC5841F1BEA0BFABF54052446CE6C5310CA2D5937230DC65C73DD1",
+    "protected_lab_driver_sha256": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570"
+  },
+  "additional_cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_mode": "local",
+      "result": "PASS",
+      "assertions": 206,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "exact_extracted_sql_via_direct_sqlclient": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "final_audit": {
+    "owned_database_names_absent": 20,
+    "input_pins_unchanged": true,
+    "trust_states_restored": 30,
+    "configuration_baselines_restored": true,
+    "case_audits": 10
+  },
+  "execution": {
+    "new_independent_audits": 10,
+    "case_and_protected_driver_from_exact_qualified_package": true,
+    "fixture_source_commit": "da5b319c732e479d6b4e8c4445d86cff16c0d33a",
+    "original_successful_contexts_repeated": 0,
+    "new_target_invocations": 10,
+    "package_source_commit": "4314e9d9",
+    "method": "Exact extracted package SQL via existing guarded SqlClient harness",
+    "fixture_byte_scope": "Canonical exact ZIP fixture bytes; original reports retain their own original execution pins"
+  },
+  "functional_transport": {
+    "fallback": false,
+    "encrypt_required": true,
+    "authenticated_tls": "not executed",
+    "provider": "System.Data.SqlClient",
+    "schema_validated_explicit_boolean_trust": true
+  },
+  "not_qualified": [
+    "All SSIS component/expression combinations",
+    "Windows-authentication and SSMS GUI",
+    "Standalone TSQL installer lower-CL matrix",
+    "Authenticated TLS",
+    "Real SSIS runtime execution",
+    "Administrative trust-registration opt-in",
+    "Transport/host recovery",
+    "Publication"
+  ],
+  "cost_tokens": "UNKNOWN"
+}

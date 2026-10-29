@@ -11,7 +11,11 @@ aktuellen SSIS-ZIP. Die zwei vorhandenen grünen Paketkontexte werden unverände
 Lücke des aktuellen API-Nachweises. Feste bestehende Fälle und unabhängige
 Abschlussaudits bleiben Pflicht. Keine Produkt-/API-/DDL-/DLL-/Paketänderung
 und keine Übernahme fremder TLS- oder SSIS-Arbeit. Neue Evidenz wird getrennt
-gebunden; historische Berichte und Pins bleiben unverändert. Status: geplant.
+gebunden; historische Berichte und Pins bleiben unverändert. Die zehn neuen
+Paketfälle mit jeweils 206 festen Assertions und zehn unabhängigen Audits sind
+bestanden. Die [gebundene Paketmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
+enthält nun zwölf Kontexte. Status: fachlich geprüft; Integration und aktuelle
+Head-/Main-CI werden getrennt im Pull Request nachgewiesen.
 
 ## Aktuelles SSIS-Profil als Standard und Entwicklungsfreiheit — 2026-10-29
 

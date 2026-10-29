@@ -45,6 +45,10 @@ Für den aktuellen SSIS-Standard führt die
 [Installations- und Bedienungsanleitung](../../Modules/toolbelt.tsql.ssis-debug/Documentation/CurrentInstallation.md)
 zum reinen T-SQL-Installer, zur editierbaren Parameter-JSON und zum vollständigen
 `DebugScript`. Ressourcenlimits werden über benannte SQL-Parameter gesetzt.
+Die [aktuelle Paketmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
+belegt den gebundenen Paketvertrag auf zwölf Windows-/Engine-/CL-/Moduskontexten;
+die [Prüfmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) grenzt
+diesen Nachweis von den übrigen SSIS- und Releasegates ab.
 Der [frühere eigenständige SSIS-Installer](SSIS-INSTALL-TSQL.md) und seine
 Nachweise bleiben historische Lieferungen; sie implementieren diesen aktuellen
 Standard nicht. Keine Lieferung ist zur Veröffentlichung freigegeben.
