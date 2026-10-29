@@ -1,13 +1,14 @@
 # SSIS Data Flow Debug SELECT
 
 Der aktuelle Entwicklungsvertrag erzeugt aus DTSX-Bytes eine bearbeitbare
-JSON-Vorlage und lesende Debug-Scripts für SQL-Server-Datenflüsse. Jede ausgegebene Prüfstufe enthält
-ihre `DECLARE`s, alle Vorgänger-CTEs und den abschließenden `SELECT`.
+JSON-Vorlage und lesende Debug-Scripts für SQL-Server-Datenflüsse. Für ein
+vollständig auflösbares Ziel bündelt `DebugScript` die benötigten
+Vorbereitungs-, Plan-, Ergebnis- und Bereinigungsbatches.
 
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
 denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
 das Modell ohne CLR- oder Toolbelt-Installation. Die bestehenden
-Debug-SELECT-Schnittstellen bleiben erhalten.
+Debug-SQL-Ausgaben und der neutrale Export verwenden denselben Modellkern.
 
 Der aktuelle Standard verwendet `bindings-template` und `explain` ohne
 Profil-Opt-in. Die bearbeitbare Vorlage verwendet `schemaVersion: 2` und

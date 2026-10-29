@@ -12,7 +12,17 @@ Der aktuelle reine T-SQL-Installer heißt
 Er enthält die drei benötigten DLLs und die abhängigen SQL-Objekte; zur
 Ausführung sind weder SQLCMD noch weitere Dateien erforderlich. Die Datei in
 einer frischen Sitzung in der gewünschten Datenbank vollständig ausführen.
-Die Einstellungen am Dateianfang wählen den lokalen oder zentralen Modus.
+Vorausgesetzt werden Windows SQL Server 2019/2022/2025 mit CL150/160/170,
+aktivierte CLR und weiterhin eingeschaltetes `clr strict security` sowie
+vorhandene Installations- und vollständige Metadatenrechte.
+Die Einstellungen nach dem Lizenzblock wählen `@DeploymentMode = N'local'`
+oder `N'central'`. `@RegisterAssemblyTrust = 0` erwartet bereits administrativ
+freigegebene **exakte** DLL-Hashes. Bei `TBX_SSIS_INSTALL_TRUST_MISSING` muss
+die Administration den enthaltenen Build freigeben. Wer mit vorhandenen
+`sysadmin`-Rechten diese exakten Assemblies bewusst registrieren möchte,
+kann dazu den vorhandenen Opt-in `@RegisterAssemblyTrust = 1` verwenden.
+Dieser administrative Opt-in ist vom funktionalen Installationsnachweis
+getrennt und wurde darin nicht ausgeübt.
 Die enthaltenen Trust-, Eigentums-, Transaktions- und Sitzungsprüfungen gelten
 auch hier. Zusätzliche Serverrechte werden nicht automatisch vergeben.
 
@@ -23,6 +33,9 @@ Neuinstallation und Wiederholung desselben aktuellen Stands werden getrennt
 geprüft. Eine ältere inkompatible Entwicklungsinstallation muss vor der
 Neuinstallation kontrolliert entfernt werden; der Installer darf keine fremden
 Objekte übernehmen. Die historischen Installer bleiben unverändert erhalten.
+Die Installation hat getrennte Modulstufen. Scheitert eine spätere Stufe,
+bleiben bereits erfolgreich installierte frühere Module erhalten; die Datei
+behauptet keine gemeinsame Transaktion über alle Module.
 
 ## Parameter ermitteln, bearbeiten und zurückgeben
 

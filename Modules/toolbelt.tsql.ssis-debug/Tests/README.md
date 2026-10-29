@@ -2,6 +2,47 @@
 
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
+
+## Aktuelle Lieferung und ihr begrenzter Nachweis
+
+Die [aktuelle Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
+belegt sechs Windows-Kontexte: SQL2019/CL150, SQL2022/CL160 und SQL2025/CL170
+jeweils lokal und zentral. Je 206 Assertions prüfen den aktuellen Default,
+38 geordnete Parameter einschließlich 24 `bigint`-Limits, Hilfe vor Validierung,
+editierbare typisierte Entwurfswerte und Rückgabe der vollständigen Vorlage,
+ResultTable-Schutz sowie tatsächlich ausgeführte geordnete Row-Count-/Flatfile-
+Debug-Scripts mit festen synthetischen Sollwerten. Sechs unabhängige Audits
+bestätigen Bereinigung und Eingabepins. Ein vorheriger Adapterfehler samt
+erfolgreichem Audit bleibt im Nachweis erhalten.
+
+Die [aktuelle ZIP-Qualifikation](Qualification/Current.InstallPackage.20261029.json)
+prüft den exakten entpackten Build separat auf SQL2019/CL150 lokal und
+SQL2025/CL170 zentral: Neuinstallation, Wiederholung, aktuelle Fachfälle und
+Deinstallation/Wiederholung mit zwei unabhängigen Abschlussaudits. Die
+[Standalone-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-standalone-runtime-qualification.json)
+prüft denselben vollständigen reinen T-SQL-Batch auf beiden Enginezielen in
+beiden Modi: vier Installationskontexte mit Repeat, aktuelle Fachfälle,
+Sitzungs-/Transaktions-Negativkontrollen und zwei unabhängigen Audits.
+Die [Installer-Provenienz](../../../Releases/1.0.0/ssis-current-standalone-installer.json)
+bindet die ausgeführten Bytes an Paket und Paketqualifikation.
+
+`Runtime/Invoke-CurrentLab.ps1` verwendet die unveränderte strikte Lab-
+Schutzhülle und eigene aktuelle Fälle. `Invoke-ComponentsV2Audit.ps1` bleibt
+der unabhängige lesende Audit. Fünf Offline-Lieferprüfungen kontrollieren
+aktuelle Bindungen und Manipulationsfälle; der SQL-Parameteradapter wird ohne
+Verbindung mit tatsächlicher `SqlValue`-Konvertierung geprüft. Das lange
+Framework-Transportexperiment mit 2730 Einheiten verwendet ausdrücklich
+512 MiB Ausgabebudget und ist kein Nachweis für das 128-MiB-Defaultbudget.
+
+Diese Fälle belegen weder die übrigen CLs neuerer Engines noch tatsächliche
+SSIS-Ausführung, Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den
+administrativen Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und
+Integration sind separate Gates. Modulstatus: teilweise validiert und
+unveröffentlicht. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
+führt zu den aktuellen Dateien und Ergebnissen.
+
+## Historische Nachweise
+
 Die nachfolgenden V1- und Komponenten-V2-Aufzeichnungen sind historische
 Nachweise ausschließlich ihrer ursprünglichen Builds und Inputs; sie
 qualifizieren den aktuellen Defaultvertrag nicht. Der Treiber

@@ -1,7 +1,9 @@
 # Aktueller SSIS-Debug-Vertrag
 
-Stand: 2026-10-29. Vom Benutzer direkt beauftragt; Umsetzung und neue
-Qualifikation stehen noch aus. Unveröffentlicht.
+Stand: 2026-10-29. Vom Benutzer direkt beauftragt und umgesetzt. Die getrennten
+aktuellen Binary-, Paket- und Installer-Nachweise stehen in der
+[Prüfmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+Head-/Main-CI und Integration bleiben eigene Gates. Unveröffentlicht.
 
 Dieser Vertrag ersetzt die Toolbelt-V1-Kompatibilitäts- und Opt-in-Klauseln des
 [bisherigen Komponentenvertrags](SSIS_COMPONENTS_V2_CONTRACT.md). Dessen fachliche

@@ -5,10 +5,13 @@ erzeugt, anschließend dasselbe JSON-Dokument mit geänderten Einträgen unter
 `values` zurückgegeben. `availableInputs` und die Paket-/Kontexthashes bleiben
 unverändert. Sensitive Eingaben werden nicht exportiert.
 
-Das [vollständige SSMS-Beispiel](../Examples/README.md) enthält ein
-[ausführliches SQL-Script](../Examples/SsmsDebugWalkthrough.sql) mit Demodaten,
-Paketimport, JSON-Änderung, gezielt angeforderter Einzelstufe und direkter
-DECLARE-Bearbeitung. Es verwendet die vorhandene synthetische DTSX-Fixture.
+Die [aktuelle Anleitung mit SQL-Beispielen](CurrentInstallation.md) zeigt,
+wie die Vorlage über `@ResultTable` übernommen, unter `values` bearbeitet und
+als `@Bindings` zurückgegeben wird. Dort steht auch die Abfrage für das
+vollständige `DebugScript`. Der ältere
+[synthetische SSMS-Walkthrough](../Examples/README.md) bleibt ein ausdrücklich
+historisches Beispiel seines ursprünglichen Builds und ersetzt diese Anleitung
+nicht.
 
 Die [vollständige lokale Installationsanleitung](../Examples/Installation/README.md)
 führt durch Servervorbereitung, Parser-/ResultTable-Installation, exakten
@@ -28,9 +31,10 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
     @PackageBytes = @PackageBytes,
     @Bindings = @Bindings,
-    @CatalogBindings = N'{"schemaVersion":1,"defaultDatabase":"AdventureWorks",
+    @CatalogBindings = N'{"schemaVersion":2,"defaultDatabase":"AdventureWorks",
       "databases":["AdventureWorks"],
-      "connections":{"Package.ConnectionManagers[Synthetic]":"AdventureWorks"}}',
+      "connections":{"Package.ConnectionManagers[Synthetic]":"AdventureWorks"},
+      "flatFileInputs":{}}',
     @InspectStage = 'all';
 ```
 
@@ -65,9 +69,10 @@ Die erste Spalte `ArtifactKind` unterscheidet Vorlage, Workflow, StageIndex,
 Vorbereitung, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql,
 Cleanup, DebugScript, FlatFileWriteProjection, ColumnLineage und Diagnose.
 `IsComplete`, `SafetyStatus`, `IsExecutable` und `EvidenceClass` gelten pro
-Artefakt. Ein ausführbares Script wird als vollständiger Batch in einer
-SSMS-Sitzung im angegebenen `defaultDatabase` ausgeführt. Es gibt kein `GO`
-zwischen `DECLARE`, Cachevorbereitung, `WITH` und `SELECT`.
+Artefakt. Einzelne SQL-Artefakte werden jeweils vollständig in einer
+SSMS-Sitzung im angegebenen `defaultDatabase` ausgeführt. Innerhalb eines
+einzelnen Batches kein `GO` zwischen zusammengehörige Statements einfügen.
+Das vollständige `DebugScript` enthält dagegen mehrere geordnete Batches.
 
 Im aktuellen Profil können zusätzlich `PlanManifest`, `PlanUnitSql` und `RowCountSql`
 entstehen. Bei vollständigem Pfad bündelt `DebugScript` genau den gebundenen

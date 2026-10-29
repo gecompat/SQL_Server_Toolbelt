@@ -32,10 +32,27 @@ def validate_runtime(root=ROOT):
             provenance.get('component_profile') == 'ssis-debug-current' and
             provenance.get('publication_authorized') is False, 'current installer and provenance bytes')
     scope = record.get('scope', {})
+    targets = scope.get('targets', [])
+    require(len(targets) == 2 and
+            {(t.get('platform'), t.get('sql_server'), t.get('compatibility_level')) for t in targets} ==
+            {('windows', '2019', 150), ('windows', '2025', 170)} and
+            scope.get('deployment_modes') == ['local', 'central'], 'exact current runtime targets')
     require(scope.get('case_count') == 2 and scope.get('installed_mode_contexts') == 4 and
             scope.get('results') == {'target_cases': 'PASS', 'cleanup_audits': 'PASS',
                                      'case_count_passed': 2, 'cleanup_audits_passed': 2},
             'current standalone runtime cases')
+    execution = record.get('execution', {})
+    modes = execution.get('mode_bindings', {})
+    local, central = modes.get('local', {}), modes.get('central', {})
+    override = {'from': "DECLARE @DeploymentMode nvarchar(16)=N'local';",
+                'to': "DECLARE @DeploymentMode nvarchar(16)=N'central';", 'count': 1}
+    require(execution.get('driver') == 'Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1' and
+            local.get('header_override_count') == 0 and local.get('command_sha256') == sha(installer) and
+            central.get('header_override') == override, 'current runtime command modes')
+    header_from, header_to = override['from'].encode('utf-8'), override['to'].encode('utf-8')
+    require(installer.count(header_from) == 1 and
+            sha(installer.replace(header_from, header_to, 1)) == central.get('command_sha256'),
+            'exact current central command bytes')
     audit = record.get('final_audit', {})
     require(audit.get('case_audits') == 2 and audit.get('owned_database_names_absent') == 4 and
             audit.get('trust_states_restored') == 6 and audit.get('configuration_baselines_restored') is True and
@@ -50,9 +67,14 @@ def validate_runtime(root=ROOT):
         MODULE + 'Tests/Fixtures/components-v2-flatfile.dtsx',
         MODULE + 'Contracts/Api.json', OUTPUT.as_posix(), PROVENANCE.as_posix(),
         QUALIFICATION.as_posix(), MODULE + 'InstallPackages/' + NAME + '.zip',
+        MODULE + 'InstallPackages/' + NAME + '.zip.sha256',
+        MODULE + 'Tests/Runtime/Invoke-LabContract.ps1',
+        'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1',
+        'Tests/CI/LabQualifiedContract.ps1', 'Tests/CI/run-csv-memory-lab.ps1',
+        'Tests/CI/run-lab-local.ps1', 'Tests/Release/Invoke-StablePackageLab.ps1',
     }
     paths = {pin.get('path') for pin in pins if isinstance(pin, dict)}
-    require(len(pins) == len(paths) and required.issubset(paths), 'current runtime input closure')
+    require(len(pins) == len(paths) and required == paths, 'exact current runtime input closure')
     for pin in pins:
         relative = Path(pin['path'])
         require(not relative.is_absolute() and '..' not in relative.parts and
@@ -60,6 +82,8 @@ def validate_runtime(root=ROOT):
         require(sha(renderer.read_regular_bounded(root / relative, renderer.MAX_PACKAGE_BYTES)) == pin['sha256'],
                 'current execution input changed: ' + relative.as_posix())
     source = provenance.get('source_package', {})
+    require(source.get('path') == MODULE + 'InstallPackages/' + NAME + '.zip' and
+            source.get('qualification') == QUALIFICATION.as_posix(), 'current package source paths')
     package = renderer.read_regular_bounded(root / source['path'], renderer.MAX_PACKAGE_BYTES)
     qualification = renderer.read_regular_bounded(root / QUALIFICATION, 1024 * 1024)
     require(source.get('qualification') == QUALIFICATION.as_posix() and

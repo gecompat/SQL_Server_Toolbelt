@@ -835,3 +835,15 @@ oder Prozessrunner. Der gemeinsame endliche Rahmen wird privat vor Entwicklung
 festgelegt; native Prüfungen, Fehlversuche und Audits zählen gemeinsam. Kosten
 und Tokens sind unbekannt. Historische Tests erzwingen keine Wiederholung alter
 Kompatibilitätsmatrizen; aktuelle Sicherheits- und Funktionsorakel bleiben Pflicht.
+
+Der vorhandene SSIS-Offlineworkflow erhält fünf Prüfungen der aktuellen
+Paket-/Installerbindung mit Negativkontrollen sowie eine reine `SqlValue`-
+Adapterprüfung und Syntaxvalidierungen. Sie laufen bei Änderungen ihrer
+Quellen oder Lieferartefakte, nicht als neue SQL-CI oder separate Reviewkette.
+Die bestehenden historischen Integritätsprüfungen sichern weiterhin ihre
+eigenen gefrorenen Artefakte; neue Bytes werden damit nicht qualifiziert.
+Die global geänderte Entwicklungsregel erfordert die vollständige
+Dokumentationsbaseline einmal am stabilen Head. Lokale Wiederholungen
+erfolgen nur nach konkreten geänderten Inputs oder Fehlern. Native Rohlogs
+bleiben privat, öffentliche Nachweise enthalten abstrahierte Sollwerte,
+Artefakt- und Quellbindungen sowie konkrete Qualifikationsgrenzen.

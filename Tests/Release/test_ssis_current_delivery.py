@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -35,6 +36,21 @@ class CurrentDelivery(unittest.TestCase):
                          ['@ResultTable', '@KeepData', '@Debug', '@Hilfe'])
         self.assertIn(b'CurrentInstallation.md', payload['START-HERE.txt'])
         self.assertIn(composer.MODULE + 'Documentation/CurrentInstallation.md', payload)
+
+    def test_wrong_runtime_target_or_command_bytes_is_rejected(self):
+        original = installer.renderer.read_regular_bounded
+        record = json.loads((ROOT / installer.RUNTIME).read_bytes())
+        for mutation, reason in (
+            (lambda r: r['scope']['targets'][0].update(platform='linux'), 'runtime targets'),
+            (lambda r: r['execution']['mode_bindings']['central'].update(command_sha256='0' * 64), 'central command bytes'),
+        ):
+            changed = copy.deepcopy(record)
+            mutation(changed)
+            def read(path, maximum):
+                return composer.encoded(changed) if path == ROOT / installer.RUNTIME else original(path, maximum)
+            with self.subTest(reason=reason), mock.patch.object(installer.renderer, 'read_regular_bounded', side_effect=read):
+                with self.assertRaisesRegex(ValueError, reason):
+                    installer.validate_runtime()
 
     def test_missing_audit_or_wrong_qualification_hash_is_rejected(self):
         raw = (ROOT / installer.QUALIFICATION).read_bytes()
