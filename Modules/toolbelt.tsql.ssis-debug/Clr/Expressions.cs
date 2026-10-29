@@ -54,6 +54,8 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string BooleanOperator;
         internal List<ExpressionValue> BooleanTerms;
         internal bool AnsiTypedNull;
+        internal ExpressionValue DeferredBooleanCondition;
+        internal string DeferredConditionalTrue, DeferredConditionalFalse, DeferredConditionalType;
         internal readonly HashSet<string> Inputs = new HashSet<string>(StringComparer.Ordinal);
         internal string Condition { get { return ConditionValue.Render(); } }
         internal SqlText ConditionValue { get { return PredicateValue ?? SqlText.Join("(", SqlValue, " = 1)"); } }
@@ -103,6 +105,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 if (left.Type != "bit") throw Bad();
                 ExpressionValue yes = Conditional(); Need(":"); ExpressionValue no = Conditional();
                 string resultType = Common(yes, no);
+                ExpressionValue conditionValue = left;
                 string condition = left.Condition;
                 bool conditionTotal = left.Total;
                 // SSIS liefert bei unbekannter Bedingung NULL. Ein einfaches
@@ -111,6 +114,13 @@ namespace Toolbelt.Tsql.SsisDebug
                 // ausschließlich das typisierte NULL für den UNKNOWN-Fall.
                 left = Combine("CASE WHEN " + condition + " THEN " + yes.Sql + " WHEN NOT (" + condition + ") THEN " + no.Sql + " ELSE CAST(NULL AS " + resultType + ") END", resultType, left.Nullable || yes.Nullable || no.Nullable, left, yes, no);
                 left.Total = v2 && conditionTotal && yes.Total && no.Total;
+                if (v2 && conditionValue.BooleanTerms != null && conditionValue.BooleanTerms.Count > 16)
+                {
+                    left.DeferredBooleanCondition = conditionValue;
+                    left.DeferredConditionalTrue = yes.Sql;
+                    left.DeferredConditionalFalse = no.Sql;
+                    left.DeferredConditionalType = resultType;
+                }
             }
             depth--; return left;
         }

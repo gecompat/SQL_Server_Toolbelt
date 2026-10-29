@@ -452,6 +452,14 @@ namespace Toolbelt.Tsql.SsisDebug
                 if (c.Kind == "convert")
                 { string source = PackageReader.P(col.Properties, "SourceInputColumnLineageID"); var old = Find(parent, source); value = new ExpressionValue { Sql = "m." + Util.Q(old.Alias), Type = old.Type, Nullable = old.Nullable }; }
                 else value = Expression(expr, c, parent, stage);
+                if (value.DeferredBooleanCondition != null)
+                {
+                    ExpressionValue loweredCondition = LowerBooleanChain(value.DeferredBooleanCondition, c, ref parent);
+                    string condition = loweredCondition.Condition;
+                    value.Sql = "CASE WHEN " + condition + " THEN " + value.DeferredConditionalTrue + " WHEN NOT (" + condition + ") THEN " + value.DeferredConditionalFalse + " ELSE CAST(NULL AS " + value.DeferredConditionalType + ") END";
+                    value.DeferredBooleanCondition = null;
+                    stage.Parents.Clear(); Inherit(stage, parent);
+                }
                 if (value.BooleanTerms != null && (value.BooleanTerms.Count > 16 || !value.Total)) { value = LowerBooleanChain(value, c, ref parent); stage.Parents.Clear(); Inherit(stage, parent); }
                 var target = NewColumn(col.Lineage == "" ? col.Id : col.Lineage, col.Name, col.SqlType, value.Nullable);
                 if (existing.ContainsKey(target.Id)) throw new DebugFault("invalid_lineage", "Neue Spaltenversion kollidiert.");

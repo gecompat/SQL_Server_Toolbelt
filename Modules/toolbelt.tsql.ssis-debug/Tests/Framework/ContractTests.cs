@@ -13,20 +13,24 @@ using Toolbelt.Tsql.SsisDebug;
 internal sealed class SyntheticCatalog : ICatalog
 {
     internal bool TextKeys;
+    internal string TextKeyCollation;
     internal bool NullableKeys;
+    internal bool NullableKeyB;
+    internal bool NullableLookupScore;
     internal bool Drift;
     private int resolutions;
-    public string Collation(string database) { return "Latin1_General_100_BIN2"; }
-    public bool IsCollation(string name) { return name == "Latin1_General_100_BIN2"; }
-    public int CodePage(string name) { return 1252; }
+    public string Collation(string database) { return TextKeyCollation ?? "Latin1_General_100_BIN2"; }
+    public bool IsCollation(string name) { return name == "Latin1_General_100_BIN2" || name == "Latin1_General_100_CI_AS_SC_UTF8"; }
+    public int CodePage(string name) { return name == "Latin1_General_100_CI_AS_SC_UTF8" ? 65001 : 1252; }
     public string BindIdentifier(string database, IEnumerable<string> names, string name) { return names.SingleOrDefault(x => x == name); }
     public BoundObject Resolve(string database, string schema, string name)
     {
-        if (database != "AdventureWorks" || schema != null && schema != "dbo" || !(name == "SyntheticSourceA" || name == "SyntheticSourceB" || name == "SyntheticLookup" || name == "SyntheticIf" || name == "SyntheticPure" || name == "SyntheticFlatFileRows")) return null;
+        bool lookup = name == "SyntheticLookup" || name == "SyntheticV2TextLookup";
+        if (database != "AdventureWorks" || schema != null && schema != "dbo" || !(name == "SyntheticSourceA" || name == "SyntheticSourceB" || name == "SyntheticLookup" || name == "SyntheticV2TextA" || name == "SyntheticV2TextB" || name == "SyntheticV2TextLookup" || name == "SyntheticIf" || name == "SyntheticPure" || name == "SyntheticFlatFileRows")) return null;
         var o = new BoundObject { Database = database, Schema = schema, Name = name, Kind = "U", Fingerprint = name + (Drift ? (++resolutions).ToString() : "") };
         if (name == "SyntheticIf") { o.Kind = "IF"; o.Schema = "dbo"; o.Definition = "CREATE FUNCTION dbo.SyntheticIf() RETURNS TABLE AS RETURN (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA);"; }
         if (name == "SyntheticPure") { o.Kind = "IF"; o.Schema = "dbo"; o.Definition = "CREATE FUNCTION dbo.SyntheticPure() RETURNS TABLE AS RETURN (SELECT 1 AS KeyA,10 AS KeyB,100 AS Amount);"; }
-        foreach (string column in new[] { "KeyA", "KeyB", name == "SyntheticLookup" ? "Score" : "Amount" }) o.Columns.Add(new BoundColumn { Name = column, SqlType = TextKeys && column == "KeyA" ? "nvarchar(10)" : "int", Collation = TextKeys && column == "KeyA" ? "Latin1_General_100_CS_AS" : null, Nullable = NullableKeys && column == "KeyA" });
+        foreach (string column in new[] { "KeyA", "KeyB", lookup ? "Score" : "Amount" }) o.Columns.Add(new BoundColumn { Name = column, SqlType = TextKeys && column == "KeyA" ? "nvarchar(10)" : "int", Collation = TextKeys && column == "KeyA" ? TextKeyCollation ?? "Latin1_General_100_CS_AS" : null, Nullable = (NullableKeys && column == "KeyA") || (NullableKeyB && column == "KeyB") || (NullableLookupScore && lookup && column == "Score") });
         return o;
     }
 }
@@ -133,6 +137,43 @@ internal static class ContractTests
             Assert(integerReference.Total && integerReference.Nullable && integerReference.Type == "int", "V2_TERNARY_NULLABLE_INTEGER_REFERENCE_TOTAL");
             var failingArm = new ExpressionParser("TRUE?1:(DT_I4)\"bad\"", null, null, columns, null, true).Parse();
             Assert(!failingArm.Total, "V2_TERNARY_POTENTIALLY_FAILING_ARM_NOT_TOTAL");
+        }
+        else if (args[0] == "components-v2-utf8-collation")
+        {
+            byte[] original = File.ReadAllBytes(args[1]);
+            byte[] package = Change(original, d => {
+                foreach (var sql in d.Descendants("property").Where(x => (string)x.Attribute("name") == "SqlCommand"))
+                    sql.Value = sql.Value.Replace("dbo.SyntheticSourceA", "dbo.SyntheticV2TextA").Replace("dbo.SyntheticSourceB", "dbo.SyntheticV2TextB").Replace("dbo.SyntheticLookup", "dbo.SyntheticV2TextLookup");
+                foreach (var element in d.Descendants().Where(x => (x.Name == "outputColumn" || x.Name == "inputColumn" || x.Name == "externalMetadataColumn") && (string)x.Attribute("name") == "KeyA"))
+                { element.SetAttributeValue("dataType", "wstr"); element.SetAttributeValue("length", "10"); if (element.Attribute("cachedDataType") != null) element.SetAttributeValue("cachedDataType", "wstr"); if (element.Attribute("cachedLength") != null) element.SetAttributeValue("cachedLength", "10"); }
+                var derived = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived"); derived.SetAttributeValue("version", "0");
+                derived.Element("outputs").Element("output").SetAttributeValue("synchronousInputId", derived.Element("inputs").Element("input").Attribute("refId").Value);
+                var split = d.Descendants("component").Single(x => (string)x.Attribute("name") == "Split"); split.SetAttributeValue("version", "0");
+                foreach (var output in split.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", split.Element("inputs").Element("input").Attribute("refId").Value);
+            });
+            string catalogJson = Json.Write(Json.Obj("schemaVersion", new JsonNumber("2"), "defaultDatabase", "AdventureWorks", "databases", new List<object> { "AdventureWorks" }, "connections", Json.Obj("Package.ConnectionManagers[Synthetic]", "AdventureWorks"), "flatFileInputs", Json.Obj()));
+            var catalog = new SyntheticCatalog { TextKeys = true, NullableKeys = true, NullableKeyB = true, NullableLookupScore = true, TextKeyCollation = "Latin1_General_100_CI_AS_SC_UTF8" };
+            string shortExpression = "((DT_STR,10,1252)[KeyA] == \"5\") ? 1 : 0";
+            string left = "((DT_STR,10,1252)[KeyA] == (DT_STR,10,1252)\"5\") ? TRUE : FALSE";
+            string right = "((DT_STR,10,1252)[KeyB] == (DT_STR,10,1252)\"7\") ? TRUE : FALSE";
+            string group = "((" + left + ") && (" + right + "))";
+            string longExpression = "(" + String.Join(" || ", Enumerable.Repeat(group, 256)) + ") ? 1 : 0";
+            foreach (string expression in new[] { shortExpression, longExpression })
+            {
+                try
+                {
+                    byte[] variant = Change(package, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Descendants("property").Single(x => (string)x.Attribute("name") == "Expression").Value = expression);
+                    var templateOptions = Options("bindings-template-v2"); templateOptions.ProjectContext = "{\"schemaVersion\":2}"; templateOptions.Version = 170;
+                    string template = Engine.Analyze(variant, templateOptions, catalog, new Budget()).Rows.Single().Content;
+                    var options = Options("explain"); options.ProjectContext = "{\"schemaVersion\":2}"; options.Version = 170; options.ComparisonCollation = "Latin1_General_100_BIN2"; options.Bindings = template; options.CatalogBindings = catalogJson;
+                    var index = Engine.Analyze(variant, options, catalog, new Budget());
+                    var selected = index.Rows.First(x => x.Kind == "StageIndex" && x.Component == "Package\\Flow\\Derived");
+                    options.Target = selected.Target; options.Stage = selected.Stage;
+                    var result = Engine.Analyze(variant, options, catalog, new Budget());
+                    Assert(result.Rows.Any(x => x.Kind == "StageSql" && x.Stage == selected.Stage && x.Complete && x.Safety == "passed"), "V2_UTF8_DATABASE_COLLATION_STAGE_SQL:" + String.Join(",", result.Rows.Where(x => x.Kind == "Diagnostic").Select(x => x.Code + "/" + x.Component)));
+                }
+                catch (Exception error) { throw new Exception(expression == shortExpression ? "V2_UTF8_SHORT_VARIANT" : "V2_UTF8_LONG_VARIANT", error); }
+            }
         }
         else if (args[0] == "components-v2")
         {

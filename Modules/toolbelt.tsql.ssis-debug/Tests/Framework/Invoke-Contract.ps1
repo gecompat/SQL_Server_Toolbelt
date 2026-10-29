@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
-    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Branch')][string]$Profile = 'Full',
+    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Branch','ComponentsV2Utf8Collation')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
     [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
@@ -73,6 +73,14 @@ if ($Profile -eq 'ComponentsV2Branch') {
         return
     } finally { Remove-FrameworkTemp }
 }
+if ($Profile -eq 'ComponentsV2Utf8Collation') {
+    try {
+        Invoke-Case @('components-v2-utf8-collation', (Join-Path $moduleRoot 'Tests/Fixtures/components-v2-variable-string.dtsx'))
+        if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
+        "SSIS_FRAMEWORK_PASS $cases bounded children"
+        return
+    } finally { Remove-FrameworkTemp }
+}
 $v2Case = @('components-v2', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
 if ($PlanBenchmarkGroups -gt 0) { $v2Case += ('planbench:' + $PlanBenchmarkGroups.ToString([Globalization.CultureInfo]::InvariantCulture)) }
 if ($FixtureExportRoot) {
@@ -117,6 +125,7 @@ if ($Profile -eq 'Full') {
     Invoke-Case @('sql-regression', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     Invoke-Case @('v1-boundaries', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     Invoke-Case @('v1-graph-boundaries', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+    Invoke-Case @('components-v2-utf8-collation', (Join-Path $moduleRoot 'Tests/Fixtures/components-v2-variable-string.dtsx'))
     Invoke-Case @('release-output-bounds')
     Invoke-Case @('cooperative-budget')
     foreach ($operators in @(32,128,256,257,258)) { Invoke-Case @('parser-boundary', [string]$operators) }
