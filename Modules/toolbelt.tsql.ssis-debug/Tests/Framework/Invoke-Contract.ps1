@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
-    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation')][string]$Profile = 'Full',
+    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
     [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
@@ -44,7 +44,7 @@ function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRA
         if (-not $child.WaitForExit($TimeoutMilliseconds)) { $child.Kill(); throw ('SSIS_FRAMEWORK_CHILD_TIMEOUT ordinal={0} name={1}' -f $caseOrdinal,$caseName) }
         $output = $stdout.GetAwaiter().GetResult(); $errorOutput = $stderr.GetAwaiter().GetResult()
         if ($child.ExitCode -ne 0 -or $output.Length -gt 4096 -or $errorOutput.Length -gt 16384 -or $output -notmatch $ExpectedPattern -or $errorOutput.Length -ne 0) {
-            if ($Profile -eq 'ComponentsV2Remainder' -and $errorOutput -match '(?m)(?:System\.)?Exception: ([A-Z][A-Z0-9_]+)') {
+            if (($Profile -eq 'ComponentsV2Remainder' -or $Profile -eq 'ComponentsV2Translate') -and $errorOutput -match '(?m)(?:System\.)?Exception: ([A-Z][A-Z0-9_]+)') {
                 throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1} assertion={2}' -f $caseOrdinal,$caseName,$Matches[1])
             }
             throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1}' -f $caseOrdinal,$caseName)
@@ -84,6 +84,14 @@ if ($Profile -eq 'ComponentsV2Branch') {
 if ($Profile -eq 'ComponentsV2Import') {
     try {
         foreach ($format in @(6,8)) { Invoke-Case @('import', (Join-Path $moduleRoot "Tests/Fixtures/synthetic-$format.dtsx")) }
+        if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
+        "SSIS_FRAMEWORK_PASS $cases bounded children"
+        return
+    } finally { Remove-FrameworkTemp }
+}
+if ($Profile -eq 'ComponentsV2Translate') {
+    try {
+        foreach ($format in @(6,8)) { Invoke-Case @('translate',(Join-Path $moduleRoot "Tests/Fixtures/synthetic-$format.dtsx")) }
         if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
         "SSIS_FRAMEWORK_PASS $cases bounded children"
         return

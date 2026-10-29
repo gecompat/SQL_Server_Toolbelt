@@ -803,8 +803,23 @@ internal static class ContractTests
                     else Reject(()=>Engine.Analyze(longId,Options("bindings-template"),cat,new Budget()),"resource_limit");
                 }
                 var planUnits = result.Rows.Where(a => a.Kind == "PlanUnitSql").ToList();
-                Assert(sql.All(a => a.Executable && a.Complete && a.Content.IndexOf("SELECT", StringComparison.Ordinal) >= 0) &&
-                       planUnits.Count > 0 && planUnits.All(a => a.Executable && a.Safety == "passed"), "SQL_CONTRACT");
+                bool sqlContract = sql.Count == 2 && planUnits.Count > 0 && planUnits.All(a => a.Executable && a.Safety == "passed");
+                Assert(sqlContract, "SQL_CONTRACT_ARTIFACT_SAFETY");
+                foreach (Artifact target in sql)
+                {
+                    // V2 legt Cachevorbereitung in guarded PlanUnitSql ab; separate PreparationSql wird mitgeprüft, falls vorhanden.
+                    var targetArtifacts = result.Rows.Where(a => a.Target == target.Target &&
+                        (a.Kind == "PreparationSql" || a.Kind == "PlanUnitSql" || a.Kind == "TargetSql") &&
+                        a.Executable && a.Safety == "passed").ToList();
+                    string targetPlanSql = String.Join("\n", targetArtifacts.Select(a => a.Content));
+                    Assert(target.Executable && target.Complete && target.Content.IndexOf("SELECT", StringComparison.Ordinal) >= 0,
+                           "SQL_CONTRACT_TARGET_PROJECTION");
+                    Assert(targetArtifacts.Any(a => a.Kind == "PlanUnitSql"), "SQL_CONTRACT_TARGET_PLAN_UNITS");
+                    Assert(targetArtifacts.Any(a => a.Kind == "TargetSql"), "SQL_CONTRACT_TARGET_READ");
+                    Assert(targetPlanSql.Contains("WITH (NOLOCK)"), "SQL_CONTRACT_NOLOCK");
+                    Assert(targetPlanSql.Contains("ROW_NUMBER() OVER (PARTITION BY"), "SQL_CONTRACT_LOOKUP_ROW_NUMBER");
+                    Assert(targetPlanSql.Contains("DECLARE @v"), "SQL_CONTRACT_SCENARIO_DECLARATIONS");
+                }
                 Assert(result.Rows.Any(a => a.Kind == "StageSql") && result.Rows.Any(a => a.Kind == "CleanupSql"), "STAGES_CLEANUP");
                 Assert(sql.All(a => a.Details != null && a.Details.Contains("catalogBinding") && a.Details.Contains("catalogSha256")), "CATALOG_BINDING_EXPORTED");
                 if (args.Length > 2) File.WriteAllText(args[2], sql[0].Content);
