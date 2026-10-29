@@ -13,8 +13,9 @@ Flatfile-Metadaten mit expliziten relationalen Ersatzquellen und geprüfte lange
 Ausführungspläne. V1 bleibt erhalten; tatsächliches Dateilesen/-schreiben und
 ein Dateibyteparser sind nicht freigegeben. Drei kohärente Wellen, ein
 Luna-Implementierer mit Root-Vertrags-/Sicherheitsreview; gemeinsame endliche
-Zeit-/PR-/Testgrenzen stehen im Vertrag. Status: in Entwicklung, noch nicht
-qualifiziert, unveröffentlicht. Bestehende Lieferungen und Nachweise bleiben
+Zeit-/PR-/Testgrenzen stehen im Vertrag. Status: V2-Binarymatrix und gezielter
+Unlimited-Variablenplan nativ teilqualifiziert; ZIP offline geprüft, native
+Paket-/Installerprüfungen und Integration offen; unveröffentlicht. Bestehende Lieferungen und Nachweise bleiben
 unverändert; keine automatische Funktions- oder Gesamtfreigabe aus Teilchecks.
 
 ## Achtzehnter endlicher Release-Rahmen — 2026-10-27

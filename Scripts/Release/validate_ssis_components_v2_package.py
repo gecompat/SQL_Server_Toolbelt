@@ -100,6 +100,15 @@ def validate(path):
             relative = name[len(LEGACY) + 1:]
             if relative.startswith(MODULE) or relative in ("PACKAGE-MANIFEST.json", "SHA256SUMS.txt", "START-HERE.txt"):
                 continue
+            # The parser's frozen reproducible sources remain in BuildSources/.
+            # This root-level shared file is also a native-bound SSIS compiler
+            # input; its exact new bytes were checked against release.sourceFiles
+            # above. It does not replace the parser binary or its build closure.
+            if relative == "Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs":
+                require(any(posixpath.normpath(MODULE + entry.split(":", 1)[0]) == relative
+                            for entry in release["sourceFiles"]),
+                        "shared SSIS guard source is native-bound")
+                continue
             require(relative in payload and archive.read(name) == payload[relative],
                     "unchanged predecessor dependency")
     print("SSIS_V2_PACKAGE_VALIDATION_PASS; exact qualified candidate and preserved dependencies; no SQL")

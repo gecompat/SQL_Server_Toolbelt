@@ -10,6 +10,19 @@ bindet den unveränderten bisherigen Labtreiber und die neuen Fälle getrennt.
 einer eigenen ausschließlich lesenden Verbindung. Eine Syntax- oder
 Adapterprüfung allein ist kein nativer Funktionsnachweis.
 
+Die [separat gebundene V2-Binarymatrix](Qualification/ComponentsV2.Windows.CL.20261028.json)
+bestand zwölf Windows-Engine-/CL-/Modusfälle mit jeweils eigenem
+Bereinigungsaudit. Der [gezielte Variablenplannachweis](Qualification/ComponentsV2.VariablePlan.20261028.json)
+bestand den vollständigen 256-Gruppen-Ausdruck und feste NULL-/Unicode-Orakel
+mit explizitem `unlimited` und endlichen äußeren Watchdogs. Die separaten
+30-Sekunden-Budgetfehler der vollständigen Zielentdeckung bleiben erhalten;
+dieser Nachweis behauptet keine Default-Budget-Abnahme dafür.
+
+Das neue V2-ZIP ist offline auf gebundene Artefakte, Quellen, Attribution und
+Manipulation geprüft. Native Tests des entpackten ZIPs und des neuen reinen
+T-SQL-Installers sowie Head-/Main-CI stehen noch aus. Der V1-Installer wird
+nicht als V2-Lieferung umgedeutet; Integration und Veröffentlichung sind offen.
+
 Stand 2026-10-25. Die nativen Nachweise unten behalten ihre ursprünglichen
 Ausführungsdaten und Buildbindungen. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
 mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.
