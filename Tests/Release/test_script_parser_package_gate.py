@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import script_parser_package as gate
 import ssis_historical_source_bridge as ssis_history
+import help_contract_source
 
 REPORT = "Releases/1.0.0/SCRIPT-PARSER-PACKAGE-QUALIFICATION.json"
 FIXTURE = "Tests/Release/ScriptParserPackageContractInputs.json"
@@ -160,6 +161,17 @@ class ScriptParserPackageGateMixin:
                 ssis_history.validate_historical_source(ROOT, path, '0' * 64)
         with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_PATH'):
             ssis_history.validate_historical_source(ROOT, 'Modules/unrelated/module.yaml', '0' * 64)
+
+        boundary_current = (ROOT / ssis_history.BOUNDARY_TEST).read_bytes()
+        restored = ssis_history.restore_boundary_test_transition(
+            ROOT, boundary_current, help_contract_source.BOUNDARY_BASELINE_SHA256)
+        self.assertEqual(gate.sha(restored), help_contract_source.BOUNDARY_CURRENT_SHA256)
+        with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_BASELINE_PIN'):
+            ssis_history.restore_boundary_test_transition(ROOT, boundary_current, '0' * 64)
+        with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_CURRENT_BYTES'):
+            ssis_history.restore_boundary_test_transition(
+                ROOT, boundary_current.replace(b'from unittest.mock import patch', b'from unittest.mock import ANY'),
+                help_contract_source.BOUNDARY_BASELINE_SHA256)
 
         binding = ssis_history.SOURCES['Modules/toolbelt.tsql.ssis-debug/module.yaml']
         with tempfile.TemporaryDirectory() as temporary:

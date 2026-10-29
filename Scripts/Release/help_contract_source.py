@@ -425,6 +425,13 @@ def _boundary_projection(original):
 def restore_boundary_checker(root, current, expected_sha256):
     _require(expected_sha256 == BOUNDARY_BASELINE_SHA256,
              'XLSX boundary checker execution pin differs')
+    if _digest(current) != BOUNDARY_CURRENT_SHA256:
+        import ssis_historical_source_bridge
+        try:
+            current = ssis_historical_source_bridge.restore_boundary_test_transition(
+                root, current, expected_sha256)
+        except ValueError:
+            _require(False, 'Current XLSX boundary checker differs from its exact Help projection')
     _require(_digest(current) == BOUNDARY_CURRENT_SHA256,
              'Current XLSX boundary checker differs from its exact Help projection')
     result = subprocess.run(['git', 'show', BOUNDARY_BASELINE_COMMIT + ':' + BOUNDARY_TEST],
