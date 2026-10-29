@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-29",
+  "kind": "ssis_components_v2_variable_plan_qualification",
+  "result": "PASS",
+  "publication_authorized": false,
+  "profile": "ssis-debug-components-v2",
+  "scope": "Selected Derived stage: short and 256-group typed conditional/string/integer expression over six fixed synthetic NULL/Unicode/three-valued rows; SQL Server 2025 CL170 Windows local with UTF8 default collation and explicit BIN2 comparison",
+  "qualified_assembly_sha256": "222f2503377550cf922292f678c4cdb24649a330937176a4ce4e73fbadde73ad",
+  "qualified_trust_manifest_sha256": "8FCB01796745594EFCBD42C6B9DA01074CB15A6FFCF237F6B7F27A8AA8B61465",
+  "native_source_sha256": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Cases.ps1": "d0a01bac0ed0638246aff1fa236474c5d3eb9f66d933f76dd342db5809cf0fcc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Lab.ps1": "2ea3f7296501b393721f98f86b82cf1f7d7710df2c6236059696317cc156b8f2",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1b8d9e877d39d6a52174922016dde89f500d0506807a9fabbb57f6606350d4cc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2DomainCases.ps1": "192b5e8658155ae47d3b3d1b41731b06af131277ad7e909241fe35a1dee68062",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2VariableCases.ps1": "f07317a341d4092e4bad9491bca60e4fb9ec1ce236278158234da05062d7637d"
+  },
+  "assertions": 168,
+  "long_expression_policy": "explicit ProjectContext schemaVersion2 resourceOptions schemaVersion1 preset unlimited",
+  "finite_test_watchdogs": {
+    "analysis_command_seconds": 180,
+    "outer_case_seconds": 300,
+    "cleanup_seconds": 360
+  },
+  "unchanged_fixed_sql_safety": true,
+  "whole_expression_preserved": true,
+  "compound_groups": 256,
+  "fixed_oracle_rows": 6,
+  "all_selected_plan_units_executed": true,
+  "default_policy_characterization": {
+    "counter": "analysisMilliseconds",
+    "scope": "Separate full-target StageIndex discovery attempts retained as failures; this PASS does not claim that discovery fits the default timer",
+    "result": "RESOURCE_LIMIT",
+    "configured_limit": 30000
+  },
+  "cleanup_audit": "PASS",
+  "authenticated_tls": "not executed",
+  "ssis_sdk_package_execution": "not executed",
+  "complete_binary_matrix": "separate qualification",
+  "package_and_installer": "separate qualification"
+}
