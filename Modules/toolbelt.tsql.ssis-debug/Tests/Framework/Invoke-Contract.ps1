@@ -33,7 +33,7 @@ $cases = 0
 function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRAMEWORK_PASS [0-9]+\s*\z',[switch]$ReturnOutput,[ValidateRange(1000,120000)][int]$TimeoutMilliseconds = 40000) {
     $caseName = if ($Arguments.Count -gt 0 -and $Arguments[0] -match '\A[a-z0-9-]+\z') { $Arguments[0] } else { 'unknown' }
     $caseOrdinal = $script:cases + 1
-    [Console]::Out.WriteLine(('SSIS_FRAMEWORK_CASE_START ordinal={0} name={1}' -f $caseOrdinal,$caseName))
+    if ($Profile -eq 'Full' -and -not $ResourceProbePath) { [Console]::Out.WriteLine(('SSIS_FRAMEWORK_CASE_START ordinal={0} name={1}' -f $caseOrdinal,$caseName)) }
     $psi = [Diagnostics.ProcessStartInfo]::new($executable)
     $psi.Arguments = ($Arguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }) -join ' '
     $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true; $psi.WindowStyle = 'Hidden'

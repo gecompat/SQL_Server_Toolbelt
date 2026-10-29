@@ -19,6 +19,7 @@ from compose_zip_entry_count import (
 )
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import help_contract_source
+import ssis_historical_source_bridge
 
 
 class ZipEntryCountComposerMixin:
@@ -72,6 +73,8 @@ class ZipEntryCountComposerMixin:
             self.assertNotIn('.runtime', path.parts)
             if relative in help_contract_source.source_paths(ROOT):
                 help_contract_source.validate_historical_source(ROOT, relative, expected_sha256)
+            elif relative in ssis_historical_source_bridge.source_paths():
+                ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected_sha256)
             else:
                 self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected_sha256)
 

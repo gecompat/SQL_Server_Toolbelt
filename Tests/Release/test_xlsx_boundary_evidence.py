@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import xlsx_sst_budget
 import caller_metadata
 import help_contract_source
+import ssis_historical_source_bridge
 REPORT = ROOT / 'Releases/1.0.0/xlsx-boundary-qualification.json'
 
 
@@ -101,6 +102,8 @@ class XlsxBoundaryEvidenceMixin:
                     data = xlsx_sst_budget.validate_historical_source(ROOT, relative, expected)
                 elif relative in help_contract_source.source_paths(ROOT):
                     data = help_contract_source.validate_historical_source(ROOT, relative, expected)
+                elif relative in ssis_historical_source_bridge.source_paths():
+                    data = ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected)
                 else:
                     data = (ROOT / relative).read_bytes()
                 if relative == report['source_eol_projection']['path']:
