@@ -1,0 +1,200 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_components_v2_standalone_tsql_runtime_qualification",
+  "profile": "ssis-debug-components-v2",
+  "date": "2026-10-29",
+  "result": "PASS",
+  "publication_authorized": false,
+  "installer": {
+    "sha256": "0DD078373CAB07E522233157FFFCDC65A865FFF5F86084D0F159D4641A52160B",
+    "path": "Releases/1.0.0/SSIS-COMPONENTS-V2-INSTALL-TSQL.sql"
+  },
+  "provenance": {
+    "sha256": "9B553854DA778E49402A2F4DDFD331D209C93F67B1FF67140F87FCE3E42452FC",
+    "path": "Releases/1.0.0/ssis-components-v2-standalone-installer.json"
+  },
+  "qualified_package": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip",
+    "sha256": "73E601DA0D57F694B68D2339589C037C72F3905D9855CEFFF37863CC32183E9A",
+    "qualification": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/ComponentsV2.InstallPackage.20261028.json",
+    "qualification_sha256": "DAE7644BAAD8C3573106D0F298E2DAAC1BF198BDFE2543D8E588F9CA74C64D1A",
+    "qualification_result": "PASS"
+  },
+  "execution": {
+    "command_method": "Complete rendered batch as one SqlClient CommandText, no SQLCMD parser",
+    "driver": "Tests/Release/Invoke-ComponentsV2StandaloneTsqlInstallerLab.ps1",
+    "mode_bindings": {
+      "local": {
+        "header_override_count": 0,
+        "command_sha256": "0DD078373CAB07E522233157FFFCDC65A865FFF5F86084D0F159D4641A52160B"
+      },
+      "central": {
+        "header_override": {
+          "from": "DECLARE @DeploymentMode nvarchar(16)=N'local';",
+          "to": "DECLARE @DeploymentMode nvarchar(16)=N'central';",
+          "count": 1
+        },
+        "command_sha256": "B7C6078278D419324E8F652DFEB551A8A2EC0A0F0692AB721EDC6E1D07D431A0"
+      }
+    },
+    "native_fixture_execution_commit": "084cf822e2ddfe2f8910469d80443f00d80cc768"
+  },
+  "scope": {
+    "deployment_modes": [
+      "local",
+      "central"
+    ],
+    "installed_mode_contexts": 4,
+    "case_count": 2,
+    "not_qualified": [
+      "Full engine/platform matrix for standalone installer",
+      "Windows-authentication and SSMS GUI",
+      "Authenticated TLS or certificate identity",
+      "SSISDB and DTSX runtime execution",
+      "Installer administrative trust-registration opt-in",
+      "Publication or release authorization"
+    ],
+    "results": {
+      "case_count_passed": 2,
+      "cleanup_audits": "PASS",
+      "v2_optin_contexts_passed": 4,
+      "target_cases": "PASS",
+      "cleanup_audits_passed": 2
+    },
+    "coverage": [
+      "Fresh install and repeat in both modes",
+      "Existing unchanged V1 synthetic API, metadata and help checks",
+      "Explicit V2 bindings-template profile and unlimited resource provenance after installation in each mode",
+      "Fresh-session, caller transaction, reserved temporary-table and invalid-mode rejection guards",
+      "Independent cleanup and immutable-input audit after each target"
+    ],
+    "assembly_trust": {
+      "test_setup": "Exact required release assembly hashes preseeded by guarded harness",
+      "installer_registration_opt_in_exercised": false
+    },
+    "targets": [
+      {
+        "platform": "windows",
+        "sql_server": "2019",
+        "compatibility_level": 150
+      },
+      {
+        "platform": "windows",
+        "sql_server": "2025",
+        "compatibility_level": 170
+      }
+    ]
+  },
+  "execution_input_pins": [
+    {
+      "path": "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1",
+      "sha256": "FF2CCE9C0C33335892EFFAC843D90BF2B131B597C68E9514850CC91C80CAC993"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json",
+      "sha256": "9F99B9A24D3A0535E156A313DEF1ED723FF62F17AA2E4859AC58C41E51BC1001"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip",
+      "sha256": "73E601DA0D57F694B68D2339589C037C72F3905D9855CEFFF37863CC32183E9A"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-ComponentsV2-1.0.0-Install-Windows.zip.sha256",
+      "sha256": "F6D9BF26B4981B7BBDF8F6FC89732E543F7621CBAC9F718729D238598641CD9F"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx",
+      "sha256": "DEA7DC971972882B2A090D489ECFC2DC1E85635936A0ECD8C89C8443D746BF3E"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/ComponentsV2.InstallPackage.20261028.json",
+      "sha256": "DAE7644BAAD8C3573106D0F298E2DAAC1BF198BDFE2543D8E588F9CA74C64D1A"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1",
+      "sha256": "F0E235F3CBF984D611DEC6B6A12676D08145185010CEC2FAF5499C4DD51FBCFC"
+    },
+    {
+      "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1",
+      "sha256": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570"
+    },
+    {
+      "path": "Releases/1.0.0/SSIS-COMPONENTS-V2-INSTALL-TSQL.sql",
+      "sha256": "0DD078373CAB07E522233157FFFCDC65A865FFF5F86084D0F159D4641A52160B"
+    },
+    {
+      "path": "Releases/1.0.0/ssis-components-v2-standalone-installer.json",
+      "sha256": "9B553854DA778E49402A2F4DDFD331D209C93F67B1FF67140F87FCE3E42452FC"
+    },
+    {
+      "path": "Tests/CI/LabQualifiedContract.ps1",
+      "sha256": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15"
+    },
+    {
+      "path": "Tests/CI/run-csv-memory-lab.ps1",
+      "sha256": "E200D4D6FC3CA0EE6FC00F333D67B6A4F8B89652731CA383CECE6731B58FA3FF"
+    },
+    {
+      "path": "Tests/CI/run-lab-local.ps1",
+      "sha256": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846"
+    },
+    {
+      "path": "Tests/Release/Invoke-ComponentsV2StandaloneTsqlInstallerLab.ps1",
+      "sha256": "D952969D72EFF99AFA1BA46541397D601B668A170D4D1D45F478B111C7EE94E3"
+    },
+    {
+      "path": "Tests/Release/Invoke-StablePackageLab.ps1",
+      "sha256": "04C9EDEB54B09CCA306D007DE11B7A01773425BA1AE76F3198BA1E5DEB660D6A"
+    },
+    {
+      "path": "Tests/Release/Prepare-ComponentsV2StandaloneTsqlInstallerRunset.ps1",
+      "sha256": "1DA6B62E0EA1C5BC84996CC70BA14A0B60D0B2B44FADCEFAAEFAE9E8A27C1DC9"
+    }
+  ],
+  "final_audit": {
+    "trust_states_restored": 6,
+    "failed_installer_attempts": 0,
+    "configuration_baselines_restored": true,
+    "case_audits": 2,
+    "input_pins_unchanged": true,
+    "owned_database_names_absent": 4
+  },
+  "functional_transport": {
+    "authenticated_tls": "not executed",
+    "schema_validated_explicit_boolean_trust": true,
+    "provider": "System.Data.SqlClient",
+    "fallback": false,
+    "encrypt_required": true
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "ordinary_command_seconds": 45,
+    "installer_command_seconds": 120
+  },
+  "cost_tokens": "UNKNOWN",
+  "integration_binding": {
+    "kind": "ssis_components_v2_lf_metadata_binding",
+    "native_execution_inputs_preserved": true,
+    "installer_bytes_unchanged": true,
+    "qualification_semantics_unchanged": true,
+    "changes": [
+      {
+        "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/ComponentsV2.InstallPackage.20261028.json",
+        "execution_sha256": "DAE7644BAAD8C3573106D0F298E2DAAC1BF198BDFE2543D8E588F9CA74C64D1A",
+        "integrated_sha256": "D9183E85753D9B011B54DB971B52FCE2D13EEC6B20F57A70D66ABB0AED50CA29",
+        "transform": "internal-crlf-final-lf-to-lf"
+      },
+      {
+        "path": "Releases/1.0.0/ssis-components-v2-standalone-installer.json",
+        "execution_sha256": "9B553854DA778E49402A2F4DDFD331D209C93F67B1FF67140F87FCE3E42452FC",
+        "integrated_sha256": "41C5BE238D7BC83F0008949CE03A16BA72C1847085C94B8B7932890FA82754BE",
+        "transform": "qualification-sha256-field-only",
+        "field": "source_package.qualification_sha256",
+        "execution_value": "DAE7644BAAD8C3573106D0F298E2DAAC1BF198BDFE2543D8E588F9CA74C64D1A",
+        "integrated_value": "D9183E85753D9B011B54DB971B52FCE2D13EEC6B20F57A70D66ABB0AED50CA29"
+      }
+    ],
+    "scope": "Git-canonical LF package qualification has exactly the executed JSON meaning. Provenance changes only its qualification hash. Native execution pins above retain their original bytes; no SQL or installer change and no native retest."
+  }
+}
