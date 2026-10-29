@@ -15,11 +15,11 @@ function Invoke-CurrentExplain([byte[]]$Bytes,[string]$Operation='explain',[stri
  $cmd=$Connection.CreateCommand();$cmd.CommandType='StoredProcedure';$cmd.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
  $cmd.CommandTimeout=Get-SsisNativeTimeout 45
  [void]$cmd.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1)
- $cmd.Parameters['@PackageBytes'].Value=if($null -eq $Bytes){[DBNull]::Value}else{$Bytes}
+ if($null -eq $Bytes){$cmd.Parameters['@PackageBytes'].Value=[DBNull]::Value}else{$cmd.Parameters['@PackageBytes'].Value=$Bytes}
  [void]$cmd.Parameters.Add('@Operation',[Data.SqlDbType]::VarChar,32);$cmd.Parameters['@Operation'].Value=$Operation
  [void]$cmd.Parameters.Add('@TSqlVersion',[Data.SqlDbType]::SmallInt);$cmd.Parameters['@TSqlVersion'].Value=$script:currentDialect
  foreach($p in @(@('Bindings',$Bindings,-1),@('CatalogBindings',$Catalog,-1),@('ProjectContext',$Context,-1),@('ResultTable',$ResultTable,128))){
-  [void]$cmd.Parameters.Add('@'+$p[0],[Data.SqlDbType]::NVarChar,[int]$p[2]);$cmd.Parameters['@'+$p[0]].Value=if($null -eq $p[1]){[DBNull]::Value}else{$p[1]}
+  [void]$cmd.Parameters.Add('@'+$p[0],[Data.SqlDbType]::NVarChar,[int]$p[2]);$cmd.Parameters['@'+$p[0]].Value=if([string]::IsNullOrEmpty($p[1])){[DBNull]::Value}else{$p[1]}
  }
  foreach($p in @(@('KeepData',$Keep),@('Hilfe',$Help))){[void]$cmd.Parameters.Add('@'+$p[0],[Data.SqlDbType]::Bit);$cmd.Parameters['@'+$p[0]].Value=[bool]$p[1]}
  foreach($name in $Limits.Keys){[void]$cmd.Parameters.Add($name,[Data.SqlDbType]::BigInt);$cmd.Parameters[$name].Value=if($null -eq $Limits[$name]){[DBNull]::Value}else{[long]$Limits[$name]}}

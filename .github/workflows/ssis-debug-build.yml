@@ -12,6 +12,7 @@ on:
       - 'Scripts/Release/*ssis_current*.py'
       - 'Tests/Release/*CurrentStandalone*.ps1'
       - 'Tests/Release/test_ssis_current_delivery.py'
+      - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
       - '!Modules/*/Documentation/**/*.md'
       - '!Modules/*/README.md'
       - '!Modules/*/CHANGELOG.md'
@@ -29,6 +30,7 @@ on:
       - 'Scripts/Release/*ssis_current*.py'
       - 'Tests/Release/*CurrentStandalone*.ps1'
       - 'Tests/Release/test_ssis_current_delivery.py'
+      - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
       - '!Modules/*/Documentation/**/*.md'
       - '!Modules/*/README.md'
       - '!Modules/*/CHANGELOG.md'
@@ -129,6 +131,7 @@ jobs:
           & Tests/Release/Invoke-ComponentsV2StandaloneTsqlInstallerLab.ps1 -RunsetPath .runtime/ci-v2-validation/runset.json -ExpectedRunsetSha256 ('0' * 64) -CaseIndex 0 -ValidateOnly
           & Tests/Release/Prepare-CurrentStandaloneTsqlInstallerRunset.ps1 -EvidenceDirectory .runtime/ci-current-validation -ValidateOnly
           & Tests/Release/Invoke-CurrentStandaloneTsqlInstallerLab.ps1 -RunsetPath .runtime/ci-current-validation/runset.json -ExpectedRunsetSha256 ('0' * 64) -CaseIndex 0 -ValidateOnly
+          & Tests/Release/Test-CurrentSqlParameterAdapter.ps1
           & Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentLab.ps1 -Version 2019 -Mode local -CompatibilityLevel 150 -JournalDirectory .runtime/ci-current-validation -ExpectedTargetKey unused -ExpectedContractSha256 ('0' * 64) -SsisReleaseDirectory unused -ParserReleaseDirectory unused -QualifiedProviderSha512 ('0' * 128) -CasesExpectedSha256 (Get-FileHash Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1 -Algorithm SHA256).Hash -ValidateOnly
       - name: Installation example contract without SQL access
         shell: pwsh
