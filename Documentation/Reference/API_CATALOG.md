@@ -4726,7 +4726,7 @@ Aktuelle DTSX-Debuganalyse ohne Profil-Opt-in; editierbare typisierte JSON-Vorla
 
 Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md).
 
-<!-- Source/Vertrag SHA256: 55336c5c697a65a24101c68c18f98c65d27bd030c3e0af7ce608a6df4ce4e2ae -->
+<!-- Source/Vertrag SHA256: fe174f8f264c9c4e179cb91f63a3657bf60fe6e876715c0d6f36d702e604fbf8 -->
 
 Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.
 
