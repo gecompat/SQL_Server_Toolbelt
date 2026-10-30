@@ -41,6 +41,8 @@ Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Dokumentiere alle `DE
 
 ## Beispiele
 
+{{Voraussetzungen und Vorbereitung eigener synthetischer Eingaben; bei Bedarf konkreten Vorbereitungsschritt verlinken.}}
+
 ```sql
 EXEC {{SchemaName}}.USP_{{ObjectName}}
     @{{Parameter}} = {{SyntheticValue}};
@@ -48,6 +50,15 @@ EXEC {{SchemaName}}.USP_{{ObjectName}}
 EXEC {{SchemaName}}.USP_{{ObjectName}}
     @Hilfe = 1;
 ```
+
+{{Erwarteten Wert, Status, relevante Ergebnisspalten oder Zustandsänderung und ihre Bedeutung erläutern. Variable IDs/Zeitwerte als Eigenschaften beschreiben; Vertragserwartung von ausgeführter Evidenz unterscheiden.}}
+
+{{Falls der Beispielaufruf Ressourcen verändert: Seiteneffekte und Bereinigung der eigenen Ressourcen erklären.}}
+
+<!-- Diesen Abschnitt nur für nicht triviale Funktionalität behalten; bei einem gemeinsamen Kern einen gezielten Link verwenden. Bearbeitungshinweis vor Abgabe entfernen. -->
+## Technischer Lösungsweg
+
+{{Konkrete technische Grundlage, entscheidende Verarbeitungsschritte und Designgründe mit zuständigen Quellen erklären oder auf den passenden gemeinsamen Abschnitt verlinken. Bei nicht offensichtlichen Schleifen Zustand, Fortschritt/Begrenzung und Zweck erläutern; keine Syntaxnacherzählung.}}
 
 ## Teststatus
 

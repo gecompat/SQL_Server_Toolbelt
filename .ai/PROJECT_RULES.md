@@ -103,6 +103,8 @@ Details: [CLR_SECURITY_AND_PORTABILITY.md](../Documentation/Architecture/CLR_SEC
 - Nicht triviale Codeblöcke erklären Absicht, Voraussetzungen, Seiteneffekte, Besonderheiten, Designgrund und relevante Performance- oder Plattformgrenzen.
 - Veraltete Kommentare gelten als Fehler.
 - Jedes öffentliche SQL-Objekt erhält eine eigene Dokumentationsseite und einen vollständigen Objekt-Header.
+- Neue und fachlich oder algorithmisch geänderte öffentliche SQL-Objekte erhalten passende synthetische Aufrufbeispiele mit Voraussetzungen und erklärtem Ergebnis gemäß [Objektreferenz und Beispiele](../Documentation/Standards/CODE_DOCUMENTATION.md#objektreferenz-und-beispiele).
+- Bei nicht trivialer Funktionalität ist der technische Lösungsweg nachvollziehbar zu erklären; Auswahl, Tiefe und gekoppelte Pflege folgen [Technische Implementierungserklärungen](../Documentation/Standards/CODE_DOCUMENTATION.md#technische-implementierungserklärungen). Triviale Syntax benötigt keinen zusätzlichen Erklärungstext.
 - Wiederholte Modulstatuswerte werden aus `module.yaml` abgeleitet; narrative Dokumentation bleibt manuell.
 - Module registrieren ihre gekoppelten Dokumentations- und Contract-Artefakte im Manifest.
 
