@@ -118,5 +118,6 @@ if($driverText-match'\[Data\.SqlClient\.SqlTransaction\]|\.BeginTransaction\(' -
    $driverText-notmatch'Assert-ReleaseInputs' -or $driverText-notmatch'Assert-RunsetStable' -or
    $driverText-notmatch'Assert-ReleaseOwnIdentity' -or $driverText-notmatch'Assert-ClrCallerTrustCleanupScope' -or
    $driverText-notmatch"SQL_VARIANT_PROPERTY\(ep\.value,N'MaxLength'\)" -or $driverText-notmatch'BinaryValue' -or
-   $driverText-notmatch'@TypedValue nvarchar\(16\)'){throw 'JSON_DEPLOY_COLLISION_OFFLINE_PROTECTION_MISSING'}
+   $driverText-notmatch'@TypedValue nvarchar\(16\)' -or $driverText-notmatch'@Data TABLE\(\[RowCount\] bigint' -or
+   $driverText-notmatch'COUNT_BIG\(\*\) AS \[RowCount\]' -or $driverText-notmatch'SELECT \[RowCount\] FROM @Data'){throw 'JSON_DEPLOY_COLLISION_OFFLINE_PROTECTION_MISSING'}
 Write-Output 'PASS JSON_SCHEMA_DEPLOY_COLLISION offline guards, audit prefixes, and drift-blocking cleanup; no SQL executed'

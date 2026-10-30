@@ -149,7 +149,7 @@ function Get-FixtureSnapshot($Connection,$Case){
 SELECT OBJECT_ID(N'tempdb..#tbx_JsonSchema_DeployState',N'U') ObjectId,
  (SELECT c.column_id,c.name,TYPE_NAME(c.user_type_id) TypeName,c.max_length,c.is_nullable
   FROM tempdb.sys.columns c WHERE c.object_id=OBJECT_ID(N'tempdb..#tbx_JsonSchema_DeployState',N'U') ORDER BY c.column_id FOR JSON PATH) Columns,
- (SELECT COUNT(*) FROM tempdb..#tbx_JsonSchema_DeployState) RowCount,
+ (SELECT COUNT(*) FROM tempdb..#tbx_JsonSchema_DeployState) AS [RowCount],
  (SELECT MIN(Sentinel) FROM tempdb..#tbx_JsonSchema_DeployState) Sentinel;
 '@ -Rows)
    if($rows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_TEMP_SNAPSHOT_SHAPE'}
@@ -176,15 +176,15 @@ FROM sys.extended_properties ep WHERE ep.class=0 AND ep.name=@Name;
  if(-not(Test-SqlObjectPresent $objectId)){return '{"exists":false}'}
  $rows=@(Sql $Connection @'
 DECLARE @ObjectId int=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(@Name));
-DECLARE @Data TABLE(RowCount bigint,Sentinel int NULL);
-DECLARE @DataSql nvarchar(max)=N'SELECT COUNT_BIG(*) RowCount,MIN(Sentinel) Sentinel FROM [toolbelt_json].'+QUOTENAME(@Name)+N';';
+DECLARE @Data TABLE([RowCount] bigint,Sentinel int NULL);
+DECLARE @DataSql nvarchar(max)=N'SELECT COUNT_BIG(*) AS [RowCount],MIN(Sentinel) AS Sentinel FROM [toolbelt_json].'+QUOTENAME(@Name)+N';';
 INSERT @Data EXEC sys.sp_executesql @DataSql;
 SELECT @ObjectId ObjectId,
  (SELECT o.name,RTRIM(o.type) TypeName,o.principal_id,sm.definition
   FROM sys.objects o LEFT JOIN sys.sql_modules sm ON sm.object_id=o.object_id WHERE o.object_id=@ObjectId FOR JSON PATH) ObjectShape,
  (SELECT c.column_id,c.name,TYPE_NAME(c.user_type_id) TypeName,c.max_length,c.is_nullable
   FROM sys.columns c WHERE c.object_id=@ObjectId ORDER BY c.column_id FOR JSON PATH) Columns,
- (SELECT RowCount FROM @Data) RowCount,(SELECT Sentinel FROM @Data) Sentinel;
+ (SELECT [RowCount] FROM @Data) AS [RowCount],(SELECT Sentinel FROM @Data) AS Sentinel;
 '@ @{ '@Name'=[string]$name } -Rows)
  if($rows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_SLOT_SNAPSHOT_SHAPE'}
  return ($rows[0]|ConvertTo-Json -Depth 4 -Compress)
