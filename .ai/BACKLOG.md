@@ -1,5 +1,30 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Modulspezifische Releasepflichten besser auffindbar machen — r32, 2026-10-30
+
+Autorisierter Offline-Folgeauftrag: die offene allgemeine RELEASE-GATES-Zeile
+zu Modulpflichten für alle 45 bestehenden Module anhand der vorhandenen
+Tests/README-Inventur, `module.yaml`-Nachweisen und jeweiligen Testmatrizen
+konkretisieren. Keine neue Registry, keine kartesische Engine-/Plattformmatrix
+und keine Schlussfolgerung aus bloßer Test- oder Dateiexistenz. Explizit
+belegte Restpunkte und echte externe Voraussetzungen getrennt benennen;
+ungeklärte Fälle als `requires review` belassen. Bestehende Evidenzzuordnung
+und fachliche Statuswerte unverändert erhalten. Geplant sind eine kurze
+Aufwandsbewertung, ein gezielter Offline-Driftcheck und höchstens ein
+Dokumentations-/Releasevalidierungslauf; kein SQL, keine Runtime-CI-Änderung und
+keine Veröffentlichung. Eine Quelle-Generator-Erweiterung wird nur übernommen,
+wenn sie gegenüber der bestehenden 45-Modul-Zuordnung nachweisbaren
+Abdeckungs- oder Driftwert bietet.
+
+Ergebnis: Das bestehende Register enthält weiterhin genau 45 Module mit
+einer zusätzlichen Spalte für nächste Schritte oder Prüfvorbehalte. Die
+aktuellen SSIS-Binary-, ZIP- und Standalone-Nachweise sind getrennt verlinkt.
+Der allgemeine Releasepunkt bleibt offen; keine weitere Modulqualifikation
+oder Statusanhebung wird behauptet. Für die reine Lesestreckenänderung sind
+weder neue Registry/Generatoren noch Tests, CI-Jobs oder Reviewketten nötig.
+Gezielte Struktur-/Quellvergleiche und die bestehende Head-/Main-CI genügen;
+Rohprotokolle bleiben privat. Kosten und Tokens sind unbekannt.
+
 ## Aktueller SSIS-T-SQL-Installer: fehlende Windows-CL-Kontexte — 2026-10-29
 
 Direkter Benutzerauftrag r31: den unveränderten aktuellen reinen T-SQL-Installer
