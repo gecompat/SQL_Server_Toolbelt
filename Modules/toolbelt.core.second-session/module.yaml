@@ -83,9 +83,6 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
-    - "Documentation/VW_SecondSessionProviders.md"
-    - "Documentation/USP_ConfigureSecondSessionLoopback.md"
-    - "Documentation/USP_ExecuteWorkTypeInNewSession.md"
     - "Documentation/SECOND_SESSION_OBJECTS.md"
   architecture:
     - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"

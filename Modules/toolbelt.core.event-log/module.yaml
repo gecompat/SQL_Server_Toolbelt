@@ -79,9 +79,6 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
-    - "Documentation/VW_Events.md"
-    - "Documentation/USP_WriteEvent.md"
-    - "Documentation/USP_DeleteEventsBefore.md"
     - "Documentation/USP_DeleteRecordedEventsBefore.md"
     - "Documentation/EVENT_LOG_OBJECTS.md"
   architecture:

@@ -89,8 +89,6 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
-    - "Documentation/AGF_JsonArray.md"
-    - "Documentation/AGF_JsonObject.md"
     - "Documentation/JSON_AGGREGATES.md"
     - "Documentation/USP_JsonArray.md"
     - "Documentation/USP_JsonObject.md"

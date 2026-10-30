@@ -70,11 +70,6 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
-    - "Documentation/TVF_CurrentExecutionContext.md"
-    - "Documentation/SVF_CurrentExecutionId.md"
-    - "Documentation/USP_BeginExecution.md"
-    - "Documentation/USP_SetExecutionContext.md"
-    - "Documentation/USP_EndExecution.md"
     - "Documentation/EXECUTION_CONTEXT_OBJECTS.md"
   architecture:
     - "../../Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md"

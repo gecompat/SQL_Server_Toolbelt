@@ -119,19 +119,6 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
-    - "Documentation/VW_WorkQueue.md"
-    - "Documentation/VW_WorkQueueBarrierBlockers.md"
-    - "Documentation/USP_EnqueueWork.md"
-    - "Documentation/USP_EnqueueWorkWithPolicy.md"
-    - "Documentation/USP_EnqueueBarrierWork.md"
-    - "Documentation/USP_ClaimWork.md"
-    - "Documentation/USP_RenewWorkLease.md"
-    - "Documentation/USP_RecoverExpiredWork.md"
-    - "Documentation/USP_CompleteWork.md"
-    - "Documentation/USP_FailWork.md"
-    - "Documentation/USP_ScheduleWorkRetry.md"
-    - "Documentation/USP_RequeueDeadLetter.md"
-    - "Documentation/USP_GetWorkStatus.md"
     - "Documentation/WORK_QUEUE_OBJECTS.md"
   architecture:
     - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
