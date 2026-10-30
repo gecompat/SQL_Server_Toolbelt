@@ -8,14 +8,23 @@ bestehenden JSON-Schema-1.0.1-Uninstall werden auf Windows SQL Server
 jeweils von einer zweiten Verbindung exklusiv gehalten. Der Uninstall muss
 mit 55637/State 1 und der passenden festen Sperrmeldung abbrechen, den
 vollständigen Modul-/Core-/Objekt-/Metadaten-/Rechtezustand unverändert lassen
-und nach Freigabe derselben Sperre erfolgreich sein. Schema und Core werden
-für den zweiten Fall exakt gebunden wiederhergestellt; eigene Datenbank,
+und nach Freigabe derselben Sperre erfolgreich sein. Für den zweiten Fall wird
+das Schema aus denselben gepinnten Eingaben erneut installiert; der Core bleibt
+installiert und wird auf identische Assembly-, Objekt- und Rechtesicht geprüft.
+Eigene Datenbank,
 Trust-/Konfigurationswiederherstellung, Eingabepins und unabhängiges Audit
 folgen den bestehenden geschützten Releasehelfern. Die Caller-Transaktions-
 Gates sind ein getrennter, nicht eingeschlossener Scope. r33-Dateien und
 Nachweise bleiben unverändert; neue Adapter komponieren deren geprüfte
 Funktionen. Root führt Ziel und Audit aus. Keine Produkt-/API-/Paketänderung,
 keine Wiederholung grüner Matrixfälle, keine Veröffentlichung.
+
+Abschluss: ein nativer Zielaufruf und ein unabhängiges Audit bestanden. Beide
+Sperrkonflikte sowie beide erfolgreichen Uninstall-Kontrollen nach Lockfreigabe
+bestanden; es gab keine fehlgeschlagenen nativen Versuche. Ausgeführt wurde der
+gebundene Treiberstand `8c5e84cd613532a32589e53fd84f7de474c469c2`. Andere
+Versionen, CLs, Plattformen, Modi, Caller-Transaktionsfälle und vollständige
+API-/Rechte-/Lifecyclematrizen bleiben offen.
 
 ## JSON-Schema-Deployment: transaktionale AppLock-Abweisung — r33, 2026-10-30
 
