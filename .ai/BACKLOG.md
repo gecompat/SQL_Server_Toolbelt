@@ -1,5 +1,24 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
+
+Eng begrenzte Qualifikation des bestehenden JSON-Schema-1.0.1-Lifecycle: auf
+Windows SQL Server 2025/CU8/CL170 lokal werden Deploy bei fehlendem Schema und
+Uninstall bei installiertem Schema jeweils innerhalb einer expliziten
+Callertransaktion auf dieselbe feste Fehlermeldung geprüft. Die Prüfung bindet
+SPID/Verbindung, `@@TRANCOUNT`, `XACT_STATE()`, `@@OPTIONS`, einen vor und nach
+der Ablehnung unveränderten Modulzustand sowie einen Transaktionszeugen mit
+Savepoint. Rollback zum Savepoint und vollständiger Rollback müssen den
+erwarteten Zeugenstand erhalten beziehungsweise wiederherstellen; danach muss
+derselbe gepinnte Lifecycleaufruf ohne Callertransaktion erfolgreich sein.
+Eine separate unabhängige Prüfung bestätigt ausschließlich eigene
+Datenbank-/Trust-/Konfigurationsbereinigung und unveränderte Eingabepins.
+Neue dünne Adapter komponieren die bestehenden geschützten Releasehelfer;
+r33/r34-Dateien, Produkt/API/Paket und bisherige Nachweise bleiben unverändert.
+Root prüft den eingefrorenen Runset/Driver, führt genau einen Zielaufruf und
+ein Audit aus. Keine AppLock-Wiederholung, keine weiteren Rechte oder
+Serverkonfigurationsänderungen, keine Veröffentlichung.
+
 ## JSON-Schema-Uninstall: AppLock-Abweisung — r34, 2026-10-30
 
 Eng begrenzte, ausdrücklich angenommene Funktionsqualifikation: Für den
