@@ -278,8 +278,8 @@ try{
 finally{
  foreach($connection in $script:connections){try{$connection.Dispose()}catch{}};[Data.SqlClient.SqlConnection]::ClearAllPools()
  if($script:ledger -and -not$AuditOnly){try{
-  $control=Open-ReleaseConnection 'master'
   $script:cleanup=$true
+  $control=Open-ReleaseConnection 'master'
   foreach($database in $script:ledger.databases){Assert-RunsetStable;Assert-ReleaseOwnIdentity $control $database;$database.state='DROPPED';Save-Journal}
   foreach($trust in $script:ledger.trust){$hash=[Convert]::FromHexString($trust.hash);$actual=Get-ClrCallerTrust $control $hash
    if($trust.preexisting){if($null-eq$actual-or$actual.Fingerprint-cne$trust.fingerprint){throw 'JSON_CALLER_TX_PREEXISTING_TRUST_DRIFT'};continue}

@@ -122,6 +122,19 @@ if($timeout-isnot[int]-or$timeout-le0 -or
 $stableErrors=$null;$stableAst=[Management.Automation.Language.Parser]::ParseFile($stable,[ref]$null,[ref]$stableErrors)
 $open=@($stableAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Open-ReleaseConnection'},$true))
 if($stableErrors.Count-or$open.Count-ne1-or-not$open[0].Extent.Text.Contains('Get-ReleaseTimeout',[StringComparison]::Ordinal)){throw 'JSON_CALLER_TX_OFFLINE_TIMEOUT_DEPENDENCY'}
+$mainTry=@($ast.EndBlock.Statements|Where-Object{$_-is[Management.Automation.Language.TryStatementAst]})
+if($mainTry.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_MAIN_TRY_GUARD'}
+$finallyText=$mainTry[0].Finally.Extent.Text
+$cleanupTimeoutOffset=$finallyText.IndexOf('$script:cleanup=$true',[StringComparison]::Ordinal)
+$cleanupConnectOffset=$finallyText.IndexOf("`$control=Open-ReleaseConnection 'master'",[StringComparison]::Ordinal)
+if($cleanupTimeoutOffset-lt0 -or $cleanupConnectOffset-lt0 -or $cleanupTimeoutOffset-ge$cleanupConnectOffset){throw 'JSON_CALLER_TX_OFFLINE_CLEANUP_TIMEOUT_ORDER'}
+$script:clock=[pscustomobject]@{ElapsedMilliseconds=[long]300001};$script:cleanup=$false
+$workRejected=$false
+try{[void](Get-ReleaseTimeout)}catch{if($_.Exception.Message-ceq'RELEASE_DEADLINE'){$workRejected=$true}else{throw}}
+if(-not$workRejected){throw 'JSON_CALLER_TX_OFFLINE_WORK_TIMEOUT_NOT_ENFORCED'}
+$script:cleanup=$true;$cleanupTimeout=Get-ReleaseTimeout
+if($cleanupTimeout-isnot[int]-or$cleanupTimeout-le0){throw 'JSON_CALLER_TX_OFFLINE_CLEANUP_RESERVE_EXHAUSTED'}
+$script:clock=[Diagnostics.Stopwatch]::StartNew();$script:cleanup=$false
 $envErrors=$null;$envAst=[Management.Automation.Language.Parser]::ParseFile($environment,[ref]$null,[ref]$envErrors)
 foreach($name in @('Start-ClrCallerConfiguration','Restore-ClrCallerConfiguration')){
  $function=@($envAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
