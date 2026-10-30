@@ -2079,6 +2079,7 @@ def load_tests(loader, tests, pattern):
     from test_json_schema_caller_transaction_qualification import JsonSchemaCallerTransactionQualificationTests
     from test_json_schema_deploy_collision_adapter import JsonSchemaDeployCollisionAdapterTests
     from test_json_schema_deploy_collision_qualification import JsonSchemaDeployCollisionQualificationTests
+    from test_json_schema_uninstall_confirmation_adapter import JsonSchemaUninstallConfirmationAdapterTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
     tests.addTests(loader.loadTestsFromTestCase(CsvMetadataTests))
     tests.addTests(loader.loadTestsFromTestCase(CurrentDocumentationTransitionTests))
@@ -2092,6 +2093,7 @@ def load_tests(loader, tests, pattern):
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaCallerTransactionQualificationTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployCollisionAdapterTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployCollisionQualificationTests))
+    tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallConfirmationAdapterTests))
     return tests
 
 
