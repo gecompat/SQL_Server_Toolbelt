@@ -371,6 +371,14 @@ try{
         $script:expectedOwnCore=Read-CoreProjection $db
         Sql $db 'SET QUOTED_IDENTIFIER ON; SET NOCOUNT ON; SET XACT_ABORT ON; SET IMPLICIT_TRANSACTIONS OFF;'
         $profileRows=@(Sql $db 'SELECT CASE WHEN (@@OPTIONS&256)=256 THEN 1 ELSE 0 END QuotedIdentifier,CASE WHEN (@@OPTIONS&512)=512 THEN 1 ELSE 0 END NoCount,CASE WHEN (@@OPTIONS&16384)=16384 THEN 1 ELSE 0 END XactAbort,CASE WHEN (@@OPTIONS&2)=2 THEN 1 ELSE 0 END ImplicitTransactions,@@OPTIONS Options,@@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
+        $profileDiagnostic=[ordered]@{stage='SESSION_PROFILE';row_count=$profileRows.Count;quoted_identifier=$null;nocount=$null;xact_abort=$null;implicit_transactions=$null;options=$null;transaction_count=$null;xact_state=$null}
+        if($profileRows.Count-eq1){
+            foreach($pair in @(@('quoted_identifier','QuotedIdentifier'),@('nocount','NoCount'),@('xact_abort','XactAbort'),@('implicit_transactions','ImplicitTransactions'),@('options','Options'),@('transaction_count','TranCount'),@('xact_state','XactState'))){
+                $value=$profileRows[0].PSObject.Properties[$pair[1]].Value
+                if($null-ne$value -and $value-isnot[DBNull]){$profileDiagnostic[$pair[0]]=[Convert]::ToString($value,[Globalization.CultureInfo]::InvariantCulture)}
+            }
+        }
+        $script:ledger.diagnostics+=@($profileDiagnostic);Save-Journal
         if($profileRows.Count-ne1 -or [int]$profileRows[0].QuotedIdentifier-ne1 -or [int]$profileRows[0].NoCount-ne1 -or [int]$profileRows[0].XactAbort-ne1 -or [int]$profileRows[0].ImplicitTransactions-ne0 -or [int]$profileRows[0].TranCount-ne0 -or [int]$profileRows[0].XactState-ne0){throw 'JSON_UNINSTALL_CONFIRMATION_SESSION_PROFILE_INVALID'}
         $initialOptions=[int]$profileRows[0].Options
         $coreBefore=Read-CoreProjection $db

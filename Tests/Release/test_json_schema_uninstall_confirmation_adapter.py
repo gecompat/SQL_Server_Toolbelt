@@ -28,6 +28,16 @@ class JsonSchemaUninstallConfirmationAdapterTests(unittest.TestCase):
         self.assertIn("Test-ExternalSessionIdle", self.driver)
         self.assertIn("@@OPTIONS", self.driver)
 
+    def test_session_profile_failure_is_diagnosable_only_in_private_journal(self):
+        for field in (
+            "stage='SESSION_PROFILE'", "row_count=$profileRows.Count",
+            "quoted_identifier=$null", "nocount=$null", "xact_abort=$null",
+            "implicit_transactions=$null", "transaction_count=$null", "xact_state=$null",
+            "$script:ledger.diagnostics+=@($profileDiagnostic);Save-Journal",
+        ):
+            self.assertIn(field, self.driver)
+        self.assertNotIn("Write-Output $profileDiagnostic", self.driver)
+
     def test_reuses_pinned_guards_and_has_no_unbounded_execution_path(self):
         for text in (
             "Invoke-JsonSchemaAppLockLab.ps1", "Assert-ReleaseInputs",
