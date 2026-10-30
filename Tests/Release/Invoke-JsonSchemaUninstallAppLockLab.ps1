@@ -133,9 +133,10 @@ SELECT
   FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id LEFT JOIN sys.sql_modules sm ON sm.object_id=o.object_id
   LEFT JOIN sys.assembly_modules am ON am.object_id=o.object_id WHERE s.name=N'toolbelt_core' ORDER BY o.object_id FOR JSON PATH) Objects,
  (SELECT dp.class,dp.major_id,dp.minor_id,dp.grantee_principal_id,dp.grantor_principal_id,dp.type,dp.permission_name,dp.state
-  FROM sys.database_permissions dp WHERE dp.class=0 OR dp.major_id IN(SELECT schema_id FROM sys.schemas WHERE name=N'toolbelt_core')
-   OR dp.major_id IN(SELECT object_id FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_core'))
-   OR dp.major_id IN(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonCore')
+  FROM sys.database_permissions dp WHERE dp.class=0
+   OR (dp.class=3 AND dp.major_id=SCHEMA_ID(N'toolbelt_core'))
+   OR (dp.class=1 AND dp.major_id IN(SELECT object_id FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_core')))
+   OR (dp.class=5 AND dp.major_id IN(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonCore'))
   ORDER BY dp.class,dp.major_id,dp.minor_id,dp.grantee_principal_id,dp.permission_name FOR JSON PATH) Permissions,
  (SELECT role_principal_id,member_principal_id FROM sys.database_role_members ORDER BY role_principal_id,member_principal_id FOR JSON PATH) RoleMemberships,
  (SELECT principal_id,name,type,type_desc,default_schema_name,authentication_type_desc,CONVERT(varchar(258),sid,2) Sid
@@ -160,25 +161,47 @@ function Assert-ExactBlock($Connection,$Observer,$Case,$Before,[int]$Spid,$Basel
 function Assert-PositiveUninstall($Connection,$BeforeCore){
     Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.schema_uninstall.path,[Text.Encoding]::UTF8))
     Assert-SchemaModuleAbsent $Connection
+    Assert-CoreOnly $Connection
     if((Read-CoreProjection $Connection)-cne$BeforeCore){throw 'JSON_UNINSTALL_APPLOCK_CORE_CHANGED'}
 }
+function Assert-SchemaAssemblyClosure($Rows,$Artifacts){
+    $expected=@($Artifacts|Sort-Object module_id -CaseSensitive)
+    $actual=@($Rows|Sort-Object name -CaseSensitive)
+    if($expected.Count-ne2 -or $actual.Count-ne2){throw 'JSON_UNINSTALL_APPLOCK_ASSEMBLY_CLOSURE_INVALID'}
+    $wantedNames=@('Toolbelt_JsonCore','Toolbelt_JsonSchema')
+    if(($actual.name -join '|')-cne($wantedNames -join '|')){throw 'JSON_UNINSTALL_APPLOCK_ASSEMBLY_CLOSURE_INVALID'}
+    foreach($artifact in $expected){
+        $name=[string]$artifact.sql_name
+        $match=@($actual|Where-Object{$_.name-ceq$name})
+        if($match.Count-ne1 -or $match[0].permission_set_desc-cne'SAFE_ACCESS' -or
+           [string]$match[0].BinaryHash-cne$artifact.sha512.ToUpperInvariant()){
+            throw 'JSON_UNINSTALL_APPLOCK_ASSEMBLY_CLOSURE_INVALID'
+        }
+    }
+}
 function Assert-SchemaInstalled($Connection){
-    $expected=@($script:runset.artifacts|Where-Object{$_.module_id-ceq'toolbelt.json.schema'})
     $rows=@(Sql $Connection @'
-SELECT a.assembly_id,a.principal_id,a.permission_set_desc,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) BinaryHash
-FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_JsonSchema';
+SELECT a.name,a.assembly_id,a.principal_id,a.permission_set_desc,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) BinaryHash
+FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.is_user_defined=1;
 '@ -Rows)
     $metadata=@(Sql $Connection @'
 SELECT ep.name,CONVERT(nvarchar(128),ep.value) Value FROM sys.extended_properties ep WHERE ep.class=0
 AND ep.name IN(N'Toolbelt.Module.toolbelt.json.schema.Version',N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode') ORDER BY ep.name;
 '@ -Rows)
     $schema=@(Sql $Connection "SELECT s.schema_id,s.principal_id FROM sys.schemas s WHERE s.name=N'toolbelt_json';" -Rows)
+    $slots=@(Sql $Connection @'
+SELECT o.name,o.type,am.assembly_id FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
+LEFT JOIN sys.assembly_modules am ON am.object_id=o.object_id
+WHERE s.name=N'toolbelt_json' AND o.name IN(N'USP_ValidateJsonSchema',N'FT_ValidateJsonSchemaInternal') ORDER BY o.name;
+'@ -Rows)
     $version=@($metadata|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.json.schema.Version'})
     $mode=@($metadata|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.json.schema.DeploymentMode'})
-    if($expected.Count-ne1 -or $rows.Count-ne1 -or $rows[0].permission_set_desc-cne'SAFE_ACCESS' -or
-       [string]$rows[0].BinaryHash-cne$expected[0].sha512.ToUpperInvariant() -or $schema.Count-ne1 -or
+    Assert-SchemaAssemblyClosure $rows $script:runset.artifacts
+    $schemaAssembly=@($rows|Where-Object{$_.name-ceq'Toolbelt_JsonSchema'})
+    if($schema.Count-ne1 -or
        [int]$schema[0].principal_id-ne1 -or $version.Count-ne1 -or $version[0].Value-cne'1.0.1' -or
-       $mode.Count-ne1 -or $mode[0].Value-cne'local'){
+       $mode.Count-ne1 -or $mode[0].Value-cne'local' -or $slots.Count-ne2 -or
+       @($slots|Where-Object{$_.assembly_id-ne$schemaAssembly[0].assembly_id}).Count-ne0){
         throw 'JSON_UNINSTALL_APPLOCK_SCHEMA_INSTALL_INVALID'
     }
 }
@@ -230,10 +253,10 @@ try{
         $db=Open-ReleaseConnection $name;Sql $db 'DECLARE @O nvarchar(32)=@Owner; EXEC sys.sp_addextendedproperty @name=N''Test.Release.Owner'',@value=@O;' @{ '@Owner'=$script:ledger.owner };$entry.state='OWNED';Save-Journal;Sql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=170;"
         $script:stage='BASELINE';Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.baseline.path,[Text.Encoding]::UTF8));Assert-CoreOnly $db;Assert-SchemaAbsent $db
         $coreBefore=Read-CoreProjection $db
-        Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.schema_deploy.path,[Text.Encoding]::UTF8));Assert-CoreOnly $db;Assert-SchemaInstalled $db
+        Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.schema_deploy.path,[Text.Encoding]::UTF8));Assert-SchemaInstalled $db
         if((Read-CoreProjection $db)-cne$coreBefore){throw 'JSON_UNINSTALL_APPLOCK_CORE_CHANGED_ON_INSTALL'}
         for($i=0;$i-lt2;$i++){
-            if($i-gt0){Assert-SchemaModuleAbsent $db;Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.schema_deploy.path,[Text.Encoding]::UTF8));Assert-CoreOnly $db;Assert-SchemaInstalled $db;if((Read-CoreProjection $db)-cne$coreBefore){throw 'JSON_UNINSTALL_APPLOCK_CORE_CHANGED_ON_REINSTALL'}}
+            if($i-gt0){Assert-SchemaModuleAbsent $db;Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.schema_deploy.path,[Text.Encoding]::UTF8));Assert-SchemaInstalled $db;if((Read-CoreProjection $db)-cne$coreBefore){throw 'JSON_UNINSTALL_APPLOCK_CORE_CHANGED_ON_REINSTALL'}}
             $case=$script:runset.scope.cases[$i];$script:stage='CASE_'+$i
             $installed=Get-ModuleState $db;$holder=Open-ReleaseConnection $name;$holderSpid=Acquire-HolderLock $holder $case.resource;Assert-ExternalHolderGranted $control $holderSpid
             $contender=Open-ReleaseConnection $name;$spid=[int](Read-Scalar $contender 'SELECT @@SPID AS ScalarValue;');$baseline=Get-ContenderStateSamples $control $contender $spid
