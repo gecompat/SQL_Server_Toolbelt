@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import current_documentation_transition as transition
 import help_contract_source
+import parameter_documentation_transition as parameters
 
 
 class CurrentDocumentationTransitionTests(unittest.TestCase):
@@ -18,7 +19,12 @@ class CurrentDocumentationTransitionTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         root = Path(temporary.name)
         paths = set(transition.PATHS) | {
-            transition.RECORD_PATH, transition.ARCHIVE_PATH, 'LICENSE.md'}
+            transition.RECORD_PATH, transition.ARCHIVE_PATH, 'LICENSE.md',
+            parameters.ARCHIVE, parameters.REGISTRY} | set(parameters.PATHS)
+        for path in parameters.PATHS:
+            module = Path(path).parts[1]
+            paths.update(p.relative_to(ROOT).as_posix()
+                         for p in (ROOT / 'Modules' / module / 'Source').glob('*.sql'))
         for relative in paths:
             source = ROOT / relative
             target = root / relative
@@ -35,7 +41,9 @@ class CurrentDocumentationTransitionTests(unittest.TestCase):
                 current = transition.validate_current(
                     ROOT, path, record['before_source_sha256'][path])
                 self.assertEqual(transition._digest(before), record['before_source_sha256'][path])
-                self.assertEqual(transition._digest(current), record['after_source_sha256'][path])
+                predecessor = (parameters.predecessor_source(ROOT, path, current)
+                               if path in parameters.PATHS else current)
+                self.assertEqual(transition._digest(predecessor), record['after_source_sha256'][path])
                 with self.assertRaisesRegex(ValueError, 'predecessor pin'):
                     transition.validate_current(ROOT, path, '0' * 64)
 
@@ -87,6 +95,30 @@ class CurrentDocumentationTransitionTests(unittest.TestCase):
         license_path.write_bytes(license_path.read_bytes() + b'\n')
         with self.assertRaisesRegex(ValueError, 'license differs'):
             transition.validate_current(root, sorted(transition.PATHS)[0])
+
+    def test_parameter_projection_rejects_noncanonical_table_and_surrounding_prose(self):
+        path = sorted(parameters.PATHS)[0]
+        for replacement in ('outside', 'inside'):
+            root = self._fixture()
+            target = root / path
+            content = target.read_text(encoding='utf-8')
+            changed = content + '\nUnapproved prose.\n' if replacement == 'outside' else content.replace(
+                parameters.BEGIN, parameters.BEGIN + '\nUnapproved table content.', 1)
+            target.write_text(changed, encoding='utf-8')
+            with self.subTest(change=replacement), self.assertRaisesRegex(ValueError, 'exact canonical parameter projection'):
+                parameters.predecessor_source(root, path)
+
+    def test_parameter_archive_and_native_doc_pin_are_not_generic_exceptions(self):
+        root = self._fixture()
+        archive = root / parameters.ARCHIVE
+        archive.write_bytes(archive.read_bytes() + b'corruption')
+        with self.assertRaisesRegex(ValueError, 'parameter documentation archive differs'):
+            parameters.predecessor_source(root, sorted(parameters.PATHS)[0])
+        for path in ('README.md', 'Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql', '../escape.md'):
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, 'unsupported native parameter documentation path'):
+                parameters.native_documentation_source(ROOT, path, '0' * 64)
+        with self.assertRaisesRegex(ValueError, 'predecessor pin differs'):
+            parameters.native_documentation_source(ROOT, sorted(parameters.NATIVE_PATHS)[0], '0' * 64)
 
 
 if __name__ == '__main__':

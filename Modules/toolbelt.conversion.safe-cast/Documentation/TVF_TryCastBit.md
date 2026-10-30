@@ -4,10 +4,12 @@
 Der [kanonische Vertrag](../../../Documentation/Architecture/SAFE_CAST_CONTRACT.md)
 definiert Ziellexik, genaue Fehlerpriorität, Bereich und Verlustfreiheit.
 
-| Parameter | Typ | Default |
-|---|---|---|
-| Text | nvarchar(max) | keiner |
-| MaxInputBytes | int | 8192 |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Taxativ als Text: N'0' ergibt bit 0; N'1' ergibt bit 1. Keine anderen Werte, Vorzeichen, TRUE/FALSE, Spaces oder Normalisierung; dies ist ein strikter Textparser und nicht die native bit-Konvertierung. NULL ergibt SQL_NULL, leerer Text EMPTY; sonst ungültige Lexik INVALID_FORMAT, kein stilles Trimmen. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives int-Bytebudget 1..8192 einschließlich (Default 8192), gemessen mit DATALENGTH des UTF-16-Texts, nicht in Zeichen; auch ungerade Budgets sind zulässig. NULL/0/negativ/&gt;8192 ergibt INVALID_ARGUMENT/PARAMETER, außer Text=NULL hat Vorrang (SQL_NULL). Ein größerer Text ergibt LIMIT/INPUT_LIMIT. |
+<!-- API_PARAMETERS:END -->
 
 Genau eine Zeile: Value bit NULL, Status varchar(16) NOT NULL,
 ErrorCode varchar(32) NULL. Textdiagnosen Latin1_General_100_BIN2.

@@ -74,6 +74,9 @@ KI-Systeme ist [AGENTS.md](./AGENTS.md).
 
 ## SQL-Objekte nachschlagen
 
+Die Parametertabellen nennen für jeden Parameter Datenform, Grenzen,
+Default-/NULL-Verhalten und sämtliche festen Werte mit ihrer Bedeutung.
+
 Der [SQL-Objektkatalog](./Documentation/Reference/API_CATALOG.md) führt zu
 den einzelnen Functions, Stored Procedures, Views und CLR-Aggregaten.
 Suche nach dem Objektnamen und öffne unter „Vertrag und Quelle“ dessen

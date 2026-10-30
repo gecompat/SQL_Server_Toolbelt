@@ -10,10 +10,12 @@ Quelle: [DATEDIFF (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/fu
 
 ## Aufrufparameter
 
-| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@StartDate` | `date` | `kein Default` | Input | Startdatum des Intervalls. |
-| `@EndDate` | `date` | `kein Default` | Input | Enddatum des Intervalls. |
+| `@StartDate` | `date` | `kein Default` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Anfang des Vergleichs. Beide Reihenfolgen und gleiche Daten sind zulässig; die Richtung steht nur in Sign. NULL ergibt NULL in allen Ergebnisspalten. |
+| `@EndDate` | `date` | `kein Default` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Zweites Datum. Vollständige Jahre/Monate folgen der Anniversary-Regel einschließlich Monatsendklammerung. NULL ergibt NULL in allen Ergebnisspalten. |
+<!-- API_PARAMETERS:END -->
 
 ## Beispielaufruf
 

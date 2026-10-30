@@ -109,7 +109,7 @@ Bei öffentlichen Funktionen gemeinsam prüfen und aktualisieren:
 - Implementierung;
 - Parameter, Defaults und Resultsets;
 - Help- und Fehlervertrag;
-- Beispiele und öffentliche Dokumentation;
+- Beispiele, Ergebnisdeutung und gegebenenfalls technische Implementierungserklärung gemäß [Dokumentationsstandard](../Documentation/Standards/CODE_DOCUMENTATION.md#pflege-und-abnahme), auch bei Algorithmusänderungen ohne Signaturänderung;
 - Modulmanifest und Lifecycle-Skripte;
 - statische, Runtime- und Contract-Tests;
 - Backlog, Status, Changelog und bekannte Einschränkungen.

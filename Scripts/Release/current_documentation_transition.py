@@ -158,6 +158,10 @@ def _load(root: Path):
                  'documentation transition historical source differs')
     for path in PATHS:
         current = _read_regular(root, path, MAX_SOURCE_BYTES)
+        if _digest(current) != record['after_source_sha256'][path]:
+            import parameter_documentation_transition as parameters
+            if path in parameters.PATHS:
+                current = parameters.predecessor_source(root, path, current)
         _require(_digest(current) == record['after_source_sha256'][path],
                  'current documentation differs from its exact follow-up pin')
     return root, record, content

@@ -4,10 +4,12 @@
 Der [kanonische Vertrag](../../../Documentation/Architecture/SAFE_CAST_CONTRACT.md)
 definiert Ziellexik, genaue Fehlerpriorität, Bereich und Verlustfreiheit.
 
-| Parameter | Typ | Default |
-|---|---|---|
-| Text | nvarchar(max) | keiner |
-| MaxInputBytes | int | 8192 |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | ASCII-Dezimaltext mit optional führendem +/-, mindestens einer Ganzzahlziffer und optional Punkt mit mindestens einer Nachkommastelle. Keine Kommas, Exponenten oder Spaces. Führende Nullen sind zulässig. Ziel decimal(38,18), maximal 20 Ganzzahl- und 18 relevante Nachkommastellen; weitere Nullen sind exakt entfernbar, weitere nichtnull Ziffern bedeuten LOSSY/SCALE. Ein Bereichsfehler hat davor Vorrang. NULL ergibt SQL_NULL, leerer Text EMPTY; sonst ungültige Lexik INVALID_FORMAT, kein stilles Trimmen. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives int-Bytebudget 1..8192 einschließlich (Default 8192), gemessen mit DATALENGTH des UTF-16-Texts, nicht in Zeichen; auch ungerade Budgets sind zulässig. NULL/0/negativ/&gt;8192 ergibt INVALID_ARGUMENT/PARAMETER, außer Text=NULL hat Vorrang (SQL_NULL). Ein größerer Text ergibt LIMIT/INPUT_LIMIT. |
+<!-- API_PARAMETERS:END -->
 
 Genau eine Zeile: Value decimal(38,18) NULL, Status varchar(16) NOT NULL,
 ErrorCode varchar(32) NULL. Textdiagnosen Latin1_General_100_BIN2.

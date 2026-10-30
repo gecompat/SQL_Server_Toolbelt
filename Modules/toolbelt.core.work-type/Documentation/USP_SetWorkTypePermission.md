@@ -4,14 +4,16 @@ Verwaltet ausschließlich die ausdrückliche Delegation eines vorhandenen Work
 Types an einen vorhandenen Datenbankbenutzer oder eine Datenbankrolle.
 Kein SQL-GRANT, keine Rollenzuweisung, kein Handleraufruf und kein Datenresultset.
 
-| Parameter | Typ | Default | Vertrag |
-|---|---|---|---|
-| @WorkTypeName | varchar(128) | NULL | Fachlich erforderlich; vorhandener kanonischer Name. |
-| @Principal | sysname | NULL | Fachlich erforderlich; vorhandener DBprincipal. |
-| @PermissionName | varchar(32) | NULL | ENQUEUE, CLAIM oder EXECUTE_NEW_SESSION. |
-| @PermissionState | varchar(8) | ALLOW | ALLOW, DENY oder REMOVE. |
-| @Debug | tinyint | 0 | Nur nicht sensible Message. |
-| @Hilfe | bit | 0 | Standardisiertes Help-Resultset ohne Seiteneffekt. |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. |
+| `@Principal` | `sysname` | `NULL` | Input | Vorhandener Datenbankprincipal als unquotierter sysname, nach Datenbank-Namensvergleich. Zulässige sys.database_principals-Typen taxativ: S=SQL-Benutzer, U=Windows-Benutzer, G=Windows-Gruppe, R=Datenbankrolle, E=externer Benutzer, X=externe Gruppe; principal_id darf nicht 0 sein. Kein Serverlogin oder automatisch angelegter Principal; NULL/leer/fehlender Eintrag ist ungültig. |
+| `@PermissionName` | `varchar(32)` | `NULL` | Input | Taxativ und binär/case-sensitiv: ENQUEUE erlaubt das Einreihen; CLAIM erlaubt das Beanspruchen von Arbeit; EXECUTE_NEW_SESSION erlaubt den Start über den Second-Session-Provider. Keine weiteren Aktionen und kein implizites UPPER. SQL-Space-Padding ist vom binären Vergleich nicht aufgehoben. Fachlich erforderlich, NULL ungültig. |
+| `@PermissionState` | `varchar(8)` | `'ALLOW'` | Input | Taxativ und binär/case-sensitiv: ALLOW legt eine erlaubende lokale Policy an (Default); DENY legt eine verbietende Policy an und gewinnt gegen passende ALLOWs; REMOVE entfernt den Eintrag genau dieser Aktion/Principal-Zuordnung. NULL/andere Werte ungültig. Dies ersetzt keine SQL-Objekt-EXECUTE-Rechte und vergibt keine Serverrechte. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
+| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+<!-- API_PARAMETERS:END -->
 
 Rückgabe 0 bei Erfolg. Fehler 51590 Parameter, 51591 fehlendes CONTROL auf
 WorkTypePermission, 51592 fehlender Principal, 51593 fehlender Work Type,

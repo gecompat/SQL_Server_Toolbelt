@@ -7,6 +7,9 @@
 
 {{Fachliche Beschreibung}}
 
+Die View besitzt keine Eingabeparameter. {{Sinnvolle Filter anhand der
+Ausgabespalten bei Bedarf im Beispiel zeigen; keine fiktiven Viewparameter.}}
+
 ## Spalten
 
 | Ordinal | Spalte | Typ | Nullable | Beschreibung |
@@ -15,12 +18,21 @@
 
 ## Verwendung
 
+{{Voraussetzungen und Vorbereitung eigener synthetischer Eingaben; bei Bedarf konkreten Vorbereitungsschritt verlinken.}}
+
 ```sql
 SELECT *
 FROM {{SchemaName}}.VW_{{ObjectName}};
 ```
 
+{{Erwarteten Wert, Status, relevante Ergebnisspalten oder Zustandsänderung und ihre Bedeutung erläutern. Variable IDs/Zeitwerte als Eigenschaften beschreiben; Vertragserwartung von ausgeführter Evidenz unterscheiden.}}
+
 Die View garantiert keine Reihenfolge ohne `ORDER BY` im konsumierenden SELECT.
+
+<!-- Diesen Abschnitt nur für nicht triviale Funktionalität behalten; bei einem gemeinsamen Kern einen gezielten Link verwenden. Bearbeitungshinweis vor Abgabe entfernen. -->
+## Technischer Lösungsweg
+
+{{Konkrete technische Grundlage, entscheidende Verarbeitungsschritte und Designgründe mit zuständigen Quellen erklären oder auf den passenden gemeinsamen Abschnitt verlinken. Bei nicht offensichtlichen Schleifen Zustand, Fortschritt/Begrenzung und Zweck erläutern; keine Syntaxnacherzählung.}}
 
 ## Rechte, Dependencies und Plattformen
 

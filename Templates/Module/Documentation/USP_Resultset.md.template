@@ -11,11 +11,15 @@
 
 | Name | Typ | Technischer Default | Fachlich erforderlich | Beschreibung |
 |---|---|---|---|---|
-| `@{{Parameter}}` | `{{Type}}` | `NULL` | ja | {{Beschreibung}} |
-| `@ResultTable` | `sysname` | `NULL` | nein | Lokale Temp-Tabelle für das fachliche Resultset. |
-| `@KeepData` | `bit` | `0` | nein | Replace bei 0, Append bei kompatiblem Schema bei 1. |
-| `@Debug` | `tinyint` | `0` | nein | Debug-Messages nach dokumentierter Stufe. |
-| `@Hilfe` | `bit` | `0` | nein | Gibt ausschließlich das standardisierte Help-Resultset aus. |
+| `@{{Parameter}}` | `{{Type mit Länge/Skala}}` | `NULL` | ja | {{Datenform; alle festen Werte mit Einzelbedeutung; Grenzen/Einheit/Indexbasis; NULL/leer/Whitespace; Normalisierung; Abhängigkeiten und Fehler}} |
+| `@ResultTable` | `sysname` | `NULL` | nein | NULL liefert SELECT; sonst vorhandene caller-lokale #Temp als einzelner Name, keine ##-/permanente Tabelle. {{Konkrete Namens-/Shapegrenzen und Inputidentitätsausschlüsse}} |
+| `@KeepData` | `bit` | `0` | nein | 0 Replace; 1 Append bei kompatiblem Schema; NULL wie 0. {{Am konkreten Pfad prüfen und relevante Abweichungen nennen}} |
+| `@Debug` | `tinyint` | `0` | nein | {{Jede tatsächlich unterstützte Stufe/Schwelle 0..255 und NULL-Verhalten; auch ignorierte oder nur an Helper geroutete Werte ausdrücklich nennen}} |
+| `@Hilfe` | `bit` | `0` | nein | 0 Fachaufruf; 1 ausschließlich Help vor Fachprüfung/Seiteneffekten; NULL wie 0. |
+
+<!-- Jeden Parameter einschließlich Standardtail am konkreten Quellcode prüfen.
+     Strukturierte Daten mit vollständigem Shape oder präzisem Contract-Link.
+     api_examples.json pflegen und markierte Parametertabellen generieren. -->
 
 ## Fachliches Resultset
 
@@ -41,6 +45,8 @@ Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Dokumentiere alle `DE
 
 ## Beispiele
 
+{{Voraussetzungen und Vorbereitung eigener synthetischer Eingaben; bei Bedarf konkreten Vorbereitungsschritt verlinken.}}
+
 ```sql
 EXEC {{SchemaName}}.USP_{{ObjectName}}
     @{{Parameter}} = {{SyntheticValue}};
@@ -48,6 +54,15 @@ EXEC {{SchemaName}}.USP_{{ObjectName}}
 EXEC {{SchemaName}}.USP_{{ObjectName}}
     @Hilfe = 1;
 ```
+
+{{Erwarteten Wert, Status, relevante Ergebnisspalten oder Zustandsänderung und ihre Bedeutung erläutern. Variable IDs/Zeitwerte als Eigenschaften beschreiben; Vertragserwartung von ausgeführter Evidenz unterscheiden.}}
+
+{{Falls der Beispielaufruf Ressourcen verändert: Seiteneffekte und Bereinigung der eigenen Ressourcen erklären.}}
+
+<!-- Diesen Abschnitt nur für nicht triviale Funktionalität behalten; bei einem gemeinsamen Kern einen gezielten Link verwenden. Bearbeitungshinweis vor Abgabe entfernen. -->
+## Technischer Lösungsweg
+
+{{Konkrete technische Grundlage, entscheidende Verarbeitungsschritte und Designgründe mit zuständigen Quellen erklären oder auf den passenden gemeinsamen Abschnitt verlinken. Bei nicht offensichtlichen Schleifen Zustand, Fortschritt/Begrenzung und Zweck erläutern; keine Syntaxnacherzählung.}}
 
 ## Teststatus
 

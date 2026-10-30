@@ -99,3 +99,13 @@ Diese Erweiterungen bleiben in `TC-2026-032` als eigener Vertrag.
 ## Aktueller Sicherheitsvertrag
 
 SC-020: Neuer Statuskern prüft64 KiB UTF-16-Input,64 unterschiedliche Separatorcodeeinheiten und10000 Tokens vor Ausgabe. Duplikate zählen einmal. LIMIT enthält keine Tokenpräfixe. Alte TVF filtert OK und liefert bei Überschreitung keine Zeilen. EMPTY/SQL_NULL/INVALID haben eigene Kontrollzeilen im Statuskern; keine uneingeschränkte Inline-/Parallelitätszusage.
+
+## Vollständiger Eingabevertrag
+
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Text mit maximal 65536 UTF-16-Bytes; leer ist gültig. NULL in Input oder Separators ergibt SQL_NULL im Statuskern und keine Zeilen in der Wertfassade. Höchstens 10000 Ausgabetokens, keine Teilveröffentlichung bei Überschreitung. |
+| `@Separators` | `nvarchar(4000)` | `kein Default` | Input | Menge einzelner UTF-16-Einheiten als nvarchar(4000), z.B. N',;'; keine Separatorstrings/JSON-/Quote-Syntax. Höchstens 64 verschiedene Einheiten, Duplikate zählen einmal, NUL verboten. Leer bedeutet keine Trennung; NULL ergibt SQL_NULL/keine Zeilen. |
+| `@KeepEmpty` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 behält leere Tokens einschließlich leerem Input (Default); 0 entfernt sie. NULL wird wie 1 behandelt. |
+<!-- API_PARAMETERS:END -->
