@@ -1,5 +1,16 @@
 # Releasevorbereitung prüfen
 
+## Aktueller Quellkandidat
+
+Die [Kandidatenanleitung](../../Releases/1.0.0/CURRENT-CANDIDATE.md) führt zum
+aktuellen Quellpaket mit dem gebundenen Parameter-Help-Installer. Die Tests in
+test_current_release_candidate.py laufen über die vorhandene Release-Suite.
+Sie bauen und prüfen den exakten HEAD ohne SQL und verwerfen unter anderem
+abweichende Quellen, selbst konsistent neu gehashte Nutzdaten, unzulässige
+Archivpfade, falsche Nachweisbehauptungen und das Überschreiben bestehender
+Ausgaben. Der historische Builder und seine strengeren Produktbindungen bleiben
+unverändert. Die Prüfung benötigt committed Quellen samt Kandidatenanleitung.
+
 ## Historische Dokumentationsquellen nach PR #482
 
 Der [Dokumentationsübergang](../../Releases/1.0.0/documentation-followup-transition.json)

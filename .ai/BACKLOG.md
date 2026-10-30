@@ -1,5 +1,27 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktuellen Releasekandidaten bauen und prüfen — 2026-10-30
+
+Der Benutzer wählte ausdrücklich Schritt 3 der Release-Abschlussfolge:
+Kandidat bauen, verifizieren und CI am endgültigen Commit bestätigen.
+Der historische Gesamtbuilder weist den aktuellen Main-Stand wegen veralteter
+Manifest-/Dependencyprojektion und abweichender eingefrorener Produktinputs ab.
+Diese alten Produktgates und Nachweise werden nicht gelockert oder umgedeutet.
+Ein aktueller Quellkandidat bindet stattdessen den exakten versionierten Commit,
+die 45 aktuellen Modulmanifeste, den separat geprüften Parameter-Help-Installer
+und dessen unveränderte, begrenzte Evidenz. Keine SQL-Funktion, Modulversion,
+Statusaufwertung, Labmutation oder Veröffentlichung ist Teil dieser Welle.
+
+Rahmen: ein Implementierer, ein kohärenter PR; fokussierte neue Negativtests und
+ein vollständiger erforderlicher Release-/Dokumentationsaudit, anschließend
+echte Head-CI. Der neue Roundtrip läuft in der vorhandenen Release-Suite;
+keine neue Workflow-/Reviewkette und keine Wiederholung nativer Fachmatrizen.
+Quellhash-/Paketprüfungen bleiben lokal deterministisch, Logs privat. Kosten
+und Tokenverbrauch sind unbekannt. Die menschlichen Lesepfade führen von
+Releases/README zum aktuellen Kandidaten und weiter zur Installationsanleitung,
+zum Supportumfang und den offenen Pflichtgates. Ergebnis und CI werden nach
+tatsächlicher Ausführung ergänzt; bisher kein Abschluss behauptet.
+
 ## JSON-Schema: zentrale Uninstall-Bestätigung — r37, 2026-10-30
 
 Begrenzte Funktionsabnahme der vorhandenen JSON-Schema-1.0.1-Deinstallation im

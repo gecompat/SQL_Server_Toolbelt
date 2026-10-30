@@ -6,6 +6,10 @@ Validierungs- und Veröffentlichungsstatuswerten.
 
 ## v1.0.0 vorbereiten oder prüfen
 
+Der [aktuelle Quellkandidat](1.0.0/CURRENT-CANDIDATE.md) bindet den heutigen
+versionierten Stand und den separat geprüften Parameter-Help-Installer.
+Seine Anleitung erklärt Bau, Prüfung und die weiterhin offenen Releasegates.
+
 Die [Vorbereitung für v1.0.0](1.0.0/README.md) umfasst alle 45 implementierten
 Module, eine [Freigabematrix](1.0.0/FREIGABEMATRIX.md) und einen eingefrorenen
 Quellpaket-Kandidaten mit zusätzlichen SQL-Exports für die stabilen Kandidaten.
