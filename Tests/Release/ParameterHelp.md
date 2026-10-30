@@ -53,6 +53,15 @@ werden gegen ihre damaligen Definitionen gebunden, während die kanonische
 Help-Projektion und unveränderter Fachcode separat geprüft werden. Das ist
 keine erneute Abnahme populierter Upgrades.
 
+Für den aktuellen Queue-Upgrade-CI-Lauf erzeugt derselbe
+[Definitionsgenerator](../../Deployment/Tests/export_parameter_help_definition_pins.py)
+`ExportQueue11Help.Assert.sql`: ausschließlich die acht erwarteten aktuellen
+Definitionshashes ändern sich. Vor dem Upgrade bleibt das historische Original
+aktiv; danach verwendet der Treiber die neu gebundene Fixture. Alle Daten-,
+Schema-, Fehler- und Ownership-Oracles bleiben bytegleich. Die Offlineprüfung
+vergleicht die komplette erzeugte Datei mit dieser begrenzten Transformation;
+der tatsächliche Upgrade-Erfolg wird separat durch den aktuellen CI-Lauf belegt.
+
 Die Matrix belegt den Help-Vertrag und die aktuelle Neuinstallation. Vollständige
 fachliche Modulabnahmen, zusätzliche niedrigere Kompatibilitätsstufen und
 authentifizierte TLS-Verbindungen bleiben getrennte Nachweise.

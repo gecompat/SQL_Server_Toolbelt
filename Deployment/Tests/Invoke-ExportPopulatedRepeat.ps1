@@ -234,6 +234,7 @@ function Invoke-ExportFile($Identity,$Export){
  }finally{$connection.Dispose()}
 }
 function Invoke-OwnedFixture($Identity,[string]$Name,[hashtable]$Parameters=@{}){
+ if($Name-ceq'ExportQueue11.Assert.sql' -and $Parameters.ContainsKey('@After') -and $Parameters['@After']-eq$true){$Name='ExportQueue11Help.Assert.sql'}
  $connection=New-ExportConnection $Identity.Name
  try{Assert-OwnedConnection $connection $Identity;Invoke-ExportSql $connection ([IO.File]::ReadAllText((Join-Path $runtimeRoot $Name),$utf8)) $Parameters;Assert-OwnedConnection $connection $Identity}
  finally{$connection.Dispose()}
@@ -539,6 +540,8 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
+ $helpBinding=@{Name='ExportQueue11Help.Assert.sql';Hash='5F2FEBCB766CC1B7ADA601C5535393B566C9D9268570BA8AFD4992B52F963181'}
+ Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $helpBinding.Name) -Algorithm SHA256).Hash-ceq$helpBinding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  # 2026-10-28: Der Handler-Metadatencheck bindet zusätzlich @Hilfe bit; der Genuine-Queue-1.1-Quellstand blieb unverändert. Vorheriger Setup-Pin: 04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC.
  foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='941294341177A35EEBA61167642530A69FBF7CD709CBDCC9CBD2A260688CFE41'},@{Name='ExportQueue11.Capture.sql';Hash='EE77ED5511EE23C42D83CC5DF010FA9FD2EBC9C960ECE768E64049BF448C2CA4'},@{Name='ExportQueue11.Assert.sql';Hash='92518C163F47DBDF792E30074D494166C6E12E8CCD7F02143BD8D9F5DE2FB575'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='71F5270AE92932B7ABAF204F99F855A7895F4FCA8448F4CFAE5C258F9FF970B3'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'

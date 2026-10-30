@@ -4,8 +4,8 @@ param()
 $ErrorActionPreference='Stop';Set-StrictMode -Version Latest
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $driver=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Invoke-ExportPopulatedRepeat.ps1'))
-$fixtures=@([regex]::Matches($driver,"Name='(ExportQueue11(?:Repeat)?\.[A-Za-z]+\.sql)';Hash='([A-F0-9]{64})'"))
-if($fixtures.Count-ne4){throw 'EXPORT_BINDING_FIXTURE_SET'}
+$fixtures=@([regex]::Matches($driver,"Name='(ExportQueue11(?:Repeat|Help)?\.[A-Za-z]+\.sql)';Hash='([A-F0-9]{64})'"))
+if($fixtures.Count-ne5){throw 'EXPORT_BINDING_FIXTURE_SET'}
 foreach($fixture in $fixtures){
  $actual=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot ('Runtime/'+$fixture.Groups[1].Value)) -Algorithm SHA256).Hash
  if($actual-cne$fixture.Groups[2].Value){throw 'EXPORT_BINDING_FIXTURE_BYTES'}
@@ -21,7 +21,7 @@ $definitions=@([regex]::Matches($assert.Substring($start,$end-$start),"\(1,N'([^
 if($definitions.Count-ne8){throw 'EXPORT_BINDING_DEFINITION_SET'}
 . (Join-Path $repo 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1')
 $python=Get-Command python -ErrorAction Stop
-$projection=Invoke-OwnedProcess -FileName $python.Source -Arguments @((Join-Path $PSScriptRoot 'export_parameter_help_definition_pins.py')) -TimeoutMilliseconds 30000
+$projection=Invoke-OwnedProcess -FileName $python.Source -Arguments @((Join-Path $PSScriptRoot 'export_parameter_help_definition_pins.py'),'--check-current') -TimeoutMilliseconds 30000
 if($projection.ExitCode-ne0){throw 'EXPORT_BINDING_HELP_PROJECTION'}
 $historicalPins=$projection.Stdout|ConvertFrom-Json -AsHashtable
 if($historicalPins.Count-ne8){throw 'EXPORT_BINDING_HELP_PROJECTION_SET'}
@@ -60,4 +60,4 @@ if($objects.Count-ne83-or$names.Count-ne83){throw 'EXPORT_BINDING_CURRENT_OBJECT
 foreach($name in @('WorkTypePermission','TVF_WorkTypeAuthorization','USP_SetWorkTypePermission','USP_DeleteRecordedEventsBefore')){
  if($names-cnotcontains$name){throw 'EXPORT_BINDING_SECURITY_OBJECT_MISSING'}
 }
-Write-Output 'EXPORT_FIXTURE_BINDINGS_PASS files=5 declarations=8 no-sql'
+Write-Output 'EXPORT_FIXTURE_BINDINGS_PASS files=6 declarations=8 no-sql'
