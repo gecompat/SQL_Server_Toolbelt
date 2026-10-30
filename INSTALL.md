@@ -13,6 +13,11 @@ einer neuen Demodatenbank. Die weiteren Preview-/CLR-Module haben zusätzliche
 Voraussetzungen; den passenden Weg findest du [weiter unten](#weitere-module-und-installationswege).
 Die Kennzeichnung ist noch keine Produktionsfreigabe.
 
+Für die vollständigen aktuellen Parameterbeschreibungen über `@Hilfe=1` gibt es
+einen [eigenen aktuellen Neuinstallationsweg](Releases/1.0.0/PARAMETER-HELP.md).
+Die hier verwendeten datierten Stable-Kandidaten behalten ihren damaligen
+Hilfestand; die aktuelle Online-Referenz allein aktualisiert keine Installation.
+
 ## Was du vorher brauchst
 
 | Voraussetzung | Was damit gemeint ist |

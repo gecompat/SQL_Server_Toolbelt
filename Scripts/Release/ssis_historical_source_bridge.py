@@ -87,6 +87,12 @@ def restore_boundary_test_transition(root, current, expected_sha256):
         raise ValueError('SSIS_BOUNDARY_TEST_BASELINE_PIN')
     root = Path(root).resolve()
     actual = standalone.read_regular_bounded(root / BOUNDARY_TEST, MAX_SOURCE_BYTES)
+    import parameter_help_transition
+    try:
+        actual = parameter_help_transition.restore_verifier_source(root, BOUNDARY_TEST, actual)
+        current = parameter_help_transition.restore_verifier_source(root, BOUNDARY_TEST, current)
+    except ValueError as error:
+        raise ValueError('SSIS_BOUNDARY_TEST_CURRENT_BYTES') from error
     if not isinstance(current, bytes) or current != actual or _sha(current) != BOUNDARY_TEST_CURRENT_SHA256:
         raise ValueError('SSIS_BOUNDARY_TEST_CURRENT_BYTES')
     replacements = (

@@ -76,6 +76,9 @@ def validate_source_bindings(report, root):
             help_contract_source.validate_historical_source(root, relative, digest)
             continue
         current_bytes = (root / path).read_bytes()
+        import parameter_help_transition
+        if relative in parameter_help_transition.PATHS:
+            current_bytes = parameter_help_transition.bound_source(root, relative, digest)
         if relative == xlsx_sst_budget.CELL_TEST:
             current_bytes = xlsx_sst_budget.restore_help_cell_test(root, current_bytes)
         current = hashlib.sha256(current_bytes).hexdigest().upper()

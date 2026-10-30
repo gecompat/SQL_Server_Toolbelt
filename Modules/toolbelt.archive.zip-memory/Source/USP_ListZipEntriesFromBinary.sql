@@ -22,103 +22,45 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-              HelpContractVersion varchar(16)    NOT NULL
-            , SchemaName          sysname        NOT NULL
-            , ObjectName          sysname        NOT NULL
-            , Section             varchar(32)    NOT NULL
-            , Ordinal             int            NOT NULL
-            , ItemName            sysname        NULL
-            , SqlDataType         varchar(256)   NULL
-            , IsRequired          bit            NULL
-            , IsNullable          bit            NULL
-            , DefaultValue        nvarchar(4000) NULL
-            , Description         nvarchar(max)  NOT NULL
-            , ExampleSql          nvarchar(max)  NULL
-        );
-
-        INSERT INTO @Help
-        (
-              HelpContractVersion, SchemaName, ObjectName, Section, Ordinal
-            , ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue
-            , Description, ExampleSql
-        )
-        VALUES
-          ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'DESCRIPTION', 1,
-           NULL, NULL, NULL, NULL, NULL,
-           N'Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen Single-Disk-ZIP aus varbinary(max), ohne Payloads zu lesen oder zu dekomprimieren.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'PARAMETER', 1,
-           N'@ZipArchive', 'varbinary(max)', 1, 0, N'NULL',
-           N'Nicht leerer ZIP-Container im Speicher; hartes Limit 268435456 Bytes.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'PARAMETER', 2,
-           N'@MaxEntries', 'int', 0, 0, N'10000',
-           N'Zulässige Zahl der Entries zwischen 1 und dem harten Limit 10000.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'PARAMETER', 3,
-           N'@ResultTable', 'sysname', 0, 1, N'NULL',
-           N'Optionale bestehende lokale Temp-Tabelle für den ResultTable-Pfad.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'PARAMETER', 4,
-           N'@KeepData', 'bit', 0, 1, N'0',
-           N'Gilt nur mit @ResultTable und steuert Replace oder Append.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'PARAMETER', 5,
-           N'@Debug', 'tinyint', 0, 1, N'0', N'Standardisierter USP-Debugparameter.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'PARAMETER', 6,
-           N'@Hilfe', 'bit', 0, 1, N'0', N'1 liefert ausschließlich dieses Help-Resultset.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 1,
-           N'EntryOrdinal', 'int', 1, 0, NULL, N'Einsbasierte Position im Central Directory.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 2,
-           N'EntryName', 'nvarchar(1024)', 1, 0, NULL, N'Exakt dekodierter, nicht normalisierter Entry-Name.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 3,
-           N'IsDirectory', 'bit', 1, 0, NULL, N'Aus einem abschließenden Schrägstrich abgeleitete Directory-Markierung.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 4,
-           N'CompressedBytes', 'bigint', 1, 0, NULL, N'Deklarierte komprimierte Größe.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 5,
-           N'UncompressedBytes', 'bigint', 1, 0, NULL, N'Deklarierte unkomprimierte Größe.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 6,
-           N'CompressionMethod', 'int', 1, 0, NULL, N'Numerischer ZIP-Methodenwert.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 7,
-           N'Crc32', 'int', 1, 0, NULL, N'Deklarierte und beim Listing nicht neu berechnete CRC32.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 8,
-           N'IsEncrypted', 'bit', 1, 0, NULL, N'Verschlüsselungsstatus aus den General-Purpose-Flags.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 9,
-           N'IsExtractionSupported', 'bit', 1, 0, NULL, N'1 nur für unverschlüsselte Methods 0 und 8.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 10,
-           N'DuplicateCount', 'int', 1, 0, NULL, N'Ordinal und case-sensitive gezählte Namensduplikate.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 11,
-           N'IsPathSafe', 'bit', 1, 0, NULL, N'1 nur für einen kanonischen relativen Pfad.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 12,
-           N'PathStatus', 'varchar(32)', 1, 0, NULL, N'safe, absolute, drive-qualified, parent-traversal oder noncanonical.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'RESULT_COLUMN', 13,
-           N'LastModifiedAt', 'datetime2(0)', 0, 1, NULL, N'DOS-Zeit ohne Zeitzonenbehauptung; bei ungültigem Wert NULL.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'ERROR', 1,
-           N'51320-51329', NULL, NULL, NULL, NULL,
-           N'Parameter-, Struktur-, Limit-, Feature- und Providerfehlerbereich.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'LIMITATION', 1,
-           NULL, NULL, NULL, NULL, NULL,
-           N'ZIP64 und Multi-Disk werden abgelehnt. Metadaten sind keine Integritätsbestätigung des Payloads.', NULL)
-        , ('1.0', N'toolbelt_archive', N'USP_ListZipEntriesFromBinary', 'EXAMPLE', 1,
-           NULL, NULL, NULL, NULL, NULL, N'Listet alle Entries eines ZIP-BLOBs.',
-           N'EXEC toolbelt_archive.USP_ListZipEntriesFromBinary @ZipArchive = 0x...;');
-
-        SELECT
-              HelpContractVersion, SchemaName, ObjectName, Section, Ordinal
-            , ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue
-            , Description, ExampleSql
-        FROM @Help
-        ORDER BY
-              CASE Section
-                  WHEN 'DESCRIPTION' THEN 1
-                  WHEN 'PARAMETER' THEN 2
-                  WHEN 'RESULT_COLUMN' THEN 3
-                  WHEN 'ERROR' THEN 4
-                  WHEN 'PERMISSION' THEN 5
-                  WHEN 'LIMITATION' THEN 6
-                  WHEN 'EXAMPLE' THEN 7
-                  ELSE 8
-              END
-            , Ordinal;
-
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_archive' AS sysname) AS SchemaName,
+            CAST(N'USP_ListZipEntriesFromBinary' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen Single-Disk-ZIP aus varbinary(max), ohne Payloads zu lesen oder zu dekomprimieren.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'EntryOrdinal', N'int', 1, 0, NULL, CAST(N'Einsbasierte Position im Central Directory.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'EntryName', N'nvarchar(1024)', 1, 0, NULL, CAST(N'Exakt dekodierter, nicht normalisierter Entry-Name.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'IsDirectory', N'bit', 1, 0, NULL, CAST(N'Aus einem abschließenden Schrägstrich abgeleitete Directory-Markierung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'CompressedBytes', N'bigint', 1, 0, NULL, CAST(N'Deklarierte komprimierte Größe.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'UncompressedBytes', N'bigint', 1, 0, NULL, CAST(N'Deklarierte unkomprimierte Größe.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'CompressionMethod', N'int', 1, 0, NULL, CAST(N'Numerischer ZIP-Methodenwert.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'Crc32', N'int', 1, 0, NULL, CAST(N'Deklarierte und beim Listing nicht neu berechnete CRC32.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 8, N'IsEncrypted', N'bit', 1, 0, NULL, CAST(N'Verschlüsselungsstatus aus den General-Purpose-Flags.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 9, N'IsExtractionSupported', N'bit', 1, 0, NULL, CAST(N'1 nur für unverschlüsselte Methods 0 und 8.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 10, N'DuplicateCount', N'int', 1, 0, NULL, CAST(N'Ordinal und case-sensitive gezählte Namensduplikate.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 11, N'IsPathSafe', N'bit', 1, 0, NULL, CAST(N'1 nur für einen kanonischen relativen Pfad.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 12, N'PathStatus', N'varchar(32)', 1, 0, NULL, CAST(N'safe, absolute, drive-qualified, parent-traversal oder noncanonical.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 13, N'LastModifiedAt', N'datetime2(0)', 0, 1, NULL, CAST(N'DOS-Zeit ohne Zeitzonenbehauptung; bei ungültigem Wert NULL.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51320-51329', NULL, NULL, NULL, NULL, CAST(N'Parameter-, Struktur-, Limit-, Feature- und Providerfehlerbereich.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'ZIP64 und Multi-Disk werden abgelehnt. Metadaten sind keine Integritätsbestätigung des Payloads.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Listet alle Entries eines ZIP-BLOBs.' AS nvarchar(max)), CAST(N'EXEC toolbelt_archive.USP_ListZipEntriesFromBinary @ZipArchive = 0x...;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@ZipArchive', N'varbinary(max)', 1, 0, N'NULL', CAST(N'Vollständiger nicht leerer ZIP-Bytepuffer varbinary(max), kein Pfad/Base64text. NULL (technischer Help-Default)/0x ungültig. Harte Readergrenze 268435456 Archivbytes, höchstens 10000 Entries, Namen höchstens 1024 UTF-16-Einheiten; keine ZIP64-/Multi-Disk-Unterstützung. Namen werden nach Flag11 als UTF-8, sonst CP437 decodiert. Metadatenlisting ist keine CRC-/Payloadvalidierung aller Einträge.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@MaxEntries', N'int', 0, 0, N'10000', CAST(N'Ganzzahl 1..10000 Central-Directory-Entries, Default 10000. NULL/0/negativ/höher ungültig. Überschreitung verwirft den gesamten Aufruf, kein gültiges TOP-Präfix; keine Payloadextraktion durch dieses Limit.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene zusätzliche Readerdiagnose; im ResultTable-Pfad an den kanonischen Helper weitergereicht.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @ZipArchive IS NULL OR DATALENGTH(@ZipArchive) = 0

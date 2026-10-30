@@ -105,7 +105,10 @@ class XlsxBoundaryEvidenceMixin:
                 elif relative in ssis_historical_source_bridge.source_paths():
                     data = ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected)
                 else:
-                    data = (ROOT / relative).read_bytes()
+                    import parameter_help_transition
+                    data = (parameter_help_transition.bound_source(ROOT, relative, expected)
+                            if relative in parameter_help_transition.PATHS | parameter_help_transition.VERIFIER_PATHS
+                            else (ROOT / relative).read_bytes())
                 if relative == report['source_eol_projection']['path']:
                     projection = report['source_eol_projection']
                     normalized = data.replace(b'\r\n', b'\n')
@@ -250,6 +253,8 @@ class XlsxBoundaryEvidenceMixin:
 
     def test_sst_source_projections_allow_only_the_bound_changes(self):
         current = (ROOT / xlsx_sst_budget.CELL_TEST).read_bytes()
+        import parameter_help_transition
+        current = parameter_help_transition.restore_verifier_source(ROOT, xlsx_sst_budget.CELL_TEST, current)
         previous = xlsx_sst_budget.restore_previous_cell_test(ROOT, current)
         self.assertEqual(xlsx_sst_budget.digest(previous), xlsx_sst_budget.PREVIOUS_CELL_TEST_SHA256)
         r21 = xlsx_sst_budget.project_cell_test(previous)

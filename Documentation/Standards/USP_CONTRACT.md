@@ -43,6 +43,16 @@ Sobald `@Hilfe = 1` gilt:
 
 Damit ein reiner Hilfeaufruf möglich ist, erhalten fachlich verpflichtende Parameter technische Defaults, normalerweise `NULL`. Das Help-Resultset kennzeichnet getrennt, ob ein Parameter bei `@Hilfe = 0` fachlich erforderlich ist.
 
+Jede `PARAMETER`-Zeile enthält den vollständigen quellgeprüften Eingabevertrag
+aus der [Parameterdokumentation](CODE_DOCUMENTATION.md#vollständiger-eingabevertrag-je-parameter):
+alle festen Werte mit Bedeutung, Datenformen, Grenzen/Einheiten, NULL-/Default-
+Verhalten und Abhängigkeiten. Keine Kurzfassung oder bloßer Verweis. `IsNullable`
+beschreibt zulässige explizite NULL-Eingaben einschließlich Normalisierung;
+bedingte Zulässigkeit/Pflicht erklärt `Description`. `DefaultValue` zeigt den
+technischen SQL-Default als SQL-Ausdruck; SQL-NULL in dieser Spalte bedeutet,
+dass kein Default deklariert ist. Fachliche Ersatzwerte stehen in `Description`.
+`OUTPUT`-Richtung und Eingabe-/Ausgabeverhalten werden dort ausdrücklich erklärt.
+
 ## 3. Einheitliches Help-Resultset
 
 ```text

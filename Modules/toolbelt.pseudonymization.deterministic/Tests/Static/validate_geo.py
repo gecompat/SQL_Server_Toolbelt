@@ -3,10 +3,13 @@ from pathlib import Path
 import re
 import math
 import subprocess
+import sys
 from reference_geo import INPUTS, mapped, run
 
 MODULE = Path(__file__).resolve().parents[2]
 ROOT = MODULE.parents[1]
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import parameter_help_transition
 BASE = "76851e45f407089e062792c010176ae35a0ee77b"
 OLD = ("TVF_DeterministicIntegerBytes.sql", "TVF_DeterministicRangeCore.sql",
        "TVF_DeterministicRange.sql", "TVF_DeterministicDateShift.sql",
@@ -65,6 +68,9 @@ def main():
         # Git-Checkoutrepräsentation LF/CRLF ist ausdrücklich kein Source-Drift.
         current_bytes = file.read_bytes().replace(b"\r\n", b"\n")
         old_bytes = old.replace(b"\r\n", b"\n")
+        if name == 'USP_DeterministicLookup.sql':
+            current_bytes = parameter_help_transition.predecessor_source(
+                ROOT, file.relative_to(ROOT).as_posix()).replace(b'\r\n', b'\n')
         if name == "USP_DeterministicLookupCore.sql":
             current_text = without_lookup_core_help(current_bytes.decode("utf-8"))
             old_text = without_lookup_core_help(old_bytes.decode("utf-8"))

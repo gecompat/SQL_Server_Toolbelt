@@ -308,6 +308,15 @@ def validate_historical_source(root, path, expected_sha256):
              'Help baseline entry differs from its fixed digest')
     current = (root / path).read_bytes()
     if _digest(current) != record['current_source_sha256'][path]:
+        import parameter_help_transition
+        if path in parameter_help_transition.PATHS:
+            parameter_help_transition.predecessor_source(root, path, record['current_source_sha256'][path])
+            return original
+        if path in parameter_help_transition.VERIFIER_PATHS:
+            previous = parameter_help_transition.restore_verifier_source(root, path, current)
+            _require(_digest(previous) == record['current_source_sha256'][path],
+                     'Current Help verifier differs from its fixed digest')
+            return original
         import current_documentation_transition
         if path not in current_documentation_transition.PATHS:
             _require(False, 'Current Help source differs from its fixed digest')
@@ -465,6 +474,11 @@ def _boundary_projection(original):
 
 
 def restore_boundary_checker(root, current, expected_sha256):
+    import parameter_help_transition
+    try:
+        current = parameter_help_transition.restore_verifier_source(root, BOUNDARY_TEST, current)
+    except ValueError as error:
+        raise ValueError('Current XLSX boundary checker differs from its exact Help projection') from error
     _require(expected_sha256 == BOUNDARY_BASELINE_SHA256,
              'XLSX boundary checker execution pin differs')
     if _digest(current) != BOUNDARY_CURRENT_SHA256:
@@ -532,6 +546,8 @@ def _xlsx_metadata_test_projection(original):
 
 
 def restore_xlsx_metadata_test(root, current, expected_sha256):
+    import parameter_help_transition
+    current = parameter_help_transition.restore_verifier_source(root, XLSX_METADATA_TEST, current)
     _require(expected_sha256 == XLSX_METADATA_BASELINE_SHA256
              and _digest(current) == XLSX_METADATA_CURRENT_SHA256,
              'XLSX metadata checker execution/current pin differs')
@@ -574,6 +590,8 @@ def _raw_caller_test_projection(original):
 
 
 def restore_raw_caller_checker(root, current, expected_sha256):
+    import parameter_help_transition
+    current = parameter_help_transition.restore_verifier_source(root, RAW_CALLER_TEST, current)
     if b'import parameter_documentation_transition\n' in current:
         import parameter_documentation_transition
         current = parameter_documentation_transition.restore_raw_caller_adapter(current)

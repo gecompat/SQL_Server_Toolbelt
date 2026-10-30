@@ -1846,6 +1846,13 @@ def main() -> int:
             generate_api_catalog.check(write=arguments.write)
         except (ValueError, KeyError, AttributeError) as error:
             raise ValidationError(f"API-Katalog: {error}") from error
+        for test_path in ("Tests/Documentation/test_parameter_help.py", "Tests/Release/test_parameter_help_package.py"):
+            result = run_hidden(
+                [sys.executable, str(REPOSITORY_ROOT / test_path)],
+                cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=60,
+            )
+            if result.returncode:
+                raise ValidationError(f"Vollständige Parameterhilfe:\n{result.stdout}{result.stderr}")
     if "public_api_catalog_selftests" in checks:
         result = run_hidden(
             [sys.executable, str(REPOSITORY_ROOT / "Tests/Documentation/test_api_catalog.py")],

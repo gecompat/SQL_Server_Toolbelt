@@ -38,42 +38,43 @@ BEGIN
     SELECT @KeepData = COALESCE(@KeepData, 0), @Debug = COALESCE(@Debug, 0), @Hilfe = COALESCE(@Hilfe, 0);
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-            HelpContractVersion varchar(16) NOT NULL DEFAULT('1.0'),
-            SchemaName sysname NOT NULL DEFAULT(N'toolbelt_pseudonymization'),
-            ObjectName sysname NOT NULL DEFAULT(N'USP_DeterministicLookup'),
-            Section varchar(32) NOT NULL, Ordinal int NOT NULL, ItemName sysname NULL,
-            SqlDataType varchar(256) NULL, IsRequired bit NULL, IsNullable bit NULL,
-            DefaultValue nvarchar(4000) NULL, Description nvarchar(max) NOT NULL, ExampleSql nvarchar(max) NULL
-        );
-        INSERT @Help(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql) VALUES
-        ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisierungs- oder Eins-zu-eins-Schutz.',NULL),
-        ('PARAMETER',1,N'@InputTable','sysname',1,0,N'NULL',N'Caller-lokale #Temp: Ordinal bigint, Key varbinary(max).',NULL),
-        ('PARAMETER',2,N'@LookupTable','sysname',1,0,N'NULL',N'Caller-lokale #Temp: Ordinal bigint, Value nvarchar(max); Pool nach Ordinal.',NULL),
-        ('PARAMETER',3,N'@MappingVersion','int',1,0,N'NULL',N'Positive Mapping-Kontextversion.',NULL),
-        ('PARAMETER',4,N'@Seed','bigint',0,0,N'0',N'Öffentlicher Varianten-Seed, kein Secret.',NULL),
-        ('PARAMETER',5,N'@LookupVersion','bigint',1,0,N'NULL',N'Positive, ausdrücklich gewählte Poolversion; bei Pooländerung ändern.',NULL),
-        ('PARAMETER',6,N'@MaxInputRows','int',0,0,N'10000',N'Positive Grenze bis 100000 Eingaben.',NULL),
-        ('PARAMETER',7,N'@MaxLookupRows','int',0,0,N'10000',N'Positive Grenze bis 100000 Poolzeilen.',NULL),
-        ('PARAMETER',8,N'@MaxLookupTextBytes','bigint',0,0,N'2097152',N'Positive Gesamttextbytegrenze bis 16777216.',NULL),
-        ('PARAMETER',9,N'@MaxResultBytes','bigint',0,0,N'16777216',N'Positive Gesamt-Ergebnistextbytegrenze bis 16777216.',NULL),
-        ('PARAMETER',10,N'@ResultTable','sysname',0,1,N'NULL',N'NULL: genau ein SELECT; sonst vorhandene lokale ResultTable.',NULL),
-        ('PARAMETER',11,N'@KeepData','bit',0,1,N'0',N'0 Replace, 1 Append; NULL wie 0.',NULL),
-        ('PARAMETER',12,N'@Debug','tinyint',0,1,N'0',N'Nur Phasen-/Metadaten-Messages, keine Keys, Werte, Seeds oder Hashes.',NULL),
-        ('PARAMETER',13,N'@Hilfe','bit',0,1,N'0',N'Help zuerst, ohne fachliche Prüfung/Mutation/Messages.',NULL),
-        ('RESULT_COLUMN',1,N'InputOrdinal','bigint',1,0,NULL,N'Positiver Eingabeordinal; SELECT nach dieser Spalte sortiert.',NULL),
-        ('RESULT_COLUMN',2,N'LookupOrdinal','bigint',1,1,NULL,N'Expliziter Poolordinal; bei NULL-Key NULL.',NULL),
-        ('RESULT_COLUMN',3,N'Value','nvarchar(max)',1,1,NULL,N'Unveränderter Pooltext, Latin1_General_100_BIN2; NULL-Key ergibt NULL.',NULL),
-        ('ERROR',1,N'54000-54009',NULL,NULL,NULL,NULL,N'Konfiguration, Ressourcen, Tabellen, Ordinals, Keys, leerer Pool, Budgets, Sampling, Dependency oder interne Namenskollision; kein Teilresultat.',NULL),
-        ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'EXECUTE; ResultTable zusätzlich Helper-EXECUTE; keine automatische Rechteausweitung.',NULL),
-        ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Keine persistierte Überwachung alter Pools, keine Eins-zu-eins-Auswahl oder Privacy-Zusage. MARS-Änderungen gleicher Temps unsupported.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Nur synthetische Tabellen; fachliche Ordinals dürfen Lücken haben.',N'CREATE TABLE #Input(Ordinal bigint, [Key] varbinary(max)); CREATE TABLE #Pool(Ordinal bigint, [Value] nvarchar(max)); INSERT #Input VALUES(10,0x010203); INSERT #Pool VALUES(20,N''synthetic''); EXEC toolbelt_pseudonymization.USP_DeterministicLookup @InputTable=N''#Input'',@LookupTable=N''#Pool'',@MappingVersion=1,@LookupVersion=1;');
-        SELECT HelpContractVersion, SchemaName, ObjectName,
-            Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql
-        FROM @Help ORDER BY CASE Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2
-            WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 WHEN 'PERMISSION' THEN 5 WHEN 'LIMITATION' THEN 6 ELSE 7 END, Ordinal;
-        RETURN;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_pseudonymization' AS sysname) AS SchemaName,
+            CAST(N'USP_DeterministicLookup' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisierungs- oder Eins-zu-eins-Schutz.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'InputOrdinal', N'bigint', 1, 0, NULL, CAST(N'Positiver Eingabeordinal; SELECT nach dieser Spalte sortiert.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'LookupOrdinal', N'bigint', 1, 1, NULL, CAST(N'Expliziter Poolordinal; bei NULL-Key NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'Value', N'nvarchar(max)', 1, 1, NULL, CAST(N'Unveränderter Pooltext, Latin1_General_100_BIN2; NULL-Key ergibt NULL.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'54000-54009', NULL, NULL, NULL, NULL, CAST(N'Konfiguration, Ressourcen, Tabellen, Ordinals, Keys, leerer Pool, Budgets, Sampling, Dependency oder interne Namenskollision; kein Teilresultat.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'EXECUTE; ResultTable zusätzlich Helper-EXECUTE; keine automatische Rechteausweitung.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Keine persistierte Überwachung alter Pools, keine Eins-zu-eins-Auswahl oder Privacy-Zusage. MARS-Änderungen gleicher Temps unsupported.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Nur synthetische Tabellen; fachliche Ordinals dürfen Lücken haben.' AS nvarchar(max)), CAST(N'CREATE TABLE #Input(Ordinal bigint, [Key] varbinary(max)); CREATE TABLE #Pool(Ordinal bigint, [Value] nvarchar(max)); INSERT #Input VALUES(10,0x010203); INSERT #Pool VALUES(20,N''synthetic''); EXEC toolbelt_pseudonymization.USP_DeterministicLookup @InputTable=N''#Input'',@LookupTable=N''#Pool'',@MappingVersion=1,@LookupVersion=1;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@InputTable', N'sysname', 1, 0, N'NULL', CAST(N'Vorhandene sichtbare caller-lokale #Temp, kein ##-/mehrteiliger Name oder #tbx_-Präfix. Erforderliche bytegenaue nicht-computed Basisspalten ohne Aliastyp; Zusatzspalten erlaubt. Ordinal bigint muss positiv, nicht NULL und innerhalb der Tabelle eindeutig sein, Lücken erlaubt. NULL ist nur technischer Help-Default; keine parallele Mutation. Zusätzlich Key varbinary(max): NULL wird als NULL-Ergebnis weitergeführt, sonst 1..8000 Bytes. Leere Eingabe zulässig. Kein ResultTable-Identitätsoverlap.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@LookupTable', N'sysname', 1, 0, N'NULL', CAST(N'Vorhandene sichtbare caller-lokale #Temp, kein ##-/mehrteiliger Name oder #tbx_-Präfix. Erforderliche bytegenaue nicht-computed Basisspalten ohne Aliastyp; Zusatzspalten erlaubt. Ordinal bigint muss positiv, nicht NULL und innerhalb der Tabelle eindeutig sein, Lücken erlaubt. NULL ist nur technischer Help-Default; keine parallele Mutation. Zusätzlich Value nvarchar(max), auch NULL/leer ist als Poolwert zulässig. Pool muss mindestens eine Zeile enthalten. Auswahlposition folgt der Ordinalsortierung, nicht dem konkreten lückenhaften Ordinalwert. Nicht dieselbe tatsächliche Tabelle wie ResultTable.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@MappingVersion', N'int', 1, 0, N'NULL', CAST(N'Fachlich erforderliche positive int-Kontextversion 1..2147483647; NULL/0/negativ wirft 54000. Zusammen mit Seed und LookupVersion deterministischer Mappingkontext.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Seed', N'bigint', 0, 0, N'0', CAST(N'Jeder nicht-NULL-bigint im gesamten 64-Bit-Bereich, Default 0; NULL wirft 54000. Deterministischer Variantenkontext, kein Secret/Zufallsaufruf.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@LookupVersion', N'bigint', 1, 0, N'NULL', CAST(N'Fachlich erforderliche positive bigint-Poolversion 1..9223372036854775807; NULL/0/negativ wirft 54000. Caller muss sie bei Pooländerungen ändern; keine automatische Hash-/Versionsableitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@MaxInputRows', N'int', 0, 0, N'10000', CAST(N'Ganzzahl 1..100000 Inputzeilen, Default 10000; NULL/außerhalb ungültig. Kein Teilresultat bei Überschreitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@MaxLookupRows', N'int', 0, 0, N'10000', CAST(N'Ganzzahl 1..100000 Poolzeilen, Default 10000; NULL/außerhalb ungültig. Pool muss unabhängig davon nicht leer sein.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@MaxLookupTextBytes', N'bigint', 0, 0, N'2097152', CAST(N'Ganzzahl 1..16777216 Bytes als Summe DATALENGTH(Value) im Pool, Default 2097152; NULL-Werte zählen 0. NULL/außerhalb beim Budget ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@MaxResultBytes', N'bigint', 0, 0, N'16777216', CAST(N'Ganzzahl 1..16777216 Bytes als Summe DATALENGTH der zugeordneten Ergebniswerte, Default 16777216. Wiederholte Poolwerte zählen pro Ergebniszeile erneut; NULL zählt 0. NULL/außerhalb ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf keine der beiden Eingabetabellen sein.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0, NULL wirkt wie 0: 0 still; 1 Phasenmessages; 2 zusätzlich Zeilen-/Bytezahlen; 3..255 zusätzlich Temp-Objektmetadaten. Keine Keys, Werte, Seeds oder Hashes; bei ResultTable zusätzlich Helperdiagnose.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 13, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @MappingVersion IS NULL OR @MappingVersion <= 0 OR @Seed IS NULL OR @LookupVersion IS NULL OR @LookupVersion <= 0

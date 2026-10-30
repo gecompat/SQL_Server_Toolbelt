@@ -37,26 +37,46 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT
-              CAST('1.0' AS varchar(16)) AS HelpContractVersion
-            , CAST(N'toolbelt_core' AS sysname) AS SchemaName
-            , CAST(N'USP_WriteEvent' AS sysname) AS ObjectName
-            , v.Section, v.Ordinal, v.ItemName, v.SqlDataType
-            , v.IsRequired, v.IsNullable, v.DefaultValue, v.Description, v.ExampleSql
-        FROM
-        (
-            VALUES
-              (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. Der Remote-Commit ist unabhängig von Commit oder Rollback der Caller-Transaktion.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-            , ('PARAMETER', 1, N'@EventName', 'varchar(128)', 1, 0, NULL, N'Kanonischer Eventname in lowercase ASCII.', NULL)
-            , ('PARAMETER', 2, N'@EventLevel', 'varchar(16)', 0, 0, N'INFO', N'TRACE, DEBUG, INFO, WARNING, ERROR oder CRITICAL.', NULL)
-            , ('PARAMETER', 3, N'@Message', 'nvarchar(4000)', 0, 1, NULL, N'Begrenzte menschenlesbare Meldung; keine ungeprüften Secrets persistieren.', NULL)
-            , ('PARAMETER', 4, N'@DataJson', 'nvarchar(max)', 0, 1, NULL, N'Begrenztes JSON-Objekt bis 32 KiB UTF-16-Speicher.', NULL)
-            , ('PARAMETER', 5, N'@OccurredAtUtc', 'datetime2(7)', 0, 0, N'SYSUTCDATETIME()', N'Fachlicher Ereigniszeitpunkt in UTC.', NULL)
-            , ('ERROR', 1, N'51700-51709', NULL, NULL, NULL, NULL, N'Event-, JSON-, Fehler- und Dependency-Vertragsfehler.', NULL)
-            , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Schreibt ein Info-Event.', N'EXEC toolbelt_core.USP_WriteEvent @EventName=''demo.completed'', @Message=N''Synthetic example'';')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'ERROR' THEN 3 ELSE 4 END, v.Ordinal;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_WriteEvent' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. Der Remote-Commit ist unabhängig von Commit oder Rollback der Caller-Transaktion.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51700-51709', NULL, NULL, NULL, NULL, CAST(N'Event-, JSON-, Fehler- und Dependency-Vertragsfehler.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Schreibt ein Info-Event.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_WriteEvent @EventName=''demo.completed'', @Message=N''Synthetic example'';' AS nvarchar(max))),
+        (N'RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Kein fachliches Resultset; Rückgaben über OUTPUT beziehungsweise Sessionkontext gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@EventName', N'varchar(128)', 1, 0, N'NULL', CAST(N'Fachlich erforderlicher lowercase-ASCII-Schlüssel varchar(128), LEN 3..128, beginnt mit a-z; weitere Zeichen ausschließlich a-z, 0-9, Punkt, Unterstrich oder Bindestrich, z.B. app.import.started. Kein Trim oder automatisches Lowercasing. Technischer Default NULL nur für Hilfe; NULL/leer/ungültige Lexik wird abgewiesen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@EventLevel', N'varchar(16)', 0, 1, N'''INFO''', CAST(N'Taxativ: TRACE = feinste Ablaufdetails; DEBUG = technische Diagnose; INFO = normale Information (Default und NULL); WARNING = Warnung; ERROR = Fehler; CRITICAL = kritischer Fehler. UPPER normalisiert die Schreibweise; SQL-Gleichheitsregeln gelten. Die Werte sind Klassifikationen, keine automatische Retry-, Abbruch- oder Filtersteuerung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@Category', N'varchar(128)', 0, 1, N'NULL', CAST(N'Optionaler varchar(128)-Kategorietext mit Zeichen A-Z, a-z, 0-9, Punkt, Unterstrich und Bindestrich. NULL und leer sind zulässig; keine automatische Normalisierung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Message', N'nvarchar(4000)', 0, 1, N'NULL', CAST(N'Optionaler menschenlesbarer Unicode-Text nvarchar(4000); NULL/leer erlaubt. Er wird persistiert, nicht ausgeführt; Secrets/vertrauliche Inhalte müssen vorher bereinigt werden.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@DataJson', N'nvarchar(max)', 0, 1, N'NULL', CAST(N'Optionaler JSON-Objekttext nvarchar(max), höchstens 65536 UTF-16-Bytes (64 KiB); Arrays/Scalarroots und ungültiges JSON werden abgewiesen. Nach Entfernen gewöhnlicher führender Spaces muss { folgen; führender Tab/CR/LF genügt dieser LTRIM-Prüfung nicht. NULL bedeutet keine Zusatzdaten; leer ist ungültig. Beispiel N''{"rows":12}''.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@OccurredAtUtc', N'datetime2(7)', 0, 1, N'NULL', CAST(N'SQL-datetime2(7) als fachlicher UTC-Zeitpunkt, z.B. CONVERT(datetime2(7),''2026-10-30T12:00:00'',126); kein Offset im Typ und keine Zeitzonenkonvertierung. NULL/Default verwendet SYSUTCDATETIME().' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@ExecutionId', N'uniqueidentifier', 0, 1, N'NULL', CAST(N'SQL-uniqueidentifier, z.B. CAST(''00000000-0000-0000-0000-000000000001'' AS uniqueidentifier), keine frei formatierte Zeichenfolge. NULL/Default verwendet die aktive Context-ID, sonst eine neu erzeugte ID. Explizite ID wird übernommen; keine Lookup-Pflicht auf eine vorher gespeicherte Ausführung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@CorrelationId', N'uniqueidentifier', 0, 1, N'NULL', CAST(N'SQL-uniqueidentifier, z.B. CAST(''00000000-0000-0000-0000-000000000001'' AS uniqueidentifier), keine frei formatierte Zeichenfolge. NULL/Default verwendet die aktive CorrelationId, sonst die ausgewählte ExecutionId. Eine explizite ID hat Vorrang.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@Actor', N'nvarchar(256)', 0, 1, N'NULL', CAST(N'Optionaler Unicode-Text nvarchar(256); NULL/Default übernimmt den aktiven Actor oder ORIGINAL_LOGIN(), leerer Text bleibt expliziter Text. Keine Identitäts-/Rechtevergabe durch diesen Wert.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@Tenant', N'nvarchar(256)', 0, 1, N'NULL', CAST(N'Optionaler Unicode-Text nvarchar(256); NULL/Default übernimmt den aktiven Tenant oder bleibt NULL. Leer ist ein expliziter Wert; keine Mandantenberechtigungsprüfung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@SourceDatabaseName', N'sysname', 0, 1, N'NULL', CAST(N'Datenbankkennzeichnung als sysname (bis 128 UTF-16-Codeeinheiten), als reiner Name/Text. NULL/Default wird DB_NAME(); leer wird abgewiesen. Eine explizite Kennzeichnung wird nicht auf Existenz geprüft.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@SourceSchemaName', N'sysname', 0, 1, N'NULL', CAST(N'Optionale Schemakennzeichnung als sysname (bis 128 Codeeinheiten); NULL/leer wird gespeichert. Kein zusammengesetzter Objektname, keine Existenz- oder Rechteprüfung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 13, N'@SourceObjectName', N'sysname', 0, 1, N'NULL', CAST(N'Optionale Objektkennzeichnung als sysname (bis 128 Codeeinheiten); NULL/leer wird gespeichert. Text-Metadatum, keine Ausführung und keine Objektauflösung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 14, N'@ErrorNumber', N'int', 0, 1, N'NULL', CAST(N'Optionale int-Fehlernummer aus ERROR_NUMBER(), NULL bedeutet kein Fehlerkontext. Anders als ErrorEnvelope wird hier keine Positivitätsprüfung dieses Feldes durchgeführt.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 15, N'@ErrorSeverity', N'int', 0, 1, N'NULL', CAST(N'Optionaler int-Wert 0..25 einschließlich aus ERROR_SEVERITY(); NULL erlaubt, außerhalb Fehler. Die EventLevel-Klassifikation wird dadurch nicht automatisch geändert.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 16, N'@ErrorState', N'int', 0, 1, N'NULL', CAST(N'Optionaler int-Wert 0..255 einschließlich aus ERROR_STATE(); NULL erlaubt, außerhalb Fehler.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 17, N'@ErrorProcedure', N'sysname', 0, 1, N'NULL', CAST(N'Optionale Fehlerprocedure als sysname (höchstens 128 Codeeinheiten), etwa ERROR_PROCEDURE(); NULL/leer erlaubt, kein auszuführender Aufruf.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 18, N'@ErrorLine', N'int', 0, 1, N'NULL', CAST(N'Optionale positive int-Zeilennummer aus ERROR_LINE(); NULL erlaubt, 0/negativ wird abgewiesen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 19, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 20, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF NULLIF(@EventName, '') IS NULL

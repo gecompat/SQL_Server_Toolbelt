@@ -1,0 +1,82 @@
+{
+  "Modules/toolbelt.archive.zip-files/Tests/Static/validate_contract.py": {
+    "after": "ee82e8346e07314f0cc2e52ee8a68b555ab70d552ff625b4f2d61c443c734ac8",
+    "before": "aaab561de6b93f4d23d8fda583b83a5f3e14ac82ca4541ef8202baaf4d1d8be9"
+  },
+  "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_geo.py": {
+    "after": "7a0e55fd916eb550b50b8c0c392a38cdd67c0de863d2dd9db2fc3ee99f307975",
+    "before": "2c52b59d5b15ba242073bae88ef99111fd2f70a655eb729ef8ef6fc475e6f896"
+  },
+  "Scripts/Release/caller_metadata.py": {
+    "after": "232225f396bd1e6e9c5be123ce773444e0028010802a722d0f1964a22fe12431",
+    "before": "8da99f797b7c93414b0d67ca0e58654f840c6b141bb089eea2742630014c1145"
+  },
+  "Scripts/Release/csv_metadata.py": {
+    "after": "006e5104da546f26bc39af7c0179d7eb52b1b188063b011ddc14002f7721c72f",
+    "before": "914221690b9f26374b4f6f75f0f28c74fbe6002e79af9a3ec1741edada9a21e6"
+  },
+  "Scripts/Release/help_contract_source.py": {
+    "after": "d073377eb0986110dfbc03e90471f92b6a304956d5289d5bd19505b5bc97bddf",
+    "before": "c6289511c425bd2b22ad653532a6b09c1249410d55a5214792070b546b0a1c3f"
+  },
+  "Scripts/Release/json_schema_caller_transaction.py": {
+    "after": "a8c1a5c8ecb16c2e747d1de2cfc65e5224160c5f28d580b28f4c323f5b128e8d",
+    "before": "a84206f94f30ae4e17d2d85624b2294e936b9ccafa5908b29af2d2f81c850bfa"
+  },
+  "Scripts/Release/json_schema_deploy_applock.py": {
+    "after": "80deb5aadb530076a323a429349ff07de7c2ebae89c42de5c5109b665c00f9db",
+    "before": "6082e1dfb8c98f347309f9ff6211b66aa46049c024bdf029738d854e28619546"
+  },
+  "Scripts/Release/json_schema_deploy_collision.py": {
+    "after": "87af67d79d484336853e203adcf79320ca5b742bcb73b4bcffa035c6e8939c53",
+    "before": "ddf9c9a7eb0b968ae8a8e5a23ade74b6d229153fb354a1994ff99fca951cdabf"
+  },
+  "Scripts/Release/json_schema_uninstall_applock.py": {
+    "after": "e3ad64325a04195c72f70ac9a6af15f1d4ad9f625c6f90c1a7fa361886f7a7d6",
+    "before": "fa14ccd815f95d0c059b2ffec3413e699a0a5edc6c5fecebeb3ea704aa1f6d4e"
+  },
+  "Scripts/Release/json_schema_uninstall_confirmation.py": {
+    "after": "87ab4d3d178414ceca739cd14918b8daf1735fdb4c915a18555e126d03a87ba7",
+    "before": "f8e94459b619117a15b8f550ccb83a314dc5d0d089e4795e1aa8cf68a36e19b9"
+  },
+  "Scripts/Release/ssis_historical_source_bridge.py": {
+    "after": "d7c6b9d8c838cc0d9c5199d82bce8e19e1a7ae7f51b8c03dfa1b5f6d200d2040",
+    "before": "52c1e154e0ed8e111e122dbfc9cbb7b3c24bb6f4251abf5226b2cea60c49df27"
+  },
+  "Scripts/Release/xlsx_sst_budget.py": {
+    "after": "507e4ff88378a9e95be22ccc5c6097ca11ceb520464ac434501b8629798c42d0",
+    "before": "ea8b7eccb095b46554b22038442f1831d0e883134c87b6a1aab5c524dc2a6d2b"
+  },
+  "Tests/Release/test_clr_maintenance.py": {
+    "after": "6d5c72f7f29be707b4e727e1744eac37ca1dca8c7fe027d48022b60317a2eaba",
+    "before": "3e3729c3147b0bc90b4f3076dbe3e811bfd2c8eaa56d573b88fb0e475d0b683d"
+  },
+  "Tests/Release/test_prepare_release.py": {
+    "after": "876d3cd6c0d4256e71c7a9a963660b28362d76b25126512bcc89f96131006f0e",
+    "before": "e933e83612f6faf53d75ddcb9fc6fc59799e87b6de74ec5ccad5f0c306dbee03"
+  },
+  "Tests/Release/test_xlsx_boundary_evidence.py": {
+    "after": "fa8e3f7f3b99d925341747b06f3830e4e3da262f99e43d3a5dc00c0ea7b4c288",
+    "before": "c41138df973120e30c6948e779f5cfe92d138214c09da2b9e05d6cab1aac606e"
+  },
+  "Tests/Release/test_xlsx_cell_caller_qualification.py": {
+    "after": "b025cf6318418ba2311b6caac318587947894f5655d5832974900d782e51a5c0",
+    "before": "3c34a1dc87e377b4e7867d00404c0b113d4f7ef1058e9922cf1a3c1183b55c23"
+  },
+  "Tests/Release/test_xlsx_metadata.py": {
+    "after": "328f3c55671a26f697ddbf88369e6805a03d6036b7543257398ea5fc5fa8eba4",
+    "before": "9fc40865664197c720286b62762a81d8ee939ec69f0e8e723ce30bfff4681435"
+  },
+  "Tests/Release/test_xlsx_raw_caller_evidence.py": {
+    "after": "02a5f2ec5b9655d27d6861455b292ca2c5dc4801184dedc79b75324ad34a72fb",
+    "before": "2b7a0cc9f9103c99ea1ec241f396666702a62938e76bf17a993a60ef15054425"
+  },
+  "Tests/Release/test_zip_caller_profile.py": {
+    "after": "116103d4b1b4b42ae5bbb2e27b17c5abbbbadfa379646cecd382c6162ee9ebe9",
+    "before": "1ece09275a5076ec20a420a4dc1383e10ef4ff000edad38a88a8416261ebaff3"
+  },
+  "Tests/Release/test_zip_entry_count_composer.py": {
+    "after": "8ca6c6d1a916220f97ab52d7040a590757dea3e673ae5137ff1f87cfc54fe9f9",
+    "before": "89bb965badf81371b86d1f4c315f8042a02bfe2e5136f044630330457a5f6047"
+  }
+}

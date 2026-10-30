@@ -23,24 +23,32 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT
-              CAST('1.0' AS varchar(16)) AS HelpContractVersion
-            , CAST(N'toolbelt_core' AS sysname) AS SchemaName
-            , CAST(N'USP_DeleteEventsBefore' AS sysname) AS ObjectName
-            , v.Section, v.Ordinal, v.ItemName, v.SqlDataType
-            , v.IsRequired, v.IsNullable, v.DefaultValue, v.Description, v.ExampleSql
-        FROM
-        (
-            VALUES
-              (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine automatische Zeitplanung aus.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-            , ('PARAMETER', 1, N'@BeforeOccurredAtUtc', 'datetime2(7)', 1, 0, NULL, N'Nur Events mit älterem OccurredAtUtc werden gelöscht.', NULL)
-            , ('PARAMETER', 2, N'@BatchSize', 'int', 0, 0, N'1000', N'1 bis 10000 Zeilen je Batch.', NULL)
-            , ('PARAMETER', 3, N'@MaxBatches', 'int', 0, 0, N'1', N'1 bis 100 Batches je Aufruf.', NULL)
-            , ('ERROR', 1, N'51710-51714', NULL, NULL, NULL, NULL, N'Grenz-, Pflichtparameter- und Transaktionsfehler.', NULL)
-            , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Löscht höchstens 5000 alte Events.', N'DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteEventsBefore @BeforeOccurredAtUtc=''2026-01-01'', @BatchSize=1000, @MaxBatches=5, @DeletedRows=@n OUTPUT;')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'ERROR' THEN 3 ELSE 4 END, v.Ordinal;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_DeleteEventsBefore' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine automatische Zeitplanung aus.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51710-51714', NULL, NULL, NULL, NULL, CAST(N'Grenz-, Pflichtparameter- und Transaktionsfehler.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Löscht höchstens 5000 alte Events.' AS nvarchar(max)), CAST(N'DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteEventsBefore @BeforeOccurredAtUtc=''2026-01-01'', @BatchSize=1000, @MaxBatches=5, @DeletedRows=@n OUTPUT;' AS nvarchar(max))),
+        (N'RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Kein fachliches Resultset; Rückgaben über OUTPUT beziehungsweise Sessionkontext gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@BeforeOccurredAtUtc', N'datetime2(7)', 1, 0, N'NULL', CAST(N'Fachlich erforderlicher SQL-datetime2(7)-UTC-Cutoff, z.B. CONVERT(datetime2(7),''2026-10-30T00:00:00'',126). Löscht ausschließlich OccurredAtUtc < Cutoff, nicht gleich. NULL (technischer Default für Hilfe) wird im Fachaufruf abgewiesen; keine automatische Zeitzonenkonvertierung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@BatchSize', N'int', 0, 1, N'1000', CAST(N'Ganzzahlige Zahl 1..10000 Zeilen je Batch, inklusive. Default/NULL = 1000; 0/negativ/>10000 wird abgewiesen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@MaxBatches', N'int', 0, 1, N'1', CAST(N'Ganzzahl 1..100 Batches je Aufruf, inklusive. Default/NULL = 1; 0/negativ/>100 wird abgewiesen. Kein Hintergrundjob; Grenzen werden nicht automatisch über mehrere Aufrufe fortgesetzt.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@DeletedRows', N'bigint', 0, 1, N'NULL', CAST(N'bigint OUTPUT: Der Eingabewert wird immer auf 0 gesetzt, auch im Hilfemodus; danach Anzahl der in diesem Aufruf gelöschten Zeilen. Zum Empfangen eine bigint-Variable mit OUTPUT übergeben; Eingabe-NULL ist kein Löschlimit.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @BeforeOccurredAtUtc IS NULL

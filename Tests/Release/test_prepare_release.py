@@ -34,6 +34,10 @@ def assert_report_source_pin(test, path, expected_sha256):
     if path in help_contract_source.source_paths(ROOT):
         help_contract_source.validate_historical_source(ROOT, path, expected_sha256)
         return
+    import parameter_help_transition
+    if path in parameter_help_transition.PATHS:
+        parameter_help_transition.predecessor_source(ROOT, path, expected_sha256)
+        return
     series_paths = {
         'Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql',
         'Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql',
@@ -953,6 +957,9 @@ class ApiQualificationTests(unittest.TestCase):
         for path, digest in report['source_sha256'].items():
             self.assertEqual(hashlib.sha256(historical[path]).hexdigest(), digest)
             current = (ROOT / path).read_bytes()
+            import parameter_help_transition
+            if path in parameter_help_transition.PATHS:
+                current = parameter_help_transition.bound_source(ROOT, path, digest)
             if path == 'Tests/CI/run-csv-memory-lab.ps1' and hashlib.sha256(current).hexdigest() != digest:
                 reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
                 self.assertTrue(reader_import_only_equivalent(path, digest, current, reader),
@@ -2049,7 +2056,9 @@ class DateMathSelectedCallerTests(unittest.TestCase):
         data = b'\n'.join((ROOT / p).read_bytes() for p in parts) + b'\n'
         self.assertEqual(hashlib.sha256(data).hexdigest(), report['composed_fixture_sha256'])
         for source, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+            import parameter_help_transition
+            current = parameter_help_transition.bound_source(ROOT, source, digest)
+            self.assertEqual(hashlib.sha256(current).hexdigest(), digest, source)
         cases = (ROOT / parts[1]).read_text(encoding='utf-8')
         self.assertIn('@ExpectedApiCount int=4', cases)
         self.assertEqual(report['positive_profiles'], 48)

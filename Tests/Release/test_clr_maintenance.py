@@ -93,6 +93,9 @@ def historical_maintenance_root():
                                                      record['current_sources_sha256'][relative])
             else:
                 content = _read_projection_input(relative)
+                import parameter_help_transition
+                if relative in parameter_help_transition.PATHS:
+                    content = parameter_help_transition.predecessor_source(ROOT, relative)
             total += len(content)
             if total > MAX_PROJECTION_TOTAL_BYTES:
                 raise ValueError('maintenance projection exceeds its total input bound')

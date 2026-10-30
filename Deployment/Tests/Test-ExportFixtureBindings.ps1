@@ -19,6 +19,12 @@ $start=$assert.IndexOf('CREATE TABLE #ExpectedDefinitions',[StringComparison]::O
 $end=$assert.IndexOf('IF (SELECT COUNT(*) FROM #ExpectedDefinitions',$start,[StringComparison]::Ordinal)
 $definitions=@([regex]::Matches($assert.Substring($start,$end-$start),"\(1,N'([^']+)',0x([A-F0-9]{64})\)"))
 if($definitions.Count-ne8){throw 'EXPORT_BINDING_DEFINITION_SET'}
+. (Join-Path $repo 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1')
+$python=Get-Command python -ErrorAction Stop
+$projection=Invoke-OwnedProcess -FileName $python.Source -Arguments @((Join-Path $PSScriptRoot 'export_parameter_help_definition_pins.py')) -TimeoutMilliseconds 30000
+if($projection.ExitCode-ne0){throw 'EXPORT_BINDING_HELP_PROJECTION'}
+$historicalPins=$projection.Stdout|ConvertFrom-Json -AsHashtable
+if($historicalPins.Count-ne8){throw 'EXPORT_BINDING_HELP_PROJECTION_SET'}
 foreach($definition in $definitions){
  $name=$definition.Groups[1].Value
  $text=[IO.File]::ReadAllText((Join-Path $repo ('Modules/toolbelt.core.work-queue/Source/'+$name+'.sql'))).Replace("`r`n","`n")
@@ -27,7 +33,9 @@ foreach($definition in $definitions){
  if($batches.Count-ne1){throw 'EXPORT_BINDING_DEFINITION_BATCH'}
  $body=$batches[0].Substring($batches[0].IndexOf($identifier,[StringComparison]::Ordinal)).Trim([char[]]" `t`r`n")
  $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::Unicode.GetBytes($body)))
- if($hash-cne$definition.Groups[2].Value){throw 'EXPORT_BINDING_DEFINITION_BYTES'}
+ # The frozen fixture asserts its executed predecessor definition. Only the
+ # canonical Help branch may differ in current source; business drift is rejected.
+ if($hash-cne$definition.Groups[2].Value -and $historicalPins[$name]-cne$definition.Groups[2].Value){throw 'EXPORT_BINDING_DEFINITION_BYTES'}
 }
 # Jeder deklarierte aktuelle Tabellen-Shape benötigt auch einen eigenen Count-
 # Zeugen; sonst würde ein leerer neuer Policybestand still aus dem Snapshot fallen.

@@ -25,32 +25,41 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT
-              CAST('1.0' AS varchar(16)) AS HelpContractVersion
-            , CAST(N'toolbelt_core' AS sysname) AS SchemaName
-            , CAST(N'USP_ConfigureSecondSessionLoopback' AS sysname) AS ObjectName
-            , v.Section
-            , v.Ordinal
-            , v.ItemName
-            , v.SqlDataType
-            , v.IsRequired
-            , v.IsNullable
-            , v.DefaultValue
-            , v.Description
-            , v.ExampleSql
-        FROM
-        (
-            VALUES
-              (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Linked-Server. Das Modul legt weder Linked Server noch Login-Mappings oder Credentials an.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-            , ('PARAMETER', 1, N'@LinkedServerName', 'sysname', 1, 0, NULL, N'Vorhandener Linked Server mit rpc out und deaktivierter Remote-Transaction-Promotion.', NULL)
-            , ('PARAMETER', 2, N'@Enabled', 'bit', 0, 0, N'1', N'Aktiviert oder deaktiviert den Provider.', NULL)
-            , ('PARAMETER', 3, N'@ExpectedRowVersion', 'binary(8)', 0, 1, NULL, N'Optionale Optimistic-Concurrency-Prüfung.', NULL)
-            , ('PARAMETER', 4, N'@ResultTable', 'sysname', 0, 1, NULL, N'Optionale lokale Temp-Tabelle für die Konfigurationszeile.', NULL)
-            , ('ERROR', 1, N'51600-51609', NULL, NULL, NULL, NULL, N'Konfigurations-, Probe-, Concurrency- und ResultTable-Fehler.', NULL)
-            , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Konfiguriert den administrativ vorbereiteten Provider.', N'EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @LinkedServerName=N''TBX_LOOPBACK'';')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'ERROR' THEN 3 ELSE 4 END, v.Ordinal;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_ConfigureSecondSessionLoopback' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Linked-Server. Das Modul legt weder Linked Server noch Login-Mappings oder Credentials an.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51600-51609', NULL, NULL, NULL, NULL, CAST(N'Konfigurations-, Probe-, Concurrency- und ResultTable-Fehler.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Konfiguriert den administrativ vorbereiteten Provider.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @LinkedServerName=N''TBX_LOOPBACK'';' AS nvarchar(max))),
+        (N'RESULT_COLUMN', 1, N'ProviderName', N'varchar(32)', NULL, 0, NULL, CAST(N'ProviderName: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'LinkedServerName', N'sysname', NULL, 0, NULL, CAST(N'LinkedServerName: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'IsEnabled', N'bit', NULL, 0, NULL, CAST(N'IsEnabled: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'RowVersion', N'binary(8)', NULL, 0, NULL, CAST(N'RowVersion: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'LinkedServerExists', N'bit', NULL, 0, NULL, CAST(N'LinkedServerExists: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'RpcOutEnabled', N'bit', NULL, 0, NULL, CAST(N'RpcOutEnabled: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'RemoteProcTransactionPromotionEnabled', N'bit', NULL, 0, NULL, CAST(N'RemoteProcTransactionPromotionEnabled: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 8, N'ProbeRemoteSessionId', N'int', NULL, 0, NULL, CAST(N'ProbeRemoteSessionId: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 9, N'ProbeDatabaseName', N'sysname', NULL, 0, NULL, CAST(N'ProbeDatabaseName: fachliche Ergebnis-/Statusspalte gemäß Objektvertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@LinkedServerName', N'sysname', 1, 0, N'NULL', CAST(N'Fachlich erforderlicher vorhandener Loopback-Linked-Server-Name als sysname, kein Connection String. Binärer Namensvergleich; rpc out muss an und remote proc transaction promotion aus sein. Der Probe muss dieselbe Datenbank mit anderer SPID erreichen, auch wenn Enabled=0 gesetzt wird. NULL/leer ist nur im Hilfemodus zulässig; die Procedure legt keine Infrastruktur an.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@Enabled', N'bit', 0, 1, N'1', CAST(N'Taxativ für bit: 1 aktiviert die gespeicherte Loopbackkonfiguration (Default und NULL); 0 deaktiviert sie. Vorbedingungen und Probe gelten in beiden Fällen; 0 ist kein Bypass für einen fehlenden/ungeeigneten Linked Server.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@ExpectedRowVersion', N'binary(8)', 0, 1, N'NULL', CAST(N'Optionaler binary(8)-Wert aus der zuletzt gelesenen RowVersion der betreffenden Zeile, als Bytes/SQL-Hexliteral (nicht als Hextext). NULL schaltet diese optionale Vergleichsprüfung aus; bei Abweichung wird die Änderung abgewiesen. Der Vergleich erfolgt nur, wenn eine Konfigurationszeile bereits existiert; er verhindert keine Erstregistrierung mit angegebenem Wert.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF XACT_STATE() = -1

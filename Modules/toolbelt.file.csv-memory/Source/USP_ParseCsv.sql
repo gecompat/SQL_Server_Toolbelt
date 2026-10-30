@@ -33,35 +33,44 @@ BEGIN
  SET NOCOUNT ON;
  IF @Hilfe=1
  BEGIN
-  DECLARE @Help TABLE(HelpContractVersion varchar(16) NOT NULL DEFAULT('1.0'),SchemaName sysname NOT NULL DEFAULT(N'toolbelt_file'),ObjectName sysname NOT NULL DEFAULT(N'USP_ParseCsv'),
-   Section varchar(32) NOT NULL,Ordinal int NOT NULL,ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
-  INSERT @Help(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql) VALUES
-  ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'CSV-Text vollständig prüfen und in HEADER-/DATA-Zellen decodieren.',NULL),
-  ('PARAMETER',1,N'@Text','nvarchar(max)',1,0,N'NULL',N'CSV-Text im Speicher; NULL ist Argumentfehler, leer liefert keine Zellen.',NULL),
-  ('PARAMETER',2,N'@Separator','nvarchar(2)',0,0,N'N'',''',N'Exakt eine zulässige UTF-16-Codeeinheit.',NULL),
-  ('PARAMETER',3,N'@HasHeader','bit',0,0,N'0',N'Erster Record ist HEADER; NULL ist ungültig.',NULL),
-  ('PARAMETER',4,N'@NullToken','nvarchar(128)',0,1,N'NULL',N'Optionaler exakter NULL-Token; quoted Token bleibt Text.',NULL),
-  ('PARAMETER',5,N'@MaxRows','bigint',0,0,N'100000',N'Positive DATA-Recordgrenze bis 100000.',NULL),
-  ('PARAMETER',6,N'@MaxColumns','int',0,0,N'1024',N'Positive rechteckige Breite bis 1024.',NULL),
-  ('PARAMETER',7,N'@MaxCells','bigint',0,0,N'1000000',N'Positive HEADER+DATA-Zellgrenze bis 1000000.',NULL),
-  ('PARAMETER',8,N'@MaxInputBytes','bigint',0,0,N'16777216',N'Positive vollständige UTF-16-Inputbytegrenze bis 16777216.',NULL),
-  ('PARAMETER',9,N'@ResultTable','sysname',0,1,N'NULL',N'Vorhandene caller-lokale Temp-Tabelle, sonst SELECT.',NULL),
-  ('PARAMETER',10,N'@KeepData','bit',0,1,N'0',N'Replace=0, Append=1; NULL entspricht 0.',NULL),
-  ('PARAMETER',11,N'@Debug','tinyint',0,1,N'0',N'Nur Messages ohne Zellinhalte; NULL entspricht 0.',NULL),
-  ('PARAMETER',12,N'@Hilfe','bit',0,1,N'0',N'Ausschließlich Hilfe; ignoriert sämtliche anderen Eingaben.',NULL),
-  ('RESULT_COLUMN',1,N'RowKind','varchar(6)',1,0,NULL,N'Exakt HEADER oder DATA.',NULL),
-  ('RESULT_COLUMN',2,N'RowOrdinal','bigint',1,0,NULL,N'HEADER=0; DATA ab1.',NULL),
-  ('RESULT_COLUMN',3,N'ColumnOrdinal','int',1,0,NULL,N'Einsbasierte rechteckige Spalte.',NULL),
-  ('RESULT_COLUMN',4,N'Value','nvarchar(max)',1,1,NULL,N'Unveränderter decodierter Text oder SQL-NULL.',NULL),
-  ('ERROR',1,N'55300..55309',NULL,NULL,NULL,NULL,N'Begrenzte Argument-/Syntax-/Form-/Budget-/Transportfehler; ursprüngliche Enginefehler bleiben erhalten.',NULL),
-  ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'EXECUTE und sichtbare eigene lokale Temps; ResultTable zusätzlich vorhandene Helperberechtigung. Keine Rechteausweitung.',NULL),
-  ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'In-memory UTF-16; kein I/O, Casting, Trim oder Streaming. NUL/unpaired Surrogate bleiben Zelltext.',NULL),
-  ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Hilfe ohne fachliche Eingaben.',N'EXEC toolbelt_file.USP_ParseCsv @Hilfe=1;');
-  SELECT HelpContractVersion,SchemaName,ObjectName,
-   Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql
-  FROM @Help ORDER BY CASE Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 WHEN 'PERMISSION' THEN 5 WHEN 'LIMITATION' THEN 6 ELSE 7 END,Ordinal;
-  RETURN 0;
- END;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_file' AS sysname) AS SchemaName,
+            CAST(N'USP_ParseCsv' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'CSV-Text vollständig prüfen und in HEADER-/DATA-Zellen decodieren.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'RowKind', N'varchar(6)', 1, 0, NULL, CAST(N'Exakt HEADER oder DATA.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'RowOrdinal', N'bigint', 1, 0, NULL, CAST(N'HEADER=0; DATA ab1.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'ColumnOrdinal', N'int', 1, 0, NULL, CAST(N'Einsbasierte rechteckige Spalte.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'Value', N'nvarchar(max)', 1, 1, NULL, CAST(N'Unveränderter decodierter Text oder SQL-NULL.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'55300..55309', NULL, NULL, NULL, NULL, CAST(N'Begrenzte Argument-/Syntax-/Form-/Budget-/Transportfehler; ursprüngliche Enginefehler bleiben erhalten.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'EXECUTE und sichtbare eigene lokale Temps; ResultTable zusätzlich vorhandene Helperberechtigung. Keine Rechteausweitung.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'In-memory UTF-16; kein I/O, Casting, Trim oder Streaming. NUL/unpaired Surrogate bleiben Zelltext.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Hilfe ohne fachliche Eingaben.' AS nvarchar(max)), CAST(N'EXEC toolbelt_file.USP_ParseCsv @Hilfe=1;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@Text', N'nvarchar(max)', 1, 0, N'NULL', CAST(N'Vollständiger In-memory-CSV-Text als nvarchar(max), kein Dateipfad und keine kodierten Bytes. Leer ergibt keine Zellen; NULL (technischer Default) ist außerhalb Hilfe ein Argumentfehler. Quote ist fest Doppelquote, innen durch Verdopplung escaped; Recordgrenzen LF oder CRLF, kein isoliertes CR. Kein Trim/Normalisieren; NUL und ungepaarte Surrogate bleiben Zellinhalt. Alle Records müssen die Breite des ersten haben; finaler Recordabschluss erzeugt keinen Zusatzrecord.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@Separator', N'nvarchar(2)', 0, 0, N'N'',''', CAST(N'Genau eine UTF-16-Einheit, Default Komma; keine mehrzeichige Trennfolge. Doppelquote U+0022, CR, LF, NUL und einzelne High-/Low-Surrogate sind verboten. NULL/leer ungültig; Vergleich nach exakter Einheit/Länge, kein Trim.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@HasHeader', N'bit', 0, 0, N'0', CAST(N'Taxativ im gebundenen bit: 0 kein Header (Default); 1 erster Record als HEADER/RowOrdinal 0, DATA beginnt bei 1. NULL ist ungültig und kein Default. Header zählt zu MaxCells, nicht zu MaxRows. Writer verlangt bei 1 einen vollständigen nicht-NULL-Header.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@NullToken', N'nvarchar(128)', 0, 1, N'NULL', CAST(N'NULL (Default) deaktiviert die DATA-NULL-Darstellung. Andernfalls 1..128 UTF-16-Einheiten, ohne Separator, Doppelquote, CR, LF, NUL oder ungepaarte Surrogate; gültige Surrogatpaare sind erlaubt. Binäre längensensitive Übereinstimmung: nur unquoted DATA-Token wird SQL-NULL. Quoted Token und HEADER sind Text; der Writer quoted einen wörtlich gleichen Text zur Unterscheidung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@MaxRows', N'bigint', 0, 0, N'100000', CAST(N'Ganzzahl 1..100000 DATA-Records, Default 100000; Header zählt nicht mit. NULL/außerhalb ungültig; Überschreitung verwirft den gesamten Aufruf.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@MaxColumns', N'int', 0, 0, N'1024', CAST(N'Ganzzahl 1..1024 Spalten pro Record, Default 1024; positive rechteckige Breite für alle Records. NULL/außerhalb ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@MaxCells', N'bigint', 0, 0, N'1000000', CAST(N'Ganzzahl 1..1000000 Zellen einschließlich HEADER und DATA, Default 1000000. NULL/außerhalb ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@MaxInputBytes', N'bigint', 0, 0, N'16777216', CAST(N'Ganzzahl 1..16777216 DATALENGTH-Bytes des UTF-16-Inputs, Default 16777216; einschließlich Quotes, Separatoren, Header und Zeilenumbrüchen. NULL/außerhalb ungültig; kein Streaming und keine Teilausgabe bei Überschreitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix; beim Writer nicht dieselbe tatsächliche Tabelle wie CellsTable.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei >0 meldet der CSV-Kern den vollständigen Snapshot/das Writergebnis ohne Zellinhalte; im ResultTable-Pfad zusätzlich Helperdiagnose.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        RETURN 0;
+        -- API_PARAMETER_HELP:END
+    END;
  SELECT @KeepData=COALESCE(@KeepData,0),@Debug=COALESCE(@Debug,0);
  IF XACT_STATE()=-1 THROW 55309,N'CSV: Callertransaktion ist uncommittable.',1;
  IF @HasHeader IS NULL OR @Text IS NULL THROW 55300,N'CSV: erforderlicher Text oder Headerflag fehlt.',1;

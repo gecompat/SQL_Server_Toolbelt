@@ -54,153 +54,48 @@ BEGIN
      */
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-              HelpContractVersion varchar(16)    NOT NULL
-            , SchemaName          sysname        NOT NULL
-            , ObjectName          sysname        NOT NULL
-            , Section             varchar(32)    NOT NULL
-            , Ordinal             int            NOT NULL
-            , ItemName            sysname        NULL
-            , SqlDataType         varchar(256)   NULL
-            , IsRequired          bit            NULL
-            , IsNullable          bit            NULL
-            , DefaultValue        nvarchar(4000) NULL
-            , Description         nvarchar(max)  NOT NULL
-            , ExampleSql          nvarchar(max)  NULL
-        );
-
-        INSERT INTO @Help
-        (
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        )
-        VALUES
-          ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'DESCRIPTION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vorhandenen Referenztabelle vor. Die Procedure fügt keine fachlichen Resultzeilen ein.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 1
-          , N'@ResultTableToAlter', 'sysname', 1, 0, N'NULL'
-          , N'Vorhandene lokale Ziel-Temp-Tabelle. Der Name beginnt mit genau einem #, ist höchstens 116 Zeichen lang und verwendet nicht den reservierten Präfix #tbx_.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 2
-          , N'@LikeTable', 'nvarchar(776)', 1, 0, N'NULL'
-          , N'Referenztabelle in der Form #LocalTemplate, Schema.Table oder Database.Schema.Table. Ziel- und Referenztabelle dürfen nicht identisch sein. Views, Synonyme, globale Temp-Tabellen und vierteilige Namen sind nicht unterstützt.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 3
-          , N'@KeepData', 'bit', 0, 1, N'0'
-          , N'0 verwendet Replace-Semantik. 1 erhält vorhandene Daten nur bei bereits passendem Schema; andernfalls wird vor jeder Mutation mit Fehler 51025 abgebrochen.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 4
-          , N'@Debug', 'tinyint', 0, 1, N'0'
-          , N'Steuert Debug-Messages. Die Stufen 1 bis 3 liefern zunehmend Details; 255 ist der maximale interne Trace. Debug erzeugt kein Resultset.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 5
-          , N'@Hilfe', 'bit', 0, 1, N'0'
-          , N'1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'RESULT_COLUMN', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Diese Infrastruktur-USP besitzt kein fachliches Resultset. Erfolg wird mit RETURN 0, ein Fehler mit THROW signalisiert.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 1
-          , N'51020', NULL, NULL, NULL, NULL
-          , N'@ResultTableToAlter fehlt oder ist kein zulässiger lokaler Temp-Tabellenname.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 2
-          , N'51021', NULL, NULL, NULL, NULL
-          , N'Die Zieltable ist im aktuellen Session-Scope nicht sichtbar.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 3
-          , N'51022', NULL, NULL, NULL, NULL
-          , N'@LikeTable fehlt, ist mehrdeutig, verwendet eine nicht unterstützte Namensform oder bezeichnet dieselbe Temp-Tabelle wie das Ziel.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 4
-          , N'51023', NULL, NULL, NULL, NULL
-          , N'Die Referenztabelle ist nicht sichtbar oder kein unterstützter Tabellentyp.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 5
-          , N'51024', NULL, NULL, NULL, NULL
-          , N'Das Referenzschema enthält eine nicht unterstützte oder nicht einfügbare Spaltenform.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 6
-          , N'51025', NULL, NULL, NULL, NULL
-          , N'@KeepData = 1 verhindert den erforderlichen Schemaumbau.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 7
-          , N'51026', NULL, NULL, NULL, NULL
-          , N'Ein Index, Constraint oder anderes abhängiges Objekt verhindert den Schemaumbau.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 8
-          , N'51027', NULL, NULL, NULL, NULL
-          , N'Eine Collation oder ein Datentyp kann nicht sicher in DDL überführt werden.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 9
-          , N'51028', NULL, NULL, NULL, NULL
-          , N'Der aktuelle Transaktionszustand erlaubt kein kontrolliertes Rollback.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 10
-          , N'51029', NULL, NULL, NULL, NULL
-          , N'Intern erzeugtes DDL überschreitet einen unterstützten Grenzwert oder ist unvollständig.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PERMISSION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Erforderlich sind EXECUTE auf der Procedure sowie ausreichende Metadatensichtbarkeit auf eine reguläre Referenztabelle. Die Procedure verwendet kein EXECUTE AS und gewährt keine Rechte.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'LIMITATION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Permanente oder globale Zieltabellen, Tabellenvariablen, identische Ziel- und Referenztabellen, Views, Synonyme, Linked Server, frei geliefertes DDL und parallele DDL-Manipulation derselben Zieltable sind nicht unterstützt.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'EXAMPLE', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Bereitet eine synthetische lokale ResultTable anhand einer lokalen Helper-Tabelle vor.'
-          , N'CREATE TABLE #Result (Dummy int NULL);
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_PrepareResultTable' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vorhandenen Referenztabelle vor. Die Procedure fügt keine fachlichen Resultzeilen ein.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Diese Infrastruktur-USP besitzt kein fachliches Resultset. Erfolg wird mit RETURN 0, ein Fehler mit THROW signalisiert.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51020', NULL, NULL, NULL, NULL, CAST(N'@ResultTableToAlter fehlt oder ist kein zulässiger lokaler Temp-Tabellenname.' AS nvarchar(max)), NULL),
+        (N'ERROR', 2, N'51021', NULL, NULL, NULL, NULL, CAST(N'Die Zieltable ist im aktuellen Session-Scope nicht sichtbar.' AS nvarchar(max)), NULL),
+        (N'ERROR', 3, N'51022', NULL, NULL, NULL, NULL, CAST(N'@LikeTable fehlt, ist mehrdeutig, verwendet eine nicht unterstützte Namensform oder bezeichnet dieselbe Temp-Tabelle wie das Ziel.' AS nvarchar(max)), NULL),
+        (N'ERROR', 4, N'51023', NULL, NULL, NULL, NULL, CAST(N'Die Referenztabelle ist nicht sichtbar oder kein unterstützter Tabellentyp.' AS nvarchar(max)), NULL),
+        (N'ERROR', 5, N'51024', NULL, NULL, NULL, NULL, CAST(N'Das Referenzschema enthält eine nicht unterstützte oder nicht einfügbare Spaltenform.' AS nvarchar(max)), NULL),
+        (N'ERROR', 6, N'51025', NULL, NULL, NULL, NULL, CAST(N'@KeepData = 1 verhindert den erforderlichen Schemaumbau.' AS nvarchar(max)), NULL),
+        (N'ERROR', 7, N'51026', NULL, NULL, NULL, NULL, CAST(N'Ein Index, Constraint oder anderes abhängiges Objekt verhindert den Schemaumbau.' AS nvarchar(max)), NULL),
+        (N'ERROR', 8, N'51027', NULL, NULL, NULL, NULL, CAST(N'Eine Collation oder ein Datentyp kann nicht sicher in DDL überführt werden.' AS nvarchar(max)), NULL),
+        (N'ERROR', 9, N'51028', NULL, NULL, NULL, NULL, CAST(N'Der aktuelle Transaktionszustand erlaubt kein kontrolliertes Rollback.' AS nvarchar(max)), NULL),
+        (N'ERROR', 10, N'51029', NULL, NULL, NULL, NULL, CAST(N'Intern erzeugtes DDL überschreitet einen unterstützten Grenzwert oder ist unvollständig.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erforderlich sind EXECUTE auf der Procedure sowie ausreichende Metadatensichtbarkeit auf eine reguläre Referenztabelle. Die Procedure verwendet kein EXECUTE AS und gewährt keine Rechte.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Permanente oder globale Zieltabellen, Tabellenvariablen, identische Ziel- und Referenztabellen, Views, Synonyme, Linked Server, frei geliefertes DDL und parallele DDL-Manipulation derselben Zieltable sind nicht unterstützt.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Bereitet eine synthetische lokale ResultTable anhand einer lokalen Helper-Tabelle vor.' AS nvarchar(max)), CAST(N'CREATE TABLE #Result (Dummy int NULL);
 CREATE TABLE #ResultShape (ItemOrdinal bigint NOT NULL, ItemValue varchar(100) NULL);
 
 EXEC toolbelt_core.USP_PrepareResultTable
       @ResultTableToAlter = N''#Result''
     , @LikeTable          = N''#ResultShape''
-    , @KeepData           = 0;' );
-
-        SELECT
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        FROM @Help
-        ORDER BY
-              CASE Section
-                  WHEN 'DESCRIPTION'   THEN 1
-                  WHEN 'PARAMETER'     THEN 2
-                  WHEN 'RESULT_COLUMN' THEN 3
-                  WHEN 'ERROR'         THEN 4
-                  WHEN 'PERMISSION'    THEN 5
-                  WHEN 'LIMITATION'    THEN 6
-                  WHEN 'EXAMPLE'       THEN 7
-                  ELSE 8
-              END
-            , Ordinal;
-
+    , @KeepData           = 0;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@ResultTableToAlter', N'sysname', 1, 0, N'NULL', CAST(N'Fachlich erforderliche, bereits existierende caller-lokale #Temp im selben sichtbaren Session-Scope; logischer Name 2..116 UTF-16-Einheiten, genau ein führendes # und kein reserviertes #tbx_-Präfix. Ein einzelner Identifier, kein DDL und keine Tabellenvariable/permanente/globale Tabelle. NULL ist nur technischer Help-Default. Darf nicht dieselbe Tabelle wie LikeTable sein.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@LikeTable', N'nvarchar(776)', 1, 0, N'NULL', CAST(N'Fachlich erforderliche vorhandene Referenztabelle als #LocalTemplate, Schema.Table oder Database.Schema.Table, optional regulär quotierte Namensbestandteile. Keine einteilige permanente Tabelle, Server-/vierteilige Namen, Views, Synonyme oder ##Temps. NULL/leer ungültig. Referenzspalten müssen dem unterstützten einfügbaren Typ-/Metadatenvertrag in RESULT_TABLE_MODULE_DESIGN.md entsprechen; der Helper übernimmt Spaltenshape und keine fachlichen Zeilen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ im gebundenen bit: 0 ersetzt/leert vorhandene Zielinhalte und baut nötigenfalls das Schema um (Default); 1 erhält vorhandene Zeilen und lehnt einen nötigen Schemaumbau bei nicht leerem Ziel mit 51025 ab. Ein leeres Ziel darf auch bei 1 angepasst werden. NULL wirkt wie 0. Keine Append-Operation des Helpers selbst; fachliche Zeilen fügt der Caller danach ein.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'Ganzzahl tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine Debugmessages, 1 Preflight/Ablauf, 2 zusätzlich zusammengefasste Metadaten/Schemaentscheidung, 3..255 zusätzlich normalisierte Referenzmetadaten und geplantes DDL. Die Schwellwerte gelten kumulativ; 255 besitzt im aktuellen Code keine weitere eigene Stufe. Nur Messages, kein Zusatzresultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     DECLARE

@@ -29,62 +29,44 @@ BEGIN
     SET @Hilfe = ISNULL(@Hilfe, 0);
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-            HelpContractVersion varchar(16) NOT NULL, SchemaName sysname NOT NULL,
-            ObjectName sysname NOT NULL, Section varchar(32) NOT NULL, Ordinal int NOT NULL,
-            ItemName sysname NULL, SqlDataType varchar(256) NULL, IsRequired bit NULL,
-            IsNullable bit NULL, DefaultValue nvarchar(4000) NULL,
-            Description nvarchar(max) NOT NULL, ExampleSql nvarchar(max) NULL
-        );
-        INSERT @Help VALUES
-        ('1.0',N'toolbelt_string',N'USP_CompareTextPairs','DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,
-         N'Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jaro-TVFs. Globale Fehler veröffentlichen keine Teilresultate.',NULL);
-        INSERT @Help
-        SELECT '1.0',N'toolbelt_string',N'USP_CompareTextPairs','PARAMETER',v.Ordinal,
-               v.ItemName,v.SqlDataType,v.IsRequired,v.IsNullable,v.DefaultValue,v.Description,NULL
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_string' AS sysname) AS SchemaName,
+            CAST(N'USP_CompareTextPairs' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
         FROM (VALUES
-          (1,N'@PairsTable','sysname',1,0,N'NULL',N'Lokale #Temp mit PairOrdinal bigint, LeftText und RightText nvarchar(max). Ordinals nicht NULL und eindeutig, inklusive negativer Werte.'),
-          (2,N'@Algorithm','nvarchar(max)',1,0,N'NULL',N'Bytegenau levenshtein, osa oder jaro-winkler; global für alle Paare.'),
-          (3,N'@MaxDistance','int',0,1,N'NULL',N'Unveränderte Distanzschwelle; bei Jaro ausschließlich NULL.'),
-          (4,N'@Profile','nvarchar(max)',0,1,N'N''standard''',N'Unverändert standard/large oder fachlicher Profilfehler; NULL bleibt NULL.'),
-          (5,N'@MaxPairs','int',0,0,N'10000',N'1..100000, alle Inputzeilen zählen.'),
-          (6,N'@MaxTotalTextBytes','bigint',0,0,N'2097152',N'1..16777216, beide DATALENGTH-Textseiten auch bei NULL-Gegenseite.'),
-          (7,N'@MaxTotalWork','bigint',0,0,N'16777216',N'1..67108864 konservative UTF16-Produktcharge mit kanonischem Paircap; keine tatsächliche CPU-Zählung.'),
-          (8,N'@ResultTable','sysname',0,1,N'NULL',N'NULL liefert sortierten SELECT; vorhandene lokale #Temp empfängt atomaren Helper+Insert.'),
-          (9,N'@KeepData','bit',0,1,N'0',N'0 Replace, 1 Append nach ResultTable-Vertrag. NULL bedeutet 0.'),
-          (10,N'@Debug','tinyint',0,1,N'0',N'Messages ohne Textpayload; NULL bedeutet 0.'),
-          (11,N'@Hilfe','bit',0,1,N'0',N'1 ausschließlich Help, ohne Tabellen-/Dependency-/Transaktionsprüfung.')
-        ) v(Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description);
-        INSERT @Help
-        SELECT '1.0',N'toolbelt_string',N'USP_CompareTextPairs','RESULT_COLUMN',v.Ordinal,
-               v.ItemName,v.SqlDataType,NULL,v.IsNullable,NULL,v.Description,NULL
-        FROM (VALUES
-          (1,N'PairOrdinal','bigint',0,N'Unveränderte Inputidentität; SELECT ordinal sortiert.'),
-          (2,N'Distance','int',1,N'Distanzwert oder NULL; bei Jaro immer NULL.'),
-          (3,N'ExceedsMaxDistance','bit',1,N'Distanz-Thresholdnachweis oder NULL; bei Jaro immer NULL.'),
-          (4,N'Similarity','float(53)',1,N'Jaro-Winkler 0..1 oder NULL; bei Distanz immer NULL.'),
-          (5,N'ErrorCode','int',0,N'Kanonischer Fachcode 0..6; Jaro verwendet keinen Code 2.')
-        ) v(Ordinal,ItemName,SqlDataType,IsNullable,Description);
-        INSERT @Help VALUES
-        ('1.0',N'toolbelt_string',N'USP_CompareTextPairs','ERROR',1,N'55100-55104',NULL,NULL,NULL,NULL,
-         N'Algorithmus, globale Parameter, lokale Namen/Shape oder interne Tempkollision ungültig; kein fachliches Resultat.',NULL),
-        ('1.0',N'toolbelt_string',N'USP_CompareTextPairs','ERROR',2,N'55105-55108',NULL,NULL,NULL,NULL,
-         N'Admission/Stabilität/Ordinals/Work oder Providerkohärenz verletzt; keine Teilveröffentlichung. Engine-/Helperfehler bleiben erhalten.',NULL),
-        ('1.0',N'toolbelt_string',N'USP_CompareTextPairs','PERMISSION',1,NULL,NULL,NULL,NULL,NULL,
-         N'Vorhandenes EXECUTE und bestehende TVF-/Helper-Rechte beziehungsweise Ownershipchain; caller-eigene Tempmetadaten. Keine Rechteerteilung und keine Runtime-Assemblyhash-/DB-VIEW-DEFINITION-Pflicht.',NULL),
-        ('1.0',N'toolbelt_string',N'USP_CompareTextPairs','EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,
-         N'Synthetischer Aufruf ohne generisches INSERT EXEC.',
-         N'CREATE TABLE #Pairs(PairOrdinal bigint,LeftText nvarchar(max),RightText nvarchar(max)); INSERT #Pairs VALUES(1,N''kitten'',N''sitting''); EXEC toolbelt_string.USP_CompareTextPairs @PairsTable=N''#Pairs'',@Algorithm=N''levenshtein'';'),
-        ('1.0',N'toolbelt_string',N'USP_CompareTextPairs','LIMITATION',1,NULL,NULL,NULL,NULL,NULL,
-         N'Keine MARS-/parallele Mutation, keine globale/permanente Inputtable. Distributed Caller-Savepoints sind nicht unterstützt. Technische Fehler verwerfen den gesamten Aufruf.',NULL);
-        SELECT HelpContractVersion,SchemaName,ObjectName,Section,Ordinal,ItemName,SqlDataType,
-               IsRequired,IsNullable,DefaultValue,Description,ExampleSql
-        FROM @Help
-        ORDER BY CASE Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2
-                 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 WHEN 'PERMISSION' THEN 5
-                 WHEN 'LIMITATION' THEN 6 WHEN 'EXAMPLE' THEN 7 ELSE 8 END,Ordinal;
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jaro-TVFs. Globale Fehler veröffentlichen keine Teilresultate.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'55100-55104', NULL, NULL, NULL, NULL, CAST(N'Algorithmus, globale Parameter, lokale Namen/Shape oder interne Tempkollision ungültig; kein fachliches Resultat.' AS nvarchar(max)), NULL),
+        (N'ERROR', 2, N'55105-55108', NULL, NULL, NULL, NULL, CAST(N'Admission/Stabilität/Ordinals/Work oder Providerkohärenz verletzt; keine Teilveröffentlichung. Engine-/Helperfehler bleiben erhalten.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Vorhandenes EXECUTE und bestehende TVF-/Helper-Rechte beziehungsweise Ownershipchain; caller-eigene Tempmetadaten. Keine Rechteerteilung und keine Runtime-Assemblyhash-/DB-VIEW-DEFINITION-Pflicht.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Synthetischer Aufruf ohne generisches INSERT EXEC.' AS nvarchar(max)), CAST(N'CREATE TABLE #Pairs(PairOrdinal bigint,LeftText nvarchar(max),RightText nvarchar(max)); INSERT #Pairs VALUES(1,N''kitten'',N''sitting''); EXEC toolbelt_string.USP_CompareTextPairs @PairsTable=N''#Pairs'',@Algorithm=N''levenshtein'';' AS nvarchar(max))),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Keine MARS-/parallele Mutation, keine globale/permanente Inputtable. Distributed Caller-Savepoints sind nicht unterstützt. Technische Fehler verwerfen den gesamten Aufruf.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'PairOrdinal', N'bigint', NULL, 0, NULL, CAST(N'Unveränderte Inputidentität; SELECT ordinal sortiert.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'Distance', N'int', NULL, 1, NULL, CAST(N'Distanzwert oder NULL; bei Jaro immer NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'ExceedsMaxDistance', N'bit', NULL, 1, NULL, CAST(N'Distanz-Thresholdnachweis oder NULL; bei Jaro immer NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'Similarity', N'float(53)', NULL, 1, NULL, CAST(N'Jaro-Winkler 0..1 oder NULL; bei Distanz immer NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'ErrorCode', N'int', NULL, 0, NULL, CAST(N'Kanonischer Fachcode 0..6; Jaro verwendet keinen Code 2.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@PairsTable', N'sysname', 1, 0, N'NULL', CAST(N'Vorhandene sichtbare lokale #Temp, Name 2..116 UTF-16-Einheiten, kein ##-/mehrteiliger Name und kein reserviertes #tbx_-Präfix. Drei bytegenau benannte Basisspalten: PairOrdinal bigint, LeftText nvarchar(max), RightText nvarchar(max); zusätzliche Spalten sind erlaubt, Alias-/computed-/hidden-/generated-/verschlüsselte Vertragsspalten nicht. PairOrdinal muss pro Zeile nicht NULL und eindeutig sein (auch negative Werte erlaubt); Text-NULL und leere Tabelle sind erlaubt. NULL ist nur Help-Default, fachlich ungültig. Keine parallele Mutation.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@Algorithm', N'nvarchar(max)', 1, 0, N'NULL', CAST(N'Taxativ, bytegenau ohne Trim: levenshtein = Einfügen/Löschen/Ersetzen; osa = zusätzlich eingeschränkte benachbarte Transposition; jaro-winkler = Ähnlichkeit mit Präfixbonus. NULL/leer/andere Schreibweisen ungültig. Bei jaro-winkler muss MaxDistance NULL sein.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@MaxDistance', N'int', 0, 1, N'NULL', CAST(N'NULL (Default) berechnet ohne Distanzschwelle. Ganzzahl 0..2147483647 begrenzt die gesuchte Distanz; 0 verlangt Gleichheit. Bei Überschreitung ExceedsMaxDistance auswerten, keinen exakten Vollabstand unterstellen. Negative Werte ergeben ErrorCode 2, sofern kein früher NULL-Textpfad greift. Bei jaro-winkler ausschließlich NULL, jeder nicht-NULL-Wert wird bereits vor der Paarberechnung abgewiesen. Bei Distanzverfahren erfolgt die Schwellenvalidierung je Paar.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Profile', N'nvarchar(max)', 0, 1, N'N''standard''', CAST(N'Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) = höchstens 2048 UTF-16-Einheiten, 1024 Skalare pro Text und 1048576 geplante Arbeitseinheiten; large = 65536 Einheiten, 32768 Skalare und 16777216 Arbeitseinheiten. NULL/leer/andere Schreibweisen ergeben ErrorCode 1, außer beim frühen NULL-Textpfad. Größeres Profil hebt die endlichen Worklimits nicht auf. Wird je Paar vom Provider ausgewertet; eine leere Tabelle erzwingt keinen Profilfehler.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@MaxPairs', N'int', 0, 0, N'10000', CAST(N'Ganzzahl 1..100000 Paare, Default 10000; NULL/andere Werte ungültig. Mehr Inputzeilen werden vor Berechnung atomar abgewiesen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@MaxTotalTextBytes', N'bigint', 0, 0, N'2097152', CAST(N'Ganzzahl 1..16777216 Bytes für die Summe DATALENGTH(LeftText)+DATALENGTH(RightText) über alle Paare, Default 2097152. NULL/andere Werte ungültig. Ein nicht-NULL-Text zählt auch bei NULL-Gegenstück; keine Zeichenanzahl.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@MaxTotalWork', N'bigint', 0, 0, N'16777216', CAST(N'Ganzzahl 1..67108864 konservative Admission-Arbeitseinheiten, Default 16777216. Pro Paar min(UTF-16-Länge links * Länge rechts, Profilcap 1048576 bzw. 16777216); bei einem NULL-Text 0. NULL/andere Werte ungültig. Zusätzlich gelten weiterhin die tatsächlichen Providerlimits je Paar.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Zusätzlich Name 2..116 UTF-16-Einheiten, kein #tbx_-Präfix und nicht dieselbe Tabelle wie PairsTable.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     -- RAISERROR+RETURN schützt den doomed Caller ohne zusätzliche XACT_ABORT-Wirkung.

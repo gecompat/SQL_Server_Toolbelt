@@ -32,44 +32,41 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT
-              CAST('1.0' AS varchar(16)) AS HelpContractVersion
-            , CAST(N'toolbelt_core' AS sysname) AS SchemaName
-            , CAST(N'USP_CaptureErrorEnvelope' AS sysname) AS ObjectName
-            , v.Section
-            , v.Ordinal
-            , v.ItemName
-            , v.SqlDataType
-            , v.IsRequired
-            , v.IsNullable
-            , v.DefaultValue
-            , v.Description
-            , v.ExampleSql
-        FROM
-        (
-            VALUES
-              (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Erzeugt aus explizit im aufrufenden CATCH gelesenen ERROR_*-Werten genau eine standardisierte Fehlerzeile. Die Procedure führt keinen Rethrow aus; der Aufrufer verwendet anschließend THROW; im ursprünglichen CATCH.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-            , ('PARAMETER', 1, N'@ErrorNumber', 'int', 1, 0, NULL, N'ERROR_NUMBER() aus dem aufrufenden CATCH.', NULL)
-            , ('PARAMETER', 2, N'@ErrorSeverity', 'int', 1, 0, NULL, N'ERROR_SEVERITY() aus dem aufrufenden CATCH.', NULL)
-            , ('PARAMETER', 3, N'@ErrorState', 'int', 1, 0, NULL, N'ERROR_STATE() aus dem aufrufenden CATCH.', NULL)
-            , ('PARAMETER', 4, N'@ErrorProcedure', 'nvarchar(776)', 0, 1, NULL, N'ERROR_PROCEDURE() aus dem aufrufenden CATCH.', NULL)
-            , ('PARAMETER', 5, N'@ErrorLine', 'int', 0, 1, NULL, N'ERROR_LINE() aus dem aufrufenden CATCH.', NULL)
-            , ('PARAMETER', 6, N'@ErrorMessage', 'nvarchar(4000)', 1, 0, NULL, N'ERROR_MESSAGE() aus dem aufrufenden CATCH.', NULL)
-            , ('PARAMETER', 7, N'@ExecutionId', 'uniqueidentifier', 0, 1, NULL, N'Optionale Execution-ID; NULL liest den aktiven Toolbelt Execution Context.', NULL)
-            , ('PARAMETER', 8, N'@AdditionalContext', 'nvarchar(4000)', 0, 1, NULL, N'Optionale synthetische oder bereits bereinigte Zusatzinformation.', NULL)
-            , ('PARAMETER', 9, N'@ResultTable', 'sysname', 0, 1, NULL, N'Optionale lokale Temp-Tabelle für das Ergebnis.', NULL)
-            , ('PARAMETER', 10, N'@KeepData', 'bit', 0, 1, N'0', N'Steuert die ResultTable-Vorbereitung.', NULL)
-            , ('PARAMETER', 11, N'@Debug', 'tinyint', 0, 1, N'0', N'Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.', NULL)
-            , ('PARAMETER', 12, N'@Hilfe', 'bit', 0, 1, N'0', N'1 gibt ausschließlich dieses Help-Resultset aus.', NULL)
-            , ('RESULT_COLUMN', 1, N'CapturedAtUtc', 'datetime2(7)', 0, 0, NULL, N'UTC-Zeitpunkt der Erfassung.', NULL)
-            , ('RESULT_COLUMN', 2, N'ExecutionId', 'uniqueidentifier', 0, 1, NULL, N'Explizite oder aus SESSION_CONTEXT gelesene Execution-ID.', NULL)
-            , ('RESULT_COLUMN', 3, N'ErrorClass', 'varchar(16)', 0, 0, NULL, N'ENGINE, TOOLBELT oder USER.', NULL)
-            , ('ERROR', 1, N'51400-51405', NULL, NULL, NULL, NULL, N'Validierungs- und Dependencyfehler des Moduls.', NULL)
-            , ('ERROR', 2, N'51406', NULL, NULL, NULL, NULL, N'ResultTable-Ausgabe bei XACT_STATE()=-1 wird vor jeder Schreiboperation abgewiesen. Direkte Ausgabe bleibt lesend möglich.', NULL)
-            , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Aufruf innerhalb eines CATCH mit anschließendem unverändertem THROW.', N'BEGIN CATCH EXEC toolbelt_core.USP_CaptureErrorEnvelope @ErrorNumber=ERROR_NUMBER(), @ErrorSeverity=ERROR_SEVERITY(), @ErrorState=ERROR_STATE(), @ErrorProcedure=ERROR_PROCEDURE(), @ErrorLine=ERROR_LINE(), @ErrorMessage=ERROR_MESSAGE(); THROW; END CATCH;')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 ELSE 5 END, v.Ordinal;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_CaptureErrorEnvelope' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erzeugt aus explizit im aufrufenden CATCH gelesenen ERROR_*-Werten genau eine standardisierte Fehlerzeile. Die Procedure führt keinen Rethrow aus; der Aufrufer verwendet anschließend THROW; im ursprünglichen CATCH.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'CapturedAtUtc', N'datetime2(7)', 0, 0, NULL, CAST(N'UTC-Zeitpunkt der Erfassung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'ExecutionId', N'uniqueidentifier', 0, 1, NULL, CAST(N'Explizite oder aus SESSION_CONTEXT gelesene Execution-ID.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'ErrorClass', N'varchar(16)', 0, 0, NULL, CAST(N'ENGINE, TOOLBELT oder USER.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51400-51405', NULL, NULL, NULL, NULL, CAST(N'Validierungs- und Dependencyfehler des Moduls.' AS nvarchar(max)), NULL),
+        (N'ERROR', 2, N'51406', NULL, NULL, NULL, NULL, CAST(N'ResultTable-Ausgabe bei XACT_STATE()=-1 wird vor jeder Schreiboperation abgewiesen. Direkte Ausgabe bleibt lesend möglich.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Aufruf innerhalb eines CATCH mit anschließendem unverändertem THROW.' AS nvarchar(max)), CAST(N'BEGIN CATCH EXEC toolbelt_core.USP_CaptureErrorEnvelope @ErrorNumber=ERROR_NUMBER(), @ErrorSeverity=ERROR_SEVERITY(), @ErrorState=ERROR_STATE(), @ErrorProcedure=ERROR_PROCEDURE(), @ErrorLine=ERROR_LINE(), @ErrorMessage=ERROR_MESSAGE(); THROW; END CATCH;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@ErrorNumber', N'int', 1, 0, N'NULL', CAST(N'Fachlich erforderlich: positive int-Fehlernummer 1..2147483647, üblicherweise ERROR_NUMBER() im aufrufenden CATCH. Technischer Default NULL dient nur Help; NULL/<=0 wird 51400.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@ErrorSeverity', N'int', 1, 0, N'NULL', CAST(N'Fachlich erforderlich: int 0..25 einschließlich, üblicherweise ERROR_SEVERITY() aus demselben CATCH. NULL/außerhalb ergibt 51401; technischer Default NULL nur für Help.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@ErrorState', N'int', 1, 0, N'NULL', CAST(N'Fachlich erforderlich: int 0..255 einschließlich aus ERROR_STATE() im CATCH. NULL/außerhalb ergibt 51402; technischer Default NULL nur für Help.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@ErrorProcedure', N'nvarchar(776)', 0, 1, N'NULL', CAST(N'Optionaler reiner Unicode-Text nvarchar(776), normalerweise ERROR_PROCEDURE() im CATCH, kein auszuführender Objektname. NULL bleibt NULL, leerer Text wird nicht besonders validiert.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@ErrorLine', N'int', 0, 1, N'NULL', CAST(N'Optionale positive int-Zeilennummer aus ERROR_LINE(); NULL (Default) ist erlaubt, 0/negativ ergibt 51403.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@ErrorMessage', N'nvarchar(4000)', 1, 0, N'NULL', CAST(N'Fachlich erforderlicher Unicode-Fehlertext nvarchar(4000), normalerweise ERROR_MESSAGE() im CATCH. NULL, leer und nach SQL-Gleichheit leere reine Spacefolgen ergeben 51404; keine automatische Redigierung geheimer Inhalte.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@ExecutionId', N'uniqueidentifier', 0, 1, N'NULL', CAST(N'Optionaler SQL-uniqueidentifier, z.B. CAST(''00000000-0000-0000-0000-000000000001'' AS uniqueidentifier). Default/NULL liest toolbelt.execution.id aus SESSION_CONTEXT mit TRY_CONVERT; fehlender/ungültiger Kontext bleibt NULL. Eine explizite ID muss keinem gespeicherten Kontext entsprechen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@AdditionalContext', N'nvarchar(4000)', 0, 1, N'NULL', CAST(N'Optionaler Unicode-Freitext nvarchar(4000), kein vorgeschriebenes JSON-Schema und keine Ausführung. NULL/leer wird unverändert ausgegeben; nur bereits bereinigte, für den Empfänger zulässige Zusatzinformation übergeben.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) gibt eine direkte Fehlerzeile aus, auch bei XACT_STATE()=-1. Sonst Name einer bereits vom Caller angelegten lokalen #Temp-Tabelle als sysname, z.B. N''#Envelope'', keine globale oder mehrteilige Tabelle; ResultTable-Helper nötig. Bei uncommittable Caller zuerst Rollback, sonst 51406.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 bereitet Replace vor (Default), 1 hängt bei kompatibler ResultTable an; NULL wird vom kanonischen Helper wie 0 behandelt. Nur bei nicht-NULL ResultTable relevant.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) und NULL ohne Diagnose; 1..255 erzeugen eine abstrakte Informationsmeldung ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur Hilfe vor Fachvalidierung; 0 (Default) und NULL führen die Fachoperation aus. Im Hilfemodus sind die fachlich erforderlichen Error*-Werte nicht nötig.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @ErrorNumber IS NULL OR @ErrorNumber <= 0

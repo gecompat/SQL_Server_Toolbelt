@@ -37,37 +37,60 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT
-              CAST('1.0' AS varchar(16)) AS HelpContractVersion
-            , CAST(N'toolbelt_core' AS sysname) AS SchemaName
-            , CAST(N'USP_RegisterWorkType' AS sysname) AS ObjectName
-            , v.Section
-            , v.Ordinal
-            , v.ItemName
-            , v.SqlDataType
-            , v.IsRequired
-            , v.IsNullable
-            , v.DefaultValue
-            , v.Description
-            , v.ExampleSql
-        FROM
-        (
-            VALUES
-              (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-            , ('PARAMETER', 1, N'@WorkTypeName', 'varchar(128)', 1, 0, NULL, N'Kanonischer kleingeschriebener Work-Type-Name.', NULL)
-            , ('PARAMETER', 2, N'@HandlerSchema', 'sysname', 1, 0, NULL, N'Schema der vorhandenen Zielprocedure in derselben Datenbank.', NULL)
-            , ('PARAMETER', 3, N'@HandlerProcedure', 'sysname', 1, 0, NULL, N'Name der vorhandenen Zielprocedure.', NULL)
-            , ('PARAMETER', 4, N'@ParameterMode', 'varchar(16)', 0, 0, N'NONE', N'NONE oder JSON_PAYLOAD.', NULL)
-            , ('PARAMETER', 5, N'@PayloadContractJson', 'nvarchar(4000)', 0, 1, NULL, N'JSON-Objekt mit deklarativem Payloadvertrag; wird nicht als Code ausgeführt.', NULL)
-            , ('PARAMETER', 6, N'@AllowUpdate', 'bit', 0, 0, N'0', N'Erlaubt eine Änderung einer vorhandenen Registrierung.', NULL)
-            , ('PARAMETER', 7, N'@Reactivate', 'bit', 0, 0, N'0', N'Reaktiviert einen deaktivierten Work Type.', NULL)
-            , ('PARAMETER', 8, N'@ExpectedRowVersion', 'binary(8)', 0, 1, NULL, N'Optionale Optimistic-Concurrency-Prüfung.', NULL)
-            , ('PARAMETER', 9, N'@ResultTable', 'sysname', 0, 1, NULL, N'Optionale lokale Temp-Tabelle für die Ergebniszeile.', NULL)
-            , ('ERROR', 1, N'51500-51518', NULL, NULL, NULL, NULL, N'Validierungs-, Berechtigungs-, Concurrency- und Dependencyfehler.', NULL)
-            , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Registriert eine synthetische Procedure ohne Parameter.', N'EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName=''demo.noop'', @HandlerSchema=N''dbo'', @HandlerProcedure=N''USP_DemoNoop'';')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'ERROR' THEN 3 ELSE 4 END, v.Ordinal;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_RegisterWorkType' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51500-51518', NULL, NULL, NULL, NULL, CAST(N'Validierungs-, Berechtigungs-, Concurrency- und Dependencyfehler.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Registriert eine synthetische Procedure ohne Parameter.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName=''demo.noop'', @HandlerSchema=N''dbo'', @HandlerProcedure=N''USP_DemoNoop'';' AS nvarchar(max))),
+        (N'RESULT_COLUMN', 1, N'WorkTypeId', N'bigint', NULL, 0, NULL, CAST(N'WorkTypeId.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'WorkTypeName', N'varchar(128)', NULL, 0, NULL, CAST(N'WorkTypeName.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'HandlerSchema', N'sysname', NULL, 0, NULL, CAST(N'HandlerSchema.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'HandlerProcedure', N'sysname', NULL, 0, NULL, CAST(N'HandlerProcedure.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'HandlerQualifiedName', N'nvarchar(517)', NULL, 0, NULL, CAST(N'HandlerQualifiedName.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'ParameterMode', N'varchar(16)', NULL, 0, NULL, CAST(N'ParameterMode.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'PayloadContractJson', N'nvarchar(4000)', NULL, 1, NULL, CAST(N'PayloadContractJson.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 8, N'DefaultTimeoutSeconds', N'int', NULL, 0, NULL, CAST(N'DefaultTimeoutSeconds.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 9, N'IsIdempotent', N'bit', NULL, 0, NULL, CAST(N'IsIdempotent.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 10, N'IsEnabled', N'bit', NULL, 0, NULL, CAST(N'IsEnabled.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 11, N'Description', N'nvarchar(1000)', NULL, 1, NULL, CAST(N'Description.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 12, N'CreatedAtUtc', N'datetime2(7)', NULL, 0, NULL, CAST(N'CreatedAtUtc.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 13, N'CreatedBy', N'sysname', NULL, 0, NULL, CAST(N'CreatedBy.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 14, N'ModifiedAtUtc', N'datetime2(7)', NULL, 0, NULL, CAST(N'ModifiedAtUtc.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 15, N'ModifiedBy', N'sysname', NULL, 0, NULL, CAST(N'ModifiedBy.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 16, N'DisabledAtUtc', N'datetime2(7)', NULL, 1, NULL, CAST(N'DisabledAtUtc.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 17, N'DisabledBy', N'sysname', NULL, 1, NULL, CAST(N'DisabledBy.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 18, N'DisabledReason', N'nvarchar(1000)', NULL, 1, NULL, CAST(N'DisabledReason.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 19, N'RowVersion', N'binary(8)', NULL, 0, NULL, CAST(N'RowVersion.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 20, N'HandlerExists', N'bit', NULL, 0, NULL, CAST(N'HandlerExists.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@WorkTypeName', N'varchar(128)', 1, 0, N'NULL', CAST(N'Erforderlicher kanonischer varchar(128)-Schlüssel: LEN 3..128, beginnt a-z, danach ausschließlich a-z/0-9/Punkt/Unterstrich/Bindestrich. Lowercase wird verlangt, nicht hergestellt; keine abschließenden oder doppelten Punkte. Z.B. app.import.rows. NULL/leer ungültig; bestehende Registrierung folgt AllowUpdate/Reactivate/RowVersion.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@HandlerSchema', N'sysname', 1, 0, N'NULL', CAST(N'Einzelner unquotierter Schemaname als sysname in der aktuellen Datenbank, nicht mehrteilig und kein SQL-Ausdruck. NULL/leer oder Schema sys ist unzulässig. Mit HandlerProcedure muss eine vorhandene, nicht von Microsoft ausgelieferte T-SQL- oder CLR-Procedure entstehen; Caller benötigt EXECUTE.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@HandlerProcedure', N'sysname', 1, 0, N'NULL', CAST(N'Einzelner unquotierter Procedurename als sysname in HandlerSchema; keine Argumentliste oder Datenbankqualifikation. NULL/leer/fehlende Procedure bzw. fehlende Metadatensicht/EXECUTE wird abgewiesen. Registrierung führt den Handler nicht aus; der Dispatcher prüft den zum ParameterMode gehörenden Aufrufvertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@ParameterMode', N'varchar(16)', 0, 1, N'''NONE''', CAST(N'Taxativ nach UPPER-Normalisierung: NONE = Handleraufruf ohne Payload, PayloadContractJson muss NULL sein (Default und NULL); JSON_PAYLOAD = JSON-Payload-Modus, PayloadContractJson muss ein JSON-Objekt sein. Keine weiteren Modi; SQL-Space-Padding gilt beim Vergleich.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@PayloadContractJson', N'nvarchar(4000)', 0, 1, N'NULL', CAST(N'Bei NONE ausschließlich NULL. Bei JSON_PAYLOAD erforderlicher JSON-Objekttext als nvarchar(4000), z.B. N''{"description":"synthetic payload"}''; nach LTRIM normaler Spaces muss { folgen. Leer/Array/Scalar/ungültiges JSON ist ungültig. Die Felder sind deklarative Metadaten; diese Procedure führt weder SQL noch eine allgemeine JSON-Schema-Validierung daraus aus.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@DefaultTimeoutSeconds', N'int', 0, 1, N'300', CAST(N'Ganzzahl 1..86400 Sekunden einschließlich; Default/NULL=300. Wird als Work-Type-Metadatum gespeichert, nicht als Garantie eines autonomen harten Serverabbruchs. Andere Werte ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@IsIdempotent', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 = Handler nicht als idempotent gekennzeichnet (Default/NULL); 1 = deklarativ idempotent gekennzeichnet. Das Flag implementiert selbst keine Idempotenz oder Exactly-once-Ausführung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@Description', N'nvarchar(1000)', 0, 1, N'NULL', CAST(N'Optionaler Unicode-Freitext nvarchar(1000), NULL/leer erlaubt; keine besonderen Felder, keine Ausführung, keine automatische Redigierung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@AllowUpdate', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 weist eine abweichende vorhandene Konfiguration ab (Default/NULL); 1 erlaubt deren Update. Ein identischer aktiver Eintrag bleibt auch mit 0 idempotent. Für die Reaktivierung eines deaktivierten Eintrags zusätzlich Reactivate beachten.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@Reactivate', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 lässt eine deaktivierte Registrierung nicht still reaktivieren (Default/NULL); 1 erlaubt ihre Reaktivierung. Bei gleichzeitig abweichender Konfiguration ist außerdem AllowUpdate=1 erforderlich.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@ExpectedRowVersion', N'binary(8)', 0, 1, N'NULL', CAST(N'Optionaler binary(8)-Wert aus der zuletzt gelesenen RowVersion der betreffenden Zeile, als Bytes/SQL-Hexliteral (nicht als Hextext). NULL schaltet diese optionale Vergleichsprüfung aus; bei Abweichung wird die Änderung abgewiesen. Wird nur gegen einen vorhandenen Work Type geprüft; kein Eingabewert für die neue RowVersion.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 13, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 14, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 15, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @WorkTypeName IS NULL

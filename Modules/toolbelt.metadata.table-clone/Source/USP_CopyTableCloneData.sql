@@ -32,38 +32,41 @@ BEGIN
     SET NOCOUNT ON;
     IF @Hilfe=1
     BEGIN
-        SELECT CONVERT(varchar(16),'1.0') HelpContractVersion,
-            CONVERT(sysname,N'toolbelt_metadata') SchemaName,
-            CONVERT(sysname,N'USP_CopyTableCloneData') ObjectName,
-            CONVERT(varchar(32),h.Section) Section,h.Ordinal,
-            CONVERT(sysname,h.ItemName) ItemName,CONVERT(varchar(256),h.SqlDataType) SqlDataType,
-            CONVERT(bit,h.IsRequired) IsRequired,CONVERT(bit,h.IsNullable) IsNullable,
-            CONVERT(nvarchar(4000),h.DefaultValue) DefaultValue,
-            CONVERT(nvarchar(max),h.Description) Description,
-            CONVERT(nvarchar(max),h.ExampleSql) ExampleSql
-        FROM(VALUES
-          ('DESCRIPTION',0,NULL,NULL,NULL,NULL,NULL,N'Begrenzte SameDB-Kopie; leere formgleiche Targets und eigene Transaktion.',NULL),
-          ('PARAMETER',1,N'@TableMap','sysname',1,0,N'NULL',N'Lokale fünfspaltige Map;1..64 eindeutige Ordinals.',NULL),
-          ('PARAMETER',2,N'@IdentityMode','varchar(16)',1,0,N'NULL',N'Exakt KEEP oder REGENERATE.',NULL),
-          ('PARAMETER',3,N'@ConsistencyMode','varchar(16)',1,0,N'NULL',N'Exakt SNAPSHOT oder SERIALIZABLE; keine Configänderung.',NULL),
-          ('PARAMETER',4,N'@RowLimit','bigint',0,0,N'100000',N'Positiv, maximal100000 global; Caller darf absenken.',NULL),
-          ('PARAMETER',5,N'@PayloadByteLimit','bigint',0,0,N'16777216',N'Positiv, maximal16MiB globale transportierte SQL-Nutzdaten.',NULL),
-          ('PARAMETER',6,N'@ResultTable','sysname',0,1,N'NULL',N'Bestehende lokale ResultTable; alternativ ein Resultset.',NULL),
-          ('PARAMETER',7,N'@KeepData','bit',0,1,N'0',N'Kanonische ResultTable-Replace/Append-Semantik.',NULL),
-          ('PARAMETER',8,N'@Debug','tinyint',0,1,N'0',N'Messages, kein zusätzliches Resultset.',NULL),
-          ('PARAMETER',9,N'@Hilfe','bit',0,1,N'0',N'Nur diese Hilfe; keine fachliche Arbeit.',NULL),
-          ('RESULT_COLUMN',1,N'MappedTables','int',NULL,0,NULL,N'Anzahl validierter Maps.',NULL),
-          ('RESULT_COLUMN',2,N'CopiedRows','bigint',NULL,0,NULL,N'Tatsächlich eingefügte Gesamtzeilen.',NULL),
-          ('RESULT_COLUMN',3,N'PayloadBytes','bigint',NULL,0,NULL,N'Globale DATALENGTH-Summe tatsächlich transportierter Spalten; NULL0.',NULL),
-          ('RESULT_COLUMN',4,N'CreatedForeignKeys','int',NULL,0,NULL,N'Tatsächlich neu angelegte fehlende FKs.',NULL),
-          ('RESULT_COLUMN',5,N'Status','varchar(16)',NULL,0,NULL,N'Exakt COPIED.',NULL),
-          ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Reiner Hilfeaufruf.',N'EXEC toolbelt_metadata.USP_CopyTableCloneData @Hilfe=1;'),
-          ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'Vorhandene datenbankweite VIEW DEFINITION, Katalog-SELECT und Source-SELECT/Target-SELECT/INSERT; fehlende FK-DDL zusätzlich volle Server-DDL-Sicht und ALTER/REFERENCES. Keine Rechtevergabe.',NULL),
-          ('ERROR',1,NULL,NULL,NULL,NULL,NULL,N'53940 Argumente/Map/Temp,53941 Rechte/Sicht/Form,53942 Seiteneffekte,53943 Row-/Nutzdatenbudget,53944 Shape/FKs/Admission/Drift,53945 reserviert,53946 Lifecycle-Lock; Caller-TX50000/1 mit TBX_TABLE_CLONE_COPY_CALLER_TRANSACTION; Enginefehler unverändert.',NULL),
-          ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Identity-Zähler können Rollback überleben; kein RESEED/Zuordnungsversprechen. Nur leere SameDB-Targets, keine aktiven Targettrigger/RLS/Sonderformen; XML/LOB innerhalb vorhandener Shapegrenze. Keine Config-/Owner-/Rechteänderung.',NULL)
-        )h(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
-        ORDER BY CASE h.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1 WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END,h.Ordinal;
-        RETURN;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_metadata' AS sysname) AS SchemaName,
+            CAST(N'USP_CopyTableCloneData' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 0, NULL, NULL, NULL, NULL, NULL, CAST(N'Begrenzte SameDB-Kopie; leere formgleiche Targets und eigene Transaktion.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'MappedTables', N'int', NULL, 0, NULL, CAST(N'Anzahl validierter Maps.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'CopiedRows', N'bigint', NULL, 0, NULL, CAST(N'Tatsächlich eingefügte Gesamtzeilen.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'PayloadBytes', N'bigint', NULL, 0, NULL, CAST(N'Globale DATALENGTH-Summe tatsächlich transportierter Spalten; NULL0.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'CreatedForeignKeys', N'int', NULL, 0, NULL, CAST(N'Tatsächlich neu angelegte fehlende FKs.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'Status', N'varchar(16)', NULL, 0, NULL, CAST(N'Exakt COPIED.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Reiner Hilfeaufruf.' AS nvarchar(max)), CAST(N'EXEC toolbelt_metadata.USP_CopyTableCloneData @Hilfe=1;' AS nvarchar(max))),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Vorhandene datenbankweite VIEW DEFINITION, Katalog-SELECT und Source-SELECT/Target-SELECT/INSERT; fehlende FK-DDL zusätzlich volle Server-DDL-Sicht und ALTER/REFERENCES. Keine Rechtevergabe.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'53940 Argumente/Map/Temp,53941 Rechte/Sicht/Form,53942 Seiteneffekte,53943 Row-/Nutzdatenbudget,53944 Shape/FKs/Admission/Drift,53945 reserviert,53946 Lifecycle-Lock; Caller-TX50000/1 mit TBX_TABLE_CLONE_COPY_CALLER_TRANSACTION; Enginefehler unverändert.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Identity-Zähler können Rollback überleben; kein RESEED/Zuordnungsversprechen. Nur leere SameDB-Targets, keine aktiven Targettrigger/RLS/Sonderformen; XML/LOB innerhalb vorhandener Shapegrenze. Keine Config-/Owner-/Rechteänderung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@TableMap', N'sysname', 1, 0, N'NULL', CAST(N'Vorhandene caller-lokale #Temp mit genau fünf NOT-NULL-Basisspalten: MapOrdinal int, SourceSchema nvarchar(max), SourceTable nvarchar(max), TargetSchema nvarchar(max), TargetTable nvarchar(max); keine Alias-/computed-/Zusatzspalten. 1..64 Zeilen, positive eindeutige MapOrdinal-Werte. Vier einzelne unquotierte Identifierwerte je Zeile, 1..128 UTF-16-Einheiten ohne NUL, keine Multipartinterpretation/Trim. Source-/Target-Identitäten müssen jeweils eindeutig sein. Kein #tbx_-Präfix und keine Identität mit ResultTable. Fachlich erforderlich, NULL ungültig. Hier müssen die fünf Spalten zusätzlich exakt in der genannten Reihenfolge und ohne IDENTITY stehen. Source und Target müssen beide existieren, formgleich und als Mengen von ObjectIDs disjunkt sein; jedes Ziel muss leer sein. Keine Filter/Upserts/CrossDB oder impliziten Typkonvertierungen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@IdentityMode', N'varchar(16)', 1, 0, N'NULL', CAST(N'Taxativ, bytegenau ohne Trim/Casefold und fachlich erforderlich: KEEP kopiert Identitywerte unter vorhandenen erforderlichen Rechten; REGENERATE lässt Identityspalten beim Transport weg und erzeugt neue Zielwerte. REGENERATE ist bei identityabhängigen Beziehungen ausgeschlossen. NULL/leer/andere Werte ungültig. Keine neue ID-Zuordnung/RESEED; Identity-Zählerfortschritt kann trotz Rollback bleiben.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@ConsistencyMode', N'varchar(16)', 1, 0, N'NULL', CAST(N'Taxativ, bytegenau ohne Trim/Casefold und fachlich erforderlich: SNAPSHOT verwendet die bereits aktivierte Datenbankoption; SERIALIZABLE hält Quellbereichssperren. NULL/leer/andere Werte ungültig. Keine automatische Optionsänderung; aktive Callertransaktion wird abgelehnt.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@RowLimit', N'bigint', 0, 0, N'100000', CAST(N'Ganzzahl 1..100000 global kopierte Zeilen über alle gemappten Tabellen, Default 100000. NULL/außerhalb ungültig; Überschreitung verhindert die gesamte Kopie, kein TOP-Teilimport.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@PayloadByteLimit', N'bigint', 0, 0, N'16777216', CAST(N'Ganzzahl 1..16777216 Bytes globaler tatsächlich transportierter SQL-Nutzdaten, Default 16777216. Summe bigint-DATALENGTH, NULL zählt 0; computed/rowversion und bei REGENERATE Identity zählen nicht. Kein Gesamt-Heap-/Dateigrößenbudget; NULL/außerhalb ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht TableMap. Die späte ResultTable-Ausgabe ist Teil derselben eigenen Transaktion wie Kopie/FK-DDL.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0; NULL wirkt wie 0. Aktuell keine eigenen zusätzlichen Copy-Diagnosemessages; bei ResultTable wird der Wert an den Helper weitergereicht.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
     IF @@TRANCOUNT<>0
     BEGIN

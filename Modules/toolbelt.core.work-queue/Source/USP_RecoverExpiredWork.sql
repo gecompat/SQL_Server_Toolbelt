@@ -18,27 +18,37 @@ BEGIN
     SET @KeepData=ISNULL(@KeepData,0); SET @Debug=ISNULL(@Debug,0); SET @Hilfe=ISNULL(@Hilfe,0);
     IF @Hilfe=1
     BEGIN
-        SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,CAST(N'toolbelt_core' AS sysname) SchemaName,CAST(N'USP_RecoverExpiredWork' AS sysname) ObjectName,
-               v.Section,v.Ordinal,v.ItemName,v.SqlDataType,v.IsRequired,v.IsNullable,v.DefaultValue,v.Description,v.ExampleSql
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_RecoverExpiredWork' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
         FROM (VALUES
-          (CAST('DESCRIPTION' AS varchar(32)),1,CAST(NULL AS sysname),CAST(NULL AS varchar(256)),CAST(NULL AS bit),CAST(NULL AS bit),CAST(NULL AS nvarchar(4000)),CAST(N'Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT oder DEAD_LETTER. Alte ClaimTokens werden atomar invalidiert.' AS nvarchar(max)),CAST(NULL AS nvarchar(max))),
-          ('PARAMETER',1,N'@MaxItems','int',0,0,N'100',N'Batchgrenze von 1 bis 1000.',NULL),
-          ('PARAMETER',2,N'@ResultTable','sysname',0,1,NULL,N'Optionale lokale Temp-Tabelle für recoverte Items.',NULL),
-          ('PARAMETER',3,N'@KeepData','bit',0,0,N'0',N'Steuert die ResultTable-Vorbereitung.',NULL),
-          ('PARAMETER',4,N'@Debug','tinyint',0,0,N'0',N'Erzeugt eine abstrakte Informationsmeldung.',NULL),
-          ('PARAMETER',5,N'@Hilfe','bit',0,0,N'0',N'1 gibt ausschließlich dieses Help-Resultset aus.',NULL),
-          ('RESULT_COLUMN',1,N'WorkItemId','bigint',0,0,NULL,N'Eindeutige Queue-ID.',NULL),
-          ('RESULT_COLUMN',2,N'WorkTypeName','varchar(128)',0,0,NULL,N'Kanonischer Work-Type-Name.',NULL),
-          ('RESULT_COLUMN',3,N'Status','varchar(16)',0,0,NULL,N'RETRY_WAIT oder DEAD_LETTER nach gespeicherter Policy.',NULL),
-          ('RESULT_COLUMN',4,N'ClaimGeneration','bigint',0,0,NULL,N'Letzte invalidierte Ownership-Generation.',NULL),
-          ('RESULT_COLUMN',5,N'RecoveryCount','bigint',0,0,NULL,N'Kumulierte Zahl kontrollierter Recoveries.',NULL),
-          ('RESULT_COLUMN',6,N'LastRecoveredAtUtc','datetime2(7)',0,0,NULL,N'Engine-Zeit der Recovery.',NULL),
-          ('RESULT_COLUMN',7,N'LastRecoveredBy','sysname',0,0,NULL,N'Original-Login der Recovery.',NULL),
-          ('ERROR',1,N'51960-51964',NULL,NULL,NULL,NULL,N'Caller-Transaktions-, Batch- oder ResultTable-Fehler.',NULL),
-          ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Recovert höchstens 100 abgelaufene Claims.',N'EXEC toolbelt_core.USP_RecoverExpiredWork @MaxItems=100;')
-        )v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 ELSE 5 END,v.Ordinal;
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT oder DEAD_LETTER. Alte ClaimTokens werden atomar invalidiert.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'WorkItemId', N'bigint', 0, 0, NULL, CAST(N'Eindeutige Queue-ID.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'WorkTypeName', N'varchar(128)', 0, 0, NULL, CAST(N'Kanonischer Work-Type-Name.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'Status', N'varchar(16)', 0, 0, NULL, CAST(N'RETRY_WAIT oder DEAD_LETTER nach gespeicherter Policy.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'ClaimGeneration', N'bigint', 0, 0, NULL, CAST(N'Letzte invalidierte Ownership-Generation.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'RecoveryCount', N'bigint', 0, 0, NULL, CAST(N'Kumulierte Zahl kontrollierter Recoveries.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'LastRecoveredAtUtc', N'datetime2(7)', 0, 0, NULL, CAST(N'Engine-Zeit der Recovery.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'LastRecoveredBy', N'sysname', 0, 0, NULL, CAST(N'Original-Login der Recovery.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51960-51964', NULL, NULL, NULL, NULL, CAST(N'Caller-Transaktions-, Batch- oder ResultTable-Fehler.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Recovert höchstens 100 abgelaufene Claims.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_RecoverExpiredWork @MaxItems=100;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@MaxItems', N'int', 0, 0, N'100', CAST(N'Ganzzahl 1..1000 als Batchobergrenze einschließlich, Default 100; NULL/0/negativ/>1000 wird abgewiesen. Es werden nur abgelaufene Claims bis zu dieser Anzahl bearbeitet; keine Callertransaktion erlaubt.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
     IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51960,N'USP_RecoverExpiredWork darf nicht innerhalb einer Caller-Transaktion ausgeführt werden.',1;
     IF @MaxItems IS NULL OR @MaxItems NOT BETWEEN 1 AND 1000 THROW 51961,N'@MaxItems muss zwischen 1 und 1000 liegen.',1;
