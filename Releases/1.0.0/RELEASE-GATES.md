@@ -32,6 +32,8 @@ Releasegates bleiben getrennt.
 
 [JSON-Schema-Deploy-Kollisionsschutz](json-schema-deploy-collision-qualification.json): vier synthetische Abweisungen vor Mutation bei fehlendem Schema-Modul und eigenem leerem `toolbelt_json`-Namespace für reservierte Temp-Tabelle, fremde öffentliche/interne Slots und verwaisten DeploymentMode-Marker auf Windows SQL Server 2025/CU8/CL170 lokal. Ein gemeinsamer positiver Deploy nach Bereinigung aller Fixtures sowie ein unabhängiges Cleanup-/Pin-Audit bestanden. Keine übrigen Fremdobjekt-, Marker- oder vollständigen Lifecyclematrizen werden dadurch geschlossen.
 
+[JSON-Schema-Uninstall-Bestätigung](json-schema-uninstall-confirmation-qualification.json): zwei zentrale Abweisungen (`01` ungültig, `0` ohne zentrale Bestätigung), jeweils 55635/State 1 mit exakter Meldung und unverändertem Modul-, Core- und Sessionzustand; anschließend ein erfolgreicher Uninstall mit Bestätigung `1`. Geprüft wurde Windows SQL Server 2025/CU8/CL170 im zentralen Funktionsmodus mit festem Startprofil `QUOTED_IDENTIFIER ON`, `NOCOUNT ON`, `XACT_ABORT ON`, `IMPLICIT_TRANSACTIONS OFF`. Ein Zielaufruf und ein unabhängiges Bereinigungsaudit bestanden; drei frühere bereinigte Harnessfehler bleiben getrennte Historie. Andere Sessionprofile, Modi, Ziele und vollständige Lifecycle-/Rechtematrizen bleiben offen.
+
 [JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
 27 bestehende Frameworkphasen bestanden; die gelieferten Constructor-/Core-DLLs
 stimmen bytegenau mit den erzeugten Framework-DLLs überein. Der vorhandene

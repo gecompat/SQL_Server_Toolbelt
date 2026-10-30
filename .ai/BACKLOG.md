@@ -1,5 +1,25 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema: zentrale Uninstall-Bestätigung — r37, 2026-10-30
+
+Begrenzte Funktionsabnahme der vorhandenen JSON-Schema-1.0.1-Deinstallation im
+zentralen Modus auf Windows SQL Server 2025/CU8/CL170. Die Bestätigung `01`
+wird mit 55635/State 1 als ungültig und `0` mit 55635/State 1 als fehlende
+zentrale Bestätigung abgewiesen; beide exakten Meldungen, der vollständige
+Modul-/Corezustand, Sessionoptionen sowie isolierter und externer
+Transaktionszustand bleiben unverändert. Der feste Start ist
+`QUOTED_IDENTIFIER ON`, `NOCOUNT ON`, `XACT_ABORT ON`,
+`IMPLICIT_TRANSACTIONS OFF`. Der identische Uninstall mit `1` entfernt das
+Schema-Modul, erhält das Namespace und lässt Core/ResultTable unverändert.
+
+Ergebnis: ein vollständiger Zielaufruf mit beiden Ablehnungen und der einen
+Positivkontrolle sowie ein unabhängiges Cleanup-/Pin-Audit bestanden. Drei
+vorherige Harnessfehler wurden bereinigt und bleiben als Historie erhalten.
+Die Evidenz bindet ausschließlich öffentliche Quell-/Paketpins; private
+Runsets und Journale sind nicht veröffentlicht. Andere Ziele, Modi,
+Sessionprofile und vollständige API-/Rechte-/Lifecyclematrizen bleiben offen;
+es gibt keine Produkt-, Paket- oder Veröffentlichungsänderung.
+
 ## JSON-Schema-Deploy: Callerzustand, Fremdslots und verwaister Marker — r36, 2026-10-30
 
 Begrenzte zusätzliche Lifecycle-Prüfung für die bestehende JSON-Schema-1.0.1-

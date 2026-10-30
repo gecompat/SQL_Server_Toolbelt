@@ -127,6 +127,19 @@ Report-/Adapterprüfungen laufen in der bestehenden Release-Suite. Lokal:
 Der Nachweis beschränkt sich auf Windows SQL Server 2025/CU8/CL170 lokal und
 schließt keine vollständige Lifecycle- oder Ownershipmatrix.
 
+Der [zentrale Uninstall-Bestätigungsnachweis](../../Releases/1.0.0/json-schema-uninstall-confirmation-qualification.json)
+prüft die festen Ablehnungen für `01` und `0` (55635/State 1), danach einen
+erfolgreichen Uninstall mit `1`. Sessionprofil, Modul-/Corezustand und das
+erhaltene `toolbelt_json`-Namespace sind Teil des Orakels. Qualifiziert ist
+ausschließlich Windows SQL Server 2025/CU8/CL170, zentral, mit
+`QUOTED_IDENTIFIER ON`, `NOCOUNT ON`, `XACT_ABORT ON` und
+`IMPLICIT_TRANSACTIONS OFF`. Drei frühere bereinigte Harnessfehler und vier
+unabhängige Audits sind im Bericht getrennt ausgewiesen. Fünf fokussierte
+Reportprüfungen und vier Adapterprüfungen laufen in der bestehenden Release-Suite; lokal:
+`python -B -m unittest Tests.Release.test_json_schema_uninstall_confirmation_qualification Tests.Release.test_json_schema_uninstall_confirmation_adapter -v`.
+Andere Sessionprofile, Modi, Zielkombinationen und vollständige Lifecycle- oder
+Rechtematrizen bleiben offen.
+
 ## Edit-Distance-Paketqualifikation
 
 Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
