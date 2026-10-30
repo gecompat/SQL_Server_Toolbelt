@@ -4,7 +4,8 @@
 
 Begrenzte zusätzliche Lifecycle-Prüfung für die bestehende JSON-Schema-1.0.1-
 Installation: auf Windows SQL Server 2025/CU8/CL170 lokal werden vier synthetische
-Fehlzustände bei fehlendem Schema geprüft: belegte reservierte Deploy-Temp-Tabelle
+Fehlzustände bei fehlendem Schema-Modul und eigenem leerem `toolbelt_json`-
+Namespace geprüft: belegte reservierte Deploy-Temp-Tabelle
 (55633/State 1), fremder öffentlicher Slot, fremder interner Slot und verwaister
 DeploymentMode-Marker (jeweils 55634/State 1). Jeder Fall muss die genaue feste
 Meldung, den vollständigen Modulzustand, Fixtureidentität/-inhalt und eine

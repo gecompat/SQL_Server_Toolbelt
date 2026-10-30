@@ -47,8 +47,9 @@ oder Lifecyclematrizen werden dadurch geschlossen.
 ## Deploy-Kollisionsschutz (2026-10-30)
 
 Der [gebundene Bericht](../../../Releases/1.0.0/json-schema-deploy-collision-qualification.json)
-ergänzt vier synthetische Deploy-Abweisungen bei fehlendem Schema auf Windows
-SQL Server 2025/CU8/CL170 lokal: eine belegte reservierte Temp-Tabelle, je ein
+ergänzt vier synthetische Deploy-Abweisungen bei fehlendem Schema-Modul und
+eigenem leeren `toolbelt_json`-Namespace auf Windows SQL Server 2025/CU8/CL170
+lokal: eine belegte reservierte Temp-Tabelle, je ein
 fremder öffentlicher und interner Slot sowie ein verwaister DeploymentMode-
 Marker. Die festen Fehler 55633/State 1 und 55634/State 1 müssen jeweils vor
 Mutation eintreten; vollständiger Modulsnapshot und Fixtureinhalt bleiben bis

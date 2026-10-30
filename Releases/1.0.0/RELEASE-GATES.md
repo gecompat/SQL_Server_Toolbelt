@@ -30,7 +30,7 @@ Releasegates bleiben getrennt.
 
 [JSON-Schema-Uninstall-AppLock](json-schema-uninstall-lock-qualification.json): genau zwei lokale Windows/SQL-Server-2025/CU8/CL170-Sperrkonflikte bei Uninstall, jeweils mit unverändertem installiertem Zustand, sauberem Contender und erfolgreichem identischem Uninstall nach Freigabe. Das leere Schema-Namespace bleibt erhalten; Core und ResultTable sind einschließlich Objektidentitäten und Berechtigungen unverändert. Ein Zielaufruf und ein unabhängiges Bereinigungsaudit bestanden. Dieser zusätzliche Funktionsnachweis schließt keine weiteren Zielkombinationen oder vollständigen API-/Rechte-/Lifecycleprofile.
 
-[JSON-Schema-Deploy-Kollisionsschutz](json-schema-deploy-collision-qualification.json): vier synthetische Abweisungen vor Mutation für reservierte Temp-Tabelle, fremde öffentliche/interne Slots und verwaisten DeploymentMode-Marker auf Windows SQL Server 2025/CU8/CL170 lokal. Ein gemeinsamer positiver Deploy nach Bereinigung aller Fixtures sowie ein unabhängiges Cleanup-/Pin-Audit bestanden. Keine übrigen Fremdobjekt-, Marker- oder vollständigen Lifecyclematrizen werden dadurch geschlossen.
+[JSON-Schema-Deploy-Kollisionsschutz](json-schema-deploy-collision-qualification.json): vier synthetische Abweisungen vor Mutation bei fehlendem Schema-Modul und eigenem leerem `toolbelt_json`-Namespace für reservierte Temp-Tabelle, fremde öffentliche/interne Slots und verwaisten DeploymentMode-Marker auf Windows SQL Server 2025/CU8/CL170 lokal. Ein gemeinsamer positiver Deploy nach Bereinigung aller Fixtures sowie ein unabhängiges Cleanup-/Pin-Audit bestanden. Keine übrigen Fremdobjekt-, Marker- oder vollständigen Lifecyclematrizen werden dadurch geschlossen.
 
 [JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
 27 bestehende Frameworkphasen bestanden; die gelieferten Constructor-/Core-DLLs
@@ -567,8 +567,9 @@ Veröffentlichung ist nicht autorisiert.
 ## JSON-Schema-Deploy-Kollisionsschutz
 
 Der [gebundene Nachweis](json-schema-deploy-collision-qualification.json)
-qualifiziert vier feste Deploy-Abweisungen bei fehlendem Schema auf Windows SQL
-Server 2025/CU8/CL170 lokal: reservierter Caller-Tempzustand (55633/State 1),
+qualifiziert vier feste Deploy-Abweisungen bei fehlendem Schema-Modul und
+eigenem leerem `toolbelt_json`-Namespace auf Windows SQL Server 2025/CU8/CL170
+lokal: reservierter Caller-Tempzustand (55633/State 1),
 fremder öffentlicher und interner Slot sowie verwaister DeploymentMode-Marker
 (jeweils 55634/State 1). Jeder Fehler erhält den vollständigen Modulzustand
 und seine synthetische Fixture bis zur geprüften eigenen Bereinigung. Erst
