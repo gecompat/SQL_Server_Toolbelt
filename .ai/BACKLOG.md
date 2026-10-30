@@ -13,14 +13,28 @@ und dessen unveränderte, begrenzte Evidenz. Keine SQL-Funktion, Modulversion,
 Statusaufwertung, Labmutation oder Veröffentlichung ist Teil dieser Welle.
 
 Rahmen: ein Implementierer, ein kohärenter PR; fokussierte neue Negativtests und
-ein vollständiger erforderlicher Release-/Dokumentationsaudit, anschließend
+der erforderliche Change-Impact-Audit mit vollständiger Release-Suite, anschließend
 echte Head-CI. Der neue Roundtrip läuft in der vorhandenen Release-Suite;
 keine neue Workflow-/Reviewkette und keine Wiederholung nativer Fachmatrizen.
 Quellhash-/Paketprüfungen bleiben lokal deterministisch, Logs privat. Kosten
 und Tokenverbrauch sind unbekannt. Die menschlichen Lesepfade führen von
 Releases/README zum aktuellen Kandidaten und weiter zur Installationsanleitung,
-zum Supportumfang und den offenen Pflichtgates. Ergebnis und CI werden nach
-tatsächlicher Ausführung ergänzt; bisher kein Abschluss behauptet.
+zum Supportumfang und den offenen Pflichtgates.
+
+Lokaler Nachweis am Implementierungscommit fc1aa362: der Change-Impact-Audit
+mit `python -u -B Tests/Documentation/validate_documentation.py --base origin/main --head HEAD`
+bestand einschließlich aller 291 Release-Regressionen, historischer
+Paketintegrität und betroffener Dokumentations-/Konsistenzprüfungen. Die
+Ausführung verwendete einen isolierten Checkout mit exakten Git-/LF-Bytes.
+Ein früherer Lauf im abweichenden CRLF-Arbeitscheckout hatte zehn Failures
+und 26 Errors bei Quellpins; zwei gezielte Gegenprüfungen und der anschließende
+Audit bestanden bei unveränderten erwarteten Hashes. Der erste fokussierte
+Kandidatentest hatte zudem eine falsche Erwartung zur bereits früher greifenden
+Pfadabweisung; nur diese Erwartung wurde korrigiert. Paketbau und Roundtrip
+bestanden. Diese Ergebnisse sind keine neue SQL-/Lab-/TLS- oder vollständige
+fachliche Modulqualifikation. Finale Paket-/Quellbindung und tatsächliche CI
+des abschließenden PR-Heads werden separat nachgewiesen; Veröffentlichung
+und die übrigen Pflichtgates bleiben offen.
 
 ## JSON-Schema: zentrale Uninstall-Bestätigung — r37, 2026-10-30
 
