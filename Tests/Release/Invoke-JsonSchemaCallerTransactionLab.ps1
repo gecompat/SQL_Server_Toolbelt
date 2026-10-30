@@ -197,7 +197,7 @@ function Assert-AuditPrefix($Prior){
  return [pscustomobject]@{result_count=$resultCount;control_count=$controlCount}
 }
 function Invoke-PinnedSqlBatches($Connection,[string]$Path,[string]$ExpectedSHA256){
- Assert-RunsetStable;Assert-ReleasePin $Path $ExpectedSHA256
+ Assert-RunsetStable;Assert-ReleasePin $Path $ExpectedSHA256.ToUpperInvariant()
  $text=[IO.File]::ReadAllText($Path,[Text.Encoding]::UTF8)
  $text=[regex]::Replace($text,'(?im)^\s*:ON\s+ERROR\s+EXIT\s*$','')
  if($text-match'(?m)^\s*:' -or $text.Contains('$(')){throw 'JSON_CALLER_TX_UNRESOLVED_SQLCMD'}

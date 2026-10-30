@@ -142,4 +142,56 @@ foreach($name in @('Start-ClrCallerConfiguration','Restore-ClrCallerConfiguratio
  $commands=@($function[0].Body.FindAll({param($n)$n-is[Management.Automation.Language.CommandAst]},$true)|ForEach-Object{$_.GetCommandName()})
  if('Invoke-ReleaseSql'-cnotin$commands-or'Save-ReleaseJournal'-cnotin$commands){throw 'JSON_CALLER_TX_OFFLINE_ENVIRONMENT_HELPER_DEPENDENCY'}
 }
+
+# Exercise the exact pinned batch wrapper with the production strict pin helper and a mock SQL sink.
+$pinFunction=@($stableAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Assert-ReleasePin'},$true))
+$privatePathFunction=@($stableAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Assert-ReleasePrivatePath'},$true))
+$batchFunction=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Invoke-PinnedSqlBatches'},$true))
+if($pinFunction.Count-ne1-or$privatePathFunction.Count-ne1-or$batchFunction.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_PIN_PROBE_HELPER'}
+. ([scriptblock]::Create($pinFunction[0].Extent.Text))
+. ([scriptblock]::Create($privatePathFunction[0].Extent.Text))
+. ([scriptblock]::Create($batchFunction[0].Extent.Text))
+function Assert-RunsetStable{}
+$script:sqlCaptured=[Collections.Generic.List[string]]::new()
+function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Rows){$script:sqlCaptured.Add($Text)}
+$runtime=[IO.Path]::GetFullPath((Join-Path $script:repo '.runtime'))
+$runtimePrefix=$runtime+[IO.Path]::DirectorySeparatorChar
+$repo=$script:repo
+$probeId=[guid]::NewGuid().ToString('N')
+$probeDirectory=[IO.Path]::GetFullPath((Join-Path $runtime ('r35-jsonschema-caller-pin-'+$probeId)))
+if(-not$probeDirectory.StartsWith($runtimePrefix,[StringComparison]::OrdinalIgnoreCase)-or(Test-Path -LiteralPath $probeDirectory)){throw 'JSON_CALLER_TX_OFFLINE_PROBE_PATH'}
+$probeMarker=Join-Path $probeDirectory '.owner'
+$probeFile=Join-Path $probeDirectory 'fixture.sql'
+$probeCreated=$false
+try{
+ $null=Assert-ReleasePrivatePath $probeDirectory
+ [void][IO.Directory]::CreateDirectory($probeDirectory);$probeCreated=$true
+ if(((Get-Item -LiteralPath $probeDirectory -Force).Attributes-band[IO.FileAttributes]::ReparsePoint)-ne0){throw 'JSON_CALLER_TX_OFFLINE_PROBE_REPARSE'}
+ [IO.File]::WriteAllText($probeMarker,$probeId,[Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText($probeFile,'SELECT 1;'+"`n",[Text.UTF8Encoding]::new($false))
+ $null=Assert-ReleasePrivatePath $probeFile
+ $lowerHash=(Get-FileHash -LiteralPath $probeFile -Algorithm SHA256).Hash.ToLowerInvariant()
+ Invoke-PinnedSqlBatches $null $probeFile $lowerHash
+ if($script:sqlCaptured.Count-ne1-or$script:sqlCaptured[0].Trim()-cne'SELECT 1;'){throw 'JSON_CALLER_TX_OFFLINE_PINNED_BATCH_NOT_EXECUTED'}
+ $wrongRejected=$false
+ try{Invoke-PinnedSqlBatches $null $probeFile ('0'*64)}catch{$wrongRejected=$_.Exception.Message-ceq'RELEASE_INPUT_DRIFT'}
+ if(-not$wrongRejected-or$script:sqlCaptured.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_WRONG_BATCH_HASH_ACCEPTED'}
+ [IO.File]::WriteAllText($probeFile,'SELECT 2;'+"`n",[Text.UTF8Encoding]::new($false))
+ $changedRejected=$false
+ try{Invoke-PinnedSqlBatches $null $probeFile $lowerHash}catch{$changedRejected=$_.Exception.Message-ceq'RELEASE_INPUT_DRIFT'}
+ if(-not$changedRejected-or$script:sqlCaptured.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_CHANGED_BATCH_ACCEPTED'}
+}finally{
+ if($probeCreated){
+  $resolved=[IO.Path]::GetFullPath($probeDirectory)
+  $info=Get-Item -LiteralPath $resolved -Force
+  if(-not$resolved.StartsWith($runtimePrefix,[StringComparison]::OrdinalIgnoreCase)-or
+     ($info.Attributes-band[IO.FileAttributes]::ReparsePoint)-ne0-or
+     -not(Test-Path -LiteralPath $probeMarker -PathType Leaf)-or[IO.File]::ReadAllText($probeMarker)-cne$probeId){throw 'JSON_CALLER_TX_OFFLINE_PROBE_OWNERSHIP_LOST'}
+  $children=@(Get-ChildItem -LiteralPath $resolved -Force)
+  if(@($children|Where-Object{$_.Name-cnotin@('.owner','fixture.sql')-or($_.Attributes-band[IO.FileAttributes]::ReparsePoint)-ne0}).Count-ne0-or$children.Count-ne2){throw 'JSON_CALLER_TX_OFFLINE_PROBE_CONTENT_CHANGED'}
+  Remove-Item -LiteralPath $probeFile -Force
+  Remove-Item -LiteralPath $probeMarker -Force
+  Remove-Item -LiteralPath $resolved -Force
+ }
+}
 Write-Output 'PASS JSON_SCHEMA_CALLER_TRANSACTION offline case, guard, witness/savepoint ordering, and reuse checks; no SQL executed'
