@@ -129,7 +129,8 @@ function Assert-Runset {
   (Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'),(Join-Path $PSScriptRoot 'Prepare-JsonSchemaCallerTransactionRunset.ps1'),
   (Join-Path $PSScriptRoot 'Test-JsonSchemaCallerTransactionOffline.ps1'),(Join-Path $PSScriptRoot 'Test-JsonSchemaUninstallAppLockOffline.ps1'),
   (Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-ApiQualificationLab.ps1'),
-  (Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'))
+  (Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'),(Join-Path $script:repo 'Tests/CI/run-lab-local.ps1'),
+  (Join-Path $script:repo 'Tests/CI/LabQualifiedContract.ps1'))
  foreach($path in $required){if(-not$pinMap.ContainsKey([IO.Path]::GetFullPath($path))){throw 'JSON_DEPLOY_COLLISION_REQUIRED_PIN_MISSING'}}
 }
 function Assert-RunsetStable {
