@@ -44,6 +44,20 @@ Ein erfolgreicher Zielaufruf und beide unabhängigen Bereinigungsaudits bestande
 aufgeräumte Vorversuch ist getrennt erfasst. Keine übrigen Ziel-, Rechte-, API-
 oder Lifecyclematrizen werden dadurch geschlossen.
 
+## Deploy-Kollisionsschutz (2026-10-30)
+
+Der [gebundene Bericht](../../../Releases/1.0.0/json-schema-deploy-collision-qualification.json)
+ergänzt vier synthetische Deploy-Abweisungen bei fehlendem Schema auf Windows
+SQL Server 2025/CU8/CL170 lokal: eine belegte reservierte Temp-Tabelle, je ein
+fremder öffentlicher und interner Slot sowie ein verwaister DeploymentMode-
+Marker. Die festen Fehler 55633/State 1 und 55634/State 1 müssen jeweils vor
+Mutation eintreten; vollständiger Modulsnapshot und Fixtureinhalt bleiben bis
+zur ausschließlich eigenen Bereinigung erhalten. Danach stellt ein einzelner
+gemeinsamer Deploy das positive Installationskontrollorakel bereit. Ein
+Zielaufruf und ein unabhängiges Cleanup-/Pin-Audit bestanden. Das schließt keine
+weiteren Fremdobjekt-, Marker-, Ziel-, Rechte- oder vollständigen
+Lifecyclematrizen.
+
 ## Schema-CI auf den ausgewählten Compatibility Levels
 
 Der gekoppelte Linuxadapter prüft Schema1.0.1 jetzt in denselben bereits

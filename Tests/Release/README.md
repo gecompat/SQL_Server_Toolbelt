@@ -100,6 +100,16 @@ bestehende Suite ein. Lokal:
 Andere Sessionprofile, Ziele und vollständige API-/Rechte-/Lifecyclematrizen
 bleiben offen.
 
+Der [Deploy-Kollisionsnachweis](../../Releases/1.0.0/json-schema-deploy-collision-qualification.json)
+prüft vier feste Fehlerpfade für reservierten Callerzustand, öffentliche und
+interne Fremdslots sowie einen verwaisten DeploymentMode-Marker. Ein gemeinsamer
+positiver Deploy folgt erst nach Entfernung aller eigenen Fixtures. Ein
+Zielaufruf und ein unabhängiges Cleanup-/Pin-Audit bestanden; neun Offline-
+Report-/Adapterprüfungen laufen in der bestehenden Release-Suite. Lokal:
+`python -B -m unittest Tests.Release.test_json_schema_deploy_collision_qualification Tests.Release.test_json_schema_deploy_collision_adapter -v`.
+Der Nachweis beschränkt sich auf Windows SQL Server 2025/CU8/CL170 lokal und
+schließt keine vollständige Lifecycle- oder Ownershipmatrix.
+
 ## Edit-Distance-Paketqualifikation
 
 Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)

@@ -17,6 +17,16 @@ Dateien, Produkt, API, Paket und bisherige Berichte bleiben unverändert. Ein
 Zielaufruf plus Audit, keine Rechte-/Konfigurationsänderung, keine Wiederholung
 der AppLock- oder Callertransaktionswellen und keine Veröffentlichung.
 
+Ergebnis 2026-10-30: Ein vollständiger Zielaufruf prüfte alle vier
+Abweisungen und den einen abschließenden gemeinsamen Deploy; alle erwarteten
+Fehler, Zustands-/Fixtureerhaltungen und die positive Kontrolle bestanden. Das
+unabhängige Cleanup-/Pin-Audit bestand ebenfalls. Es gab keine fehlgeschlagenen
+nativen Versuche. Der [gebundene Bericht](../Releases/1.0.0/json-schema-deploy-collision-qualification.json)
+und die ausgeführten öffentlichen Quellpins bleiben auf Commit
+`6344a220b1c56ae5166ca2ff3a36eb925e959ae1` begrenzt. Weitere
+Fremdobjekt-/Markerfälle, Zielkombinationen und vollständige Lifecycle- oder
+Releasegates bleiben offen; Veröffentlichung ist nicht freigegeben.
+
 ## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
 
 ## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
