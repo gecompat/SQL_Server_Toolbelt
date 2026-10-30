@@ -74,21 +74,31 @@ $rejected=$false;try{Assert-CleanupFixtureOwnership}catch{$rejected=$_.Exception
 if(-not$rejected-or$script:removed-ne0){throw 'JSON_DEPLOY_COLLISION_OFFLINE_MODULE_DRIFT_NOT_BLOCKED'}
 
 if((Test-SqlObjectPresent $null)-or(Test-SqlObjectPresent ([DBNull]::Value))-or-not(Test-SqlObjectPresent 17)){throw 'JSON_DEPLOY_COLLISION_OFFLINE_DBNULL_IDENTITY'}
-$tempSnapshot=[ordered]@{ObjectId=10;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=700}|ConvertTo-Json -Compress
+$tempSnapshot=[ordered]@{ObjectId=-10;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=700}|ConvertTo-Json -Compress
 Assert-OwnedFixtureShape $valid[0] $tempSnapshot
+$badTempId=[ordered]@{ObjectId=0;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=700}|ConvertTo-Json -Compress
+$rejected=$false;try{Assert-OwnedFixtureShape $valid[0] $badTempId}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_ZERO_TEMP_ID_ACCEPTED'}
+$nullTempId=[ordered]@{ObjectId=$null;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=700}|ConvertTo-Json -Compress
+$rejected=$false;try{Assert-OwnedFixtureShape $valid[0] $nullTempId}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_NULL_TEMP_ID_ACCEPTED'}
 $badTemp=[ordered]@{ObjectId=10;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=0;Sentinel=700}|ConvertTo-Json -Compress
 $rejected=$false;try{Assert-OwnedFixtureShape $valid[0] $badTemp}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
 if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_EMPTY_FIXTURE_ACCEPTED'}
-$markerSnapshot=[ordered]@{class=0;major_id=0;minor_id=0;name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';BaseType='nvarchar';MaxLength=32;DataLength=10;BinaryValue='6C006F00630061006C';Value='local'}|ConvertTo-Json -Compress
-Assert-OwnedFixtureShape $valid[3] $markerSnapshot
-$badMarker=[ordered]@{class=0;major_id=0;minor_id=0;name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';BaseType='nvarchar';MaxLength=64;DataLength=10;BinaryValue='6C006F00630061006C';Value='local'}|ConvertTo-Json -Compress
+$markerSnapshot=[ordered]@{class=0;major_id=0;minor_id=0;name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';BaseType='nvarchar';MaxLength=32;DataLength=10;BinaryValue='6C006F00630061006C00';Value='local'}|ConvertTo-Json -Compress
+try{Assert-OwnedFixtureShape $valid[3] $markerSnapshot}catch{throw 'JSON_DEPLOY_COLLISION_OFFLINE_MARKER_SHAPE_VALIDATION'}
+$badMarker=[ordered]@{class=0;major_id=0;minor_id=0;name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';BaseType='nvarchar';MaxLength=32;DataLength=10;BinaryValue='6C006F00630061006C';Value='local'}|ConvertTo-Json -Compress
 $rejected=$false;try{Assert-OwnedFixtureShape $valid[3] $badMarker}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
 if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_MARKER_WIDTH_DRIFT_ACCEPTED'}
-$slotSnapshot=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"U","principal_id":1,"definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
-Assert-OwnedFixtureShape $valid[1] $slotSnapshot
-$badSlot=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"V","principal_id":1,"definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
+$script:fixtureSchemaIdentity=[pscustomobject]@{schema_id=15;owner_id=1;owner_name='dbo'}
+$slotSnapshot=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"U","schema_id":15,"principal_id":null,"schema_owner_id":1,"schema_owner_name":"dbo","definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
+try{Assert-OwnedFixtureShape $valid[1] $slotSnapshot}catch{throw 'JSON_DEPLOY_COLLISION_OFFLINE_SLOT_SHAPE_VALIDATION'}
+$badSlot=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"V","schema_id":15,"principal_id":null,"schema_owner_id":1,"schema_owner_name":"dbo","definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
 $rejected=$false;try{Assert-OwnedFixtureShape $valid[1] $badSlot}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
 if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_WRONG_SLOT_TYPE_ACCEPTED'}
+$badOwner=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"U","schema_id":15,"principal_id":null,"schema_owner_id":2,"schema_owner_name":"other","definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
+$rejected=$false;try{Assert-OwnedFixtureShape $valid[1] $badOwner}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_FOREIGN_SCHEMA_OWNER_ACCEPTED'}
 
 $stable=Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1';$stable256=(Get-FileHash -LiteralPath $stable -Algorithm SHA256).Hash.ToUpperInvariant();$stable512=(Get-FileHash -LiteralPath $stable -Algorithm SHA512).Hash.ToUpperInvariant();$fullStable=[IO.Path]::GetFullPath($stable)
 $artifactCore=[pscustomobject]@{module_id='toolbelt.json.core';path=$fullStable;sha256=$stable256;sha512=$stable512;sql_name='Toolbelt_JsonCore'}
@@ -119,5 +129,7 @@ if($driverText-match'\[Data\.SqlClient\.SqlTransaction\]|\.BeginTransaction\(' -
    $driverText-notmatch'Assert-ReleaseOwnIdentity' -or $driverText-notmatch'Assert-ClrCallerTrustCleanupScope' -or
    $driverText-notmatch"SQL_VARIANT_PROPERTY\(ep\.value,N'MaxLength'\)" -or $driverText-notmatch'BinaryValue' -or
    $driverText-notmatch'@TypedValue nvarchar\(16\)' -or $driverText-notmatch'@Data TABLE\(\[RowCount\] bigint' -or
-   $driverText-notmatch'COUNT_BIG\(\*\) AS \[RowCount\]' -or $driverText-notmatch'SELECT \[RowCount\] FROM @Data'){throw 'JSON_DEPLOY_COLLISION_OFFLINE_PROTECTION_MISSING'}
+   $driverText-notmatch'COUNT_BIG\(\*\) AS \[RowCount\]' -or $driverText-notmatch'SELECT \[RowCount\] FROM @Data' -or
+   $driverText-notmatch'FOR JSON PATH, INCLUDE_NULL_VALUES' -or $driverText-notmatch'schema_owner_id' -or
+   $driverText-notmatch'core_owner_id' -or $driverText-notmatch'Encoding\]::Unicode\.GetBytes'){throw 'JSON_DEPLOY_COLLISION_OFFLINE_PROTECTION_MISSING'}
 Write-Output 'PASS JSON_SCHEMA_DEPLOY_COLLISION offline guards, audit prefixes, and drift-blocking cleanup; no SQL executed'

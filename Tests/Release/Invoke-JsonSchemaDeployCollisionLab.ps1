@@ -61,21 +61,26 @@ function Assert-OwnedFixtureShape($Case,[string]$Snapshot){
  try{$rows=@($Snapshot|ConvertFrom-Json -ErrorAction Stop)}catch{throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
  if($Case.kind-ceq'orphan_mode'){
   if($rows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$marker=$rows[0]
+  $expectedBytes=[Convert]::ToHexString([Text.Encoding]::Unicode.GetBytes([string]$Case.property_value))
+  $expectedLength=[Text.Encoding]::Unicode.GetByteCount([string]$Case.property_value)
   if($marker.class-ne0-or$marker.major_id-ne0-or$marker.minor_id-ne0-or$marker.name-cne[string]$Case.property_name-or
-     $marker.BaseType-cne'nvarchar'-or$marker.MaxLength-ne32-or$marker.DataLength-ne10-or
-     $marker.BinaryValue-cne'6C006F00630061006C'-or$marker.Value-cne'local'){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+     $marker.BaseType-cne'nvarchar'-or$marker.MaxLength-ne32-or$marker.DataLength-ne$expectedLength-or
+     $marker.BinaryValue-cne$expectedBytes-or$marker.Value-cne[string]$Case.property_value){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
   return
  }
  if($rows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$table=$rows[0]
- if(($table.ObjectId-isnot[int]-and$table.ObjectId-isnot[long])-or[int]$table.ObjectId-le0-or$table.RowCount-ne1-or$table.Sentinel-ne[int]$Case.fixture_value){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if(($table.ObjectId-isnot[int]-and$table.ObjectId-isnot[long])-or$table.ObjectId-eq0-or$table.RowCount-ne1-or$table.Sentinel-ne[int]$Case.fixture_value){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if($Case.kind-cne'reserved_temp'-and[int]$table.ObjectId-le0){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
  try{$columns=@($table.Columns|ConvertFrom-Json -ErrorAction Stop)}catch{throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
  if($columns.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$column=$columns[0]
  if($column.name-cne'Sentinel'-or$column.TypeName-cne'int'-or$column.max_length-ne4-or$column.is_nullable-ne$false){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
  if($Case.kind-ceq'reserved_temp'){return}
  try{$objects=@($table.ObjectShape|ConvertFrom-Json -ErrorAction Stop)}catch{throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
  if($objects.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$object=$objects[0]
- if($object.name-cne[string]$Case.object_name-or$object.TypeName-cne'U'-or
-    ($object.principal_id-isnot[int]-and$object.principal_id-isnot[long])-or[int]$object.principal_id-le0-or$null-ne$object.definition){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if($object.name-cne[string]$Case.object_name-or$object.TypeName-cne'U'-or$null-ne$object.principal_id-or$null-ne$object.definition-or
+    ($object.schema_id-isnot[int]-and$object.schema_id-isnot[long])-or[int]$object.schema_id-ne[int]$script:fixtureSchemaIdentity.schema_id-or
+    ($object.schema_owner_id-isnot[int]-and$object.schema_owner_id-isnot[long])-or[int]$object.schema_owner_id-ne[int]$script:fixtureSchemaIdentity.owner_id-or
+    $object.schema_owner_name-cne[string]$script:fixtureSchemaIdentity.owner_name){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
 }
 function Assert-ArtifactClosure($BaseArtifacts,$Artifacts,$PinMap){
  $expected=@{
@@ -181,8 +186,10 @@ DECLARE @Data TABLE([RowCount] bigint,Sentinel int NULL);
 DECLARE @DataSql nvarchar(max)=N'SELECT COUNT_BIG(*) AS [RowCount],MIN(Sentinel) AS Sentinel FROM [toolbelt_json].'+QUOTENAME(@Name)+N';';
 INSERT @Data EXEC sys.sp_executesql @DataSql;
 SELECT @ObjectId ObjectId,
- (SELECT o.name,RTRIM(o.type) TypeName,o.principal_id,sm.definition
-  FROM sys.objects o LEFT JOIN sys.sql_modules sm ON sm.object_id=o.object_id WHERE o.object_id=@ObjectId FOR JSON PATH) ObjectShape,
+ (SELECT o.name,RTRIM(o.type) TypeName,o.schema_id,o.principal_id,
+  s.principal_id schema_owner_id,USER_NAME(s.principal_id) schema_owner_name,sm.definition
+  FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id LEFT JOIN sys.sql_modules sm ON sm.object_id=o.object_id
+  WHERE o.object_id=@ObjectId FOR JSON PATH, INCLUDE_NULL_VALUES) ObjectShape,
  (SELECT c.column_id,c.name,TYPE_NAME(c.user_type_id) TypeName,c.max_length,c.is_nullable
   FROM sys.columns c WHERE c.object_id=@ObjectId ORDER BY c.column_id FOR JSON PATH) Columns,
  (SELECT [RowCount] FROM @Data) AS [RowCount],(SELECT Sentinel FROM @Data) AS Sentinel;
@@ -342,7 +349,7 @@ try{
   $dbEntry.state='OWNED';Save-Journal;Sql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=170;"
   $script:stage='BASELINE';Sql $db 'SET QUOTED_IDENTIFIER ON;';Invoke-PinnedSqlBatches $db ([string]$script:runset.baseline.path) ([string]$script:runset.baseline.sha256)
   Assert-CoreOnly $db;Assert-SchemaAbsent $db
-  Sql $db @'
+   Sql $db @'
 IF SCHEMA_ID(N'toolbelt_json') IS NOT NULL THROW 52096,N'Synthetic namespace already exists.',1;
 DECLARE @Owner sysname=(SELECT USER_NAME(principal_id) FROM sys.schemas WHERE name=N'toolbelt_core');
 IF @Owner IS NULL THROW 52096,N'Core owner unavailable.',1;
@@ -350,6 +357,17 @@ DECLARE @Sql nvarchar(max)=N'CREATE SCHEMA [toolbelt_json] AUTHORIZATION '+QUOTE
 EXEC sys.sp_executesql @Sql;
 '@
   Assert-SchemaModuleAbsent $db;Assert-CoreOnly $db
+  $schemaIdentity=@(Sql $db @'
+SELECT j.schema_id, j.principal_id owner_id, USER_NAME(j.principal_id) owner_name,
+       c.schema_id core_schema_id, c.principal_id core_owner_id, USER_NAME(c.principal_id) core_owner_name
+FROM sys.schemas j CROSS JOIN sys.schemas c
+WHERE j.name=N'toolbelt_json' AND c.name=N'toolbelt_core';
+'@ -Rows)
+  if($schemaIdentity.Count-ne1-or$schemaIdentity[0].schema_id-isnot[int]-or$schemaIdentity[0].schema_id-le0-or
+     $schemaIdentity[0].owner_id-isnot[int]-or$schemaIdentity[0].owner_id-le0-or$schemaIdentity[0].core_schema_id-isnot[int]-or$schemaIdentity[0].core_schema_id-le0-or
+     $schemaIdentity[0].core_owner_id-isnot[int]-or$schemaIdentity[0].core_owner_id-le0-or$schemaIdentity[0].owner_id-ne$schemaIdentity[0].core_owner_id-or
+     $schemaIdentity[0].owner_name-cne$schemaIdentity[0].core_owner_name){throw 'JSON_DEPLOY_COLLISION_NAMESPACE_OWNER_INVALID'}
+  $script:fixtureSchemaIdentity=[pscustomobject]@{schema_id=[int]$schemaIdentity[0].schema_id;owner_id=[int]$schemaIdentity[0].owner_id;owner_name=[string]$schemaIdentity[0].owner_name}
   $script:stage='BASELINE_SNAPSHOT';$baseState=Get-ModuleState $db;$coreBefore=Read-CoreProjection $db
   $spid=[int](Read-Scalar $db 'SELECT @@SPID AS ScalarValue;');Assert-TargetIdle $db $control $spid
   $script:ledger.expected_database_snapshot=$baseState;Save-Journal
