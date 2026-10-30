@@ -5,7 +5,7 @@ Additiver Nachweis 2026-10-25: Das [Caller-Rechteprofil](../../../Releases/1.0.0
 ## Deployment-AppLock-Funktionsnachweis (2026-10-30)
 
 Der [gebundene AppLock-Bericht](../../../Releases/1.0.0/json-schema-deploy-lock-qualification.json)
-qualifiziert genau Windows/SQL Server 2025/CL170 im lokalen Deploymentmodus.
+qualifiziert genau Windows/SQL Server 2025/CU8/CL170 im lokalen Deploymentmodus.
 Die zwei festen Sperrressourcen werden jeweils von einer zweiten Verbindung
 gehalten: Deploy muss mit dem erwarteten Lifecyclefehler ohne Zustandsänderung
 enden; derselbe Deploy muss nach Freigabe erfolgreich sein. Die Deinstallation

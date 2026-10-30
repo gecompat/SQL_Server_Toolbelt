@@ -46,7 +46,7 @@ rückwirkend als direkter Paketnachweis dargestellt.
 
 Der spätere, davon getrennte [Deploy-AppLock-Funktionsnachweis](json-schema-deploy-lock-qualification.json)
 prüft zwei konkrete Sperrkonflikte und positive Kontrollen auf einem lokalen
-Windows/SQL-Server-2025/CL170-Ziel. Er erweitert diesen Paket-IL-Nachweis nicht
+Windows/SQL-Server-2025/CU8/CL170-Ziel. Er erweitert diesen Paket-IL-Nachweis nicht
 zu einer allgemeinen SQL-, API- oder Rechtequalifikation.
 
 ## Grenzen

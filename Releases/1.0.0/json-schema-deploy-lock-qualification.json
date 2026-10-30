@@ -11,7 +11,8 @@
     "target": {
       "platform": "windows",
       "sql_server_version": "2025",
-      "compatibility_level": 170
+      "compatibility_level": 170,
+      "patch": "CU8"
     },
     "deployment_mode": "local",
     "baseline": {

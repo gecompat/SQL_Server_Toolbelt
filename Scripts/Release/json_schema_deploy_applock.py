@@ -94,10 +94,10 @@ def validate_record(root: Path, record: dict | None = None) -> dict:
 
     scope = record["scope"]
     _require_keys(scope, {"module", "purpose", "target", "deployment_mode", "baseline", "resources", "case_count"}, "scope")
-    _require_keys(scope["target"], {"platform", "sql_server_version", "compatibility_level"}, "target")
+    _require_keys(scope["target"], {"platform", "sql_server_version", "patch", "compatibility_level"}, "target")
     _require_keys(scope["baseline"], {"result_table", "json_core", "schema_namespace_absent_initially"}, "baseline")
     if (scope["module"] != "toolbelt.json.schema" or scope["purpose"] != "Functional" or
-            scope["target"] != {"platform": "windows", "sql_server_version": "2025", "compatibility_level": 170} or
+            scope["target"] != {"platform": "windows", "sql_server_version": "2025", "patch": "CU8", "compatibility_level": 170} or
             scope["deployment_mode"] != "local" or scope["case_count"] != 2 or
             scope["baseline"] != {"result_table": True, "json_core": True, "schema_namespace_absent_initially": True} or
             scope["resources"] != list(EXPECTED_RESOURCES)):

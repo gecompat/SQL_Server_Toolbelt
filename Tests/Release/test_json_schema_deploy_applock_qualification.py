@@ -39,6 +39,9 @@ class JsonSchemaDeployAppLockQualificationTests(unittest.TestCase):
         altered["scope"]["resources"].reverse()
         cases.append(altered)
         altered = copy.deepcopy(self.record)
+        altered["scope"]["target"]["patch"] = "base"
+        cases.append(altered)
+        altered = copy.deepcopy(self.record)
         altered["execution"]["cases"].pop()
         cases.append(altered)
         altered = copy.deepcopy(self.record)
