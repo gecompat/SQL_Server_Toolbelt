@@ -164,6 +164,11 @@ function Invoke-ReleaseSql($Connection,[string]$Sql,[hashtable]$Parameters=@{},[
     Assert-RunsetStable
     Invoke-ReleaseSqlCore $Connection $Sql $Parameters -Rows:$Rows
 }
+function Get-ObservedTransactionState($Connection){
+    $rows=@(Sql $Connection 'DECLARE @ObservedTranCount int=@@TRANCOUNT,@ObservedXactState smallint=XACT_STATE(); SELECT @ObservedTranCount TranCount,@ObservedXactState XactState;' -Rows)
+    if($rows.Count-ne1){throw 'JSON_UNINSTALL_CONFIRMATION_TRANSACTION_STATE_SHAPE'}
+    return [pscustomobject]@{TranCount=[int]$rows[0].TranCount;XactState=[int]$rows[0].XactState}
+}
 function Get-LabSelectorTarget {
     $lab=Resolve-LabContract -TestPurpose Functional
     if((Get-FileHash -LiteralPath $lab.Path -Algorithm SHA256).Hash.ToLowerInvariant()-cne$script:runset.lab.contract_sha256 -or
@@ -210,7 +215,7 @@ SELECT
 function Assert-ExactBlock($Connection,$Observer,$Case,$Before,[int]$Spid,$Baseline){
     $beforeOptions=[int](Read-Scalar $Connection 'SELECT @@OPTIONS AS ScalarValue;')
     $beforeTran=[int](Read-Scalar $Connection 'SELECT @@TRANCOUNT AS ScalarValue;')
-    $beforeXact=[int](Read-Scalar $Connection 'SELECT XACT_STATE() AS ScalarValue;')
+    $beforeXact=(Get-ObservedTransactionState $Connection).XactState
     $beforeModule=Get-ModuleState $Connection
     $beforeCore=Read-CoreProjection $Connection
     $caught=$null
@@ -222,7 +227,7 @@ function Assert-ExactBlock($Connection,$Observer,$Case,$Before,[int]$Spid,$Basel
        $sqlErrors.Count-ne1 -or $exactErrors.Count-ne1){throw 'JSON_UNINSTALL_CONFIRMATION_EXPECTED_ERROR_MISMATCH'}
     $afterOptions=[int](Read-Scalar $Connection 'SELECT @@OPTIONS AS ScalarValue;')
     $afterTran=[int](Read-Scalar $Connection 'SELECT @@TRANCOUNT AS ScalarValue;')
-    $afterXact=[int](Read-Scalar $Connection 'SELECT XACT_STATE() AS ScalarValue;')
+    $afterXact=(Get-ObservedTransactionState $Connection).XactState
     $afterSpid=[int](Read-Scalar $Connection 'SELECT @@SPID AS ScalarValue;')
     $external=@(Get-ExternalSessionState $Observer $Spid)
     $sessionUnchanged=$Connection.State-eq[Data.ConnectionState]::Open -and $afterSpid-eq$Spid
@@ -257,7 +262,7 @@ function Assert-PositiveUninstall($Connection,$Observer,$BeforeCore,$BeforeNames
     if((Read-CoreProjection $Connection)-cne$BeforeCore -or (Read-JsonSchemaNamespace $Connection)-cne$BeforeNamespace -or
        [int](Read-Scalar $Connection 'SELECT @@OPTIONS AS ScalarValue;')-ne$beforeOptions -or
        [int](Read-Scalar $Connection 'SELECT @@SPID AS ScalarValue;')-ne$beforeSpid -or [int](Read-Scalar $Connection 'SELECT @@TRANCOUNT AS ScalarValue;')-ne0 -or
-       [int](Read-Scalar $Connection 'SELECT XACT_STATE() AS ScalarValue;')-ne0 -or -not(Test-ExternalSessionIdle $external $beforeSpid)){throw 'JSON_UNINSTALL_CONFIRMATION_CORE_OR_SESSION_CHANGED'}
+       (Get-ObservedTransactionState $Connection).XactState-ne0 -or -not(Test-ExternalSessionIdle $external $beforeSpid)){throw 'JSON_UNINSTALL_CONFIRMATION_CORE_OR_SESSION_CHANGED'}
 }
 function Assert-CoreModeCentral($Connection){
     $rows=@(Sql $Connection @'
@@ -370,7 +375,7 @@ try{
         $script:expectedOwnDbState=Get-ModuleState $db
         $script:expectedOwnCore=Read-CoreProjection $db
         Sql $db 'SET QUOTED_IDENTIFIER ON; SET NOCOUNT ON; SET XACT_ABORT ON; SET IMPLICIT_TRANSACTIONS OFF;'
-        $profileRows=@(Sql $db 'SELECT CASE WHEN (@@OPTIONS&256)=256 THEN 1 ELSE 0 END QuotedIdentifier,CASE WHEN (@@OPTIONS&512)=512 THEN 1 ELSE 0 END NoCount,CASE WHEN (@@OPTIONS&16384)=16384 THEN 1 ELSE 0 END XactAbort,CASE WHEN (@@OPTIONS&2)=2 THEN 1 ELSE 0 END ImplicitTransactions,@@OPTIONS Options,@@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
+        $profileRows=@(Sql $db 'DECLARE @ObservedTranCount int=@@TRANCOUNT,@ObservedXactState smallint=XACT_STATE(); SELECT CASE WHEN (@@OPTIONS&256)=256 THEN 1 ELSE 0 END QuotedIdentifier,CASE WHEN (@@OPTIONS&512)=512 THEN 1 ELSE 0 END NoCount,CASE WHEN (@@OPTIONS&16384)=16384 THEN 1 ELSE 0 END XactAbort,CASE WHEN (@@OPTIONS&2)=2 THEN 1 ELSE 0 END ImplicitTransactions,@@OPTIONS Options,@ObservedTranCount TranCount,@ObservedXactState XactState;' -Rows)
         $profileDiagnostic=[ordered]@{stage='SESSION_PROFILE';row_count=$profileRows.Count;quoted_identifier=$null;nocount=$null;xact_abort=$null;implicit_transactions=$null;options=$null;transaction_count=$null;xact_state=$null}
         if($profileRows.Count-eq1){
             foreach($pair in @(@('quoted_identifier','QuotedIdentifier'),@('nocount','NoCount'),@('xact_abort','XactAbort'),@('implicit_transactions','ImplicitTransactions'),@('options','Options'),@('transaction_count','TranCount'),@('xact_state','XactState'))){

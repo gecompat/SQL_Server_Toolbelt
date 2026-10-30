@@ -27,6 +27,9 @@ class JsonSchemaUninstallConfirmationAdapterTests(unittest.TestCase):
             self.assertIn(text, self.driver + self.preparer)
         self.assertIn("Test-ExternalSessionIdle", self.driver)
         self.assertIn("@@OPTIONS", self.driver)
+        self.assertIn("function Get-ObservedTransactionState($Connection)", self.driver)
+        self.assertIn("DECLARE @ObservedTranCount int=@@TRANCOUNT,@ObservedXactState smallint=XACT_STATE();", self.driver)
+        self.assertNotIn("SELECT XACT_STATE() AS ScalarValue", self.driver)
 
     def test_session_profile_failure_is_diagnosable_only_in_private_journal(self):
         for field in (
