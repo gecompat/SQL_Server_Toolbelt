@@ -50,9 +50,17 @@ foreach($required in @(
     if(-not$sql.Contains($required,[StringComparison]::Ordinal)){throw 'JSON_UNINSTALL_CONFIRMATION_OFFLINE_SQL_CONTRACT_DRIFT'}
 }
 $closure=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Assert-ArtifactClosure'},$true))
+$errorHelper=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Test-ExactSqlErrorSet'},$true))
 $requiredPins=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Assert-RequiredPins'},$true))
-if($closure.Count-ne1-or$requiredPins.Count-ne1){throw 'JSON_UNINSTALL_CONFIRMATION_OFFLINE_BINDING_GUARD_MISSING'}
-. ([scriptblock]::Create($closure[0].Extent.Text));. ([scriptblock]::Create($requiredPins[0].Extent.Text))
+if($closure.Count-ne1-or$errorHelper.Count-ne1-or$requiredPins.Count-ne1){throw 'JSON_UNINSTALL_CONFIRMATION_OFFLINE_BINDING_GUARD_MISSING'}
+. ([scriptblock]::Create($closure[0].Extent.Text));. ([scriptblock]::Create($errorHelper[0].Extent.Text));. ([scriptblock]::Create($requiredPins[0].Extent.Text))
+$validError=[pscustomobject]@{Number=55635;State=1;Class=16;Message='synthetic exact error'}
+$singleOracle=Test-ExactSqlErrorSet @($validError) 55635 1 16 'synthetic exact error'
+$emptyOracle=Test-ExactSqlErrorSet @() 55635 1 16 'synthetic exact error'
+$multipleOracle=Test-ExactSqlErrorSet @($validError,$validError) 55635 1 16 'synthetic exact error'
+$wrongOracle=Test-ExactSqlErrorSet @([pscustomobject]@{Number=55635;State=2;Class=16;Message='synthetic exact error'}) 55635 1 16 'synthetic exact error'
+if($singleOracle.Count-ne1-or-not$singleOracle.Exact-or$emptyOracle.Count-ne0-or$emptyOracle.Exact-or
+   $multipleOracle.Count-ne2-or$multipleOracle.Exact-or$wrongOracle.Count-ne1-or$wrongOracle.Exact){throw 'JSON_UNINSTALL_CONFIRMATION_OFFLINE_SQL_ERROR_SET_ORACLE'}
 $runtimeRoot=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))
 if(-not(Test-Path -LiteralPath $runtimeRoot -PathType Container)){throw 'JSON_UNINSTALL_CONFIRMATION_OFFLINE_RUNTIME_ROOT_MISSING'}
 $tempRoot=[IO.Path]::GetFullPath((Join-Path $runtimeRoot ('json-schema-uninstall-confirmation-offline-'+[guid]::NewGuid().ToString('N'))))

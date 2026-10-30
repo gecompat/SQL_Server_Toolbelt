@@ -169,6 +169,11 @@ function Get-ObservedTransactionState($Connection){
     if($rows.Count-ne1){throw 'JSON_UNINSTALL_CONFIRMATION_TRANSACTION_STATE_SHAPE'}
     return [pscustomobject]@{TranCount=[int]$rows[0].TranCount;XactState=[int]$rows[0].XactState}
 }
+function Test-ExactSqlErrorSet($Errors,[int]$Number,[int]$State,[int]$Class,[string]$Message){
+    $items=@($Errors)
+    $matches=@($items|Where-Object{$_.Number-eq$Number -and $_.State-eq$State -and $_.Class-eq$Class -and $_.Message-ceq$Message})
+    return [pscustomobject]@{Count=$items.Count;Exact=($items.Count-eq1 -and $matches.Count-eq1)}
+}
 function Get-LabSelectorTarget {
     $lab=Resolve-LabContract -TestPurpose Functional
     if((Get-FileHash -LiteralPath $lab.Path -Algorithm SHA256).Hash.ToLowerInvariant()-cne$script:runset.lab.contract_sha256 -or
@@ -221,10 +226,11 @@ function Assert-ExactBlock($Connection,$Observer,$Case,$Before,[int]$Spid,$Basel
     $caught=$null
     try{Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText([string]$Case.path,[Text.Encoding]::UTF8))}
     catch{$caught=$_.Exception;while($caught.InnerException){$caught=$caught.InnerException}}
-    $sqlErrors=if($caught-is[Data.SqlClient.SqlException]){@($caught.Errors)}else{@()}
-    $exactErrors=@($sqlErrors|Where-Object{$_.Number-eq[int]$Case.expected_error -and $_.State-eq[int]$Case.expected_state -and $_.Class-eq16 -and $_.Message-ceq[string]$Case.expected_message})
+    $sqlErrors=@()
+    if($caught-is[Data.SqlClient.SqlException]){$sqlErrors=@($caught.Errors)}
+    $errorOracle=Test-ExactSqlErrorSet $sqlErrors ([int]$Case.expected_error) ([int]$Case.expected_state) 16 ([string]$Case.expected_message)
     if($caught-isnot[Data.SqlClient.SqlException] -or $caught.Number-ne[int]$Case.expected_error -or $caught.State-ne[int]$Case.expected_state -or $caught.Class-ne16 -or
-       $sqlErrors.Count-ne1 -or $exactErrors.Count-ne1){throw 'JSON_UNINSTALL_CONFIRMATION_EXPECTED_ERROR_MISMATCH'}
+       $errorOracle.Count-ne1 -or -not$errorOracle.Exact){throw 'JSON_UNINSTALL_CONFIRMATION_EXPECTED_ERROR_MISMATCH'}
     $afterOptions=[int](Read-Scalar $Connection 'SELECT @@OPTIONS AS ScalarValue;')
     $afterTran=[int](Read-Scalar $Connection 'SELECT @@TRANCOUNT AS ScalarValue;')
     $afterXact=(Get-ObservedTransactionState $Connection).XactState

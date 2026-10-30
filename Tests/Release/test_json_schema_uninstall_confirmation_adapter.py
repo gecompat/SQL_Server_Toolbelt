@@ -47,6 +47,7 @@ class JsonSchemaUninstallConfirmationAdapterTests(unittest.TestCase):
             "Assert-RunsetStable", "ExpectedRunsetSHA256", "Assert-ArtifactClosure",
             "Assert-RequiredPins", "Assert-ReleaseOwnIdentity",
             "JSON_UNINSTALL_CONFIRMATION_OWNED_DATABASE_STATE_DRIFT",
+            "function Test-ExactSqlErrorSet", "@($caught.Errors)",
         ):
             self.assertIn(text, self.driver)
         self.assertNotIn("DROP TABLE IF EXISTS", self.driver.upper())
@@ -57,6 +58,7 @@ class JsonSchemaUninstallConfirmationAdapterTests(unittest.TestCase):
             "OFFLINE_DUPLICATE_TRANSFORM_ACCEPTED",
             "OFFLINE_BAD_ARTIFACT_ACCEPTED",
             "OFFLINE_MISSING_HELPER_ACCEPTED",
+            "OFFLINE_SQL_ERROR_SET_ORACLE",
             "OFFLINE_SQL_CONTRACT_DRIFT",
             "OFFLINE_UNEXPECTED_APPLOCK_CASE",
         ):
