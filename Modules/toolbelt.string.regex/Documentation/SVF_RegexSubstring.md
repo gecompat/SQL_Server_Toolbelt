@@ -32,3 +32,21 @@ und wäre kein Performancebeleg. Relationale Vorfilter bleiben empfohlen.
 
 Beispiel: `SVF_RegexSubstring(N'a12b34', N'[0-9]+', 1, 2, N'c', N'standard')`
 liefert `N'34'`.
+
+## Beispielaufruf
+
+```sql
+SELECT toolbelt_string.SVF_RegexSubstring(N'abc123 def456', N'[0-9]+', 1, 1, N'c', N'standard') AS ResultValue;
+```
+
+Bei einem Funktionsaufruf mit `SELECT` werden Argumente positionsbezogen übergeben. `DEFAULT` aktiviert einen deklarierten Default; `NULL` hat die im Vertrag beschriebene eigene Bedeutung.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/RegexFunctions.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

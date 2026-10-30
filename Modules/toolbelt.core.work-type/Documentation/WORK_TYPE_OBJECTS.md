@@ -1,5 +1,16 @@
 # Öffentliche Work-Type-Objekte
 
+## Einzelreferenzen
+
+Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
+Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
+
+- [`toolbelt_core.VW_WorkTypes`](VW_WorkTypes.md)
+- [`toolbelt_core.USP_RegisterWorkType`](USP_RegisterWorkType.md)
+- [`toolbelt_core.USP_DisableWorkType`](USP_DisableWorkType.md)
+- [`toolbelt_core.USP_RemoveWorkType`](USP_RemoveWorkType.md)
+- [`toolbelt_core.USP_ResolveWorkType`](USP_ResolveWorkType.md)
+
 ## Direkte Callerrechte
 
 Registrierung, Disable, Remove und Resolve benötigen EXECUTE auf ihre jeweilige

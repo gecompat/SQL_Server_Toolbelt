@@ -26,3 +26,20 @@ SELECT Ordinal, PeriodStart
 FROM toolbelt_datetime.TVF_DateSpineMonth('20260115', '20260402')
 ORDER BY Ordinal;
 ```
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@RangeStart` | `date` | `kein Default` | Input | Einschließliche untere Intervallgrenze. |
+| `@RangeEndExclusive` | `date` | `kein Default` | Input | Ausschließliche obere Intervallgrenze. |
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#kalenderarithmetik).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_DateSpineMonth.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

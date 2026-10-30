@@ -1,5 +1,34 @@
 # Öffentlicher Beispielkatalog
 
+## Einzelne SQL-Objekte nachschlagen
+
+Suche im [API-Katalog](API_CATALOG.md) nach dem vollständigen Objektnamen
+oder verwende die [durchsuchbare HTML-Ansicht](API_CATALOG.html).
+Unter „Vertrag und Quelle“ führt der Markdown-Link mit dem Objektnamen
+zur eigenen Beschreibung unter `Modules/<Modul>/Documentation/`.
+Dort stehen Verhalten, Aufrufparameter, Voraussetzungen und Beispiele;
+gemeinsame Regeln bleiben über die verlinkten Fachverträge erreichbar.
+Die SQL-Datei daneben dient der Prüfung der Implementierung.
+
+Bei der Ergebnisdeutung insbesondere SQL-NULL, leere Ergebnismengen und
+Statuswerte unterscheiden. Bei Prozeduren erklärt `@Hilfe=1` Parameter,
+Ergebnisse und Fehler. Für Installation, Rechte und tatsächlich ausgeführte
+Plattformtests der verlinkten Modulbeschreibung und Testmatrix folgen.
+Ein Beispiel mit registrierten Handlern, Claims oder Dateien setzt die dort
+beschriebene Vorbereitung voraus.
+
+## Den Implementierungsweg verstehen
+
+Die [technischen Lösungswege](IMPLEMENTATION_GUIDE.md) erläutern ausgewählte
+Algorithmen, Zustände und SQL-/CLR-Entscheidungen. Sie beantworten etwa,
+warum ein Scanner mehrfach läuft, welche Zustände eine Schleife erhält und
+weshalb eine einfachere Alternative den Vertrag verletzen würde. Die
+betroffenen Objektseiten führen direkt zum passenden Abschnitt und von
+dort zu den zuständigen Quelldateien. Gewöhnliche SQL-Syntax wird dort
+nicht erneut als Grundlagenkurs erklärt.
+
+## Beispiele finden
+
 Der [Beispielkatalog](API_CATALOG.md) zeigt alle öffentlichen aufrufbaren
 Objekte: Views, Stored Procedures, T-SQL-/CLR-Funktionen und CLR-Aggregate.
 Er enthält kurze Erklärungen, Parameter mit SQL-Typ, Default und Richtung,

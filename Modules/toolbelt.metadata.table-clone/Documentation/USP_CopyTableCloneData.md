@@ -85,3 +85,7 @@ Eigene Daten-/FK-Fehler 53940..53946 sowie bestehende Core-/Helper- und Enginefe
 bleiben getrennt. Caller-TX: nichtdoomendes RAISERROR/RETURN mit
 TBX_TABLE_CLONE_COPY_CALLER_TRANSACTION. Testscope, offene Nachweise und Lifecycle
 stehen im [Manifest](../module.yaml) und in der [Testmatrix](../Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#tabellenklon).

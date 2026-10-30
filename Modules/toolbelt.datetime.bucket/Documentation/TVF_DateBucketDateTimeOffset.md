@@ -23,3 +23,22 @@ Das Resultset enthält `Value datetimeoffset(7)`, `IsValid bit` und
 
 Details:
 [DATETIME_BUCKET_MODULE_DESIGN.md](../../../Documentation/Architecture/DATETIME_BUCKET_MODULE_DESIGN.md).
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@DatePart` | `varchar(16)` | `kein Default` | Input | Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day. |
+| `@Width` | `int` | `kein Default` | Input | Positive ganzzahlige Bucketbreite. |
+| `@Value` | `datetimeoffset(7)` | `kein Default` | Input | Zu verarbeitender Wert im ausgewiesenen SQL-Typ. |
+| `@Origin` | `datetimeoffset(7)` | `'1900-01-01 00:00:00 +00:00'` | Input | Zeitlicher Referenzpunkt für die Bucket-Grenzen. |
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#kalenderarithmetik).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_DateBucketDateTimeOffset.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

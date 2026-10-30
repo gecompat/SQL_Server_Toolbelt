@@ -1,5 +1,13 @@
 # Dokumentation und Lesewege
 
+## Eine Funktion, Procedure oder View nachschlagen
+
+Die [SQL-Objektreferenz](Reference/README.md#einzelne-sql-objekte-nachschlagen)
+führt über den Objektnamen zu seiner eigenen Beschreibung. Beginne dort,
+wenn du Zweck, Parameter, Ergebnis oder einen Beispielaufruf suchst.
+Die Modulbeschreibung erklärt die Installation und Testgrenzen;
+verlinkte Fachverträge erläutern das Zusammenspiel mehrerer Objekte.
+
 ## Toolbelt zum ersten Mal installieren
 
 Die [Installationsanleitung Schritt für Schritt](../INSTALL.md) beginnt mit

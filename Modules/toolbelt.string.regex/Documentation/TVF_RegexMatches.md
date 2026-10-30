@@ -79,3 +79,7 @@ ORDER BY m.Ordinal;
 Deployment 1.2.0 koppelt exakten Assemblyhash, interne/public Marker, die
 vier neuen Plätze und Uninstall. Historische 1.0-/1.1-Upgrades sind getrennt
 von Wiederdeployment zu prüfen. R1b-/R2a-Verträge bleiben unverändert.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).

@@ -27,3 +27,25 @@ SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,DEFAULT);
 Für SELECT-Aufrufe ist `SELECT` auf der Funktion erforderlich.
 
 Ausdrücklich am 2026-10-15 mit Zweck, Vertrag, Alternativen, Risiken und Grenzverhalten freigegeben. Siehe [Security-Härtung](../../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md). Neue Runtime-/CI-Nachweise werden dort getrennt vom Implementierungsstand geführt. Keine Parallelitäts-, Heap- oder harte Echtzeitzusage.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Start` | `bigint` | `kein Default` | Input | bigint; inklusiver Start. |
+| `@Stop` | `bigint` | `kein Default` | Input | bigint; inklusives Ende bei erreichbarem Schritt. |
+| `@Step` | `bigint` | `NULL` | Input | bigint=NULL; Richtung automatisch; 0 ergibt INVALID. |
+
+## Voraussetzungen für den Aufruf
+
+- Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zahlenreihen).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_GenerateSeriesBigInt.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

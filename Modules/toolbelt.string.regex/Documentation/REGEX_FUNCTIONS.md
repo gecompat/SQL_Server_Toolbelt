@@ -1,5 +1,14 @@
 # Regex-Funktionsvertrag
 
+## Einzelreferenzen
+
+Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
+Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
+
+- [`toolbelt_string.SVF_RegexIsMatch`](SVF_RegexIsMatch.md)
+- [`toolbelt_string.SVF_RegexInstr`](SVF_RegexInstr.md)
+- [`toolbelt_string.SVF_RegexCount`](SVF_RegexCount.md)
+
 Zusätzlicher Capturemodus ab 1.3.0:
 [TVF_RegexCaptures](TVF_RegexCaptures.md) und
 [SVF_RegexReplaceGroups](SVF_RegexReplaceGroups.md). Diese zwei separat

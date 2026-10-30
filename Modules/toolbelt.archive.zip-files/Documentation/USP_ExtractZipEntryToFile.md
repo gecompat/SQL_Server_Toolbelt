@@ -70,3 +70,7 @@ und vorhandenes Zielverzeichnis voraus. [Runtime offen](../Tests/README.md).
 ## Aktueller Sicherheitsvertrag
 
 SC-004: Extraktion erbt Default16 MiB und feste64-MiB-Entrygrenze; Dateifassade prüft diese vor dem Binaryprovider. Größere bisherige Extraktionsparameter sind zu migrieren. Keine stillen Teilpayloads.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).

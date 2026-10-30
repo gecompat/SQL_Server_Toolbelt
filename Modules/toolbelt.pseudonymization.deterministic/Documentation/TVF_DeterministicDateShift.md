@@ -42,3 +42,7 @@ durch synthetische SQL-Oracles geprüft. Weitere Plattform-, Kapazitäts-
 und Optimizer-Nachweise dürfen daraus nicht abgeleitet werden.
 
 Primärquelle: [Microsoft DATEADD](https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).

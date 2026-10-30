@@ -1,5 +1,13 @@
 # JSON-Aggregate
 
+## Einzelreferenzen
+
+Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
+Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
+
+- [`toolbelt_json.AGF_JsonArray`](AGF_JsonArray.md)
+- [`toolbelt_json.AGF_JsonObject`](AGF_JsonObject.md)
+
 Die einzeln freigegebenen SAFE-CLR-Aggregate ergänzen die vier bestehenden
 Konstruktor-USPs. `AGF_JsonArray(Ordinal,ValueKind,Value,Profile)` und
 `AGF_JsonObject(Ordinal,Key,ValueKind,Value,Profile)` liefern nvarchar(max).

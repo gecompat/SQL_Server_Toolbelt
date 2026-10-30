@@ -71,3 +71,7 @@ Primärquellen: [Microsoft STDistance](https://learn.microsoft.com/en-us/sql/t-s
 Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
 
 Der gültige Mappingzweig enthält zwei bestehende RangeCore-Ausdrücke. Der komplementäre Konfigurationszweig bewahrt die ursprüngliche Fehlerpriorität. Relationale Aggregationen reduzieren wiederholte numerische Ausdrücke; daraus folgt keine Zusage einer physischen Ausführungsanzahl, Optimizer-Reihenfolge oder Pruning-Barriere. Die sichere Operandenkette und alle Formeln bleiben maßgeblich.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).

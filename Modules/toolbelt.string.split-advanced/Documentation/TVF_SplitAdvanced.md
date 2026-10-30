@@ -66,3 +66,7 @@ die Funktion aktiviert weder TRUSTWORTHY noch Ownership-Chaining und
 erteilt selbst keine Rechte.
 
 Siehe [Modul](../README.md), [Design](../../../Documentation/Architecture/SPLIT_ADVANCED_MODULE_DESIGN.md) und [Testmatrix](../Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#tokenisierung).

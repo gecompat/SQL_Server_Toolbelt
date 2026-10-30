@@ -51,3 +51,19 @@ ResultTable zusätzlich Helper-EXECUTE; keine Hochprivilegierung oder pauschale 
 Runtime: Am 2026-10-01 im ausgewählten Scope2019Linux/latest und2025Windows/CU8
 erfolgreich, siehe Testmatrix. Weitere Ziel-/Rechtekontexte bleiben offen;
 `partially validated`, keine Produktionskapazitätszusage.
+
+## Beispielaufruf
+
+```sql
+CREATE TABLE #Entries(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,N'string',N'Contoso'),(2,N'number',N'42');
+EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#Entries';
+DROP TABLE #Entries;
+```
+
+Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
+Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#json-konstruktion).

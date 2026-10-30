@@ -22,3 +22,25 @@ liefern ausschließlich NULL-Codes; technische Fehler bleiben Exceptions.
 [Modul](../README.md), [Matrix](../Tests/PHONETIC_TEST_MATRIX.md).
 Begrenzte Build-/Runtime-/Clientnachweise liegen vor; Minimalrechte, vollständige
 Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../Tests/README.md).
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text für die Phonetikberechnung. |
+
+## Beispielaufruf
+
+```sql
+SELECT * FROM toolbelt_string.TVF_ColognePhonetic(N'Contoso');
+```
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#phonetik).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_ColognePhonetic.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

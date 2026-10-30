@@ -55,3 +55,7 @@ Evidenz. Native API-/FillRow-/Metadaten- und Lifecyclefälle bestehen im
 ausgewählten Scope der [Testmatrix](../Tests/XLSX_CONTRACT_TEST_MATRIX.md);
 aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft;
 tatsächliche Minimalrechte bleiben offen.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#xlsx).

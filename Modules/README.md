@@ -2,6 +2,10 @@
 
 Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module von SQL Server Toolbelt.
 
+Die [SQL-Objektreferenz](../Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen)
+führt vom gesuchten Objektnamen zur eigenen Beschreibung mit Verhalten,
+Parametern und Beispielen im jeweiligen Modulordner `Documentation/`.
+
 Der [zentrale Beispielkatalog](../Documentation/Reference/API_CATALOG.md)
 ergänzt die Modulübersicht um Aufrufe, Parameter und Voraussetzungen aller
 öffentlichen Schnittstellen. Die [HTML-Ansicht](../Documentation/Reference/API_CATALOG.html)

@@ -93,3 +93,7 @@ aus unveränderten Vorschauzeilen und Optionen ohne SQL-Verbindung.
 Gezielte lokale Runtime-Nachweise bestanden am 2026-10-04 auf SQL Server
 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170. Der genaue Scope
 und die offenen Nachweise stehen im [Manifest](../module.yaml).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#tabellenklon).

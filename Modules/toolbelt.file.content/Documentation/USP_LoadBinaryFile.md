@@ -87,3 +87,7 @@ EXEC toolbelt_file.USP_LoadBinaryFile
 - Bei `@ResultTable`: zusätzlich `EXECUTE` auf `toolbelt_core.USP_PrepareResultTable`
 - Lesezugriff auf den Dateipfad
 - `ADMINISTER BULK OPERATIONS` oder `ad hoc distributed queries`
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#dateiinhalte).

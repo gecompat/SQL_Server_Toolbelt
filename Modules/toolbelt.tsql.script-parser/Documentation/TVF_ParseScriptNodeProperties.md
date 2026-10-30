@@ -33,3 +33,7 @@ NULL-Text liefert vor jeder anderen Parameterprüfung null Zeilen. Für nicht NU
 Nur erfolgreich geparste ASTs liefern Eigenschaften, maximal 131.072 Zeilen. NodeIds stimmen bei gleichen Argumenten mit Nodes überein; Reihenfolge und skalare Formatierung sind kulturunabhängig. Ein Grenzfehler liefert keine Teilmenge.
 
 Alle Ausgaben unterliegen außerdem 16.777.216 verrechneten Bytes pro Aufruf und den bestehenden Spaltenbreiten. CLR-Grenzfehler verwenden die stabilen Präfixe des Hardening-Vertrags, regulär im SQL-Fehler-6522-Wrapper. Eingereichter SQL-Text wird nicht in Grenzmeldungen aufgenommen. Windows-only und UNSAFE bleiben unverändert; Parsing erteilt keine sichere Rewriting-Freigabe.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#sql-parser).

@@ -71,3 +71,7 @@ EXEC toolbelt_archive.USP_CreateZipFileFromEntries @Hilfe=1;
 
 Fachliche synthetische Beispiele im Help setzen einen zugelassenen Root-Alias
 und vorhandenes Zielverzeichnis voraus. [Runtime offen](../Tests/README.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).

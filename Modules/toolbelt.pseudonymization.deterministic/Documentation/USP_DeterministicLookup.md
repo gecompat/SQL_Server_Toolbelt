@@ -165,3 +165,7 @@ Rechte: EXECUTE auf USP, für ResultTable zusätzlich Helper-EXECUTE und
 Temp-Metadatensicht. Minimalrechte lokal/direkt zentral sind synthetisch unter
 WITHOUT LOGIN-Usern auf SQL2019 Linux geprüft. CrossDB ist bislang nur eine
 administrative Baseline, kein CrossDB-Minimalrechtenachweis.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).

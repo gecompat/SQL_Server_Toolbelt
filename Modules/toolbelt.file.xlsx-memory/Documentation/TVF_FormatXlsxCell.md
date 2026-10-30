@@ -76,3 +76,7 @@ SELECT * FROM toolbelt_file.TVF_FormatXlsxCell
 [Nachweisgrenzen und Reproduktion](../Tests/README.md): ausgewählte lokale
 1.2-Nachweise und Offlinequalifikation bestanden am 2026-10-04. Vollständige
 Produktmatrix, zentrale Nutzung, Minimalrechte und aktuelle Head-CI bleiben offen.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#xlsx).

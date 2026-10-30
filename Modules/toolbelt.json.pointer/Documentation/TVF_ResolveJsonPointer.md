@@ -62,3 +62,7 @@ CrossDB benötigt passende Rechte und Caller-CL150+. Zielmatrix SQL2019/2022/202
 Windows/Linux, CL150+ innerhalb der Enginegrenze. Repeated Fragmentparsing und
 MSTVF-Kardinalität begründen keine Inline-/Performancezusage. Ausgeführte
 Kontexte und verbleibende Grenzen stehen in [Tests/README.md](../Tests/README.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#json-pointer).

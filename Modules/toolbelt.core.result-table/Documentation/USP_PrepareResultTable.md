@@ -189,3 +189,7 @@ Siehe [PrepareResultTable.sql](../Examples/PrepareResultTable.sql).
 ## Securityvertrag 2026-10-15
 
 Deployment benötigt Schemaowner dbo und freigegebene Kontrollprincipals; Details im Modul-README.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#resulttable).

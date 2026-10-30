@@ -47,3 +47,7 @@ NULL-Text liefert vor jeder anderen Parameterprüfung null Zeilen. Für nicht NU
 Nur erfolgreich geparste ASTs werden iterativ traversiert. Wurzel ist Tiefe 0; maximal 32.768 Knoten. Nodes und Properties verwenden bei gleichen Argumenten dieselbe deterministische Traversierung; NodeIds sind keine dauerhaften IDs über Dependency-Versionen.
 
 Alle Ausgaben unterliegen außerdem 16.777.216 verrechneten Bytes pro Aufruf und den bestehenden Spaltenbreiten. CLR-Grenzfehler verwenden die stabilen Präfixe des Hardening-Vertrags, regulär im SQL-Fehler-6522-Wrapper. Eingereichter SQL-Text wird nicht in Grenzmeldungen aufgenommen. Windows-only und UNSAFE bleiben unverändert; Parsing erteilt keine sichere Rewriting-Freigabe.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#sql-parser).

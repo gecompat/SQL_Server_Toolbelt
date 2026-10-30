@@ -35,3 +35,7 @@ Objekt-, Schema- oder Berechtigungsauflösung durch.
 Erforderlich sind `SELECT` oder `REFERENCES` auf der Function sowie auf ihrer
 Parserabhängigkeit. Der Rückgabewert ist erst nach zusätzlicher fachlicher
 Autorisierung zur Auswahl eines tatsächlichen Zielobjekts geeignet.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#identifier).

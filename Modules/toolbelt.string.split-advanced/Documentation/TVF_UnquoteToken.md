@@ -69,3 +69,16 @@ und SQL Server 2025 Windows/CU8 erfolgreich. Weitere neue Version-/Plattform-
 kombinationen, GitHub-1.1-Lauf und niedrigprivilegierter mapped Caller Cross-DB
 nicht ausgeführt; Modul bleibt partially validated. Reproduzierbare Befehle
 und genauer Scope stehen in [Tests/README](../Tests/README.md).
+
+## Beispielaufruf
+
+```sql
+SELECT * FROM toolbelt_string.TVF_UnquoteToken(N'[a]]b]', NULL, NULL, 0);
+```
+
+Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
+Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#tokenisierung).

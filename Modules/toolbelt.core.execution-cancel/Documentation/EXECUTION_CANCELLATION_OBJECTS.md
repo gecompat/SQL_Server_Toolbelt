@@ -1,5 +1,14 @@
 # Öffentliche Objekte: Cooperative Execution Cancellation
 
+## Einzelreferenzen
+
+Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
+Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
+
+- [`toolbelt_core.TVF_ExecutionCancellationStatus`](TVF_ExecutionCancellationStatus.md)
+- [`toolbelt_core.SVF_IsCancellationRequested`](SVF_IsCancellationRequested.md)
+- [`toolbelt_core.USP_RequestExecutionCancellation`](USP_RequestExecutionCancellation.md)
+
 ## `TVF_ExecutionCancellationStatus`
 
 Liefert für eine `ExecutionId` keine oder genau eine sichere Statuszeile mit

@@ -18,3 +18,17 @@ ausschließlich `0` und `1`; der Default ist `1`.
 
 Details:
 [BIT_OPERATIONS_MODULE_DESIGN.md](../../../Documentation/Architecture/BIT_OPERATIONS_MODULE_DESIGN.md).
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Value` | `bigint` | `kein Default` | Input | Zu verarbeitender Wert im ausgewiesenen SQL-Typ. |
+| `@BitOffset` | `bigint` | `kein Default` | Input | Nullbasierte Bitposition 0–63. |
+| `@BitValue` | `int` | `1` | Input | 0 löscht, 1 setzt das Bit. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_SetBitBigInt.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)
