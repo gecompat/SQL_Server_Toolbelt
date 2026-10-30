@@ -98,3 +98,9 @@ abweichende generierte Dateien. Source-/Vertragsfingerprints erkennen auch
 Die bestehende Dokumentations-CI führt Prüfung und Regressionstests über das
 Impact-Paket `public_api_catalog` in der Repo-Map aus; ein Vollaudit prüft sie
 ebenfalls. Geänderte Quellen und die neu generierten Dateien gemeinsam committen.
+
+Historische Release-Nachweise behalten ihre ursprünglichen Texte und Pins.
+Der [begrenzte Dokumentationssnapshot](../../Scripts/Release/HistoricalSources/sql-object-documentation/README.md)
+erklärt die Trennung für acht früher gebundene Beschreibungen. Neue
+Parametererklärungen sind quellgeprüfte Referenztexte und dadurch keine neue
+native Runtimequalifikation.

@@ -12,6 +12,7 @@ import zipfile
 
 import prepare_clr_package as package
 import prepare_release as release
+import documentation_history
 
 BASE_SHA256 = '896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287'
 BINARY_SHA256 = 'f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd'
@@ -71,7 +72,7 @@ def derive(root):
         binary = archive.read(BINARY)
     release.require(sha(binary) == BINARY_SHA256, 'Unqualified replacement DLL.')
     originals = {p: before['Sources/' + p] for p in SQL_SOURCES}
-    current = {p: (root / p).read_bytes().replace(b'\r\n', b'\n') for p in SOURCE_OVERRIDES}
+    current = {p: documentation_history.qualification_bytes(root, p).replace(b'\r\n', b'\n') for p in SOURCE_OVERRIDES}
     old_dll = before[BINARY]
     old_hash = hashlib.sha512(old_dll).digest()
     new_hash = hashlib.sha512(binary).digest()
@@ -219,10 +220,10 @@ def qualified_payload(root, record):
     release.require(set(record['current_sources_sha256']) == set(SOURCE_OVERRIDES),
                     'Maintenance source scope differs.')
     for path, pin in record['current_sources_sha256'].items():
-        release.require(sha((Path(root) / path).read_bytes().replace(b'\r\n', b'\n')) == pin,
+        release.require(sha(documentation_history.qualification_bytes(root, path).replace(b'\r\n', b'\n')) == pin,
                         'Maintenance qualified source differs.')
     for path, pin in record['method_sha256'].items():
-        release.require(sha((Path(root) / path).read_bytes().replace(b'\r\n', b'\n')) == pin,
+        release.require(sha(documentation_history.qualification_method_bytes(root, path).replace(b'\r\n', b'\n')) == pin,
                         'Maintenance qualification method differs.')
     release.require(set(record['method_sha256']) == {
         'Scripts/Release/clr_maintenance.py',

@@ -13,6 +13,7 @@ import xlsx_metadata
 import zip_metadata
 import xlsx_sst_budget
 import help_contract_source
+import documentation_history
 
 REPORT_PATH = ROOT / 'Releases/1.0.0/xlsx-raw-caller-profile.json'
 
@@ -88,7 +89,7 @@ def validate_source_bindings(report, root):
         if relative in help_contract_source.source_paths(root):
             help_contract_source.validate_historical_source(root, relative, digest)
             continue
-        current = hashlib.sha256((root / path).read_bytes()).hexdigest().upper()
+        current = hashlib.sha256(documentation_history.qualification_bytes(root, relative)).hexdigest().upper()
         if current != digest.upper():
             raise ValueError(f'documentation bytes differ from bound hash: {relative}')
 

@@ -6,6 +6,7 @@ import stat
 import subprocess
 import zipfile
 import new_ssis_standalone_tsql as standalone
+import documentation_history
 
 
 RECORD = 'Releases/1.0.0/help-contract-source-delta.json'
@@ -306,7 +307,9 @@ def validate_historical_source(root, path, expected_sha256):
         original = archive.read(matches[0])
     _require(_digest(original) == expected,
              'Help baseline entry differs from its fixed digest')
-    current = (root / path).read_bytes()
+    # An old native report binds its original documentation, not later prose.
+    # Executable paths still read and validate the current repository bytes.
+    current = documentation_history.qualification_bytes(root, path)
     _require(_digest(current) == record['current_source_sha256'][path],
              'Current Help source differs from its fixed digest')
     return original
@@ -318,7 +321,7 @@ def source_paths(root):
 
 
 def validate_current_source(root, path):
-    """Validate exact current bytes against the same immutable transition record."""
+    """Validate transition binding; return live text without requalifying docs."""
     root, record = _record(root)
     _require(isinstance(path, str) and path in record['current_source_sha256'],
              'Unsupported Help source path')
@@ -570,6 +573,8 @@ def _raw_caller_test_projection(original):
 
 
 def restore_raw_caller_checker(root, current, expected_sha256):
+    current = documentation_history.restore_projection(
+        current, documentation_history.RAW_CALLER_PROJECTION)
     _require(expected_sha256 == RAW_CALLER_BASELINE_SHA256
              and _digest(current) == RAW_CALLER_CURRENT_SHA256,
              'XLSX raw-caller checker execution/current pin differs')
