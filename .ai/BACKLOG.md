@@ -5658,3 +5658,31 @@ Der [Austauschvertrag](https://github.com/gecompat/SQL_Server_Analyze/blob/main/
 und der [Moduleinstieg](../Modules/toolbelt.tsql.ssis-debug/Exchange/README.md)
 beschreiben Zuständigkeit, Host, gemeinsame Sollfälle und noch begrenzte
 semantische Abdeckung. Native Diagnose und Loginterpretation bleiben Analyze.
+
+## r37: zentraler JSON-Schema-Uninstall-Confirm-Gate
+
+Am 2026-10-30 wurde für eine begrenzte native Funktionsqualifikation der
+bereits implementierte Uninstall-Schutz im zentralen Deploymentmodus ausgewählt.
+Ziel ist ausschließlich Windows SQL Server 2025/CU8/CL170, localer
+Functional-Labtransport, Schema 1.0.1. Die zwei negativen Aufrufe müssen
+`ConfirmNoExternalConsumers='01'` mit dem festen Fehler 55635/State 1
+„JSON Schema lifecycle: ungültige Consumer-Bestätigung.“ und bei zentral
+installiertem Modul `ConfirmNoExternalConsumers='0'` mit 55635/State 1
+„JSON Schema lifecycle: zentrale Consumer-Bestätigung fehlt.“ zurückweisen.
+Beide Fälle bewahren den vollständigen Schema-/Core-/ResultTable-Zustand und
+lassen die Sessiontransaktion unverändert. Derselbe gebundene Uninstall mit
+`ConfirmNoExternalConsumers='1'` entfernt anschließend nur das Schema-Modul;
+Core, ResultTable und Namespace bleiben erhalten. Eine unabhängige
+Cleanupprüfung ist erforderlich.
+
+Die r33–r36 Native-Berichte enthalten Uninstall nur im lokalen Modus; ältere
+CI-/Matrixangaben zu zentralem Confirm0 ersetzen diesen Windows-Nachweis nicht.
+Umsetzung und Harness bleiben additiv: r33–r36 Treiber, Pins, Berichte und
+Produktquellen werden nicht geändert. Der neue Runset muss bekannte Artefakte,
+zentrale Installationsform, feste Fälle, Imports und Ownership-/Cleanup-Guards
+vor jeder Mutation binden. Fremdconsumer werden nicht angelegt, damit nicht
+der frühere Preflight-Fehler 55636 den Bestätigungsfehler verdeckt. Es erfolgen
+keine Produkt-/API-/Paketänderungen, keine Rechte- oder Truständerung und kein
+Release. Erst nach tatsächlichem Ziel-PASS plus unabhängigem Audit darf eine
+knappe, hashgebundene Evidenz ergänzt werden. Native SQL-Ausführung bleibt Root
+vorbehalten; Status bleibt bis dahin offen.
