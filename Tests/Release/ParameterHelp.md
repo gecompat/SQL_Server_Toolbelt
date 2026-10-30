@@ -62,6 +62,25 @@ Schema-, Fehler- und Ownership-Oracles bleiben bytegleich. Die Offlineprüfung
 vergleicht die komplette erzeugte Datei mit dieser begrenzten Transformation;
 der tatsächliche Upgrade-Erfolg wird separat durch den aktuellen CI-Lauf belegt.
 
+Der Schema-Upgrade-Test trennt ebenfalls die Vorgänger- und die aktuelle
+Definition. Sein historisches `UpgradeVerify.sql` bleibt unverändert für
+Mode-Abweisung und post-ALTER-Rollback aktiv. Für erfolgreiches Upgrade und
+Repeat erzeugt [der Generator](../../Scripts/Documentation/generate_schema_help_upgrade.py)
+`UpgradeHelpVerify.sql`: nur das Definitionsprädikat wird erweitert, alle
+Identitäts-, Owner-, Rechte-, Marker- und Vorgänger-DLL-Oracles bleiben erhalten.
+Der alte Witness verlangte auch nach Erfolg die alte Definition und schlug
+deshalb mit der neuen Hilfe fehl.
+
+Der neue Hash wird aus der kanonischen aktuellen Quelle abgeleitet, nachdem
+die geschlossene Help-Projektion unveränderten Fachcode nachgewiesen hat.
+Der Vergleich beginnt am qualifizierten Prozedurnamen nach dem
+`PROCEDURE`-Schlüsselwort. Er vereinheitlicht CRLF zu LF und entfernt nur
+äußere Batch-Leerzeichen, Tabs und Zeilenumbrüche: Der Windows-Exporter und
+SQLCMD können diese Transportdarstellung ändern. Der gesamte verbleibende
+UTF-16-Inhalt einschließlich der vollständigen Hilfe bleibt hashgebunden.
+Die historische Fixture selbst ist zusätzlich mit ihrem exakten Hash gebunden;
+ein schwächerer alter Oracle lässt sich nicht unbemerkt übernehmen.
+
 Die Matrix belegt den Help-Vertrag und die aktuelle Neuinstallation. Vollständige
 fachliche Modulabnahmen, zusätzliche niedrigere Kompatibilitätsstufen und
 authentifizierte TLS-Verbindungen bleiben getrennte Nachweise.

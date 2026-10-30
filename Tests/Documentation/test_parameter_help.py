@@ -11,9 +11,37 @@ sys.path.insert(0, str(ROOT / "Scripts/Documentation"))
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import generate_parameter_help as generator
 import parameter_help_transition as transition
+import generate_schema_help_upgrade as schema_upgrade
 
 
 class ParameterHelp(unittest.TestCase):
+    def test_schema_upgrade_rejects_changed_historical_oracle_or_business_code(self):
+        original = Path.read_bytes
+        for relative in (schema_upgrade.ORIGINAL, schema_upgrade.SOURCE):
+            def read(path):
+                data = original(path)
+                return data + b"\n-- changed oracle or business bytes\n" if path == ROOT / relative else data
+            with self.subTest(path=relative), mock.patch.object(Path, "read_bytes", read), self.assertRaises(ValueError):
+                schema_upgrade.current_fixture()
+
+    def test_schema_upgrade_keeps_rollback_and_current_definitions_separate(self):
+        original = (ROOT / schema_upgrade.ORIGINAL).read_text(encoding="utf-8")
+        current = schema_upgrade.current_fixture()
+        self.assertEqual((ROOT / schema_upgrade.TARGET).read_text(encoding="utf-8"), current)
+        # Only the definition predicate can change; identities, rights, markers,
+        # genuine binary witness and complete rollback metadata remain exact.
+        prefix, suffix = original.split(schema_upgrade.ANCHOR)
+        self.assertTrue(current.startswith(prefix))
+        self.assertTrue(current.endswith(suffix))
+        changed = current[len(prefix):len(current)-len(suffix)]
+        self.assertIn("@ExpectedVersion=N'1.0.0'", changed)
+        self.assertIn(schema_upgrade.ANCHOR.strip(), changed)
+        self.assertIn("@ExpectedVersion=N'1.0.1'", changed)
+        self.assertIn("=0x" + schema_upgrade.current_definition_hash(), changed)
+        adapter = (ROOT / "Tests/CI/run-json-constructors-linux.sh").read_text(encoding="utf-8")
+        self.assertEqual(adapter.count('UpgradeVerify.sql -v SchemaExpectedVersion=1.0.0'), 2)
+        self.assertEqual(adapter.count('UpgradeHelpVerify.sql -v SchemaExpectedVersion=1.0.1'), 2)
+
     def test_all_public_usps_have_every_exact_parameter_description(self):
         self.assertEqual(generator.generate(), 73)
         notes = generator.parameter_notes()

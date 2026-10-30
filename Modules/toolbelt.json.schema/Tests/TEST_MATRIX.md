@@ -173,6 +173,13 @@ und6282-Migrationsfehlläufe bleiben getrennte Fehlerhistorie.
 
 ## Aktuelle Validierungsevidenz
 
+Die [vollständige Parameterhilfe](../../../Tests/Release/ParameterHelp.md)
+verwendet für aktuelle Upgrade-/Repeat-Erwartungen die generierte
+`Runtime/UpgradeHelpVerify.sql`. `UpgradeVerify.sql` bleibt der unveränderte
+Vorgänger-/Rollback-Witness. Der verlinkte Nachweis erklärt die begrenzte
+Definitionstransformation und ihre separaten Tests; ältere native Records
+qualifizieren damit keine neue Hilfe.
+
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
 - Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433`
