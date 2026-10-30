@@ -5706,3 +5706,26 @@ keine Produkt-/API-/Paketänderungen, keine Rechte- oder Truständerung und kein
 Release. Erst nach tatsächlichem Ziel-PASS plus unabhängigem Audit darf eine
 knappe, hashgebundene Evidenz ergänzt werden. Native SQL-Ausführung bleibt Root
 vorbehalten; Status bleibt bis dahin offen.
+
+## r38: RowCount-/Zielprojektion aus demselben Debug-Snapshot
+
+Am 2026-10-30 ist eine begrenzte native Funktionsqualifikation für den bereits
+freigegebenen aktuellen SSIS-Standardvertrag geplant. Auf Windows SQL Server
+2025/CU8/CL170 werden local und central je ein synthetischer Fall ausgeführt.
+Der unveränderte RowCount-Plan materialisiert seine vollständigen, gebundenen
+Preparation-/Plan-Units. Danach fügt der Test genau eine weitere passende
+Zeile in die synthetische Quelle ein und liest anschließend die gelieferten
+RowCountSql- und TargetSql-Artefakte. Beide Ergebnisse müssen weiterhin den
+vor der Änderung materialisierten Stand zeigen: typisiertes CountValue 2 und
+genau die zwei ursprünglichen Zielzeilen; die nachträglich eingefügte Zeile
+darf in keiner Ausgabe erscheinen. Batchreihenfolge, Inhalts-Hashes,
+Sicherheitsstatus und Cleanup bleiben an das vom Paket gelieferte DebugScript
+gebunden. Es werden keine Produkt-, API-, Paket- oder Installerbytes geändert.
+
+Die vorhandene Current-Binarymatrix prüft RowCount-Ausführung ohne Änderung
+zwischen Materialisierung und Reads; ZIP-/Standalone-Matrizen enthalten diesen
+gezielten Zwischenzustand ebenfalls nicht. Ein unabhängiges Cleanup-Audit ist
+für beide neuen Modi erforderlich. Native SQL-Ausführung bleibt Root
+vorbehalten. Bis zu tatsächlichem Ziel-PASS und Audit bleibt diese zusätzliche
+Funktionsqualifikation offen; sie erweitert weder die allgemeine SSIS- noch
+eine SDK-/Runtime-Paritätsaussage.
