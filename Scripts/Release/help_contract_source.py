@@ -309,6 +309,8 @@ def validate_historical_source(root, path, expected_sha256):
     current = (root / path).read_bytes()
     if _digest(current) != record['current_source_sha256'][path]:
         import current_documentation_transition
+        if path not in current_documentation_transition.PATHS:
+            _require(False, 'Current Help source differs from its fixed digest')
         current_documentation_transition.validate_current(
             root, path, record['current_source_sha256'][path])
     return original
