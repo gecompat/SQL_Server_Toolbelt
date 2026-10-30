@@ -218,7 +218,7 @@ function Invoke-DeployCollisionCase($Connection,$Observer,$Case,[string]$Baselin
  Remove-OwnedFixture $Connection $Case $fixtureBefore
  if((Get-ModuleState $Connection)-cne$BaselineState){throw 'JSON_DEPLOY_COLLISION_SNAPSHOT_NOT_RESTORED'}
  Assert-TargetIdle $Connection $Observer $spid
-  $script:ledger.results+=@([ordered]@{ordinal=[int]$Case.ordinal;kind=[string]$Case.kind;expected_error=[int]$Case.expected_error;expected_state=[int]$Case.expected_state;
+  $script:ledger.results+=@([ordered]@{ordinal=[int]$Case.ordinal;kind=[string]$Case.kind;expected_error=[int]$Case.expected_error;expected_state=[int]$Case.expected_state;expected_message=[string]$Case.expected_message;
   exact_error=$true;blocked_before_mutation=$true;module_snapshot_unchanged=$true;fixture_preserved=$true;fixture_removed=$true;core_unchanged=$true;
   contender_session_unchanged=$true;transaction_absent=$true;application_locks_absent=$true})
  Save-Journal
@@ -228,9 +228,14 @@ function Assert-AuditPrefix($Prior){
  if(($Prior.state-cne'COMPLETE'-and$Prior.state-cne'FAILED_CLEANED')-or$Prior.owner-cnotmatch'^[a-f0-9]{32}$'-or
     ($Prior.state-ceq'COMPLETE'-and$count-ne4)-or($Prior.state-ceq'FAILED_CLEANED'-and$count-gt4)-or
     ($Prior.state-ceq'COMPLETE'-and$controls-ne1)-or$controls-gt1-or$controls-gt$count){throw 'JSON_DEPLOY_COLLISION_AUDIT_JOURNAL_INVALID'}
- $kinds=@('reserved_temp','public_slot','internal_slot','orphan_mode');$expectedErrors=@(55633,55634,55634,55634)
+ $kinds=@('reserved_temp','public_slot','internal_slot','orphan_mode');$expectedErrors=@(55633,55634,55634,55634);$expectedMessages=@(
+  'JSON Schema lifecycle: reservierter Callerzustand belegt.',
+  'JSON Schema lifecycle: unregistrierter oder fremder Zielslot.',
+  'JSON Schema lifecycle: unregistrierter oder fremder Zielslot.',
+  'JSON Schema lifecycle: unregistrierter oder fremder Zielslot.')
  for($i=0;$i-lt$count;$i++){$item=$Prior.results[$i];if(($item.ordinal-isnot[int]-and$item.ordinal-isnot[long])-or$item.ordinal-ne$i-or$item.kind-cne$kinds[$i]-or
-    ($item.expected_error-isnot[int]-and$item.expected_error-isnot[long])-or$item.expected_error-ne$expectedErrors[$i]){throw 'JSON_DEPLOY_COLLISION_AUDIT_RESULT_INVALID'}
+    ($item.expected_error-isnot[int]-and$item.expected_error-isnot[long])-or$item.expected_error-ne$expectedErrors[$i]-or
+    ($item.expected_state-isnot[int]-and$item.expected_state-isnot[long])-or$item.expected_state-ne1-or$item.expected_message-cne$expectedMessages[$i]){throw 'JSON_DEPLOY_COLLISION_AUDIT_RESULT_INVALID'}
    foreach($flag in @('exact_error','blocked_before_mutation','module_snapshot_unchanged','fixture_preserved','fixture_removed','core_unchanged','contender_session_unchanged','transaction_absent','application_locks_absent')){if($item.$flag-isnot[bool]-or-not[bool]$item.$flag){throw 'JSON_DEPLOY_COLLISION_AUDIT_RESULT_INVALID'}}
  }
  if($controls-eq1){$control=$Prior.positive_controls[0];foreach($flag in @('deploy_succeeded','schema_installed','core_unchanged')){if($control.$flag-isnot[bool]-or-not[bool]$control.$flag){throw 'JSON_DEPLOY_COLLISION_AUDIT_CONTROL_INVALID'}}}

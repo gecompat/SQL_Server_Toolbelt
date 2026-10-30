@@ -34,7 +34,7 @@ foreach($bad in @(
  $rejected=$false;try{Assert-CaseShape $bad}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_CASES_INVALID'}
  if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_INVALID_CASE_ACCEPTED'}
 }
-function New-Result([int]$Ordinal){[pscustomobject]@{ordinal=$Ordinal;kind=@('reserved_temp','public_slot','internal_slot','orphan_mode')[$Ordinal];expected_error=@(55633,55634,55634,55634)[$Ordinal];exact_error=$true;blocked_before_mutation=$true;module_snapshot_unchanged=$true;fixture_preserved=$true;fixture_removed=$true;core_unchanged=$true;contender_session_unchanged=$true;transaction_absent=$true;application_locks_absent=$true}}
+function New-Result([int]$Ordinal){[pscustomobject]@{ordinal=$Ordinal;kind=@('reserved_temp','public_slot','internal_slot','orphan_mode')[$Ordinal];expected_error=@(55633,55634,55634,55634)[$Ordinal];expected_state=1;expected_message=@('JSON Schema lifecycle: reservierter Callerzustand belegt.','JSON Schema lifecycle: unregistrierter oder fremder Zielslot.','JSON Schema lifecycle: unregistrierter oder fremder Zielslot.','JSON Schema lifecycle: unregistrierter oder fremder Zielslot.')[$Ordinal];exact_error=$true;blocked_before_mutation=$true;module_snapshot_unchanged=$true;fixture_preserved=$true;fixture_removed=$true;core_unchanged=$true;contender_session_unchanged=$true;transaction_absent=$true;application_locks_absent=$true}}
 $empty=[pscustomobject]@{state='FAILED_CLEANED';owner=('a'*32);results=@();positive_controls=@()}
 if((Assert-AuditPrefix $empty).result_count-ne0){throw 'JSON_DEPLOY_COLLISION_OFFLINE_EMPTY_AUDIT'}
 $prefix=[pscustomobject]@{state='FAILED_CLEANED';owner=('b'*32);results=@((New-Result 0),(New-Result 1));positive_controls=@()}
@@ -48,6 +48,10 @@ $badResult=New-Result 0;$badResult.fixture_preserved=$false
 $invalid=[pscustomobject]@{state='FAILED_CLEANED';owner=('e'*32);results=@($badResult);positive_controls=@()}
 $rejected=$false;try{[void](Assert-AuditPrefix $invalid)}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_AUDIT_RESULT_INVALID'}
 if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_BAD_FLAG_ACCEPTED'}
+$badResult=New-Result 0;$badResult.expected_state=0
+$invalid=[pscustomobject]@{state='FAILED_CLEANED';owner=('f'*32);results=@($badResult);positive_controls=@()}
+$rejected=$false;try{[void](Assert-AuditPrefix $invalid)}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_AUDIT_RESULT_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_BAD_ERROR_STATE_ACCEPTED'}
 
 # Exercise the exact final-drop ownership guard with deterministic stubs; no SQL connection is opened.
 $script:ledger=[ordered]@{active_fixture=[ordered]@{ordinal=1;state='OWNED';snapshot='fixture-owned';module_snapshot='module-with-fixture'};expected_database_snapshot='baseline'}
