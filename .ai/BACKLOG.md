@@ -1,5 +1,23 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema-Deployment: transaktionale AppLock-Abweisung — r33, 2026-10-30
+
+Direkt autorisiertes enges Funktionsgate für den bestehenden JSON-Schema-
+Deploymentvertrag 1.0.1, ohne Produkt- oder API-Erweiterung: auf einem exakt
+bereiten Windows-SQL-2025/CU8-Ziel bei CL170 im lokalen Installationsmodus
+werden getrennt der gemeinsame Core-AppLock und der Modul-AppLock gehalten.
+Der Deploymentversuch muss jeweils die zugehörige Fehlernummer 55637 und den
+konkreten Lock-Fehlertext liefern, ohne Schema-, Assembly-, Objekt-,
+Metadaten- oder Rechtezustand zu verändern. Danach wird derselbe Deploy nach
+freigegebenem Lock als Positivkontrolle erfolgreich ausgeführt. Der bestehende
+Labvertrag, exakte aktuelle Schema-/Core-Artefaktpins, verschlüsselter
+Functional-Transport, expliziter Trustwert, eigene markierte Datenbank und
+unabhängiger Cleanup-Audit bleiben verbindlich. Keine Matrixwiederholung,
+keine Rechte-/Serverkonfigurationsänderung, keine Veröffentlichung. Root
+reserviert und führt höchstens einen nativen Ziel-/Auditlauf; Luna implementiert
+nur den begrenzten Adapter und Offlineprüfungen nach Einigung auf die konkrete
+Runnerform. Nicht ausgeführte oder fehlgeschlagene Ausführungen bleiben offen.
+
 ## Modulspezifische Releasepflichten besser auffindbar machen — r32, 2026-10-30
 
 Autorisierter Offline-Folgeauftrag: die offene allgemeine RELEASE-GATES-Zeile
