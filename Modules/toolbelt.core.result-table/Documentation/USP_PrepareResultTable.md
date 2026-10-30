@@ -30,13 +30,15 @@ Die Parameterreihenfolge ist Teil des öffentlichen Vertrags.
 
 ## Parameter
 
-| Name | Typ | Default | Fachlich erforderlich | Beschreibung |
-|---|---|---:|---:|---|
-| `@ResultTableToAlter` | `sysname` | `NULL` | ja | Vorhandene lokale Ziel-Temp-Tabelle. Genau ein führendes `#`, höchstens 116 Zeichen, kein reservierter Präfix `#tbx_`. |
-| `@LikeTable` | `nvarchar(776)` | `NULL` | ja | Referenztabelle als `#LocalTemplate`, `Schema.Table` oder `Database.Schema.Table`. |
-| `@KeepData` | `bit` | `0` | nein | `0` = Replace; `1` = vorhandene Daten nur bei passendem Schema erhalten. |
-| `@Debug` | `tinyint` | `0` | nein | Debug-Messages gemäß Stufenvertrag. |
-| `@Hilfe` | `bit` | `0` | nein | Gibt ausschließlich das standardisierte Help-Resultset aus. |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@ResultTableToAlter` | `sysname` | `NULL` | Input | Fachlich erforderliche, bereits existierende caller-lokale #Temp im selben sichtbaren Session-Scope; logischer Name 2..116 UTF-16-Einheiten, genau ein führendes # und kein reserviertes #tbx_-Präfix. Ein einzelner Identifier, kein DDL und keine Tabellenvariable/permanente/globale Tabelle. NULL ist nur technischer Help-Default. Darf nicht dieselbe Tabelle wie LikeTable sein. |
+| `@LikeTable` | `nvarchar(776)` | `NULL` | Input | Fachlich erforderliche vorhandene Referenztabelle als #LocalTemplate, Schema.Table oder Database.Schema.Table, optional regulär quotierte Namensbestandteile. Keine einteilige permanente Tabelle, Server-/vierteilige Namen, Views, Synonyme oder ##Temps. NULL/leer ungültig. Referenzspalten müssen dem unterstützten einfügbaren Typ-/Metadatenvertrag in RESULT_TABLE_MODULE_DESIGN.md entsprechen; der Helper übernimmt Spaltenshape und keine fachlichen Zeilen. |
+| `@KeepData` | `bit` | `0` | Input | Taxativ im gebundenen bit: 0 ersetzt/leert vorhandene Zielinhalte und baut nötigenfalls das Schema um (Default); 1 erhält vorhandene Zeilen und lehnt einen nötigen Schemaumbau bei nicht leerem Ziel mit 51025 ab. Ein leeres Ziel darf auch bei 1 angepasst werden. NULL wirkt wie 0. Keine Append-Operation des Helpers selbst; fachliche Zeilen fügt der Caller danach ein. |
+| `@Debug` | `tinyint` | `0` | Input | Ganzzahl tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine Debugmessages, 1 Preflight/Ablauf, 2 zusätzlich zusammengefasste Metadaten/Schemaentscheidung, 3..255 zusätzlich normalisierte Referenzmetadaten und geplantes DDL. Die Schwellwerte gelten kumulativ; 255 besitzt im aktuellen Code keine weitere eigene Stufe. Nur Messages, kein Zusatzresultset. |
+| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+<!-- API_PARAMETERS:END -->
 
 Explizit übergebenes `NULL` für die optionalen Steuerparameter `@KeepData`, `@Debug` oder `@Hilfe` verwendet den jeweiligen technischen Default.
 

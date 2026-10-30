@@ -19,6 +19,12 @@ Technikabschnitt bei trivialen Objekten sowie alle Bearbeitungshinweise.
 Die Vorlagen verlangen keinen zusätzlichen Grundlagenkurs oder neue SQL-Tests
 allein für die Dokumentation.
 
+Recherchiere jeden Parameter an seiner konkreten Implementierung. Ergänze
+seine Datenform, Grenzen/Einheiten, Default- und NULL-Semantik sowie
+Abhängigkeiten. Feste Wertemengen werden vollständig gelistet und jeder Wert
+wird erklärt; ein Beispielwert allein ersetzt diese Liste nicht. Details:
+[vollständiger Eingabevertrag](../Documentation/Standards/CODE_DOCUMENTATION.md#vollständiger-eingabevertrag-je-parameter).
+
 ## Objekttypspezifische Vorlagen
 
 | Typ | Source | Dokumentation |

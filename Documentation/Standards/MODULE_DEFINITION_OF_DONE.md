@@ -34,6 +34,7 @@ Testauswahl und Wiederholung folgen der
 - [ ] Interne Hilfsobjekte dokumentiert.
 - [ ] Codekommentare erklären Absicht und Besonderheiten auf Deutsch.
 - [ ] Neue/geänderte öffentliche Objekte besitzen passende synthetische Beispiele mit Vorbereitung und Ergebnisdeutung gemäß [Dokumentationsstandard](CODE_DOCUMENTATION.md#objektreferenz-und-beispiele).
+- [ ] Jeder einzelne Parameter ist gegen den tatsächlichen Eingabevertrag geprüft: Datenform, Grenzen, Default/NULL, Abhängigkeiten sowie vollständige feste Wertelisten mit Erklärung jedes Werts.
 - [ ] Nicht triviale Implementierungswege sind verständlich erklärt und von den betroffenen Objektseiten gezielt verlinkt; Grundlage, entscheidende Schritte und Designgründe sind am aktuellen Code nachvollziehbar.
 - [ ] Geänderte Beispiele und Implementierungserklärungen sind auch bei unveränderter Signatur mitgepflegt; der betroffene Leseweg beginnt weiterhin an der Root-README.
 - [ ] Rechte, Fehlerverhalten, Performance und Einschränkungen dokumentiert.

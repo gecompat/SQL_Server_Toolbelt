@@ -19,6 +19,7 @@
 - [ ] Objekttypspezifische Vorlage verwendet.
 - [ ] Beispiele für neue/geänderte öffentliche SQL-Objekte mit Voraussetzungen und Ergebnisdeutung gemäß [Dokumentationsstandard](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Documentation/Standards/CODE_DOCUMENTATION.md#objektreferenz-und-beispiele) geprüft.
 - [ ] Bei nicht trivialer Funktionalität Implementierungsweg und Designgründe am aktuellen Code erklärt; bestehende technische Erklärungen bei Algorithmusänderungen mitgepflegt.
+- [ ] Jeden einzelnen Parameter auf Eingabeform, Grenzen, Default/NULL und Abhängigkeiten geprüft; sämtliche festen erlaubten Werte taxativ gelistet und einzeln beschrieben.
 
 ## Tests und Evidenz
 

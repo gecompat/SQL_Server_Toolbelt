@@ -99,6 +99,28 @@ class CatalogTests(unittest.TestCase):
         self.assertIn("&#x27;example&#x27;", page)
         self.assertIn("../../Modules/toolbelt.test/README.md", page)
 
+    def test_object_parameter_block_regenerates_without_changing_manual_prose(self):
+        page = self.module / "Documentation/USP_Test.md"
+        page.parent.mkdir()
+        page.write_text("# Test\n\nManuelle Erklärung.\n\n" + catalog.PARAMETER_BEGIN
+                        + "\nveraltet\n" + catalog.PARAMETER_END + "\n\nManuelles Beispiel.\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Eingabevertrag veraltet"):
+            catalog.check(self.root)
+        catalog.check(self.root, write=True)
+        catalog.check(self.root)
+        text = page.read_text(encoding="utf-8")
+        self.assertIn("Manuelle Erklärung.", text)
+        self.assertIn("Manuelles Beispiel.", text)
+        self.assertIn("Synthetischer Output.", text)
+        self.assertIn("OUTPUT", text)
+        page.write_text(text.replace("Synthetischer Output.", "Falsche Erklärung."), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Eingabevertrag veraltet"):
+            catalog.check(self.root)
+
+    def test_markdown_parameter_text_preserves_data_examples(self):
+        self.assertEqual(catalog.markdown_note('JSON <key> | Wert & Länge'),
+                         'JSON &lt;key&gt; &#124; Wert &amp; Länge')
+
 
 class CatalogNavigationTests(unittest.TestCase):
     root = "[Installieren](./INSTALL.md) [Module](./Modules/README.md)"

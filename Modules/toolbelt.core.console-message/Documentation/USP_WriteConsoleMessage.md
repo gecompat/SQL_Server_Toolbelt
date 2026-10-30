@@ -11,12 +11,14 @@ zwischen gepuffertem `PRINT` und sofort gesendetem
 
 ## Parameter
 
-| Name | Typ | Default | Nullable | Beschreibung |
-|---|---|---|---:|---|
-| `@Message` | `nvarchar(max)` | `NULL` | ja | Payload; `NULL` und Leertext erzeugen keine Ausgabe. |
-| `@Immediate` | `bit` | `0` | ja | `0` = `PRINT`; `1` = Severity-0-`RAISERROR` mit `NOWAIT`. Explizites `NULL` entspricht `0`. |
-| `@Debug` | `tinyint` | `0` | ja | Standardparameter; V1 erzeugt keine zusätzlichen Debug-Messages. |
-| `@Hilfe` | `bit` | `0` | ja | `1` gibt ausschließlich das Help-Resultset aus. |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Message` | `nvarchar(max)` | `NULL` | Input | Auszugebender Unicode-Text als nvarchar(max), maximal 1048576 UTF-16-Bytes und höchstens 512 berechnete Frames. CR/LF und Prozentzeichen sind Inhalt, kein Formatstring. Default/NULL und leerer Text erzeugen keine Ausgabe; Überschreitung wird vor erster Ausgabe abgewiesen. |
+| `@Immediate` | `bit` | `0` | Input | Taxativ für bit: 0 puffert über PRINT mit bis 4000 Codeeinheiten je Frame (Default); 1 nutzt RAISERROR Severity 0 WITH NOWAIT mit bis 2000 Codeeinheiten je Frame. NULL entspricht 0; konkrete Clientpufferung bleibt vom Client abhängig. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0; in dieser Procedure haben alle diese Werte bewusst keine Wirkung und erzeugen keine zusätzliche Diagnose. |
+| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert ausschließlich Hilfe und ignoriert alle anderen Argumente; 0 führt die Messageausgabe aus (Default). NULL wird wie 0 behandelt. |
+<!-- API_PARAMETERS:END -->
 
 ## Ergebnis- und Fehlervertrag
 

@@ -49,6 +49,21 @@ direkten Rechte auf dem internen CLR-Kern erteilt. CrossDB-
 Nutzermappings bleiben ein eigener Prüfkontext. Der reine Memorykern greift
 nicht auf Daten, Dateien, Netzwerk oder global veränderliche Caches zu.
 
+## Vollständiger Eingabevertrag
+
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. Capturegruppen können unbenannt oder (?&lt;Name&gt;...) sein; Namen 1..128 ASCII-Zeichen, Beginn Buchstabe/_ danach zusätzlich Ziffern, ohne case-insensitive Namensduplikate. Maximal 64 deklarierte Gruppen und konservative Capture-History 100000. |
+| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | Ersetzungstext, leer löscht den Treffer; NULL ergibt NULL vor weiterer Prüfung. Gruppenreferenzen ausschließlich $1..$64 auf vorhandene Gruppen, ${Name} auf deklarierte Namen sowie $$ für ein Dollarzeichen. $0/Gruppe 0, unbekannte Referenzen und ungültige Syntax werden auch ohne Treffer abgewiesen; höchstens 65536 Ersetzungsteile. |
+| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. |
+| `@Occurrence` | `int` | `0` | Input | Ganzzahl 0..2147483647, Default 0: 0 ersetzt alle Treffer ab Start, positiv nur den n-ten Treffer ab Start. Negativ/NULL ungültig; vor Start bleibt der Text erhalten. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
+<!-- API_PARAMETERS:END -->
+
+
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).

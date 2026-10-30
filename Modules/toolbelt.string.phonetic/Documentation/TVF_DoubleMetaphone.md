@@ -27,9 +27,11 @@ Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../Tests/R
 
 ## Aufrufparameter
 
-| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Text` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text für die Phonetikberechnung. |
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Rohtext mit höchstens 4096 UTF-16-Einheiten; gültige Surrogatpaare werden geprüft, ein nicht unterstützter Skalar wird nicht still entfernt. ASCII-Zeichen sind zulässig. NULL ergibt NULL-Code(s)/ErrorCode 0; leer ist gültig. Längen-/Arbeitsgrenze ergibt Code 2, ungepaarte Surrogate Code 1 und nicht unterstützte Zeichen Code 3. Keine frei wählbare Sprache/Transliteration. Zusätzlich zu ASCII sind ÇçÑñ erlaubt. Randzeichen mit Code &lt;=32 werden entfernt, ASCII wird großgeschrieben; Ç/Ñ erhalten die definierte Lautbehandlung. Andere Akzente werden nicht automatisch transliteriert. |
+<!-- API_PARAMETERS:END -->
 
 ## Beispielaufruf
 

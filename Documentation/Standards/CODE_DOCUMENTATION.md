@@ -78,6 +78,47 @@ diesem Beispiel in einer gemeinsam gepflegten Referenz. Dabei gilt:
   ausgeführten Nachweisen unterscheidbar. Synthetische Beispiele sind keine
   neue Runtime- oder Plattformqualifikation.
 
+## Vollständiger Eingabevertrag je Parameter
+
+Für jeden einzelnen öffentlichen Parameter muss nachvollziehbar sein, welche
+Daten in welcher Form übergeben werden dürfen. SQL-Typ und Default allein
+genügen nicht. Der Autor recherchiert den konkreten Vertrag an Implementierung,
+Validierungen und einschlägigen Fachverträgen; gleichnamige Parameter werden
+nicht ungeprüft als identisch behandelt. Die Beschreibung nennt:
+
+- fachliche Bedeutung, SQL-Typ einschließlich Länge/Präzision/Skala,
+  Richtung und fachliche Pflicht; technische Defaults für einen reinen
+  Help-Aufruf sind von fachlich optionalen Eingaben zu unterscheiden;
+- zulässige Datenform und Inhalte: etwa Unicode-Text, Bytes statt Hextext,
+  ISO-Datum, JSON-Objekt, Identifier oder Name einer vorhandenen Temp-Tabelle;
+  bei strukturierten Daten die vollständige Form mit Feldern, Typen und
+  Pflichtwerten oder einen gezielten Link auf den vollständigen Vertrag;
+- Wertebereiche, Grenzen und Einheiten, insbesondere Bytes gegenüber Zeichen
+  bzw. UTF-16-Codeeinheiten, sowie Indexbasis und inklusive/exklusive Grenzen;
+- vollständiges Verhalten für Default, explizites NULL, leere Eingabe und
+  relevante Leerzeichen; Normalisierung, Groß-/Kleinschreibung und Collation,
+  soweit sie die zulässigen Eingaben beeinflussen;
+- Abhängigkeiten und Ausschlüsse gegenüber anderen Parametern sowie das
+  Verhalten bei ungültiger Eingabe. Komplexe Formate erhalten ein konkretes
+  synthetisches Datenbeispiel oder einen direkten Verweis darauf.
+
+Bei einer festen Wertemenge sind **sämtliche erlaubten Werte taxativ
+aufzulisten und einzeln zu erklären**. Eine Auswahl mit „z. B.“, „unter
+anderem“ oder „usw.“ ist dort unzulässig. Jeder Wert erhält seine Bedeutung
+und gegebenenfalls seine Voraussetzungen; der Default wird gekennzeichnet.
+Bei Flags sind alle Einzelflags sowie die vollständigen Kombinations-,
+Reihenfolge- und Ausschlussregeln anzugeben. Bei dynamischen Katalogwerten
+werden stattdessen Auswahlregeln und Beschaffung erklärt; eine feste Liste
+wird nicht vorgetäuscht. Implizite SQL-Typkonvertierung vor dem Aufruf ist
+von der Validierung im Objekt zu unterscheiden.
+
+Ein passender gemeinsamer Vertrag darf über einen konkreten Abschnitt
+wiederverwendet werden, sofern die Beschreibung des Parameters eindeutig
+erklärt, welcher Vertrag gilt und welche Abweichungen bestehen. Aussagen wie
+„zu verarbeitender Wert“, „gültiges JSON“ oder „siehe Vertrag“ ohne klare
+Zuordnung und Eingabeform erfüllen die Anforderung nicht. Objektseite,
+API-Katalog, Help und Beispiele müssen denselben Eingabevertrag darstellen.
+
 ## Technische Implementierungserklärungen
 
 Bei nicht trivialer Funktionalität muss ein technisch interessierter

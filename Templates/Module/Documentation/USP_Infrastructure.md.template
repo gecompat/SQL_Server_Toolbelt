@@ -11,9 +11,13 @@
 
 | Name | Typ | Technischer Default | Fachlich erforderlich | Beschreibung |
 |---|---|---|---|---|
-| `@{{Parameter}}` | `{{Type}}` | `NULL` | ja | {{Beschreibung}} |
-| `@Debug` | `tinyint` | `0` | nein | Debug-Messages nach dokumentierter Stufe. |
-| `@Hilfe` | `bit` | `0` | nein | Gibt ausschließlich das standardisierte Help-Resultset aus. |
+| `@{{Parameter}}` | `{{Type mit Länge/Skala}}` | `NULL` | ja | {{Datenform; alle festen Werte mit Einzelbedeutung; Grenzen/Einheit/Indexbasis; NULL/leer/Whitespace; Normalisierung; Abhängigkeiten und Fehler}} |
+| `@Debug` | `tinyint` | `0` | nein | {{Jede tatsächliche Stufe/Schwelle 0..255 und NULL-Verhalten; ignorierte/weitergereichte Werte ebenfalls nennen}} |
+| `@Hilfe` | `bit` | `0` | nein | 0 Fachaufruf; 1 ausschließlich Help vor Fachprüfung/Seiteneffekten; NULL wie 0. |
+
+<!-- Jeden Parameter am konkreten Quellcode prüfen, keine ungeprüfte Übernahme
+     gleichnamiger Parameter. Strukturierte Inputs brauchen Shape/Contract-Link.
+     api_examples.json und generierte markierte Parametertabellen mitpflegen. -->
 
 Eine zu bearbeitende Tabelle verwendet einen fachlich eindeutigen Parameternamen, beispielsweise `@ResultTableToAlter`. Diese USP besitzt keinen `@ResultTable`-Output-Routing-Parameter.
 

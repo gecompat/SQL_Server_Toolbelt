@@ -16,20 +16,22 @@ Die Klassifikation ist bewusst klein: 51000 bis 51999 sind `TOOLBELT`, Enginefeh
 
 ## Aufrufparameter
 
-| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@ErrorNumber` | `int` | `NULL` | Input | ERROR_NUMBER() aus dem aufrufenden CATCH. |
-| `@ErrorSeverity` | `int` | `NULL` | Input | ERROR_SEVERITY() aus dem aufrufenden CATCH. |
-| `@ErrorState` | `int` | `NULL` | Input | ERROR_STATE() aus dem aufrufenden CATCH. |
-| `@ErrorProcedure` | `nvarchar(776)` | `NULL` | Input | ERROR_PROCEDURE() aus dem aufrufenden CATCH. |
-| `@ErrorLine` | `int` | `NULL` | Input | ERROR_LINE() aus dem aufrufenden CATCH. |
-| `@ErrorMessage` | `nvarchar(4000)` | `NULL` | Input | ERROR_MESSAGE() aus dem aufrufenden CATCH. |
-| `@ExecutionId` | `uniqueidentifier` | `NULL` | Input | Optionale Execution-ID; NULL liest den aktiven Toolbelt Execution Context. |
-| `@AdditionalContext` | `nvarchar(4000)` | `NULL` | Input | Optionale synthetische oder bereits bereinigte Zusatzinformation. |
-| `@ResultTable` | `sysname` | `NULL` | Input | Optionale lokale Temp-Tabelle für das Ergebnis. |
-| `@KeepData` | `bit` | `0` | Input | Steuert die ResultTable-Vorbereitung. |
-| `@Debug` | `tinyint` | `0` | Input | Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung. |
-| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich dieses Help-Resultset aus. |
+| `@ErrorNumber` | `int` | `NULL` | Input | Fachlich erforderlich: positive int-Fehlernummer 1..2147483647, üblicherweise ERROR_NUMBER() im aufrufenden CATCH. Technischer Default NULL dient nur Help; NULL/&lt;=0 wird 51400. |
+| `@ErrorSeverity` | `int` | `NULL` | Input | Fachlich erforderlich: int 0..25 einschließlich, üblicherweise ERROR_SEVERITY() aus demselben CATCH. NULL/außerhalb ergibt 51401; technischer Default NULL nur für Help. |
+| `@ErrorState` | `int` | `NULL` | Input | Fachlich erforderlich: int 0..255 einschließlich aus ERROR_STATE() im CATCH. NULL/außerhalb ergibt 51402; technischer Default NULL nur für Help. |
+| `@ErrorProcedure` | `nvarchar(776)` | `NULL` | Input | Optionaler reiner Unicode-Text nvarchar(776), normalerweise ERROR_PROCEDURE() im CATCH, kein auszuführender Objektname. NULL bleibt NULL, leerer Text wird nicht besonders validiert. |
+| `@ErrorLine` | `int` | `NULL` | Input | Optionale positive int-Zeilennummer aus ERROR_LINE(); NULL (Default) ist erlaubt, 0/negativ ergibt 51403. |
+| `@ErrorMessage` | `nvarchar(4000)` | `NULL` | Input | Fachlich erforderlicher Unicode-Fehlertext nvarchar(4000), normalerweise ERROR_MESSAGE() im CATCH. NULL, leer und nach SQL-Gleichheit leere reine Spacefolgen ergeben 51404; keine automatische Redigierung geheimer Inhalte. |
+| `@ExecutionId` | `uniqueidentifier` | `NULL` | Input | Optionaler SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier). Default/NULL liest toolbelt.execution.id aus SESSION_CONTEXT mit TRY_CONVERT; fehlender/ungültiger Kontext bleibt NULL. Eine explizite ID muss keinem gespeicherten Kontext entsprechen. |
+| `@AdditionalContext` | `nvarchar(4000)` | `NULL` | Input | Optionaler Unicode-Freitext nvarchar(4000), kein vorgeschriebenes JSON-Schema und keine Ausführung. NULL/leer wird unverändert ausgegeben; nur bereits bereinigte, für den Empfänger zulässige Zusatzinformation übergeben. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) gibt eine direkte Fehlerzeile aus, auch bei XACT_STATE()=-1. Sonst Name einer bereits vom Caller angelegten lokalen #Temp-Tabelle als sysname, z.B. N'#Envelope', keine globale oder mehrteilige Tabelle; ResultTable-Helper nötig. Bei uncommittable Caller zuerst Rollback, sonst 51406. |
+| `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 bereitet Replace vor (Default), 1 hängt bei kompatibler ResultTable an; NULL wird vom kanonischen Helper wie 0 behandelt. Nur bei nicht-NULL ResultTable relevant. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) und NULL ohne Diagnose; 1..255 erzeugen eine abstrakte Informationsmeldung ohne zusätzlichen fachlichen Resultset. |
+| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur Hilfe vor Fachvalidierung; 0 (Default) und NULL führen die Fachoperation aus. Im Hilfemodus sind die fachlich erforderlichen Error*-Werte nicht nötig. |
+<!-- API_PARAMETERS:END -->
 
 ## Beispielaufruf
 

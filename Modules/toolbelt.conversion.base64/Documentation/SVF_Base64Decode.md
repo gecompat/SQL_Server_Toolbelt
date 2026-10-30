@@ -66,6 +66,15 @@ Compatibility Levels 150, 160 und 170 erfolgreich geprüft. Physische
 
 SC-019: Der kanonische begrenzte MSTVF-Statuskern prüft vor Normalisierung/XML. Encode16 MiB Binary, Decode24 MiB Rohtext einschließlich Whitespace und16 MiB Ergebnis. Neue Statusoberflächen unterscheiden OK, SQL_NULL, INVALID, LIMIT; bestehende TVF-/SVF-Werte bei LIMIT NULL. Syntaxfehler unterhalb der Grenzen bleiben in bisherigen Fassaden. Inlinewrapper über MSTVF; keine bisherige Plan-/Inliningzusage übernehmen.
 
+## Vollständiger Eingabevertrag
+
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Value` | `varchar(max)` | `kein Default` | Input | ASCII-Base64-Text (A-Z, a-z, 0-9, +, /) oder Base64URL (-, _ statt +, /); beide Alphabete werden normalisiert. Nur Space, Tab, CR und LF werden entfernt. Optionales =-Padding nur am Ende in passender Länge; ohne Padding sind Restlängen 0, 2 oder 3 modulo 4 gültig. Leer/Whitespace-only ergibt leere Bytes. Höchstens 25165824 Rohtextbytes und 16777216 Ergebnisbytes; NULL ergibt SQL_NULL/NULL, Überschreitung LIMIT/NULL. Ungültige Syntax ergibt INVALID im Statuskern, einen Konvertierungsfehler in TVF/SVF-Wertfassaden. |
+<!-- API_PARAMETERS:END -->
+
+
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#base64).

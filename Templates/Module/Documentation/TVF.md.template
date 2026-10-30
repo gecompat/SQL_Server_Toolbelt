@@ -9,9 +9,13 @@
 
 ## Parameter
 
-| Name | Typ | Beschreibung |
-|---|---|---|
-| `@{{Parameter}}` | `{{Type}}` | {{Beschreibung}} |
+| Name | SQL-Typ mit Länge/Skala | Default | Eingabeform, erlaubte Werte und Verhalten |
+|---|---|---|---|
+| `@{{Parameter}}` | `{{Type}}` | {{Default / kein Default}} | {{Fachliche Pflicht; Datenform; alle festen Werte mit Einzelbedeutung oder dynamische Beschaffung; Grenzen/Einheit/Indexbasis; NULL/leer/Whitespace; Normalisierung; Abhängigkeiten und Fehler}} |
+
+<!-- Jeden Parameter am konkreten Quellcode prüfen, auch bei gleichem Namen.
+     Strukturierte Daten mit vollständigem Shape oder präzisem Contract-Link.
+     api_examples.json pflegen und markierte Parametertabellen generieren. -->
 
 ## Resultset
 

@@ -12,11 +12,13 @@ Reihenlogik.
 
 ## Parameter
 
-| Name | Typ | Nullable | Beschreibung |
-|---|---|---:|---|
-| `@Start` | `int` | ja | erster Wert der Reihe |
-| `@Stop` | `int` | ja | inklusive Ober- oder Untergrenze, sofern erreichbar |
-| `@Step` | `int` | ja | Schrittweite; `NULL` beziehungsweise `DEFAULT` löst die Richtung automatisch auf |
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Start` | `int` | `kein Default` | Input | Erster Wert im gesamten SQL-int-Bereich; Start wird bei gültiger Richtung eingeschlossen. NULL ergibt keine Zeilen; ein zusätzlich übergebener Schritt 0 bleibt ein Enginefehler. |
+| `@Stop` | `int` | `kein Default` | Input | Inklusive Zielgrenze im SQL-int-Bereich; nur tatsächlich durch ganze Schritte erreichbare Werte werden ausgegeben, kein künstlicher Endwert. NULL ergibt keine Zeilen, außer dem ausdrücklich ungültigen Schritt-0-Fall. |
+| `@Step` | `int` | `NULL` | Input | Ganzzahlige Schrittweite als int. Default/NULL: +1 bei Start &lt;= Stop, sonst -1. Positive Werte laufen aufwärts, negative abwärts; zur Richtung unpassende Grenzen ergeben keine Zeilen. 0 ergibt einen SQL-Engine-Divisionsfehler.Die berechnete Zeilenzahl muss in bigint passen; keine feste kleine Ausgabelimitierung. |
+<!-- API_PARAMETERS:END -->
 
 ## Resultset
 

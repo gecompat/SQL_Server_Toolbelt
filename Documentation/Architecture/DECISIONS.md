@@ -323,7 +323,10 @@ Qualitäts-Gates für neue und fachlich oder algorithmisch geänderte öffentlic
 SQL-Objekte konkretisiert. Maßgeblich ist der
 [Dokumentationsstandard](../Standards/CODE_DOCUMENTATION.md#objektreferenz-und-beispiele):
 passende synthetische Beispiele mit Ergebnisdeutung sowie bei nicht trivialer
-Funktionalität nachvollziehbare technische Lösungswege. Gemeinsame Erklärungen
+Funktionalität nachvollziehbare technische Lösungswege. Jeder einzelne Parameter
+erhält einen quellgeprüften Eingabevertrag; feste Wertemengen werden vollständig
+mit Einzelbedeutungen beschrieben, strukturierte Inputs mit ihrem konkreten
+Shape. Gemeinsame Erklärungen
 werden gezielt verlinkt; triviale Objekte benötigen keinen Techniktext oder
 Ausnahmebericht. Der historische Entscheidungstext oben bleibt erhalten.
 
@@ -336,7 +339,11 @@ verpflichtende Head-CI prüft die Integration zusätzlich. Kein zusätzlicher
 manueller CI-Dispatch, Validator, Beispiel-/Wortzähler, SQL-Testtrigger oder
 Reviewagent wird dafür eingeführt. Die semantische Lesewegprüfung erfolgt im
 vorhandenen Autoren-/PR-Review statt pro Objekt eine neue Reviewkette zu
-erzeugen. Logs bleiben lokal, im PR werden Ergebnis und konkrete Grenzen
+erzeugen. Der bestehende Kataloggenerator pflegt dieselben Parametertexte in
+Katalog und markierten Objektabschnitten; sein bestehender Driftcheck erkennt
+Abweichungen. Es entsteht kein zweiter Generator oder zusätzlicher Prüflauf.
+Die Quellprüfung der Bedeutung bleibt Aufgabe des fachlichen Reviews.
+Logs bleiben lokal, im PR werden Ergebnis und konkrete Grenzen
 festgehalten; Kosten-/Tokenmessungen werden nicht behauptet. Reine Textpflege
 erzwingt keine fachfremde Runtimequalifikation oder Gesamtrevision der Objekte.
 

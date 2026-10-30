@@ -18,6 +18,48 @@ ROOT = Path(__file__).resolve().parents[2]
 DEST = ROOT / "Documentation/Reference"
 REGISTRY = DEST / "api_examples.json"
 PUBLIC_TYPES = {"USP", "TVF", "SVF", "VW", "VIEW", "CLR_TVF", "CLR_SVF", "CLR_AGGREGATE"}
+PARAMETER_BEGIN = "<!-- API_PARAMETERS:BEGIN -->"
+PARAMETER_END = "<!-- API_PARAMETERS:END -->"
+
+
+def markdown_note(value: str) -> str:
+    return html.escape(value, quote=False).replace("|", "&#124;").replace("\n", " ")
+
+
+def parameter_table(params: list[dict], notes: dict) -> str:
+    rows = ["| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |",
+            "|---|---|---|---|---|"]
+    for param in params:
+        rows.append("| " + " | ".join("`" + str(param[k]).replace("|", "&#124;") + "`"
+                    for k in ("name", "type", "default")) + " | "
+                    + ("OUTPUT" if param["output"] else "Input") + " | "
+                    + markdown_note(notes[param["name"]]) + " |")
+    return "\n".join(rows)
+
+
+def check_parameter_blocks(root: Path, registry: dict, write: bool) -> None:
+    """Eine redaktionelle Quelle für Katalog und markierte Objektparametertabellen."""
+    for item in objects(root):
+        path = item["root"] / "Documentation" / (item["name"] + ".md")
+        if not path.is_file():
+            continue
+        content = path.read_text(encoding="utf-8")
+        _, params = signature(item)
+        if not params:
+            continue
+        if content.count(PARAMETER_BEGIN) != 1 or content.count(PARAMETER_END) != 1:
+            raise ValueError(f"Genau ein markierter Eingabevertrag erforderlich: {path.relative_to(root)}")
+        key = item["schema"] + "." + item["name"]
+        notes = registry[key]["parameter_notes"]
+        if set(notes) != {p["name"] for p in params}:
+            raise ValueError(f"Parametererklärungen fehlen oder sind veraltet: {key}")
+        before, tail = content.split(PARAMETER_BEGIN)
+        _, after = tail.split(PARAMETER_END)
+        expected = before + PARAMETER_BEGIN + "\n" + parameter_table(params, notes) + "\n" + PARAMETER_END + after
+        if write:
+            path.write_text(expected, encoding="utf-8", newline="\n")
+        elif content != expected:
+            raise ValueError(f"Eingabevertrag veraltet: {path.relative_to(root)}; generate_api_catalog.py --write ausführen")
 
 
 def sql_parts(text: str, split: bool = False, header: bool = False) -> list[str]:
@@ -221,13 +263,9 @@ def render(root: Path = ROOT) -> dict[str, str]:
         for requirement in entry["requirements"]:
             md += ["Voraussetzung: " + requirement, ""]
         if params:
-            md += ["| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |", "|---|---|---|---|---|"]
-            for param in params:
-                md.append("| " + " | ".join("`" + str(param[k]).replace("|", "&#124;") + "`"
-                          for k in ("name", "type", "default")) + " | "
-                          + ("OUTPUT" if param["output"] else "Input") + " | "
-                          + entry["parameter_notes"][param["name"]].replace("|", "&#124;").replace("\n", " ") + " |")
-            md += ["", "Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.", ""]
+            md += [parameter_table(params, entry["parameter_notes"]), "",
+                   "Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. "
+                   "Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.", ""]
         else:
             md += ["Keine Eingabeparameter.", ""]
         sql += ["-- " + key, "-- " + entry["summary"]]
@@ -255,7 +293,7 @@ def render(root: Path = ROOT) -> dict[str, str]:
                                             for k in ("name", "type", "default")) +
                             '<td>' + ('OUTPUT' if param['output'] else 'Input') + '</td><td>' +
                             html.escape(entry['parameter_notes'][param['name']]) + '</td></tr>')
-            body.append('</tbody></table></div><p>Erlaubte Werte und Grenzen: siehe Objektvertrag.</p>')
+            body.append('</tbody></table></div><p>Resultate und Implementierungsdetails: siehe Objektvertrag.</p>')
         else:
             body.append('<p>Keine Eingabeparameter.</p>')
         snippets = list(entry["examples"])
@@ -290,6 +328,8 @@ def render(root: Path = ROOT) -> dict[str, str]:
 
 
 def check(root: Path = ROOT, write: bool = False) -> None:
+    registry = json.loads((root / REGISTRY.relative_to(ROOT)).read_text(encoding="utf-8"))
+    check_parameter_blocks(root, registry, write)
     for name, expected in render(root).items():
         target = root / DEST.relative_to(ROOT) / name
         if write:

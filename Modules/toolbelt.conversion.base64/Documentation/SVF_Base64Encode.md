@@ -59,6 +59,16 @@ Physische 2019-/2022- und Windows-Läufe bleiben `not executed`.
 
 SC-019: Der kanonische begrenzte MSTVF-Statuskern prüft vor Normalisierung/XML. Encode16 MiB Binary, Decode24 MiB Rohtext einschließlich Whitespace und16 MiB Ergebnis. Neue Statusoberflächen unterscheiden OK, SQL_NULL, INVALID, LIMIT; bestehende TVF-/SVF-Werte bei LIMIT NULL. Syntaxfehler unterhalb der Grenzen bleiben in bisherigen Fassaden. Inlinewrapper über MSTVF; keine bisherige Plan-/Inliningzusage übernehmen.
 
+## Vollständiger Eingabevertrag
+
+<!-- API_PARAMETERS:BEGIN -->
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Value` | `varbinary(max)` | `kein Default` | Input | Binärwert varbinary(max), etwa 0xCAFECAFE oder ein vom Client gebundener Bytepuffer; keine Text-Decodierung. Leer (0x) ist gültig. Maximal 16777216 Bytes; darüber Status LIMIT bzw. NULL in der Wertfassade. NULL ergibt SQL_NULL bzw. NULL. |
+| `@UrlSafe` | `bit` | `0` | Input | Taxativ für den gebundenen bit-Wert: 0 erzeugt Standard-Base64 mit +, / und Padding = (Default); 1 erzeugt Base64URL mit -, _ und ohne Padding. NULL wird wie 0 behandelt. |
+<!-- API_PARAMETERS:END -->
+
+
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#base64).

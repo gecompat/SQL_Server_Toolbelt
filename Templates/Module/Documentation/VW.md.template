@@ -7,6 +7,9 @@
 
 {{Fachliche Beschreibung}}
 
+Die View besitzt keine Eingabeparameter. {{Sinnvolle Filter anhand der
+Ausgabespalten bei Bedarf im Beispiel zeigen; keine fiktiven Viewparameter.}}
+
 ## Spalten
 
 | Ordinal | Spalte | Typ | Nullable | Beschreibung |
