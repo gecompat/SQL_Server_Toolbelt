@@ -149,3 +149,7 @@ EXEC toolbelt_metadata.USP_ScriptTableClone
     @TargetSchema=N'dbo', @TargetTable=N'SyntheticClone',
     @IncludeTriggers=1;
 ```
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#tabellenklon).

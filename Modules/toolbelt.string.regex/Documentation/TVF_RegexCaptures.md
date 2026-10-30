@@ -57,3 +57,7 @@ ORDER BY c.MatchOrdinal,c.GroupOrdinal,c.CaptureOrdinal;
 SELECT auf der öffentlichen TVF genügt bei gleicher Ownership. Lowpriv-
 CrossDB-Mappings benötigen eigenen Nachweis. Deployment 1.3.0 gehört zum
 bestehenden Modul; Trust ist ein separates exaktes administratives Opt-in.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).

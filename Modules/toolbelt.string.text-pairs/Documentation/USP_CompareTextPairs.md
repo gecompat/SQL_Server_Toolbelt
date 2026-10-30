@@ -15,3 +15,35 @@ ResultTableNULL liefert genau einen fachlichen SELECT; sonst keine fachliche SEL
 Runtimefehler: 55100 Algorithmus/Schwelle; 55101 Budgetparameter; 55102 lokale Input-/Outputidentität; 55103 Inputshape; 55104 interne Tempkollision; 55105 Row-/Byteadmission/Stabilität; 55106 Ordinals; 55107 Workadmission; 55108 Providerkohärenz. Engine-/Helperfehler bleiben erhalten; Cleanupfehler sekundär. Lifecycle 55120..55129 separat im Deploy/Uninstall.
 
 Rechte: vorhandenes EXECUTE und bestehende TVF-/Helper-SELECT-/Ownershipchain sowie eigene Tempmetadaten. Keine Runtime-Assemblyhashabfrage oder DB-VIEW-DEFINITION-Anforderung. Weitere Rechteprofile außerhalb der aktuell gebundenen Callerqualifikation bleiben offen. Separat central sind drei direkte Algorithmusconsumer mit fünf typgenauen Feldern und EOF/noNext sowie drei ResultTable-Aufrufe ohne Resultset nachgewiesen; weitere Client-/Zielkombinationen bleiben offen. Help bei später fehlenden statischen Dependencies bleibt ein konkretes Compile-/Nativegate.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@PairsTable` | `sysname` | `NULL` | Input | Lokale #Temp mit PairOrdinal bigint, LeftText und RightText nvarchar(max). Ordinals nicht NULL und eindeutig, inklusive negativer Werte. |
+| `@Algorithm` | `nvarchar(max)` | `NULL` | Input | Bytegenau levenshtein, osa oder jaro-winkler; global für alle Paare. |
+| `@MaxDistance` | `int` | `NULL` | Input | Unveränderte Distanzschwelle; bei Jaro ausschließlich NULL. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | standard oder large; genaue Limits stehen im Objektvertrag. |
+| `@MaxPairs` | `int` | `10000` | Input | 1..100000, alle Inputzeilen zählen. |
+| `@MaxTotalTextBytes` | `bigint` | `2097152` | Input | 1..16777216, beide DATALENGTH-Textseiten auch bei NULL-Gegenseite. |
+| `@MaxTotalWork` | `bigint` | `16777216` | Input | 1..67108864 konservative UTF16-Produktcharge mit kanonischem Paircap; keine tatsächliche CPU-Zählung. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert sortierten SELECT; vorhandene lokale #Temp empfängt atomaren Helper+Insert. |
+| `@KeepData` | `bit` | `0` | Input | 0 Replace, 1 Append nach ResultTable-Vertrag. NULL bedeutet 0. |
+| `@Debug` | `tinyint` | `0` | Input | Messages ohne Textpayload; NULL bedeutet 0. |
+| `@Hilfe` | `bit` | `0` | Input | 1 ausschließlich Help, ohne Tabellen-/Dependency-/Transaktionsprüfung. |
+
+## Beispielaufruf
+
+```sql
+CREATE TABLE #Pairs(PairOrdinal bigint,LeftText nvarchar(max),RightText nvarchar(max)); INSERT #Pairs VALUES(1,N'kitten',N'sitting'); EXEC toolbelt_string.USP_CompareTextPairs @PairsTable=N'#Pairs',@Algorithm=N'levenshtein';
+```
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#textdistanz).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/USP_CompareTextPairs.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

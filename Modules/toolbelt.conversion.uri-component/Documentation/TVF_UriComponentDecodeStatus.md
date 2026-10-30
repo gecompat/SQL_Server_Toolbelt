@@ -23,3 +23,23 @@ SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'%E2%82%AC');
 ## Freigabe und Nachweise
 
 Ausdrücklich am 2026-10-15 mit Zweck, Vertrag, Alternativen, Risiken und Grenzverhalten freigegeben. Siehe [Security-Härtung](../../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md). Neue Runtime-/CI-Nachweise werden dort getrennt vom Implementierungsstand geführt. Keine Parallelitäts-, Heap- oder harte Echtzeitzusage.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Value` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 65536 UTF-16-Bytes. |
+
+## Voraussetzungen für den Aufruf
+
+- Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#uri).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_UriComponentDecode.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

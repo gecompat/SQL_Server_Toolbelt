@@ -63,3 +63,7 @@ ORDER BY Ordinal;
 
 Neue Namen gehören ausschließlich Release1.2; Upgrade-/Uninstall-Tests müssen
 fremde gleichnamige Plätze im tatsächlichen Vorgängerrelease bewahren.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).

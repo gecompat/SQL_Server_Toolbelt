@@ -18,3 +18,16 @@ führt keine lokale Zeitzoneninterpretation aus.
 
 Validation Codes und Grenzen:
 [Moduldesign](../../../Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md).
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@DatePart` | `varchar(16)` | `kein Default` | Input | Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day. |
+| `@Value` | `datetime2(7)` | `kein Default` | Input | Zu verarbeitender Wert im ausgewiesenen SQL-Typ. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_TruncateDateTime2.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

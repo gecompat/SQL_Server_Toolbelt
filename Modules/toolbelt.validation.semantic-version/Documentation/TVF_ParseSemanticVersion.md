@@ -7,5 +7,49 @@ Die Funktion liefert genau eine Zeile mit `IsValid`, `ValidationCode`,
 `CanonicalVersion`. Gültig ist ausschließlich SemVer 2.0.0. Numerische Core-
 und Pre-release-Identifier dürfen keine führenden Nullen besitzen.
 
-Aktuelle Evidenz:
+## Ergebnis verstehen
+
+Verwende die Funktion, um Versionsangaben vor Vergleich oder Sortierung
+zu validieren und ihre Bestandteile getrennt auszuwerten. Sie korrigiert
+keine Eingaben: Leerzeichen, ein `v`-Präfix oder führende Nullen sind
+keine zulässige Normalisierung.
+
+| Spalte | Bedeutung |
+|---|---|
+| `IsValid` | `1` für eine gültige SemVer-Version, sonst `0` |
+| `ValidationCode` | `VALID` oder der konkrete Validierungsgrund, etwa `NULL_INPUT` oder `EMPTY_INPUT` |
+| `Major`, `Minor`, `Patch` | Versionszahlen als Text; auch große Zahlen werden ohne bigint-Konvertierung erhalten |
+| `PreRelease` | Optionaler Teil nach `-`, ohne das Trennzeichen |
+| `BuildMetadata` | Optionaler Teil nach `+`; beeinflusst die SemVer-Präzedenz nicht |
+| `CanonicalVersion` | Bei gültiger Eingabe deren unveränderter Text |
+
+Bei ungültiger Eingabe sind alle Komponenten und `CanonicalVersion` NULL.
+Es bleibt eine Statuszeile erhalten. Für das folgende Beispiel werden
+`IsValid=1`, `ValidationCode='VALID'`, die Komponenten `1`, `2`, `3`,
+`PreRelease='alpha.1'` und `BuildMetadata='build.7'` erwartet.
+Dies ist eine aus dem Vertrag abgeleitete Ergebniserwartung.
+
+Historischer Einzelbeleg (aktuelle Testgrenzen siehe Modulbeschreibung):
 https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Version` | `varchar(8000)` | `kein Default` | Input | Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7. |
+
+## Beispielaufruf
+
+```sql
+SELECT * FROM toolbelt_validation.TVF_ParseSemanticVersion(N'1.2.3-alpha.1+build.7');
+```
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#semver).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_ParseSemanticVersion.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

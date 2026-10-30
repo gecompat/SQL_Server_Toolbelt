@@ -1,5 +1,16 @@
 # Öffentliche Execution-Context-Objekte
 
+## Einzelreferenzen
+
+Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
+Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
+
+- [`toolbelt_core.TVF_CurrentExecutionContext`](TVF_CurrentExecutionContext.md)
+- [`toolbelt_core.SVF_CurrentExecutionId`](SVF_CurrentExecutionId.md)
+- [`toolbelt_core.USP_BeginExecution`](USP_BeginExecution.md)
+- [`toolbelt_core.USP_SetExecutionContext`](USP_SetExecutionContext.md)
+- [`toolbelt_core.USP_EndExecution`](USP_EndExecution.md)
+
 ## `USP_BeginExecution`
 
 Beginnt einen Root-Context oder erhöht bei erlaubter Verschachtelung den `ScopeDepth`. Eine explizit übergebene Execution-ID wird am Root verwendet; andernfalls wird `NEWID()` erzeugt. Die Correlation-ID erbt standardmäßig die Execution-ID.

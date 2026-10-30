@@ -1,5 +1,14 @@
 # Öffentliche Second-Session-Objekte
 
+## Einzelreferenzen
+
+Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
+Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
+
+- [`toolbelt_core.VW_SecondSessionProviders`](VW_SecondSessionProviders.md)
+- [`toolbelt_core.USP_ConfigureSecondSessionLoopback`](USP_ConfigureSecondSessionLoopback.md)
+- [`toolbelt_core.USP_ExecuteWorkTypeInNewSession`](USP_ExecuteWorkTypeInNewSession.md)
+
 ## `VW_SecondSessionProviders`
 
 Zeigt die gespeicherte Providerkonfiguration und die aktuelle Drift gegenüber `master.sys.servers`: Existenz, `rpc out` und Remote-Transaction-Promotion. Der Vergleich des Linked-Server-Namens verwendet explizit eine binäre Collation und bleibt damit bei abweichenden Datenbank- und `master`-Collations funktionsfähig.

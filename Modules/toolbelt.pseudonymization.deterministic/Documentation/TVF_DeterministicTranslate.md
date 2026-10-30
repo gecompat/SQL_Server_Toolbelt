@@ -83,3 +83,7 @@ API-/Safetyfälle im früheren Gesamtfehllauf bestanden; separate korrigierte
 Metadaten-/Lifecycleprüfung erfolgreich. Aktuelle CI, neue Minimalrechte,
 weitere physische Targets und Kapazität bleiben offen. Teilweise validiert,
 unveröffentlicht; der frühere Fehllauf wird nicht als Gesamt-PASS geführt.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).

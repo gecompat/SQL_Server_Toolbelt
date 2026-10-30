@@ -51,3 +51,7 @@ technische Fehler bleiben Originalfehler und ein doomed Callerzustand sichtbar.
 Vorhandenes EXECUTE und Quellzugriff sind erforderlich, keine Rechtevergabe.
 SQL2019+ Windows/Linux sind Zielmatrix; tatsächliche Nachweise stehen in
 [Tests](../Tests/README.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#csv).

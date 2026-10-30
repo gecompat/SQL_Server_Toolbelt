@@ -26,3 +26,30 @@ Recht: SELECT auf der öffentlichen TVF. Framework 4.8, SAFE, SQL Server
 2019/2022/2025, Windows/Linux als Zielmatrix. Native Qualifikation auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral bestanden; übrige physische Ziele und tatsächliche Minimalrechte nicht ausgeführt. Aktuelle CI ist ein separater PR-Mergegate.
 [Vertrag](../../../Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md),
 [Modul](../README.md), [Tests](../Tests/README.md).
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Linker Unicode-Vergleichstext. |
+| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Rechter Unicode-Vergleichstext. |
+| `@MaxDistance` | `int` | `NULL` | Input | NULL = ohne fachliche Distanzgrenze; sonst nichtnegative Maximaldistanz. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | standard oder large; genaue Limits stehen im Objektvertrag. |
+
+## Beispielaufruf
+
+```sql
+SELECT * FROM toolbelt_string.TVF_OsaDistance(N'kitten', N'sitting', NULL, N'standard');
+```
+
+Bei einem Funktionsaufruf mit `SELECT` werden Argumente positionsbezogen übergeben. `DEFAULT` aktiviert einen deklarierten Default; `NULL` hat die im Vertrag beschriebene eigene Bedeutung.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#textdistanz).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/EditDistance.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

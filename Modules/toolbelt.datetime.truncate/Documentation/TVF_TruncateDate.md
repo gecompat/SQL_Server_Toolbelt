@@ -25,3 +25,9 @@ FROM toolbelt_datetime.TVF_TruncateDate('month', '2026-07-30');
 Zeit-Dateparts liefern Code `11`. `week` folgt `@@DATEFIRST`; `iso_week`
 beginnt am Montag. Details und Codes stehen im
 [Moduldesign](../../../Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_TruncateDate.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

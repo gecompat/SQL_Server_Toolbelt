@@ -48,3 +48,7 @@ EXECUTE auf der Fassade ist erforderlich; dem Fachcaller werden keine
 direkten Rechte auf dem internen CLR-Kern erteilt. CrossDB-
 Nutzermappings bleiben ein eigener Prüfkontext. Der reine Memorykern greift
 nicht auf Daten, Dateien, Netzwerk oder global veränderliche Caches zu.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).

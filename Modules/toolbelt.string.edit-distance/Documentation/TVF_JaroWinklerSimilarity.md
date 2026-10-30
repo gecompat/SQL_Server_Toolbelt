@@ -40,3 +40,7 @@ und den begrenzten doomed-Prozedurkontext der neuen Callerqualifikation.
 Es gibt keine Heap-, Hardwall-, Parallelitäts-, SARGability- oder bitweise
 plattformübergreifende Gleichheitszusage. Siehe den
 [kanonischen Vertrag](../../../Documentation/Architecture/JARO_WINKLER_CONTRACT.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#textdistanz).

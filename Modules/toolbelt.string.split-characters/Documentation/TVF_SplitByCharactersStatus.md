@@ -25,3 +25,21 @@ SELECT * FROM toolbelt_string.TVF_SplitByCharactersStatus(N'a,b',N',',1) ORDER B
 ## Freigabe und Nachweise
 
 Ausdrücklich am 2026-10-15 mit Zweck, Vertrag, Alternativen, Risiken und Grenzverhalten freigegeben. Siehe [Security-Härtung](../../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md). Neue Runtime-/CI-Nachweise werden dort getrennt vom Implementierungsstand geführt. Keine Parallelitäts-, Heap- oder harte Echtzeitzusage.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 65536 UTF-16-Bytes. |
+| `@Separators` | `nvarchar(4000)` | `kein Default` | Input | nvarchar(4000); höchstens 64 unterschiedliche UTF-16-Codeeinheiten; Duplikate zählen einmal; NUL ist ungültig. |
+| `@KeepEmpty` | `bit` | `1` | Input | bit=1; NULL entspricht 1; 0 verwirft leere Tokens. |
+
+## Voraussetzungen für den Aufruf
+
+- Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_SplitByCharacters.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

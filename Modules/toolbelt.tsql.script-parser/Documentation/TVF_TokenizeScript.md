@@ -35,3 +35,7 @@ NULL-Text liefert vor jeder anderen Parameterprüfung null Zeilen. Für nicht NU
 Tokenize ruft ausschließlich den Lexer auf. Lexikalische Fehler ergeben null Zeilen; grammatikfehlerhafter, lexikalisch gültiger Text kann vollständige Tokens liefern. Die Tiefenprüfung betrifft den Rohtextwächter, keinen AST. Trivia und EOF zählen zur Grenze von 8.192 Tokens.
 
 Alle Ausgaben unterliegen außerdem 16.777.216 verrechneten Bytes pro Aufruf und den bestehenden Spaltenbreiten. CLR-Grenzfehler verwenden die stabilen Präfixe des Hardening-Vertrags, regulär im SQL-Fehler-6522-Wrapper. Eingereichter SQL-Text wird nicht in Grenzmeldungen aufgenommen. Windows-only und UNSAFE bleiben unverändert; Parsing erteilt keine sichere Rewriting-Freigabe.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#sql-parser).

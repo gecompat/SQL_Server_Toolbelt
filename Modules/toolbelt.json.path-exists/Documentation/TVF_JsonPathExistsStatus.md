@@ -24,3 +24,24 @@ SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"a":null}',N'$.a');
 ## Freigabe und Nachweise
 
 Ausdrücklich am 2026-10-15 mit Zweck, Vertrag, Alternativen, Risiken und Grenzverhalten freigegeben. Siehe [Security-Härtung](../../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md). Neue Runtime-/CI-Nachweise werden dort getrennt vom Implementierungsstand geführt. Keine Parallelitäts-, Heap- oder harte Echtzeitzusage.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Json` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 16 MiB UTF-16, vor nativer Validierung lexikalische Containertiefe höchstens 128. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); bestehender 4000-Codeeinheitenvertrag und höchstens 128 Segmente. |
+
+## Voraussetzungen für den Aufruf
+
+- Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#json-pfade).
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_JsonPathExists.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

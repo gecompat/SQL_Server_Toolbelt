@@ -70,3 +70,7 @@ Das geprüfte schmale Callerprofil benötigt `EXECUTE` auf dieser Procedure und
 [ZIP-Callerbericht](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) geprüfte
 Objektprofil; es behauptet keine mathematische Minimalität oder Ausschließung
 anderer möglicher Profile.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).

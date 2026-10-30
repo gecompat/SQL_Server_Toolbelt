@@ -47,3 +47,7 @@ die vollständige aktuelle Plattformmatrix bleibt offen.
 ## Aktueller Sicherheitsvertrag
 
 SC-019: Der kanonische begrenzte MSTVF-Statuskern prüft vor Normalisierung/XML. Encode16 MiB Binary, Decode24 MiB Rohtext einschließlich Whitespace und16 MiB Ergebnis. Neue Statusoberflächen unterscheiden OK, SQL_NULL, INVALID, LIMIT; bestehende TVF-/SVF-Werte bei LIMIT NULL. Syntaxfehler unterhalb der Grenzen bleiben in bisherigen Fassaden. Inlinewrapper über MSTVF; keine bisherige Plan-/Inliningzusage übernehmen.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#base64).
