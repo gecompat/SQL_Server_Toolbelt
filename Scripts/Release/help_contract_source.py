@@ -307,8 +307,10 @@ def validate_historical_source(root, path, expected_sha256):
     _require(_digest(original) == expected,
              'Help baseline entry differs from its fixed digest')
     current = (root / path).read_bytes()
-    _require(_digest(current) == record['current_source_sha256'][path],
-             'Current Help source differs from its fixed digest')
+    if _digest(current) != record['current_source_sha256'][path]:
+        import current_documentation_transition
+        current_documentation_transition.validate_current(
+            root, path, record['current_source_sha256'][path])
     return original
 
 

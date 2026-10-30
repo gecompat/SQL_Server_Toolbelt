@@ -28,6 +28,19 @@ und die ausgeführten öffentlichen Quellpins bleiben auf Commit
 Fremdobjekt-/Markerfälle, Zielkombinationen und vollständige Lifecycle- oder
 Releasegates bleiben offen; Veröffentlichung ist nicht freigegeben.
 
+## Dokumentationsübergang nach PR #482 — 2026-10-30
+
+Die SQL-Objektdokumentation von PR #482 hat zehn bereits quellengebundene
+Lesepfade erweitert: acht Help-Quellen und zwei CSV-USP-Dokumente. Die additive
+[Übergangsevidenz](../Releases/1.0.0/documentation-followup-transition.json)
+bindet ihre exakten Ausgangsbytes aus dem vorherigen Main-Stand und den aktuellen
+Dokumentstand. Historische Help-/CSV-/XLSX-/Maintenance-Nachweise behalten ihre
+ursprünglichen Eingabebytes, Reports und Method-Pins; es wird keine alte
+Qualifikation neu interpretiert oder erneut ausgeführt. Fokussierte Offline-
+Übergangs-, CSV- und Maintenance-Prüfungen bestehen lokal. Der aktuelle Head
+und die vollständige Release-CI müssen die neue Brücke noch bestätigen; es
+entsteht keine neue native Qualifikation oder Veröffentlichungsfreigabe.
+
 ## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
 
 ## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30

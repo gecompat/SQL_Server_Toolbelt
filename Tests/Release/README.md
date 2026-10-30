@@ -1,5 +1,22 @@
 # Releasevorbereitung prüfen
 
+## Historische Dokumentationsquellen nach PR #482
+
+Der [Dokumentationsübergang](../../Releases/1.0.0/documentation-followup-transition.json)
+bindet zehn nachträglich ergänzte Modul-Lesepfade: acht frühere Help-Quellen
+und die beiden CSV-USP-Dokumente. Ein kleines Archiv bewahrt ihre Bytes vor der
+Integration; exakte Vorher- und Nachher-SHAs begrenzen die aktuelle Änderung.
+Historische Qualifikationsprüfungen lesen weiterhin nur die archivierten
+Ausgangsbytes. Die heutigen Dokumente müssen separat exakt dem gebundenen
+Folgestand entsprechen. Das ist eine Quellen-/Dokumentationsbrücke und keine
+neue native Qualifikation; alte Berichte und Methodenpins bleiben unverändert.
+
+Die gezielten Prüfungen laufen in der bestehenden Release-Suite:
+`test_current_documentation_transition.py`, `test_csv_metadata.py` und
+`test_clr_maintenance.py`. Sie verwerfen unter anderem abweichende aktuelle
+Dateien, falsche Vorgängerpins, Archiv-/Recorddrift und geänderte gepinnte
+Maintenance-Methoden.
+
 Die [XLSX-Grenzprüfung](../../Releases/1.0.0/XLSX-BOUNDARY-QUALIFICATION.md)
 trennt die bestandene 32/33-Blattgrenze vom nicht qualifizierten
 50.000-Shared-String-Scope. Fünf neue Evidenzprüfungen kontrollieren Zähler,
