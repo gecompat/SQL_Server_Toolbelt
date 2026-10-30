@@ -59,6 +59,22 @@ Zielaufruf und ein unabhängiges Cleanup-/Pin-Audit bestanden. Das schließt kei
 weiteren Fremdobjekt-, Marker-, Ziel-, Rechte- oder vollständigen
 Lifecyclematrizen.
 
+## Zentrale Uninstall-Bestätigung (2026-10-30)
+
+Der [gebundene Nachweis](../../../Releases/1.0.0/json-schema-uninstall-confirmation-qualification.json)
+ergänzt auf Windows SQL Server 2025/CU8/CL170 ausschließlich den zentralen
+Uninstall-Scope. Die Bestätigung `01` wird mit 55635/State 1 wegen ungültiger
+Bestätigung, `0` mit 55635/State 1 wegen fehlender zentraler Bestätigung
+abgewiesen. Beide festen Meldungen, installierter Modulzustand, Corezustand,
+Session und Optionen bleiben unverändert. Das feste Startprofil ist
+`QUOTED_IDENTIFIER ON`, `NOCOUNT ON`, `XACT_ABORT ON`,
+`IMPLICIT_TRANSACTIONS OFF`; andere Sessionprofile sind nicht qualifiziert.
+Ein identischer Uninstall mit `1` entfernt danach das Schema-Modul, erhält den
+Namespace und lässt Core/ResultTable unverändert. Ein Zielaufruf und ein
+unabhängiges Bereinigungsaudit bestanden; drei frühere bereinigte Harnessfehler
+bleiben als Historie erhalten. Weitere Modi, Ziele und vollständige API-,
+Rechte- oder Lifecyclematrizen bleiben offen.
+
 ## Schema-CI auf den ausgewählten Compatibility Levels
 
 Der gekoppelte Linuxadapter prüft Schema1.0.1 jetzt in denselben bereits
