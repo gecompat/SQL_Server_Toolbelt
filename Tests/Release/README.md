@@ -74,6 +74,18 @@ bestehenden Release-Suite. Gezielt lokal:
 Weitere Versionen, Plattformen, Deploymentmodi, Rechte- und Lifecycleprofile
 werden dadurch nicht qualifiziert.
 
+Der ergänzende [Uninstall-AppLock-Nachweis](../../Releases/1.0.0/json-schema-uninstall-lock-qualification.json)
+qualifiziert ebenfalls ausschließlich Windows SQL Server 2025/CU8/CL170 lokal.
+Zwei unabhängige Holder-Konflikte weisen nach, dass Uninstall vor der Mutation
+mit dem jeweiligen Lifecyclefehler abbricht. Nach Freigabe gelingt derselbe
+Uninstall; das Schema-Namespace bleibt leer erhalten und Core/ResultTable
+bleiben unverändert. Ein Zielaufruf und ein unabhängiges Bereinigungsaudit
+bestanden. Vier gezielte Offlineprüfungen binden Paket, öffentliche Quellen,
+Sperrorakel und Audit in die bestehende Release-Suite ein. Lokal:
+`python -B -m unittest Tests.Release.test_json_schema_uninstall_applock_qualification -v`.
+Der Bericht qualifiziert keine weiteren Versionen, Kompatibilitätsstufen,
+Plattformen, Deploymentmodi oder vollständigen API-/Rechte-/Lifecycleprofile.
+
 ## Edit-Distance-Paketqualifikation
 
 Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)

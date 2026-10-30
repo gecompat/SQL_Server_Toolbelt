@@ -15,6 +15,20 @@ Versuche bleiben als `FAILED_CLEANED` erhalten, alle sechs unabhängigen Audits
 bestanden. Der Scope qualifiziert weder andere Zielkombinationen noch das
 vollständige API-, Rechte-, Lifecycle- oder Ressourcenprofil.
 
+## Uninstall-AppLock-Funktionsnachweis (2026-10-30)
+
+Der [gebundene Uninstall-AppLock-Bericht](../../../Releases/1.0.0/json-schema-uninstall-lock-qualification.json)
+ergänzt denselben engen Windows/SQL-Server-2025/CU8/CL170-/local-/Functional-Scope
+für Uninstall. Zwei getrennte Holder halten nacheinander die Core- und Schema-
+AppLocks. Uninstall wird mit 55637/State 1 und der jeweiligen festen Meldung
+abgewiesen, ohne den installierten Zustand zu ändern; nach Freigabe gelingt
+derselbe Uninstall. Der leere Namespace bleibt erhalten, Core und ResultTable
+bleiben einschließlich IDs, Definitionen, Ownership und Berechtigungen
+unverändert. Ein Zielaufruf und ein unabhängiges Bereinigungsaudit bestanden.
+Dies ist eine zusätzliche einzelne Funktionsabnahme und schließt keine übrigen
+Versionen, CLs, Plattformen, Modi oder vollständigen API-/Rechte-/Lifecycle-
+Matrizen.
+
 ## Schema-CI auf den ausgewählten Compatibility Levels
 
 Der gekoppelte Linuxadapter prüft Schema1.0.1 jetzt in denselben bereits
