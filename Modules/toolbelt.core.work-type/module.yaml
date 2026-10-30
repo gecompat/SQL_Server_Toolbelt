@@ -88,6 +88,11 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/VW_WorkTypes.md"
+    - "Documentation/USP_RegisterWorkType.md"
+    - "Documentation/USP_DisableWorkType.md"
+    - "Documentation/USP_RemoveWorkType.md"
+    - "Documentation/USP_ResolveWorkType.md"
     - "Documentation/USP_SetWorkTypePermission.md"
     - "Documentation/WORK_TYPE_OBJECTS.md"
   architecture:

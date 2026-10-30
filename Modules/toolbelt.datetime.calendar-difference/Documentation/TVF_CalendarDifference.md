@@ -7,3 +7,22 @@ Die Komponenten werden vom früheren zum späteren Datum bestimmt. Eine negative
 Der Vertrag akzeptiert nur `date`; Uhrzeit, Zeitzone und andere Kalendersysteme gehören nicht zum Scope.
 
 Quelle: [DATEDIFF (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql?view=sql-server-ver17).
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@StartDate` | `date` | `kein Default` | Input | Startdatum des Intervalls. |
+| `@EndDate` | `date` | `kein Default` | Input | Enddatum des Intervalls. |
+
+## Beispielaufruf
+
+```sql
+SELECT * FROM toolbelt_datetime.TVF_CalendarDifference(CONVERT(date,'2024-01-31'), CONVERT(date,'2025-03-02'));
+```
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_CalendarDifference.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

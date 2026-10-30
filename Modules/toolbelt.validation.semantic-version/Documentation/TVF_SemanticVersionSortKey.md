@@ -24,3 +24,15 @@ ORDER BY sort_key.SortKey;
 Die Binärdarstellung ist ein technischer Modulwert und kein
 versionsübergreifendes Austauschformat. Die inline TVF ist der kanonische
 relationale Kern; die SVF bleibt für skalare Einzelaufrufe erhalten.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Version` | `varchar(8000)` | `kein Default` | Input | Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_SemanticVersionSortKey.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

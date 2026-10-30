@@ -31,3 +31,13 @@ Codeeinheiten; Optimizer darf Konversionen früher auswerten, daher sind auch
 abgewiesene Operanden sicher. Keine allgemeine Performance-/Parallelitätszusage.
 SQL Server 2019/2022/2025 Windows/Linux sind Zielplattformen; aktuelle ausgeführte
 Nachweise und offene Kontexte stehen in [Tests/README.md](../Tests/README.md).
+
+## Voraussetzungen für den Aufruf
+
+- Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_TryCastDate.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

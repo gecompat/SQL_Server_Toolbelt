@@ -22,3 +22,16 @@ SELECT toolbelt_conversion.SVF_IntegerToBase
 
 Aktuelle Evidenz:
 https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Value` | `bigint` | `kein Default` | Input | Zu verarbeitender Wert im ausgewiesenen SQL-Typ. |
+| `@Alphabet` | `varchar(93)` | `kein Default` | Input | 2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/SVF_IntegerToBase.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

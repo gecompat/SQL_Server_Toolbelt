@@ -30,3 +30,16 @@ OUTER APPLY
 
 Die Funktion verwendet `TVF_ParseSemanticVersion` als gemeinsamen Parser und
 ist der kanonische relationale Vergleichskern.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@LeftVersion` | `varchar(8000)` | `kein Default` | Input | Linke SemVer-Version. |
+| `@RightVersion` | `varchar(8000)` | `kein Default` | Input | Rechte SemVer-Version. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_CompareSemanticVersion.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

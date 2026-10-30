@@ -66,6 +66,9 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_ExecutionCancellationStatus.md"
+    - "Documentation/SVF_IsCancellationRequested.md"
+    - "Documentation/USP_RequestExecutionCancellation.md"
     - "Documentation/EXECUTION_CANCELLATION_OBJECTS.md"
   architecture:
     - "../../Documentation/Architecture/EXECUTION_CANCELLATION_MODULE_DESIGN.md"

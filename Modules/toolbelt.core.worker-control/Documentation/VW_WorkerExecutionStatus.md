@@ -22,3 +22,17 @@ SELECT SlotReservationId,WorkItemId,ClaimGeneration,ExecutionId,WorkerId,WorkerG
 ```
 
 Der [Architekturvertrag](../../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md) beschreibt Stop, Admission und Proof. Laufzeitnachweise sind noch nicht ausgeführt.
+
+## Aufrufparameter
+
+Dieses Objekt hat keine Eingabeparameter.
+
+## Voraussetzungen für den Aufruf
+
+- Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/VW_WorkerExecutionStatus.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

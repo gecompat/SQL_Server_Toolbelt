@@ -23,3 +23,16 @@ SELECT toolbelt_conversion.SVF_TryBaseToInteger
 
 Aktuelle Evidenz:
 https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@EncodedValue` | `varchar(65)` | `kein Default` | Input | Zahlentext im gewählten Alphabet. |
+| `@Alphabet` | `varchar(93)` | `kein Default` | Input | 2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/SVF_TryBaseToInteger.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

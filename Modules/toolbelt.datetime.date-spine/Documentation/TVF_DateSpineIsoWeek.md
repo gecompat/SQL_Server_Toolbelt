@@ -26,3 +26,16 @@ SELECT Ordinal, PeriodStart
 FROM toolbelt_datetime.TVF_DateSpineIsoWeek('20251231', '20260108')
 ORDER BY Ordinal;
 ```
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@RangeStart` | `date` | `kein Default` | Input | Einschließliche untere Intervallgrenze. |
+| `@RangeEndExclusive` | `date` | `kein Default` | Input | Ausschließliche obere Intervallgrenze. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_DateSpineIsoWeek.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

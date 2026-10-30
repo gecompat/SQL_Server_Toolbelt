@@ -26,3 +26,16 @@ OUTER APPLY
 
 Die inline TVF ist der kanonische relationale Kern; die SVF bleibt als
 Convenience-API verfügbar.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@EncodedValue` | `varchar(65)` | `kein Default` | Input | Zahlentext im gewählten Alphabet. |
+| `@Alphabet` | `varchar(93)` | `kein Default` | Input | 2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert. |
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/TVF_TryBaseToInteger.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

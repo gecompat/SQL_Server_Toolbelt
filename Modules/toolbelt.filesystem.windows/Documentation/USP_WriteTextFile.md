@@ -17,3 +17,47 @@ Windows-only. Absolute oder UNC-Pfade sowie Reparse Points werden abgewiesen. Di
 ## NoOverwrite
 
 Bei `@Overwrite = 0` veröffentlicht der Provider ausschließlich per nicht überschreibendem `File.Move`. Auch ein erst während des Staging-Schreibens erzeugtes Ziel wird nicht ersetzt; der frühere Existenzcheck allein ist keine Veröffentlichungsbarriere. `@Overwrite = 1` behält den bisherigen Move-/Replace-Pfad. Bei Fehlern versucht der Provider, seine eigene Staging-Datei unter derselben gewählten Identität zu bereinigen; der erste Fehler bleibt erhalten. Scheitern Identitätswiederherstellung oder Bereinigung, können Reste bleiben. Ein vorhandenes Ziel bleibt bei NoOverwrite unverändert. Dies ist keine allgemeine NTFS-, Power-Loss- oder Caller-Impersonation-Garantie.
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Input | Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Input | Relativer Pfad im Root-Alias; keine Traversierung. |
+| `@Content` | `nvarchar(max)` | `NULL` | Input | Zu schreibender Binary- oder Textinhalt. |
+| `@EncodingName` | `nvarchar(128)` | `NULL` | Input | Encoding gemäß Providervertrag, z. B. utf-8. |
+| `@WriteBom` | `bit` | `0` | Input | 1 schreibt einen BOM soweit das Encoding dies vorsieht; 0 unterdrückt ihn. |
+| `@Overwrite` | `bit` | `0` | Input | 0 verweigert Überschreiben vorhandener Dateien; 1 erlaubt es. |
+| `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Input | Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt. |
+| `@ResultTable` | `sysname` | `NULL` | Input | Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset. |
+| `@KeepData` | `bit` | `0` | Input | Gilt ausschließlich mit @ResultTable. |
+| `@Debug` | `tinyint` | `0` | Input | Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich dieses Help-Resultset. |
+
+## Voraussetzungen für den Aufruf
+
+- Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+
+## Beispielaufruf
+
+```sql
+-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
+-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
+-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
+EXEC toolbelt_filesystem.USP_WriteTextFile
+ @RootAlias=N'ExampleRoot', @RelativePath=N'example.txt', @Content=N'Contoso', @EncodingName=N'utf-8', @WriteBom=0, @Overwrite=0, @ExecutionIdentity=N'Caller';
+```
+
+## Hilfe und Fehlerklärung
+
+```sql
+EXEC toolbelt_filesystem.USP_WriteTextFile @Hilfe=1;
+```
+
+Die Hilfe beschreibt Parameter, Ergebnis und Fehlervertrag. Bei Abweichungen zuerst die Voraussetzungen und den verlinkten Fachvertrag prüfen.
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/Procedures.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)

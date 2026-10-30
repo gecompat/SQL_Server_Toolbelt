@@ -94,6 +94,9 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/SVF_RegexIsMatch.md"
+    - "Documentation/SVF_RegexInstr.md"
+    - "Documentation/SVF_RegexCount.md"
     - "Documentation/TVF_RegexCaptures.md"
     - "Documentation/SVF_RegexReplaceGroups.md"
     - "Documentation/REGEX_FUNCTIONS.md"

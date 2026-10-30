@@ -11,3 +11,21 @@ versionsübergreifendes Austauschformat.
 
 Aktuelle Evidenz:
 https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
+
+## Aufrufparameter
+
+| Parameter | SQL-Typ | Default | Richtung | Bedeutung |
+|---|---|---|---|---|
+| `@Version` | `varchar(8000)` | `kein Default` | Input | Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7. |
+
+## Beispielaufruf
+
+```sql
+SELECT toolbelt_validation.SVF_SemanticVersionSortKey(N'1.2.3-alpha.1+build.7') AS ResultValue;
+```
+
+## Weiterführende Referenzen
+
+- [Modul, Installation und Testgrenzen](../README.md)
+- [SQL-Definition](../Source/SVF_SemanticVersionSortKey.sql)
+- [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)
