@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema-Uninstall: AppLock-Abweisung — r34, 2026-10-30
+
+Eng begrenzte, ausdrücklich angenommene Funktionsqualifikation: Für den
+bestehenden JSON-Schema-1.0.1-Uninstall werden auf Windows SQL Server
+2025/CU8/CL170 lokal die zwei bereits implementierten Lifecycle-AppLocks
+jeweils von einer zweiten Verbindung exklusiv gehalten. Der Uninstall muss
+mit 55637/State 1 und der passenden festen Sperrmeldung abbrechen, den
+vollständigen Modul-/Core-/Objekt-/Metadaten-/Rechtezustand unverändert lassen
+und nach Freigabe derselben Sperre erfolgreich sein. Schema und Core werden
+für den zweiten Fall exakt gebunden wiederhergestellt; eigene Datenbank,
+Trust-/Konfigurationswiederherstellung, Eingabepins und unabhängiges Audit
+folgen den bestehenden geschützten Releasehelfern. Die Caller-Transaktions-
+Gates sind ein getrennter, nicht eingeschlossener Scope. r33-Dateien und
+Nachweise bleiben unverändert; neue Adapter komponieren deren geprüfte
+Funktionen. Root führt Ziel und Audit aus. Keine Produkt-/API-/Paketänderung,
+keine Wiederholung grüner Matrixfälle, keine Veröffentlichung.
+
 ## JSON-Schema-Deployment: transaktionale AppLock-Abweisung — r33, 2026-10-30
 
 Direkt autorisiertes enges Funktionsgate für den bestehenden JSON-Schema-
