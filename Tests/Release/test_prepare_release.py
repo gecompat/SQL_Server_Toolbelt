@@ -2081,6 +2081,7 @@ def load_tests(loader, tests, pattern):
     from test_json_schema_deploy_collision_qualification import JsonSchemaDeployCollisionQualificationTests
     from test_json_schema_uninstall_confirmation_adapter import JsonSchemaUninstallConfirmationAdapterTests
     from test_json_schema_uninstall_confirmation_qualification import JsonSchemaUninstallConfirmationQualificationTests
+    from test_ssis_current_snapshot import CurrentSnapshotEvidence
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
     tests.addTests(loader.loadTestsFromTestCase(CsvMetadataTests))
     tests.addTests(loader.loadTestsFromTestCase(CurrentDocumentationTransitionTests))
@@ -2096,6 +2097,7 @@ def load_tests(loader, tests, pattern):
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployCollisionQualificationTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallConfirmationAdapterTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallConfirmationQualificationTests))
+    tests.addTests(loader.loadTestsFromTestCase(CurrentSnapshotEvidence))
     return tests
 
 

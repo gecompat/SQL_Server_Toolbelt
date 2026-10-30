@@ -58,6 +58,27 @@ Verbindung mit tatsächlicher `SqlValue`-Konvertierung geprüft. Das lange
 Framework-Transportexperiment mit 2730 Einheiten verwendet ausdrücklich
 512 MiB Ausgabebudget und ist kein Nachweis für das 128-MiB-Defaultbudget.
 
+Die zusätzliche [Snapshot-Kohärenzqualifikation](Qualification/Current.SnapshotCoherence.20261030.json)
+prüft das aktuelle Default-DebugScript auf Windows SQL Server 2025/CU8/CL170
+lokal und zentral. Je Kontext werden zwei vollständige DebugScripts in frischen
+Sitzungen ausgeführt. Eine einzelne Quellzeile wird erst nach sämtlichen
+Planunits und vor den ersten Lese-Batches eingefügt: Der bereits materialisierte
+Ziel-/Row-Count-Snapshot bleibt bei zwei Zeilen, ein neuer Plan sieht drei.
+Je Kontext bestanden 272 feste Assertions und ein unabhängiges Cleanup-Audit.
+Der Nachweis bindet die öffentlichen Ausführungseingaben und aktuellen
+Paketartefakte. Zwei frühere fehlgeschlagene Targetversuche bleiben erhalten;
+einer endete zunächst `RECOVERY_REQUIRED`, danach wurde die eigene Bereinigung
+separat abgeschlossen und auditiert. Er beweist keine atomare Sicht über
+unabhängige Datenquellen oder ungeplante parallele Änderungen, insbesondere
+während der Planeinheiten, und erweitert keine andere Engine-, CL-, Collation-,
+Komponenten- oder API-Abdeckung.
+
+Die gezielten Offlineprüfungen laufen im bestehenden SSIS-Workflow mit
+`python -m unittest discover -s Tests/Release -p test_ssis_current_snapshot.py`.
+Sie prüfen Berichtstypen ohne boolesche/integerbasierte Gleichheitskürzel,
+Paket-/Quellpins, feste Phasenbehauptungen und doppelte JSON-Schlüssel; sie
+starten keine SQL-Verbindung.
+
 Die zwölf ZIP-Fälle schließen die CL-Matrix nur für den beschriebenen festen
 Current-Paketvertrag; die zwölf Standalone-Fälle schließen separat die CL-Matrix
 für den festen Current-T-SQL-Installer. Beide erweitern die Binarymatrix nicht.

@@ -47,6 +47,13 @@ Die [aktuelle SSIS-Lookup-Paketbindung](../../Releases/1.0.0/SSIS-LOOKUP-QUALIFI
 verknüpft die zwölf Build-, zwei Standalone- und je sechs CLR-/Gesamtpaketfälle.
 Historische Pipeline-Nachweise behalten ihre ursprünglichen Artefakte.
 
+Die [SSIS-Snapshot-Kohärenzqualifikation](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.SnapshotCoherence.20261030.json)
+bindet zwei native Windows-2025/CU8/CL170-Kontexte an das unveränderte Current-
+Paket. Der Offlinevalidator prüft die exakte Berichtszusammensetzung, 53
+öffentliche Eingabepins, Paket-/Binaryprovenienz und JSON-Typen; die fokussierten
+Negativkontrollen laufen über `test_ssis_current_snapshot.py`. Er startet keine
+SQL-Verbindung und ist keine allgemeine SSIS-Modul- oder Matrixqualifikation.
+
 Die [Caller-Metadatenprüfung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md)
 läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:
 `python -B Tests/Release/test_caller_metadata.py`; ursprüngliche Caller-Pins

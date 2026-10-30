@@ -1,0 +1,296 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-30",
+  "kind": "ssis_current_snapshot_coherence_qualification",
+  "profile": "ssis-debug-current",
+  "result": "PASS",
+  "publication_authorized": false,
+  "source_commit": "e776ded0151b93ad7f096d90ea96a96e42907ed3",
+  "package_qualification": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.20261029.json",
+    "sha256": "05D88E2ED0C168D025BA5139C8E965613C049E1B2F88041A016EBF0AB30656D2",
+    "package_sha256": "6E83F4B534339E106B42C8911178BD09CB82001167A356D5A5D63BF69A15F4D7"
+  },
+  "native_binary_qualification": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Windows.CL.20261029.json",
+    "sha256": "0582DD492D635E45DC2478A173A2FEDB926D12827B6ED4078E5C1EDF16AA3B5D"
+  },
+  "artifact_bindings": {
+    "assembly_sha256": "F5838193795521943E511EBDE9D22BA9AA1431EA94D7F368AC6364C97DD30760",
+    "deploy_sql_sha256": "E660514A1F5BC761B66306AA1D81BF2B5BF6FCC6EBFC723C7994309AE99AD46A",
+    "uninstall_sql_sha256": "7C0205E5046253493B2FD130AF8734CFB5B97F25B88CD9B504B02FA09CFC124F",
+    "trust_manifest_sha256": "D1EB3D6D0088316F8B1417E64F5A99AD31A2E2FA7EF0E8570FD188428202AE41"
+  },
+  "scope": {
+    "platform": "windows",
+    "sql_version": "2025",
+    "patch": "CU8",
+    "compatibility_level": 170,
+    "deployment_modes": [
+      "local",
+      "central"
+    ],
+    "database_collation": "Latin1_General_100_BIN2",
+    "api_sql_dialect_default": 150,
+    "fixture": "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx",
+    "functional_claim": "A source insert from a separate controller connection after materializing one plan does not alter that plan's shared TargetSql/RowCountSql snapshot; a new DebugScript execution sees the changed source.",
+    "not_qualified": [
+      "Other Windows targets, SQL Server versions, compatibility levels, collations, or deployment modes",
+      "Source changes during plan-unit materialization, arbitrary concurrent source activity, or an atomic snapshot across unrelated source objects",
+      "Real SSIS runtime execution",
+      "Authenticated TLS",
+      "Windows authentication or SSMS GUI",
+      "Other SSIS components, API operations, or package shapes",
+      "Publication"
+    ]
+  },
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "patch": "CU8",
+      "compatibility_level": 170,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_BIN2",
+      "api_sql_dialect_default": 150,
+      "result": "PASS",
+      "assertions": 272,
+      "independent_cleanup_audit": "PASS",
+      "fresh_debug_sessions": 2,
+      "returned_debugscript_validated_and_ordered": true,
+      "all_plan_units_prepared_before_reads": true,
+      "source_insert_after_materialization_before_first_read": true,
+      "source_insert_from_separate_controller_connection": true,
+      "target_columns": [
+        {
+          "name": "KeyA",
+          "sql_type": "int32"
+        },
+        {
+          "name": "KeyB",
+          "sql_type": "int32"
+        },
+        {
+          "name": "Adjusted",
+          "sql_type": "int32"
+        },
+        {
+          "name": "Score",
+          "sql_type": "int32"
+        }
+      ],
+      "first_materialized_snapshot": {
+        "row_count_bigint": 2,
+        "fits_target_variable": true,
+        "row_order": "not asserted; values are listed in canonical fixture order",
+        "rows": [
+          {
+            "KeyA": 1,
+            "KeyB": 10,
+            "Adjusted": 101,
+            "Score": 7
+          },
+          {
+            "KeyA": 2,
+            "KeyB": 10,
+            "Adjusted": 201,
+            "Score": 2
+          }
+        ],
+        "inserted_row_absent": true
+      },
+      "changed_source_fresh_snapshot": {
+        "row_count_bigint": 3,
+        "fits_target_variable": true,
+        "row_order": "not asserted; values are listed in canonical fixture order",
+        "rows": [
+          {
+            "KeyA": 1,
+            "KeyB": 10,
+            "Adjusted": 101,
+            "Score": 7
+          },
+          {
+            "KeyA": 2,
+            "KeyB": 10,
+            "Adjusted": 201,
+            "Score": 2
+          },
+          {
+            "KeyA": 2,
+            "KeyB": 10,
+            "Adjusted": 202,
+            "Score": 2
+          }
+        ],
+        "original_rows_preserved": true
+      }
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "patch": "CU8",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_BIN2",
+      "api_sql_dialect_default": 150,
+      "result": "PASS",
+      "assertions": 272,
+      "independent_cleanup_audit": "PASS",
+      "fresh_debug_sessions": 2,
+      "returned_debugscript_validated_and_ordered": true,
+      "all_plan_units_prepared_before_reads": true,
+      "source_insert_after_materialization_before_first_read": true,
+      "source_insert_from_separate_controller_connection": true,
+      "target_columns": [
+        {
+          "name": "KeyA",
+          "sql_type": "int32"
+        },
+        {
+          "name": "KeyB",
+          "sql_type": "int32"
+        },
+        {
+          "name": "Adjusted",
+          "sql_type": "int32"
+        },
+        {
+          "name": "Score",
+          "sql_type": "int32"
+        }
+      ],
+      "first_materialized_snapshot": {
+        "row_count_bigint": 2,
+        "fits_target_variable": true,
+        "row_order": "not asserted; values are listed in canonical fixture order",
+        "rows": [
+          {
+            "KeyA": 1,
+            "KeyB": 10,
+            "Adjusted": 101,
+            "Score": 7
+          },
+          {
+            "KeyA": 2,
+            "KeyB": 10,
+            "Adjusted": 201,
+            "Score": 2
+          }
+        ],
+        "inserted_row_absent": true
+      },
+      "changed_source_fresh_snapshot": {
+        "row_count_bigint": 3,
+        "fits_target_variable": true,
+        "row_order": "not asserted; values are listed in canonical fixture order",
+        "rows": [
+          {
+            "KeyA": 1,
+            "KeyB": 10,
+            "Adjusted": 101,
+            "Score": 7
+          },
+          {
+            "KeyA": 2,
+            "KeyB": 10,
+            "Adjusted": 201,
+            "Score": 2
+          },
+          {
+            "KeyA": 2,
+            "KeyB": 10,
+            "Adjusted": 202,
+            "Score": 2
+          }
+        ],
+        "original_rows_preserved": true
+      }
+    }
+  ],
+  "execution": {
+    "successful_target_invocations": 2,
+    "successful_independent_audits": 2,
+    "total_assertions": 544,
+    "source_bindings": {
+      "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298",
+      "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6B2152A4AFBD2B8BFE9EA24DBB41D47901AD8BEE9552E575921B9BDD1046A5CA",
+      "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876",
+      "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "A4C79F97472C70CDC1EC0858CF06886FD3EA79D8E63E3C7F77B4403E568514E8",
+      "Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs": "0635250F5A30064985D50A1E982F6D66FE022769AE20D72885E9B24505E36B52",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/AssemblyInfo.cs": "5AAEE66CC7C97B930B04A8F8E890BAC2F93F705433DC13057F1EB836402FE23B",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Bindings.cs": "8C53D39A62CE0ECE028A03FE03A5665D91A3903B9690D39B0DF2E594F3B1CA08",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/CacheSql.cs": "1669CF2650F07672FACDE885F8FB1ADD54D24DDB66DCB6E11B5CFCE584CDAFE3",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Core.cs": "8F97708E9FC342409F8910DBA81B2CB01FB7BC58987C1198DB3F15DEDB24A178",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/DependencyPins.Generated.cs": "B4F66A94D541C09793FC89E9E867430D24D6E1458019656FA4EC73780B6233A9",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Engine.cs": "33223D01E201BC23C99413F418434B58B3095897AA7CCEC27CC85E62D0691570",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Expressions.cs": "16D2744E9D0650811250FE73E635A8308EF0C587EDEA47DDB8EE0962563F8B87",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/HelpContract.Generated.cs": "FC4870914B43DF7AAF87D162E815B4B919B0270C77C4DA6CAA292F85EF35403C",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/PackageModel.cs": "060E80F7AB38668087B0CEA71D8B284DD7339284C5D6681D73DE00978BF9C925",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Projection.cs": "273B6B03F0817031CCF3369EBB40E460BEA67F529D430EFA9757B50045467AA2",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/ResourceOptions.cs": "B04F57CC6BB92AD9C9242D27F47C6276DC12BE0EA776F5EAD7431C14C02BFD51",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/SqlAdapter.cs": "42B0D2CD44508593D0978703F953B52BAF025A6A3C6AEDE566E4EFAA935A07DC",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/SqlParameters.cs": "EE2DA60EA69AEE4FC2C400BCBD258CD64FF414CEA0C15DD50B8E785634D9C24E",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/SqlSafety.cs": "1DDF28FFED1DA4E4656E5F1B284DF246CD4855DE5EF7A3287A40ACB8894E9B80",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/SqlTypeRules.cs": "A0D31352F0E2AAA926EB2FCC417DBE9C90391915897707E36518FC9C63A8ADE2",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Toolbelt.Tsql.SsisDebug.csproj": "630BD0D2D9A10EFEAF5E4BB1D4EC9A21094BE1616461E9087E9070564848FA0B",
+      "Modules/toolbelt.tsql.ssis-debug/Clr/Translator.cs": "0EDC0627F40E2F5C041506C7C70B6D6E645E7DAF5C598942E7D9E4C335731A98",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json": "B6239EF20036CD06BA4853D63F7BB097578733F276AB6F7743C31341126C885D",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/ComponentsV2.json": "2361F1447ED5A9B9A4C5352471AADB2145E7967CA9D3D95E9FE98E386DF902DB",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/ComponentsV2.schema.json": "18261CB929C8BE034C723728F8E72EE230C0127C5EBCA747D27A68DDD2106893",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json": "B9436A76728E6C5E137A8250155F2FF197FF806DD1FCB746F8E1831A33F96429",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/ReleaseObjects.1.0.0.json": "26E40CE3ECB59DA7CD9F8FB30F237DFE844F99D5B369FEEE5C8772340987F25C",
+      "Modules/toolbelt.tsql.ssis-debug/Deployment/Add-TrustedAssembly.sql": "A31385F7BD0E32BA762AA6CB9E9F49B37EAE66BA07C8FED5AB2E803FA969BC24",
+      "Modules/toolbelt.tsql.ssis-debug/Deployment/DependencyPreflight.sql": "11883E7A9BB2F719458821B64A3703E86A998C24D03394CCA37835B3A076A31A",
+      "Modules/toolbelt.tsql.ssis-debug/Deployment/Deploy.sql": "85378E4030F6C74B0A3E2CEB10D94CA4EFBCAF2D416CFC67F73B656565DDB85D",
+      "Modules/toolbelt.tsql.ssis-debug/Deployment/OwnershipPreflight.sql": "7EEE9E2DF5C1E8A9D637B5E13805D93B0E36744988897E27682119C61D7970A6",
+      "Modules/toolbelt.tsql.ssis-debug/Deployment/Uninstall.sql": "75DBC6C95DF4612C374D493422C1BEF5EDBA3461D2CF8CE7F8A136852832B82A",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "2ADE414761876C4109C7094FB7F2A153A1BF215C480E5B461A9670B6ACEACE9F",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "CE659B9871EE08B6EE158D0E720C6105A2E6F9D7052FBF96A096B876634E4F2D",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "F283F73A4350907994C0155F58CE9DEC58B66F2C63A694174F9444DA53DE51B4",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "F9E890E42124283A7B1392E4BD5C53F24A6DEE72C74C43FCECB7ED5717A3E964",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "D93992C0FE8EA1738BCD3DB8802A486EC1A2FD466AA93BF7057260ABFBD05738",
+      "Modules/toolbelt.tsql.ssis-debug/Scripts/New-ClrReleaseArtifacts.ps1": "6F0F0DEBC99FD6F8D8FBB8718F5DBC16A69E6D6B59F69D02D1F6174501D9C8E1",
+      "Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py": "86439D3E79D0B79B84F998499B45EAC25FA0675842C2F6B2E72438C52FD459A6",
+      "Modules/toolbelt.tsql.ssis-debug/Scripts/New-DependencyPins.py": "94B9F1C7831DD452AFC54CCCF9B9921C1112FF489D8DA2A6D75C89690A711DC5",
+      "Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql": "8EB00944F58F289086E3DA36F7BE336939870218C926BEC0E61600DEC37EEBFD",
+      "Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlowInternal.sql": "1E2C96E580751012211B35A26C204367AD3E1897171D2A9EBBB579287BCA8F4C",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-rowcount.dtsx": "A6E2A2155B8964978625C9D868B38F4EAA5DDF59FA60A4BEF9DF997E7644FCDA",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx": "DEA7DC971972882B2A090D489ECFC2DC1E85635936A0ECD8C89C8443D746BF3E",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Windows.CL.20261029.json": "0582DD492D635E45DC2478A173A2FEDB926D12827B6ED4078E5C1EDF16AA3B5D",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/CurrentSnapshotHelpers.ps1": "655F80DC2DAD246158B8B138919186AD1DFAFE995C8817D764395457B2C09B6F",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1": "F0E235F3CBF984D611DEC6B6A12676D08145185010CEC2FAF5499C4DD51FBCFC",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1B8D9E877D39D6A52174922016DDE89F500D0506807A9FABBB57F6606350D4CC",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentSnapshotCases.ps1": "B14456A8E16C1E747476348FCD7960E68B212C00F3D218F5EEBBF737F66E4CBB",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentSnapshotLab.ps1": "E4AB0B5F54FD041815EA899760A0E42C836811E93591F2612D1FEFA64AE69601",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570",
+      "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+      "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846"
+    },
+    "attempt_history": {
+      "target_invocations": 4,
+      "successful_contexts": 2,
+      "failed_target_invocations": 2,
+      "directly_failed_cleaned_attempts": 1,
+      "recovery_required_target_attempts": 1,
+      "own_safety_recovery_completed": 1,
+      "independent_audits": 5,
+      "passed_independent_audits": 4,
+      "retained_failed_audits": 1,
+      "safety_processes": 5,
+      "read_only_probe_errors": 2,
+      "read_only_probe_passes": 1,
+      "partial_cleanup_or_trust_probe_errors": 1,
+      "trust_continuation_passes": 1,
+      "total_process_attempts": 14,
+      "final_owned_resource_recovery": "PASS",
+      "failed_history_preserved": true
+    }
+  },
+  "final_audit": {
+    "successful_context_audits": 2,
+    "input_pins_unchanged": true,
+    "owned_databases_absent": true,
+    "trust_and_configuration_restored": true
+  }
+}

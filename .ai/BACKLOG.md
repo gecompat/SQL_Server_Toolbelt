@@ -231,6 +231,35 @@ Nativrunner. Journale und Rohlogs bleiben privat. Der Modulstatus bleibt
 teilweise validiert und unveröffentlicht; Head-/Main-CI und Merge werden am
 jeweiligen Stand getrennt nachgewiesen.
 
+## SSIS Current DebugScript-Snapshot-Kohärenz — 2026-10-30
+
+Direkter Folgeauftrag r38: eine begrenzte, echte Funktionsabnahme des aktuellen
+DebugScript-Materialisierungspfads, ohne Produkt-, API-, ZIP- oder Installer-
+Änderung. Auf Windows SQL Server 2025/CU8/CL170 bestanden local und central
+jeweils zwei vollständig validierte DebugScript-Ausführungen in frischen
+Sitzungen. Eine einzelne synthetische Quellzeile wurde nach allen Planeinheiten
+und vor dem ersten Lese-Batch eingefügt: Der bestehende gemeinsame
+Ziel-/Row-Count-Snapshot blieb bei zwei Zeilen; ein neuer Plan sah drei Zeilen.
+Je Kontext bestanden 272 feste Assertions und ein unabhängiges Cleanup-Audit.
+Der [gebundene Bericht](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.SnapshotCoherence.20261030.json)
+bindet die 53 öffentlichen nativen Eingaben und die unveränderten
+Current-Paketartefakte. Vier Zielversuche und fünf Audits bleiben als
+aggregierte Historie erhalten; zwei frühe Targetversuche schlugen als
+Harness-/Fixturefehler fehl. Einer endete zunächst `RECOVERY_REQUIRED`; seine
+eigene Bereinigung wurde anschließend separat abgeschlossen und auditiert.
+Einschließlich fünf privater
+Sicherheits-/Recovery-Prozesse umfasst die Historie 14 Prozessversuche; die
+Fehlerkategorien und abschließende Wiederherstellung sind aggregiert im Bericht
+gebunden, ohne private Runtimewerte offenzulegen.
+
+Diese Abnahme gilt nur für die beschriebenen zwei Modi und die feste synthetische
+Fixture. Sie verspricht keine transaktionsweite Sicht über unabhängige Quellen,
+keine Garantie bei ungeplanten parallelen Änderungen während der Planeinheiten,
+keine andere Engine-/CL-/Collation-Kombination und keine allgemeine SSIS-Modul-
+oder API-Vollqualifikation.
+Head-/Main-CI und Integration werden getrennt am jeweiligen PR-/Merge-Head
+nachgewiesen; der Modulstatus bleibt teilweise validiert und unveröffentlicht.
+
 ## Aktuelles SSIS-Profil als Standard und Entwicklungsfreiheit — 2026-10-29
 
 Direkter Benutzerauftrag: V2 soll Standard von `USP_ExplainSsisDataFlow` sein;

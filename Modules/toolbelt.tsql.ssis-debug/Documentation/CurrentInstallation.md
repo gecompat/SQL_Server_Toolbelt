@@ -115,6 +115,14 @@ Das erzeugte Debug-SQL liest ausschließlich die explizit zugeordneten Quellen;
 Flatfile-Ziele werden als lesende Projektion dargestellt, keine Datei wird
 geschrieben und kein SSIS-Task gestartet.
 
+Die zusätzliche [Snapshot-Kohärenzqualifikation](../Tests/Qualification/Current.SnapshotCoherence.20261030.json)
+prüft Windows SQL Server 2025/CU8/CL170 lokal und zentral. Eine Quellzeile wird
+erst nach Materialisierung aller Planeinheiten und vor den ersten Lese-Batches
+eingefügt: Der ausgegebene Ziel-/Row-Count-Snapshot bleibt bei zwei Zeilen,
+ein neu ausgeführter Plan sieht drei. Das ist kein Transaktions-Snapshotversprechen
+für voneinander unabhängige Quellen oder ungeplante parallele Änderungen,
+insbesondere während der Planeinheiten.
+
 Bei einem unvollständigen Ziel enthält `DebugScript.DetailsJson` den gesamten
 Strukturpfad, die Erstursache, fehlende Eingabeschlüssel und verfügbare Teilpläne.
 `IsExecutable = 0` ist verbindlich. Ein fehlender Command-Text muss als
