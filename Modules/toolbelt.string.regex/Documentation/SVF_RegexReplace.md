@@ -35,3 +35,12 @@ Scheinalternative bereitgestellt. Relationale Vorfilter werden bevorzugt.
 
 Beispiel: `SVF_RegexReplace(N'a12b34', N'[0-9]+', N'X', 1, 0, N'c', N'standard')`
 liefert `N'aXbX'`.
+
+## Beispielaufruf
+
+```sql
+SELECT toolbelt_string.SVF_RegexReplace(N'abc123 def456', N'[0-9]+', N'X', 1, 1, N'c', N'standard') AS ResultValue;
+```
+
+Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
+Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.

@@ -63,3 +63,18 @@ und SQL Server 2025 Windows/CU8 erfolgreich. Weitere neue Version-/Plattform-
 kombinationen, GitHub-1.1-Lauf und niedrigprivilegierter mapped Caller Cross-DB
 nicht ausgeführt; Modul bleibt partially validated. Reproduzierbare Befehle
 und genauer Scope stehen in [Tests/README](../Tests/README.md).
+
+## Beispielaufruf
+
+```sql
+EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;b', @SeparatorsJson=N'[";"]', @Quote=N'', @Escape=N'';
+```
+
+```sql
+EXEC toolbelt_string.USP_SplitAdvanced
+    @Input=N'a;"b;c";d', @SeparatorsJson=N'[";"]';
+EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;
+```
+
+Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
+Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.

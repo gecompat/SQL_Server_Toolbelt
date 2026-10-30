@@ -69,3 +69,12 @@ Release 1.3.0 koppelt Assembly, Manifest, exakten Trusthash, Bindings und Uninst
 Der echte Framework-4.8-Build und `Writer.Framework.ps1` mit unabhängigem ZipArchive belegen synthetische Stored-/Deflate-Roundtrips einschließlich leerer Payloads, Unicode, nachgestellter Leerzeichen, Determinismus, 22-/21-Byte-Outputgrenze, Transportfehlern und parallelen Aufrufen. Das allein belegt keine SQL-SAFE-Lauffähigkeit. `Writer.Contract.sql` läuft im Adapter lokal und zentral. Historische Binaryupgrades, größere Grenzen, Transaktions-, Help- und Kollisiontests sowie plattformbezogene Labs werden separat abstrahiert protokolliert. Offene Evidence darf niemals als PASS geführt werden.
 
 Am 2026-10-01 bestand der finale Adapter auf SQL Server 2019 unter Linux (Compatibility 150) sowie SQL Server 2025 unter Windows (Compatibility 150, 160 und 170), jeweils lokal und zentral. Der Scope enthält tatsächliche 16-MiB-Payloads mit Stored/Deflate und Hash-/Längenvergleich, leere Payloads an allen drei Reader-Ausgabegrenzen, erhaltenes encrypted NULL, tatsächliche SQLClient-Metadaten, Fehleratomarität, Callertransaktionen, Help-Vorrang sowie historische Upgrades und Lebenszyklusgrenzen. Frameworktests verarbeiten zusätzlich tatsächlich 32 MiB je Entry und 128 MiB Gesamtpayload mit 1024 Entries und 2048 Name-Codeeinheiten. Höhere SQL-Live-Ceilings, Produktionsarchive und globale Kapazitäts-/Parallelitätsgrenzen bleiben offen; `partially validated` ist weiterhin der Modulstatus.
+
+## Beispielaufruf
+
+```sql
+CREATE TABLE #ZipInput(Ordinal int, EntryName nvarchar(max), Payload varbinary(max)); INSERT #ZipInput VALUES(1,N'hello.txt',0x4869); EXEC toolbelt_archive.USP_CreateZipFromEntries @EntryTable=N'#ZipInput';
+```
+
+Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
+Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
