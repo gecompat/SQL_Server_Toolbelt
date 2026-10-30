@@ -30,6 +30,35 @@ oder Savepoint zurück. `@KeepData = 1` erhält bestehende Zielzeilen.
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
 
+## Ergebnisspalten
+
+Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
+
+| Spalte | SQL-Typ | Bedeutung |
+|---|---|---|
+| `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
+| `WorkTypeName` | `varchar(128)` | Kanonischer Work-Type-Name. |
+| `Status` | `varchar(16)` | Nach Enqueue stets QUEUED. |
+| `EnqueuedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt der Einreihung. |
+| `EnqueuedBy` | `sysname` | Original-Login der Einreihung. |
+| `ClaimedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Claims; nach Enqueue NULL. |
+| `ClaimedBy` | `sysname` | Original-Login des Claimers; nach Enqueue NULL. |
+| `CompletedAtUtc` | `datetime2(7)` | UTC-Abschlusszeit; nach Enqueue NULL. |
+| `CompletedBy` | `sysname` | Original-Login des Abschlusses; nach Enqueue NULL. |
+| `FailedAtUtc` | `datetime2(7)` | UTC-Fehlerzeit; nach Enqueue NULL. |
+| `FailedBy` | `sysname` | Original-Login des Fail-Aufrufs; nach Enqueue NULL. |
+| `FailureCode` | `varchar(64)` | Stabiler Fehlercode; nach Enqueue NULL. |
+| `FailureMessage` | `nvarchar(1000)` | Optionale bereinigte Fehlermeldung; nach Enqueue NULL. |
+| `RowVersion` | `binary(8)` | Aktueller Concurrency-Marker. |
+| `ClaimGeneration` | `bigint` | Nach Enqueue 0; wird bei jedem Claim erhöht. |
+| `LeaseDurationSeconds` | `int` | Nach Enqueue NULL. |
+| `LeaseUntilUtc` | `datetime2(7)` | Nach Enqueue NULL. |
+| `LastHeartbeatAtUtc` | `datetime2(7)` | Nach Enqueue NULL. |
+| `IsLeaseExpired` | `bit` | Nach Enqueue 0. |
+| `RecoveryCount` | `bigint` | Nach Enqueue 0. |
+| `LastRecoveredAtUtc` | `datetime2(7)` | Nach Enqueue NULL. |
+| `LastRecoveredBy` | `sysname` | Nach Enqueue NULL. |
+
 ## Aufrufparameter
 
 | Parameter | SQL-Typ | Default | Richtung | Bedeutung |

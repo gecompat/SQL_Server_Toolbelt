@@ -14,6 +14,20 @@ ResultTable-Routing; Nicht-NULL wird mit Fehler 51989 abgewiesen.
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
 
+## Ergebnisspalten
+
+Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
+
+| Spalte | SQL-Typ | Bedeutung |
+|---|---|---|
+| `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
+| `WorkTypeName` | `varchar(128)` | Kanonischer Work-Type-Name. |
+| `Status` | `varchar(16)` | RETRY_WAIT oder DEAD_LETTER nach gespeicherter Policy. |
+| `ClaimGeneration` | `bigint` | Letzte invalidierte Ownership-Generation. |
+| `RecoveryCount` | `bigint` | Kumulierte Zahl kontrollierter Recoveries. |
+| `LastRecoveredAtUtc` | `datetime2(7)` | Engine-Zeit der Recovery. |
+| `LastRecoveredBy` | `sysname` | Original-Login der Recovery. |
+
 ## Aufrufparameter
 
 | Parameter | SQL-Typ | Default | Richtung | Bedeutung |

@@ -1436,7 +1436,7 @@ Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wi
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [USP_EnqueueWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWork.md).
 
-<!-- Source/Vertrag SHA256: 23b09331189b7f3f0322c7cdbbfa1896e997ea0b419583f0e098ac3f94dc8329 -->
+<!-- Source/Vertrag SHA256: fd66c04ec8076cbf6bc949ddb7d34ba74be0e937cd7cd9063aed14b647a6264a -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1554,7 +1554,7 @@ Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffne
 
 Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [USP_ClaimWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ClaimWork.md).
 
-<!-- Source/Vertrag SHA256: fcbc8a6b9443dfce41254142a39fd14e06470c73ab90eaf37cd18e85ca3ed564 -->
+<!-- Source/Vertrag SHA256: 62a8590a781103bd7d55784c63bf468de4541af8474cde8d6cf7ba1f3a2963ab -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1586,7 +1586,7 @@ Verlängert eine noch aktive Lease mit passendem ClaimToken um ihre beim Claim f
 
 Vertrag und Quelle: [USP_RenewWorkLease.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql), [USP_RenewWorkLease.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RenewWorkLease.md).
 
-<!-- Source/Vertrag SHA256: 966f40cfafec8ef02c5f0a686651f37e680559b8f5cf2b6e20a19808aee32a2b -->
+<!-- Source/Vertrag SHA256: 65e4d3e7fdbfceda19e89b96ad774d7741a062be02750141570b14fbfc74efaa -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1621,7 +1621,7 @@ Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT ode
 
 Vertrag und Quelle: [USP_RecoverExpiredWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql), [USP_RecoverExpiredWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RecoverExpiredWork.md).
 
-<!-- Source/Vertrag SHA256: 37b81c9573aa9b930e95d4c5a7819daa46f7c6008063a664eb5c5420ac96704a -->
+<!-- Source/Vertrag SHA256: 61ce358eb73574e5809d97d2e2e99157ba6d9a22dffcf966fb22b6575c9ee04d -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1653,7 +1653,7 @@ Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED
 
 Vertrag und Quelle: [USP_CompleteWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql), [USP_CompleteWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_CompleteWork.md).
 
-<!-- Source/Vertrag SHA256: f74762b2195d0e42a9380d02a8f72c7601b88a0d808cddcec881bb8ba0d66c38 -->
+<!-- Source/Vertrag SHA256: 8ea9b5d9e419d227e7a264f79ee21731aeacfba18ea04b00834fdfd3f72cab14 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1688,7 +1688,7 @@ Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Ge
 
 Vertrag und Quelle: [USP_FailWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql), [USP_FailWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_FailWork.md).
 
-<!-- Source/Vertrag SHA256: aba031e6f357f3cf97662fd116efe24e0b0773bad09cac3d6c5953387b20af0c -->
+<!-- Source/Vertrag SHA256: 73b4e6a2f792eac322ec1f55c68e36aaffdacc28ad2f1f7ef0a4e683ece37ef5 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1799,7 +1799,7 @@ Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden
 
 Vertrag und Quelle: [USP_GetWorkStatus.sql](../../Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql), [USP_GetWorkStatus.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_GetWorkStatus.md).
 
-<!-- Source/Vertrag SHA256: dececbb0af5385cc314a75f7e83e4dfb780639bda894a0571ea0443192cd48cc -->
+<!-- Source/Vertrag SHA256: 293b2e8bdd764159f9d1775c3c7dec6a0738534403cd6d3b91ee7196ca56272d -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 

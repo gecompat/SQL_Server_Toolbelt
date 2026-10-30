@@ -6,9 +6,38 @@ Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Ge
 
 ## Verhalten und Ergebnis
 
-Beide verlangen WorkItemId und ClaimToken. Unter demselben Row Lock werden Status, Token und aktive Lease geprüft. Complete speichert kein fachliches Ergebnis. Fail speichert einen stabilen ASCII-Code und optional höchstens 1.000 bereits bereinigte Unicode-Codeeinheiten. `USP_FailWork` bleibt terminal; einen Retry plant nur `USP_ScheduleWorkRetry`.
+`USP_CompleteWork` und `USP_FailWork` verlangen WorkItemId und ClaimToken. Unter demselben Row Lock werden Status, Token und aktive Lease geprüft. Complete speichert kein fachliches Ergebnis. Fail speichert einen stabilen ASCII-Code und optional höchstens 1.000 bereits bereinigte Unicode-Codeeinheiten. `USP_FailWork` bleibt terminal; einen Retry plant nur `USP_ScheduleWorkRetry`.
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
+
+## Ergebnisspalten
+
+Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
+
+| Spalte | SQL-Typ | Bedeutung |
+|---|---|---|
+| `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
+| `WorkTypeName` | `varchar(128)` | Kanonischer Work-Type-Name. |
+| `Status` | `varchar(16)` | Nach Erfolg stets FAILED. |
+| `EnqueuedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt der Einreihung. |
+| `EnqueuedBy` | `sysname` | Original-Login der Einreihung. |
+| `ClaimedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Claims. |
+| `ClaimedBy` | `sysname` | Original-Login des Claimers. |
+| `CompletedAtUtc` | `datetime2(7)` | Bei FAILED NULL. |
+| `CompletedBy` | `sysname` | Bei FAILED NULL. |
+| `FailedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Fehlabschlusses. |
+| `FailedBy` | `sysname` | Original-Login des Fail-Aufrufs. |
+| `FailureCode` | `varchar(64)` | Stabiler case-sensitiver Fehlercode. |
+| `FailureMessage` | `nvarchar(1000)` | Optionale bereinigte Fehlermeldung. |
+| `RowVersion` | `binary(8)` | Aktueller Concurrency-Marker. |
+| `ClaimGeneration` | `bigint` | Ownership-Generation des fehlgeschlagenen Claims. |
+| `LeaseDurationSeconds` | `int` | Lease-Dauer des fehlgeschlagenen Claims. |
+| `LeaseUntilUtc` | `datetime2(7)` | Lease-Grenze des fehlgeschlagenen Claims. |
+| `LastHeartbeatAtUtc` | `datetime2(7)` | Letzter Heartbeat des fehlgeschlagenen Claims. |
+| `IsLeaseExpired` | `bit` | Bei FAILED stets 0. |
+| `RecoveryCount` | `bigint` | Kumulierte Recoveries vor diesem Abschluss. |
+| `LastRecoveredAtUtc` | `datetime2(7)` | Zeitpunkt der letzten Recovery. |
+| `LastRecoveredBy` | `sysname` | Original-Login der letzten Recovery. |
 
 ## Aufrufparameter
 

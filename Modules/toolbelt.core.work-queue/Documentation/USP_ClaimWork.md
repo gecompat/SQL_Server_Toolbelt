@@ -12,6 +12,21 @@ Prioritäten von `0` bis `255` werden absteigend gereiht. Eine Barrier sperrt nu
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
 
+## Ergebnisspalten
+
+Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
+
+| Spalte | SQL-Typ | Bedeutung |
+|---|---|---|
+| `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
+| `WorkTypeName` | `varchar(128)` | Kanonischer Work-Type-Name. |
+| `PayloadJson` | `nvarchar(max)` | Optionale bereinigte JSON-Payload. |
+| `ClaimToken` | `uniqueidentifier` | Geheimes Ownership-Token für Heartbeat, Complete oder Fail. |
+| `ClaimedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Claims. |
+| `ClaimGeneration` | `bigint` | Monotoner Ownership-Zähler dieses Work Items. |
+| `LeaseUntilUtc` | `datetime2(7)` | Exklusive UTC-Grenze der Lease. |
+| `LastHeartbeatAtUtc` | `datetime2(7)` | Beim Claim identisch mit ClaimedAtUtc. |
+
 ## Aufrufparameter
 
 | Parameter | SQL-Typ | Default | Richtung | Bedeutung |

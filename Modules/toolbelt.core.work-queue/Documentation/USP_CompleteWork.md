@@ -2,13 +2,42 @@
 
 ## Zweck
 
-Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED ab. Ein fachliches Arbeitsergebnis wird in E1a nicht gespeichert.
+Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED ab. Ein fachliches Arbeitsergebnis wird nicht gespeichert.
 
 ## Verhalten und Ergebnis
 
-Beide verlangen WorkItemId und ClaimToken. Unter demselben Row Lock werden Status, Token und aktive Lease geprüft. Complete speichert kein fachliches Ergebnis. Fail speichert einen stabilen ASCII-Code und optional höchstens 1.000 bereits bereinigte Unicode-Codeeinheiten. `USP_FailWork` bleibt terminal; einen Retry plant nur `USP_ScheduleWorkRetry`.
+`USP_CompleteWork` und `USP_FailWork` verlangen WorkItemId und ClaimToken. Unter demselben Row Lock werden Status, Token und aktive Lease geprüft. Complete speichert kein fachliches Ergebnis. Fail speichert einen stabilen ASCII-Code und optional höchstens 1.000 bereits bereinigte Unicode-Codeeinheiten. `USP_FailWork` bleibt terminal; einen Retry plant nur `USP_ScheduleWorkRetry`.
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
+
+## Ergebnisspalten
+
+Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
+
+| Spalte | SQL-Typ | Bedeutung |
+|---|---|---|
+| `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
+| `WorkTypeName` | `varchar(128)` | Kanonischer Work-Type-Name. |
+| `Status` | `varchar(16)` | Nach Erfolg stets COMPLETED. |
+| `EnqueuedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt der Einreihung. |
+| `EnqueuedBy` | `sysname` | Original-Login der Einreihung. |
+| `ClaimedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Claims. |
+| `ClaimedBy` | `sysname` | Original-Login des Claimers. |
+| `CompletedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Abschlusses. |
+| `CompletedBy` | `sysname` | Original-Login des Abschlusses. |
+| `FailedAtUtc` | `datetime2(7)` | Bei COMPLETED NULL. |
+| `FailedBy` | `sysname` | Bei COMPLETED NULL. |
+| `FailureCode` | `varchar(64)` | Bei COMPLETED NULL. |
+| `FailureMessage` | `nvarchar(1000)` | Bei COMPLETED NULL. |
+| `RowVersion` | `binary(8)` | Aktueller Concurrency-Marker. |
+| `ClaimGeneration` | `bigint` | Ownership-Generation des abgeschlossenen Claims. |
+| `LeaseDurationSeconds` | `int` | Lease-Dauer des abgeschlossenen Claims. |
+| `LeaseUntilUtc` | `datetime2(7)` | Lease-Grenze des abgeschlossenen Claims. |
+| `LastHeartbeatAtUtc` | `datetime2(7)` | Letzter Heartbeat des abgeschlossenen Claims. |
+| `IsLeaseExpired` | `bit` | Bei COMPLETED stets 0. |
+| `RecoveryCount` | `bigint` | Kumulierte Recoveries vor diesem Abschluss. |
+| `LastRecoveredAtUtc` | `datetime2(7)` | Zeitpunkt der letzten Recovery. |
+| `LastRecoveredBy` | `sysname` | Original-Login der letzten Recovery. |
 
 ## Aufrufparameter
 

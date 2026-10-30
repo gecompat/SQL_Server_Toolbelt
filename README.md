@@ -72,6 +72,17 @@ für den im Modul dokumentierten Umfang. Für Beiträge gilt
 [CONTRIBUTING.md](./CONTRIBUTING.md). Der ausdrücklich getrennte Einstieg für
 KI-Systeme ist [AGENTS.md](./AGENTS.md).
 
+## SQL-Objekte nachschlagen
+
+Der [SQL-Objektkatalog](./Documentation/Reference/API_CATALOG.md) führt zu
+den einzelnen Functions, Stored Procedures, Views und CLR-Aggregaten.
+Suche nach dem Objektnamen und öffne unter „Vertrag und Quelle“ dessen
+Markdown-Seite. Sie beschreibt Zweck, Verhalten, Parameter, Ergebnisse
+und Beispiele und verlinkt die gemeinsamen Fachverträge.
+Die [HTML-Ansicht mit Suche](./Documentation/Reference/API_CATALOG.html)
+erleichtert das Auffinden; [Hinweise zur Verwendung der Referenz](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen)
+erklären Ergebnisdeutung und Fehlerklärung.
+
 ## Aktueller Status
 
 45 Module sind implementiert.
@@ -108,6 +119,7 @@ T-SQL ist bevorzugt. Alternative Technologien benötigen eine dokumentierte Begr
 | Standards | [Documentation/Standards/](./Documentation/Standards/) |
 | Module | [Modules/](./Modules/) |
 | Repository-weites Deployment | [Deployment/](./Deployment/) |
+| Beschreibungen der einzelnen SQL-Objekte | [SQL-Objektreferenz](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen) |
 | Beispiele für alle öffentlichen APIs | [Beispielkatalog](./Documentation/Reference/API_CATALOG.md) |
 | Templates | [Templates/](./Templates/) |
 | Backlogs | [Backlog/](./Backlog/) |

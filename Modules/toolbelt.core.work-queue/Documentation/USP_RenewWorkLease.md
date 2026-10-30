@@ -10,6 +10,17 @@ Heartbeat verlangt `WorkItemId` und das aktuelle `ClaimToken`, läuft in einer k
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
 
+## Ergebnisspalten
+
+Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
+
+| Spalte | SQL-Typ | Bedeutung |
+|---|---|---|
+| `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
+| `ClaimGeneration` | `bigint` | Aktuelle Ownership-Generation. |
+| `LeaseUntilUtc` | `datetime2(7)` | Neue exklusive UTC-Grenze der Lease. |
+| `LastHeartbeatAtUtc` | `datetime2(7)` | Engine-Zeit dieses Heartbeats. |
+
 ## Aufrufparameter
 
 | Parameter | SQL-Typ | Default | Richtung | Bedeutung |
