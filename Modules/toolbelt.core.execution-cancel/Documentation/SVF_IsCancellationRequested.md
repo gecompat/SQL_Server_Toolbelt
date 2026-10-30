@@ -24,6 +24,10 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 SELECT toolbelt_core.SVF_IsCancellationRequested(NULL) AS ResultValue;
 ```
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#worker).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

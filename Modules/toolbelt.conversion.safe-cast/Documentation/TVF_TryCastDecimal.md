@@ -36,6 +36,10 @@ Nachweise und offene Kontexte stehen in [Tests/README.md](../Tests/README.md).
 
 - Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY.
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#safe-cast).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

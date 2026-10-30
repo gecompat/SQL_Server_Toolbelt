@@ -53,3 +53,7 @@ Mutation; eigene Transaktionen oder committable Caller-Savepoints schützen
 diesen Schreibpfad, ohne fremde oder doomed Callertransaktionen zurückzurollen.
 
 Native API-, Clientmetadaten-, Rechte- und Lifecycle-Nachweise sind noch offen.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#json-schema).

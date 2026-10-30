@@ -20,6 +20,10 @@ Dieses Objekt hat keine Eingabeparameter.
 SELECT TOP (20) * FROM toolbelt_core.VW_Events;
 ```
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zweite-session).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

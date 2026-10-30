@@ -31,6 +31,10 @@ relationale Kern; die SVF bleibt für skalare Einzelaufrufe erhalten.
 |---|---|---|---|---|
 | `@Version` | `varchar(8000)` | `kein Default` | Input | Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7. |
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#semver).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

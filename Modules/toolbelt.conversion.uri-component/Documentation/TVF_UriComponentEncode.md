@@ -28,6 +28,10 @@ Eingang vor UTF-8-Konvertierung auf 65536 UTF-16-Bytes.
 SELECT * FROM toolbelt_conversion.TVF_UriComponentEncode(N'a b/ä');
 ```
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#uri).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

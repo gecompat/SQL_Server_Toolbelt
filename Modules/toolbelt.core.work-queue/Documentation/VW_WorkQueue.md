@@ -20,6 +20,10 @@ Dieses Objekt hat keine Eingabeparameter.
 SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueue;
 ```
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#queue).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

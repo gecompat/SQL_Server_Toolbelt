@@ -31,6 +31,10 @@ Details:
 | `@Value` | `datetime2(7)` | `kein Default` | Input | Zu verarbeitender Wert im ausgewiesenen SQL-Typ. |
 | `@Origin` | `datetime2(7)` | `'19000101'` | Input | Zeitlicher Referenzpunkt für die Bucket-Grenzen. |
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#kalenderarithmetik).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

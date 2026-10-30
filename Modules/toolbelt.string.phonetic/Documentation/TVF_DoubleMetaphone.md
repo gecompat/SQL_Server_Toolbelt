@@ -37,6 +37,10 @@ Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../Tests/R
 SELECT * FROM toolbelt_string.TVF_DoubleMetaphone(N'Contoso');
 ```
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#phonetik).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

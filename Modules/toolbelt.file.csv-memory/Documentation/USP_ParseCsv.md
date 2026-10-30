@@ -38,3 +38,7 @@ Snapshot sind vor Zieländerungen abgeschlossen. Vorhandenes EXECUTE ist
 erforderlich; keine Rechtevergabe. Kosten: zwei lineare Scannerdurchläufe und
 begrenzte private Zellmaterialisierung. SQL2019+ Windows/Linux sind Zielmatrix;
 ausgeführte Teilnachweise stehen in [Tests](../Tests/README.md).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#csv).

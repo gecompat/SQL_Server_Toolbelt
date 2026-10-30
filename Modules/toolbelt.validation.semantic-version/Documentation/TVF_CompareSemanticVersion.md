@@ -38,6 +38,10 @@ ist der kanonische relationale Vergleichskern.
 | `@LeftVersion` | `varchar(8000)` | `kein Default` | Input | Linke SemVer-Version. |
 | `@RightVersion` | `varchar(8000)` | `kein Default` | Input | Rechte SemVer-Version. |
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#semver).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

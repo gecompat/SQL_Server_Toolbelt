@@ -31,6 +31,10 @@ Dieses Objekt hat keine Eingabeparameter.
 
 - Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#worker).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

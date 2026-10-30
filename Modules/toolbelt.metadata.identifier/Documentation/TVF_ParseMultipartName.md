@@ -66,3 +66,7 @@ dürfen nur neue, zuvor nicht als gültig dokumentierte Eingaben unterscheiden.
 Delimiter-, Escape- und Metazeichen werden explizit binär verglichen. Der
 Parser arbeitet mit einem begrenzten linearen Zustandsautomaten und benötigt
 keine Catalog Views, temporären Tabellen oder rekursive CTE.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#identifier).

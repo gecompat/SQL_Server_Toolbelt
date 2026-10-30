@@ -14,6 +14,10 @@
 SELECT toolbelt_conversion.SVF_UriComponentEncode(N'a b/ä') AS ResultValue;
 ```
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#uri).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

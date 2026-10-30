@@ -44,3 +44,7 @@ SELECT toolbelt_string.SVF_RegexReplace(N'abc123 def456', N'[0-9]+', N'X', 1, 1,
 
 Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
 Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).

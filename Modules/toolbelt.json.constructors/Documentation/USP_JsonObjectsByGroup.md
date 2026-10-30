@@ -47,3 +47,7 @@ Eigene Transaktion oder Caller-savepoint; niemals Callercommit/fullrollback.
 Dependency toolbelt.core.result-table >=1.0.0 same_database. Lokale/zentrale
 Verwendung derselben Source, keine CLR-/Provider-/Rechte-/Configänderung.
 Beispiele: [JsonGroups.sql](../Examples/JsonGroups.sql).
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#json-konstruktion).

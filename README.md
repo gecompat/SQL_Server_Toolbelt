@@ -83,6 +83,12 @@ Die [HTML-Ansicht mit Suche](./Documentation/Reference/API_CATALOG.html)
 erleichtert das Auffinden; [Hinweise zur Verwendung der Referenz](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen)
 erklären Ergebnisdeutung und Fehlerklärung.
 
+Für nicht offensichtliche Algorithmen und technische Entscheidungen führen
+die [technischen Lösungswege](./Documentation/Reference/IMPLEMENTATION_GUIDE.md)
+vom Problem zur Implementierung: etwa JSON-Parsergrenzen, SemVer-Sortkeys,
+Distanzmatrizen, Worker-Ownership oder die Veröffentlichung von Dateien.
+Die betroffenen Objektseiten verlinken jeweils den passenden Abschnitt.
+
 ## Aktueller Status
 
 45 Module sind implementiert.
@@ -120,6 +126,7 @@ T-SQL ist bevorzugt. Alternative Technologien benötigen eine dokumentierte Begr
 | Module | [Modules/](./Modules/) |
 | Repository-weites Deployment | [Deployment/](./Deployment/) |
 | Beschreibungen der einzelnen SQL-Objekte | [SQL-Objektreferenz](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen) |
+| Algorithmen und technische Implementierungswege | [Technische Lösungswege](./Documentation/Reference/IMPLEMENTATION_GUIDE.md) |
 | Beispiele für alle öffentlichen APIs | [Beispielkatalog](./Documentation/Reference/API_CATALOG.md) |
 | Templates | [Templates/](./Templates/) |
 | Backlogs | [Backlog/](./Backlog/) |

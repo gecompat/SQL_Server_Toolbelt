@@ -16,7 +16,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_CreateZipFileFromEntries.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql), [USP_CreateZipFileFromEntries.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_CreateZipFileFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 8195440ba10148a32d370b9d45ff42b992fb203af4fffa0b756e1f4f5c6f9de6 -->
+<!-- Source/Vertrag SHA256: 2789b627e641f12d4310266e13ddec95161685f050c9e806d163c4d658ebd1ad -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -60,7 +60,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md).
 
-<!-- Source/Vertrag SHA256: 560ff105cebcdcbdbb84bd366992a42281dd1950c0bdd20ed60243833b0c83a4 -->
+<!-- Source/Vertrag SHA256: a4157c97c92a248e79db17599686dd1851e6b11abea2354dc19a2e17ce50c875 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -99,7 +99,7 @@ Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload var
 
 Vertrag und Quelle: [USP_CreateZipFromEntries.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql), [USP_CreateZipFromEntries.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 47fcec037ddc136914bbbc709b4bdee36500a10f0b1eeafb565ed8394f5aef00 -->
+<!-- Source/Vertrag SHA256: 732d33d07ee36a7e6abdee56bc3dea793f46c6b846d50833a54b59027427edda -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -137,7 +137,7 @@ Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv i
 
 Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 3b058bc5a3c01faeb727eddd404888e6a453e679872aa259b3016e0c408b8b7e -->
+<!-- Source/Vertrag SHA256: 06f89868534ca4302e25dbf69bc1f860bfb8cb727140e03c025e77dc9d1975cc -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -173,7 +173,7 @@ Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen S
 
 Vertrag und Quelle: [USP_ListZipEntriesFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql), [USP_ListZipEntriesFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 8467d6fa605f0adeeb7a21daf0f64545773fa65a9e630be4cdda21c7c000bdd2 -->
+<!-- Source/Vertrag SHA256: e1a98d4e9e5a172dd615fdb3517ea11ab9f645d3fd4aa86f14001327ad659de0 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -311,7 +311,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: 76b6d7a81555541cf6a46f40521695a8f0ec9c60ad3df4281e502a02f3e08bfc -->
+<!-- Source/Vertrag SHA256: 70919f4180c29a49bce54a7f39327df89bda84f39fd0160de37dbdefe103dc8b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -332,7 +332,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 3ffd5d849799d4f71ae8252d7dd21a6814fe05498b8aeda5ea20806ff871c7cf -->
+<!-- Source/Vertrag SHA256: 12872f97a76fa0656eed4abf9e33281027b0d997f07ba16b2643322506407f8d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -352,7 +352,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: 63a3dea612b52a8ffc15520cbe60a556692f4a720119f86267eb735859873d1e -->
+<!-- Source/Vertrag SHA256: 4e7c131585a6f16eacb23451eba46507555cff32d669cc54c34674fa0fe5246a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -373,7 +373,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 4a3fae3d9fc8e3072854fc49315aaac8f8d4480576cebf790ad7c1696abd1492 -->
+<!-- Source/Vertrag SHA256: b509b916980661ea661f5afec002f48934a11ff0866c06f8d19222c9bf555671 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -393,7 +393,7 @@ Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der k
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64EncodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 96a56d63efc4acff94dd4112ac79cf600d518a83e556d1b48027109038440dfb -->
+<!-- Source/Vertrag SHA256: 2eff1d6f89241b3b082f81cb7f98facefe17b16bad42e5cec51408d55da9c37c -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -416,7 +416,7 @@ Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE,
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64DecodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: afb145803a45f7103659086177d659dd8849d589bef3f9127b4ff58ade2acc1a -->
+<!-- Source/Vertrag SHA256: 5d789c7b50bea504458fd75aa009ba4fc6f3340f7ec87c332f8cab120326a6bb -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -438,7 +438,7 @@ Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
 Vertrag und Quelle: [TVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_IntegerToBase.sql), [TVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 7eab9275067bf155c7aeab3b15e46c51f036f7f0583e10a3c17f49621220df38 -->
+<!-- Source/Vertrag SHA256: c92858d59b2c0720e0edeb6fc549e6755af6db55071ce288792e56ddd6486831 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -459,7 +459,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [TVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql), [TVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 9759b1a0486165135e9a789ebd39a953a6984c00bf06e99ccbfe179f6e44ae0d -->
+<!-- Source/Vertrag SHA256: a155a83c4329abcf8ff42858343a574baad4cd1c6d28b8de35cddc0efc7ad3b6 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -480,7 +480,7 @@ Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
 Vertrag und Quelle: [SVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql), [SVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 2c57c79e1da23c009ab5b581700de630089a1c3b7f78cbc297c12eed65877a02 -->
+<!-- Source/Vertrag SHA256: 374339ffa665bb5498af012cb72ee3f0dcddaec5e548ebf5a49e400101260840 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -501,7 +501,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [SVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 5f043733b76bf45f525013cebad5df9448b646227095c1bfe707907e919cb638 -->
+<!-- Source/Vertrag SHA256: 03743794b23063929e3b7d9382c3cc6e59828084ead25fa994815e10c3de2bc7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -522,7 +522,7 @@ Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status 
 
 Vertrag und Quelle: [TVF_TryCastBigInt.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBigInt.sql), [TVF_TryCastBigInt.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBigInt.md).
 
-<!-- Source/Vertrag SHA256: 280cfcde7a568a7d81f7922ec88aa10b922ac82079e0926d3b3395837fc97438 -->
+<!-- Source/Vertrag SHA256: edb404bb93970620ab8a189cdf600c7defffe854a12b156a2ca977ab2a49ca98 -->
 
 Voraussetzung: Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte.
 
@@ -545,7 +545,7 @@ Prüft exakten decimal(38,18)-Bereich vor Skalenverlust; rundet niemals still.
 
 Vertrag und Quelle: [TVF_TryCastDecimal.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDecimal.sql), [TVF_TryCastDecimal.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDecimal.md).
 
-<!-- Source/Vertrag SHA256: b19a0bfd9fe51f11716bc1f090b8df0864eb050a14055bc684ce5fbc7982fe8e -->
+<!-- Source/Vertrag SHA256: ed0705d34801361306ef30c62091c885a32c82a48532ad3adada3a3479ff3601 -->
 
 Voraussetzung: Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY.
 
@@ -568,7 +568,7 @@ Prüft exakt YYYY-MM-DD und den date-Kalenderbereich unabhängig von Sprache und
 
 Vertrag und Quelle: [TVF_TryCastDate.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDate.sql), [TVF_TryCastDate.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDate.md).
 
-<!-- Source/Vertrag SHA256: 7a28c1116699781ff435877c44253ec8810aa6b1ed50291f413aa97020ed717f -->
+<!-- Source/Vertrag SHA256: 0db15de9a7783129497a74d70e3dc5cdf210ccbe6ba846074e07d20b4569ea17 -->
 
 Voraussetzung: Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
 
@@ -591,7 +591,7 @@ Prüft ISO-Datetime mit großem T und höchstens sieben Fractionziffern ohne Run
 
 Vertrag und Quelle: [TVF_TryCastDateTime2.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDateTime2.sql), [TVF_TryCastDateTime2.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDateTime2.md).
 
-<!-- Source/Vertrag SHA256: 442614402a863871fd530885bf90ecef39386b233470603c8ca1674cdb429057 -->
+<!-- Source/Vertrag SHA256: cbcedc3366db333e080b04d592e4bd30f4a9f33512e1b6cfb7da718e7b79f8c2 -->
 
 Voraussetzung: Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpretation.
 
@@ -614,7 +614,7 @@ Akzeptiert ausschließlich den Text0 oder1; native permissive Bitkonversion blei
 
 Vertrag und Quelle: [TVF_TryCastBit.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBit.sql), [TVF_TryCastBit.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBit.md).
 
-<!-- Source/Vertrag SHA256: 9d0fd4917a1158656a6f64c9bba96a1db0d07d5d71e2ccf64b01dc8de3a79d90 -->
+<!-- Source/Vertrag SHA256: 3b6cd23a592e7e86a43ab02467473347ac274c25ad3ba1d71fd82a6defc7ec30 -->
 
 Voraussetzung: Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
 
@@ -637,7 +637,7 @@ Prüft vollständige GUID-Lexik im8-4-4-4-12-Muster vor Konversion; keine Suffix
 
 Vertrag und Quelle: [TVF_TryCastUniqueIdentifier.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastUniqueIdentifier.sql), [TVF_TryCastUniqueIdentifier.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastUniqueIdentifier.md).
 
-<!-- Source/Vertrag SHA256: 8ab7f018f255ab9c469a0a6ae779cdf74a4f28c8d3c0588924af5df665df8c05 -->
+<!-- Source/Vertrag SHA256: 1a2079c937a9fa16160ad5879ba437aa22498acf35d866b7ee6a4022bd834bfd -->
 
 Voraussetzung: Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Braces.
 
@@ -660,7 +660,7 @@ Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
 
 Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: f369cc98b7bceb91e703bae7c05452bf5755038ed813b2c6497e6c67dea75805 -->
+<!-- Source/Vertrag SHA256: 6cd06b768ab4fa5e680922b2ad8de38d1c1ecef3514b395916cf03421e229d74 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -680,7 +680,7 @@ Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
 Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: 02e330b82b223e72e9b9bee65cbfee1ac51d62d6081365271b7e81baed7d475f -->
+<!-- Source/Vertrag SHA256: 69d6c8711b533e2ebfe54d401b2f786e2cf590e2817c7128759da3227a47af72 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -700,7 +700,7 @@ Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
 
 Vertrag und Quelle: [SVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentEncode.sql), [SVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: 3f8f79d80647dc9d99cf2038a8bf8e9189787fb6dcf82b9fed1190c32645cda7 -->
+<!-- Source/Vertrag SHA256: bae5058232fde5c0949eb845d01d01b8e7902b94dd424750499e1ff13e8e7c78 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -720,7 +720,7 @@ Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
 Vertrag und Quelle: [SVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentDecode.sql), [SVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: 54d4e133f63a47702fb5d8106aab83cdd72bdff636795742124944fafb3f28c1 -->
+<!-- Source/Vertrag SHA256: 7aecedef7c32234a8117f632774af19ee17c8d007e96c8f83bbf251ae4f4cd5d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -740,7 +740,7 @@ Genau eine Zeile: OK, SQL_NULL oder LIMIT. Eingang vor UTF-8-Konvertierung/Serie
 
 Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 516ad8ff8e0ed59efd8422c3910415de41ab1ff527ec0b248fb739c222ca537f -->
+<!-- Source/Vertrag SHA256: 0b361f240348ae567f5cd8bd4a6954b5df9612108c5d7a617615e7ab7c125adf -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -762,7 +762,7 @@ Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Strikte UTF-8-/Percent-/NUL-
 
 Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: d69f95fa61f0cd590b6763d2e70541bd189313727166cd794dc89af378ad62af -->
+<!-- Source/Vertrag SHA256: 04064f341f0c077fa6c92b99c9e03499a85e31515fd3bab9bf63d54fdbdf76c6 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -875,7 +875,7 @@ Zeigt protokollierte Toolbelt-Events.
 
 Vertrag und Quelle: [VW_Events.sql](../../Modules/toolbelt.core.event-log/Source/VW_Events.sql), [VW_Events.md](../../Modules/toolbelt.core.event-log/Documentation/VW_Events.md).
 
-<!-- Source/Vertrag SHA256: 0f4fba0000354b008bbbc321a1f60f98fe7430988103f87aa1aa47bf6f503245 -->
+<!-- Source/Vertrag SHA256: ee5a6dd447561adee9115c35aa761694357a3ebd0d83f9389d70da60ed311a5a -->
 
 Keine Eingabeparameter.
 
@@ -891,7 +891,7 @@ Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. D
 
 Vertrag und Quelle: [USP_WriteEvent.sql](../../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [USP_WriteEvent.md](../../Modules/toolbelt.core.event-log/Documentation/USP_WriteEvent.md).
 
-<!-- Source/Vertrag SHA256: 0ed899d66ed0665b8540b5f139dcd10694e5422bae9cc4cb34b321272d5b00d1 -->
+<!-- Source/Vertrag SHA256: e51b53bcb50c766f455b83d0821a2467183a8d3402595d26f6f5184f82a7dfb4 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -938,7 +938,7 @@ Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine a
 
 Vertrag und Quelle: [USP_DeleteEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql), [USP_DeleteEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: b49a763ccc06f87a130a84ce7107ae3d3579645493ef8f8c57028c47f06798f8 -->
+<!-- Source/Vertrag SHA256: f1813bc919ee14c795427824f115dff21983c6cb58e0331683002c2057525797 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -971,7 +971,7 @@ Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAt
 
 Vertrag und Quelle: [USP_DeleteRecordedEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql), [USP_DeleteRecordedEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteRecordedEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: e2caa429185e86e811804188a37f05454eef1befa9e75611fecc0c05d96621b9 -->
+<!-- Source/Vertrag SHA256: eaabb01b850396d34b98ab0c6b41844be0dea064edf9fad659ff8d48c480d650 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -1004,7 +1004,7 @@ Liest den registrierten kooperativen Abbruchstatus einer Ausführung.
 
 Vertrag und Quelle: [TVF_ExecutionCancellationStatus.sql](../../Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql), [TVF_ExecutionCancellationStatus.md](../../Modules/toolbelt.core.execution-cancel/Documentation/TVF_ExecutionCancellationStatus.md).
 
-<!-- Source/Vertrag SHA256: 6d17ea219423906e6f0edd7014251d25e58b3c59fbff09026b24d3061acb9163 -->
+<!-- Source/Vertrag SHA256: 780418f6b52624d38dbf6ec863b22f6cbc6441cf7353c7926d83f65bf4d1c305 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1024,7 +1024,7 @@ Prüft, ob für eine Ausführung ein kooperativer Abbruch angefordert wurde.
 
 Vertrag und Quelle: [SVF_IsCancellationRequested.sql](../../Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql), [SVF_IsCancellationRequested.md](../../Modules/toolbelt.core.execution-cancel/Documentation/SVF_IsCancellationRequested.md).
 
-<!-- Source/Vertrag SHA256: 9b0af2deaf7b083da7fd6ae6acd7e2fa6edff48de3b65070a029da16d9bbbccc -->
+<!-- Source/Vertrag SHA256: 17f0eba823afe5d92486b5908cc5b4919ee4e1c627b102aa02a61b7018359211 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1044,7 +1044,7 @@ Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedur
 
 Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [USP_RequestExecutionCancellation.md](../../Modules/toolbelt.core.execution-cancel/Documentation/USP_RequestExecutionCancellation.md).
 
-<!-- Source/Vertrag SHA256: b4605c01ffd6d7c73d134a53ca8e21c5f9051c0eea79ad3273c7ae727e44b150 -->
+<!-- Source/Vertrag SHA256: 266f952bee64e0443bb3050432afb7714f194f0e7dda4dff932c52b91bc5a27a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1211,7 +1211,7 @@ Erzeugt eine Folge von bigint-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md).
 
-<!-- Source/Vertrag SHA256: c920a5c60f9396ac5cda020902218e31f9e58c5b1c01d96081fb0c099f2172ad -->
+<!-- Source/Vertrag SHA256: 71833bb6a9400477bc7a4ee3ea68d287adc1d0421553bb894a5b5b776177ca9d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1233,7 +1233,7 @@ Erzeugt eine Folge von int-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql), [TVF_GenerateSeriesInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesInt.md).
 
-<!-- Source/Vertrag SHA256: 0b8cc7fa02b629bd5e07dfadc8e83a4718e1231df0cfa6b7c839783573890b1f -->
+<!-- Source/Vertrag SHA256: 5172beb0ae698011093cd2d85c3f91597bd063c95d70af67073b9ef0521b4585 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1255,7 +1255,7 @@ Vor Expansion exakte Anzahl mit decimal(38,0) und Restrechnung bestimmen. Höchs
 
 Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigIntStatus.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigIntStatus.md).
 
-<!-- Source/Vertrag SHA256: 041ee4a697cd471bda28010f0f966f6781774bf97b00d90f152a89d258a8cb28 -->
+<!-- Source/Vertrag SHA256: dfcb4dfc4ccf12f518f1c9a0590b8962f1891306b4ef894a086676ba4611b830 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -1279,7 +1279,7 @@ Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vor
 
 Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md).
 
-<!-- Source/Vertrag SHA256: 124a3b0954b91c8b4f8bede3b542229175d073a2fbc0550ca2e80e8ea2e21fb7 -->
+<!-- Source/Vertrag SHA256: 03f91d1c4e6488a2f2d121c8e629ac81beb9e2c90b85451481419d10ae5da087 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1316,7 +1316,7 @@ Zeigt konfigurierte Second-Session-Provider.
 
 Vertrag und Quelle: [VW_SecondSessionProviders.sql](../../Modules/toolbelt.core.second-session/Source/VW_SecondSessionProviders.sql), [VW_SecondSessionProviders.md](../../Modules/toolbelt.core.second-session/Documentation/VW_SecondSessionProviders.md).
 
-<!-- Source/Vertrag SHA256: cca16be523dec147f9ea7200424cd5752168335875adddb1b6d2090812257f8b -->
+<!-- Source/Vertrag SHA256: 9716d7e39f4843130342e78a5879a7e42ea2d19164ed5a9fbfa198c482b495ec -->
 
 Keine Eingabeparameter.
 
@@ -1332,7 +1332,7 @@ Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Lin
 
 Vertrag und Quelle: [USP_ConfigureSecondSessionLoopback.sql](../../Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql), [USP_ConfigureSecondSessionLoopback.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ConfigureSecondSessionLoopback.md).
 
-<!-- Source/Vertrag SHA256: c089453d7d12969519c4c9c010659032e78e9c56dbdf53b03284b30a20e9152b -->
+<!-- Source/Vertrag SHA256: 5902b2cb411c237d3177fce81b6200b9cd0de92d89fec80b124c6b6cc0b7fc39 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1366,7 +1366,7 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [USP_ExecuteWorkTypeInNewSession.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ExecuteWorkTypeInNewSession.md).
 
-<!-- Source/Vertrag SHA256: 216f1d85d19a6231c4211dea38fa39127e4099a978ba162db94e16b6ff20db94 -->
+<!-- Source/Vertrag SHA256: cd67d9bc24ca13487907c08c7ce7a16eb6fd3f02d1ae599740f5c05fb1e93410 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1404,7 +1404,7 @@ Zeigt Queue-Status und Auditmetadaten ohne Payload und ClaimToken.
 
 Vertrag und Quelle: [VW_WorkQueue.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql), [VW_WorkQueue.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueue.md).
 
-<!-- Source/Vertrag SHA256: f936074f3931121afa41fd41e8410c60b47684b513bb35e42985d8549d4da8a1 -->
+<!-- Source/Vertrag SHA256: 463753d307452b80f4bbb29519aa54e859a5d53837561c026529ef76e68326b8 -->
 
 Keine Eingabeparameter.
 
@@ -1420,7 +1420,7 @@ Zeigt aktive Claim-Generationen, die eine Gruppenbarriere blockieren.
 
 Vertrag und Quelle: [VW_WorkQueueBarrierBlockers.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql), [VW_WorkQueueBarrierBlockers.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueueBarrierBlockers.md).
 
-<!-- Source/Vertrag SHA256: 6f51fca971382f904242d71469dd76d04651fe5bd67fa821837c170ad25cea8f -->
+<!-- Source/Vertrag SHA256: c54caf0ba6f2b8d171b7beb85f59fb6d7fae22b7c05ff0f6cde541905a507454 -->
 
 Keine Eingabeparameter.
 
@@ -1436,7 +1436,7 @@ Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wi
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [USP_EnqueueWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWork.md).
 
-<!-- Source/Vertrag SHA256: fd66c04ec8076cbf6bc949ddb7d34ba74be0e937cd7cd9063aed14b647a6264a -->
+<!-- Source/Vertrag SHA256: e4114ea519069ff9dd119ce8fc07b27f8aed3d5047fd6ce367864ecbf7411d77 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1469,7 +1469,7 @@ Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlic
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [USP_EnqueueWorkWithPolicy.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWorkWithPolicy.md).
 
-<!-- Source/Vertrag SHA256: a01b8d42fe30f4bfdc5776958d890d598d5976b960ce0aedb440da27b1d538ce -->
+<!-- Source/Vertrag SHA256: 0ff6e99b0044d81443049517f828211a9c7404f7004656beaacbc571d4366100 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1513,7 +1513,7 @@ Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten ak
 
 Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [USP_EnqueueBarrierWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueBarrierWork.md).
 
-<!-- Source/Vertrag SHA256: 441b6f7c5fcafcb503da820073dfc2cf25841efc3dd05b21f9255d6db54323f0 -->
+<!-- Source/Vertrag SHA256: 5e3d878f7f35c994fac22c4ef8e7f03b4dfa9673f507717bd5f9eb667d1b33c2 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1554,7 +1554,7 @@ Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffne
 
 Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [USP_ClaimWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ClaimWork.md).
 
-<!-- Source/Vertrag SHA256: 62a8590a781103bd7d55784c63bf468de4541af8474cde8d6cf7ba1f3a2963ab -->
+<!-- Source/Vertrag SHA256: d3c844ba3aaeab80d1bec96036d66be4317c6886a8e94216a2f8310b72ffe3a7 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1586,7 +1586,7 @@ Verlängert eine noch aktive Lease mit passendem ClaimToken um ihre beim Claim f
 
 Vertrag und Quelle: [USP_RenewWorkLease.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql), [USP_RenewWorkLease.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RenewWorkLease.md).
 
-<!-- Source/Vertrag SHA256: 65e4d3e7fdbfceda19e89b96ad774d7741a062be02750141570b14fbfc74efaa -->
+<!-- Source/Vertrag SHA256: 4c66e4be5ef2e3af0a51902f422cedc4e5ba83d1e95443b61b1048ab89efa32d -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1621,7 +1621,7 @@ Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT ode
 
 Vertrag und Quelle: [USP_RecoverExpiredWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql), [USP_RecoverExpiredWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RecoverExpiredWork.md).
 
-<!-- Source/Vertrag SHA256: 61ce358eb73574e5809d97d2e2e99157ba6d9a22dffcf966fb22b6575c9ee04d -->
+<!-- Source/Vertrag SHA256: 7fc283ee8346bd0fd23675cd711bc31efe1f7c9fc233c2e538f03f214e773d24 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1653,7 +1653,7 @@ Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED
 
 Vertrag und Quelle: [USP_CompleteWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql), [USP_CompleteWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_CompleteWork.md).
 
-<!-- Source/Vertrag SHA256: 8ea9b5d9e419d227e7a264f79ee21731aeacfba18ea04b00834fdfd3f72cab14 -->
+<!-- Source/Vertrag SHA256: 5f3e483097e7776a082cadc52ed57305e90fad5589bbf2f7475f0620e4d208a9 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1688,7 +1688,7 @@ Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Ge
 
 Vertrag und Quelle: [USP_FailWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql), [USP_FailWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_FailWork.md).
 
-<!-- Source/Vertrag SHA256: 73b4e6a2f792eac322ec1f55c68e36aaffdacc28ad2f1f7ef0a4e683ece37ef5 -->
+<!-- Source/Vertrag SHA256: b812e7f53f3c0e2808ddd05da09fbdd90b0d69078039d83dc09bf70816920b38 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1725,7 +1725,7 @@ Plant einen tokengebundenen Retry oder verschiebt nach Dead Letter.
 
 Vertrag und Quelle: [USP_ScheduleWorkRetry.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql), [USP_ScheduleWorkRetry.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ScheduleWorkRetry.md).
 
-<!-- Source/Vertrag SHA256: 30938ccfab83ea56056c30358a566fbe76b99858e6511df2f2ca4f04d8eb123d -->
+<!-- Source/Vertrag SHA256: c1813d92fc8073f85a32c07b945e33b64d0c1429174a258a380eb89186116e89 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1763,7 +1763,7 @@ Beginnt für ein Dead-Letter-Item einen neuen Retry-Zyklus.
 
 Vertrag und Quelle: [USP_RequeueDeadLetter.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql), [USP_RequeueDeadLetter.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RequeueDeadLetter.md).
 
-<!-- Source/Vertrag SHA256: 69923ae79c2bd33665efa27f6d444d7b7b9065199d0928f3fa93f8825f0f0574 -->
+<!-- Source/Vertrag SHA256: c5634b0818d4d3cbe28d36aa02f6cf4c806e39ae983530c6dfe4fdb3af728b17 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1799,7 +1799,7 @@ Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden
 
 Vertrag und Quelle: [USP_GetWorkStatus.sql](../../Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql), [USP_GetWorkStatus.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_GetWorkStatus.md).
 
-<!-- Source/Vertrag SHA256: 293b2e8bdd764159f9d1775c3c7dec6a0738534403cd6d3b91ee7196ca56272d -->
+<!-- Source/Vertrag SHA256: c030e632de302d79c13c175d4c7edf4ef4f465086a31aa39f1b25c0138f3ba89 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -2028,7 +2028,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
 
 Vertrag und Quelle: [VW_WorkerStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerStatus.sql), [VW_WorkerStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerStatus.md).
 
-<!-- Source/Vertrag SHA256: fce2ae24f2a6fec3ebcb40157964e668b05c701c0ec84a303291b3664a30095d -->
+<!-- Source/Vertrag SHA256: 9e37dcdfa32a47bc3f689f3987f80ce23e5229b12639d328a0ffb190f0fe1459 -->
 
 Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
 
@@ -2046,7 +2046,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
 
 Vertrag und Quelle: [VW_WorkerExecutionStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerExecutionStatus.sql), [VW_WorkerExecutionStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerExecutionStatus.md).
 
-<!-- Source/Vertrag SHA256: ed123f96edbd5483200d3ce09f8e242c21c8e7a9dec71166536a36b9acdf7fd3 -->
+<!-- Source/Vertrag SHA256: c3d15b7896d8caf5947310e046eb51dd7431139774e0e15e892e08a24054e1da -->
 
 Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
 
@@ -2064,7 +2064,7 @@ Fachliche Fassade der privaten atomaren Managed-Admission.
 
 Vertrag und Quelle: [USP_ClaimWorkerWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ClaimWorkerWork.sql), [USP_ClaimWorkerWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ClaimWorkerWork.md).
 
-<!-- Source/Vertrag SHA256: 000f8b6a5a22030a7547820aba841a7b3282057d06b45d85989995acee334551 -->
+<!-- Source/Vertrag SHA256: e6a5f8ddb18c3732b63e63a189cb542760c598542d97da0008152dd617c3caf9 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2100,7 +2100,7 @@ Schließt ausschließlich eine Generation ohne belegte oder ungeklärte Reservat
 
 Vertrag und Quelle: [USP_CloseWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql), [USP_CloseWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_CloseWorker.md).
 
-<!-- Source/Vertrag SHA256: fdce9effcbb12ca47a4ac063d02d81ad8bd0eac4d4c5a5b93ce3ae8a7491c27a -->
+<!-- Source/Vertrag SHA256: ff00d46969f9ee3e680e852f466636c75e7f7d7cd4894d5a0df899e908d12a5d -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2134,7 +2134,7 @@ Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder unge
 
 Vertrag und Quelle: [USP_DisableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql), [USP_DisableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_DisableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: 4a3e25e680f9288d5ee815146f8f6751f6bc8a81c1f6f2280164a58f3b3f8e2d -->
+<!-- Source/Vertrag SHA256: 719010de27ab81b7a728ab4323ebc4423818f9c58620c732fdea3570b8b53c39 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2168,7 +2168,7 @@ Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder unge
 
 Vertrag und Quelle: [USP_EnableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql), [USP_EnableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_EnableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: 38333095be280155cba2f9fcb7bff4efaffbc904e3ef669774feb45e7658a432 -->
+<!-- Source/Vertrag SHA256: f4307bdecf1f8299ebf68832ff82d614eef11b166d23fd55cd85aa95e3baecab -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2202,7 +2202,7 @@ Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu ü
 
 Vertrag und Quelle: [USP_HeartbeatWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql), [USP_HeartbeatWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_HeartbeatWorker.md).
 
-<!-- Source/Vertrag SHA256: af9433a305ba1e5f6ef6a31b77fa42abac5226d227ae7d594ef4612a454582ca -->
+<!-- Source/Vertrag SHA256: ea96625d0a2c407e594cbcd515334d624b2e7145e8b49684cea1ce05c6000425 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2236,7 +2236,7 @@ Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispat
 
 Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 6de4d325cc766beda9f917fefbfb7fd8882392799589013286f002b926fbf544 -->
+<!-- Source/Vertrag SHA256: 73ae31c730d7959fb53569e83255c37b65936f7de631e02e0630cdd42ac815c5 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2271,7 +2271,7 @@ Registriert eine neue principal- und generationgebundene Workeridentität; über
 
 Vertrag und Quelle: [USP_RegisterWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql), [USP_RegisterWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_RegisterWorker.md).
 
-<!-- Source/Vertrag SHA256: 32044981d0549a36894e90739d5969bb59507f3673d31dc681368b002571b1f8 -->
+<!-- Source/Vertrag SHA256: 61843a368a12bdbc84351b686bd7b9d79d2f130f836de8132eb3d349edc16ca4 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2307,7 +2307,7 @@ Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase;
 
 Vertrag und Quelle: [USP_ReleaseHeldWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReleaseHeldWork.sql), [USP_ReleaseHeldWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReleaseHeldWork.md).
 
-<!-- Source/Vertrag SHA256: 119121a3e56e564c511348d99f5fc745612e6983ef8d740ffce8e5dcd60337fc -->
+<!-- Source/Vertrag SHA256: 7834d950e9c728a3cbb78a84fb1a7052b32b65a6dc55967ca5b3f75c75c0f958 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2342,7 +2342,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerCapacity.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql), [USP_SetWorkerCapacity.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerCapacity.md).
 
-<!-- Source/Vertrag SHA256: 9898ea96bcd0cda99cb883b9fdf9dedb641b38dae12af431f1715dc3eb814bf8 -->
+<!-- Source/Vertrag SHA256: eb2adca6a53fefd555e67ff3006b2f9fe82df261579623d3271f0d318bdda902 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2379,7 +2379,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerConcurrency.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql), [USP_SetWorkerConcurrency.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerConcurrency.md).
 
-<!-- Source/Vertrag SHA256: c97f6dde0df4784b3d07b01162b381cdf9ff4b4c2302cd98229231e96b324239 -->
+<!-- Source/Vertrag SHA256: cb87e7430ebfc9943e1e4b3a954b43785b90057c0f67b8ed43c99733bbddbb55 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2414,7 +2414,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerIntervals.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql), [USP_SetWorkerIntervals.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerIntervals.md).
 
-<!-- Source/Vertrag SHA256: 8ecfca63578a24713d9cb7bfdcdde8b15f18a9242df7426ac7f79c6375f8ec4e -->
+<!-- Source/Vertrag SHA256: 31c7a142871b86fd0ae5cd8d79e2664f5dfa33a50440866966fec5f315761e5d -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2450,7 +2450,7 @@ Steuert ACTIVE, PAUSED oder DRAINING einer exakten lebenden Workergeneration.
 
 Vertrag und Quelle: [USP_SetWorkerState.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql), [USP_SetWorkerState.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerState.md).
 
-<!-- Source/Vertrag SHA256: 052ca61b5f8204e02a8284db191910d57a129647b52b6ea098dffd2515d7f31c -->
+<!-- Source/Vertrag SHA256: 03ac7eb361c5ea14d0e6af1d9b5ce22f21dac43ae4a40b10aed71021938f7b11 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2487,7 +2487,7 @@ Persistiert generationgebunden Stop und Hold vor Providerabbruch; Completiongewi
 
 Vertrag und Quelle: [USP_StopWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkerExecution.sql), [USP_StopWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 4e578eed57f0e23fb616638f29500148adfa9c74b4ed16c1eef53f5b135d9b84 -->
+<!-- Source/Vertrag SHA256: 2be2043dfd5272af7460cfe51c68d72fa3731c125cb256e3b787a219c0743cdf -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2522,7 +2522,7 @@ Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/H
 
 Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md).
 
-<!-- Source/Vertrag SHA256: 8aa2c4a78c8857128813517f7a51945ad6e1f2a222673381bcd5ddced97687e3 -->
+<!-- Source/Vertrag SHA256: 72702acfea6afd6971704635c313918c32efad1cb81194794a7e6dcf589a81b7 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2556,7 +2556,7 @@ Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu.
 
 Vertrag und Quelle: [TVF_DateBucketDate.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql), [TVF_DateBucketDate.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDate.md).
 
-<!-- Source/Vertrag SHA256: 3f43365d6804138e415d1aadb3781c44e79c7f07b0ab1b0399c2002c833950b0 -->
+<!-- Source/Vertrag SHA256: 49076556924c7527cb7e0c365f1cd09d084d83e096ffca8df7c22ae05f39a049 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2579,7 +2579,7 @@ Ordnet einen datetime2-Wert einem originbezogenen Zeit-Bucket zu.
 
 Vertrag und Quelle: [TVF_DateBucketDateTime2.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql), [TVF_DateBucketDateTime2.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTime2.md).
 
-<!-- Source/Vertrag SHA256: 0f197a59f21956550da7164918228419d13b567916973d2acddfd5e9327a8fd9 -->
+<!-- Source/Vertrag SHA256: 6ba7720056f7a39512117196bfaf06db6f4db7db55144ee87b1d45dc8c4d1e95 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2602,7 +2602,7 @@ Ordnet einen datetimeoffset-Wert einem originbezogenen Zeit-Bucket zu.
 
 Vertrag und Quelle: [TVF_DateBucketDateTimeOffset.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql), [TVF_DateBucketDateTimeOffset.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTimeOffset.md).
 
-<!-- Source/Vertrag SHA256: b8b56f08d0fcc0d9e4b229b005f95b10b79ff8e3c25a8242442c9f27662dfb5d -->
+<!-- Source/Vertrag SHA256: 6a279a964e25380f8e02ead7d9af09ae6dd303530e08eccf3d30f56721e60539 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2625,7 +2625,7 @@ Zerlegt ein Datumsintervall nach der Anniversary-Regel in Kalenderjahre, Monate 
 
 Vertrag und Quelle: [TVF_CalendarDifference.sql](../../Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql), [TVF_CalendarDifference.md](../../Modules/toolbelt.datetime.calendar-difference/Documentation/TVF_CalendarDifference.md).
 
-<!-- Source/Vertrag SHA256: cb9eea5da871f4d3ccf877944b71dc6ddef036eadcd940dc1f04526794553a10 -->
+<!-- Source/Vertrag SHA256: 8255569274955a9d4f73fa5e6f6c4564a7c5ad6dd8aa33a9cfcb1adbc6c25cd5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2646,7 +2646,7 @@ Liefert alle Tage, die einen halboffenen Zeitraum schneiden.
 
 Vertrag und Quelle: [TVF_DateSpineDay.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql), [TVF_DateSpineDay.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineDay.md).
 
-<!-- Source/Vertrag SHA256: 2ba00fa0c93cf98c2e8476a042ffcf28d69f3ac670084f7d812486ba8ffb85af -->
+<!-- Source/Vertrag SHA256: 0f8fbb83c388a9fe82ca4ac1138f63ffb8cd0795eee638a5a5ecbf70d06cdc33 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2667,7 +2667,7 @@ Liefert alle ISO-Wochen, die einen halboffenen Zeitraum schneiden.
 
 Vertrag und Quelle: [TVF_DateSpineIsoWeek.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql), [TVF_DateSpineIsoWeek.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineIsoWeek.md).
 
-<!-- Source/Vertrag SHA256: 71bc6913525c785d157b9044e51c627c50df460e3ae23c82453ae72cf4b65645 -->
+<!-- Source/Vertrag SHA256: a6114bd537e2424109a529c1d02ca5aee6c30a087b15784fbdb37e467d17a7ef -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2688,7 +2688,7 @@ Liefert alle Monate, die einen halboffenen Zeitraum schneiden.
 
 Vertrag und Quelle: [TVF_DateSpineMonth.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql), [TVF_DateSpineMonth.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineMonth.md).
 
-<!-- Source/Vertrag SHA256: 3afa16be72cd69bdf2e500965971160239db6f9785f61f674c54a00fd25f87a4 -->
+<!-- Source/Vertrag SHA256: 8f96728391dd010624699bd35f51d9f0d146a6e4a8041de25f49c93f4c628b6b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2772,7 +2772,7 @@ Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unt
 
 Vertrag und Quelle: [USP_LoadBinaryFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [USP_LoadBinaryFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: aa548b1de2ba444172c777977900ecd55859a8ffb6b868c86bae64bad21220eb -->
+<!-- Source/Vertrag SHA256: 58dbe7b4aee56824610d800d9f501d8fecf1b5c21cb9763f6bd9286f14834bf1 -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 
@@ -2806,7 +2806,7 @@ Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM un
 
 Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md).
 
-<!-- Source/Vertrag SHA256: b339d9b2c364edb69b3aeb4c18215fb4e624d17c0efbb045fdbb0802dbb93eab -->
+<!-- Source/Vertrag SHA256: 7da4a49ac4746ab5fb3ac91da8782fe01b6b737cf6dd13dd9735cfcec2bd2d0d -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 
@@ -2841,7 +2841,7 @@ Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zell
 
 Vertrag und Quelle: [USP_ParseCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql), [USP_ParseCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md).
 
-<!-- Source/Vertrag SHA256: dd515d3b5904687bbdc559eef4c9923022877249d0cea30a242e9e8e39f7144a -->
+<!-- Source/Vertrag SHA256: fb35c4006e859e3d54d6de6d75b406e966e72aa03a64e1917fab6c4c929b1d28 -->
 
 Voraussetzung: Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Helper.
 
@@ -2880,7 +2880,7 @@ Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten al
 
 Vertrag und Quelle: [USP_WriteCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql), [USP_WriteCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md).
 
-<!-- Source/Vertrag SHA256: d9bd52950f9c6d5c214e9dad59d45a3f4d09f8611120085a2e981d4bfe3302a8 -->
+<!-- Source/Vertrag SHA256: e8b1b3f2c0363d1264ea312a424d80b539c87009c6678f4e43b6b2d6026da5e6 -->
 
 Voraussetzung: Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleibt unverändert.
 
@@ -2921,7 +2921,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql), [USP_ListXlsxWorksheets.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md).
 
-<!-- Source/Vertrag SHA256: 3bec41c78e9dceb2a491f87765d62db31f50255a90b96562ff6cd6ef59b6af56 -->
+<!-- Source/Vertrag SHA256: 3cd93a877537d9a3faa9e6a4c2e18a2578c175696ddbc60175e21a8cac0a28fe -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2964,7 +2964,7 @@ Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/N
 
 Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql), [USP_ReadXlsxWorksheetCells.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md).
 
-<!-- Source/Vertrag SHA256: 29c053712ebac25845b3b8f0cdb2a2cd04f38eb26b8d64aecc67f033e8a872c0 -->
+<!-- Source/Vertrag SHA256: c395d02e8db4d7963927df98975dbb56243fa9aa04b55781d87311567c058a2a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3008,7 +3008,7 @@ Interpretiert den zuvor gelesenen Rohwert einer XLSX-Zelle als begrenzten, typis
 
 Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql), [TVF_InterpretXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: b32d7da4f18eba796707d11018fcbf73aa03b4ef9acc968b9cb9a5c26ce88d89 -->
+<!-- Source/Vertrag SHA256: a35565c6bf00aaa1fb8315d3b42726fc000a6f7174ce6d680205c54a817a4fa1 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3034,7 +3034,7 @@ Formatiert eine XLSX-Einzelzelle mit den unterstützten Literalformaten und Kult
 
 Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql), [TVF_FormatXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: a9c47af47704beef0559c0a0e5c8de65f271c4f166c67846da0140cb67daff92 -->
+<!-- Source/Vertrag SHA256: 493d14abaef88d3f07b8588d882127a6170cd9612360ba9150ffbded29375a3e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3061,7 +3061,7 @@ Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md).
 
-<!-- Source/Vertrag SHA256: 70800bb6d0e3c4972613f6d4b637914a04ab8a0fec4fc36a2bd5c35cee77c313 -->
+<!-- Source/Vertrag SHA256: f29e7cedc3210019449f1020e411f2bd711845ceece238644759486b706ff044 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3101,7 +3101,7 @@ Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächs
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md).
 
-<!-- Source/Vertrag SHA256: f69668667fe7a3518334cf22c0a658a7c044954b0ad81122e8d0a52db7a035f7 -->
+<!-- Source/Vertrag SHA256: f28f00a74f9dac555e3048ca1d123bc7e026f406496286b29bf2fa9bcb938fe7 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3142,7 +3142,7 @@ Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: fd0f255a349a9b9690db1af073c41326b177fc9b47af4a4c7a5ac4cc7d0b86e7 -->
+<!-- Source/Vertrag SHA256: a9988201c6bc603ddba04e504d1bcdb59c20f69032add15eaf1e44e43907ef16 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3182,7 +3182,7 @@ Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md).
 
-<!-- Source/Vertrag SHA256: 93c18cd0fbd80228f3a83349956ca8d7be23b16ae34612d3c3d6b529a755c3ef -->
+<!-- Source/Vertrag SHA256: b9897f1c760a5a974a2405d3d2ccd3b640533972785f399843f0e095a2cf1e2e -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3224,7 +3224,7 @@ Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md).
 
-<!-- Source/Vertrag SHA256: 205a6cb4d009f459982c742342688269e49475f49392cd7783a47d9efbd8eaad -->
+<!-- Source/Vertrag SHA256: c866d8c59b88615e863970afd73cf62ef814045f89ce1e4b94175e5a97ca7867 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3268,7 +3268,7 @@ Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md).
 
-<!-- Source/Vertrag SHA256: c40c008c1dfac0d8d8db774049623e2a6765a8ca9fb6efe2e98f9d06a2ff7a18 -->
+<!-- Source/Vertrag SHA256: e4c0fd6171436c515ada65f04da1f01cfc0c969d01bb809051f9d6d81be75bb8 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3309,7 +3309,7 @@ Erstellt ein Verzeichnis unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md).
 
-<!-- Source/Vertrag SHA256: 950b1313bfa526d9f16e9887e333631dee38f11bf80cfcbe79ba50ee7be37c7f -->
+<!-- Source/Vertrag SHA256: 15eed15531dd4f12fb98b9474c13dd7c2643f7fa56bfd3769ac894f3eff26ecc -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3347,7 +3347,7 @@ Entfernt eine Datei unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md).
 
-<!-- Source/Vertrag SHA256: 4ecbf5d6c46534da8eb129dc707cc3b357a10ce2630728311e5b207622561d9d -->
+<!-- Source/Vertrag SHA256: 854d3f0190f9e3fc93409d79f93900f4ab01b2dcff26e33df13671ed1de824ae -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3385,7 +3385,7 @@ Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md).
 
-<!-- Source/Vertrag SHA256: b3d7a69da415e3fdaa1088235420a63e55555cd7f0a63d300d8795ab5313a45d -->
+<!-- Source/Vertrag SHA256: de44fdbc2331afc81ecbe435583bcb58e0c75ae1a36b2c8b1113e41f1598bc8d -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3426,7 +3426,7 @@ JSON-Array aus Ordinal/ValueKind/Value; vollständig validiert und atomar gerout
 
 Vertrag und Quelle: [USP_JsonArray.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArray.sql), [USP_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: 5c0c8c75d62d83d422f4266a139e30dd4b590b2d054ecae3a1e00826edc6a55c -->
+<!-- Source/Vertrag SHA256: b8cddd18d86f4ecf700b9b6d08db429df4076f88138390369bce2fdfdcda9666 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3462,7 +3462,7 @@ JSON-Object aus Ordinal/ValueKind/Value/Key; vollständig validiert und atomar g
 
 Vertrag und Quelle: [USP_JsonObject.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObject.sql), [USP_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: fce75155b94c9477db414538eb5b76fdce2ae1aeee7be9e79e21f2732a785d14 -->
+<!-- Source/Vertrag SHA256: a4623643dab7186aad59e363e502a9fbdeb2ec202bb948d9e6c2f2f398eb46c7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3498,7 +3498,7 @@ JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und 
 
 Vertrag und Quelle: [USP_JsonArraysByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArraysByGroup.sql), [USP_JsonArraysByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArraysByGroup.md).
 
-<!-- Source/Vertrag SHA256: 9cdad28a51095c9d9284c346ecaae335c8ff85a7a336de9231eac274643273a3 -->
+<!-- Source/Vertrag SHA256: 5657601d48ea9c6d7977a7e4d664b09c36c9002dd9f27e3bbf7699257b6342d5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3544,7 +3544,7 @@ JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert
 
 Vertrag und Quelle: [USP_JsonObjectsByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObjectsByGroup.sql), [USP_JsonObjectsByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObjectsByGroup.md).
 
-<!-- Source/Vertrag SHA256: a7409119bc30a8bf2483542b69545db069db73bbb0688c84762ec630aa41776b -->
+<!-- Source/Vertrag SHA256: 9f09b5da2fe1e32ae28641e14c0057c834ae9d20ba26e30faac935b04a1d6e9c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3590,7 +3590,7 @@ Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.
 
 Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: 9bf0183ecefdf83c4cb8dc46a0a51478d16c68ad302396fee0247117a1676e37 -->
+<!-- Source/Vertrag SHA256: 487dbbeaf40912dc9dc2a8043bd659c4b79fd7800d07a674670f68552feb6e84 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3615,7 +3615,7 @@ Aggregiert typisierte Einträge mit eindeutigen Schlüsseln zu einem JSON-Objekt
 
 Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: b7253184c8514bf9fb56afedad670f58d53e285fa2200d6b86b30cd2dc2c5014 -->
+<!-- Source/Vertrag SHA256: 9a54c8265fb57602196acb7a380fcb66b2b1e117282c049fbdd9d5b5851d5ec7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3641,7 +3641,7 @@ Prüft, ob ein unterstützter Pfad in einem JSON-Dokument existiert.
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExists.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md).
 
-<!-- Source/Vertrag SHA256: f99996d40641d684a2faafc6fe0bc754c9911dfe288459d14531d37c0671704f -->
+<!-- Source/Vertrag SHA256: cf59b664b07b9656e35554b40d6be5d7044d1e2c6e872d3958497b1ce28c1d8a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3662,7 +3662,7 @@ Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. 
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExistsStatus.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md).
 
-<!-- Source/Vertrag SHA256: e655b0148731ed3f66f6038c928295c70481f4c2e9bd075c7bcee4bcfa1f7be2 -->
+<!-- Source/Vertrag SHA256: dce2e847a43b4aab5dd037308ec74a1f8162dcd19b9b5791bad5389699a88273 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -3685,7 +3685,7 @@ Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, J
 
 Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md).
 
-<!-- Source/Vertrag SHA256: ce9772dabbc9bc16a3a0e78d202e8efb88bd7943cfe7ae6a2746bc7826d8ee32 -->
+<!-- Source/Vertrag SHA256: 8f28b29d68f3d95e263fc897ffe511f9c7454af76e530e3523a48ace96cdc7b1 -->
 
 Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release.
 
@@ -3710,7 +3710,7 @@ Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode
 
 Vertrag und Quelle: [USP_ValidateJsonSchema.sql](../../Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql), [USP_ValidateJsonSchema.md](../../Modules/toolbelt.json.schema/Documentation/USP_ValidateJsonSchema.md).
 
-<!-- Source/Vertrag SHA256: 2f09582977f8402af0c80421c24f43e62faac406858c33fc0a96fc6e62d6feae -->
+<!-- Source/Vertrag SHA256: 027e52f01607761112c505a5493dc18466a1eb633e46a29d2cc486126c8000a2 -->
 
 Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies in derselben Datenbank, ResultTable >=1.0.0, vorhandene Aufrufrechte. Nur Teilqualifikation, unreleased.
 
@@ -3771,7 +3771,7 @@ Zerlegt und validiert ein- bis vierteilige SQL-Identifier.
 
 Vertrag und Quelle: [TVF_ParseMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql), [TVF_ParseMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/TVF_ParseMultipartName.md).
 
-<!-- Source/Vertrag SHA256: 61e09cf201db0b87d91a41e275a663498fef1eaa84ea86e4a291b245ed6166f2 -->
+<!-- Source/Vertrag SHA256: e1fd6b359c67ff202aa2d3cf74107a6fac596260afc7675d917706dfa3c18fc8 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3791,7 +3791,7 @@ Validiert einen mehrteiligen SQL-Namen und quotiert seine Komponenten.
 
 Vertrag und Quelle: [SVF_QuoteMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql), [SVF_QuoteMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/SVF_QuoteMultipartName.md).
 
-<!-- Source/Vertrag SHA256: 008ad792c26c3730b61a7951c4cffbdeb83073a18ff8ed5cde07c963e43443ed -->
+<!-- Source/Vertrag SHA256: 02285c39584e3128f49e00dfdee9b86c7065a58ddf513485ab17dcfe93ab22c3 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3811,7 +3811,7 @@ Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfan
 
 Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: 216bd0869836bd6b575da996fc5d11172b229c4f53efc5a5e69ebe580eec4777 -->
+<!-- Source/Vertrag SHA256: 86424be698e8c543d013a416aff114722a449c92a04b9c2b3558392d317fdd76 -->
 
 Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Zielname darf noch nicht existieren. IncludeTriggers=1 verlangt Windows und den separat installierten Parser 2.0.
 
@@ -3855,7 +3855,7 @@ Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-d
 
 Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: d65320e67f6f49bf6e084bbaec64e45203edd75d1b3ae63171cb28846f89a527 -->
+<!-- Source/Vertrag SHA256: 3eaa1abc377ae7c2c057b14b1333126e9f25e569bf9a684868e7b2065cf8d29b -->
 
 Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Platzhalter für die externe kanonische Hashberechnung; der Beispielaufruf ist bis dahin nicht ausführbar.
 
@@ -3903,7 +3903,7 @@ Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene lee
 
 Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md).
 
-<!-- Source/Vertrag SHA256: 4b8235025f608d51dc4cb4bda18cd0efc7916186c7d19b34ac761a61efc4b432 -->
+<!-- Source/Vertrag SHA256: 887081e4263cdf67dcfa67e640778f97813f5f7cd4bd81077039b2baea96db81 -->
 
 Voraussetzung: Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.
 
@@ -3953,7 +3953,7 @@ Verschiebt einen synthetischen 2D-Geography-Point im SRID 4326 deterministisch i
 
 Vertrag und Quelle: [DeterministicGeoJitter.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql), [TVF_DeterministicGeoJitter.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicGeoJitter.md).
 
-<!-- Source/Vertrag SHA256: efb384fc7f32a52a3cddb5aa74253ca6d03a6e04709813b11658961e1e2e3caf -->
+<!-- Source/Vertrag SHA256: e4891e5e1dab6d554754713e4f40a3b773952065aaa8d801ae673e4054b77ab7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3977,7 +3977,7 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Vertrag und Quelle: [DeterministicTranslate.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql), [TVF_DeterministicTranslate.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicTranslate.md).
 
-<!-- Source/Vertrag SHA256: a0765f3903b6971b86cebd553e7f3e2f9c1240a5411188cb636c54a4e11cab69 -->
+<!-- Source/Vertrag SHA256: 33cb0c6b08c6dbf66eb3a410e219b75310b416967c78951ed0f8efc95d830838 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4001,7 +4001,7 @@ Ordnet einen Schlüssel deterministisch einem ganzzahligen Zielbereich zu.
 
 Vertrag und Quelle: [TVF_DeterministicRange.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql), [TVF_DeterministicRange.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicRange.md).
 
-<!-- Source/Vertrag SHA256: b4ea68509ba7ddf1beff9789a9d0a351e010f0dd6ff5eddf80c5fd5c30ecbc1e -->
+<!-- Source/Vertrag SHA256: 6c6684055ed7edd5f8e0ffbbeee18d12421f5e7aa3fbb88cf8c242088bfefc75 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4025,7 +4025,7 @@ Verschiebt ein Datum deterministisch um eine begrenzte Anzahl Tage.
 
 Vertrag und Quelle: [TVF_DeterministicDateShift.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql), [TVF_DeterministicDateShift.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicDateShift.md).
 
-<!-- Source/Vertrag SHA256: 222a132cf9522def964d3b4e6482006d628afa8d410b1ec9b1977cbd4454277f -->
+<!-- Source/Vertrag SHA256: 8d9209e903c24abb3e99d27b34a9de5b9d0af90e46457ad413c59961f09c0726 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4049,7 +4049,7 @@ Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisieru
 
 Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql), [USP_DeterministicLookup.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/USP_DeterministicLookup.md).
 
-<!-- Source/Vertrag SHA256: c2a2cd8e305833cd80642c5b956ccd398b9e2d88ab72c83c99585044de7492a9 -->
+<!-- Source/Vertrag SHA256: 7ee209a1f6d072d360bab62f1261672b7c945d641495e076996ef64f29e18196 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4132,7 +4132,7 @@ Berechnet einen Jaro-Winkler-Ähnlichkeitsscore zwischen 0 und 1 über Unicode S
 
 Vertrag und Quelle: [JaroWinkler.sql](../../Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql), [TVF_JaroWinklerSimilarity.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_JaroWinklerSimilarity.md).
 
-<!-- Source/Vertrag SHA256: d3d8a47824bb7bc7a2f0cc0ca7cfdb2cb6d9c62b50d05270f6cfd795844a1275 -->
+<!-- Source/Vertrag SHA256: 0886d0746e03597322164936303bf5137bff7fcec4b7a35888eb879e74eaf349 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4154,7 +4154,7 @@ Berechnet die begrenzte Levenshtein-Editierdistanz zweier Unicode-Texte.
 
 Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_LevenshteinDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_LevenshteinDistance.md).
 
-<!-- Source/Vertrag SHA256: 57bc8231014d883d6a75f582ce21850d616447bf44864227f1bceaeacfcc68fe -->
+<!-- Source/Vertrag SHA256: d8a182464a42a077dd19c75930ff42e74c08467e129ddeb441462b2158e5e3a4 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4177,7 +4177,7 @@ Berechnet die begrenzte Optimal-String-Alignment-Distanz mit benachbarten Transp
 
 Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_OsaDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_OsaDistance.md).
 
-<!-- Source/Vertrag SHA256: 44eeabc5acad91e637ef3ab276d8c1db81401004eafb902bb3a2f83709fc6254 -->
+<!-- Source/Vertrag SHA256: 9446ed1644c220dfaa75df57525d78897af1cfc94e17464021fbff6a73fff018 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4200,7 +4200,7 @@ Berechnet den vollständigen begrenzten Kölner Phonetikcode.
 
 Vertrag und Quelle: [TVF_ColognePhonetic.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql), [TVF_ColognePhonetic.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_ColognePhonetic.md).
 
-<!-- Source/Vertrag SHA256: bebb834aa52e88ff253caba9741dbad75fb871db2f33b0c5f12fbb7f97b14ed6 -->
+<!-- Source/Vertrag SHA256: 3510fd8d5a0b4d506d9fcd5c1648505fb10e4ad343440439f1bd8d643643e38c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4220,7 +4220,7 @@ Berechnet den primären und alternativen Double-Metaphone-Code.
 
 Vertrag und Quelle: [TVF_DoubleMetaphone.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql), [TVF_DoubleMetaphone.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_DoubleMetaphone.md).
 
-<!-- Source/Vertrag SHA256: 91c9ab5876807635c004e4dbefbb4664104dd254b0a4803bcc065d97f88eb00f -->
+<!-- Source/Vertrag SHA256: 50fa0798faa38c7a569d362ebbf2ec0e6d21f08922420246602c37cf40699760 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4240,7 +4240,7 @@ Liefert Gruppen-Captures einschließlich wiederholter Captures.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [TVF_RegexCaptures.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexCaptures.md).
 
-<!-- Source/Vertrag SHA256: 1c3ccb5f9ff3cf3a35dc1e476683fed11ad3bd7f55a4650634daeeca6fe69ea0 -->
+<!-- Source/Vertrag SHA256: f88501477a62f13bb30f5a5072681c23ded1128a47f39278bfe1a4b25a0cad24 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4265,7 +4265,7 @@ Ersetzt Regex-Treffer mit dem getrennten Gruppen-Ersatzvertrag.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [SVF_RegexReplaceGroups.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplaceGroups.md).
 
-<!-- Source/Vertrag SHA256: 259a59ea30947091f74a31b020c231b501bd025c8a302056b42cdad2116a0132 -->
+<!-- Source/Vertrag SHA256: cac8de7b8c3057fa49eb7a6818711610ca661151c45e424fc3dfa1ba23478164 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4291,7 +4291,7 @@ Liefert vollständige Regex-Treffer mit Ordinals und Positionen.
 
 Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexMatches.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexMatches.md).
 
-<!-- Source/Vertrag SHA256: 09e913673871885f4b93d1aba5618ba6d93bb157244b0c12112d139a36a76b51 -->
+<!-- Source/Vertrag SHA256: 3bcdf6c50cdb933227640145b7309d4f316c2f2dc6330a0da5ecefe44d5ba672 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4316,7 +4316,7 @@ Zerlegt einen Text an Regex-Treffern.
 
 Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexSplit.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexSplit.md).
 
-<!-- Source/Vertrag SHA256: 7e9bff8b3b8550279be782236f58b49dd59f071e7ad3408aea7500ece23ca80d -->
+<!-- Source/Vertrag SHA256: 182b7b7125927335166b4b9541385722827ad003fcf6362fbe169e7277418264 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4340,7 +4340,7 @@ Prüft, ob ein regulärer Ausdruck im Text trifft.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexIsMatch.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexIsMatch.md).
 
-<!-- Source/Vertrag SHA256: f0d3d11869f128cd14e59ea4224566681a2cfd3d5d6299f6760ddb1872bf8f53 -->
+<!-- Source/Vertrag SHA256: 1397031fa7234fdf723be1c62800dfe5de7792f074fa18eeb2485dd529c5b52c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4362,7 +4362,7 @@ Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexInstr.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexInstr.md).
 
-<!-- Source/Vertrag SHA256: 5b1f081e3b4ad6f80f6430cfeeb597f3eb21cd6bdc029906510970ef18676534 -->
+<!-- Source/Vertrag SHA256: 827c2e5fc64a1c6e6ff85358a87b3e514a87a1aff2b83f24a54f05ba599f6f4c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4387,7 +4387,7 @@ Zählt Regex-Treffer ab der angegebenen Startposition.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexCount.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexCount.md).
 
-<!-- Source/Vertrag SHA256: 8bf87bc60e5745088ab3e41e42cdf557de1f3ce1ca982b028a2cb4a500d7a1a5 -->
+<!-- Source/Vertrag SHA256: 3224ca43a2325d08f90893ef13bb673f6cdd75a88ac49d13d15dd743aaa01d5e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4410,7 +4410,7 @@ Ersetzt ganze Regex-Treffer durch einen literalen Ersatztext.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexReplace.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplace.md).
 
-<!-- Source/Vertrag SHA256: d62486c77e4f1efcd9a6473686bea991273abaf9afa7eb2be0d1406739d379c0 -->
+<!-- Source/Vertrag SHA256: 13af6f652588071199271c5b96c8221c79eb59f25d05bd72d47f3b81021cc1a2 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4436,7 +4436,7 @@ Liefert den ausgewählten vollständigen Regex-Treffer.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexSubstring.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexSubstring.md).
 
-<!-- Source/Vertrag SHA256: d8af06972794379f71b1829aa353d4bb61803e3db9674f3c82653b0eab5e3431 -->
+<!-- Source/Vertrag SHA256: 79eea8b3b63cbe741538ba1ced6015fc145565db0bcd24819be1123a16792d95 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4461,7 +4461,7 @@ Zerlegt Originaltokens mit mehreren Separatoren, Quotes und Escape-Regeln; entqu
 
 Vertrag und Quelle: [TVF_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql), [TVF_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: 10853c7f1a0517f5d745fcdbf3ac8cbb63bf4f9d9ab7725750500e79774cfac3 -->
+<!-- Source/Vertrag SHA256: 05a636b1cdcfe7daa851f9e9cc61196856e373d84a798a518b53566f89f7dd49 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4485,7 +4485,7 @@ Entfernt ein unterstütztes äußeres Quote-Paar und decodiert dessen Escapes.
 
 Vertrag und Quelle: [TVF_UnquoteToken.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql), [TVF_UnquoteToken.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_UnquoteToken.md).
 
-<!-- Source/Vertrag SHA256: 62739eaadfa289038fb25a13e5db703aea45d528ea7a44278ea11dd2787b292c -->
+<!-- Source/Vertrag SHA256: 6bccca9966d279dba1c7212fcd2ccb70043ded177f512a4e2db68a7601e461f0 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4508,7 +4508,7 @@ Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unqu
 
 Vertrag und Quelle: [USP_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql), [USP_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/USP_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: e5b71ef792982b10c001d2e18d41073f51381d2e1531af52f20dfad6ba30924e -->
+<!-- Source/Vertrag SHA256: 9946b05cea7b50a2584d7c44a93c9c67255e3483b406d484cac0262d0cd3666d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4594,7 +4594,7 @@ Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jar
 
 Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql), [USP_CompareTextPairs.md](../../Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md).
 
-<!-- Source/Vertrag SHA256: 6d707d72323feb38ca671fa4581ab766977842175ca3b77577fde89ae1eb083e -->
+<!-- Source/Vertrag SHA256: d3c0e724a15edd21d42c5d3975b216a6b968102c605ebf49b5c213319f42c2f5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4630,7 +4630,7 @@ Liefert die AST-Knoten eines begrenzten T-SQL-Skripts.
 
 Vertrag und Quelle: [TVF_ParseScriptNodes.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodes.sql), [TVF_ParseScriptNodes.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodes.md).
 
-<!-- Source/Vertrag SHA256: 9657b4943511c46cf494135bdd3140481c7b15f76292eda7793b35ca7b90da8a -->
+<!-- Source/Vertrag SHA256: 1f0fa4c265e605b6cb891128666c949138c1c1930d38c7dfc93beca94fb205fb -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4654,7 +4654,7 @@ Liefert Eigenschaften der geparsten T-SQL-AST-Knoten.
 
 Vertrag und Quelle: [TVF_ParseScriptNodeProperties.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodeProperties.sql), [TVF_ParseScriptNodeProperties.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodeProperties.md).
 
-<!-- Source/Vertrag SHA256: 2bd1dc0a82d98a120f5a22a04cccfaa27259ef80b172a4a89e929bb57a533f5f -->
+<!-- Source/Vertrag SHA256: a4b0563268e1eb1544782f979bf021798ea8f6c0d3eb1588ad88e6430463df77 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4678,7 +4678,7 @@ Liefert Tokens eines T-SQL-Skripts.
 
 Vertrag und Quelle: [TVF_TokenizeScript.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_TokenizeScript.sql), [TVF_TokenizeScript.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_TokenizeScript.md).
 
-<!-- Source/Vertrag SHA256: 68dba98db17d7b97481e884e7a58d3dac9e94921524ee90de8bada096edd2c98 -->
+<!-- Source/Vertrag SHA256: bdb2949d6b7abd73f469f9c4f8c73d9e387f2a6c3e50514902f992abcdab4729 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4702,7 +4702,7 @@ Liefert Parserfehler eines T-SQL-Skripts, ohne das Skript auszuführen.
 
 Vertrag und Quelle: [TVF_ParseScriptErrors.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptErrors.sql), [TVF_ParseScriptErrors.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptErrors.md).
 
-<!-- Source/Vertrag SHA256: 524a775ff2f9e5e89fd3b92fc924b90a12370dc17c16942a5f26c9579c0c96b5 -->
+<!-- Source/Vertrag SHA256: 0c1b7bf7392eb485d11535a4f519dd0ff9e006247f336708044c9ecf47f8d8bd -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4726,7 +4726,7 @@ Aktuelle DTSX-Debuganalyse ohne Profil-Opt-in; editierbare typisierte JSON-Vorla
 
 Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md).
 
-<!-- Source/Vertrag SHA256: fe174f8f264c9c4e179cb91f63a3657bf60fe6e876715c0d6f36d702e604fbf8 -->
+<!-- Source/Vertrag SHA256: d0cef35c18725e7d3417efa126563efdf51471afce534210ba76b9b0a5d56828 -->
 
 Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.
 
@@ -4805,7 +4805,7 @@ Prüft und zerlegt eine Version nach SemVer 2.0.0.
 
 Vertrag und Quelle: [TVF_ParseSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql), [TVF_ParseSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_ParseSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: c85f7eb55e9b3181be227d07182f66933efab6f54ad6a55b315f28229ad26682 -->
+<!-- Source/Vertrag SHA256: 6c1826baf42122fe59c1dae019cc7187e98accc14aa73e82272fb12dcdb08524 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4825,7 +4825,7 @@ Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolg
 
 Vertrag und Quelle: [TVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql), [TVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: de3a0f6cdbd8b2c9915372e0e81316d2f840318dbafe857e7afd981a1d22679a -->
+<!-- Source/Vertrag SHA256: 9988f87b4bd4701349b742b88c3b32617431674795239a3c8a1f140d0a62b0e2 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4846,7 +4846,7 @@ Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.
 
 Vertrag und Quelle: [TVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql), [TVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: a96bf8d4b1bd3837a9d39d2bd4bc254f7aa380b6f0e72f3b64728c35059a280c -->
+<!-- Source/Vertrag SHA256: 39215c61d87817c4207995e2b175bcafdbf8db3a281d0c8f9d4d4abf2f318c7b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4866,7 +4866,7 @@ Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolg
 
 Vertrag und Quelle: [SVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql), [SVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: f2064e8a38c4581c4e40cc0872ae225d833fed280306baaf7cce8b46b054f843 -->
+<!-- Source/Vertrag SHA256: 2321960744b52d9d22ca98150dfecdd84b5dc3f64b51be02390560fa575d49b5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4887,7 +4887,7 @@ Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.
 
 Vertrag und Quelle: [SVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql), [SVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: 247a7bb895f06d7566adbacbbab32f78b16e7569e62780da1c1a68f5b93287fa -->
+<!-- Source/Vertrag SHA256: 99422aed90ce5ca86195a1fa92b05ecc6deab82078cc932c234b29dd1f5364cd -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

@@ -17,6 +17,16 @@ Plattformtests der verlinkten Modulbeschreibung und Testmatrix folgen.
 Ein Beispiel mit registrierten Handlern, Claims oder Dateien setzt die dort
 beschriebene Vorbereitung voraus.
 
+## Den Implementierungsweg verstehen
+
+Die [technischen Lösungswege](IMPLEMENTATION_GUIDE.md) erläutern ausgewählte
+Algorithmen, Zustände und SQL-/CLR-Entscheidungen. Sie beantworten etwa,
+warum ein Scanner mehrfach läuft, welche Zustände eine Schleife erhält und
+weshalb eine einfachere Alternative den Vertrag verletzen würde. Die
+betroffenen Objektseiten führen direkt zum passenden Abschnitt und von
+dort zu den zuständigen Quelldateien. Gewöhnliche SQL-Syntax wird dort
+nicht erneut als Grundlagenkurs erklärt.
+
 ## Beispiele finden
 
 Der [Beispielkatalog](API_CATALOG.md) zeigt alle öffentlichen aufrufbaren

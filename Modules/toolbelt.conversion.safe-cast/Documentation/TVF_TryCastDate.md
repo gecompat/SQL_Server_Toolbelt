@@ -36,6 +36,10 @@ Nachweise und offene Kontexte stehen in [Tests/README.md](../Tests/README.md).
 
 - Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#safe-cast).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

@@ -56,3 +56,7 @@ EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary = @SyntheticWorkbook;
 
 `@Hilfe = 1` liefert separat das standardisierte Help-Resultset ohne
 Workbook-Eingabe oder Runtime-Dependency.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#xlsx).

@@ -28,6 +28,10 @@ Details:
 | `@Value` | `date` | `kein Default` | Input | Zu verarbeitender Wert im ausgewiesenen SQL-Typ. |
 | `@Origin` | `date` | `'19000101'` | Input | Zeitlicher Referenzpunkt für die Bucket-Grenzen. |
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#kalenderarithmetik).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

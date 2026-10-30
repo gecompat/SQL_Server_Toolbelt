@@ -118,3 +118,7 @@ des Analyseaufrufs; sie ist keine Sperre gegen spätere DDL.
 `@ResultTable` akzeptiert eine bereits vorhandene lokale Temp-Tabelle;
 `@KeepData` folgt dem kanonischen ResultTable-Vertrag. Fehler liefern 50000
 mit `TBX_SSISDBG_` und ohne vertrauliche Quellfehlermeldungen.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#ssis).

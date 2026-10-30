@@ -34,6 +34,10 @@ ORDER BY Ordinal;
 | `@RangeStart` | `date` | `kein Default` | Input | Einschließliche untere Intervallgrenze. |
 | `@RangeEndExclusive` | `date` | `kein Default` | Input | Ausschließliche obere Intervallgrenze. |
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#kalenderarithmetik).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

@@ -78,3 +78,7 @@ CREATE TABLE #ZipInput(Ordinal int, EntryName nvarchar(max), Payload varbinary(m
 
 Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
 Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).

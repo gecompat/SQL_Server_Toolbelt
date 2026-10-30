@@ -36,6 +36,10 @@ Nachweise und offene Kontexte stehen in [Tests/README.md](../Tests/README.md).
 
 - Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
 
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#safe-cast).
+
 ## Weiterführende Referenzen
 
 - [Modul, Installation und Testgrenzen](../README.md)

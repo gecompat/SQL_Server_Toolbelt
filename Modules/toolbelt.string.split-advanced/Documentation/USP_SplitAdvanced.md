@@ -78,3 +78,7 @@ EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;
 
 Die Beispiele verwenden synthetische Werte. Vorlagen mit registrierten
 Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
+
+## Technischer Lösungsweg
+
+[Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#tokenisierung).
