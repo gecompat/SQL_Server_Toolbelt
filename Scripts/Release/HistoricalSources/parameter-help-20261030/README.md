@@ -9,9 +9,14 @@ Fachliche SQL-/CLR-Implementierung und historische Nachweise bleiben gebunden.
 
 Das Archiv ist kein Installationspaket und kein Laufzeitnachweis der neuen Hilfe.
 
-`Verifiers.zip` erhält außerdem die 23 unmittelbar vorherigen Lesadapter und
+`Verifiers.zip` erhält außerdem die 24 unmittelbar vorherigen Lesadapter und
 Offlineprüfer. `VerifierPins.json` und seine feste Bindung im Adapter erlauben
 ausschließlich die geprüften aktuellen Bytefolgen. Vor einer älteren
 Methodenprüfung wird genau dieser Lesadapter rückprojiziert; beliebige weitere
 Änderungen bleiben ein Fehler. Alte Quellpins, Oracles, Berichte und deren
 Nachweisumfang werden weder neu gepinnt noch als Abnahme der neuen Hilfe ausgegeben.
+
+Auch der parallel integrierte SSIS-Snapshot-Nachweis verwendet diese geschlossene
+Quellprojektion. Sein ausgeführtes Paket und seine Snapshot-Oracles bleiben
+unverändert. Der SSIS-Generator ist dafür mit seiner exakten Vorher-/Nachher-
+Bytefolge gebunden; seine neue Hilfe qualifizieren die separaten Help-Tests.

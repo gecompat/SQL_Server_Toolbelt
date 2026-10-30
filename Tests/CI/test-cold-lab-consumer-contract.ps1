@@ -21,6 +21,9 @@ $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $shared=Join-Path $PSScriptRoot 'LabQualifiedContract.ps1';$runner=Join-Path $PSScriptRoot 'run-lab-local.ps1'
 function Read-ColdAst([string]$Path){$errors=$null;$a=[Management.Automation.Language.Parser]::ParseFile($Path,[ref]$null,[ref]$errors);if($errors.Count){throw 'COLD_LAB_SOURCE_PARSE'};return $a}
 $runnerAst=Read-ColdAst $runner
+$repoBasePattern='\$(?:script:)?(?:repo|repoRoot|repository)\b'
+if(@('$repo','$script:repoRoot','$repository'|Where-Object {$_ -notmatch $repoBasePattern}).Count -ne 0 -or
+   @('$repositoryPath','$repoPath','$root'|Where-Object {$_ -match $repoBasePattern}).Count -ne 0){throw 'COLD_LAB_DEPENDENCY_BASE_TOKEN_ORACLE'}
 $consumers=@();$tracked=@(git -C $root ls-files -- '*.ps1');if($LASTEXITCODE){throw 'COLD_LAB_TRACKED_SOURCE_DISCOVERY'}
 foreach($relative in $tracked){
     if($relative -notmatch '^(Tests/|Modules/|Spikes/XlsxMemory/)'){continue};$path=Join-Path $root $relative
@@ -32,7 +35,7 @@ foreach($relative in $tracked){
     if($dots.Count -ne 1){throw ('COLD_LAB_EXPLICIT_READER_DEPENDENCY_REQUIRED: '+$relative)}
     $literal=@($dots[0].FindAll({param($n)$n -is [Management.Automation.Language.StringConstantExpressionAst] -and $n.Value -match 'LabQualifiedContract\.ps1$'},$true))
     if($literal.Count -ne 1){throw 'COLD_LAB_DEPENDENCY_PATH_LITERAL'}
-    $base=if($dots[0].Extent.Text -match '\$PSScriptRoot'){[IO.Path]::GetDirectoryName($path)}elseif($dots[0].Extent.Text -match '\$(?:script:)?(?:repo|repoRoot)\b'){$root}else{throw 'COLD_LAB_DEPENDENCY_BASE_UNKNOWN'}
+    $base=if($dots[0].Extent.Text -match '\$PSScriptRoot'){[IO.Path]::GetDirectoryName($path)}elseif($dots[0].Extent.Text -match $repoBasePattern){$root}else{throw 'COLD_LAB_DEPENDENCY_BASE_UNKNOWN'}
     if(-not [string]::Equals([IO.Path]::GetFullPath((Join-Path $base $literal[0].Value)),[IO.Path]::GetFullPath($shared),[StringComparison]::OrdinalIgnoreCase)){throw 'COLD_LAB_DEPENDENCY_WRONG_FILE'}
     $consumers+=@{Path=$path;Relative=$relative;Ast=$a;Dot=$dots[0]}
 }
@@ -113,7 +116,7 @@ try{
             $result=& $module {
                 param($Plan,$RunnerAst,$RunnerPath,$Repo,$Path,$Schema)
                 if(Get-Command Read-LabContractStreamBytes -ErrorAction SilentlyContinue){throw 'COLD_LAB_MODULE_NOT_COLD'}
-                $PSScriptRoot=$Plan.Directory;$repoRoot=$Repo;$repositoryRoot=$Repo;$helper=$RunnerPath;$driver=$RunnerPath;$runnerPath=$RunnerPath
+                $PSScriptRoot=$Plan.Directory;$repoRoot=$Repo;$repository=$Repo;$repositoryRoot=$Repo;$helper=$RunnerPath;$driver=$RunnerPath;$runnerPath=$RunnerPath
                 foreach($name in $Plan.Variables.Keys){Set-Variable -Name $name -Value $Plan.Variables[$name] -Scope Local}
                 foreach($name in $Plan.AstVariables){Set-Variable -Name $name -Value $RunnerAst -Scope Local}
                 foreach($definition in $Plan.Support){. ([scriptblock]::Create($definition))}

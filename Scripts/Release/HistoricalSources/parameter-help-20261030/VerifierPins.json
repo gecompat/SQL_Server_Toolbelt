@@ -11,6 +11,10 @@
     "after": "7a0e55fd916eb550b50b8c0c392a38cdd67c0de863d2dd9db2fc3ee99f307975",
     "before": "2c52b59d5b15ba242073bae88ef99111fd2f70a655eb729ef8ef6fc475e6f896"
   },
+  "Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py": {
+    "after": "32122dc897ee1683576b16fe1daecff6a7c0ca1be953c3c70db916829a97242f",
+    "before": "86439d3e79d0b79b84f998499b45eac25fa0675842c2f6b2e72438c52fd459a6"
+  },
   "Scripts/Release/caller_metadata.py": {
     "after": "232225f396bd1e6e9c5be123ce773444e0028010802a722d0f1964a22fe12431",
     "before": "8da99f797b7c93414b0d67ca0e58654f840c6b141bb089eea2742630014c1145"
@@ -64,7 +68,7 @@
     "before": "3e3729c3147b0bc90b4f3076dbe3e811bfd2c8eaa56d573b88fb0e475d0b683d"
   },
   "Tests/Release/test_prepare_release.py": {
-    "after": "876d3cd6c0d4256e71c7a9a963660b28362d76b25126512bcc89f96131006f0e",
+    "after": "e7aebd950f8cce2aa042d9a298a96094a638d7f0441ae589f41623dee06554c0",
     "before": "e933e83612f6faf53d75ddcb9fc6fc59799e87b6de74ec5ccad5f0c306dbee03"
   },
   "Tests/Release/test_xlsx_boundary_evidence.py": {
