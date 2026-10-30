@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-30",
+  "kind": "exact_documentation_followup_transition",
+  "status": "DOCUMENTATION_TRANSITION_ONLY",
+  "publication_authorized": false,
+  "native_requalification_claimed": false,
+  "current_head_ci_required": true,
+  "baseline_commit": "9363cb42eff328590276ad4d4f2289d4f3575262",
+  "integrating_commit": "7ef70dd77d2bcd0709908159807f9b97076c4f40",
+  "scope": "Exactly ten documentation files transitioned from the pre-integration source bytes to the SQL object documentation integration; historical execution reports and pins are unchanged. Current documentation bytes are bound separately and require current-head CI.",
+  "archive_path": "Scripts/Release/HistoricalSources/documentation-followup-20261030/Baseline.zip",
+  "archive_sha256": "33b7c78b9b81061de675a610060f2aa58e52ba72dba5a52d2e45c4cf5d801aea",
+  "license_sha256": "b513a23d5ca4484aa6f1ce78179da5a90edc3bf7929eb5cd5c726c8c08ca6ecd",
+  "before_source_sha256": {
+    "Modules/toolbelt.core.event-log/Documentation/EVENT_LOG_OBJECTS.md": "84cd993501faee58b8861b949c42ee1ea9e9e4456e03177da87cbf8e52a4edcd",
+    "Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md": "3bc1fb554639fbb52e310485511a8cb8dde9cdf4364bb8b422116fac67d0f5c0",
+    "Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md": "625376bd362998ef9426355b6305389a2d77bb992f0539946ee5a68a9d5d5a74",
+    "Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md": "3abb28d822a81b736578cb9752933c7b2a0857ca5051ded60e186b10dd98a059",
+    "Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md": "377a464fcb065a9b63fa842a0b7d8652e02fc3ee05f34e1828580bf40ca01bdb",
+    "Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md": "d75a688c54564e08e2baebf3fa05c32855545c0e5333ac1b2ef186b1b5f32190",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md": "a5195b9167cb2cbfa8085ce8f1c7fb1772fcbf8547b61234804c3c7e58b270f0",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md": "c5ca9d141b9c7e0a3e597a8268b70b5f8f49f7f146aadc7aa08cf4680c1ad32a",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "e4d72003bb10d3eb13e6703db368247210294e2a8507517d1080e349207c889c",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "f88217be833aa0f97c56b7006c7a79008eab6a0478c8474b5bdd922d9e8f9fa2"
+  },
+  "after_source_sha256": {
+    "Modules/toolbelt.core.event-log/Documentation/EVENT_LOG_OBJECTS.md": "fd4da715205e5c0c188b23665ffbbf1ab44cb96555a2d590f330365f7fcc0737",
+    "Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md": "e25e0128c76039d244c272b940ae6ea8bc7928d00055d0d1e7436ac893f84990",
+    "Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md": "bfdd8bbf94c03765650c5632bbc0acec0ab1efb0bb26b0acd6b3f1d10fec2e94",
+    "Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md": "abb53947146347889f2d177c27b70dcf5981c955d64c8b42fc811a3b60578bd5",
+    "Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md": "160f82a0d95b146127507b19f4da99c55b498976be6d2b306ef8f1f23cfea54c",
+    "Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md": "f6dc1671aac412692824e6765ea49049a84406c0b918ad7ef1d8d31443e27d1f",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md": "b7fb490f593feb2967e4d51f8fe425f2a4215d44acc7366b6ea63325403c37e0",
+    "Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md": "2f330cb9443e284c0ef583d4361138fc9f958276ff7d1bc92d9b9e62426997aa",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md": "b9ef6a336723233b30e09b8b274ee6becae13e74be9b7de1314fcf8c04208d58",
+    "Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md": "ef922222deabbf35ab1a6f046d37342924e7a65b8b69f45d0394f6112dd0c50b"
+  }
+}

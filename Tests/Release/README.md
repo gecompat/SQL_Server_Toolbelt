@@ -1,5 +1,22 @@
 # Releasevorbereitung prüfen
 
+## Historische Dokumentationsquellen nach PR #482
+
+Der [Dokumentationsübergang](../../Releases/1.0.0/documentation-followup-transition.json)
+bindet zehn nachträglich ergänzte Modul-Lesepfade: acht frühere Help-Quellen
+und die beiden CSV-USP-Dokumente. Ein kleines Archiv bewahrt ihre Bytes vor der
+Integration; exakte Vorher- und Nachher-SHAs begrenzen die aktuelle Änderung.
+Historische Qualifikationsprüfungen lesen weiterhin nur die archivierten
+Ausgangsbytes. Die heutigen Dokumente müssen separat exakt dem gebundenen
+Folgestand entsprechen. Das ist eine Quellen-/Dokumentationsbrücke und keine
+neue native Qualifikation; alte Berichte und Methodenpins bleiben unverändert.
+
+Die gezielten Prüfungen laufen in der bestehenden Release-Suite:
+`test_current_documentation_transition.py`, `test_csv_metadata.py` und
+`test_clr_maintenance.py`. Sie verwerfen unter anderem abweichende aktuelle
+Dateien, falsche Vorgängerpins, Archiv-/Recorddrift und geänderte gepinnte
+Maintenance-Methoden.
+
 Die [XLSX-Grenzprüfung](../../Releases/1.0.0/XLSX-BOUNDARY-QUALIFICATION.md)
 trennt die bestandene 32/33-Blattgrenze vom nicht qualifizierten
 50.000-Shared-String-Scope. Fünf neue Evidenzprüfungen kontrollieren Zähler,
@@ -99,6 +116,16 @@ bestehende Suite ein. Lokal:
 `python -B -m unittest Tests.Release.test_json_schema_caller_transaction_qualification -v`.
 Andere Sessionprofile, Ziele und vollständige API-/Rechte-/Lifecyclematrizen
 bleiben offen.
+
+Der [Deploy-Kollisionsnachweis](../../Releases/1.0.0/json-schema-deploy-collision-qualification.json)
+prüft vier feste Fehlerpfade für reservierten Callerzustand, öffentliche und
+interne Fremdslots sowie einen verwaisten DeploymentMode-Marker. Ein gemeinsamer
+positiver Deploy folgt erst nach Entfernung aller eigenen Fixtures. Ein
+Zielaufruf und ein unabhängiges Cleanup-/Pin-Audit bestanden; neun Offline-
+Report-/Adapterprüfungen laufen in der bestehenden Release-Suite. Lokal:
+`python -B -m unittest Tests.Release.test_json_schema_deploy_collision_qualification Tests.Release.test_json_schema_deploy_collision_adapter -v`.
+Der Nachweis beschränkt sich auf Windows SQL Server 2025/CU8/CL170 lokal und
+schließt keine vollständige Lifecycle- oder Ownershipmatrix.
 
 ## Edit-Distance-Paketqualifikation
 

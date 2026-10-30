@@ -1,5 +1,48 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema-Deploy: Callerzustand, Fremdslots und verwaister Marker — r36, 2026-10-30
+
+Begrenzte zusätzliche Lifecycle-Prüfung für die bestehende JSON-Schema-1.0.1-
+Installation: auf Windows SQL Server 2025/CU8/CL170 lokal werden vier synthetische
+Fehlzustände bei fehlendem Schema-Modul und eigenem leerem `toolbelt_json`-
+Namespace geprüft: belegte reservierte Deploy-Temp-Tabelle
+(55633/State 1), fremder öffentlicher Slot, fremder interner Slot und verwaister
+DeploymentMode-Marker (jeweils 55634/State 1). Jeder Fall muss die genaue feste
+Meldung, den vollständigen Modulzustand, Fixtureidentität/-inhalt und eine
+abgeschlossene Contendersitzung erhalten; nach Entfernung ausschließlich eigener
+Fixtures muss der Ausgangssnapshot wiederhergestellt sein. Eine gemeinsame
+Positivkontrolle am Ende bestätigt den unveränderten Deploy. Ein unabhängiges
+Cleanup-/Pin-Audit bleibt erforderlich. Es werden neue Runset-/Driver-/Offlineguard-
+Dateien erstellt, die bestehende geschützte Releasehelfer komponieren; r33–r35-
+Dateien, Produkt, API, Paket und bisherige Berichte bleiben unverändert. Ein
+Zielaufruf plus Audit, keine Rechte-/Konfigurationsänderung, keine Wiederholung
+der AppLock- oder Callertransaktionswellen und keine Veröffentlichung.
+
+Ergebnis 2026-10-30: Ein vollständiger Zielaufruf prüfte alle vier
+Abweisungen und den einen abschließenden gemeinsamen Deploy; alle erwarteten
+Fehler, Zustands-/Fixtureerhaltungen und die positive Kontrolle bestanden. Das
+unabhängige Cleanup-/Pin-Audit bestand ebenfalls. Es gab keine fehlgeschlagenen
+nativen Versuche. Der [gebundene Bericht](../Releases/1.0.0/json-schema-deploy-collision-qualification.json)
+und die ausgeführten öffentlichen Quellpins bleiben auf Commit
+`6344a220b1c56ae5166ca2ff3a36eb925e959ae1` begrenzt. Weitere
+Fremdobjekt-/Markerfälle, Zielkombinationen und vollständige Lifecycle- oder
+Releasegates bleiben offen; Veröffentlichung ist nicht freigegeben.
+
+## Dokumentationsübergang nach PR #482 — 2026-10-30
+
+Die SQL-Objektdokumentation von PR #482 hat zehn bereits quellengebundene
+Lesepfade erweitert: acht Help-Quellen und zwei CSV-USP-Dokumente. Die additive
+[Übergangsevidenz](../Releases/1.0.0/documentation-followup-transition.json)
+bindet ihre exakten Ausgangsbytes aus dem vorherigen Main-Stand und den aktuellen
+Dokumentstand. Historische Help-/CSV-/XLSX-/Maintenance-Nachweise behalten ihre
+ursprünglichen Eingabebytes, Reports und Method-Pins; es wird keine alte
+Qualifikation neu interpretiert oder erneut ausgeführt. Fokussierte Offline-
+Übergangs-, CSV- und Maintenance-Prüfungen bestehen lokal. Der aktuelle Head
+und die vollständige Release-CI müssen die neue Brücke noch bestätigen; es
+entsteht keine neue native Qualifikation oder Veröffentlichungsfreigabe.
+
+## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
+
 ## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
 
 Eng begrenzte Qualifikation des bestehenden JSON-Schema-1.0.1-Lifecycle: auf

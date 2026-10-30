@@ -10,6 +10,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import csv_metadata as metadata
+import current_documentation_transition
 import help_contract_source
 import prepare_release as release
 import xlsx_metadata
@@ -52,7 +53,13 @@ class CsvMetadataTests(unittest.TestCase):
         self.assertEqual((ROOT / metadata.REPORT).read_bytes(), self.baseline[metadata.REPORT])
         metadata.validate_source(ROOT, metadata.MANIFEST, metadata.digest(original))
         for p in metadata.DOCS:
-            self.assertEqual((ROOT / p).read_bytes(), metadata.corrected_documentation(p, self.baseline[p]))
+            corrected = metadata.corrected_documentation(p, self.baseline[p])
+            actual = (ROOT / p).read_bytes()
+            if p in current_documentation_transition.PATHS:
+                self.assertEqual(current_documentation_transition.validate_current(
+                    ROOT, p, metadata.digest(corrected)), actual)
+            else:
+                self.assertEqual(actual, corrected)
 
     def test_other_manifest_fields_and_unknown_source_exceptions_fail(self):
         old = self.baseline[metadata.MANIFEST]

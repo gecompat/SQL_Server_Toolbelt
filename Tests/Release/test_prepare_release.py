@@ -2067,6 +2067,8 @@ class DateMathSelectedCallerTests(unittest.TestCase):
 
 def load_tests(loader, tests, pattern):
     from test_clr_maintenance import ClrMaintenanceTests
+    from test_csv_metadata import CsvMetadataTests
+    from test_current_documentation_transition import CurrentDocumentationTransitionTests
     from test_ssis_standalone_tsql import StandaloneTsqlInstallerTests
     from test_base64_ddl_help_transition import Base64DdlHelpTransitionTests
     from test_generate_series_ddl_help_transition import GenerateSeriesDdlHelpTransitionTests
@@ -2075,7 +2077,11 @@ def load_tests(loader, tests, pattern):
     from test_json_schema_uninstall_applock_qualification import JsonSchemaUninstallAppLockQualificationTests
     from test_json_schema_uninstall_applock_adapter import JsonSchemaUninstallAppLockAdapterTests
     from test_json_schema_caller_transaction_qualification import JsonSchemaCallerTransactionQualificationTests
+    from test_json_schema_deploy_collision_adapter import JsonSchemaDeployCollisionAdapterTests
+    from test_json_schema_deploy_collision_qualification import JsonSchemaDeployCollisionQualificationTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
+    tests.addTests(loader.loadTestsFromTestCase(CsvMetadataTests))
+    tests.addTests(loader.loadTestsFromTestCase(CurrentDocumentationTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(StandaloneTsqlInstallerTests))
     tests.addTests(loader.loadTestsFromTestCase(Base64DdlHelpTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(GenerateSeriesDdlHelpTransitionTests))
@@ -2084,6 +2090,8 @@ def load_tests(loader, tests, pattern):
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallAppLockQualificationTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallAppLockAdapterTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaCallerTransactionQualificationTests))
+    tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployCollisionAdapterTests))
+    tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployCollisionQualificationTests))
     return tests
 
 
