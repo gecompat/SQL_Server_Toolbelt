@@ -11,7 +11,7 @@ import io
 
 
 RECORD_PATH = 'Releases/1.0.0/documentation-followup-transition.json'
-RECORD_SHA256 = '84d41c1bd1f68fdeebc14df978c3d5a196ed36b2efd0f6e5004f95ed336826b3'
+RECORD_SHA256 = 'b28ca23fb826c8f710d3e74fe7812b46cd4d6a75aa4cbd5f1b0aaac60c578155'
 ARCHIVE_PATH = 'Scripts/Release/HistoricalSources/documentation-followup-20261030/Baseline.zip'
 ARCHIVE_SHA256 = '33b7c78b9b81061de675a610060f2aa58e52ba72dba5a52d2e45c4cf5d801aea'
 MAX_RECORD_BYTES = 16 * 1024
