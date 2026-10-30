@@ -5,6 +5,40 @@ function Assert-SnapshotResultSetCount([int]$Actual,[int]$Expected){
  if($Actual -ne $Expected){throw 'SSIS_CURRENT_SNAPSHOT_RESULTSET_COUNT'}
 }
 
+function Test-SnapshotNoReparsePath([string]$Path,[string]$BoundaryRoot){
+ if([string]::IsNullOrWhiteSpace($Path) -or [string]::IsNullOrWhiteSpace($BoundaryRoot)){return $false}
+ try{$full=[IO.Path]::GetFullPath($Path);$boundary=[IO.Path]::GetFullPath($BoundaryRoot)}catch{return $false}
+ if(-not $full.StartsWith($boundary.TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -and $full -cne $boundary){return $false}
+ $relative=$full.Substring($boundary.TrimEnd('\','/').Length).TrimStart('\','/')
+ $cursor=$boundary.TrimEnd('\','/')
+ if($relative.Length -eq 0){$parts=@()}else{$parts=$relative -split '[\\/]'}
+ foreach($part in $parts){$cursor=Join-Path $cursor $part;if(-not (Test-Path -LiteralPath $cursor)){return $false};$item=Get-Item -LiteralPath $cursor -Force;if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){return $false}}
+ return $true
+}
+
+function Test-SnapshotManifestClosure($Entries,$RequiredEntries){
+ if($null -eq $Entries -or $null -eq $RequiredEntries -or @($RequiredEntries).Count -eq 0){return $false}
+ if(@($Entries).Count -ne @($RequiredEntries).Count){return $false}
+ $paths=[Collections.Generic.Dictionary[string,string]]::new([StringComparer]::OrdinalIgnoreCase)
+ foreach($entry in $Entries){
+  if($null -eq $entry -or [string]::IsNullOrWhiteSpace([string]$entry.path) -or [string]$entry.sha256 -cnotmatch '^[0-9A-F]{64}$' -or $paths.ContainsKey([string]$entry.path)){return $false}
+  $paths[[string]$entry.path]=[string]$entry.sha256
+ }
+ foreach($required in $RequiredEntries){if($null -eq $required -or -not $paths.ContainsKey([string]$required.path) -or $paths[[string]$required.path] -cne [string]$required.sha256){return $false};[void]$paths.Remove([string]$required.path)}
+ if($paths.Count -ne 0){return $false}
+ return $true
+}
+
+function Assert-SnapshotCurrentInputs($Binding){
+ if($null -eq $Binding -or [string]::IsNullOrWhiteSpace([string]$Binding.manifestPath) -or [string]::IsNullOrWhiteSpace([string]$Binding.repositoryRoot) -or [string]$Binding.sha256 -cnotmatch '^[0-9A-F]{64}$'){throw 'SSIS_CURRENT_SNAPSHOT_INPUT_BINDING_INVALID'}
+ if(-not (Test-SnapshotNoReparsePath ([string]$Binding.manifestPath) ([string]$Binding.repositoryRoot))){throw 'SSIS_CURRENT_SNAPSHOT_INPUT_MANIFEST_CHANGED'}
+ $manifestInfo=Get-Item -LiteralPath ([string]$Binding.manifestPath) -Force
+ if($manifestInfo.PSIsContainer -or $manifestInfo.Length -lt 1 -or $manifestInfo.Length -gt 1048576 -or (Get-FileHash -LiteralPath ([string]$Binding.manifestPath) -Algorithm SHA256).Hash -cne [string]$Binding.sha256){throw 'SSIS_CURRENT_SNAPSHOT_INPUT_MANIFEST_CHANGED'}
+ if(@($Binding.files).Count -lt 1 -or @($Binding.files).Count -gt 128 -or @($Binding.externalFiles).Count -lt 2 -or @($Binding.externalFiles).Count -gt 3){throw 'SSIS_CURRENT_SNAPSHOT_INPUT_BINDING_SIZE'}
+ foreach($entry in @($Binding.files)){$file=[IO.Path]::GetFullPath((Join-Path ([string]$Binding.repositoryRoot) ([string]$entry.path)));if(-not (Test-SnapshotNoReparsePath $file ([string]$Binding.repositoryRoot))){throw 'SSIS_CURRENT_SNAPSHOT_INPUT_CHANGED'};$info=Get-Item -LiteralPath $file -Force;if($info.PSIsContainer -or $info.Length -lt 0 -or $info.Length -gt 134217728 -or (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash -cne [string]$entry.sha256){throw 'SSIS_CURRENT_SNAPSHOT_INPUT_CHANGED'}}
+ foreach($entry in @($Binding.externalFiles)){$file=[IO.Path]::GetFullPath([string]$entry.path);$root=[IO.Path]::GetPathRoot($file);if(-not (Test-SnapshotNoReparsePath $file $root)){throw 'SSIS_CURRENT_SNAPSHOT_EXTERNAL_INPUT_CHANGED'};$info=Get-Item -LiteralPath $file -Force;if($info.PSIsContainer -or $info.Length -lt 0 -or $info.Length -gt 4194304 -or (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash -cne [string]$entry.sha256){throw 'SSIS_CURRENT_SNAPSHOT_EXTERNAL_INPUT_CHANGED'}}
+}
+
 function Read-SnapshotReaderResultSets([System.Data.IDataReader]$Reader,[int]$ExpectedResultSets){
  $tables=[Collections.Generic.List[Data.DataTable]]::new()
  do{
@@ -77,6 +111,8 @@ function Get-SnapshotFixtureExpectation([bool]$MutationApplied){
 }
 
 function Invoke-SnapshotOfflineChecks{
+ $cwd=[IO.Path]::GetFullPath((Get-Location).Path)
+ if(-not (Test-SnapshotNoReparsePath (Join-Path $cwd 'AGENTS.md') $cwd) -or (Test-SnapshotNoReparsePath (Join-Path $env:SystemRoot 'System32') $cwd)){throw 'SSIS_CURRENT_SNAPSHOT_PATH_BOUNDARY_CHECK_FAILED'}
  Assert-SnapshotResultSetCount 0 0;Assert-SnapshotResultSetCount 1 1
  foreach($pair in @([pscustomobject]@{actual=1;expected=0},[pscustomobject]@{actual=2;expected=1})){
   $rejected=$false;try{Assert-SnapshotResultSetCount $pair.actual $pair.expected}catch{$rejected=$_.Exception.Message -ceq 'SSIS_CURRENT_SNAPSHOT_RESULTSET_COUNT'}
@@ -115,6 +151,21 @@ function Invoke-SnapshotOfflineChecks{
   [pscustomobject]@{actual=4;expected=4;actualKind='PlanUnitSql';expectedKind='PlanUnitSql';actualHash=('A'*64);expectedHash=('A'*64);executable=$false;safety='passed'},
   [pscustomobject]@{actual=$false;expected=4;actualKind='PlanUnitSql';expectedKind='PlanUnitSql';actualHash=('A'*64);expectedHash=('A'*64);executable=$true;safety='passed'})
  foreach($candidate in $badBindings){if(Test-SnapshotBatchBinding $candidate.actual $candidate.expected $candidate.actualKind $candidate.expectedKind $candidate.actualHash $candidate.expectedHash $candidate.executable $candidate.safety){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_BINDING_NEGATIVE_FAILED'}}
+ $closedPaths=@('adapter.ps1','helpers.ps1','fixture.dtsx','provider.dll')
+ $closedEntries=@(foreach($path in $closedPaths){[pscustomobject]@{path=$path;sha256=('A'*64)}})
+ if(-not (Test-SnapshotManifestClosure $closedEntries $closedEntries)){throw 'SSIS_CURRENT_SNAPSHOT_MANIFEST_CONTROL_FAILED'}
+ if(Test-SnapshotManifestClosure @($closedEntries|Where-Object path -ne 'helpers.ps1') $closedEntries){throw 'SSIS_CURRENT_SNAPSHOT_MANIFEST_MISSING_HELPER_NEGATIVE_FAILED'}
+ $changedEntries=@($closedEntries|ForEach-Object {if($_.path -ceq 'provider.dll'){[pscustomobject]@{path=$_.path;sha256=('B'*64)}}else{$_}})
+ if(Test-SnapshotManifestClosure $changedEntries $closedEntries){throw 'SSIS_CURRENT_SNAPSHOT_MANIFEST_CHANGED_ENTRY_NEGATIVE_FAILED'}
+ $extraEntries=@($closedEntries)+@([pscustomobject]@{path='unbound.extra';sha256=('A'*64)})
+ if(Test-SnapshotManifestClosure $extraEntries $closedEntries){throw 'SSIS_CURRENT_SNAPSHOT_MANIFEST_EXTRA_ENTRY_NEGATIVE_FAILED'}
+ $boundFile=Join-Path $cwd 'AGENTS.md';$boundHash=(Get-FileHash -LiteralPath $boundFile -Algorithm SHA256).Hash
+ $secondBoundFile=Join-Path $cwd '.ai/PROJECT_RULES.md';$secondBoundHash=(Get-FileHash -LiteralPath $secondBoundFile -Algorithm SHA256).Hash
+ $testBinding=[pscustomobject]@{manifestPath=$boundFile;sha256=$boundHash;repositoryRoot=$cwd;files=@([pscustomobject]@{path='AGENTS.md';sha256=$boundHash});externalFiles=@([pscustomobject]@{path=$boundFile;sha256=$boundHash},[pscustomobject]@{path=$secondBoundFile;sha256=$secondBoundHash})}
+ Assert-SnapshotCurrentInputs $testBinding
+ $changedBinding=[pscustomobject]@{manifestPath=$boundFile;sha256=('B'*64);repositoryRoot=$cwd;files=$testBinding.files;externalFiles=$testBinding.externalFiles};$changedBindingRejected=$false
+ try{Assert-SnapshotCurrentInputs $changedBinding}catch{$changedBindingRejected=$_.Exception.Message -ceq 'SSIS_CURRENT_SNAPSHOT_INPUT_MANIFEST_CHANGED'}
+ if(-not $changedBindingRejected){throw 'SSIS_CURRENT_SNAPSHOT_MANIFEST_HASH_NEGATIVE_FAILED'}
  $expected=[pscustomobject]@{databaseId=17;created='2026-10-30T00:00:00.000';ownerRunId='synthetic-owner'};$actual=[pscustomobject]@{databaseId=17;created='2026-10-30T00:00:00.000'}
  if(-not (Test-SnapshotOwnedDatabaseState $expected $actual 'synthetic-owner' $false)){throw 'SSIS_CURRENT_SNAPSHOT_OWNERSHIP_CONTROL_FAILED'}
  $badOwnership=@(

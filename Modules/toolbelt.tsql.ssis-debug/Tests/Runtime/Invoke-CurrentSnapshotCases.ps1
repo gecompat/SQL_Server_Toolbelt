@@ -1,18 +1,24 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][Data.SqlClient.SqlConnection]$Connection,
       [Parameter(Mandatory)][string]$FixtureModuleRoot,
-      [Parameter(Mandatory)][System.Collections.IDictionary]$OwnershipJournal)
+      [Parameter(Mandatory)][System.Collections.IDictionary]$OwnershipJournal,
+      [Parameter(Mandatory)][scriptblock]$NewConnection,
+      [Parameter(Mandatory)][pscustomobject]$InputBinding)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'CurrentSnapshotHelpers.ps1')
 $checks=0
 function Assert-Snapshot([bool]$Value,[string]$Code){if(-not $Value){throw ('SSIS_CURRENT_SNAPSHOT_ASSERT_'+$Code)};$script:checks++}
-function Invoke-SnapshotSql([string]$Text,[int]$ExpectedResultSets=1){
- $cmd=$Connection.CreateCommand();$cmd.CommandTimeout=Get-SsisNativeTimeout 45;$cmd.CommandText=$Text
+function Invoke-SnapshotSql([string]$Text,[int]$ExpectedResultSets=1,[Data.SqlClient.SqlConnection]$UseConnection=$Connection){
+ Assert-SnapshotCurrentInputs $InputBinding
+ if($null -eq $UseConnection -or $UseConnection.State -cne 'Open'){throw 'SSIS_CURRENT_SNAPSHOT_SQL_CONNECTION_REQUIRED'}
+ $cmd=$UseConnection.CreateCommand();$cmd.CommandTimeout=Get-SsisNativeTimeout 45;$cmd.CommandText=$Text
  try{$reader=$cmd.ExecuteReader();try{$tables=Read-SnapshotReaderResultSets $reader $ExpectedResultSets}finally{$reader.Dispose()};if($ExpectedResultSets -eq 0){return ,([Data.DataTable]::new())};return ,$tables[0]}finally{$cmd.Dispose()}
 }
-function Invoke-SnapshotExplain([byte[]]$Bytes,[string]$Operation='explain',[string]$Bindings,[string]$Catalog){
- $cmd=$Connection.CreateCommand();$cmd.CommandType='StoredProcedure';$cmd.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow';$cmd.CommandTimeout=Get-SsisNativeTimeout 45
+function Invoke-SnapshotExplain([byte[]]$Bytes,[string]$Operation='explain',[string]$Bindings,[string]$Catalog,[Data.SqlClient.SqlConnection]$UseConnection=$Connection){
+ Assert-SnapshotCurrentInputs $InputBinding
+ if($null -eq $UseConnection -or $UseConnection.State -cne 'Open'){throw 'SSIS_CURRENT_SNAPSHOT_EXPLAIN_CONNECTION_REQUIRED'}
+ $cmd=$UseConnection.CreateCommand();$cmd.CommandType='StoredProcedure';$cmd.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow';$cmd.CommandTimeout=Get-SsisNativeTimeout 45
  [void]$cmd.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1);$cmd.Parameters['@PackageBytes'].Value=$Bytes
  [void]$cmd.Parameters.Add('@Operation',[Data.SqlDbType]::VarChar,32);$cmd.Parameters['@Operation'].Value=$Operation
  foreach($p in @(@('Bindings',$Bindings,-1),@('CatalogBindings',$Catalog,-1),@('ProjectContext',$null,-1),@('ResultTable',$null,128))){
@@ -33,9 +39,10 @@ function Get-SnapshotRows([Data.DataTable]$Table){
   ($parts -join [char]31)
  }
 }
-function Assert-SnapshotDebugScript($Artifacts,$Bundle,[switch]$InsertAfterPlan){
+function Assert-SnapshotDebugScript($Artifacts,$Bundle,[Data.SqlClient.SqlConnection]$PlanConnection,[switch]$InsertAfterPlan){
  Assert-Snapshot ($Bundle.IsComplete -and $Bundle.IsExecutable -and $Bundle.SafetyStatus -ceq 'passed') 'DEBUGSCRIPT_VALIDATED'
  $details=([string]$Bundle.DetailsJson)|ConvertFrom-Json -Depth 32;$batches=@($details.batches)
+ Assert-Snapshot ($details.freshSessionRequired -is [bool] -and $details.freshSessionRequired) 'FRESH_SESSION_REQUIRED'
  Assert-Snapshot ($batches.Count -gt 2 -and $details.batchSeparator -ceq 'GO') 'BATCH_DIRECTORY'
  $layout=Get-SnapshotBatchLayout ([string[]]@($batches|ForEach-Object {[string]$_.artifactKind}))
  $selected=@();$pieces=[Collections.Generic.List[string]]::new();$sequence=1;$inserted=$false;$result=@{};$seenOrdinals=[Collections.Generic.HashSet[int]]::new()
@@ -62,7 +69,7 @@ function Assert-SnapshotDebugScript($Artifacts,$Bundle,[switch]$InsertAfterPlan)
  try{
   foreach($row in $selected){
    if($row.ArtifactKind -ceq 'CleanupSql'){continue}
-   if($row.ArtifactKind -in @('PreparationSql','PlanUnitSql')){$table=Invoke-SnapshotSql ([string]$row.Content) 0;if($row.ArtifactKind -ceq 'PlanUnitSql'){$executedPlanCount++};continue}
+   if($row.ArtifactKind -in @('PreparationSql','PlanUnitSql')){$table=Invoke-SnapshotSql ([string]$row.Content) 0 -UseConnection $PlanConnection;if($row.ArtifactKind -ceq 'PlanUnitSql'){$executedPlanCount++};continue}
    if($row.ArtifactKind -in @('RowCountSql','TargetSql')){
     if($InsertAfterPlan -and -not $inserted){
      Assert-Snapshot ($executedPlanCount -eq $planCount -and $planCount -gt 0) 'MATERIALIZATION_BEFORE_READ'
@@ -74,13 +81,13 @@ function Assert-SnapshotDebugScript($Artifacts,$Bundle,[switch]$InsertAfterPlan)
      $inserted=$true
     }
     $expectedSets=if($row.ArtifactKind -in @('TargetSql','RowCountSql')){1}else{0}
-    $table=Invoke-SnapshotSql ([string]$row.Content) $expectedSets
+    $table=Invoke-SnapshotSql ([string]$row.Content) $expectedSets -UseConnection $PlanConnection
     if($result.ContainsKey([string]$row.ArtifactKind)){throw 'SSIS_CURRENT_SNAPSHOT_DUPLICATE_READ'}
     $result[[string]$row.ArtifactKind]=$table;continue
    }
   }
  }finally{
-  try{foreach($row in $selected){if($row.ArtifactKind -ceq 'CleanupSql'){[void](Invoke-SnapshotSql ([string]$row.Content) 0)}}}
+  try{foreach($row in $selected){if($row.ArtifactKind -ceq 'CleanupSql'){[void](Invoke-SnapshotSql ([string]$row.Content) 0 -UseConnection $PlanConnection)}}}
   catch{$OwnershipJournal['snapshotCleanupBlocked']=$true;throw}
  }
  Assert-Snapshot ($result.ContainsKey('RowCountSql') -and $result.ContainsKey('TargetSql')) 'COMPLETE_PLAN_READS'
@@ -112,7 +119,7 @@ $OwnershipJournal.Remove('snapshotCleanupBlocked')
 $OwnershipJournal['snapshotMutationApplied']=$false
 try{
  $database=[string](Invoke-SnapshotSql 'SELECT DB_NAME() AS N;').Rows[0].N
- $catalog=@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database}}
+  $catalog=@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database};flatFileInputs=@{}}
  $catalogJson=$catalog|ConvertTo-Json -Depth 12 -Compress
  $template=Invoke-SnapshotExplain -Bytes $fixture -Operation 'bindings-template'
  Assert-Snapshot ($template.Columns.Count -eq 13 -and $template.Rows.Count -eq 1 -and $template.Rows[0].ArtifactKind -ceq 'BindingsTemplate') 'CURRENT_TEMPLATE'
@@ -122,7 +129,14 @@ try{
  Assert-Snapshot ($count.Count -eq 1) 'ROWCOUNT_ARTIFACT'
  $bundle=@($first.Rows|Where-Object {$_.ArtifactKind -ceq 'DebugScript' -and $_.IsComplete -and $_.TargetFlowId -ceq $count[0].TargetFlowId})
  Assert-Snapshot ($bundle.Count -eq 1) 'BOUND_DEBUGSCRIPT'
- $snapshot=Assert-SnapshotDebugScript $first $bundle[0] -InsertAfterPlan
+ $controllerSpid=[int](Invoke-SnapshotSql 'SELECT @@SPID AS SessionId;' 1).Rows[0].SessionId
+ $firstPlanConnection=& $NewConnection
+ if($null -eq $firstPlanConnection -or $firstPlanConnection.State -cne 'Open'){throw 'SSIS_CURRENT_SNAPSHOT_FRESH_SESSION_OPEN'}
+ try{
+  $firstPlanSpid=[int](Invoke-SnapshotSql 'SELECT @@SPID AS SessionId;' 1 -UseConnection $firstPlanConnection).Rows[0].SessionId
+  Assert-Snapshot ($firstPlanSpid -ne $controllerSpid) 'FIRST_PLAN_FRESH_SESSION_IDENTITY'
+  $snapshot=Assert-SnapshotDebugScript $first $bundle[0] $firstPlanConnection -InsertAfterPlan
+ }finally{$firstPlanConnection.Dispose()}
  $rows=$snapshot.TargetSql.Rows;$countRow=$snapshot.RowCountSql.Rows
  Assert-Snapshot (Test-SnapshotRowCountTable $snapshot.RowCountSql 2) 'SNAPSHOT_ROWCOUNT_BIGINT_FITS_TWO'
  Assert-Snapshot ($rows.Count -eq 2) 'SNAPSHOT_TARGET_TWO_ROWS'
@@ -140,7 +154,13 @@ try{
  Assert-Snapshot ($secondCount.Count -eq 1) 'CHANGED_SOURCE_CONTROL_COUNT'
  $secondBundle=@($second.Rows|Where-Object {$_.ArtifactKind -ceq 'DebugScript' -and $_.IsComplete -and $_.TargetFlowId -ceq $secondCount[0].TargetFlowId})
  Assert-Snapshot ($secondBundle.Count -eq 1) 'CHANGED_SOURCE_CONTROL_PLAN'
- $current=Assert-SnapshotDebugScript $second $secondBundle[0]
+ $secondPlanConnection=& $NewConnection
+ if($null -eq $secondPlanConnection -or $secondPlanConnection.State -cne 'Open'){throw 'SSIS_CURRENT_SNAPSHOT_FRESH_CONTROL_SESSION_OPEN'}
+ try{
+  $secondPlanSpid=[int](Invoke-SnapshotSql 'SELECT @@SPID AS SessionId;' 1 -UseConnection $secondPlanConnection).Rows[0].SessionId
+  Assert-Snapshot ($secondPlanSpid -ne $controllerSpid) 'CHANGED_SOURCE_FRESH_SESSION_IDENTITY'
+  $current=Assert-SnapshotDebugScript $second $secondBundle[0] $secondPlanConnection
+ }finally{$secondPlanConnection.Dispose()}
  Assert-Snapshot (Test-SnapshotRowCountTable $current.RowCountSql 3) 'CHANGED_SOURCE_ROWCOUNT_BIGINT_FITS_THREE'
  Assert-Snapshot ($current.TargetSql.Rows.Count -eq 3) 'CHANGED_SOURCE_TARGET_THREE'
  Assert-Snapshot (@($current.TargetSql.Rows|Where-Object {$_.KeyA -eq 2 -and $_.KeyB -eq 10 -and $_.Adjusted -eq 202 -and $_.Score -eq 2}).Count -eq 1) 'INSERT_PRESENT_IN_FRESH_SNAPSHOT'
