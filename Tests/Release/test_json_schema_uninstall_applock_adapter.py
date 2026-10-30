@@ -48,6 +48,7 @@ class JsonSchemaUninstallAppLockAdapterTests(unittest.TestCase):
             "Principals",
             "Assert-SchemaModuleAbsent",
             "Read-CoreProjection",
+            "Assert-SchemaSlots",
             "core_unchanged=$true",
         ):
             self.assertIn(text, self.driver)

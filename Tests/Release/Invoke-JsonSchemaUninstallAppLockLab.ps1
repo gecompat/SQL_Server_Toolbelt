@@ -179,6 +179,15 @@ function Assert-SchemaAssemblyClosure($Rows,$Artifacts){
         }
     }
 }
+function Assert-SchemaSlots($Slots,[int]$SchemaAssemblyId){
+    if(@($Slots).Count-ne2){throw 'JSON_UNINSTALL_APPLOCK_SCHEMA_SLOTS_INVALID'}
+    $procedure=@($Slots|Where-Object{$_.name-ceq'USP_ValidateJsonSchema'})
+    $bridge=@($Slots|Where-Object{$_.name-ceq'FT_ValidateJsonSchemaInternal'})
+    if($procedure.Count-ne1 -or $procedure[0].type-cne'P' -or
+       ($null-ne$procedure[0].assembly_id -and $procedure[0].assembly_id-isnot[DBNull]) -or
+       $bridge.Count-ne1 -or $bridge[0].type-cne'FT' -or $bridge[0].assembly_id-is[DBNull] -or
+       [int]$bridge[0].assembly_id-ne$SchemaAssemblyId){throw 'JSON_UNINSTALL_APPLOCK_SCHEMA_SLOTS_INVALID'}
+}
 function Assert-SchemaInstalled($Connection){
     $rows=@(Sql $Connection @'
 SELECT a.name,a.assembly_id,a.principal_id,a.permission_set_desc,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) BinaryHash
@@ -190,7 +199,7 @@ AND ep.name IN(N'Toolbelt.Module.toolbelt.json.schema.Version',N'Toolbelt.Module
 '@ -Rows)
     $schema=@(Sql $Connection "SELECT s.schema_id,s.principal_id FROM sys.schemas s WHERE s.name=N'toolbelt_json';" -Rows)
     $slots=@(Sql $Connection @'
-SELECT o.name,o.type,am.assembly_id FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
+SELECT o.name,RTRIM(o.type) type,am.assembly_id FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
 LEFT JOIN sys.assembly_modules am ON am.object_id=o.object_id
 WHERE s.name=N'toolbelt_json' AND o.name IN(N'USP_ValidateJsonSchema',N'FT_ValidateJsonSchemaInternal') ORDER BY o.name;
 '@ -Rows)
@@ -198,10 +207,10 @@ WHERE s.name=N'toolbelt_json' AND o.name IN(N'USP_ValidateJsonSchema',N'FT_Valid
     $mode=@($metadata|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.json.schema.DeploymentMode'})
     Assert-SchemaAssemblyClosure $rows $script:runset.artifacts
     $schemaAssembly=@($rows|Where-Object{$_.name-ceq'Toolbelt_JsonSchema'})
+    Assert-SchemaSlots $slots ([int]$schemaAssembly[0].assembly_id)
     if($schema.Count-ne1 -or
        [int]$schema[0].principal_id-ne1 -or $version.Count-ne1 -or $version[0].Value-cne'1.0.1' -or
-       $mode.Count-ne1 -or $mode[0].Value-cne'local' -or $slots.Count-ne2 -or
-       @($slots|Where-Object{$_.assembly_id-ne$schemaAssembly[0].assembly_id}).Count-ne0){
+       $mode.Count-ne1 -or $mode[0].Value-cne'local'){
         throw 'JSON_UNINSTALL_APPLOCK_SCHEMA_INSTALL_INVALID'
     }
 }

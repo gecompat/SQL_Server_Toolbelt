@@ -46,6 +46,24 @@ foreach($badAssemblies in @(
     try{Assert-SchemaAssemblyClosure $badAssemblies $artifacts}catch{$rejected=$_.Exception.Message -ceq 'JSON_UNINSTALL_APPLOCK_ASSEMBLY_CLOSURE_INVALID'}
     if(-not$rejected){throw 'JSON_UNINSTALL_APPLOCK_OFFLINE_BAD_CLOSURE_ACCEPTED'}
 }
+$slotGuard=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Assert-SchemaSlots'},$true))
+if($slotGuard.Count-ne1){throw 'JSON_UNINSTALL_APPLOCK_OFFLINE_SLOT_GUARD_MISSING'}
+. ([scriptblock]::Create($slotGuard[0].Extent.Text))
+$slots=@(
+    [pscustomobject]@{name='USP_ValidateJsonSchema';type='P';assembly_id=[DBNull]::Value},
+    [pscustomobject]@{name='FT_ValidateJsonSchemaInternal';type='FT';assembly_id=17})
+Assert-SchemaSlots $slots 17
+$slots[0].assembly_id=$null
+Assert-SchemaSlots $slots 17
+$slots[0].assembly_id=[DBNull]::Value
+foreach($badSlots in @(
+    @([pscustomobject]@{name='USP_ValidateJsonSchema';type='PC';assembly_id=[DBNull]::Value},$slots[1]),
+    @([pscustomobject]@{name='USP_ValidateJsonSchema';type='P';assembly_id=17},$slots[1]),
+    @($slots[0],[pscustomobject]@{name='FT_ValidateJsonSchemaInternal';type='FT';assembly_id=18}))) {
+    $rejected=$false
+    try{Assert-SchemaSlots $badSlots 17}catch{$rejected=$_.Exception.Message -ceq 'JSON_UNINSTALL_APPLOCK_SCHEMA_SLOTS_INVALID'}
+    if(-not$rejected){throw 'JSON_UNINSTALL_APPLOCK_OFFLINE_BAD_SLOT_ACCEPTED'}
+}
 $driverText=[IO.File]::ReadAllText($driver)
 $deployLines=@([regex]::Matches($driverText,'(?m)^.*Invoke-ReleaseBatches \$db .*schema_deploy\.path.*$'))
 if($deployLines.Count-ne2 -or @($deployLines|Where-Object{$_.Value-notmatch'Assert-SchemaInstalled'-or$_.Value-match'Assert-CoreOnly'}).Count-ne0 -or
@@ -56,7 +74,7 @@ foreach($required in @(
     'JSON Schema lifecycle: gemeinsame Core-AppLock nicht verfügbar.','JSON Schema lifecycle: Modul-AppLock nicht verfügbar.')){
     if(-not$sql.Contains($required,[StringComparison]::Ordinal)){throw 'JSON_UNINSTALL_APPLOCK_OFFLINE_SQL_CONTRACT_DRIFT'}
 }
-foreach($required in @('Read-CoreProjection','CoreAssembly','RoleMemberships','Principals','Assert-SchemaInstalled','Assert-SchemaModuleAbsent','Get-ContenderStateSamples','Test-ExternalSessionIdle','Assert-ReleaseOwnIdentity','dp.class=3 AND dp.major_id=SCHEMA_ID')){
+foreach($required in @('Read-CoreProjection','CoreAssembly','RoleMemberships','Principals','Assert-SchemaInstalled','Assert-SchemaSlots','Assert-SchemaModuleAbsent','Get-ContenderStateSamples','Test-ExternalSessionIdle','Assert-ReleaseOwnIdentity','dp.class=3 AND dp.major_id=SCHEMA_ID')){
     if(-not$driverText.Contains($required,[StringComparison]::Ordinal)){throw 'JSON_UNINSTALL_APPLOCK_OFFLINE_DRIVER_GUARD_MISSING'}
 }
 $calls=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.CommandAst] -and $n.GetCommandName() -ceq 'Invoke-JsonSchemaAppLockLab.ps1'},$true))
