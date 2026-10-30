@@ -546,3 +546,18 @@ und Tokenverbrauch sind `UNKNOWN`. Die spätere ausdrückliche
 [Releasefortsetzung](SUPPORT.md#releasefortsetzung-vom-2026-10-24) aktiviert
 jetzt autonome Arbeit im bestehenden v1.0.0-Zielumfang und einen Heartbeat als
 Stillstand-Sicherungsnetz; Veröffentlichung bleibt ein eigener Auftrag.
+
+## JSON-Schema-Callertransaktionen
+
+Der [gebundene Caller-Transaktionsnachweis](json-schema-caller-transaction-qualification.json)
+qualifiziert ausschließlich Deploy bei fehlendem Schema und Uninstall bei
+installiertem Schema auf Windows SQL Server 2025/CU8/CL170 lokal. Beide
+Ablehnungen erhalten die aktive Callertransaktion, den Savepoint, den
+Modulzustand und die Sessionoptionen; beide Aufrufe gelingen nach vollständigem
+Rollback ohne Callertransaktion. Das Startprofil ist fest auf
+`QUOTED_IDENTIFIER ON`, `XACT_ABORT OFF` und `NOCOUNT OFF` gesetzt. Ein
+erfolgreicher Zielaufruf mit zwei Fachfällen und beide unabhängigen Bereinigungsaudits bestanden;
+ein vorangegangener bereinigter Vorversuch ist getrennt erfasst. Der Nachweis
+erweitert keine anderen Sessionprofile, Ziele oder vollständigen API-, Rechte-
+und Lifecyclematrizen. Produkt- und Paketbytes blieben unverändert; eine
+Veröffentlichung ist nicht autorisiert.

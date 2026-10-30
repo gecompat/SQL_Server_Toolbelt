@@ -18,9 +18,21 @@ Eine separate unabhängige Prüfung bestätigt ausschließlich eigene
 Datenbank-/Trust-/Konfigurationsbereinigung und unveränderte Eingabepins.
 Neue dünne Adapter komponieren die bestehenden geschützten Releasehelfer;
 r33/r34-Dateien, Produkt/API/Paket und bisherige Nachweise bleiben unverändert.
-Root prüft den eingefrorenen Runset/Driver, führt genau einen Zielaufruf und
-ein Audit aus. Keine AppLock-Wiederholung, keine weiteren Rechte oder
-Serverkonfigurationsänderungen, keine Veröffentlichung.
+Ursprünglich waren ein Zielaufruf und ein Audit vorgesehen. Keine AppLock-
+Wiederholung, keine weiteren Rechte oder Serverkonfigurationsänderungen, keine
+Veröffentlichung.
+
+Abschluss r35: ein erfolgreicher Zielaufruf qualifizierte beide Caller-
+Transaktionsfälle; beide unabhängigen Audits bestanden. Deploy bei fehlendem Schema und Uninstall bei
+installiertem Schema wurden jeweils mit Fehler 50000/Severity 16/State 1 vor
+Mutation abgewiesen. Callertransaktion, Savepoint, Session und Modulzustand
+blieben erhalten; nach vollständigem Rollback bestanden beide Positivkontrollen.
+Der feste Start war `QUOTED_IDENTIFIER ON`, `XACT_ABORT OFF`, `NOCOUNT OFF`.
+Ein früherer Zielaufruf endete vor den Fachfällen mit `FAILED_CLEANED`; sein
+unabhängiges Audit bestand. Ausgeführt wurde Sourcecommit
+`3d905461b1b3c17b134767b4af7c92dadbeb6f55`. Keine SQL-/DLL-/Paketänderung.
+Andere Sessionprofile, Plattformen, Versionen, Modi und vollständige API-,
+Rechte- und Lifecyclematrizen bleiben offen.
 
 ## JSON-Schema-Uninstall: AppLock-Abweisung — r34, 2026-10-30
 

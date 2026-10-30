@@ -29,6 +29,21 @@ Dies ist eine zusätzliche einzelne Funktionsabnahme und schließt keine übrige
 Versionen, CLs, Plattformen, Modi oder vollständigen API-/Rechte-/Lifecycle-
 Matrizen.
 
+## Caller-Transaktionssperre für Deploy und Uninstall (2026-10-30)
+
+Der [gebundene Nachweis](../../../Releases/1.0.0/json-schema-caller-transaction-qualification.json)
+prüft auf Windows SQL Server 2025/CU8/CL170 lokal zwei Fälle: Deploy bei
+fehlendem Schema und Uninstall bei installiertem Schema. Beide Aufrufe werden
+innerhalb einer Callertransaktion mit dem festgelegten Fehler 50000/Severity
+16/State 1 vor Mutation abgewiesen. Transaktions-/Savepoint-Zeugen, vollständiger
+Modulzustand, SPID/Verbindung und `@@OPTIONS` bleiben erhalten; nach vollständigem
+Rollback bestehen die gleichen Aufrufe ohne Callertransaktion. Das feste
+Startprofil ist `QUOTED_IDENTIFIER ON`, `XACT_ABORT OFF`, `NOCOUNT OFF`; daraus
+folgt keine Qualifikation anderer Sessionoptionen oder `QUOTED_IDENTIFIER OFF`.
+Ein erfolgreicher Zielaufruf und beide unabhängigen Bereinigungsaudits bestanden. Der frühere
+aufgeräumte Vorversuch ist getrennt erfasst. Keine übrigen Ziel-, Rechte-, API-
+oder Lifecyclematrizen werden dadurch geschlossen.
+
 ## Schema-CI auf den ausgewählten Compatibility Levels
 
 Der gekoppelte Linuxadapter prüft Schema1.0.1 jetzt in denselben bereits

@@ -86,6 +86,20 @@ Sperrorakel und Audit in die bestehende Release-Suite ein. Lokal:
 Der Bericht qualifiziert keine weiteren Versionen, Kompatibilitätsstufen,
 Plattformen, Deploymentmodi oder vollständigen API-/Rechte-/Lifecycleprofile.
 
+Der [Caller-Transaktionsnachweis](../../Releases/1.0.0/json-schema-caller-transaction-qualification.json)
+prüft zusätzlich Deploy bei fehlendem Schema und Uninstall bei installiertem
+Schema auf Windows SQL Server 2025/CU8/CL170 lokal. Der Caller erhält
+Transaktion, Savepoint, Modulzustand und Sessionoptionen; nach vollständigem
+Rollback bestehen beide Lifecycleaufrufe ohne Callertransaktion. Das geprüfte
+Startprofil lautet `QUOTED_IDENTIFIER ON`, `XACT_ABORT OFF`, `NOCOUNT OFF`.
+Ein erfolgreicher Zielaufruf und beide unabhängigen Cleanup-Audits bestanden; ein früherer
+Vorversuch wurde bereinigt und wird nicht als Fachfall gezählt. Vier gezielte
+Offlineprüfungen binden Ergebnis, Ziel, Paket und öffentliche Quellpins in die
+bestehende Suite ein. Lokal:
+`python -B -m unittest Tests.Release.test_json_schema_caller_transaction_qualification -v`.
+Andere Sessionprofile, Ziele und vollständige API-/Rechte-/Lifecyclematrizen
+bleiben offen.
+
 ## Edit-Distance-Paketqualifikation
 
 Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
