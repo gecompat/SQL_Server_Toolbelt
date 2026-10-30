@@ -4,11 +4,13 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 
-from Scripts.Release import json_schema_uninstall_confirmation as gate
+sys.path.insert(0, str(ROOT / "Scripts/Release"))
+import json_schema_uninstall_confirmation as gate
 
 
 class JsonSchemaUninstallConfirmationQualificationTests(unittest.TestCase):
