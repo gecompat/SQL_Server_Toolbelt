@@ -11,6 +11,9 @@ der Ablehnung unveränderten Modulzustand sowie einen Transaktionszeugen mit
 Savepoint. Rollback zum Savepoint und vollständiger Rollback müssen den
 erwarteten Zeugenstand erhalten beziehungsweise wiederherstellen; danach muss
 derselbe gepinnte Lifecycleaufruf ohne Callertransaktion erfolgreich sein.
+Das Sessionprofil setzt vor Baseline und Transaktion `QUOTED_IDENTIFIER ON`,
+`XACT_ABORT OFF` und `NOCOUNT OFF`; geprüft wird die exakte Beibehaltung dieser
+festen Startoptionen, keine Aussage für andere Parsezeitkontexte.
 Eine separate unabhängige Prüfung bestätigt ausschließlich eigene
 Datenbank-/Trust-/Konfigurationsbereinigung und unveränderte Eingabepins.
 Neue dünne Adapter komponieren die bestehenden geschützten Releasehelfer;

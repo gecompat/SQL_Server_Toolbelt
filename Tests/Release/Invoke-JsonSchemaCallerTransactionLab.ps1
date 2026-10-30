@@ -6,7 +6,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $script:repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $repo=$script:repo;$script:RunsetPath=$RunsetPath;$script:ExpectedRunsetSHA256=$ExpectedRunsetSHA256
-$script:connections=[Collections.Generic.List[object]]::new();$script:failure=$null;$script:stage='PREPARE';$script:ledger=$null
+$script:connections=[Collections.Generic.List[object]]::new();$script:failure=$null;$script:stage='PREPARE';$script:ledger=$null;$ledger=$null
+$script:clock=[Diagnostics.Stopwatch]::StartNew();$script:cleanup=$false
 $control=$null;$db=$null
 
 $errors=$null
@@ -17,7 +18,7 @@ if($nodes.Count-ne1){throw 'JSON_CALLER_TX_HELPER_DISCOVERY'}
 . ([scriptblock]::Create($nodes[0].Extent.Text))
 foreach($block in Import-ClrFunctions (Join-Path $script:repo 'Tests/Release/Invoke-StablePackageLab.ps1') @(
  'Assert-ReleasePin','Assert-ReleasePrivatePath','Get-ReleaseTimeout','Invoke-ReleaseSql','Open-ReleaseConnection',
- 'Assert-ReleaseInputs','Assert-ReleaseOwnIdentity') @{'function Invoke-ReleaseSql('='function Invoke-ReleaseSqlCore('}){. $block}
+ 'Save-ReleaseJournal','Assert-ReleaseInputs','Assert-ReleaseOwnIdentity') @{'function Invoke-ReleaseSql('='function Invoke-ReleaseSqlCore('}){. $block}
 . (Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1')
 . (Join-Path $script:repo 'Tests/CI/LabQualifiedContract.ps1')
 foreach($block in Import-ClrFunctions (Join-Path $script:repo 'Tests/CI/run-lab-local.ps1') @(
@@ -29,7 +30,7 @@ $r33Path=Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'
 foreach($sourcePath in @($r34Path,$r33Path)){
  $sourceErrors=$null;$sourceAst=[Management.Automation.Language.Parser]::ParseFile($sourcePath,[ref]$null,[ref]$sourceErrors)
  if($sourceErrors.Count){throw 'JSON_CALLER_TX_SOURCE_PARSE'}
- $names=if($sourcePath -ceq $r34Path){@('Get-LabSelectorTarget','Save-Journal','Read-CoreProjection','Assert-SchemaAssemblyClosure','Assert-SchemaSlots','Assert-SchemaInstalled','Assert-RunsetStable')}
+ $names=if($sourcePath -ceq $r34Path){@('Get-LabSelectorTarget','Save-Journal','Read-CoreProjection','Assert-SchemaAssemblyClosure','Assert-SchemaSlots','Assert-SchemaInstalled','Assert-RunsetStable','Invoke-ReleaseSql')}
         else{@('Read-Scalar','Get-ModuleState','Assert-CoreOnly','Assert-SchemaAbsent','Assert-SchemaModuleAbsent','Get-ExternalSessionState','Test-ExternalSessionIdle')}
  foreach($name in $names){
   $found=@($sourceAst.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
@@ -38,8 +39,7 @@ foreach($sourcePath in @($r34Path,$r33Path)){
  }
 }
 function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Rows){
- Assert-RunsetStable;Assert-ReleaseInputs
- Invoke-ReleaseSqlCore $Connection $Text $Parameters -Rows:$Rows
+ Invoke-ReleaseSql $Connection $Text $Parameters -Rows:$Rows
 }
 
 function Assert-Runset {
@@ -148,8 +148,8 @@ function Invoke-BlockedTransactionCase($Connection,$Observer,$Case,[string]$Befo
  if($beforeOptions-ne$OriginalOptions){throw 'JSON_CALLER_TX_OPTIONS_PRE_GUARD_DRIFT'}
  $caught=$null
  try{Invoke-PinnedLifecycle ([string]$Case.operation)}catch{$caught=$_.Exception;while($caught.InnerException){$caught=$caught.InnerException}}
- if($caught-isnot[Data.SqlClient.SqlException] -or $caught.Number-ne50000 -or $caught.State-ne1 -or
-    @($caught.Errors|Where-Object{$_.Number-eq50000 -and $_.State-eq1 -and $_.Message-ceq[string]$Case.expected_message}).Count-ne1){throw 'JSON_CALLER_TX_EXPECTED_ERROR_MISMATCH'}
+ if($caught-isnot[Data.SqlClient.SqlException] -or $caught.Number-ne50000 -or $caught.State-ne1 -or $caught.Class-ne16 -or
+    @($caught.Errors|Where-Object{$_.Number-eq50000 -and $_.State-eq1 -and $_.Class-eq16 -and $_.Message-ceq[string]$Case.expected_message}).Count-ne1){throw 'JSON_CALLER_TX_EXPECTED_ERROR_MISMATCH'}
  if($Connection.State-ne[Data.ConnectionState]::Open -or [int](Read-Scalar $Connection 'SELECT @@SPID AS ScalarValue;')-ne$spid){throw 'JSON_CALLER_TX_SESSION_CHANGED'}
  $afterState=Get-LocalTransactionState $Connection
  $afterOptions=[int](Read-Scalar $Connection 'SELECT @@OPTIONS AS ScalarValue;')
@@ -172,6 +172,30 @@ function Invoke-BlockedTransactionCase($Connection,$Observer,$Case,[string]$Befo
  Save-Journal
 }
 function Assert-CoreStable($Connection,[string]$BeforeCore){if((Read-CoreProjection $Connection)-cne$BeforeCore){throw 'JSON_CALLER_TX_CORE_CHANGED'}}
+function Assert-AuditPrefix($Prior){
+ $resultCount=@($Prior.results).Count;$controlCount=@($Prior.positive_controls).Count
+ if(($Prior.state-cne'COMPLETE' -and $Prior.state-cne'FAILED_CLEANED') -or $Prior.owner-cnotmatch'^[a-f0-9]{32}$' -or
+    ($Prior.state-ceq'COMPLETE' -and $resultCount-ne2) -or ($Prior.state-ceq'FAILED_CLEANED' -and $resultCount-gt2) -or
+    ($Prior.state-ceq'COMPLETE' -and $controlCount-ne2) -or $controlCount-gt$resultCount){throw 'JSON_CALLER_TX_AUDIT_JOURNAL_INVALID'}
+ $expectedOperations=@('deploy','uninstall')
+ $resultFlags=@('blocked','exact_error','transaction_preserved','session_preserved','options_preserved','module_snapshot_preserved','witness_preserved','application_locks_absent')
+ $controlFlags=@('succeeded','module_state_correct','core_unchanged')
+ $witnessNames=@('committed_before','first_update','guard_before','guard_after','savepoint_rollback','full_rollback')
+ for($i=0;$i-lt$resultCount;$i++){
+  $result=$Prior.results[$i]
+  if(($result.ordinal-isnot[int]-and$result.ordinal-isnot[long]) -or $result.ordinal-ne$i -or
+     $result.operation-cne$expectedOperations[$i] -or @($result.witness_values.PSObject.Properties).Count-ne$witnessNames.Count){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}
+  foreach($flag in $resultFlags){if($result.$flag-isnot[bool]-or-not[bool]$result.$flag){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}}
+  $expectedWitness=[ordered]@{committed_before=100;first_update=200;guard_before=300;guard_after=300;savepoint_rollback=200;full_rollback=100}
+  foreach($name in $witnessNames){$value=$result.witness_values.$name;if(($value-isnot[int]-and$value-isnot[long]) -or $value-ne$expectedWitness[$name]){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}}
+ }
+ for($i=0;$i-lt$controlCount;$i++){
+  $control=$Prior.positive_controls[$i]
+  if(($control.ordinal-isnot[int]-and$control.ordinal-isnot[long]) -or $control.ordinal-ne$i -or $control.operation-cne$expectedOperations[$i]){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}
+  foreach($flag in $controlFlags){if($control.$flag-isnot[bool]-or-not[bool]$control.$flag){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}}
+ }
+ return [pscustomobject]@{result_count=$resultCount;control_count=$controlCount}
+}
 function Invoke-PinnedSqlBatches($Connection,[string]$Path,[string]$ExpectedSHA256){
  Assert-RunsetStable;Assert-ReleasePin $Path $ExpectedSHA256
  $text=[IO.File]::ReadAllText($Path,[Text.Encoding]::UTF8)
@@ -188,22 +212,8 @@ try{
  $script:journal=Assert-ReleasePrivatePath (Join-Path (Split-Path -Parent $script:RunsetPath) 'case.json')
  if($AuditOnly){
   $prior=Get-Content -LiteralPath $script:journal -Raw -Encoding UTF8|ConvertFrom-Json
-  if($prior.state-cne'COMPLETE' -or $prior.owner-cnotmatch'^[a-f0-9]{32}$' -or @($prior.databases).Count-ne1 -or
-     @($prior.results).Count-ne2 -or @($prior.positive_controls).Count-ne2){throw 'JSON_CALLER_TX_AUDIT_JOURNAL_INVALID'}
-  for($i=0;$i-lt2;$i++){
-   $result=$prior.results[$i];$controlRecord=$prior.positive_controls[$i]
-   $expectedOperation=@('deploy','uninstall')[$i]
-   $resultFlags=@('blocked','exact_error','transaction_preserved','session_preserved','options_preserved','module_snapshot_preserved','witness_preserved','application_locks_absent')
-   $controlFlags=@('succeeded','module_state_correct','core_unchanged')
-   $witnessNames=@('committed_before','first_update','guard_before','guard_after','savepoint_rollback','full_rollback')
-   if($result.ordinal-ne$i -or $result.operation-cne$expectedOperation -or
-      $controlRecord.ordinal-ne$i -or $controlRecord.operation-cne$expectedOperation -or
-      @($result.witness_values.PSObject.Properties).Count-ne$witnessNames.Count){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}
-   foreach($flag in $resultFlags){if($result.$flag-isnot[bool]-or-not[bool]$result.$flag){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}}
-   foreach($flag in $controlFlags){if($controlRecord.$flag-isnot[bool]-or-not[bool]$controlRecord.$flag){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}}
-   $expectedWitness=[ordered]@{committed_before=100;first_update=200;guard_before=300;guard_after=300;savepoint_rollback=200;full_rollback=100}
-   foreach($name in $witnessNames){$value=$result.witness_values.$name;if(($value-isnot[int]-and$value-isnot[long]) -or $value-ne$expectedWitness[$name]){throw 'JSON_CALLER_TX_AUDIT_RESULT_INVALID'}}
-  }
+  $prefix=Assert-AuditPrefix $prior;$resultCount=$prefix.result_count;$controlCount=$prefix.control_count
+  if(@($prior.databases).Count-ne1){throw 'JSON_CALLER_TX_AUDIT_JOURNAL_INVALID'}
   $dbRecord=$prior.databases[0]
   if($dbRecord.name-cne('Toolbelt_Release_'+$prior.owner+'_u') -or $dbRecord.state-cne'DROPPED'){throw 'JSON_CALLER_TX_AUDIT_OWNER_INVALID'}
   Assert-ReleaseInputs;$control=Open-ReleaseConnection 'master'
@@ -223,6 +233,7 @@ try{
   if(Test-Path -LiteralPath $script:journal){throw 'JSON_CALLER_TX_ALREADY_ATTEMPTED'}
   $script:ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();trust=@();target=[ordered]@{platform='windows';version='2025';patch='CU8';compatibility_level=170};
    configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()};results=@();positive_controls=@();witness=[ordered]@{table='dbo.JsonSchemaCallerTransactionWitness';baseline=100};failure=$null}
+  $ledger=$script:ledger
   Save-Journal;$control=Open-ReleaseConnection 'master'
   $actual=@(Sql $control "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)
   if($actual.Count-ne1 -or [int]$actual[0].Major-ne17 -or $actual[0].Platform-ine'windows' -or [int]$actual[0].Admin-ne1){throw 'JSON_CALLER_TX_ACTUAL_TARGET_MISMATCH'}
@@ -268,6 +279,7 @@ finally{
  foreach($connection in $script:connections){try{$connection.Dispose()}catch{}};[Data.SqlClient.SqlConnection]::ClearAllPools()
  if($script:ledger -and -not$AuditOnly){try{
   $control=Open-ReleaseConnection 'master'
+  $script:cleanup=$true
   foreach($database in $script:ledger.databases){Assert-RunsetStable;Assert-ReleaseOwnIdentity $control $database;$database.state='DROPPED';Save-Journal}
   foreach($trust in $script:ledger.trust){$hash=[Convert]::FromHexString($trust.hash);$actual=Get-ClrCallerTrust $control $hash
    if($trust.preexisting){if($null-eq$actual-or$actual.Fingerprint-cne$trust.fingerprint){throw 'JSON_CALLER_TX_PREEXISTING_TRUST_DRIFT'};continue}

@@ -6,7 +6,10 @@ $driver=Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'
 $preparer=Join-Path $PSScriptRoot 'Prepare-JsonSchemaCallerTransactionRunset.ps1'
 $r33=Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'
 $r34=Join-Path $PSScriptRoot 'Invoke-JsonSchemaUninstallAppLockLab.ps1'
-foreach($path in @($driver,$preparer,$r33,$r34)){
+$stable=Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'
+$api=Join-Path $PSScriptRoot 'Invoke-ApiQualificationLab.ps1'
+$environment=Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'
+foreach($path in @($driver,$preparer,$r33,$r34,$stable,$api,$environment)){
  $errors=$null;[void][Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$errors)
  if($errors.Count){throw 'JSON_CALLER_TX_OFFLINE_PARSE'}
 }
@@ -55,9 +58,12 @@ $beginCalls=@($caseFunction[0].Body.FindAll({param($n)$n -is [Management.Automat
 if($beginCalls.Count-ne1 -or $beginCalls[0].CommandElements.Count-ne3){throw 'JSON_CALLER_TX_OFFLINE_BEGIN_MUST_BE_UNPARAMETERIZED'}
 if($driverText-match'\[Data\.SqlClient\.SqlTransaction\]|\.BeginTransaction\(' -or
    $driverText-notmatch'QUOTED_IDENTIFIER ON' -or $driverText-notmatch'XACT_ABORT OFF' -or $driverText-notmatch'NOCOUNT OFF' -or
-   $driverText-notmatch'SELECT @@OPTIONS AS ScalarValue' -or $driverText-notmatch'Test-ExternalSessionIdle'){
+   $driverText-notmatch'SELECT @@OPTIONS AS ScalarValue' -or $driverText-notmatch'Test-ExternalSessionIdle' -or
+   $driverText-notmatch'\$ledger=\$script:ledger'){
  throw 'JSON_CALLER_TX_OFFLINE_DRIVER_PROTOCOL_DRIFT'
 }
+if($driverText-notmatch'\$caught\.Class-ne16' -or $driverText-notmatch'\$_.Class-eq16' -or
+   $driverText-notmatch'Assert-AuditPrefix'){throw 'JSON_CALLER_TX_OFFLINE_SQL_ERROR_CLASS_OR_AUDIT_GUARD_MISSING'}
 foreach($witnessCheck in @('WitnessValue $Connection)-ne100','WitnessValue $Connection)-ne200','WitnessValue $Connection)-ne300')){
  if(-not$caseText.Contains($witnessCheck,[StringComparison]::Ordinal)){throw 'JSON_CALLER_TX_OFFLINE_WITNESS_ASSERTION_MISSING'}
 }
@@ -74,4 +80,53 @@ if($checks100.Count-ne2 -or $checks100[0].Index-ge$beginOffset -or $checks100[1]
    $checks300.Count-ne2 -or $checks300[0].Index-ge$guardOffset -or $checks300[1].Index-le$guardOffset){throw 'JSON_CALLER_TX_OFFLINE_WITNESS_ORDER'}
 $pinRequired=@('Assert-ReleaseInputs','Assert-RunsetStable','Assert-ReleaseOwnIdentity','Assert-ClrCallerTrustCleanupScope','Restore-ClrCallerConfiguration')
 foreach($token in $pinRequired){if(-not$driverText.Contains($token,[StringComparison]::Ordinal)){throw 'JSON_CALLER_TX_OFFLINE_PROTECTION_MISSING'}}
+
+$auditGuard=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Assert-AuditPrefix'},$true))
+if($auditGuard.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_AUDIT_GUARD_MISSING'}
+. ([scriptblock]::Create($auditGuard[0].Extent.Text))
+function New-SyntheticResult([int]$Ordinal){
+ [pscustomobject]@{ordinal=$Ordinal;operation=@('deploy','uninstall')[$Ordinal];blocked=$true;exact_error=$true;transaction_preserved=$true;
+  session_preserved=$true;options_preserved=$true;module_snapshot_preserved=$true;witness_preserved=$true;application_locks_absent=$true;
+  witness_values=[pscustomobject]@{committed_before=100;first_update=200;guard_before=300;guard_after=300;savepoint_rollback=200;full_rollback=100}}
+}
+function New-SyntheticControl([int]$Ordinal){[pscustomobject]@{ordinal=$Ordinal;operation=@('deploy','uninstall')[$Ordinal];succeeded=$true;module_state_correct=$true;core_unchanged=$true}}
+$failedEmpty=[pscustomobject]@{state='FAILED_CLEANED';owner=('a'*32);results=@();positive_controls=@()}
+if((Assert-AuditPrefix $failedEmpty).result_count-ne0){throw 'JSON_CALLER_TX_OFFLINE_EMPTY_FAILURE_AUDIT'}
+$failedPrefix=[pscustomobject]@{state='FAILED_CLEANED';owner=('b'*32);results=@((New-SyntheticResult 0));positive_controls=@()}
+if((Assert-AuditPrefix $failedPrefix).control_count-ne0){throw 'JSON_CALLER_TX_OFFLINE_PARTIAL_FAILURE_AUDIT'}
+$complete=[pscustomobject]@{state='COMPLETE';owner=('c'*32);results=@((New-SyntheticResult 0),(New-SyntheticResult 1));positive_controls=@((New-SyntheticControl 0),(New-SyntheticControl 1))}
+if((Assert-AuditPrefix $complete).result_count-ne2){throw 'JSON_CALLER_TX_OFFLINE_COMPLETE_AUDIT'}
+$badAudit=[Collections.Generic.List[object]]::new()
+$bad=[pscustomobject]@{state='COMPLETE';owner=('d'*32);results=@((New-SyntheticResult 0));positive_controls=@((New-SyntheticControl 0))};$badAudit.Add($bad)
+$bad=[pscustomobject]@{state='FAILED_CLEANED';owner=('e'*32);results=@();positive_controls=@((New-SyntheticControl 0))};$badAudit.Add($bad)
+$badResult=New-SyntheticResult 0;$badResult.witness_values.full_rollback=101
+$bad=[pscustomobject]@{state='FAILED_CLEANED';owner=('f'*32);results=@($badResult);positive_controls=@()};$badAudit.Add($bad)
+foreach($bad in $badAudit){$rejected=$false;try{[void](Assert-AuditPrefix $bad)}catch{$rejected=$_.Exception.Message -in @('JSON_CALLER_TX_AUDIT_JOURNAL_INVALID','JSON_CALLER_TX_AUDIT_RESULT_INVALID')};if(-not$rejected){throw 'JSON_CALLER_TX_OFFLINE_INVALID_AUDIT_ACCEPTED'}}
+
+# Exercise the existing timeout/ownership helper bootstrap without opening a connection.
+$script:repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$apiErrors=$null;$apiAst=[Management.Automation.Language.Parser]::ParseFile($api,[ref]$null,[ref]$apiErrors)
+$import=@($apiAst.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Import-ClrFunctions'},$true))
+if($apiErrors.Count-or$import.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_BOOTSTRAP_IMPORTER'}
+. ([scriptblock]::Create($import[0].Extent.Text))
+foreach($block in Import-ClrFunctions $stable @('Get-ReleaseTimeout','Invoke-ReleaseSql','Save-ReleaseJournal') @{'function Invoke-ReleaseSql('='function Invoke-ReleaseSqlCore('}){. $block}
+$r34Errors=$null;$r34Ast=[Management.Automation.Language.Parser]::ParseFile($r34,[ref]$null,[ref]$r34Errors)
+$sqlWrapper=@($r34Ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Invoke-ReleaseSql'},$true))
+if($r34Errors.Count-or$sqlWrapper.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_SQL_WRAPPER'}
+. ([scriptblock]::Create($sqlWrapper[0].Extent.Text))
+$script:clock=[Diagnostics.Stopwatch]::StartNew();$script:cleanup=$false
+$timeout=Get-ReleaseTimeout
+if($timeout-isnot[int]-or$timeout-le0 -or
+   -not(Get-Command Invoke-ReleaseSql -CommandType Function -ErrorAction SilentlyContinue) -or
+   -not(Get-Command Save-ReleaseJournal -CommandType Function -ErrorAction SilentlyContinue)){throw 'JSON_CALLER_TX_OFFLINE_BOOTSTRAP_UNRESOLVED'}
+$stableErrors=$null;$stableAst=[Management.Automation.Language.Parser]::ParseFile($stable,[ref]$null,[ref]$stableErrors)
+$open=@($stableAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Open-ReleaseConnection'},$true))
+if($stableErrors.Count-or$open.Count-ne1-or-not$open[0].Extent.Text.Contains('Get-ReleaseTimeout',[StringComparison]::Ordinal)){throw 'JSON_CALLER_TX_OFFLINE_TIMEOUT_DEPENDENCY'}
+$envErrors=$null;$envAst=[Management.Automation.Language.Parser]::ParseFile($environment,[ref]$null,[ref]$envErrors)
+foreach($name in @('Start-ClrCallerConfiguration','Restore-ClrCallerConfiguration')){
+ $function=@($envAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+ if($envErrors.Count-or$function.Count-ne1){throw 'JSON_CALLER_TX_OFFLINE_ENVIRONMENT_HELPER'}
+ $commands=@($function[0].Body.FindAll({param($n)$n-is[Management.Automation.Language.CommandAst]},$true)|ForEach-Object{$_.GetCommandName()})
+ if('Invoke-ReleaseSql'-cnotin$commands-or'Save-ReleaseJournal'-cnotin$commands){throw 'JSON_CALLER_TX_OFFLINE_ENVIRONMENT_HELPER_DEPENDENCY'}
+}
 Write-Output 'PASS JSON_SCHEMA_CALLER_TRANSACTION offline case, guard, witness/savepoint ordering, and reuse checks; no SQL executed'
