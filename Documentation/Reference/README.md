@@ -35,6 +35,14 @@ Er enthält kurze Erklärungen, Parameter mit SQL-Typ, Default und Richtung,
 synthetische Aufrufe, Voraussetzungen und Links zu den bestehenden Verträgen.
 Tabellen, Assemblies und interne Helfer sind keine Aufrufoberfläche.
 
+Die Parametertabellen erklären jeden einzelnen Parameter: Datenform,
+fachliche Pflicht, Grenzen und Einheiten, Default, explizites NULL und
+Abhängigkeiten. Feste Wertemengen werden vollständig mit der Bedeutung jedes
+Werts aufgelistet; dynamische Namen haben Auswahl- und Beschaffungsregeln.
+Auch Unterschiede zwischen gleich benannten Parametern werden geprüft.
+Gefundene Implementierungsgrenzen werden als solche beschrieben, nicht durch
+eine Dokumentationsänderung als behoben dargestellt.
+
 Die [HTML-Ansicht](API_CATALOG.html) lässt sich lokal im Browser durchsuchen;
 die [SQL-Beispielsammlung](API_EXAMPLES.sql) enthält einzeln auswählbare,
 auskommentierte Beispiele. Sie legt keine Zieldatenbank fest. Beispiele mit
@@ -47,7 +55,10 @@ Voraussetzungen und können Zustände verändern. Nicht gesammelt ausführen.
 - `Modules/*/Source/*.sql` liefert Parameterreihenfolge, SQL-Typen, Defaults
   und OUTPUT. Auch dynamisch deklarierte CLR-Aggregate werden berücksichtigt.
 - [api_examples.json](api_examples.json) enthält die redaktionellen
-  Kurzbeschreibungen, Parametererklärungen, synthetischen Beispiele und Voraussetzungen je API.
+  Kurzbeschreibungen, quellgeprüften Parametererklärungen, synthetischen Beispiele
+  und Voraussetzungen je API. Die Parametererklärungen werden auch in die
+  markierten `API_PARAMETERS`-Blöcke der Objektseiten geschrieben; diese Blöcke
+  nicht separat bearbeiten.
 - Modullokale Objektseiten bleiben die verbindlichen fachlichen Verträge,
   insbesondere für zulässige Parameterwerte, Resultsets und Grenzen.
 
@@ -60,7 +71,17 @@ mitgepflegt werden. Jeder Source-Parameter benötigt eine passende Erklärung;
 neue oder entfernte Parameter stoppen die Prüfung bis zur redaktionellen Pflege.
 Bei Vertragsänderungen sind Beschreibung, Beispiele und
 Voraussetzungen fachlich zu prüfen; der Generator kann diese semantische
-Prüfung nicht übernehmen. Die drei Ausgabedateien nicht direkt bearbeiten.
+Prüfung nicht übernehmen. Die drei Katalogausgabedateien und die markierten
+Parametertabellen nicht direkt bearbeiten; übrige Objektabschnitte bleiben manuell.
+
+SQL-Typbindung erfolgt vor der Objektvalidierung. Beispielsweise kann SQL Server
+einen numerischen Nichtnullwert beim Binden an `bit` bereits in 1 umwandeln;
+eine begrenzte Textparameterlänge ist keine nachträgliche Trunkierungsprüfung
+im Objekt. `nvarchar(n)` zählt UTF-16-Einheiten, `varchar(n)` Bytes, nicht
+pauschal sichtbare Zeichen. Weiterführend:
+[bit-Konvertierung](https://learn.microsoft.com/en-us/sql/t-sql/data-types/bit-transact-sql),
+[Unicode-Längen](https://learn.microsoft.com/en-us/sql/t-sql/data-types/nchar-and-nvarchar-transact-sql),
+[varchar-Längen](https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql).
 
 Vom Repository-Root aus generieren und anschließend prüfen:
 
@@ -77,3 +98,9 @@ abweichende generierte Dateien. Source-/Vertragsfingerprints erkennen auch
 Die bestehende Dokumentations-CI führt Prüfung und Regressionstests über das
 Impact-Paket `public_api_catalog` in der Repo-Map aus; ein Vollaudit prüft sie
 ebenfalls. Geänderte Quellen und die neu generierten Dateien gemeinsam committen.
+
+Historische Release-Nachweise behalten ihre ursprünglichen Texte und Pins.
+Die [begrenzte Parameterprojektion](../../Scripts/Release/HistoricalSources/parameter-contracts-20261030/README.md)
+ergänzt dafür den bestehenden historischen Prüfweg. Sie akzeptiert nur die
+kanonisch generierte Parametertabelle bei unverändertem übrigen Text.
+Quellgeprüfte neue Erklärungen sind dadurch keine neue native Runtimequalifikation.

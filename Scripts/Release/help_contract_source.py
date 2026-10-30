@@ -574,6 +574,9 @@ def _raw_caller_test_projection(original):
 
 
 def restore_raw_caller_checker(root, current, expected_sha256):
+    if b'import parameter_documentation_transition\n' in current:
+        import parameter_documentation_transition
+        current = parameter_documentation_transition.restore_raw_caller_adapter(current)
     _require(expected_sha256 == RAW_CALLER_BASELINE_SHA256
              and _digest(current) == RAW_CALLER_CURRENT_SHA256,
              'XLSX raw-caller checker execution/current pin differs')

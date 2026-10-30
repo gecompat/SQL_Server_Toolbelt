@@ -316,6 +316,45 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Alternativen | Vollständige Validierung irgendeines Referenzmoduls als pauschale Voraussetzung; vollständig unabhängige Module ohne eigenes Qualitäts-Gate. |
 | Betroffene Verträge | `.ai/ROADMAP.md`, `.ai/BACKLOG.md`, `BASE64_MODULE_DESIGN.md`, `MODULE_DEFINITION_OF_DONE.md`, `TEST_AND_VALIDATION_POLICY.md` |
 
+### Ergänzung vom 2026-10-30: Dokumentationsqualität im betroffenen Scope
+
+Auf unmittelbaren Benutzerauftrag wird das Dokumentationskriterium dieses
+Qualitäts-Gates für neue und fachlich oder algorithmisch geänderte öffentliche
+SQL-Objekte konkretisiert. Maßgeblich ist der
+[Dokumentationsstandard](../Standards/CODE_DOCUMENTATION.md#objektreferenz-und-beispiele):
+passende synthetische Beispiele mit Ergebnisdeutung sowie bei nicht trivialer
+Funktionalität nachvollziehbare technische Lösungswege. Jeder einzelne Parameter
+erhält einen quellgeprüften Eingabevertrag; feste Wertemengen werden vollständig
+mit Einzelbedeutungen beschrieben, strukturierte Inputs mit ihrem konkreten
+Shape. Gemeinsame Erklärungen
+werden gezielt verlinkt; triviale Objekte benötigen keinen Techniktext oder
+Ausnahmebericht. Der historische Entscheidungstext oben bleibt erhalten.
+
+Verarbeitungsaufwand: Die bestehenden `full_audit_paths` in `.ai/repo_map.yaml`
+wählen bei Änderungen von `.ai/PROJECT_RULES.md` oder
+`MODULE_DEFINITION_OF_DONE.md` bereits den vollständigen Offlineaudit aus.
+Dieser konservative Trigger bleibt erhalten, weil die Abnahmeregel projektweit
+gilt. Ein stabiler lokaler Kandidat wird vor dem PR damit geprüft; die
+verpflichtende Head-CI prüft die Integration zusätzlich. Kein zusätzlicher
+manueller CI-Dispatch, Validator, Beispiel-/Wortzähler, SQL-Testtrigger oder
+Reviewagent wird dafür eingeführt. Die semantische Lesewegprüfung erfolgt im
+vorhandenen Autoren-/PR-Review statt pro Objekt eine neue Reviewkette zu
+erzeugen. Der bestehende Kataloggenerator pflegt dieselben Parametertexte in
+Katalog und markierten Objektabschnitten; sein bestehender Driftcheck erkennt
+Abweichungen. Es entsteht kein zweiter Generator oder zusätzlicher Prüflauf.
+Die Quellprüfung der Bedeutung bleibt Aufgabe des fachlichen Reviews.
+Die bestehende historische Dokumentationsprojektion aus Main wird für acht
+Objektseiten um exakt die kanonisch generierte Parametertabelle ergänzt;
+alle umgebenden Texte, ursprünglichen Berichte und Runtime-/Methodenpins
+bleiben gebunden. Zwei zusätzliche Manipulations-/Abgrenzungstests laufen
+in der bereits vorhandenen Release-Testklasse. Es entsteht kein zweiter
+historischer Prüfweg, neuer Workflow, SQL-Lauf oder Agent. Die erneute
+Offlineprüfung ist nach dem konkreten Kopplungsbefund und der Integration
+der parallelen Main-Änderung erforderlich.
+Logs bleiben lokal, im PR werden Ergebnis und konkrete Grenzen
+festgehalten; Kosten-/Tokenmessungen werden nicht behauptet. Reine Textpflege
+erzwingt keine fachfremde Runtimequalifikation oder Gesamtrevision der Objekte.
+
 ## DEC-2026-022: Inline-TVF-Alternative für Scalar Functions
 
 | Feld | Wert |

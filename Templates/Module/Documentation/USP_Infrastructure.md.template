@@ -11,9 +11,13 @@
 
 | Name | Typ | Technischer Default | Fachlich erforderlich | Beschreibung |
 |---|---|---|---|---|
-| `@{{Parameter}}` | `{{Type}}` | `NULL` | ja | {{Beschreibung}} |
-| `@Debug` | `tinyint` | `0` | nein | Debug-Messages nach dokumentierter Stufe. |
-| `@Hilfe` | `bit` | `0` | nein | Gibt ausschließlich das standardisierte Help-Resultset aus. |
+| `@{{Parameter}}` | `{{Type mit Länge/Skala}}` | `NULL` | ja | {{Datenform; alle festen Werte mit Einzelbedeutung; Grenzen/Einheit/Indexbasis; NULL/leer/Whitespace; Normalisierung; Abhängigkeiten und Fehler}} |
+| `@Debug` | `tinyint` | `0` | nein | {{Jede tatsächliche Stufe/Schwelle 0..255 und NULL-Verhalten; ignorierte/weitergereichte Werte ebenfalls nennen}} |
+| `@Hilfe` | `bit` | `0` | nein | 0 Fachaufruf; 1 ausschließlich Help vor Fachprüfung/Seiteneffekten; NULL wie 0. |
+
+<!-- Jeden Parameter am konkreten Quellcode prüfen, keine ungeprüfte Übernahme
+     gleichnamiger Parameter. Strukturierte Inputs brauchen Shape/Contract-Link.
+     api_examples.json und generierte markierte Parametertabellen mitpflegen. -->
 
 Eine zu bearbeitende Tabelle verwendet einen fachlich eindeutigen Parameternamen, beispielsweise `@ResultTableToAlter`. Diese USP besitzt keinen `@ResultTable`-Output-Routing-Parameter.
 
@@ -35,6 +39,8 @@ Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Da kein fachliches Re
 
 ## Beispiele
 
+{{Voraussetzungen und Vorbereitung eigener synthetischer Eingaben; bei Bedarf konkreten Vorbereitungsschritt verlinken.}}
+
 ```sql
 EXEC {{SchemaName}}.USP_{{ObjectName}}
     @{{Parameter}} = {{SyntheticValue}};
@@ -42,6 +48,15 @@ EXEC {{SchemaName}}.USP_{{ObjectName}}
 EXEC {{SchemaName}}.USP_{{ObjectName}}
     @Hilfe = 1;
 ```
+
+{{Erwarteten Wert, Status, relevante Ergebnisspalten oder Zustandsänderung und ihre Bedeutung erläutern. Variable IDs/Zeitwerte als Eigenschaften beschreiben; Vertragserwartung von ausgeführter Evidenz unterscheiden.}}
+
+{{Falls der Beispielaufruf Ressourcen verändert: Seiteneffekte und Bereinigung der eigenen Ressourcen erklären.}}
+
+<!-- Diesen Abschnitt nur für nicht triviale Funktionalität behalten; bei einem gemeinsamen Kern einen gezielten Link verwenden. Bearbeitungshinweis vor Abgabe entfernen. -->
+## Technischer Lösungsweg
+
+{{Konkrete technische Grundlage, entscheidende Verarbeitungsschritte und Designgründe mit zuständigen Quellen erklären oder auf den passenden gemeinsamen Abschnitt verlinken. Bei nicht offensichtlichen Schleifen Zustand, Fortschritt/Begrenzung und Zweck erläutern; keine Syntaxnacherzählung.}}
 
 ## Teststatus
 

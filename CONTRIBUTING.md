@@ -39,6 +39,12 @@ Vor jeder Dateiänderung und vor jedem Commit prüfen: Öffentliche Organisation
 
 Code, Dokumentation, Beispiele, Help-Vertrag, Tests, Backlog und Status werden gekoppelt gepflegt. Jedes Modul muss die Kriterien aus [MODULE_DEFINITION_OF_DONE.md](./Documentation/Standards/MODULE_DEFINITION_OF_DONE.md) erfüllen.
 
+Für neue und geänderte öffentliche SQL-Objekte konkretisiert der
+[Dokumentationsstandard](Documentation/Standards/CODE_DOCUMENTATION.md#objektreferenz-und-beispiele)
+die Anforderungen an Beispiele, Ergebnisdeutung und nicht triviale
+Implementierungserklärungen. Die Objektvorlagen und PR-Checkliste führen
+durch diese Prüfung.
+
 Vor einem Pull Request wird der inkrementelle Change-Impact-Validator ausgeführt:
 
 ```text

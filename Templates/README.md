@@ -10,6 +10,21 @@ Dieses Verzeichnis enthält nicht ausführbare Vorlagen für neue Module und SQL
 4. Entferne nicht benötigte Vorlagen.
 5. Benenne `.sql.template` erst nach vollständiger Implementierung, Prüfung und Dokumentation in `.sql` um.
 
+Für Beispiele, Ergebnisdeutung und gezielte technische Erklärungen gilt der
+[Dokumentationsstandard](../Documentation/Standards/CODE_DOCUMENTATION.md#objektreferenz-und-beispiele).
+Fülle die Ergebnisdeutung passend zum konkreten Beispiel aus. Erkläre den
+Implementierungsweg nur, wenn er nicht offensichtlich ist; bei einem
+gemeinsamen Kern genügt ein gezielter Link. Entferne den optionalen
+Technikabschnitt bei trivialen Objekten sowie alle Bearbeitungshinweise.
+Die Vorlagen verlangen keinen zusätzlichen Grundlagenkurs oder neue SQL-Tests
+allein für die Dokumentation.
+
+Recherchiere jeden Parameter an seiner konkreten Implementierung. Ergänze
+seine Datenform, Grenzen/Einheiten, Default- und NULL-Semantik sowie
+Abhängigkeiten. Feste Wertemengen werden vollständig gelistet und jeder Wert
+wird erklärt; ein Beispielwert allein ersetzt diese Liste nicht. Details:
+[vollständiger Eingabevertrag](../Documentation/Standards/CODE_DOCUMENTATION.md#vollständiger-eingabevertrag-je-parameter).
+
 ## Objekttypspezifische Vorlagen
 
 | Typ | Source | Dokumentation |

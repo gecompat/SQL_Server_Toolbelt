@@ -11,14 +11,27 @@
 
 | Element | Typ | Nullable | Beschreibung |
 |---|---|---:|---|
-| `@{{Parameter}}` | `{{Type}}` | {{ja/nein}} | {{Beschreibung}} |
+| `@{{Parameter}}` | `{{Type mit Länge/Skala}}` | {{ja/nein}} | {{Default/fachliche Pflicht; Datenform; sämtliche festen Werte mit Einzelbedeutung; Grenzen/Einheit; NULL/leer/Whitespace; Normalisierung; Abhängigkeiten und Fehler}} |
 | Rückgabewert | `{{ReturnType}}` | {{ja/nein}} | {{Semantik}} |
 
+<!-- Jeden Parameter am Quellcode prüfen. Strukturierte Daten benötigen ein
+     vollständiges Shape oder einen gezielten Contract-Link. api_examples.json
+     und die daraus generierte markierte Parametertabelle gemeinsam pflegen. -->
+
 ## Verwendung
+
+{{Voraussetzungen und Vorbereitung eigener synthetischer Eingaben; bei Bedarf konkreten Vorbereitungsschritt verlinken.}}
 
 ```sql
 SELECT {{SchemaName}}.SVF_{{ObjectName}}({{SyntheticArguments}}) AS ResultValue;
 ```
+
+{{Erwarteten Wert, Status, relevante Ergebnisspalten oder Zustandsänderung und ihre Bedeutung erläutern. Variable IDs/Zeitwerte als Eigenschaften beschreiben; Vertragserwartung von ausgeführter Evidenz unterscheiden.}}
+
+<!-- Diesen Abschnitt nur für nicht triviale Funktionalität behalten; bei einem gemeinsamen Kern einen gezielten Link verwenden. Bearbeitungshinweis vor Abgabe entfernen. -->
+## Technischer Lösungsweg
+
+{{Konkrete technische Grundlage, entscheidende Verarbeitungsschritte und Designgründe mit zuständigen Quellen erklären oder auf den passenden gemeinsamen Abschnitt verlinken. Bei nicht offensichtlichen Schleifen Zustand, Fortschritt/Begrenzung und Zweck erläutern; keine Syntaxnacherzählung.}}
 
 ## Rechte, Dependencies und Plattformen
 
