@@ -74,7 +74,7 @@ function Get-SnapshotBatchLayout([string[]]$Kinds){
   }
   if($current -lt $rank){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_PHASE_ORDER'};$rank=$current
  }
- if($preparations -lt 1 -or $units -lt 1 -or $targets -ne 1 -or $counts -ne 1 -or $cleanups -lt 1){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_LAYOUT_INCOMPLETE'}
+ if($units -lt 1 -or $targets -ne 1 -or $counts -ne 1 -or $cleanups -lt 1){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_LAYOUT_INCOMPLETE'}
  return [pscustomobject]@{PreparationCount=$preparations;PlanUnitCount=$units;TargetCount=$targets;RowCountCount=$counts;CleanupCount=$cleanups}
 }
 
@@ -192,9 +192,15 @@ function Invoke-SnapshotOfflineChecks([string]$ScriptDomPath){
  if(Test-SnapshotRowCountTable $extraRowCount 2){throw 'SSIS_CURRENT_SNAPSHOT_ROWCOUNT_SHAPE_NEGATIVE_FAILED'}
  $layout=Get-SnapshotBatchLayout ([string[]]@('PreparationSql','PlanUnitSql','PlanUnitSql','TargetSql','RowCountSql','CleanupSql'))
  if($layout.PlanUnitCount -ne 2){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_LAYOUT_CONTROL_FAILED'}
+ $noPreparation=Get-SnapshotBatchLayout ([string[]]@('PlanUnitSql','TargetSql','RowCountSql','CleanupSql'))
+ if($noPreparation.PreparationCount -ne 0 -or $noPreparation.PlanUnitCount -ne 1 -or $noPreparation.TargetCount -ne 1 -or $noPreparation.RowCountCount -ne 1 -or $noPreparation.CleanupCount -ne 1){throw 'SSIS_CURRENT_SNAPSHOT_ZERO_PREPARATION_CONTROL_FAILED'}
  $invalidLayouts=@(
   [pscustomobject]@{values=[string[]]@('PlanUnitSql','TargetSql','PlanUnitSql','RowCountSql','CleanupSql')},
-  [pscustomobject]@{values=[string[]]@('PreparationSql','PlanUnitSql','TargetSql','MysterySql','CleanupSql')})
+  [pscustomobject]@{values=[string[]]@('PreparationSql','PlanUnitSql','TargetSql','MysterySql','CleanupSql')},
+  [pscustomobject]@{values=[string[]]@('TargetSql','RowCountSql','CleanupSql')},
+  [pscustomobject]@{values=[string[]]@('PlanUnitSql','RowCountSql','CleanupSql')},
+  [pscustomobject]@{values=[string[]]@('PlanUnitSql','TargetSql','CleanupSql')},
+  [pscustomobject]@{values=[string[]]@('PlanUnitSql','TargetSql','RowCountSql')})
  foreach($candidate in $invalidLayouts){$rejected=$false;try{[void](Get-SnapshotBatchLayout $candidate.values)}catch{$rejected=$true};if(-not $rejected){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_ORDER_NEGATIVE_FAILED'}}
  if(-not (Test-SnapshotBatchBinding 4 4 'PlanUnitSql' 'PlanUnitSql' ('A'*64) ('A'*64) $true 'passed')){throw 'SSIS_CURRENT_SNAPSHOT_BATCH_BINDING_CONTROL_FAILED'}
  if(-not (Test-SnapshotInteger ([long]4)) -or (Test-SnapshotInteger $false) -or (Test-SnapshotInteger ([double]4.0))){throw 'SSIS_CURRENT_SNAPSHOT_INTEGER_TYPE_CONTROL_FAILED'}

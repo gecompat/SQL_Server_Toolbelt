@@ -61,7 +61,7 @@ function Assert-SnapshotDebugScript($Artifacts,$Bundle,[Data.SqlClient.SqlConnec
   $pieces.Add($content.TrimEnd());$selected+=,$row;$sequence++
  }
  $planCount=[int]$layout.PlanUnitCount
- Assert-Snapshot ($layout.PreparationCount -gt 0 -and $planCount -gt 0 -and $layout.CleanupCount -gt 0) 'COMPLETE_PREPARATION_PLAN_CLEANUP'
+ Assert-Snapshot ($planCount -gt 0 -and $layout.TargetCount -eq 1 -and $layout.RowCountCount -eq 1 -and $layout.CleanupCount -gt 0) 'COMPLETE_PLAN_READS_AND_CLEANUP'
  $expected=($pieces -join "`nGO`n")+"`n"
  $prefix="-- Neue SQL-Sitzung verwenden. Bei einem Vorbereitungsfehler keine Ergebnislesebatches verwenden; CleanupSql anschließend in derselben Sitzung ausführen.`n-- Keine SSIS-Tasks werden ausgeführt.`n"
  Assert-Snapshot ([string]$Bundle.Content -ceq ($prefix+$expected)) 'DEBUGSCRIPT_EXACT_ORDERED_CONTENT'
