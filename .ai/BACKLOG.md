@@ -1,5 +1,36 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema-Deployment: transaktionale AppLock-Abweisung — r33, 2026-10-30
+
+Direkt autorisiertes enges Funktionsgate für den bestehenden JSON-Schema-
+Deploymentvertrag 1.0.1, ohne Produkt- oder API-Erweiterung: auf einem exakt
+bereiten Windows-SQL-2025/CU8-Ziel bei CL170 im lokalen Installationsmodus
+werden getrennt der gemeinsame Core-AppLock und der Modul-AppLock gehalten.
+Der Deploymentversuch muss jeweils die zugehörige Fehlernummer 55637 und den
+konkreten Lock-Fehlertext liefern, ohne Schema-, Assembly-, Objekt-,
+Metadaten- oder Rechtezustand zu verändern. Danach wird derselbe Deploy nach
+freigegebenem Lock als Positivkontrolle erfolgreich ausgeführt. Der bestehende
+Labvertrag, exakte aktuelle Schema-/Core-Artefaktpins, verschlüsselter
+Functional-Transport, expliziter Trustwert, eigene markierte Datenbank und
+unabhängiger Cleanup-Audit bleiben verbindlich. Keine Matrixwiederholung,
+keine Rechte-/Serverkonfigurationsänderung, keine Veröffentlichung. Root
+reserviert und führt höchstens einen nativen Ziel-/Auditlauf; Luna implementiert
+nur den begrenzten Adapter und Offlineprüfungen nach Einigung auf die konkrete
+Runnerform. Nicht ausgeführte oder fehlgeschlagene Ausführungen bleiben offen.
+
+**Abschlussnachweis 2026-10-30:** Der Plan erwartete zunächst einen Ziel- und
+Auditaufruf; die Ursachenanalyse benötigte tatsächlich sechs Zielinvokationen
+und sechs unabhängige Audits. Fünf Zielversuche blieben `FAILED_CLEANED`; alle
+sechs Audits bestanden. Der eine vollständige Aufruf qualifizierte beide
+festen Sperrkonflikte, die Zustandsunverändertheit und je einen positiven
+Deploy nach Lockfreigabe auf Windows SQL Server 2025/CU8/CL170 lokal. Der
+gebundene Bericht steht in
+[`json-schema-deploy-lock-qualification.json`](../Releases/1.0.0/json-schema-deploy-lock-qualification.json).
+Ausgeführter Quellcommit: `19cd830f6beddb3f5ece2ecef5ecd41ac6d5a85b`.
+Produkt-/Paketquellen und SQL bleiben unverändert; andere Zielkombinationen,
+Rechte-/Lifecycle-/Ressourcenprofile, TLS-Identität und Veröffentlichung sind
+damit nicht qualifiziert.
+
 ## Modulspezifische Releasepflichten besser auffindbar machen — r32, 2026-10-30
 
 Autorisierter Offline-Folgeauftrag: die offene allgemeine RELEASE-GATES-Zeile

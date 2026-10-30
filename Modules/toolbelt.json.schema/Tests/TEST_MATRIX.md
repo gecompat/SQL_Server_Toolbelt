@@ -2,6 +2,19 @@
 
 Additiver Nachweis 2026-10-25: Das [Caller-Rechteprofil](../../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) ergänzt zwölf Ziel-/CL-Fälle lokal/direkt zentral mit genau drei Objektrechten und direkten/ResultTable-Ausgaben. Frühere offene Minimalrechteangaben bleiben historisch; diese neue Abnahme schließt ausschließlich das dokumentierte Datenpfadprofil. Andere Lifecycle-, Client-, Ressourcen- und CrossDB-Gates bleiben getrennt.
 
+## Deployment-AppLock-Funktionsnachweis (2026-10-30)
+
+Der [gebundene AppLock-Bericht](../../../Releases/1.0.0/json-schema-deploy-lock-qualification.json)
+qualifiziert genau Windows/SQL Server 2025/CU8/CL170 im lokalen Deploymentmodus.
+Die zwei festen Sperrressourcen werden jeweils von einer zweiten Verbindung
+gehalten: Deploy muss mit dem erwarteten Lifecyclefehler ohne Zustandsänderung
+enden; derselbe Deploy muss nach Freigabe erfolgreich sein. Die Deinstallation
+prüft anschließend das fehlende Modul bei erhaltenem leerem Schema-Namespace.
+Ein Zielaufruf deckte beide Konflikte und positiven Kontrollen ab; fünf frühere
+Versuche bleiben als `FAILED_CLEANED` erhalten, alle sechs unabhängigen Audits
+bestanden. Der Scope qualifiziert weder andere Zielkombinationen noch das
+vollständige API-, Rechte-, Lifecycle- oder Ressourcenprofil.
+
 ## Schema-CI auf den ausgewählten Compatibility Levels
 
 Der gekoppelte Linuxadapter prüft Schema1.0.1 jetzt in denselben bereits

@@ -26,6 +26,8 @@ Releasegates bleiben getrennt.
 
 [JSON-Schema-Callerrechte](JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Die [gebundene Metadatenkorrektur](CALLER-METADATA-UPDATE.md) übernimmt diese Rechte jetzt in Manifest und Paket.
 
+[JSON-Schema-Deploy-AppLock](json-schema-deploy-lock-qualification.json): genau zwei lokale Windows/SQL-Server-2025/CU8/CL170-Sperrkonflikte mit getrennten Holder-/Contender-Verbindungen, unverändertem Zustand nach der Abweisung und positivem Deploy nach Freigabe. Fünf frühere Fehlversuche bleiben als aufgeräumte Historie erhalten; alle sechs unabhängigen Audits bestanden. Diese Funktionsabnahme ergänzt nur den angegebenen Deploy-Scope und ersetzt weder das vollständige Rechte-/Lifecycleprofil noch andere Zielkombinationen.
+
 [JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
 27 bestehende Frameworkphasen bestanden; die gelieferten Constructor-/Core-DLLs
 stimmen bytegenau mit den erzeugten Framework-DLLs überein. Der vorhandene

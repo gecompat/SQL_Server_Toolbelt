@@ -2071,11 +2071,13 @@ def load_tests(loader, tests, pattern):
     from test_base64_ddl_help_transition import Base64DdlHelpTransitionTests
     from test_generate_series_ddl_help_transition import GenerateSeriesDdlHelpTransitionTests
     from test_date_spine_ddl_help_transition import DateSpineDdlHelpTransitionTests
+    from test_json_schema_deploy_applock_qualification import JsonSchemaDeployAppLockQualificationTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
     tests.addTests(loader.loadTestsFromTestCase(StandaloneTsqlInstallerTests))
     tests.addTests(loader.loadTestsFromTestCase(Base64DdlHelpTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(GenerateSeriesDdlHelpTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(DateSpineDdlHelpTransitionTests))
+    tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployAppLockQualificationTests))
     return tests
 
 

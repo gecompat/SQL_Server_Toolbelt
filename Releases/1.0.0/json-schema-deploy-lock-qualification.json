@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-30",
+  "kind": "json_schema_deploy_applock_qualification",
+  "profile": "toolbelt.json.schema",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": {
+    "module": "toolbelt.json.schema",
+    "purpose": "Functional",
+    "target": {
+      "platform": "windows",
+      "sql_server_version": "2025",
+      "compatibility_level": 170,
+      "patch": "CU8"
+    },
+    "deployment_mode": "local",
+    "baseline": {
+      "result_table": true,
+      "json_core": true,
+      "schema_namespace_absent_initially": true
+    },
+    "resources": [
+      "toolbelt.deploy.json.shared-core",
+      "toolbelt.deploy.toolbelt.json.schema"
+    ],
+    "case_count": 2
+  },
+  "inputs": {
+    "package_qualification": {
+      "path": "Releases/1.0.0/JSON-SCHEMA-PACKAGE-QUALIFICATION.json",
+      "sha256": "9ad4832c3bc687b59baa98b0f0e06e77eba5d53556085e0df230b53a008328a9",
+      "package_path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip",
+      "package_sha256": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
+    },
+    "source_pins": {
+      "Tests/Release/Prepare-JsonSchemaAppLockRunset.ps1": "85e8010c01d32b366246214edf7a0cefeae3bb04f7c13ce2aa7526ca4173dc8b",
+      "Tests/Release/Invoke-JsonSchemaAppLockLab.ps1": "a4849e91c2bd24ec4de9c19c88c7c66df853775b662a8b903fff2f2856a3993e",
+      "Tests/CI/run-json-schema-lab.ps1": "11978d144cfe9cafff78cb5dfe07247f8b3a6ed536bd1f16b51430f57b53cd3e",
+      "Releases/1.0.0/JSON-SCHEMA-PACKAGE-QUALIFICATION.json": "9ad4832c3bc687b59baa98b0f0e06e77eba5d53556085e0df230b53a008328a9",
+      "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip": "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287",
+      "Tests/Release/Test-JsonSchemaAppLockOffline.ps1": "518da307854f686a4bc248523180bed2f0c07b860d7e04855d919d7da03a3413",
+      "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+      "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+      "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+      "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+      "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+      "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+      "Modules/toolbelt.json.core/Scripts/New-JsonClosureRelease.ps1": "346691a1506d5f5c1773422d4508295d85435c9635e6bcdd4e813ebcc46690c9",
+      "Modules/toolbelt.json.core/Scripts/Expand-JsonClosureSql.ps1": "ab0493e863d323830f406ccc6bb32ff49e3097f6e502c791707196859747a86e",
+      "Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json": "b8862241f3aa135167f99f19db437df809fcf4930b619590b680b5d0b3bc6451",
+      "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+      "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+      "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+      "Modules/toolbelt.json.core/Deployment/Deploy.sql": "ddab0c6bffe63773da4ed9fa3d45e9fdce9b856c171ec9c9c77e523f3dd585ca",
+      "Modules/toolbelt.json.schema/Deployment/Deploy.sql": "259286742450923ec06675fdea1c6f0dc95c97b8f47f023a998ab5449e43f739",
+      "Modules/toolbelt.json.core/Deployment/Uninstall.sql": "df023c85667dda4f64ba1552f4ba3bd4ba6365cabaf701752d52c2ee7855d394",
+      "Modules/toolbelt.json.core/Deployment/KnownArtifact.sql": "4053aaad518ad6d56053833d73e34732503589595ca373562fe1bf378ffbb549",
+      "Modules/toolbelt.json.core/Deployment/Preflight.sql": "2b65b98ae6ebc22b95cd4b1684b8a618579a6772f76ae4a39e078c4a23cfe24f",
+      "Modules/toolbelt.json.constructors/Deployment/Deploy.sql": "bcaecc385eb21703718931d7281d32afbbbaeca25c64293954d8174614c9c294",
+      "Modules/toolbelt.json.constructors/Deployment/Uninstall.sql": "eafbd724d3a585a3598ecc3dd1c9c8677ca8bd2f438db037021a1bd026713b32",
+      "Modules/toolbelt.json.constructors/Deployment/KnownArtifact.sql": "309a1e13a2ade7208c1aaaa64c8d787152bb101313589e17be77812c2e6b63b3",
+      "Modules/toolbelt.json.constructors/Deployment/KnownArtifact1_3.sql": "be77d70a316c70fba24d8334358385703067c4d798a7be609038decdf91edb54",
+      "Modules/toolbelt.json.constructors/Deployment/ClrPreflight.sql": "f6b934838332fa9a08dcc6f4b31c4c3edeed218869c72fd4b9ee7493924d17d8",
+      "Modules/toolbelt.json.constructors/Source/JsonEntryEvaluate.sql": "8fa4be04cf0e7f0d53c3ce0b23f12c1222195d2326870e1de9b2c9681a076734",
+      "Modules/toolbelt.json.constructors/Source/JsonAggregates.sql": "c89cd18d0e7699d1ae077a6175756323dca2eeb459337996194fa02381f67dec",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonConstructInternal.sql": "3060ec4b15f17c68fe0e7016ed52da60c32b0d2bef073b6dceb2e00994b816ff",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonArray.sql": "95178c86bdb9ba6e72b26f31f2ae460ff9d472cfcbb3e853c9f5674e60f48042",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonObject.sql": "804dd94eae72bc435c228007bd6ae7d7202470c6bd34319c732824de6ca41d3f",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonArraysByGroup.sql": "16b7a134bfaddef3ff029464ac22ef38dfe935fc4b6b37e1c1c695b3c40ab0cc",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonObjectsByGroup.sql": "26046f53105f0043960785b4f6b3f992de4d418c5abb15064533565181793c11",
+      "Modules/toolbelt.json.schema/Deployment/Uninstall.sql": "7888bc22d7dee7149beaa981ca6d3923bd725366135048d6df6563740ae16d42",
+      "Modules/toolbelt.json.schema/Deployment/KnownArtifact.sql": "97959cea53d8b14ab99a7db9283e6e419723868f48f9d1a0fe089f68886c21bd",
+      "Modules/toolbelt.json.schema/Deployment/State.sql": "1605a4297241d1939e18008b1e99d06b13772702c07061cc10ed5f2006d4744d",
+      "Modules/toolbelt.json.schema/Deployment/Preflight.sql": "2aefab3e1e901fd88c16943bb164445c90b2935275288547c7718e63e36205d7",
+      "Modules/toolbelt.json.schema/Source/JsonSchemaBridge.sql": "17690de450225d876734f5ab5983a0860ef2c2dd93958ee89c6c541282e16339",
+      "Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql": "937ae81ab6d10ed3b3b4384158c45a6961873e78e3cfa70bae68637d79533bc8",
+      "Modules/toolbelt.json.core/Clr/Toolbelt.JsonCore.csproj": "3e0b43a3d247c18a88088e66fa322af3d23cbdaacee74fb868a692d852646802",
+      "Modules/toolbelt.json.core/Clr/JsonCanonicalCore.cs": "72ec1c63829ad5570561188a8a6b5cdebf3513901bb886fab447639270528675",
+      "Modules/toolbelt.json.core/Clr/JsonWorkBudget.cs": "7730b92e56188f61189c6d871f8815ce7fbe5f791cb361bc01f423538b29158f",
+      "Modules/toolbelt.json.core/Clr/JsonTokenDocument.cs": "3a1a4dec2717414163d6d7ae841b6b88e846aaccd48baa595756980851d398f9",
+      "Modules/toolbelt.json.core/Clr/JsonOrdinalComparer.cs": "df37f5fb9f41887485b1a80e98b7a4bece973193896736a3b05f7da4362a6a82",
+      "Modules/toolbelt.json.core/Clr/JsonSyntaxScanner.cs": "0574a89286fb3a2c4f7fc8919a6046ebe322d1a4111683218e3a8c8cd98c96df",
+      "Modules/toolbelt.json.core/Clr/Properties/AssemblyInfo.cs": "437aa3b23ad2b55aa6539b17837a51a6b0488d869009023c3646d1f820bbdc30",
+      "Modules/toolbelt.json.schema/Clr/Toolbelt.JsonSchema.csproj": "b1b4b66275f2bda37959c93b6f2b996cee09012ce66aacc2397a8f79a0e3905f",
+      "Modules/toolbelt.json.schema/Clr/SignedDecimalDigits.cs": "c667e05d9a3e4b810bc19fe15b54719b0972924fa8a782e0aa629c0ef1203add",
+      "Modules/toolbelt.json.schema/Clr/ExactJsonNumber.cs": "2c95953f2cef6502707f6e891db56d0e9c8ce515c9469ae94198d1a67151757e",
+      "Modules/toolbelt.json.schema/Clr/SchemaTree.cs": "90037d202b430901b5ab865a46beb8bdcbf3e1fb485dcfd3b4f8ea9388294027",
+      "Modules/toolbelt.json.schema/Clr/LocalSchemaReference.cs": "0fececbcac0ec25e9410778d29a1552d1d65cd75e4e2c23fa2e406ea6c9a8ce6",
+      "Modules/toolbelt.json.schema/Clr/SchemaPreflight.cs": "8af0018294fb9d3b8d03cfef3293a8b3dd5dedb00b2b7cf14057b9e295900a70",
+      "Modules/toolbelt.json.schema/Clr/SchemaValidator.cs": "bd67486293e5944691148cb91d56e585736d023d3de4e51b97d8b189427f8669",
+      "Modules/toolbelt.json.schema/Clr/JsonSchemaBridge.cs": "397ea2b4513f32b3a887bbc2a33aabe228005da13ecc6acc12d6757d0913a274",
+      "Modules/toolbelt.json.schema/Clr/Properties/AssemblyInfo.cs": "14759817172bd11b3066920c0767273511d7c1b7dc4a6efa7b4a007b65eb3387"
+    }
+  },
+  "execution": {
+    "source_commit": "19cd830f6beddb3f5ece2ecef5ecd41ac6d5a85b",
+    "native_target_invocations": 6,
+    "failed_cleaned_attempts": 5,
+    "successful_target_invocations": 1,
+    "independent_audits": 6,
+    "all_audits_pass": true,
+    "cases": [
+      {
+        "resource": "toolbelt.deploy.json.shared-core",
+        "expected_error_number": 55637,
+        "expected_error_state": 1,
+        "blocked": true,
+        "positive_control_after_release": true,
+        "failed_deploy_snapshot_unchanged": true,
+        "holder_lock_granted": true,
+        "exact_block_message_matched": true,
+        "isolated_contender_transaction_absent": true,
+        "external_contender_transactions_and_locks_absent": true
+      },
+      {
+        "resource": "toolbelt.deploy.toolbelt.json.schema",
+        "expected_error_number": 55637,
+        "expected_error_state": 1,
+        "blocked": true,
+        "positive_control_after_release": true,
+        "failed_deploy_snapshot_unchanged": true,
+        "holder_lock_granted": true,
+        "exact_block_message_matched": true,
+        "isolated_contender_transaction_absent": true,
+        "external_contender_transactions_and_locks_absent": true
+      }
+    ],
+    "final_independent_audit": {
+      "status": "PASS",
+      "complete_attempt": true,
+      "owned_database_absent": true,
+      "owned_trust_restored": true,
+      "configuration_restored": true,
+      "source_pins_unchanged": true
+    }
+  },
+  "not_qualified": [
+    "Other SQL Server versions, compatibility levels, platforms, or deployment modes",
+    "Full JSON Schema API, rights, lifecycle, performance, and resource matrices",
+    "Authenticated TLS identity or publication authorization"
+  ]
+}

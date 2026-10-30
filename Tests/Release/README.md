@@ -61,6 +61,19 @@ Schema-DLL aus dem geprüften Paket; neun Offlineprüfungen sind in
 nicht erforderlich, solange der gebundene Receipt und seine Quellpins bestehen.
 Gezielt lokal: `python -B -m unittest Tests.Release.test_caller_metadata.CallerMetadataTests.test_public_predecessor_and_framework_inputs_are_exactly_bound Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_public_evidence_binds_the_package_and_reused_receipt Tests.Release.test_caller_metadata.CallerMetadataTests.test_framework_receipt_requires_complete_phases_and_fresh_sources Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_manifest_hash_is_checked_even_with_matching_outer_hash Tests.Release.test_caller_metadata.CallerMetadataTests.test_package_archive_hash_and_fixed_oracle_pins_reject_drift Tests.Release.test_caller_metadata.CallerMetadataTests.test_schema_framework_output_must_equal_the_package_binary Tests.Release.test_caller_metadata.CallerMetadataTests.test_output_scope_rejects_external_path_before_creating_it`.
 
+Der separate [Deploy-AppLock-Nachweis](../../Releases/1.0.0/json-schema-deploy-lock-qualification.json)
+qualifiziert ausschließlich Windows SQL Server 2025/CU8/CL170 lokal: zwei
+fehlgeschlagene Deploys unter jeweils gehaltener externer AppLock und den
+erfolgreichen Deploy nach Lockfreigabe.
+Der Bericht bindet das unveränderte Paket, die ausgeführten öffentlichen
+Quellen, fünf aufgeräumte Fehlversuche und sechs unabhängige Audits; er enthält
+keine privaten Runsets oder Runtimewerte. Vier Offlineprüfungen kontrollieren
+Scope, Quellenpins, positive Kontrollen, Audit und Fehlerhistorie in der
+bestehenden Release-Suite. Gezielt lokal:
+`python -B -m unittest Tests.Release.test_json_schema_deploy_applock_qualification -v`.
+Weitere Versionen, Plattformen, Deploymentmodi, Rechte- und Lifecycleprofile
+werden dadurch nicht qualifiziert.
+
 ## Edit-Distance-Paketqualifikation
 
 Der [Edit-Distance-Bericht](../../Releases/1.0.0/EDIT-DISTANCE-PACKAGE-QUALIFICATION.md)
