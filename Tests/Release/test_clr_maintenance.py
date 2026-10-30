@@ -14,54 +14,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import clr_maintenance as maintenance
 import verify_clr_maintenance as verifier
-import documentation_history
-import help_contract_source
 
 
 class ClrMaintenanceTests(unittest.TestCase):
     def record(self):
         return json.loads((ROOT / maintenance.RECORD).read_bytes())
-
-    def test_documentation_snapshot_keeps_old_pins_without_qualifying_new_text(self):
-        pins = self.record()['current_sources_sha256']
-        for path in documentation_history.PATHS:
-            original = documentation_history.qualification_bytes(ROOT, path)
-            self.assertNotEqual(original, (ROOT / path).read_bytes(), path)
-            if path in pins:
-                self.assertEqual(maintenance.sha(original.replace(b'\r\n', b'\n')), pins[path])
-
-    def test_documentation_history_does_not_shadow_executable_or_unknown_sources(self):
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            path = 'Modules/Contoso/Source/Example.sql'
-            target = root / path
-            target.parent.mkdir(parents=True)
-            target.write_bytes(b'SELECT 1;\n')
-            self.assertEqual(documentation_history.qualification_bytes(root, path), b'SELECT 1;\n')
-            target.write_bytes(b'SELECT 2;\n')
-            self.assertEqual(documentation_history.qualification_bytes(root, path), b'SELECT 2;\n')
-            for invalid in ('../escape.md', '/absolute.md', 'C:/absolute.md', 'Modules\\escape.md'):
-                with self.subTest(path=invalid), self.assertRaises(ValueError):
-                    documentation_history.qualification_bytes(root, invalid)
-
-    def test_documentation_archive_corruption_is_rejected(self):
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            target = root / documentation_history.ARCHIVE
-            target.parent.mkdir(parents=True)
-            target.write_bytes((ROOT / documentation_history.ARCHIVE).read_bytes() + b'corruption')
-            with self.assertRaisesRegex(ValueError, 'archive differs'):
-                documentation_history.qualification_bytes(root, next(iter(documentation_history.PATHS)))
-
-    def test_read_adapter_projections_preserve_exact_old_checker_hashes(self):
-        original = documentation_history.qualification_method_bytes(ROOT, documentation_history.MAINTENANCE)
-        self.assertEqual(maintenance.sha(original), self.record()['method_sha256'][documentation_history.MAINTENANCE])
-        changed = (ROOT / documentation_history.MAINTENANCE).read_bytes().replace(b'\r\n', b'\n') + b'\n# unknown change\n'
-        restored = documentation_history.restore_projection(changed, documentation_history.MAINTENANCE_PROJECTION)
-        self.assertNotEqual(maintenance.sha(restored), maintenance.sha(original))
-        raw = (ROOT / help_contract_source.RAW_CALLER_TEST).read_bytes().replace(b'\r\n', b'\n')
-        self.assertEqual(maintenance.sha(documentation_history.restore_projection(
-            raw, documentation_history.RAW_CALLER_PROJECTION)), help_contract_source.RAW_CALLER_CURRENT_SHA256)
 
     def test_actual_delivery_is_exact_qualified_derivation(self):
         record = verifier.verify(ROOT)

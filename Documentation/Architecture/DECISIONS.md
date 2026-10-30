@@ -343,14 +343,6 @@ erzeugen. Der bestehende Kataloggenerator pflegt dieselben Parametertexte in
 Katalog und markierten Objektabschnitten; sein bestehender Driftcheck erkennt
 Abweichungen. Es entsteht kein zweiter Generator oder zusätzlicher Prüflauf.
 Die Quellprüfung der Bedeutung bleibt Aufgabe des fachlichen Reviews.
-Historische Help-/CSV-/XLSX-Nachweise verwenden für acht gebundene
-Objektbeschreibungen einen unveränderlichen Dokumentationssnapshot. Aktuelle
-Referenztexte werden separat geprüft; alte Berichte, Methodenpins und
-Runtimeorakel werden nicht auf neue Texte umgebunden. Vier gezielte
-Manipulations-/Abgrenzungskontrollen ergänzen die vorhandene Release-Testklasse
-im bestehenden Offlineaudit; sie erzeugen weder einen weiteren Workflow noch
-einen SQL-Lauf oder Agenten. Die erneute volle Offlineprüfung ist hier nach
-dem konkreten historischen Kopplungsbefund erforderlich.
 Logs bleiben lokal, im PR werden Ergebnis und konkrete Grenzen
 festgehalten; Kosten-/Tokenmessungen werden nicht behauptet. Reine Textpflege
 erzwingt keine fachfremde Runtimequalifikation oder Gesamtrevision der Objekte.

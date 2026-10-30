@@ -13,7 +13,6 @@ import csv_metadata as metadata
 import help_contract_source
 import prepare_release as release
 import xlsx_metadata
-import documentation_history
 
 
 class CsvMetadataTests(unittest.TestCase):
@@ -53,8 +52,7 @@ class CsvMetadataTests(unittest.TestCase):
         self.assertEqual((ROOT / metadata.REPORT).read_bytes(), self.baseline[metadata.REPORT])
         metadata.validate_source(ROOT, metadata.MANIFEST, metadata.digest(original))
         for p in metadata.DOCS:
-            self.assertEqual(documentation_history.qualification_bytes(ROOT, p),
-                             metadata.corrected_documentation(p, self.baseline[p]))
+            self.assertEqual((ROOT / p).read_bytes(), metadata.corrected_documentation(p, self.baseline[p]))
 
     def test_other_manifest_fields_and_unknown_source_exceptions_fail(self):
         old = self.baseline[metadata.MANIFEST]
