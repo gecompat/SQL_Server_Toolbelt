@@ -15,13 +15,13 @@ foreach($path in @($driver,$preparer,$r33,$r34,$r35,$api,$stable)){
 }
 $driverText=[IO.File]::ReadAllText($driver,[Text.Encoding]::UTF8)
 $astErrors=$null;$ast=[Management.Automation.Language.Parser]::ParseFile($driver,[ref]$null,[ref]$astErrors)
-foreach($name in @('Assert-CaseShape','Assert-AuditPrefix','Assert-CleanupFixtureOwnership')){
+foreach($name in @('Assert-CaseShape','Assert-AuditPrefix','Assert-CleanupFixtureOwnership','Test-SqlObjectPresent','Assert-OwnedFixtureShape','Assert-ArtifactClosure')){
  $found=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
  if($found.Count-ne1){throw 'JSON_DEPLOY_COLLISION_OFFLINE_GUARD_MISSING'}
  . ([scriptblock]::Create($found[0].Extent.Text))
 }
 $valid=@(
- [pscustomobject]@{ordinal=0;kind='reserved_temp';object_name='#tbx_JsonSchema_DeployState';expected_error=55633;expected_state=1;expected_message='JSON Schema lifecycle: reservierter Callerzustand belegt.'},
+ [pscustomobject]@{ordinal=0;kind='reserved_temp';object_name='#tbx_JsonSchema_DeployState';fixture_value=700;expected_error=55633;expected_state=1;expected_message='JSON Schema lifecycle: reservierter Callerzustand belegt.'},
  [pscustomobject]@{ordinal=1;kind='public_slot';object_name='USP_ValidateJsonSchema';fixture_type='U';fixture_value=701;expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'},
  [pscustomobject]@{ordinal=2;kind='internal_slot';object_name='FT_ValidateJsonSchemaInternal';fixture_type='U';fixture_value=702;expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'},
  [pscustomobject]@{ordinal=3;kind='orphan_mode';property_name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';property_value='local';expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'})
@@ -73,6 +73,38 @@ $script:ledger.active_fixture=[ordered]@{ordinal=2;state='OWNED';snapshot='fixtu
 $rejected=$false;try{Assert-CleanupFixtureOwnership}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_CLEANUP_MODULE_DRIFT'}
 if(-not$rejected-or$script:removed-ne0){throw 'JSON_DEPLOY_COLLISION_OFFLINE_MODULE_DRIFT_NOT_BLOCKED'}
 
+if((Test-SqlObjectPresent $null)-or(Test-SqlObjectPresent ([DBNull]::Value))-or-not(Test-SqlObjectPresent 17)){throw 'JSON_DEPLOY_COLLISION_OFFLINE_DBNULL_IDENTITY'}
+$tempSnapshot=[ordered]@{ObjectId=10;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=700}|ConvertTo-Json -Compress
+Assert-OwnedFixtureShape $valid[0] $tempSnapshot
+$badTemp=[ordered]@{ObjectId=10;Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=0;Sentinel=700}|ConvertTo-Json -Compress
+$rejected=$false;try{Assert-OwnedFixtureShape $valid[0] $badTemp}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_EMPTY_FIXTURE_ACCEPTED'}
+$markerSnapshot=[ordered]@{class=0;major_id=0;minor_id=0;name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';BaseType='nvarchar';MaxLength=32;DataLength=10;BinaryValue='6C006F00630061006C';Value='local'}|ConvertTo-Json -Compress
+Assert-OwnedFixtureShape $valid[3] $markerSnapshot
+$badMarker=[ordered]@{class=0;major_id=0;minor_id=0;name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';BaseType='nvarchar';MaxLength=64;DataLength=10;BinaryValue='6C006F00630061006C';Value='local'}|ConvertTo-Json -Compress
+$rejected=$false;try{Assert-OwnedFixtureShape $valid[3] $badMarker}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_MARKER_WIDTH_DRIFT_ACCEPTED'}
+$slotSnapshot=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"U","principal_id":1,"definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
+Assert-OwnedFixtureShape $valid[1] $slotSnapshot
+$badSlot=[ordered]@{ObjectId=12;ObjectShape='[{"name":"USP_ValidateJsonSchema","TypeName":"V","principal_id":1,"definition":null}]';Columns='[{"column_id":1,"name":"Sentinel","TypeName":"int","max_length":4,"is_nullable":false}]';RowCount=1;Sentinel=701}|ConvertTo-Json -Compress
+$rejected=$false;try{Assert-OwnedFixtureShape $valid[1] $badSlot}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_WRONG_SLOT_TYPE_ACCEPTED'}
+
+$stable=Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1';$stable256=(Get-FileHash -LiteralPath $stable -Algorithm SHA256).Hash.ToUpperInvariant();$stable512=(Get-FileHash -LiteralPath $stable -Algorithm SHA512).Hash.ToUpperInvariant();$fullStable=[IO.Path]::GetFullPath($stable)
+$artifactCore=[pscustomobject]@{module_id='toolbelt.json.core';path=$fullStable;sha256=$stable256;sha512=$stable512;sql_name='Toolbelt_JsonCore'}
+$artifactSchema=[pscustomobject]@{module_id='toolbelt.json.schema';path=$fullStable;sha256=$stable256;sha512=$stable512;sql_name='Toolbelt_JsonSchema'}
+$artifactSet=@($artifactCore,$artifactSchema);$pinMap=@{};$pinMap[$fullStable]=$stable256
+Assert-ArtifactClosure $artifactSet $artifactSet $pinMap
+$badArtifact=[pscustomobject]@{module_id='toolbelt.json.schema';path=$fullStable;sha256=$stable256;sha512=$stable512;sql_name='Toolbelt_JsonCore'}
+$rejected=$false;try{Assert-ArtifactClosure $artifactSet @($artifactCore,$badArtifact) $pinMap}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_ARTIFACT_CLOSURE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_ARTIFACT_NAME_DRIFT_ACCEPTED'}
+$badArtifact=[pscustomobject]@{module_id='toolbelt.json.schema';path=$fullStable;sha256=('0'*64);sha512=$stable512;sql_name='Toolbelt_JsonSchema'}
+$rejected=$false;try{Assert-ArtifactClosure $artifactSet @($artifactCore,$badArtifact) $pinMap}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_ARTIFACT_CLOSURE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_ARTIFACT_HASH_DRIFT_ACCEPTED'}
+$badArtifact=[pscustomobject]@{module_id='toolbelt.json.schema';path=$fullStable;sha256=$stable256;sha512=('0'*128);sql_name='Toolbelt_JsonSchema'}
+$rejected=$false;try{Assert-ArtifactClosure $artifactSet @($artifactCore,$badArtifact) $pinMap}catch{$rejected=$_.Exception.Message-ceq'JSON_DEPLOY_COLLISION_ARTIFACT_CLOSURE_INVALID'}
+if(-not$rejected){throw 'JSON_DEPLOY_COLLISION_OFFLINE_ARTIFACT_SHA512_DRIFT_ACCEPTED'}
+
 # Ensure fixture and baseline checks happen before the only database-drop path.
 $main=@($ast.EndBlock.Statements|Where-Object{$_-is[Management.Automation.Language.TryStatementAst]})
 if($main.Count-ne1){throw 'JSON_DEPLOY_COLLISION_OFFLINE_FINALLY_MISSING'}
@@ -84,5 +116,7 @@ $drop=$finallyText.IndexOf('Assert-ReleaseOwnIdentity',[StringComparison]::Ordin
 if($fixtureCheck-lt0-or$snapshotCheck-le$fixtureCheck-or$dispose-le$snapshotCheck-or$drop-le$dispose){throw 'JSON_DEPLOY_COLLISION_OFFLINE_CLEANUP_ORDER'}
 if($driverText-match'\[Data\.SqlClient\.SqlTransaction\]|\.BeginTransaction\(' -or
    $driverText-notmatch'Assert-ReleaseInputs' -or $driverText-notmatch'Assert-RunsetStable' -or
-   $driverText-notmatch'Assert-ReleaseOwnIdentity' -or $driverText-notmatch'Assert-ClrCallerTrustCleanupScope'){throw 'JSON_DEPLOY_COLLISION_OFFLINE_PROTECTION_MISSING'}
+   $driverText-notmatch'Assert-ReleaseOwnIdentity' -or $driverText-notmatch'Assert-ClrCallerTrustCleanupScope' -or
+   $driverText-notmatch"SQL_VARIANT_PROPERTY\(ep\.value,N'MaxLength'\)" -or $driverText-notmatch'BinaryValue' -or
+   $driverText-notmatch'@TypedValue nvarchar\(16\)'){throw 'JSON_DEPLOY_COLLISION_OFFLINE_PROTECTION_MISSING'}
 Write-Output 'PASS JSON_SCHEMA_DEPLOY_COLLISION offline guards, audit prefixes, and drift-blocking cleanup; no SQL executed'

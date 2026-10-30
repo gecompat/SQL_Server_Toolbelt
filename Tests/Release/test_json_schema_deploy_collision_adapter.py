@@ -58,6 +58,21 @@ class JsonSchemaDeployCollisionAdapterTests(unittest.TestCase):
         self.assertNotIn("DROP TABLE IF EXISTS", self.driver.upper())
         self.assertNotIn("[Data.SqlClient.SqlTransaction]", self.driver)
 
+    def test_artifacts_and_fixture_ownership_are_typed_and_pinned(self):
+        for text in (
+            "Assert-ArtifactClosure",
+            "Get-FileHash -LiteralPath $full -Algorithm SHA256",
+            "Get-FileHash -LiteralPath $full -Algorithm SHA512",
+            "Test-SqlObjectPresent",
+            "Assert-OwnedFixtureShape",
+            "BinaryValue",
+            "@TypedValue nvarchar(16)",
+            "JSON_DEPLOY_COLLISION_OFFLINE_DBNULL_IDENTITY",
+            "JSON_DEPLOY_COLLISION_OFFLINE_MARKER_WIDTH_DRIFT_ACCEPTED",
+            "JSON_DEPLOY_COLLISION_OFFLINE_ARTIFACT_HASH_DRIFT_ACCEPTED",
+        ):
+            self.assertIn(text, self.driver + self.offline)
+
 
 if __name__ == "__main__":
     unittest.main()

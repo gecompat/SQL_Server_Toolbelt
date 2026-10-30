@@ -41,7 +41,7 @@ foreach($source in @(
 
 function Assert-CaseShape($Cases){
  $expected=@(
-  [pscustomobject]@{ordinal=0;kind='reserved_temp';object_name='#tbx_JsonSchema_DeployState';expected_error=55633;expected_state=1;expected_message='JSON Schema lifecycle: reservierter Callerzustand belegt.'},
+  [pscustomobject]@{ordinal=0;kind='reserved_temp';object_name='#tbx_JsonSchema_DeployState';fixture_value=700;expected_error=55633;expected_state=1;expected_message='JSON Schema lifecycle: reservierter Callerzustand belegt.'},
   [pscustomobject]@{ordinal=1;kind='public_slot';object_name='USP_ValidateJsonSchema';fixture_type='U';fixture_value=701;expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'},
   [pscustomobject]@{ordinal=2;kind='internal_slot';object_name='FT_ValidateJsonSchemaInternal';fixture_type='U';fixture_value=702;expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'},
   [pscustomobject]@{ordinal=3;kind='orphan_mode';property_name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';property_value='local';expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'})
@@ -51,8 +51,50 @@ function Assert-CaseShape($Cases){
   if(($actual.ordinal-isnot[int]-and$actual.ordinal-isnot[long])-or$actual.ordinal-ne$i-or$actual.kind-cne$wanted.kind-or
      ($i-lt3-and$actual.object_name-cne$wanted.object_name)-or($actual.expected_error-isnot[int]-and$actual.expected_error-isnot[long])-or$actual.expected_error-ne$wanted.expected_error-or
      ($actual.expected_state-isnot[int]-and$actual.expected_state-isnot[long])-or$actual.expected_state-ne1-or$actual.expected_message-cne$wanted.expected_message){throw 'JSON_DEPLOY_COLLISION_CASES_INVALID'}
-  if($i-in@(1,2)-and($actual.fixture_type-cne'U'-or($actual.fixture_value-isnot[int]-and$actual.fixture_value-isnot[long])-or$actual.fixture_value-ne$wanted.fixture_value)){throw 'JSON_DEPLOY_COLLISION_CASES_INVALID'}
+  if($i-in@(0,1,2)-and($actual.fixture_value-isnot[int]-and$actual.fixture_value-isnot[long])-or($i-in@(1,2)-and$actual.fixture_type-cne'U')-or
+     ($i-in@(0,1,2)-and$actual.fixture_value-ne$wanted.fixture_value)){throw 'JSON_DEPLOY_COLLISION_CASES_INVALID'}
   if($i-eq3-and($actual.property_name-cne$wanted.property_name-or$actual.property_value-cne$wanted.property_value)){throw 'JSON_DEPLOY_COLLISION_CASES_INVALID'}
+ }
+}
+function Test-SqlObjectPresent($Value){return ($null-ne$Value-and$Value-isnot[DBNull])}
+function Assert-OwnedFixtureShape($Case,[string]$Snapshot){
+ try{$rows=@($Snapshot|ConvertFrom-Json -ErrorAction Stop)}catch{throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if($Case.kind-ceq'orphan_mode'){
+  if($rows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$marker=$rows[0]
+  if($marker.class-ne0-or$marker.major_id-ne0-or$marker.minor_id-ne0-or$marker.name-cne[string]$Case.property_name-or
+     $marker.BaseType-cne'nvarchar'-or$marker.MaxLength-ne32-or$marker.DataLength-ne10-or
+     $marker.BinaryValue-cne'6C006F00630061006C'-or$marker.Value-cne'local'){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+  return
+ }
+ if($rows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$table=$rows[0]
+ if(($table.ObjectId-isnot[int]-and$table.ObjectId-isnot[long])-or[int]$table.ObjectId-le0-or$table.RowCount-ne1-or$table.Sentinel-ne[int]$Case.fixture_value){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ try{$columns=@($table.Columns|ConvertFrom-Json -ErrorAction Stop)}catch{throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if($columns.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$column=$columns[0]
+ if($column.name-cne'Sentinel'-or$column.TypeName-cne'int'-or$column.max_length-ne4-or$column.is_nullable-ne$false){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if($Case.kind-ceq'reserved_temp'){return}
+ try{$objects=@($table.ObjectShape|ConvertFrom-Json -ErrorAction Stop)}catch{throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+ if($objects.Count-ne1){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'};$object=$objects[0]
+ if($object.name-cne[string]$Case.object_name-or$object.TypeName-cne'U'-or
+    ($object.principal_id-isnot[int]-and$object.principal_id-isnot[long])-or[int]$object.principal_id-le0-or$null-ne$object.definition){throw 'JSON_DEPLOY_COLLISION_FIXTURE_SHAPE_INVALID'}
+}
+function Assert-ArtifactClosure($BaseArtifacts,$Artifacts,$PinMap){
+ $expected=@{
+  'toolbelt.json.core'='Toolbelt_JsonCore'
+  'toolbelt.json.schema'='Toolbelt_JsonSchema'
+ }
+ if(@($BaseArtifacts).Count-ne2-or@($Artifacts).Count-ne2){throw 'JSON_DEPLOY_COLLISION_ARTIFACT_CLOSURE_INVALID'}
+ foreach($module in @('toolbelt.json.core','toolbelt.json.schema')){
+  $base=@($BaseArtifacts|Where-Object{$_.module_id-ceq$module});$current=@($Artifacts|Where-Object{$_.module_id-ceq$module})
+  if($base.Count-ne1-or$current.Count-ne1){throw 'JSON_DEPLOY_COLLISION_ARTIFACT_CLOSURE_INVALID'}
+  $item=$current[0];$source=$base[0]
+  if($item.path-isnot[string]-or$item.path-cne$source.path-or$item.sql_name-cne$expected[$module]-or$item.sql_name-cne$source.sql_name-or
+     $item.sha256-isnot[string]-or$item.sha256-cnotmatch'^[A-Fa-f0-9]{64}$'-or$item.sha256-ine$source.sha256-or
+     $item.sha512-isnot[string]-or$item.sha512-cnotmatch'^[A-Fa-f0-9]{128}$'-or$item.sha512-ine$source.sha512){throw 'JSON_DEPLOY_COLLISION_ARTIFACT_CLOSURE_INVALID'}
+  $full=[IO.Path]::GetFullPath($item.path)
+  if(-not$PinMap.ContainsKey($full)-or$PinMap[$full]-ine$item.sha256){throw 'JSON_DEPLOY_COLLISION_ARTIFACT_PIN_INVALID'}
+  $actual256=(Get-FileHash -LiteralPath $full -Algorithm SHA256).Hash
+  $actual512=(Get-FileHash -LiteralPath $full -Algorithm SHA512).Hash
+  if($actual256-cne$item.sha256.ToUpperInvariant()-or$actual512-cne$item.sha512.ToUpperInvariant()){throw 'JSON_DEPLOY_COLLISION_ARTIFACT_DIGEST_DRIFT'}
  }
 }
 function Assert-Runset {
@@ -72,11 +114,23 @@ function Assert-Runset {
  if(@($script:runset.pins).Count-lt8){throw 'JSON_DEPLOY_COLLISION_RUNSET_PINS_INVALID'}
  $pinPaths=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
  foreach($pin in $script:runset.pins){if($pin.path-isnot[string]-or$pin.sha256-isnot[string]-or$pin.sha256-cnotmatch'^[A-Fa-f0-9]{64}$'-or-not$pinPaths.Add([IO.Path]::GetFullPath($pin.path))){throw 'JSON_DEPLOY_COLLISION_RUNSET_PINS_INVALID'};Assert-ReleasePin $pin.path $pin.sha256}
+ $pinMap=@{};foreach($pin in $script:runset.pins){$pinMap[[IO.Path]::GetFullPath($pin.path)]=[string]$pin.sha256}
  foreach($path in @($script:runset.schema_deploy.path,$script:runset.baseline.path,$script:runset.base_runset.path)){
   if($path-isnot[string]-or-not$pinPaths.Contains([IO.Path]::GetFullPath($path))){throw 'JSON_DEPLOY_COLLISION_RUNSET_BINDING_INVALID'}
  }
  if($script:runset.base_runset.sha256-isnot[string]-or$script:runset.base_runset.sha256-cnotmatch'^[A-Fa-f0-9]{64}$'){throw 'JSON_DEPLOY_COLLISION_RUNSET_BINDING_INVALID'}
  Assert-ReleasePin $script:runset.base_runset.path $script:runset.base_runset.sha256
+ $baseRunset=Get-Content -LiteralPath $script:runset.base_runset.path -Raw -Encoding UTF8|ConvertFrom-Json
+ if($baseRunset.schema_version-cne'json-schema-caller-transaction-probe/v1'-or$baseRunset.schema_deploy.module-cne'toolbelt.json.schema'-or$baseRunset.schema_uninstall.module-cne'toolbelt.json.schema'){throw 'JSON_DEPLOY_COLLISION_BASE_RUNSET_INVALID'}
+ Assert-ArtifactClosure @($baseRunset.artifacts) @($script:runset.artifacts) $pinMap
+ $required=@($script:PSCommandPath,(Join-Path $PSScriptRoot 'Prepare-JsonSchemaDeployCollisionRunset.ps1'),
+  (Join-Path $PSScriptRoot 'Test-JsonSchemaDeployCollisionOffline.ps1'),
+  (Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaUninstallAppLockLab.ps1'),
+  (Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'),(Join-Path $PSScriptRoot 'Prepare-JsonSchemaCallerTransactionRunset.ps1'),
+  (Join-Path $PSScriptRoot 'Test-JsonSchemaCallerTransactionOffline.ps1'),(Join-Path $PSScriptRoot 'Test-JsonSchemaUninstallAppLockOffline.ps1'),
+  (Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-ApiQualificationLab.ps1'),
+  (Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'))
+ foreach($path in $required){if(-not$pinMap.ContainsKey([IO.Path]::GetFullPath($path))){throw 'JSON_DEPLOY_COLLISION_REQUIRED_PIN_MISSING'}}
 }
 function Assert-RunsetStable {
  if((Get-FileHash -LiteralPath $script:RunsetPath -Algorithm SHA256).Hash-cne$script:ExpectedRunsetSHA256.ToUpperInvariant()){throw 'JSON_DEPLOY_COLLISION_RUNSET_PIN_DRIFT'}
@@ -106,7 +160,8 @@ SELECT OBJECT_ID(N'tempdb..#tbx_JsonSchema_DeployState',N'U') ObjectId,
   'orphan_mode' {
    $rows=@(Sql $Connection @'
 SELECT ep.class,ep.major_id,ep.minor_id,ep.name,SQL_VARIANT_PROPERTY(ep.value,N'BaseType') BaseType,
- DATALENGTH(ep.value) DataLength,CONVERT(nvarchar(128),ep.value) Value
+ SQL_VARIANT_PROPERTY(ep.value,N'MaxLength') MaxLength,DATALENGTH(CONVERT(nvarchar(128),ep.value)) DataLength,
+ CONVERT(varchar(max),CONVERT(varbinary(8000),CONVERT(nvarchar(128),ep.value)),2) BinaryValue,CONVERT(nvarchar(128),ep.value) Value
 FROM sys.extended_properties ep WHERE ep.class=0 AND ep.name=@Name;
 '@ @{ '@Name'=[string]$Case.property_name } -Rows)
    if($rows.Count-eq0){return '{"exists":false}'}
@@ -115,8 +170,10 @@ FROM sys.extended_properties ep WHERE ep.class=0 AND ep.name=@Name;
   }
   default {throw 'JSON_DEPLOY_COLLISION_CASE_KIND_INVALID'}
  }
- $objectId=Read-Scalar $Connection 'SELECT OBJECT_ID(N''toolbelt_json.''+QUOTENAME(@Name)) AS ScalarValue;' @{ '@Name'=[string]$name }
- if($null-eq$objectId-or$objectId-is[DBNull]){return '{"exists":false}'}
+ $objectRows=@(Sql $Connection 'SELECT OBJECT_ID(N''toolbelt_json.''+QUOTENAME(@Name)) AS ObjectId;' @{ '@Name'=[string]$name } -Rows)
+ if($objectRows.Count-ne1){throw 'JSON_DEPLOY_COLLISION_SLOT_IDENTITY_SHAPE'}
+ $objectId=$objectRows[0].ObjectId
+ if(-not(Test-SqlObjectPresent $objectId)){return '{"exists":false}'}
  $rows=@(Sql $Connection @'
 DECLARE @ObjectId int=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(@Name));
 DECLARE @Data TABLE(RowCount bigint,Sentinel int NULL);
@@ -144,7 +201,7 @@ function New-Fixture($Connection,$Case){
   {$_-in'public_slot','internal_slot'} {
    $objectName=[string]$Case.object_name
    $exists=@(Sql $Connection 'SELECT OBJECT_ID(N''toolbelt_json.''+QUOTENAME(@Name)) ObjectId;' @{ '@Name'=$objectName } -Rows)
-   if($exists.Count-ne1-or$null-ne$exists[0].ObjectId){throw 'JSON_DEPLOY_COLLISION_SLOT_ALREADY_EXISTS'}
+   if($exists.Count-ne1-or(Test-SqlObjectPresent $exists[0].ObjectId)){throw 'JSON_DEPLOY_COLLISION_SLOT_ALREADY_EXISTS'}
    $script:ledger.active_fixture=[ordered]@{ordinal=[int]$Case.ordinal;kind=[string]$Case.kind;state='CREATING';snapshot=$null;module_snapshot=$null}
    Save-Journal
    Sql $Connection "DECLARE @Sql nvarchar(max)=N'CREATE TABLE [toolbelt_json].'+QUOTENAME(@Name)+N' (Sentinel int NOT NULL); INSERT [toolbelt_json].'+QUOTENAME(@Name)+N' (Sentinel) VALUES(@Value);'; EXEC sys.sp_executesql @Sql,N'@Value int',@Value=@Value;" @{ '@Name'=$objectName;'@Value'=[int]$Case.fixture_value }
@@ -154,12 +211,13 @@ function New-Fixture($Connection,$Case){
    if($exists.Count-ne1-or[int]$exists[0].Count-ne0){throw 'JSON_DEPLOY_COLLISION_MARKER_ALREADY_EXISTS'}
    $script:ledger.active_fixture=[ordered]@{ordinal=[int]$Case.ordinal;kind=[string]$Case.kind;state='CREATING';snapshot=$null;module_snapshot=$null}
    Save-Journal
-   Sql $Connection 'EXEC sys.sp_addextendedproperty @name=@Name,@value=@Value;' @{ '@Name'=[string]$Case.property_name;'@Value'=[string]$Case.property_value }
+   Sql $Connection 'DECLARE @TypedValue nvarchar(16)=@Value; EXEC sys.sp_addextendedproperty @name=@Name,@value=@TypedValue;' @{ '@Name'=[string]$Case.property_name;'@Value'=[string]$Case.property_value }
   }
   default {throw 'JSON_DEPLOY_COLLISION_CASE_KIND_INVALID'}
  }
  $fixture=Get-FixtureSnapshot $Connection $Case
  if($fixture-cne'{"exists":false}'){
+  Assert-OwnedFixtureShape $Case $fixture
   $script:ledger.active_fixture.state='OWNED';$script:ledger.active_fixture.snapshot=$fixture;$script:ledger.active_fixture.module_snapshot=Get-ModuleState $Connection;Save-Journal
  }else{throw 'JSON_DEPLOY_COLLISION_FIXTURE_CREATE_FAILED'}
  return $fixture
