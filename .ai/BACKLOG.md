@@ -1,5 +1,39 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON-Schema: Caller-Transaktionssperren für Deploy und Uninstall — r35, 2026-10-30
+
+Eng begrenzte Qualifikation des bestehenden JSON-Schema-1.0.1-Lifecycle: auf
+Windows SQL Server 2025/CU8/CL170 lokal werden Deploy bei fehlendem Schema und
+Uninstall bei installiertem Schema jeweils innerhalb einer expliziten
+Callertransaktion auf dieselbe feste Fehlermeldung geprüft. Die Prüfung bindet
+SPID/Verbindung, `@@TRANCOUNT`, `XACT_STATE()`, `@@OPTIONS`, einen vor und nach
+der Ablehnung unveränderten Modulzustand sowie einen Transaktionszeugen mit
+Savepoint. Rollback zum Savepoint und vollständiger Rollback müssen den
+erwarteten Zeugenstand erhalten beziehungsweise wiederherstellen; danach muss
+derselbe gepinnte Lifecycleaufruf ohne Callertransaktion erfolgreich sein.
+Das Sessionprofil setzt vor Baseline und Transaktion `QUOTED_IDENTIFIER ON`,
+`XACT_ABORT OFF` und `NOCOUNT OFF`; geprüft wird die exakte Beibehaltung dieser
+festen Startoptionen, keine Aussage für andere Parsezeitkontexte.
+Eine separate unabhängige Prüfung bestätigt ausschließlich eigene
+Datenbank-/Trust-/Konfigurationsbereinigung und unveränderte Eingabepins.
+Neue dünne Adapter komponieren die bestehenden geschützten Releasehelfer;
+r33/r34-Dateien, Produkt/API/Paket und bisherige Nachweise bleiben unverändert.
+Ursprünglich waren ein Zielaufruf und ein Audit vorgesehen. Keine AppLock-
+Wiederholung, keine weiteren Rechte oder Serverkonfigurationsänderungen, keine
+Veröffentlichung.
+
+Abschluss r35: ein erfolgreicher Zielaufruf qualifizierte beide Caller-
+Transaktionsfälle; beide unabhängigen Audits bestanden. Deploy bei fehlendem Schema und Uninstall bei
+installiertem Schema wurden jeweils mit Fehler 50000/Severity 16/State 1 vor
+Mutation abgewiesen. Callertransaktion, Savepoint, Session und Modulzustand
+blieben erhalten; nach vollständigem Rollback bestanden beide Positivkontrollen.
+Der feste Start war `QUOTED_IDENTIFIER ON`, `XACT_ABORT OFF`, `NOCOUNT OFF`.
+Ein früherer Zielaufruf endete vor den Fachfällen mit `FAILED_CLEANED`; sein
+unabhängiges Audit bestand. Ausgeführt wurde Sourcecommit
+`3d905461b1b3c17b134767b4af7c92dadbeb6f55`. Keine SQL-/DLL-/Paketänderung.
+Andere Sessionprofile, Plattformen, Versionen, Modi und vollständige API-,
+Rechte- und Lifecyclematrizen bleiben offen.
+
 ## JSON-Schema-Uninstall: AppLock-Abweisung — r34, 2026-10-30
 
 Eng begrenzte, ausdrücklich angenommene Funktionsqualifikation: Für den
