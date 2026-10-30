@@ -28,6 +28,8 @@ Releasegates bleiben getrennt.
 
 [JSON-Schema-Deploy-AppLock](json-schema-deploy-lock-qualification.json): genau zwei lokale Windows/SQL-Server-2025/CU8/CL170-Sperrkonflikte mit getrennten Holder-/Contender-Verbindungen, unverändertem Zustand nach der Abweisung und positivem Deploy nach Freigabe. Fünf frühere Fehlversuche bleiben als aufgeräumte Historie erhalten; alle sechs unabhängigen Audits bestanden. Diese Funktionsabnahme ergänzt nur den angegebenen Deploy-Scope und ersetzt weder das vollständige Rechte-/Lifecycleprofil noch andere Zielkombinationen.
 
+[JSON-Schema-Uninstall-AppLock](json-schema-uninstall-lock-qualification.json): genau zwei lokale Windows/SQL-Server-2025/CU8/CL170-Sperrkonflikte bei Uninstall, jeweils mit unverändertem installiertem Zustand, sauberem Contender und erfolgreichem identischem Uninstall nach Freigabe. Das leere Schema-Namespace bleibt erhalten; Core und ResultTable sind einschließlich Objektidentitäten und Berechtigungen unverändert. Ein Zielaufruf und ein unabhängiges Bereinigungsaudit bestanden. Dieser zusätzliche Funktionsnachweis schließt keine weiteren Zielkombinationen oder vollständigen API-/Rechte-/Lifecycleprofile.
+
 [JSON-Constructor-Paketqualifikation](JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.md):
 27 bestehende Frameworkphasen bestanden; die gelieferten Constructor-/Core-DLLs
 stimmen bytegenau mit den erzeugten Framework-DLLs überein. Der vorhandene

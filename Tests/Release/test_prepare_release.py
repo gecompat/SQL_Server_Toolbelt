@@ -2072,6 +2072,7 @@ def load_tests(loader, tests, pattern):
     from test_generate_series_ddl_help_transition import GenerateSeriesDdlHelpTransitionTests
     from test_date_spine_ddl_help_transition import DateSpineDdlHelpTransitionTests
     from test_json_schema_deploy_applock_qualification import JsonSchemaDeployAppLockQualificationTests
+    from test_json_schema_uninstall_applock_qualification import JsonSchemaUninstallAppLockQualificationTests
     from test_json_schema_uninstall_applock_adapter import JsonSchemaUninstallAppLockAdapterTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
     tests.addTests(loader.loadTestsFromTestCase(StandaloneTsqlInstallerTests))
@@ -2079,6 +2080,7 @@ def load_tests(loader, tests, pattern):
     tests.addTests(loader.loadTestsFromTestCase(GenerateSeriesDdlHelpTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(DateSpineDdlHelpTransitionTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployAppLockQualificationTests))
+    tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallAppLockQualificationTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallAppLockAdapterTests))
     return tests
 
