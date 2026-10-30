@@ -343,6 +343,14 @@ erzeugen. Der bestehende Kataloggenerator pflegt dieselben Parametertexte in
 Katalog und markierten Objektabschnitten; sein bestehender Driftcheck erkennt
 Abweichungen. Es entsteht kein zweiter Generator oder zusätzlicher Prüflauf.
 Die Quellprüfung der Bedeutung bleibt Aufgabe des fachlichen Reviews.
+Die bestehende historische Dokumentationsprojektion aus Main wird für acht
+Objektseiten um exakt die kanonisch generierte Parametertabelle ergänzt;
+alle umgebenden Texte, ursprünglichen Berichte und Runtime-/Methodenpins
+bleiben gebunden. Zwei zusätzliche Manipulations-/Abgrenzungstests laufen
+in der bereits vorhandenen Release-Testklasse. Es entsteht kein zweiter
+historischer Prüfweg, neuer Workflow, SQL-Lauf oder Agent. Die erneute
+Offlineprüfung ist nach dem konkreten Kopplungsbefund und der Integration
+der parallelen Main-Änderung erforderlich.
 Logs bleiben lokal, im PR werden Ergebnis und konkrete Grenzen
 festgehalten; Kosten-/Tokenmessungen werden nicht behauptet. Reine Textpflege
 erzwingt keine fachfremde Runtimequalifikation oder Gesamtrevision der Objekte.

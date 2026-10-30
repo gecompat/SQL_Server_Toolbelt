@@ -98,3 +98,9 @@ abweichende generierte Dateien. Source-/Vertragsfingerprints erkennen auch
 Die bestehende Dokumentations-CI führt Prüfung und Regressionstests über das
 Impact-Paket `public_api_catalog` in der Repo-Map aus; ein Vollaudit prüft sie
 ebenfalls. Geänderte Quellen und die neu generierten Dateien gemeinsam committen.
+
+Historische Release-Nachweise behalten ihre ursprünglichen Texte und Pins.
+Die [begrenzte Parameterprojektion](../../Scripts/Release/HistoricalSources/parameter-contracts-20261030/README.md)
+ergänzt dafür den bestehenden historischen Prüfweg. Sie akzeptiert nur die
+kanonisch generierte Parametertabelle bei unverändertem übrigen Text.
+Quellgeprüfte neue Erklärungen sind dadurch keine neue native Runtimequalifikation.
