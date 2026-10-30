@@ -65,7 +65,7 @@ function Assert-SnapshotDebugScript($Artifacts,$Bundle,[Data.SqlClient.SqlConnec
  $expected=($pieces -join "`nGO`n")+"`n"
  $prefix="-- Neue SQL-Sitzung verwenden. Bei einem Vorbereitungsfehler keine Ergebnislesebatches verwenden; CleanupSql anschließend in derselben Sitzung ausführen.`n-- Keine SSIS-Tasks werden ausgeführt.`n"
  Assert-Snapshot ([string]$Bundle.Content -ceq ($prefix+$expected)) 'DEBUGSCRIPT_EXACT_ORDERED_CONTENT'
- $executedPlanCount=0
+ $executedPlanCount=0;$executionError=$null;$cleanupError=$null
  try{
   foreach($row in $selected){
    if($row.ArtifactKind -ceq 'CleanupSql'){continue}
@@ -86,10 +86,11 @@ function Assert-SnapshotDebugScript($Artifacts,$Bundle,[Data.SqlClient.SqlConnec
     $result[[string]$row.ArtifactKind]=$table;continue
    }
   }
- }finally{
-  try{foreach($row in $selected){if($row.ArtifactKind -ceq 'CleanupSql'){[void](Invoke-SnapshotSql ([string]$row.Content) 0 -UseConnection $PlanConnection)}}}
-  catch{$OwnershipJournal['snapshotCleanupBlocked']=$true;throw}
- }
+ }catch{$executionError=$_.Exception;$OwnershipJournal['snapshotPlanFailure']=Get-SnapshotErrorSummary $executionError}
+ try{foreach($row in $selected){if($row.ArtifactKind -ceq 'CleanupSql'){[void](Invoke-SnapshotSql ([string]$row.Content) 0 -UseConnection $PlanConnection)}}}
+ catch{$cleanupError=$_.Exception;$OwnershipJournal['snapshotCleanupBlocked']=$true;$OwnershipJournal['snapshotPlanCleanupFailure']=Get-SnapshotErrorSummary $cleanupError}
+ $failure=Resolve-SnapshotFailure $OwnershipJournal 'snapshotPlan' $executionError $cleanupError
+ if($null -ne $failure){throw $failure}
  Assert-Snapshot ($result.ContainsKey('RowCountSql') -and $result.ContainsKey('TargetSql')) 'COMPLETE_PLAN_READS'
  if($InsertAfterPlan){Assert-Snapshot $inserted 'MUTATION_HOOK_REACHED'}
  return $result
@@ -117,6 +118,7 @@ foreach($row in $created.Rows){if([int]$row.object_id -le 0){throw 'SSIS_CURRENT
 $fixturesCreated=$true
 $OwnershipJournal.Remove('snapshotCleanupBlocked')
 $OwnershipJournal['snapshotMutationApplied']=$false
+$caseFailure=$null;$fixtureCleanupFailure=$null
 try{
  $database=[string](Invoke-SnapshotSql 'SELECT DB_NAME() AS N;').Rows[0].N
   $catalog=@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database};flatFileInputs=@{}}
@@ -166,7 +168,7 @@ try{
  Assert-Snapshot (@($current.TargetSql.Rows|Where-Object {$_.KeyA -eq 2 -and $_.KeyB -eq 10 -and $_.Adjusted -eq 202 -and $_.Score -eq 2}).Count -eq 1) 'INSERT_PRESENT_IN_FRESH_SNAPSHOT'
  $after=Get-SnapshotRows $current.TargetSql
  foreach($row in $before){Assert-Snapshot (@($after|Where-Object {$_ -ceq $row}).Count -eq 1) 'ORIGINAL_ROWS_PRESERVED_IN_FRESH_SNAPSHOT'}
-}finally{
+}catch{$caseFailure=$_.Exception}finally{
  if($fixturesCreated){
   try{
    $ids=Invoke-SnapshotSql "SELECT name,object_id FROM sys.tables WITH (NOLOCK) WHERE schema_id=SCHEMA_ID(N'dbo') AND name IN(N'SyntheticSourceA',N'SyntheticSourceB',N'SyntheticLookup');"
@@ -184,28 +186,14 @@ WHERE (c.object_id=OBJECT_ID(N'dbo.SyntheticSourceA') AND ((c.column_id=1 AND c.
 '@ 1
    if($shape.Rows.Count -ne 1 -or [long]$shape.Rows[0].MatchingColumns -ne 9 -or [long]$shape.Rows[0].TotalColumns -ne 9){throw 'SSIS_CURRENT_SNAPSHOT_FIXTURE_SCHEMA_DRIFT'}
    if(-not $OwnershipJournal.Contains('snapshotMutationApplied') -or $OwnershipJournal['snapshotMutationApplied'] -isnot [bool]){throw 'SSIS_CURRENT_SNAPSHOT_MUTATION_PHASE_UNKNOWN'}
-   $expectedFixture=Get-SnapshotFixtureExpectation ([bool]$OwnershipJournal['snapshotMutationApplied'])
-   $sourceAValues=(@($expectedFixture.SourceA|ForEach-Object {'('+[string]$_.KeyA+','+[string]$_.KeyB+','+[string]$_.Amount+')'}) -join ',')
-   $cleanupSql=@'
-SELECT
- (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceA) AS SourceACount,
- (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceB) AS SourceBCount,
- (SELECT COUNT_BIG(*) FROM dbo.SyntheticLookup) AS LookupCount,
- (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceB WHERE (KeyA=1 AND KeyB=10 AND Amount=80) OR (KeyA=3 AND KeyB=30 AND Amount=30)) AS SourceBKnownCount,
- (SELECT COUNT_BIG(*) FROM dbo.SyntheticLookup WHERE (KeyA=1 AND KeyB=10 AND Score=7) OR (KeyA=1 AND KeyB=20 AND Score IS NULL) OR (KeyA=2 AND KeyB=10 AND Score=2)) AS LookupKnownCount,
- (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceA WHERE Amount+1>100) AS EligibleRows,
- (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA EXCEPT SELECT KeyA,KeyB,Amount FROM (VALUES__SOURCE_A_VALUES__) AS E(KeyA,KeyB,Amount)) AS D) AS SourceAUnexpected,
- (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM (VALUES__SOURCE_A_VALUES__) AS E(KeyA,KeyB,Amount) EXCEPT SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA) AS D) AS SourceAMissing,
- (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceB EXCEPT SELECT KeyA,KeyB,Amount FROM (VALUES(1,10,80),(3,30,30)) AS E(KeyA,KeyB,Amount)) AS D) AS SourceBUnexpected,
- (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM (VALUES(1,10,80),(3,30,30)) AS E(KeyA,KeyB,Amount) EXCEPT SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceB) AS D) AS SourceBMissing,
- (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup EXCEPT SELECT KeyA,KeyB,Score FROM (VALUES(1,10,7),(1,20,CONVERT(int,NULL)),(2,10,2)) AS E(KeyA,KeyB,Score)) AS D) AS LookupUnexpected,
- (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Score FROM (VALUES(1,10,7),(1,20,CONVERT(int,NULL)),(2,10,2)) AS E(KeyA,KeyB,Score) EXCEPT SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup) AS D) AS LookupMissing;
-'@
-   $cleanupSql=$cleanupSql.Replace('VALUES__SOURCE_A_VALUES__',$sourceAValues)
+   $cleanupDefinition=New-SnapshotFixtureCleanup ([bool]$OwnershipJournal['snapshotMutationApplied'])
+   $expectedFixture=$cleanupDefinition.Expected;$cleanupSql=[string]$cleanupDefinition.Sql
    $cleanupState=Invoke-SnapshotSql $cleanupSql 1
    if($cleanupState.Rows.Count -ne 1 -or [long]$cleanupState.Rows[0].SourceACount -ne [long]$expectedFixture.SourceACount -or [long]$cleanupState.Rows[0].SourceBCount -ne 2 -or [long]$cleanupState.Rows[0].LookupCount -ne 3 -or [long]$cleanupState.Rows[0].SourceBKnownCount -ne 2 -or [long]$cleanupState.Rows[0].LookupKnownCount -ne 3 -or [long]$cleanupState.Rows[0].EligibleRows -ne [long]$expectedFixture.EligibleRows -or [long]$cleanupState.Rows[0].SourceAUnexpected -ne 0 -or [long]$cleanupState.Rows[0].SourceAMissing -ne 0 -or [long]$cleanupState.Rows[0].SourceBUnexpected -ne 0 -or [long]$cleanupState.Rows[0].SourceBMissing -ne 0 -or [long]$cleanupState.Rows[0].LookupUnexpected -ne 0 -or [long]$cleanupState.Rows[0].LookupMissing -ne 0){throw 'SSIS_CURRENT_SNAPSHOT_FIXTURE_DATA_DRIFT'}
    [void](Invoke-SnapshotSql 'DROP TABLE dbo.SyntheticSourceA,dbo.SyntheticSourceB,dbo.SyntheticLookup;' 0)
-  }catch{$OwnershipJournal['snapshotCleanupBlocked']=$true;throw}
+  }catch{$fixtureCleanupFailure=$_.Exception}
  }
 }
+$caseOutcome=Resolve-SnapshotFailure $OwnershipJournal 'snapshotCase' $caseFailure $fixtureCleanupFailure
+if($null -ne $caseOutcome){throw $caseOutcome}
 "SSIS_CURRENT_SNAPSHOT_PASS $checks assertions; same materialized RowCount/target snapshot across one source insert; synthetic only"

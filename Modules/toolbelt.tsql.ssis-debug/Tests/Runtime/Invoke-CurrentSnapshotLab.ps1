@@ -22,7 +22,6 @@ if($PSVersionTable.PSVersion.Major -ne 7){throw 'SSIS_CURRENT_SNAPSHOT_POWERSHEL
 if($Version -cne '2025' -or $Patch -cne 'CU8' -or $CompatibilityLevel -ne 170){throw 'SSIS_CURRENT_SNAPSHOT_FIXED_TARGET_SCOPE'}
 $helper=Join-Path $PSScriptRoot 'CurrentSnapshotHelpers.ps1'
 . $helper
-Invoke-SnapshotOfflineChecks
 $original=Join-Path $PSScriptRoot 'Invoke-LabContract.ps1'
 $cases=Join-Path $PSScriptRoot 'Invoke-CurrentSnapshotCases.ps1'
 $fixture=Join-Path $PSScriptRoot '../Fixtures/components-v2-rowcount.dtsx'
@@ -106,6 +105,7 @@ $fixedRequired=@(
 )
 foreach($path in $fixedRequired){Add-SnapshotRequiredPath $path (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash}
 if(-not (Test-SnapshotManifestClosure $inputManifest.files $requiredEntries.ToArray())){throw 'SSIS_CURRENT_SNAPSHOT_REQUIRED_INPUT_CLOSURE'}
+Invoke-SnapshotOfflineChecks $scriptDomPath
 $externalByRole=[Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
 foreach($entry in @($inputManifest.externalFiles)){
  if($null -eq $entry -or [string]$entry.role -cnotin @('labContract','labSchema','labPrompt') -or $entry.sha256 -cnotmatch '^[0-9A-F]{64}$' -or $externalByRole.ContainsKey([string]$entry.role)){throw 'SSIS_CURRENT_SNAPSHOT_EXTERNAL_BINDING_SHAPE'}

@@ -110,7 +110,61 @@ function Get-SnapshotFixtureExpectation([bool]$MutationApplied){
  return [pscustomobject]@{SourceA=$sourceA;SourceACount=$sourceA.Count;EligibleRows=if($MutationApplied){3}else{2}}
 }
 
-function Invoke-SnapshotOfflineChecks{
+function New-SnapshotFixtureCleanup([bool]$MutationApplied){
+ $expected=Get-SnapshotFixtureExpectation $MutationApplied
+ $sourceAValues=(@($expected.SourceA|ForEach-Object {'('+[string]$_.KeyA+','+[string]$_.KeyB+','+[string]$_.Amount+')'}) -join ',')
+ $template=@'
+SELECT
+ (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceA) AS SourceACount,
+ (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceB) AS SourceBCount,
+ (SELECT COUNT_BIG(*) FROM dbo.SyntheticLookup) AS LookupCount,
+ (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceB WHERE (KeyA=1 AND KeyB=10 AND Amount=80) OR (KeyA=3 AND KeyB=30 AND Amount=30)) AS SourceBKnownCount,
+ (SELECT COUNT_BIG(*) FROM dbo.SyntheticLookup WHERE (KeyA=1 AND KeyB=10 AND Score=7) OR (KeyA=1 AND KeyB=20 AND Score IS NULL) OR (KeyA=2 AND KeyB=10 AND Score=2)) AS LookupKnownCount,
+ (SELECT COUNT_BIG(*) FROM dbo.SyntheticSourceA WHERE Amount+1>100) AS EligibleRows,
+ (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA EXCEPT SELECT KeyA,KeyB,Amount FROM (VALUES __SOURCE_A_VALUES__) AS E(KeyA,KeyB,Amount)) AS D) AS SourceAUnexpected,
+ (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM (VALUES __SOURCE_A_VALUES__) AS E(KeyA,KeyB,Amount) EXCEPT SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA) AS D) AS SourceAMissing,
+ (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceB EXCEPT SELECT KeyA,KeyB,Amount FROM (VALUES(1,10,80),(3,30,30)) AS E(KeyA,KeyB,Amount)) AS D) AS SourceBUnexpected,
+ (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Amount FROM (VALUES(1,10,80),(3,30,30)) AS E(KeyA,KeyB,Amount) EXCEPT SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceB) AS D) AS SourceBMissing,
+ (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup EXCEPT SELECT KeyA,KeyB,Score FROM (VALUES(1,10,7),(1,20,CONVERT(int,NULL)),(2,10,2)) AS E(KeyA,KeyB,Score)) AS D) AS LookupUnexpected,
+ (SELECT COUNT_BIG(*) FROM (SELECT KeyA,KeyB,Score FROM (VALUES(1,10,7),(1,20,CONVERT(int,NULL)),(2,10,2)) AS E(KeyA,KeyB,Score) EXCEPT SELECT KeyA,KeyB,Score FROM dbo.SyntheticLookup) AS D) AS LookupMissing;
+'@
+ $token='__SOURCE_A_VALUES__'
+ if([regex]::Matches($template,[regex]::Escape($token)).Count -ne 2){throw 'SSIS_CURRENT_SNAPSHOT_CLEANUP_VALUES_TOKEN_COUNT'}
+ $sql=$template.Replace($token,$sourceAValues)
+  if($sql.Contains($token) -or [regex]::Matches($sql,'(?i)FROM\s*\(\s*VALUES\s*\(').Count -ne 6){throw 'SSIS_CURRENT_SNAPSHOT_CLEANUP_VALUES_RENDERING'}
+ return [pscustomobject]@{Sql=$sql;Expected=$expected}
+}
+
+function Get-SnapshotErrorSummary($ErrorValue){
+ $exception=if($ErrorValue -is [System.Management.Automation.ErrorRecord]){$ErrorValue.Exception}else{$ErrorValue}
+ while($null -ne $exception -and $null -ne $exception.InnerException){$exception=$exception.InnerException}
+ if($null -eq $exception){return [pscustomobject]@{kind='unknown'}}
+ if($exception -is [System.Data.SqlClient.SqlException]){
+  $details=@(foreach($sqlError in $exception.Errors){[pscustomobject]@{number=[int]$sqlError.Number;state=[int]$sqlError.State;class=[int]$sqlError.Class;line=[int]$sqlError.LineNumber}})
+  return [pscustomobject]@{kind='sql';errors=$details}
+ }
+ return [pscustomobject]@{kind=$exception.GetType().FullName}
+}
+
+function Resolve-SnapshotFailure([System.Collections.IDictionary]$Journal,[string]$Scope,$PrimaryError,$CleanupError){
+ if($null -ne $PrimaryError){$Journal[$Scope+'Failure']=Get-SnapshotErrorSummary $PrimaryError}
+ if($null -ne $CleanupError){$Journal[$Scope+'CleanupFailure']=Get-SnapshotErrorSummary $CleanupError;$Journal['snapshotCleanupBlocked']=$true}
+ if($null -ne $PrimaryError){return $PrimaryError}
+ return $CleanupError
+}
+
+function Invoke-SnapshotOfflineChecks([string]$ScriptDomPath){
+ if([string]::IsNullOrWhiteSpace($ScriptDomPath) -or -not (Test-Path -LiteralPath $ScriptDomPath -PathType Leaf)){throw 'SSIS_CURRENT_SNAPSHOT_SCRIPTDOM_REQUIRED'}
+ [void][Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ScriptDomPath))
+ $parserType=[Type]::GetType('Microsoft.SqlServer.TransactSql.ScriptDom.TSql160Parser, Microsoft.SqlServer.TransactSql.ScriptDom',$true)
+ $parser=[Activator]::CreateInstance($parserType,[object[]]@($true))
+ foreach($mutationApplied in @($false,$true)){
+  $rendered=New-SnapshotFixtureCleanup ([bool]$mutationApplied)
+  $parseErrors=$null;$reader=[IO.StringReader]::new([string]$rendered.Sql)
+  try{$null=$parser.Parse($reader,[ref]$parseErrors)}finally{$reader.Dispose()}
+  if(@($parseErrors).Count -ne 0){throw 'SSIS_CURRENT_SNAPSHOT_CLEANUP_SCRIPTDOM_PARSE_FAILED'}
+  if($rendered.Expected.SourceACount -ne $(if($mutationApplied){4}else{3})){throw 'SSIS_CURRENT_SNAPSHOT_CLEANUP_EXPECTED_SHAPE_FAILED'}
+ }
  $cwd=[IO.Path]::GetFullPath((Get-Location).Path)
  if(-not (Test-SnapshotNoReparsePath (Join-Path $cwd 'AGENTS.md') $cwd) -or (Test-SnapshotNoReparsePath (Join-Path $env:SystemRoot 'System32') $cwd)){throw 'SSIS_CURRENT_SNAPSHOT_PATH_BOUNDARY_CHECK_FAILED'}
  Assert-SnapshotResultSetCount 0 0;Assert-SnapshotResultSetCount 1 1
@@ -167,6 +221,11 @@ function Invoke-SnapshotOfflineChecks{
  try{Assert-SnapshotCurrentInputs $changedBinding}catch{$changedBindingRejected=$_.Exception.Message -ceq 'SSIS_CURRENT_SNAPSHOT_INPUT_MANIFEST_CHANGED'}
  if(-not $changedBindingRejected){throw 'SSIS_CURRENT_SNAPSHOT_MANIFEST_HASH_NEGATIVE_FAILED'}
  $expected=[pscustomobject]@{databaseId=17;created='2026-10-30T00:00:00.000';ownerRunId='synthetic-owner'};$actual=[pscustomobject]@{databaseId=17;created='2026-10-30T00:00:00.000'}
+ $failureJournal=[ordered]@{};$primaryFailure=[InvalidOperationException]::new('synthetic-primary');$cleanupFailure=[ApplicationException]::new('synthetic-cleanup')
+ $selectedFailure=Resolve-SnapshotFailure $failureJournal 'snapshotProbe' $primaryFailure $cleanupFailure
+ if(-not [object]::ReferenceEquals($selectedFailure,$primaryFailure) -or -not $failureJournal.Contains('snapshotProbeFailure') -or -not $failureJournal.Contains('snapshotProbeCleanupFailure') -or -not [bool]$failureJournal['snapshotCleanupBlocked']){throw 'SSIS_CURRENT_SNAPSHOT_PRIMARY_CLEANUP_DIAGNOSTICS_FAILED'}
+ $cleanupOnlyJournal=[ordered]@{};$cleanupOnly=Resolve-SnapshotFailure $cleanupOnlyJournal 'snapshotProbe' $null $cleanupFailure
+ if(-not [object]::ReferenceEquals($cleanupOnly,$cleanupFailure) -or $cleanupOnlyJournal.Contains('snapshotProbeFailure')){throw 'SSIS_CURRENT_SNAPSHOT_CLEANUP_ONLY_DIAGNOSTIC_FAILED'}
  if(-not (Test-SnapshotOwnedDatabaseState $expected $actual 'synthetic-owner' $false)){throw 'SSIS_CURRENT_SNAPSHOT_OWNERSHIP_CONTROL_FAILED'}
  $badOwnership=@(
   [pscustomobject]@{actual=[pscustomobject]@{databaseId=18;created=$actual.created};owner='synthetic-owner';blocked=$false},
