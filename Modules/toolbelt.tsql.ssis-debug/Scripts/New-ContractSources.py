@@ -1,8 +1,11 @@
 """Erzeugt API-/Help-Bindings aus genau einer kanonischen Modulbeschreibung."""
 from pathlib import Path
 import json
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT.parents[1] / "Scripts/Documentation"))
+from generate_parameter_help import parameter_notes, literal as help_literal, INTERNAL_LOB_NOTE, INTERNAL_UNICODE_NOTE
 
 
 def literal(value):
@@ -11,8 +14,16 @@ def literal(value):
     return "N'" + value.replace("'", "''") + "'"
 
 
-def generate():
+def generate(write=True):
     api = json.loads((ROOT / "Contracts/Api.json").read_text(encoding="utf-8"))
+    # Shared editorial source; Api.json remains the module's typed contract and
+    # carries a generated projection for standalone consumers/package tooling.
+    notes = parameter_notes(ROOT.parents[1])["toolbelt_tsql.USP_ExplainSsisDataFlow"]["parameter_notes"]
+    if set(notes) != {p["name"] for p in api["parameters"]}:
+        raise ValueError("PUBLIC_PARAMETER_NOTES_DIFFER")
+    for parameter in api["parameters"]:
+        parameter["description"] = notes[parameter["name"]]
+    api_text = json.dumps(api, ensure_ascii=False, indent=2) + "\n"
     v2 = json.loads((ROOT / "Contracts/ComponentsV2.json").read_text(encoding="utf-8"))
     # The component overlay is a strict help extension: it cannot change the
     # public parameter sequence or ResultTable column contract.
@@ -30,13 +41,15 @@ def generate():
     if v2["operation"] != "bindings-template" or v2["bindingProfile"] != "ssis-debug-components-v2":
         raise ValueError("CURRENT_OVERLAY_PROFILE")
     rows = [("DESCRIPTION", 1, None, None, None, None, None, api["description"], None)]
-    for i, p in enumerate(api["parameters"], 1): rows.append(("PARAMETER", i, p["name"], p["type"], p["required"], p["nullable"], p["default"], p["description"], None))
+    for i, p in enumerate(api["parameters"], 1):
+        default = literal(p["default"]) if p["type"].startswith("varchar") and p["default"] != "NULL" else p["default"]
+        rows.append(("PARAMETER", i, p["name"], p["type"], p["required"], p["nullable"], default, p["description"], None))
     for i, c in enumerate(api["columns"], 1): rows.append(("RESULT_COLUMN", i, c["name"], c["type"], True, c["nullable"], None, c["description"], None))
     for entry in v2["help"]: rows.append((entry["section"], entry["ordinal"], None, None, None, None, None, entry["description"], entry.get("exampleSql")))
     rows += [("EXAMPLE", 1, None, None, None, None, None, "Reine Hilfe ohne Paket oder Katalogprüfung.", "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;"),
              ("PERMISSION", 1, None, None, None, None, None, "CALLER; EXECUTE und vollständige Katalogsicht der ausdrücklich erlaubten Datenbanken. Keine Rechtevergabe.", None),
              ("LIMITATION", 1, None, None, None, None, None, "Windows SQL Server 2019/2022/2025; UNSAFE/ScriptDom. NOLOCK erlaubt Dirty Reads und garantiert keine Sperrfreiheit. Keine Ausführung von Paket-SQL.", None)]
-    values = ",\n".join("(" + ",".join(map(literal, row)) + ")" for row in rows)
+    values = ",\n".join("(" + ",".join(help_literal(value, i in (7, 8)) for i, value in enumerate(row)) + ")" for row in rows)
     help_sql = """SELECT CONVERT(varchar(16),'1.0') AS HelpContractVersion,
  CONVERT(sysname,N'toolbelt_tsql') AS SchemaName,CONVERT(sysname,@helpObjectName) AS ObjectName,
  CONVERT(varchar(32),v.Section) AS Section,CONVERT(int,v.Ordinal) AS Ordinal,
@@ -77,6 +90,8 @@ GO
     internal = header.format(suffix="Internal", kind="interne CLR-USP mit Unicodebindung und gleichem Standardtail") + "CREATE OR ALTER PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlowInternal\n" + internal_signature + "\nAS EXTERNAL NAME [Toolbelt_Tsql_SsisDebug].[Toolbelt.Tsql.SsisDebug.SsisDebugProvider].[ExplainSsisDataFlow];\nGO\n"
     internal_help_sql = help_sql.replace("CONVERT(varchar(256),v.SqlDataType) AS SqlDataType", "CONVERT(varchar(256),CASE WHEN v.Section='PARAMETER' AND v.SqlDataType LIKE 'varchar(%' THEN 'n'+v.SqlDataType ELSE v.SqlDataType END) AS SqlDataType")
     internal_help_sql = internal_help_sql.replace("CONVERT(bit,v.IsRequired)", "CONVERT(bit,CASE WHEN v.Section='PARAMETER' AND v.SqlDataType IN('nvarchar(max)','varbinary(max)') THEN 1 ELSE v.IsRequired END)").replace("CONVERT(nvarchar(4000),v.DefaultValue)", "CONVERT(nvarchar(4000),CASE WHEN v.Section='PARAMETER' AND v.SqlDataType IN('nvarchar(max)','varbinary(max)') THEN NULL ELSE v.DefaultValue END)")
+    internal_help_sql = internal_help_sql.replace("CONVERT(nvarchar(max),v.Description) AS Description",
+        "CONVERT(nvarchar(max),CASE WHEN v.Section='PARAMETER' AND v.SqlDataType IN('nvarchar(max)','varbinary(max)') THEN " + help_literal(INTERNAL_LOB_NOTE, True) + "+v.Description WHEN v.Section='PARAMETER' AND v.SqlDataType LIKE 'varchar(%' THEN " + help_literal(INTERNAL_UNICODE_NOTE, True) + "+v.Description ELSE v.Description END) AS Description")
     columns = ",".join("[" + c["name"] + "]" for c in api["columns"])
     shape = ",".join("[" + c["name"] + "] " + c["type"] + (" COLLATE Latin1_General_100_BIN2" if "char" in c["type"] else "") + (" NULL" if c["nullable"] else " NOT NULL") for c in api["columns"])
     json_shape = ",".join("[" + c["name"] + "] " + c["type"] for c in api["columns"])
@@ -92,9 +107,11 @@ GO
     select = "SELECT " + ",".join(fields) + " FROM OPENJSON(@rows) WITH (" + json_shape + ")"
     constants = {"Sql": internal_help_sql, "Columns": columns, "Shape": shape, "Select": select}
     cs = "// Generiert aus Contracts/Api.json; nicht manuell parallel pflegen.\nnamespace Toolbelt.Tsql.SsisDebug\n{\n    internal static class HelpContract\n    {\n" + "\n".join('        internal const string ' + name + ' = @"' + value.replace('"', '""') + '";' for name, value in constants.items()) + "\n    }\n}\n"
-    files = {"Source/USP_ExplainSsisDataFlow.sql": public, "Source/USP_ExplainSsisDataFlowInternal.sql": internal, "Clr/HelpContract.Generated.cs": cs}
-    for file, text in files.items():
-        path = ROOT / file; path.parent.mkdir(parents=True, exist_ok=True); path.write_text(text, encoding="utf-8", newline="\n")
+    files = {"Contracts/Api.json": api_text, "Source/USP_ExplainSsisDataFlow.sql": public, "Source/USP_ExplainSsisDataFlowInternal.sql": internal, "Clr/HelpContract.Generated.cs": cs}
+    if write:
+        for file, text in files.items():
+            path = ROOT / file; path.parent.mkdir(parents=True, exist_ok=True); path.write_text(text, encoding="utf-8", newline="\n")
+    return files
 
 
 if __name__ == "__main__": generate()

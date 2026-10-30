@@ -17,23 +17,30 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT CONVERT(varchar(16), '1.0') AS HelpContractVersion,
-               CONVERT(sysname, N'toolbelt_core') AS SchemaName,
-               CONVERT(sysname, N'USP_RequestExecutionCancellation') AS ObjectName,
-               v.Section, v.Ordinal, v.ItemName, v.SqlDataType, v.IsRequired,
-               v.IsNullable, v.DefaultValue, v.Description, v.ExampleSql
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_RequestExecutionCancellation' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
         FROM (VALUES
-          (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedure beendet keine Session und verändert keine Work-Queue-Einträge.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-        , ('PARAMETER', 1, N'@ExecutionId', 'uniqueidentifier', 0, 1, NULL, N'Zielausführung; ohne Wert wird die aktuelle sessiongebundene ExecutionId verwendet.', NULL)
-        , ('PARAMETER', 2, N'@CancellationReason', 'nvarchar(512)', 0, 1, NULL, N'Optionaler, nicht sensibler Grund. Nur die erste Anforderung speichert ihn.', NULL)
-        , ('PARAMETER', 3, N'@Debug', 'tinyint', 0, 0, N'0', N'Gibt eine Fortschrittsmeldung aus.', NULL)
-        , ('PARAMETER', 4, N'@Hilfe', 'bit', 0, 0, N'0', N'1 liefert ausschließlich dieses Help-Resultset und überspringt fachliche Prüfungen und Änderungen.', NULL)
-        , ('ERROR', 1, N'52600-52606', NULL, NULL, NULL, NULL, N'Parameter-, Context-, Transaktions- oder Quotenfehler: 52605 bei 100000 DBrequests, 52606 bei 10000 je Principal; bestehende IDs bleiben idempotent.', NULL)
-        , ('RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, N'Kein fachliches Resultset; den Status liefert TVF_ExecutionCancellationStatus.', NULL)
-        , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Fordert Cancellation für die aktuelle Ausführung an.', N'EXEC toolbelt_core.USP_RequestExecutionCancellation @CancellationReason=N''planned maintenance'';')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'ERROR' THEN 3 WHEN 'RESULT_COLUMN' THEN 4 ELSE 5 END, v.Ordinal;
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedure beendet keine Session und verändert keine Work-Queue-Einträge.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'52600-52606', NULL, NULL, NULL, NULL, CAST(N'Parameter-, Context-, Transaktions- oder Quotenfehler: 52605 bei 100000 DBrequests, 52606 bei 10000 je Principal; bestehende IDs bleiben idempotent.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Kein fachliches Resultset; den Status liefert TVF_ExecutionCancellationStatus.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Fordert Cancellation für die aktuelle Ausführung an.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_RequestExecutionCancellation @CancellationReason=N''planned maintenance'';' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@ExecutionId', N'uniqueidentifier', 0, 1, N'NULL', CAST(N'SQL-uniqueidentifier, z.B. CAST(''00000000-0000-0000-0000-000000000001'' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Explizite Ziel-ID darf nicht die Null-GUID sein. NULL/Default verwendet den aktiven Execution Context; fehlt dann eine ID, entsteht ein Fehler. Keine aktive Callertransaktion zulässig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@CancellationReason', N'nvarchar(512)', 0, 1, N'NULL', CAST(N'Optionaler Unicode-Grund nvarchar(512), keine Ausführung und keine automatische Redigierung; keine Secrets übergeben. NULL/leer bzw. LEN=0 (reine Spaces) wird NULL. Bei wiederholter Anforderung derselben ID bleiben erster Grund und Zeitpunkt erhalten.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @@TRANCOUNT <> 0

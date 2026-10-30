@@ -2,58 +2,389 @@
   "schemaVersion": 1,
   "description": "Erklärt unterstützte SSIS-Datenflüsse standardmäßig mit typisierter JSON-Eingabevorlage und vollständigen, einzeln prüfbaren Debug-SQL-Batches. Paket und enthaltenes SQL werden beim Analysieren niemals ausgeführt.",
   "parameters": [
-    {"name":"@PackageBytes","type":"varbinary(max)","default":"NULL","required":true,"nullable":false,"description":"Genau ein unterstütztes DTSX-Paket als UTF-8-/UTF-16-Binärwert. Die Standardgrenze beträgt128MiB und ist mit @MaxPackageBytes konfigurierbar. Kein Dateizugriff."},
-    {"name":"@Operation","type":"varchar(32)","default":"explain","required":false,"nullable":false,"description":"Exakt bindings-template oder explain; NULL ungültig."},
-    {"name":"@ProjectContext","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Optionaler Projektparameter-/Connection-Kontext als JSON-Schema2; keine Credentials und keine Ressourcenoptionen."},
-    {"name":"@Bindings","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Zurückgegebene Schema-2-Vorlage; values bearbeiten, Herkunftsmetadaten unverändert zurückgeben. Im Template-Modus NULL."},
-    {"name":"@CatalogBindings","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Explizite Same-instance-Allowlist mit defaultDatabase, databases und connections; Template verlangt NULL."},
-    {"name":"@TargetFlow","type":"varchar(64)","default":"NULL","required":false,"nullable":true,"description":"Ausgegebene Zielfluss-ID; NULL berücksichtigt alle Ziele getrennt."},
-    {"name":"@InspectStage","type":"varchar(64)","default":"NULL","required":false,"nullable":true,"description":"NULL liefert Zielskript und Verzeichnis; all alle Stufen; konkrete ID verlangt TargetFlow."},
-    {"name":"@LookupPolicies","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Optionale gebundene Auswahlordnung je Lookup. Standard beliebige, einmal materialisierte Auswahl."},
-    {"name":"@ComparisonCollation","type":"sysname","default":"NULL","required":false,"nullable":true,"description":"Bekannte explizite Vergleichscollation; NULL verwendet die zugeordnete Defaultdatenbank."},
-    {"name":"@TSqlVersion","type":"smallint","default":"150","required":false,"nullable":false,"description":"Exakt150,160 oder170; kein automatischer Dialektwechsel."},
-    {"name":"@MaxPackageBytes","type":"bigint","default":"134217728","required":false,"nullable":false,"description":"Maximale Paketgröße in Bytes; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxXmlCharacters","type":"bigint","default":"134217728","required":false,"nullable":false,"description":"Maximale XML-Zeichen; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxXmlNodes","type":"bigint","default":"1048576","required":false,"nullable":false,"description":"Maximale XML-Knoten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxModelNodes","type":"bigint","default":"262144","required":false,"nullable":false,"description":"Maximale Modellknoten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxModelEdges","type":"bigint","default":"1048576","required":false,"nullable":false,"description":"Maximale Modellkanten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxComponents","type":"bigint","default":"4096","required":false,"nullable":false,"description":"Maximale Komponenten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxPaths","type":"bigint","default":"8192","required":false,"nullable":false,"description":"Maximale Datenflusskanten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxColumns","type":"bigint","default":"65536","required":false,"nullable":false,"description":"Maximale Spaltenmetadaten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxInputs","type":"bigint","default":"8192","required":false,"nullable":false,"description":"Maximale gebundene Eingaben; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxJsonDocumentBytes","type":"bigint","default":"4194304","required":false,"nullable":false,"description":"Maximale UTF-16-Bytes je Eingabe-JSON; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxAllJsonBytes","type":"bigint","default":"8388608","required":false,"nullable":false,"description":"Maximale UTF-16-Bytes aller Eingabe-JSONs; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxJsonNodes","type":"bigint","default":"131072","required":false,"nullable":false,"description":"Maximale JSON-Knoten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxExpressionBytes","type":"bigint","default":"4194304","required":false,"nullable":false,"description":"Maximale UTF-16-Bytes je SSIS-Ausdruck; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxExpressionTokens","type":"bigint","default":"262144","required":false,"nullable":false,"description":"Maximale Ausdruckstokens; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxExpressionNodes","type":"bigint","default":"131072","required":false,"nullable":false,"description":"Maximale Ausdrucksknoten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxPlanUnits","type":"bigint","default":"8192","required":false,"nullable":false,"description":"Maximale geprüfte Debugplaneinheiten; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxCatalogObjects","type":"bigint","default":"4096","required":false,"nullable":false,"description":"Maximale Katalogobjekte; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxCatalogQueries","type":"bigint","default":"4096","required":false,"nullable":false,"description":"Maximale Katalogabfragen; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxParserCalls","type":"bigint","default":"32768","required":false,"nullable":false,"description":"Maximale SQL-Parseraufrufe; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxArtifacts","type":"bigint","default":"65536","required":false,"nullable":false,"description":"Maximale Ergebnisartefakte; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxDiagnostics","type":"bigint","default":"16384","required":false,"nullable":false,"description":"Maximale Diagnosen; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxSqlArtifactBytes","type":"bigint","default":"2097152","required":false,"nullable":false,"description":"Maximale UTF-16-Bytes je SQL-Artefakt; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxTotalOutputBytes","type":"bigint","default":"134217728","required":false,"nullable":false,"description":"Maximale UTF-16-Bytes der Gesamtausgabe; 0 unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@MaxAnalysisMilliseconds","type":"bigint","default":"0","required":false,"nullable":false,"description":"Analysezeitbudget in Millisekunden; Standard 0 = unbegrenzt, NULL oder negativ ungültig."},
-    {"name":"@ResultTable","type":"sysname","default":"NULL","required":false,"nullable":true,"description":"NULL liefert ein Resultset; sonst vorhandene lokale Temp-Tabelle nach Standardvertrag."},
-    {"name":"@KeepData","type":"bit","default":"0","required":false,"nullable":true,"description":"0 ersetzt,1 hängt an; NULL entspricht0. Kanonischer ResultTable-Helper."},
-    {"name":"@Debug","type":"tinyint","default":"0","required":false,"nullable":true,"description":"Nur redigierte Messages mit Ablauf/Zählern, keine Secretwerte oder zusätzlichen Resultsets."},
-    {"name":"@Hilfe","type":"bit","default":"0","required":false,"nullable":true,"description":"1 liefert ausschließlich standardisierte Hilfe, ignoriert alle Fach-/ResultTable-/Debugparameter."}
+    {
+      "name": "@PackageBytes",
+      "type": "varbinary(max)",
+      "default": "NULL",
+      "required": true,
+      "nullable": false,
+      "description": "Genau ein vollständiges DTSX-XML-Paket als UTF-8-/UTF-16-Bytepuffer varbinary(max), kein Pfad/Base64-/XML-Stringparameter. DTSX-Formatprofile PackageFormatVersion 6 oder 8 werden unterstützt; kein verschlüsselter Container, DTD, externer Resolver oder XInclude. Leer/NULL ungültig, NULL ist nur technischer Help-Default. MaxPackageBytes begrenzt die Rohbytes; XML-Tiefe bleibt absolut 128. Paket/enthaltenes SQL werden beim Analysieren nicht ausgeführt."
+    },
+    {
+      "name": "@Operation",
+      "type": "varchar(32)",
+      "default": "explain",
+      "required": false,
+      "nullable": false,
+      "description": "Taxativ, ordinal/case- und whitespace-sensitiv: explain (Default) analysiert die gebundenen Datenflüsse und erzeugt Workflow, Stufenverzeichnis, Debug-SQL und Diagnosen; bindings-template erzeugt ausschließlich die paket-/kontextgebundene Schema-2-Eingabevorlage zum Bearbeiten unter values. Template verlangt Bindings=NULL und CatalogBindings=NULL. Kein -v2-Alias, kein Opt-in; NULL/leer/andere Schreibweisen ungültig."
+    },
+    {
+      "name": "@ProjectContext",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) bedeutet leeren Schema-2-Projektkontext. Sonst JSON-Objekt {\"schemaVersion\":2,\"projectParameters\":[...],\"connectionManagers\":[...]}; beide Arrays optional. Parameterentry: name, ssisType sowie optional designValue, required und sensitive (JSON-Booleans); Connectionentry: refId, name, provider. Provider taxativ sqlserver-oledb oder sqlserver-adonet, beide ordnen vorhandene SQL-Server-Connections zu; keine Connectionstrings/Credentials. Eindeutige Namen/refIds, Projektconnections dürfen Paketconnections nicht überlagern. Typ-/Wertabbildung im Abschnitt SSIS-Eingabetypen der Objektreferenz; unbekannte Typen sind nicht bindbar. Andere Rootkeys, resourceOptions und schemaVersion ungleich 2 ungültig. Feste Kontrollprotokollgrenze 4194304 UTF-16-Bytes zusätzlich zu den gewählten JSON-Limits; beim Zurückgeben der Bindings denselben Kontext verwenden."
+    },
+    {
+      "name": "@Bindings",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) verwendet vorhandene nicht sensitive Designdefaults; benötigte fehlende Laufzeitwerte bleiben als fehlender Kontext sichtbar. Sonst vollständiges von bindings-template zurückgegebenes JSON-Objekt mit schemaVersion=2, profile exakt ssis-debug-components-v2, packageSha256, contextSha256, availableInputs und values. Ausschließlich values nach generierten Eingabekeys bearbeiten; Paket-/Kontexthashes und vollständige Herkunftsmetadaten unverändert zurückgeben. values ist ein Objekt typisierter JSON-Werte: Stringtexte/ISO-Datum/-GUID/-Hex, JSON-Boolean für bit, exakte Zahlen gemäß SSIS-Eingabetypen; JSON-null als SQL-NULL, keine SQL-Ausdrücke. Sensitive/ unbekannte/nicht bindbare Keys abgewiesen. Im Template-Modus ausschließlich NULL; kein leeres Ersatzobjekt und keine Ressourcenoptionen."
+    },
+    {
+      "name": "@CatalogBindings",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) liefert keine explizite Katalogzuordnung; fehlende erforderliche Bindungen bleiben missing_context. Sonst JSON-Objekt mit schemaVersion 1 oder 2, defaultDatabase als Name, databases als Array eindeutiger erlaubter Same-instance-Datenbanknamen und connections als Objekt {importierteConnectionId:Datenbankname}. Default und jede Zuordnung müssen in databases stehen; Connection-IDs müssen im Paket/Projektkontext vorhanden sein. Version 1 erlaubt nur diese Felder; Version 2 ergänzt flatFileInputs als Objekt (auch {}). Je Flatfileentry: database, schema, object, columns als Mapping importierter Spalten-IDs zu SQL-Spaltennamen; optional rowOrdinalColumn und errorRows als entsprechender Quellobjekt-/Spaltenbeschreiber gemäß Komponentenvertrag. Keine freien SQL-Fragmente, Server-/Credential-/Dateipfade oder automatische Rechte. Template-Modus verlangt NULL; leer/andere Shapes ungültig."
+    },
+    {
+      "name": "@TargetFlow",
+      "type": "varchar(64)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) berücksichtigt alle erkannten Zielflüsse getrennt. Sonst exakte modellinterne TargetFlowId aus der Workflow-/StageIndex-Ausgabe desselben Pakets, maximal varchar(64); keine frei gewählte Komponentenbezeichnung oder dauerhafte Projekt-ID. Groß-/Kleinschreibung/Whitespace werden nicht normalisiert; unbekannt/leer ungültig im Explain-Pfad."
+    },
+    {
+      "name": "@InspectStage",
+      "type": "varchar(64)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "Taxativ für Steuerwerte: NULL (Default) liefert Zielskript/Stufenverzeichnis ohne zusätzliche StageSql-Auswahl; all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören. all benötigt keinen expliziten TargetFlow. Kein Trim/Casefold; unbekannte/leere konkrete ID ungültig."
+    },
+    {
+      "name": "@LookupPolicies",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) bedeutet beliebige, pro relevantem Snapshot einmal materialisierte Trefferauswahl. Sonst exakt JSON-Objekt {\"schemaVersion\":1,\"lookups\":{\"<Lookup-Komponenten-ID>\":{\"orderBy\":[{\"column\":\"<Referenzspalte>\",\"direction\":\"asc\"}]}}}. IDs müssen existierende Lookupkomponenten adressieren, orderBy nicht leer und ohne doppelte Spalten. direction taxativ asc = aufsteigend oder desc = absteigend, exakt kleingeschrieben. Keine freien ORDER-BY-Ausdrücke; vollständige Sortierbindung erforderlich, Gleichstände erhalten keine erfundene Eindeutigkeit."
+    },
+    {
+      "name": "@ComparisonCollation",
+      "type": "sysname",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) verwendet bei Katalogbindung die Collation der expliziten defaultDatabase. Sonst genau ein tatsächlich vom Server unterstützter Collationname als sysname, kein COLLATE-SQL-Fragment; Prüfung gegen sys.fn_helpcollations. Dynamische Serverwertemenge, kein festes erfundenes Inventar: SELECT name FROM sys.fn_helpcollations() zeigt sie. Dient Vergleichs-/Ausdrucksbindung und ändert keine DB-/Spaltencollation; leer/unbekannt ungültig."
+    },
+    {
+      "name": "@TSqlVersion",
+      "type": "smallint",
+      "default": "150",
+      "required": false,
+      "nullable": false,
+      "description": "Taxativ: 150 = SQL-Server-2019-Grammatik (Default), 160 = 2022, 170 = 2025 für die Parser-/Sicherheitsprüfung erzeugten SQLs. Kein automatischer Dialektwechsel/Ablesen der Engineversion. NULL/andere smallint-Werte ungültig."
+    },
+    {
+      "name": "@MaxPackageBytes",
+      "type": "bigint",
+      "default": "134217728",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 134217728: Rohbytes des DTSX-Pakets. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxXmlCharacters",
+      "type": "bigint",
+      "default": "134217728",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 134217728: vom XML-Reader gezählte Zeichen des Pakets. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxXmlNodes",
+      "type": "bigint",
+      "default": "1048576",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 1048576: gelesene XML-Knoten. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxModelNodes",
+      "type": "bigint",
+      "default": "262144",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 262144: Knoten des importierten Modells. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxModelEdges",
+      "type": "bigint",
+      "default": "1048576",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 1048576: Kanten des importierten Modells. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxComponents",
+      "type": "bigint",
+      "default": "4096",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 4096: SSIS-Komponenten. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxPaths",
+      "type": "bigint",
+      "default": "8192",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 8192: Datenflusskanten/Pfade. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxColumns",
+      "type": "bigint",
+      "default": "65536",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 65536: importierte Spaltenmetadaten. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxInputs",
+      "type": "bigint",
+      "default": "8192",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 8192: entdeckte/gebundene Eingaben. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxJsonDocumentBytes",
+      "type": "bigint",
+      "default": "4194304",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 4194304: UTF-16-Bytes je JSON-Eingabedokument; ProjectContext behält zusätzlich das feste Kontrollprotokolllimit. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxAllJsonBytes",
+      "type": "bigint",
+      "default": "8388608",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 8388608: Summe der UTF-16-Bytes von Bindings, CatalogBindings und LookupPolicies, ohne ProjectContext. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxJsonNodes",
+      "type": "bigint",
+      "default": "131072",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 131072: Knoten je begrenzt geparstem JSON-Dokument. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxExpressionBytes",
+      "type": "bigint",
+      "default": "4194304",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 4194304: UTF-16-Bytes eines SSIS-Ausdrucks. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxExpressionTokens",
+      "type": "bigint",
+      "default": "262144",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 262144: Tokens eines SSIS-Ausdrucks. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxExpressionNodes",
+      "type": "bigint",
+      "default": "131072",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 131072: Knoten eines SSIS-Ausdrucks. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxPlanUnits",
+      "type": "bigint",
+      "default": "8192",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 8192: geprüfte Debugplaneinheiten. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxCatalogObjects",
+      "type": "bigint",
+      "default": "4096",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 4096: gebundene Katalogobjekte. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxCatalogQueries",
+      "type": "bigint",
+      "default": "4096",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 4096: Katalogabfragen. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxParserCalls",
+      "type": "bigint",
+      "default": "32768",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 32768: SQL-Parser-/Sicherheitsprüfaufrufe. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxArtifacts",
+      "type": "bigint",
+      "default": "65536",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 65536: erzeugte Ergebnisartefakte. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxDiagnostics",
+      "type": "bigint",
+      "default": "16384",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 16384: erzeugte Diagnosen. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxSqlArtifactBytes",
+      "type": "bigint",
+      "default": "2097152",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 2097152: UTF-16-Bytes je erzeugtem SQL-Artefakt. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxTotalOutputBytes",
+      "type": "bigint",
+      "default": "134217728",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 134217728: UTF-16-Bytes der gezählten Gesamtausgabe. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@MaxAnalysisMilliseconds",
+      "type": "bigint",
+      "default": "0",
+      "required": false,
+      "nullable": false,
+      "description": "bigint 0..9223372036854775807, Default 0: Millisekunden kooperatives Analysezeitbudget, keine harte Gesamtwallclock-Garantie. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+    },
+    {
+      "name": "@ResultTable",
+      "type": "sysname",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Name 2..116 UTF-16-Einheiten; der vollständige Artefaktsatz wird vor Zielmutation erzeugt."
+    },
+    {
+      "name": "@KeepData",
+      "type": "bit",
+      "default": "0",
+      "required": false,
+      "nullable": true,
+      "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."
+    },
+    {
+      "name": "@Debug",
+      "type": "tinyint",
+      "default": "0",
+      "required": false,
+      "nullable": true,
+      "description": "tinyint 0..255, Default 0; NULL wirkt wie 0. 0 still, 1..255 eine redigierte Abschlussmessage mit Artefakt-/SQL-Prüfeinheitenzählern. Kein zusätzliches Resultset und keine Quell-/Secretwerte; der interne ResultTable-Helper wird ausdrücklich mit Debug=0 aufgerufen."
+    },
+    {
+      "name": "@Hilfe",
+      "type": "bit",
+      "default": "0",
+      "required": false,
+      "nullable": true,
+      "description": "Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden."
+    }
   ],
   "columns": [
-    {"name":"ArtifactKind","type":"varchar(32)","nullable":false,"description":"BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql, CleanupSql, DebugScript, FlatFileWriteProjection, ColumnLineage oder Diagnostic."},
-    {"name":"TargetFlowId","type":"varchar(64)","nullable":true,"description":"Modellinterne Zielfluss-ID; keine dauerhafte Projektreferenz."},
-    {"name":"StageId","type":"varchar(64)","nullable":true,"description":"Modellinterne Prüfpunkt-ID, innerhalb derselben Paketbindung stabil."},
-    {"name":"Ordinal","type":"int","nullable":false,"description":"Globale1-basierte Ausgabeordnung."},
-    {"name":"ComponentId","type":"nvarchar(4000)","nullable":true,"description":"Ursprüngliche gebundene Komponenten-ID."},
-    {"name":"EvidenceClass","type":"varchar(24)","nullable":false,"description":"descriptive, translated, pragmatic, missing_context oder unsupported."},
-    {"name":"Severity","type":"varchar(16)","nullable":true,"description":"info, warning oder error für Diagnosen."},
-    {"name":"DiagnosticCode","type":"varchar(64)","nullable":true,"description":"Stabiler maschinenlesbarer Diagnosecode."},
-    {"name":"IsComplete","type":"bit","nullable":false,"description":"Benötigter Pfad und Kontext vollständig im aktuellen Profil vorhanden."},
-    {"name":"SafetyStatus","type":"varchar(24)","nullable":false,"description":"not_applicable, not_checked, passed oder blocked."},
-    {"name":"IsExecutable","type":"bit","nullable":false,"description":"Vollständiger, im gebundenen Profil geprüfter Batch; kein bereits ausgeführter Runtime-Nachweis."},
-    {"name":"Content","type":"nvarchar(max)","nullable":false,"description":"Artefaktinhalt, insbesondere vollständiger SQL-Prüfblock oder JSON-Vorlage."},
-    {"name":"DetailsJson","type":"nvarchar(max)","nullable":true,"description":"Zusätzliche gültige JSON-Metadaten."}
+    {
+      "name": "ArtifactKind",
+      "type": "varchar(32)",
+      "nullable": false,
+      "description": "BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql, CleanupSql, DebugScript, FlatFileWriteProjection, ColumnLineage oder Diagnostic."
+    },
+    {
+      "name": "TargetFlowId",
+      "type": "varchar(64)",
+      "nullable": true,
+      "description": "Modellinterne Zielfluss-ID; keine dauerhafte Projektreferenz."
+    },
+    {
+      "name": "StageId",
+      "type": "varchar(64)",
+      "nullable": true,
+      "description": "Modellinterne Prüfpunkt-ID, innerhalb derselben Paketbindung stabil."
+    },
+    {
+      "name": "Ordinal",
+      "type": "int",
+      "nullable": false,
+      "description": "Globale1-basierte Ausgabeordnung."
+    },
+    {
+      "name": "ComponentId",
+      "type": "nvarchar(4000)",
+      "nullable": true,
+      "description": "Ursprüngliche gebundene Komponenten-ID."
+    },
+    {
+      "name": "EvidenceClass",
+      "type": "varchar(24)",
+      "nullable": false,
+      "description": "descriptive, translated, pragmatic, missing_context oder unsupported."
+    },
+    {
+      "name": "Severity",
+      "type": "varchar(16)",
+      "nullable": true,
+      "description": "info, warning oder error für Diagnosen."
+    },
+    {
+      "name": "DiagnosticCode",
+      "type": "varchar(64)",
+      "nullable": true,
+      "description": "Stabiler maschinenlesbarer Diagnosecode."
+    },
+    {
+      "name": "IsComplete",
+      "type": "bit",
+      "nullable": false,
+      "description": "Benötigter Pfad und Kontext vollständig im aktuellen Profil vorhanden."
+    },
+    {
+      "name": "SafetyStatus",
+      "type": "varchar(24)",
+      "nullable": false,
+      "description": "not_applicable, not_checked, passed oder blocked."
+    },
+    {
+      "name": "IsExecutable",
+      "type": "bit",
+      "nullable": false,
+      "description": "Vollständiger, im gebundenen Profil geprüfter Batch; kein bereits ausgeführter Runtime-Nachweis."
+    },
+    {
+      "name": "Content",
+      "type": "nvarchar(max)",
+      "nullable": false,
+      "description": "Artefaktinhalt, insbesondere vollständiger SQL-Prüfblock oder JSON-Vorlage."
+    },
+    {
+      "name": "DetailsJson",
+      "type": "nvarchar(max)",
+      "nullable": true,
+      "description": "Zusätzliche gültige JSON-Metadaten."
+    }
   ]
 }

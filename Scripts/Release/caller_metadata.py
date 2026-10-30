@@ -109,6 +109,12 @@ def validate_source(root, path, executed_digest):
     if path in help_contract_source.source_paths(root):
         help_contract_source.validate_historical_source(root, path, executed_digest)
         return
+    import parameter_help_transition
+    if path in parameter_help_transition.PATHS:
+        if digest((Path(root) / path).read_bytes()) == executed_digest:
+            return
+        parameter_help_transition.predecessor_source(root, path, executed_digest)
+        return
     base64_paths = {
         'Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql',
         'Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql',

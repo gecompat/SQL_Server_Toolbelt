@@ -32,41 +32,44 @@ BEGIN
     SET NOCOUNT ON;
     IF @Hilfe=1
     BEGIN
-        DECLARE @Help TABLE(Section varchar(32) NOT NULL,Ordinal int NOT NULL,
-            ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,
-            IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,
-            Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
-        INSERT @Help VALUES
-        ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Erzeugt den triggerfreien 4.1-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.',NULL),
-        ('PARAMETER',1,N'@SourceSchema','nvarchar(max)',1,0,N'NULL',N'V3-Einzelquelle; im Mapmodus NULL.',NULL),
-        ('PARAMETER',2,N'@SourceTable','nvarchar(max)',1,0,N'NULL',N'V3-Einzelquelle; im Mapmodus NULL.',NULL),
-        ('PARAMETER',3,N'@TargetSchema','nvarchar(max)',1,0,N'NULL',N'Bestehendes Installationsdatenbankschema; im Mapmodus NULL.',NULL),
-        ('PARAMETER',4,N'@TargetTable','nvarchar(max)',1,0,N'NULL',N'Neuer Zielname; im Mapmodus NULL.',NULL),
-        ('PARAMETER',5,N'@IncludeIdentity','bit',0,0,N'0',N'Unveränderte V3-Identityoption.',NULL),
-        ('PARAMETER',6,N'@IncludeExtendedProperties','bit',0,0,N'0',N'Unveränderte V3-Propertyoption.',NULL),
-        ('PARAMETER',7,N'@TableMap','sysname',0,1,N'NULL',N'NULL bewahrt Einzelmodus; sonst einmaliger Snapshot der fünfspaltigen V3-Map, 1..64 Zeilen.',NULL),
-        ('PARAMETER',8,N'@ExternalReferenceRule','varchar(16)',0,0,N'REJECT',N'Byteexakt REJECT oder im Mapmodus KEEP.',NULL),
-        ('PARAMETER',9,N'@ExpectedPlanHash','varbinary(max)',1,0,N'NULL',N'Exakt 32 Bytes des dokumentierten Hashlayouts v1, alle Planzeilen und Installationsdatenbank gebunden.',NULL),
-        ('PARAMETER',10,N'@ForeignKeyMode','varchar(16)',0,0,N'CREATE',N'Byteexakt CREATE oder DEFER; DEFER lässt nur FOREIGN_KEY und FOREIGN_KEY_STATE aus, beide bleiben gehasht.',NULL),
-        ('PARAMETER',11,N'@ResultTable','sysname',0,1,N'NULL',N'NULL liefert eine Erfolgszeile; sonst caller-lokale ResultTable.',NULL),
-        ('PARAMETER',12,N'@KeepData','bit',0,1,N'0',N'0 Replace, 1 Append; NULL entspricht0.',NULL),
-        ('PARAMETER',13,N'@Debug','tinyint',0,1,N'0',N'Nur Messages, keine Zusatzresultsets.',NULL),
-        ('PARAMETER',14,N'@Hilfe','bit',0,1,N'0',N'Help vor sämtlichen Fachprüfungen.',NULL),
-        ('RESULT_COLUMN',1,N'PlanHash','varbinary(32)',1,0,NULL,N'Vollständiger Hash, kein Rechte- oder Driftbeleg.',NULL),
-        ('RESULT_COLUMN',2,N'TablesCreated','int',1,0,NULL,N'Tatsächlich neu angelegte Tabellen.',NULL),
-        ('RESULT_COLUMN',3,N'StatementsExecuted','int',1,0,NULL,N'Fachliche DDL-Zeilen ohne SESSION_OPTION und bei DEFER ohne FK-Zeilen.',NULL),
-        ('ERROR',1,NULL,NULL,NULL,NULL,NULL,N'53930 Argumente/Temps,53932 Sicht/Rechte,53933 DDL-Seiteneffekte,53934 Hash,53935 Plan/Ausführungspfade,53936 AppLock. Caller-TX: SQL50000/state1, Token TBX_TABLE_CLONE_EXECUTE_CALLER_TRANSACTION. Engine-/Plannerfehler unverändert.',NULL),
-        ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'Vorhandene V3-/Core-/DDL-Rechte, Server VIEW ANY DEFINITION, lesbare Trigger-/Eventkataloge; keine Rechteerteilung.',NULL),
-        ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Nur neue Ziele, keine Datenkopie oder externe Atomik. Caller hält Quellen/Ziele/Serverbedingungen stabil. Map64 und vollständiger Plan2MiB; keine CPU/RAM/Wallclockgarantie.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Hash mit dokumentiertem v1-Layout aus eigener triggerfreier 4.1-Vorschau berechnen; keine freie SQL-Eingabe.',N'EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;');
-        SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,
-            CAST(N'toolbelt_metadata' AS sysname) SchemaName,
-            CAST(N'USP_ExecuteTableClone' AS sysname) ObjectName,
-            Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql
-        FROM @Help ORDER BY CASE Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2
-            WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 WHEN 'PERMISSION' THEN 5
-            WHEN 'LIMITATION' THEN 6 ELSE 7 END,Ordinal;
-        RETURN;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_metadata' AS sysname) AS SchemaName,
+            CAST(N'USP_ExecuteTableClone' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erzeugt den triggerfreien 4.1-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'PlanHash', N'varbinary(32)', 1, 0, NULL, CAST(N'Vollständiger Hash, kein Rechte- oder Driftbeleg.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'TablesCreated', N'int', 1, 0, NULL, CAST(N'Tatsächlich neu angelegte Tabellen.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'StatementsExecuted', N'int', 1, 0, NULL, CAST(N'Fachliche DDL-Zeilen ohne SESSION_OPTION und bei DEFER ohne FK-Zeilen.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'53930 Argumente/Temps,53932 Sicht/Rechte,53933 DDL-Seiteneffekte,53934 Hash,53935 Plan/Ausführungspfade,53936 AppLock. Caller-TX: SQL50000/state1, Token TBX_TABLE_CLONE_EXECUTE_CALLER_TRANSACTION. Engine-/Plannerfehler unverändert.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Vorhandene V3-/Core-/DDL-Rechte, Server VIEW ANY DEFINITION, lesbare Trigger-/Eventkataloge; keine Rechteerteilung.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Nur neue Ziele, keine Datenkopie oder externe Atomik. Caller hält Quellen/Ziele/Serverbedingungen stabil. Map64 und vollständiger Plan2MiB; keine CPU/RAM/Wallclockgarantie.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Hash mit dokumentiertem v1-Layout aus eigener triggerfreier 4.1-Vorschau berechnen; keine freie SQL-Eingabe.' AS nvarchar(max)), CAST(N'EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@SourceSchema', N'nvarchar(max)', 1, 1, N'NULL', CAST(N'Schema der vorhandenen normalen Quelltabelle in der Installationsdatenbank. Einzelner Identifierwert mit 1..128 UTF-16-Einheiten, ohne NUL, kein Multipartname/Trim; Quotierung übernimmt die API. Im Einzelmodus TableMap=NULL fachlich erforderlich, im Mapmodus ausschließlich NULL. Default NULL aktiviert keine automatische Namensableitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@SourceTable', N'nvarchar(max)', 1, 1, N'NULL', CAST(N'Name der vorhandenen normalen Quelltabelle in der Installationsdatenbank. Einzelner Identifierwert mit 1..128 UTF-16-Einheiten, ohne NUL, kein Multipartname/Trim; Quotierung übernimmt die API. Im Einzelmodus TableMap=NULL fachlich erforderlich, im Mapmodus ausschließlich NULL. Default NULL aktiviert keine automatische Namensableitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@TargetSchema', N'nvarchar(max)', 1, 1, N'NULL', CAST(N'Vorhandenes Zielschema in der Installationsdatenbank. Einzelner Identifierwert mit 1..128 UTF-16-Einheiten, ohne NUL, kein Multipartname/Trim; Quotierung übernimmt die API. Im Einzelmodus TableMap=NULL fachlich erforderlich, im Mapmodus ausschließlich NULL. Default NULL aktiviert keine automatische Namensableitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@TargetTable', N'nvarchar(max)', 1, 1, N'NULL', CAST(N'Name der geplanten neuen Zieltabelle, darf noch nicht existieren in der Installationsdatenbank. Einzelner Identifierwert mit 1..128 UTF-16-Einheiten, ohne NUL, kein Multipartname/Trim; Quotierung übernimmt die API. Im Einzelmodus TableMap=NULL fachlich erforderlich, im Mapmodus ausschließlich NULL. Default NULL aktiviert keine automatische Namensableitung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@IncludeIdentity', N'bit', 0, 0, N'0', CAST(N'Taxativ im gebundenen bit: 0 lässt IDENTITY-Eigenschaft weg (Default); 1 übernimmt Seed/Increment der Definition, niemals aktuellen last_value oder Daten. NULL ist ungültig. Gilt gemeinsam für alle gemappten Tabellen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@IncludeExtendedProperties', N'bit', 0, 0, N'0', CAST(N'Taxativ im gebundenen bit: 0 lehnt vorhandene relevante Extended Properties ab (Default), statt sie still zu ignorieren; 1 rendert die unterstützten originalen sql_variant-Werte samt Metadaten gemäß W1-Vertrag. Toolbelt.-Marker, FK-Properties und nicht unterstützte Propertytypen bleiben ausgeschlossen. NULL ungültig; keine Kopie von Rechten/Ownern.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@TableMap', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) wählt Einzelmodus mit vier expliziten Identifierparametern. Sonst Vorhandene caller-lokale #Temp mit genau fünf NOT-NULL-Basisspalten: MapOrdinal int, SourceSchema nvarchar(max), SourceTable nvarchar(max), TargetSchema nvarchar(max), TargetTable nvarchar(max); keine Alias-/computed-/Zusatzspalten. 1..64 Zeilen, positive eindeutige MapOrdinal-Werte. Vier einzelne unquotierte Identifierwerte je Zeile, 1..128 UTF-16-Einheiten ohne NUL, keine Multipartinterpretation/Trim. Source-/Target-Identitäten müssen jeweils eindeutig sein. Kein #tbx_-Präfix und keine Identität mit ResultTable. Für Script/Execute darf der Name nach # nur ASCII-Buchstaben, Ziffern und _ enthalten; die vier Einzelidentifier müssen NULL sein. Gemappte FK-Referenzen werden auf ihre Ziele umgebogen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@ExternalReferenceRule', N'varchar(16)', 0, 0, N'''REJECT''', CAST(N'Taxativ, bytegenau ohne Trim/Casefold: REJECT (Default) lehnt ausgehende FKs auf nicht gemappte Referenzziele ab; KEEP ist nur im Mapmodus erlaubt und erhält für diese Ziele den originalen qualifizierten Namen. Gemappte Referenzen werden in beiden Modi umgebogen; KEEP überspringt keinen FK. Im Einzelmodus ausschließlich REJECT. NULL/andere Werte ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@ExpectedPlanHash', N'varbinary(max)', 1, 0, N'NULL', CAST(N'Fachlich erforderliche exakt 32 Bytes varbinary des SHA256-Planhashes aus dem dokumentierten Hashlayout1 für Modul4.1.0. Aus unveränderten triggerfreien Vorschauzeilen, exakten Optionen und Installationsdatenbankidentität gemäß TABLE_CLONE_EXECUTE_CONTRACT.md/Examples/CalculatePlanHash.py berechnen. Kein Hextext ohne Konvertierung, kein Hash allein des Scripttexts. NULL/falsche Länge ungültig, Abweichung vom frisch erzeugten Plan bricht ab.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@ForeignKeyMode', N'varchar(16)', 0, 0, N'''CREATE''', CAST(N'Taxativ, bytegenau ohne Trim/Casefold: CREATE (Default) führt alle fachlichen Planzeilen einschließlich FKs/Zustände aus; DEFER überspringt ausschließlich FOREIGN_KEY und FOREIGN_KEY_STATE für spätere Datenkopie. Beide Zeilenarten bleiben im vollständigen Planhash. NULL/andere Werte ungültig; bestehende Constraints werden nicht deaktiviert.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht die Map-Tabelle.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 13, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0; NULL wirkt wie 0. Der Executor plant intern ausdrücklich mit Debug=0 und erzeugt keine eigenen zusätzlichen Diagnosemessages; bei ResultTable wird der übergebene Wert an den Helper weitergereicht.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 14, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
     -- RAISERROR vor Facharbeit: XACT_ABORT des Callers darf dessen TX nicht doomen.
     IF @@TRANCOUNT>0

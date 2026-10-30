@@ -26,158 +26,47 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-              HelpContractVersion varchar(16)    NOT NULL
-            , SchemaName          sysname        NOT NULL
-            , ObjectName          sysname        NOT NULL
-            , Section             varchar(32)    NOT NULL
-            , Ordinal             int            NOT NULL
-            , ItemName            sysname        NULL
-            , SqlDataType         varchar(256)   NULL
-            , IsRequired          bit            NULL
-            , IsNullable          bit            NULL
-            , DefaultValue        nvarchar(4000) NULL
-            , Description         nvarchar(max)  NOT NULL
-            , ExampleSql          nvarchar(max)  NULL
-        );
-
-        INSERT INTO @Help
-        (
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        )
-        VALUES
-          ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'DESCRIPTION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv im Speicher. Der interne SAFE-CLR-Provider unterstützt ZIP Methods 0 und 8 und prüft die CRC32 des tatsächlichen Payloads.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 1
-          , N'@ZipArchive', 'varbinary(max)', 1, 0, N'NULL'
-          , N'ZIP-Container als In-memory-BLOB. Das harte Providerlimit beträgt 268435456 Bytes.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 2
-          , N'@EntryName', 'nvarchar(1024)', 1, 0, N'NULL'
-          , N'Exakter Entry-Name. Der CLR-Provider vergleicht ordinal und case-sensitive.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 3
-          , N'@MaxEntryBytes', 'bigint', 0, 1, N'16777216'
-          , N'Obere Grenze für die tatsächlich ausgegebene unkomprimierte Entry-Größe.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 4
-          , N'@MaxCompressionRatio', 'decimal(9,2)', 0, 1, N'200.00'
-          , N'Obere Grenze für tatsächliche und deklarierte UncompressedBytes/CompressedBytes.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 5
-          , N'@FailIfEncrypted', 'bit', 0, 1, N'1'
-          , N'1 lehnt verschlüsselte Entries ab. 0 liefert IsEncrypted=1 und keinen Payload.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 6
-          , N'@ResultTable', 'sysname', 0, 1, N'NULL'
-          , N'Optionale bestehende lokale Temp-Tabelle für den USP-ResultTable-Pfad.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 7
-          , N'@KeepData', 'bit', 0, 1, N'0'
-          , N'Gilt nur mit @ResultTable und wird an USP_PrepareResultTable weitergegeben.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 8
-          , N'@Debug', 'tinyint', 0, 1, N'0'
-          , N'Standardisierter USP-Debugparameter.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 9
-          , N'@Hilfe', 'bit', 0, 1, N'0'
-          , N'1 liefert ausschließlich dieses Help-Resultset.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 1
-          , N'EntryName', 'nvarchar(1024)', 1, 0, NULL
-          , N'Exakter Entry-Name aus dem Central Directory.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 2
-          , N'CompressedBytes', 'bigint', 1, 0, NULL
-          , N'Komprimierte Entry-Größe laut Central Directory.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 3
-          , N'UncompressedBytes', 'bigint', 1, 0, NULL
-          , N'Unkomprimierte Entry-Größe, nach erfolgreicher Extraktion gegen die tatsächliche Ausgabe geprüft.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 4
-          , N'CompressionMethod', 'int', 1, 0, NULL
-          , N'ZIP Compression Method. Unterstützt werden 0 (Stored) und 8 (Deflate).'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 5
-          , N'Crc32', 'int', 0, 1, NULL
-          , N'CRC32 des tatsächlichen Payloads als SQL-int-Bitmuster. Bei verschlüsseltem Status stammt der Wert aus dem Central Directory.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 6
-          , N'IsEncrypted', 'bit', 1, 0, NULL
-          , N'1 kennzeichnet einen als verschlüsselt markierten Entry.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'RESULT_COLUMN', 7
-          , N'EntryPayload', 'varbinary(max)', 0, 1, NULL
-          , N'Dekomprimierter Payload. Bei @FailIfEncrypted=0 und verschlüsseltem Entry ist der Wert NULL.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'ERROR', 1
-          , N'51320-51329', NULL, NULL, NULL, NULL
-          , N'Parameter-, ZIP-Struktur-, Limit-, Feature-, Integritäts- und Providerfehlerbereich.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PERMISSION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Erforderlich sind EXECUTE auf diesem Objekt und bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'LIMITATION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Nicht unterstützt: ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung, Deflate64, unbekannte Methods und zusätzliche Central-Directory-Datensätze.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'LIMITATION', 2
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Harte Providerlimits: 268435456 Archivbytes, 134217728 komprimierte Entry-Bytes und 10000 Entries.'
-          , NULL )
-        , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'EXAMPLE', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Extrahiert deflated.txt aus einem synthetischen ZIP-BLOB.'
-          , N'DECLARE @ZipArchive varbinary(max) = 0x...;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_archive' AS sysname) AS SchemaName,
+            CAST(N'USP_ExtractZipEntryFromBinary' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv im Speicher. Der interne SAFE-CLR-Provider unterstützt ZIP Methods 0 und 8 und prüft die CRC32 des tatsächlichen Payloads.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'EntryName', N'nvarchar(1024)', 1, 0, NULL, CAST(N'Exakter Entry-Name aus dem Central Directory.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'CompressedBytes', N'bigint', 1, 0, NULL, CAST(N'Komprimierte Entry-Größe laut Central Directory.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'UncompressedBytes', N'bigint', 1, 0, NULL, CAST(N'Unkomprimierte Entry-Größe, nach erfolgreicher Extraktion gegen die tatsächliche Ausgabe geprüft.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'CompressionMethod', N'int', 1, 0, NULL, CAST(N'ZIP Compression Method. Unterstützt werden 0 (Stored) und 8 (Deflate).' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'Crc32', N'int', 0, 1, NULL, CAST(N'CRC32 des tatsächlichen Payloads als SQL-int-Bitmuster. Bei verschlüsseltem Status stammt der Wert aus dem Central Directory.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'IsEncrypted', N'bit', 1, 0, NULL, CAST(N'1 kennzeichnet einen als verschlüsselt markierten Entry.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'EntryPayload', N'varbinary(max)', 0, 1, NULL, CAST(N'Dekomprimierter Payload. Bei @FailIfEncrypted=0 und verschlüsseltem Entry ist der Wert NULL.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51320-51329', NULL, NULL, NULL, NULL, CAST(N'Parameter-, ZIP-Struktur-, Limit-, Feature-, Integritäts- und Providerfehlerbereich.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erforderlich sind EXECUTE auf diesem Objekt und bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Nicht unterstützt: ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung, Deflate64, unbekannte Methods und zusätzliche Central-Directory-Datensätze.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 2, NULL, NULL, NULL, NULL, NULL, CAST(N'Harte Providerlimits: 268435456 Archivbytes, 134217728 komprimierte Entry-Bytes und 10000 Entries.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Extrahiert deflated.txt aus einem synthetischen ZIP-BLOB.' AS nvarchar(max)), CAST(N'DECLARE @ZipArchive varbinary(max) = 0x...;
 EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
       @ZipArchive = @ZipArchive
-    , @EntryName = N''deflated.txt'';' );
-
-        SELECT
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        FROM @Help
-        ORDER BY
-              CASE Section
-                  WHEN 'DESCRIPTION' THEN 1
-                  WHEN 'PARAMETER' THEN 2
-                  WHEN 'RESULT_COLUMN' THEN 3
-                  WHEN 'ERROR' THEN 4
-                  WHEN 'PERMISSION' THEN 5
-                  WHEN 'LIMITATION' THEN 6
-                  WHEN 'EXAMPLE' THEN 7
-                  ELSE 8
-              END
-            , Ordinal;
-
+    , @EntryName = N''deflated.txt'';' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@ZipArchive', N'varbinary(max)', 1, 0, N'NULL', CAST(N'Vollständiger nicht leerer ZIP-Bytepuffer varbinary(max), kein Pfad/Base64text. NULL (technischer Help-Default)/0x ungültig. Harte Readergrenze 268435456 Archivbytes, höchstens 10000 Entries, Namen höchstens 1024 UTF-16-Einheiten; keine ZIP64-/Multi-Disk-Unterstützung. Namen werden nach Flag11 als UTF-8, sonst CP437 decodiert. Metadatenlisting ist keine CRC-/Payloadvalidierung aller Einträge.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@EntryName', N'nvarchar(1024)', 1, 0, N'NULL', CAST(N'Exakter nicht leerer Entryname aus dem Central Directory, nvarchar(1024), ordinal/case- und längensensitiv einschließlich trailing Spaces. Keine Wildcards, Normalisierung oder automatische Pfad-/Casekorrektur. NULL ungültig, kein Treffer 51322, mehrfach gleicher gesuchter Name 51323. Das Binary-API extrahiert Bytes und benutzt diesen Namen nicht als Dateisystemziel; ToFile verwendet ausschließlich RelativePath.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@MaxEntryBytes', N'bigint', 0, 1, N'16777216', CAST(N'Ganzzahl 1..67108864 unkomprimierte Bytes des ausgewählten Entries, Default 16777216. NULL/0/negativ/höher ungültig. Prüfung der Deklaration und tatsächlichen Dekompression; unabhängig davon harte Grenze 134217728 komprimierte Bytes. Readergrenze unterscheidet sich von der Writer-Entrygrenze.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@MaxCompressionRatio', N'decimal(9,2)', 0, 1, N'200.00', CAST(N'decimal(9,2) im Bereich 1.00..9999999.99, Default 200.00; unkomprimierte/komprimierte Bytes als Faktor, kein Prozentwert. NULL/<1 ungültig. Deklarierte und tatsächliche Expansionsprüfung; nicht leere Ausgabe aus 0 komprimierten Bytes ist ungültig. Gilt für tatsächliche Extraktion, nicht den erlaubten verschlüsselten Metadatenpfad.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@FailIfEncrypted', N'bit', 0, 1, N'1', CAST(N'Taxativ im gebundenen bit: 1 lehnt einen verschlüsselten ausgewählten Entry mit 51324 ab (Default); 0 liefert ausschließlich dessen Metadaten mit IsEncrypted=1 und EntryPayload=NULL, keine Entschlüsselung/Passwortübergabe. NULL wird wie 1 normalisiert. Der erlaubte Metadatenpfad passiert vor Method-/Payloadgrößen-/Ratio-/CRC-Extraktionsprüfungen; er qualifiziert keine lesbare Payload.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene zusätzliche Readerdiagnose; im ResultTable-Pfad an den kanonischen Helper weitergereicht.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @ZipArchive IS NULL OR DATALENGTH(@ZipArchive) = 0

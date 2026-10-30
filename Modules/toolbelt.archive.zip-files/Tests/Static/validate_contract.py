@@ -13,7 +13,7 @@ for name,params in expected.items():
     actual=[{"name":p,"type":t.lower().replace(" ",""),"default":d.strip()} for p,t,d in re.findall(r"(@\w+)\s+([\w]+(?:\([^)]*\))?)\s*=\s*([^\n,]+)",signature)]
     require(actual==params,name+": exact signature/defaults")
     require(not re.search(r"INSERT\s+[^;]*?\bEXEC(?:UTE)?\b",source,re.I),name+": no INSERT EXEC")
-    require("N'"+name+"',v.Section" in source and "N'NAME'" not in source,name+": exact Help object")
+    require("CAST(N'"+name+"' AS sysname) AS ObjectName" in source and "N'NAME'" not in source,name+": exact generated Help object")
     help_at=source.index("IF @Hilfe=1")
     tx_at=source.index("IF @@TRANCOUNT<>0")
     zip_at=source.index("EXEC toolbelt_archive.",tx_at)

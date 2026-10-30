@@ -358,6 +358,8 @@ class XlsxMetadataMixin:
         record = json.loads((ROOT / metadata.RECORD).read_bytes())
         original_test = metadata.historical(ROOT, metadata.OFFLINE_SOURCE)
         current_test = (ROOT / metadata.OFFLINE_SOURCE).read_bytes()
+        import parameter_help_transition
+        current_test = parameter_help_transition.restore_verifier_source(ROOT, metadata.OFFLINE_SOURCE, current_test)
         expected_test = metadata.corrected_offline_source(original_test)
         if (ROOT / 'Releases/1.0.0/zip-metadata-update.json').is_file():
             import zip_metadata

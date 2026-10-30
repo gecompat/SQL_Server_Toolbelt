@@ -30,40 +30,50 @@ BEGIN
  SELECT @KeepData=COALESCE(@KeepData,0),@Debug=COALESCE(@Debug,0),@Hilfe=COALESCE(@Hilfe,0);
  IF @Hilfe=1
  BEGIN
-  DECLARE @Help TABLE(Section varchar(32) NOT NULL,Ordinal int NOT NULL,ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
-  INSERT @Help VALUES
-  ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Vollständiges Urteil im begrenzten Profil; Diagnosekürzung beendet die Evaluation nicht. LIMIT hat kein Boolurteil.',NULL),
-  ('PARAMETER',1,N'@Json','nvarchar(max)',0,1,N'NULL',N'Instanz; SQL-NULL liefert SQL_NULL.',NULL),
-  ('PARAMETER',2,N'@Schema','nvarchar(max)',0,1,N'NULL',N'Schema; vollständiger Preflight vor der Instanz, auch unbenutzte Definitionen.',NULL),
-  ('PARAMETER',3,N'@Profile','varchar(32)',0,0,N'toolbelt-2020-12-v1',N'Exakte ASCII-Identität einschließlich Länge; kein Trim oder Casefold.',NULL),
-  ('PARAMETER',4,N'@MaxDocumentBytes','bigint',0,0,N'16777216',N'UTF16-Bytes: 1..16777216; Überschreitung LIMIT/DOCUMENT_BYTES.',NULL),
-  ('PARAMETER',5,N'@MaxSchemaBytes','bigint',0,0,N'1048576',N'UTF16-Bytes: 1..1048576; Überschreitung LIMIT/SCHEMA_BYTES.',NULL),
-  ('PARAMETER',6,N'@MaxDepth','int',0,0,N'128',N'1..128 offene Container; begrenzter Parser stoppt beim Überschreiten.',NULL),
-  ('PARAMETER',7,N'@MaxEvaluationSteps','bigint',0,0,N'1000000',N'1..1000000 abstrakte Arbeitseinheiten für alle Phasen; keine CPUzeitgarantie.',NULL),
-  ('PARAMETER',8,N'@MaxErrors','int',0,0,N'100',N'0..100 Diagnosen; SUMMARY bleibt erhalten, Urteil erfordert vollständige Evaluation.',NULL),
-  ('PARAMETER',9,N'@ResultTable','sysname',0,1,N'NULL',N'NULL: SELECT; sonst vorhandene caller-lokale #Temp gemäß ResultTable-Vertrag.',NULL),
-  ('PARAMETER',10,N'@KeepData','bit',0,1,N'0',N'Replace=0, Append=1; NULL entspricht 0.',NULL),
-  ('PARAMETER',11,N'@Debug','tinyint',0,1,N'0',N'Nur Messages ohne Payload/Endpoint; NULL entspricht 0.',NULL),
-  ('PARAMETER',12,N'@Hilfe','bit',0,1,N'0',N'Help zuerst ohne Argument-/Dependency-/Tempprüfung oder Seiteneffekte.',NULL),
-  ('RESULT_COLUMN',1,N'RowKind','varchar(8)',1,0,NULL,N'SUMMARY oder ERROR.',NULL),
-  ('RESULT_COLUMN',2,N'ErrorOrdinal','int',1,0,NULL,N'SUMMARY=0, ERROR=1..N; explizite Ergebnisordnung.',NULL),
-  ('RESULT_COLUMN',3,N'Status','varchar(24)',1,0,NULL,N'VALID/INVALID_INSTANCE/INVALID_SCHEMA/INVALID_JSON/UNSUPPORTED/SQL_NULL/LIMIT.',NULL),
-  ('RESULT_COLUMN',4,N'Profile','varchar(32)',1,0,NULL,N'Exaktes angewandtes Profil.',NULL),
-  ('RESULT_COLUMN',5,N'IsValid','bit',0,1,NULL,N'1 bei VALID, 0 bei vollständigem INVALID_INSTANCE; sonst NULL.',NULL),
-  ('RESULT_COLUMN',6,N'DocumentPointer','nvarchar(max)',0,1,NULL,N'RFC6901-Ort in der Instanz; leer=root, NULL=unbekannt/nicht betroffen.',NULL),
-  ('RESULT_COLUMN',7,N'SchemaPointer','nvarchar(max)',0,1,NULL,N'RFC6901-Ort im Schema; vollständige unveränderte decoded Keys.',NULL),
-  ('RESULT_COLUMN',8,N'Keyword','nvarchar(128)',0,1,NULL,N'Zuständiges Keyword; NULL wenn nicht bekannt oder länger als 128 Einheiten.',NULL),
-  ('RESULT_COLUMN',9,N'ErrorCode','varchar(32)',0,1,NULL,N'Kanonischer Fehlercode; VALID-SUMMARY ohne Code.',NULL),
-  ('RESULT_COLUMN',10,N'ErrorsTruncated','bit',1,0,NULL,N'Unterdrückte Diagnosen; auf allen Zeilen gleicher Endzustand.',NULL),
-  ('ERROR',1,N'55600/1',NULL,NULL,NULL,NULL,N'Ungültiges Profil oder Ressourcenargument.',NULL),
-  ('ERROR',2,N'55601/1',NULL,NULL,NULL,NULL,N'Interner Transport-/Namespace-/Dependencyvertrag verletzt; kein Fachurteil.',NULL),
-  ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Kein volles Draft2020-12; lokale nichtrekursive Refs, exakte Zahlen/Unicode, kein externer Zugriff.',NULL),
-  ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Synthetische Instanz mit einfachem Schema.',N'EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N''42'',@Schema=N''{"type":"integer"}'';');
-  SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,CAST(N'toolbelt_json' AS sysname) SchemaName,
-   CAST(N'USP_ValidateJsonSchema' AS sysname) ObjectName,Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql
-  FROM @Help ORDER BY CASE Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 WHEN 'LIMITATION' THEN 5 ELSE 6 END,Ordinal;
-  RETURN;
- END;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_json' AS sysname) AS SchemaName,
+            CAST(N'USP_ValidateJsonSchema' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Vollständiges Urteil im begrenzten Profil; Diagnosekürzung beendet die Evaluation nicht. LIMIT hat kein Boolurteil.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'RowKind', N'varchar(8)', 1, 0, NULL, CAST(N'SUMMARY oder ERROR.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'ErrorOrdinal', N'int', 1, 0, NULL, CAST(N'SUMMARY=0, ERROR=1..N; explizite Ergebnisordnung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'Status', N'varchar(24)', 1, 0, NULL, CAST(N'VALID/INVALID_INSTANCE/INVALID_SCHEMA/INVALID_JSON/UNSUPPORTED/SQL_NULL/LIMIT.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'Profile', N'varchar(32)', 1, 0, NULL, CAST(N'Exaktes angewandtes Profil.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'IsValid', N'bit', 0, 1, NULL, CAST(N'1 bei VALID, 0 bei vollständigem INVALID_INSTANCE; sonst NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'DocumentPointer', N'nvarchar(max)', 0, 1, NULL, CAST(N'RFC6901-Ort in der Instanz; leer=root, NULL=unbekannt/nicht betroffen.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'SchemaPointer', N'nvarchar(max)', 0, 1, NULL, CAST(N'RFC6901-Ort im Schema; vollständige unveränderte decoded Keys.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 8, N'Keyword', N'nvarchar(128)', 0, 1, NULL, CAST(N'Zuständiges Keyword; NULL wenn nicht bekannt oder länger als 128 Einheiten.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 9, N'ErrorCode', N'varchar(32)', 0, 1, NULL, CAST(N'Kanonischer Fehlercode; VALID-SUMMARY ohne Code.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 10, N'ErrorsTruncated', N'bit', 1, 0, NULL, CAST(N'Unterdrückte Diagnosen; auf allen Zeilen gleicher Endzustand.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'55600/1', NULL, NULL, NULL, NULL, CAST(N'Ungültiges Profil oder Ressourcenargument.' AS nvarchar(max)), NULL),
+        (N'ERROR', 2, N'55601/1', NULL, NULL, NULL, NULL, CAST(N'Interner Transport-/Namespace-/Dependencyvertrag verletzt; kein Fachurteil.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Kein volles Draft2020-12; lokale nichtrekursive Refs, exakte Zahlen/Unicode, kein externer Zugriff.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Synthetische Instanz mit einfachem Schema.' AS nvarchar(max)), CAST(N'EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N''42'',@Schema=N''{"type":"integer"}'';' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@Json', N'nvarchar(max)', 0, 1, N'NULL', CAST(N'Vollständiger JSON-Wert (Objekt, Array oder Skalar), maximal MaxDocumentBytes UTF-16-Bytes. Leerer/fehlerhafter Text ergibt INVALID_JSON; doppelte Keys sind ungültig und ungepaarte Surrogate UNSUPPORTED. NULL (Default) in Json oder Schema ergibt SQL_NULL nach Argumentprüfung. Keine Typkonvertierung oder Änderung des Dokuments.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@Schema', N'nvarchar(max)', 0, 1, N'NULL', CAST(N'Boolean-Schema true/false oder Schemaobjekt des Profils toolbelt-2020-12-v1, maximal MaxSchemaBytes UTF-16-Bytes. Unterstützte Formen/Keywordtypen siehe JSON_SCHEMA_CONTRACT.md, Abschnitt Sichtbarer Profilumfang: $schema nur Draft2020-12; $defs, nichtrekursive lokale $ref, type, required, properties, additionalProperties, items, prefixItems, minItems/maxItems, minProperties/maxProperties, minLength/maxLength, minimum/maximum/exclusiveMinimum/exclusiveMaximum sowie title/description/$comment. Keine externen Referenzen, Zyklen, format, pattern, enum/const, Kombinatoren oder unbekannten Keywords. Alle Schemaorte einschließlich ungenutzter Definitionen werden vor der Instanz geprüft; NULL ergibt SQL_NULL nach Argumentprüfung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@Profile', N'varchar(32)', 0, 0, N'''toolbelt-2020-12-v1''', CAST(N'Einziger erlaubter Wert, exakt ASCII und längensensitiv: toolbelt-2020-12-v1 (Default) wählt die dokumentierte begrenzte Draft2020-12-Teilmenge. Kein Trim/Casefold; NULL/leer/andere Werte werfen 55600/1. Keine Behauptung vollständiger Draftkonformität.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@MaxDocumentBytes', N'bigint', 0, 0, N'16777216', CAST(N'Ganzzahl 1..16777216 UTF-16-Bytes, Default 16777216; NULL/außerhalb wirft 55600/1, Dokumentüberschreitung liefert LIMIT/DOCUMENT_BYTES.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@MaxSchemaBytes', N'bigint', 0, 0, N'1048576', CAST(N'Ganzzahl 1..1048576 UTF-16-Bytes, Default 1048576; NULL/außerhalb wirft 55600/1, Schemaüberschreitung liefert LIMIT/SCHEMA_BYTES.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@MaxDepth', N'int', 0, 0, N'128', CAST(N'Ganzzahl 1..128 offene Container in Dokument und Schema, Default 128; NULL/außerhalb wirft 55600/1. Parser beendet eine Überschreitung als LIMIT, nicht als gültiges Boolurteil.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@MaxEvaluationSteps', N'bigint', 0, 0, N'1000000', CAST(N'Ganzzahl 1..1000000 abstrakte Arbeitseinheiten über sämtliche Prüfphasen, Default 1000000; NULL/außerhalb wirft 55600/1. Keine Millisekunden-/CPUzeitangabe; Erschöpfung ergibt LIMIT/IsValid=NULL.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@MaxErrors', N'int', 0, 0, N'100', CAST(N'Ganzzahl 0..100 Diagnosezeilen, Default 100; 0 unterdrückt ERROR-Zeilen, SUMMARY bleibt. NULL/außerhalb wirft 55600/1. Begrenzt nur die Diagnose, nicht die vollständige Evaluation; ErrorsTruncated weist Kürzung aus.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Nur payloadfreie Messages; keine Dokument-/Schema-/Endpointausgabe.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        RETURN 0;
+        -- API_PARAMETER_HELP:END
+    END;
  IF @Profile IS NULL OR CONVERT(varbinary(max),@Profile)<>CONVERT(varbinary(max),'toolbelt-2020-12-v1')
  OR @MaxDocumentBytes IS NULL OR @MaxDocumentBytes NOT BETWEEN 1 AND 16777216
  OR @MaxSchemaBytes IS NULL OR @MaxSchemaBytes NOT BETWEEN 1 AND 1048576

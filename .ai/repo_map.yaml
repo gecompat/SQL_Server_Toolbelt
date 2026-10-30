@@ -409,6 +409,18 @@ change_impact:
         - markdown_links
     public_api_catalog:
       paths:
+        - "Scripts/Documentation/*.py"
+        - "Scripts/Release/parameter_help_transition.py"
+        - "Scripts/Release/HistoricalSources/parameter-help-20261030/*"
+        - "Tests/Documentation/test_parameter_help.py"
+        - "Tests/Documentation/new_parameter_help_cases.py"
+        - "Scripts/Release/new_parameter_help_package.py"
+        - "Scripts/Release/New-ParameterHelpExport.ps1"
+        - "Tests/Release/test_parameter_help_package.py"
+        - "Tests/Release/Invoke-ParameterHelpLab.ps1"
+        - "Tests/Release/Runtime/Invoke-ParameterHelpCases.ps1"
+        - "Releases/1.0.0/InstallPackages/*Parameter-Help*"
+        - "Releases/1.0.0/parameter-help-qualification.json"
         - "Modules/*/module.yaml"
         - "Modules/*/Source/*.sql"
         - "Modules/*/Documentation/*.md"

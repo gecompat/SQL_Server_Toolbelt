@@ -9,6 +9,7 @@ from new_ssis_current_package import ROOT, MODULE, NAME, require, sha
 from new_ssis_standalone_tsql import read_regular_bounded, MAX_PACKAGE_BYTES
 import new_ssis_current_standalone_tsql as current_installer
 import validate_ssis_current_package as package_guard
+import parameter_help_transition as help_transition
 
 
 REPORT = MODULE + "Tests/Qualification/Current.SnapshotCoherence.20261030.json"
@@ -305,6 +306,12 @@ def _current_source_bindings():
                 "\\" not in relative and not path.parts[0].startswith("."),
                 "public source path boundary")
         data = read_regular_bounded(ROOT.joinpath(*path.parts), 64 * 1024 * 1024)
+        # Preserve the executed snapshot pins only after the closed Help-only
+        # proof; these older cases do not qualify the newly generated Help.
+        if relative in help_transition.PATHS:
+            data = help_transition.predecessor_source(ROOT, relative)
+        elif relative == "Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py":
+            data = help_transition.restore_verifier_source(ROOT, relative, data)
         result[relative] = _source_checkout_sha(relative, data)
     return result
 

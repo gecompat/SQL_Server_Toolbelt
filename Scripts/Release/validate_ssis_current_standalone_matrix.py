@@ -135,6 +135,13 @@ def _validate_paths(root, pins, expected_paths):
                         sha(data.replace(b'\n', b'\r\n')).lower() == execution_sha.lower(),
                         'exact current XML fixture checkout')
         else:
+            import parameter_help_transition
+            if sha(data).lower() != pin['sha256'].lower() and (
+                    path == current_installer.MODULE + 'Contracts/Api.json' or path in parameter_help_transition.VERIFIER_PATHS):
+                try:
+                    data = parameter_help_transition.bound_source(root, path, pin['sha256'])
+                except ValueError as error:
+                    raise ValueError('SSIS_CURRENT_PACKAGE_INVALID: execution input pin drift') from error
             require(sha(data).lower() == pin['sha256'].lower(), 'execution input pin drift')
         found[path] = pin['sha256'].lower()
     require(set(found) == set(expected_paths), 'execution input pin closure')

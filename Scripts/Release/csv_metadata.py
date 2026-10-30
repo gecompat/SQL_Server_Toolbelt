@@ -98,6 +98,10 @@ def validate_source(root, path, executed_digest):
     current = (Path(root) / path).read_bytes()
     if digest(current) == executed_digest:
         return
+    import parameter_help_transition
+    if path in parameter_help_transition.PATHS:
+        parameter_help_transition.predecessor_source(root, path, executed_digest)
+        return
     require(path == MANIFEST, 'Only the exact CSV manifest has a metadata exception.')
     original = historical(root, MANIFEST)
     report = historical(root, REPORT)

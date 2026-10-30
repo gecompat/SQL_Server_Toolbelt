@@ -47,109 +47,34 @@ BEGIN
      */
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-              HelpContractVersion varchar(16)    NOT NULL
-            , SchemaName          sysname        NOT NULL
-            , ObjectName          sysname        NOT NULL
-            , Section             varchar(32)    NOT NULL
-            , Ordinal             int            NOT NULL
-            , ItemName            sysname        NULL
-            , SqlDataType         varchar(256)   NULL
-            , IsRequired          bit            NULL
-            , IsNullable          bit            NULL
-            , DefaultValue        nvarchar(4000) NULL
-            , Description         nvarchar(max)  NOT NULL
-            , ExampleSql          nvarchar(max)  NULL
-        );
-
-        INSERT INTO @Help
-        (
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        )
-        VALUES
-          ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'DESCRIPTION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Gibt bis zu 1 MiB UTF-16 in höchstens 512 Frames vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PARAMETER', 1
-          , N'@Message', 'nvarchar(max)', 0, 1, N'NULL'
-          , N'Auszugebender Text. NULL und Leertext erzeugen keine Ausgabe. Vorhandene Zeilenumbrüche bleiben innerhalb der Message-Frames erhalten.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PARAMETER', 2
-          , N'@Immediate', 'bit', 0, 1, N'0'
-          , N'0 verwendet PRINT in Chunks bis 4.000 UTF-16-Codeunits. 1 verwendet RAISERROR mit Severity 0, konservativen 2.000-Codeunit-Chunks und WITH NOWAIT.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PARAMETER', 3
-          , N'@Debug', 'tinyint', 0, 1, N'0'
-          , N'Standardparameter des USP-Vertrags. Version 1 erzeugt bewusst keine zusätzlichen Debug-Messages, damit der Payload unverändert bleibt.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PARAMETER', 4
-          , N'@Hilfe', 'bit', 0, 1, N'0'
-          , N'1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'RESULT_COLUMN', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Die Procedure besitzt kein fachliches Resultset. Text wird ausschließlich als Messages ausgegeben.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'ERROR', 1
-          , N'52801-52802', NULL, NULL, NULL, NULL
-          , N'52801: über 1 MiB UTF-16; 52802: über 512 Frames. Ablehnung vor erster Ausgabe, keine Kürzung.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PERMISSION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Erforderlich ist EXECUTE auf toolbelt_core.USP_WriteConsoleMessage. Die Procedure erweitert keine Rechte.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'LIMITATION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Client und Treiber bestimmen Pufferung, Präfixe und Darstellung von Message-Frame-Grenzen. Die Procedure garantiert Reihenfolge und vollständige Payload-Chunks, aber keine byteidentische Clientformatierung.'
-          , NULL )
-        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'EXAMPLE', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Gibt einen synthetischen Fortschrittstext sofort aus.'
-          , N'EXEC toolbelt_core.USP_WriteConsoleMessage
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_WriteConsoleMessage' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Gibt bis zu 1 MiB UTF-16 in höchstens 512 Frames vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Die Procedure besitzt kein fachliches Resultset. Text wird ausschließlich als Messages ausgegeben.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'52801-52802', NULL, NULL, NULL, NULL, CAST(N'52801: über 1 MiB UTF-16; 52802: über 512 Frames. Ablehnung vor erster Ausgabe, keine Kürzung.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erforderlich ist EXECUTE auf toolbelt_core.USP_WriteConsoleMessage. Die Procedure erweitert keine Rechte.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Client und Treiber bestimmen Pufferung, Präfixe und Darstellung von Message-Frame-Grenzen. Die Procedure garantiert Reihenfolge und vollständige Payload-Chunks, aber keine byteidentische Clientformatierung.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Gibt einen synthetischen Fortschrittstext sofort aus.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_WriteConsoleMessage
       @Message = N''Schritt 1 abgeschlossen.''
-    , @Immediate = 1;' );
-
-        SELECT
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        FROM @Help
-        ORDER BY
-              CASE Section
-                  WHEN 'DESCRIPTION'   THEN 1
-                  WHEN 'PARAMETER'     THEN 2
-                  WHEN 'RESULT_COLUMN' THEN 3
-                  WHEN 'ERROR'         THEN 4
-                  WHEN 'PERMISSION'    THEN 5
-                  WHEN 'LIMITATION'    THEN 6
-                  WHEN 'EXAMPLE'       THEN 7
-                  ELSE 8
-              END
-            , Ordinal;
-
+    , @Immediate = 1;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@Message', N'nvarchar(max)', 0, 1, N'NULL', CAST(N'Auszugebender Unicode-Text als nvarchar(max), maximal 1048576 UTF-16-Bytes und höchstens 512 berechnete Frames. CR/LF und Prozentzeichen sind Inhalt, kein Formatstring. Default/NULL und leerer Text erzeugen keine Ausgabe; Überschreitung wird vor erster Ausgabe abgewiesen.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@Immediate', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 puffert über PRINT mit bis 4000 Codeeinheiten je Frame (Default); 1 nutzt RAISERROR Severity 0 WITH NOWAIT mit bis 2000 Codeeinheiten je Frame. NULL entspricht 0; konkrete Clientpufferung bleibt vom Client abhängig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255 oder NULL, Default 0; in dieser Procedure haben alle diese Werte bewusst keine Wirkung und erzeugen keine zusätzliche Diagnose.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert ausschließlich Hilfe und ignoriert alle anderen Argumente; 0 führt die Messageausgabe aus (Default). NULL wird wie 0 behandelt.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @Message IS NULL OR DATALENGTH(@Message) = 0

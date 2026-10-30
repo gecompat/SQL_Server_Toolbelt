@@ -50,163 +50,47 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        DECLARE @Help TABLE
-        (
-              HelpContractVersion varchar(16)    NOT NULL
-            , SchemaName          sysname        NOT NULL
-            , ObjectName          sysname        NOT NULL
-            , Section             varchar(32)    NOT NULL
-            , Ordinal             int            NOT NULL
-            , ItemName            sysname        NULL
-            , SqlDataType         varchar(256)   NULL
-            , IsRequired          bit            NULL
-            , IsNullable          bit            NULL
-            , DefaultValue        nvarchar(4000) NULL
-            , Description         nvarchar(max)  NOT NULL
-            , ExampleSql          nvarchar(max)  NULL
-        );
-
-        INSERT INTO @Help
-        (
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        )
-        VALUES
-          ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'DESCRIPTION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM und decodiert entsprechend; Inhalt ohne BOM wird mit @FallbackEncoding gelesen.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 1
-          , N'@FilePath', 'nvarchar(4000)', 1, 0, N'NULL'
-          , N'Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 2
-          , N'@FallbackEncoding', 'nvarchar(128)', 0, 1, N'Windows-1252'
-          , N'Codepage für Dateien ohne BOM. Unterstützt werden Windows-1252 und SQL_Latin1_General_CP1_CI_AS äquivalente 8-Bit-Codepages.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 3
-          , N'@MaxBytes', 'bigint', 0, 1, N'NULL'
-          , N'Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 6
-          , N'@Debug', 'tinyint', 0, 1, N'0'
-          , N'Beim ResultTable-Routing Diagnosemeldungen des kanonischen Helpers; keine zusätzlichen fachlichen Resultsets. Im SELECT-Pfad keine Debug-Messages.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 7
-          , N'@Hilfe', 'bit', 0, 1, N'0'
-          , N'1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 4
-          , N'@ResultTable', 'sysname', 0, 1, N'NULL'
-          , N'Optionaler lokaler Temp-Tabellenname für das Ergebnis.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PARAMETER', 5
-          , N'@KeepData', 'bit', 0, 1, N'0'
-          , N'Bei ResultTable-Routing bleiben vorhandene Zielzeilen erhalten, wenn 1.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 1
-          , N'Content', 'nvarchar(max)', 0, 1, NULL
-          , N'Der Text-Inhalt. Bei Validierungsfehlern NULL.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 2
-          , N'BytesRead', 'bigint', 0, 0, NULL
-          , N'Anzahl gelesener Bytes. Bei Validierungsfehlern vor dem Lesen 0.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 3
-          , N'EncodingDetected', 'nvarchar(128)', 0, 1, NULL
-          , N'Erkanntes Encoding: UTF-8, UTF-16-LE oder der Wert von @FallbackEncoding. UTF-16-BE und UTF-32 werden nicht unterstützt.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 4
-          , N'BomPresent', 'bit', 0, 0, NULL
-          , N'1, wenn ein Byte Order Mark vorhanden war; 0 sonst.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 5
-          , N'IsValid', 'bit', 0, 0, NULL
-          , N'1, wenn der Inhalt erfolgreich gelesen wurde; 0 bei fachlichem Fehler.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 6
-          , N'ValidationCode', 'int', 0, 1, NULL
-          , N'Fachlicher Fehlercode oder NULL bei Erfolg.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 7
-          , N'ValidationMessage', 'nvarchar(4000)', 0, 1, NULL
-          , N'Fachliche Fehlermeldung oder NULL bei Erfolg.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 1
-          , N'51320', NULL, NULL, NULL, NULL
-          , N'Ungültiger oder leerer Dateipfad.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 2
-          , N'51321', NULL, NULL, NULL, NULL
-          , N'Pfad liegt außerhalb der konfigurierten Root-Allowlist.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 3
-          , N'51322', NULL, NULL, NULL, NULL
-          , N'Pfad enthält verbotene relative Segmente oder Traversal.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 4
-          , N'51323', NULL, NULL, NULL, NULL
-          , N'Datei überschreitet @MaxBytes.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 5
-          , N'51324', NULL, NULL, NULL, NULL
-          , N'Fallback-Encoding wird nicht unterstützt.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 6
-          , N'51325', NULL, NULL, NULL, NULL
-          , N'Encoding wird nicht unterstützt (UTF-16-BE, UTF-32).'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PERMISSION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadTextFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...). Für @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'LIMITATION', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Ein SINGLE_BLOB-Snapshot bindet Größe, BOM und Text. UTF-8 und Windows-1252 werden mit expliziten Collations, UTF-16-LE aus geraden Bytefolgen dekodiert. UTF-16-BE und UTF-32 bleiben ausgeschlossen. Die erste BLOB-Allokation ist kein Vorallokationsbudget. ResultTable-Änderung und Datei-I/O liegen in derselben Transaktion.'
-          , NULL )
-        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'EXAMPLE', 1
-          , NULL, NULL, NULL, NULL, NULL
-          , N'Liest eine Textdatei aus einem erlaubten Root.'
-          , N'EXEC toolbelt_file.USP_LoadTextFile
-      @FilePath = N''/var/opt/mssql/data/allowed/sample.txt'';' );
-
-        SELECT
-              HelpContractVersion
-            , SchemaName
-            , ObjectName
-            , Section
-            , Ordinal
-            , ItemName
-            , SqlDataType
-            , IsRequired
-            , IsNullable
-            , DefaultValue
-            , Description
-            , ExampleSql
-        FROM @Help
-        ORDER BY
-              CASE Section
-                  WHEN 'DESCRIPTION'   THEN 1
-                  WHEN 'PARAMETER'     THEN 2
-                  WHEN 'RESULT_COLUMN' THEN 3
-                  WHEN 'ERROR'         THEN 4
-                  WHEN 'PERMISSION'    THEN 5
-                  WHEN 'LIMITATION'    THEN 6
-                  WHEN 'EXAMPLE'       THEN 7
-              END
-            , Ordinal;
-
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_file' AS sysname) AS SchemaName,
+            CAST(N'USP_LoadTextFile' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM und decodiert entsprechend; Inhalt ohne BOM wird mit @FallbackEncoding gelesen.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'Content', N'nvarchar(max)', 0, 1, NULL, CAST(N'Der Text-Inhalt. Bei Validierungsfehlern NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'BytesRead', N'bigint', 0, 0, NULL, CAST(N'Anzahl gelesener Bytes. Bei Validierungsfehlern vor dem Lesen 0.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'EncodingDetected', N'nvarchar(128)', 0, 1, NULL, CAST(N'Erkanntes Encoding: UTF-8, UTF-16-LE oder der Wert von @FallbackEncoding. UTF-16-BE und UTF-32 werden nicht unterstützt.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'BomPresent', N'bit', 0, 0, NULL, CAST(N'1, wenn ein Byte Order Mark vorhanden war; 0 sonst.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'IsValid', N'bit', 0, 0, NULL, CAST(N'1, wenn der Inhalt erfolgreich gelesen wurde; 0 bei fachlichem Fehler.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'ValidationCode', N'int', 0, 1, NULL, CAST(N'Fachlicher Fehlercode oder NULL bei Erfolg.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'ValidationMessage', N'nvarchar(4000)', 0, 1, NULL, CAST(N'Fachliche Fehlermeldung oder NULL bei Erfolg.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51320', NULL, NULL, NULL, NULL, CAST(N'Ungültiger oder leerer Dateipfad.' AS nvarchar(max)), NULL),
+        (N'ERROR', 2, N'51321', NULL, NULL, NULL, NULL, CAST(N'Pfad liegt außerhalb der konfigurierten Root-Allowlist.' AS nvarchar(max)), NULL),
+        (N'ERROR', 3, N'51322', NULL, NULL, NULL, NULL, CAST(N'Pfad enthält verbotene relative Segmente oder Traversal.' AS nvarchar(max)), NULL),
+        (N'ERROR', 4, N'51323', NULL, NULL, NULL, NULL, CAST(N'Datei überschreitet @MaxBytes.' AS nvarchar(max)), NULL),
+        (N'ERROR', 5, N'51324', NULL, NULL, NULL, NULL, CAST(N'Fallback-Encoding wird nicht unterstützt.' AS nvarchar(max)), NULL),
+        (N'ERROR', 6, N'51325', NULL, NULL, NULL, NULL, CAST(N'Encoding wird nicht unterstützt (UTF-16-BE, UTF-32).' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadTextFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...). Für @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Ein SINGLE_BLOB-Snapshot bindet Größe, BOM und Text. UTF-8 und Windows-1252 werden mit expliziten Collations, UTF-16-LE aus geraden Bytefolgen dekodiert. UTF-16-BE und UTF-32 bleiben ausgeschlossen. Die erste BLOB-Allokation ist kein Vorallokationsbudget. ResultTable-Änderung und Datei-I/O liegen in derselben Transaktion.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Liest eine Textdatei aus einem erlaubten Root.' AS nvarchar(max)), CAST(N'EXEC toolbelt_file.USP_LoadTextFile
+      @FilePath = N''/var/opt/mssql/data/allowed/sample.txt'';' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@FilePath', N'nvarchar(4000)', 1, 0, N'NULL', CAST(N'Absoluter Dateipfad als einzelner Textwert, Windows-Laufwerk/UNC oder Unix-/Pfad; normale Randspaces werden getrimmt, leer/NULL (technischer Help-Default) ungültig. Muss literal und case-sensitiv an einer Verzeichnisgrenze unter einem aktiven FileContentRootAllowlist-Root liegen; Traversal nach außen abgewiesen. Kein RootAlias und keine SQL-Fragmente/Wildcardfreigabe. Aktuelle Implementierungsgrenze: das BULK-Pfadliteral wird mit QUOTENAME erzeugt, das über 128 Zeichen NULL liefert; die nvarchar(4000)-Signatur belegt daher keine Unterstützung längerer Pfade. Betriebssystem-/BULK-Rechte bleiben erforderlich; keine handlegebundene Sandbox.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@FallbackEncoding', N'nvarchar(128)', 0, 1, N'N''Windows-1252''', CAST(N'Taxativ nach LTRIM/RTRIM und Vergleich unter wirksamer SQL-Collation: Windows-1252 (Default) = explizite CP1252-Dekodierung bei fehlender BOM; SQL_Latin1_General_CP1_CI_AS = akzeptierter Alias für dieselbe CP1252-Dekodierung, keine beliebige Collationwahl. NULL/leer/nur Randspaces werden Windows-1252. Andere Werte ergeben 51324, auch wenn später eine BOM vorhanden wäre. UTF-8-/UTF-16-LE-BOM überschreibt die zulässige Fallbackwahl; UTF-16-BE/UTF-32 bleiben unsupported. Kein freier .NET-Codepageselector.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@MaxBytes', N'bigint', 0, 1, N'NULL', CAST(N'Optionaler bigint-Bytegrenzwert: NULL (Default) oder 0 deaktiviert die eigene Größenprüfung; positiv 1..9223372036854775807 begrenzt die gelesenen Rohbytes. Prüfung erfolgt nach vollständigem SINGLE_BLOB-Lesen, kein I/O-/Speicher-Vorabcap. Negative Werte werden aktuell nicht als Argumentfehler validiert, sondern führen bei tatsächlich gelesenen nicht negativen Bytegrößen zur Überschreitungszeile 51323; für gültige Aufrufe NULL/0/positive Werte verwenden.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Das Ziel wird vor Datei-I/O vorbereitet; Provider-/Decoderfehler rollen den eigenen SQL-Ausgabescope zurück.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene Dateiinhaltsdiagnose; ausschließlich im ResultTable-Pfad an den kanonischen Helper weitergereicht.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     DECLARE @InitialTransactionCount int = @@TRANCOUNT

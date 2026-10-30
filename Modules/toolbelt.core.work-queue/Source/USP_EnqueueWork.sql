@@ -23,50 +23,53 @@ BEGIN
 
     IF @Hilfe = 1
     BEGIN
-        SELECT
-              CAST('1.0' AS varchar(16)) AS HelpContractVersion
-            , CAST(N'toolbelt_core' AS sysname) AS SchemaName
-            , CAST(N'USP_EnqueueWork' AS sysname) AS ObjectName
-            , v.Section, v.Ordinal, v.ItemName, v.SqlDataType
-            , v.IsRequired, v.IsNullable, v.DefaultValue
-            , v.Description, v.ExampleSql
-        FROM
-        (
-            VALUES
-              (CAST('DESCRIPTION' AS varchar(32)), 1, CAST(NULL AS sysname), CAST(NULL AS varchar(256)), CAST(NULL AS bit), CAST(NULL AS bit), CAST(NULL AS nvarchar(4000)), CAST(N'Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wird niemals SQL-Text entgegengenommen oder ausgeführt.' AS nvarchar(max)), CAST(NULL AS nvarchar(max)))
-            , ('PARAMETER', 1, N'@WorkTypeName', 'varchar(128)', 1, 0, NULL, N'Kanonischer Name eines aktiven Work Types.', NULL)
-            , ('PARAMETER', 2, N'@PayloadJson', 'nvarchar(max)', 0, 1, NULL, N'Bei JSON_PAYLOAD ein JSON-Objekt mit höchstens 64 KiB; bei NONE ausschließlich NULL.', NULL)
-            , ('PARAMETER', 3, N'@ResultTable', 'sysname', 0, 1, NULL, N'Optionale lokale Temp-Tabelle für die Statuszeile.', NULL)
-            , ('PARAMETER', 4, N'@KeepData', 'bit', 0, 0, N'0', N'Steuert die ResultTable-Vorbereitung.', NULL)
-            , ('PARAMETER', 5, N'@Debug', 'tinyint', 0, 0, N'0', N'Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.', NULL)
-            , ('PARAMETER', 6, N'@Hilfe', 'bit', 0, 0, N'0', N'1 gibt ausschließlich dieses Help-Resultset aus.', NULL)
-            , ('RESULT_COLUMN', 1, N'WorkItemId', 'bigint', 0, 0, NULL, N'Eindeutige Queue-ID.', NULL)
-            , ('RESULT_COLUMN', 2, N'WorkTypeName', 'varchar(128)', 0, 0, NULL, N'Kanonischer Work-Type-Name.', NULL)
-            , ('RESULT_COLUMN', 3, N'Status', 'varchar(16)', 0, 0, NULL, N'Nach Enqueue stets QUEUED.', NULL)
-            , ('RESULT_COLUMN', 4, N'EnqueuedAtUtc', 'datetime2(7)', 0, 0, NULL, N'UTC-Zeitpunkt der Einreihung.', NULL)
-            , ('RESULT_COLUMN', 5, N'EnqueuedBy', 'sysname', 0, 0, NULL, N'Original-Login der Einreihung.', NULL)
-            , ('RESULT_COLUMN', 6, N'ClaimedAtUtc', 'datetime2(7)', 0, 1, NULL, N'UTC-Zeitpunkt des Claims; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 7, N'ClaimedBy', 'sysname', 0, 1, NULL, N'Original-Login des Claimers; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 8, N'CompletedAtUtc', 'datetime2(7)', 0, 1, NULL, N'UTC-Abschlusszeit; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 9, N'CompletedBy', 'sysname', 0, 1, NULL, N'Original-Login des Abschlusses; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 10, N'FailedAtUtc', 'datetime2(7)', 0, 1, NULL, N'UTC-Fehlerzeit; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 11, N'FailedBy', 'sysname', 0, 1, NULL, N'Original-Login des Fail-Aufrufs; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 12, N'FailureCode', 'varchar(64)', 0, 1, NULL, N'Stabiler Fehlercode; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 13, N'FailureMessage', 'nvarchar(1000)', 0, 1, NULL, N'Optionale bereinigte Fehlermeldung; nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 14, N'RowVersion', 'binary(8)', 0, 0, NULL, N'Aktueller Concurrency-Marker.', NULL)
-            , ('RESULT_COLUMN', 15, N'ClaimGeneration', 'bigint', 0, 0, NULL, N'Nach Enqueue 0; wird bei jedem Claim erhöht.', NULL)
-            , ('RESULT_COLUMN', 16, N'LeaseDurationSeconds', 'int', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 17, N'LeaseUntilUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 18, N'LastHeartbeatAtUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 19, N'IsLeaseExpired', 'bit', 0, 0, NULL, N'Nach Enqueue 0.', NULL)
-            , ('RESULT_COLUMN', 20, N'RecoveryCount', 'bigint', 0, 0, NULL, N'Nach Enqueue 0.', NULL)
-            , ('RESULT_COLUMN', 21, N'LastRecoveredAtUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
-            , ('RESULT_COLUMN', 22, N'LastRecoveredBy', 'sysname', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
-            , ('ERROR', 1, N'51900-51908,51998', NULL, NULL, NULL, NULL, N'Work-Type-, Payload-, Transaktions- oder ResultTable-Fehler. 51998: explizites ENQUEUE fehlt oder DENY gewinnt; Prüfung vor Insert und Idempotencyauskunft.', NULL)
-            , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Reiht synthetische JSON-Arbeit ein.', N'EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName=''demo.json'', @PayloadJson=N''{"value":1}'';')
-        ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 ELSE 5 END, v.Ordinal;
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_EnqueueWork' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wird niemals SQL-Text entgegengenommen oder ausgeführt.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'WorkItemId', N'bigint', 0, 0, NULL, CAST(N'Eindeutige Queue-ID.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'WorkTypeName', N'varchar(128)', 0, 0, NULL, CAST(N'Kanonischer Work-Type-Name.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'Status', N'varchar(16)', 0, 0, NULL, CAST(N'Nach Enqueue stets QUEUED.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'EnqueuedAtUtc', N'datetime2(7)', 0, 0, NULL, CAST(N'UTC-Zeitpunkt der Einreihung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'EnqueuedBy', N'sysname', 0, 0, NULL, CAST(N'Original-Login der Einreihung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'ClaimedAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'UTC-Zeitpunkt des Claims; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'ClaimedBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login des Claimers; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 8, N'CompletedAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'UTC-Abschlusszeit; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 9, N'CompletedBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login des Abschlusses; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 10, N'FailedAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'UTC-Fehlerzeit; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 11, N'FailedBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login des Fail-Aufrufs; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 12, N'FailureCode', N'varchar(64)', 0, 1, NULL, CAST(N'Stabiler Fehlercode; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 13, N'FailureMessage', N'nvarchar(1000)', 0, 1, NULL, CAST(N'Optionale bereinigte Fehlermeldung; nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 14, N'RowVersion', N'binary(8)', 0, 0, NULL, CAST(N'Aktueller Concurrency-Marker.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 15, N'ClaimGeneration', N'bigint', 0, 0, NULL, CAST(N'Nach Enqueue 0; wird bei jedem Claim erhöht.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 16, N'LeaseDurationSeconds', N'int', 0, 1, NULL, CAST(N'Nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 17, N'LeaseUntilUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'Nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 18, N'LastHeartbeatAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'Nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 19, N'IsLeaseExpired', N'bit', 0, 0, NULL, CAST(N'Nach Enqueue 0.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 20, N'RecoveryCount', N'bigint', 0, 0, NULL, CAST(N'Nach Enqueue 0.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 21, N'LastRecoveredAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'Nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 22, N'LastRecoveredBy', N'sysname', 0, 1, NULL, CAST(N'Nach Enqueue NULL.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51900-51908,51998', NULL, NULL, NULL, NULL, CAST(N'Work-Type-, Payload-, Transaktions- oder ResultTable-Fehler. 51998: explizites ENQUEUE fehlt oder DENY gewinnt; Prüfung vor Insert und Idempotencyauskunft.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Reiht synthetische JSON-Arbeit ein.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName=''demo.json'', @PayloadJson=N''{"value":1}'';' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@WorkTypeName', N'varchar(128)', 1, 0, N'NULL', CAST(N'Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. Erfordert aktiven Eintrag und ENQUEUE-Policy; dieser ältere Enqueue-Pfad benötigt zusätzlich Metadatensicht auf den Handler.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@PayloadJson', N'nvarchar(max)', 0, 1, N'NULL', CAST(N'Bei Work-Type-ParameterMode NONE ausschließlich NULL (Default); bei JSON_PAYLOAD erforderlicher JSON-Objekttext gemäß konkretem Handlervertrag, z.B. N''{"value":1}''. Höchstens 65536 UTF-16-Bytes (64 KiB); kein Array/Scalarroot. Nach LTRIM normaler Spaces muss { folgen, daher keine führenden Tabs/CR/LF. Leer/ungültig wird abgewiesen; keine allgemeine automatische Prüfung der deklarativen PayloadContractJson-Felder.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF NULLIF(@WorkTypeName, '') IS NULL

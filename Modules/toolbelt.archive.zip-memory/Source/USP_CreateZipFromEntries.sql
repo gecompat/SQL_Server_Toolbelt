@@ -33,45 +33,43 @@ BEGIN
     SELECT @KeepData=ISNULL(@KeepData,0), @Debug=ISNULL(@Debug,0), @Hilfe=ISNULL(@Hilfe,0);
     IF @Hilfe = 1
     BEGIN
-        -- Reiner Helpweg ignoriert fachliche Parameter und Dependencies.
-        DECLARE @Help TABLE(HelpContractVersion varchar(16) NOT NULL,SchemaName sysname NOT NULL,ObjectName sysname NOT NULL,Section varchar(32) NOT NULL,Ordinal int NOT NULL,ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
-        INSERT @Help SELECT CONVERT(varchar(16),'1.0') AS HelpContractVersion,
-               CONVERT(sysname,N'toolbelt_archive') AS SchemaName,
-               CONVERT(sysname,N'USP_CreateZipFromEntries') AS ObjectName,
-               CONVERT(varchar(32),v.Section) AS Section, v.Ordinal,
-               CONVERT(sysname,v.ItemName) AS ItemName,
-               CONVERT(varchar(256),v.SqlDataType) AS SqlDataType,
-               CONVERT(bit,v.IsRequired) AS IsRequired,
-               CONVERT(bit,v.IsNullable) AS IsNullable,
-               CONVERT(nvarchar(4000),v.DefaultValue) AS DefaultValue,
-               CONVERT(nvarchar(max),v.Description) AS Description,
-               CONVERT(nvarchar(max),v.ExampleSql) AS ExampleSql
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_archive' AS sysname) AS SchemaName,
+            CAST(N'USP_CreateZipFromEntries' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
         FROM (VALUES
-        ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload varbinary(max) einer vorhandenen caller-lokalen Temp-Tabelle.',NULL),
-        ('PARAMETER',1,N'@EntryTable','sysname',1,0,N'NULL',N'Vorhandene lokale Temp-Tabelle, kein freies SQL.',NULL),
-        ('PARAMETER',2,N'@CompressionMethod','varchar(max)',0,0,N'Stored',N'Exakt Stored oder Deflate; Default Stored.',NULL),
-        ('PARAMETER',3,N'@MaxEntries','int',0,0,N'256',N'Positiv, höchstens 1024 Entries.',NULL),
-        ('PARAMETER',4,N'@MaxEntryNameCodeUnits','int',0,0,N'1024',N'Positiv, höchstens 2048 UTF-16-Codeeinheiten; Reader bleibt 1024.',NULL),
-        ('PARAMETER',5,N'@MaxEntryBytes','bigint',0,0,N'16777216',N'Positiv, höchstens 33554432 Payloadbytes je Entry.',NULL),
-        ('PARAMETER',6,N'@MaxTotalPayloadBytes','bigint',0,0,N'67108864',N'Positiv, höchstens 134217728 Payloadbytes insgesamt.',NULL),
-        ('PARAMETER',7,N'@MaxArchiveBytes','bigint',0,0,N'71303168',N'Positiv, höchstens 150994944 Outputbytes inklusive ZIP-Header.',NULL),
-        ('PARAMETER',8,N'@MaxEnvelopeBytes','bigint',0,0,N'71303168',N'Positiv, höchstens 142606336 Transportbytes inklusive Namen/Framing.',NULL),
-        ('PARAMETER',9,N'@WriterBudgetMilliseconds','int',0,0,N'30000',N'1 bis 60000, kooperatives CLR-Budget; keine SQL-End-to-End-Frist.',NULL),
-        ('PARAMETER',10,N'@ResultTable','sysname',0,1,N'NULL',N'NULL: SELECT, sonst vorhandene lokale Temp-Tabelle; nicht identisch zum Input.',NULL),
-        ('PARAMETER',11,N'@KeepData','bit',0,0,N'0',N'0 Replace; 1 Append nach USP-Vertrag.',NULL),
-        ('PARAMETER',12,N'@Debug','tinyint',0,0,N'0',N'Nur Messages ohne Payloads oder Entrynamen.',NULL),
-        ('PARAMETER',13,N'@Hilfe','bit',0,0,N'0',N'1: ausschließlich diese Hilfe, keine fachlichen Prüfungen/Mutation.',NULL),
-        ('RESULT_COLUMN',1,N'ArchivePayload','varbinary(max)',NULL,0,NULL,N'Vollständig finalisiertes ZIP-Binary.',NULL),
-        ('RESULT_COLUMN',2,N'ArchiveBytes','bigint',NULL,0,NULL,N'Tatsächliche Archivgröße in Bytes.',NULL),
-        ('RESULT_COLUMN',3,N'EntryCount','int',NULL,0,NULL,N'Anzahl vorhandener Dateien, leere Liste erlaubt.',NULL),
-        ('RESULT_COLUMN',4,N'TotalPayloadBytes','bigint',NULL,0,NULL,N'Summe unkomprimierter Payloadbytes.',NULL),
-        ('RESULT_COLUMN',5,N'CompressionMethod','int',NULL,0,NULL,N'ZIP-Methode 0 Stored oder 8 Deflate.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Synthetischer In-memory-Aufruf.',N'CREATE TABLE #ZipInput(Ordinal int, EntryName nvarchar(max), Payload varbinary(max)); INSERT #ZipInput VALUES(1,N''hello.txt'',0x4869); EXEC toolbelt_archive.USP_CreateZipFromEntries @EntryTable=N''#ZipInput'';'),
-        ('ERROR',1,N'51350-51359',NULL,NULL,NULL,NULL,N'TBX_ZIP_WRITE_*; kein Teiloutput; Original-Enginefehler und Callertransaktionszustand erhalten.',NULL)
-        ) v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
-        ;
-        SELECT * FROM @Help ORDER BY Section,Ordinal;
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload varbinary(max) einer vorhandenen caller-lokalen Temp-Tabelle.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'ArchivePayload', N'varbinary(max)', NULL, 0, NULL, CAST(N'Vollständig finalisiertes ZIP-Binary.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'ArchiveBytes', N'bigint', NULL, 0, NULL, CAST(N'Tatsächliche Archivgröße in Bytes.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'EntryCount', N'int', NULL, 0, NULL, CAST(N'Anzahl vorhandener Dateien, leere Liste erlaubt.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'TotalPayloadBytes', N'bigint', NULL, 0, NULL, CAST(N'Summe unkomprimierter Payloadbytes.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'CompressionMethod', N'int', NULL, 0, NULL, CAST(N'ZIP-Methode 0 Stored oder 8 Deflate.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Synthetischer In-memory-Aufruf.' AS nvarchar(max)), CAST(N'CREATE TABLE #ZipInput(Ordinal int, EntryName nvarchar(max), Payload varbinary(max)); INSERT #ZipInput VALUES(1,N''hello.txt'',0x4869); EXEC toolbelt_archive.USP_CreateZipFromEntries @EntryTable=N''#ZipInput'';' AS nvarchar(max))),
+        (N'ERROR', 1, N'51350-51359', NULL, NULL, NULL, NULL, CAST(N'TBX_ZIP_WRITE_*; kein Teiloutput; Original-Enginefehler und Callertransaktionszustand erhalten.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 1, N'@EntryTable', N'sysname', 1, 0, N'NULL', CAST(N'Vorhandene sichtbare caller-lokale #Temp, Name ohne Punkt/## und höchstens 116 Zeichen, nicht dieselbe tatsächliche Tabelle wie ResultTable. Benötigt Ordinal int, EntryName nvarchar(max), Payload varbinary(max), nicht computed/verschlüsselt; Zusatzspalten und nullable Metadaten erlaubt, tatsächliche Werte alle nicht NULL. Ordinal positiv und eindeutig, Lücken erlaubt; Ausgabe nach Ordinal. EntryName 1..MaxEntryNameCodeUnits wohlgeformte UTF-16-Einheiten, binär/case-/längensensitiv eindeutig; relative /-Dateinamen ohne NUL, Backslash, Doppelpunkt, führenden/abschließenden /, leere Segmente sowie Segmente mit exakt einem oder zwei Punkten. Payload darf 0x sein. Leere Tabelle erzeugt ein gültiges 22-Byte-EOCD-ZIP. NULL ist fachlich ungültig; keine Parallelmutation.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@CompressionMethod', N'varchar(max)', 0, 0, N'''Stored''', CAST(N'Taxativ, exakt ASCII einschließlich Länge/Case: Stored (Default) = Method0, unkomprimierte Payload; Deflate = Method8, Deflate-Kompression. Gilt für alle Entries. NULL/leer/andere Schreibweisen/angehängte Spaces ungültig; keine freie Kompressionsstufe/Methodnummer.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@MaxEntries', N'int', 0, 0, N'256', CAST(N'Ganzzahl 1..1024, Default 256: Entries über die gesamte Tabelle. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@MaxEntryNameCodeUnits', N'int', 0, 0, N'1024', CAST(N'Ganzzahl 1..2048, Default 1024: UTF-16-Einheiten je Entryname; Reader bleibt unabhängig bei 1024. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@MaxEntryBytes', N'bigint', 0, 0, N'16777216', CAST(N'Ganzzahl 1..33554432, Default 16777216: unkomprimierte Payloadbytes je Entry. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@MaxTotalPayloadBytes', N'bigint', 0, 0, N'67108864', CAST(N'Ganzzahl 1..134217728, Default 67108864: Summe unkomprimierter Payloadbytes aller Entries. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@MaxArchiveBytes', N'bigint', 0, 0, N'71303168', CAST(N'Ganzzahl 1..150994944, Default 71303168: Bytes des vollständigen finalisierten ZIP einschließlich Header, Namen und Directory. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@MaxEnvelopeBytes', N'bigint', 0, 0, N'71303168', CAST(N'Ganzzahl 1..142606336, Default 71303168: Bytes des internen Übergabe-Envelopes einschließlich Framing und Namen, nicht nur Payload. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@WriterBudgetMilliseconds', N'int', 0, 0, N'30000', CAST(N'Ganzzahl 1..60000, Default 30000: Millisekunden kooperatives Writerbudget; keine harte Gesamtwallclock-/SQL-Marshallingfrist. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 10, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntryTable sein; beim In-memory-Writer kein Punkt im Namen und kein reservierter #tbx_ZipWriter_-Name.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 11, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 12, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 kurze Abschlussmessage ohne Entrynamen/Payloads/Pfade; bei ResultTable zusätzlich Helperdiagnose.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 13, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
 
     IF @CompressionMethod IS NULL OR

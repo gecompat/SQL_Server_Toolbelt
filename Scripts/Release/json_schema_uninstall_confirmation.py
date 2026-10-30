@@ -214,7 +214,11 @@ def validate_record(root: Path, record: dict | None = None) -> dict:
         if not isinstance(digest, str) or re.fullmatch(r"[a-f0-9]{64}", digest) is None:
             raise QualificationError("source hash shape mismatch")
         if _sha256(_relative_file(root, relative)) != digest:
-            raise QualificationError("public source pin drift")
+            import parameter_help_transition
+            try:
+                parameter_help_transition.bound_source(root, relative, digest)
+            except ValueError as error:
+                raise QualificationError("public source pin drift") from error
     if (pins[PACKAGE_REPORT_PATH] != package["sha256"] or
             pins[PACKAGE_PATH] != package["package_sha256"]):
         raise QualificationError("package and source bindings differ")

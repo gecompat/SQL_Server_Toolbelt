@@ -14,6 +14,10 @@ Bei der Ergebnisdeutung insbesondere SQL-NULL, leere Ergebnismengen und
 Statuswerte unterscheiden. Bei Prozeduren erklärt `@Hilfe=1` Parameter,
 Ergebnisse und Fehler. Für Installation, Rechte und tatsächlich ausgeführte
 Plattformtests der verlinkten Modulbeschreibung und Testmatrix folgen.
+Die vollständigen Parametertexte entsprechen den Objektseiten; dafür ist der
+[aktuelle Installationsstand der Parameterhilfe](../../Releases/1.0.0/PARAMETER-HELP.md)
+erforderlich. Ein älteres installiertes Paket aktualisiert seine Hilfe nicht
+durch den Besuch dieser Referenz.
 Ein Beispiel mit registrierten Handlern, Claims oder Dateien setzt die dort
 beschriebene Vorbereitung voraus.
 
@@ -59,6 +63,14 @@ Voraussetzungen und können Zustände verändern. Nicht gesammelt ausführen.
   und Voraussetzungen je API. Die Parametererklärungen werden auch in die
   markierten `API_PARAMETERS`-Blöcke der Objektseiten geschrieben; diese Blöcke
   nicht separat bearbeiten.
+- [usp_help.json](usp_help.json) enthält zusätzliche Required-/Nullable-Metadaten
+  und die übrigen Help-Abschnitte der T-SQL-Prozeduren. Parameterbeschreibungen
+  werden darin nicht dupliziert. Signaturen und diese Metadaten müssen dieselbe
+  Parametermenge besitzen; neue oder entfernte Parameter stoppen den Build.
+- [`generate_parameter_help.py`](../../Scripts/Documentation/generate_parameter_help.py)
+  schreibt die markierten `API_PARAMETER_HELP`-Blöcke. Der
+  [SSIS-Generator](../../Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py)
+  übernimmt dieselben Texte in API-Projektion, Fassade und interne CLR-Hilfe.
 - Modullokale Objektseiten bleiben die verbindlichen fachlichen Verträge,
   insbesondere für zulässige Parameterwerte, Resultsets und Grenzen.
 
@@ -86,10 +98,27 @@ pauschal sichtbare Zeichen. Weiterführend:
 Vom Repository-Root aus generieren und anschließend prüfen:
 
 ```bash
+python Scripts/Documentation/generate_parameter_help.py --write
+python Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py
 python Tests/Documentation/generate_api_catalog.py --write
 python Tests/Documentation/generate_api_catalog.py
 python Tests/Documentation/test_api_catalog.py
+python Tests/Documentation/test_parameter_help.py
 ```
+
+Nach einer Änderung der SSIS-Hilfekonstante muss die DLL neu gebaut werden;
+eine reine SQL-Neuerzeugung genügt dort nicht. Der
+[Installationsweg](../../Releases/1.0.0/PARAMETER-HELP.md#erzeugung-und-nachweisgrenze)
+erklärt Paketkopplung und Nachweisgrenzen. Der Generator castet lange Unicode-
+Texte bereits beim ersten Literal auf `nvarchar(max)`: Ein Cast erst nach der
+Verkettung würde eine vorherige 4000-Codeeinheiten-Trunkierung nicht rückgängig
+machen. Zur Laufzeit werden die statischen Zeilen ausgegeben, keine externen
+Dokumentationsdateien gelesen.
+
+Die [Prüfmatrix der vollständigen Parameterhilfe](../../Tests/Release/ParameterHelp.md)
+erklärt die tatsächlichen Installations- und Help-Laufzeittests sowie deren
+Grenzen. Damit lassen sich Referenztext, Generator, installierter Hilfetext
+und zugehöriger Nachweis durchgehend verfolgen.
 
 Die Ausgabe ist deterministisch. Die Read-only-Prüfung erkennt fehlende oder
 veraltete API-Einträge, unbekannte öffentliche Typen, mehrdeutige Quellen und

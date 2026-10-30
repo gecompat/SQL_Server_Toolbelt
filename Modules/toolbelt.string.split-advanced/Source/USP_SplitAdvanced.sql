@@ -33,40 +33,39 @@ BEGIN
     SELECT @KeepData=COALESCE(@KeepData,0),@Debug=COALESCE(@Debug,0),@Hilfe=COALESCE(@Hilfe,0);
     IF @Hilfe=1
     BEGIN
-        DECLARE @Help TABLE
-        (
-            Section varchar(32) NOT NULL, Ordinal int NOT NULL, ItemName sysname NULL,
-            SqlDataType varchar(256) NULL, IsRequired bit NULL, IsNullable bit NULL,
-            DefaultValue nvarchar(4000) NULL, Description nvarchar(max) NOT NULL,
-            ExampleSql nvarchar(max) NULL
-        );
-        INSERT @Help VALUES
-        ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unquoting.',NULL),
-        ('PARAMETER',1,N'@Input','nvarchar(max)',0,1,N'NULL',N'NULL ist früher No-op; sonst unveränderte S2-Tokenisierung.',NULL),
-        ('PARAMETER',2,N'@SeparatorsJson','nvarchar(max)',1,0,N'NULL',N'Nichtleeres JSON-Array von Separatorstrings bei nicht-NULL Input.',NULL),
-        ('PARAMETER',3,N'@Quote','nvarchar(max)',0,0,N'N''"''',N'Quote-Zeichen; leer deaktiviert, NULL ungültig.',NULL),
-        ('PARAMETER',4,N'@Escape','nvarchar(max)',0,0,N'N''\''',N'Allgemeines S2-Escape; Originaltoken bleibt erhalten.',NULL),
-        ('PARAMETER',5,N'@KeepEmpty','bit',0,1,N'1',N'NULL entspricht 1; nur leere Tokens filtern.',NULL),
-        ('PARAMETER',6,N'@ResultTable','sysname',0,1,N'NULL',N'Vorhandene caller-lokale Temp-Tabelle; NULL liefert SELECT.',NULL),
-        ('PARAMETER',7,N'@KeepData','bit',0,1,N'0',N'Replace=0, Append=1; NULL entspricht 0.',NULL),
-        ('PARAMETER',8,N'@Debug','tinyint',0,1,N'0',N'Nur Messages ohne Input-/Tokeninhalte.',NULL),
-        ('PARAMETER',9,N'@Hilfe','bit',0,1,N'0',N'1 liefert ausschließlich standardisiertes Help.',NULL),
-        ('RESULT_COLUMN',1,N'Value','nvarchar(max)',1,0,NULL,N'Originaltoken, Latin1_General_100_BIN2.',NULL),
-        ('RESULT_COLUMN',2,N'Ordinal','bigint',1,0,NULL,N'1-basiert, nach Leerfilter lückenlos; Tabellen garantieren keine physische Reihenfolge.',NULL),
-        ('ERROR',1,N'51680',NULL,NULL,NULL,NULL,N'TVF-Geschäftscode und Originalposition ohne Inputinhalt; keine Teilausgabe.',NULL),
-        ('ERROR',2,N'51681',NULL,NULL,NULL,NULL,N'Registrierte same-database ResultTable-Dependency >=1.0.0 fehlt oder ist ungeeignet.',NULL),
-        ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'NULL Input: leeres SELECT oder Ziel vollständig unverändert. Enginefehler bleiben Originalfehler; doomed Caller benötigt Callerrollback.',NULL),
-        ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'EXECUTE auf USP; ResultTable-Pfad benötigt Helper-EXECUTE und Sichtbarkeit der caller-lokalen Temp-Tabelle; keine Rechteausweitung.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Zwei Originaltokens als SELECT.',
-         N'EXEC toolbelt_string.USP_SplitAdvanced @Input=N''a;b'', @SeparatorsJson=N''[";"]'', @Quote=N'''', @Escape=N'''';');
+        -- API_PARAMETER_HELP:BEGIN
         SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
-               CAST(N'toolbelt_string' AS sysname) AS SchemaName,
-               CAST(N'USP_SplitAdvanced' AS sysname) AS ObjectName,
-               Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql
-        FROM @Help ORDER BY CASE Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2
-                             WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4
-                             WHEN 'PERMISSION' THEN 5 WHEN 'LIMITATION' THEN 6 ELSE 7 END,Ordinal;
-        RETURN;
+            CAST(N'toolbelt_string' AS sysname) AS SchemaName,
+            CAST(N'USP_SplitAdvanced' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
+        FROM (VALUES
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unquoting.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'Value', N'nvarchar(max)', 1, 0, NULL, CAST(N'Originaltoken, Latin1_General_100_BIN2.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'Ordinal', N'bigint', 1, 0, NULL, CAST(N'1-basiert, nach Leerfilter lückenlos; Tabellen garantieren keine physische Reihenfolge.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51680', NULL, NULL, NULL, NULL, CAST(N'TVF-Geschäftscode und Originalposition ohne Inputinhalt; keine Teilausgabe.' AS nvarchar(max)), NULL),
+        (N'ERROR', 2, N'51681', NULL, NULL, NULL, NULL, CAST(N'Registrierte same-database ResultTable-Dependency >=1.0.0 fehlt oder ist ungeeignet.' AS nvarchar(max)), NULL),
+        (N'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'NULL Input: leeres SELECT oder Ziel vollständig unverändert. Enginefehler bleiben Originalfehler; doomed Caller benötigt Callerrollback.' AS nvarchar(max)), NULL),
+        (N'PERMISSION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'EXECUTE auf USP; ResultTable-Pfad benötigt Helper-EXECUTE und Sichtbarkeit der caller-lokalen Temp-Tabelle; keine Rechteausweitung.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Zwei Originaltokens als SELECT.' AS nvarchar(max)), CAST(N'EXEC toolbelt_string.USP_SplitAdvanced @Input=N''a;b'', @SeparatorsJson=N''[";"]'', @Quote=N'''', @Escape=N'''';' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@Input', N'nvarchar(max)', 0, 1, N'NULL', CAST(N'Text mit maximal 65536 UTF-16-Einheiten, NUL verboten; leer ist gültig. NULL ist ein früher No-op ohne Zeilen, selbst bei ungültiger Konfiguration. Tokens bleiben im Original einschließlich Quotes/Escapes; zum Entfernen TVF_UnquoteToken verwenden.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@SeparatorsJson', N'nvarchar(max)', 1, 0, N'NULL', CAST(N'JSON-Array aus 1..16 verschiedenen nicht leeren Strings, z.B. ["::",","]; kein Objekt, keine JSON-null-/Zahlen-/Boolean-Elemente. Je Separator 1..64 UTF-16-Einheiten, Gesamt-JSON höchstens 16384 Einheiten. Binäre Gleichheit einschließlich Spaces; NUL und die aktivierten Quote-/Escape-Zeichen verboten. Längster passender Separator gewinnt. NULL ist außerhalb des frühen Input-NULL-Pfads ungültig.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@Quote', N'nvarchar(max)', 0, 0, N'N''"''', CAST(N'Genau eine UTF-16-Einheit (Default Doppelquote) aktiviert Quotegruppen; leer deaktiviert sie. NULL, NUL und Surrogate ungültig. Muss sich vom aktiven Escape unterscheiden und darf in keinem Separator vorkommen; keine automatische mehrzeichige Quote-Syntax.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Escape', N'nvarchar(max)', 0, 0, N'N''\''', CAST(N'Genau eine UTF-16-Einheit (Default Backslash) schützt das nächste Zeichen vor Parserwirkung; leer deaktiviert Escaping. NULL, NUL und Surrogate ungültig. Darf weder aktives Quote noch Bestandteil eines Separators sein. Ein finales Escape ohne Folgezeichen ist ein Parserfehler; Ausgabe bleibt unentschlüsselt.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@KeepEmpty', N'bit', 0, 1, N'1', CAST(N'Taxativ im gebundenen bit: 1 behält leere Tokens einschließlich leerem Input (Default); 0 entfernt sie. NULL wird wie 1 behandelt.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 6, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 7, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 8, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 9, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
     DECLARE @Success TABLE
     (Value nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL, Ordinal bigint NOT NULL);

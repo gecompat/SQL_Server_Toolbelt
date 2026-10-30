@@ -66,7 +66,9 @@ class ZipCallerProfileMixin:
                 if relative == zip_metadata.MANIFEST:
                     zip_metadata.validate_source(ROOT, relative, expected)
                 else:
-                    self.assertEqual(actual, expected)
+                    import parameter_help_transition
+                    data = parameter_help_transition.bound_source(ROOT, relative, expected)
+                    self.assertEqual(hashlib.sha256(data).hexdigest().upper(), expected)
         self.assertIn('Tests/Release/Runtime/ZipMemory.CallerRights.sql', pins)
         self.assertIn('Tests/Release/Invoke-ZipCallerLab.ps1', pins)
         self.assertIn('Tests/Release/compose_zip_caller.py', pins)

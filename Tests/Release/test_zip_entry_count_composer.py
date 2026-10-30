@@ -76,7 +76,9 @@ class ZipEntryCountComposerMixin:
             elif relative in ssis_historical_source_bridge.source_paths():
                 ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected_sha256)
             else:
-                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected_sha256)
+                import parameter_help_transition
+                data = parameter_help_transition.bound_source(ROOT, relative, expected_sha256)
+                self.assertEqual(hashlib.sha256(data).hexdigest(), expected_sha256)
 
         package_path = ROOT / report['package']['path']
         package_bytes = package_path.read_bytes()

@@ -41,6 +41,10 @@ Für den Einstieg mit den stabilen T-SQL-Kandidaten ist kein eigener Build nöti
 Für CLR-Module gibt es zusätzlich die
 [Installation mit fertigen DLLs](./Releases/1.0.0/CLR-INSTALL.md), ebenfalls ohne eigenen Build.
 
+Die [aktuelle Neuinstallation mit vollständiger Parameterhilfe](./Releases/1.0.0/PARAMETER-HELP.md)
+liefert die ausführlichen Eingabeverträge auch über `@Hilfe=1`;
+ältere, datierte Installationspakete enthalten ihren damaligen Hilfestand.
+
 ## Zweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.

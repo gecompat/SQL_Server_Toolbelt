@@ -17,42 +17,52 @@ BEGIN
     SET @KeepData=ISNULL(@KeepData,0); SET @Debug=ISNULL(@Debug,0); SET @Hilfe=ISNULL(@Hilfe,0);
     IF @Hilfe=1
     BEGIN
-        SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,CAST(N'toolbelt_core' AS sysname) SchemaName,CAST(N'USP_GetWorkStatus' AS sysname) ObjectName,
-               v.Section,v.Ordinal,v.ItemName,v.SqlDataType,v.IsRequired,v.IsNullable,v.DefaultValue,v.Description,v.ExampleSql
+        -- API_PARAMETER_HELP:BEGIN
+        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+            CAST(N'toolbelt_core' AS sysname) AS SchemaName,
+            CAST(N'USP_GetWorkStatus' AS sysname) AS ObjectName,
+            CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
+            CAST(v.ItemName AS sysname) AS ItemName, CAST(v.SqlDataType AS varchar(256)) AS SqlDataType,
+            CAST(v.IsRequired AS bit) AS IsRequired, CAST(v.IsNullable AS bit) AS IsNullable,
+            CAST(v.DefaultValue AS nvarchar(4000)) AS DefaultValue,
+            CAST(v.Description AS nvarchar(max)) AS Description,
+            CAST(v.ExampleSql AS nvarchar(max)) AS ExampleSql
         FROM (VALUES
-          (CAST('DESCRIPTION' AS varchar(32)),1,CAST(NULL AS sysname),CAST(NULL AS varchar(256)),CAST(NULL AS bit),CAST(NULL AS bit),CAST(NULL AS nvarchar(4000)),CAST(N'Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden bewusst nicht offengelegt.' AS nvarchar(max)),CAST(NULL AS nvarchar(max))),
-          ('PARAMETER',1,N'@WorkItemId','bigint',1,0,NULL,N'Eindeutige Queue-ID.',NULL),
-          ('PARAMETER',2,N'@ResultTable','sysname',0,1,NULL,N'Optionale lokale Temp-Tabelle für die Statuszeile.',NULL),
-          ('PARAMETER',3,N'@KeepData','bit',0,0,N'0',N'Steuert die ResultTable-Vorbereitung.',NULL),
-          ('PARAMETER',4,N'@Debug','tinyint',0,0,N'0',N'Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.',NULL),
-          ('PARAMETER',5,N'@Hilfe','bit',0,0,N'0',N'1 gibt ausschließlich dieses Help-Resultset aus.',NULL),
-          ('RESULT_COLUMN',1,N'WorkItemId','bigint',0,0,NULL,N'Eindeutige Queue-ID.',NULL),
-          ('RESULT_COLUMN',2,N'WorkTypeName','varchar(128)',0,0,NULL,N'Kanonischer Work-Type-Name.',NULL),
-          ('RESULT_COLUMN',3,N'Status','varchar(16)',0,0,NULL,N'QUEUED, CLAIMED, COMPLETED oder FAILED.',NULL),
-          ('RESULT_COLUMN',4,N'EnqueuedAtUtc','datetime2(7)',0,0,NULL,N'UTC-Zeitpunkt der Einreihung.',NULL),
-          ('RESULT_COLUMN',5,N'EnqueuedBy','sysname',0,0,NULL,N'Original-Login der Einreihung.',NULL),
-          ('RESULT_COLUMN',6,N'ClaimedAtUtc','datetime2(7)',0,1,NULL,N'UTC-Zeitpunkt des Claims.',NULL),
-          ('RESULT_COLUMN',7,N'ClaimedBy','sysname',0,1,NULL,N'Original-Login des Claimers.',NULL),
-          ('RESULT_COLUMN',8,N'CompletedAtUtc','datetime2(7)',0,1,NULL,N'UTC-Zeitpunkt eines erfolgreichen Abschlusses.',NULL),
-          ('RESULT_COLUMN',9,N'CompletedBy','sysname',0,1,NULL,N'Original-Login des erfolgreichen Abschlusses.',NULL),
-          ('RESULT_COLUMN',10,N'FailedAtUtc','datetime2(7)',0,1,NULL,N'UTC-Zeitpunkt eines Fehlabschlusses.',NULL),
-          ('RESULT_COLUMN',11,N'FailedBy','sysname',0,1,NULL,N'Original-Login des Fehlabschlusses.',NULL),
-          ('RESULT_COLUMN',12,N'FailureCode','varchar(64)',0,1,NULL,N'Optionaler stabiler Fehlercode.',NULL),
-          ('RESULT_COLUMN',13,N'FailureMessage','nvarchar(1000)',0,1,NULL,N'Optionale bereinigte Fehlermeldung.',NULL),
-          ('RESULT_COLUMN',14,N'RowVersion','binary(8)',0,0,NULL,N'Aktueller Concurrency-Marker.',NULL),
-          ('RESULT_COLUMN',15,N'ClaimGeneration','bigint',0,0,NULL,N'Monotoner Ownership-Zähler.',NULL),
-          ('RESULT_COLUMN',16,N'LeaseDurationSeconds','int',0,1,NULL,N'Dauer der aktuellen oder letzten Lease.',NULL),
-          ('RESULT_COLUMN',17,N'LeaseUntilUtc','datetime2(7)',0,1,NULL,N'Exklusive UTC-Grenze der aktuellen oder letzten Lease.',NULL),
-          ('RESULT_COLUMN',18,N'LastHeartbeatAtUtc','datetime2(7)',0,1,NULL,N'Zeitpunkt des letzten Heartbeats.',NULL),
-          ('RESULT_COLUMN',19,N'IsLeaseExpired','bit',0,0,NULL,N'1 nur bei aktuell CLAIMED und abgelaufener Lease.',NULL),
-          ('RESULT_COLUMN',20,N'RecoveryCount','bigint',0,0,NULL,N'Kumulierte kontrollierte Recoveries.',NULL),
-          ('RESULT_COLUMN',21,N'LastRecoveredAtUtc','datetime2(7)',0,1,NULL,N'Zeitpunkt der letzten Recovery.',NULL),
-          ('RESULT_COLUMN',22,N'LastRecoveredBy','sysname',0,1,NULL,N'Original-Login der letzten Recovery.',NULL),
-          ('ERROR',1,N'51930-51934',NULL,NULL,NULL,NULL,N'Parameter-, Not-found- oder ResultTable-Fehler.',NULL),
-          ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Liest den Status eines synthetischen Items.',N'EXEC toolbelt_core.USP_GetWorkStatus @WorkItemId=1;')
-        )v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
-        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 ELSE 5 END,v.Ordinal;
+        (N'DESCRIPTION', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden bewusst nicht offengelegt.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 1, N'WorkItemId', N'bigint', 0, 0, NULL, CAST(N'Eindeutige Queue-ID.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 2, N'WorkTypeName', N'varchar(128)', 0, 0, NULL, CAST(N'Kanonischer Work-Type-Name.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 3, N'Status', N'varchar(16)', 0, 0, NULL, CAST(N'QUEUED, CLAIMED, COMPLETED oder FAILED.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 4, N'EnqueuedAtUtc', N'datetime2(7)', 0, 0, NULL, CAST(N'UTC-Zeitpunkt der Einreihung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 5, N'EnqueuedBy', N'sysname', 0, 0, NULL, CAST(N'Original-Login der Einreihung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 6, N'ClaimedAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'UTC-Zeitpunkt des Claims.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 7, N'ClaimedBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login des Claimers.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 8, N'CompletedAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'UTC-Zeitpunkt eines erfolgreichen Abschlusses.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 9, N'CompletedBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login des erfolgreichen Abschlusses.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 10, N'FailedAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'UTC-Zeitpunkt eines Fehlabschlusses.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 11, N'FailedBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login des Fehlabschlusses.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 12, N'FailureCode', N'varchar(64)', 0, 1, NULL, CAST(N'Optionaler stabiler Fehlercode.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 13, N'FailureMessage', N'nvarchar(1000)', 0, 1, NULL, CAST(N'Optionale bereinigte Fehlermeldung.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 14, N'RowVersion', N'binary(8)', 0, 0, NULL, CAST(N'Aktueller Concurrency-Marker.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 15, N'ClaimGeneration', N'bigint', 0, 0, NULL, CAST(N'Monotoner Ownership-Zähler.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 16, N'LeaseDurationSeconds', N'int', 0, 1, NULL, CAST(N'Dauer der aktuellen oder letzten Lease.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 17, N'LeaseUntilUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'Exklusive UTC-Grenze der aktuellen oder letzten Lease.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 18, N'LastHeartbeatAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'Zeitpunkt des letzten Heartbeats.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 19, N'IsLeaseExpired', N'bit', 0, 0, NULL, CAST(N'1 nur bei aktuell CLAIMED und abgelaufener Lease.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 20, N'RecoveryCount', N'bigint', 0, 0, NULL, CAST(N'Kumulierte kontrollierte Recoveries.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 21, N'LastRecoveredAtUtc', N'datetime2(7)', 0, 1, NULL, CAST(N'Zeitpunkt der letzten Recovery.' AS nvarchar(max)), NULL),
+        (N'RESULT_COLUMN', 22, N'LastRecoveredBy', N'sysname', 0, 1, NULL, CAST(N'Original-Login der letzten Recovery.' AS nvarchar(max)), NULL),
+        (N'ERROR', 1, N'51930-51934', NULL, NULL, NULL, NULL, CAST(N'Parameter-, Not-found- oder ResultTable-Fehler.' AS nvarchar(max)), NULL),
+        (N'EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, CAST(N'Liest den Status eines synthetischen Items.' AS nvarchar(max)), CAST(N'EXEC toolbelt_core.USP_GetWorkStatus @WorkItemId=1;' AS nvarchar(max))),
+        (N'PARAMETER', 1, N'@WorkItemId', N'bigint', 1, 0, N'NULL', CAST(N'Positive bigint-ID eines tatsächlich vorhandenen Queue-Items, aus Enqueue/Status/Claim übernehmen; keine frei erfundene Beispiel-ID als gültigen Claim verwenden. Technischer Default NULL dient nur Hilfe; NULL/<=0 ist im Fachaufruf ungültig. Liest Status; Payload und ClaimToken sind absichtlich nicht Teil dieser Oberfläche.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 2, N'@ResultTable', N'sysname', 0, 1, N'NULL', CAST(N'NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 3, N'@KeepData', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 4, N'@Debug', N'tinyint', 0, 1, N'0', CAST(N'tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset.' AS nvarchar(max)), NULL),
+        (N'PARAMETER', 5, N'@Hilfe', N'bit', 0, 1, N'0', CAST(N'Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.' AS nvarchar(max)), NULL)
+        ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
+        ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
+            WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
+        -- API_PARAMETER_HELP:END
     END;
     IF @WorkItemId IS NULL OR @WorkItemId<=0 THROW 51930,N'@WorkItemId muss positiv sein.',1;
     CREATE TABLE #tbx_WorkQueue_StatusShape

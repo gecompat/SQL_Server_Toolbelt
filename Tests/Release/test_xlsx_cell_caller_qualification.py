@@ -56,7 +56,9 @@ class XlsxCellCallerTests(XlsxRawCallerComposerMixin, XlsxRawCallerEvidenceMixin
             if path in xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256:
                 xlsx_sst_budget.validate_historical_help_source(ROOT, path, digest)
                 continue
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+            import parameter_help_transition
+            data = parameter_help_transition.bound_source(ROOT, path, digest)
+            self.assertEqual(hashlib.sha256(data).hexdigest(), digest, path)
         self.assertEqual({a['name'] for a in r['public_apis']}, {'TVF_InterpretXlsxCell', 'TVF_FormatXlsxCell'})
         self.assertTrue(all(a['permission'] == 'SELECT' for a in r['public_apis']))
         self.assertEqual(len(r['separately_denied_objects']), 11)

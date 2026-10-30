@@ -191,6 +191,11 @@ def project_help_cell_test(r21_source):
 
 def restore_help_cell_test(root, current):
     """Reverse only the help dispatch and return the exact R21 checker bytes."""
+    import parameter_help_transition
+    try:
+        current = parameter_help_transition.restore_verifier_source(root, CELL_TEST, current)
+    except ValueError as error:
+        raise ValueError('current cell checker differs outside the exact help dispatch') from error
     archive_bytes = (Path(root) / ARCHIVE).read_bytes()
     require(digest(archive_bytes) == ARCHIVE_SHA256,
             'historical checker archive differs')
@@ -211,6 +216,8 @@ def restore_help_cell_test(root, current):
 
 def restore_help_checker_module(current):
     """Reverse only the later Help dispatch additions to the pinned SST helper."""
+    import parameter_help_transition
+    current = parameter_help_transition.restore_verifier_source(parameter_help_transition.ROOT, 'Scripts/Release/xlsx_sst_budget.py', current)
     source_map = b'''XLSX_HELP_SOURCE_SHA256 = {
     'Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql': '0486ecef2cefd4eb37a057592459c57601ac479705a7a58bd3183acfe2a95975',
     'Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql': '5da7aca180f52b8128f819c72e5003fb9c632516a5ac5f3f4a4d4999c2e3616d',
