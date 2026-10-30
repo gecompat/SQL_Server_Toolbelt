@@ -52,7 +52,10 @@ bindet zwei native Windows-2025/CU8/CL170-Kontexte an das unveränderte Current-
 Paket. Der Offlinevalidator prüft die exakte Berichtszusammensetzung, 53
 öffentliche Eingabepins, Paket-/Binaryprovenienz und JSON-Typen; die fokussierten
 Negativkontrollen laufen über `test_ssis_current_snapshot.py`. Er startet keine
-SQL-Verbindung und ist keine allgemeine SSIS-Modul- oder Matrixqualifikation.
+SQL-Verbindung. Ein abweichender Checkout-Line-Ending-Pin wird nur für das
+gebundene RowCount-DTSX per exakter umkehrbarer LF/CRLF-Abbildung überbrückt;
+der native Execution-Pin bleibt unverändert, alle anderen Pins bleiben strikt.
+Dies ist keine allgemeine SSIS-Modul- oder Matrixqualifikation.
 
 Die [Caller-Metadatenprüfung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md)
 läuft in der bestehenden Release-Regressionssuite. Einzelprüfung:

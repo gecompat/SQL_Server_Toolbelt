@@ -66,7 +66,10 @@ Planunits und vor den ersten Lese-Batches eingefügt: Der bereits materialisiert
 Ziel-/Row-Count-Snapshot bleibt bei zwei Zeilen, ein neuer Plan sieht drei.
 Je Kontext bestanden 272 feste Assertions und ein unabhängiges Cleanup-Audit.
 Der Nachweis bindet die öffentlichen Ausführungseingaben und aktuellen
-Paketartefakte. Zwei frühere fehlgeschlagene Targetversuche bleiben erhalten;
+Paketartefakte. Der ursprüngliche Fixture-Execution-Pin bleibt erhalten; nur
+für dieses eine DTSX ist die bestehende exakte LF/CRLF-Rückrekonstruktion
+gebunden. Die übrigen 52 Quellpins bleiben bytegenau. Zwei frühere
+fehlgeschlagene Targetversuche bleiben erhalten;
 einer endete zunächst `RECOVERY_REQUIRED`, danach wurde die eigene Bereinigung
 separat abgeschlossen und auditiert. Er beweist keine atomare Sicht über
 unabhängige Datenquellen oder ungeplante parallele Änderungen, insbesondere

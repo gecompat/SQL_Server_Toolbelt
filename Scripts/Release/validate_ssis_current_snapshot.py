@@ -1,11 +1,13 @@
 """Validate the bounded current SSIS materialized-snapshot qualification."""
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path, PurePosixPath
 
 from new_ssis_current_package import ROOT, MODULE, NAME, require, sha
 from new_ssis_standalone_tsql import read_regular_bounded, MAX_PACKAGE_BYTES
+import new_ssis_current_standalone_tsql as current_installer
 import validate_ssis_current_package as package_guard
 
 
@@ -18,6 +20,19 @@ NATIVE_REPORT = MODULE + "Tests/Qualification/Current.Windows.CL.20261029.json"
 NATIVE_REPORT_SHA256 = "0582DD492D635E45DC2478A173A2FEDB926D12827B6ED4078E5C1EDF16AA3B5D"
 NATIVE_COMMIT = "e776ded0151b93ad7f096d90ea96a96e42907ed3"
 FIXTURE = MODULE + "Tests/Fixtures/components-v2-rowcount.dtsx"
+FIXTURE_EXECUTION_SHA256, FIXTURE_INTEGRATED_SHA256 = current_installer.XML_LINE_ENDINGS[FIXTURE]
+FIXTURE_CHECKOUT_BINDING = {
+    "kind": "ssis_current_xml_line_endings_binding",
+    "native_execution_inputs_preserved": True,
+    "package_bytes_unchanged": True,
+    "qualification_semantics_unchanged": True,
+    "changes": [{
+        "path": FIXTURE,
+        "execution_sha256": FIXTURE_EXECUTION_SHA256,
+        "integrated_sha256": FIXTURE_INTEGRATED_SHA256,
+        "transform": "lf-to-crlf-exact-reconstruction",
+    }],
+}
 
 EXPECTED_SOURCE_PATHS = frozenset({
     "Modules/toolbelt.core.result-table/Deployment/Deploy.sql",
@@ -165,6 +180,7 @@ def _expected_record(package_sha, package_report_sha, native_sha, source_binding
             "path": NATIVE_REPORT,
             "sha256": native_sha,
         },
+        "integration_binding": copy.deepcopy(FIXTURE_CHECKOUT_BINDING),
         "artifact_bindings": {
             "assembly_sha256": "F5838193795521943E511EBDE9D22BA9AA1431EA94D7F368AC6364C97DD30760",
             "deploy_sql_sha256": "E660514A1F5BC761B66306AA1D81BF2B5BF6FCC6EBFC723C7994309AE99AD46A",
@@ -289,8 +305,21 @@ def _current_source_bindings():
                 "\\" not in relative and not path.parts[0].startswith("."),
                 "public source path boundary")
         data = read_regular_bounded(ROOT.joinpath(*path.parts), 64 * 1024 * 1024)
-        result[relative] = sha(data)
+        result[relative] = _source_checkout_sha(relative, data)
     return result
+
+
+def _source_checkout_sha(relative, data):
+    """Native Pins erhalten; nur die bestehende exakte XML-Checkout-Brücke zulassen."""
+    if relative != FIXTURE:
+        return sha(data)
+    actual = sha(data)
+    if actual == FIXTURE_EXECUTION_SHA256:
+        return actual
+    require(actual == FIXTURE_INTEGRATED_SHA256 and b"\r" not in data and
+            sha(data.replace(b"\n", b"\r\n")) == FIXTURE_EXECUTION_SHA256,
+            "exact row-count fixture checkout transformation")
+    return FIXTURE_EXECUTION_SHA256
 
 
 def validate():

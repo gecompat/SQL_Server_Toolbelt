@@ -42,6 +42,46 @@ class CurrentSnapshotEvidence(unittest.TestCase):
         self.assertEqual([case["deployment_mode"] for case in record["cases"]], ["local", "central"])
         self.assertEqual(record["execution"]["total_assertions"], 544)
 
+    def test_fixture_line_endings_reuse_exact_reversible_checkout_binding(self):
+        path = ROOT / snapshot.FIXTURE
+        checkout = read_regular_bounded(path, 64 * 1024 * 1024)
+        lf = checkout.replace(b"\r\n", b"\n")
+        crlf = lf.replace(b"\n", b"\r\n")
+        execution, integrated = snapshot.FIXTURE_EXECUTION_SHA256, snapshot.FIXTURE_INTEGRATED_SHA256
+        self.assertEqual(package.sha(crlf), execution)
+        self.assertEqual(package.sha(lf), integrated)
+        self.assertEqual(snapshot._source_checkout_sha(snapshot.FIXTURE, crlf), execution)
+        self.assertEqual(snapshot._source_checkout_sha(snapshot.FIXTURE, lf), execution)
+        record = self.record()
+        self.assertEqual(record["execution"]["source_bindings"][snapshot.FIXTURE], execution)
+        self.assertEqual(record["integration_binding"], snapshot.FIXTURE_CHECKOUT_BINDING)
+
+    def test_fixture_bridge_rejects_mixed_edited_and_unbound_line_endings(self):
+        checkout = read_regular_bounded(ROOT / snapshot.FIXTURE, 64 * 1024 * 1024)
+        lf = checkout.replace(b"\r\n", b"\n")
+        mixed = lf.replace(b"\n", b"\r\n", 1)
+        for changed in (mixed, lf + b"synthetic-change"):
+            with self.subTest(size=len(changed)), self.assertRaisesRegex(ValueError, "exact row-count fixture checkout transformation"):
+                snapshot._source_checkout_sha(snapshot.FIXTURE, changed)
+        other_path_bytes = b"line1\nline2\r\n"
+        self.assertEqual(snapshot._source_checkout_sha(
+            "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1",
+            other_path_bytes), package.sha(other_path_bytes))
+
+    def test_fixture_bridge_record_rejects_wrong_digest_path_or_transform(self):
+        for mutate in (
+            lambda r: r["integration_binding"]["changes"][0].update(path="unsupported/fixture.dtsx"),
+            lambda r: r["integration_binding"]["changes"][0].update(execution_sha256="0" * 64),
+            lambda r: r["integration_binding"]["changes"][0].update(integrated_sha256="0" * 64),
+            lambda r: r["integration_binding"]["changes"][0].update(transform="generic-normalization"),
+            lambda r: r["integration_binding"]["changes"].append(copy.deepcopy(r["integration_binding"]["changes"][0])),
+        ):
+            changed = self.record()
+            mutate(changed)
+            with self.assertRaisesRegex(ValueError, "snapshot qualification.integration_binding"):
+                snapshot.validate_record(changed, actual_source_bindings=self.source_bindings,
+                                         package_report=self.package_report, native_report=self.native_report)
+
     def test_python_bool_integer_and_float_coercions_are_rejected(self):
         mutations = (
             (lambda r: r["cases"][0].update(compatibility_level=True), "compatibility_level type"),

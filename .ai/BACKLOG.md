@@ -243,7 +243,9 @@ Ziel-/Row-Count-Snapshot blieb bei zwei Zeilen; ein neuer Plan sah drei Zeilen.
 Je Kontext bestanden 272 feste Assertions und ein unabhängiges Cleanup-Audit.
 Der [gebundene Bericht](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.SnapshotCoherence.20261030.json)
 bindet die 53 öffentlichen nativen Eingaben und die unveränderten
-Current-Paketartefakte. Vier Zielversuche und fünf Audits bleiben als
+Current-Paketartefakte. Der Execution-Pin des RowCount-DTSX bleibt unverändert;
+für genau diesen Pfad gilt nur die bestehende reversible LF/CRLF-
+Integrationsbindung, die übrigen 52 Pins sind bytegenau. Vier Zielversuche und fünf Audits bleiben als
 aggregierte Historie erhalten; zwei frühe Targetversuche schlugen als
 Harness-/Fixturefehler fehl. Einer endete zunächst `RECOVERY_REQUIRED`; seine
 eigene Bereinigung wurde anschließend separat abgeschlossen und auditiert.
