@@ -45,7 +45,7 @@ foreach($path in @($basePath,$PSCommandPath,$driver,$offline)){
     if($seen.Add($full)){$pins.Add([ordered]@{path=$full;sha256=(Get-FileHash -LiteralPath $full -Algorithm SHA256).Hash.ToUpperInvariant()})}
 }
 $cases=@(
- [ordered]@{ordinal=0;kind='reserved_temp';object_name='#tbx_JsonSchema_DeployState';expected_error=55633;expected_state=1;expected_message='JSON Schema lifecycle: reservierter Callerzustand belegt.'},
+ [ordered]@{ordinal=0;kind='reserved_temp';object_name='#tbx_JsonSchema_DeployState';fixture_value=700;expected_error=55633;expected_state=1;expected_message='JSON Schema lifecycle: reservierter Callerzustand belegt.'},
  [ordered]@{ordinal=1;kind='public_slot';object_name='USP_ValidateJsonSchema';fixture_type='U';fixture_value=701;expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'},
  [ordered]@{ordinal=2;kind='internal_slot';object_name='FT_ValidateJsonSchemaInternal';fixture_type='U';fixture_value=702;expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'},
  [ordered]@{ordinal=3;kind='orphan_mode';property_name='Toolbelt.Module.toolbelt.json.schema.DeploymentMode';property_value='local';expected_error=55634;expected_state=1;expected_message='JSON Schema lifecycle: unregistrierter oder fremder Zielslot.'}
