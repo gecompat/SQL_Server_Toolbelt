@@ -207,27 +207,91 @@ SELECT @@SPID Spid,@@TRANCOUNT TranCount,XACT_STATE() XactState,
         throw 'JSON_APPLOCK_HOLDER_NOT_GRANTED'
     }
 }
-function New-ContenderStateDiagnostic($Rows,$ConnectionState,[int]$ExpectedSpid,$BlockError,$QueryError) {
-    $rows = @($Rows)
-    $row = if ($rows.Count -eq 1) { $rows[0] } else { $null }
+function New-ContenderStateDiagnostic($Samples,$ConnectionState,[int]$ExpectedSpid,$BlockError,$BaselineSamples) {
+    $isolatedRows = @($Samples.isolated_rows)
+    $isolated = if ($isolatedRows.Count -eq 1) { $isolatedRows[0] } else { $null }
+    $combinedRows = @($Samples.combined_rows)
+    $combined = if ($combinedRows.Count -eq 1) { $combinedRows[0] } else { $null }
+    $sessionRows = @($Samples.session_rows)
+    $session = if ($sessionRows.Count -eq 1) { $sessionRows[0] } else { $null }
+    $externalRows = @($Samples.external_rows)
+    $external = if ($externalRows.Count -eq 1) { $externalRows[0] } else { $null }
     $isSqlBlock = $BlockError -is [Data.SqlClient.SqlException]
-    $isSqlQuery = $QueryError -is [Data.SqlClient.SqlException]
     return [ordered]@{
-        row_count=$rows.Count
-        session_same=([bool]($null -ne $row -and [int]$row.Spid -eq $ExpectedSpid))
+        row_count=$isolatedRows.Count
+        session_same=([bool]($null -ne $session -and [int]$session.ScalarValue -eq $ExpectedSpid))
         expected_spid=$ExpectedSpid
-        observed_spid=$(if ($row) { [int]$row.Spid } else { $null })
-        trancount=$(if ($row) { [int]$row.TranCount } else { $null })
-        xact_state=$(if ($row) { [int]$row.XactState } else { $null })
+        observed_spid=$(if ($session) { [int]$session.ScalarValue } else { $null })
+        trancount=$(if ($isolated) { [int]$isolated.TranCount } else { $null })
+        xact_state=$(if ($isolated) { [int]$isolated.XactState } else { $null })
         connection_state=[string]$ConnectionState
+        combined_row_count=$combinedRows.Count
+        combined_spid=$(if ($combined) { [int]$combined.Spid } else { $null })
+        combined_trancount=$(if ($combined) { [int]$combined.TranCount } else { $null })
+        combined_xact_state=$(if ($combined) { [int]$combined.XactState } else { $null })
+        isolated_trancount=$(if ($isolated) { [int]$isolated.TranCount } else { $null })
+        isolated_xact_state=$(if ($isolated) { [int]$isolated.XactState } else { $null })
+        external_row_count=$externalRows.Count
+        external_session_id=$(if ($external) { [int]$external.SessionId } else { $null })
+        external_open_transaction_count=$(if ($external) { [int]$external.OpenTransactionCount } else { $null })
+        external_user_transaction_count=$(if ($external) { [int]$external.UserTransactionCount } else { $null })
+        external_application_lock_count=$(if ($external) { [int]$external.ApplicationLockCount } else { $null })
+        query_errors=$Samples.errors
+        baseline=$(if ($BaselineSamples) { New-ContenderStateSummary $BaselineSamples } else { $null })
         block_error_number=$(if ($isSqlBlock) { [int]$BlockError.Number } else { $null })
         block_error_state=$(if ($isSqlBlock) { [int]$BlockError.State } else { $null })
         block_error_message=$(if ($BlockError) { [string]$BlockError.Message } else { $null })
-        state_query_error_type=$(if ($QueryError) { [string]$QueryError.GetType().FullName } else { $null })
-        state_query_error_number=$(if ($isSqlQuery) { [int]$QueryError.Number } else { $null })
-        state_query_error_state=$(if ($isSqlQuery) { [int]$QueryError.State } else { $null })
-        state_query_error_message=$(if ($QueryError) { [string]$QueryError.Message } else { $null })
     }
+}
+function New-ContenderStateSummary($Samples) {
+    $isolated=@($Samples.isolated_rows);$combined=@($Samples.combined_rows);$session=@($Samples.session_rows);$external=@($Samples.external_rows)
+    [ordered]@{
+        isolated=@(if($isolated.Count-eq1){[ordered]@{trancount=[int]$isolated[0].TranCount;xact_state=[int]$isolated[0].XactState}})
+        combined=@(if($combined.Count-eq1){[ordered]@{spid=[int]$combined[0].Spid;trancount=[int]$combined[0].TranCount;xact_state=[int]$combined[0].XactState}})
+        session=@(if($session.Count-eq1){[int]$session[0].ScalarValue})
+        external=@(if($external.Count-eq1){[ordered]@{open_transactions=[int]$external[0].OpenTransactionCount;user_transactions=[int]$external[0].UserTransactionCount;application_locks=[int]$external[0].ApplicationLockCount}})
+        errors=$Samples.errors
+    }
+}
+function Get-ExternalSessionState($Observer,[int]$SessionId) {
+    $query=@'
+SELECT s.session_id SessionId,s.open_transaction_count OpenTransactionCount,
+ (SELECT COUNT(*) FROM sys.dm_tran_session_transactions t WHERE t.session_id=@SessionId AND t.is_user_transaction=1) UserTransactionCount,
+ (SELECT COUNT(*) FROM sys.dm_tran_locks l WHERE l.request_session_id=@SessionId AND l.resource_type=N'APPLICATION') ApplicationLockCount
+FROM sys.dm_exec_sessions s WHERE s.session_id=@SessionId;
+'@
+    @(Sql $Observer $query @{ '@SessionId'=$SessionId } -Rows)
+}
+function Get-ContenderStateSamples($Observer,$Connection,[int]$ExpectedSpid) {
+    $samples=[ordered]@{external_rows=@();combined_rows=@();isolated_rows=@();session_rows=@();errors=[ordered]@{external=$null;combined=$null;isolated=$null;session=$null}}
+    try { $samples.external_rows=@(Get-ExternalSessionState $Observer $ExpectedSpid) }
+    catch { $samples.errors.external=[ordered]@{type=$_.Exception.GetType().FullName;message=$_.Exception.Message;number=$null;state=$null} }
+    foreach ($name in @('combined','isolated','session')) {
+        try {
+            switch ($name) {
+                'combined' { $samples.combined_rows=@(Sql $Connection 'SELECT @@SPID Spid,@@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows) }
+                'isolated' { $samples.isolated_rows=@(Sql $Connection 'DECLARE @ObservedTranCount int=@@TRANCOUNT,@ObservedXactState smallint=XACT_STATE(); SELECT @ObservedTranCount TranCount,@ObservedXactState XactState;' -Rows) }
+                'session' { $samples.session_rows=@([pscustomobject]@{ScalarValue=[int](Read-Scalar $Connection 'SELECT @@SPID AS ScalarValue;')}) }
+            }
+        } catch {
+            $number=$null;$state=$null
+            if($_.Exception-is[Data.SqlClient.SqlException]){$number=[int]$_.Exception.Number;$state=[int]$_.Exception.State}
+            $samples.errors[$name]=[ordered]@{type=$_.Exception.GetType().FullName;message=$_.Exception.Message;number=$number;state=$state}
+        }
+    }
+    return $samples
+}
+function Test-ExternalSessionIdle($Rows,[int]$SessionId) {
+    $rows=@($Rows)
+    return [bool]($rows.Count-eq1 -and [int]$rows[0].SessionId-eq$SessionId -and
+        [int]$rows[0].OpenTransactionCount-eq0 -and [int]$rows[0].UserTransactionCount-eq0 -and
+        [int]$rows[0].ApplicationLockCount-eq0)
+}
+function Assert-ExternalHolderGranted($Observer,[int]$SessionId) {
+    $rows=@(Get-ExternalSessionState $Observer $SessionId)
+    if($rows.Count-ne1 -or [int]$rows[0].SessionId-ne$SessionId -or
+        [int]$rows[0].OpenTransactionCount-lt1 -or [int]$rows[0].UserTransactionCount-lt1 -or
+        [int]$rows[0].ApplicationLockCount-lt1){throw 'JSON_APPLOCK_HOLDER_NOT_EXTERNALLY_GRANTED'}
 }
 function Acquire-HolderLock($Connection,[string]$Resource) {
     Sql $Connection 'BEGIN TRANSACTION;'
@@ -244,7 +308,7 @@ SELECT @r LockResult,@@SPID Spid;
     Assert-HolderLock $Connection $spid
     return $spid
 }
-function Assert-ExpectedBlock($Connection,[string]$ExpectedText,[string]$BeforeSnapshot,[int]$ExpectedSpid) {
+function Assert-ExpectedBlock($Connection,$Observer,[string]$Resource,[string]$ExpectedText,[string]$BeforeSnapshot,[int]$ExpectedSpid,$BaselineSamples) {
     $caught = $null
     try { Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.schema_deploy.path,[Text.Encoding]::UTF8)) }
     catch {
@@ -254,16 +318,17 @@ function Assert-ExpectedBlock($Connection,[string]$ExpectedText,[string]$BeforeS
     if ($null -eq $caught -or $caught -isnot [Data.SqlClient.SqlException] -or
         $caught.Number -ne 55637 -or $caught.State -ne 1 -or
         -not $caught.Message.Contains($ExpectedText,[StringComparison]::Ordinal)) { throw 'JSON_APPLOCK_EXPECTED_CONTENDER_ERROR_MISMATCH' }
-    $rows=@();$queryError=$null
-    try { $rows=@(Sql $Connection 'SELECT @@SPID Spid,@@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows) }
-    catch { $queryError=$_.Exception }
-    $diagnostic=New-ContenderStateDiagnostic $rows $Connection.State $ExpectedSpid $caught $queryError
-    $stateMatches=$null -eq $queryError -and $Connection.State -eq [Data.ConnectionState]::Open -and
-        $diagnostic.row_count -eq 1 -and $diagnostic.session_same -and
-        $diagnostic.trancount -eq 0 -and $diagnostic.xact_state -eq 0
+    $samples=Get-ContenderStateSamples $Observer $Connection $ExpectedSpid
+    $diagnostic=New-ContenderStateDiagnostic $samples $Connection.State $ExpectedSpid $caught $BaselineSamples
+    $script:ledger.measurements += @([ordered]@{resource=$Resource;baseline=(New-ContenderStateSummary $BaselineSamples);after=(New-ContenderStateSummary $samples)})
+    Save-Journal
+    $queryErrors=@(@('external','combined','isolated','session')|Where-Object{$null-ne$samples.errors[$_]})
+    $stateMatches=$queryErrors.Count-eq0 -and $Connection.State -eq [Data.ConnectionState]::Open -and
+        $diagnostic.session_same -and $diagnostic.trancount -eq 0 -and $diagnostic.xact_state -eq 0 -and
+        $diagnostic.row_count -eq 1 -and $diagnostic.external_row_count -eq 1 -and
+        (Test-ExternalSessionIdle $samples.external_rows $ExpectedSpid) -and $diagnostic.combined_row_count -eq 1
     if (-not $stateMatches) {
-        $script:ledger.diagnostics += @($diagnostic)
-        Save-Journal
+        $script:ledger.diagnostics += @($diagnostic);Save-Journal
         throw 'JSON_APPLOCK_CONTENDER_TRANSACTION_REMAINS'
     }
     $locks = @(Sql $Connection 'SELECT COUNT(*) Count FROM sys.dm_tran_locks WHERE request_session_id=@@SPID AND resource_type=N''APPLICATION'';' -Rows)
@@ -315,7 +380,7 @@ try {
         if (Test-Path -LiteralPath $script:journal) { throw 'JSON_APPLOCK_ALREADY_ATTEMPTED' }
         $script:ledger = [ordered]@{ owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();trust=@();
             target=[ordered]@{platform='windows';version='2025';patch='CU8';compatibility_level=170};
-            configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()};results=@();diagnostics=@();failure=$null }
+            configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()};results=@();diagnostics=@();measurements=@();failure=$null }
         Save-Journal
         $control = Open-ReleaseConnection 'master'
         $actual = @(Sql $control "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)
@@ -363,14 +428,29 @@ try {
             $snapshot=Get-ModuleState $db
             $holder=Open-ReleaseConnection $name
             $holderSpid=Acquire-HolderLock $holder $scenario.resource
+            Assert-ExternalHolderGranted $control $holderSpid
             $contender=Open-ReleaseConnection $name
             $contenderSpid=[int](Read-Scalar $contender 'SELECT @@SPID AS ScalarValue;')
-            Assert-ExpectedBlock $contender $scenario.message $snapshot $contenderSpid
+            $baselineSamples=Get-ContenderStateSamples $control $contender $contenderSpid
+            $baselineSummary=New-ContenderStateSummary $baselineSamples
+            $baselineErrors=@(@('external','combined','isolated','session')|Where-Object{$null-ne$baselineSamples.errors[$_]})
+            $baselineRows=@($baselineSamples.isolated_rows);$baselineCombined=@($baselineSamples.combined_rows);$baselineSession=@($baselineSamples.session_rows)
+            $baselineOK=$baselineErrors.Count-eq0 -and $contender.State-eq[Data.ConnectionState]::Open -and
+                $baselineRows.Count-eq1 -and [int]$baselineRows[0].TranCount-eq0 -and [int]$baselineRows[0].XactState-eq0 -and
+                $baselineCombined.Count-eq1 -and [int]$baselineCombined[0].TranCount-eq0 -and [int]$baselineCombined[0].XactState-eq0 -and
+                $baselineSession.Count-eq1 -and [int]$baselineSession[0].ScalarValue-eq$contenderSpid -and
+                (Test-ExternalSessionIdle $baselineSamples.external_rows $contenderSpid)
+            $script:ledger.measurements+=@([ordered]@{resource=$scenario.resource;baseline=$baselineSummary;after=$null})
+            Save-Journal
+            if(-not$baselineOK){throw 'JSON_APPLOCK_CONTENDER_BASELINE_NOT_IDLE'}
+            Assert-ExpectedBlock $contender $control $scenario.resource $scenario.message $snapshot $contenderSpid $baselineSamples
             Assert-HolderLock $holder $holderSpid
             $releaseRows=@(Sql $holder 'ROLLBACK TRANSACTION; SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
             if ($releaseRows.Count -ne 1 -or [int]$releaseRows[0].TranCount -ne 0 -or [int]$releaseRows[0].XactState -ne 0) { throw 'JSON_APPLOCK_HOLDER_RELEASE_FAILED' }
             $remainingHolderLocks=@(Sql $holder 'SELECT COUNT(*) Count FROM sys.dm_tran_locks WHERE request_session_id=@@SPID AND resource_type=N''APPLICATION'';' -Rows)
             if ($remainingHolderLocks.Count -ne 1 -or [int]$remainingHolderLocks[0].Count -ne 0) { throw 'JSON_APPLOCK_HOLDER_LOCK_REMAINS' }
+            $releasedHolderState=@(Get-ExternalSessionState $control $holderSpid)
+            if(-not(Test-ExternalSessionIdle $releasedHolderState $holderSpid)){throw 'JSON_APPLOCK_HOLDER_EXTERNAL_LOCK_REMAINS'}
             $holder.Dispose();$contender.Dispose()
             $stage='POSITIVE_'+$script:ledger.results.Count
             Invoke-PositiveControl $db

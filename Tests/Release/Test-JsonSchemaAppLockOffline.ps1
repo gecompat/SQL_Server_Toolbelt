@@ -17,7 +17,7 @@ $errors = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$errors)
 if ($errors.Count) { throw 'JSON_APPLOCK_POWERSHELL_PARSE' }
 $scalarCallSites = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.CommandAst] -and $node.GetCommandName() -ceq 'Read-Scalar'},$true))
-if ($scalarCallSites.Count -ne 3) { throw 'JSON_APPLOCK_SCALAR_CALLSITE_COUNT' }
+if ($scalarCallSites.Count -ne 4) { throw 'JSON_APPLOCK_SCALAR_CALLSITE_COUNT' }
 foreach ($callSite in $scalarCallSites) {
     $queries = @($callSite.CommandElements | Where-Object { $_ -is [Management.Automation.Language.StringConstantExpressionAst] -and $_.Value -match '^\s*SELECT\b' })
     if ($queries.Count -ne 1 -or $queries[0].Value -notmatch '(?i)\bAS\s+ScalarValue\s*;?\s*$') {
@@ -53,21 +53,59 @@ $rejected = $false
 try { [void](Read-Scalar $null 'synthetic invalid scalar shape') }
 catch { if ($_.Exception.Message -ceq 'JSON_APPLOCK_QUERY_SHAPE') { $rejected = $true } else { throw } }
 if (-not $rejected) { throw 'JSON_APPLOCK_SCALAR_SHAPE_ACCEPTED' }
+$stateFunctionNames = @('Get-ExternalSessionState','Get-ContenderStateSamples','Test-ExternalSessionIdle','New-ContenderStateSummary','New-ContenderStateDiagnostic')
+$stateFunctions = @{}
+foreach ($name in $stateFunctionNames) {
+    $found = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq $name},$true))
+    if ($found.Count -ne 1) { throw 'JSON_APPLOCK_STATE_HELPER_AMBIGUOUS' }
+    $stateFunctions[$name] = $found[0]
+}
+$samplingText = $stateFunctions['Get-ContenderStateSamples'].Extent.Text
+$externalCall = $samplingText.IndexOf('Get-ExternalSessionState',[StringComparison]::Ordinal)
+$combinedCall = $samplingText.IndexOf("'SELECT @@SPID Spid,@@TRANCOUNT TranCount,XACT_STATE() XactState;'",[StringComparison]::Ordinal)
+$isolatedCall = $samplingText.IndexOf("'DECLARE @ObservedTranCount int=@@TRANCOUNT,@ObservedXactState smallint=XACT_STATE();",[StringComparison]::Ordinal)
+$sessionCall = $samplingText.IndexOf("'SELECT @@SPID AS ScalarValue;'",[StringComparison]::Ordinal)
+if ($externalCall -lt 0 -or $combinedCall -lt 0 -or $isolatedCall -lt 0 -or $sessionCall -lt 0 -or
+    -not ($externalCall -lt $combinedCall -and $combinedCall -lt $isolatedCall -and $isolatedCall -lt $sessionCall)) {
+    throw 'JSON_APPLOCK_EXTERNAL_OBSERVER_ORDER'
+}
+. ([scriptblock]::Create($stateFunctions['Test-ExternalSessionIdle'].Extent.Text))
+$idleRows = @([pscustomobject]@{SessionId=51;OpenTransactionCount=0;UserTransactionCount=0;ApplicationLockCount=0})
+$busyRows = @([pscustomobject]@{SessionId=51;OpenTransactionCount=1;UserTransactionCount=1;ApplicationLockCount=1})
+if (-not (Test-ExternalSessionIdle $idleRows 51) -or (Test-ExternalSessionIdle $busyRows 51) -or
+    (Test-ExternalSessionIdle $idleRows 52) -or (Test-ExternalSessionIdle @() 51)) { throw 'JSON_APPLOCK_EXTERNAL_IDLE_ORACLE' }
+$sampleOrder = [Collections.Generic.List[string]]::new()
+$script:externalSample = [pscustomobject]@{SessionId=51;OpenTransactionCount=0;UserTransactionCount=0;ApplicationLockCount=0}
+$script:combinedSample = [pscustomobject]@{Spid=51;TranCount=0;XactState=1}
+$script:isolatedSample = [pscustomobject]@{TranCount=0;XactState=0}
+function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Rows) {
+    if ($Connection -ceq 'observer') { $sampleOrder.Add('external'); return @($script:externalSample) }
+    if ($Text -match 'SELECT @@SPID Spid') { $sampleOrder.Add('combined'); return @($script:combinedSample) }
+    if ($Text -match 'DECLARE @ObservedTranCount') { $sampleOrder.Add('isolated'); return @($script:isolatedSample) }
+    if ($Text -match 'SELECT @@SPID AS ScalarValue') { $sampleOrder.Add('session'); return @([pscustomobject]@{ScalarValue=51}) }
+    throw 'JSON_APPLOCK_SYNTHETIC_SQL_UNEXPECTED'
+}
+. ([scriptblock]::Create($nodes[0].Extent.Text))
+. ([scriptblock]::Create($stateFunctions['Get-ExternalSessionState'].Extent.Text))
+. ([scriptblock]::Create($stateFunctions['Get-ContenderStateSamples'].Extent.Text))
+$syntheticSamples = Get-ContenderStateSamples 'observer' 'contender' 51
+if (($sampleOrder -join '|') -cne 'external|combined|isolated|session' -or
+    $syntheticSamples.external_rows.Count -ne 1 -or $syntheticSamples.combined_rows.Count -ne 1 -or
+    $syntheticSamples.isolated_rows.Count -ne 1 -or $syntheticSamples.session_rows.Count -ne 1 -or
+    $syntheticSamples.errors.external -or $syntheticSamples.errors.combined -or $syntheticSamples.errors.isolated -or $syntheticSamples.errors.session) {
+    throw 'JSON_APPLOCK_SYNTHETIC_MEASUREMENT_SHAPE'
+}
+. ([scriptblock]::Create($stateFunctions['New-ContenderStateSummary'].Extent.Text))
+. ([scriptblock]::Create($stateFunctions['New-ContenderStateDiagnostic'].Extent.Text))
+$syntheticSummary = New-ContenderStateSummary $syntheticSamples
+$syntheticState = New-ContenderStateDiagnostic $syntheticSamples ([Data.ConnectionState]::Open) 51 $null $null
+if ($syntheticSummary.combined.Count -ne 1 -or $syntheticSummary.combined[0].xact_state -ne 1 -or
+    $syntheticSummary.isolated.Count -ne 1 -or $syntheticSummary.isolated[0].xact_state -ne 0 -or
+    $syntheticSummary.external[0].open_transactions -ne 0 -or $syntheticState.xact_state -ne 0 -or
+    -not $syntheticState.session_same -or $syntheticState.external_application_lock_count -ne 0) {
+    throw 'JSON_APPLOCK_SYNTHETIC_MEASUREMENT_VALUES'
+}
 $diagnosticNodes = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'New-ContenderStateDiagnostic'},$true))
-if ($diagnosticNodes.Count -ne 1) { throw 'JSON_APPLOCK_DIAGNOSTIC_HELPER_AMBIGUOUS' }
-. ([scriptblock]::Create($diagnosticNodes[0].Extent.Text))
-$syntheticState = @(New-ContenderStateDiagnostic @([pscustomobject]@{Spid=51;TranCount=1;XactState=1}) ([Data.ConnectionState]::Open) 51 $null $null)
-if ($syntheticState.Count -ne 1 -or $syntheticState[0].row_count -ne 1 -or -not $syntheticState[0].session_same -or
-    $syntheticState[0].expected_spid -ne 51 -or $syntheticState[0].observed_spid -ne 51 -or
-    $syntheticState[0].trancount -ne 1 -or $syntheticState[0].xact_state -ne 1 -or
-    $syntheticState[0].connection_state -cne 'Open' -or $syntheticState[0].PSObject.Properties.Name -contains 'sql') {
-    throw 'JSON_APPLOCK_DIAGNOSTIC_VALUES'
-}
-$syntheticMissing = @(New-ContenderStateDiagnostic @() ([Data.ConnectionState]::Closed) 51 $null ([InvalidOperationException]::new('synthetic query failure')))
-if ($syntheticMissing.Count -ne 1 -or $syntheticMissing[0].row_count -ne 0 -or $syntheticMissing[0].session_same -or
-    $null -ne $syntheticMissing[0].observed_spid -or $syntheticMissing[0].state_query_error_type -cne 'System.InvalidOperationException') {
-    throw 'JSON_APPLOCK_DIAGNOSTIC_MISSING_STATE'
-}
 $auditNodes = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Assert-AuditJournalCases'},$true))
 if ($auditNodes.Count -ne 1) { throw 'JSON_APPLOCK_AUDIT_HELPER_AMBIGUOUS' }
 . ([scriptblock]::Create($auditNodes[0].Extent.Text))
