@@ -116,6 +116,31 @@ if ((Test-ContenderStateIdle $badIsolated ([Data.ConnectionState]::Open) 51) -or
     (Test-ContenderStateIdle $syntheticSamples ([Data.ConnectionState]::Closed) 51)) {
     throw 'JSON_APPLOCK_SYNTHETIC_IDLE_GATE_WEAKENED'
 }
+$moduleAbsentNode = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Assert-SchemaModuleAbsent'},$true))
+$initialAbsentCalls = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.CommandAst] -and $node.GetCommandName() -ceq 'Assert-SchemaAbsent'},$true))
+$moduleAbsentCalls = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.CommandAst] -and $node.GetCommandName() -ceq 'Assert-SchemaModuleAbsent'},$true))
+if ($moduleAbsentNode.Count -ne 1 -or $initialAbsentCalls.Count -ne 2 -or $moduleAbsentCalls.Count -ne 2 -or
+    $moduleAbsentNode[0].Extent.Text -notmatch 'SchemaPresent' -or
+    $moduleAbsentNode[0].Extent.Text -notmatch 'SchemaAssemblyCount' -or
+    $moduleAbsentNode[0].Extent.Text -notmatch 'ModuleObjectCount' -or
+    $moduleAbsentNode[0].Extent.Text -notmatch 'ModuleMetadataCount') { throw 'JSON_APPLOCK_POST_UNINSTALL_GUARD_SHAPE' }
+function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Rows) {
+    if ($Text -notmatch 'SchemaPresent' -or $Text -notmatch 'ModuleObjectCount') { throw 'JSON_APPLOCK_SCHEMA_GUARD_QUERY_SHAPE' }
+    return @($script:schemaGuardRows)
+}
+. ([scriptblock]::Create($moduleAbsentNode[0].Extent.Text))
+$script:schemaGuardRows = [pscustomobject]@{SchemaPresent=1;SchemaAssemblyCount=0;ModuleObjectCount=0;ModuleMetadataCount=0}
+Assert-SchemaModuleAbsent 'synthetic'
+foreach ($badSnapshot in @(
+    [pscustomobject]@{SchemaPresent=0;SchemaAssemblyCount=0;ModuleObjectCount=0;ModuleMetadataCount=0},
+    [pscustomobject]@{SchemaPresent=1;SchemaAssemblyCount=1;ModuleObjectCount=0;ModuleMetadataCount=0},
+    [pscustomobject]@{SchemaPresent=1;SchemaAssemblyCount=0;ModuleObjectCount=1;ModuleMetadataCount=0},
+    [pscustomobject]@{SchemaPresent=1;SchemaAssemblyCount=0;ModuleObjectCount=0;ModuleMetadataCount=1})) {
+    $script:schemaGuardRows=$badSnapshot;$rejected=$false
+    try { Assert-SchemaModuleAbsent 'synthetic' }
+    catch { if ($_.Exception.Message -ceq 'JSON_APPLOCK_SCHEMA_MODULE_NOT_ABSENT') { $rejected=$true } else { throw } }
+    if (-not $rejected) { throw 'JSON_APPLOCK_POST_UNINSTALL_DRIFT_ACCEPTED' }
+}
 $diagnosticNodes = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'New-ContenderStateDiagnostic'},$true))
 $auditNodes = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Assert-AuditJournalCases'},$true))
 if ($auditNodes.Count -ne 1) { throw 'JSON_APPLOCK_AUDIT_HELPER_AMBIGUOUS' }

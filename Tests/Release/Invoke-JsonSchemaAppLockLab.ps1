@@ -188,6 +188,19 @@ function Assert-SchemaAbsent($Connection) {
     $rows = @(Sql $Connection "SELECT COUNT(*) Count FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema';" -Rows)
     if ($rows.Count -ne 1 -or [int]$rows[0].Count -ne 0) { throw 'JSON_APPLOCK_SCHEMA_ASSEMBLY_NOT_ABSENT' }
 }
+function Assert-SchemaModuleAbsent($Connection) {
+    $rows = @(Sql $Connection @'
+SELECT CASE WHEN SCHEMA_ID(N'toolbelt_json') IS NULL THEN 0 ELSE 1 END SchemaPresent,
+ (SELECT COUNT(*) FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') SchemaAssemblyCount,
+ (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_json')
+  AND name IN(N'USP_ValidateJsonSchema',N'FT_ValidateJsonSchemaInternal')) ModuleObjectCount,
+ (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0
+  AND name IN(N'Toolbelt.Module.toolbelt.json.schema.Version',N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode')) ModuleMetadataCount;
+'@ -Rows)
+    if ($rows.Count -ne 1 -or [int]$rows[0].SchemaPresent -ne 1 -or
+        [int]$rows[0].SchemaAssemblyCount -ne 0 -or [int]$rows[0].ModuleObjectCount -ne 0 -or
+        [int]$rows[0].ModuleMetadataCount -ne 0) { throw 'JSON_APPLOCK_SCHEMA_MODULE_NOT_ABSENT' }
+}
 function Assert-CoreOnly($Connection) {
     $rows = @(Sql $Connection "SELECT a.name,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) Hash,a.permission_set_desc Permission FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.is_user_defined=1;" -Rows)
     if ($rows.Count -ne 1 -or $rows[0].name -cne 'Toolbelt_JsonCore' -or
@@ -351,7 +364,7 @@ function Invoke-PositiveControl($Connection) {
     $version = @(Sql $Connection "SELECT CONVERT(nvarchar(128),value) Value FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.Version';" -Rows)
     if ($version.Count -ne 1 -or $version[0].Value -cne '1.0.1') { throw 'JSON_APPLOCK_POSITIVE_CONTROL_METADATA' }
     Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.schema_uninstall.path,[Text.Encoding]::UTF8))
-    Assert-SchemaAbsent $Connection
+    Assert-SchemaModuleAbsent $Connection
     Assert-CoreOnly $Connection
 }
 
@@ -429,7 +442,8 @@ try {
                 [ordered]@{resource='toolbelt.deploy.json.shared-core';message='JSON Schema lifecycle: gemeinsame Core-AppLock nicht verfügbar.'},
                 [ordered]@{resource='toolbelt.deploy.toolbelt.json.schema';message='JSON Schema lifecycle: Modul-AppLock nicht verfügbar.'})) {
             $stage='SCENARIO_'+$script:ledger.results.Count
-            Assert-SchemaAbsent $db
+            if ($script:ledger.results.Count -eq 0) { Assert-SchemaAbsent $db }
+            else { Assert-SchemaModuleAbsent $db }
             $snapshot=Get-ModuleState $db
             $holder=Open-ReleaseConnection $name
             $holderSpid=Acquire-HolderLock $holder $scenario.resource
