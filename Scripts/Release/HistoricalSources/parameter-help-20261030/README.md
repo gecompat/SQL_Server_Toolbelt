@@ -9,7 +9,7 @@ Fachliche SQL-/CLR-Implementierung und historische Nachweise bleiben gebunden.
 
 Das Archiv ist kein Installationspaket und kein Laufzeitnachweis der neuen Hilfe.
 
-`Verifiers.zip` erhält außerdem die 20 unmittelbar vorherigen Lesadapter und
+`Verifiers.zip` erhält außerdem die 22 unmittelbar vorherigen Lesadapter und
 Offlineprüfer. `VerifierPins.json` und seine feste Bindung im Adapter erlauben
 ausschließlich die geprüften aktuellen Bytefolgen. Vor einer älteren
 Methodenprüfung wird genau dieser Lesadapter rückprojiziert; beliebige weitere

@@ -109,6 +109,12 @@ def validate_runtime(root=ROOT):
                         sha(data.replace(b'\n', b'\r\n')) == old,
                         'exact current XML fixture checkout: ' + relative.as_posix())
         else:
+            if relative.as_posix() == MODULE + 'Contracts/Api.json' and sha(data) != pin['sha256']:
+                import parameter_help_transition
+                try:
+                    data = parameter_help_transition.predecessor_source(root, relative.as_posix(), pin['sha256'])
+                except ValueError as error:
+                    raise ValueError('SSIS_CURRENT_PACKAGE_INVALID: current execution input changed: ' + relative.as_posix()) from error
             require(sha(data) == pin['sha256'], 'current execution input changed: ' + relative.as_posix())
     source = provenance.get('source_package', {})
     require(source.get('path') == MODULE + 'InstallPackages/' + NAME + '.zip' and

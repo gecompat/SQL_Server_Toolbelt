@@ -21,9 +21,9 @@ import generate_parameter_help as helpgen
 ARCHIVE = "Scripts/Release/HistoricalSources/parameter-help-20261030/Predecessors.zip"
 ARCHIVE_SHA256 = "5b082146c15a8990908151936de371620739eb29458218311e5878d4a0870a25"
 VERIFIERS = "Scripts/Release/HistoricalSources/parameter-help-20261030/Verifiers.zip"
-VERIFIERS_SHA256 = "22b7318fd17ee1559e53530909a6724814d6a14d0209bc710c4ed920120989ca"
+VERIFIERS_SHA256 = "9c51764ec942b5f558a666c6d74c8a18a0d8c338e800749a14cdb4b0062cde68"
 VERIFIER_PINS = "Scripts/Release/HistoricalSources/parameter-help-20261030/VerifierPins.json"
-VERIFIER_PINS_SHA256 = "f2fe761c7a77e90f42803ecc411168ffd45c33ffd3ad82888a238861989c6e85"
+VERIFIER_PINS_SHA256 = "aa264dcfe8325993b4e5fc227acaa06d012f6fdab324dc0c2d24c3dc23e0493c"
 
 
 def require(ok, message):

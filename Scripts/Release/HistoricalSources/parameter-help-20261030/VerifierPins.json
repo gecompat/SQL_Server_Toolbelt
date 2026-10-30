@@ -39,9 +39,17 @@
     "after": "87ab4d3d178414ceca739cd14918b8daf1735fdb4c915a18555e126d03a87ba7",
     "before": "f8e94459b619117a15b8f550ccb83a314dc5d0d089e4795e1aa8cf68a36e19b9"
   },
+  "Scripts/Release/new_ssis_current_standalone_tsql.py": {
+    "after": "544bdaeb079db6dd4649a28fc890feccead3b5a992639d0c5982ac8d45605aa1",
+    "before": "5c9fcb757287f9d6591370e902a057842a64993e4e91b9eac70ae0b766cf0805"
+  },
   "Scripts/Release/ssis_historical_source_bridge.py": {
     "after": "d7c6b9d8c838cc0d9c5199d82bce8e19e1a7ae7f51b8c03dfa1b5f6d200d2040",
     "before": "52c1e154e0ed8e111e122dbfc9cbb7b3c24bb6f4251abf5226b2cea60c49df27"
+  },
+  "Scripts/Release/validate_ssis_current_standalone_matrix.py": {
+    "after": "bf7d580fc6cead8658e00839714d3a728dd8f6d5075bd4bb58afb790052732de",
+    "before": "166be8577d1fac6e87e223b9dc1fadb8135a1bd40ae314b850cb531f420c79f7"
   },
   "Scripts/Release/xlsx_sst_budget.py": {
     "after": "507e4ff88378a9e95be22ccc5c6097ca11ceb520464ac434501b8629798c42d0",
