@@ -2075,6 +2075,7 @@ def load_tests(loader, tests, pattern):
     from test_json_schema_uninstall_applock_qualification import JsonSchemaUninstallAppLockQualificationTests
     from test_json_schema_uninstall_applock_adapter import JsonSchemaUninstallAppLockAdapterTests
     from test_json_schema_caller_transaction_qualification import JsonSchemaCallerTransactionQualificationTests
+    from test_json_schema_deploy_collision_adapter import JsonSchemaDeployCollisionAdapterTests
     tests.addTests(loader.loadTestsFromTestCase(ClrMaintenanceTests))
     tests.addTests(loader.loadTestsFromTestCase(StandaloneTsqlInstallerTests))
     tests.addTests(loader.loadTestsFromTestCase(Base64DdlHelpTransitionTests))
@@ -2084,6 +2085,7 @@ def load_tests(loader, tests, pattern):
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallAppLockQualificationTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallAppLockAdapterTests))
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaCallerTransactionQualificationTests))
+    tests.addTests(loader.loadTestsFromTestCase(JsonSchemaDeployCollisionAdapterTests))
     return tests
 
 
