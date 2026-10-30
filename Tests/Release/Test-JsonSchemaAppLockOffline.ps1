@@ -53,7 +53,7 @@ $rejected = $false
 try { [void](Read-Scalar $null 'synthetic invalid scalar shape') }
 catch { if ($_.Exception.Message -ceq 'JSON_APPLOCK_QUERY_SHAPE') { $rejected = $true } else { throw } }
 if (-not $rejected) { throw 'JSON_APPLOCK_SCALAR_SHAPE_ACCEPTED' }
-$stateFunctionNames = @('Get-ExternalSessionState','Get-ContenderStateSamples','Test-ExternalSessionIdle','New-ContenderStateSummary','New-ContenderStateDiagnostic')
+$stateFunctionNames = @('Get-ExternalSessionState','Get-ContenderStateSamples','Test-ExternalSessionIdle','Test-ContenderStateIdle','New-ContenderStateSummary','New-ContenderStateDiagnostic')
 $stateFunctions = @{}
 foreach ($name in $stateFunctionNames) {
     $found = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq $name},$true))
@@ -70,6 +70,7 @@ if ($externalCall -lt 0 -or $combinedCall -lt 0 -or $isolatedCall -lt 0 -or $ses
     throw 'JSON_APPLOCK_EXTERNAL_OBSERVER_ORDER'
 }
 . ([scriptblock]::Create($stateFunctions['Test-ExternalSessionIdle'].Extent.Text))
+. ([scriptblock]::Create($stateFunctions['Test-ContenderStateIdle'].Extent.Text))
 $idleRows = @([pscustomobject]@{SessionId=51;OpenTransactionCount=0;UserTransactionCount=0;ApplicationLockCount=0})
 $busyRows = @([pscustomobject]@{SessionId=51;OpenTransactionCount=1;UserTransactionCount=1;ApplicationLockCount=1})
 if (-not (Test-ExternalSessionIdle $idleRows 51) -or (Test-ExternalSessionIdle $busyRows 51) -or
@@ -102,8 +103,18 @@ $syntheticState = New-ContenderStateDiagnostic $syntheticSamples ([Data.Connecti
 if ($syntheticSummary.combined.Count -ne 1 -or $syntheticSummary.combined[0].xact_state -ne 1 -or
     $syntheticSummary.isolated.Count -ne 1 -or $syntheticSummary.isolated[0].xact_state -ne 0 -or
     $syntheticSummary.external[0].open_transactions -ne 0 -or $syntheticState.xact_state -ne 0 -or
-    -not $syntheticState.session_same -or $syntheticState.external_application_lock_count -ne 0) {
+    -not $syntheticState.session_same -or $syntheticState.external_application_lock_count -ne 0 -or
+    -not (Test-ContenderStateIdle $syntheticSamples ([Data.ConnectionState]::Open) 51)) {
     throw 'JSON_APPLOCK_SYNTHETIC_MEASUREMENT_VALUES'
+}
+$badIsolated = [pscustomobject]@{external_rows=@($script:externalSample);combined_rows=@($script:combinedSample);
+    isolated_rows=@([pscustomobject]@{TranCount=1;XactState=1});session_rows=@([pscustomobject]@{ScalarValue=51});errors=$syntheticSamples.errors}
+$badExternal = [pscustomobject]@{external_rows=@([pscustomobject]@{SessionId=51;OpenTransactionCount=1;UserTransactionCount=1;ApplicationLockCount=1});
+    combined_rows=@($script:combinedSample);isolated_rows=@($script:isolatedSample);session_rows=@([pscustomobject]@{ScalarValue=51});errors=$syntheticSamples.errors}
+if ((Test-ContenderStateIdle $badIsolated ([Data.ConnectionState]::Open) 51) -or
+    (Test-ContenderStateIdle $badExternal ([Data.ConnectionState]::Open) 51) -or
+    (Test-ContenderStateIdle $syntheticSamples ([Data.ConnectionState]::Closed) 51)) {
+    throw 'JSON_APPLOCK_SYNTHETIC_IDLE_GATE_WEAKENED'
 }
 $diagnosticNodes = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'New-ContenderStateDiagnostic'},$true))
 $auditNodes = @($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Assert-AuditJournalCases'},$true))

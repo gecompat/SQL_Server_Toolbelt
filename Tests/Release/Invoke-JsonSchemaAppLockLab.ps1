@@ -287,6 +287,14 @@ function Test-ExternalSessionIdle($Rows,[int]$SessionId) {
         [int]$rows[0].OpenTransactionCount-eq0 -and [int]$rows[0].UserTransactionCount-eq0 -and
         [int]$rows[0].ApplicationLockCount-eq0)
 }
+function Test-ContenderStateIdle($Samples,[Data.ConnectionState]$ConnectionState,[int]$ExpectedSpid) {
+    $queryErrors=@(@('external','combined','isolated','session')|Where-Object{$null-ne$Samples.errors[$_]})
+    $isolated=@($Samples.isolated_rows);$combined=@($Samples.combined_rows);$session=@($Samples.session_rows)
+    return [bool]($queryErrors.Count-eq0 -and $ConnectionState-eq[Data.ConnectionState]::Open -and
+        $isolated.Count-eq1 -and [int]$isolated[0].TranCount-eq0 -and [int]$isolated[0].XactState-eq0 -and
+        $combined.Count-eq1 -and $session.Count-eq1 -and [int]$session[0].ScalarValue-eq$ExpectedSpid -and
+        (Test-ExternalSessionIdle $Samples.external_rows $ExpectedSpid))
+}
 function Assert-ExternalHolderGranted($Observer,[int]$SessionId) {
     $rows=@(Get-ExternalSessionState $Observer $SessionId)
     if($rows.Count-ne1 -or [int]$rows[0].SessionId-ne$SessionId -or
@@ -322,11 +330,8 @@ function Assert-ExpectedBlock($Connection,$Observer,[string]$Resource,[string]$E
     $diagnostic=New-ContenderStateDiagnostic $samples $Connection.State $ExpectedSpid $caught $BaselineSamples
     $script:ledger.measurements += @([ordered]@{resource=$Resource;baseline=(New-ContenderStateSummary $BaselineSamples);after=(New-ContenderStateSummary $samples)})
     Save-Journal
-    $queryErrors=@(@('external','combined','isolated','session')|Where-Object{$null-ne$samples.errors[$_]})
-    $stateMatches=$queryErrors.Count-eq0 -and $Connection.State -eq [Data.ConnectionState]::Open -and
-        $diagnostic.session_same -and $diagnostic.trancount -eq 0 -and $diagnostic.xact_state -eq 0 -and
-        $diagnostic.row_count -eq 1 -and $diagnostic.external_row_count -eq 1 -and
-        (Test-ExternalSessionIdle $samples.external_rows $ExpectedSpid) -and $diagnostic.combined_row_count -eq 1
+    $stateMatches=(Test-ContenderStateIdle $samples $Connection.State $ExpectedSpid) -and
+        $diagnostic.session_same -and $diagnostic.row_count -eq 1 -and $diagnostic.external_row_count -eq 1
     if (-not $stateMatches) {
         $script:ledger.diagnostics += @($diagnostic);Save-Journal
         throw 'JSON_APPLOCK_CONTENDER_TRANSACTION_REMAINS'
@@ -433,13 +438,7 @@ try {
             $contenderSpid=[int](Read-Scalar $contender 'SELECT @@SPID AS ScalarValue;')
             $baselineSamples=Get-ContenderStateSamples $control $contender $contenderSpid
             $baselineSummary=New-ContenderStateSummary $baselineSamples
-            $baselineErrors=@(@('external','combined','isolated','session')|Where-Object{$null-ne$baselineSamples.errors[$_]})
-            $baselineRows=@($baselineSamples.isolated_rows);$baselineCombined=@($baselineSamples.combined_rows);$baselineSession=@($baselineSamples.session_rows)
-            $baselineOK=$baselineErrors.Count-eq0 -and $contender.State-eq[Data.ConnectionState]::Open -and
-                $baselineRows.Count-eq1 -and [int]$baselineRows[0].TranCount-eq0 -and [int]$baselineRows[0].XactState-eq0 -and
-                $baselineCombined.Count-eq1 -and [int]$baselineCombined[0].TranCount-eq0 -and [int]$baselineCombined[0].XactState-eq0 -and
-                $baselineSession.Count-eq1 -and [int]$baselineSession[0].ScalarValue-eq$contenderSpid -and
-                (Test-ExternalSessionIdle $baselineSamples.external_rows $contenderSpid)
+            $baselineOK=Test-ContenderStateIdle $baselineSamples $contender.State $contenderSpid
             $script:ledger.measurements+=@([ordered]@{resource=$scenario.resource;baseline=$baselineSummary;after=$null})
             Save-Journal
             if(-not$baselineOK){throw 'JSON_APPLOCK_CONTENDER_BASELINE_NOT_IDLE'}
