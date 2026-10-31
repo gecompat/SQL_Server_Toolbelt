@@ -15,7 +15,7 @@ separaten Bereinigungs-/Pinaudits binden aktuelle Stable-19-Exporte, alle
 öffentlichen Objekte und installierte Hilfe. Bestehende SQL-/Ownership-/
 Deadlinehelfer werden komponiert; alte Paketgates und Nachweise bleiben
 unverändert. Vier neue negative Vor-SQL-Guards laufen in der vorhandenen
-Release-Suite, ohne neuen CI-Job. Bereits bestandene unveränderte Fach- und
+Release-Validierungszweig, ohne neuen CI-Job. Bereits bestandene unveränderte Fach- und
 Lastfälle werden nach geprüfter Bindung weiterverwendet; verbleibende Gates
 werden nicht durch den Integrationslauf geschlossen. Die zwölf nativen Fälle
 und zwölf separaten Audits bestanden am 2026-10-31 ohne Fehlversuch am
@@ -25,9 +25,20 @@ unabhängig als entfernt bestätigt. Keine Rechte-, Login-, CLR-, Trust-,
 Server- oder Labressourcenänderung. Der [gebundene Record](../Releases/1.0.0/stable19-acceptance.json)
 und die lesbare Übersicht trennen echte CrossDB-Identitäten, reduzierte
 Installationsrechte, GUI-/Windows-Anmeldung, TLS und finale Modul-/Scopefreigabe.
-Die sechs Offlineprüfungen des neuen Testwegs laufen in der bestehenden
-Release-Suite; ein vollständiger Repository-Audit und tatsächliche Head-/Main-CI
+Die sechs Offlineprüfungen des neuen Testwegs laufen im bestehenden
+Release-Validierungszweig; ein vollständiger Repository-Audit und tatsächliche Head-/Main-CI
 werden im PR nachgewiesen. Rohlogs privat, Kosten/Token unbekannt.
+
+Der erste vollständige Audit bestand alle 297 damals gemeinsam geladenen
+Release-Regressionen und die Paketintegrität, scheiterte danach aber am
+geschützten exakten Methodenpin des historischen Suite-Loaders. Die zwei
+zusätzlichen Loaderzeilen sind deshalb vollständig zurückgenommen. Die sechs
+neuen Tests laufen nun separat mit 30 Sekunden Grenze im bestehenden
+`release_preparation`-Zweig; die ursprüngliche 291er-Suite und alle alten Pins
+bleiben unverändert. Ein zusätzlicher kurzer Offlineprozess, keine neue CI,
+SQL-Wiederholung oder Reviewkette. Der geänderte Validator und das konkrete
+Integritätsfinding begründen den korrigierten vollständigen Audit; der erste
+Gesamtlauf bleibt fehlgeschlagen.
 
 ## Projektentwicklungssnapshot v1.0.0-rc.1 veröffentlicht — 2026-10-31
 

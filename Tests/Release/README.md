@@ -29,12 +29,17 @@ Der neue Lauf ist keine vollständige neue API-, Minimalrechte-, CrossDB-
 Identitäts-, GUI- oder TLS-Qualifikation. Runsets und Journale bleiben privat.
 
 Vier negative Vor-SQL-Prüfungen für private Pfade, Engine-/CL-Auswahl,
-fehlende Pins und geänderte Inputs laufen in der bestehenden Release-Suite;
+fehlende Pins und geänderte Inputs laufen im bestehenden Release-Validierungszweig;
 gezielt: `python -B Tests/Release/test_stable19_acceptance.py`. Keine neue CI
 oder automatische native SQL-Ausführung.
 Zwei weitere Offlineprüfungen binden den Abschlussrecord an die vollständige
 Zwölfermatrix und die Originalbytes des tatsächlichen Ausführungscommits;
 eine fehlende Zeile oder erfundene Veröffentlichungsfreigabe wird abgewiesen.
+Der historische `test_prepare_release.py`-Loader bleibt bytegleich zu seinem
+qualifizierten Stand. Der Dokumentationsvalidator ruft die sechs neuen Tests
+im selben `release_preparation`-Zweig als eigenen begrenzten Offlineprozess
+auf. Für den gesamten Releasecheck gibt es weiterhin genau einen CI-Job;
+native Labtests werden dadurch nicht gestartet.
 
 ## Aktueller Quellkandidat
 
