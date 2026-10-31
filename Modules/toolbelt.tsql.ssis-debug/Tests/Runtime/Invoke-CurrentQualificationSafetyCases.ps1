@@ -9,7 +9,7 @@ INSERT dbo.SyntheticSourceB VALUES(1,10,80),(3,30,30);
 INSERT dbo.SyntheticLookup VALUES(1,10,7),(1,10,9),(1,20,NULL),(2,10,2);
 '@)
 $database=$Connection.Database
-$catalog=(@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database}}|ConvertTo-Json -Depth 4 -Compress)
+$catalog=(@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database};flatFileInputs=@{}}|ConvertTo-Json -Depth 4 -Compress)
 function New-CurrentSafetyPackage([string]$Query){
  [xml]$doc=[IO.File]::ReadAllText((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
  $node=$doc.SelectSingleNode('//component[@name="SourceA"]/properties/property[@name="SqlCommand"]')
@@ -67,6 +67,8 @@ try{
   $parts=Get-V2PlanParts $artifacts $target
   $Connection.ChangeDatabase($CrossDatabase)
   try{
+   $cross=Invoke-V2Explain -Bytes ([IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))) -Operation 'explain' -Catalog $catalog -Procedure ('['+$original.Replace(']',']]')+'].toolbelt_tsql.USP_ExplainSsisDataFlow')
+   Assert-V2 (@($cross.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 2) 'THREE_PART_CALL_FROM_CONSUMER'
    Invoke-V2Units $parts
    Assert-V2 ((Invoke-V2Sql ([string]$target.Content)).Rows.Count -eq 2) 'GENERATED_PLAN_FROM_CONSUMER_DATABASE'
   }finally{Clear-V2Plan $parts;$Connection.ChangeDatabase($original)}

@@ -21,9 +21,16 @@ function Invoke-V2Explain {
  param([byte[]]$Bytes,[string]$Operation='bindings-template',[string]$Context='{"schemaVersion":2}',
  [string]$Bindings,[string]$Catalog,[string]$Target,[string]$Stage,[string]$ResultTable,
  [bool]$Keep=$false,[bool]$Help=$false,[string]$Collation,[int16]$TSqlVersion=$script:v2TSqlVersion,
- [hashtable]$Limits=@{},[byte]$Debug=0)
+ [hashtable]$Limits=@{},[byte]$Debug=0,[string]$Procedure='toolbelt_tsql.USP_ExplainSsisDataFlow')
+ # Diese Fachorakel benötigen ausdrücklich die synthetischen Entwurfswerte.
+ # Auch ohne übergebene Testvorlage wird diese zuerst über die aktuelle API
+ # erzeugt und vollständig zurückgegeben; Produktdefaults werden nicht geraten.
+ if($Operation -ceq 'explain' -and [string]::IsNullOrEmpty($Bindings)){
+  $design=Invoke-V2Explain -Bytes $Bytes -Operation 'bindings-template' -Context $Context -TSqlVersion $TSqlVersion -Limits $Limits -Procedure $Procedure
+  $Bindings=[string]$design.Rows[0].Content
+ }
  $command=$Connection.CreateCommand();$command.CommandType='StoredProcedure'
- $command.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
+ $command.CommandText=$Procedure
  $command.CommandTimeout=Get-SsisNativeTimeout 120
  [void]$command.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1)
  if($null -eq $Bytes){$command.Parameters['@PackageBytes'].Value=[DBNull]::Value}
