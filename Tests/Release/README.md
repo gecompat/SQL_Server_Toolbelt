@@ -10,6 +10,12 @@ Kandidaten und bindet alle versionierten Moduldateien an den Quellcommit.
 Die Vorbereitung benötigt ein neues privates Verzeichnis unter `.runtime`
 mit zuvor schema-validierter, ausdrücklich ausgewählter Zwölfermatrix in
 `private-selection.json`; Vertrag und Zugangsdaten werden nicht kopiert.
+Benötigt werden Python 3.10+, PowerShell 7 und Git; Produkt- und Methodeninputs
+müssen committed sein. Die private Auswahl enthält `cases` mit jeweils
+`Platform`, `Version`, `Patch`, `CL` sowie `contract_path`, `schema_path` und
+`prompt_path` aus der kanonischen Labdiscovery. Danach
+`python -B Tests/Release/prepare_stable19_acceptance.py <privates-verzeichnis>`
+aufrufen. Vorhandene Exporte werden nicht überschrieben.
 
 `Invoke-Stable19AcceptanceLab.ps1 -RunsetPath <privates-runset> -CaseIndex <0..11>`
 installiert diese aktuellen Exporte lokal und zentral, wiederholt sie, prüft
@@ -26,6 +32,9 @@ Vier negative Vor-SQL-Prüfungen für private Pfade, Engine-/CL-Auswahl,
 fehlende Pins und geänderte Inputs laufen in der bestehenden Release-Suite;
 gezielt: `python -B Tests/Release/test_stable19_acceptance.py`. Keine neue CI
 oder automatische native SQL-Ausführung.
+Zwei weitere Offlineprüfungen binden den Abschlussrecord an die vollständige
+Zwölfermatrix und die Originalbytes des tatsächlichen Ausführungscommits;
+eine fehlende Zeile oder erfundene Veröffentlichungsfreigabe wird abgewiesen.
 
 ## Aktueller Quellkandidat
 

@@ -17,9 +17,17 @@ Deadlinehelfer werden komponiert; alte Paketgates und Nachweise bleiben
 unverändert. Vier neue negative Vor-SQL-Guards laufen in der vorhandenen
 Release-Suite, ohne neuen CI-Job. Bereits bestandene unveränderte Fach- und
 Lastfälle werden nach geprüfter Bindung weiterverwendet; verbleibende Gates
-werden nicht durch den Integrationslauf geschlossen. Native Ausführung
-zunächst `not executed`; endgültige Ergebnisse, Head-/Main-CI und Blocker
-folgen im selben Arbeitspaket. Rohlogs privat, Kosten/Token unbekannt.
+werden nicht durch den Integrationslauf geschlossen. Die zwölf nativen Fälle
+und zwölf separaten Audits bestanden am 2026-10-31 ohne Fehlversuch am
+Methoden-/Quellcommit `e156a3d5`: 24 Deploymentpfade, 56 öffentliche Objekte,
+576 echte Help-Aufrufe mit 36.576 Assertions sowie 36 eigene Datenbanken
+unabhängig als entfernt bestätigt. Keine Rechte-, Login-, CLR-, Trust-,
+Server- oder Labressourcenänderung. Der [gebundene Record](../Releases/1.0.0/stable19-acceptance.json)
+und die lesbare Übersicht trennen echte CrossDB-Identitäten, reduzierte
+Installationsrechte, GUI-/Windows-Anmeldung, TLS und finale Modul-/Scopefreigabe.
+Die sechs Offlineprüfungen des neuen Testwegs laufen in der bestehenden
+Release-Suite; ein vollständiger Repository-Audit und tatsächliche Head-/Main-CI
+werden im PR nachgewiesen. Rohlogs privat, Kosten/Token unbekannt.
 
 ## Projektentwicklungssnapshot v1.0.0-rc.1 veröffentlicht — 2026-10-31
 
