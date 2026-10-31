@@ -1,0 +1,70 @@
+{
+  "approval_quote": "veröffentliche das Release",
+  "approval_reference": "https://github.com/gecompat/SQL_Server_Toolbelt/pull/490",
+  "artifacts": [
+    {
+      "bytes": 3654,
+      "name": "RELEASE-NOTES-v1.0.0-rc.1.md",
+      "sha256": "3c71e426f8cad5c6140f6ef474939f01820233c4a3c62e4a42323a9231ca4bca",
+      "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.1/RELEASE-NOTES-v1.0.0-rc.1.md"
+    },
+    {
+      "bytes": 564,
+      "name": "SHA256SUMS.txt",
+      "sha256": "ee269067d3d27bbf34abdfc940ca34f40e6a31058a479e8c0faf01ef0fe14293",
+      "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.1/SHA256SUMS.txt"
+    },
+    {
+      "bytes": 7174025,
+      "name": "SQL-Server-Toolbelt-1.0.0-Parameter-Help.zip",
+      "sha256": "4709bbc4a51ded0fa8def425ae1d607b40e065da07d282c751c0c07aa0f1dc7c",
+      "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.1/SQL-Server-Toolbelt-1.0.0-Parameter-Help.zip"
+    },
+    {
+      "bytes": 111,
+      "name": "SQL-Server-Toolbelt-1.0.0-Parameter-Help.zip.sha256",
+      "sha256": "567bf1bb88112367055f6bd354af4de4ed88ec4eeb5fb1386292c7ee6794bc37",
+      "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.1/SQL-Server-Toolbelt-1.0.0-Parameter-Help.zip.sha256"
+    },
+    {
+      "bytes": 69467191,
+      "name": "SQL-Server-Toolbelt-1.0.0-current-candidate.zip",
+      "sha256": "cd6e5ab183549b3107d97b37c70a19f34759e5c9c615efa038b800652cf2e5a9",
+      "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.1/SQL-Server-Toolbelt-1.0.0-current-candidate.zip"
+    },
+    {
+      "bytes": 115,
+      "name": "SQL-Server-Toolbelt-1.0.0-current-candidate.zip.sha256",
+      "sha256": "c2be1a123162bbc2c65d2cfe00167ddbf3d7f2ff978899604c48923f637c6652",
+      "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.1/SQL-Server-Toolbelt-1.0.0-current-candidate.zip.sha256"
+    }
+  ],
+  "integration_commit": "cade725ee2415e13479edc4a5951f57b8dde8907",
+  "kind": "development_candidate_snapshot",
+  "limitations": [
+    "Project development snapshot for tests; all module manifests remain unreleased",
+    "No full module, production, platform, identity, resource, recovery or authenticated TLS qualification",
+    "Frozen package preparation flags are historical build state; this record describes actual project snapshot publication"
+  ],
+  "main_ci": {
+    "head_sha": "cade725ee2415e13479edc4a5951f57b8dde8907",
+    "result": "success",
+    "url": "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/41147238695"
+  },
+  "module_release_status_changed": false,
+  "module_versions_published": [],
+  "native_qualification_changed": false,
+  "project_version": "v1.0.0-rc.1",
+  "publication": {
+    "draft": false,
+    "id": 429600273,
+    "prerelease": true,
+    "published_at": "2026-10-31T00:29:00Z",
+    "tag": "v1.0.0-rc.1",
+    "url": "https://github.com/gecompat/SQL_Server_Toolbelt/releases/tag/v1.0.0-rc.1"
+  },
+  "qualification_scope": "Exact source snapshot and bound existing Help installer; no module support release",
+  "schema_version": "toolbelt-project-snapshot-publication/v1",
+  "source_commit": "ab20d55193ff6e99dae918626386b601569dbeea",
+  "tag_commit": "ab20d55193ff6e99dae918626386b601569dbeea"
+}
