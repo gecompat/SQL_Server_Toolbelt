@@ -1036,7 +1036,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
