@@ -35,11 +35,13 @@ oder automatische native SQL-Ausführung.
 Zwei weitere Offlineprüfungen binden den Abschlussrecord an die vollständige
 Zwölfermatrix und die Originalbytes des tatsächlichen Ausführungscommits;
 eine fehlende Zeile oder erfundene Veröffentlichungsfreigabe wird abgewiesen.
-Der historische `test_prepare_release.py`-Loader bleibt bytegleich zu seinem
-qualifizierten Stand. Der Dokumentationsvalidator ruft die sechs neuen Tests
-im selben `release_preparation`-Zweig als eigenen begrenzten Offlineprozess
-auf. Für den gesamten Releasecheck gibt es weiterhin genau einen CI-Job;
-native Labtests werden dadurch nicht gestartet.
+Der historische `test_prepare_release.py`-Loader ist bytegleich zu seinem
+exakt qualifizierten Stand wiederhergestellt. Der Dokumentationsvalidator ruft
+die elf RC-Tests und sechs neuen Abnahmetests im selben `release_preparation`-
+Zweig als gemeinsamen begrenzten Offlineprozess auf. Die ursprüngliche Suite
+behält 280 Tests; insgesamt bleiben alle 297 Assertionsfälle erhalten. Für den
+gesamten Releasecheck gibt es weiterhin genau einen CI-Job; native Labtests
+werden dadurch nicht gestartet.
 
 ## Aktueller Quellkandidat
 

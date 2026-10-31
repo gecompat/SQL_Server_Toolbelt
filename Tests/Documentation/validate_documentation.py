@@ -1806,14 +1806,14 @@ def main() -> int:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
         # Der historische Suite-Loader ist selbst exakt qualifikationsgebunden.
-        # Neue Stable-19-Guards deshalb im selben vorhandenen Validierungszweig
+        # RC- und Stable-19-Guards deshalb im selben vorhandenen Validierungszweig
         # ausführen; kein neuer CI-Job und keine native SQL-Ausführung.
         result = run_hidden(
-            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_stable19_acceptance.py")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+            [sys.executable, "-B", "-m", "unittest", "test_current_release_candidate", "test_stable19_acceptance"],
+            cwd=REPOSITORY_ROOT / "Tests/Release", capture_output=True, text=True, encoding="utf-8", timeout=120,
         )
         if result.returncode:
-            raise ValidationError(f"Stable-19-Abnahmeregressionen:\n{result.stdout}{result.stderr}")
+            raise ValidationError(f"Aktuelle Kandidaten-/Abnahmeregressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),

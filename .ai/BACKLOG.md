@@ -31,14 +31,17 @@ werden im PR nachgewiesen. Rohlogs privat, Kosten/Token unbekannt.
 
 Der erste vollständige Audit bestand alle 297 damals gemeinsam geladenen
 Release-Regressionen und die Paketintegrität, scheiterte danach aber am
-geschützten exakten Methodenpin des historischen Suite-Loaders. Die zwei
-zusätzlichen Loaderzeilen sind deshalb vollständig zurückgenommen. Die sechs
-neuen Tests laufen nun separat mit 30 Sekunden Grenze im bestehenden
-`release_preparation`-Zweig; die ursprüngliche 291er-Suite und alle alten Pins
-bleiben unverändert. Ein zusätzlicher kurzer Offlineprozess, keine neue CI,
-SQL-Wiederholung oder Reviewkette. Der geänderte Validator und das konkrete
-Integritätsfinding begründen den korrigierten vollständigen Audit; der erste
-Gesamtlauf bleibt fehlgeschlagen.
+geschützten exakten Methodenpin des historischen Suite-Loaders. Der anschließende
+Byteabgleich stellte fest, dass bereits die RC-Testregistrierung aus PR #490
+außerhalb dieses Pins lag. Die neuen und die RC-spezifischen Loaderzeilen sind
+deshalb zurückgenommen; der originale SHA256 stimmt wieder exakt. Alle 280
+historischen Tests und die separat zusammen ausgeführten elf RC-/sechs
+Abnahmetests bleiben erhalten. Der gemeinsame Zusatzprozess hat 120 Sekunden
+Grenze im bestehenden `release_preparation`-Zweig. Ein zusätzlicher kurzer
+Offlineprozess, keine neue CI, SQL-Wiederholung oder Reviewkette. Der erste
+Gesamtaudit bleibt fehlgeschlagen; ein danach bereits gestarteter lesender
+Audit wurde beim noch offenen Baselinepin-Finding vorzeitig gestoppt. Geänderter
+Validator und konkreter Integritätsbefund begründen den korrigierten Vollaudit.
 
 ## Projektentwicklungssnapshot v1.0.0-rc.1 veröffentlicht — 2026-10-31
 
