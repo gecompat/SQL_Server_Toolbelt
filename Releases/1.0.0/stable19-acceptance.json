@@ -1,0 +1,1113 @@
+{
+  "schema_version": "toolbelt-stable19-acceptance/v1",
+  "date": "2026-10-31",
+  "result": "PASS_BOUNDED_INTEGRATION",
+  "source_commit": "e156a3d5832e9b8021bf5528a0076ff3959cf159",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "CFB2DA9B490193F2592B56AD7795C7B304594C3B6846A4B4984E7D219FE3C19B",
+    "Documentation/Reference/api_examples.json": "22306C90AA96A75F0BBC8A30082666511D1EFAD025FD190C744DA0C45A878152",
+    "Documentation/Reference/usp_help.json": "5BE1F023CA38B2AB61CB78FBA2D8819BAA97703460E80BB8EAE279E536560152",
+    "Modules/toolbelt.binary.bit-operations/Deployment/Deploy.sql": "BCF44F41CF3C4059977427F1152CB3C2575459030EE74F73C4997A03291C1C21",
+    "Modules/toolbelt.binary.bit-operations/Deployment/Uninstall.sql": "3330269D815F033B4A038AFE5E2F21518E2248117248AF35B06BF017202CB8B5",
+    "Modules/toolbelt.binary.bit-operations/Documentation/TVF_BitCountBigInt.md": "B64DEA55B46F178F0F9FF1327019091F51EF84E3A4341656A6B19C0D7BA9DC89",
+    "Modules/toolbelt.binary.bit-operations/Documentation/TVF_GetBitBigInt.md": "3E576B0BA6AEA001241756D18556866A77FDA0C14F73B4F2779C6F6E7D3EBE94",
+    "Modules/toolbelt.binary.bit-operations/Documentation/TVF_LeftShiftBigInt.md": "445A94929B7D2E45CF61C8E3580EC59086C2EECA7DC1EE08819FAA45D81445AB",
+    "Modules/toolbelt.binary.bit-operations/Documentation/TVF_RightShiftBigInt.md": "0563750C66E5398365535C262F3A2833D12A08175A7470C1837D3F9173EF7BC5",
+    "Modules/toolbelt.binary.bit-operations/Documentation/TVF_SetBitBigInt.md": "C327FC92B08AD064678F119827BA3A9853AFD13023CBBA2B9F618F487F86633E",
+    "Modules/toolbelt.binary.bit-operations/Examples/BitOperations.sql": "A4BD91B2FE8F5FAB9EA0797AF513B0D9067D3F5E56500D53F479A3510AF05149",
+    "Modules/toolbelt.binary.bit-operations/README.md": "42CD1B12E4FABF76F96D151FD4507F07B36B20DABD453D69AC5266404D8D71E1",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_BitCountBigInt.sql": "19A63009CD4C707D9EBE5F2E22D1C792D64DB69C0BAA5EAD8A4F6B1533B174AD",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_GetBitBigInt.sql": "8F98058164695E4455F09066F7A4190977CA383FFC0C0A322A6643C4A9DC8DB0",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_LeftShiftBigInt.sql": "CACE293806DA3D1AEA5444EF6B4624984A3F85B6AF16B7165DBE0C9D773418A1",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_RightShiftBigInt.sql": "CEFDE5DD2795DAD10CF095A83839A35EAC0B7929CF1A7B1F6FACB1F31EC0BF95",
+    "Modules/toolbelt.binary.bit-operations/Source/TVF_SetBitBigInt.sql": "50389F61CE053F863BCE5D38F64FEB9806048BAB29402A171C5E6AFF8396271B",
+    "Modules/toolbelt.binary.bit-operations/Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md": "B8CAD1617559A7C44CAA8242E231D1996CB4399CA045E3247F422416FE82F121",
+    "Modules/toolbelt.binary.bit-operations/Tests/README.md": "8BF158E53D6DDD8738783BAFA26E4A3CA0A19E97AE69CC095605AC81CBB24E70",
+    "Modules/toolbelt.binary.bit-operations/Tests/Runtime/BitOperations.Contract.sql": "0E50789C39A94A1A543C753CA821FA50E119B8CB1831FD86EE16B0F33F64FBA3",
+    "Modules/toolbelt.binary.bit-operations/Tests/Runtime/Central.Contract.sql": "52550A21C58ADCF18BBB95EA053A1A0611051CD3FC21EE2242503CB4052672C3",
+    "Modules/toolbelt.binary.bit-operations/Tests/Runtime/Lifecycle.Contract.sql": "702A46DA0857EC430A2A0DF3F18C8871A19D9E1D5502D3ACEBE5CD7B32C19E48",
+    "Modules/toolbelt.binary.bit-operations/Tests/Static/validate_contract.py": "64300DB44888F4FD281F03ABF19D9FBB961D3B3E64DFA6150544718EEC6E23C4",
+    "Modules/toolbelt.binary.bit-operations/module.yaml": "6EF4875B2322DB99788A581489657CB37664A29B8F23EB66AF3E561CFBABC51D",
+    "Modules/toolbelt.conversion.base64/Deployment/Deploy.sql": "C3B6C8BF521E9EF5A1C15369E88665ED7163DDD7BC0FBAA7D983BD0EAEC856F4",
+    "Modules/toolbelt.conversion.base64/Deployment/Uninstall.sql": "0531B2DC2664A74989EF863D27BFB8C7B96D78F169970FC8CFF20B50D34C9F97",
+    "Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md": "00C287C4F46B65C9888FD4730B0D9A487A2A96BD96866EAB2021DDBEC35C26B2",
+    "Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md": "4D36C1386F222252F6540042D9EA6367142B300C48E8B8D6F82BA8813FA14731",
+    "Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md": "72150E875276EA5EEAA09FF9869E3D49CDCD6DB4C5DF339D2748B55F41D3816F",
+    "Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md": "E17AF4237D272A77C9CD97C36783DAF6B308FB842E7B6CAF7B611EDCD9AE1C10",
+    "Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md": "9146079B179EF6F8E19D3E60AA7BC6ABD28F2DFFCA64AA1D597535F42960D3B2",
+    "Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md": "C0AF599E9139FCB4AF4CEA9FA56DC01E6A8B385598A1FECBFDE1A2ADEE90FB3A",
+    "Modules/toolbelt.conversion.base64/Examples/Base64.sql": "532AFF242F3295C2E285744488A8F8CEB9BAA792D0CEB8B18E29C3AD1D396F60",
+    "Modules/toolbelt.conversion.base64/README.md": "FB643E9B323CC564E2F55D5068A0325E856F861D68684E8358B00B15DB02E97A",
+    "Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql": "E97EB5844EA98307151D91B942C4A3613B14CC394728A0C0CEC6E8BF038BDC80",
+    "Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql": "8085E4077790AA4B08562122A35CFE836D5A04824B2B4E0615EFE62C92DEAF2B",
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql": "13A08D4186DE4536653A63BF253DBDDA01F1E843004275D479BD4584E2D5F51B",
+    "Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql": "BEA0A7A3F21A94EA747B73FCD79E9697ED0DFC87021E565ADF0DE773A7D7766F",
+    "Modules/toolbelt.conversion.base64/Tests/BASE64_CONTRACT_TEST_MATRIX.md": "87C42849B2E148AB9BBB8CFCD93DAA739E3F68D5A4B99A60ECEF4EE6897D69F5",
+    "Modules/toolbelt.conversion.base64/Tests/README.md": "39A152B6168780A0B29ECA21A04CF9DC86D39732340936C6862466501E3292F5",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Base64.Contract.sql": "4E0E2FA8117894EC140D9BE98DE05A5CD1972AEC04783F4899E795951251BFC7",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Central.Contract.sql": "1A6C54F63748D4928B6D525AD86892D6F5BCC9A94D650CB2470AA03DF8FCA331",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Lifecycle.Contract.sql": "325073741F369B163EBF9C67B63AB40AA936106F48104F344BA19032362984EF",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Load.Contract.sql": "938A10097796FBCB247A3C333BA1C0271224BECD2ECB6DB9955033D58DAA5425",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Performance.Workload.sql": "0C200DB00CA582F313F607C991783EFDC213386A81ADE0A7ECFA4BF248C3EBE0",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Security.Contract.sql": "771F89C7AF1C79CAC8B191C528EA62B4E7BB608E050EC3C6AFB22F455D05CCC6",
+    "Modules/toolbelt.conversion.base64/Tests/Static/validate_contract.py": "32BF021261B14D0361E9DEB6D68B4FF06004F7B83B7DAA4F72646EB7BB58C4DF",
+    "Modules/toolbelt.conversion.base64/module.yaml": "44AB4A7B4FC9720B7D8EA49623611BC6BCFF3DFCEEE10BD6DE6479A998269D50",
+    "Modules/toolbelt.conversion.integer-base/Deployment/Deploy.sql": "03C336628D1DB0FB98A41D28E40FBABC328F59338AE43DAC460400B7A318C357",
+    "Modules/toolbelt.conversion.integer-base/Deployment/Uninstall.sql": "049F2D3FF551A1DBBB096487F83B08F34206E2CBB1D4A39D6F96ACDF3A3E5FFD",
+    "Modules/toolbelt.conversion.integer-base/Documentation/SVF_IntegerToBase.md": "7E240EA03DF58AE873E87425161A755A6735A184255A129C9B590007F172C958",
+    "Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md": "455F0E24069E6BA55E080DBBE290ACE5AF352BAEF3C41D2CEA7E845945034894",
+    "Modules/toolbelt.conversion.integer-base/Documentation/TVF_IntegerToBase.md": "403569DDBDD26F7139BDFC314FE30DB530E96B1E1CA09422AC49775E93DF7E19",
+    "Modules/toolbelt.conversion.integer-base/Documentation/TVF_TryBaseToInteger.md": "039D40DDCB19E28C6EE115633FB528FD1BDC66BD59538D0E266DC78B94B3FD37",
+    "Modules/toolbelt.conversion.integer-base/Examples/IntegerBase.sql": "C0719CACD740B18F568490AA00E3ACB16B9587EFE001AE256B2DE1F1F14D442B",
+    "Modules/toolbelt.conversion.integer-base/README.md": "0B6178F6D1232A61D0F2D53BBB0AC87DFD93555A9862785CAE17FBAEBC7E210F",
+    "Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql": "63FF48FEC97289DFED2505855845529141D11F5F9895C6B90D9EC94BBB77C86D",
+    "Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql": "C8ABBECEA60FF650AB06213D2942A3DE465AB741CB15082350C6F6970EB12F98",
+    "Modules/toolbelt.conversion.integer-base/Source/TVF_IntegerToBase.sql": "9234AFF563019E8A7BD99935760124F77E607B589ABFB1C9B37105D53D3B2DCC",
+    "Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql": "E03D0F033D5B5F40E62C5A3927E6AC2E3697C87BFFC97F5C89399382A44B5023",
+    "Modules/toolbelt.conversion.integer-base/Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md": "C41BEB55781E82C981804BAE8D0E3002EAF9341D9DA7B3FA5DCC6CF886CB43B7",
+    "Modules/toolbelt.conversion.integer-base/Tests/README.md": "2F8B21E13A8EDED32FB44C642F5FC46A963CAB0C8E26758A53706ED3416DA2F5",
+    "Modules/toolbelt.conversion.integer-base/Tests/Runtime/Central.Contract.sql": "F812ABD1457742BE591F37379E75FEC618B8F958C635F5D677837C8B5D12317A",
+    "Modules/toolbelt.conversion.integer-base/Tests/Runtime/IntegerBase.Contract.sql": "0148F2EBF90C0C82CBF67FE8C0BBB01CDB8FDC5BEFCFEDCE172A04EAC146A599",
+    "Modules/toolbelt.conversion.integer-base/Tests/Runtime/Lifecycle.Contract.sql": "B796B79FF32C2FFD4783A2CF74EB11BF8A9FBFF9BC4F53BCC8646102F3EF407A",
+    "Modules/toolbelt.conversion.integer-base/Tests/Static/validate_contract.py": "7542399F66A435BF77654623914135C38845ECCA9EC22D3F38B8B55E8807DF1E",
+    "Modules/toolbelt.conversion.integer-base/module.yaml": "038DF454C1DD9A6ABBCDD3B0C4364DC9F0A72DC28DB480F309578850D2D86AC4",
+    "Modules/toolbelt.conversion.uri-component/Deployment/Deploy.sql": "C6CFE8664858E88E1101EB441BB267B3FF2DF6AE7FD8089102B115EF7F7C3461",
+    "Modules/toolbelt.conversion.uri-component/Deployment/Uninstall.sql": "55833DEF20F93B0B50EAAE94D1EA3B56DA0A03A78C5414AA20032A807C1D98CD",
+    "Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentDecode.md": "9113E6ABB3C65F8EC3B97FBE2A7A7CD7ED8EB22CA30BD5430E56B8F10900BB72",
+    "Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentEncode.md": "8CB449F3FE286BFEBA5165FC648696343D8F0F4E285DE1F19C090701F432C4EB",
+    "Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecode.md": "C97ADB203550C7960D311700470D388E2EB38522A6FB468AE10059E516134F08",
+    "Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecodeStatus.md": "F5A83B53DE498DA01906726E7DB4251E758274E8F6C55BB071945E059B8B0F71",
+    "Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncode.md": "85873CECD1B190CA625B8C3A45CD9C37154FC9036C14B72EA7710760C9BE72A1",
+    "Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncodeStatus.md": "CF01D174A42527CF14BB45A8A55D91BD05581E71FB40433FC9A3C5DF8AB06D81",
+    "Modules/toolbelt.conversion.uri-component/README.md": "1E7A47D6185DDCEEF4CB5FAA7315C7242B9392F0EE6BB9ED0C15F1BFD29DF205",
+    "Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentDecode.sql": "D074CD2F804F06F15377B01EAE3FDD73450E66A181AF7D81C2D5C27B447C5692",
+    "Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentEncode.sql": "61FFF2D9869A9571DE20F6B510EC9C6D4675616A45CA74C036ACD1CF669BF446",
+    "Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql": "45BEFB13028127974064835BC02BA42487455190FDBE966CAE0EBBC6EC2F6E26",
+    "Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql": "787D41EF866723150AE2A16BFEB2A7B138161F430B279A9DD196F7ADC8DEAD4F",
+    "Modules/toolbelt.conversion.uri-component/Tests/README.md": "750D64A4CD855605938F7BB878680F11151910FD5BD2F0735758D17EFBFCB04F",
+    "Modules/toolbelt.conversion.uri-component/Tests/Runtime/Central.Contract.sql": "20674305E33F53B985321BA89F16EFA0B41024ABB2CEC3962A6E34869D71F65A",
+    "Modules/toolbelt.conversion.uri-component/Tests/Runtime/Lifecycle.Contract.sql": "0AC812C1DF564B4E4D2514F178E29B494349C6114AAA06BF1F483AE1C6DB0872",
+    "Modules/toolbelt.conversion.uri-component/Tests/Runtime/Security.Contract.sql": "85D9CFCF3F727B4F8F2E48C32BA07131528C9A86F1F2E705E40FBDFC63FC2DC8",
+    "Modules/toolbelt.conversion.uri-component/Tests/Runtime/UriComponent.Contract.sql": "9BD233093EA1F82D3A7E4EFE9C838D50A74597882B14D59D7FD088727FFDEEDD",
+    "Modules/toolbelt.conversion.uri-component/Tests/Static/validate_contract.py": "01B5BFB7DE14CD57DC4A96FD403DA1CCC938B01007040DE1A1D4DAE9E6F3E867",
+    "Modules/toolbelt.conversion.uri-component/Tests/URI_COMPONENT_CONTRACT_TEST_MATRIX.md": "A3335354F3576453D67126C6A5FD06159EDC67351C670CBD26291DC4A5CBAEE1",
+    "Modules/toolbelt.conversion.uri-component/module.yaml": "A56294CE87C0E91EC4291A6AC663B2C07480E75C6673B86B0BEDBAB829B22E28",
+    "Modules/toolbelt.core.console-message/Deployment/Deploy.sql": "A1167CACD2CF0E1EC379901BD9299B5D49C8CAD88F91DFDF7C775EB9027E7D39",
+    "Modules/toolbelt.core.console-message/Deployment/Uninstall.sql": "574AB828908C7204CD94C8721FEB0CE53778C1A8E66A57FD83C6841977EC1CCD",
+    "Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md": "F1320CD939352D8B086E0106DB541EC7CE3C6EB47AD1B47E0B1C2D72AB3A73D0",
+    "Modules/toolbelt.core.console-message/Examples/ConsoleMessage.sql": "3C37C4660A983627AACA733E07CA035E313850318349351D61290A4A6D3E4259",
+    "Modules/toolbelt.core.console-message/README.md": "4059307AE4D86B99E60D7BFB41AAB7A14BB63A372AFC3CEAFEE46C00746ABB5B",
+    "Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql": "3A8011F7E1F135BC4826B99035F44DEE4CFDD0A08DC86775AD2CD4DD72E91DC0",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/Build-AdapterSql.ps1": "43C57545DBFEA904137D11D692467AA83A5EFDB2A2EFB54AC232810792F7F065",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/Invoke-OnExistingLab.ps1": "088D6437071CE6BE6D4D8DB8BBF964D291396DB18C9C5A27E51EF94FBB9CEE9C",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/README.md": "4F6314288315805BA2476EAE1D985E3F2945B5F5A013FD1628C5AC05E87FC7B1",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/adapter.json": "1E2970A76CF854CE51933890452EB162502BDD9F230CC1DDA226EAF4FBDC8D9E",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/sql/cleanup.sql": "6C8C66105B22953452FF29005E3A9B416F6F5E630AC99F424131F913FA7EAAD7",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/sql/install.sql": "A8C228BBB0EDDF1DF29F8537ED8BB93546FE8E66FEB1E400DC8024B4ABA51B7F",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/sql/preflight.sql": "77FBA7C3B859A5EB4F05F2DD279DB1B6AF4D8AF6860D41FBA03DBA8E35E0E27C",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/sql/update.sql": "13BC03B11E2CE13792A73F72F748D16D839CA2891A9A5DF9893258A1E0709656",
+    "Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/sql/validate.sql": "3C553A5AFDA88F7BACE09DCCF577D73A5C315C19F5930C44AAD397BB814AFC72",
+    "Modules/toolbelt.core.console-message/Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md": "0C55E056C80C5EB3A04AE26C6506E01F57A6B8A8B3E51B4036B2E6ECBFB5C734",
+    "Modules/toolbelt.core.console-message/Tests/README.md": "4920F2EEA7DA1786BD7C675A6BE238DDB80DE6EA8B6AA0AC506C4C49525E3DD5",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/Central.Contract.sql": "4ECB75CC9325DE85CA2D5475D86B9AE80F884642673E69C7D3C79E7746370353",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/ConsoleClient.Contract.ps1": "2F86C29BAE9EB4182C31E61DAED27E652F7DC9C42AD2D187CD9937BB4C0FF67B",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/ConsoleMessage.Contract.sql": "98DFB7013372F5B09B29B0A35C53765E9DA667AC3FADAB93876B3311BFAE3504",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/ConsoleOutput.Contract.sql": "4CD2D2F25D6E9F0591A826B2A1DF560F6423F83C6CC87EA0BB240D0574908E93",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/Lifecycle.Contract.sql": "FC4653FEF087C2B0F4293713A42D3B7C2605DF8697D4C8F29C767968F1E815BF",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/Security.Contract.sql": "9CBEE43276FBBA198E3FEB81E71241802E16055318D535F7ACB1B55F7C99F43A",
+    "Modules/toolbelt.core.console-message/Tests/Static/validate_contract.py": "E0DB439A134167B6F2CEEA819E8C8ED90FF1DDC6F7224341AA20827243A0D565",
+    "Modules/toolbelt.core.console-message/module.yaml": "DA7FF5EDEFC88024F28CCFDA58E5C4F1DC47246A00B9338AB8CFA2C8BE142875",
+    "Modules/toolbelt.core.error-envelope/Deployment/Deploy.sql": "13CB36299D634FD58A0FD4ED3C85DE4302A42E773BF22AE6B76EBE09EC9B51EA",
+    "Modules/toolbelt.core.error-envelope/Deployment/Uninstall.sql": "3D570FCB2CF7B18A52CD654417F5A0353F3398F4098BD6034A7F889C9269DF5B",
+    "Modules/toolbelt.core.error-envelope/Documentation/USP_CaptureErrorEnvelope.md": "2D915DE40ABA364FADB8D0D6DD041F05D76FE24D506CAF30BD0A8D5EA2BE123E",
+    "Modules/toolbelt.core.error-envelope/Examples/ErrorEnvelope.sql": "5EB9D3147649143E2556D04D24A0AFDF6C193763A2EE41EE97D5D800ECF9EB04",
+    "Modules/toolbelt.core.error-envelope/README.md": "F98DB3B450C715836665B702F95AF2FC46CA21081B094C95F549E333397E8562",
+    "Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql": "DE0FC09C0E1EAED31359CF5973917BA1F7B288300BC53EAC213DCFD262D1C241",
+    "Modules/toolbelt.core.error-envelope/Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md": "B6A15F0C8CAE8F306B84CBEC54170C5E90DE4D6F2AD6338F996D1857AB880235",
+    "Modules/toolbelt.core.error-envelope/Tests/README.md": "963E0D89E0D70B891A8C56159EE1DF7AC667F3F5E625509B0D09943FFBFCE83F",
+    "Modules/toolbelt.core.error-envelope/Tests/Runtime/Central.Contract.sql": "34EFC7102A9E25C661EE10DFB592B1EE75EA2B48C4C0F7240D0DED6B78F41F1B",
+    "Modules/toolbelt.core.error-envelope/Tests/Runtime/Envelope.Metadata.ps1": "DA377E46B48541225C9C581844C1424DC9FCF1FA654DF8F0E875015421842249",
+    "Modules/toolbelt.core.error-envelope/Tests/Runtime/ErrorEnvelope.Contract.sql": "CB0985BA7C891DC06E583879F3F52A392609DFDEC7CF5EF86705BFBFBDE53269",
+    "Modules/toolbelt.core.error-envelope/Tests/Runtime/Lifecycle.Contract.sql": "F63252F4A68589F481F314B65C9B62014749426C9EB999910CCA7BC3FAECB90E",
+    "Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py": "DE2AEB78A96A1093B6EDB023B87A6C5D7BEBFFCFC51316DC58B1347FB2D33783",
+    "Modules/toolbelt.core.error-envelope/module.yaml": "1C1A1F892095AEB9F11E17C85283919B206BE0B119F6854A5F50A0430921AD52",
+    "Modules/toolbelt.core.execution-context/Deployment/Deploy.sql": "1EF5AA673107155318C52C7314391B769ED14112E27648E10004C76FAE6258D2",
+    "Modules/toolbelt.core.execution-context/Deployment/Uninstall.sql": "4EF50CB08D29F14C345E2AB17117DACBB6B516878801DC8EF75560A4D2228998",
+    "Modules/toolbelt.core.execution-context/Documentation/EXECUTION_CONTEXT_OBJECTS.md": "0CBB22CB671135A524E27208496AD9E4E9C712F9E46730541084C804F8E61357",
+    "Modules/toolbelt.core.execution-context/Documentation/SVF_CurrentExecutionId.md": "11B221AF564863C80094E00C9B46F5A6AF492B9C43CA1B29981EDA5536609DF5",
+    "Modules/toolbelt.core.execution-context/Documentation/TVF_CurrentExecutionContext.md": "26919C507014096DB94E3AECD5816E6839B5898780C2C1A75399BF11A23CEEA5",
+    "Modules/toolbelt.core.execution-context/Documentation/USP_BeginExecution.md": "3B349FEC9528C3C54E23226C3E08F5CF7508B02816C7A510A8DD86F8178D8E6D",
+    "Modules/toolbelt.core.execution-context/Documentation/USP_EndExecution.md": "16FB42E1E97D7DD56DFCF749765E173F00EC7B29AB13E0D78D7B795E8B9E7A13",
+    "Modules/toolbelt.core.execution-context/Documentation/USP_SetExecutionContext.md": "E05C85414843A62A71D3E43C908E6DD77BB77C8152E52ACD5B8670ED7869B52F",
+    "Modules/toolbelt.core.execution-context/Examples/ExecutionContext.sql": "829DA0DD0F94F4DE30D67AEDC4EF21D3B1FB26AD8C1B3F8A92868A5009ABD4EE",
+    "Modules/toolbelt.core.execution-context/README.md": "1EA57D1647FAF761497B893FDB25C866AA8371ADCECC16130409D452EB2A2FA8",
+    "Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql": "CF18C7C7963EF2A3DAA955AE8D2EAAEBE7D9CD4326063A198F6B586E5425F372",
+    "Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql": "8E879B4C2001683B1DB7261E063555226767C04110F953D051E5757FE7C1369A",
+    "Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql": "961CC25E29DDEEF7213449C397E4A7DD82CC3C402BA2E2BAD6B28041437823C5",
+    "Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql": "DFCFA42C0B4089277EE4FAF27E9F6D872B8B2476F0A02FBA923F574F6593A133",
+    "Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql": "7CDA589FFA45BA4ED53A5BDDF03D8F156AC4EF4F95E2026177FEB5796552FB96",
+    "Modules/toolbelt.core.execution-context/Tests/EXECUTION_CONTEXT_CONTRACT_TEST_MATRIX.md": "ED12680EB88F91446E712FAB53614DAE55FC7D387A0FCF42CD07F71904406522",
+    "Modules/toolbelt.core.execution-context/Tests/README.md": "7777F4DDE44A3080EDAE0BC070EEA565CF7A89594F4809E186ECB5653E011B7F",
+    "Modules/toolbelt.core.execution-context/Tests/Runtime/Central.Contract.sql": "4372CA7216E30E05EF7A643273D371E641864AB1A5633ED99321D385ECEB8EB1",
+    "Modules/toolbelt.core.execution-context/Tests/Runtime/ExecutionContext.Contract.sql": "B87F0D84FA71D7BDB786ADB2231D1672962B8D65D34B42553E88C682DB22C2A2",
+    "Modules/toolbelt.core.execution-context/Tests/Runtime/Lifecycle.Contract.sql": "EE11E0324B88D77E61CE0DB88B79710C58D8532962CCC87502591589AC2977BF",
+    "Modules/toolbelt.core.execution-context/Tests/Runtime/MultiSession.Contract.sql": "F47AA7C5D2482D2E1C486D12DB7F1127BD81885C35A991C4C4667A8918EC93A9",
+    "Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py": "73C99EB86DF920AE6EF64DE47DE842F970B0DF9E7E1BF6B405FEEE060B6299E3",
+    "Modules/toolbelt.core.execution-context/module.yaml": "E544A50988BABB69CF8FE40F517AD010B7D197C7CFA2D1E25685E837E20EA06B",
+    "Modules/toolbelt.core.generate-series/Deployment/Deploy.sql": "1C2E19E69C55684C9A9096AF0D2A26B801B4581E114CD19D5008118CAB70FA9C",
+    "Modules/toolbelt.core.generate-series/Deployment/Uninstall.sql": "177DD25F2F20111610A19D1026129A1C6A6160E81A7F9D3C5098A2F726535046",
+    "Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md": "D1533115CA64FC6FD927013AAB74BF0CC3965061E3822ED0FF657E50A7F4BA37",
+    "Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigIntStatus.md": "E727BA763EAA7481FFECF9FF4EC1CC5B257CD18A037C239635FF6B29A1BF7CDD",
+    "Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesInt.md": "6BA6CE1C5D705122651013AF5FC7E043E844A6CCEACB450C7FF12242A027E144",
+    "Modules/toolbelt.core.generate-series/Examples/GenerateSeries.sql": "CA68876203EC724B4C970080DA2E47FB9C4AA6D493863B6705F2A3012AA81D67",
+    "Modules/toolbelt.core.generate-series/README.md": "BCBA1BC716B448BF8EFA645BA306599BC5A6A5B1322B8EBA897AD4773935E199",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql": "1A95881CCABD5FAB68DCCB9B2615C4FF4AFACD01DF8F7A76D5A6C58B51115797",
+    "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql": "2F0E261820FD215C2080B883B71187C611B51C348B22AC7794FD0801EAFE66FF",
+    "Modules/toolbelt.core.generate-series/Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md": "41363A9327D7C67EF491B24AF69834CFA3490D7E7774425620131D3191398EAA",
+    "Modules/toolbelt.core.generate-series/Tests/README.md": "E7D3C4F89BF2EB51C0B0E9811E395152CBCDD0175CC05141A54F66228F65D5E5",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/Central.Contract.sql": "796BADE7DAE500B50B3D33ECB524F3B5920E9C1D6DA3D4D5A864EFCDBA903D58",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/GenerateSeries.Contract.sql": "019B19A7EF2133EAA423639F7A28F4F1D48BDD6833158DC612A6F579CCFE9C20",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/Lifecycle.Contract.sql": "2902EE22A060F50405E2B2A03F78668B043A215482A6EA52EA1E0635E2E94999",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/Load.Contract.sql": "18C40BD8EC8F7B8F752444EB40471A106219F18310808D66ADAFA475BEDE6C6C",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/Performance.Workload.sql": "3EE86598F61E723329F69A399584B0AE69980B485DF31716FDFEA4E4CEE28F28",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/Security.Contract.sql": "AC567898C1297E5A8A177BC1C3F96A300FA221EB0A4E1FB4CD5F2524B40B2E5D",
+    "Modules/toolbelt.core.generate-series/Tests/Static/validate_contract.py": "E064F6B4E73DE27D24AA27D1EA597F8C2AF666171B9FB92F94F9F38C822582C3",
+    "Modules/toolbelt.core.generate-series/module.yaml": "4368B16029D98D2232FC62A10E675D16017F11EACDAC28DAFB21CB5946D9558A",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6B2152A4AFBD2B8BFE9EA24DBB41D47901AD8BEE9552E575921B9BDD1046A5CA",
+    "Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md": "D6317B18CE40561155E5FA90B2C1A80CFCE8F35AA584C89FE3A0FADD2A4AAACF",
+    "Modules/toolbelt.core.result-table/Examples/PrepareResultTable.sql": "F74BD572710CC473CB2220922B7EE3B16EDFE23F1341E17CA617EBF2DE7C5268",
+    "Modules/toolbelt.core.result-table/README.md": "16AABF8EDE82E590577E22BDAD484BA87CC073FA5551645E0E15572610D6E406",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "E817F62A0F59596D24DB76751109B6389A8B444F593CCD91395CF8C5A26F22D5",
+    "Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md": "7F6580AA29E72B78EF5117A8F9837C2A5E7598F8F83BBBE5C5312D4C00C921C5",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/BoundaryAndTransaction.Contract.sql": "0ADEC780F883E21081B47244816B6AE60DD3AFBE5C4CDB5CDF826C8B272C5F84",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Central.Contract.sql": "0252FCDA6519B07CE2A93D8624DFBD3FFC2ED2A81634352D57D38FDE7D154EBD",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Collation.Contract.sql": "95487E16424E9496EB3790B30EFBFDA90833EA84012B6EB2DE7C47B2C7688370",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Compatibility.Smoke.sql": "E7380D16DB41B2FEB3310DAAF5159933AB097E02CB8B5C1C47AFFDE5CB74D258",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Lifecycle.Contract.sql": "D375AEE8E3654ED5084B6C056A245276328D2BD82BE77059CA2B54F9B38E40C6",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Load.Contract.sql": "892C8CF8C215A58B03D171CEDAACF15D81CD0419D5A3EF8DB7193E2ED39B44F1",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/MultiSession.Contract.sql": "1493914C60CCCCB868386336161184D5BCD045874B4CC124595A46556DB6ECC6",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Performance.Workload.sql": "DB8AB7E806BF64A8EE65A792C8EA0701926882EBFA67647F4684954BABBC1C26",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/SavepointEngineError.Contract.sql": "4FD01DAC55602203600307B880CFA53D1CDD154BC634850BC0EB0207EF740F6F",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/SchemaTrust.Contract.sql": "0C5F82956C4953618E741E75DECD75726E74F3625FD6A9C4B88CADFE6BD6B848",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/USP_PrepareResultTable.Contract.sql": "EE48C9A44696ACE4492091310D755FFC02B0FBBF45B34D51A6BDFB4705D8DB47",
+    "Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py": "22CE1C12AE38B0131C43DE552CB11DD71A742D071A01871D9D76C8B6DE1D45C8",
+    "Modules/toolbelt.core.result-table/module.yaml": "BD656FCFA574CA78F19FBC44FD1700255465DC644F9EA499465B67B956C0C721",
+    "Modules/toolbelt.datetime.bucket/Deployment/Deploy.sql": "F084FD0C276C99168C00C767AF8270FAA4E9B6F7DBBEBBA7225288B697724857",
+    "Modules/toolbelt.datetime.bucket/Deployment/Uninstall.sql": "FB363A820854AFB62855D4997593132D6E16829DB380C3F13DCE2352FAA06C38",
+    "Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDate.md": "1C7FC5190FA425228F385D894A42DF664A442A4E8F35625CD28942C7A73DC17C",
+    "Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTime2.md": "7ABBB62F2669EEB8919AAF67C173D23CF7FF87EF008A06D2217EFF35B719F369",
+    "Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTimeOffset.md": "981229D11D9B9B8574B4C99C7233079289ED71F065E97D80D1CA2BE56C901BDA",
+    "Modules/toolbelt.datetime.bucket/Examples/DateTimeBucket.sql": "E92B68A0CE0D88507D15583D616B114481AD25201EB4B6BE68E1DFB9A50AB865",
+    "Modules/toolbelt.datetime.bucket/README.md": "941909610D6A5B98E4AD45B083C93445CCB774551EBF864E91A4CF22B6FD906D",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketCore.sql": "8263DFB8CDD665E3379DA375FF0D92EA0F5535DE6A9F5410B7B49408002BF30E",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql": "24A0E837A32AFD9653B8AF993F72809B42F8B8F86F4E275B6FDF1FA234424B35",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql": "C4BC959C279D03156EDBE362613E2E9D2573292BB583F3675C0D53EC1E1DB9E9",
+    "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql": "4DE627D36A738B095ED995CB68557F615E32813CF9C0732BFC475962BDEE7224",
+    "Modules/toolbelt.datetime.bucket/Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md": "C9723F1F94022054F9E7A1C7E36703A1DDF34F655E4515D528D7DBA44FCD5B5F",
+    "Modules/toolbelt.datetime.bucket/Tests/README.md": "D5ED89763236A3A8E6719C3CE3A5352BB63D2FBD49D98BDF12CF26666B531012",
+    "Modules/toolbelt.datetime.bucket/Tests/Runtime/Central.Contract.sql": "F301C59B2169AFA25F14935CEC38D1072EE1FA2AC32576518BF6EC7CD17E6DA9",
+    "Modules/toolbelt.datetime.bucket/Tests/Runtime/DateTimeBucket.Contract.sql": "1BC6EA09593142A8EA0F7B34909551EDE70CC49305261E76BC21C3DCE1043C4C",
+    "Modules/toolbelt.datetime.bucket/Tests/Runtime/Lifecycle.Contract.sql": "A3626329FE430EF4B7323957EE3F6F79454BE9FC73CE08205E8A6C363B343888",
+    "Modules/toolbelt.datetime.bucket/Tests/Runtime/Optimizer.Workload.sql": "08B62AE01A666F29E4C3EF92B9FBF6CD1ED4AF85A266D6B9BBC73EC7ED991302",
+    "Modules/toolbelt.datetime.bucket/Tests/Static/validate_contract.py": "51986A26EF7804F26DF14327DC008A30F786D05AAF83A3AA2A81B5EDA423F26B",
+    "Modules/toolbelt.datetime.bucket/module.yaml": "841C8D0B23002A01755A573FA46E49B67077DE64F08399F0C2811A71EF683F31",
+    "Modules/toolbelt.datetime.calendar-difference/Deployment/Deploy.sql": "5A50B9B4D7C8E70BBC0FB0164E468B3324557C1AFDB17E73595AA64AC222F06F",
+    "Modules/toolbelt.datetime.calendar-difference/Deployment/Uninstall.sql": "DB6296AB54EDA183B80FF402DD8A0362382DE595FEA990ECCCBAD20740C52CC6",
+    "Modules/toolbelt.datetime.calendar-difference/Documentation/TVF_CalendarDifference.md": "6957608AB39A7A60981BF00873552D69F750B275B3A645FA4D8B7E3863205FFD",
+    "Modules/toolbelt.datetime.calendar-difference/README.md": "B3917F9DE803E5219B7D0B1851BC8232B0F88778868AFA0F9B204584A53B6765",
+    "Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql": "00B5CF6F0F2E1B46CCA8C309740D3962F970A6104F41E6E31187E3CBB720F32D",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md": "71C75D09804CA5261CE6B93C8DA709B515D69A00A3A4FACC918D55FA4465021F",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/README.md": "D3D1AE242D01875BD9CD78986C44A58EB704794EA810CD51897BC35F8787CD13",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/CalendarDifference.Contract.sql": "A54CB8B6A731F4ACA72CAF3FF4B2743340F886CC6EBB5CE5D3868B44757125A4",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/Central.Contract.sql": "A1D8BD9FD3D4D9CC0D7AD568B7426D5FEE04C7B0072FCFE3DB2522D03C7972B2",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/Lifecycle.Contract.sql": "C3624F5C76477D22220557FB6F55D205DDBB3DA12E5100789995561F1F4E217D",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/Static/validate_contract.py": "9696FFC4C1D54D111328C7B710D4D8650BFD390A0EF72CEEA05035FEE6132548",
+    "Modules/toolbelt.datetime.calendar-difference/module.yaml": "C41863E8CDA1C3EF8D6DA4C5E8E2C903CDF67898FFBDC12194FDEE74A9180503",
+    "Modules/toolbelt.datetime.date-spine/Deployment/Deploy.sql": "66CFE82F9FF77069B77B4611B1BCA4770464E0E7E4AC376DA5AEEE1F8862D76D",
+    "Modules/toolbelt.datetime.date-spine/Deployment/Uninstall.sql": "5AABEB7ED612C18AD967CFB45C8F7280193877977EC65AB7482EA42558E03917",
+    "Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineCore.md": "63DE31BB27B39CB7525E1B9005D355283731E5EE6FBB0CC47730471C2E0C3AA0",
+    "Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineDay.md": "DE2F5AAD8C6CC16F35EB1A2E4E9858A295D67819A3200EFE5F2F0A3EB1667D75",
+    "Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineIsoWeek.md": "001277BA4553CEFBADB9FEAF2FA57E804FAE8547B398FCB1F0A5CE3AEF752563",
+    "Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineMonth.md": "DAC611A4F2C5889BFE9CDC1A0F58371B2E676706BDA3E211FF8A2E2FC05BF8DD",
+    "Modules/toolbelt.datetime.date-spine/Examples/DateSpine.sql": "A9C7A4605E229999445F3F8B175CF9F7E04E465420FBE4DD5E03223277BF5D34",
+    "Modules/toolbelt.datetime.date-spine/README.md": "D00F28F7629090BFDC30B7C09EE01B93C0FB1D36E4FCF0A9C5328D20C88974F8",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineCore.sql": "39898BC83C9C198113B539F69CC0485D3157D7358420E1F3DDA53A0165FB42B6",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql": "6F9C577BF010297BDBBB6D9AFB4561295FF825D004391D34E160007F1E273B33",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql": "356B77355A9DEAF10195DB8BC4857D7B09F6D6AFD44FEF23D7CC32C2896A0C38",
+    "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql": "1BEF5CA7920ABAF27F8AED5184938F7DCABA328DCDBA3123164CC894A420A9C5",
+    "Modules/toolbelt.datetime.date-spine/Tests/DATE_SPINE_CONTRACT_TEST_MATRIX.md": "298CB6FF066C2F45ACDFE8A05565637D244AA798EF689398BCEF829F45938460",
+    "Modules/toolbelt.datetime.date-spine/Tests/README.md": "6E3F7984FDB3E0C49D17F2117B396C5CF93B7A0CCC651DD2E347556B525AD3FA",
+    "Modules/toolbelt.datetime.date-spine/Tests/Runtime/Central.Contract.sql": "02F15EB3FACB250EB186DDB0AFE164A233E537EB1C960E39AD800911318377F7",
+    "Modules/toolbelt.datetime.date-spine/Tests/Runtime/DateSpine.Contract.sql": "D25602C30F1A0E4C6460D875EA841420A018565F779D00E40B0DD8C138E6811F",
+    "Modules/toolbelt.datetime.date-spine/Tests/Runtime/Lifecycle.Contract.sql": "57C7FA78A7CE3422FCF608AB8C85049C1E66706F8ABC1B391F36BE03EF99E1A1",
+    "Modules/toolbelt.datetime.date-spine/Tests/Static/validate_contract.py": "A5B382E2877F97420899DD77B5D4262511D83AC5860097AE439481E6F6F39543",
+    "Modules/toolbelt.datetime.date-spine/module.yaml": "31909EB3105BDE36828C49CC51C5C3C3A0048FC8922B81B7C633C00E594E8089",
+    "Modules/toolbelt.datetime.truncate/Deployment/Deploy.sql": "555F643B0798C833ECC7527595955389C5030F446DBD2AE9AC457EC3AFE16D54",
+    "Modules/toolbelt.datetime.truncate/Deployment/Uninstall.sql": "2CB6C057B19732402C0D8C88550C7A34A8F69C37EA3DB5B106B83B6D36F441F7",
+    "Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDate.md": "D1E1ADC43E2845F50A25EAF0AD8C3A475E74023F1730E1B14A46EEDC3C3CEC32",
+    "Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTime2.md": "CB94AFC283433C19F013DD80DE35437AF3A2981E9AE3076CE267471ABF9FA5D8",
+    "Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTimeOffset.md": "5E6D3D8472FB3B3687E147CF2080BFD96F153A07171379FD20B834F14CE04B0B",
+    "Modules/toolbelt.datetime.truncate/Examples/DateTimeTruncate.sql": "49A83CEE9B482FA58D801AAF0610F01E9D327F9D45D6C3B71CBA6D3E3932883D",
+    "Modules/toolbelt.datetime.truncate/README.md": "75778A4DDD4B1A0BD253B00829B90B277377E789EF0EA2792359B9DAB1E9BABB",
+    "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql": "38D0C1F26E97AA088B69C2D3BB8C9F87980188AB7FC9B651F451B5DEC2C08E74",
+    "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql": "F2800682A6C726FD394688D0C68F9EA4C3BF2FCBFE925B3DD4A00B29ED75DB95",
+    "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql": "BEFE5B2E43EE2F880DA7E9F8098B539BBD6E3B05404CDD6DA306D4EA3BAAD915",
+    "Modules/toolbelt.datetime.truncate/Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md": "9E0164CBCA4C447AF3BCDE6C487EBA53D594EF917F2C5D6C5A631A08D470D88E",
+    "Modules/toolbelt.datetime.truncate/Tests/README.md": "261909BB1AEB48D2F1C0CA58F4DCD3AE0952C3B0E1B8C300A082D1A69ED83309",
+    "Modules/toolbelt.datetime.truncate/Tests/Runtime/Central.Contract.sql": "41062284A02136D405EBE5ECEF3307A3A05750362B826F79E0E17B9C7E270D69",
+    "Modules/toolbelt.datetime.truncate/Tests/Runtime/DateTimeTruncate.Contract.sql": "E788C6CE20EE14034754DB2938A65A727CE592C5EE7E52D6B3F8916C0317EC2F",
+    "Modules/toolbelt.datetime.truncate/Tests/Runtime/Lifecycle.Contract.sql": "18844378BCC567F5517303B39D6A9C773FBE7D1785521BF9199A08BB682550D4",
+    "Modules/toolbelt.datetime.truncate/Tests/Static/validate_contract.py": "FFCAB68FB643A5710DE29EBFECB993C0741E7A0C7FDB4A7C5257511992358CD3",
+    "Modules/toolbelt.datetime.truncate/module.yaml": "4B88A67C9EB6EBBC38165D59C39305D3FC3847D33F33277AA51637FFB9F5B1D4",
+    "Modules/toolbelt.json.path-exists/Deployment/Deploy.sql": "A48ACB3CF0076E0D3C518E896817ACF7EF46AC7F4C0A6DD6B4E2545128C3D291",
+    "Modules/toolbelt.json.path-exists/Deployment/Uninstall.sql": "AC5BE72779A05A00A522B1E02FE71249CA0378515701ABA7ACC3C90F5DA9616A",
+    "Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md": "E897822069C95FF2AF69616FFB9BECC872DBD15FA3FF2B2709C3F125A759C0AE",
+    "Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md": "651A005B028E9D92BCDA7F861FC39B1CC484EA565E90543795B862375C2E1771",
+    "Modules/toolbelt.json.path-exists/Examples/JsonPathExists.sql": "FCFCAA1004EBB03B4D25EBE7935DDB7E529439ADCE58DB4EE32B274ADE0EAA04",
+    "Modules/toolbelt.json.path-exists/README.md": "0E2ECB8BCA32C273DDC744EC10D2C149207DFD9CB01B3B950D6A47DC19FDFE59",
+    "Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql": "16C0F85C0FE98289BC2A1FA2E1B0CA685FEAC4AFD0F613E14B5E3D3157FCACE4",
+    "Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md": "A940C3DDB23FDE8F4ADA08E133E2EEC163A61F68EB1119CFCCC460CFD1EF07FC",
+    "Modules/toolbelt.json.path-exists/Tests/README.md": "BD2F13418F7E5E8C2AC05163AE6BB08DF4024A932532181E7E8200AC3838D027",
+    "Modules/toolbelt.json.path-exists/Tests/Runtime/Central.Contract.sql": "82E48030EE9C65D48880DD72C94EC9A3AF5624D767BF3A7EC2AD2C950D4B656E",
+    "Modules/toolbelt.json.path-exists/Tests/Runtime/JsonPathExists.Contract.sql": "5652F8F535ADE75EF4187C4E4D44B7D06E130AF93F3DCEB8163B1FEA48C3103A",
+    "Modules/toolbelt.json.path-exists/Tests/Runtime/Lifecycle.Contract.sql": "0890F5458E04B8948AB37DD05F9B064798C33F2E2BCA883C1F82061A16F24E7B",
+    "Modules/toolbelt.json.path-exists/Tests/Runtime/Security.Contract.sql": "14406D54074BA5AE616212E6275596AA0DA58D6C81CE07939D02A2CC70063A12",
+    "Modules/toolbelt.json.path-exists/Tests/Static/validate_contract.py": "F348C71F14B329FBB4CF62F48D01700A05E0A3A6C3578D08C816020D615DFA7F",
+    "Modules/toolbelt.json.path-exists/module.yaml": "F7491DEEFA31C5ED0709906423D42799786B554495A4B3D290291FA6F02348E6",
+    "Modules/toolbelt.metadata.capability-catalog/Deployment/Deploy.sql": "D1FD441566D6206B466522426F043DD73B264A773FB109ACEA47B199D2E08649",
+    "Modules/toolbelt.metadata.capability-catalog/Deployment/Uninstall.sql": "84C08176BCCE1D21EEDBE64143AB4084B718D01FF3E88439AF82AEBF3F39EC87",
+    "Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md": "2166897708BAF1787C3E8422150509475E1D87104B659439C48EC6E647491A80",
+    "Modules/toolbelt.metadata.capability-catalog/Examples/ModuleCapabilities.sql": "3E3782CB0A03B12FC13816F216169D9A4F3583D7A6A0EE384298D5289CC65166",
+    "Modules/toolbelt.metadata.capability-catalog/README.md": "E8D0D1C877586D0650754DB20129CE90E4EAD28FB19D7BE2679361F095324EC8",
+    "Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql": "47B3085E8A596B4F82BB229D5F45973B87FE567EDC3EE15B30B6B94997A802F7",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md": "1ACB8E3E7C4E4F0BC82B8808DBFCCCCEEE3CAFA8DEBDF2A3A4E31F334D20A96B",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/README.md": "7773D45175B07F67B82BC8D4C28AC35AF2AF73427AF8F5E0CCD317F37F79D063",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/Central.Contract.sql": "2563E932C208B8A7A1F26B9E6345B9787EF07B8A1D0B9FB9EB4C074CF32D7CF6",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/Lifecycle.Contract.sql": "C5DE3B9758FEA3CF2C74F84DE6BC86F6BFF95EA4FEE874B5435C340FE5A7A07A",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/MetadataVisibility.Contract.sql": "67D1F68B71BE77F965DE0DA5E2E8F336A450C411C64032E4E506870E29C36E92",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/ModuleCapabilities.Contract.sql": "02EBEEA9B43BF73D45BF6E937C9208305A522823E5F14C6B48E7412B93C0F5B3",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Static/validate_contract.py": "6F0241B88301FC790509B9A4A4E390A9768B7C7E5A39B081F5D4F1D184CE9EE4",
+    "Modules/toolbelt.metadata.capability-catalog/module.yaml": "E775F6F2AAB4E869BEADC9B9B44BBF6902E2A25D5A8B8781A8DF23AB36EDB6BE",
+    "Modules/toolbelt.metadata.identifier/Deployment/Deploy.sql": "1CFC73D811580935487CAEFEAE21736DD9716760FE80130AFF62AEFF50820F4C",
+    "Modules/toolbelt.metadata.identifier/Deployment/Uninstall.sql": "5EE820D5ABF9F6716C0CCE683CA79F506AF0B4F3654C21566DEA455FA9938EFC",
+    "Modules/toolbelt.metadata.identifier/Documentation/SVF_QuoteMultipartName.md": "B8865CEF15AEAD4A7330B1C349BBB851B17DACB95C91861D43C7B82C901C5E7B",
+    "Modules/toolbelt.metadata.identifier/Documentation/TVF_ParseMultipartName.md": "112F2E2138E8F8ABF5FCE1FC17C3CDA8E420BCAD2479F2CBC14044C148FEA41C",
+    "Modules/toolbelt.metadata.identifier/Examples/IdentifierToolkit.sql": "5C497A5BD1A26E54A513FF37AA4886A0723E5D38E430AE0BFD0569C8053BED68",
+    "Modules/toolbelt.metadata.identifier/README.md": "CC967B7901290775F40920E638C28DA97A914BA37DE205AE0B51A27AC9EF7BF3",
+    "Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql": "4919F470FFEE06AC6E5107ABC3D6F452EF512821036CE10FFDC092DB9E9F26C9",
+    "Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql": "0C00005A9A7C72E9994292AC4A555C9943ADAD4D0DB2AEA5AF3B554361E69C32",
+    "Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md": "6A2680C5CDD0DE89AB4461176BFA3E934C9DD7ABC173F3B30CF779520A81B10E",
+    "Modules/toolbelt.metadata.identifier/Tests/README.md": "4BD433B2129A506FE2747CBB3FDA5B234CC9A626D2233BF0BFD3263388D78BF4",
+    "Modules/toolbelt.metadata.identifier/Tests/Runtime/Central.Contract.sql": "F7E85B99D5DD24C13EA9E710589E387B41688C16211D58E5F228B13E03DC100A",
+    "Modules/toolbelt.metadata.identifier/Tests/Runtime/Identifier.Contract.sql": "F211D506DCE20D7D7F4A9623A0D8D2599ECE14E32CC319401E2210954ED5F913",
+    "Modules/toolbelt.metadata.identifier/Tests/Runtime/Lifecycle.Contract.sql": "D67032E67E98C526F1C423F5229200EBBFD96214A227C9841BF154709296CBAF",
+    "Modules/toolbelt.metadata.identifier/Tests/Static/validate_contract.py": "089B405118A813723904B4B0AEB7A2DD591452D63659C2499CE6E148FB6A4DA9",
+    "Modules/toolbelt.metadata.identifier/module.yaml": "41C79C56C290915C2DCAF4E1BAB4BDF704375A299752BB3EE09ADD5CF613066A",
+    "Modules/toolbelt.string.directional-trim/Deployment/Deploy.sql": "7A334D821CFE72CAFE0C9238755F52CBFCCE4AFE80FDF2C765F92AB55C97BFA9",
+    "Modules/toolbelt.string.directional-trim/Deployment/Uninstall.sql": "126445AF15D9F2189C554FE096C5623B7220B77CABD26C8E38DA21412743F43E",
+    "Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalNvarchar.md": "BE33D8C87D4285F1EEA7F08DABB2783D01E2E91C2C71934FFED8453E5597A83B",
+    "Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalVarchar.md": "07B5844792C9620657778DA4636361FD80BDDEFA056DE255B89171220051317E",
+    "Modules/toolbelt.string.directional-trim/README.md": "ECEE3925534941DC81474B2C8D5874D3F6FCC8F6E54E54C443229C89002A0C9C",
+    "Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql": "05B516CE9C2C79C5FA4BC2B82033A47795BF7F31E0412223141507A2D05224FA",
+    "Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql": "9D4FE90EEF7070FD4C4993A71315E6D417A8CD1FAA4F5A578B9FE9C6FC2114A5",
+    "Modules/toolbelt.string.directional-trim/Tests/DIRECTIONAL_TRIM_CONTRACT_TEST_MATRIX.md": "6EFA3B0A27A05F27651C6D967A7E4AD08B044C7965E0D4978A02DFAFAEC350FA",
+    "Modules/toolbelt.string.directional-trim/Tests/README.md": "7FF7D8AEE48FC116534C86F33632B5616CE76E216B65549C102C6E77AD0498BD",
+    "Modules/toolbelt.string.directional-trim/Tests/Runtime/Central.Contract.sql": "EF898ED6793C27D364085FD706A5E658615964A5235C8335DC1449B47D191C3D",
+    "Modules/toolbelt.string.directional-trim/Tests/Runtime/Collation.Contract.sql": "E15825B00CC75B491BB74FAFD789173F726CABDBEF8EA7A46F21A8E664E3E5B8",
+    "Modules/toolbelt.string.directional-trim/Tests/Runtime/DirectionalTrim.Contract.sql": "3E7DBDF1008D7F39AFD9FA9A5090F2BE28D05A797B5932F3C549FB2E27D95666",
+    "Modules/toolbelt.string.directional-trim/Tests/Runtime/Lifecycle.Contract.sql": "E71140B1704556B3D577544E4901A465126413EF94EBAD44A500B42E99C8C116",
+    "Modules/toolbelt.string.directional-trim/Tests/Static/validate_contract.py": "393A63A35A33071A04CD31182F0942F755B30C41E681E6EE25C93D80DD6FA608",
+    "Modules/toolbelt.string.directional-trim/module.yaml": "4894DCED71D9AAEE587037177827AAAA89C19AEAD4E59E09EE809CE06CED23DF",
+    "Modules/toolbelt.string.split-characters/Deployment/Deploy.sql": "26DBF635B18E745DDBD6D5C2A48B213A0E0C37A901FC21185BF8AD062DE06A82",
+    "Modules/toolbelt.string.split-characters/Deployment/Uninstall.sql": "5048C7E829F72AE01E6CB36798DBAD0F0FAC943B005EC87EB78D3FFD8DC0E687",
+    "Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharacters.md": "D579C5562C4A2E822CF90D7D87F18645923E9D9C21663A8D876423400B083C34",
+    "Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharactersStatus.md": "2BC94FED3A582339352A68CF38C6AC154C782D5B745247013260963795E4F4A1",
+    "Modules/toolbelt.string.split-characters/Examples/SplitCharacters.sql": "FD2C5914B7737159AFC806D1F916933BE44F6321F4A712D4034226A36B785D32",
+    "Modules/toolbelt.string.split-characters/README.md": "7C47A3CAE9FA49DE71107C28C338ED3C3C7C2C7C055FD724A9FCF1D7C8506944",
+    "Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql": "4889468CCDF091A7D0F4F5EF4F34712C39569A19F09584A72617FF16AE1AB162",
+    "Modules/toolbelt.string.split-characters/Tests/README.md": "402E28DFB96CAE83FF91EA8561D725A5FBA5742C67BD969249B78C95F8DB73A0",
+    "Modules/toolbelt.string.split-characters/Tests/Runtime/Central.Contract.sql": "F625C69FBC72E917161BC98C7323D66F83A3D810653203593F958E6214450184",
+    "Modules/toolbelt.string.split-characters/Tests/Runtime/Lifecycle.Contract.sql": "FD5771FD4FAF68326F46AA93CABF221340BDC3FA296E9A5176F233C90038BE53",
+    "Modules/toolbelt.string.split-characters/Tests/Runtime/Security.Contract.sql": "4AEB99A1D13FFA1E26F0619F4D4B016BEB0BD12DE8E40473AC6CD6607B91D188",
+    "Modules/toolbelt.string.split-characters/Tests/Runtime/SplitCharacters.Contract.sql": "CD96F4752F8D2B6D23FE87FB630C5CDE22BFAEE23097AA16B67D86A577FD1AC1",
+    "Modules/toolbelt.string.split-characters/Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md": "D99CAC7B5DF82D0E4CB68A789F4DD3AB04FC798CB4515D9166C26DE64CF97897",
+    "Modules/toolbelt.string.split-characters/Tests/Static/validate_contract.py": "660D00C28AAF31BBB076C502F6FA3F03E78419FCF2421147E95DF547BEBD0B86",
+    "Modules/toolbelt.string.split-characters/module.yaml": "04B8345815D203C1F381E4027A6F22606775AA28410E57C3E356D3B03AEFF6FF",
+    "Modules/toolbelt.validation.semantic-version/Deployment/Deploy.sql": "26BD028C803DF0796E2F0821AF8170D17A5C431C4C4990444FC6A149C0D25EC3",
+    "Modules/toolbelt.validation.semantic-version/Deployment/Uninstall.sql": "75D77D4707D62BDDD78D2446CE4B11D66290C3142FFF98DE9231BE45979A3834",
+    "Modules/toolbelt.validation.semantic-version/Documentation/SVF_CompareSemanticVersion.md": "3891FD66D6107333EA14C336DA45939455060EFCF703E7CB41942918D7D24A36",
+    "Modules/toolbelt.validation.semantic-version/Documentation/SVF_SemanticVersionSortKey.md": "1B2049E76782B2513B147B2015778E0B702630711B0002ED2819AE0303838118",
+    "Modules/toolbelt.validation.semantic-version/Documentation/TVF_CompareSemanticVersion.md": "D614B1BB957FF90F53F63DA0C381285C64CB645F4D6338EEDE23FA0B4C98E483",
+    "Modules/toolbelt.validation.semantic-version/Documentation/TVF_ParseSemanticVersion.md": "6F2340EA0BC479B50EE02ECB5941DC8285D04D4940246AD7FD0B8F2973D16FFF",
+    "Modules/toolbelt.validation.semantic-version/Documentation/TVF_SemanticVersionSortKey.md": "D2420CBEC7C776702511438F4D43D89B4E06E9696BB2EE5DB97FC0FC474ED5B2",
+    "Modules/toolbelt.validation.semantic-version/Examples/SemanticVersion.sql": "0077FEE4653E6F5F31DD4D1617B3B7D1BC437FA6D1CEE4AB8BC9B66C7849F641",
+    "Modules/toolbelt.validation.semantic-version/README.md": "98B963B960DB40831FAF736CE4578E487C1DBD80F9B66BC1B7C988D6B6AA08F0",
+    "Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql": "712D28096BEA73A39445CF5B1F1BD3A9F2698CC8B3170EDE3E1046DA22943B0D",
+    "Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql": "B9FA0CA5A425AB8C486F5B9268D0AB676654BBE6C76112DB8269888935C225B7",
+    "Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql": "ED1A67BC50A677BB5D13D095BA2B2F40BCA635643F16D06BA3344E00DB8F47FE",
+    "Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql": "5938E54F0F8794893B40243CCDE9CE919B0C3CDA3591436956EAD46B67EDDF3C",
+    "Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql": "1D114DD86AAE41010ACD88C869467DDA22E3B47055DBA755C63989513F078A5F",
+    "Modules/toolbelt.validation.semantic-version/Tests/README.md": "7A8FCB242D2F8A2277783ED973E51C49DC7A987917B10E5C8A08B30BF91D80EC",
+    "Modules/toolbelt.validation.semantic-version/Tests/Runtime/Central.Contract.sql": "3DA32A61BFE360BF384164F987B6F26DAE2B87C393EC9F61582847103C4004E8",
+    "Modules/toolbelt.validation.semantic-version/Tests/Runtime/Lifecycle.Contract.sql": "40A02247F901C21A2A71A1E07CF554E154A1D1BF3FC2380D166308CC2C8F35BD",
+    "Modules/toolbelt.validation.semantic-version/Tests/Runtime/SemanticVersion.Contract.sql": "12E7CA622CC348CBC5EB8BF3B4638E1A7941F6F79A231FD68DBCB16797D2C5DB",
+    "Modules/toolbelt.validation.semantic-version/Tests/SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md": "ECCD41E54C65E46FEC6A53A7ED2BB7D1A0EC05DCE88ABF95D12A41AC7E475F7C",
+    "Modules/toolbelt.validation.semantic-version/Tests/Static/validate_contract.py": "BFD596E9C5F0A458A9EABEF503955854E66F6B4AFEF5F96E15D2FBB6D349F7FD",
+    "Modules/toolbelt.validation.semantic-version/module.yaml": "423EA97E4A08A9899F788EC65BDD321410C595C1FCA87955642FF14BE10A4F2F",
+    "Releases/1.0.0/release-plan.json": "A80B0481213C0131D932A270899DED7CC4224C64D6906559347A4A5EBDB84015",
+    "Scripts/Documentation/generate_parameter_help.py": "128382B668EE6E894FFE09476045C050E1516F239D23D2D85FA68FF19504114F",
+    "Scripts/Release/new_parameter_help_package.py": "E13AFE677006BC7D0F4CCADCF977C1F02DAE1205D04F3C778E9CE8E7CF057CEC",
+    "Scripts/Release/parameter_help_transition.py": "C797639DF947BD69BDD330257DE112D6C00CBB3586A978AC9C383108C47BDFAA",
+    "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+    "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846",
+    "Tests/Documentation/generate_api_catalog.py": "24280200E2123C619408761E7BC55255AE524B1C09B32B9C5EFA27B86245A22B",
+    "Tests/Documentation/new_parameter_help_cases.py": "8D90DA03CF85B7ECDA298793FD166C4DA8DA81D359CB55FD35E1AF2D1DF0A637",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50C4344D7172F605176F9FF072C046B50501EFC08FD7460DC1186CACE443F745",
+    "Tests/Release/Invoke-Stable19AcceptanceLab.ps1": "45FF8F74FBA9ED333629F5D2EFA304809529147E7F2DA80558025A12343082C7",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04C9EDEB54B09CCA306D007DE11B7A01773425BA1AE76F3198BA1E5DEB660D6A",
+    "Tests/Release/Runtime/Invoke-ParameterHelpCases.ps1": "B231F5B248D9E80B8BF3F295AD4C10E967BB7BAC9DA5FE0F32953F09372B1119",
+    "Tests/Release/prepare_stable19_acceptance.py": "2A85D281D0302586345096305871477FFD104475EA543AA0A67D9AFB1A0C8B44"
+  },
+  "export_sha256": {
+    "local": "E44C915082CEAB2D259867E90CCE32749E6487F0A24BE029736BD821B9F00A5B",
+    "central": "DBD55F3AFD88784F0E28BAB1255A3A3DC43A8E44F55E8B6805FE4E48175ECE5F"
+  },
+  "help_fixture_sha256": "7973ABE5EFA2447158A6E4B619FFAA720E5734B0A69F19947AC4CE566CC54DA9",
+  "modules": [
+    {
+      "module_id": "toolbelt.binary.bit-operations",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.binary.bit-operations/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.conversion.base64",
+      "module_version": "1.1.0",
+      "manifest": "Modules/toolbelt.conversion.base64/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md",
+        "Releases/1.0.0/base64-ddl-help-transition.json"
+      ]
+    },
+    {
+      "module_id": "toolbelt.conversion.integer-base",
+      "module_version": "1.1.0",
+      "manifest": "Modules/toolbelt.conversion.integer-base/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.conversion.uri-component",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.conversion.uri-component/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.console-message",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.core.console-message/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.error-envelope",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.core.error-envelope/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.execution-context",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.core.execution-context/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.generate-series",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.core.generate-series/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md",
+        "Releases/1.0.0/generate-series-ddl-help-transition.json"
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.result-table",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.core.result-table/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.bucket",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.datetime.bucket/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/DATE-MATH-CL-COMPLETION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.calendar-difference",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.datetime.calendar-difference/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/DATE-MATH-CL-COMPLETION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.date-spine",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.datetime.date-spine/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md",
+        "Releases/1.0.0/date-spine-ddl-help-transition.json"
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.truncate",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.datetime.truncate/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.json.path-exists",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.json.path-exists/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.metadata.capability-catalog",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.metadata.capability-catalog/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.metadata.identifier",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.metadata.identifier/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.directional-trim",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.string.directional-trim/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.split-characters",
+      "module_version": "1.0.0",
+      "manifest": "Modules/toolbelt.string.split-characters/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md"
+      ]
+    },
+    {
+      "module_id": "toolbelt.validation.semantic-version",
+      "module_version": "1.1.0",
+      "manifest": "Modules/toolbelt.validation.semantic-version/module.yaml",
+      "existing_evidence": [
+        "Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md"
+      ]
+    }
+  ],
+  "public_objects": [
+    {
+      "module": "toolbelt.binary.bit-operations",
+      "schema": "toolbelt_binary",
+      "name": "TVF_LeftShiftBigInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.binary.bit-operations",
+      "schema": "toolbelt_binary",
+      "name": "TVF_RightShiftBigInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.binary.bit-operations",
+      "schema": "toolbelt_binary",
+      "name": "TVF_BitCountBigInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.binary.bit-operations",
+      "schema": "toolbelt_binary",
+      "name": "TVF_GetBitBigInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.binary.bit-operations",
+      "schema": "toolbelt_binary",
+      "name": "TVF_SetBitBigInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.base64",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_Base64Encode",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.base64",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_Base64Decode",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.base64",
+      "schema": "toolbelt_conversion",
+      "name": "SVF_Base64Encode",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.conversion.base64",
+      "schema": "toolbelt_conversion",
+      "name": "SVF_Base64Decode",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.conversion.base64",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_Base64EncodeStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.base64",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_Base64DecodeStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.integer-base",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_IntegerToBase",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.integer-base",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_TryBaseToInteger",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.integer-base",
+      "schema": "toolbelt_conversion",
+      "name": "SVF_IntegerToBase",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.conversion.integer-base",
+      "schema": "toolbelt_conversion",
+      "name": "SVF_TryBaseToInteger",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.conversion.uri-component",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_UriComponentEncode",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.uri-component",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_UriComponentDecode",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.uri-component",
+      "schema": "toolbelt_conversion",
+      "name": "SVF_UriComponentEncode",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.conversion.uri-component",
+      "schema": "toolbelt_conversion",
+      "name": "SVF_UriComponentDecode",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.conversion.uri-component",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_UriComponentEncodeStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.conversion.uri-component",
+      "schema": "toolbelt_conversion",
+      "name": "TVF_UriComponentDecodeStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.core.console-message",
+      "schema": "toolbelt_core",
+      "name": "USP_WriteConsoleMessage",
+      "type": "USP"
+    },
+    {
+      "module": "toolbelt.core.error-envelope",
+      "schema": "toolbelt_core",
+      "name": "USP_CaptureErrorEnvelope",
+      "type": "USP"
+    },
+    {
+      "module": "toolbelt.core.execution-context",
+      "schema": "toolbelt_core",
+      "name": "TVF_CurrentExecutionContext",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.core.execution-context",
+      "schema": "toolbelt_core",
+      "name": "SVF_CurrentExecutionId",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.core.execution-context",
+      "schema": "toolbelt_core",
+      "name": "USP_BeginExecution",
+      "type": "USP"
+    },
+    {
+      "module": "toolbelt.core.execution-context",
+      "schema": "toolbelt_core",
+      "name": "USP_SetExecutionContext",
+      "type": "USP"
+    },
+    {
+      "module": "toolbelt.core.execution-context",
+      "schema": "toolbelt_core",
+      "name": "USP_EndExecution",
+      "type": "USP"
+    },
+    {
+      "module": "toolbelt.core.generate-series",
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesBigInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.core.generate-series",
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesInt",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.core.generate-series",
+      "schema": "toolbelt_core",
+      "name": "TVF_GenerateSeriesBigIntStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.core.result-table",
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "type": "USP"
+    },
+    {
+      "module": "toolbelt.datetime.bucket",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketDate",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.bucket",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketDateTime2",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.bucket",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateBucketDateTimeOffset",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.calendar-difference",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_CalendarDifference",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.date-spine",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineDay",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.date-spine",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineIsoWeek",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.date-spine",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_DateSpineMonth",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.truncate",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_TruncateDate",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.truncate",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_TruncateDateTime2",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.datetime.truncate",
+      "schema": "toolbelt_datetime",
+      "name": "TVF_TruncateDateTimeOffset",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.json.path-exists",
+      "schema": "toolbelt_json",
+      "name": "TVF_JsonPathExists",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.json.path-exists",
+      "schema": "toolbelt_json",
+      "name": "TVF_JsonPathExistsStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.metadata.capability-catalog",
+      "schema": "toolbelt_metadata",
+      "name": "VW_ModuleCapabilities",
+      "type": "VW"
+    },
+    {
+      "module": "toolbelt.metadata.identifier",
+      "schema": "toolbelt_metadata",
+      "name": "TVF_ParseMultipartName",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.metadata.identifier",
+      "schema": "toolbelt_metadata",
+      "name": "SVF_QuoteMultipartName",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.string.directional-trim",
+      "schema": "toolbelt_string",
+      "name": "TVF_TrimDirectionalNvarchar",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.string.directional-trim",
+      "schema": "toolbelt_string",
+      "name": "TVF_TrimDirectionalVarchar",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.string.split-characters",
+      "schema": "toolbelt_string",
+      "name": "TVF_SplitByCharacters",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.string.split-characters",
+      "schema": "toolbelt_string",
+      "name": "TVF_SplitByCharactersStatus",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.validation.semantic-version",
+      "schema": "toolbelt_validation",
+      "name": "TVF_ParseSemanticVersion",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.validation.semantic-version",
+      "schema": "toolbelt_validation",
+      "name": "TVF_CompareSemanticVersion",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.validation.semantic-version",
+      "schema": "toolbelt_validation",
+      "name": "TVF_SemanticVersionSortKey",
+      "type": "TVF"
+    },
+    {
+      "module": "toolbelt.validation.semantic-version",
+      "schema": "toolbelt_validation",
+      "name": "SVF_CompareSemanticVersion",
+      "type": "SVF"
+    },
+    {
+      "module": "toolbelt.validation.semantic-version",
+      "schema": "toolbelt_validation",
+      "name": "SVF_SemanticVersionSortKey",
+      "type": "SVF"
+    }
+  ],
+  "existing_evidence_sha256": {
+    "Releases/1.0.0/CALLER-METADATA-UPDATE.md": "2DE758C06FFBE54113DC4E34EBA4259ECE6DF3C50DD0019786BB12B62DFB19CD",
+    "Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md": "19C36002E8B7D797998EBB98F72A19DB5C2A99341B9F3FF91DA39CE03906320C",
+    "Releases/1.0.0/CONSOLE-CALLER-QUALIFICATION.md": "8AA7E42247DC516AB560E7D88BDB363227EAEB643FA93E2386E5E4DA1AFCCB45",
+    "Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md": "C39C31FB2E00DFD0848CA5DE7B7C5AA1E7D3E515BCE86677806B99F24BCF236C",
+    "Releases/1.0.0/DATE-MATH-CL-COMPLETION.md": "71409996F883BB37EE3A52801220D0FB84559DB2824BE8DF28F139A7924D75C2",
+    "Releases/1.0.0/EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md": "72ABA29A83FA32646E384AB8AB9E77D843925C425A98F3423F3CD3BDE5D55CF8",
+    "Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md": "2FB0C863226A9AFBC6F1736D1848F53D711F7B6BE76779A6D4C3B8CFE8B0FF0D",
+    "Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md": "00DEC03C9FE1FB2866A28B64CE5493ADDAEB1ED91E64F8E7E26059BE07292941",
+    "Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md": "2868FEA7BF7719B42E9024952C6678B8C5AE7EF4380D9AF1C49C14DEE6C3318C",
+    "Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md": "D1160626E9660003908490676007A46BF74484B8AD94B1B329DD0DB433D002E4",
+    "Releases/1.0.0/base64-ddl-help-transition.json": "15038CEF7D2D51592C23CA6667096A6037D342660144921B6B2151AF94735712",
+    "Releases/1.0.0/date-spine-ddl-help-transition.json": "BD0AD9073F7CBD20E86C983C7F28C02FFC445B0944C2CF6FFC6E0D2E627CE5CB",
+    "Releases/1.0.0/documentation-followup-transition.json": "B28CA23FB826C8F710D3E74FE7812B46CD4D6A75AA4CBD5F1B0AAAC60C578155",
+    "Releases/1.0.0/generate-series-ddl-help-transition.json": "13856A65A1C8BB8D16F789DE7914F12C45C52EB3A7F79B1FDD3057CF90EBBBE8",
+    "Releases/1.0.0/parameter-help-qualification.json": "9CF34D5D6C4B692CD339F3905A252672F3ECC04CC7B70BA04E4F0438E106880D",
+    "Tests/V0C_RELEASE_GATE_STATUS.md": "8D3507F6998E9179CA9708FA33F7AEA09894A355C36E43CD03D115CEA197B37B"
+  },
+  "native_execution": {
+    "driver": "Tests/Release/Invoke-Stable19AcceptanceLab.ps1",
+    "cases": [
+      {
+        "index": 0,
+        "platform": "linux",
+        "sql_version": "2019",
+        "selected_patch": "latest",
+        "compatibility_level": 150,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 1,
+        "platform": "linux",
+        "sql_version": "2022",
+        "selected_patch": "latest",
+        "compatibility_level": 150,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 2,
+        "platform": "linux",
+        "sql_version": "2022",
+        "selected_patch": "latest",
+        "compatibility_level": 160,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 3,
+        "platform": "linux",
+        "sql_version": "2025",
+        "selected_patch": "latest",
+        "compatibility_level": 150,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 4,
+        "platform": "linux",
+        "sql_version": "2025",
+        "selected_patch": "latest",
+        "compatibility_level": 160,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 5,
+        "platform": "linux",
+        "sql_version": "2025",
+        "selected_patch": "latest",
+        "compatibility_level": 170,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 6,
+        "platform": "windows",
+        "sql_version": "2019",
+        "selected_patch": "cu32",
+        "compatibility_level": 150,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 7,
+        "platform": "windows",
+        "sql_version": "2022",
+        "selected_patch": "cu26",
+        "compatibility_level": 150,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 8,
+        "platform": "windows",
+        "sql_version": "2022",
+        "selected_patch": "cu26",
+        "compatibility_level": 160,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 9,
+        "platform": "windows",
+        "sql_version": "2025",
+        "selected_patch": "cu8",
+        "compatibility_level": 150,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 10,
+        "platform": "windows",
+        "sql_version": "2025",
+        "selected_patch": "cu8",
+        "compatibility_level": 160,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      },
+      {
+        "index": 11,
+        "platform": "windows",
+        "sql_version": "2025",
+        "selected_patch": "cu8",
+        "compatibility_level": 170,
+        "modes": [
+          "local",
+          "central"
+        ],
+        "result": "PASS",
+        "independent_audit": "PASS",
+        "own_databases_removed": 3,
+        "help_calls": 48,
+        "help_assertions": 3048
+      }
+    ],
+    "context_count": 12,
+    "deployment_paths": 24,
+    "public_objects": 56,
+    "help_procedures": 6,
+    "help_parameters": 39,
+    "help_calls": 576,
+    "help_assertions": 36576,
+    "own_databases_removed": 36,
+    "independent_audits": 12,
+    "failed_native_attempts": 0,
+    "scope": "Current exported install/repeat, public object presence, installed Help, five existing package oracles, central administrative consumer and double uninstall"
+  },
+  "test_purpose": "Functional",
+  "authenticated_tls": "not executed",
+  "module_status_changed": false,
+  "publication_authorized": false,
+  "stable_release_approved": false,
+  "support_scope_changed": false,
+  "limitations": [
+    "Existing functional, load and caller evidence retains its original input/date/scope; not rerun as a new complete module qualification",
+    "No real low-privilege cross-database login mapping, Windows login or SSMS GUI qualification",
+    "Administrative installer tested; reduced DDL principal profile not qualified",
+    "No server, login, grant, CLR, trust, certificate or lab infrastructure changes",
+    "No hard host/transport recovery or production performance guarantee",
+    "No supported module publication; the existing 45-module target scope is unchanged"
+  ]
+}

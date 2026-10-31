@@ -25,6 +25,10 @@ steht in diesem Nachweis.
 
 ## v1.0.0 vorbereiten oder prüfen
 
+Die [Abnahme der 19 stabilen Kandidaten](1.0.0/STABLE19-ACCEPTANCE.md) prüft
+aktuelle Integration, anwendbare Fachnachweise und verbleibende Freigabegrenzen.
+Der größere 45-Modul-Zielumfang und die RC-Veröffentlichung bleiben getrennt.
+
 Der [aktuelle Quellkandidat](1.0.0/CURRENT-CANDIDATE.md) bindet den heutigen
 versionierten Stand und den separat geprüften Parameter-Help-Installer.
 Seine Anleitung erklärt Bau, Prüfung und die weiterhin offenen Releasegates.

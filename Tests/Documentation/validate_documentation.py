@@ -1805,6 +1805,16 @@ def main() -> int:
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
+        # Der historische Suite-Loader ist selbst exakt qualifikationsgebunden.
+        # RC- und Stable-19-Guards deshalb im selben vorhandenen Validierungszweig
+        # ausführen; kein neuer CI-Job und keine native SQL-Ausführung.
+        result = run_hidden(
+            [sys.executable, "-B", "-m", "unittest", "test_current_release_candidate", "test_stable19_acceptance"],
+            cwd=REPOSITORY_ROOT / "Tests/Release", capture_output=True, text=True, encoding="utf-8", timeout=120,
+        )
+        if result.returncode:
+            raise ValidationError(f"Aktuelle Kandidaten-/Abnahmeregressionen:\n{result.stdout}{result.stderr}")
+        print(result.stderr.strip())
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),
              "--verify", str(REPOSITORY_ROOT / "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip")],
