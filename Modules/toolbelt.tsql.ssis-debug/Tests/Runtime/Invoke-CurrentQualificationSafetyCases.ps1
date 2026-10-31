@@ -112,6 +112,8 @@ try{
  # Sessions gebunden; nach Rollback muss dieselbe Planeinheit erfolgreich sein.
  $blocking=Invoke-V2Explain -Bytes $safeBytes -Operation 'explain' -Catalog $catalog -Stage 'all'
  $source=@($blocking.Rows|Where-Object {$_.ArtifactKind -ceq 'StageSql' -and $_.ComponentId -ceq 'Package\Flow\SourceA'})[0]
+ $blocking=Invoke-V2Explain -Bytes $safeBytes -Operation 'explain' -Catalog $catalog -Target ([string]$source.TargetFlowId) -Stage ([string]$source.StageId)
+ $source=@($blocking.Rows|Where-Object {$_.ArtifactKind -ceq 'StageSql' -and $_.ComponentId -ceq 'Package\Flow\SourceA'})[0]
  $blockingParts=Get-V2PlanParts $blocking $source
  $readerId=[int](Invoke-V2Sql 'SELECT @@SPID AS S;').Rows[0].S
  $writer=([ICloneable]$Connection).Clone();$writer.Open()
