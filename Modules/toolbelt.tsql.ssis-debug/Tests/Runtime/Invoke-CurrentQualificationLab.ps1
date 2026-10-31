@@ -52,6 +52,7 @@ if($InputManifestPath){
     # SQL gebunden sein; nur der äußere Driver wäre kein vollständiger Pin.
     foreach($relative in @('Invoke-CurrentCases.ps1','Invoke-CurrentQualificationCases.ps1',
       'Invoke-CurrentQualificationBoundaryCases.ps1','Invoke-ComponentsV2DomainCases.ps1',
+      'Invoke-CurrentQualificationSafetyCases.ps1',
       'Invoke-ComponentsV2ExpressionCases.ps1','Invoke-ComponentsV2VariableCases.ps1',
       'Invoke-ApiCases.ps1','Invoke-ReleaseRightsCases.ps1','Invoke-LifecycleCases.ps1')){
         if(-not $seen.Contains([IO.Path]::GetFullPath((Join-Path $PSScriptRoot $relative)))){throw 'SSIS_CURRENT_QUALIFICATION_TRANSITIVE_INPUT_MISSING'}

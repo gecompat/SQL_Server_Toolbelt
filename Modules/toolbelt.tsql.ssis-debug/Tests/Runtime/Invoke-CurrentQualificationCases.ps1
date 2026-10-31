@@ -74,8 +74,21 @@ $variable=$variable.Replace('@($group)*256','@($group)*32').Replace('{"schemaVer
 $hook=". (Join-Path `$PSScriptRoot 'Invoke-ComponentsV2VariableCases.ps1')"
 if(($domain.Split($hook).Count-1) -ne 1){throw 'SSIS_CURRENT_QUALIFICATION_DOMAIN_ANCHOR'}
 $domain=$domain.Replace($hook,'. ([scriptblock]::Create($variable))')
+function Test-CurrentMissingContext($Artifacts,[string]$Component){
+ # Der aktuelle Vertrag transportiert die Erstursache an der blockierten
+ # Stufe; eine nachgelagerte Diagnostic darf einen Kaskadencode tragen.
+ $found=$false
+ foreach($row in @($Artifacts.Rows|Where-Object {$_.ArtifactKind -ceq 'StageIndex' -and $_.ComponentId -ceq $Component -and -not $_.IsComplete})){
+  $details=([string]$row.DetailsJson)|ConvertFrom-Json -Depth 32
+  if($details.rootCause.code -ceq 'missing_context' -and $details.rootCause.componentId -ceq $Component -and $details.rootCause.stageId -ceq $row.StageId){$found=$true}
+ }
+ return $found
+}
+$domain=$domain.Replace('(@($invalidCount.Select("ArtifactKind=''Diagnostic'' AND DiagnosticCode=''missing_context''")).Count -gt 0)', '(Test-CurrentMissingContext $invalidCount ''Package\Flow\RowCount'')')
+$domain=$domain.Replace('(@($flat.Select("ArtifactKind=''Diagnostic'' AND DiagnosticCode=''missing_context''")).Count -gt 0)', '(Test-CurrentMissingContext $flat ''Package\Flow\FlatSource'')')
 $domain=$domain.Replace('$PSScriptRoot',("'"+$PSScriptRoot.Replace("'","''")+"'"))
 . ([scriptblock]::Create($domain))
 
+. (Join-Path $PSScriptRoot 'Invoke-CurrentQualificationSafetyCases.ps1')
 . (Join-Path $PSScriptRoot 'Invoke-CurrentQualificationBoundaryCases.ps1')
 "SSIS_CURRENT_QUALIFICATION_SEMANTICS_PASS $script:v2Checks assertions; current API and default budgets"
