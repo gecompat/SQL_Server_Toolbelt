@@ -1,5 +1,32 @@
 # Releasevorbereitung prüfen
 
+## Aktuelle 19 stabile Kandidaten abnehmen
+
+Die [Abnahmeübersicht](../../Releases/1.0.0/STABLE19-ACCEPTANCE.md) trennt
+aktuelle Integrationsfälle, anwendbare historische Fachnachweise und offene
+Identitäts-/Client-/Freigabegrenzen. `prepare_stable19_acceptance.py` verwendet
+den bestehenden `Deployment/Deploy-All.ps1`-Exporter für genau die 19 stabilen
+Kandidaten und bindet alle versionierten Moduldateien an den Quellcommit.
+Die Vorbereitung benötigt ein neues privates Verzeichnis unter `.runtime`
+mit zuvor schema-validierter, ausdrücklich ausgewählter Zwölfermatrix in
+`private-selection.json`; Vertrag und Zugangsdaten werden nicht kopiert.
+
+`Invoke-Stable19AcceptanceLab.ps1 -RunsetPath <privates-runset> -CaseIndex <0..11>`
+installiert diese aktuellen Exporte lokal und zentral, wiederholt sie, prüft
+öffentliche Objektpräsenz und vollständige installierte Parameterhilfe,
+führt die fünf vorhandenen Paketorakel auch im zentralen Consumer aus und
+deinstalliert zweimal in umgekehrter Dependencyreihenfolge. Ein anschließender
+eigener Prozess mit `-AuditOnly` prüft Abwesenheit und sämtliche Inputpins.
+Die SQL-/Ownership-/Deadlinehelfer stammen unverändert aus dem historischen
+Pakettreiber. Dessen Produktcommit-Gate wird weder umgangen noch verändert.
+Der neue Lauf ist keine vollständige neue API-, Minimalrechte-, CrossDB-
+Identitäts-, GUI- oder TLS-Qualifikation. Runsets und Journale bleiben privat.
+
+Vier negative Vor-SQL-Prüfungen für private Pfade, Engine-/CL-Auswahl,
+fehlende Pins und geänderte Inputs laufen in der bestehenden Release-Suite;
+gezielt: `python -B Tests/Release/test_stable19_acceptance.py`. Keine neue CI
+oder automatische native SQL-Ausführung.
+
 ## Aktueller Quellkandidat
 
 Die [Kandidatenanleitung](../../Releases/1.0.0/CURRENT-CANDIDATE.md) führt zum

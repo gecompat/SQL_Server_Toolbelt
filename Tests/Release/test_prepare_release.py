@@ -2075,6 +2075,7 @@ class DateMathSelectedCallerTests(unittest.TestCase):
 
 
 def load_tests(loader, tests, pattern):
+    from test_stable19_acceptance import Stable19AcceptanceTests
     from test_current_release_candidate import CurrentReleaseCandidateTests
     from test_clr_maintenance import ClrMaintenanceTests
     from test_csv_metadata import CsvMetadataTests
@@ -2109,6 +2110,7 @@ def load_tests(loader, tests, pattern):
     tests.addTests(loader.loadTestsFromTestCase(JsonSchemaUninstallConfirmationQualificationTests))
     tests.addTests(loader.loadTestsFromTestCase(CurrentSnapshotEvidence))
     tests.addTests(loader.loadTestsFromTestCase(CurrentReleaseCandidateTests))
+    tests.addTests(loader.loadTestsFromTestCase(Stable19AcceptanceTests))
     return tests
 
 

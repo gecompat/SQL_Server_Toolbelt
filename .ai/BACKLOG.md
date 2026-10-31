@@ -1,5 +1,26 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Arbeitspaket 1: aktuelle 19 stabile Kandidaten abschließend prüfen — 2026-10-31
+
+Unmittelbarer Benutzerauftrag: „Starte mit Arbeitspaket 1: Prüfe die 19 stabilen
+Kandidaten abschließend, arbeite die ausführbaren Pflichtabnahmen ab und
+dokumentiere verbleibende Blocker sowie fehlende Freigaben.“
+Die [Abnahmeübersicht](../Releases/1.0.0/STABLE19-ACCEPTANCE.md) führt durch
+Scope, vorhandene Nachweise und verbleibende Grenzen. Kein neuer fachlicher
+SQL-Vertrag, kein Statusupgrade, keine Erweiterung oder Verringerung des
+45-Modul-Zielumfangs und keine Veröffentlichung aus diesem Prüfauftrag.
+
+Ein Implementierer/ein kohärenter PR. Zwölf native Integrationsfälle samt
+separaten Bereinigungs-/Pinaudits binden aktuelle Stable-19-Exporte, alle
+öffentlichen Objekte und installierte Hilfe. Bestehende SQL-/Ownership-/
+Deadlinehelfer werden komponiert; alte Paketgates und Nachweise bleiben
+unverändert. Vier neue negative Vor-SQL-Guards laufen in der vorhandenen
+Release-Suite, ohne neuen CI-Job. Bereits bestandene unveränderte Fach- und
+Lastfälle werden nach geprüfter Bindung weiterverwendet; verbleibende Gates
+werden nicht durch den Integrationslauf geschlossen. Native Ausführung
+zunächst `not executed`; endgültige Ergebnisse, Head-/Main-CI und Blocker
+folgen im selben Arbeitspaket. Rohlogs privat, Kosten/Token unbekannt.
+
 ## Projektentwicklungssnapshot v1.0.0-rc.1 veröffentlicht — 2026-10-31
 
 Der unmittelbare Benutzerauftrag „veröffentliche das Release“ autorisiert die
