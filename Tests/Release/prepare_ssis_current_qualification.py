@@ -119,6 +119,7 @@ def prepare(private):
                             "output_limit_bytes": 134217728, "limits_overridden": False},
               "authenticated_tls": "not executed", "ssis_runtime_parity": "not applicable to debug contract",
               "separate_boundaries": ["SSMS GUI and Windows authentication", "Administrative installer trust opt-in",
+                                      "Low-privilege cross-database identities and login mappings",
                                       "Hard transport/host interruption recovery", "Linux export host qualification",
                                       "Production capacity or performance commitments", "Publication"],
               "cost_tokens": "UNKNOWN"}

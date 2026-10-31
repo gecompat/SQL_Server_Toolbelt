@@ -86,6 +86,7 @@ class EvidenceGuards(unittest.TestCase):
                        "authenticated_tls": "not executed",
                        "long_plan": {"groups": 64, "minimum_units": 17, "typed_rows": 6,
                                      "output_limit_bytes": 134217728, "limits_overridden": False},
+                       "offline_framework": {"profile": "Full", "bounded_children": 26, "result": "PASS"},
                        "ssis_runtime_parity": "not applicable to debug contract", "cases": []}
         for version, level, mode in sorted(functional.EXPECTED_CONTEXTS):
             self.record["cases"].append({"sql_version": version, "compatibility_level": level,
@@ -134,6 +135,11 @@ class EvidenceGuards(unittest.TestCase):
     def test_duplicate_json_key(self):
         with self.assertRaisesRegex(ValueError, "DUPLICATE_JSON_KEY"):
             json.loads('{"result":"FAIL","result":"PASS"}', object_pairs_hook=functional.unique)
+
+    def test_integer_cannot_disable_long_plan_override(self):
+        self.record["long_plan"]["limits_overridden"] = 0
+        with self.assertRaisesRegex(ValueError, "LONG_PLAN_TYPES"):
+            self.verify()
 
 
 if __name__ == "__main__":

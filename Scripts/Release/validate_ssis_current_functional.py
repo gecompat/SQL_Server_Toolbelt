@@ -13,6 +13,10 @@ MODULE = "Modules/toolbelt.tsql.ssis-debug/"
 REPORT = MODULE + "Tests/Qualification/Current.Functional.20261031.json"
 HELP_PACKAGE = "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Parameter-Help.zip"
 CURRENT_PACKAGE = MODULE + "InstallPackages/SSIS-Debug-Current-Install-Windows.zip"
+REUSED_EVIDENCE = {MODULE + "Tests/Qualification/Current.InstallPackage.Matrix.20261029.json",
+                   "Releases/1.0.0/ssis-current-standalone-installer-matrix.json",
+                   MODULE + "Tests/Qualification/Current.SnapshotCoherence.20261030.json",
+                   "Releases/1.0.0/parameter-help-qualification.json"}
 EXPECTED_CONTEXTS = {(version, level, mode) for version, levels in
                      [("2019", [150]), ("2022", [150, 160]), ("2025", [150, 160, 170])]
                      for level in levels for mode in ("local", "central")}
@@ -115,6 +119,8 @@ def validate(root=ROOT, report=None, *, check_files=True):
     require(contexts == EXPECTED_CONTEXTS, "CONTEXT_MATRIX")
     require(report.get("long_plan") == {"groups": 64, "minimum_units": 17, "typed_rows": 6,
                                         "output_limit_bytes": 134217728, "limits_overridden": False}, "LONG_PLAN_CONTRACT")
+    require(report["long_plan"]["limits_overridden"] is False, "LONG_PLAN_TYPES")
+    require(report.get("offline_framework") == {"profile": "Full", "bounded_children": 26, "result": "PASS"}, "OFFLINE_FRAMEWORK")
     require(report.get("authenticated_tls") == "not executed" and
             report.get("ssis_runtime_parity") == "not applicable to debug contract", "BOUNDARIES")
     if check_files:
@@ -128,8 +134,14 @@ def validate(root=ROOT, report=None, *, check_files=True):
         require(report["reuse_binding"] == reuse_binding(root), "REUSE_BINDING")
         for relative, expected in report["source_sha256"].items():
             require(sha(read(root, relative)) == expected, "SOURCE_PIN")
+        require(len(report.get("reused_evidence", [])) == len(REUSED_EVIDENCE) and
+                {record.get("path") for record in report["reused_evidence"]} == REUSED_EVIDENCE, "REUSE_CLOSURE")
         for record in report["reused_evidence"]:
             require(sha(read(root, record["path"])) == record["sha256"], "EVIDENCE_PIN")
+            previous = json.loads(read(root, record["path"]), object_pairs_hook=unique)
+            require(previous.get("result") == "PASS", "REUSED_RESULT")
+            if record["path"].endswith("Current.InstallPackage.Matrix.20261029.json"):
+                require(previous["package_sha256"].lower() == report["reuse_binding"]["archive_sha256"], "REUSED_ARCHIVE")
         package = read(root, HELP_PACKAGE)
         require(sha(package) == report["current_delivery"]["package_sha256"], "HELP_PACKAGE_PIN")
         with zipfile.ZipFile(io.BytesIO(package)) as archive:

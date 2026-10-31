@@ -1,13 +1,22 @@
 # Aktuellen SSIS-Debug-Stand installieren und verwenden
 
-Dieser Entwicklungsstand ist unveröffentlicht. Er verwendet den aktuellen
+Das SSIS-Modul ist nicht als unterstützte Modulversion veröffentlicht. Es verwendet den aktuellen
 Komponentenumfang ohne Versionsschalter. Historische V1-/V2-Dateien sind keine
 Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
 ## Installation
 
-Der aktuelle reine T-SQL-Installer heißt
+Der heutige Source-Build mit vollständiger Parameterhilfe liegt im
+[Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md). Dessen Anleitung
+erklärt Neuinstallation, die getrennte administrative Trustfreigabe und die
+Kontrolle der installierten Hilfe. Dieser paketierte Build und die daraus
+reproduzierten Modulartefakte sind die Referenz für neue Funktionsabnahmen.
+
+Der eigenständige SSIS-Installer enthält denselben fachlichen Kern mit älteren
+Hilfetexten. Seine bisherigen Nachweise bleiben an genau diese Dateien gebunden;
+er wird durch neue Tests nicht rückwirkend zu einem anderen Build.
+Die reine T-SQL-Datei heißt
 [`SSIS-INSTALL-TSQL-CURRENT.sql`](../../../Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
 Er enthält die drei benötigten DLLs und die abhängigen SQL-Objekte; zur
 Ausführung sind weder SQLCMD noch weitere Dateien erforderlich. Die Datei in

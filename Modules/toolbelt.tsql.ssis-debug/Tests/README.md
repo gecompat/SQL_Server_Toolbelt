@@ -3,6 +3,56 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Methode der aktuellen Funktionsabnahme
+
+Die ergänzende Funktionsabnahme verwendet den heutigen Source-Build aus dem
+[Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md). DLL,
+Quellenfingerprint und expandiertes Deployment werden vor SQL gegen dessen
+`SSIS-BUILD.json` geprüft. Gegenüber dem älteren Current-SSIS-ZIP sind 22
+fachliche CLR-/Modell-/Vorfilterquellen bytegleich; die generierte CLR-Hilfe
+ist geändert. Der öffentliche API-Vertrag ist nach Entfernung ausschließlich
+der Beschreibungstexte identisch. Alte Paket- und Snapshotnachweise behalten
+ihre Originalbytes, Daten und begrenzten Aussagen.
+
+[`Invoke-CurrentQualificationLab.ps1`](Runtime/Invoke-CurrentQualificationLab.ps1)
+komponiert die unveränderte Lab-Schutzhülle mit dem neuen vollständigen
+Fallsatz. `Full` prüft die aktuellen Defaults, beide DTSX-Formatprofile mit
+explizit gültigen synchronen Ports, zusammengesetzte Datenflüsse und typisierte
+Ausdrücke, Row Count, relationale Flatfile-Ersatzquellen, Planreihenfolge und
+Ownership, View-/Synonym-/Funktions-/Computed-/RLS-Grenzen, unzulässige
+Quellstatements, Dirty Read und den eigenen Sch-M-Blocker, Cross-DB-Kontext,
+Ressourcengrenzen, Clientmetadaten, ResultTable, Callerzustand, Rechte und
+Lifecycle. Die unveränderten fachlichen Orakel werden ausdrücklich mit der
+heutigen editierbaren Designwertvorlage ausgeführt. Ein isolierter
+`ApiRightsLifecycle`-Diagnoselauf ist als Teilumfang gekennzeichnet und ersetzt
+keinen vollständigen Lauf.
+
+Die längere native Probe verwendet 64 Ausdrucksgruppen, mehr als 16
+Planeinheiten und sechs feste NULL-/Unicode-/Dreiwertigkeitsorakel bei
+unverändertem 128-MiB-Standard-Ausgabebudget. Sie ist keine Zusage unbegrenzter
+Produktionskapazität. Für sämtliche Läufe gelten der schema-validierte
+Functional-Labvertrag, die genaue READY-Auswahl und die bestehenden
+300-/360-Sekunden-Arbeits-/Bereinigungsgrenzen. Ein separater lesender
+[`Invoke-ComponentsV2Audit.ps1`](Runtime/Invoke-ComponentsV2Audit.ps1)
+prüft anschließend eigene Datenbanken, Trust, Konfiguration und Eingabepins.
+
+Die Callerprofile verwenden einen eigenen Benutzer ohne Login mit einzeln
+verweigerten Rechten und ohne Quell-SELECT. Der dreiteilige Cross-DB-Aufruf
+verwendet die vorhandene Identität des Testharnesses und einen ausdrücklich
+gemappten Consumerkontext. Das belegt keine neuen Lowpriv-Cross-DB-Logins oder
+Identitätsmappings. GUI-/Windows-Anmeldung, administrativer Installer-Trust,
+authentifiziertes TLS, harte Host-/Transportunterbrechung und Linux-Exporthost
+bleiben eigene Supportgrenzen. Eine umfassende SSIS-Runtime-Parität ist kein
+Abnahmekriterium dieses Debugvertrags.
+
+Der [Record-Erzeuger](../../../Tests/Release/prepare_ssis_current_qualification.py)
+übernimmt ausschließlich aggregierte Assertions, öffentliche Quell-/Paketpins
+und die vollständige Versuchshistorie aus privaten Runsets. Journale, Endpoints,
+Credentials und Rohlogs werden nicht veröffentlicht. Der
+[Offlinevalidator](../../../Scripts/Release/validate_ssis_current_functional.py)
+und seine Gegenproben binden Quellen, Wiederverwendung, Kontextvollständigkeit,
+den tatsächlich gelieferten Binary und die getrennten Abnahmegrenzen.
+
 ## Aktuelle Lieferung und ihr begrenzter Nachweis
 
 Die [aktuelle Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
