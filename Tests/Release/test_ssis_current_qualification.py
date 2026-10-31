@@ -84,11 +84,14 @@ class EvidenceGuards(unittest.TestCase):
                        "functional_scope_complete": True, "scope": "current_supported_debug_contract",
                        "gates": {gate: "PASS" for gate in functional.GATES},
                        "authenticated_tls": "not executed",
+                       "long_plan": {"groups": 64, "minimum_units": 17, "typed_rows": 6,
+                                     "output_limit_bytes": 134217728, "limits_overridden": False},
                        "ssis_runtime_parity": "not applicable to debug contract", "cases": []}
         for version, level, mode in sorted(functional.EXPECTED_CONTEXTS):
             self.record["cases"].append({"sql_version": version, "compatibility_level": level,
                                          "deployment_mode": mode, "result": "PASS", "cleanup_audit": "PASS",
                                          "input_pins_unchanged": True, "current_assertions": 206,
+                                         "long_plan_default_budget": level == 170,
                                          "semantic_assertions": 1, "api_assertions": 1,
                                          "rights_assertions": 1, "lifecycle_assertions": 1})
 

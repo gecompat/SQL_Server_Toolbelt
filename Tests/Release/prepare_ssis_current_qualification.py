@@ -60,6 +60,9 @@ def prepare(private):
                 "compatibility_level": attempt["level"], "deployment_mode": attempt["mode"],
                 "database_collation": attempt["collation"], "method_source_commit": attempt["commit"],
                 "result": "PASS", "cleanup_audit": "PASS", "input_pins_unchanged": True}
+        case["long_plan_default_budget"] = attempt["level"] == 170
+        functional.require(("SSIS_V2_NATIVE_VARIABLE_CASE LONG_TYPED_TERNARY_PLAN" in log) ==
+                           case["long_plan_default_budget"], "LONG_PLAN_SCOPE")
         for field, token in [("current_assertions", "SSIS_CURRENT_NATIVE_PASS"),
                              ("semantic_assertions", "SSIS_CURRENT_QUALIFICATION_SEMANTICS_PASS"),
                              ("api_assertions", "SSIS_NATIVE_API_PASS"),
@@ -112,6 +115,8 @@ def prepare(private):
                                    "deployment_sha256": build["deploymentArtifactSha256"],
                                    "assembly_sha256": functional.sha((private / "current-build/Toolbelt.Tsql.SsisDebug.dll").read_bytes())},
               "offline_framework": {"profile": "Full", "bounded_children": 26, "result": "PASS"},
+              "long_plan": {"groups": 64, "minimum_units": 17, "typed_rows": 6,
+                            "output_limit_bytes": 134217728, "limits_overridden": False},
               "authenticated_tls": "not executed", "ssis_runtime_parity": "not applicable to debug contract",
               "separate_boundaries": ["SSMS GUI and Windows authentication", "Administrative installer trust opt-in",
                                       "Hard transport/host interruption recovery", "Linux export host qualification",

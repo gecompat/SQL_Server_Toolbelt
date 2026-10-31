@@ -109,9 +109,12 @@ def validate(root=ROOT, report=None, *, check_files=True):
         contexts.add(key)
         require(case.get("result") == "PASS" and case.get("cleanup_audit") == "PASS" and
                 case.get("input_pins_unchanged") is True, "CASE_RESULT")
+        require(case.get("long_plan_default_budget") is (case["compatibility_level"] == 170), "LONG_PLAN_SCOPE")
         for field in ("current_assertions", "semantic_assertions", "api_assertions", "rights_assertions", "lifecycle_assertions"):
             require(type(case.get(field)) is int and case[field] > 0, "ASSERTION_COUNT")
     require(contexts == EXPECTED_CONTEXTS, "CONTEXT_MATRIX")
+    require(report.get("long_plan") == {"groups": 64, "minimum_units": 17, "typed_rows": 6,
+                                        "output_limit_bytes": 134217728, "limits_overridden": False}, "LONG_PLAN_CONTRACT")
     require(report.get("authenticated_tls") == "not executed" and
             report.get("ssis_runtime_parity") == "not applicable to debug contract", "BOUNDARIES")
     if check_files:
