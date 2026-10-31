@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_current_access_qualification",
+  "date": "2026-10-31",
+  "result": "PASS",
+  "publication_authorized": false,
+  "functional_evidence": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json",
+    "sha256": "bb3bb417b4e571ce2d201a10988fa4015080586ee19e8c85cb87fa259e61e8b5"
+  },
+  "product_source_commit": "ee0d866802c14403fd7bbbcf188c432f69201a37",
+  "source_sha256": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/CurrentWindowsAccess.sql": "d4456e26e87e7880fa04faa02e74b40de198e15e89a63d13b50654102e74d489",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentAccessAudit.ps1": "7a83bfd9d02a5a8db098e57accded5101e9ba63f6efb0e6eacc2825d1e4a3b0f",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentAccessCases.ps1": "55a150cb1299311c3581259441b0cc2ac130b4907480a72c6ccbb8f389c23eed",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentAccessLab.ps1": "d89a89cc2193b258984d026af26a690a9234b3b34b242ced757f58eabc5e17ea",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentGuiAccessCase.ps1": "295ff5f7d848d614b9725b965208eddfda8f2b93f1f72e10debc66d0292640a5",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentWindowsAccessCases.ps1": "6c6d1b344cab234df4d67dd4090bb93225a5ce3ca32a73d6272b6a233b01bdbe"
+  },
+  "cases": [
+    {
+      "sql_version": "2019",
+      "patch": "cu32",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_BIN2",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2019",
+      "patch": "cu32",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_BIN2",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2022",
+      "patch": "cu26",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CS_AS",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2022",
+      "patch": "cu26",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CS_AS",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2022",
+      "patch": "cu26",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CS_AS",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2022",
+      "patch": "cu26",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CS_AS",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "cu8",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "cu8",
+      "compatibility_level": 150,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "cu8",
+      "compatibility_level": 160,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "cu8",
+      "compatibility_level": 160,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "cu8",
+      "compatibility_level": 170,
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "cu8",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "access_assertions": 118,
+      "windows_assertions": 15,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "execution_input_pins_unchanged": true
+    }
+  ],
+  "assertions": 1596,
+  "lowpriv_identity": {
+    "authentication": "actual SQL network login",
+    "cross_database_users": "exact login SID in both databases",
+    "server_roles_granted": false,
+    "server_permissions_granted": false,
+    "trustworthy_enabled": false,
+    "database_chaining_enabled": false,
+    "source_select": "only three synthetic fixture tables"
+  },
+  "windows_identity": {
+    "authentication": "actual Windows login through bound Lab guest",
+    "generated_script_origin": "current API under the actual lowpriv SQL identity",
+    "scope": "current analysis and both unchanged DebugScripts",
+    "authenticated_tls": false
+  },
+  "gui": {
+    "result": "PASS_SQL_AND_VISUAL",
+    "sql_version": "2025",
+    "patch": "cu8",
+    "compatibility_level": 170,
+    "deployment_mode": "central",
+    "authentication": "SQL",
+    "application": "SSMS",
+    "current_parameters": 38,
+    "debug_script_artifacts": 2,
+    "synthetic_target_rows": 2,
+    "unicode_witness": true,
+    "messages_success": true,
+    "cleanup_audit": "PASS",
+    "coordinator_result": "FAILED_CLEANED",
+    "coordinator_failure": "SSIS_GUI_CLIENT_CONNECTIONS_REMAIN",
+    "own_tab_closed": true,
+    "force_or_kill": false
+  },
+  "attempt_history": [
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "FAILED",
+      "recovery_audit": "PASS"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "FAILED",
+      "recovery_audit": "PASS"
+    },
+    {
+      "result": "FAILED",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    },
+    {
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "original_audit": "PASS",
+      "recovery_audit": "not required"
+    }
+  ],
+  "authenticated_tls": "not executed; separate current TLS qualification required",
+  "separate_boundaries": [
+    "Administrative installer trust opt-in",
+    "Hard host/transport interruption",
+    "Linux export host",
+    "Production capacity or performance",
+    "Publication"
+  ]
+}

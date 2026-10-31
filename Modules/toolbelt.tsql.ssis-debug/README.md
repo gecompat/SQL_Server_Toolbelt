@@ -27,9 +27,10 @@ beschreibt den neuen T-SQL-Installer, das aktuelle ZIP sowie Vorlage, Parameter
 und `DebugScript`-Verwendung.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
-ausgewiesen. Die historischen ZIP- und Installerbytes haben begrenzte,
-nativ gebundene Windows-Nachweise; sie qualifizieren den aktuellen Vertrag
-nicht. Aktuelle Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head
+ausgewiesen. Die ZIP-, Installer- und Snapshotnachweise werden nur bei
+unveränderten Artefakt- und Quellbindungen weiterverwendet. Die aktuelle
+Funktionsabnahme prüft den heutigen Defaultvertrag separat.
+Aktuelle Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head
 separat nachgewiesen. Der aktuelle freigegebene Debugvertrag ist auf Windows
 funktionsqualifiziert (`validated`); das Modul bleibt `unreleased`.
 
@@ -79,14 +80,23 @@ ihre eigenen datierten Nachweise. Das Modul bleibt unveröffentlicht.
 Die Abnahme verwendet `TestPurpose=Functional` mit dem ausdrücklich
 gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
 ist Serverzertifikatsprüfung keine fachliche Voraussetzung. Die getrennte
-authentifizierte TLS-Abnahme bleibt `not executed`.
+authentifizierte [TLS-Abnahme](Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json)
+bestand zusätzlich auf einem eigenen Windows-/Hyper-V-SQL-2025-RTM-Run:
+412 Assertions in local/central, CL170, signierter V2-Snapshot vor jeder
+Anmeldung, Encrypt=True und TrustServerCertificate=False. Abschlussaudit und
+Entfernung des eigenen Runs sind bestanden; bestehender Hosttrust blieb erhalten.
+Die zusätzliche [Anmeldequalifikation](Tests/Qualification/Current.Access.Windows.CL.20261031.json)
+bestand zwölf Kontexte mit 1.596 Assertions für echte Lowpriv-Cross-DB-SIDs
+und Windows-Ausführung. Die sichtbare SSMS-Prüfung verwendete eine SQL-Anmeldung;
+sie belegt keine Windows-Anmeldung in SSMS. Ursprüngliche Koordinatorfehler
+und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-31`
-- Nachweis: `local: aktuelle SSIS-Funktionsqualifikation, zwölf Windows-/CL-/Moduskontexte und unabhängige Audits`
-- Scope: Aktueller Binary und Deployment exakt an das bestehende Parameter-Help-Paket gebunden. Zwölf native Kontexte: SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170 jeweils local/central, mit BIN2, CS_AS beziehungsweise CI_AS_SC_UTF8. 12396 Assertions für aktuellen Default, komponierte Komponenten-/Ausdrucks-/Plan-, Katalog-/Safety-, API-/ResultTable-, Callerrechte- und Lifecycleverträge; zwölf getrennte Abschlussaudits. Native 64-Gruppen-Pläne mit mehr als16 Einheiten auf SQL2025/CL170 in beiden Modi unter128MiB Defaultoutput. Aktuelle Full26-Frameworkprüfung und22 Wiederverwendungsgegenproben bestanden;22 unveränderte fachliche Quellen und APIgleichheit ohne Beschreibungstexte binden alte ZIP-/Standalone-/Snapshotbelege. Elf frühere Harness-/Fixturefehler, ein positiver Teilumfang und ein historischer positiver Gesamtlauf bleiben getrennte Historie; alle25 nativen Abschlussaudits bestanden. Qualifiziert ist der freigegebene Debugvertrag; Lowpriv-CrossDB-Identitäten, GUI/Windows-Anmeldung, administrativer Installer-Trust, authentifiziertes TLS, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Veröffentlichung nicht autorisiert.
+- Nachweis: `local: aktuelle authentifizierte SSIS-TLS-Abnahme auf eigenem Windows-SQL-Lab`
+- Scope: 412 aktuelle Assertions auf Windows/Hyper-V SQL2025 RTM, CL170, local/central. Acht echte Lab-Clientresultate mit SqlClient/ODBC; drei Toolbelt-Zielverbindungen und ein unabhängiger Audit verwenden Encrypt=True, TrustServerCertificate=False und dieselben frisch geprüften signierten V2-Bytes ohne Pooling/Retry. Erster TLS-Slice mit412 erfolgreichen Assertions und fehlgeschlagener Konfigurationswiederherstellung bleibt erhalten; gebundene Recovery plus unabhängiger Audit bestanden, erneuter Slice vollständig PASS_CLEANED. Beide eigenen Lab-VMs entfernt, bestehende VMs und Hosttrust unverändert. Lab-Aktivierung und SQL-CompleteImage wurden im selben eigenen Run fortgesetzt; kein ununterbrochener öffentlicher Neuaufbau behauptet. Ergänzt die getrennte1596er-Anmelde- und12396er-Funktionsabnahme. Administrativer Installer-Trust, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

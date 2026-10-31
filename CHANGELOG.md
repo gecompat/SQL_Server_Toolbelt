@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-10-31 – SSIS-Anmeldung und echte Lowpriv-Cross-DB-Identitäten
+
+Zwölf zusätzliche Windows-/CL-/Moduskontexte bestanden mit 1.596 Assertions
+und getrennten Abschlussaudits. Der Nachweis prüft echte Lowpriv-Netzwerklogins,
+SID-Mappings und Windows-Ausführung; eine sichtbare SSMS-SQL-Anmeldung ist
+separat belegt. Ursprüngliche GUI-Koordinatorfehler und zwei nachgelagerte
+eigene Cleanup-Recoveries bleiben erhalten. Die Funktions-/Paketnachweise
+bleiben unverändert. Die separate authentifizierte TLS-Abnahme bestand
+zusätzlich auf einem eigenen Windows-/Hyper-V-SQL-2025-RTM-Run: 412 Assertions,
+signierter V2-Snapshot vor jeder Anmeldung und unabhängiger Cleanup-Audit.
+Der ursprüngliche Konfigurations-Restorefehler und seine eigene Recovery
+bleiben erhalten. Beide eigenen VMs sind entfernt, bestehender Hosttrust
+und fremde VMs unverändert. Keine Veröffentlichung.
+[Methode und Grenzen](Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+
 ## 2026-10-31 – Aktueller SSIS-Debugvertrag funktionsqualifiziert
 
 Der heutige SSIS-Build aus dem vorhandenen Parameter-Help-Paket bestand zwölf

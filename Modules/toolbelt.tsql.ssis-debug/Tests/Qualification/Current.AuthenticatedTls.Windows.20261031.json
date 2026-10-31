@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_current_authenticated_tls_qualification",
+  "date": "2026-10-31",
+  "result": "PASS",
+  "publication_authorized": false,
+  "functional_evidence": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json",
+    "sha256": "bb3bb417b4e571ce2d201a10988fa4015080586ee19e8c85cb87fa259e61e8b5"
+  },
+  "source_sha256": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1b8d9e877d39d6a52174922016dde89f500d0506807a9fabbb57f6606350d4cc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentAuthenticatedTlsLab.ps1": "58c1dccfe7f484c4f94fc316986db6e7c39f7d520cebc072143f8b079dca8475",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1": "30dd642419bc5841f1bea0bfabf54052446ce6c5310ca2d5937230dc65c73dd1",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentQualificationLab.ps1": "43574fe85527d5c08593ba57ebe86ee7ca6249e54a83b749a9a85e84b9250ab9",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411a966484eaf55fb05778b5e26829d7afed94d6028cb6f77323f92c5c7e570",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846"
+  },
+  "lab": {
+    "provider": "hyperv",
+    "platform": "windows",
+    "sql_version": "2025",
+    "patch": "base",
+    "sql_build": "17.0.1000.7",
+    "qualification_version": "SqlServerLab.TlsQualification/0.3",
+    "strict_client_results": 8,
+    "source_sha256": {
+      "Private/AuthenticatedTlsWindowsLab.ps1": "5c383ab2da10eba5cc2e8b21c1b7fddcac32605f22ac14c986eea753f97c26ec",
+      "Private/AuthenticatedTlsLab.ps1": "1347d81b5c693c1de86cfe69d30a7cee74607b9ceeae8c7eb2c6461081a0574d",
+      "Private/AuthenticatedTlsQualification.ps1": "b92eba2cd428086d9fbc071547878efd84ac951cde372d1c5061c45f167cd29b",
+      "Private/AuthenticatedTlsLiveQualification.ps1": "80c896661a5a4ec51a93c78f379758a5bcf9465e28bdd22237f966dacdb96a80",
+      "Public/New-SqlServerLab.ps1": "7c94a17171ac81d22199f55edbd1f51b7ea1de7a9219c703c0b79d0fbebd858e",
+      "Public/Test-SqlServerLabTlsQualification.ps1": "29b80f561c5608131a0c8759c72992497953b75ef8733024194220ae00b4424d"
+    },
+    "source_closure_count": 569,
+    "source_closure_sha256": "472f502780468f7e07360343e7b5b4c8a5425f87faaaff54e29183d1a1d89ca5"
+  },
+  "transport": {
+    "test_purpose": "AuthenticatedTls",
+    "authentication": "SQL",
+    "encrypt": true,
+    "trust_server_certificate": false,
+    "pooling": false,
+    "connect_retry_count": 0,
+    "signed_v2": true,
+    "same_export_bytes": true,
+    "fresh_lab_reader_before_every_open": true,
+    "fallback": false,
+    "wire_certificate_fingerprint": "NOT_OBSERVED"
+  },
+  "cases": [
+    {
+      "sql_version": "2025",
+      "patch": "base",
+      "sql_build": "17.0.1000.7",
+      "compatibility_level": 170,
+      "deployment_mode": "local",
+      "assertions": 206,
+      "result": "PASS",
+      "input_pins_unchanged": true
+    },
+    {
+      "sql_version": "2025",
+      "patch": "base",
+      "sql_build": "17.0.1000.7",
+      "compatibility_level": 170,
+      "deployment_mode": "central",
+      "assertions": 206,
+      "result": "PASS",
+      "input_pins_unchanged": true
+    }
+  ],
+  "assertions": 412,
+  "guarded_connections": {
+    "target": 3,
+    "audit": 1
+  },
+  "cleanup": {
+    "sql_independent_audit": "PASS",
+    "own_vm_absent": true,
+    "protected_vms_unchanged": true,
+    "host_root_trust_unchanged": true,
+    "temporary_activation_adapter": "CLEANED"
+  },
+  "attempt_history": {
+    "new_windows_runs": 2,
+    "first_run": "offline Mount-VHD failed; removed and audited",
+    "second_run": "ExistingOnly activation failed; same owned run resumed with EvaluationOnline/AllowTemporary",
+    "uninterrupted_public_create_pass_claimed": false,
+    "original_failures_retained": true,
+    "additional_vm_created_for_resume": false,
+    "first_tls_controller": "412 assertions passed; configuration restore and audit failed",
+    "first_tls_recovery_audit": "PASS",
+    "final_tls_controller": "PASS_CLEANED"
+  },
+  "separate_gates": [
+    "administrative installer trust",
+    "hard host/transport interruption",
+    "Linux export host",
+    "production capacity",
+    "SSIS runtime parity"
+  ]
+}

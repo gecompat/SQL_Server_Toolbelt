@@ -1,5 +1,35 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SSIS-Anmeldung und authentifiziertes Windows-TLS — 2026-10-31
+
+Der Benutzer beauftragte zusätzlich die Qualifikation von GUI-/Windows-Anmeldung,
+authentifiziertem TLS und echten Lowpriv-Cross-DB-Identitäten. Die notwendige
+Windows-TLS-Erweiterung im Lab wurde ausdrücklich freigegeben. Vorhandene
+Testsysteme bleiben erhalten; grüne PRs werden integriert und Main-CI geprüft,
+Veröffentlichung bleibt unautorisiert.
+
+Zwölf zusätzliche Anmeldekontexte bestanden mit 1.596 Assertions und frischen
+Audits. Der [Anmelderecord](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Access.Windows.CL.20261031.json)
+trennt echte Lowpriv-/SID-Mappings, Windows-Ausführung und die sichtbar geprüfte
+SSMS-SQL-Anmeldung. Ursprüngliche GUI-Koordinator- und Cleanupfehler bleiben
+erhalten; der eigenständige visuelle Nachweis und abschließende Audits sind
+bestanden. Die ursprüngliche Funktions-/Paketabnahme bleibt unverändert.
+
+Der Windows-TLS-Aufbau wird im Lab über dessen vorhandene Windows-Aktivierungs-
+und SQL-CompleteImage-Funktionen angebunden. Authentifiziertes TLS und die
+aktuellen PR-/Main-CI-Gates sind getrennt. Die
+[TLS-Abnahme](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json)
+bestand 412 Assertions in beiden Modi auf Windows/Hyper-V SQL2025 RTM/CL170
+mit frischem unabhängigem Audit und eigenem VM-Cleanup. Der ursprüngliche
+Cleanupfehler bleibt mit erfolgreicher gesonderter Recovery erhalten.
+Hierfür gibt es keine zusätzliche
+fachliche Toolbelt-SQL-Funktion und keinen Trust-Bypass.
+
+Overhead: ein Implementierungsverantwortlicher, zwei gekoppelte PRs, aggregierte
+Records und Gegenproben im vorhandenen SSIS-CI-Job. Bestehende erfolgreiche
+Fach-/Paket-/Snapshotprüfungen werden quellengebunden weiterverwendet. Native
+Rohwerte bleiben lokal; es entsteht keine weitere Agenten- oder Reviewkette.
+
 ## Aktueller SSIS-Build: verbleibende Funktionsqualifikation — 2026-10-31
 
 Direkter Benutzerauftrag: offene Qualifikationslücken des aktuellen SSIS-Builds
