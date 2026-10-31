@@ -2,7 +2,7 @@
 # betreffen ausschließlich die äußere, journalisierte eigene Testdatenbank.
 $bytes=[IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
 $api=Get-Content (Join-Path $moduleRoot 'Contracts/Api.json') -Raw|ConvertFrom-Json
-foreach($limit in @($bytes.Length-1,$bytes.Length,$bytes.Length+1)){
+foreach($limit in @(($bytes.Length-1),$bytes.Length,($bytes.Length+1))){
  if($limit -lt $bytes.Length){Reject-V2 {Invoke-V2Explain -Bytes $bytes -Limits @{'@MaxPackageBytes'=$limit}} 'resource_limit' 'packageBytes'}
  else{Assert-V2 ((Invoke-V2Explain -Bytes $bytes -Limits @{'@MaxPackageBytes'=$limit}).Rows.Count -eq 1) 'PACKAGE_EXACT_AND_ABOVE'}
 }
@@ -10,12 +10,20 @@ foreach($entry in @(@{name='@MaxXmlCharacters';counter='xmlCharacters'},@{name='
  $limits=@{};$limits[$entry.name]=1
  Reject-V2 {Invoke-V2Explain -Bytes $bytes -Limits $limits} 'resource_limit' $entry.counter
 }
-Reject-V2 {Invoke-V2Explain -Bytes $bytes -Limits @{'@MaxSqlArtifactBytes'=32}} 'resource_limit'
 Reject-V2 {Invoke-V2Explain -Bytes $bytes -Limits @{'@MaxTotalOutputBytes'=32}} 'resource_limit'
 Reject-V2 {Invoke-V2Explain -Bytes ([Text.Encoding]::UTF8.GetBytes('<!DOCTYPE x SYSTEM "file:///synthetic.dtd"><x/>'))} 'unsupported_package_format'
 Reject-V2 {Invoke-V2Explain -Bytes $bytes -Context '{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}'} 'invalid_template'
 $template=Invoke-V2Explain -Bytes $bytes
 $binding=[string]$template.Rows[0].Content
+$bindingBytes=[long]$binding.Length*2
+foreach($limit in @(($bindingBytes-1),$bindingBytes,($bindingBytes+1))){
+ if($limit -lt $bindingBytes){Reject-V2 {Invoke-V2Explain -Bytes $bytes -Operation 'explain' -Bindings $binding -Limits @{'@MaxJsonDocumentBytes'=$limit}} 'resource_limit' 'jsonDocumentBytes'}
+ else{Assert-V2 ((Invoke-V2Explain -Bytes $bytes -Operation 'explain' -Bindings $binding -Limits @{'@MaxJsonDocumentBytes'=$limit}).Rows.Count -gt 0) 'JSON_DOCUMENT_EXACT_AND_ABOVE'}
+}
+foreach($name in @('@MaxAllJsonBytes','@MaxJsonNodes')){
+ $limits=@{};$limits[$name]=1
+ Reject-V2 {Invoke-V2Explain -Bytes $bytes -Operation 'explain' -Bindings $binding -Limits $limits} 'resource_limit'
+}
 foreach($bad in @('{invalid',$binding.Replace('"schemaVersion":2','"schemaVersion":3'))){
  if($bad -cne $binding){Reject-V2 {Invoke-V2Explain -Bytes $bytes -Operation 'explain' -Bindings $bad} 'invalid_template'}
 }

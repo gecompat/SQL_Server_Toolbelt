@@ -45,6 +45,10 @@ try{
   Assert-V2 (@($low.Select('KeyA=1 AND KeyB=20'))[0].IsNull('Score')) 'COMPOSITE_LOOKUP_NULL_PAYLOAD'
   foreach($row in $high.Rows){Assert-V2 ($row.Score -in @(2,7,9)) 'LOOKUP_EFFECTIVE_KEY_ORACLE'}
  }
+ foreach($name in @('@MaxSqlArtifactBytes','@MaxPlanUnits','@MaxCatalogObjects','@MaxCatalogQueries','@MaxParserCalls','@MaxArtifacts','@MaxExpressionBytes','@MaxExpressionTokens','@MaxExpressionNodes')){
+  $limits=@{};$limits[$name]=1
+  Reject-V2 {Invoke-V2Explain -Bytes $b -Operation 'explain' -Catalog $catalog -Limits $limits} 'resource_limit'
+ }
  foreach($query in @('DELETE dbo.SyntheticSourceA;SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA WHERE Amount>=?',
  'SELECT KeyA,KeyB,Amount INTO dbo.SyntheticForbidden FROM dbo.SyntheticSourceA WHERE Amount>=?',
  'EXEC dbo.SyntheticForbidden;',
