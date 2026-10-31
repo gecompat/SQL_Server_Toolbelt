@@ -77,6 +77,37 @@ try{
   $remote=Invoke-V2Explain -Bytes (New-CurrentSafetyPackage 'SELECT KeyA,KeyB,Amount FROM dbo.SyntheticRemoteSynonym WHERE Amount>=?') -Operation 'explain' -Catalog $catalog
   Assert-V2 (@($remote.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 0) 'REMOTE_SYNONYM_BLOCKED'
  }finally{[void](Invoke-V2Sql 'DROP SYNONYM dbo.SyntheticRemoteSynonym;')}
+ $safeBytes=[Text.Encoding]::UTF8.GetBytes((Get-CurrentSafetyDocument).OuterXml)
+ [void](Invoke-V2Sql 'CREATE FUNCTION dbo.SyntheticPure() RETURNS TABLE AS RETURN (SELECT 1 AS KeyA,10 AS KeyB,100 AS Amount);')
+ try{
+  $pure=Invoke-V2Explain -Bytes (New-CurrentSafetyPackage 'SELECT KeyA,KeyB,Amount FROM dbo.SyntheticPure() WHERE Amount>=?') -Operation 'explain' -Catalog $catalog
+  $t=@($pure.Select("ArtifactKind='TargetSql' AND IsExecutable=true"))
+  Assert-V2 ($t.Count -eq 2 -and (Read-CurrentTarget $pure $t[0]).Rows.Count -eq 1) 'PURE_FUNCTION_EXECUTED'
+ }finally{[void](Invoke-V2Sql 'DROP FUNCTION dbo.SyntheticPure;')}
+ [void](Invoke-V2Sql 'CREATE FUNCTION dbo.SyntheticRls(@key int) RETURNS TABLE WITH SCHEMABINDING AS RETURN SELECT 1 AS allowed WHERE @key>=0;')
+ [void](Invoke-V2Sql 'CREATE SECURITY POLICY dbo.SyntheticPolicy ADD FILTER PREDICATE dbo.SyntheticRls(KeyA) ON dbo.SyntheticSourceA WITH(STATE=ON);')
+ try{
+  $rls=Invoke-V2Explain -Bytes $safeBytes -Operation 'explain' -Catalog $catalog
+  $t=@($rls.Select("ArtifactKind='TargetSql' AND IsExecutable=true"))
+  Assert-V2 ($t.Count -eq 2 -and (Read-CurrentTarget $rls $t[0]).Rows.Count -eq 2) 'PURE_RLS_BOUND_AND_EXECUTED'
+ }finally{[void](Invoke-V2Sql 'DROP SECURITY POLICY dbo.SyntheticPolicy;DROP FUNCTION dbo.SyntheticRls;')}
+ [void](Invoke-V2Sql 'ALTER TABLE dbo.SyntheticSourceA ADD SyntheticComputed AS (Amount*2);')
+ try{
+  $computed=Invoke-V2Explain -Bytes (New-CurrentSafetyPackage 'SELECT KeyA,KeyB,SyntheticComputed AS Amount FROM dbo.SyntheticSourceA WHERE Amount>=?') -Operation 'explain' -Catalog $catalog
+  $t=@($computed.Select("ArtifactKind='TargetSql' AND IsExecutable=true"))
+  Assert-V2 ($t.Count -eq 2 -and (Read-CurrentTarget $computed $t[0]).Rows.Count -eq 2) 'COMPUTED_COLUMN_BOUND_AND_EXECUTED'
+ }finally{[void](Invoke-V2Sql 'ALTER TABLE dbo.SyntheticSourceA DROP COLUMN SyntheticComputed;')}
+ Write-Output 'SSIS_CURRENT_SAFETY_NOLOCK'
+ $dirty=Invoke-V2Explain -Bytes $safeBytes -Operation 'explain' -Catalog $catalog
+ $dirtyTarget=@($dirty.Select("ArtifactKind='TargetSql' AND IsExecutable=true"))[0]
+ $writer=([ICloneable]$Connection).Clone();$writer.Open()
+ try{
+  $write=$writer.CreateCommand();$write.CommandTimeout=Get-SsisNativeTimeout 15
+  try{$write.CommandText='BEGIN TRANSACTION;UPDATE dbo.SyntheticSourceA SET Amount=Amount+1000;';[void]$write.ExecuteNonQuery()
+   $rows=Read-CurrentTarget $dirty $dirtyTarget
+   Assert-V2 ($rows.Rows.Count -eq 3 -and @($rows.Rows|Where-Object {$_.Amount -ge 1000}).Count -eq 3) 'NOLOCK_DIRTY_SOURCE_READ'
+  }finally{$write.CommandText='IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;';[void]$write.ExecuteNonQuery();$write.Dispose()}
+ }finally{$writer.Dispose()}
  if($CrossDatabase){
   Write-Output 'SSIS_CURRENT_SAFETY_CROSS_DATABASE'
   $original=$Connection.Database

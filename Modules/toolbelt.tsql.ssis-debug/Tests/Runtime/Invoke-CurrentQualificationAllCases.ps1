@@ -19,7 +19,7 @@ $api=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Invoke-ApiCases.ps1'))
 $api=Replace-QualificationAnchor $api '($table.Rows.Count -eq 14)' '($table.Rows.Count -eq $api.parameters.Count)'
 $api=Replace-QualificationAnchor $api "'int'{4};default" "'int'{4};'bigint'{8};default"
 $api=Bind-CurrentScriptRoot -Text $api -Root $PSScriptRoot
-& ([scriptblock]::Create($api)) -Connection $Connection
+. ([scriptblock]::Create($api)) -Connection $Connection
 
 # Die historischen Rechteorakel verwenden weiterhin denselben isolierten
 # loginlosen Principal. Der alte 16-MiB-Fall wird ausdrücklich über den heutigen
