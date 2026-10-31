@@ -82,8 +82,15 @@ try{
   $parts=Get-V2PlanParts $artifacts $target
   $Connection.ChangeDatabase($CrossDatabase)
   try{
-   $cross=Invoke-V2Explain -Bytes $crossBytes -Operation 'explain' -Catalog $catalog -Procedure ('['+$original.Replace(']',']]')+'].toolbelt_tsql.USP_ExplainSsisDataFlow')
+   # Ein im Modulkontext gebundener Plan darf im Consumerkontext nicht laufen.
+   # Für den positiven dreiteiligen Aufruf ist der Caller ausdrücklich der
+   # Defaultkontext; die Connectionzuordnung bleibt die eigene Quelldatenbank.
+   Reject-V2 {Invoke-V2Units $parts} 'cache_context_changed'
+   $crossCatalog=@{schemaVersion=2;defaultDatabase=$CrossDatabase;databases=@($CrossDatabase,$original);connections=@{'Package.ConnectionManagers[Synthetic]'=$original};flatFileInputs=@{}}|ConvertTo-Json -Depth 4 -Compress
+   $cross=Invoke-V2Explain -Bytes $crossBytes -Operation 'explain' -Catalog $crossCatalog -Procedure ('['+$original.Replace(']',']]')+'].toolbelt_tsql.USP_ExplainSsisDataFlow')
    Assert-V2 (@($cross.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 2) 'THREE_PART_CALL_FROM_CONSUMER'
+   $target=@($cross.Select("ArtifactKind='TargetSql' AND IsExecutable=true"))[0]
+   $parts=Get-V2PlanParts $cross $target
    Invoke-V2Units $parts
    Assert-V2 ((Invoke-V2Sql ([string]$target.Content)).Rows.Count -eq 2) 'GENERATED_PLAN_FROM_CONSUMER_DATABASE'
   }finally{try{Clear-V2Plan $parts}finally{$Connection.ChangeDatabase($original)}}
