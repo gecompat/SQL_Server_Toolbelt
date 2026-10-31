@@ -1,5 +1,26 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Projektentwicklungssnapshot v1.0.0-rc.1 veröffentlicht — 2026-10-31
+
+Der unmittelbare Benutzerauftrag „veröffentliche das Release“ autorisiert die
+Veröffentlichung des zuvor geprüften Kandidaten. PR #490 wurde integriert;
+Main-CI 41147238695 bestand am Integrationscommit cade725e. Der exakte
+Kandidaten-/Tagcommit bleibt ab20d551 bei identischem Dateibaum.
+Der tatsächliche Release-Link, UTC-Zeitpunkt und alle sechs Assetprüfsummen
+stehen im [Projekt-Veröffentlichungsnachweis](../Releases/1.0.0/RC1-PUBLICATION.json).
+Vor der Freigabe wurden vollständige Assetmenge, serverseitige SHA256-Digests,
+Tagziel, Projekt-Vorabreleasekennzeichnung und abgeschlossene Main-CI geprüft.
+
+Dieser Release ist ein Projektentwicklungs-Snapshot für Tests. Es werden keine
+Modulversionen als unterstützt veröffentlicht, keine Modulstatuswerte geändert
+und keine offenen fachlichen Pflichtgates erlassen. Die historischen
+Ausführungspins und Pakete bleiben unverändert. Root-README und Releaseübersicht
+führen zum aktuellen Snapshot und trennen ihn von der Modulfreigabe.
+Ein erster paralleler Upload wurde nach Stillstand beendet; ein einzelner
+Upload mit Standardtransport und ein zu kurz begrenzter großer Upload mit
+angepasstem Transport liefen in ihre Zeitgrenzen. Die erfolgreiche Übertragung verwendet weiterhin HTTPS mit
+Zertifikatsprüfung; keine Secrets, privaten Pfade oder Rohlogs werden versioniert.
+
 ## Aktuellen Releasekandidaten bauen und prüfen — 2026-10-30
 
 Der Benutzer wählte ausdrücklich Schritt 3 der Release-Abschlussfolge:

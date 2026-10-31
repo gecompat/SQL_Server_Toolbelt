@@ -101,9 +101,14 @@ Die betroffenen Objektseiten verlinken jeweils den passenden Abschnitt.
 45 Module sind implementiert.
 
 Der aktuelle Modulbestand mit Versionsnummern und Nachweisgrenzen steht in
-der [Modulübersicht](./Modules/README.md). v1.0.0 ist als Gesamtpaket mit
-stabilen und Preview-Kandidaten vorbereitet und noch nicht veröffentlicht;
-die [Freigabematrix](./Releases/1.0.0/FREIGABEMATRIX.md) ist ein Vorschlag.
+der [Modulübersicht](./Modules/README.md). Der
+[Projektentwicklungssnapshot v1.0.0-rc.1](https://github.com/gecompat/SQL_Server_Toolbelt/releases/tag/v1.0.0-rc.1)
+ist für Tests veröffentlicht. Pakete, Einstieg und Nachweisgrenzen stehen in
+der [Releaseübersicht](./Releases/README.md).
+
+Alle Modulversionen bleiben `unreleased`. Die Zielkanäle der
+[Freigabematrix](./Releases/1.0.0/FREIGABEMATRIX.md) sind keine unterstützte
+Modulveröffentlichung; die fachlichen Pflichtabnahmen bleiben separat offen.
 Frühere Modul- und Testnotizen sind als [Historie](./Documentation/History/MODULE_NOTES_2026-10-22.md) erhalten.
 
 ## Modulprinzip
