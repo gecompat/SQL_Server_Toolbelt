@@ -35,6 +35,7 @@ function Read-CurrentTarget($Artifacts,$Target){
 }
 try{
  foreach($format in @(6,8)){
+  Write-Output ('SSIS_CURRENT_SAFETY_FORMAT '+$format)
   $b=[Text.Encoding]::UTF8.GetBytes((Get-CurrentSafetyDocument $format).OuterXml)
   $artifacts=Invoke-V2Explain -Bytes $b -Operation 'explain' -Catalog $catalog
   $targets=@($artifacts.Select("ArtifactKind='TargetSql'",'Ordinal'))
@@ -53,6 +54,7 @@ try{
   Assert-V2 (@($blocked.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 0 -and @($blocked.Select("ArtifactKind='Diagnostic'")).Count -gt 0) 'PERSISTENT_EXEC_REMOTE_SEQUENCE_BLOCKED'
  }
  Assert-V2 ((Invoke-V2Sql "SELECT COUNT_BIG(*) AS N FROM sys.objects WHERE name=N'SyntheticForbidden';").Rows[0].N -eq 0 -and (Invoke-V2Sql 'SELECT COUNT_BIG(*) AS N FROM dbo.SyntheticSourceA;').Rows[0].N -eq 3) 'ANALYSIS_NEVER_EXECUTES_SOURCE'
+ Write-Output 'SSIS_CURRENT_SAFETY_CATALOG'
  [void](Invoke-V2Sql 'CREATE VIEW dbo.SyntheticView AS SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA;')
  [void](Invoke-V2Sql 'CREATE SYNONYM dbo.SyntheticSynonym FOR dbo.SyntheticView;')
  try{
@@ -72,6 +74,7 @@ try{
   Assert-V2 (@($remote.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 0) 'REMOTE_SYNONYM_BLOCKED'
  }finally{[void](Invoke-V2Sql 'DROP SYNONYM dbo.SyntheticRemoteSynonym;')}
  if($CrossDatabase){
+  Write-Output 'SSIS_CURRENT_SAFETY_CROSS_DATABASE'
   $original=$Connection.Database
   $crossBytes=[Text.Encoding]::UTF8.GetBytes((Get-CurrentSafetyDocument).OuterXml)
   $artifacts=Invoke-V2Explain -Bytes $crossBytes -Operation 'explain' -Catalog $catalog
@@ -83,6 +86,9 @@ try{
    Assert-V2 (@($cross.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 2) 'THREE_PART_CALL_FROM_CONSUMER'
    Invoke-V2Units $parts
    Assert-V2 ((Invoke-V2Sql ([string]$target.Content)).Rows.Count -eq 2) 'GENERATED_PLAN_FROM_CONSUMER_DATABASE'
-  }finally{Clear-V2Plan $parts;$Connection.ChangeDatabase($original)}
+  }finally{try{Clear-V2Plan $parts}finally{$Connection.ChangeDatabase($original)}}
  }
-}finally{[void](Invoke-V2Sql 'DROP TABLE dbo.SyntheticSourceA,dbo.SyntheticSourceB,dbo.SyntheticLookup;')}
+}finally{
+ $Connection.ChangeDatabase($database)
+ [void](Invoke-V2Sql 'DROP TABLE IF EXISTS dbo.SyntheticSourceA,dbo.SyntheticSourceB,dbo.SyntheticLookup;')
+}
