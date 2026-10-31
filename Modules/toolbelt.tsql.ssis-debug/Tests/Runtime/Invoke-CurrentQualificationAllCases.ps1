@@ -27,6 +27,17 @@ $api=Bind-CurrentScriptRoot -Text $api -Root $PSScriptRoot
 # Plan geprüft; eine vorgeschaltete Plan-State-Abweisung wäre kein Rechtebeleg.
 Write-Output 'SSIS_CURRENT_QUALIFICATION_PHASE_RIGHTS'
 $rights=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Invoke-ReleaseRightsCases.ps1'))
+$fixtureAnchor='$package=[IO.File]::ReadAllBytes((Join-Path $moduleRoot ''Tests/Fixtures/synthetic-8.dtsx''))'
+$fixtureReplacement=@'
+$package=[IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+[xml]$ports=[Text.Encoding]::UTF8.GetString($package)
+foreach($component in $ports.SelectNodes('//component[@name="Derived" or @name="Split"]')){
+ $input=$component.SelectSingleNode('inputs/input').GetAttribute('refId')
+ foreach($port in $component.SelectNodes('outputs/output')){$port.SetAttribute('synchronousInputId',$input)}
+}
+$package=[Text.Encoding]::UTF8.GetBytes($ports.OuterXml)
+'@
+$rights=Replace-QualificationAnchor $rights $fixtureAnchor $fixtureReplacement
 $rights=Replace-QualificationAnchor $rights ' return $c' " [void]`$c.Parameters.Add('@MaxPackageBytes',[Data.SqlDbType]::BigInt);`$c.Parameters['@MaxPackageBytes'].Value=[long]16777216`n return `$c"
 $old='foreach($sourceStage in $stage){Denied {Sql ([string]$sourceStage.Content)} 229 ''''}'
 $new=@'

@@ -10,8 +10,19 @@ INSERT dbo.SyntheticLookup VALUES(1,10,7),(1,10,9),(1,20,NULL),(2,10,2);
 '@)
 $database=$Connection.Database
 $catalog=(@{schemaVersion=2;defaultDatabase=$database;databases=@($database);connections=@{'Package.ConnectionManagers[Synthetic]'=$database};flatFileInputs=@{}}|ConvertTo-Json -Depth 4 -Compress)
+function Get-CurrentSafetyDocument([int]$Format=8){
+ [xml]$doc=[IO.File]::ReadAllText((Join-Path $moduleRoot ('Tests/Fixtures/synthetic-'+$Format+'.dtsx')))
+ # Die alten Minimalfixtures enthielten keine synchronen Portreferenzen.
+ # Für den vollständigen heutigen Portvertrag werden diese ausdrücklich
+ # synthetisch ergänzt; die vorhandene explizite Komponentenversion bleibt.
+ foreach($c in $doc.SelectNodes('//component[@name="Derived" or @name="Split"]')){
+  $input=$c.SelectSingleNode('inputs/input').GetAttribute('refId')
+  foreach($port in $c.SelectNodes('outputs/output')){$port.SetAttribute('synchronousInputId',$input)}
+ }
+ return ,$doc
+}
 function New-CurrentSafetyPackage([string]$Query){
- [xml]$doc=[IO.File]::ReadAllText((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+ [xml]$doc=Get-CurrentSafetyDocument
  $node=$doc.SelectSingleNode('//component[@name="SourceA"]/properties/property[@name="SqlCommand"]')
  if(-not $node){throw 'SSIS_CURRENT_SAFETY_FIXTURE_STRUCTURE'}
  $node.InnerText=$Query
@@ -24,7 +35,7 @@ function Read-CurrentTarget($Artifacts,$Target){
 }
 try{
  foreach($format in @(6,8)){
-  $b=[IO.File]::ReadAllBytes((Join-Path $moduleRoot ('Tests/Fixtures/synthetic-'+$format+'.dtsx')))
+  $b=[Text.Encoding]::UTF8.GetBytes((Get-CurrentSafetyDocument $format).OuterXml)
   $artifacts=Invoke-V2Explain -Bytes $b -Operation 'explain' -Catalog $catalog
   $targets=@($artifacts.Select("ArtifactKind='TargetSql'",'Ordinal'))
   Assert-V2 ($targets.Count -eq 2 -and @($targets|Where-Object {-not $_.IsExecutable}).Count -eq 0) 'FORMAT6_8_COMPLETE_TARGETS'
@@ -62,12 +73,13 @@ try{
  }finally{[void](Invoke-V2Sql 'DROP SYNONYM dbo.SyntheticRemoteSynonym;')}
  if($CrossDatabase){
   $original=$Connection.Database
-  $artifacts=Invoke-V2Explain -Bytes ([IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))) -Operation 'explain' -Catalog $catalog
+  $crossBytes=[Text.Encoding]::UTF8.GetBytes((Get-CurrentSafetyDocument).OuterXml)
+  $artifacts=Invoke-V2Explain -Bytes $crossBytes -Operation 'explain' -Catalog $catalog
   $target=@($artifacts.Select("ArtifactKind='TargetSql' AND IsExecutable=true"))[0]
   $parts=Get-V2PlanParts $artifacts $target
   $Connection.ChangeDatabase($CrossDatabase)
   try{
-   $cross=Invoke-V2Explain -Bytes ([IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))) -Operation 'explain' -Catalog $catalog -Procedure ('['+$original.Replace(']',']]')+'].toolbelt_tsql.USP_ExplainSsisDataFlow')
+   $cross=Invoke-V2Explain -Bytes $crossBytes -Operation 'explain' -Catalog $catalog -Procedure ('['+$original.Replace(']',']]')+'].toolbelt_tsql.USP_ExplainSsisDataFlow')
    Assert-V2 (@($cross.Select("ArtifactKind='TargetSql' AND IsExecutable=true")).Count -eq 2) 'THREE_PART_CALL_FROM_CONSUMER'
    Invoke-V2Units $parts
    Assert-V2 ((Invoke-V2Sql ([string]$target.Content)).Rows.Count -eq 2) 'GENERATED_PLAN_FROM_CONSUMER_DATABASE'
