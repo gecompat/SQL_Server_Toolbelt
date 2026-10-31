@@ -45,7 +45,7 @@ für Zeitvergleiche `not executed`; Performance insgesamt `partially validated`.
 Messwerte und Rohpläne bleiben ausschließlich lokal unter `.runtime/`.
 
 Der Repository-Grundaufbau ist abgeschlossen. 45 Module sind implementiert;
-21 sind `validated`, 24 sind `partially validated`, 0 sind `not executed`. Für alle existieren
+22 sind `validated`, 23 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit

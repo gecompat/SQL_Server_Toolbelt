@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-31 – Aktueller SSIS-Debugvertrag funktionsqualifiziert
+
+Der heutige SSIS-Build aus dem vorhandenen Parameter-Help-Paket bestand zwölf
+Windows-/Engine-/CL-/Moduskontexte mit 12.396 Assertions und unabhängigen
+Abschlussaudits. Komponenten-/Ausdrucks-/Plan-, API-/ResultTable-, Callerrechte-,
+Katalog-/Safety-, Lifecycle- und Ressourcenfälle ergänzen quellengeprüft die
+unveränderten Paket-/Snapshotnachweise. Aktuelle Statusprojektion: 22 Module
+`validated`, 23 `partially validated`; SSIS bleibt `unreleased` und erhält
+keine neue Veröffentlichungs- oder universelle Client-/Identitätszusage.
+[Abgegrenzter Scope und Testmethode](Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+
 ## 2026-10-25 – Native SSIS-Objektkennungen für Analyze
 
 Der externe Exporthost ergänzt den optionalen `--bundle`-Transport. Paketmodell
@@ -2205,7 +2216,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 
