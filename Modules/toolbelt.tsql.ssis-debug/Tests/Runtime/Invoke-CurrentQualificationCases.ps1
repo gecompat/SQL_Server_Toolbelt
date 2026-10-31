@@ -72,12 +72,12 @@ function Reject-V2([scriptblock]$Action,[string]$Code,[string]$Counter,[switch]$
 
 # Die unveränderten typisierten Fachorakel werden am heutigen öffentlichen
 # Default ausgeführt. Nur die Eingabe des langen synthetischen Plans wird
-# auf 32 Gruppen und das tatsächliche Defaultbudget angepasst; kein Legacy-
+# auf 64 Gruppen und das tatsächliche Defaultbudget angepasst; kein Legacy-
 # Operationsname oder Ressourcen-JSON gelangt an den Produktaufruf.
 $domain=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Invoke-ComponentsV2DomainCases.ps1'))
 $variable=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Invoke-ComponentsV2VariableCases.ps1'))
 if(($variable.Split('@($group)*256').Count-1) -ne 1 -or ($variable.Split('{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}').Count-1) -ne 1){throw 'SSIS_CURRENT_QUALIFICATION_VARIABLE_ANCHOR'}
-$variable=$variable.Replace('@($group)*256','@($group)*32').Replace('{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}','{"schemaVersion":2}')
+$variable=$variable.Replace('@($group)*256','@($group)*64').Replace('{"schemaVersion":2,"resourceOptions":{"schemaVersion":1,"preset":"unlimited"}}','{"schemaVersion":2}')
 $hook=". (Join-Path `$PSScriptRoot 'Invoke-ComponentsV2VariableCases.ps1')"
 if(($domain.Split($hook).Count-1) -ne 1){throw 'SSIS_CURRENT_QUALIFICATION_DOMAIN_ANCHOR'}
 $domain=$domain.Replace($hook,'. ([scriptblock]::Create($variable))')
