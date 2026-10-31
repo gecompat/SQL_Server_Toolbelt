@@ -26,7 +26,8 @@ function Invoke-V2Explain {
  $command.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
  $command.CommandTimeout=Get-SsisNativeTimeout 120
  [void]$command.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1)
- $command.Parameters['@PackageBytes'].Value=if($null -eq $Bytes){[DBNull]::Value}else{$Bytes}
+ if($null -eq $Bytes){$command.Parameters['@PackageBytes'].Value=[DBNull]::Value}
+ else{$command.Parameters['@PackageBytes'].Value=$Bytes}
  foreach($p in @(@('Operation',$Operation,32,[Data.SqlDbType]::VarChar),@('ProjectContext',$Context,-1,[Data.SqlDbType]::NVarChar),
  @('Bindings',$Bindings,-1,[Data.SqlDbType]::NVarChar),@('CatalogBindings',$Catalog,-1,[Data.SqlDbType]::NVarChar),
  @('TargetFlow',$Target,64,[Data.SqlDbType]::NVarChar),@('InspectStage',$Stage,64,[Data.SqlDbType]::NVarChar),
