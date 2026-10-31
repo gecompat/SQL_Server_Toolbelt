@@ -1,5 +1,26 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktueller SSIS-Build: verbleibende Funktionsqualifikation — 2026-10-31
+
+Direkter Benutzerauftrag: offene Qualifikationslücken des aktuellen SSIS-Builds
+schließen, gültige vorhandene Nachweise verwenden, fehlende Tests ergänzen,
+grüne PRs nach main integrieren und Main-CI prüfen; nicht veröffentlichen.
+Ein Implementierer, ein kohärenter PR, sechs Stunden ab Originalstart und
+höchstens 72 native Ziel-/Auditversuche einschließlich Fehlern und Nachfolgern;
+Checkpoint nach vier Stunden. Kosten und Tokenverbrauch sind unbekannt.
+
+Vorhandene Current-ZIP-/Standalone-Matrizen und der Snapshotnachweis bleiben
+unverändert. Neue Tests binden den aktuellen Build und ergänzen Komponenten-/
+Ausdrucks-, API-/ResultTable-, Callerrechte-/Safety-, Lifecycle- und
+Ressourcenorakel. Unveränderte semantische Orakel werden komponiert, alte
+Toolbelt-API-Erwartungen nicht zu Produktanforderungen gemacht. Risikopfade
+bestimmen Engine, CL, Collation und lokalen/zentralen Modus; vor jedem
+Labzugriff sind Vertrag, exaktes READY-Ziel und eigene Bereinigung gebunden.
+Rohlogs, Ziel-/Trust-/Konfigurationsjournale und Originalmesswerte bleiben
+privat. Kein neuer SQL-Vertrag, keine Labverwaltung und keine Veröffentlichung.
+TLS-/GUI-/SSIS-Runtime-Parität bleiben getrennte Supportgrenzen. Abschluss
+erst nach tatsächlichen Nachweisen und aktueller Head-/Main-CI.
+
 ## Arbeitspaket 1: aktuelle 19 stabile Kandidaten abschließend prüfen — 2026-10-31
 
 Unmittelbarer Benutzerauftrag: „Starte mit Arbeitspaket 1: Prüfe die 19 stabilen
