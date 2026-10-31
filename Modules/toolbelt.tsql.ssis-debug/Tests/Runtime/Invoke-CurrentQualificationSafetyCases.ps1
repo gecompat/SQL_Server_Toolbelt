@@ -105,7 +105,7 @@ try{
   $write=$writer.CreateCommand();$write.CommandTimeout=Get-SsisNativeTimeout 15
   try{$write.CommandText='BEGIN TRANSACTION;UPDATE dbo.SyntheticSourceA SET Amount=Amount+1000;';[void]$write.ExecuteNonQuery()
    $rows=Read-CurrentTarget $dirty $dirtyTarget
-   Assert-V2 ($rows.Rows.Count -eq 3 -and @($rows.Rows|Where-Object {$_.Amount -ge 1000}).Count -eq 3) 'NOLOCK_DIRTY_SOURCE_READ'
+   Assert-V2 ($rows.Rows.Count -eq 3 -and @($rows.Rows|Where-Object {$_.Adjusted -ge 1000}).Count -eq 3) 'NOLOCK_DIRTY_SOURCE_READ'
   }finally{$write.CommandText='IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;';[void]$write.ExecuteNonQuery();$write.Dispose()}
  }finally{$writer.Dispose()}
  if($CrossDatabase){

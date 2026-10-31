@@ -1,16 +1,19 @@
 [CmdletBinding()]
-param([Parameter(Mandatory)][Data.SqlClient.SqlConnection]$Connection,[string]$CrossDatabase,[string]$FixtureModuleRoot,[Parameter(Mandatory)][string]$Mode)
+param([Parameter(Mandatory)][Data.SqlClient.SqlConnection]$Connection,[string]$CrossDatabase,[string]$FixtureModuleRoot,[Parameter(Mandatory)][string]$Mode,
+ [ValidateSet('Full','ApiRightsLifecycle')][string]$QualificationPhase='Full')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 function Replace-QualificationAnchor([string]$Source,[string]$Old,[string]$New){
  if(([regex]::Matches($Source,[regex]::Escape($Old))).Count -ne 1){throw 'SSIS_CURRENT_QUALIFICATION_DERIVATION_ANCHOR'}
  return $Source.Replace($Old,$New)
 }
+if($QualificationPhase -ceq 'Full'){
 Write-Output 'SSIS_CURRENT_QUALIFICATION_PHASE_CURRENT'
 & (Join-Path $PSScriptRoot 'Invoke-CurrentCases.ps1') -Connection $Connection -CrossDatabase $CrossDatabase -FixtureModuleRoot $FixtureModuleRoot
 Write-Output 'SSIS_CURRENT_QUALIFICATION_PHASE_SEMANTICS'
 $long=([int](Query $Connection 'SELECT compatibility_level AS C FROM sys.databases WHERE database_id=DB_ID();').Rows[0].C -eq 170)
 & (Join-Path $PSScriptRoot 'Invoke-CurrentQualificationCases.ps1') -Connection $Connection -CrossDatabase $CrossDatabase -LongPlan:$long
+}
 
 # Die Clientmetadaten-Orakel sind unverändert; Parameterzahl und bigint-
 # Speicherbreite folgen dem heutigen 38-Parameter-Vertrag statt dem alten 14er.
@@ -55,4 +58,5 @@ $rights=Bind-CurrentScriptRoot -Text $rights -Root $PSScriptRoot
 & ([scriptblock]::Create($rights)) -Connection $Connection
 Write-Output 'SSIS_CURRENT_QUALIFICATION_PHASE_LIFECYCLE'
 & (Join-Path $PSScriptRoot 'Invoke-LifecycleCases.ps1') -Connection $Connection -Mode $Mode
-Write-Output 'SSIS_CURRENT_QUALIFICATION_ALL_PASS; no legacy API execution'
+if($QualificationPhase -ceq 'Full'){Write-Output 'SSIS_CURRENT_QUALIFICATION_ALL_PASS; no legacy API execution'}
+else{Write-Output 'SSIS_CURRENT_QUALIFICATION_FOCUSED_PASS; API/rights/lifecycle only; not full qualification'}

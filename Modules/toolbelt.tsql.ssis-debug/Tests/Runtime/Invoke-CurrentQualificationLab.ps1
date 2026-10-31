@@ -4,6 +4,7 @@ param(
     [string]$Patch='base',
     [Parameter(Mandatory)][ValidateSet('local','central')][string]$Mode,
     [Parameter(Mandatory)][ValidateSet(150,160,170)][int]$CompatibilityLevel,
+    [ValidateSet('Full','ApiRightsLifecycle')][string]$QualificationPhase='Full',
     [Parameter(Mandatory)][string]$JournalDirectory,
     [Parameter(Mandatory)][string]$ExpectedTargetKey,
     [Parameter(Mandatory)][ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedContractSha256,
@@ -78,7 +79,7 @@ function Bind-CurrentScriptRoot([string]$Text,[string]$Root){
 $text=[IO.File]::ReadAllText($original)
 $anchor="    `$phase=`$mode+'-api'; & (Join-Path `$PSScriptRoot 'Invoke-ApiCases.ps1') -Connection `$connection"
 if(([regex]::Matches($text,[regex]::Escape($anchor))).Count -ne 1){throw 'SSIS_CURRENT_CASE_HOOK_NOT_UNIQUE'}
-$insertion=$anchor+"`n    `$phase=`$mode+'-components-v2'; & (Join-Path `$PSScriptRoot 'Invoke-CurrentQualificationAllCases.ps1') -Connection `$connection -CrossDatabase `$clientDatabase -FixtureModuleRoot `$moduleRoot -Mode `$mode"
+$insertion=$anchor+"`n    `$phase=`$mode+'-components-v2'; & (Join-Path `$PSScriptRoot 'Invoke-CurrentQualificationAllCases.ps1') -Connection `$connection -CrossDatabase `$clientDatabase -FixtureModuleRoot `$moduleRoot -Mode `$mode -QualificationPhase '$QualificationPhase'"
 $adapted=$text.Replace($anchor,$insertion)
 
     # Aktuelle Fachfälle ersetzen historische V1-Testfälle; Trust-/Config-/
