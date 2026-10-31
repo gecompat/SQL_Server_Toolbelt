@@ -108,6 +108,33 @@ try{
    Assert-V2 ($rows.Rows.Count -eq 3 -and @($rows.Rows|Where-Object {$_.Adjusted -ge 1000}).Count -eq 3) 'NOLOCK_DIRTY_SOURCE_READ'
   }finally{$write.CommandText='IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;';[void]$write.ExecuteNonQuery();$write.Dispose()}
  }finally{$writer.Dispose()}
+ # NOLOCK umgeht keine Sch-M-Sperre. Der Wartebeleg wird an die zwei eigenen
+ # Sessions gebunden; nach Rollback muss dieselbe Planeinheit erfolgreich sein.
+ $blocking=Invoke-V2Explain -Bytes $safeBytes -Operation 'explain' -Catalog $catalog -Stage 'all'
+ $source=@($blocking.Rows|Where-Object {$_.ArtifactKind -ceq 'StageSql' -and $_.ComponentId -ceq 'Package\Flow\SourceA'})[0]
+ $blockingParts=Get-V2PlanParts $blocking $source
+ $readerId=[int](Invoke-V2Sql 'SELECT @@SPID AS S;').Rows[0].S
+ $writer=([ICloneable]$Connection).Clone();$writer.Open()
+ $write=$writer.CreateCommand();$write.CommandTimeout=Get-SsisNativeTimeout 15
+ $waiting=$Connection.CreateCommand();$waiting.CommandTimeout=Get-SsisNativeTimeout 10
+ $task=$null
+ try{
+  $write.CommandText='BEGIN TRANSACTION;ALTER TABLE dbo.SyntheticSourceA ADD SyntheticHeld int NULL;';[void]$write.ExecuteNonQuery()
+  $waiting.CommandText=[string]$blockingParts.Units[0].Content
+  $task=$waiting.ExecuteReaderAsync()
+  $watch=[Diagnostics.Stopwatch]::StartNew();$blocked=$false
+  do{
+   $write.CommandText='SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.dm_exec_requests WHERE session_id='+$readerId+' AND blocking_session_id=@@SPID AND wait_type LIKE N''LCK_M_SCH_%'') THEN 1 ELSE 0 END;'
+   $blocked=([int]$write.ExecuteScalar() -eq 1)
+   if(-not $blocked){Start-Sleep -Milliseconds 50}
+  }while(-not $blocked -and $watch.Elapsed.TotalSeconds -lt 3 -and -not $task.IsCompleted)
+  Assert-V2 ($blocked -and -not $task.IsCompleted) 'NOLOCK_OWN_SCHEMA_LOCK_WITNESS'
+ }finally{
+  try{
+   $write.CommandText='IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;';[void]$write.ExecuteNonQuery()
+   if($null -ne $task){$reader=$task.GetAwaiter().GetResult();$reader.Dispose()}
+  }finally{$write.Dispose();$waiting.Dispose();$writer.Dispose();Clear-V2Plan $blockingParts}
+ }
  if($CrossDatabase){
   Write-Output 'SSIS_CURRENT_SAFETY_CROSS_DATABASE'
   $original=$Connection.Database
