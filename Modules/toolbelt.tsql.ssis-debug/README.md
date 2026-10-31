@@ -84,9 +84,9 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-29`
-- Nachweis: `local: SSIS-Komponenten-V2 ZIP- und Standalone-T-SQL-Paketqualifikationen`
-- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung dokumentiert genau zwei Metadatenänderungen: Normalisierung des ZIP-Qualifikations-JSONs und Anpassung seines Hashfelds in der Installerprovenienz; Ausführungspins und Installerbytes bleiben unverändert. Native Records belegen keine CI; Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head getrennt nachgewiesen. Vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben unqualifiziert beziehungsweise nicht freigegeben; der Modulstatus bleibt unverändert.
+- Datum: `2026-10-31`
+- Nachweis: `local: aktuelle SSIS-Funktionsqualifikation, zwölf Windows-/CL-/Moduskontexte und unabhängige Audits`
+- Scope: Aktueller Binary und Deployment exakt an das bestehende Parameter-Help-Paket gebunden. Zwölf native Kontexte: SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170 jeweils local/central, mit BIN2, CS_AS beziehungsweise CI_AS_SC_UTF8. 12396 Assertions für aktuellen Default, komponierte Komponenten-/Ausdrucks-/Plan-, Katalog-/Safety-, API-/ResultTable-, Callerrechte- und Lifecycleverträge; zwölf getrennte Abschlussaudits. Native 64-Gruppen-Pläne mit mehr als16 Einheiten auf SQL2025/CL170 in beiden Modi unter128MiB Defaultoutput. Aktuelle Full26-Frameworkprüfung und22 Wiederverwendungsgegenproben bestanden;22 unveränderte fachliche Quellen und APIgleichheit ohne Beschreibungstexte binden alte ZIP-/Standalone-/Snapshotbelege. Elf frühere Harness-/Fixturefehler, ein positiver Teilumfang und ein historischer positiver Gesamtlauf bleiben getrennte Historie; alle25 nativen Abschlussaudits bestanden. Qualifiziert ist der freigegebene Debugvertrag; Lowpriv-CrossDB-Identitäten, GUI/Windows-Anmeldung, administrativer Installer-Trust, authentifiziertes TLS, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Veröffentlichung nicht autorisiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

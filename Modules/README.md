@@ -64,7 +64,7 @@ abgeleitet.**
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.text-pairs` | Bounded Text Pair Comparison | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.tsql.script-parser` | T-SQL Script Parser | `2.0.1` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.tsql.ssis-debug` | SSIS Data Flow Debug SELECT | `1.0.0` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.tsql.ssis-debug` | SSIS Data Flow Debug SELECT | `1.0.0` | `toolbelt_tsql` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.1.0` | `toolbelt_validation` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 
