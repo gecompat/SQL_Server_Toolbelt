@@ -2,7 +2,12 @@
 
 ## Aktueller Standard
 
-Für den aktuellen API-Vertrag verwende
+Der heutige Source-Build mit vollständiger Parameterhilfe wird im
+[Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md) geliefert. Die
+[aktuelle Funktionsabnahme](../Tests/Qualification/Current.Functional.20261031.json)
+bindet genau dessen SSIS-Binary und Deployment an zwölf Windows-/CL-/Modusfälle.
+
+Für die eigenständige SSIS-Installation mit älteren Hilfetexten verwende
 [`SSIS-Debug-Current-Install-Windows.zip`](SSIS-Debug-Current-Install-Windows.zip)
 oder den [reinen T-SQL-Installer](../../../Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
 Die [aktuelle Anleitung](../Documentation/CurrentInstallation.md) zeigt
@@ -13,7 +18,9 @@ und die [Installer-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-st
 haben jeweils ihren eigenen Umfang und ihre eigenen Eingabepins.
 Spätere Paket-/Installerberichte stehen im Repository; sie verändern die
 unveränderlichen Quellen des im ZIP enthaltenen Snapshots nicht.
-Der Stand bleibt unveröffentlicht und nur teilweise validiert.
+Diese älteren Artefakte behalten ihren bisherigen begrenzten Nachweis. Der
+heutige Debugvertrag ist im dokumentierten Scope funktionsqualifiziert; das
+Modul bleibt unveröffentlicht. Die neue Abnahme ersetzt keine Archivbytes.
 
 ## Historische Komponentenlieferungen
 

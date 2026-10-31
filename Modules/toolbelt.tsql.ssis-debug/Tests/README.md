@@ -3,9 +3,78 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
-## Aktuelle Lieferung und ihr begrenzter Nachweis
+## Methode der aktuellen Funktionsabnahme
 
-Die [aktuelle Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
+Die [gebundene Funktionsabnahme vom 2026-10-31](Qualification/Current.Functional.20261031.json)
+bestand zwölf Windows-/Engine-/CL-/Moduskontexte mit insgesamt **12.396
+Assertions** und zwölf unabhängigen Bereinigungs-/Pinaudits: SQL2019/CL150,
+SQL2022/CL150/160 und SQL2025/CL150/160/170 jeweils local und central.
+Die eigene Datenbank verwendet auf SQL2019 BIN2, auf SQL2022 CS_AS und auf
+SQL2025 CI_AS_SC_UTF8; Consumerkontexte werden getrennt geprüft. Je Kontext
+bestanden 206 Current-, 688 semantische, 85 API-, 30 Rechte- und 15
+Lifecycleassertionen. Auf CL170 sind es wegen des längeren Plans jeweils
+742 semantische Assertions. Full26 am heutigen Binary und die 22 fokussierten
+Gegenproben der vorhandenen Paket-/Standalone-/Snapshotbelege bestanden.
+
+Die Historie enthält 25 native Versuche mit jeweils eigenem Abschlussaudit:
+zwölf aktuelle erfolgreiche Gesamtläufe, einen früheren positiven Gesamtlauf,
+einen isolierten positiven API-/Rechte-/Lifecycleteilumfang und elf
+bereinigte Harness-/Fixturefehler. Kein fehlgeschlagener Versuch wird als
+Gesamt-PASS gewertet. Modulstatus: `validated` für den nachfolgend abgegrenzten
+Debugvertrag, weiterhin `unreleased`. Head-/Main-CI werden am jeweiligen
+PR-/Merge-Head separat nachgewiesen.
+
+Die ergänzende Funktionsabnahme verwendet den heutigen Source-Build aus dem
+[Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md). DLL,
+Quellenfingerprint und expandiertes Deployment werden vor SQL gegen dessen
+`SSIS-BUILD.json` geprüft. Gegenüber dem älteren Current-SSIS-ZIP sind 22
+fachliche CLR-/Modell-/Vorfilterquellen bytegleich; die generierte CLR-Hilfe
+ist geändert. Der öffentliche API-Vertrag ist nach Entfernung ausschließlich
+der Beschreibungstexte identisch. Alte Paket- und Snapshotnachweise behalten
+ihre Originalbytes, Daten und begrenzten Aussagen.
+
+[`Invoke-CurrentQualificationLab.ps1`](Runtime/Invoke-CurrentQualificationLab.ps1)
+komponiert die unveränderte Lab-Schutzhülle mit dem neuen vollständigen
+Fallsatz. `Full` prüft die aktuellen Defaults, beide DTSX-Formatprofile mit
+explizit gültigen synchronen Ports, zusammengesetzte Datenflüsse und typisierte
+Ausdrücke, Row Count, relationale Flatfile-Ersatzquellen, Planreihenfolge und
+Ownership, View-/Synonym-/Funktions-/Computed-/RLS-Grenzen, unzulässige
+Quellstatements, Dirty Read und den eigenen Sch-M-Blocker, Cross-DB-Kontext,
+Ressourcengrenzen, Clientmetadaten, ResultTable, Callerzustand, Rechte und
+Lifecycle. Die unveränderten fachlichen Orakel werden ausdrücklich mit der
+heutigen editierbaren Designwertvorlage ausgeführt. Ein isolierter
+`ApiRightsLifecycle`-Diagnoselauf ist als Teilumfang gekennzeichnet und ersetzt
+keinen vollständigen Lauf.
+
+Die längere native Probe verwendet 64 Ausdrucksgruppen, mehr als 16
+Planeinheiten und sechs feste NULL-/Unicode-/Dreiwertigkeitsorakel bei
+unverändertem 128-MiB-Standard-Ausgabebudget. Sie ist keine Zusage unbegrenzter
+Produktionskapazität. Für sämtliche Läufe gelten der schema-validierte
+Functional-Labvertrag, die genaue READY-Auswahl und die bestehenden
+300-/360-Sekunden-Arbeits-/Bereinigungsgrenzen. Ein separater lesender
+[`Invoke-ComponentsV2Audit.ps1`](Runtime/Invoke-ComponentsV2Audit.ps1)
+prüft anschließend eigene Datenbanken, Trust, Konfiguration und Eingabepins.
+
+Die Callerprofile verwenden einen eigenen Benutzer ohne Login mit einzeln
+verweigerten Rechten und ohne Quell-SELECT. Der dreiteilige Cross-DB-Aufruf
+verwendet die vorhandene Identität des Testharnesses und einen ausdrücklich
+gemappten Consumerkontext. Das belegt keine neuen Lowpriv-Cross-DB-Logins oder
+Identitätsmappings. GUI-/Windows-Anmeldung, administrativer Installer-Trust,
+authentifiziertes TLS, harte Host-/Transportunterbrechung und Linux-Exporthost
+bleiben eigene Supportgrenzen. Eine umfassende SSIS-Runtime-Parität ist kein
+Abnahmekriterium dieses Debugvertrags.
+
+Der [Record-Erzeuger](../../../Tests/Release/prepare_ssis_current_qualification.py)
+übernimmt ausschließlich aggregierte Assertions, öffentliche Quell-/Paketpins
+und die vollständige Versuchshistorie aus privaten Runsets. Journale, Endpoints,
+Credentials und Rohlogs werden nicht veröffentlicht. Der
+[Offlinevalidator](../../../Scripts/Release/validate_ssis_current_functional.py)
+und seine Gegenproben binden Quellen, Wiederverwendung, Kontextvollständigkeit,
+den tatsächlich gelieferten Binary und die getrennten Abnahmegrenzen.
+
+## Getrennte Current-ZIP-/Standalone-Nachweise vom 2026-10-29
+
+Die [damalige Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
 belegt sechs Windows-Kontexte: SQL2019/CL150, SQL2022/CL160 und SQL2025/CL170
 jeweils lokal und zentral. Je 206 Assertions prüfen den aktuellen Default,
 38 geordnete Parameter einschließlich 24 `bigint`-Limits, Hilfe vor Validierung,
@@ -88,8 +157,8 @@ für den festen Current-T-SQL-Installer. Beide erweitern die Binarymatrix nicht.
 Keine der Qualifikationen belegt tatsächliche SSIS-Ausführung,
 Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den administrativen
 Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und Integration sind
-separate Gates. Modulstatus: teilweise validiert und
-unveröffentlicht. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
+separate Gates. Diese historischen Teilnachweise werden durch die oben
+beschriebene aktuelle Funktionsabnahme ergänzt. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
 führt zu den aktuellen Dateien und Ergebnissen.
 
 ## Historische Nachweise
@@ -700,9 +769,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-29`
-- Nachweis: `local: SSIS-Komponenten-V2 ZIP- und Standalone-T-SQL-Paketqualifikationen`
-- Scope: Separates V2-ZIP mit zwei Windows-Paketfällen, 1190 Assertions und zwei unabhängigen Cleanup-Audits; Standalone-T-SQL-Installer auf Windows SQL2019/CL150 und SQL2025/CL170 in local/central, vier V2-Opt-in-Vorlagenprüfungen und zwei unabhängige Audits. Die getrennten Reports binden Binary, Paket, Installer und Ausführungseingaben. Eine separate CRLF→LF-Integrationsbindung dokumentiert genau zwei Metadatenänderungen: Normalisierung des ZIP-Qualifikations-JSONs und Anpassung seines Hashfelds in der Installerprovenienz; Ausführungspins und Installerbytes bleiben unverändert. Native Records belegen keine CI; Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head getrennt nachgewiesen. Vollständige Plattform-/Engine-Matrix, authentifiziertes TLS und Veröffentlichung bleiben unqualifiziert beziehungsweise nicht freigegeben; der Modulstatus bleibt unverändert.
+- Datum: `2026-10-31`
+- Nachweis: `local: aktuelle SSIS-Funktionsqualifikation, zwölf Windows-/CL-/Moduskontexte und unabhängige Audits`
+- Scope: Aktueller Binary und Deployment exakt an das bestehende Parameter-Help-Paket gebunden. Zwölf native Kontexte: SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170 jeweils local/central, mit BIN2, CS_AS beziehungsweise CI_AS_SC_UTF8. 12396 Assertions für aktuellen Default, komponierte Komponenten-/Ausdrucks-/Plan-, Katalog-/Safety-, API-/ResultTable-, Callerrechte- und Lifecycleverträge; zwölf getrennte Abschlussaudits. Native 64-Gruppen-Pläne mit mehr als16 Einheiten auf SQL2025/CL170 in beiden Modi unter128MiB Defaultoutput. Aktuelle Full26-Frameworkprüfung und22 Wiederverwendungsgegenproben bestanden;22 unveränderte fachliche Quellen und APIgleichheit ohne Beschreibungstexte binden alte ZIP-/Standalone-/Snapshotbelege. Elf frühere Harness-/Fixturefehler, ein positiver Teilumfang und ein historischer positiver Gesamtlauf bleiben getrennte Historie; alle25 nativen Abschlussaudits bestanden. Qualifiziert ist der freigegebene Debugvertrag; Lowpriv-CrossDB-Identitäten, GUI/Windows-Anmeldung, administrativer Installer-Trust, authentifiziertes TLS, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Veröffentlichung nicht autorisiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

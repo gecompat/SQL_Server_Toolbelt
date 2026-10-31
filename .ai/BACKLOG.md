@@ -1,5 +1,46 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktueller SSIS-Build: verbleibende Funktionsqualifikation — 2026-10-31
+
+Direkter Benutzerauftrag: offene Qualifikationslücken des aktuellen SSIS-Builds
+schließen, gültige vorhandene Nachweise verwenden, fehlende Tests ergänzen,
+grüne PRs nach main integrieren und Main-CI prüfen; nicht veröffentlichen.
+Ein Implementierer, ein kohärenter PR, sechs Stunden ab Originalstart und
+höchstens 72 native Ziel-/Auditversuche einschließlich Fehlern und Nachfolgern;
+Checkpoint nach vier Stunden. Kosten und Tokenverbrauch sind unbekannt.
+
+Vorhandene Current-ZIP-/Standalone-Matrizen und der Snapshotnachweis bleiben
+unverändert. Neue Tests binden den aktuellen Build und ergänzen Komponenten-/
+Ausdrucks-, API-/ResultTable-, Callerrechte-/Safety-, Lifecycle- und
+Ressourcenorakel. Unveränderte semantische Orakel werden komponiert, alte
+Toolbelt-API-Erwartungen nicht zu Produktanforderungen gemacht. Risikopfade
+bestimmen Engine, CL, Collation und lokalen/zentralen Modus; vor jedem
+Labzugriff sind Vertrag, exaktes READY-Ziel und eigene Bereinigung gebunden.
+Rohlogs, Ziel-/Trust-/Konfigurationsjournale und Originalmesswerte bleiben
+privat. Kein neuer SQL-Vertrag, keine Labverwaltung und keine Veröffentlichung.
+TLS-/GUI-/SSIS-Runtime-Parität bleiben getrennte Supportgrenzen. Abschluss
+erst nach tatsächlichen Nachweisen und aktueller Head-/Main-CI.
+
+Abschluss der nativen Welle: zwölf aktuelle Windows-/Engine-/CL-/Modusfälle
+mit 12396 Assertions und zwölf unabhängigen Audits bestanden. Der heutige
+Binary und das Deployment stimmen exakt mit dem vorhandenen Parameter-Help-
+Paket überein; kein Paketrefresh oder Produktcode. Full26 am heutigen Binary
+und22 fokussierte Wiederverwendungsgegenproben bestanden. Der
+[Record](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json)
+bindet aktuelle Quellen, APIgleichheit ohne Beschreibungstexte,22 bytegleiche
+fachliche Quellen, die alten unveränderten Paket-/Snapshotbelege und alle25
+nativen Versuche. Elf Harness-/Fixturefehler, ein früherer positiver Gesamtlauf
+und ein positiver API-/Rechte-/Lifecycleteilumfang bleiben getrennte Historie;
+alle25 separaten Abschlussaudits bestanden. 50 native Ziel-/Auditversuche
+liegen unter der Grenze72; keine weiteren nativen Läufe ohne neuen Befund.
+Der Modulstatus wird für den abgegrenzten aktuellen Debugvertrag `validated`,
+bleibt `unreleased`; echte Lowpriv-CrossDB-Identitäten, GUI/Windows-Anmeldung,
+administrativer Installer-Trust, TLS, harte Recovery, Linux-Exporthost und
+Produktionskapazität sind keine neuen Zusagen. Aktuelle Head-/Main-CI und Merge
+folgen als eigene Gates. Ein zusätzlicher kurzer Offline-Schritt mit18
+Gegenproben im vorhandenen SSIS-Job, passende enge Pfadfilter, keine neuen Jobs,
+keine Agenten-/Reviewkette und keine Wiederholung fremder Modulmatrizen.
+
 ## Arbeitspaket 1: aktuelle 19 stabile Kandidaten abschließend prüfen — 2026-10-31
 
 Unmittelbarer Benutzerauftrag: „Starte mit Arbeitspaket 1: Prüfe die 19 stabilen
@@ -995,7 +1036,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
