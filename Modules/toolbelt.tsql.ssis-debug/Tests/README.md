@@ -5,6 +5,25 @@ Der aktuelle Entwicklungsvertrag steht im
 
 ## Methode der aktuellen Funktionsabnahme
 
+Die [gebundene Funktionsabnahme vom 2026-10-31](Qualification/Current.Functional.20261031.json)
+bestand zwölf Windows-/Engine-/CL-/Moduskontexte mit insgesamt **12.396
+Assertions** und zwölf unabhängigen Bereinigungs-/Pinaudits: SQL2019/CL150,
+SQL2022/CL150/160 und SQL2025/CL150/160/170 jeweils local und central.
+Die eigene Datenbank verwendet auf SQL2019 BIN2, auf SQL2022 CS_AS und auf
+SQL2025 CI_AS_SC_UTF8; Consumerkontexte werden getrennt geprüft. Je Kontext
+bestanden 206 Current-, 688 semantische, 85 API-, 30 Rechte- und 15
+Lifecycleassertionen. Auf CL170 sind es wegen des längeren Plans jeweils
+742 semantische Assertions. Full26 am heutigen Binary und die 22 fokussierten
+Gegenproben der vorhandenen Paket-/Standalone-/Snapshotbelege bestanden.
+
+Die Historie enthält 25 native Versuche mit jeweils eigenem Abschlussaudit:
+zwölf aktuelle erfolgreiche Gesamtläufe, einen früheren positiven Gesamtlauf,
+einen isolierten positiven API-/Rechte-/Lifecycleteilumfang und elf
+bereinigte Harness-/Fixturefehler. Kein fehlgeschlagener Versuch wird als
+Gesamt-PASS gewertet. Modulstatus: `validated` für den nachfolgend abgegrenzten
+Debugvertrag, weiterhin `unreleased`. Head-/Main-CI werden am jeweiligen
+PR-/Merge-Head separat nachgewiesen.
+
 Die ergänzende Funktionsabnahme verwendet den heutigen Source-Build aus dem
 [Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md). DLL,
 Quellenfingerprint und expandiertes Deployment werden vor SQL gegen dessen
@@ -53,9 +72,9 @@ Credentials und Rohlogs werden nicht veröffentlicht. Der
 und seine Gegenproben binden Quellen, Wiederverwendung, Kontextvollständigkeit,
 den tatsächlich gelieferten Binary und die getrennten Abnahmegrenzen.
 
-## Aktuelle Lieferung und ihr begrenzter Nachweis
+## Getrennte Current-ZIP-/Standalone-Nachweise vom 2026-10-29
 
-Die [aktuelle Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
+Die [damalige Binarymatrix](Qualification/Current.Windows.CL.20261029.json)
 belegt sechs Windows-Kontexte: SQL2019/CL150, SQL2022/CL160 und SQL2025/CL170
 jeweils lokal und zentral. Je 206 Assertions prüfen den aktuellen Default,
 38 geordnete Parameter einschließlich 24 `bigint`-Limits, Hilfe vor Validierung,
@@ -138,8 +157,8 @@ für den festen Current-T-SQL-Installer. Beide erweitern die Binarymatrix nicht.
 Keine der Qualifikationen belegt tatsächliche SSIS-Ausführung,
 Windows-Anmeldung, SSMS-GUI, authentifiziertes TLS oder den administrativen
 Trust-Opt-in des Installers. Aktuelle Head-/Main-CI und Integration sind
-separate Gates. Modulstatus: teilweise validiert und
-unveröffentlicht. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
+separate Gates. Diese historischen Teilnachweise werden durch die oben
+beschriebene aktuelle Funktionsabnahme ergänzt. Die [Bedienungsanleitung](../Documentation/CurrentInstallation.md)
 führt zu den aktuellen Dateien und Ergebnissen.
 
 ## Historische Nachweise

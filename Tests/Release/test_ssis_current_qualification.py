@@ -141,6 +141,27 @@ class EvidenceGuards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "LONG_PLAN_TYPES"):
             self.verify()
 
+    def test_executed_record_and_current_source_bindings(self):
+        self.assertEqual(len(functional.validate(ROOT)["cases"]), 12)
+
+    def test_missing_runtime_source_cannot_reuse_record(self):
+        record = json.loads((ROOT / functional.REPORT).read_text(encoding="utf-8"))
+        record["source_sha256"].pop(next(key for key in record["source_sha256"] if key.endswith("Invoke-CurrentQualificationCases.ps1")))
+        with self.assertRaisesRegex(ValueError, "SOURCE_CLOSURE"):
+            functional.validate(ROOT, record)
+
+    def test_omitted_historical_evidence_is_rejected(self):
+        record = json.loads((ROOT / functional.REPORT).read_text(encoding="utf-8"))
+        record["reused_evidence"].pop()
+        with self.assertRaisesRegex(ValueError, "REUSE_CLOSURE"):
+            functional.validate(ROOT, record)
+
+    def test_wrong_delivered_binary_is_rejected(self):
+        record = json.loads((ROOT / functional.REPORT).read_text(encoding="utf-8"))
+        record["current_delivery"]["assembly_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "DELIVERED_BINARY_BINDING"):
+            functional.validate(ROOT, record)
+
 
 if __name__ == "__main__":
     (ROOT / ".runtime").mkdir(exist_ok=True)

@@ -30,7 +30,8 @@ SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
 ausgewiesen. Die historischen ZIP- und Installerbytes haben begrenzte,
 nativ gebundene Windows-Nachweise; sie qualifizieren den aktuellen Vertrag
 nicht. Aktuelle Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head
-separat nachgewiesen. Der Modulstatus ist teilweise validiert und unveröffentlicht.
+separat nachgewiesen. Der aktuelle freigegebene Debugvertrag ist auf Windows
+funktionsqualifiziert (`validated`); das Modul bleibt `unreleased`.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit
 [`SsmsDebugWalkthrough.sql`](Examples/SsmsDebugWalkthrough.sql) und synthetischer
@@ -68,14 +69,14 @@ im SQLCMD-Modus mit `DeploymentMode=local` oder `central` ausführen. Der
 UNSAFE-/Strict-Security-Vertrag wird nicht aufgeweicht. Shared Dependencies
 und Trusteinträge werden beim Uninstall nicht entfernt.
 
-Die begrenzten nativen Fachnachweise umfassen Windows SQL Server 2019/2022/2025
-jeweils lokal und zentral. Die [Prüfmatrix](Tests/README.md) trennt deren
-Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Der aktuelle
-Pipeline-Build ist auf allen unterstützten CLs geprüft, einschließlich Upgrade
-vom zuvor ausgelieferten Scope-Identitätsbuild. Frühere Builds behalten ihre
-eigenen datierten Nachweise. Das Modul
-bleibt unveröffentlicht. Seit der Benutzerklarstellung
-vom 2026-10-16 verwendet sie `TestPurpose=Functional` mit dem ausdrücklich
+Die aktuelle Funktionsabnahme bindet den heutigen Source-Build an das vorhandene
+[Parameter-Help-Paket](../../Releases/1.0.0/PARAMETER-HELP.md). Sie umfasst zwölf
+Windows-/Engine-/CL-/Moduskontexte mit 12.396 Assertions und getrennten Audits.
+Die [Prüfmatrix](Tests/README.md) erklärt Komponenten-, API-, Callerrechte-,
+Lifecycle- und Ressourcenabdeckung, weiterverwendete Belege und die getrennten
+Supportgrenzen. Frühere Pipeline-/Scope-Builds und echte Upgradepfade behalten
+ihre eigenen datierten Nachweise. Das Modul bleibt unveröffentlicht.
+Die Abnahme verwendet `TestPurpose=Functional` mit dem ausdrücklich
 gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
 ist Serverzertifikatsprüfung keine fachliche Voraussetzung. Die getrennte
 authentifizierte TLS-Abnahme bleibt `not executed`.

@@ -21,6 +21,26 @@ privat. Kein neuer SQL-Vertrag, keine Labverwaltung und keine Veröffentlichung.
 TLS-/GUI-/SSIS-Runtime-Parität bleiben getrennte Supportgrenzen. Abschluss
 erst nach tatsächlichen Nachweisen und aktueller Head-/Main-CI.
 
+Abschluss der nativen Welle: zwölf aktuelle Windows-/Engine-/CL-/Modusfälle
+mit 12396 Assertions und zwölf unabhängigen Audits bestanden. Der heutige
+Binary und das Deployment stimmen exakt mit dem vorhandenen Parameter-Help-
+Paket überein; kein Paketrefresh oder Produktcode. Full26 am heutigen Binary
+und22 fokussierte Wiederverwendungsgegenproben bestanden. Der
+[Record](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json)
+bindet aktuelle Quellen, APIgleichheit ohne Beschreibungstexte,22 bytegleiche
+fachliche Quellen, die alten unveränderten Paket-/Snapshotbelege und alle25
+nativen Versuche. Elf Harness-/Fixturefehler, ein früherer positiver Gesamtlauf
+und ein positiver API-/Rechte-/Lifecycleteilumfang bleiben getrennte Historie;
+alle25 separaten Abschlussaudits bestanden. 50 native Ziel-/Auditversuche
+liegen unter der Grenze72; keine weiteren nativen Läufe ohne neuen Befund.
+Der Modulstatus wird für den abgegrenzten aktuellen Debugvertrag `validated`,
+bleibt `unreleased`; echte Lowpriv-CrossDB-Identitäten, GUI/Windows-Anmeldung,
+administrativer Installer-Trust, TLS, harte Recovery, Linux-Exporthost und
+Produktionskapazität sind keine neuen Zusagen. Aktuelle Head-/Main-CI und Merge
+folgen als eigene Gates. Ein zusätzlicher kurzer Offline-Schritt mit18
+Gegenproben im vorhandenen SSIS-Job, passende enge Pfadfilter, keine neuen Jobs,
+keine Agenten-/Reviewkette und keine Wiederholung fremder Modulmatrizen.
+
 ## Arbeitspaket 1: aktuelle 19 stabile Kandidaten abschließend prüfen — 2026-10-31
 
 Unmittelbarer Benutzerauftrag: „Starte mit Arbeitspaket 1: Prüfe die 19 stabilen
