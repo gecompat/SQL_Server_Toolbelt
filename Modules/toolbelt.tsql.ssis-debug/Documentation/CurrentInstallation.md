@@ -168,10 +168,20 @@ und central. Die ZIP-Matrix besteht aus zwei unverändert übernommenen und zehn
 zusätzlichen Installationsfällen; die Standalone-Matrix aus vier unverändert
 übernommenen und acht zusätzlichen Fällen. Beide Nachweise sind auf ihren
 beschriebenen synthetischen Vertragsumfang begrenzt und behaupten keine
-allgemeine Vollständigkeit aller SSIS-Komponenten oder APIs. Der Modulstatus
-bleibt teilweise validiert und unveröffentlicht. Head-/Main-CI und Integration
-werden getrennt am jeweiligen PR-/Merge-Head nachgewiesen; authentifiziertes
-TLS, SSMS-GUI und tatsächliche SSIS-Paketausführung bleiben unqualifiziert.
+allgemeine Vollständigkeit aller SSIS-Komponenten oder APIs. Die separate
+[aktuelle Funktionsabnahme](../Tests/Qualification/Current.Functional.20261031.json)
+qualifiziert den freigegebenen Debugvertrag mit 12.396 Assertions. Die
+[Anmeldeabnahme](../Tests/Qualification/Current.Access.Windows.CL.20261031.json)
+ergänzt 1.596 Assertions für Lowpriv-Cross-DB-Identitäten und Windows-Ausführung
+sowie eine sichtbar geprüfte SSMS-SQL-Anmeldung. Sie behauptet keine
+Windows-Anmeldung in SSMS und keinen erfolgreichen GUI-Gesamtkoordinator.
+Der aktuelle Debugvertrag ist auf Windows funktionsqualifiziert; das Modul
+bleibt unveröffentlicht. Head-/Main-CI und Integration werden getrennt am
+jeweiligen PR-/Merge-Head nachgewiesen. Die separate
+[authentifizierte TLS-Abnahme](../Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json)
+bestand auf Windows/Hyper-V SQL2025 RTM, CL170, local/central mit 412 Assertions,
+signiertem V2-Snapshot und unabhängigem Cleanup-Audit. Tatsächliche
+SSIS-Paketausführung bleibt eine separate Grenze.
 
 Die konkrete qualifizierte Plattform-/CL-/Modusauswahl sowie verbleibende
 Analysegrenzen stehen in der [Prüfmatrix](../Tests/README.md). Funktionale

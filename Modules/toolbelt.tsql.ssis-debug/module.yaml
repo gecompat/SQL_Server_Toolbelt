@@ -65,6 +65,7 @@ documentation:
   public_objects:
     - "Documentation/USP_ExplainSsisDataFlow.md"
   examples:
+    - "Documentation/CurrentInstallation.md"
     - "Documentation/ComponentsV2Installation.md"
     - "Examples/README.md"
     - "Examples/SsmsDebugWalkthrough.sql"
@@ -187,4 +188,14 @@ validation_evidence:
   - date: "2026-10-31"
     workflow: "local: aktuelle SSIS-Funktionsqualifikation, zwölf Windows-/CL-/Moduskontexte und unabhängige Audits"
     scope: "Aktueller Binary und Deployment exakt an das bestehende Parameter-Help-Paket gebunden. Zwölf native Kontexte: SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170 jeweils local/central, mit BIN2, CS_AS beziehungsweise CI_AS_SC_UTF8. 12396 Assertions für aktuellen Default, komponierte Komponenten-/Ausdrucks-/Plan-, Katalog-/Safety-, API-/ResultTable-, Callerrechte- und Lifecycleverträge; zwölf getrennte Abschlussaudits. Native 64-Gruppen-Pläne mit mehr als16 Einheiten auf SQL2025/CL170 in beiden Modi unter128MiB Defaultoutput. Aktuelle Full26-Frameworkprüfung und22 Wiederverwendungsgegenproben bestanden;22 unveränderte fachliche Quellen und APIgleichheit ohne Beschreibungstexte binden alte ZIP-/Standalone-/Snapshotbelege. Elf frühere Harness-/Fixturefehler, ein positiver Teilumfang und ein historischer positiver Gesamtlauf bleiben getrennte Historie; alle25 nativen Abschlussaudits bestanden. Qualifiziert ist der freigegebene Debugvertrag; Lowpriv-CrossDB-Identitäten, GUI/Windows-Anmeldung, administrativer Installer-Trust, authentifiziertes TLS, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Veröffentlichung nicht autorisiert."
+    result: "success"
+
+  - date: "2026-10-31"
+    workflow: "local: SSIS-Lowpriv-Cross-DB- und Windows-Anmeldung, zwölf Kontexte und sichtbare SSMS-Prüfung"
+    scope: "Unveränderter aktueller Binary und ursprüngliche Funktions-/Paketbelege. Zwölf zusätzliche Windows-/CL-/Moduskontexte mit 1596 Assertions: echte Lowpriv-Netzwerkanmeldung mit konsistenten SIDs in zwei Datenbanken, verweigerte Metadaten-/Quellzugriffe und eigener Cleanup; Windows-Ausführung über den gebundenen Gast. Sichtbare SSMS-SQL-Anmeldung mit erwarteten Resultaten separat beobachtet; keine Windows-SSMS-Anmeldung und kein GUI-Koordinator-PASS behauptet. Alle22 Zielversuche einschließlich9 ursprünglicher Fehler bleiben erhalten; alle abschließenden Audits bestanden, zwei erst nach separat belegter eigener Recovery. Authentifiziertes TLS, administrativer Installer-Trust, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Keine Veröffentlichung."
+    result: "success"
+
+  - date: "2026-10-31"
+    workflow: "local: aktuelle authentifizierte SSIS-TLS-Abnahme auf eigenem Windows-SQL-Lab"
+    scope: "412 aktuelle Assertions auf Windows/Hyper-V SQL2025 RTM, CL170, local/central. Acht echte Lab-Clientresultate mit SqlClient/ODBC; drei Toolbelt-Zielverbindungen und ein unabhängiger Audit verwenden Encrypt=True, TrustServerCertificate=False und dieselben frisch geprüften signierten V2-Bytes ohne Pooling/Retry. Erster TLS-Slice mit412 erfolgreichen Assertions und fehlgeschlagener Konfigurationswiederherstellung bleibt erhalten; gebundene Recovery plus unabhängiger Audit bestanden, erneuter Slice vollständig PASS_CLEANED. Beide eigenen Lab-VMs entfernt, bestehende VMs und Hosttrust unverändert. Lab-Aktivierung und SQL-CompleteImage wurden im selben eigenen Run fortgesetzt; kein ununterbrochener öffentlicher Neuaufbau behauptet. Ergänzt die getrennte1596er-Anmelde- und12396er-Funktionsabnahme. Administrativer Installer-Trust, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Keine Veröffentlichung."
     result: "success"

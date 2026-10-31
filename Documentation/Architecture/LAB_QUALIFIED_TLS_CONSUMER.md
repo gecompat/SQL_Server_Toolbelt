@@ -47,6 +47,15 @@ pauschal Linuxfähig; deren bisherige Capabilitygrenzen bleiben bestehen.
 
 ## Discovery und Autorität
 
+Die zusätzliche SSIS-Abnahme verwendet den
+[`Invoke-CurrentAuthenticatedTlsLab.ps1`](../../Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentAuthenticatedTlsLab.ps1)
+auf einem ausdrücklich ausgewählten Windows-/Hyper-V-SQL-2025-RTM-Run.
+Sie konsumiert dieselbe Readergrenze und dieselben signierten Bytes vor jedem
+Open. Ihr eigener, gebundener Entwicklungs-/Cleanup-Scope enthält synthetische
+SQL-Objekte; die oben beschriebene allgemeine Transportprobe bleibt lesend.
+[Ausführung, Wiederherstellung und Grenzen](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#aktuelle-authentifizierte-tls-abnahme)
+sind vom historischen Container- und Linuxclientnachweis getrennt.
+
 Die bestehende Discovery bleibt erhalten: Prozess vor Benutzer für
 `SQL_SERVER_LAB_TEST_ENV_FILE`, sonst
 `SQL_SERVER_LAB_DATA_ROOT/Exports/TestUmgebung.json`; Schemaoverride vor

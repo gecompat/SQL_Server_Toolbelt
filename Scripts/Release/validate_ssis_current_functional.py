@@ -22,6 +22,13 @@ EXPECTED_CONTEXTS = {(version, level, mode) for version, levels in
                      for level in levels for mode in ("local", "central")}
 GATES = {"current_api", "component_expression", "api_metadata", "caller_rights",
          "lifecycle", "resources", "catalog_safety", "cross_database", "offline_framework"}
+# Diese nachträglich ergänzten separaten Anmelde-/Transportmethoden wurden
+# vom ursprünglichen Functional-Harness nicht aufgerufen. Dessen Originalpins
+# bleiben unverändert; ihre eigenen Nachweise werden separat validiert.
+SEPARATE_ACCESS_METHODS = {MODULE + "Tests/Runtime/" + name for name in (
+    "CurrentWindowsAccess.sql", "Invoke-CurrentAccessAudit.ps1", "Invoke-CurrentAccessCases.ps1",
+    "Invoke-CurrentAccessLab.ps1", "Invoke-CurrentGuiAccessCase.ps1",
+    "Invoke-CurrentWindowsAccessCases.ps1", "Invoke-CurrentAuthenticatedTlsLab.ps1")}
 
 
 def require(condition, message):
@@ -128,6 +135,7 @@ def validate(root=ROOT, report=None, *, check_files=True):
                     for folder in ("Tests/Runtime", "Tests/Fixtures", "Contracts")
                     for path in (root / MODULE / folder).rglob("*")
                     if path.is_file() and "__pycache__" not in path.parts}
+        required.difference_update(SEPARATE_ACCESS_METHODS)
         required.update({"Tests/CI/run-lab-local.ps1", "Tests/CI/LabQualifiedContract.ps1"})
         require(isinstance(report.get("source_sha256"), dict) and
                 required.issubset(report["source_sha256"]), "SOURCE_CLOSURE")
