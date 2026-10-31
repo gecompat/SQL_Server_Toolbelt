@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import hashlib
+import copy
+import importlib.util
 import json
 from pathlib import Path
 import shutil
@@ -12,6 +14,9 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 RUNTIME = ROOT / "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime"
 PWSH = shutil.which("pwsh")
+SPEC = importlib.util.spec_from_file_location("ssis_current_functional", ROOT / "Scripts/Release/validate_ssis_current_functional.py")
+functional = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(functional)
 
 
 @unittest.skipUnless(PWSH, "PowerShell 7 erforderlich; keine SQL-Verbindung")
@@ -70,6 +75,62 @@ class InputGuards(unittest.TestCase):
         result = self.invoke(self.files + [{"path": "../synthetic", "sha256": "0" * 64}])
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("SSIS_CURRENT_INPUT_PATH", result.stderr)
+
+
+class EvidenceGuards(unittest.TestCase):
+    def setUp(self):
+        self.record = {"schema_version": "1.0", "kind": "ssis_current_functional_qualification",
+                       "result": "PASS", "publication_authorized": False,
+                       "functional_scope_complete": True, "scope": "current_supported_debug_contract",
+                       "gates": {gate: "PASS" for gate in functional.GATES},
+                       "authenticated_tls": "not executed",
+                       "ssis_runtime_parity": "not applicable to debug contract", "cases": []}
+        for version, level, mode in sorted(functional.EXPECTED_CONTEXTS):
+            self.record["cases"].append({"sql_version": version, "compatibility_level": level,
+                                         "deployment_mode": mode, "result": "PASS", "cleanup_audit": "PASS",
+                                         "input_pins_unchanged": True, "current_assertions": 206,
+                                         "semantic_assertions": 1, "api_assertions": 1,
+                                         "rights_assertions": 1, "lifecycle_assertions": 1})
+
+    def verify(self):
+        return functional.validate(ROOT, self.record, check_files=False)
+
+    def test_complete_fixed_scope(self):
+        self.verify()
+
+    def test_missing_context(self):
+        self.record["cases"].pop()
+        with self.assertRaisesRegex(ValueError, "CONTEXT_MATRIX"):
+            self.verify()
+
+    def test_duplicate_context(self):
+        self.record["cases"].append(copy.deepcopy(self.record["cases"][0]))
+        with self.assertRaisesRegex(ValueError, "DUPLICATE_CASE"):
+            self.verify()
+
+    def test_boolean_is_not_an_assertion_count(self):
+        self.record["cases"][0]["semantic_assertions"] = True
+        with self.assertRaisesRegex(ValueError, "ASSERTION_COUNT"):
+            self.verify()
+
+    def test_failed_audit_cannot_be_pass(self):
+        self.record["cases"][0]["cleanup_audit"] = "FAILED"
+        with self.assertRaisesRegex(ValueError, "CASE_RESULT"):
+            self.verify()
+
+    def test_missing_gate(self):
+        self.record["gates"].pop("caller_rights")
+        with self.assertRaisesRegex(ValueError, "GATES"):
+            self.verify()
+
+    def test_no_publication_authority(self):
+        self.record["publication_authorized"] = True
+        with self.assertRaisesRegex(ValueError, "AUTHORITY_SCOPE"):
+            self.verify()
+
+    def test_duplicate_json_key(self):
+        with self.assertRaisesRegex(ValueError, "DUPLICATE_JSON_KEY"):
+            json.loads('{"result":"FAIL","result":"PASS"}', object_pairs_hook=functional.unique)
 
 
 if __name__ == "__main__":
