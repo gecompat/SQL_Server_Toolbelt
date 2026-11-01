@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-01 – Sichtbaren Windows-SSMS-Teilumfang nachgewiesen
+
+Der neue getrennte Clientnachweis bindet Windows-NTLM am ausgewählten Labziel,
+aktuelle API-Erzeugung, hashidentische vollständige Unicode-Zellenkopie und
+tatsächliche GUI-Ausführung mit zwei erwarteten Zeilen. Der frische Windows-
+Abschlussaudit bestand. Der Gesamtkoordinator bleibt wegen des nicht mehr
+ausgeführten Phase2-Receipts `FAILED_CLEANED`; elf native Checks und separate
+visuelle Evidenz werden ausdrücklich getrennt. Benutzerunterstützung und
+Fehlerhistorie bleiben erhalten. Der Offlinevalidator mit Gegenproben verhindert
+eine Aufwertung zum grünen Gesamtfall. Keine Veröffentlichung.
+[Umfang und offener Rest](Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+
 ## 2026-11-01 – SSMS-Zielvorcheck und strikte Kopierprüfung
 
 Die zusätzliche Testmethode prüft das ausgewählte Labziel, Windows-Anmeldung

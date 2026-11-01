@@ -1,0 +1,117 @@
+{
+  "contract": "ssis-observed-windows-ssms/1",
+  "date": "2026-11-01",
+  "result": "PASS_FOR_DECLARED_SCOPE",
+  "publication_authorized": false,
+  "scope": "observed target-bound Windows SSMS login, current API and hash-identical whole-cell DebugScript execution with separate cleanup audit; final coordinator receipt excluded",
+  "platform": "Windows",
+  "sql_version": "2025",
+  "patch": "CU8",
+  "compatibility_level": 150,
+  "native_assertions": 11,
+  "source_sha256": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-TransportRecovery.ps1": "88964A64E0FA6DC0C897CD6253B30018838BE1365A872A4F4F4A2365F60C0A4F",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/LabClientCommon.ps1": "B3ABEC616E7C62C120C22BE802373693E94A6445174617C7BB7BFC602D67DD28",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/RecoveryFixture.ps1": "6F6C950127197989B31454DCE91583B3759436CCBAF7713EA40987DE96CF6C4B",
+    "Modules/toolbelt.tsql.ssis-debug/Examples/Installation/PrepareServer.sql": "01EB9437507E4640A990F82893593E7B6DDE49927395474570F7DA1DBB78ED56",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx": "DEA7DC971972882B2A090D489ECFC2DC1E85635936A0ECD8C89C8443D746BF3E",
+    "Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json": "B9436A76728E6C5E137A8250155F2FF197FF806DD1FCB746F8E1831A33F96429",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json": "BB3BB417B4E571CE2D201A10988FA4015080586EE19E8C85CB87FA259E61E8B5",
+    "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "E817F62A0F59596D24DB76751109B6389A8B444F593CCD91395CF8C5A26F22D5",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-SsmsQualification.ps1": "E8D7791939C1C1C814FE4F341BC7737FD61D306418C595EC5C0BEE22F6A40BFE",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/SsmsGuiHook.ps1": "96733D52B24895B378112AD1601FCD86D55C7AEECE7BA5D81FFA14A920AF2824",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-WindowsClient.ps1": "15D323FFEAC488C835CFA46751721AF4D9A78FD61981DCB46C332FED973B9F36",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/ClientGuiHook.ps1": "FB44D94E6EF2781941B5B03ABEA8980E5F4A1C9F52C690B44B5C81F6548933D7",
+    "Modules/toolbelt.tsql.ssis-debug/Examples/Installation/Install-Local.ps1": "3F35213903DE170E101B8EEB3467782126E3CE19B6AA9071AAC0431F3833F9F6",
+    "Modules/toolbelt.tsql.ssis-debug/Deployment/Add-TrustedAssembly.sql": "CD087B2449D3B152067D971FCAC85748514E72F4C2D8F7190FBADCA53A60FBD6",
+    "Modules/toolbelt.tsql.script-parser/Deployment/Add-TrustedAssembly.sql": "24AB54D57222AC90A76E3F281519BE78A91504CDE029AC118B2D77AB363A6F54"
+  },
+  "coordinator": {
+    "state": "FAILED_CLEANED",
+    "failure": "SSIS_CLIENT_GUI_NOT_COMPLETED_IN_BOUND",
+    "native_cases": 0,
+    "phase2_receipt_executed": false,
+    "overall_pass_claimed": false,
+    "reserved_windows_audit_on_failure": true
+  },
+  "target_preflight": {
+    "before_database_creation": true,
+    "instance_process_start_witness_matched": true,
+    "windows_authentication": "NTLM",
+    "encrypted": true,
+    "application_is_ssms": true,
+    "same_owned_instance_reused": true,
+    "visible_query_pass": true
+  },
+  "installer": {
+    "qualified_inputs_reused": true,
+    "public_first_and_repeat_passes": 2,
+    "repeat_trust_unchanged": true
+  },
+  "gui": {
+    "current_api_parameters": 38,
+    "complete_debugscript_cell": true,
+    "whole_cell_copied": true,
+    "saved_utf16_lf_hash_matched": true,
+    "unicode_preserved": true,
+    "copied_script_executed": true,
+    "target_rows": 2,
+    "messages_errors": 0,
+    "operator_assistance": true,
+    "separate_visual_evidence": true,
+    "own_instance_closed": true
+  },
+  "result_options": {
+    "scope": "own-producer-query",
+    "non_xml_character_limit": 2000000,
+    "retain_crlf": true,
+    "configured_before_generation": true
+  },
+  "copy_check": {
+    "method": "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Test-SsmsScriptCopy.ps1",
+    "method_sha256": "82294DC172114D6BE4C58C228EF244D02C1791112A998447002E8355E221C80A",
+    "result": "PASS",
+    "scope": "saved-copy-only",
+    "before_execution": true
+  },
+  "transport": {
+    "purpose": "Functional",
+    "encrypted": true,
+    "explicit_contract_trust_value": true,
+    "authenticated_tls_claimed": false
+  },
+  "cleanup": {
+    "database_removed": true,
+    "configuration_restored": true,
+    "trust_restored": true,
+    "other_consumers_unchanged": true,
+    "fresh_windows_audit": "PASS"
+  },
+  "lab_support": {
+    "core_source_commit": "6c6c6c3c80f8eda1c8302a1775d4b3fb164c9238",
+    "support_source_commit": "6c6c6c3c80f8eda1c8302a1775d4b3fb164c9238",
+    "native_raw_launcher_sha256": "53C27DCF7F91922C7086D32F15463A13B9DE480E38AA6C1D60EEEDF568AF4947",
+    "committed_launcher_sha256": "2172C5950EE4745813FDC2BD59DFE79D39BB671D048F0BB37CCF1D73B33BA84B",
+    "source_integration": "exact CRLF to LF checkout normalization only",
+    "credential_returned": false,
+    "automatic_retry": false
+  },
+  "history": {
+    "earlier_failed_gui_coordinators_preserved": true,
+    "prior_partial_records_unchanged": true,
+    "prior_truncated_copy_preserved": true,
+    "prior_safety_audit_not_promoted": true
+  },
+  "not_qualified": [
+    "Green overall SSMS coordinator and final phase-2 receipt",
+    "Other Windows SQL versions or Linux SQL CLR for this GUI path",
+    "OS/VM shutdown or loss of the surviving coordinator",
+    "Uninterrupted public Windows TLS Lab creation",
+    "Unbounded production capacity or full SSIS runtime parity"
+  ]
+}
