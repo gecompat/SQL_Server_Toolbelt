@@ -19,6 +19,8 @@ on:
       - 'Tests/Release/test_ssis_current_qualification.py'
       - 'Tests/Release/test_ssis_current_access.py'
       - 'Tests/Release/test_ssis_current_tls.py'
+      - 'Scripts/Release/validate_ssis_linux_export.py'
+      - 'Tests/Release/test_ssis_linux_export.py'
       - 'Tests/Release/test_ssis_current_standalone_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
       - '!Modules/*/Documentation/**/*.md'
@@ -45,6 +47,8 @@ on:
       - 'Tests/Release/test_ssis_current_qualification.py'
       - 'Tests/Release/test_ssis_current_access.py'
       - 'Tests/Release/test_ssis_current_tls.py'
+      - 'Scripts/Release/validate_ssis_linux_export.py'
+      - 'Tests/Release/test_ssis_linux_export.py'
       - 'Tests/Release/test_ssis_current_standalone_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
       - '!Modules/*/Documentation/**/*.md'
@@ -101,6 +105,8 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_access.py
       - name: Current authenticated Windows TLS evidence and tampering controls without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_tls.py
+      - name: Native Linux export host evidence and tampering controls without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_linux_export.py
       - name: Current standalone T-SQL installer CL matrix composition without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_standalone_matrix.py
       - name: Current standalone T-SQL installer matrix evidence binding without SQL

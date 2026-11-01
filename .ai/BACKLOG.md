@@ -1,5 +1,32 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SSIS-Restqualifikation: externer Linux-Exporthost — 2026-11-01
+
+Der Benutzer beauftragte die autonome Fortsetzung der offenen SSIS-Punkte;
+der stündliche Heartbeat dient ausschließlich als Auffangnetz bei Inaktivität.
+Die frühere Welle bleibt abgeschlossen und ihre verbrauchten Grenzen bestehen.
+Diese konkrete Folgewelle umfasst einen PR, zwei Stunden ab Originalstart,
+höchstens 60 neue native Qualifikationsprozesse, keine SQL-Verbindung und keine Labänderung.
+Ein Implementierungsverantwortlicher, keine Agents; Kosten/Token unbekannt.
+
+Die [native Exporthostabnahme](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/ExportHost.Linux.20261101.json)
+bestand mit 17 Prozessen und 169 Assertions je Windows/Linux, 34 Prozessen und 338
+Assertions insgesamt. Derselbe portable Binary aus Produktquellen `61b2dced`
+liefert auf beiden Plattformen identische kanonische Outputs. Beide DTSX-
+Formatprofile und alle fünf Ausgabeformen, feste Graphorakel, Unicodepfade,
+Literalredaktion und sechs Fehlerfälle sind geprüft. Die Linux-Runtime wurde
+nur privat entpackt und gegen den offiziellen Archiv-SHA512 geprüft; kein
+globaler Toolzustand, keine Labressource und kein SQL-Ziel wurden geändert.
+Native Rohoutputs werden nicht übernommen. 17 Offlineprüfungen im vorhandenen
+SSIS-CI-Job binden Records, Scope und Quellen; kein zusätzlicher CI-Job und
+keine Wiederholung bereits bestandener SQL-Matrizen.
+
+Aktuelle Head-/Main-CI und Merge bleiben separate Gates. Offen bleiben der
+vollständige Windows-Client-/SSMS-Anmeldeweg, administrativer Installer-Trust,
+harte Unterbrechung und im Lab der ununterbrochene öffentliche Windows-TLS-
+Neuaufbau. Vollständige SSIS-Runtime-Parität und Produktionskapazität sind
+kein Kriterium des freigegebenen Debugvertrags. Nicht veröffentlichen.
+
 ## SSIS-Anmeldung und authentifiziertes Windows-TLS — 2026-10-31
 
 Der Benutzer beauftragte zusätzlich die Qualifikation von GUI-/Windows-Anmeldung,

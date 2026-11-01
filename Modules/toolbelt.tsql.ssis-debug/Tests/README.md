@@ -72,9 +72,31 @@ Der [TLS-Offlinevalidator](../../../Scripts/Release/validate_ssis_current_tls.py
 bindet Methoden, aktuellen Binarynachweis, Orakel und Bereinigungsbedingungen.
 Die ursprünglichen Functional-/Anmelderecords werden nicht umgeschrieben;
 deren damaliges `not executed` für TLS wird durch diesen separaten Nachweis ergänzt.
-Administrativer Installer-Trust, harte Unterbrechung, Linux-Exporthost und
-Produktionskapazität bleiben separate Grenzen. Vollständige SSIS-Runtime-Parität
+Administrativer Installer-Trust, harte Unterbrechung und Produktionskapazität
+bleiben separate Grenzen. Der folgende Linux-Nachweis ergänzt den externen
+Exporthost. Vollständige SSIS-Runtime-Parität
 ist kein Kriterium dieses Debugvertrags. Keine Veröffentlichung.
+
+## Native Plattformabnahme des externen Exporthosts
+
+Der [Linux-/Windows-Record](Qualification/ExportHost.Linux.20261101.json) vom
+2026-11-01 belegt 17 native Prozesse je Plattform und insgesamt 338 Assertions.
+Beide Plattformen führten denselben aus Produktquellen des Commits `61b2dced`
+gebauten portablen Host aus; Quellclosure, Hosthash und kanonische Ergebnisse
+sind identisch. Die [Testmethode und Wiederholung](../Exchange/README.md#gemeinsame-prüfung)
+erklären Format6/8, fünf CLI-Ausgabeformen, feste Graphorakel, Unicodepfade,
+Literalredaktion und sechs Fehlerfälle mit exakten Exit-/Fehlercodes ohne
+partielle JSON-Ausgabe. Der Methodenpin bindet die tatsächlich ausgeführte
+Testdatei; bestehende Functional-, Paket- und TLS-Records bleiben unverändert.
+
+Die Linux-Runtime wurde ausschließlich im privaten Testverzeichnis entpackt,
+aus dem offiziellen .NET-10.0.14-Archiv mit geprüftem SHA512. Kein globaler
+Installationszustand, keine SQL-Verbindung und keine Labressource wurden
+verändert. Der [Validator](../../../Scripts/Release/validate_ssis_linux_export.py)
+und 17 negative/positive Offlineprüfungen laufen im vorhandenen SSIS-CI-Job.
+Dies ist ein begrenzter nativer Linux-Hostnachweis, keine SQL-CLR-Linuxfreigabe,
+SSIS-Runtime-Parität, Produktionskapazitätszusage oder Veröffentlichung.
+Windows-Anmeldung in SSMS, Installer-Trust und harte Unterbrechung bleiben offen.
 
 ## Methode der aktuellen Funktionsabnahme
 
@@ -843,9 +865,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-31`
-- Nachweis: `local: aktuelle authentifizierte SSIS-TLS-Abnahme auf eigenem Windows-SQL-Lab`
-- Scope: 412 aktuelle Assertions auf Windows/Hyper-V SQL2025 RTM, CL170, local/central. Acht echte Lab-Clientresultate mit SqlClient/ODBC; drei Toolbelt-Zielverbindungen und ein unabhängiger Audit verwenden Encrypt=True, TrustServerCertificate=False und dieselben frisch geprüften signierten V2-Bytes ohne Pooling/Retry. Erster TLS-Slice mit412 erfolgreichen Assertions und fehlgeschlagener Konfigurationswiederherstellung bleibt erhalten; gebundene Recovery plus unabhängiger Audit bestanden, erneuter Slice vollständig PASS_CLEANED. Beide eigenen Lab-VMs entfernt, bestehende VMs und Hosttrust unverändert. Lab-Aktivierung und SQL-CompleteImage wurden im selben eigenen Run fortgesetzt; kein ununterbrochener öffentlicher Neuaufbau behauptet. Ergänzt die getrennte1596er-Anmelde- und12396er-Funktionsabnahme. Administrativer Installer-Trust, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Keine Veröffentlichung.
+- Datum: `2026-11-01`
+- Nachweis: `local: Exchange/Tests/qualify_host.py auf Windows und Linux mit demselben portablen Hostbinary`
+- Scope: Externer Exporthost aus Produktquellen 61b2dced: 17 native CLI-Prozesse je Plattform, 338 Assertions insgesamt, identische kanonische Outputs und Quell-/Binarypins. DTSX 6/8 in fünf Ausgabeformen, feste unabhängige Objekt-/Kantenorakel, Unicodepfade, private synthetische Literalwerte und sechs Fehlerfälle einschließlich DTD, Format, XML, Erweiterung, Datei und Usage ohne partielle Ausgabe. .NET 10.0.14 Linux-x64 ausschließlich privat entpackt, offizieller Archiv-SHA512 geprüft; keine globale Installation, SQL-Verbindung oder Labänderung. 17 Offlineprüfungen im vorhandenen SSIS-CI-Job. Keine SQL-CLR-Linux-, SSIS-SDK-/Runtime-, Produktionskapazitäts- oder Veröffentlichungszusage. Windows-SSMS-Anmeldung, Installer-Trust und harte Unterbrechung bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

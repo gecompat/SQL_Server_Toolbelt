@@ -184,9 +184,43 @@ Generator-Frameworkkinder werden nicht verdoppelt. Die unabhängige Prüfung die
 Änderungsschritts umfasste einen Reviewer und einen Folgeauftrag zu dessen
 konkreten Befunden. Weitere Reviews werden dadurch nicht ausgelöst.
 
-Die externe Hostausführung ist unter Windows mit .NET 10 geprüft. Ein eigener
-Linux-Hostlauf, umfassende Ressourcenqualifikation, SDK-Parität, aktuelle
-Head-CI und eine Veröffentlichung sind getrennte Nachweise.
+Die externe Hostausführung ist zusätzlich mit demselben portablen Binary unter
+Windows und Linux mit .NET 10.0.14 geprüft. Der
+[native Plattformnachweis](../Tests/Qualification/ExportHost.Linux.20261101.json)
+enthält je 17 Fälle und 169 Assertions. Beide DTSX-Formatprofile 6/8 laufen
+als Modell sowie mit allen vier Bundleoptionen. Feste unabhängige Objekt-/
+Kantenorakel, Unicode-Dateipfade, ein synthetisches privates Literal, verbotene
+DTDs, fehlerhaftes XML, unbekanntes Format, falsche Erweiterung, fehlende Datei
+und CLI-Verwendung werden geprüft. Die kanonischen Modelloutputs sind auf
+beiden Plattformen identisch; Fehler liefern keinen partiellen Standardoutput.
+
+Die [native Methode](Tests/qualify_host.py) benötigt einen expliziten Hostbinary
+und eine .NET-10-Runtime; sie installiert keine Abhängigkeiten. Beispiel nach
+dem oben beschriebenen Build, aus dem Repositoryroot:
+
+```sh
+python3 Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py \
+  --host Modules/toolbelt.tsql.ssis-debug/Exchange/Host/bin/Release/net10.0/Toolbelt.Ssis.Export.dll \
+  --dotnet "$(command -v dotnet)" --platform Linux --result linux-host-result.json
+```
+
+Erwartet wird `SSIS_EXPORT_HOST_PASS platform=Linux cases=17 assertions=169`.
+Die Ergebnisdatei enthält aggregierte Orakel und Quell-/Binarypins, keine
+Modelloutputs oder Laufzeitpfade. Exitcode ungleich null bedeutet fehlenden
+Nachweis; ein Windows-Lauf wird nicht als Linux-Lauf akzeptiert.
+Die Abnahme verwendete eine ausschließlich im privaten Testverzeichnis entpackte
+Microsoft-Runtime, deren SHA512 gegen die
+[offiziellen Release-Metadaten](https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json)
+geprüft wurde; Lizenz- und Drittanbieterhinweise bleiben im privaten Runtimepaket.
+Es gab keine globale Toolinstallation, SQL-Verbindung oder Labänderung.
+
+Der [Offlinevalidator](../../../Scripts/Release/validate_ssis_linux_export.py)
+und 17 Gegenproben laufen im bestehenden Windows-SSIS-CI-Job. Sie binden den
+nativen Nachweis an die tatsächlich geprüften Quellen; sie starten keinen
+weiteren Linux-Lauf. Die Abnahme gilt für diesen festen CLI-/Modellumfang.
+SQL CLR unter Linux, umfassende Ressourcenqualifikation, SSIS-SDK-Parität und
+eine Veröffentlichung werden daraus nicht abgeleitet. Aktuelle Head-/Main-CI
+bleiben eigene Integrationsgates.
 
 ## Optionale Pipelineidentitäten
 

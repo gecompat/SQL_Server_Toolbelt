@@ -1,0 +1,278 @@
+{
+  "contract": "ssis-linux-export-qualification/1",
+  "date": "2026-11-01",
+  "runtime": {
+    "version": "10.0.14",
+    "rid": "linux-x64",
+    "archive_url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz",
+    "archive_sha512": "634326028645f38731c8c4e71a68356e4ca0d6b6607139a234ab760687f742063edaf33a1f20dda615742d2dc8300ca2ff857619d51fbb38090383b71334af89",
+    "metadata_url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json",
+    "installation": "private test directory; no global installation"
+  },
+  "runs": [
+    {
+      "contract": "ssis-export-host-native/1",
+      "date": "2026-11-01",
+      "platform": "Windows",
+      "result": "PASS",
+      "sql_executed": false,
+      "host_sha256": "e6510ebeb06f755799257ab3ed70af8324349bd7faad8b498e394f3178d1de5c",
+      "source_commit": "61b2dcedf6ba88570bd3ad46871cccb71fc15c45",
+      "source_sha256": {
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "2ade414761876c4109c7094fb7f2a153a1bf215c480e5b461a9670b6aceace9f",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "f283f73a4350907994c0155f58ce9dec58b66f2c63a694174f9444da53de51b4",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738"
+      },
+      "case_count": 17,
+      "assertions": 169,
+      "cases": [
+        {
+          "name": "format6:model",
+          "exit_code": 0,
+          "assertions": 12,
+          "output_sha256": "6d0cda28ccc0c70f63170b039db916993074c8d7da5611f71b5d6f0d2cb03788"
+        },
+        {
+          "name": "format6:bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "8b9d849f1ccf1bef31a98904c18b971f303d6723040e73c2c62191f0f1646e4e"
+        },
+        {
+          "name": "format6:iteration-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "bf6106401438e7da77f87bfd888b335a0ffb624a89af63de8e14282873585b18"
+        },
+        {
+          "name": "format6:scope-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "8814a4312e13bf7bf5ab1e321784ce6f632c4437e531d5cf8851876d3a8a74fb"
+        },
+        {
+          "name": "format6:pipeline-bundle",
+          "exit_code": 0,
+          "assertions": 15,
+          "output_sha256": "4c63ca0f02d0ba1fcdf432d1825afeaf28c15ed39e1019a39c2a8bf41382a85c"
+        },
+        {
+          "name": "format8:model",
+          "exit_code": 0,
+          "assertions": 12,
+          "output_sha256": "06fd010c4838be0a562fb9d80b306a1327fb7dcf87cd17222ff4f4e9db24a177"
+        },
+        {
+          "name": "format8:bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "06344cb6eb2227b84d74254c761ba93c9a1d123bf326d4da22b9979215c6898c"
+        },
+        {
+          "name": "format8:iteration-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "d1373510b3008204cddd2db00aa4e40fb08aca29c050210adbbbc031f05c30fe"
+        },
+        {
+          "name": "format8:scope-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "0c617d1b5f01f85f4c4d5a624b23f765f177ef7f3e897bb786148389a216b69c"
+        },
+        {
+          "name": "format8:pipeline-bundle",
+          "exit_code": 0,
+          "assertions": 15,
+          "output_sha256": "cc84c36b7e8dce782ec335ffe07bd67f918d6bfdeb12d3222c25b4a2f6279a5b"
+        },
+        {
+          "name": "unicode-path-private-literal",
+          "exit_code": 0,
+          "assertions": 13,
+          "output_sha256": "253a40b26e6883290b0a2613f9c3f4690a62b84639a10a15c3a3e8ecffa78345"
+        },
+        {
+          "name": "unknown-format",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "prohibited-dtd",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "malformed-xml",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "wrong-extension",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "missing-file",
+          "exit_code": 4,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "usage",
+          "exit_code": 2,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "contract": "ssis-export-host-native/1",
+      "date": "2026-11-01",
+      "platform": "Linux",
+      "result": "PASS",
+      "sql_executed": false,
+      "host_sha256": "e6510ebeb06f755799257ab3ed70af8324349bd7faad8b498e394f3178d1de5c",
+      "source_commit": "61b2dcedf6ba88570bd3ad46871cccb71fc15c45",
+      "source_sha256": {
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "2ade414761876c4109c7094fb7f2a153a1bf215c480e5b461a9670b6aceace9f",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "f283f73a4350907994c0155f58ce9dec58b66f2c63a694174f9444da53de51b4",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738"
+      },
+      "case_count": 17,
+      "assertions": 169,
+      "cases": [
+        {
+          "name": "format6:model",
+          "exit_code": 0,
+          "assertions": 12,
+          "output_sha256": "6d0cda28ccc0c70f63170b039db916993074c8d7da5611f71b5d6f0d2cb03788"
+        },
+        {
+          "name": "format6:bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "8b9d849f1ccf1bef31a98904c18b971f303d6723040e73c2c62191f0f1646e4e"
+        },
+        {
+          "name": "format6:iteration-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "bf6106401438e7da77f87bfd888b335a0ffb624a89af63de8e14282873585b18"
+        },
+        {
+          "name": "format6:scope-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "8814a4312e13bf7bf5ab1e321784ce6f632c4437e531d5cf8851876d3a8a74fb"
+        },
+        {
+          "name": "format6:pipeline-bundle",
+          "exit_code": 0,
+          "assertions": 15,
+          "output_sha256": "4c63ca0f02d0ba1fcdf432d1825afeaf28c15ed39e1019a39c2a8bf41382a85c"
+        },
+        {
+          "name": "format8:model",
+          "exit_code": 0,
+          "assertions": 12,
+          "output_sha256": "06fd010c4838be0a562fb9d80b306a1327fb7dcf87cd17222ff4f4e9db24a177"
+        },
+        {
+          "name": "format8:bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "06344cb6eb2227b84d74254c761ba93c9a1d123bf326d4da22b9979215c6898c"
+        },
+        {
+          "name": "format8:iteration-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "d1373510b3008204cddd2db00aa4e40fb08aca29c050210adbbbc031f05c30fe"
+        },
+        {
+          "name": "format8:scope-bundle",
+          "exit_code": 0,
+          "assertions": 14,
+          "output_sha256": "0c617d1b5f01f85f4c4d5a624b23f765f177ef7f3e897bb786148389a216b69c"
+        },
+        {
+          "name": "format8:pipeline-bundle",
+          "exit_code": 0,
+          "assertions": 15,
+          "output_sha256": "cc84c36b7e8dce782ec335ffe07bd67f918d6bfdeb12d3222c25b4a2f6279a5b"
+        },
+        {
+          "name": "unicode-path-private-literal",
+          "exit_code": 0,
+          "assertions": 13,
+          "output_sha256": "253a40b26e6883290b0a2613f9c3f4690a62b84639a10a15c3a3e8ecffa78345"
+        },
+        {
+          "name": "unknown-format",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "prohibited-dtd",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "malformed-xml",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "wrong-extension",
+          "exit_code": 3,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "missing-file",
+          "exit_code": 4,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "usage",
+          "exit_code": 2,
+          "assertions": 3,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "assertions": 338,
+  "separate_boundaries": [
+    "SQL CLR on Linux",
+    "SSIS runtime execution or SDK parity",
+    "Production capacity",
+    "Administrative installer trust",
+    "Hard host or transport interruption",
+    "Windows client or SSMS authentication",
+    "Publication"
+  ]
+}

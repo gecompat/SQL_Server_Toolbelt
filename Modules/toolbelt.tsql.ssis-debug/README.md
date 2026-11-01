@@ -9,6 +9,8 @@ Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
 denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
 das Modell ohne CLR- oder Toolbelt-Installation. Die bestehenden
 Debug-SQL-Ausgaben und der neutrale Export verwenden denselben Modellkern.
+Der externe Host besitzt einen getrennten, begrenzten
+[nativen Windows-/Linux-Nachweis](Exchange/README.md#gemeinsame-prüfung).
 
 Der aktuelle Standard verwendet `bindings-template` und `explain` ohne
 Profil-Opt-in. Die bearbeitbare Vorlage verwendet `schemaVersion: 2` und
@@ -94,9 +96,9 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-31`
-- Nachweis: `local: aktuelle authentifizierte SSIS-TLS-Abnahme auf eigenem Windows-SQL-Lab`
-- Scope: 412 aktuelle Assertions auf Windows/Hyper-V SQL2025 RTM, CL170, local/central. Acht echte Lab-Clientresultate mit SqlClient/ODBC; drei Toolbelt-Zielverbindungen und ein unabhängiger Audit verwenden Encrypt=True, TrustServerCertificate=False und dieselben frisch geprüften signierten V2-Bytes ohne Pooling/Retry. Erster TLS-Slice mit412 erfolgreichen Assertions und fehlgeschlagener Konfigurationswiederherstellung bleibt erhalten; gebundene Recovery plus unabhängiger Audit bestanden, erneuter Slice vollständig PASS_CLEANED. Beide eigenen Lab-VMs entfernt, bestehende VMs und Hosttrust unverändert. Lab-Aktivierung und SQL-CompleteImage wurden im selben eigenen Run fortgesetzt; kein ununterbrochener öffentlicher Neuaufbau behauptet. Ergänzt die getrennte1596er-Anmelde- und12396er-Funktionsabnahme. Administrativer Installer-Trust, harte Recovery, Linux-Exporthost und Produktionskapazität bleiben getrennt. Keine Veröffentlichung.
+- Datum: `2026-11-01`
+- Nachweis: `local: Exchange/Tests/qualify_host.py auf Windows und Linux mit demselben portablen Hostbinary`
+- Scope: Externer Exporthost aus Produktquellen 61b2dced: 17 native CLI-Prozesse je Plattform, 338 Assertions insgesamt, identische kanonische Outputs und Quell-/Binarypins. DTSX 6/8 in fünf Ausgabeformen, feste unabhängige Objekt-/Kantenorakel, Unicodepfade, private synthetische Literalwerte und sechs Fehlerfälle einschließlich DTD, Format, XML, Erweiterung, Datei und Usage ohne partielle Ausgabe. .NET 10.0.14 Linux-x64 ausschließlich privat entpackt, offizieller Archiv-SHA512 geprüft; keine globale Installation, SQL-Verbindung oder Labänderung. 17 Offlineprüfungen im vorhandenen SSIS-CI-Job. Keine SQL-CLR-Linux-, SSIS-SDK-/Runtime-, Produktionskapazitäts- oder Veröffentlichungszusage. Windows-SSMS-Anmeldung, Installer-Trust und harte Unterbrechung bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
