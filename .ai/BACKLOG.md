@@ -1,5 +1,44 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
+
+Expliziter Benutzerauftrag: übrige Windows-/SSMS-, Installer- und harte
+Unterbrechungslücken autonom schließen, GUI sichtbar, grüne PRs nach main,
+Main-CI prüfen, nicht veröffentlichen. Keine neue Fachfunktion freigegeben.
+Die notwendige native Windows-Hostclient-Anmeldung gehört in SQL_Server_Lab;
+Toolbelt verbraucht dessen ausdrücklich gebundenen Testhelper. Vorherige
+abgeschlossene Wellen und ihre Grenzen bleiben unverändert.
+
+[Vorbereitung und Recovery](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md)
+sind separat qualifiziert: öffentliches PrepareServer auf drei Windows-Versionen
+mit54 Assertions und drei frischen Audits; zehn Host-Unterbrechungsfälle mit95
+Assertions; zwei SQL-Clientabbrüche mit18 Assertions und frischem Audit.
+Der vorhandene Exportbinary und aktuelle SSIS-Binary bleiben unverändert.
+Alte Fehler und eigene Wiederherstellungsnachweise bleiben erhalten.
+
+Der Hostclient belegt echte NTLM-Windows-Anmeldung mit vorhandenen Rechten.
+Frühere datetime- und Adapterfehler sowie ein sicher stornierter eigener Lauf
+bleiben erhalten; alle abschließenden Windows-Audits bestanden. Das korrigierte
+Profil bestand auf SQL2025/CU8, CL150 die öffentliche Vorbereitung, Erst- und
+Wiederholungsinstallation sowie aktuelle CLI/API und vollständige DebugScript-
+Ausführung. Der [separate Teilnachweis](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/InstallerClient.Windows.20261101.json)
+bindet zehn Assertions und den frischen Windows-Audit. Der spätere sichtbare
+SSMS-Handshake scheiterte vor der ersten GUI-Abfrage; der Gesamtkoordinator bleibt
+`FAILED_CLEANED`, kein Windows-/SSMS-Gesamtpass wird behauptet. Der gebundene
+Lab-Hostclient ist als PR859 integriert; seine Main-CI bleibt separat zu prüfen.
+OS-/VM-Ausfall,
+ununterbrochener öffentlicher Windows-TLS-Neuaufbau, Produktionskapazität und
+vollständige SSIS-Runtime-Parität bleiben getrennt. Head-/Main-CI und Merge sind
+zusätzliche Gates; keine Veröffentlichung.
+
+Die unveränderte Release-Regressionssuite enthält inzwischen280 Fälle. Der
+vollständige lokale Audit erreichte die bisherige Prozessgrenze; die getrennte
+Diagnose bestand alle280 Fälle. Der bestehende Prüfschritt behält sämtliche
+Orakel und erhält eine endliche Elf-Minuten-Grenze. Keine zusätzlichen Jobs,
+SQL-Matrizen, Reviewagents oder Dauerlogs; Originaldiagnose und Messung bleiben
+lokal. Die28 neuen Evidence-/Preflight-Gegenproben ergänzen ausschließlich den
+bestehenden SSIS-CI-Job. Das ist die begrenzte Overhead-Anpassung dieses Gates.
+
 ## SSIS-Restqualifikation: öffentlicher administrativer Trustschritt — 2026-11-01
 
 Direkter Benutzerauftrag zur autonomen Fortsetzung der offenen Qualifikation;

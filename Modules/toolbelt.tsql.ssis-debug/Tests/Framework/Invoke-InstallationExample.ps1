@@ -129,6 +129,7 @@ exit 0
         $expectedDb = if ($index -in 1,3) { 'master' } else { 'ContosoSsisDebug' }
         Check ($arguments[([array]::IndexOf($arguments, '-d') + 1)] -ceq $expectedDb) 'DATABASE_SCOPE'
         Check (@('-E','-N','-b','-C' | Where-Object { $_ -notin $arguments }).Count -eq 0) 'EXPLICIT_TRANSPORT_AND_ABORT'
+        Check ($arguments[([array]::IndexOf($arguments, '-f') + 1)] -ceq '65001' -and '-f' -in $arguments) 'EXPLICIT_UTF8_SQL_INPUT'
     }
     Check ($records[0].Directory -ceq (Join-Path $fakeRoot 'Modules/toolbelt.core.result-table/Deployment')) 'RELATIVE_RESULTTABLE_INCLUDES'
     Check (('AssemblyHash=0x' + $pins.parserSha512) -in @($records[1].Arguments)) 'EXACT_PARSER_TRUST'

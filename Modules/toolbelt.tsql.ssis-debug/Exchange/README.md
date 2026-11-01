@@ -159,6 +159,14 @@ Versionsbeleg bleibt eine Runtimezuordnung unbewiesen. Der Begleittransport
 
 ## Gemeinsame Prüfung
 
+Der zusätzliche [Recovery-Nachweis](../Tests/WindowsClientRecovery/README.md)
+prüft auf Windows je fünf Ausgabeformen unter echtem Prozessabbruch und
+geschlossener stdout-Pipe. Teilweise JSON-Ausgabe gilt auch bei Exitcode0 als
+unbrauchbar; der Empfänger muss das vollständige Dokument validieren. Alle
+zehn neuen vollständigen Exporte waren byteidentisch zum jeweiligen Orakel,
+Eingaben unverändert. Der Koordinator bleibt erhalten; OS-/VM-Ausfall und ein
+Linux-Abbruchlauf werden daraus nicht abgeleitet.
+
 `Tests/test_contract.py` verwendet das kanonische Schema, dieselbe Fixture und
 denselben unabhängigen Objekt-/Kantensollsatz wie der native Analyze-Harness.
 Der Test vergleicht den externen Host mit einem .NET-Framework-Host der

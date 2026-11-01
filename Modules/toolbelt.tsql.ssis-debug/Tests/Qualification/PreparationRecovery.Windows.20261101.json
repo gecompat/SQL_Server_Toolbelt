@@ -1,0 +1,261 @@
+{
+  "contract": "ssis-preparation-hard-recovery/1",
+  "date": "2026-11-01",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "public preparation SQL and bounded hard export-host / SQL-client interruption; surviving independent coordinator",
+  "preparation": {
+    "source_sha256": {
+      "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-Preparation.ps1": "0CD454A9C38FBC73B8E09D494FC4CE4F29CB35469BA5F8197F79946F0088AFBC",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/LabClientCommon.ps1": "D9E69E7DA52195E9F3DB91746C473A48AA4A079A18A9A78B9A9E40B5D3152B0D",
+      "Modules/toolbelt.tsql.ssis-debug/Examples/Installation/PrepareServer.sql": "01EB9437507E4640A990F82893593E7B6DDE49927395474570F7DA1DBB78ED56",
+      "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+      "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846"
+    },
+    "lab_source_commit": "e64b52c424fb61b946d8f1029fa4c4c4db2145b6",
+    "cases": [
+      {
+        "sql_version": "2019",
+        "patch": "CU32",
+        "platform": "Windows",
+        "result": "PASS_CLEANED",
+        "assertions": 18,
+        "public_guest_dispatches": 3,
+        "windows_guest_authentication": true,
+        "fresh_independent_audit": "PASS",
+        "database_removed": true,
+        "configuration_restored": true,
+        "trust_unchanged": true
+      },
+      {
+        "sql_version": "2022",
+        "patch": "CU26",
+        "platform": "Windows",
+        "result": "PASS_CLEANED",
+        "assertions": 18,
+        "public_guest_dispatches": 3,
+        "windows_guest_authentication": true,
+        "fresh_independent_audit": "PASS",
+        "database_removed": true,
+        "configuration_restored": true,
+        "trust_unchanged": true
+      },
+      {
+        "sql_version": "2025",
+        "patch": "CU8",
+        "platform": "Windows",
+        "result": "PASS_CLEANED",
+        "assertions": 18,
+        "public_guest_dispatches": 3,
+        "windows_guest_authentication": true,
+        "fresh_independent_audit": "PASS",
+        "database_removed": true,
+        "configuration_restored": true,
+        "trust_unchanged": true
+      }
+    ],
+    "assertions": 54,
+    "original_false_pending_reproduced": true,
+    "original_characterization_no_mutation": true,
+    "previous_rejected_attempt": "relative SQL path rejected before guest dispatch; FAILED_CLEANED; fresh audit PASS"
+  },
+  "host": {
+    "contract": "ssis-host-hard-interruption/1",
+    "result": "PASS",
+    "platform": "Windows",
+    "source_sha256": {
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "2ade414761876c4109c7094fb7f2a153a1bf215c480e5b461a9670b6aceace9f",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "f283f73a4350907994c0155f58ce9dec58b66f2c63a694174f9444da53de51b4",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+      "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/qualify_host_interruption.py": "2c4f5cd59e343717dc01fd2a3f8aba9f6ddabf3882ebd4f77e13dab4dd83bc80"
+    },
+    "host_sha256": "e6510ebeb06f755799257ab3ed70af8324349bd7faad8b498e394f3178d1de5c",
+    "fixture_sha256": "7145ff02f8195211ba87c4cd7191d904ec5046fc60d90ee27a98fc6891bffe65",
+    "case_count": 10,
+    "assertions": 95,
+    "cases": [
+      {
+        "mode": "model",
+        "interruption": "process-termination",
+        "result": "PASS",
+        "assertions": 10,
+        "interrupted_exit_code": 1,
+        "complete_output_sha256": "2fe8a5f29118456b455013b482ae97e2f14f05475295ffafa346c3f2464a6fe9",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "model",
+        "interruption": "pipe-disconnection",
+        "result": "PASS",
+        "assertions": 9,
+        "interrupted_exit_code": 0,
+        "complete_output_sha256": "2fe8a5f29118456b455013b482ae97e2f14f05475295ffafa346c3f2464a6fe9",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "bundle",
+        "interruption": "process-termination",
+        "result": "PASS",
+        "assertions": 10,
+        "interrupted_exit_code": 1,
+        "complete_output_sha256": "ce5038379a4a3d7b7bf78367eca7586c0e9c531c0c81d3dfa04b935f4c39941b",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "bundle",
+        "interruption": "pipe-disconnection",
+        "result": "PASS",
+        "assertions": 9,
+        "interrupted_exit_code": 0,
+        "complete_output_sha256": "ce5038379a4a3d7b7bf78367eca7586c0e9c531c0c81d3dfa04b935f4c39941b",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "iteration-bundle",
+        "interruption": "process-termination",
+        "result": "PASS",
+        "assertions": 10,
+        "interrupted_exit_code": 1,
+        "complete_output_sha256": "58483c90b3169efd59ac23e957cea72b0f568037fd3a0a381357bb0fb03a71f4",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "iteration-bundle",
+        "interruption": "pipe-disconnection",
+        "result": "PASS",
+        "assertions": 9,
+        "interrupted_exit_code": 0,
+        "complete_output_sha256": "58483c90b3169efd59ac23e957cea72b0f568037fd3a0a381357bb0fb03a71f4",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "scope-bundle",
+        "interruption": "process-termination",
+        "result": "PASS",
+        "assertions": 10,
+        "interrupted_exit_code": 1,
+        "complete_output_sha256": "e6a3f61f255464d9099cb58ffe7fe7fb75bb8fa56d39bc61c2146297c87dea00",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "scope-bundle",
+        "interruption": "pipe-disconnection",
+        "result": "PASS",
+        "assertions": 9,
+        "interrupted_exit_code": 0,
+        "complete_output_sha256": "e6a3f61f255464d9099cb58ffe7fe7fb75bb8fa56d39bc61c2146297c87dea00",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "pipeline-bundle",
+        "interruption": "process-termination",
+        "result": "PASS",
+        "assertions": 10,
+        "interrupted_exit_code": 1,
+        "complete_output_sha256": "c3d48d2ae2f8e9e7a7d7e496ac051202d887d76cd0e9e6cc0dc553e387544dde",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      },
+      {
+        "mode": "pipeline-bundle",
+        "interruption": "pipe-disconnection",
+        "result": "PASS",
+        "assertions": 9,
+        "interrupted_exit_code": 0,
+        "complete_output_sha256": "c3d48d2ae2f8e9e7a7d7e496ac051202d887d76cd0e9e6cc0dc553e387544dde",
+        "partial_json_rejected": true,
+        "fresh_output_identical": true,
+        "input_unchanged": true
+      }
+    ],
+    "date": "2026-11-01",
+    "child_processes_started": 25
+  },
+  "sql_transport": {
+    "platform": "Windows",
+    "sql_version": "2025",
+    "patch": "CU8",
+    "authentication": "Functional SQL",
+    "result": "PASS_CLEANED",
+    "source_sha256": {
+      "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-TransportRecovery.ps1": "88964A64E0FA6DC0C897CD6253B30018838BE1365A872A4F4F4A2365F60C0A4F",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/LabClientCommon.ps1": "D9E69E7DA52195E9F3DB91746C473A48AA4A079A18A9A78B9A9E40B5D3152B0D",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/RecoveryFixture.ps1": "6F6C950127197989B31454DCE91583B3759436CCBAF7713EA40987DE96CF6C4B",
+      "Modules/toolbelt.tsql.ssis-debug/Examples/Installation/PrepareServer.sql": "01EB9437507E4640A990F82893593E7B6DDE49927395474570F7DA1DBB78ED56",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/synthetic-8.dtsx": "DEA7DC971972882B2A090D489ECFC2DC1E85635936A0ECD8C89C8443D746BF3E",
+      "Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json": "B9436A76728E6C5E137A8250155F2FF197FF806DD1FCB746F8E1831A33F96429",
+      "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json": "BB3BB417B4E571CE2D201A10988FA4015080586EE19E8C85CB87FA259E61E8B5",
+      "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846",
+      "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+      "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "DB1E1039D4D719F99AECAF64260B9703F56DCDA869C4D14015A6C4A875C4D298",
+      "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7DA975D4E0B853F0F3DC7DE8F842AD1757BFE5E403564CCDEF4F70387B125876",
+      "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "E817F62A0F59596D24DB76751109B6389A8B444F593CCD91395CF8C5A26F22D5"
+    },
+    "assertions": 18,
+    "cases": [
+      {
+        "name": "blocked-current-debugscript",
+        "processKilled": true,
+        "serverSessionGone": true,
+        "freshResultsIdentical": true,
+        "result": "PASS"
+      },
+      {
+        "processKilled": true,
+        "result": "PASS",
+        "callerChangesRolledBack": true,
+        "freshResultsIdentical": true,
+        "name": "current-api-open-caller-transaction",
+        "serverSessionGone": true
+      }
+    ],
+    "fresh_independent_audit": "PASS",
+    "database_removed": true,
+    "configuration_restored": true,
+    "trust_restored": true,
+    "other_consumers_unchanged": true,
+    "previous_failed_cleaned_attempts": 3,
+    "previous_independent_audits": "PASS",
+    "fault_injection": "observed own Sch-M lock, then current API with open caller transaction; own sqlcmd handles killed",
+    "sql_server_or_vm_killed": false
+  },
+  "source_integration": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/LabClientCommon.ps1",
+    "native_sha256": "D9E69E7DA52195E9F3DB91746C473A48AA4A079A18A9A78B9A9E40B5D3152B0D",
+    "current_sha256": "B3ABEC616E7C62C120C22BE802373693E94A6445174617C7BB7BFC602D67DD28",
+    "kind": "suppress_unused_windows_remove_outputs",
+    "original_native_coordinator_authentication": "SQL",
+    "covered_sql_branch_changed": false
+  },
+  "not_qualified": [
+    "Full Windows-authenticated public PowerShell installer and SSMS copy/paste path require their separate client record",
+    "OS/VM shutdown or loss of the surviving test coordinator",
+    "Uninterrupted public Windows TLS Lab creation",
+    "Unbounded production capacity or full SSIS runtime parity"
+  ]
+}

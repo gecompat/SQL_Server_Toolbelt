@@ -3,7 +3,8 @@
 Diese Anleitung installiert den aktuellen Entwicklungsstand in einer eigenen
 Demodatenbank. Sie verwendet die kanonischen Lifecycle-/Trustskripte und
 ändert weder öffentliche SQL-Verträge noch Versions-/Dependencypins. Die
-Module bleiben teilweise validiert und unveröffentlicht.
+Module bleiben unveröffentlicht; den jeweiligen Abnahmeumfang beschreibt die
+[aktuelle Installationsübersicht](../../Documentation/CurrentInstallation.md#qualifizierter-installationsumfang).
 
 | Bestandteil | Version | Installation / Trust |
 |---|---|---|
@@ -23,8 +24,20 @@ Der getrennte [öffentliche SSIS-Trustschritt](../../Tests/InstallerTrust/README
 ist mit dem aktuellen freigegebenen Binary auf allen drei Windows-SQL-Versionen
 nativ geprüft. Sein Guard weist leere, NULL- und überlange Hashliterale vor
 Mutation zurück. Dies belegt den einzelnen SQL-Schritt; der vollständige
-Windows-Anmeldeweg dieses PowerShell-Beispiels und `PrepareServer.sql` bleiben
-separate Qualifikationspunkte. Historische ZIP-Nachweise behalten ihre
+Windows-Anmeldeweg dieses PowerShell-Beispiels ist inzwischen
+[auf SQL2025/CU8, CL150 nativ geprüft](../../Tests/Qualification/InstallerClient.Windows.20261101.json):
+öffentliche Vorbereitung, Erst-/Wiederholungsinstallation, aktuelle CLI/API und
+vollständige DebugScript-Ausführung unter NTLM mit eigenem frischem Windows-Audit.
+Der spätere SSMS-Handshake scheiterte, sodass der vollständige GUI-Transport
+weiterhin offen bleibt. `PrepareServer.sql` ist [separat auf allen drei Windows-Versionen
+qualifiziert](../../Tests/WindowsClientRecovery/README.md). Sein Pending-Guard
+nimmt ausschließlich die dokumentierten impliziten min/max-memory-Defaults
+aus und aktiviert keine fremden vorgemerkten Änderungen. Das PowerShell-Beispiel
+übergibt Release-SQL ausdrücklich mit UTF8-Codepage65001 an sqlcmd.
+Der neue Nachweis bindet die aktuellen Repository-Beispiele mit dem unveränderten
+freigegebenen Binary. Bestehende ZIPs enthalten weiterhin ihre ursprünglichen
+Beispielbytes; die Korrekturen werden damit nicht rückwirkend ausgeliefert.
+Historische ZIP-Nachweise behalten ihre
 ursprünglichen Artefakte; die Korrektur steht im aktuellen Repository-Trustskript.
 
 ## 1. Passenden Artefaktsatz bereitstellen

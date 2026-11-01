@@ -85,6 +85,7 @@ documentation:
   evidence:
     - "Tests/README.md"
     - "Tests/InstallerTrust/README.md"
+    - "Tests/WindowsClientRecovery/README.md"
 contracts:
   ssis_components: "2.0.0"
   usp: "1.0"
@@ -209,4 +210,14 @@ validation_evidence:
   - date: "2026-11-01"
     workflow: "local: Tests/InstallerTrust/Invoke-LabTrust.ps1 auf drei bestehenden Windows-Labzielen und unabhängige Audits"
     scope: "Öffentlicher administrativer SSIS-Trustschritt für den unveränderten aktuellen Binary auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8: je 18 Assertions, 54 insgesamt, fehlender Eintrag und Wiederholung, NULL/Leerwert/Überlänge vor Mutation und bestehender eingeschränkter Guest-Kontext. Keine Netzwerk-Lowpriv-Anmeldung behauptet. Eigene Einträge entfernt, andere Trusteinträge und Konfiguration unverändert; drei finale unabhängige Audits PASS. Ein Vor-SQL-Adapterfehler, zwei bereinigte Fehlerfälle und drei frühere positive Fälle bleiben getrennt; alle acht tatsächlich ausgeführten Audits bestanden, insgesamt 17 Ziel-/Auditaufrufe. 27 Offlineprüfungen binden Quellen, Herkunft und Vor-SQL-Guards im bestehenden SSIS-Job. Ursprünglicher Snapshotinput für den später geänderten administrativen Guard wird ausschließlich aus seinem unveränderten hashgebundenen ZIP anerkannt, übrige Methoden/Binaries/Reports bleiben unverändert. Volle Windows-Anmeldung des Installers, PrepareServer, SSMS-Transport und harte Unterbrechung bleiben getrennt. Keine Veröffentlichung."
+    result: "success"
+
+  - date: "2026-11-01"
+    workflow: "local: WindowsClientRecovery, öffentliche Vorbereitung und echte Host-/SQL-Clientabbrüche"
+    scope: "PrepareServer auf Windows SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8: 54 Assertions, drei frische Audits. Zehn Exporthost-Unterbrechungsfälle mit 95 Assertions, zwei SQL-Clientabbrüche mit 18 Assertions und frischem Audit. Vollständige JSON-Ausgabe, identische neue Resultate, Caller-Rollback sowie Wiederherstellung des eigenen Konfigurations-/Trustzustands geprüft. Koordinator bleibt erhalten; kein OS-/VM-Ausfall behauptet. Unveränderte freigegebene Binaries und historische Records bleiben gebunden. Windows-Client-/SSMS-Gesamtweg bleibt separat; dessen fehlgeschlagener Koordinator wurde bereinigt und frisch auditiert. Keine Veröffentlichung."
+    result: "success"
+
+  - date: "2026-11-01"
+    workflow: "local: öffentlicher Windows-Installer und CLI/API auf SQL2025/CU8, CL150; frischer Windows-Audit"
+    scope: "NTLM mit vorhandenen sysadmin-Rechten, öffentliche PrepareServer-Vorbereitung und Install-Local-Erst-/Wiederholungsinstallation, unveränderter Trust bei Wiederholung, aktuelle38-Parameter-API und vollständige DebugScript-Ausführung mit zwei Ergebniszeilen. Zehn Assertions für diesen begrenzten Teilumfang und exakte eigene Wiederherstellung; frischer Windows-Abschlussaudit PASS. Der anschließende sichtbare SSMS-Handshake scheiterte vor der ersten GUI-Abfrage; der Gesamtkoordinator bleibt FAILED_CLEANED. Separate Source-/Scope-Gegenproben verhindern eine Aufwertung zum GUI-PASS. Lab-Hostclientquellen entsprechen dem gemergten PR859; ursprüngliches importiertes Labmodul und ausgeführte Bytes bleiben getrennt gebunden. Frühere Fehler/Abbruchzustände und Audits erhalten. Windows-/SSMS-Scripttransport bleibt offen; keine Veröffentlichung."
     result: "success"
