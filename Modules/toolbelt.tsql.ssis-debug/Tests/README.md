@@ -3,6 +3,25 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Aktuelle Vorbereitung und harte Clientabbrüche
+
+Der [zusätzliche Nachweis](Qualification/PreparationRecovery.Windows.20261101.json)
+qualifiziert das öffentliche `PrepareServer.sql` auf Windows SQL2019/2022/2025
+mit 54 Assertions und drei frischen Audits. Zehn echte Exporthost-Abbruchfälle
+bestanden mit 95 Assertions; zwei SQL-Clientabbrüche mit 18 Assertions und
+frischem Audit prüfen aktuellen DebugScript-Neustart und Caller-Rollback.
+Der Koordinator überlebt; OS-/VM-Ausfall ist nicht qualifiziert.
+[Methode, Originalfehler, Cleanup und Wiederholung](WindowsClientRecovery/README.md)
+trennen diese grünen Teilumfänge vom weiterhin separat erforderlichen vollständigen
+Windows-/SSMS-Clientweg. Der getrennte
+[Windows-Installer-/Clientnachweis](Qualification/InstallerClient.Windows.20261101.json)
+belegt auf SQL2025/CU8, CL150 die öffentliche Vorbereitung, erfolgreiche Erst-
+und Wiederholungsinstallation sowie die aktuelle API und vollständige
+DebugScript-Ausführung unter NTLM mit zehn Assertions und frischem Windows-Audit.
+Sein späterer sichtbarer SSMS-Handshake scheiterte vor der ersten GUI-Abfrage;
+der Gesamtkoordinator bleibt `FAILED_CLEANED`. Frühere datierte Einträge bleiben historische Nachweise
+ihres jeweiligen Scopes.
+
 ## Aktuelle Anmeldequalifikation
 
 Die ergänzende [Anmeldequalifikation](Qualification/Current.Access.Windows.CL.20261031.json)
@@ -879,8 +898,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-01`
-- Nachweis: `local: Tests/InstallerTrust/Invoke-LabTrust.ps1 auf drei bestehenden Windows-Labzielen und unabhängige Audits`
-- Scope: Öffentlicher administrativer SSIS-Trustschritt für den unveränderten aktuellen Binary auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8: je 18 Assertions, 54 insgesamt, fehlender Eintrag und Wiederholung, NULL/Leerwert/Überlänge vor Mutation und bestehender eingeschränkter Guest-Kontext. Keine Netzwerk-Lowpriv-Anmeldung behauptet. Eigene Einträge entfernt, andere Trusteinträge und Konfiguration unverändert; drei finale unabhängige Audits PASS. Ein Vor-SQL-Adapterfehler, zwei bereinigte Fehlerfälle und drei frühere positive Fälle bleiben getrennt; alle acht tatsächlich ausgeführten Audits bestanden, insgesamt 17 Ziel-/Auditaufrufe. 27 Offlineprüfungen binden Quellen, Herkunft und Vor-SQL-Guards im bestehenden SSIS-Job. Ursprünglicher Snapshotinput für den später geänderten administrativen Guard wird ausschließlich aus seinem unveränderten hashgebundenen ZIP anerkannt, übrige Methoden/Binaries/Reports bleiben unverändert. Volle Windows-Anmeldung des Installers, PrepareServer, SSMS-Transport und harte Unterbrechung bleiben getrennt. Keine Veröffentlichung.
+- Nachweis: `local: öffentlicher Windows-Installer und CLI/API auf SQL2025/CU8, CL150; frischer Windows-Audit`
+- Scope: NTLM mit vorhandenen sysadmin-Rechten, öffentliche PrepareServer-Vorbereitung und Install-Local-Erst-/Wiederholungsinstallation, unveränderter Trust bei Wiederholung, aktuelle38-Parameter-API und vollständige DebugScript-Ausführung mit zwei Ergebniszeilen. Zehn Assertions für diesen begrenzten Teilumfang und exakte eigene Wiederherstellung; frischer Windows-Abschlussaudit PASS. Der anschließende sichtbare SSMS-Handshake scheiterte vor der ersten GUI-Abfrage; der Gesamtkoordinator bleibt FAILED_CLEANED. Separate Source-/Scope-Gegenproben verhindern eine Aufwertung zum GUI-PASS. Lab-Hostclientquellen entsprechen dem gemergten PR859; ursprüngliches importiertes Labmodul und ausgeführte Bytes bleiben getrennt gebunden. Frühere Fehler/Abbruchzustände und Audits erhalten. Windows-/SSMS-Scripttransport bleibt offen; keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

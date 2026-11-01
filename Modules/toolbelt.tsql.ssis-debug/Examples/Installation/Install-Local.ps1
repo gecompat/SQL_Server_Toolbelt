@@ -69,7 +69,9 @@ if ($ValidateOnly) {
 }
 $sqlcmd = Get-Command -Name $SqlcmdPath -ErrorAction Stop
 function Invoke-InstallSql([string]$File, [string]$TargetDatabase, [string[]]$Variables) {
-    $sqlArguments = @('-S', $Server, '-d', $TargetDatabase, '-E', '-N', '-b', '-i', $File)
+    # Release-SQL ist UTF-8 ohne BOM; die Eingabecodepage bleibt auch auf
+    # Windows-Systemen mit einer anderen Console-/ANSI-Codepage eindeutig.
+    $sqlArguments = @('-S', $Server, '-d', $TargetDatabase, '-E', '-N', '-b', '-f', '65001', '-i', $File)
     if ($TrustServerCertificate) { $sqlArguments += '-C' }
     if ($Variables.Count -gt 0) { $sqlArguments += @('-v') + $Variables }
     & $sqlcmd.Source @sqlArguments

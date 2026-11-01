@@ -160,6 +160,11 @@ sources_of_truth:
   ssis_linux_export_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/ExportHost.Linux.20261101.json
   ssis_linux_export_validator: Scripts/Release/validate_ssis_linux_export.py
   ssis_linux_export_checks: Tests/Release/test_ssis_linux_export.py
+  ssis_preparation_recovery_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/PreparationRecovery.Windows.20261101.json
+  ssis_windows_installer_client_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/InstallerClient.Windows.20261101.json
+  ssis_preparation_recovery_guide: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md
+  ssis_preparation_recovery_validator: Scripts/Release/validate_ssis_preparation_recovery.py
+  ssis_preparation_recovery_checks: Tests/Release/test_ssis_preparation_recovery.py
   ssis_administrative_trust_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/AdministrativeTrust.Windows.20261101.json
   ssis_administrative_trust_validator: Scripts/Release/validate_ssis_administrative_trust.py
   ssis_administrative_trust_checks: Tests/Release/test_ssis_administrative_trust.py

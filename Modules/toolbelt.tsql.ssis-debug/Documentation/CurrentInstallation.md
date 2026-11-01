@@ -165,7 +165,18 @@ Der aktuelle Repository-Stand des getrennten
 heutigen Binary auf Windows SQL2019/2022/2025 qualifiziert: 54 Assertions und
 drei unabhängige Audits. NULL sowie leere und überlange Literale werden vor
 einem Eintrag abgewiesen. Das ersetzt keine vollständige Windows-Anmeldung
-des Installationsbeispiels und keine Prüfung von `PrepareServer.sql`. Ältere
+des Installationsbeispiels. Das öffentliche `PrepareServer.sql` ist inzwischen
+[separat auf allen drei Windows-Versionen geprüft](../Tests/WindowsClientRecovery/README.md):
+54 Assertions und drei frische Audits. Sein Pending-Guard berücksichtigt die
+dokumentierten impliziten Speicherdefaults und verweigert echte ausstehende
+Änderungen weiterhin. `Install-Local.ps1` liest Release-SQL ausdrücklich als UTF8.
+Der [Windows-Installer-/CLI-Nachweis](../Tests/Qualification/InstallerClient.Windows.20261101.json)
+belegt auf SQL2025/CU8, CL150 auch öffentliche Vorbereitung und Erst-/
+Wiederholungsinstallation unter NTLM, aktuelle API sowie vollständige
+DebugScript-Ausführung mit zehn Assertions und frischem Windows-Abschlussaudit.
+Sein späterer SSMS-Handshake scheiterte vor der ersten GUI-Abfrage; der
+Gesamtkoordinator bleibt `FAILED_CLEANED`. Der vollständige Windows-/SSMS-
+Scripttransport bleibt ein eigenes Abnahmekriterium. Ältere
 ZIP-/Standalone-Nachweise bleiben an ihre unveränderten Lieferbytes gebunden.
 
 Die [Current-ZIP-Matrix](../Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)

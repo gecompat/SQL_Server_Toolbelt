@@ -1795,12 +1795,13 @@ def main() -> int:
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
     if "release_preparation" in checks:
-        # The cold Windows clone measured 131 release checks in 355 seconds;
-        # 480 seconds allow bounded reserve for ZIP and bundle recovery.
+        # The release suite now contains 280 checks instead of the former131.
+        # Retain every check and a finite eleven-minute process boundary;
+        # isolated cold-run diagnosis confirmed the old boundary was too tight.
         # Keep the hidden process boundary so no console window steals focus.
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=480,
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=660,
         )
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")

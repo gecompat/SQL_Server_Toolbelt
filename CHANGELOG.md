@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-11-01 – SSIS-Vorbereitung und harte Clientabbrüche qualifiziert
+
+`PrepareServer.sql` berücksichtigt dokumentierte implizite Speicherdefaults und
+verweigert auch NULL im sysadmin-Guard. Die öffentliche Vorbereitung bestand
+54 Assertions auf drei Windows-SQL-Versionen mit drei unabhängigen Audits.
+Zehn Exporthost-Unterbrechungsfälle und zwei SQL-Clientabbrüche bestanden mit
+95 beziehungsweise18 Assertions, vollständig verworfenen Teiloutputs,
+identischen neuen Ergebnissen und nachgewiesenem Caller-Rollback.
+`Install-Local.ps1` liest Release-SQL ausdrücklich als UTF8. Der vollständige
+Windows-Installer-/CLI-Teilumfang bestand auf SQL2025/CU8, CL150 mit zehn
+Assertions und frischem Windows-Audit. Der spätere SSMS-Handshake scheiterte vor
+der ersten GUI-Abfrage; der Gesamtkoordinator bleibt `FAILED_CLEANED` und der
+vollständige GUI-Transport offen. Fehlerhistorie und eigene Recovery
+werden erhalten. Keine Veröffentlichung.
+[Methode und Grenzen](Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md).
+
 ## 2026-11-01 – Öffentlichen SSIS-Trustschritt nativ qualifiziert
 
 Der administrative Hash-Guard prüft NULL und die volle Länge vor einer
