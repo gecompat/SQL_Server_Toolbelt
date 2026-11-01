@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-01 – SSMS-Zielvorcheck und strikte Kopierprüfung
+
+Die zusätzliche Testmethode prüft das ausgewählte Labziel, Windows-Anmeldung
+und Verschlüsselung sichtbar in SSMS vor jeder Testdatenbank. Der Vorcheck
+und die aktuelle API-Erzeugung bestanden. Die Anleitung behandelt jetzt die
+beobachtete Gridkürzung bei65535 Zeichen und den erforderlichen CR/LF-Erhalt.
+Eine SQL-freie Hashprüfung weist veränderte oder gekürzte Kopien vor deren
+Ausführung zurück. Der vollständige GUI-Transport und der separate Windows-
+Abschlussaudit dieser Probe wurden innerhalb ihrer Frist nicht abgeschlossen;
+der Gesamtkoordinator bleibt `FAILED_CLEANED`. Eigene Bereinigung und lesende
+Sicherheitskontrolle bestanden. Keine neue Gesamtqualifikation oder Veröffentlichung.
+[Methode und Grenzen](Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md).
+
 ## 2026-11-01 – SSIS-Vorbereitung und harte Clientabbrüche qualifiziert
 
 `PrepareServer.sql` berücksichtigt dokumentierte implizite Speicherdefaults und

@@ -84,6 +84,19 @@ ungeeignet. Alle DECLAREs, Guards, Cachevorbereitungen, Vorgänger-CTEs und der
 abschließende SELECT gehören zum Block. `PreparationSql` muss nicht vorher
 gesondert ausgeführt werden.
 
+Vor der erzeugenden Abfrage in deren `Query Options > Results > Grid` die
+Option `Retain CR/LF on copy or save` aktivieren und unter `Maximum Characters
+Retrieved > Non XML data` einen ausreichend großen Wert wählen. In SSMS22
+ist hier `2000000` einstellbar. Die im Test beobachtete Einstellung von
+`65535` Zeichen schnitt längere Zellen ab; ohne CR/LF-Erhalt werden außerdem
+SQL-Kommentare und Batchzeilen zusammengezogen. Nach einer Optionsänderung die
+erzeugende Abfrage erneut ausführen und ausschließlich deren neue Zelle
+kopieren. Reicht die maximal einstellbare Grenze für den Inhalt nicht aus,
+diese Gridkopie nicht ausführen. Eine sichtbare letzte Zeile allein beweist
+keinen vollständigen Transport; Länge und Hash müssen zum aktuellen Artefakt
+passen. Die [SQL-freie Kopierprüfung der Qualifikationsmethode](../Tests/WindowsClientRecovery/README.md#kopierprüfung-vor-der-ausführung)
+erläutert die strikte UTF16/LF-Prüfung.
+
 Die `GO`-Trennungen im Beispiel liegen zwischen dessen Steuerabschnitten.
 Innerhalb eines generierten Prüfblocks kein `GO` ergänzen. Eine CTE gilt nur
 für das unmittelbar folgende Statement. Für einen anderen Prüfpunkt den
