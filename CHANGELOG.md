@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-01 – Öffentlichen SSIS-Trustschritt nativ qualifiziert
+
+Der administrative Hash-Guard prüft NULL und die volle Länge vor einer
+Konvertierung auf 64 Bytes. Überlange Literale werden dadurch nicht mehr
+vor der Prüfung gekürzt. Der aktuelle freigegebene Binary bestand den
+öffentlichen Trustschritt auf Windows SQL2019/2022/2025 mit 54 Assertions und
+drei unabhängigen Abschlussaudits. Eigene Einträge sind entfernt, fremder
+Trust und Konfiguration unverändert; keine Rechtevergabe oder Veröffentlichung.
+[Methode und verbleibende Installergrenzen](Modules/toolbelt.tsql.ssis-debug/Tests/InstallerTrust/README.md).
+
 ## 2026-11-01 – Externer SSIS-Exporthost nativ auf Linux geprüft
 
 Derselbe portable Host bestand auf Windows und Linux je 17 CLI-Fälle mit

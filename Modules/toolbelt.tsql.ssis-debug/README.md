@@ -71,6 +71,9 @@ Assemblyhash administrativ freigeben und `Artifacts/Deploy.WithAssembly.sql`
 im SQLCMD-Modus mit `DeploymentMode=local` oder `central` ausführen. Der
 UNSAFE-/Strict-Security-Vertrag wird nicht aufgeweicht. Shared Dependencies
 und Trusteinträge werden beim Uninstall nicht entfernt.
+Der getrennte [administrative SSIS-Trustschritt](Tests/InstallerTrust/README.md)
+ist auf Windows SQL2019/2022/2025 geprüft; die vollständige Windows-Anmeldung
+des Installationsbeispiels und dessen Servervorbereitung bleiben separat.
 
 Die aktuelle Funktionsabnahme bindet den heutigen Source-Build an das vorhandene
 [Parameter-Help-Paket](../../Releases/1.0.0/PARAMETER-HELP.md). Sie umfasst zwölf
@@ -97,8 +100,8 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-01`
-- Nachweis: `local: Exchange/Tests/qualify_host.py auf Windows und Linux mit demselben portablen Hostbinary`
-- Scope: Externer Exporthost aus Produktquellen 61b2dced: 17 native CLI-Prozesse je Plattform, 338 Assertions insgesamt, identische kanonische Outputs und Quell-/Binarypins. DTSX 6/8 in fünf Ausgabeformen, feste unabhängige Objekt-/Kantenorakel, Unicodepfade, private synthetische Literalwerte und sechs Fehlerfälle einschließlich DTD, Format, XML, Erweiterung, Datei und Usage ohne partielle Ausgabe. .NET 10.0.14 Linux-x64 ausschließlich privat entpackt, offizieller Archiv-SHA512 geprüft; keine globale Installation, SQL-Verbindung oder Labänderung. 17 Offlineprüfungen im vorhandenen SSIS-CI-Job. Keine SQL-CLR-Linux-, SSIS-SDK-/Runtime-, Produktionskapazitäts- oder Veröffentlichungszusage. Windows-SSMS-Anmeldung, Installer-Trust und harte Unterbrechung bleiben getrennt.
+- Nachweis: `local: Tests/InstallerTrust/Invoke-LabTrust.ps1 auf drei bestehenden Windows-Labzielen und unabhängige Audits`
+- Scope: Öffentlicher administrativer SSIS-Trustschritt für den unveränderten aktuellen Binary auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8: je 18 Assertions, 54 insgesamt, fehlender Eintrag und Wiederholung, NULL/Leerwert/Überlänge vor Mutation und bestehender eingeschränkter Guest-Kontext. Keine Netzwerk-Lowpriv-Anmeldung behauptet. Eigene Einträge entfernt, andere Trusteinträge und Konfiguration unverändert; drei finale unabhängige Audits PASS. Ein Vor-SQL-Adapterfehler, zwei bereinigte Fehlerfälle und drei frühere positive Fälle bleiben getrennt; alle acht tatsächlich ausgeführten Audits bestanden, insgesamt 17 Ziel-/Auditaufrufe. 26 Offlineprüfungen binden Quellen, Herkunft und Vor-SQL-Guards im bestehenden SSIS-Job. Ursprünglicher Snapshotinput für den später geänderten administrativen Guard wird ausschließlich aus seinem unveränderten hashgebundenen ZIP anerkannt, übrige Methoden/Binaries/Reports bleiben unverändert. Volle Windows-Anmeldung des Installers, PrepareServer, SSMS-Transport und harte Unterbrechung bleiben getrennt. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

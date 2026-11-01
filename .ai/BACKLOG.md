@@ -1,5 +1,43 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SSIS-Restqualifikation: öffentlicher administrativer Trustschritt — 2026-11-01
+
+Direkter Benutzerauftrag zur autonomen Fortsetzung der offenen Qualifikation;
+grüne PRs nach main mergen und Main-CI prüfen, nicht veröffentlichen.
+Diese Folgewelle umfasst einen PR und zwei Stunden ab unverändertem Originalstart,
+genau drei vorhandene Windows-Labziele und höchstens 17 Ziel-/Auditaufrufe.
+Die ursprüngliche Grenze 16 wurde vor weiteren SQL-Effekten einmal um einen
+Aufruf ergänzt: nach einer zusätzlichen Herkunftshärtung des Eingabeguards
+werden genau drei finale Fälle und drei unabhängige Audits erneut gebunden.
+Die vorherigen elf Aufrufe zählen weiter; keine Lab-, Konfigurations- oder
+Rechteänderung. Ein Implementierer, keine Agents, Kosten/Token unbekannt.
+
+Das öffentliche SSIS-Trustskript prüft jetzt NULL und volle Länge ungekürzt,
+bevor der feste 64-Byte-Typ für die Systemprozedur gebildet wird. Der
+[aktuelle Nachweis](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/AdministrativeTrust.Windows.20261101.json)
+belegt Windows SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8 mit je 18 Assertions
+und eigenem frischem Audit: aktueller freigegebener Binary, fehlender Eintrag,
+öffentlicher Opt-in, Wiederholung, ungültige Literale, eingeschränkter bestehender
+Guest-Kontext und eigene Bereinigung. Keine Netzwerk-Lowpriv-Anmeldung behauptet.
+Alle eigenen Einträge sind entfernt; fremder Trust und Konfiguration unverändert.
+
+Ein Adapterfehler vor SQL, zwei fehlgeschlagene bereinigte Fälle und drei
+positive Fälle vor der abschließenden Herkunftshärtung bleiben unverändert;
+alle acht tatsächlich ausgeführten unabhängigen Audits bestanden. Neun
+Zielaufrufe einschließlich des Vor-SQL-Fehlers und acht Audits ergeben 17.
+Nur die drei letzten Fälle qualifizieren die aktuelle Methodenversion mit
+54 Assertions; frühere positive Teilergebnisse werden nicht doppelt gezählt.
+26 Offlineprüfungen laufen im vorhandenen SSIS-Job, einschließlich echter
+Manipulationsaufrufe mit `ValidateOnly`; kein neuer Job, keine neue SQL-CI-Matrix.
+
+Der historische Snapshot behält seine Originalpins und sein unverändertes ZIP.
+Nur der jetzt separat qualifizierte administrative Quellinput wird aus genau
+diesem alten hashgebundenen Paket gelesen. Die übrigen Source-/Binary-/Methoden-
+bindungen bleiben exakt; keine Behauptung eines neuen Snapshotlaufs.
+Aktuelle Head-/Main-CI und Merge folgen als eigene Gates. Vollständige
+Windows-Anmeldung des Installers, SSMS-Transport, Servervorbereitung, harte
+Unterbrechung und der separate ununterbrochene Lab-TLS-Neuaufbau bleiben offen.
+
 ## SSIS-Restqualifikation: externer Linux-Exporthost — 2026-11-01
 
 Der Benutzer beauftragte die autonome Fortsetzung der offenen SSIS-Punkte;
