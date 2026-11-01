@@ -166,6 +166,8 @@ sources_of_truth:
   ssis_ssms_target_hook: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/SsmsGuiHook.ps1
   ssis_ssms_target_checks: Tests/Release/test_ssis_ssms_gui.py
   ssis_ssms_copy_check: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Test-SsmsScriptCopy.ps1
+  ssis_ssms_gui_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/SsmsClient.Windows.20261101.json
+  ssis_ssms_gui_validator: Scripts/Release/validate_ssis_ssms_gui.py
   ssis_preparation_recovery_guide: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md
   ssis_preparation_recovery_validator: Scripts/Release/validate_ssis_preparation_recovery.py
   ssis_preparation_recovery_checks: Tests/Release/test_ssis_preparation_recovery.py

@@ -164,7 +164,7 @@ Eine reservierte Auditfrist ist kein ausgeführter Audit. Scheitert der GUI-Teil
 muss der separate Audit vor der gemeinsamen Grenze stattfinden; nach deren
 Ablauf wird kein neuer Qualifikationsaufruf zugelassen.
 
-Die zusätzliche zielgebundene native Probe bestand den sichtbaren Vorcheck
+Die erste zusätzliche zielgebundene native Probe bestand den sichtbaren Vorcheck
 mit Windows-Anmeldung und Verschlüsselung am ausgewählten SQL2025/CU8-Labziel
 sowie den API-Erzeuger in derselben SSMS-Instanz. Der erste Kopierversuch
 offenbarte die65535-Zeichen-Grenze und fehlende Zeilenumbrüche. Nach Änderung
@@ -177,10 +177,32 @@ bestanden. Letztere ist ausdrücklich kein separater Windows-Qualifikationsaudit
 dieser wurde in dieser Probe nicht ausgeführt. Die frühere qualifizierte
 Installer-/CLI-Evidenz bleibt unverändert.
 
+Die ausdrücklich separat freigegebene Restprobe bestand danach den sichtbaren
+Windows-Vorcheck und die API-Erzeugung am selben ausgewählten Labziel. Vor der
+Erzeugung setzte der Benutzer die eigenen Gridoptionen. Die über SSMS kopierte
+Zelle bestand vor ihrer Ausführung die strikte Dateihashprüfung. Nach Fehlern
+der UI-Automation führte der Benutzer den unveränderten vollständigen Inhalt
+genau einmal aus; zwei erwartete Zeilen und der fehlerfreie Messages-Abschluss
+wurden anschließend visuell geprüft. Der
+[getrennte Clientnachweis](../Qualification/SsmsClient.Windows.20261101.json)
+bindet diese tatsächlichen Beobachtungen und den frischen Windows-Audit.
+
+Der Koordinator blieb dennoch `FAILED_CLEANED`, weil das03-Receipt vor der
+GUI-Frist nicht mehr ausgeführt wurde. Die zusätzliche private Aufrufhülle
+erhielt diesen Fehler und rief danach genau den einen reservierten öffentlichen
+Windows-Audit auf; dessen PASS bindet das finale unveränderte Journal. Dieser
+Audit ersetzt weder das fehlende Receipt noch den grünen Gesamtlauf. Elf native
+Checks und der separate visuelle Umfang bleiben unterscheidbar. Für einen
+vollständigen Koordinator-PASS sind weiterhin03, eigenes reguläres Ende und
+der frische Audit im selben endlichen Lauf nötig; vorhandene Teilbelege
+werden dafür nicht umgeschrieben. Native Fehler- und Ressourcenbudgets bleiben
+geschlossen und werden durch diesen Nachweis nicht erneuert.
+
 ```powershell
 python -m unittest discover -s Tests/Release -p test_ssis_preparation_recovery.py
 python Scripts/Release/validate_ssis_preparation_recovery.py
 python -m unittest discover -s Tests/Release -p test_ssis_ssms_gui.py
+python Scripts/Release/validate_ssis_ssms_gui.py
 ```
 
 Die Gegenproben prüfen Quell-/Methodenbindung, Matrix, echte Abbruchorakel,
@@ -194,7 +216,7 @@ vollständige SSIS-Runtime-Parität bleiben getrennt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-01`
-- Nachweis: `local: öffentlicher Windows-Installer und CLI/API auf SQL2025/CU8, CL150; frischer Windows-Audit`
-- Scope: NTLM mit vorhandenen sysadmin-Rechten, öffentliche PrepareServer-Vorbereitung und Install-Local-Erst-/Wiederholungsinstallation, unveränderter Trust bei Wiederholung, aktuelle38-Parameter-API und vollständige DebugScript-Ausführung mit zwei Ergebniszeilen. Zehn Assertions für diesen begrenzten Teilumfang und exakte eigene Wiederherstellung; frischer Windows-Abschlussaudit PASS. Der anschließende sichtbare SSMS-Handshake scheiterte vor der ersten GUI-Abfrage; der Gesamtkoordinator bleibt FAILED_CLEANED. Separate Source-/Scope-Gegenproben verhindern eine Aufwertung zum GUI-PASS. Lab-Hostclientquellen entsprechen dem gemergten PR859; ursprüngliches importiertes Labmodul und ausgeführte Bytes bleiben getrennt gebunden. Frühere Fehler/Abbruchzustände und Audits erhalten. Windows-/SSMS-Scripttransport bleibt offen; keine Veröffentlichung.
+- Nachweis: `local: separater sichtbarer Windows-SSMS-Teilnachweis und frischer Windows-Audit`
+- Scope: Ausgewähltes Windows SQL2025/CU8, CL150: sichtbarer NTLM-/Ziel-/Verschlüsselungsvorcheck, aktuelle API-Erzeugung und vollständige Unicode-Zellenkopie über SSMS. Gespeicherte Kopie vor Ausführung hashgleich zum aktuellen Serverartefakt; tatsächliche GUI-Ausführung mit zwei erwarteten Zeilen und fehlerfreiem Messages-Abschluss. Benutzerunterstützung bei Anmeldung, Gridoptionen und Ausführung nach Fehlern der UI-Automation erfasst. Elf native Checks und separate visuelle Evidenz; der Gesamtkoordinator bleibt FAILED_CLEANED, weil das finale Phase2-Receipt nicht ausgeführt wurde. Der eine reservierte frische Windows-Audit lief danach innerhalb der Frist und bestand; eigene Datenbank und SSMS-Instanz entfernt, Konfiguration/Trust wiederhergestellt, andere Verbraucher unverändert. Der neue Record behauptet keinen grünen Gesamtfall. Finaler Receipt-/Koordinatorabschluss bleibt offen; keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -1,6 +1,8 @@
 """Reale SQL-freie Adaptergegenproben vor der einzigen nativen SSMS-Welle."""
 import json
 import hashlib
+import copy
+import sys
 from pathlib import Path
 import shutil
 import subprocess
@@ -116,6 +118,74 @@ class CopyTests(unittest.TestCase):
 
     def test_extra_final_row_newline_is_rejected(self):
         self.assert_rejected(self.SCRIPT + '\n')
+
+
+class EvidenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+        import validate_ssis_ssms_gui as validator
+        import validate_ssis_preparation_recovery as previous
+        cls.validator = validator
+        cls.report = json.loads((ROOT / validator.RECORD).read_text(encoding='utf-8'))
+        cls.windows = json.loads((ROOT / previous.WINDOWS_RECORD).read_text(encoding='utf-8'))
+
+    def reject(self, path, value):
+        report = copy.deepcopy(self.report)
+        item = report
+        for key in path[:-1]:
+            item = item[key]
+        item[path[-1]] = value
+        with self.assertRaises((ValueError, KeyError, TypeError)):
+            self.validator.validate_report(report, lambda p: (ROOT / p).read_bytes(), self.windows)
+
+    def test_actual_report_and_dependencies(self):
+        self.assertEqual(self.validator.validate(ROOT)['result'], 'PASS_FOR_DECLARED_SCOPE')
+
+    def test_failed_coordinator_cannot_be_promoted(self):
+        for path, value in [(('result',), 'PASS_CLEANED'), (('native_assertions',), 14),
+                (('coordinator', 'state'), 'PASS_CLEANED'), (('coordinator', 'native_cases'), 1),
+                (('coordinator', 'overall_pass_claimed'), True),
+                (('coordinator', 'phase2_receipt_executed'), True)]:
+            with self.subTest(path=path): self.reject(path, value)
+
+    def test_windows_target_precedes_database(self):
+        for key, value in [('before_database_creation', False), ('instance_process_start_witness_matched', False),
+                           ('windows_authentication', 'SQL'), ('same_owned_instance_reused', False)]:
+            with self.subTest(key=key): self.reject(('target_preflight', key), value)
+
+    def test_whole_hash_unicode_and_execution_are_required(self):
+        for key in ('whole_cell_copied', 'saved_utf16_lf_hash_matched', 'unicode_preserved', 'copied_script_executed'):
+            with self.subTest(key=key): self.reject(('gui', key), False)
+
+    def test_visual_oracles_and_types_are_required(self):
+        for key, value in [('target_rows', 1), ('target_rows', 2.0), ('messages_errors', 1),
+                           ('separate_visual_evidence', False), ('operator_assistance', 1)]:
+            with self.subTest(key=key, value=value): self.reject(('gui', key), value)
+
+    def test_fresh_audit_and_exact_cleanup_are_required(self):
+        self.reject(('cleanup', 'fresh_windows_audit'), 'not executed')
+        self.reject(('cleanup', 'database_removed'), False)
+        self.reject(('cleanup', 'trust_restored'), False)
+
+    def test_options_and_copy_method_are_bound(self):
+        for key, value in [('non_xml_character_limit', 65535), ('retain_crlf', False),
+                           ('configured_before_generation', False)]:
+            with self.subTest(key=key): self.reject(('result_options', key), value)
+        self.reject(('copy_check', 'method_sha256'), '0' * 64)
+        self.reject(('transport', 'authenticated_tls_claimed'), True)
+        self.reject(('history', 'prior_safety_audit_not_promoted'), False)
+
+    def test_source_closure_and_native_method_cannot_be_rebound(self):
+        pins = dict(self.report['source_sha256']); pins.pop(next(iter(pins)))
+        self.reject(('source_sha256',), pins)
+        path = next(iter(self.validator.METHODS))
+        self.reject(('source_sha256', path), '0' * 64)
+        report = copy.deepcopy(self.report)
+        changed = (ROOT / path).read_bytes() + b'\n# changed after native execution\n'
+        report['source_sha256'][path] = self.validator.digest(changed)
+        with self.assertRaises(ValueError):
+            self.validator.validate_report(report, lambda p: changed if p == path else (ROOT / p).read_bytes(), self.windows)
 
 
 if __name__ == '__main__':

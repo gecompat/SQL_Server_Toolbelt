@@ -3,6 +3,29 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Sichtbarer Windows-SSMS-Teilnachweis
+
+Der getrennte [SSMS-Clientnachweis](Qualification/SsmsClient.Windows.20261101.json)
+belegt auf dem ausgewählten Windows SQL2025/CU8, CL150 die sichtbare
+Windows-NTLM-Anmeldung und aktuelle API-Erzeugung. Die vollständige Unicode-
+DebugScript-Zelle wurde über SSMS kopiert, gespeichert und vor der Ausführung
+hashgleich zum aktuellen Serverartefakt geprüft. Die tatsächliche GUI-Ausführung
+ergab die beiden erwarteten synthetischen Zeilen; Messages zeigte den
+erfolgreichen Abschluss. Die Gridoptionen wurden vor der Erzeugung gesetzt.
+Der Benutzer unterstützte die Anmeldung, die Optionsdialoge und den einzelnen
+Ausführungsklick nach Fehlern der UI-Automation.
+
+Der Gesamtkoordinator bleibt `FAILED_CLEANED`: Das abschließende Phase2-Receipt
+wurde nicht mehr ausgeführt. Seine elf nativen Checks werden getrennt vom
+visuellen Nachweis ausgewiesen; es gibt keinen nativen PASS-Gesamtfall.
+Der reservierte frische **Windows-Audit** lief anschließend innerhalb der
+gemeinsamen Frist und bestand. Eigene Datenbank und SSMS-Instanz sind entfernt,
+Konfiguration und Trust wiederhergestellt, andere Verbraucher unverändert.
+Der [Offlinevalidator](../../../Scripts/Release/validate_ssis_ssms_gui.py)
+verhindert die Aufwertung dieses begrenzten Nachweises zum grünen Gesamtkoordinator.
+Der offene Rest ist dessen finaler Receipt-/Gesamtabschluss. Historische
+Fehler und Teilnachweise bleiben erhalten; keine Veröffentlichung.
+
 ## Aktuelle Vorbereitung und harte Clientabbrüche
 
 Der [zusätzliche Nachweis](Qualification/PreparationRecovery.Windows.20261101.json)
@@ -909,8 +932,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-01`
-- Nachweis: `local: öffentlicher Windows-Installer und CLI/API auf SQL2025/CU8, CL150; frischer Windows-Audit`
-- Scope: NTLM mit vorhandenen sysadmin-Rechten, öffentliche PrepareServer-Vorbereitung und Install-Local-Erst-/Wiederholungsinstallation, unveränderter Trust bei Wiederholung, aktuelle38-Parameter-API und vollständige DebugScript-Ausführung mit zwei Ergebniszeilen. Zehn Assertions für diesen begrenzten Teilumfang und exakte eigene Wiederherstellung; frischer Windows-Abschlussaudit PASS. Der anschließende sichtbare SSMS-Handshake scheiterte vor der ersten GUI-Abfrage; der Gesamtkoordinator bleibt FAILED_CLEANED. Separate Source-/Scope-Gegenproben verhindern eine Aufwertung zum GUI-PASS. Lab-Hostclientquellen entsprechen dem gemergten PR859; ursprüngliches importiertes Labmodul und ausgeführte Bytes bleiben getrennt gebunden. Frühere Fehler/Abbruchzustände und Audits erhalten. Windows-/SSMS-Scripttransport bleibt offen; keine Veröffentlichung.
+- Nachweis: `local: separater sichtbarer Windows-SSMS-Teilnachweis und frischer Windows-Audit`
+- Scope: Ausgewähltes Windows SQL2025/CU8, CL150: sichtbarer NTLM-/Ziel-/Verschlüsselungsvorcheck, aktuelle API-Erzeugung und vollständige Unicode-Zellenkopie über SSMS. Gespeicherte Kopie vor Ausführung hashgleich zum aktuellen Serverartefakt; tatsächliche GUI-Ausführung mit zwei erwarteten Zeilen und fehlerfreiem Messages-Abschluss. Benutzerunterstützung bei Anmeldung, Gridoptionen und Ausführung nach Fehlern der UI-Automation erfasst. Elf native Checks und separate visuelle Evidenz; der Gesamtkoordinator bleibt FAILED_CLEANED, weil das finale Phase2-Receipt nicht ausgeführt wurde. Der eine reservierte frische Windows-Audit lief danach innerhalb der Frist und bestand; eigene Datenbank und SSMS-Instanz entfernt, Konfiguration/Trust wiederhergestellt, andere Verbraucher unverändert. Der neue Record behauptet keinen grünen Gesamtfall. Finaler Receipt-/Koordinatorabschluss bleibt offen; keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

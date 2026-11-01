@@ -2,6 +2,22 @@
 
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
+Die nochmals ausdrücklich auf eine Datenbank, einen Lauf und Windows-Audit
+innerhalb45 Minuten begrenzte Restprobe liefert einen
+[separaten sichtbaren Windows-SSMS-Teilnachweis](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/SsmsClient.Windows.20261101.json):
+NTLM am gebundenen SQL2025/CU8-Labziel, aktuelle API, unverändert hashgleiche
+vollständige Unicode-Zellenkopie und tatsächliche GUI-Ausführung mit zwei
+erwarteten Zeilen und fehlerfreiem Abschluss. Benutzerunterstützung bei
+Anmeldung, Gridoptionen und Ausführung ist ausdrücklich erfasst.
+Der Gesamtkoordinator bleibt `FAILED_CLEANED`, da das finale Phase2-Receipt
+nicht mehr ausgeführt wurde. Elf native Checks, separate visuelle Evidenz und
+der anschließende frische Windows-Audit PASS werden getrennt gebunden. Alle
+eigenen Ressourcen sind entfernt; kein grüner Gesamtfall wird erfunden.
+Offen bleibt der finale Receipt-/Koordinatorabschluss. Acht neue Evidence-
+Testmethoden ergänzen die zehn vorhandenen Adapter-/Kopierprüfungen im selben
+SSIS-Job; kein neuer Job oder nativer Matrixlauf. Keine weitere SQL-/GUI-Welle
+ohne neue endliche Freigabe; keine Veröffentlichung.
+
 Zusätzliche ausdrückliche Freigabe: eine zielgebundene SSMS-Welle, eine
 Datenbank, ein Lauf und Abschlussaudit, höchstens45 Minuten. Der sichtbare
 Windows-/Verschlüsselungs-Vorcheck vor der Datenbankanlage und die aktuelle
