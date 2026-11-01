@@ -18,6 +18,7 @@ import zipfile
 
 import prepare_release as release
 import new_parameter_help_package as help_package
+import validate_ssis_administrative_trust as administrative_trust
 
 ROOT = release.ROOT
 NAME = "SQL-Server-Toolbelt-1.0.0-current-candidate"
@@ -87,7 +88,14 @@ def installer_inputs(files: dict[str, bytes]) -> dict:
             source = posixpath.normpath("Modules/toolbelt.tsql.ssis-debug/" + relative.replace("\\", "/"))
             release.safe_path(source)
             release.require(source.startswith("Modules/"), "SSIS-Buildquelle außerhalb der Module.")
-            release.require(release.sha(files[source]).upper() == expected,
+            data = files[source]
+            if (field == "deploymentFiles" and source == administrative_trust.SCRIPT
+                    and release.sha(data).upper() != expected):
+                try:
+                    data = administrative_trust.historical_source_from_files(files, source)
+                except (ValueError, KeyError) as error:
+                    raise release.ReleaseError("Aktueller Installer: administrative Trustbindung abweichend.") from error
+            release.require(release.sha(data).upper() == expected,
                             "Aktueller Installer: SSIS-Buildquelle abweichend: " + source)
     modules = {p.split("/")[1] for p in files
                if p.startswith("Modules/") and p.count("/") == 2 and p.endswith("/module.yaml")}

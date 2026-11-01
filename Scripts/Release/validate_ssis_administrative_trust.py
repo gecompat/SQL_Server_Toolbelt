@@ -20,6 +20,7 @@ HISTORICAL_PACKAGE = MODULE + "InstallPackages/SSIS-Debug-Current-Install-Window
 HISTORICAL_PACKAGE_SHA256 = "6E83F4B534339E106B42C8911178BD09CB82001167A356D5A5D63BF69A15F4D7"
 HISTORICAL_SCRIPT_SHA256 = "A31385F7BD0E32BA762AA6CB9E9F49B37EAE66BA07C8FED5AB2E803FA969BC24"
 NATIVE_METHOD_SHA256 = "78C3B35350677E138A910845AD5442F4F5339C199774C5EC3B9874959650CC5C"
+NATIVE_GUARD_SHA256 = "CD087B2449D3B152067D971FCAC85748514E72F4C2D8F7190FBADCA53A60FBD6"
 NATIVE_IMPORT = b". (Join-Path $root 'Tests/CI/LabQualifiedContract.ps1')"
 INTEGRATED_IMPORT = b"$repoRoot=$root\n. (Join-Path $repoRoot 'Tests/CI/LabQualifiedContract.ps1')"
 CHECKS = (
@@ -58,6 +59,17 @@ def unique(pairs):
     return result
 
 
+def validate_source_bytes(report, read):
+    """Gleiche Bindung für Arbeitsbaum und ausschließlich versionierte Bytes."""
+    for relative, expected in report["source_sha256"].items():
+        data = read(relative)
+        if relative == METHOD:
+            require(sha(data) == report["method_integration"]["integrated_sha256"] and data.count(INTEGRATED_IMPORT) == 1 and
+                    sha(data.replace(INTEGRATED_IMPORT, NATIVE_IMPORT)) == expected, "EXACT_ROOT_ALIAS_BINDING")
+        else:
+            require(sha(data) == expected, "SOURCE_PIN")
+
+
 def validate(root=ROOT, report=None, *, check_files=True):
     root = Path(root)
     if report is None:
@@ -93,6 +105,7 @@ def validate(root=ROOT, report=None, *, check_files=True):
     required = {METHOD, SCRIPT, FUNCTIONAL, PACKAGE, "Tests/CI/LabQualifiedContract.ps1", "Tests/CI/run-lab-local.ps1"}
     require(type(pins) is dict and set(pins) == required and all(type(value) is str and
             re.fullmatch(r"[0-9A-F]{64}", value) for value in pins.values()), "SOURCE_CLOSURE")
+    require(pins[SCRIPT] == NATIVE_GUARD_SHA256, "NATIVE_GUARD")
     integration = report["method_integration"]
     require(type(integration) is dict and set(integration) == {"kind", "native_sha256", "integrated_sha256", "sql_logic_changed"}
             and integration["kind"] == "canonical_repository_root_alias_only" and
@@ -100,15 +113,11 @@ def validate(root=ROOT, report=None, *, check_files=True):
             type(integration["integrated_sha256"]) is str and re.fullmatch(r"[0-9A-F]{64}", integration["integrated_sha256"]) and
             integration["sql_logic_changed"] is False, "METHOD_INTEGRATION")
     if check_files:
-        for relative, expected in pins.items():
+        def read(relative):
             path = root / relative
             require(path.is_file() and not path.is_symlink(), "SOURCE_FILE")
-            data = path.read_bytes()
-            if relative == METHOD:
-                require(sha(data) == integration["integrated_sha256"] and data.count(INTEGRATED_IMPORT) == 1 and
-                        sha(data.replace(INTEGRATED_IMPORT, NATIVE_IMPORT)) == expected, "EXACT_ROOT_ALIAS_BINDING")
-            else:
-                require(sha(data) == expected, "SOURCE_PIN")
+            return path.read_bytes()
+        validate_source_bytes(report, read)
         # Die aktuelle Fachabnahme bindet den identischen unveränderten Binary
         # an seinen öffentlichen Lieferursprung. Keine Runtime-Trusthashes ausgeben.
         spec = importlib.util.spec_from_file_location("ssis_functional_trust_input", root / "Scripts/Release/validate_ssis_current_functional.py")
@@ -116,6 +125,23 @@ def validate(root=ROOT, report=None, *, check_files=True):
         spec.loader.exec_module(functional)
         functional.validate(root)
     return report
+
+
+def historical_source_from_files(files, relative):
+    """Kandidatenprüfung ausschließlich am übergebenen Git-Snapshot binden."""
+    require(relative == SCRIPT, "HISTORICAL_PATH")
+    require(REPORT in files and HISTORICAL_PACKAGE in files, "HISTORICAL_INPUTS")
+    report = validate(report=json.loads(files[REPORT].decode("utf-8"), object_pairs_hook=unique), check_files=False)
+    validate_source_bytes(report, lambda path: files[path])
+    return _historical_script(files[HISTORICAL_PACKAGE])
+
+
+def _historical_script(archive_bytes):
+    require(sha(archive_bytes) == HISTORICAL_PACKAGE_SHA256, "SNAPSHOT_ARCHIVE")
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+        original = archive.read("SSIS-Debug-Current-Install-Windows/" + SCRIPT)
+    require(sha(original) == HISTORICAL_SCRIPT_SHA256, "SNAPSHOT_ORIGINAL_SCRIPT")
+    return original
 
 
 def snapshot_predecessor_source(root, relative, current):
@@ -128,12 +154,7 @@ def snapshot_predecessor_source(root, relative, current):
     require(relative == SCRIPT, "SNAPSHOT_PATH")
     report = validate(root)
     require(sha(current) == report["source_sha256"][SCRIPT], "SNAPSHOT_CURRENT_GUARD")
-    archive_bytes = (Path(root) / HISTORICAL_PACKAGE).read_bytes()
-    require(sha(archive_bytes) == HISTORICAL_PACKAGE_SHA256, "SNAPSHOT_ARCHIVE")
-    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
-        original = archive.read("SSIS-Debug-Current-Install-Windows/" + SCRIPT)
-    require(sha(original) == HISTORICAL_SCRIPT_SHA256, "SNAPSHOT_ORIGINAL_SCRIPT")
-    return original
+    return _historical_script((Path(root) / HISTORICAL_PACKAGE).read_bytes())
 
 
 if __name__ == "__main__":

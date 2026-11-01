@@ -12,6 +12,14 @@ Sie ist keine vollständige fachliche Modul-, Plattform-, Minimalrechte-,
 Recovery- oder authentifizierte TLS-Abnahme. Die [Releasegates](RELEASE-GATES.md)
 und der [Support-Zielumfang](SUPPORT.md) bestimmen die verbleibenden Grenzen.
 
+Der später separat nativ geprüfte administrative SSIS-Trustguard besitzt einen
+eigenen [Nachweis und Prüfumfang](../../Modules/toolbelt.tsql.ssis-debug/Tests/InstallerTrust/README.md).
+Sein historischer Input im unveränderten Help-Paket wird nur nach Prüfung der
+aktuellen Guard-/Methodenbindung aus dem fest gebundenen Originalpaket erkannt.
+Diese Kandidatenprüfung verwendet ausschließlich die versionierten Bytes des
+gewählten Quellcommits. Compilerquellen, andere Deployments und Paketbytes
+erhalten dadurch keine allgemeine Ausnahme und keine neue native Abnahme.
+
 ## Bauen und prüfen
 
 Erforderlich sind Python 3.10 oder neuer, Git und ein vollständiger Checkout

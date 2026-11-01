@@ -90,6 +90,12 @@ Quelländerungen oder andere Pfade werden nicht akzeptiert. Die übrigen
 Snapshotmethoden, Generator-/Binary-/Paketbindungen und alten Reports bleiben
 unverändert. Daraus entsteht kein behaupteter neuer Snapshotlauf.
 
+Dieselbe begrenzte Anerkennung gilt für die administrative Buildmetadatenzeile
+im unveränderten Help-Paket. Der Kandidatenbuilder prüft sie ausschließlich
+gegen seine übergebenen versionierten Git-Bytes einschließlich des aktuellen
+nativen Trustrecords, nicht gegen einen möglicherweise abweichenden Arbeitsbaum.
+Andere Buildquellen und Modulprofile bleiben exakt gebunden.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
