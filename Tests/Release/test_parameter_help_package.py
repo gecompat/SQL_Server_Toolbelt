@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "Scripts/Documentation"))
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import generate_parameter_help as generator
 import new_parameter_help_package as package
+import validate_ssis_administrative_trust as administrative_trust
 
 QUALIFICATION = "Releases/1.0.0/parameter-help-qualification.json"
 NATIVE_INPUTS = {
@@ -53,7 +54,15 @@ def validate(root=ROOT):
         for entry in build[field]:
             relative, digest = entry.rsplit(":", 1)
             path = (root / "Modules/toolbelt.tsql.ssis-debug" / relative).resolve(strict=True)
-            if not path.is_relative_to(root.resolve(strict=True)) or package.sha(path.read_bytes()).upper() != digest: raise ValueError("Help SSIS build input differs: " + relative)
+            if not path.is_relative_to(root.resolve(strict=True)): raise ValueError("Help SSIS build input escapes root")
+            data = path.read_bytes()
+            if (field == "deploymentFiles" and relative == "Deployment/Add-TrustedAssembly.sql"
+                    and package.sha(data).upper() != digest):
+                # Das unveränderte Help-Paket bindet seinen ursprünglichen
+                # administrativen Input. Der aktuelle Guard wird separat nativ
+                # geprüft; keine allgemeine Ausnahme für Deploymentquellen.
+                data = administrative_trust.snapshot_predecessor_source(root, administrative_trust.SCRIPT, data)
+            if package.sha(data).upper() != digest: raise ValueError("Help SSIS build input differs: " + relative)
     return metadata, payload
 
 

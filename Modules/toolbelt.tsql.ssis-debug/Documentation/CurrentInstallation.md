@@ -160,6 +160,14 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe = 1;
 
 ## Qualifizierter Installationsumfang
 
+Der aktuelle Repository-Stand des getrennten
+[SSIS-Trustskripts](../Tests/InstallerTrust/README.md) ist mit dem unveränderten
+heutigen Binary auf Windows SQL2019/2022/2025 qualifiziert: 54 Assertions und
+drei unabhängige Audits. NULL sowie leere und überlange Literale werden vor
+einem Eintrag abgewiesen. Das ersetzt keine vollständige Windows-Anmeldung
+des Installationsbeispiels und keine Prüfung von `PrepareServer.sql`. Ältere
+ZIP-/Standalone-Nachweise bleiben an ihre unveränderten Lieferbytes gebunden.
+
 Die [Current-ZIP-Matrix](../Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
 und die separate [Standalone-T-SQL-Installer-Matrix](../../../Releases/1.0.0/ssis-current-standalone-installer-matrix.json)
 belegen den festen aktuellen Lieferstand auf Windows SQL2019/CL150,

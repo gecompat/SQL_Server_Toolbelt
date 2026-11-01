@@ -36,6 +36,18 @@ class CurrentReleaseCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "Quellbindung"):
             candidate.installer_inputs(files)
 
+    def test_changed_administrative_guard_or_evidence_is_rejected(self):
+        files = dict(self.sources)
+        files[candidate.administrative_trust.SCRIPT] += b"\n-- synthetic drift\n"
+        with self.assertRaisesRegex(release.ReleaseError, "administrative Trustbindung"):
+            candidate.installer_inputs(files)
+        files = dict(self.sources)
+        record = json.loads(files[candidate.administrative_trust.REPORT])
+        record["cases"][0]["insert_executed"] = False
+        files[candidate.administrative_trust.REPORT] = release.encoded(record)
+        with self.assertRaisesRegex(release.ReleaseError, "administrative Trustbindung"):
+            candidate.installer_inputs(files)
+
     def test_qualification_cannot_be_relabelled_as_full_or_published(self):
         for change in ({"publication_authorized": True}, {"scope": "full module qualification"},
                        {"result": "PENDING"}):

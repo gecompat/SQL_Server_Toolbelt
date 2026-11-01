@@ -19,6 +19,14 @@ vorhandener `sysadmin`-Zugang per Windows-Anmeldung sind Voraussetzungen dieses
 administrativen Beispiels. PowerShell 7 und ODBC-sqlcmd laufen auf dem
 Installationsrechner.
 
+Der getrennte [öffentliche SSIS-Trustschritt](../../Tests/InstallerTrust/README.md)
+ist mit dem aktuellen freigegebenen Binary auf allen drei Windows-SQL-Versionen
+nativ geprüft. Sein Guard weist leere, NULL- und überlange Hashliterale vor
+Mutation zurück. Dies belegt den einzelnen SQL-Schritt; der vollständige
+Windows-Anmeldeweg dieses PowerShell-Beispiels und `PrepareServer.sql` bleiben
+separate Qualifikationspunkte. Historische ZIP-Nachweise behalten ihre
+ursprünglichen Artefakte; die Korrektur steht im aktuellen Repository-Trustskript.
+
 ## 1. Passenden Artefaktsatz bereitstellen
 
 Für einen Test ohne eigenen Build das

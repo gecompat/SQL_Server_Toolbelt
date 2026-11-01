@@ -10,6 +10,7 @@ from new_ssis_standalone_tsql import read_regular_bounded, MAX_PACKAGE_BYTES
 import new_ssis_current_standalone_tsql as current_installer
 import validate_ssis_current_package as package_guard
 import parameter_help_transition as help_transition
+import validate_ssis_administrative_trust as administrative_trust
 
 
 REPORT = MODULE + "Tests/Qualification/Current.SnapshotCoherence.20261030.json"
@@ -312,6 +313,11 @@ def _current_source_bindings():
             data = help_transition.predecessor_source(ROOT, relative)
         elif relative == "Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py":
             data = help_transition.restore_verifier_source(ROOT, relative, data)
+        elif relative == administrative_trust.SCRIPT and sha(data) != administrative_trust.HISTORICAL_SCRIPT_SHA256:
+            # Der ursprüngliche Snapshot bleibt an sein unverändertes Paket
+            # gebunden. Nur der separat nativ qualifizierte administrative
+            # Hash-Guard wird aus genau diesem historischen Paket anerkannt.
+            data = administrative_trust.snapshot_predecessor_source(ROOT, relative, data)
         result[relative] = _source_checkout_sha(relative, data)
     return result
 
