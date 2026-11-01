@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-01 – Externer SSIS-Exporthost nativ auf Linux geprüft
+
+Derselbe portable Host bestand auf Windows und Linux je 17 CLI-Fälle mit
+insgesamt 338 Assertions und identischen kanonischen Modelloutputs. DTSX6/8,
+sämtliche fünf Ausgabeformen, feste Graphorakel, Unicodepfade, Literalredaktion
+und sechs Fehlerfälle sind quellengebunden belegt. Der Nachweis ergänzt die
+bisherigen SSIS-Abnahmen; SQL CLR unter Linux und die weiteren offenen
+Anmelde-/Trust-/Recoverypunkte werden dadurch nicht aufgewertet. Offline-
+Gegenproben laufen im bestehenden SSIS-Job. Keine Veröffentlichung.
+[Methode und Grenzen](Modules/toolbelt.tsql.ssis-debug/Exchange/README.md#gemeinsame-prüfung).
+
 ## 2026-10-31 – SSIS-Anmeldung und echte Lowpriv-Cross-DB-Identitäten
 
 Zwölf zusätzliche Windows-/CL-/Moduskontexte bestanden mit 1.596 Assertions

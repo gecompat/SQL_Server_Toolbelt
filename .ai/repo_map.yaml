@@ -157,6 +157,9 @@ sources_of_truth:
   ssis_current_tls_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json
   ssis_current_tls_validator: Scripts/Release/validate_ssis_current_tls.py
   ssis_current_tls_checks: Tests/Release/test_ssis_current_tls.py
+  ssis_linux_export_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/ExportHost.Linux.20261101.json
+  ssis_linux_export_validator: Scripts/Release/validate_ssis_linux_export.py
+  ssis_linux_export_checks: Tests/Release/test_ssis_linux_export.py
   migration_idempotency_verifier_design: Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md
   migration_idempotency_workflow: .github/workflows/q1-migration-idempotency.yml
   roadmap: .ai/ROADMAP.md
