@@ -19,6 +19,9 @@ PACKAGE = "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Parameter-He
 HISTORICAL_PACKAGE = MODULE + "InstallPackages/SSIS-Debug-Current-Install-Windows.zip"
 HISTORICAL_PACKAGE_SHA256 = "6E83F4B534339E106B42C8911178BD09CB82001167A356D5A5D63BF69A15F4D7"
 HISTORICAL_SCRIPT_SHA256 = "A31385F7BD0E32BA762AA6CB9E9F49B37EAE66BA07C8FED5AB2E803FA969BC24"
+NATIVE_METHOD_SHA256 = "78C3B35350677E138A910845AD5442F4F5339C199774C5EC3B9874959650CC5C"
+NATIVE_IMPORT = b". (Join-Path $root 'Tests/CI/LabQualifiedContract.ps1')"
+INTEGRATED_IMPORT = b"$repoRoot=$root\n. (Join-Path $repoRoot 'Tests/CI/LabQualifiedContract.ps1')"
 CHECKS = (
     "database_guest_has_no_server_trust_authority", "guest_did_not_add_entry",
     "exact_approved_hash_present", "existing_entry_preserved", "no_other_hash_added",
@@ -61,7 +64,7 @@ def validate(root=ROOT, report=None, *, check_files=True):
         report = json.loads((root / REPORT).read_text("utf-8"), object_pairs_hook=unique)
     require(type(report) is dict and set(report) == {"contract", "date", "result", "test_purpose",
             "authentication", "binary_reference", "scope", "cases", "assertions", "source_sha256",
-            "attempt_history", "separate_boundaries"}, "SCHEMA")
+            "attempt_history", "separate_boundaries", "method_integration"}, "SCHEMA")
     require(report["contract"] == "ssis-administrative-trust-qualification/1" and
             report["date"] == "2026-11-01" and report["result"] == "PASS" and
             report["test_purpose"] == "Functional" and report["authentication"] == "SQL" and
@@ -90,10 +93,22 @@ def validate(root=ROOT, report=None, *, check_files=True):
     required = {METHOD, SCRIPT, FUNCTIONAL, PACKAGE, "Tests/CI/LabQualifiedContract.ps1", "Tests/CI/run-lab-local.ps1"}
     require(type(pins) is dict and set(pins) == required and all(type(value) is str and
             re.fullmatch(r"[0-9A-F]{64}", value) for value in pins.values()), "SOURCE_CLOSURE")
+    integration = report["method_integration"]
+    require(type(integration) is dict and set(integration) == {"kind", "native_sha256", "integrated_sha256", "sql_logic_changed"}
+            and integration["kind"] == "canonical_repository_root_alias_only" and
+            integration["native_sha256"] == pins[METHOD] == NATIVE_METHOD_SHA256 and
+            type(integration["integrated_sha256"]) is str and re.fullmatch(r"[0-9A-F]{64}", integration["integrated_sha256"]) and
+            integration["sql_logic_changed"] is False, "METHOD_INTEGRATION")
     if check_files:
         for relative, expected in pins.items():
             path = root / relative
-            require(path.is_file() and not path.is_symlink() and sha(path.read_bytes()) == expected, "SOURCE_PIN")
+            require(path.is_file() and not path.is_symlink(), "SOURCE_FILE")
+            data = path.read_bytes()
+            if relative == METHOD:
+                require(sha(data) == integration["integrated_sha256"] and data.count(INTEGRATED_IMPORT) == 1 and
+                        sha(data.replace(INTEGRATED_IMPORT, NATIVE_IMPORT)) == expected, "EXACT_ROOT_ALIAS_BINDING")
+            else:
+                require(sha(data) == expected, "SOURCE_PIN")
         # Die aktuelle Fachabnahme bindet den identischen unveränderten Binary
         # an seinen öffentlichen Lieferursprung. Keine Runtime-Trusthashes ausgeben.
         spec = importlib.util.spec_from_file_location("ssis_functional_trust_input", root / "Scripts/Release/validate_ssis_current_functional.py")

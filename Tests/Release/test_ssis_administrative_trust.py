@@ -87,6 +87,10 @@ class AdministrativeTrustEvidence(unittest.TestCase):
     def test_no_scope_expansion(self):
         self.reject(lambda r: r["separate_boundaries"].clear())
 
+    def test_no_arbitrary_method_change_through_integration(self):
+        self.reject(lambda r: r["method_integration"].update(sql_logic_changed=True))
+        self.reject(lambda r: r["method_integration"].update(integrated_sha256="0" * 64), files=True)
+
     def test_duplicate_key(self):
         with self.assertRaises(ValueError):
             json.loads('{"result":"FAIL","result":"PASS"}', object_pairs_hook=trust.unique)
@@ -151,8 +155,10 @@ class BeforeSqlInputGuards(unittest.TestCase):
         cls.dll = cls.stage / "approved-current.dll"
         cls.dll.write_bytes(binary)
         record = json.loads((ROOT / trust.REPORT).read_text("utf-8"))
+        files = dict(record["source_sha256"])
+        files[trust.METHOD] = trust.sha((ROOT / trust.METHOD).read_bytes())
         cls.original = {"contract": "ssis-administrative-trust-plan/1", "package": trust.PACKAGE,
-                        "files": record["source_sha256"], "dllPath": str(cls.dll),
+                        "files": files, "dllPath": str(cls.dll),
                         "dllSha256": hashlib.sha256(binary).hexdigest().upper(), "approvedHash": build["sha512"],
                         "targets": [{"version": v, "patch": p, "key": "Contoso" + v} for v, p in
                                     zip(("2019", "2022", "2025"), ("CU32", "CU26", "CU8"))]}

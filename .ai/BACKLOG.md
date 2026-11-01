@@ -27,7 +27,7 @@ alle acht tatsächlich ausgeführten unabhängigen Audits bestanden. Neun
 Zielaufrufe einschließlich des Vor-SQL-Fehlers und acht Audits ergeben 17.
 Nur die drei letzten Fälle qualifizieren die aktuelle Methodenversion mit
 54 Assertions; frühere positive Teilergebnisse werden nicht doppelt gezählt.
-26 Offlineprüfungen laufen im vorhandenen SSIS-Job, einschließlich echter
+27 Offlineprüfungen laufen im vorhandenen SSIS-Job, einschließlich echter
 Manipulationsaufrufe mit `ValidateOnly`; kein neuer Job, keine neue SQL-CI-Matrix.
 
 Der historische Snapshot behält seine Originalpins und sein unverändertes ZIP.

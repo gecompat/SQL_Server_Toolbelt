@@ -140,5 +140,11 @@
     "Hard interruption recovery",
     "Authenticated TLS in this trust test",
     "Publication"
-  ]
+  ],
+  "method_integration": {
+    "kind": "canonical_repository_root_alias_only",
+    "native_sha256": "78C3B35350677E138A910845AD5442F4F5339C199774C5EC3B9874959650CC5C",
+    "integrated_sha256": "BDBEDF028613B57470B6E5E62783454ECC6EE5E22B6AF379406203D8A226156A",
+    "sql_logic_changed": false
+  }
 }

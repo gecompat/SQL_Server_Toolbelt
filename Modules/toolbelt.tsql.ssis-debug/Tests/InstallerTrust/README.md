@@ -64,11 +64,22 @@ beschreibt diese Konvertierung; die
 benötigt sysadmin oder CONTROL SERVER. Der Runner verwendet ausschließlich
 bereits vorhandene Rechte und vergibt keine.
 
+## Integration des Importadapters
+
+Die Windows-CI verlangt beim isolierten Import den kanonischen Variablennamen
+für den Repositoryroot. Nach den nativen Läufen wurde ausschließlich vor dem
+Dot-Import ein wertgleicher `$repoRoot`-Alias ergänzt. Die ursprünglichen
+Native-Pins bleiben erhalten. Der Validator rekonstruiert die ausgeführten
+Bytes durch genau diese eine umkehrbare Textänderung; jede weitere Änderung
+wird abgewiesen. Die SQL-/Rechte-/Cleanupfunktionen bleiben bytegleich.
+Die echte kalte Importprüfung und alle `ValidateOnly`-Gegenproben bestanden
+auch nach dieser Integration. Es wird kein zusätzlicher SQL-Lauf behauptet.
+
 ## Nachweise wiederverwenden
 
 Der [Offlinevalidator](../../../../Scripts/Release/validate_ssis_administrative_trust.py)
 bindet native Methode, aktuellen Guard und den unveränderten Binaryursprung.
-26 Gegenproben, darunter tatsächlich ausgeführte `ValidateOnly`-Manipulationen,
+27 Gegenproben, darunter tatsächlich ausgeführte `ValidateOnly`-Manipulationen,
 laufen im bestehenden SSIS-CI-Job; keine neue SQL-/Lab-Matrix wird in CI gestartet.
 
 Der ältere Snapshotnachweis behält seine Originalpins und sein unverändertes
@@ -84,6 +95,6 @@ unverändert. Daraus entsteht kein behaupteter neuer Snapshotlauf.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-01`
 - Nachweis: `local: Tests/InstallerTrust/Invoke-LabTrust.ps1 auf drei bestehenden Windows-Labzielen und unabhängige Audits`
-- Scope: Öffentlicher administrativer SSIS-Trustschritt für den unveränderten aktuellen Binary auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8: je 18 Assertions, 54 insgesamt, fehlender Eintrag und Wiederholung, NULL/Leerwert/Überlänge vor Mutation und bestehender eingeschränkter Guest-Kontext. Keine Netzwerk-Lowpriv-Anmeldung behauptet. Eigene Einträge entfernt, andere Trusteinträge und Konfiguration unverändert; drei finale unabhängige Audits PASS. Ein Vor-SQL-Adapterfehler, zwei bereinigte Fehlerfälle und drei frühere positive Fälle bleiben getrennt; alle acht tatsächlich ausgeführten Audits bestanden, insgesamt 17 Ziel-/Auditaufrufe. 26 Offlineprüfungen binden Quellen, Herkunft und Vor-SQL-Guards im bestehenden SSIS-Job. Ursprünglicher Snapshotinput für den später geänderten administrativen Guard wird ausschließlich aus seinem unveränderten hashgebundenen ZIP anerkannt, übrige Methoden/Binaries/Reports bleiben unverändert. Volle Windows-Anmeldung des Installers, PrepareServer, SSMS-Transport und harte Unterbrechung bleiben getrennt. Keine Veröffentlichung.
+- Scope: Öffentlicher administrativer SSIS-Trustschritt für den unveränderten aktuellen Binary auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8: je 18 Assertions, 54 insgesamt, fehlender Eintrag und Wiederholung, NULL/Leerwert/Überlänge vor Mutation und bestehender eingeschränkter Guest-Kontext. Keine Netzwerk-Lowpriv-Anmeldung behauptet. Eigene Einträge entfernt, andere Trusteinträge und Konfiguration unverändert; drei finale unabhängige Audits PASS. Ein Vor-SQL-Adapterfehler, zwei bereinigte Fehlerfälle und drei frühere positive Fälle bleiben getrennt; alle acht tatsächlich ausgeführten Audits bestanden, insgesamt 17 Ziel-/Auditaufrufe. 27 Offlineprüfungen binden Quellen, Herkunft und Vor-SQL-Guards im bestehenden SSIS-Job. Ursprünglicher Snapshotinput für den später geänderten administrativen Guard wird ausschließlich aus seinem unveränderten hashgebundenen ZIP anerkannt, übrige Methoden/Binaries/Reports bleiben unverändert. Volle Windows-Anmeldung des Installers, PrepareServer, SSMS-Transport und harte Unterbrechung bleiben getrennt. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -22,7 +22,8 @@ $module='Modules/toolbelt.tsql.ssis-debug/'
 $qualified=$module+'Tests/Qualification/Current.Functional.20261031.json'
 $trustFile=$module+'Deployment/Add-TrustedAssembly.sql'
 $method=$module+'Tests/InstallerTrust/Invoke-LabTrust.ps1'
-. (Join-Path $root 'Tests/CI/LabQualifiedContract.ps1')
+$repoRoot=$root
+. (Join-Path $repoRoot 'Tests/CI/LabQualifiedContract.ps1')
 $discovery=Join-Path $root 'Tests/CI/run-lab-local.ps1'
 $tokens=$null;$errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile($discovery,[ref]$tokens,[ref]$errors)
