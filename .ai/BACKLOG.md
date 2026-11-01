@@ -2,6 +2,22 @@
 
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
+Zusätzliche ausdrückliche Freigabe: eine zielgebundene SSMS-Welle, eine
+Datenbank, ein Lauf und Abschlussaudit, höchstens45 Minuten. Der sichtbare
+Windows-/Verschlüsselungs-Vorcheck vor der Datenbankanlage und die aktuelle
+API-Erzeugung bestanden. Der Gridtransport scheiterte zunächst an65535
+Zeichen und fehlendem CR/LF-Erhalt. Die eigenen Optionen wurden korrigiert;
+Hashabgleich, GUI-Ausführung und separater Windows-Audit wurden vor Fristende
+nicht abgeschlossen. Gesamtzustand `FAILED_CLEANED`; eigene Cleanupprüfungen
+und zusätzliche lesende Sicherheitskontrolle bestanden. Keine neue Welle
+ohne ausdrückliche endliche Freigabe. Die
+[Methode](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md)
+enthält Vorcheck und SQL-freie Kopierprüfung; zehn Offline-Gegenproben sichern
+Ziel-/Methodenbindung und den beobachteten Transportfehler. Diese werden im
+vorhandenen SSIS-Job ausgeführt, ohne weitere Jobs, SQL-Matrix oder Agents.
+Notwendige PR-/Main-CI-Integration bleibt vom geschlossenen nativen Fenster
+getrennt. Die folgenden abgeschlossenen Teilumfänge bleiben unverändert.
+
 Expliziter Benutzerauftrag: übrige Windows-/SSMS-, Installer- und harte
 Unterbrechungslücken autonom schließen, GUI sichtbar, grüne PRs nach main,
 Main-CI prüfen, nicht veröffentlichen. Keine neue Fachfunktion freigegeben.

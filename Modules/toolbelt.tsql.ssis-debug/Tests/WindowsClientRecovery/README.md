@@ -97,6 +97,33 @@ ausgeführt und ausschließlich die eigene SSMS-Instanz geschlossen. Danach sind
 Cleanup und ein frischer separater Windows-Audit erforderlich. Bestehende
 SSMS-Tabs bleiben erhalten. Anmelde-/Sicherheitsdialoge bedient der Benutzer.
 
+### Kopierprüfung vor der Ausführung
+
+Die Ergebnisoptionen bereits vor dem01-Script in dessen eigener Abfrage setzen:
+`Query Options > Results > Grid`, `Non XML data = 2000000` und
+`Retain CR/LF on copy or save` aktiv. Diese in SSMS22 beobachteten Optionen
+gelten für die Testabfrage. Bestehende Benutzerabfragen bleiben unverändert.
+Nach einer Änderung01 erneut ausführen und genau dessen neue Zelle kopieren.
+Der erwartete Hash muss aus der aktuellen Server-Receiptzeile stammen:
+erneutes `explain` kann einen neuen Snapshot und einen anderen Hash erzeugen.
+Eine früher geschriebene `gui-produced.json` kann dann veraltet sein.
+
+Vor der Ausführung die02-Kopie über SSMS speichern und separat prüfen:
+
+```powershell
+./Test-SsmsScriptCopy.ps1 -CopiedScriptPath $copiedPath -ExpectedUtf16LfSha256 $currentExpectedHash
+```
+
+Die Testhilfe liest ausschließlich die Datei. Sie normalisiert nur CRLF zu LF
+und vergleicht SHA256 über UTF16LE mit dem aktuellen Serverhash. Sie entfernt
+weder Whitespace noch einen zusätzlichen abschließenden Zeilenumbruch und
+schreibt den Scriptinhalt nicht in die Ausgabe. Ein Fehler stoppt die Ausführung.
+Ihr PASS bestätigt allein die gespeicherte Kopie; sichtbare SQL-Ausführung,
+Ergebnisorakel,03-Receipt, eigene Bereinigung und frischer Windows-Audit bleiben
+separate Gates. Die Offline-Gegenproben verwenden eine synthetische lange
+Unicode-Zelle und weisen Kürzung bei65535, entfernte Zeilenumbrüche,
+Unicodeänderung und eine zusätzliche Schlusszeile zurück.
+
 Die frühere Trust-Zuordnung scheiterte am engeren SQL-datetime-Format. Eine
 weitere eigene Probe wurde nach dem Computer-Use-Abbruch sicher storniert.
 Danach fehlte im Adapter die beim Ersetzen des manuellen Deployments ebenfalls
@@ -111,9 +138,49 @@ unqualifiziert. Kein grüner GUI-Gesamtkoordinator wird daraus abgeleitet.
 
 ## Offlineprüfungen
 
+Der ergänzende `Invoke-SsmsQualification.ps1` verwendet den exakt gepinnten
+bestehenden Koordinator und `SsmsGuiHook.ps1`. Vor der Testdatenbank startet
+er eine eigene SSMS-Instanz in `master` mit dem eindeutigen Verbindungsnamen
+`SSIS-LAB-QUALIFICATION`. Eine rein lesende SQL-Abfrage vergleicht den privaten
+Instanz-/Prozess-/Startzeitstempel des ausgewählten Labziels und verlangt
+Windows-Authentifizierung, Verschlüsselung und SSMS als Anwendung. Erst nach
+dem getrennten sichtbaren PASS-Nachweis darf die Datenbankanlage beginnen.
+Die gleiche eigene SSMS-Instanz wird für den anschließenden Scripttransport
+wiederverwendet. Bestehende Benutzerfenster und andere Serververbindungen sind
+kein Ersatz für diesen Zielnachweis.
+
+`DescribeOnly` erzeugt den tatsächlich adaptierten Ablauf und die Vorcheckabfrage
+ohne Labzugriff, Credentials, Prozessstart oder SQL-Verbindung. Die Gegenproben
+führen diesen Compiler wirklich aus, prüfen den Vorcheck vor der Datenbankanlage,
+die Wiederverwendung der eigenen Instanz sowie die restliche endliche Laufzeit.
+Veränderte historische Treiber werden vor jedem Labzugriff zurückgewiesen.
+Historische Methoden und ihre vorhandenen Nachweise bleiben bytegenau erhalten.
+
+Der Vorcheck besitzt ein endliches Zeitfenster; der spätere GUI-Teil verwendet
+die verbleibende gemeinsame Labfrist mit reservierter Zeit für Cleanup und Audit.
+Ein unbestätigter Vorcheck erzeugt keine Testdatenbank. Nach Abschluss werden
+ausschließlich eigene Prozesshandles und eindeutig eigene SQL-Ressourcen bereinigt.
+Eine reservierte Auditfrist ist kein ausgeführter Audit. Scheitert der GUI-Teil,
+muss der separate Audit vor der gemeinsamen Grenze stattfinden; nach deren
+Ablauf wird kein neuer Qualifikationsaufruf zugelassen.
+
+Die zusätzliche zielgebundene native Probe bestand den sichtbaren Vorcheck
+mit Windows-Anmeldung und Verschlüsselung am ausgewählten SQL2025/CU8-Labziel
+sowie den API-Erzeuger in derselben SSMS-Instanz. Der erste Kopierversuch
+offenbarte die65535-Zeichen-Grenze und fehlende Zeilenumbrüche. Nach Änderung
+der eigenen Abfrageoptionen entstand eine lange mehrzeilige Dateikopie;
+deren vollständiger Hashabgleich und Ausführung wurden vor Ablauf der
+gemeinsamen Grenze nicht mehr abgeschlossen. Der Koordinator bleibt
+`FAILED_CLEANED`, ein GUI-Gesamt-PASS wird nicht behauptet. Seine eigenen
+Cleanupprüfungen und eine zusätzliche frische lesende Zustandskontrolle
+bestanden. Letztere ist ausdrücklich kein separater Windows-Qualifikationsaudit;
+dieser wurde in dieser Probe nicht ausgeführt. Die frühere qualifizierte
+Installer-/CLI-Evidenz bleibt unverändert.
+
 ```powershell
 python -m unittest discover -s Tests/Release -p test_ssis_preparation_recovery.py
 python Scripts/Release/validate_ssis_preparation_recovery.py
+python -m unittest discover -s Tests/Release -p test_ssis_ssms_gui.py
 ```
 
 Die Gegenproben prüfen Quell-/Methodenbindung, Matrix, echte Abbruchorakel,

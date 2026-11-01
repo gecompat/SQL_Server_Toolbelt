@@ -22,6 +22,17 @@ Sein späterer sichtbarer SSMS-Handshake scheiterte vor der ersten GUI-Abfrage;
 der Gesamtkoordinator bleibt `FAILED_CLEANED`. Frühere datierte Einträge bleiben historische Nachweise
 ihres jeweiligen Scopes.
 
+Die spätere [zielgebundene SSMS-Methode](WindowsClientRecovery/README.md)
+bestand den sichtbaren Windows-Vorcheck am ausgewählten Labziel und den
+aktuellen API-Erzeuger. Beim Gridtransport wurden die65535-Zeichen-Grenze
+und fehlender CR/LF-Erhalt festgestellt. Die korrigierte mehrzeilige Kopie
+wurde innerhalb der freigegebenen Frist nicht mehr vollständig abgeglichen
+und ausgeführt; der Gesamtlauf bleibt `FAILED_CLEANED`. Eigene Ressourcen
+sind bereinigt und zusätzlich lesend kontrolliert. Ein separater frischer
+Windows-Audit dieser Probe und der vollständige GUI-Transport sind weiterhin
+`not executed`. Die SQL-freien Adapter- und Kopiergegenproben qualifizieren
+diese fehlenden nativen Schritte nicht.
+
 ## Aktuelle Anmeldequalifikation
 
 Die ergänzende [Anmeldequalifikation](Qualification/Current.Access.Windows.CL.20261031.json)
