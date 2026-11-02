@@ -26,6 +26,14 @@ verhindert die Aufwertung dieses begrenzten Nachweises zum grünen Gesamtkoordin
 Der offene Rest ist dessen finaler Receipt-/Gesamtabschluss. Historische
 Fehler und Teilnachweise bleiben erhalten; keine Veröffentlichung.
 
+Die autonome Fortsetzung vom2026-11-02 endete vor der Datenbankanlage am
+SSMS-Verbindungs-Bestätigungsdialog; es gab keine GUI-Eingabe oder GUI-Abfrage.
+Der Koordinator blieb `FAILED_CLEANED`, der frische unabhängige Windows-Audit
+bestand. Der [Receipt-Ablauf und seine Autonomiegrenze](WindowsClientRecovery/README.md#autonomer-receipt-ablauf-und-aktuelle-grenze)
+beschreiben die ergänzte SQL-freie Ausführungshülle und acht Gegenproben.
+Die Strecke nach der Anmeldung ist noch nicht nativ ausgeführt; der grüne
+SSMS-Gesamtabschluss bleibt offen.
+
 ## Aktuelle Vorbereitung und harte Clientabbrüche
 
 Der [zusätzliche Nachweis](Qualification/PreparationRecovery.Windows.20261101.json)

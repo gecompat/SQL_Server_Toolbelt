@@ -2,6 +2,21 @@
 
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
+Autonome Fortsetzung vom2026-11-02, ausdrücklich bei abwesendem Benutzer:
+eine neue begrenzte Probe und ihr frischer Windows-Audit sind beendet.
+SSMS zeigte auch ohne automatisch geöffnete Query-Datei eine
+Verbindungsbestätigung. Ohne GUI-Eingabe oder GUI-Abfrage wurde vor jeder
+Datenbankanlage abgebrochen; `FAILED_CLEANED` mit fünf Cleanupchecks und
+keinem bestandenen Gesamtfall bleibt erhalten. Der reservierte frische
+Windows-Audit bestand. Die [Testmethode](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md#autonomer-receipt-ablauf-und-aktuelle-grenze)
+bindet nun unveränderten DebugScript-Body und natives Receipt in einer
+expliziten Hülle; acht Offlinegegenproben bestehen. Diese neue Strecke nach
+der Anmeldung ist nativ nicht ausgeführt. Für den weiterhin offenen
+Gesamtabschluss fehlt ein zulässiger autonomer SSMS-Verbindungsweg ohne
+interaktiven Anmelde-/Sicherheitsdialog. Alte Fehler, Nachweise und verbrauchte
+Wellen bleiben erhalten; ungenutzte Plätze erlauben keinen weiteren Lauf.
+Grüne PR-/Main-CI-Integration bleibt vom geschlossenen nativen Fenster getrennt.
+
 Die nochmals ausdrücklich auf eine Datenbank, einen Lauf und Windows-Audit
 innerhalb45 Minuten begrenzte Restprobe liefert einen
 [separaten sichtbaren Windows-SSMS-Teilnachweis](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/SsmsClient.Windows.20261101.json):
