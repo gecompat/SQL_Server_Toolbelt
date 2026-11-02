@@ -372,6 +372,43 @@ Journal. Dies belegt sichere Bereinigung, keinen Fehler der SSIS-Fachfunktion
 und keinen erfolgreichen SSMS-Gesamtabschluss. Die native Freigabe ist
 verbraucht; ungenutzte Datenbank- oder GUI-Plätze erneuern sie nicht.
 
+#### Sichtbaren Vorcheck direkt übergeben
+
+Der aktuelle SQLCMD-Pfad veröffentlicht die private `preflight-ready.json`
+erst mit dem konkreten Fristende `deadlineUtc` und einer neuen
+`ObservationId`. Der Operator kann den Vorcheck nach dem Verbinden direkt
+abschließen. Die Anmeldung, die Auswahl der eigenen Instanz und die sichtbare
+Ausführung bleiben Schritte in SSMS.
+
+1. Im eigenen SSMS-Fenster die in `sqlPath` angegebene 00-Abfrage auf der
+   verbundenen `master`-Sitzung ausführen. Das Ergebnis muss genau eine
+   erfolgreiche Zeile mit den vier Spalten `Result`, `AuthScheme`,
+   `Patch` und `ObservationId` zeigen.
+2. Die vier Zellen dieser Zeile ohne Spaltenüberschriften kopieren. Aus dem
+   Repository-Stamm in PowerShell 7.5 den tatsächlichen Ready-Pfad einsetzen
+   und die kopierte Zeile übernehmen.
+
+   ```powershell
+   & ./Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Write-SsmsPreflightObservation.ps1 `
+     -ReadyPath '.runtime/<Journalpräfix>.preflight-ready.json' `
+     -ObservedRow (Get-Clipboard -Raw)
+   ```
+
+3. `SSMS_PREFLIGHT_OBSERVATION_RECORDED` bestätigt die lokale Übernahme.
+   Anschließend auf die private `gui-ready.json` des Koordinators warten.
+   Sie erscheint nach der Prüfung und der Testvorbereitung.
+
+Das Hilfsskript prüft Ergebnis, Windows-Authentifizierung, CU8, Laufkennung,
+Abfragehash, Prozessstartzeit und Frist. Es legt die Beobachtungsdatei in
+einem Schritt an und verweigert das Überschreiben. Der Koordinator prüft
+zusätzlich den Hash der von ihm veröffentlichten Ready-Datei. Eine kopierte
+Zeile aus einem früheren Lauf, eine veränderte Abfrage oder eine abgelaufene
+Frist führen zur Ablehnung. Die Ergebniszeile bleibt eine sichtbare
+Bedienerbeobachtung. Ihre lokale Übernahme führt selbst weder die Abfrage aus
+noch bestätigt sie den Gesamtfall. Die aktualisierte Übergabe wurde bislang
+offline geprüft. Für eine neu freigegebene native Probe muss der
+Ausführungsplan mit den aktuellen Methoden erstellt werden.
+
 Der neue SQL-freie Konstruktor hat dieselben Eingabeparameter wie die bisherige
 Hülle. Er erlaubt die unveränderten `GO`-Trenner des hashgeprüften Bodys und
 setzt außerhalb dieses Bodys `:ON ERROR EXIT`, den eigenen Datenbankkontext und
@@ -417,7 +454,8 @@ neue Probe während Vorcheck oder GUI-Phase fehlgeschlagen beenden. Es kann
 keinen PASS erzeugen oder einen Lauf fortsetzen. Die eigene Prozessownership,
 Bereinigung, reservierte Auditfrist und vorherige Fehler bleiben erhalten.
 
-Zwölf Offlinegegenproben prüfen den tatsächlich kompilierten Ablauf, eine
+Die Offlinegegenproben prüfen den tatsächlich kompilierten Ablauf, die
+frist- und laufgebundene Übernahme der Ergebniszeile, eine
 mehrbatchige Unicode-Eingabe, unveränderten Body und Receipt sowie Abbruch-
 direktive, Dateibindung, verbotene eingebettete Clientkommandos und den
 fail-closed Operatorabbruch. Die Dateikonstruktion besteht zusätzlich mit der

@@ -52,6 +52,12 @@ GUI-Abfrage am Anmeldevorcheck, auch mit20 Minuten Vorcheckfrist. Beide
 blieben `FAILED_CLEANED` mit frischem Windows-Audit PASS; die sichere
 Bereinigung ersetzt keine Ausführung der Stopgegenprobe oder des Receipts.
 
+Die [direkte Übergabe der sichtbaren Vorcheckzeile](WindowsClientRecovery/README.md#sichtbaren-vorcheck-direkt-übergeben)
+ist in der aktuellen SQLCMD-Methode offline geprüft. Der Operator übernimmt
+die kopierte Ergebniszeile mit Laufkennung in einem lokalen Befehl. Der
+Koordinator bindet die Beobachtung an seine Ready-Datei, die Abfrage,
+die eigene Instanz und das konkrete Fristende.
+
 ## Aktuelle Vorbereitung und harte Clientabbrüche
 
 Der [zusätzliche Nachweis](Qualification/PreparationRecovery.Windows.20261101.json)

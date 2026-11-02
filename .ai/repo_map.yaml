@@ -178,6 +178,7 @@ sources_of_truth:
   ssis_ssms_sqlcmd_driver: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-SsmsSqlcmd.ps1
   ssis_ssms_sqlcmd_hook: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/SsmsSqlcmdHook.ps1
   ssis_ssms_sqlcmd_envelope: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/New-SsmsSqlcmdEnvelope.ps1
+  ssis_ssms_preflight_observation: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Write-SsmsPreflightObservation.ps1
   ssis_ssms_sqlcmd_checks: Tests/Release/test_ssis_sqlcmd_envelope.py
   ssis_preparation_recovery_guide: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md
   ssis_preparation_recovery_validator: Scripts/Release/validate_ssis_preparation_recovery.py
