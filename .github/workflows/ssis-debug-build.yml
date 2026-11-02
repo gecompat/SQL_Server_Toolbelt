@@ -26,6 +26,7 @@ on:
       - 'Scripts/Release/validate_ssis_preparation_recovery.py'
       - 'Tests/Release/test_ssis_preparation_recovery.py'
       - 'Tests/Release/test_ssis_ssms_gui.py'
+      - 'Tests/Release/test_ssis_autonomous_ssms.py'
       - 'Scripts/Release/validate_ssis_ssms_gui.py'
       - 'Tests/Release/test_ssis_current_standalone_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
@@ -60,6 +61,7 @@ on:
       - 'Scripts/Release/validate_ssis_preparation_recovery.py'
       - 'Tests/Release/test_ssis_preparation_recovery.py'
       - 'Tests/Release/test_ssis_ssms_gui.py'
+      - 'Tests/Release/test_ssis_autonomous_ssms.py'
       - 'Scripts/Release/validate_ssis_ssms_gui.py'
       - 'Tests/Release/test_ssis_current_standalone_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
@@ -125,6 +127,8 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_preparation_recovery.py
       - name: Target-bound SSMS preflight and copy guards without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_ssms_gui.py
+      - name: SSMS receipt execution envelope guards without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_autonomous_ssms.py
       - name: Current standalone T-SQL installer CL matrix composition without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_standalone_matrix.py
       - name: Current standalone T-SQL installer matrix evidence binding without SQL

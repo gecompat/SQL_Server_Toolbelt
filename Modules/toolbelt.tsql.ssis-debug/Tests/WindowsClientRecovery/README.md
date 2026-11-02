@@ -212,6 +212,75 @@ VMs oder wiederholte native Qualifikation. Linux-SQL-CLR, ununterbrochener
 öffentlicher Windows-TLS-Neuaufbau, unbegrenzte Produktionskapazität und
 vollständige SSIS-Runtime-Parität bleiben getrennt.
 
+## Autonomer Receipt-Ablauf und aktuelle Grenze
+
+`Invoke-AutonomousSsms.ps1` und `AutonomousSsmsHook.ps1` sind ein separates
+Testprofil für den noch offenen Gesamtabschluss. Sie behalten Zielvorcheck,
+Windows-/SSMS-/Verschlüsselungswachen, vollständige Kopierprüfung,
+Prozessownership und Wiederherstellung bei. Historische Methoden und Records
+bleiben unverändert. Der Start öffnet keine SQL-Datei automatisch; das ist
+keine Zusage einer dialogfreien Anmeldung.
+
+Die autonome Probe vom2026-11-02 zeigte auch bei diesem Start einen
+SSMS-Verbindungs-Bestätigungsdialog. Sie wurde ohne GUI-Eingabe oder
+GUI-Abfrage vor der Datenbankanlage beendet. Der Koordinator blieb
+`FAILED_CLEANED`, mit fünf Cleanupchecks und keinem bestandenen Gesamtfall.
+Der dafür reservierte frische unabhängige Windows-Audit bestand und bestätigte
+Datenbankabwesenheit, wiederhergestellte Konfiguration und Trust sowie
+unveränderte andere Verbraucher. Dieser Audit qualifiziert keine Anmeldung,
+keinen Receipt-Abschluss und keine autonome SSMS-Ausführung. Der bisherige
+getrennte visuelle Teilnachweis bleibt gültig innerhalb seines ursprünglichen
+Umfangs; der Gesamtkoordinator bleibt offen.
+
+Eine Ausführung ohne anwesenden Benutzer benötigt einen zulässigen
+Verbindungsweg ohne interaktiven Anmelde-/Sicherheitsdialog. Ein solcher Dialog
+beendet den autonomen Versuch; er wird weder automatisiert bestätigt noch durch
+geänderte Sicherheitsoptionen unterdrückt. Ein gestartetes oder maximiertes
+Fenster gilt weiterhin nicht als Nachweis. Nicht verwendete Ressourcenplätze
+verlängern die ausdrücklich begrenzte Welle nicht.
+
+Für den nach erfolgreichem Vorcheck vorgesehenen Receipt-Abschluss erzeugt
+`New-SsmsExecutionEnvelope.ps1` eine SQL-freie Testhülle. Sie prüft zunächst den
+aktuellen UTF16/LF-Hash der gespeicherten02-Zellenkopie und den exakten Hash des
+nativen03-Receipts. Die Hülle besteht aus `USE [eigene Testdatenbank]`, dem
+unveränderten kopierten Body und dem Receipt. Ausschließlich CRLF wird zu LF
+normalisiert. Die02-Datei bleibt erhalten. Kontext und Receipt sind explizite
+Testinstrumentierung außerhalb des kopierten Produktartefakts.
+
+Nach echtem Kopieren und Speichern der02-Datei kann die Hülle so vorbereitet
+werden; der erwartete Bodyhash stammt aus dem aktuellen nativen Erzeuger,
+der Receipthash aus der unveränderten nativen03-Datei:
+
+```powershell
+./New-SsmsExecutionEnvelope.ps1 -CopiedScriptPath $copiedPath -ExpectedUtf16LfSha256 $currentExpectedHash -ReceiptPath $receiptPath -ExpectedReceiptSha256 $receiptHash -Database $ownDatabase -OutputPath $envelopePath
+```
+
+Die vollständige Hülle wird in einer eigenen verbundenen SSMS-Abfrage
+unverändert eingefügt, als05-Ausführungsdatei gespeichert und mit denselben
+Parametern sowie `-VerifyExisting` gegen diese Datei geprüft. Erst dann darf
+sie genau einmal ausgeführt werden. Erwartet sind die zwei fachlichen
+Ergebniszeilen, anschließend `SSIS_WINDOWS_CLIENT_GUI_PASS` mit Unicodezeugen
+und fehlerfreie Messages. Der Body enthält seine ursprünglichen Fehlerwachen;
+ein Fehler darf nicht durch getrennte Ausführung des Receipts übergangen werden.
+Die Testhilfe verweigert deshalb auch `GO`-Batchtrenner vor jeder Dateianlage.
+Nach sichtbarer Prüfung und Schließen ausschließlich der eigenen SSMS-Instanz
+vergleicht der Koordinator05 erneut mit02 und dem bei der Erstellung gebundenen
+03-Receipt. Ein grüner Gesamtfall benötigt außerdem echtes Phase2 und den
+frischen separaten Windows-Audit. Diese Ausführungsstrecke wurde in der
+autonomen Probe wegen des vorgelagerten Dialogs **nicht ausgeführt**.
+
+Acht SQL-freie Gegenproben prüfen die tatsächlich kompilierten Adapter,
+erhaltene Wachen, den vollständigen langen Unicodebody und die Trennung vom
+Receipt. Kürzung, geändertes Receipt, falsche Datenbank, veränderte gespeicherte
+Ausführung, Batchtrenner sowie stilles Überschreiben vorhandener Nachweise werden verweigert:
+
+```powershell
+python -m unittest discover -s Tests/Release -p test_ssis_autonomous_ssms.py
+```
+
+Die Gegenproben laufen im vorhandenen SSIS-CI-Job. Sie ersetzen weder den
+ausstehenden GUI-Gesamtlauf noch eine neue ausdrückliche Testfreigabe.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

@@ -168,6 +168,10 @@ sources_of_truth:
   ssis_ssms_copy_check: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Test-SsmsScriptCopy.ps1
   ssis_ssms_gui_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/SsmsClient.Windows.20261101.json
   ssis_ssms_gui_validator: Scripts/Release/validate_ssis_ssms_gui.py
+  ssis_ssms_unattended_driver: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-AutonomousSsms.ps1
+  ssis_ssms_unattended_hook: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/AutonomousSsmsHook.ps1
+  ssis_ssms_execution_envelope: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/New-SsmsExecutionEnvelope.ps1
+  ssis_ssms_unattended_checks: Tests/Release/test_ssis_autonomous_ssms.py
   ssis_preparation_recovery_guide: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md
   ssis_preparation_recovery_validator: Scripts/Release/validate_ssis_preparation_recovery.py
   ssis_preparation_recovery_checks: Tests/Release/test_ssis_preparation_recovery.py
