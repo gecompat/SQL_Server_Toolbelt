@@ -23,6 +23,7 @@ $files+=@('Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-S
  'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/SsmsSqlcmdHook.ps1',
  'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/VisibleSsmsHook.ps1',
  'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/New-SsmsSqlcmdEnvelope.ps1',
+ 'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Write-SsmsPreflightObservation.ps1',
  'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/AutonomousSsmsHook.ps1',
  'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/SsmsGuiHook.ps1',
  'Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/New-SsmsExecutionEnvelope.ps1',
@@ -32,7 +33,7 @@ $code=Replace-SsmsOnce $code ". (Join-Path `$PSScriptRoot 'ClientGuiHook.ps1')" 
 $text=Replace-Once $text ' $prepare=[IO.File]::ReadAllText' (" Invoke-SsmsTargetPreflight`n"+' $prepare=[IO.File]::ReadAllText')
 . (Join-Path $PSScriptRoot 'SsmsSqlcmdHook.ps1')
 if($script:ssmsDescribeOnly){
- [ordered]@{canonical=$text;gui=(Get-Command Invoke-ClientGui).Definition;preflightQuery=(Get-SsmsPreflightSql ('A'*64));preflight=(Get-Command Invoke-SsmsTargetPreflight).Definition}|ConvertTo-Json -Depth 3
+ [ordered]@{canonical=$text;gui=(Get-Command Invoke-ClientGui).Definition;preflightQuery=(Get-SsmsSqlcmdPreflightSql ('A'*64) ('b'*32));preflight=(Get-Command Invoke-SsmsTargetPreflight).Definition}|ConvertTo-Json -Depth 3
  return
 }
 '@

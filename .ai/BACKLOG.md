@@ -39,6 +39,12 @@ SQLCMD-/Receipt-Abschluss bleiben nativ nicht ausgeführt; ungenutzte Slots
 erlauben keinen neuen Versuch. Die gemeinsame Methoden-/Dokumentations-
 integration ist kein Qualifikations-PASS.
 
+Die aktuelle [Vorcheckübergabe](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md#sichtbaren-vorcheck-direkt-übergeben)
+verkürzt den Bedienpfad auf die Übernahme der kopierten SSMS-Ergebniszeile.
+Der Koordinator prüft Laufkennung, Abfragehash, Prozessidentität und Frist.
+Die 17 SQLCMD-Offlineprüfungen bestanden am 2026-11-02. Der nächste native
+Gesamtfall einschließlich Stopgegenprobe und Receipt bleibt offen.
+
 Autonome Fortsetzung vom2026-11-02, ausdrücklich bei abwesendem Benutzer:
 eine neue begrenzte Probe und ihr frischer Windows-Audit sind beendet.
 SSMS zeigte auch ohne automatisch geöffnete Query-Datei eine
