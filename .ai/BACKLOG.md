@@ -2,6 +2,43 @@
 
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
+Sichtbarer Clientstart und Mehrbatch-Korrektur vom2026-11-02:
+Der [ergänzte Start](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md#sichtbarer-start-vor-der-anmeldung)
+bestand nativ den sichtbaren NTLM-/Ziel-/Verschlüsselungsvorcheck, öffentliche
+Erst-/Wiederholungsinstallation, GUI-API und die strikte Prüfung der echten
+vollständigen Unicode-Kopie. Die neue Hülle lehnte jedoch19 reguläre `GO`-
+Trenner ab; DebugScript-GUI-Ausführung und Phase2 erfolgten nicht.
+`FAILED_CLEANED` mit elf Checks und der frische Windows-Audit PASS bleiben
+erhalten. Dies ist ein Fehler des Testadapters. Der
+[korrigierte SQLCMD-Pfad](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md#mehrere-batches-und-überprüfter-fehlerabbruch)
+erhält die Batchtrenner mit `:ON ERROR EXIT` und verlangt eine native
+Stopgegenprobe mit unveränderter Receiptphase, bevor das eigentliche Script
+ausgeführt werden darf. Vier Start- und zwölf SQLCMD-Offlinegegenproben
+sowie die nachträgliche reine Dateikonstruktion mit der echten privaten Kopie
+sind vorbereitet; die neue native SQLCMD-Strecke ist nicht ausgeführt.
+Alle früheren Fehler und Nachweise bleiben erhalten. Geschlossene Wellen
+werden dadurch nicht erneuert; ein weiterer nativer Lauf benötigt eine neue
+konkrete endliche Freigabe. Keine Veröffentlichung.
+
+Die erste weitere SQLCMD-Probe endete bereits am internen zehnminütigen
+Anmeldevorcheck, bevor die spätere Verbindungsbestätigung verarbeitet werden
+konnte. Keine Datenbankanlage oder GUI-Abfrage; `FAILED_CLEANED` mit fünf
+Cleanupchecks und frischer Windows-Audit PASS. Die interne Frist wird im
+vorbereiteten SQLCMD-Pfad auf20 Minuten innerhalb derselben freizugebenden
+Gesamtgrenze angehoben; mindestens zehn Minuten Restfenster und alle bisherigen
+Fehler bleiben erhalten. Während eines laufenden Versuchs wird keine Frist
+verlängert. Die korrigierte Strecke ist weiterhin nativ nicht qualifiziert.
+
+Auch die freigegebene20-Minuten-Probe endete am2026-11-02 vor der sichtbaren
+Zielabfrage: Die Verbindung war hergestellt, die Teststeuerung ließ jedoch
+die Vorcheckfrist verstreichen. Keine neue Datenbank oder GUI-Abfrage;
+`FAILED_CLEANED` mit fünf Cleanupchecks, kein bestandener Gesamtfall und
+frischer Windows-Audit PASS mit exaktem finalem Journal. Alle68 nativen
+Aufrufe sind geschlossen. Die Stopgegenprobe und der vollständige
+SQLCMD-/Receipt-Abschluss bleiben nativ nicht ausgeführt; ungenutzte Slots
+erlauben keinen neuen Versuch. Die gemeinsame Methoden-/Dokumentations-
+integration ist kein Qualifikations-PASS.
+
 Autonome Fortsetzung vom2026-11-02, ausdrücklich bei abwesendem Benutzer:
 eine neue begrenzte Probe und ihr frischer Windows-Audit sind beendet.
 SSMS zeigte auch ohne automatisch geöffnete Query-Datei eine

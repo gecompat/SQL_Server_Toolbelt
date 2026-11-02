@@ -27,6 +27,8 @@ on:
       - 'Tests/Release/test_ssis_preparation_recovery.py'
       - 'Tests/Release/test_ssis_ssms_gui.py'
       - 'Tests/Release/test_ssis_autonomous_ssms.py'
+      - 'Tests/Release/test_ssis_visible_ssms.py'
+      - 'Tests/Release/test_ssis_sqlcmd_envelope.py'
       - 'Scripts/Release/validate_ssis_ssms_gui.py'
       - 'Tests/Release/test_ssis_current_standalone_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
@@ -62,6 +64,8 @@ on:
       - 'Tests/Release/test_ssis_preparation_recovery.py'
       - 'Tests/Release/test_ssis_ssms_gui.py'
       - 'Tests/Release/test_ssis_autonomous_ssms.py'
+      - 'Tests/Release/test_ssis_visible_ssms.py'
+      - 'Tests/Release/test_ssis_sqlcmd_envelope.py'
       - 'Scripts/Release/validate_ssis_ssms_gui.py'
       - 'Tests/Release/test_ssis_current_standalone_matrix.py'
       - 'Tests/Release/Test-CurrentSqlParameterAdapter.ps1'
@@ -129,6 +133,10 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_ssms_gui.py
       - name: SSMS receipt execution envelope guards without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_autonomous_ssms.py
+      - name: Visible SSMS startup before manual authentication without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_visible_ssms.py
+      - name: Multi-batch SSMS SQLCMD envelope and stop-probe guards without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_sqlcmd_envelope.py
       - name: Current standalone T-SQL installer CL matrix composition without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_standalone_matrix.py
       - name: Current standalone T-SQL installer matrix evidence binding without SQL
