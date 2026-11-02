@@ -281,6 +281,155 @@ python -m unittest discover -s Tests/Release -p test_ssis_autonomous_ssms.py
 Die Gegenproben laufen im vorhandenen SSIS-CI-Job. Sie ersetzen weder den
 ausstehenden GUI-Gesamtlauf noch eine neue ausdrückliche Testfreigabe.
 
+## Sichtbarer Start vor der Anmeldung
+
+`Invoke-VisibleSsms.ps1` mit `VisibleSsmsHook.ps1` ergänzt einen Start für
+beaufsichtigte Proben. Der eigene SSMS-Prozess wird innerhalb der geschützten
+Windows-Netzwerkanmeldesitzung des Labhelpers zunächst ausschließlich mit
+`-nosplash` gestartet. Ohne automatische Serververbindung kann sein Hauptfenster
+vor dem Anmeldedialog sichtbar ausgewählt und maximiert werden. Ob SSMS selbst
+aus seinem Benutzerprofil weitere Dialoge öffnet, muss dabei beobachtet werden;
+ein gestarteter Prozess behauptet weiterhin keine Anmeldung oder Sichtbarkeit.
+
+Der private `preflight-ready.json` nennt PID, Prozessstartzeit, vorgesehenes
+Labziel und `master` sowie Encrypt=`Mandatory` und den exakt übernommenen
+booleschen Trustwert. Diese Werte enthalten keine Zugangsdaten. Die zugehörige
+eigene Fensterinstanz muss anhand PID/Startzeit und aktuellem Fensterinventar
+zugeordnet werden. Eine bestehende SSMS-Instanz erhält durch die Auswahl von
+Windows Authentication nicht die Netzwerkanmeldung des separat gestarteten
+Labclients. Ebenso beweist der lokale angezeigte Windows-Benutzer bei einem
+Netzwerkanmeldestart noch nicht die tatsächlich verwendete SQL-Identität.
+[Microsoft: CreateProcessWithLogonW](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createprocesswithlogonw)
+
+Erst im sichtbar geprüften eigenen Fenster öffnet der Operator eine Verbindung
+zum ausgewählten Labziel mit Windows Authentication, den privaten TLS-Werten
+und `master`. Anmelde- und Sicherheitsdialoge bedient ausschließlich der
+Operator. Anschließend folgt die vorhandene lesende00-Abfrage mit Zielzeugen,
+Windows-Authscheme, Verschlüsselungs- und SSMS-Wache. Erst ihr tatsächlich
+beobachteter PASS erlaubt die eigene Datenbankanlage. Fensterstart,
+Verbindungsversuch oder eine Benutzerbestätigung ohne verbundenen Vorcheck
+genügen dafür nicht. Der zehnminütige Vorcheck und die gemeinsame endliche
+Lauf-/Auditgrenze bleiben erhalten; danach ist die eigene Testinstanz geschlossen
+und darf nicht durch eine andere Verbindung ersetzt werden.
+
+Das Profil verwendet danach denselben geprüften Receipt-Ablauf mit unverändertem
+kopiertem DebugScript, echter Phase2, eigener Prozessownership und frischem
+Windows-Audit. Die vier SQL-freien Gegenproben prüfen den tatsächlich kompilierten
+Start ohne Verbindungsargumente, den expliziten manuellen Zielvertrag, erhaltene
+SQL-/Receipt-/Ownershipwachen und die Ablehnung geänderter historischer Hooks:
+
+```powershell
+python -m unittest discover -s Tests/Release -p test_ssis_visible_ssms.py
+```
+
+Der ergänzte sichtbare Start bestand anschließend nativ den Windows-NTLM-/Ziel-/
+Verschlüsselungsvorcheck auf SQL2025/CU8. Öffentliche Erst- und Wiederholungs-
+installation sowie die aktuelle API in derselben SSMS-Instanz bestanden.
+Die echte kopierte Unicode-Zelle wurde mit184441 UTF16-Zeichen vor der Ausführung
+hashgleich zum aktuellen Serverartefakt geprüft. Der Koordinator blieb dennoch
+`FAILED_CLEANED` mit elf Checks und keinem bestandenen Gesamtfall: Die erste
+Testhülle lehnte19 reguläre `GO`-Trenner des tatsächlichen DebugScripts ab.
+Es erfolgte keine GUI-Ausführung dieses kopierten DebugScripts und kein Phase2.
+Die eigenen Ressourcen wurden bereinigt; der frische Windows-Audit bestand.
+Die vorausgegangene beaufsichtigte Probe war bereits vor einem bestandenen
+Anmeldevorcheck ohne Datenbankanlage beendet worden; auch deren Audit bestand.
+Ein später gezeigter SSPI-Fehler aus einer anderen bestehenden SSMS-Instanz
+qualifiziert den gebundenen Testclient nicht und beweist allein keine Ursache
+für dessen früheren Verbindungsversuch. Alle bisherigen Fehler und Grenzen
+bleiben erhalten. Für einen weiteren nativen Lauf ist eine neue konkrete
+endliche Testfreigabe nötig.
+
+### Mehrere Batches und überprüfter Fehlerabbruch
+
+Die tatsächliche DebugScript-Ausgabe verwendet reguläre `GO`-Batchtrenner.
+Die frühere Single-Batch-Testhülle passt deshalb nicht zu dieser Ausgabe.
+`Invoke-SsmsSqlcmd.ps1`, `SsmsSqlcmdHook.ps1` und
+`New-SsmsSqlcmdEnvelope.ps1` bilden dafür einen gesonderten Testpfad. Er behält
+den sichtbaren Start und den manuellen Anmeldevorcheck bei und verwendet in der
+eigenen Ausführungsabfrage **SQLCMD Mode**, über das Menü `Query` aktiviert.
+Bestehende Benutzerabfragen und globale SSMS-Defaults werden nicht geändert.
+[Microsoft: SQLCMD-Skripte im Query Editor](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/edit-sqlcmd-scripts-query-editor)
+
+In der ersten Probe dieses Pfads endete der interne zehnminütige Vorcheck
+vor der späteren Verbindungsbestätigung. Ohne Datenbankanlage oder GUI-Abfrage
+blieb der Koordinator `FAILED_CLEANED` mit fünf Cleanupchecks; der reservierte
+frische Windows-Audit bestand. Der korrigierte SQLCMD-Pfad lässt für den
+beaufsichtigten Vorcheck bis zu20 Minuten zu, weiterhin innerhalb der
+ausdrücklich freigegebenen gemeinsamen Gesamtgrenze. Die vorhandene Klemme
+auf Gesamtende minus zehn Minuten bleibt erhalten; eine spätere Anmeldung
+verkürzt somit das verbleibende GUI-/Auditfenster. Fristen werden während
+eines laufenden Versuchs nicht verlängert. Ein erneuter Ablauf wird künftig
+ausdrücklich als `SSIS_SSMS_TARGET_PREFLIGHT_TIMEOUT` klassifiziert.
+
+Auch die anschließend ausdrücklich freigegebene Probe mit20 Minuten Vorcheck
+endete am2026-11-02 mit diesem Timeout. Die Verbindung war vom Operator
+hergestellt worden; die Teststeuerung brachte den sichtbaren Zielvorcheck
+jedoch nicht innerhalb der Frist zur Ausführung. Es gab keine neue
+Datenbankanlage und keine GUI-Abfrage. Der Koordinator bleibt
+`FAILED_CLEANED` mit fünf Cleanupchecks und keinem bestandenen Gesamtfall.
+Der reservierte frische Windows-Audit bestand und bindet das exakte finale
+Journal. Dies belegt sichere Bereinigung, keinen Fehler der SSIS-Fachfunktion
+und keinen erfolgreichen SSMS-Gesamtabschluss. Die native Freigabe ist
+verbraucht; ungenutzte Datenbank- oder GUI-Plätze erneuern sie nicht.
+
+Der neue SQL-freie Konstruktor hat dieselben Eingabeparameter wie die bisherige
+Hülle. Er erlaubt die unveränderten `GO`-Trenner des hashgeprüften Bodys und
+setzt außerhalb dieses Bodys `:ON ERROR EXIT`, den eigenen Datenbankkontext und
+die nötigen Batchgrenzen vor das native Receipt. SQLCMD muss beim ersten
+SQL-Fehler die Verarbeitung beenden, bevor spätere Batches und das Receipt
+erreicht werden. Eingebettete Clientdirektiven, Shellkommandos und
+SQLCMD-Variablensubstitution in Body oder Receipt werden vor jeder Dateianlage
+verweigert. Damit verändert die Vorverarbeitung keine synthetischen Literale
+und führt keine fremden Clientoperationen aus.
+[Microsoft: On Error und GO](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-commands)
+
+Nach API-Erzeugung, echter Zellenkopie und strikter02-Dateiprüfung ist zuerst
+die **native Fehlergegenprobe** erforderlich:
+
+1. In der eigenen zweiten Abfrage SQLCMD Mode aktivieren. Die native
+   `sqlcmd-ready.json` nennt das07-Script und dessen gebundenen Hash.
+2. Dieses Script vollständig unverändert einsetzen und als08-Ausführungsdatei
+   speichern. Es wirft absichtlich Fehler51001 mit
+   `SSIS_SQLCMD_EXPECTED_STOP`; ein späterer Batch würde die eigene Receiptphase
+   auf99 setzen und eine unerwartete Fortsetzungsmarkierung ausgeben.
+3. Genau den vollständigen Inhalt einmal ausführen. Der erwartete Fehler muss
+   sichtbar sein; zusätzliche Fehler oder die Fortsetzungsmarkierung verhindern
+   ein PASS. Den privaten visuellen Gegenprobennachweis schreiben.
+4. **Vor dem eigentlichen DebugScript** auf die native
+   `sqlcmd-negative.pass.json` warten. Der Koordinator vergleicht die
+   gespeicherte08-Datei mit seinem unveränderten07-Script und verlangt, dass die
+   echte Receiptphase weiterhin1 ist. Eine bloß sichtbare Fehlermeldung genügt
+   nicht als Stopnachweis.
+5. Mit `New-SsmsSqlcmdEnvelope.ps1` die04-Hülle aus der weiterhin unveränderten
+  02-Datei und dem nativen03-Receipt erzeugen. In derselben eigenen Abfrage
+   vollständig einsetzen, als05-Datei speichern und `-VerifyExisting` ausführen.
+   Erst danach genau den vollständigen Inhalt einmal ausführen.
+6. Die zwei fachlichen Ergebniszeilen, anschließend die Receiptmarkierung mit
+   Unicodezeuge und den fehlerfreien Messages-Abschluss beobachten. Der
+   absichtliche Fehler aus Schritt3 bleibt ein eigener negativer Fall.
+   Der visuelle Hauptnachweis muss auch den beobachteten SQLCMD-Modus enthalten.
+7. Ausschließlich die eigene SSMS-Instanz schließen. Der Koordinator verlangt
+   weiterhin echtes Phase2, alle Kopier-/Envelope-/Windowswachen, eigene
+   Bereinigung und den frischen separaten Windows-Audit.
+
+Ein privates `operator-abort.json` unter dem eigenen Journalpräfix kann die
+neue Probe während Vorcheck oder GUI-Phase fehlgeschlagen beenden. Es kann
+keinen PASS erzeugen oder einen Lauf fortsetzen. Die eigene Prozessownership,
+Bereinigung, reservierte Auditfrist und vorherige Fehler bleiben erhalten.
+
+Zwölf Offlinegegenproben prüfen den tatsächlich kompilierten Ablauf, eine
+mehrbatchige Unicode-Eingabe, unveränderten Body und Receipt sowie Abbruch-
+direktive, Dateibindung, verbotene eingebettete Clientkommandos und den
+fail-closed Operatorabbruch. Die Dateikonstruktion besteht zusätzlich mit der
+tatsächlichen privaten Kopie aus der beendeten Probe; diese nachträgliche
+Konstruktion wurde **nicht ausgeführt** und qualifiziert keinen Gesamtlauf.
+Die neue native Stopgegenprobe und die vollständige SQLCMD-GUI-Ausführung
+sind ebenfalls noch **nicht ausgeführt**.
+
+```powershell
+python -m unittest discover -s Tests/Release -p test_ssis_sqlcmd_envelope.py
+```
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

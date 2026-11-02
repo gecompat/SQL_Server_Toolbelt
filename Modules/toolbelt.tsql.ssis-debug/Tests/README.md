@@ -34,6 +34,24 @@ beschreiben die ergänzte SQL-freie Ausführungshülle und acht Gegenproben.
 Die Strecke nach der Anmeldung ist noch nicht nativ ausgeführt; der grüne
 SSMS-Gesamtabschluss bleibt offen.
 
+Ein [Start vor der Anmeldung](WindowsClientRecovery/README.md#sichtbarer-start-vor-der-anmeldung)
+ist mit vier zusätzlichen Offlinegegenproben vorbereitet: eigene gebundene
+SSMS-Instanz zunächst ohne Serverargumente sichtbar öffnen und maximieren,
+danach manuelle Windows-Verbindung und vorhandenen Zielvorcheck ausführen.
+Dieser Einstieg bestand inzwischen den sichtbaren NTLM-/Ziel-/Verschlüsselungs-
+vorcheck, den Installer und die API-Erzeugung. Die echte Unicode-Kopie ist vor
+der Ausführung hashgleich geprüft. Die Testhülle lehnte jedoch die regulären
+`GO`-Trenner des DebugScripts ab; keine GUI-Debugausführung oder Phase2 wird
+behauptet. Der Koordinator blieb `FAILED_CLEANED` mit elf Checks, der frische
+Windows-Audit bestand. Der [korrigierte Mehrbatch-Pfad](WindowsClientRecovery/README.md#mehrere-batches-und-überprüfter-fehlerabbruch)
+verwendet SQLCMD Mode mit `:ON ERROR EXIT` und verlangt zuerst einen nativen
+Stopnachweis vor einer späteren Testmarkierung. Zwölf Offlinegegenproben sind
+vorbereitet; der neue native SQLCMD-Gesamtabschluss bleibt offen. Zwei
+anschließende begrenzte SQLCMD-Proben endeten jeweils vor der ersten
+GUI-Abfrage am Anmeldevorcheck, auch mit20 Minuten Vorcheckfrist. Beide
+blieben `FAILED_CLEANED` mit frischem Windows-Audit PASS; die sichere
+Bereinigung ersetzt keine Ausführung der Stopgegenprobe oder des Receipts.
+
 ## Aktuelle Vorbereitung und harte Clientabbrüche
 
 Der [zusätzliche Nachweis](Qualification/PreparationRecovery.Windows.20261101.json)
