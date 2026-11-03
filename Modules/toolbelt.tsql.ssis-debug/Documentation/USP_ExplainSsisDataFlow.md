@@ -147,10 +147,12 @@ Definition kann der vorhandene Explain-Aufruf den Blocker weiter eingrenzen.
 Führe die geprüfte Definition als eigenen `CREATE PROCEDURE`-Batch in der
 gebundenen Datenbank und im vorhandenen dedizierten Debug-Schema aus. Ein
 gleichnamiges Objekt lässt die Erstinstallation scheitern. Halte Manifest,
-installierte Moduldefinition, Objekt-ID und Objektname im Installationsnachweis
-fest. Prüfe vor einem `ALTER PROCEDURE` oder `DROP PROCEDURE` den erwarteten
-Altstand und die Ownership anhand dieses Nachweises. Eine identische Version
-braucht keine DDL. Vergib für eine inkompatible Signatur einen neuen Namen.
+installierte Moduldefinition aus `sys.sql_modules`, Objekt-ID und Objektname
+im Installationsnachweis fest. Prüfe vor einem `ALTER PROCEDURE` oder
+`DROP PROCEDURE` den erwarteten Altstand und die Ownership anhand dieses
+Nachweises. Erfasse nach erfolgreichem ALTER den neuen Katalogstand. Eine
+identische Version braucht keine DDL. Vergib für eine inkompatible Signatur
+einen neuen Namen.
 Toolbelt-Deploy und -Uninstall verwalten die erzeugte Prozedur nicht.
 
 Die Hilfe zeigt die tatsächlichen Parameternamen und Typen. In der synthetischen

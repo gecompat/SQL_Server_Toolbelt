@@ -17,9 +17,22 @@ der DDL und die Abweisung einer doppelten Erstinstallation. Der Lauf endete
 mit `FAILED_CLEANED`, weil der PowerShell-Testadapter vor dem Lowpriv-Aufruf
 eine Verbindungseigenschaft falsch setzte. Die korrigierte Eigenschaftsbindung
 ist offline geprüft. Der unabhängige Windows-Abschlussaudit mit `-Mode Audit`
-bestand und bestätigte die Bereinigung. Die Lowpriv-, ResultTable-, Parallel-,
-Drift- und Update-/Entfernungsprüfungen des korrigierten Adapters stehen nativ
-aus. Der Lauf verwendete den funktionalen Transportvertrag.
+bestand und bestätigte die Bereinigung. Der Lauf verwendete den funktionalen
+Transportvertrag.
+
+Der am 2026-11-04 freigegebene einzelne Wiederholungslauf erreichte den
+echten Lowpriv-Aufruf. Fehlendes Quell-SELECT wurde trotz gleicher Ownership
+abgewiesen. Projektion und Metadaten einschließlich leerer Ergebnisse,
+ResultTable-Replace/Append, Temp-Kollisionen, Parallelität, Update mit
+erhaltenem EXECUTE und Abweisung der Quelldrift bestanden. Die abschließende
+Ownership-Prüfung vor dem expliziten DROP verglich Katalogtext mit dem
+eingesandten ALTER-Text und schlug fehl. Der Gesamtfall bleibt
+`FAILED_CLEANED`. Der frische Windows-Audit bestätigte die Bereinigung der
+eigenen Testdatenbank und des eigenen Logins sowie die Wiederherstellung des
+Trust- und Konfigurationszustands. Der korrigierte Adapter prüft den
+tatsächlich installierten Versionsstand und die Objektidentität vor dem DROP.
+Elf gezielte Offline-Gegenproben bestanden. Die korrigierte Ownership-Prüfung
+und das explizite Entfernen stehen nativ aus.
 
 Bestehende ZIPs und Qualifikationsnachweise sind an ihre ursprüngliche
 API-Signatur und die zugehörigen Artefakte gebunden. Die Releaseprüfungen für
@@ -1010,9 +1023,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-03`
-- Nachweis: `local: ProcedureDefinition, Framework Full, SQL-Syntax und Windows-Lab-Audit`
-- Scope: Reproduzierbarer CLR-Build, 27 Framework-Fälle und 15 SQL-Syntaxfälle bestanden. Windows SQL2025/CU8, CL150 erzeugte und installierte die Definition und wies die doppelte Erstinstallation ab. Der Gesamtfall endete vor der Lowpriv-Anmeldung mit einem Adapterfehler und FAILED_CLEANED. Die korrigierte Verbindungseigenschaft wurde offline geprüft. Der unabhängige Abschlussaudit bestand. Paket- und vollständige native Qualifikation bleiben offen.
+- Datum: `2026-11-04`
+- Nachweis: `local: korrigierter ProcedureDefinition-Lauf und unabhängiger Windows-Lab-Audit`
+- Scope: Windows SQL2025/CU8, CL150: echte Lowpriv-Quellrechte, Projektion und Ergebnismetadaten, ResultTable, Temp-Kollision, parallele Aufrufe, Update und Driftprüfung bestanden. Der letzte Ownership-Textvergleich vor dem expliziten DROP scheiterte, Gesamtfall FAILED_CLEANED. Abschlussaudit für Testdatenbank, Login, Konfiguration und Trust PASS. Vollständige V1- und Paketqualifikation bleiben offen.
 - Ergebnis: `partial`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

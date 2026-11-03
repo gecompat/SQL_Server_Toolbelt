@@ -99,8 +99,8 @@ Andere Buildquellen und Modulprofile bleiben exakt gebunden.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-03`
-- Nachweis: `local: ProcedureDefinition, Framework Full, SQL-Syntax und Windows-Lab-Audit`
-- Scope: Reproduzierbarer CLR-Build, 27 Framework-Fälle und 15 SQL-Syntaxfälle bestanden. Windows SQL2025/CU8, CL150 erzeugte und installierte die Definition und wies die doppelte Erstinstallation ab. Der Gesamtfall endete vor der Lowpriv-Anmeldung mit einem Adapterfehler und FAILED_CLEANED. Die korrigierte Verbindungseigenschaft wurde offline geprüft. Der unabhängige Abschlussaudit bestand. Paket- und vollständige native Qualifikation bleiben offen.
+- Datum: `2026-11-04`
+- Nachweis: `local: korrigierter ProcedureDefinition-Lauf und unabhängiger Windows-Lab-Audit`
+- Scope: Windows SQL2025/CU8, CL150: echte Lowpriv-Quellrechte, Projektion und Ergebnismetadaten, ResultTable, Temp-Kollision, parallele Aufrufe, Update und Driftprüfung bestanden. Der letzte Ownership-Textvergleich vor dem expliziten DROP scheiterte, Gesamtfall FAILED_CLEANED. Abschlussaudit für Testdatenbank, Login, Konfiguration und Trust PASS. Vollständige V1- und Paketqualifikation bleiben offen.
 - Ergebnis: `partial`
 <!-- END GENERATED:MODULE_EVIDENCE -->

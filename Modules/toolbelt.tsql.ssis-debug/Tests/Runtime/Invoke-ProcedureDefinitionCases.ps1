@@ -14,6 +14,31 @@ function Assert-Current([bool]$Condition,[string]$Check){
  $script:checks++
 }
 function Invoke-CurrentSql([string]$Sql){return ,(Query $Connection $Sql)}
+function Get-InstalledProcedure {
+ $snapshot=Query $Connection @'
+SELECT p.object_id AS Id,p.schema_id AS SchemaId,p.create_date AS Created,p.modify_date AS Modified,
+       COALESCE(p.principal_id,s.principal_id) AS OwnerId,m.definition AS Definition
+FROM sys.procedures AS p
+JOIN sys.schemas AS s ON s.schema_id=p.schema_id
+JOIN sys.sql_modules AS m ON m.object_id=p.object_id
+WHERE p.object_id=OBJECT_ID(N'ContosoDebug.USP_Synthetic',N'P');
+'@
+ if($snapshot.Rows.Count -ne 1 -or $snapshot.Rows[0].Definition -isnot [string]){throw 'SSIS_PROCEDURE_INSTALLED_SNAPSHOT_MISSING'}
+ return ,$snapshot.Rows[0]
+}
+function Get-InstalledProcedureBody([string]$Definition){
+ $header=[regex]::Match($Definition,'\A(?:CREATE|ALTER)[ \t]+PROCEDURE[ \t]+',[Text.RegularExpressions.RegexOptions]::IgnoreCase -bor [Text.RegularExpressions.RegexOptions]::CultureInvariant)
+ if(-not $header.Success){throw 'SSIS_PROCEDURE_INSTALLED_HEADER'}
+ return $Definition.Substring($header.Length).TrimEnd()
+}
+function Test-OwnedProcedure($Expected,$Actual){
+ return $Actual.Id -eq $Expected.Id -and $Actual.SchemaId -eq $Expected.SchemaId -and
+     $Actual.Created -eq $Expected.Created -and $Actual.OwnerId -eq $Expected.OwnerId
+}
+function Test-ExactProcedureVersion($Expected,$Actual){
+ return (Test-OwnedProcedure $Expected $Actual) -and $Actual.Modified -eq $Expected.Modified -and
+     $Actual.Definition -ceq $Expected.Definition
+}
 function Reject-Procedure([scriptblock]$Operation,[int]$Number){
  try{& $Operation|Out-Null}catch{
   $leaf=$_.Exception;while($leaf.InnerException){$leaf=$leaf.InnerException}
@@ -82,11 +107,10 @@ $floor=[string](@($manifest.parameters|Where-Object inputName -like '*SourceFloo
 $offset=[string](@($manifest.parameters|Where-Object inputName -like '*Offset')[0].name)
 Assert-Current ($floor -cmatch '^@v[0-9]+$' -and $offset -cmatch '^@v[0-9]+$' -and $floor -cne $offset) 'TYPED_KEYS'
 NonQuery $Connection $definition
+$installed=Get-InstalledProcedure
+Assert-Current ($installed.Definition.TrimEnd() -ceq $definition.TrimEnd()) 'CREATE_PERSISTS_DEFINITION'
 Reject-Procedure {NonQuery $Connection $definition} 2714
-$before=Query $Connection "SELECT object_id AS I,definition AS D FROM sys.sql_modules WHERE object_id=OBJECT_ID(N'ContosoDebug.USP_Synthetic');"
-$installedId=[int]$before.Rows[0].I
-$installedText=[string]$before.Rows[0].D
-Assert-Current ($installedText.TrimEnd() -ceq $definition.TrimEnd()) 'CREATE_COLLISION_PRESERVES_DEFINITION'
+Assert-Current (Test-ExactProcedureVersion $installed (Get-InstalledProcedure)) 'CREATE_COLLISION_PRESERVES_DEFINITION'
 $login='ToolbeltSsisProc_'+$RunId.Substring(0,16)
 $sid=[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(16))
 $password='aA1!'+[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
@@ -159,16 +183,20 @@ try{
   Assert-Current ((Read-Projection ($firstReader.GetAwaiter().GetResult())) -ceq '1=101,2=201' -and
       (Read-Projection ($secondReader.GetAwaiter().GetResult())) -ceq '2=207') 'CONCURRENT_CALLER_SESSIONS'
  }finally{$first.Dispose();$second.Dispose()}
- $same=Query $Connection "SELECT definition AS D FROM sys.sql_modules WHERE object_id=$installedId;"
- Assert-Current ($same.Rows[0].D -ceq $installedText) 'OWNED_UPDATE_PRECONDITION'
- $update='ALTER PROCEDURE '+$definition.Substring('CREATE PROCEDURE '.Length)
+ Assert-Current (Test-ExactProcedureVersion $installed (Get-InstalledProcedure)) 'OWNED_UPDATE_PRECONDITION'
+ $body=Get-InstalledProcedureBody $definition
+ $update='ALTER PROCEDURE '+$body.Replace("SET NOCOUNT ON;`n","SET NOCOUNT ON;`n-- Contoso lifecycle revision 2`n")
+ Assert-Current ($update.Contains('-- Contoso lifecycle revision 2')) 'UPDATE_VERSION_WITNESS'
  NonQuery $Connection $update
+ $updated=Get-InstalledProcedure
+ Assert-Current ((Test-OwnedProcedure $installed $updated) -and
+     (Get-InstalledProcedureBody $updated.Definition) -ceq (Get-InstalledProcedureBody $update)) 'ALTER_PERSISTS_OWNED_VERSION'
  Assert-Current ((Query $caller "EXEC ContosoDebug.USP_Synthetic $floor=150,$offset=7;").Rows[0].Adjusted -eq 207) 'UPDATE_PRESERVES_EXECUTE'
  NonQuery $Connection 'ALTER TABLE dbo.SyntheticSourceA ADD Drift int NULL;'
  Reject-Procedure {Query $caller "EXEC ContosoDebug.USP_Synthetic $floor=0,$offset=1;"} 50000
- $same=Query $Connection "SELECT definition AS D FROM sys.sql_modules WHERE object_id=$installedId;"
- Assert-Current ($same.Rows[0].D.TrimEnd() -ceq $update.TrimEnd()) 'OWNED_REMOVE_PRECONDITION'
+ Assert-Current (Test-ExactProcedureVersion $updated (Get-InstalledProcedure)) 'OWNED_REMOVE_PRECONDITION'
  NonQuery $Connection 'DROP PROCEDURE ContosoDebug.USP_Synthetic;'
+ Assert-Current ((Query $Connection "SELECT OBJECT_ID(N'ContosoDebug.USP_Synthetic',N'P') AS Id;").Rows[0].IsNull('Id')) 'OWN_PROCEDURE_REMOVED'
  Assert-Current ((Query $Connection 'EXEC ContosoDebug.USP_Unrelated;').Rows[0].Witness -eq 7) 'FOREIGN_DDL_OBJECT_PRESERVED'
 }finally{
  $caller.Dispose();$other.Dispose()
