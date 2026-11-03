@@ -54,7 +54,7 @@ class ParameterHelp(unittest.TestCase):
             self.assertEqual(p["description"], notes["toolbelt_tsql.USP_ExplainSsisDataFlow"]["parameter_notes"][p["name"]])
         public = [i for i in generator.catalog.objects(ROOT) if i["type"] == "USP"]
         self.assertEqual(len(public), 74)
-        self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 670)
+        self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 672)
 
     def test_business_sources_are_unchanged_outside_generated_help(self):
         for path in transition.snapshot(ROOT):

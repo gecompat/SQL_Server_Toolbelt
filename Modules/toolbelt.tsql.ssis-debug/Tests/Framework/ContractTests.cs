@@ -30,10 +30,11 @@ internal sealed class SyntheticCatalog : ICatalog
     {
         bool lookup = name == "SyntheticLookup" || name == "SyntheticV2TextLookup";
         if (database != "AdventureWorks" || schema != null && schema != "dbo" || !(name == "SyntheticSourceA" || name == "SyntheticSourceB" || name == "SyntheticLookup" || name == "SyntheticV2TextA" || name == "SyntheticV2TextB" || name == "SyntheticV2TextLookup" || name == "SyntheticIf" || name == "SyntheticPure" || name == "SyntheticFlatFileRows")) return null;
-        var o = new BoundObject { Database = database, Schema = schema, Name = name, Kind = "U", Fingerprint = name + (Drift ? (++resolutions).ToString() : "") };
+        var o = new BoundObject { Database = database, Schema = schema, Name = name, Kind = "U", ObjectId = 1234,
+            Modified = new DateTime(2020, 1, 1), Fingerprint = name + (Drift ? (++resolutions).ToString() : "") };
         if (name == "SyntheticIf") { o.Kind = "IF"; o.Schema = "dbo"; o.Definition = "CREATE FUNCTION dbo.SyntheticIf() RETURNS TABLE AS RETURN (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA);"; }
         if (name == "SyntheticPure") { o.Kind = "IF"; o.Schema = "dbo"; o.Definition = "CREATE FUNCTION dbo.SyntheticPure() RETURNS TABLE AS RETURN (SELECT 1 AS KeyA,10 AS KeyB,100 AS Amount);"; }
-        foreach (string column in new[] { "KeyA", "KeyB", lookup ? "Score" : "Amount" }) o.Columns.Add(new BoundColumn { Name = column, SqlType = TextKeys && column == "KeyA" ? "nvarchar(10)" : "int", Collation = TextKeys && column == "KeyA" ? TextKeyCollation ?? "Latin1_General_100_CS_AS" : null, Nullable = (NullableKeys && column == "KeyA") || (NullableKeyB && column == "KeyB") || (NullableLookupScore && lookup && column == "Score") });
+        foreach (string column in new[] { "KeyA", "KeyB", lookup ? "Score" : "Amount" }) o.Columns.Add(new BoundColumn { Name = column, SqlType = TextKeys && column == "KeyA" ? "nvarchar(10)" : "int", Collation = TextKeys && column == "KeyA" ? TextKeyCollation ?? "Latin1_General_100_CS_AS" : null, Nullable = (NullableKeys && column == "KeyA") || (NullableKeyB && column == "KeyB") || (NullableLookupScore && lookup && column == "Score"), ColumnId = o.Columns.Count + 1, SystemTypeId = 56, UserTypeId = 56, Length = 4, Precision = 10 });
         return o;
     }
 }
@@ -100,7 +101,59 @@ internal static class ContractTests
     { try { var safety = Safety(new SyntheticCatalog()); var query = safety.Read("SELECT " + expression + " AS Value", "AdventureWorks"); Assert(Projection.Columns(query, safety)[0].SqlType == expected, "EXACT_SQL_TYPE_" + expected); } catch (Exception e) { throw new Exception("PROJECT_TYPE_" + expression, e); } }
     private static void Run(string[] args)
     {
-        if (args[0] == "cooperative-budget")
+        if (args[0] == "procedure-definition")
+        {
+            byte[] package = File.ReadAllBytes(args[1]);
+            var catalog = new SyntheticCatalog();
+            var options = Options("explain");
+            options.Operation = "procedure-definition";
+            options.Target = "f0001";
+            options.ProcedureSchema = "ContosoDebug";
+            options.ProcedureName = "USP_Synthetic";
+            Func<byte[], Artifacts> generate = bytes => Engine.Analyze(bytes, options, catalog, new Budget());
+            var artifacts = generate(package).Rows;
+            Assert(artifacts.Any(a => a.Kind == "ProcedureDefinition"), "PROCEDURE_DEFINITION_MISSING " +
+                String.Join(" | ", artifacts.Where(a => a.Kind == "Diagnostic").Select(a => a.Code + ": " + a.Content)));
+            var artifact = artifacts.Single(a => a.Kind == "ProcedureDefinition");
+            var manifest = Json.Object(Json.Parse(artifacts.Single(a => a.Kind == "ProcedureManifest").Content));
+            Assert(artifact.Complete && artifact.Safety == "passed" && !artifact.Executable, "PROCEDURE_DEFINITION_REQUIRES_INSTALL");
+            Assert(Json.Text(Json.Get(manifest, "definitionSha256")) == Util.Hash(artifact.Content), "PROCEDURE_MANIFEST_BINDS_DEFINITION");
+            var parameters = Json.Array(Json.Get(manifest, "parameters")).Select(Json.Object).ToList();
+            Assert(parameters.Count == 2 && parameters.All(p => Json.Text(Json.Get(p, "sqlType")) == "int"), "PROCEDURE_TYPED_INPUTS");
+            var columns = Json.Array(Json.Get(manifest, "columns")).Select(Json.Object).ToList();
+            Assert(columns.Select(c => Json.Text(Json.Get(c, "name"))).SequenceEqual(new[] { "KeyA", "Adjusted" }), "PROCEDURE_STABLE_COLUMNS");
+            Assert(!artifact.Content.Contains("\nGO\n") && artifact.Content.Contains("EXEC sys.sp_executesql @statement") &&
+                artifact.Content.Contains("WITH EXECUTE AS CALLER"), "PROCEDURE_ONE_PARAMETERIZED_SCOPE");
+            Assert(artifact.Content.Contains("is_computed=0") && artifact.Content.Contains("TBX_SSISDBG_cache_ownership") &&
+                artifact.Content.Contains("USP_PrepareResultTable"), "PROCEDURE_DRIFT_COLLISION_AND_ROUTING");
+            var template = Engine.Analyze(package, Options("bindings-template"), catalog, new Budget()).Rows.Single().Content;
+            var changedBindings = Json.Object(Json.Parse(template));
+            var values = Json.Object(Json.Get(changedBindings, "values"));
+            foreach (var p in parameters) values[Json.Text(Json.Get(p, "name")).Substring(1)] = new JsonNumber("478292");
+            options.Bindings = Json.Write(changedBindings);
+            Assert(generate(package).Rows.Single(a => a.Kind == "ProcedureDefinition").Content == artifact.Content,
+                "PROCEDURE_VALUES_NEVER_PERSIST");
+            options.Bindings = null;
+            options.ProcedureName = "USP_" + new string('x', 125);
+            Reject(() => generate(package), "unresolved_binding");
+            options.ProcedureName = "USP_Synthetic];DROP TABLE dbo.Source";
+            Reject(() => generate(package), "unresolved_binding");
+            options.ProcedureName = "USP_Synthetic";
+            options.Stage = "all";
+            Reject(() => generate(package), "unresolved_binding");
+            options.Stage = null;
+            options.Target = null;
+            Reject(() => generate(package), "unresolved_binding");
+            options.Target = "f0001";
+            Assert(generate(File.ReadAllBytes(args[2])).Rows.All(a => a.Kind != "ProcedureDefinition"),
+                "PROCEDURE_UNSUPPORTED_GRAPH_NO_DDL");
+            options.Operation = "explain";
+            Reject(() => generate(package), "unresolved_binding");
+            options.ProcedureName = options.ProcedureSchema = null;
+            Assert(generate(package).Rows.Any(a => a.Kind == "DebugScript" && a.Complete && a.Executable),
+                "PROCEDURE_STANDARD_DEBUG_UNCHANGED");
+        }
+        else if (args[0] == "cooperative-budget")
         {
             var budget = new Budget(); budget.Check(); checks++;
             System.Threading.Thread.Sleep(30050);

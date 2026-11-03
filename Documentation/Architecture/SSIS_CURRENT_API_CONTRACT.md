@@ -99,6 +99,19 @@ als ausführbar bezeichnet. Ein optionales diagnostisches Script ist dann klar
 unvollständig und nicht ausführbar. Kein Script-/SSIS-Task wird zur Analyse
 ausgeführt; keine zusätzlichen Datei-, Netzwerk-, Katalog- oder Serverrechte.
 
+## Parametrisierte Ablaufdefinition
+
+`procedure-definition` selektiert mit exakter Ziel-ID genau einen vollständigen
+Pfad. `ProcedureSchema` und `ProcedureName` werden als rohe Werte vor jeder
+Typverengung geprüft. Die beiden Parameter sind in den übrigen Operationen NULL.
+Das Profil ist auf SQL-Quelle, Derived Column und SQL-Zielprojektion in einer
+Datenbank begrenzt. Der Renderer verwendet die geprüften typisierten
+Planeinheiten des Debugpfads, einen festen parametrisierten SQL-Batch und
+aufrufgebundene lokale Temps. Er liefert die manuell zu prüfende DDL und ein
+separates Manifest. Erzeugung, Erstinstallation, kontrolliertes Ändern und
+Entfernen haben getrennte Verträge. Die [Objektreferenz mit Beispiel](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
+beschreibt Eingaben, Resultset, Aufruferrechte und Ownership-Nachweis.
+
 ## Abnahme und Lieferungen
 
 Hilfe und Beispiele zeigen unmittelbar den Standardaufruf, das Erzeugen und

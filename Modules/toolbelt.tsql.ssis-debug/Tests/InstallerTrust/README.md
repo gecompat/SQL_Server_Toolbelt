@@ -100,7 +100,7 @@ Andere Buildquellen und Modulprofile bleiben exakt gebunden.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-03`
-- Nachweis: `local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit`
-- Scope: Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung.
-- Ergebnis: `success`
+- Nachweis: `local: ProcedureDefinition, Framework Full, SQL-Syntax und Windows-Lab-Audit`
+- Scope: Reproduzierbarer CLR-Build, 27 Framework-Fälle und 15 SQL-Syntaxfälle bestanden. Windows SQL2025/CU8, CL150 erzeugte und installierte die Definition und wies die doppelte Erstinstallation ab. Der Gesamtfall endete vor der Lowpriv-Anmeldung mit einem Adapterfehler und FAILED_CLEANED. Die korrigierte Verbindungseigenschaft wurde offline geprüft. Der unabhängige Abschlussaudit bestand. Paket- und vollständige native Qualifikation bleiben offen.
+- Ergebnis: `partial`
 <!-- END GENERATED:MODULE_EVIDENCE -->

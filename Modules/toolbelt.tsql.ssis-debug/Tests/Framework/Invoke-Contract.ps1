@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
-    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation')][string]$Profile = 'Full',
+    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation','ProcedureDefinition')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
     [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
@@ -76,6 +76,16 @@ if ($ResourceProbePath) {
 if ($Profile -eq 'ComponentsV2Branch') {
     try {
         Invoke-Case @('components-v2-branch')
+        if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
+        "SSIS_FRAMEWORK_PASS $cases bounded children"
+        return
+    } finally { Remove-FrameworkTemp }
+}
+$procedureCase = @('procedure-definition', (Join-Path $moduleRoot 'Tests/Fixtures/procedure-8.dtsx'),
+    (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+if ($Profile -eq 'ProcedureDefinition') {
+    try {
+        Invoke-Case $procedureCase
         if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
         "SSIS_FRAMEWORK_PASS $cases bounded children"
         return
@@ -162,6 +172,7 @@ foreach ($format in @(6,8)) {
 if ($Profile -eq 'Full') {
     # Weitere adversariale und Ressourcenfälle werden mit demselben begrenzten
     # Prozessadapter ausgeführt; kein SQL-Server-Aufruf in dieser Qualifikation.
+    Invoke-Case $procedureCase
     Invoke-Case @('safety', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     Invoke-Case @('sql-regression', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     Invoke-Case @('v1-boundaries', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))

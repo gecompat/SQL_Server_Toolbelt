@@ -3,6 +3,29 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Parametrisierte Prozedurdefinition V1
+
+Am 2026-11-03 bestanden der statische Vertragscheck, der reproduzierbare
+CLR-Build und `Invoke-Contract.ps1 -Profile Full` mit 27 begrenzten
+Framework-Fällen. Das Profil `ProcedureDefinition` prüft darunter die
+typisierte Definition, Manifestbindung, stabile SQL-Ausgabe bei veränderten
+Szenariowerten und die Abweisung ungeeigneter Pfade und Namen.
+
+`Invoke-ProcedureDefinitionLab.ps1 -Mode Run` erreichte auf Windows SQL
+Server 2025/CU8, CL150, die Erzeugung über die öffentliche API, die Ausführung
+der DDL und die Abweisung einer doppelten Erstinstallation. Der Lauf endete
+mit `FAILED_CLEANED`, weil der PowerShell-Testadapter vor dem Lowpriv-Aufruf
+eine Verbindungseigenschaft falsch setzte. Die korrigierte Eigenschaftsbindung
+ist offline geprüft. Der unabhängige Windows-Abschlussaudit mit `-Mode Audit`
+bestand und bestätigte die Bereinigung. Die Lowpriv-, ResultTable-, Parallel-,
+Drift- und Update-/Entfernungsprüfungen des korrigierten Adapters stehen nativ
+aus. Der Lauf verwendete den funktionalen Transportvertrag.
+
+Bestehende ZIPs und Qualifikationsnachweise sind an ihre ursprüngliche
+API-Signatur und die zugehörigen Artefakte gebunden. Die Releaseprüfungen für
+diese Bindung erkennen die neue Signatur als Abweichung. Eine qualifizierte
+Lieferung der neuen API und Head-/Main-CI stehen aus.
+
 ## Nativer Windows-SSMS-Gesamtfall
 
 Der [Gesamtnachweis vom 2026-11-03](Qualification/SsmsClient.Complete.Windows.20261103.json)
@@ -988,9 +1011,9 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-03`
-- Nachweis: `local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit`
-- Scope: Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung.
-- Ergebnis: `success`
+- Nachweis: `local: ProcedureDefinition, Framework Full, SQL-Syntax und Windows-Lab-Audit`
+- Scope: Reproduzierbarer CLR-Build, 27 Framework-Fälle und 15 SQL-Syntaxfälle bestanden. Windows SQL2025/CU8, CL150 erzeugte und installierte die Definition und wies die doppelte Erstinstallation ab. Der Gesamtfall endete vor der Lowpriv-Anmeldung mit einem Adapterfehler und FAILED_CLEANED. Die korrigierte Verbindungseigenschaft wurde offline geprüft. Der unabhängige Abschlussaudit bestand. Paket- und vollständige native Qualifikation bleiben offen.
+- Ergebnis: `partial`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 Die Exchange-Gegenproben prüfen zusätzlich `--bundle` auf beiden Hosts. Fehlende,
