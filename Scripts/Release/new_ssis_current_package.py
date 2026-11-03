@@ -20,8 +20,15 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = "Modules/toolbelt.tsql.ssis-debug/"
 NAME = "SSIS-Debug-Current-Install-Windows"
+PROCEDURE_NAME = "SSIS-Debug-ProcedureV1-Install-Windows"
 LEGACY = "SSIS-Debug-1.0.0-Install-Windows"
 PREDECESSOR_SHA256 = "A256929FF32DAEE4087DC61C70BB8D4DFFEBB55772878BE53C658088F4E33049"
+CURRENT_PROFILE = "ssis-debug-current"
+PROCEDURE_PROFILE = "ssis-debug-procedure-v1"
+PROFILES = {
+    CURRENT_PROFILE: (NAME, (2026, 10, 29), "ssis_current_native_qualification"),
+    PROCEDURE_PROFILE: (PROCEDURE_NAME, (2026, 11, 4), "ssis_procedure_v1_native_qualification"),
+}
 
 
 def sha(data, algorithm="sha256"):
@@ -35,6 +42,27 @@ def require(value, reason):
 
 def encoded(value):
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+
+def validate_native_record(record, profile):
+    require(record.get("kind") == PROFILES[profile][2] and record.get("profile") == profile and
+            record.get("result") == "PASS" and record.get("publication_authorized") is False,
+            "native qualification status")
+    expected = ({("2025", 150, "local")} if profile == PROCEDURE_PROFILE else
+                {(version, level, mode) for version, level in (("2019", 150), ("2022", 160), ("2025", 170))
+                 for mode in ("local", "central")})
+    cases = record["cases"]
+    require(len(cases) == len(expected) and
+            {(case["sql_version"], case["compatibility_level"], case["deployment_mode"]) for case in cases} == expected and
+            all(case.get("result") == "PASS" and case.get("cleanup_audit") == "PASS" and
+                case.get("current_contract") == "PASS" for case in cases),
+            "native qualification matrix")
+    if profile == PROCEDURE_PROFILE:
+        case = cases[0]
+        require(case.get("patch") == "CU8" and case.get("test_purpose") == "Functional" and
+                case.get("native_assertions") == 91 and case.get("procedure_removed") is True and
+                case.get("foreign_object_preserved") is True and case.get("real_lowpriv") is True,
+                "procedure V1 native scope")
 
 
 def load_legacy_guard():
@@ -70,6 +98,8 @@ def validate_output(path):
 
 def build(args):
     output, sidecar = validate_output(args.output)
+    profile = getattr(args, "profile", CURRENT_PROFILE)
+    name, date, _ = PROFILES[profile]
     guard = load_legacy_guard()
     require(sha(guard.ARCHIVE.read_bytes()) == PREDECESSOR_SHA256,
             "frozen previously qualified predecessor")
@@ -89,24 +119,7 @@ def build(args):
             "qualification source boundary")
     qualification_bytes = source(qualification_path)
     record = json.loads(qualification_bytes)
-    require(record.get("kind") == "ssis_current_native_qualification" and
-            record.get("result") == "PASS" and
-            record.get("publication_authorized") is False,
-            "explicit completed current qualification")
-    require(record.get("profile") == "ssis-debug-current",
-            "qualified profile")
-    expected = {(v, cl, mode) for v, levels in
-                (("2019", (150,)), ("2022", (160,)),
-                 ("2025", (170,)))
-                for cl in levels for mode in ("local", "central")}
-    cases = record.get("cases", [])
-    actual = {(case["sql_version"], case["compatibility_level"],
-               case["deployment_mode"]) for case in cases}
-    require(actual == expected and len(cases) == len(expected) and
-            all(case.get("result") == "PASS" and
-                case.get("cleanup_audit") == "PASS" and
-                case.get("current_contract") == "PASS" for case in cases),
-            "complete finite Windows version/CL/mode qualification")
+    validate_native_record(record, profile)
     with zipfile.ZipFile(guard.ARCHIVE) as archive:
         payload = {name[len(LEGACY) + 1:]: archive.read(name)
                    for name in archive.namelist() if not name.endswith("/")}
@@ -167,6 +180,9 @@ def build(args):
     payload["START-HERE.txt"] = (
         b"SSIS-Debug: aktueller unveroeffentlichter Entwicklungsstand fuer Windows.\n" +
         original_notice +
+        (b"\nProzedurdefinition V1: nativ geprueft auf Windows SQL Server 2025 CU8, CL150, lokal.\n"
+         b"Aufruf und Installationsgrenzen stehen in Documentation/USP_ExplainSsisDataFlow.md im SSIS-Modul.\n"
+         if profile == PROCEDURE_PROFILE else b"") +
         b"\nAktuelles Profil ohne Versions-Opt-in. Grenzen nur ueber SQL-@Max-Parameter.\n"
         b"Parameter-Vorlage: @Operation='bindings-template'; values editieren und als @Bindings uebergeben.\n"
         b"DebugScript enthaelt die vollstaendige, gepruefte Batchfolge fuer aufloesbare Ziele.\n"
@@ -178,8 +194,8 @@ def build(args):
     old_manifest = json.loads(payload["PACKAGE-MANIFEST.json"])
     output_manifest = dict(old_manifest)
     output_manifest.update(
-        packageName=NAME, packageDate="2026-10-29", sourceCommit=commit,
-        componentProfile="ssis-debug-current", publicationAuthorized=False,
+        packageName=name, packageDate="%04d-%02d-%02d" % date, sourceCommit=commit,
+        componentProfile=profile, publicationAuthorized=False,
         nativeBinaryQualification=qualification_path,
         nativeQualificationSha256=sha(qualification_bytes),
         predecessorPackageSha256=sha(guard.ARCHIVE.read_bytes()),
@@ -195,7 +211,7 @@ def build(args):
     validate_output(output)
     with zipfile.ZipFile(output, "x", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path, data in sorted(payload.items()):
-            info = zipfile.ZipInfo(NAME + "/" + path, (2026, 10, 29, 0, 0, 0))
+            info = zipfile.ZipInfo(name + "/" + path, (*date, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.create_system = 3
             info.external_attr = 0o100644 << 16
@@ -208,6 +224,7 @@ def build(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-commit", default="HEAD")
+    parser.add_argument("--profile", choices=PROFILES, default=CURRENT_PROFILE)
     parser.add_argument("--ssis-release", required=True, type=Path)
     parser.add_argument("--qualification", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)

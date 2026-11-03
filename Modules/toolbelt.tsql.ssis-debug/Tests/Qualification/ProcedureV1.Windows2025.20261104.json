@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_procedure_v1_native_qualification",
+  "profile": "ssis-debug-procedure-v1",
+  "qualification_date": "2026-11-04",
+  "result": "PASS",
+  "publication_authorized": false,
+  "execution_source_commit": "179aa6125d96b033e051277a4d7358d6a5d22f77",
+  "execution_inputs": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ProcedureDefinitionCases.ps1": "e3fbbdf106fbb15eef6609c68e6dbb1e797044a914a5b13882066fd586a60464",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1": "30dd642419bc5841f1bea0bfabf54052446ce6c5310ca2d5937230dc65c73dd1",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-8.dtsx": "5cda809a5fbd73841f11c86a7f5a14ce0a7620880e4948645deee4526913bec1"
+  },
+  "qualified_trust_manifest_sha256": "AA3CF3B1EA750914FE0477D8894D2C9E5AD22B0BBADC15808B2A6E5C10952D0B",
+  "qualified_assembly_sha256": "0070488ad668607562393e97c1b80d8307950830aad236af71b32efe126634fd",
+  "qualified_deploy_sql_sha256": "771421ecfcac5906f669f1f155b4f713c06f8b02cdcfc2fa605f64eee91b1aaf",
+  "qualified_uninstall_sql_sha256": "7c0205e5046253493b2fd130af8734cfb5b97f25b88cd9b504b02fa09cfc124f",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "patch": "CU8",
+      "compatibility_level": 150,
+      "deployment_mode": "local",
+      "test_purpose": "Functional",
+      "authenticated_tls": "not executed",
+      "native_assertions": 91,
+      "real_lowpriv": true,
+      "procedure_removed": true,
+      "foreign_object_preserved": true,
+      "result": "PASS",
+      "cleanup_audit": "PASS",
+      "current_contract": "PASS"
+    }
+  ]
+}

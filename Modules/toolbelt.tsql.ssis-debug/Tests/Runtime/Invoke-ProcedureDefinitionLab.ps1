@@ -7,6 +7,8 @@ param(
  [Parameter(Mandatory)][string]$JournalDirectory,
  [string]$SsisReleaseDirectory,
  [string]$ParserReleaseDirectory,
+ [string]$InstallationPackageRoot,
+ [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedPackageManifestSha256,
  [ValidatePattern('^[0-9A-F]{128}$')][string]$QualifiedProviderSha512,
  [Parameter(Mandatory)][hashtable]$CaseInputSha256,
  [switch]$ValidateOnly
@@ -36,8 +38,21 @@ $target=@{Version='2025';Patch='CU8';ExpectedTargetKey=$ExpectedTargetKey;Expect
 if($Mode -eq 'Run'){
  $original=Join-Path $PSScriptRoot 'Invoke-LabContract.ps1'
  if((Get-FileHash -LiteralPath $original).Hash -cne '4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570'){throw 'SSIS_PROCEDURE_LAB_HARNESS_CHANGED'}
- if(-not ($SsisReleaseDirectory -and $ParserReleaseDirectory -and $QualifiedProviderSha512)){throw 'SSIS_PROCEDURE_BUILD_REQUIRED'}
+ if(-not $QualifiedProviderSha512){throw 'SSIS_PROCEDURE_BUILD_REQUIRED'}
  $text=[IO.File]::ReadAllText($original)
+ if($InstallationPackageRoot){
+  $package=[IO.Path]::GetFullPath($InstallationPackageRoot)
+  if(-not $package.StartsWith($runtime,[StringComparison]::OrdinalIgnoreCase) -or
+     $SsisReleaseDirectory -or $ParserReleaseDirectory -or -not $ExpectedPackageManifestSha256 -or
+     (Get-FileHash -LiteralPath (Join-Path $package 'PACKAGE-MANIFEST.json')).Hash -cne $ExpectedPackageManifestSha256){
+   throw 'SSIS_PROCEDURE_PACKAGE_BINDING'
+  }
+  $text=Replace-Once $text "'SSIS-Debug-1.0.0-Install-Windows'" "'SSIS-Debug-ProcedureV1-Install-Windows'"
+  $target.InstallationPackageRoot=$package
+ }elseif($SsisReleaseDirectory -and $ParserReleaseDirectory -and -not $ExpectedPackageManifestSha256){
+  $target.SsisReleaseDirectory=$SsisReleaseDirectory
+  $target.ParserReleaseDirectory=$ParserReleaseDirectory
+ }else{throw 'SSIS_PROCEDURE_BUILD_REQUIRED'}
  foreach($line in @($text -split "`n"|Where-Object {$_ -match 'Invoke-(CoreContract|ApiCases|ReleaseRightsCases|LifecycleCases)\.ps1'})){
   $text=Replace-Once $text $line ''
  }
@@ -50,8 +65,6 @@ if($Mode -eq 'Run'){
  $target.Modes=@('local')
  $target.CompatibilityLevel=150
  $target.JournalDirectory=$journal
- $target.SsisReleaseDirectory=$SsisReleaseDirectory
- $target.ParserReleaseDirectory=$ParserReleaseDirectory
  $target.QualifiedProviderSha512=$QualifiedProviderSha512
 }else{
  $original=Join-Path $PSScriptRoot 'Invoke-ComponentsV2Audit.ps1'
