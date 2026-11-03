@@ -3,7 +3,32 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
-## Sichtbarer Windows-SSMS-Teilnachweis
+## Nativer Windows-SSMS-Gesamtfall
+
+Der [Gesamtnachweis vom 2026-11-03](Qualification/SsmsClient.Complete.Windows.20261103.json)
+bindet einen sichtbaren SSMS-Lauf auf Windows SQL2025/CU8, CL150. Der
+Zielvorcheck bestätigte NTLM und Verschlüsselung vor der Datenbankanlage.
+Der Benutzer stellte die Verbindung her und setzte die Gridoptionen.
+Erst- und Wiederholungsinstallation, aktuelle API und die gespeicherte
+vollständige Unicode-Zellenkopie bestanden.
+
+In SQLCMD Mode beendete `:ON ERROR EXIT` die kontrollierte Probe bei Fehler
+51001. Der Koordinator bestätigte serverseitig Phase 1 und das Ausbleiben
+des späteren Kontrollbatches. Danach lieferte die verifizierte vollständige
+Ausführungsdatei zwei erwartete Zeilen und das Unicode-Receipt ohne Fehler.
+Der Koordinator bestätigte Phase 2 und meldete `PASS_CLEANED` mit einem Fall
+und 17 Prüfungen. Der getrennt gestartete Windows-Audit bestand mit Bindung
+an das finale Journal. Testdatenbank und SSMS-Instanz sind entfernt,
+Konfiguration und Trust wiederhergestellt, andere Verbraucher unverändert.
+
+Der [Ablauf](WindowsClientRecovery/README.md#mehrere-batches-und-überprüfter-fehlerabbruch)
+erklärt die Stopprobe und den Receipt-Abschluss. Der
+[Offlinevalidator](../../../Scripts/Release/validate_ssis_ssms_gui.py)
+prüft diesen Record und seine statischen Quellbindungen getrennt vom
+historischen Teilnachweis. Der Umfang gilt für das gewählte Labziel mit
+dem Functional-Transportvertrag und mit Bedienerunterstützung.
+
+## Historischer Windows-SSMS-Teilnachweis
 
 Der getrennte [SSMS-Clientnachweis](Qualification/SsmsClient.Windows.20261101.json)
 belegt auf dem ausgewählten Windows SQL2025/CU8, CL150 die sichtbare
@@ -23,16 +48,15 @@ gemeinsamen Frist und bestand. Eigene Datenbank und SSMS-Instanz sind entfernt,
 Konfiguration und Trust wiederhergestellt, andere Verbraucher unverändert.
 Der [Offlinevalidator](../../../Scripts/Release/validate_ssis_ssms_gui.py)
 verhindert die Aufwertung dieses begrenzten Nachweises zum grünen Gesamtkoordinator.
-Der offene Rest ist dessen finaler Receipt-/Gesamtabschluss. Historische
-Fehler und Teilnachweise bleiben erhalten; keine Veröffentlichung.
+Der finale Receipt-/Gesamtabschluss war in diesem Lauf offen. Historische
+Fehler und Teilnachweise bleiben erhalten.
 
 Die autonome Fortsetzung vom2026-11-02 endete vor der Datenbankanlage am
 SSMS-Verbindungs-Bestätigungsdialog; es gab keine GUI-Eingabe oder GUI-Abfrage.
 Der Koordinator blieb `FAILED_CLEANED`, der frische unabhängige Windows-Audit
 bestand. Der [Receipt-Ablauf und seine Autonomiegrenze](WindowsClientRecovery/README.md#autonomer-receipt-ablauf-und-aktuelle-grenze)
 beschreiben die ergänzte SQL-freie Ausführungshülle und acht Gegenproben.
-Die Strecke nach der Anmeldung ist noch nicht nativ ausgeführt; der grüne
-SSMS-Gesamtabschluss bleibt offen.
+In dieser Probe wurde die Strecke nach der Anmeldung nicht nativ ausgeführt.
 
 Ein [Start vor der Anmeldung](WindowsClientRecovery/README.md#sichtbarer-start-vor-der-anmeldung)
 ist mit vier zusätzlichen Offlinegegenproben vorbereitet: eigene gebundene
@@ -46,14 +70,14 @@ behauptet. Der Koordinator blieb `FAILED_CLEANED` mit elf Checks, der frische
 Windows-Audit bestand. Der [korrigierte Mehrbatch-Pfad](WindowsClientRecovery/README.md#mehrere-batches-und-überprüfter-fehlerabbruch)
 verwendet SQLCMD Mode mit `:ON ERROR EXIT` und verlangt zuerst einen nativen
 Stopnachweis vor einer späteren Testmarkierung. Zwölf Offlinegegenproben sind
-vorbereitet; der neue native SQLCMD-Gesamtabschluss bleibt offen. Zwei
+vorbereitet. Zwei
 anschließende begrenzte SQLCMD-Proben endeten jeweils vor der ersten
 GUI-Abfrage am Anmeldevorcheck, auch mit20 Minuten Vorcheckfrist. Beide
 blieben `FAILED_CLEANED` mit frischem Windows-Audit PASS; die sichere
 Bereinigung ersetzt keine Ausführung der Stopgegenprobe oder des Receipts.
 
 Die [direkte Übergabe der sichtbaren Vorcheckzeile](WindowsClientRecovery/README.md#sichtbaren-vorcheck-direkt-übergeben)
-ist in der aktuellen SQLCMD-Methode offline geprüft. Der Operator übernimmt
+ist offline und im späteren nativen Gesamtfall geprüft. Der Operator übernimmt
 die kopierte Ergebniszeile mit Laufkennung in einem lokalen Befehl. Der
 Koordinator bindet die Beobachtung an seine Ready-Datei, die Abfrage,
 die eigene Instanz und das konkrete Fristende.
@@ -67,8 +91,8 @@ bestanden mit 95 Assertions; zwei SQL-Clientabbrüche mit 18 Assertions und
 frischem Audit prüfen aktuellen DebugScript-Neustart und Caller-Rollback.
 Der Koordinator überlebt; OS-/VM-Ausfall ist nicht qualifiziert.
 [Methode, Originalfehler, Cleanup und Wiederholung](WindowsClientRecovery/README.md)
-trennen diese grünen Teilumfänge vom weiterhin separat erforderlichen vollständigen
-Windows-/SSMS-Clientweg. Der getrennte
+trennen diese grünen Teilumfänge vom separat geprüften
+Windows-/SSMS-Gesamtfall. Der getrennte
 [Windows-Installer-/Clientnachweis](Qualification/InstallerClient.Windows.20261101.json)
 belegt auf SQL2025/CU8, CL150 die öffentliche Vorbereitung, erfolgreiche Erst-
 und Wiederholungsinstallation sowie die aktuelle API und vollständige
@@ -963,9 +987,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-01`
-- Nachweis: `local: separater sichtbarer Windows-SSMS-Teilnachweis und frischer Windows-Audit`
-- Scope: Ausgewähltes Windows SQL2025/CU8, CL150: sichtbarer NTLM-/Ziel-/Verschlüsselungsvorcheck, aktuelle API-Erzeugung und vollständige Unicode-Zellenkopie über SSMS. Gespeicherte Kopie vor Ausführung hashgleich zum aktuellen Serverartefakt; tatsächliche GUI-Ausführung mit zwei erwarteten Zeilen und fehlerfreiem Messages-Abschluss. Benutzerunterstützung bei Anmeldung, Gridoptionen und Ausführung nach Fehlern der UI-Automation erfasst. Elf native Checks und separate visuelle Evidenz; der Gesamtkoordinator bleibt FAILED_CLEANED, weil das finale Phase2-Receipt nicht ausgeführt wurde. Der eine reservierte frische Windows-Audit lief danach innerhalb der Frist und bestand; eigene Datenbank und SSMS-Instanz entfernt, Konfiguration/Trust wiederhergestellt, andere Verbraucher unverändert. Der neue Record behauptet keinen grünen Gesamtfall. Finaler Receipt-/Koordinatorabschluss bleibt offen; keine Veröffentlichung.
+- Datum: `2026-11-03`
+- Nachweis: `local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit`
+- Scope: Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

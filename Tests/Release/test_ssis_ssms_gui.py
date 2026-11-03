@@ -188,5 +188,57 @@ class EvidenceTests(unittest.TestCase):
             self.validator.validate_report(report, lambda p: changed if p == path else (ROOT / p).read_bytes(), self.windows)
 
 
+class NativeSqlcmdEvidenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+        import validate_ssis_ssms_gui as validator
+        cls.validator = validator
+        cls.report = json.loads((ROOT / validator.SQLCMD_RECORD).read_text(encoding='utf-8'))
+
+    def reject(self, section, key, value):
+        report = copy.deepcopy(self.report)
+        report[section][key] = value
+        with self.assertRaises(ValueError):
+            self.validator.validate_sqlcmd_report(report, lambda p: (ROOT / p).read_bytes())
+
+    def test_actual_native_record_and_sources(self):
+        self.assertEqual(self.validator.validate_sqlcmd(ROOT)['result'], 'PASS_CLEANED')
+
+    def test_sql_error_without_native_stop_is_insufficient(self):
+        for key, value in [('expected_error', 51000), ('additional_errors', 1),
+                           ('later_sentinel_not_executed', False), ('phase_after_error', 99),
+                           ('executed_text_matched', False)]:
+            with self.subTest(key=key):
+                self.reject('sqlcmd_stop', key, value)
+
+    def test_visible_receipt_without_native_phase_two_is_insufficient(self):
+        self.reject('coordinator', 'phase2_receipt_confirmed', False)
+        self.reject('coordinator', 'native_cases', 0)
+
+    def test_complete_copy_and_execution_are_required(self):
+        for key, value in [('whole_unicode_cell_copied', False), ('saved_utf16_lf_hash_matched', False),
+                           ('executed_envelope_verified', False), ('target_rows', 1),
+                           ('messages_errors', 1), ('operator_connected', False)]:
+            with self.subTest(key=key):
+                self.reject('ssms_execution', key, value)
+
+    def test_audit_must_bind_cleaned_run(self):
+        self.reject('cleanup', 'audit_bound_to_final_journal', False)
+        self.reject('cleanup', 'fresh_windows_audit', 'not executed')
+        self.reject('cleanup', 'other_consumers_unchanged', False)
+
+    def test_native_source_changes_cannot_be_rebound(self):
+        report = copy.deepcopy(self.report)
+        path = next(iter(report['source_sha256']))
+        changed = (ROOT / path).read_bytes() + b'\n'
+        read = lambda p: changed if p == path else (ROOT / p).read_bytes()
+        with self.assertRaisesRegex(ValueError, 'SQLCMD_SOURCE_BINDING'):
+            self.validator.validate_sqlcmd_report(report, read)
+        report['source_sha256'][path] = self.validator.digest(changed)
+        with self.assertRaisesRegex(ValueError, 'SQLCMD_SOURCE_MAP'):
+            self.validator.validate_sqlcmd_report(report, read)
+
+
 if __name__ == '__main__':
     unittest.main()
