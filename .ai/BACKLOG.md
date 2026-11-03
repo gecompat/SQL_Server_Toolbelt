@@ -2,6 +2,15 @@
 
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
+Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)
+ist seit 2026-11-03 abgeschlossen. Auf Windows SQL2025/CU8, CL150 bestand
+die native SQLCMD-Stopprobe vor dem späteren Kontrollbatch. Die vollständige
+Unicode-Kopie lieferte beide erwarteten Zeilen und das serverseitig bestätigte
+Phase2-Receipt. Der Koordinator meldete `PASS_CLEANED` mit 17 Prüfungen.
+Der frische Windows-Audit band das finale Journal und bestätigte die
+Wiederherstellung. Die begrenzte Welle ist geschlossen. Die folgenden
+Einträge dokumentieren frühere Versuche und deren jeweilige Grenzen.
+
 Sichtbarer Clientstart und Mehrbatch-Korrektur vom2026-11-02:
 Der [ergänzte Start](../Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md#sichtbarer-start-vor-der-anmeldung)
 bestand nativ den sichtbaren NTLM-/Ziel-/Verschlüsselungsvorcheck, öffentliche

@@ -8,6 +8,9 @@ from pathlib import Path
 MODULE = 'Modules/toolbelt.tsql.ssis-debug/'
 AREA = MODULE + 'Tests/WindowsClientRecovery/'
 RECORD = MODULE + 'Tests/Qualification/SsmsClient.Windows.20261101.json'
+SQLCMD_RECORD = MODULE + 'Tests/Qualification/SsmsClient.Complete.Windows.20261103.json'
+# Bind the complete static plan closure plus the copy verifier to the native run.
+SQLCMD_SOURCE_MAP_SHA256 = '83F8B66C547560E1486FB02762CB647979EE7F4C778A5680AC0828035C7F9FF3'
 METHODS = {
     AREA + 'Invoke-SsmsQualification.ps1': 'E8D7791939C1C1C814FE4F341BC7737FD61D306418C595EC5C0BEE22F6A40BFE',
     AREA + 'SsmsGuiHook.ps1': '96733D52B24895B378112AD1601FCD86D55C7AEECE7BA5D81FFA14A920AF2824',
@@ -94,6 +97,58 @@ def validate(root):
     return report
 
 
+def validate_sqlcmd_report(report, read):
+    require(report['contract'] == 'ssis-native-windows-ssms-sqlcmd/1'
+            and report['date'] == '2026-11-03' and report['result'] == 'PASS_CLEANED'
+            and report['publication_authorized'] is False, 'SQLCMD_HEADER')
+    require(report['toolbelt_source_commit'] == '2a1f33f910be636d9240f90d1406dbf118f120b4'
+            and report['lab_source_commit'] == '6c6c6c3c80f8eda1c8302a1775d4b3fb164c9238', 'SQLCMD_BASE')
+    pins = report['source_sha256']
+    require(type(pins) is dict, 'SQLCMD_SOURCE_MAP')
+    canonical = json.dumps(pins, sort_keys=True, separators=(',', ':')).encode('utf-8')
+    require(digest(canonical) == SQLCMD_SOURCE_MAP_SHA256, 'SQLCMD_SOURCE_MAP')
+    for path, pin in pins.items():
+        require(digest(read(path)) == pin, 'SQLCMD_SOURCE_BINDING')
+    exact(report['target'], {'platform': 'Windows', 'sql_version': '2025', 'patch': 'CU8',
+          'compatibility_level': 150}, 'SQLCMD_TARGET')
+    exact(report['coordinator'], {'native_cases': 1, 'native_assertions': 17,
+          'phase2_receipt_confirmed': True}, 'SQLCMD_COORDINATOR')
+    exact(report['preflight'], {'target_witness_matched': True, 'observed_result_bound_to_run': True,
+          'before_database_creation': True, 'authentication': 'NTLM', 'same_owned_ssms_instance': True},
+          'SQLCMD_PREFLIGHT')
+    exact(report['installer_and_api'], {'public_installer_passes': 2, 'repeat_trust_unchanged': True,
+          'current_api_parameters': 38}, 'SQLCMD_INSTALLER_AND_API')
+    exact(report['sqlcmd_stop'], {'on_error': 'EXIT', 'expected_error': 51001, 'additional_errors': 0,
+          'executed_text_matched': True, 'later_sentinel_not_executed': True, 'phase_after_error': 1},
+          'SQLCMD_STOP')
+    exact(report['ssms_execution'], {'whole_unicode_cell_copied': True, 'saved_utf16_lf_hash_matched': True,
+          'executed_envelope_verified': True, 'target_rows': 2, 'unicode_receipt_visible': True,
+          'messages_errors': 0, 'operator_connected': True, 'operator_set_grid_options': True}, 'SQLCMD_GUI')
+    exact(report['cleanup'], {'database_absent': True, 'owned_ssms_closed': True, 'configuration_restored': True,
+          'trust_restored': True, 'other_consumers_unchanged': True, 'fresh_windows_audit': 'PASS',
+          'audit_bound_to_final_journal': True}, 'SQLCMD_CLEANUP')
+    exact(report['bounds'], {'native_invocations': 2, 'owned_databases': 1, 'visible_query_executions': 4,
+          'maximum_minutes': 45, 'completed_within_bound': True, 'automatic_retry': False}, 'SQLCMD_BOUNDS')
+    exact(report['transport'], {'purpose': 'Functional', 'encrypted': True,
+          'explicit_contract_trust_value': True}, 'SQLCMD_TRANSPORT')
+    require(report['excluded'] == [
+        'Unattended SSMS login',
+        'Other SQL versions or platforms for this GUI path',
+        'Authenticated TLS and uninterrupted public Windows TLS Lab creation',
+        'OS or VM loss of the coordinator',
+    ], 'SQLCMD_SCOPE')
+
+
+def validate_sqlcmd(root):
+    root = Path(root)
+    report = json.loads((root / SQLCMD_RECORD).read_text(encoding='utf-8'))
+    validate_sqlcmd_report(report, lambda path: (root / path).read_bytes())
+    return report
+
+
 if __name__ == '__main__':
-    result = validate(Path(__file__).resolve().parents[2])
+    root = Path(__file__).resolve().parents[2]
+    validate(root)
+    validate_sqlcmd(root)
     print('SSIS_VISIBLE_WINDOWS_SSMS_PASS; 11 native checks plus separate GUI evidence and fresh Windows audit; overall coordinator FAILED_CLEANED; no SQL execution')
+    print('SSIS_NATIVE_WINDOWS_SSMS_SQLCMD_PASS; bound record for one cleaned case, 17 native checks and fresh Windows audit; no SQL execution')

@@ -72,8 +72,11 @@ im SQLCMD-Modus mit `DeploymentMode=local` oder `central` ausführen. Der
 UNSAFE-/Strict-Security-Vertrag wird nicht aufgeweicht. Shared Dependencies
 und Trusteinträge werden beim Uninstall nicht entfernt.
 Der getrennte [administrative SSIS-Trustschritt](Tests/InstallerTrust/README.md)
-ist auf Windows SQL2019/2022/2025 geprüft; die vollständige Windows-Anmeldung
-des Installationsbeispiels und dessen Servervorbereitung bleiben separat.
+ist auf Windows SQL2019/2022/2025 geprüft. Die [öffentliche Servervorbereitung](Tests/README.md#aktuelle-vorbereitung-und-harte-clientabbrüche)
+ist für diese drei Versionen getrennt qualifiziert. Der sichtbare
+[Windows-/SSMS-Gesamtfall](Tests/README.md#nativer-windows-ssms-gesamtfall)
+umfasst die Windows-Erst- und Wiederholungsinstallation auf SQL2025/CU8,
+die SQLCMD-Stopprobe und die vollständige DebugScript-Ausführung mit Receipt.
 
 Die aktuelle Funktionsabnahme bindet den heutigen Source-Build an das vorhandene
 [Parameter-Help-Paket](../../Releases/1.0.0/PARAMETER-HELP.md). Sie umfasst zwölf
@@ -99,9 +102,9 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-01`
-- Nachweis: `local: separater sichtbarer Windows-SSMS-Teilnachweis und frischer Windows-Audit`
-- Scope: Ausgewähltes Windows SQL2025/CU8, CL150: sichtbarer NTLM-/Ziel-/Verschlüsselungsvorcheck, aktuelle API-Erzeugung und vollständige Unicode-Zellenkopie über SSMS. Gespeicherte Kopie vor Ausführung hashgleich zum aktuellen Serverartefakt; tatsächliche GUI-Ausführung mit zwei erwarteten Zeilen und fehlerfreiem Messages-Abschluss. Benutzerunterstützung bei Anmeldung, Gridoptionen und Ausführung nach Fehlern der UI-Automation erfasst. Elf native Checks und separate visuelle Evidenz; der Gesamtkoordinator bleibt FAILED_CLEANED, weil das finale Phase2-Receipt nicht ausgeführt wurde. Der eine reservierte frische Windows-Audit lief danach innerhalb der Frist und bestand; eigene Datenbank und SSMS-Instanz entfernt, Konfiguration/Trust wiederhergestellt, andere Verbraucher unverändert. Der neue Record behauptet keinen grünen Gesamtfall. Finaler Receipt-/Koordinatorabschluss bleibt offen; keine Veröffentlichung.
+- Datum: `2026-11-03`
+- Nachweis: `local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit`
+- Scope: Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
