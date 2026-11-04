@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: Prozedurdefinition und exaktes Installations-ZIP nativ auf SQL2025/CU8, CL150, lokal geprüft. Frühere Builds behalten ihre gebundenen Windows-Nachweise."
+  windows: "partially validated: V1-Prozedurdefinition und exaktes ZIP auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8 mit allen unterstützten CL150/160/170 lokal und zentral geprüft. Weitere Modulnachweise bleiben buildgebunden."
   linux: "not applicable: UNSAFE SQL CLR wird nicht unterstützt."
 providers:
   - id: clr-ssis-debug
@@ -247,4 +247,9 @@ validation_evidence:
   - date: "2026-11-04"
     workflow: "local: ProcedureDefinition und Installation aus dem exakten V1-ZIP"
     scope: "Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen."
+    result: "success"
+
+  - date: "2026-11-04"
+    workflow: "local: vollständige Windows-/CL-/Modusmatrix des V1-ZIPs"
+    scope: "Dasselbe V1-ZIP auf Windows SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, lokal und zentral. Zwölf Kontexte mit 1092 Prozedur- und 96 Installationsassertions. Ein gültiger Fall wiederverwendet, elf neu ausgeführt und unabhängig auditiert. Zentrale Aufrufe verwenden getrennte Consumer-Datenbanken. Ein bereinigter Setupfehler und sein Audit bleiben erhalten. 24 neue Ziel-/Auditaufrufe, 19 eigene Datenbanken entfernt. Funktionaler Transport, keine Veröffentlichung."
     result: "success"

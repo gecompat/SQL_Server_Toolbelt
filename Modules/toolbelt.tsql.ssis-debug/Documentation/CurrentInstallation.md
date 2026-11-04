@@ -10,11 +10,45 @@ Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 Für den neuen 40-Parameter-Stand mit `procedure-definition` verwende das
 [V1-Installations-ZIP](../InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip).
 Entpacke es, prüfe die [ZIP-Prüfsumme](../InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip.sha256)
-und folge der [lokalen Installationsanleitung](../Examples/Installation/README.md)
-für die drei enthaltenen Module. Die Paketabnahme deckt die lokale
-Installation der entpackten SQL-Artefakte auf Windows SQL Server 2025/CU8
-mit CL150 ab. Die [Objektreferenz](USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
+und folge für lokale Installation der [Installationsanleitung](../Examples/Installation/README.md)
+für die drei enthaltenen Module. Der [Matrixnachweis](../Tests/Qualification/ProcedureV1.InstallPackage.Matrix.Windows.20261104.json)
+bindet dasselbe ZIP an alle unten aufgeführten Windows-/CL-Kontexte.
+Die [Objektreferenz](USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
 zeigt den anschließenden Generator- und Prozeduraufruf.
+
+## Qualifizierter Installationsumfang
+
+| Windows SQL Server | Geprüfter Patch | Compatibility Levels | Installationsmodi |
+|---|---|---|---|
+| 2019 | CU32 | 150 | lokal und zentral |
+| 2022 | CU26 | 150, 160 | lokal und zentral |
+| 2025 | CU8 | 150, 160, 170 | lokal und zentral |
+
+Die Abnahme führt die entpackten Deployment-Artefakte aus und prüft
+Neuinstallation, Wiederholung, Entfernung, echte Lowpriv-Rechte und den
+vollständigen erzeugten Prozeduraufruf. Jeder neue Fall erhält einen frischen
+Windows-Abschlussaudit.
+
+## Zentrale Installation und Consumer-Datenbank
+
+Installiere ResultTable, Parser und SSIS-Debug aus dem geprüften Paket in
+derselben zentralen Moduldatenbank. Verwende dafür die vorhandenen
+Deployment-Dateien mit `DeploymentMode=central`. Die
+[ResultTable-Datei](../../toolbelt.core.result-table/Deployment/Deploy.sql)
+benötigt SQLCMD und das eigene Deployment-Verzeichnis als Arbeitsverzeichnis.
+Für Parser und SSIS-Debug enthält das ZIP bereits die vollständigen Dateien
+`Artifacts/Deploy.WithAssembly.sql`. Die vorher geprüften Trustfreigaben und
+Administrationsrechte gelten wie in der lokalen Installationsanleitung.
+`Install-Local.ps1` führt die lokale Variante aus.
+
+In der Consumer-Datenbank liegen die Quelldaten und die erzeugte
+Debugprozedur. Installiere dort den ResultTable-Helper im lokalen Modus.
+Rufe den Generator aus dieser Datenbank über den dreiteiligen Namen auf,
+beispielsweise `ContosoToolbelt.toolbelt_tsql.USP_ExplainSsisDataFlow`.
+`CatalogBindings.defaultDatabase`, die freigegebenen Datenbanken und die
+Connection-Zuordnung verweisen auf die Consumer-Datenbank. Prüfe die
+erzeugte Definition und führe ihre DDL ebenfalls dort aus. Die anschließenden
+Prozeduraufrufe und Quellrechte gelten in dieser Datenbank.
 
 ## Installation der bisherigen Paketstände
 

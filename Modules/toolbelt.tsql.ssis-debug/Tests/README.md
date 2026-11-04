@@ -43,6 +43,37 @@ weitere Installations-, Wiederholungs- und Uninstall-Assertions. Beide
 Nachweise sind auf Windows SQL Server 2025/CU8, CL150 und lokale Installation
 begrenzt. Das ZIP wurde zweimal bytegleich gebaut.
 
+## Vollständige Windows-Matrix des V1-Pakets
+
+Der [Matrixnachweis](Qualification/ProcedureV1.InstallPackage.Matrix.Windows.20261104.json)
+erweitert die Abnahme desselben ZIPs auf zwölf Kontexte. SQL2019/CU32 verwendet
+CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, jeweils lokal und
+zentral. Der vorhandene lokale SQL2025-/CL150-Paketfall wird mit seiner
+ursprünglichen Bindung wiederverwendet. Elf neue Fälle erhalten jeweils einen
+unabhängigen Windows-Abschlussaudit.
+
+Zentral liegt der Generator in der Moduldatenbank. Die Quelle und die erzeugte
+Prozedur liegen in einer getrennten Consumer-Datenbank mit eigenem lokalem
+ResultTable-Helper. Die Abnahme prüft den dreiteiligen Generatoraufruf,
+den tatsächlichen Consumer-Kontext und die dort geltenden Quellrechte.
+Die erzeugte SQL-Dialektversion entspricht dem ausgewählten Compatibility
+Level. Die fachlichen Prüfungen verwenden denselben gebundenen V1-Oracle.
+
+Ein bereinigter Fehler des zentralen Testaufbaus bleibt in der Fehlerhistorie.
+Er entstand beim gleichzeitigen Halten des benannten temporären
+ResultTable-Deployment-Schlüssels in zwei Administrationssitzungen. Die
+korrigierte Abnahme führt beide Deployments nacheinander in einer
+Administrationssitzung aus. Der separate Audit des Fehlversuchs bestand.
+
+Die Matrixadapter sind
+[`Invoke-ProcedureDefinitionMatrixLab.ps1`](Runtime/Invoke-ProcedureDefinitionMatrixLab.ps1)
+und [`Invoke-ProcedureDefinitionMatrixCases.ps1`](Runtime/Invoke-ProcedureDefinitionMatrixCases.ps1).
+`-Mode Run` führt einen ausgewählten Fall mit eingefrorenem Labziel,
+Paketmanifest und Testinputs aus. `-Mode Audit` prüft das finale Journal über
+eine neue Verbindung. `-ValidateOnly` prüft die Adapter ohne SQL-Zugriff.
+Die Offlineprüfung der fertigen Evidenz lautet
+`python Scripts/Release/validate_ssis_procedure_matrix.py`.
+
 Die bisherigen ZIPs, die Standalone-Datei und ihre Qualifikationen bleiben
 an den früheren Stand gebunden. Offline-Evidenztests laden hierfür die
 eingefrorene Vorgängerrevision. Die Prüfung des V1-ZIPs bindet dagegen den
@@ -1033,8 +1064,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-04`
-- Nachweis: `local: ProcedureDefinition und Installation aus dem exakten V1-ZIP`
-- Scope: Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen.
+- Nachweis: `local: vollständige Windows-/CL-/Modusmatrix des V1-ZIPs`
+- Scope: Dasselbe V1-ZIP auf Windows SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, lokal und zentral. Zwölf Kontexte mit 1092 Prozedur- und 96 Installationsassertions. Ein gültiger Fall wiederverwendet, elf neu ausgeführt und unabhängig auditiert. Zentrale Aufrufe verwenden getrennte Consumer-Datenbanken. Ein bereinigter Setupfehler und sein Audit bleiben erhalten. 24 neue Ziel-/Auditaufrufe, 19 eigene Datenbanken entfernt. Funktionaler Transport, keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
