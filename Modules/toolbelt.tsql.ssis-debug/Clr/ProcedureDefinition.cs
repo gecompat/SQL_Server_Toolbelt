@@ -67,6 +67,9 @@ namespace Toolbelt.Tsql.SsisDebug
                 ") SELECT " + aliases + " FROM " + Util.Q(last.Name) + ";\n";
             safety.Generated(plan, bindings.DefaultDatabase, owned, true);
             var batch = new StringBuilder();
+            // Auch statementabbrechende Rechen-/Konvertierungsfehler müssen
+            // den gesamten Plan stoppen, bevor eine Caller-Ausgabe mutiert.
+            batch.AppendLine("BEGIN TRY");
             batch.Append("IF CONVERT(varbinary(max),DB_NAME())<>CONVERT(varbinary(max),")
                 .Append(Util.L(bindings.DefaultDatabase)).AppendLine(") THROW 50000,N'TBX_SSISDBG_catalog_drift: Falsche Datenbank.',1;");
             batch.AppendLine("IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1 OR COALESCE(HAS_PERMS_BY_NAME(N'sys.security_predicates',N'OBJECT',N'SELECT'),0)<>1 THROW 50000,N'TBX_SSISDBG_catalog_visibility: Vollständige Katalogsicht fehlt.',1;");
@@ -89,7 +92,8 @@ namespace Toolbelt.Tsql.SsisDebug
                 .Append(Util.L(result)).AppendLine(",@KeepData=@KeepData,@Debug=0,@Hilfe=0;")
                 .AppendLine("EXEC sys.sp_executesql @write;")
                 .AppendLine("COMMIT TRANSACTION;")
-                .AppendLine("END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH;");
+                .AppendLine("END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH;")
+                .AppendLine("END TRY BEGIN CATCH THROW; END CATCH;");
 
             var parameterDefinitions = parameters.Select(p => p.SqlName + " " + p.SqlType).ToArray();
             var arguments = parameters.Select(p => p.SqlName + "=" + p.SqlName).Concat(new[] { "@ResultTable=@ResultTable", "@KeepData=@KeepData", "@Debug=@Debug" });

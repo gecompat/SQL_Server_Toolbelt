@@ -122,7 +122,7 @@ PROCEDURE_METHODS = {
      "Tests/CI/run-lab-local.ps1", "Tests/CI/LabQualifiedContract.ps1"}
 
 
-def validate_procedure_delivery():
+def validate_procedure_delivery(*, source_root=ROOT):
     path = ROOT / PROCEDURE_ARCHIVE
     _, release, payload = validate(path, profile=PROCEDURE_PROFILE)
     record = json.loads(read_regular_bounded(ROOT / PROCEDURE_DELIVERY, 1024 * 1024))
@@ -147,7 +147,7 @@ def validate_procedure_delivery():
         for entry in release[key]:
             relative, digest = entry.split(":", 1)
             source = posixpath.normpath(MODULE + relative)
-            current = read_regular_bounded(ROOT / source, MAX_PACKAGE_BYTES)
+            current = read_regular_bounded(source_root / source, MAX_PACKAGE_BYTES)
             require(sha(current) == digest, "V1 product source changed: " + source)
     print("SSIS_PROCEDURE_V1_DELIVERY_PASS; exact ZIP, source and scoped Windows lifecycle")
 

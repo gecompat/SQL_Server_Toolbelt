@@ -25,9 +25,12 @@ LEGACY = "SSIS-Debug-1.0.0-Install-Windows"
 PREDECESSOR_SHA256 = "A256929FF32DAEE4087DC61C70BB8D4DFFEBB55772878BE53C658088F4E33049"
 CURRENT_PROFILE = "ssis-debug-current"
 PROCEDURE_PROFILE = "ssis-debug-procedure-v1"
+QUALIFIED_PROFILE = "ssis-debug-qualified"
+QUALIFIED_NAME = "SSIS-Debug-Qualified-Install-Windows"
 PROFILES = {
     CURRENT_PROFILE: (NAME, (2026, 10, 29), "ssis_current_native_qualification"),
     PROCEDURE_PROFILE: (PROCEDURE_NAME, (2026, 11, 4), "ssis_procedure_v1_native_qualification"),
+    QUALIFIED_PROFILE: (QUALIFIED_NAME, (2026, 11, 4), "ssis_current_build_native_qualification"),
 }
 
 
@@ -51,6 +54,10 @@ def validate_native_record(record, profile):
     expected = ({("2025", 150, "local")} if profile == PROCEDURE_PROFILE else
                 {(version, level, mode) for version, level in (("2019", 150), ("2022", 160), ("2025", 170))
                  for mode in ("local", "central")})
+    if profile == QUALIFIED_PROFILE:
+        expected = {('2019', 150, 'local'), ('2022', 160, 'central'), ('2025', 170, 'local')}
+        require(record.get('risk_mapping') == 'unchanged_default_branches_plus_current_12_context_package_matrix' and
+                record.get('procedure_error_atomicity') is True, 'current qualified risk and error scope')
     cases = record["cases"]
     require(len(cases) == len(expected) and
             {(case["sql_version"], case["compatibility_level"], case["deployment_mode"]) for case in cases} == expected and
@@ -183,6 +190,9 @@ def build(args):
         (b"\nProzedurdefinition V1: nativ geprueft auf Windows SQL Server 2025 CU8, CL150, lokal.\n"
          b"Aufruf und Installationsgrenzen stehen in Documentation/USP_ExplainSsisDataFlow.md im SSIS-Modul.\n"
          if profile == PROCEDURE_PROFILE else b"") +
+        (b"\nAktueller qualifizierter Build mit geprueftem Fehlerabbruch vor Ausgabemutation.\n"
+         b"Versions-/CL-Abdeckung und wiederverwendete Nachweise stehen in Tests/README.md im SSIS-Modul.\n"
+         if profile == QUALIFIED_PROFILE else b"") +
         b"\nAktuelles Profil ohne Versions-Opt-in. Grenzen nur ueber SQL-@Max-Parameter.\n"
         b"Parameter-Vorlage: @Operation='bindings-template'; values editieren und als @Bindings uebergeben.\n"
         b"DebugScript enthaelt die vollstaendige, gepruefte Batchfolge fuer aufloesbare Ziele.\n"

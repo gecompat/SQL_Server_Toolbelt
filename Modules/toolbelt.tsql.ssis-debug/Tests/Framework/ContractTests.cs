@@ -126,6 +126,9 @@ internal static class ContractTests
                 artifact.Content.Contains("WITH EXECUTE AS CALLER"), "PROCEDURE_ONE_PARAMETERIZED_SCOPE");
             Assert(artifact.Content.Contains("is_computed=0") && artifact.Content.Contains("TBX_SSISDBG_cache_ownership") &&
                 artifact.Content.Contains("USP_PrepareResultTable"), "PROCEDURE_DRIFT_COLLISION_AND_ROUTING");
+            Assert(artifact.Content.Contains("N'BEGIN TRY\nIF CONVERT") &&
+                artifact.Content.Contains("END TRY BEGIN CATCH THROW; END CATCH;"),
+                "PROCEDURE_PLAN_ERROR_STOPS_BEFORE_OUTPUT");
             var template = Engine.Analyze(package, Options("bindings-template"), catalog, new Budget()).Rows.Single().Content;
             var changedBindings = Json.Object(Json.Parse(template));
             var values = Json.Object(Json.Get(changedBindings, "values"));
@@ -152,6 +155,25 @@ internal static class ContractTests
             options.ProcedureName = options.ProcedureSchema = null;
             Assert(generate(package).Rows.Any(a => a.Kind == "DebugScript" && a.Complete && a.Executable),
                 "PROCEDURE_STANDARD_DEBUG_UNCHANGED");
+            // Dieselbe lineare Projektion mit anderen tatsächlich unterstützten
+            // Parametertypen: DDL und Manifest müssen denselben Typ festhalten.
+            foreach (string family in new[] { "bigint", "decimal" })
+            {
+                byte[] typed = File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(args[1]), "procedure-" + family + "-8.dtsx"));
+                options.Operation = "procedure-definition";
+                options.ProcedureSchema = "ContosoDebug";
+                options.ProcedureName = "USP_Typed";
+                var typedArtifacts = generate(typed).Rows;
+                Assert(typedArtifacts.Count(a => a.Kind == "ProcedureDefinition") == 1, "PROCEDURE_TYPED_DDL_" + family);
+                var typedManifest = Json.Object(Json.Parse(typedArtifacts.Single(a => a.Kind == "ProcedureManifest").Content));
+                string expected = family == "bigint" ? "bigint" : "decimal(38,18)";
+                var typedParameters = Json.Array(Json.Get(typedManifest, "parameters")).Select(Json.Object).ToList();
+                Assert(typedParameters.Count == 2 && typedParameters.All(p => Json.Text(Json.Get(p, "sqlType")) == expected),
+                    "PROCEDURE_TYPED_MANIFEST_" + family);
+                string typedDdl = typedArtifacts.Single(a => a.Kind == "ProcedureDefinition").Content;
+                Assert(typedParameters.All(p => typedDdl.Contains(Json.Text(Json.Get(p, "name")) + " " + expected + "=NULL")),
+                    "PROCEDURE_TYPED_SIGNATURE_" + family);
+            }
         }
         else if (args[0] == "cooperative-budget")
         {

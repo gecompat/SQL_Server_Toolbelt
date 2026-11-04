@@ -41,9 +41,12 @@ Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head separat
 nachgewiesen. Die vorhandene Windows-Funktionsqualifikation gilt für ihre
 gebundenen Buildbytes. Die parametrisierte Prozedurdefinition hat einen
 [eigenen Prüfstand](Tests/README.md#parametrisierte-prozedurdefinition-v1).
-Das [V1-Installationspaket](InstallPackages/README.md#prozedurdefinition-v1)
-ist auf Windows SQL2019/2022/2025 mit den unterstützten Compatibility Levels
-lokal und zentral geprüft.
+Die [aktuelle Gesamtabnahme](Tests/README.md#gesamtabnahme-des-korrigierten-builds)
+führt die nativen Prüfungen des korrigierten Builds und die ausdrücklich
+übertragbaren älteren Nachweise zusammen. Der vereinbarte Debugvertrag ist
+`validated`. Das [aktuelle Installationspaket](InstallPackages/README.md)
+enthält den korrigierten Fehlerabbruch der erzeugten Prozeduren. Historische
+Paketbytes und ihre ursprünglichen Ausführungsergebnisse bleiben erhalten.
 Das Modul bleibt `unreleased`.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit
@@ -113,8 +116,8 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-04`
-- Nachweis: `local: vollständige Windows-/CL-/Modusmatrix des V1-ZIPs`
-- Scope: Dasselbe V1-ZIP auf Windows SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, lokal und zentral. Zwölf Kontexte mit 1092 Prozedur- und 96 Installationsassertions. Ein gültiger Fall wiederverwendet, elf neu ausgeführt und unabhängig auditiert. Zentrale Aufrufe verwenden getrennte Consumer-Datenbanken. Ein bereinigter Setupfehler und sein Audit bleiben erhalten. 24 neue Ziel-/Auditaufrufe, 19 eigene Datenbanken entfernt. Funktionaler Transport, keine Veröffentlichung.
+- Nachweis: `local: CurrentBuild Functional/ProcedureBoundary und unabhängige Windows-Audits; Framework Full; unabhängige Sicherheitsabnahme`
+- Scope: Aktueller korrigierter 40-Parameter-Build: 3804 zusammengesetzte Assertions mit breiten Fach-/API-/Rechte-/Lifecyclefällen und je222 Prozedurprüfungen auf Windows SQL2019/CU32 CL150 lokal, SQL2022/CU26 CL160 zentral und SQL2025/CU8 CL170 lokal. Int64-/Decimal-Grenzen, alle ResultTable-/KeepData-Zustände, Caller-TX/SET und Fehleratomarität bestanden. Native Überlaufprobe fand Datenverlust durch Statementfortsetzung; äußere TRY/CATCH-Grenze korrigiert und separat unabhängig akzeptiert. Full27 am korrigierten DLL PASS. Frühere Versions-/CL-/Modus-, Windows-/SSMS-, TLS-, Installer-, Lowpriv- und Abbruchnachweise nur mit expliziter unveränderter Mechanismus-/Defaultpfadbindung wiederverwendet. Keine neue GUI-/TLS-Ausführung behauptet. Fehlgeschlagene Koordinatoren bleiben FAILED_CLEANED; ihr erfüllter Teilumfang wird nicht zum Gesamt-PASS umbenannt. Gesamtabnahme Current.Build.20261104.json; unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

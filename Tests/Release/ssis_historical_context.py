@@ -23,26 +23,26 @@ def is_reparse_point(path):
     return path.is_symlink() or bool(getattr(path.stat(), "st_file_attributes", 0) & 0x400)
 
 
-@lru_cache(maxsize=1)
-def historical_root(root):
+@lru_cache(maxsize=2)
+def historical_root(root, baseline=BASELINE):
     root = Path(root).resolve()
-    paths = [path for path in git(root, "ls-tree", "-r", "--name-only", BASELINE, "--", *FROZEN_PATHS[:2]).splitlines()
+    paths = [path for path in git(root, "ls-tree", "-r", "--name-only", baseline, "--", *FROZEN_PATHS[:2]).splitlines()
              if path.endswith((".json", ".zip", ".zip.sha256"))]
-    paths.extend(path for path in git(root, "ls-tree", "-r", "--name-only", BASELINE, "--",
+    paths.extend(path for path in git(root, "ls-tree", "-r", "--name-only", baseline, "--",
                                       "Releases/1.0.0").splitlines()
                  if any(Path(path).match(pattern) for pattern in FROZEN_PATHS[2:]))
     if not paths:
         raise ValueError("SSIS historical evidence inventory missing")
-    git(root, "diff", "--quiet", BASELINE, "--", *paths)
+    git(root, "diff", "--quiet", baseline, "--", *paths)
     runtime = root / ".runtime"
     runtime.mkdir(exist_ok=True)
     if is_reparse_point(runtime):
         raise ValueError("SSIS historical worktree parent is redirected")
-    checkout = runtime / ("ssis-historical-" + BASELINE[:8])
+    checkout = runtime / ("ssis-historical-" + baseline[:8])
     if not os.path.lexists(checkout):
-        git(root, "worktree", "add", "--detach", "--quiet", str(checkout), BASELINE)
+        git(root, "worktree", "add", "--detach", "--quiet", str(checkout), baseline)
     if (is_reparse_point(checkout) or Path(git(checkout, "rev-parse", "--show-toplevel").strip()).resolve() != checkout
-            or git(checkout, "rev-parse", "HEAD").strip() != BASELINE
+            or git(checkout, "rev-parse", "HEAD").strip() != baseline
             or git(checkout, "status", "--porcelain", "--untracked-files=all")):
         raise ValueError("SSIS historical worktree differs from its baseline")
     return checkout

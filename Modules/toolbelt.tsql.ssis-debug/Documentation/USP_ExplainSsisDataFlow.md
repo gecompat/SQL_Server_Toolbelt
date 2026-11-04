@@ -171,6 +171,15 @@ ist offen. `@ResultTable` leitet die Projektion mit der üblichen
 Status in Messages. Führe den fachlichen Aufruf außerhalb offener oder
 impliziter Transaktionen aus.
 
+Ein Fehler beim Berechnen oder Materialisieren stoppt den gesamten erzeugten
+Batch vor jeder ResultTable-Vorbereitung. Der Aufrufer erhält den ursprünglichen
+SQL-Fehler. Vorbereitung und Schreiben der ResultTable liegen gemeinsam in
+einer eigenen Transaktion; auch ein späterer Constraintfehler erhält vorhandene
+Daten und Indizes. Aufrufgebundene interne Temps verlassen den dynamischen
+Scope nicht. Diese Fehleratomarität verlangt eine neu erzeugte Definition aus
+dem korrigierten Build; bereits installierte frühere Definitionen ändern sich
+durch ein Toolbelt-Update nicht automatisch.
+
 Fachliche Eingaben sind nicht sensitive, nicht NULL-fähige Szenariowerte vom
 Typ `int`, `bigint` oder `decimal(p,s)`. Strukturelle Abhängigkeiten bleiben
 gebunden. Das Profil schließt unter anderem Lookup, Cross-DB, berechnete

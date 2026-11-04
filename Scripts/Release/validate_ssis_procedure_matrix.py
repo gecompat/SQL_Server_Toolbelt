@@ -19,7 +19,7 @@ CONTEXTS = {
 }
 
 
-def validate(report=None, *, check_files=True):
+def validate(report=None, *, check_files=True, source_root=ROOT):
     if report is None:
         report = json.loads(read_regular_bounded(ROOT / REPORT, 1024 * 1024))
     basis_bytes = read_regular_bounded(ROOT / PROCEDURE_DELIVERY, 1024 * 1024)
@@ -66,7 +66,7 @@ def validate(report=None, *, check_files=True):
     inputs = report.get("execution_inputs", {})
     require(set(inputs) == MATRIX_METHODS, "V1 matrix input closure")
     if check_files:
-        validate_procedure_delivery()
+        validate_procedure_delivery(source_root=source_root)
         for path, digest in inputs.items():
             require(sha(read_regular_bounded(ROOT / path, 1024 * 1024)) == digest,
                     "V1 matrix changed input: " + path)
