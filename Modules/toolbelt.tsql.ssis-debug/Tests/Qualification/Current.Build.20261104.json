@@ -366,12 +366,12 @@
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentBuildCases.ps1": "2bcc8ea3b89d66b05ee109c3864cd7a2928034612652878924f4943b1da721c6",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentGuiAccessCase.ps1": "295ff5f7d848d614b9725b965208eddfda8f2b93f1f72e10debc66d0292640a5",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ProcedureDefinitionCases.ps1": "e3fbbdf106fbb15eef6609c68e6dbb1e797044a914a5b13882066fd586a60464",
-    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-bigint-8.dtsx": "7f6de43817dde68d659629583d6e02a0b6b0092f5ba281e5a6b176c65d30f049",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-bigint-8.dtsx": "9a2fb7aabb39f442743d0ac8621fbccc61d45b8abb1d282f2c43b0ec3627b37a",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ProcedureDefinitionLab.ps1": "d6b432b267d9557fb4452747af11d745e105eee09c71c90b91fb6dc17761c2ed",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/components-v2-flatfile.dtsx": "abba5e5d960f31347bfcc653c7dcdab8921e2e8b9a8fa378cd913296acc2a93f",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentBuildLab.ps1": "72e690a07f486d9f6a54bd682cf7ba93d9419b7d0d413be495a73b5addc385d2",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-8.dtsx": "5cda809a5fbd73841f11c86a7f5a14ce0a7620880e4948645deee4526913bec1",
-    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-decimal-8.dtsx": "8fae2ac576298a2a600a5da0384e4d04c8ee510b8825899f0f8073030202387f",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-decimal-8.dtsx": "3304d1ebb710ed8c465d7bd34c3424c7f22c3c1e620a8ea137fefbc8e780801e",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LifecycleCases.ps1": "39d296cf1e8251b328873a8454ed60f9a3910581c5dc82dc414d534218ded546",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411a966484eaf55fb05778b5e26829d7afed94d6028cb6f77323f92c5c7e570",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2VariableCases.ps1": "f07317a341d4092e4bad9491bca60e4fb9ec1ce236278158234da05062d7637d",
@@ -402,7 +402,7 @@
     "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/ContractTests.cs": "0d17bb7ebd0f867d8259d9a6be7b93355f1af5294322e7f8b2fdca6c07be577a",
     "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-Contract.ps1": "eaa2b426cb44f9611d19ad8dd4bf2c92d8792649c80fed69913a729f468b892d"
   },
-  "security_report_sha256": "49fd293f979947d8fb9986e0a44649e6b08f52989771c2dcda2809b3f81d3829",
+  "security_report_sha256": "c139bf98e9d1bc7f5f04e8e11a0f6a62a197c9a1c8c5dc680401b40cb81129df",
   "attempt_history": {
     "pass_cleaned": 6,
     "failed_cleaned": 4,
