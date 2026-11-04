@@ -16,6 +16,8 @@ on:
       - 'Tests/Release/test_ssis_current_delivery.py'
       - 'Tests/Release/test_ssis_procedure_delivery.py'
       - 'Tests/Release/test_ssis_procedure_matrix.py'
+      - 'Tests/Release/test_ssis_current_build.py'
+      - 'Tests/Release/Test-CurrentBuildAdapter.ps1'
       - 'Scripts/Release/validate_ssis_procedure_matrix.py'
       - 'Tests/Release/ssis_historical_context.py'
       - 'Tests/Release/test_ssis_current_matrix.py'
@@ -57,6 +59,8 @@ on:
       - 'Tests/Release/test_ssis_current_delivery.py'
       - 'Tests/Release/test_ssis_procedure_delivery.py'
       - 'Tests/Release/test_ssis_procedure_matrix.py'
+      - 'Tests/Release/test_ssis_current_build.py'
+      - 'Tests/Release/Test-CurrentBuildAdapter.ps1'
       - 'Scripts/Release/validate_ssis_procedure_matrix.py'
       - 'Tests/Release/ssis_historical_context.py'
       - 'Tests/Release/test_ssis_current_matrix.py'
@@ -98,7 +102,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the frozen predecessor for historical evidence checks
-        run: git fetch --no-tags --depth=1 origin 763d46d4eafa79394399d51aec7d3ab90d0dad0c
+        run: |
+          git fetch --no-tags --depth=1 origin 763d46d4eafa79394399d51aec7d3ab90d0dad0c
+          git fetch --no-tags --depth=1 origin 410c994f657888faf5ccb1097b1d1a985a98ec96
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -127,6 +133,10 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_procedure_delivery.py
       - name: Full Windows procedure V1 matrix and negative evidence controls without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_procedure_matrix.py
+      - name: Current build qualification, security and reuse controls without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_current_build.py
+      - name: Current build native adapter rejection before SQL
+        run: ./Tests/Release/Test-CurrentBuildAdapter.ps1
       - name: Current package full 12-context matrix provenance without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_matrix.py
       - name: Current DebugScript snapshot coherence evidence without SQL

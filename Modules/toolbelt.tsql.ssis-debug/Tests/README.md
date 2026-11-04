@@ -3,6 +3,63 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Gesamtabnahme des korrigierten Builds
+
+Die [Gesamtabnahme vom 2026-11-04](Qualification/Current.Build.20261104.json)
+qualifiziert den aktuellen 40-Parameter-Build für den vereinbarten Debugvertrag.
+Sie kombiniert **3.804 Assertions**: breite Fach-/API-/Rechte-/Lifecyclefälle
+auf SQL2019/CU32 CL150 lokal, SQL2022/CU26 CL160 zentral und SQL2025/CU8
+CL170 lokal sowie je **222** Prozedurprüfungen auf diesen drei Engines.
+Alle 27 begrenzten Frameworkfälle bestanden am korrigierten DLL.
+Der [native Prozedurnachweis](Qualification/Current.Build.Native.20261104.json)
+bindet ausschließlich die tatsächlichen aktuellen Prozedur-Gesamtfälle.
+
+Die neue Ergänzung prüft `int`, `bigint` und `decimal(38,18)` einschließlich
+exakter Grenzwerte, SQL-Typen, Präzision und Skala; Help-first, Debug nur in
+Messages, alle leeren/gefüllten und passenden/abweichenden ResultTable-Zustände
+mit KeepData 0/1 sowie NULL, Caller-TX/SET-Erhalt, Temp-Cleanup und Fehleratomarität.
+Eine native Überlaufprobe fand einen Produktfehler: Ein statementabbrechender
+Fehler konnte im alten Prozedurbatch bis zur Ausgabemutation weiterlaufen.
+Die äußere TRY/CATCH-Grenze stoppt nun den ganzen Batch. Die Regression erhält
+Ausgabedaten bei SELECT und KeepData 0/1 unter XACT_ABORT ON/OFF; ein späterer
+Schreibfehler erhält außerdem Inhalt und Index der Caller-Tabelle.
+
+Die [unabhängige Sicherheitsabnahme](Qualification/Security.CurrentBuild.20261104.json)
+weist die erste übersehene Lücke und die zurückgenommene ursprüngliche
+PASS-Aussage aus. Der befundbezogene Folgereview akzeptiert den korrigierten
+Produktquellstand. Statische Prüfung, native Reparaturbelege und CI sind
+getrennte Nachweise.
+
+Originalausführung und aktuelle Anwendbarkeit bleiben ausdrücklich getrennt:
+
+| Umfang | Aktuelle Anerkennung |
+|---|---|
+| Frühere zwölf Windows-/CL-/Moduskontexte | Unveränderte Defaultzweige und vorhandene normale Prozedurfälle bleiben an ihre alten Bytes gebunden. Der korrigierte Fehlerpfad ist auf allen drei Engines und SQL-Dialekten 150/160/170 neu geprüft. Keine neue zwölfteilige ZIP-Ausführung behauptet. |
+| Breite SQL2019-Fachabnahme | Der erste Koordinator bleibt `FAILED_CLEANED`, weil erst der anschließende neue Grenzfall scheiterte. Sein vollständig bestandener Fachteil und frischer Audit werden nur für den unveränderten Defaultzweig übernommen. Die korrigierten Prozedur-Gesamtfälle sind separat `PASS_CLEANED`. |
+| Windows-/SSMS-Anmeldung, Unicode-Kopie, SQLCMD-Stopprobe und Receipt | Vorhandener echter Gesamtlauf am 38-Parameter-Build; unveränderte Client-/Authentifizierungs-/Transportquellen zusammen mit aktueller API-/Ausführungsbrücke anerkannt. Keine neue GUI-Ausführung am 40-Parameter-Build. |
+| Öffentlicher Installer, Trust, Vorbereitung, Lowpriv-Cross-DB und Clientabbrüche | Nur die unveränderten Mechanismen und ursprünglichen Grenzen werden übernommen; aktuelle Installation, Metadaten, Rechte und Fehleratomarität sind getrennt geprüft. Kein OS-/VM-Verlust des Koordinators qualifiziert. |
+| Authentifiziertes Windows-TLS | Historisch geprüfter Transportmechanismus und unveränderte Consumerquellen; keine neue TLS-Ausführung mit dem korrigierten DLL und kein ununterbrochener öffentlicher Lab-Neuaufbau. |
+| Externer Windows-/Linux-Exporthost | Unveränderte Host-/Modellquellen und portable Artefakte; native frühere Ausführung bleibt unverändert gültig. Linux-SQL-CLR ist nicht unterstützt. |
+
+Engine, Compatibility Level und Installationsmodus werden nicht gleichgesetzt.
+Die bestehende zwölfteilige Matrix und die oben genannten aktuellen Brücken
+decken die unveränderten Zweige gemeinsam ab; die neue Fehlerbehandlung besitzt
+keinen zusätzlichen versions-, CL- oder modusabhängigen Zweig. Der neue
+zentrale Fall verwendet eine getrennte Consumer-Datenbank und echte Lowpriv-Rechte.
+
+Die vier bereinigten Fehlläufe und die Abweisung eines falschen lokalen
+Parserartefakts vor jedem SQL-Zugriff bleiben in der Historie. Ein fehlgeschlagener
+Koordinator wird durch die Zusammenführung nicht zum Gesamt-PASS.
+Die folgenden datierten Abschnitte beschreiben ihre ursprünglichen Teilstände.
+Statusquelle ist `module.yaml`: `validated`, weiterhin `unreleased`.
+
+Prüfkommandos: `Invoke-CurrentBuildLab.ps1 -Action Run/Audit` mit gebundenem
+Labziel und vollständiger Testinputliste; `Invoke-Contract.ps1 -Profile Full`;
+`Tests/Release/Test-CurrentBuildAdapter.ps1`; `python Scripts/Release/validate_ssis_current_build.py`.
+Die neue Evidenz- und Adapterprüfung läuft im vorhandenen SSIS-CI-Job;
+es gibt keinen zusätzlichen nativen CI-Lauf oder Reviewagenten. Unveränderte
+historische Evidenz wird geprüft und nicht erneut nativ ausgeführt.
+
 ## Parametrisierte Prozedurdefinition V1
 
 Am 2026-11-03 bestanden der statische Vertragscheck, der reproduzierbare

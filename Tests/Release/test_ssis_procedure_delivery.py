@@ -8,11 +8,15 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import validate_ssis_current_package as package
+from ssis_historical_context import historical_root
 
 
 class ProcedureDelivery(unittest.TestCase):
+    def setUp(self):
+        self.source_root = historical_root(ROOT, '410c994f657888faf5ccb1097b1d1a985a98ec96')
+
     def test_exact_executed_archive_and_current_inputs(self):
-        package.validate_procedure_delivery()
+        package.validate_procedure_delivery(source_root=self.source_root)
 
     def test_other_archive_or_missing_audit_cannot_reuse_the_execution(self):
         read = package.read_regular_bounded
@@ -31,11 +35,11 @@ class ProcedureDelivery(unittest.TestCase):
 
             with self.subTest(field=field, key=key), mock.patch.object(package, "read_regular_bounded", changed):
                 with self.assertRaisesRegex(ValueError, reason):
-                    package.validate_procedure_delivery()
+                    package.validate_procedure_delivery(source_root=self.source_root)
 
     def test_live_executable_source_drift_requires_new_qualification(self):
         read = package.read_regular_bounded
-        source = ROOT / package.MODULE / "Clr/ProcedureDefinition.cs"
+        source = self.source_root / package.MODULE / "Clr/ProcedureDefinition.cs"
 
         def changed(path, maximum):
             data = read(path, maximum)
@@ -43,7 +47,7 @@ class ProcedureDelivery(unittest.TestCase):
 
         with mock.patch.object(package, "read_regular_bounded", changed):
             with self.assertRaisesRegex(ValueError, "product source changed"):
-                package.validate_procedure_delivery()
+                package.validate_procedure_delivery(source_root=self.source_root)
 
 
 if __name__ == "__main__":

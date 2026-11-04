@@ -14,6 +14,8 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[0-9A-F]{128}$')][string]$QualifiedProviderSha512,
  [Parameter(Mandatory)][hashtable]$ExecutionInputSha256,
  [ValidateSet('Full','Functional','ProcedureBoundary')][string]$QualificationPhase='Full',
+ [string]$InstallationPackageRoot,
+ [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedPackageManifestSha256,
  [switch]$ValidateOnly
 )
 Set-StrictMode -Version Latest
@@ -23,9 +25,16 @@ $privateRoot=Join-Path $repo '.runtime'
 $journal=[IO.Path]::GetFullPath($JournalDirectory)
 if(-not $journal.StartsWith($privateRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'SSIS_BUILD_JOURNAL_SCOPE'}
 if($CompatibilityLevel -gt (@{'2019'=150;'2022'=160;'2025'=170}[$Version])){throw 'SSIS_BUILD_UNSUPPORTED_CL'}
+if($InstallationPackageRoot){
+ $InstallationPackageRoot=[IO.Path]::GetFullPath($InstallationPackageRoot)
+ if(-not $InstallationPackageRoot.StartsWith($privateRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or
+    -not $ExpectedPackageManifestSha256 -or (Get-FileHash -LiteralPath (Join-Path $InstallationPackageRoot 'PACKAGE-MANIFEST.json')).Hash -cne $ExpectedPackageManifestSha256){throw 'SSIS_BUILD_PACKAGE_BINDING'}
+}
 if(-not $ValidateOnly){
- $manifest=Get-Content -LiteralPath (Join-Path $SsisReleaseDirectory 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Raw|ConvertFrom-Json
- foreach($input in @(@{File=(Join-Path $SsisReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll');Hash=$QualifiedProviderSha512},@{File=(Join-Path $ParserReleaseDirectory 'Toolbelt.Tsql.ScriptParser.dll');Hash=$manifest.parserSha512},@{File=(Join-Path $ParserReleaseDirectory 'Microsoft.SqlServer.TransactSql.ScriptDom.dll');Hash=$manifest.scriptDomSha512})){
+ $selectedSsis=if($InstallationPackageRoot){Join-Path $InstallationPackageRoot 'Modules/toolbelt.tsql.ssis-debug/Artifacts'}else{$SsisReleaseDirectory}
+ $selectedParser=if($InstallationPackageRoot){Join-Path $InstallationPackageRoot 'Modules/toolbelt.tsql.script-parser/Artifacts'}else{$ParserReleaseDirectory}
+ $manifest=Get-Content -LiteralPath (Join-Path $selectedSsis 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Raw|ConvertFrom-Json
+ foreach($input in @(@{File=(Join-Path $selectedSsis 'Toolbelt.Tsql.SsisDebug.dll');Hash=$QualifiedProviderSha512},@{File=(Join-Path $selectedParser 'Toolbelt.Tsql.ScriptParser.dll');Hash=$manifest.parserSha512},@{File=(Join-Path $selectedParser 'Microsoft.SqlServer.TransactSql.ScriptDom.dll');Hash=$manifest.scriptDomSha512})){
   if((Get-FileHash -LiteralPath $input.File -Algorithm SHA512).Hash -cne $input.Hash){throw 'SSIS_BUILD_BINARY_INPUT_DRIFT'}
  }
 }
@@ -68,6 +77,7 @@ if($Action -ceq 'Audit'){
 $original=Join-Path $PSScriptRoot 'Invoke-LabContract.ps1'
 if((Get-FileHash -LiteralPath $original).Hash -cne '4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570'){throw 'SSIS_BUILD_HARNESS_CHANGED'}
 $text=[IO.File]::ReadAllText($original)
+if($InstallationPackageRoot){$text=$text.Replace("'SSIS-Debug-1.0.0-Install-Windows'","'SSIS-Debug-Qualified-Install-Windows'")}
 foreach($line in @($text -split "`n"|Where-Object {$_ -match 'Invoke-(CoreContract|ApiCases|ReleaseRightsCases|LifecycleCases)\.ps1'})){
  if($text.Split($line,[StringSplitOptions]::None).Count -ne 2){throw 'SSIS_BUILD_HARNESS_ANCHOR'}
  $text=$text.Replace($line,'')
@@ -88,8 +98,8 @@ if($ValidateOnly){'SSIS_CURRENT_BUILD_INPUTS_PASS; no SQL';return}
 $arguments.Modes=@($DeploymentMode)
 $arguments.CompatibilityLevel=$CompatibilityLevel
 $arguments.Full=$true
-$arguments.SsisReleaseDirectory=$SsisReleaseDirectory
-$arguments.ParserReleaseDirectory=$ParserReleaseDirectory
+if($InstallationPackageRoot){$arguments.InstallationPackageRoot=$InstallationPackageRoot}
+else{$arguments.SsisReleaseDirectory=$SsisReleaseDirectory;$arguments.ParserReleaseDirectory=$ParserReleaseDirectory}
 $arguments.QualifiedProviderSha512=$QualifiedProviderSha512
 $arguments.JournalDirectory=$journal
 & ([scriptblock]::Create($bound)) @arguments

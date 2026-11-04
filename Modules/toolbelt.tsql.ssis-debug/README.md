@@ -41,9 +41,12 @@ Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head separat
 nachgewiesen. Die vorhandene Windows-Funktionsqualifikation gilt für ihre
 gebundenen Buildbytes. Die parametrisierte Prozedurdefinition hat einen
 [eigenen Prüfstand](Tests/README.md#parametrisierte-prozedurdefinition-v1).
-Das [V1-Installationspaket](InstallPackages/README.md#prozedurdefinition-v1)
-ist auf Windows SQL2019/2022/2025 mit den unterstützten Compatibility Levels
-lokal und zentral geprüft.
+Die [aktuelle Gesamtabnahme](Tests/README.md#gesamtabnahme-des-korrigierten-builds)
+führt die nativen Prüfungen des korrigierten Builds und die ausdrücklich
+übertragbaren älteren Nachweise zusammen. Der vereinbarte Debugvertrag ist
+`validated`. Das [aktuelle Installationspaket](InstallPackages/README.md)
+enthält den korrigierten Fehlerabbruch der erzeugten Prozeduren. Historische
+Paketbytes und ihre ursprünglichen Ausführungsergebnisse bleiben erhalten.
 Das Modul bleibt `unreleased`.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit

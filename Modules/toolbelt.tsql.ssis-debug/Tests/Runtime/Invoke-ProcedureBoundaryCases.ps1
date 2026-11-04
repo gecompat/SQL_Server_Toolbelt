@@ -44,7 +44,30 @@ try{
   $rows=Query $caller "EXEC ContosoDebug.USP_Synthetic $floor=0,$offset=1,@Debug=$debug;"
   Assert-Current ($rows.Rows.Count -eq 2 -and $messages.Count -eq $(if($debug -in @('1','255')){1}else{0})) 'BOUNDARY_DEBUG_MESSAGES_ONLY'
  }
+ $messages.Clear()
+ [void](Query $caller "EXEC ContosoDebug.USP_Synthetic @Hilfe=1,@Debug=255,@ResultTable=N'not-local',@KeepData=1;")
+ Assert-Current ($messages.Count -eq 0) 'BOUNDARY_HELP_IGNORES_DEBUG'
 }finally{$caller.remove_InfoMessage($handler)}
+foreach($empty in @($false,$true)){
+ foreach($matching in @($false,$true)){
+  foreach($keep in @(0,1)){
+   $shape=if($matching){'KeyA int NOT NULL,Adjusted int NOT NULL'}else{'Dummy nvarchar(10) NULL'}
+   NonQuery $caller "CREATE TABLE #SchemaCase($shape);"
+   try{
+    if(-not $empty){NonQuery $caller $(if($matching){'INSERT #SchemaCase VALUES(7,7);'}else{"INSERT #SchemaCase VALUES(N'Contoso');"})}
+    $sql="EXEC ContosoDebug.USP_Synthetic $floor=0,$offset=1,@ResultTable=N'#SchemaCase',@KeepData=$keep;"
+    if(-not $empty -and -not $matching -and $keep -eq 1){
+     Reject-Procedure {Query $caller $sql} 51025
+     Assert-Current ((Query $caller 'SELECT Dummy FROM #SchemaCase;').Rows[0].Dummy -ceq 'Contoso') 'BOUNDARY_SCHEMA_KEEP_REFUSAL'
+    }else{
+     NonQuery $caller $sql
+     Assert-Current ((Query $caller 'SELECT COUNT(*) AS N FROM #SchemaCase;').Rows[0].N -eq $(if(-not $empty -and $matching -and $keep -eq 1){3}else{2})) 'BOUNDARY_ALL_SCHEMA_KEEP_STATES'
+     Assert-Current ((Query $caller "SELECT COUNT(*) AS N FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#SchemaCase') AND name IN(N'KeyA',N'Adjusted') AND system_type_id=56 AND is_nullable=0;").Rows[0].N -eq 2) 'BOUNDARY_ALL_SCHEMA_EXACT'
+    }
+   }finally{NonQuery $caller 'DROP TABLE #SchemaCase;'}
+  }
+ }
+}
 foreach($keep in @('NULL','0','1')){
  NonQuery $caller 'DELETE FROM #Projection;INSERT #Projection VALUES(7,7);'
  $command=$caller.CreateCommand()
@@ -66,13 +89,19 @@ foreach($name in @('dbo.Contoso','##Contoso','#Missing')){
 }
 # Ein Materialisierungsfehler darf weder die Ausgabe vorbereiten noch eigene
 # Temps oder eine Transaktion im aufrufenden Scope hinterlassen.
-NonQuery $caller 'DELETE FROM #Projection;INSERT #Projection VALUES(7,7);'
-$before=Query $caller $stateSql
-Reject-Procedure {Query $caller "EXEC ContosoDebug.USP_Synthetic $floor=0,$offset=2147483647,@ResultTable=N'#Projection';"} 8115
-$unchanged=Query $caller 'SELECT COUNT(*) AS N,MIN(KeyA) AS K,MIN(Adjusted) AS V FROM #Projection;'
-Assert-Current ($unchanged.Rows[0].N -eq 1 -and $unchanged.Rows[0].K -eq 7 -and $unchanged.Rows[0].V -eq 7) 'BOUNDARY_MATERIALIZATION_FAILURE_ATOMIC'
-Assert-ProcedureSession $before 'BOUNDARY_MATERIALIZATION_SESSION'
-Assert-NoProcedureTemps
+foreach($setting in @('SET XACT_ABORT OFF;','SET XACT_ABORT ON;')){
+ NonQuery $caller $setting
+ foreach($route in @(',@ResultTable=N''#Projection'',@KeepData=0',',@ResultTable=N''#Projection'',@KeepData=1','')){
+  NonQuery $caller 'DELETE FROM #Projection;INSERT #Projection VALUES(7,7);'
+  $before=Query $caller $stateSql
+  Reject-Procedure {Query $caller "EXEC ContosoDebug.USP_Synthetic $floor=0,$offset=2147483647$route;"} 8115
+  $unchanged=Query $caller 'SELECT COUNT(*) AS N,MIN(KeyA) AS K,MIN(Adjusted) AS V FROM #Projection;'
+  Assert-Current ($unchanged.Rows[0].N -eq 1 -and $unchanged.Rows[0].K -eq 7 -and $unchanged.Rows[0].V -eq 7) 'BOUNDARY_MATERIALIZATION_FAILURE_ATOMIC'
+  Assert-ProcedureSession $before 'BOUNDARY_MATERIALIZATION_SESSION'
+  Assert-NoProcedureTemps
+ }
+}
+NonQuery $caller 'SET XACT_ABORT OFF;'
 # Der Fehler tritt erst beim INSERT nach erfolgreicher Vorbereitung auf. Beide
 # KeepData-Zweige müssen Inhalt und Index der Caller-Tabelle zurückrollen.
 NonQuery $caller 'CREATE TABLE #Atomic(KeyA int NOT NULL,Adjusted int NOT NULL CHECK(Adjusted<150));CREATE INDEX IX_Atomic ON #Atomic(KeyA);INSERT #Atomic VALUES(7,7);'
@@ -118,7 +147,10 @@ foreach($family in @('bigint','decimal')){
     $reader=$command.ExecuteReader()
     try{
      $shape=$reader.GetSchemaTable()
-     Assert-Current ($reader.FieldCount -eq 2 -and $reader.GetName(1) -ceq 'Adjusted' -and $shape.Rows[1].NumericPrecision -eq $(if($family -ceq 'bigint'){19}else{38}) -and $shape.Rows[1].NumericScale -eq $(if($family -ceq 'bigint'){0}else{18})) 'BOUNDARY_TYPED_RESULT_SCHEMA'
+     # SqlClient verwendet für ganzzahlige Resultspalten den Scale-Sentinel
+     # 255. Die SQL-Signatur wird oben separat im Katalog exakt geprüft.
+     [IO.File]::AppendAllText((Join-Path (Split-Path -Parent $IdentityJournal) 'typed-schema.private.jsonl'),((@{family=$family;type=$reader.GetDataTypeName(1);precision=[int]$shape.Rows[1].NumericPrecision;scale=[int]$shape.Rows[1].NumericScale}|ConvertTo-Json -Compress)+"`n"))
+     Assert-Current ($reader.FieldCount -eq 2 -and $reader.GetName(1) -ceq 'Adjusted' -and $reader.GetDataTypeName(1) -ceq $family -and $(if($family -ceq 'bigint'){$reader.GetFieldType(1) -eq [long]}else{$shape.Rows[1].NumericPrecision -eq 38 -and $shape.Rows[1].NumericScale -eq 18})) 'BOUNDARY_TYPED_RESULT_SCHEMA'
      $count=0
      while($reader.Read()){
       $actual=if($family -ceq 'bigint'){$reader.GetInt64(1).ToString([Globalization.CultureInfo]::InvariantCulture)}else{$reader.GetSqlDecimal(1).ToString()}
@@ -135,7 +167,9 @@ foreach($family in @('bigint','decimal')){
    $command.CommandType='StoredProcedure';$command.CommandText="ContosoDebug.USP_Typed_$family"
    $command.Parameters.Add($typedFloor,[Data.SqlDbType]::Int).Value=0
    $command.Parameters.Add($typedOffset,[Data.SqlDbType]::NVarChar,100).Value=if($family -ceq 'bigint'){'9223372036854775808'}else{'100000000000000000000.000000000000000000'}
-   Reject-Procedure {$command.ExecuteNonQuery()} $(if($family -ceq 'bigint'){8114}else{8115})
+   # RPC-Konvertierung von nvarchar in einen außerhalb des Wertebereichs
+   # liegenden numerischen Parameter meldet in beiden Fällen 8114.
+   Reject-Procedure {$command.ExecuteNonQuery()} 8114
   }finally{$command.Dispose()}
  }finally{NonQuery $Connection "DROP PROCEDURE ContosoDebug.USP_Typed_$family;"}
 }

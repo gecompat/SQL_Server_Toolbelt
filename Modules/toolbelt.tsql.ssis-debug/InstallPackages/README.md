@@ -1,6 +1,27 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+## Aktueller qualifizierter Build
+
+Verwende [SSIS-Debug-Qualified-Install-Windows.zip](SSIS-Debug-Qualified-Install-Windows.zip)
+mit seiner [Prüfsumme](SSIS-Debug-Qualified-Install-Windows.zip.sha256).
+Es enthält die drei benötigten Module und den korrigierten 40-Parameter-Build.
+Materialisierungsfehler beenden den erzeugten Prozedurbatch vor jeder
+Ausgabemutation. Bereits installierte Definitionen werden nicht automatisch
+geändert: neu erzeugen, prüfen und nach dem dokumentierten Versions- und
+Ownershipnachweis ersetzen.
+
+Die [Gesamtabnahme](../Tests/README.md#gesamtabnahme-des-korrigierten-builds)
+erklärt aktuelle Engine-/CL-Brücken und die wiederverwendeten historischen
+Nachweise. Der [native Buildnachweis](../Tests/Qualification/Current.Build.Native.20261104.json)
+bindet die reparierten Bytes. Die [Installationsanleitung](../Documentation/CurrentInstallation.md)
+zeigt Vorbereitung, lokale und zentrale Nutzung. Das Paket ist unveröffentlicht;
+seine Ablage im Repository ist kein Release oder Tag.
+
 ## Prozedurdefinition V1
+
+Das folgende unveränderte Paket liegt vor der Fehlerkorrektur. Sein Nachweis
+beschreibt seine ursprünglichen Fälle und qualifiziert keine Fehleratomarität
+des korrigierten Builds. Für aktuelle Installationen verwende das Paket oben.
 
 Das [V1-Installations-ZIP](SSIS-Debug-ProcedureV1-Install-Windows.zip) enthält
 die neue öffentliche Signatur und die drei benötigten Module.

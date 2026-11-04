@@ -1,0 +1,55 @@
+{
+  "kind": "ssis_independent_security_acceptance",
+  "date": "2026-11-04",
+  "result": "PASS",
+  "review_kind": "static_security_contract",
+  "independent_reviewer": true,
+  "reviewer": "Codex independent review agent",
+  "runtime_executed_by_reviewer": false,
+  "original_pass_withdrawn": true,
+  "original_product_commit": "410c994f657888faf5ccb1097b1d1a985a98ec96",
+  "corrected_product_commit": "c82be5069af2ac048c22bda801bb36561632c1cc",
+  "open_findings": [],
+  "resolved_findings": [
+    {
+      "id": "F-01",
+      "severity": "P1",
+      "status": "fixed",
+      "problem": "Statement-level materialization errors could continue into ResultTable mutation.",
+      "fix": "Outer TRY/CATCH covers complete generated batch; bare THROW stops before output; inner own-transaction rollback retained.",
+      "native_regression": "Arithmetic overflow with SELECT and ResultTable KeepData 0/1 under caller XACT_ABORT ON/OFF; post-prepare CHECK failure preserves rows/index/session."
+    }
+  ],
+  "reviewed_boundaries": [
+    "strict_profile_and_identifiers",
+    "typed_parameter_binding",
+    "caller_source_rights_ownership_chain",
+    "catalog_drift",
+    "temp_ownership",
+    "help_first",
+    "caller_transaction_and_set",
+    "resulttable_error_atomicity",
+    "operator_ddl_lifecycle",
+    "historical_evidence_applicability"
+  ],
+  "reviewed_product_sha256": {
+    "Modules/toolbelt.tsql.ssis-debug/Clr/ProcedureDefinition.cs": "5b447bed6cbd4cf01f21af52e6d4a80866d132761c1d9335ee0fdfb70104affa",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Bindings.cs": "5f3bf698b46794e1250a101c2534baed5e4f323d0b960afb3419843b516755f8",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Core.cs": "f4cceb4b9a02cdf407a95c40509a3fa20f79158d987ef90d6fb93f5fbe52da60",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Engine.cs": "ca250998a50921ab72669191668a137fc79d16f9e8319070ce12f152d815b4d7",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/PackageModel.cs": "060e80f7ab38668087b0cea71d8b284dd7339284c5d6681d73de00978bf9c925",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlParameters.cs": "ee2da60ea69aee4fc2c400bcbd258cd64ff414cea0c15dd50b8e785634d9c24e",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlSafety.cs": "eeaf459ecc8d2daa1411bc087551f188823044d5df3b34f58d20c6b5619573ef",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlAdapter.cs": "c906863328d45fb8b48cd7ff8db62c4f0552577303d919a67823c28a2bc09ae4",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Translator.cs": "e7788a6c254713266c6b5a9cb9a4900ee158589a6511df51b70737e4faced83c",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Toolbelt.Tsql.SsisDebug.csproj": "630bd0d2d9a10efeaf5e4bb1d4ec9a21094be1616461e9087e9070564848fa0b",
+    "Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql": "d9f26e4b2f967613c9d5a25b6d1a1418d0359819b21186905180fb50ef7b972f",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "e817f62a0f59596d24db76751109b6389a8b444f593ccd91395cf8c5a26f22d5",
+    "Documentation/Standards/USP_CONTRACT.md": "93bc7e9fe5fbadb08c39ae4c2c2e76787dd0e0be50cd90e1ec0c2b5bbac1e307"
+  },
+  "limitations": [
+    "Static review is separate from native execution and CI.",
+    "No guarantee of serialization against privileged concurrent DDL or SSIS runtime parity."
+  ],
+  "publication_authorized": false
+}

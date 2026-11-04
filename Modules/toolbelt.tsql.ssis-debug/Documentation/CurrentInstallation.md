@@ -8,11 +8,14 @@ Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 ## Prozedurdefinition V1 installieren
 
 Für den neuen 40-Parameter-Stand mit `procedure-definition` verwende das
-[V1-Installations-ZIP](../InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip).
-Entpacke es, prüfe die [ZIP-Prüfsumme](../InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip.sha256)
+[qualifizierte Installations-ZIP](../InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip).
+Entpacke es, prüfe die [ZIP-Prüfsumme](../InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip.sha256)
 und folge für lokale Installation der [Installationsanleitung](../Examples/Installation/README.md)
-für die drei enthaltenen Module. Der [Matrixnachweis](../Tests/Qualification/ProcedureV1.InstallPackage.Matrix.Windows.20261104.json)
-bindet dasselbe ZIP an alle unten aufgeführten Windows-/CL-Kontexte.
+für die drei enthaltenen Module. Die [aktuelle Gesamtabnahme](../Tests/Qualification/Current.Build.20261104.json)
+trennt neue Prüfungen und die Anwendbarkeit früherer Windows-/CL-Kontexte.
+Das Paket korrigiert den Abbruch bei Materialisierungsfehlern der erzeugten
+Prozedur. Bereits installierte Definitionen müssen aus diesem Build neu
+erzeugt und nach ihrem eigenen Ownership-/Versionsnachweis ersetzt werden.
 Die [Objektreferenz](USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
 zeigt den anschließenden Generator- und Prozeduraufruf.
 
@@ -24,10 +27,14 @@ zeigt den anschließenden Generator- und Prozeduraufruf.
 | 2022 | CU26 | 150, 160 | lokal und zentral |
 | 2025 | CU8 | 150, 160, 170 | lokal und zentral |
 
-Die Abnahme führt die entpackten Deployment-Artefakte aus und prüft
-Neuinstallation, Wiederholung, Entfernung, echte Lowpriv-Rechte und den
-vollständigen erzeugten Prozeduraufruf. Jeder neue Fall erhält einen frischen
-Windows-Abschlussaudit.
+Die Abdeckung setzt die ursprüngliche zwölfteilige Paketmatrix, deren
+unveränderte normalen Zweige und aktuelle native Brücken auf allen drei
+Engines zusammen. Der korrigierte Fehlerpfad und die Typgrenzen sind auf
+SQL2019/CL150 lokal, SQL2022/CL160 zentral und SQL2025/CL170 lokal geprüft.
+Eine neue zwölfteilige Ausführung des korrigierten ZIPs wird nicht behauptet.
+Neue native Fälle prüfen eigene Ressourcen und erhalten einen frischen
+Windows-Abschlussaudit. Details und die Trennung der Originalausführungen
+stehen in der [Prüfmatrix](../Tests/README.md#gesamtabnahme-des-korrigierten-builds).
 
 ## Zentrale Installation und Consumer-Datenbank
 

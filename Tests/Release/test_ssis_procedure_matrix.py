@@ -10,6 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import validate_ssis_procedure_matrix as matrix
+from ssis_historical_context import historical_root
 
 
 class ProcedureMatrix(unittest.TestCase):
@@ -17,7 +18,7 @@ class ProcedureMatrix(unittest.TestCase):
         self.record = json.loads((ROOT / matrix.REPORT).read_bytes())
 
     def test_actual_matrix_and_current_sources(self):
-        matrix.validate()
+        matrix.validate(source_root=historical_root(ROOT, '410c994f657888faf5ccb1097b1d1a985a98ec96'))
 
     def test_missing_duplicate_and_unsupported_contexts(self):
         for change in (

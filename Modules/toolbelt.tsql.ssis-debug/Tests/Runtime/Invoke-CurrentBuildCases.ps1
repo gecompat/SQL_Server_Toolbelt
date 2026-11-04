@@ -16,7 +16,7 @@ function Replace-BuildOnce([string]$Old,[string]$New){
  if($script:text.Split($Old,[StringSplitOptions]::None).Count -ne 2){throw 'SSIS_BUILD_CASE_ANCHOR'}
  $script:text=$script:text.Replace($Old,$New)
 }
-Replace-BuildOnce 'function Generate-ProcedureArtifact([string]$Operation,[string]$Bindings){' 'function Generate-ProcedureArtifact([string]$Operation,[string]$Bindings,[string]$Name="USP_Synthetic"){' 
+Replace-BuildOnce 'function Generate-ProcedureArtifact([string]$Operation,[string]$Bindings){' 'function Generate-ProcedureArtifact([string]$Operation,[string]$Bindings,[string]$Name="USP_Synthetic"){'
 Replace-BuildOnce ".Value='USP_Synthetic'" '.Value=$Name'
 $anchor="  `$cmd.Parameters.Add('@Operation',[Data.SqlDbType]::VarChar,32).Value=`$Operation"
 Replace-BuildOnce $anchor ($anchor+"`n  `$cmd.Parameters.Add('@TSqlVersion',[Data.SqlDbType]::SmallInt).Value=[int16]$CompatibilityLevel")

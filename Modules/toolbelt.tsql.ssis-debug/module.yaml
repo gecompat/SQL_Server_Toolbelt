@@ -2,7 +2,7 @@ module_id: "toolbelt.tsql.ssis-debug"
 module_name: "SSIS Data Flow Debug SELECT"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Gemeinsamer typisierter DTSX-Kern für Debug-SELECT und externen neutralen Modellaustausch; kein Paketexecutor."
 sql_server_versions:
@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: V1-Prozedurdefinition und exaktes ZIP auf SQL2019/CU32, SQL2022/CU26 und SQL2025/CU8 mit allen unterstützten CL150/160/170 lokal und zentral geprüft. Weitere Modulnachweise bleiben buildgebunden."
+  windows: "validated: aktueller Debugvertrag einschließlich Prozedurdefinition, Typgrenzen und Fehleratomarität; aktuelle Engine-/CL-Brücken und explizite Anwendbarkeit der unveränderten Windows-/CL-/Modus- und Clientnachweise. Keine neue GUI-/TLS-Ausführung behauptet."
   linux: "not applicable: UNSAFE SQL CLR wird nicht unterstützt."
 providers:
   - id: clr-ssis-debug
@@ -252,4 +252,9 @@ validation_evidence:
   - date: "2026-11-04"
     workflow: "local: vollständige Windows-/CL-/Modusmatrix des V1-ZIPs"
     scope: "Dasselbe V1-ZIP auf Windows SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, lokal und zentral. Zwölf Kontexte mit 1092 Prozedur- und 96 Installationsassertions. Ein gültiger Fall wiederverwendet, elf neu ausgeführt und unabhängig auditiert. Zentrale Aufrufe verwenden getrennte Consumer-Datenbanken. Ein bereinigter Setupfehler und sein Audit bleiben erhalten. 24 neue Ziel-/Auditaufrufe, 19 eigene Datenbanken entfernt. Funktionaler Transport, keine Veröffentlichung."
+    result: "success"
+
+  - date: "2026-11-04"
+    workflow: "local: CurrentBuild Functional/ProcedureBoundary und unabhängige Windows-Audits; Framework Full; unabhängige Sicherheitsabnahme"
+    scope: "Aktueller korrigierter 40-Parameter-Build: 3804 zusammengesetzte Assertions mit breiten Fach-/API-/Rechte-/Lifecyclefällen und je222 Prozedurprüfungen auf Windows SQL2019/CU32 CL150 lokal, SQL2022/CU26 CL160 zentral und SQL2025/CU8 CL170 lokal. Int64-/Decimal-Grenzen, alle ResultTable-/KeepData-Zustände, Caller-TX/SET und Fehleratomarität bestanden. Native Überlaufprobe fand Datenverlust durch Statementfortsetzung; äußere TRY/CATCH-Grenze korrigiert und separat unabhängig akzeptiert. Full27 am korrigierten DLL PASS. Frühere Versions-/CL-/Modus-, Windows-/SSMS-, TLS-, Installer-, Lowpriv- und Abbruchnachweise nur mit expliziter unveränderter Mechanismus-/Defaultpfadbindung wiederverwendet. Keine neue GUI-/TLS-Ausführung behauptet. Fehlgeschlagene Koordinatoren bleiben FAILED_CLEANED; ihr erfüllter Teilumfang wird nicht zum Gesamt-PASS umbenannt. Gesamtabnahme Current.Build.20261104.json; unveröffentlicht."
     result: "success"
