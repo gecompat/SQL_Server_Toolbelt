@@ -99,7 +99,7 @@ def validate_output(path):
 def build(args):
     output, sidecar = validate_output(args.output)
     profile = getattr(args, "profile", CURRENT_PROFILE)
-    name, date, _ = PROFILES[profile]
+    package_name, date, _ = PROFILES[profile]
     guard = load_legacy_guard()
     require(sha(guard.ARCHIVE.read_bytes()) == PREDECESSOR_SHA256,
             "frozen previously qualified predecessor")
@@ -194,7 +194,7 @@ def build(args):
     old_manifest = json.loads(payload["PACKAGE-MANIFEST.json"])
     output_manifest = dict(old_manifest)
     output_manifest.update(
-        packageName=name, packageDate="%04d-%02d-%02d" % date, sourceCommit=commit,
+        packageName=package_name, packageDate="%04d-%02d-%02d" % date, sourceCommit=commit,
         componentProfile=profile, publicationAuthorized=False,
         nativeBinaryQualification=qualification_path,
         nativeQualificationSha256=sha(qualification_bytes),
@@ -211,7 +211,7 @@ def build(args):
     validate_output(output)
     with zipfile.ZipFile(output, "x", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path, data in sorted(payload.items()):
-            info = zipfile.ZipInfo(name + "/" + path, (*date, 0, 0, 0))
+            info = zipfile.ZipInfo(package_name + "/" + path, (*date, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.create_system = 3
             info.external_attr = 0o100644 << 16
