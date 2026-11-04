@@ -147,8 +147,9 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_sqlcmd_envelope.py
       - name: Current standalone T-SQL installer CL matrix composition without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_standalone_matrix.py
-      - name: Current standalone T-SQL installer matrix evidence binding without SQL
-        run: python Scripts/Release/validate_ssis_current_standalone_matrix.py
+      - name: Historical standalone T-SQL installer matrix evidence binding without SQL
+        run: >-
+          python -c "import sys; sys.path[:0]=['Tests/Release','Scripts/Release']; from ssis_historical_context import historical_root; from validate_ssis_current_standalone_matrix import ROOT, validate; validate(historical_root(ROOT)); print('SSIS_HISTORICAL_STANDALONE_MATRIX_PASS')"
       - name: Reproduce current provider build
         shell: pwsh
         run: |
