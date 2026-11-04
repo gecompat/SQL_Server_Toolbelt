@@ -31,13 +31,22 @@ eingesandten ALTER-Text und schlug fehl. Der Gesamtfall bleibt
 eigenen Testdatenbank und des eigenen Logins sowie die Wiederherstellung des
 Trust- und Konfigurationszustands. Der korrigierte Adapter prüft den
 tatsächlich installierten Versionsstand und die Objektidentität vor dem DROP.
-Elf gezielte Offline-Gegenproben bestanden. Die korrigierte Ownership-Prüfung
-und das explizite Entfernen stehen nativ aus.
+Elf gezielte Offline-Gegenproben bestanden.
 
-Bestehende ZIPs und Qualifikationsnachweise sind an ihre ursprüngliche
-API-Signatur und die zugehörigen Artefakte gebunden. Die Releaseprüfungen für
-diese Bindung erkennen die neue Signatur als Abweichung. Eine qualifizierte
-Lieferung der neuen API und Head-/Main-CI stehen aus.
+Die anschließende autonome Abnahme bestand mit
+[91 nativen Prüfungen](Qualification/ProcedureV1.Windows2025.20261104.json).
+Der Lauf bestätigte auch die tatsächliche Objektentfernung und den Erhalt
+der fremden Vergleichsprozedur. Der unabhängige Windows-Audit war grün.
+Der [separate Paketlauf](Qualification/ProcedureV1.InstallPackage.Windows2025.20261104.json)
+wiederholte diese 91 Prüfungen an den entpackten Artefakten und prüfte acht
+weitere Installations-, Wiederholungs- und Uninstall-Assertions. Beide
+Nachweise sind auf Windows SQL Server 2025/CU8, CL150 und lokale Installation
+begrenzt. Das ZIP wurde zweimal bytegleich gebaut.
+
+Die bisherigen ZIPs, die Standalone-Datei und ihre Qualifikationen bleiben
+an den früheren Stand gebunden. Offline-Evidenztests laden hierfür die
+eingefrorene Vorgängerrevision. Die Prüfung des V1-ZIPs bindet dagegen den
+aktuellen Produktquellstand und den separaten Paketlauf.
 
 ## Nativer Windows-SSMS-Gesamtfall
 
@@ -1024,9 +1033,9 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-04`
-- Nachweis: `local: korrigierter ProcedureDefinition-Lauf und unabhängiger Windows-Lab-Audit`
-- Scope: Windows SQL2025/CU8, CL150: echte Lowpriv-Quellrechte, Projektion und Ergebnismetadaten, ResultTable, Temp-Kollision, parallele Aufrufe, Update und Driftprüfung bestanden. Der letzte Ownership-Textvergleich vor dem expliziten DROP scheiterte, Gesamtfall FAILED_CLEANED. Abschlussaudit für Testdatenbank, Login, Konfiguration und Trust PASS. Vollständige V1- und Paketqualifikation bleiben offen.
-- Ergebnis: `partial`
+- Nachweis: `local: ProcedureDefinition und Installation aus dem exakten V1-ZIP`
+- Scope: Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen.
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 Die Exchange-Gegenproben prüfen zusätzlich `--bundle` auf beiden Hosts. Fehlende,

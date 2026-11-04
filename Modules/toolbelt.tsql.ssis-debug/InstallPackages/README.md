@@ -1,16 +1,28 @@
 # SSIS-Debug ohne eigenen Build installieren
 
-## Aktueller Standard
+## Prozedurdefinition V1
 
-Der heutige Source-Build mit vollständiger Parameterhilfe wird im
+Das [V1-Installations-ZIP](SSIS-Debug-ProcedureV1-Install-Windows.zip) enthält
+die neue öffentliche Signatur und die drei benötigten Module.
+Die [Prüfsumme](SSIS-Debug-ProcedureV1-Install-Windows.zip.sha256) bindet die
+Archivbytes. Der [Paketnachweis](../Tests/Qualification/ProcedureV1.InstallPackage.Windows2025.20261104.json)
+belegt Neuinstallation, Wiederholung, Entfernung und den vollständigen
+Prozedurfall aus den entpackten Artefakten auf Windows SQL Server 2025/CU8,
+CL150, lokal. Der unabhängige Windows-Abschlussaudit ist Teil dieses Nachweises.
+Die [Installationsanleitung](../Documentation/CurrentInstallation.md#prozedurdefinition-v1-installieren)
+führt zum Aufrufbeispiel.
+
+## Bisherige Paketstände
+
+Der vorherige Source-Build mit vollständiger Parameterhilfe wird im
 [Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md) geliefert. Die
-[aktuelle Funktionsabnahme](../Tests/Qualification/Current.Functional.20261031.json)
+[damalige Funktionsabnahme](../Tests/Qualification/Current.Functional.20261031.json)
 bindet genau dessen SSIS-Binary und Deployment an zwölf Windows-/CL-/Modusfälle.
 
 Für die eigenständige SSIS-Installation mit älteren Hilfetexten verwende
 [`SSIS-Debug-Current-Install-Windows.zip`](SSIS-Debug-Current-Install-Windows.zip)
 oder den [reinen T-SQL-Installer](../../../Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
-Die [aktuelle Anleitung](../Documentation/CurrentInstallation.md) zeigt
+Die [Anleitung zum bisherigen Paketstand](../Documentation/CurrentInstallation.md#installation-der-bisherigen-paketstände) zeigt
 Installation, Parameter-Vorlage, benannte SQL-Limits und `DebugScript`.
 Der [Buildnachweis](../Tests/Qualification/Current.Windows.CL.20261029.json),
 die [getrennte Paketqualifikation](../Tests/Qualification/Current.InstallPackage.20261029.json)
@@ -18,9 +30,8 @@ und die [Installer-Runtimequalifikation](../../../Releases/1.0.0/ssis-current-st
 haben jeweils ihren eigenen Umfang und ihre eigenen Eingabepins.
 Spätere Paket-/Installerberichte stehen im Repository; sie verändern die
 unveränderlichen Quellen des im ZIP enthaltenen Snapshots nicht.
-Diese älteren Artefakte behalten ihren bisherigen begrenzten Nachweis. Der
-heutige Debugvertrag ist im dokumentierten Scope funktionsqualifiziert; das
-Modul bleibt unveröffentlicht. Die neue Abnahme ersetzt keine Archivbytes.
+Diese Artefakte behalten ihre gebundenen Nachweise. Das Modul bleibt
+unveröffentlicht.
 
 ## Historische Komponentenlieferungen
 

@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+from ssis_historical_context import historical_root
 import shutil
 import subprocess
 import tempfile
@@ -23,7 +24,7 @@ class AccessEvidence(unittest.TestCase):
         self.record = json.loads((ROOT / access.REPORT).read_text(encoding="utf-8"))
 
     def test_actual_record_and_current_product_binding(self):
-        access.validate(ROOT)
+        access.validate(historical_root(ROOT))
 
     def reject(self, mutate):
         changed = copy.deepcopy(self.record)

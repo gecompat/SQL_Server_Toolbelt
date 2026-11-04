@@ -10,7 +10,7 @@ import stat
 import zipfile
 
 from new_ssis_current_package import (
-    ROOT, MODULE, LEGACY, PREDECESSOR_SHA256, PROFILES, CURRENT_PROFILE,
+    ROOT, MODULE, LEGACY, PREDECESSOR_SHA256, PROFILES, CURRENT_PROFILE, PROCEDURE_PROFILE, PROCEDURE_NAME,
     load_legacy_guard, require, sha, validate_native_record,
 )
 from new_ssis_standalone_tsql import read_regular_bounded, MAX_PACKAGE_BYTES, MAX_UNCOMPRESSED_BYTES
@@ -107,6 +107,49 @@ def validate(path, *, profile=CURRENT_PROFILE):
             require(relative in payload and archive.read(name) == payload[relative],
                     "unchanged predecessor dependency")
     print("SSIS_CURRENT_PACKAGE_VALIDATION_PASS; exact qualified candidate and preserved dependencies; no SQL")
+    return manifest, release, payload
+
+
+PROCEDURE_DELIVERY = MODULE + "Tests/Qualification/ProcedureV1.InstallPackage.Windows2025.20261104.json"
+PROCEDURE_ARCHIVE = MODULE + "InstallPackages/" + PROCEDURE_NAME + ".zip"
+PROCEDURE_METHODS = {
+    MODULE + "Tests/Runtime/" + name for name in (
+        "Invoke-ProcedureDefinitionLab.ps1", "Invoke-ProcedureDefinitionCases.ps1",
+        "Invoke-CurrentCases.ps1", "Invoke-LabContract.ps1", "Invoke-PackageInstallCases.ps1",
+        "Invoke-ComponentsV2Audit.ps1", "Invoke-CurrentQualificationLab.ps1",
+    )
+} | {MODULE + "Tests/Fixtures/procedure-8.dtsx",
+     "Tests/CI/run-lab-local.ps1", "Tests/CI/LabQualifiedContract.ps1"}
+
+
+def validate_procedure_delivery():
+    path = ROOT / PROCEDURE_ARCHIVE
+    _, release, payload = validate(path, profile=PROCEDURE_PROFILE)
+    record = json.loads(read_regular_bounded(ROOT / PROCEDURE_DELIVERY, 1024 * 1024))
+    require(record.get("kind") == "ssis_procedure_v1_package_qualification" and
+            record.get("schema_version") == "1.0" and record.get("publication_authorized") is False and
+            record.get("package") == {"path": PROCEDURE_ARCHIVE, "sha256": sha(read_regular_bounded(path, MAX_PACKAGE_BYTES)),
+                                      "manifest_sha256": sha(payload["PACKAGE-MANIFEST.json"])},
+            "V1 exact executed ZIP")
+    require(record.get("case") == {
+        "platform": "windows", "sql_version": "2025", "patch": "CU8", "compatibility_level": 150,
+        "deployment_mode": "local", "test_purpose": "Functional", "authenticated_tls": "not executed",
+        "package_assertions": 8, "procedure_assertions": 91, "result": "PASS", "cleanup_audit": "PASS",
+    }, "V1 package execution scope")
+    inputs = record["execution_inputs"]
+    require(set(inputs) == PROCEDURE_METHODS, "V1 package execution input closure")
+    for source, digest in inputs.items():
+        require(sha(read_regular_bounded(ROOT / source, 1024 * 1024)) == digest,
+                "V1 package execution input changed: " + source)
+        if source in payload:
+            require(sha(payload[source]) == digest, "V1 packaged test input changed: " + source)
+    for key in ("sourceFiles", "deploymentFiles"):
+        for entry in release[key]:
+            relative, digest = entry.split(":", 1)
+            source = posixpath.normpath(MODULE + relative)
+            current = read_regular_bounded(ROOT / source, MAX_PACKAGE_BYTES)
+            require(sha(current) == digest, "V1 product source changed: " + source)
+    print("SSIS_PROCEDURE_V1_DELIVERY_PASS; exact ZIP, source and scoped Windows lifecycle")
 
 
 if __name__ == "__main__":

@@ -9,9 +9,11 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Documentation"))
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
+sys.path.insert(0, str(ROOT / "Tests/Release"))
 import generate_parameter_help as generator
 import parameter_help_transition as transition
 import generate_schema_help_upgrade as schema_upgrade
+from ssis_historical_context import historical_root
 
 
 class ParameterHelp(unittest.TestCase):
@@ -59,7 +61,8 @@ class ParameterHelp(unittest.TestCase):
     def test_business_sources_are_unchanged_outside_generated_help(self):
         for path in transition.snapshot(ROOT):
             with self.subTest(path=path):
-                transition.predecessor_source(ROOT, path)
+                root = historical_root(ROOT) if path.startswith("Modules/toolbelt.tsql.ssis-debug/") else ROOT
+                transition.predecessor_source(root, path)
 
     def test_changed_business_body_and_noncanonical_help_are_rejected(self):
         path = "Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql"

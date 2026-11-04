@@ -30,8 +30,8 @@ Die [historische Komponenten-V2-Installation](Documentation/ComponentsV2Installa
 beschreibt die bereits qualifizierten, unveränderten Vorgängerartefakte. Sie ist
 kein Nachweis des aktuellen SQL-Parametervertrags oder einer aktuellen Lieferung.
 Die [Anleitung für den aktuellen Entwicklungsstand](Documentation/CurrentInstallation.md)
-beschreibt den neuen T-SQL-Installer, das aktuelle ZIP sowie Vorlage, Parameter
-und `DebugScript`-Verwendung.
+beschreibt das V1-ZIP und trennt es von den bisherigen Installern. Sie zeigt
+Vorlage, Parameter und `DebugScript`-Verwendung.
 Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
 ausgewiesen. Die ZIP-, Installer- und Snapshotnachweise werden nur bei
@@ -110,9 +110,9 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-04`
-- Nachweis: `local: korrigierter ProcedureDefinition-Lauf und unabhängiger Windows-Lab-Audit`
-- Scope: Windows SQL2025/CU8, CL150: echte Lowpriv-Quellrechte, Projektion und Ergebnismetadaten, ResultTable, Temp-Kollision, parallele Aufrufe, Update und Driftprüfung bestanden. Der letzte Ownership-Textvergleich vor dem expliziten DROP scheiterte, Gesamtfall FAILED_CLEANED. Abschlussaudit für Testdatenbank, Login, Konfiguration und Trust PASS. Vollständige V1- und Paketqualifikation bleiben offen.
-- Ergebnis: `partial`
+- Nachweis: `local: ProcedureDefinition und Installation aus dem exakten V1-ZIP`
+- Scope: Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen.
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 Der optionale externe [Begleittransport für native Objektkennungen](Exchange/README.md#native-objektkennungen-als-begleittransport)

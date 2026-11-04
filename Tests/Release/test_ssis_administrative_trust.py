@@ -12,6 +12,7 @@ import tempfile
 import unittest
 from unittest import mock
 import zipfile
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("ssis_administrative_trust", ROOT / "Scripts/Release/validate_ssis_administrative_trust.py")
@@ -27,10 +28,10 @@ class AdministrativeTrustEvidence(unittest.TestCase):
         record = copy.deepcopy(self.record)
         mutation(record)
         with self.assertRaises(ValueError):
-            trust.validate(ROOT, record, check_files=files)
+            trust.validate(historical_root(ROOT) if files else ROOT, record, check_files=files)
 
     def test_native_record_and_current_sources(self):
-        trust.validate(ROOT)
+        trust.validate(historical_root(ROOT))
 
     def test_missing_version(self):
         self.reject(lambda r: r["cases"].pop())
@@ -72,7 +73,7 @@ class AdministrativeTrustEvidence(unittest.TestCase):
 
     def test_snapshot_recognizes_only_original_archive_bytes(self):
         current = (ROOT / trust.SCRIPT).read_bytes()
-        previous = trust.snapshot_predecessor_source(ROOT, trust.SCRIPT, current)
+        previous = trust.snapshot_predecessor_source(historical_root(ROOT), trust.SCRIPT, current)
         self.assertEqual(trust.sha(previous), trust.HISTORICAL_SCRIPT_SHA256)
         self.assertNotEqual(current, previous)
 
@@ -96,6 +97,7 @@ class AdministrativeTrustEvidence(unittest.TestCase):
             json.loads('{"result":"FAIL","result":"PASS"}', object_pairs_hook=trust.unique)
 
     def test_help_archive_path_is_rejected_before_read(self):
+        root = historical_root(ROOT)
         spec = importlib.util.spec_from_file_location("help_archive_boundary", ROOT / "Tests/Release/test_parameter_help_package.py")
         helpcheck = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helpcheck)
@@ -130,13 +132,13 @@ class AdministrativeTrustEvidence(unittest.TestCase):
             original_archive = zipfile.ZipFile
 
             def selected_archive(path, *args, **kwargs):
-                if isinstance(path, (str, Path)) and Path(path).resolve() == (ROOT / trust.PACKAGE).resolve():
+                if isinstance(path, (str, Path)) and Path(path).resolve() == (root / trust.PACKAGE).resolve():
                     return archive_double
                 return original_archive(path, *args, **kwargs)
 
             with mock.patch.object(helpcheck.zipfile, "ZipFile", side_effect=selected_archive), mock.patch.object(Path, "read_bytes", guarded_read):
                 with self.assertRaisesRegex(ValueError, "escapes root"):
-                    helpcheck.validate(ROOT)
+                    helpcheck.validate(root)
 
 
 class BeforeSqlInputGuards(unittest.TestCase):

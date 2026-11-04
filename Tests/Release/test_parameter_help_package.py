@@ -1,12 +1,15 @@
 """Current executable installer contents, source coupling and checksum guards."""
 from pathlib import Path
+from functools import lru_cache
 import copy
 import hashlib
 import json
 import re
+import subprocess
 import sys
 import unittest
 import zipfile
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Documentation"))
@@ -23,6 +26,14 @@ NATIVE_INPUTS = {
     "Tests/Documentation/new_parameter_help_cases.py", "Scripts/Documentation/generate_parameter_help.py",
     "Documentation/Reference/api_examples.json", "Documentation/Reference/usp_help.json",
 }
+
+
+@lru_cache(maxsize=1)
+def native_fixture(root):
+    return subprocess.check_output([
+        sys.executable, "-X", "utf8", "-c",
+        "import json; from new_parameter_help_cases import cases; print(json.dumps(cases(),ensure_ascii=False,indent=2))",
+    ], cwd=root / "Tests/Documentation", text=True, encoding="utf-8", timeout=30).encode()
 
 
 def validate(root=ROOT):
@@ -78,9 +89,7 @@ def validate_qualification(record, payload, root=ROOT):
     if set(native["input_sha256"]) != NATIVE_INPUTS: raise ValueError("Help native input set differs")
     for relative, digest in native["input_sha256"].items():
         if package.sha((root/relative).read_bytes()) != digest: raise ValueError("Help native input differs: " + relative)
-    sys.path.insert(0,str(root/"Tests/Documentation"))
-    from new_parameter_help_cases import cases
-    fixture=(json.dumps(cases(),ensure_ascii=False,indent=2)+"\n").encode()
+    fixture=native_fixture(root)
     if native["fixture_line_endings"] == "CRLF": fixture=fixture.replace(b"\n",b"\r\n")
     elif native["fixture_line_endings"] != "LF": raise ValueError("Help native fixture EOL contract differs")
     if package.sha(fixture) != native["fixture_sha256"]: raise ValueError("Help native fixture differs")
@@ -115,19 +124,23 @@ def validate_qualification(record, payload, root=ROOT):
 
 
 class ParameterHelpPackage(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.root = historical_root(ROOT)
+
     def test_current_package_is_bound_to_actual_sources_and_inputs(self):
-        metadata, _ = validate()
+        metadata, _ = validate(self.root)
         self.assertEqual(len(metadata["binary_sha512"]), 13)
         self.assertEqual(len(metadata["profiles"]), 4)
 
     def test_installer_contains_every_complete_current_help_branch(self):
-        metadata, payload = validate()
+        metadata, payload = validate(self.root)
         for profile in metadata["profiles"]:
             sql = payload["Install-"+profile["name"]+".sql"].decode("utf-8-sig")
             marked = re.findall(r"^-- BEGIN MODULE (\S+)$",sql,re.M)
             self.assertEqual(set(marked),set(profile["modules"]))
             self.assertEqual(len(marked),len(set(marked)))
-            for item in generator.catalog.objects(ROOT):
+            for item in generator.catalog.objects(self.root):
                 if item["type"] != "USP" or item["module"] not in profile["modules"]: continue
                 path,_=generator.catalog.signature(item)
                 source=path.read_text(encoding="utf-8-sig")
@@ -138,12 +151,12 @@ class ParameterHelpPackage(unittest.TestCase):
             if profile["mode"] == "central": self.assertFalse(package.LOCAL_ONLY & set(marked))
 
     def test_actual_twelve_context_native_record_and_exact_documentation_followup(self):
-        _,payload=validate()
-        validate_qualification(json.loads((ROOT/QUALIFICATION).read_bytes()),payload)
+        _,payload=validate(self.root)
+        validate_qualification(json.loads((self.root/QUALIFICATION).read_bytes()),payload,self.root)
 
     def test_wrong_context_skipped_parameter_changed_executable_or_broader_claim_is_rejected(self):
-        _,payload=validate()
-        original=json.loads((ROOT/QUALIFICATION).read_bytes())
+        _,payload=validate(self.root)
+        original=json.loads((self.root/QUALIFICATION).read_bytes())
         mutations=(
             lambda r:r["cases"][0].update(compatibility_level=140),
             lambda r:r["cases"][0].update(parameters=r["cases"][0]["parameters"]-1),
@@ -154,7 +167,7 @@ class ParameterHelpPackage(unittest.TestCase):
         )
         for i,mutate in enumerate(mutations):
             changed=copy.deepcopy(original);mutate(changed)
-            with self.subTest(mutation=i),self.assertRaises(ValueError): validate_qualification(changed,payload)
+            with self.subTest(mutation=i),self.assertRaises(ValueError): validate_qualification(changed,payload,self.root)
 
 
 if __name__ == "__main__": unittest.main()

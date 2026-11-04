@@ -5,13 +5,24 @@ Komponentenumfang ohne Versionsschalter. Historische V1-/V2-Dateien sind keine
 Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
-## Installation
+## Prozedurdefinition V1 installieren
 
-Der heutige Source-Build mit vollständiger Parameterhilfe liegt im
+Für den neuen 40-Parameter-Stand mit `procedure-definition` verwende das
+[V1-Installations-ZIP](../InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip).
+Entpacke es, prüfe die [ZIP-Prüfsumme](../InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip.sha256)
+und folge der [lokalen Installationsanleitung](../Examples/Installation/README.md)
+für die drei enthaltenen Module. Die Paketabnahme deckt die lokale
+Installation der entpackten SQL-Artefakte auf Windows SQL Server 2025/CU8
+mit CL150 ab. Die [Objektreferenz](USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
+zeigt den anschließenden Generator- und Prozeduraufruf.
+
+## Installation der bisherigen Paketstände
+
+Der vorherige Source-Build mit vollständiger Parameterhilfe liegt im
 [Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md). Dessen Anleitung
 erklärt Neuinstallation, die getrennte administrative Trustfreigabe und die
-Kontrolle der installierten Hilfe. Dieser paketierte Build und die daraus
-reproduzierten Modulartefakte sind die Referenz für neue Funktionsabnahmen.
+Kontrolle der installierten Hilfe. Die zugehörigen Funktionsnachweise bleiben
+an diesen Build und seine Modulartefakte gebunden.
 
 Der eigenständige SSIS-Installer enthält denselben fachlichen Kern mit älteren
 Hilfetexten. Seine bisherigen Nachweise bleiben an genau diese Dateien gebunden;
