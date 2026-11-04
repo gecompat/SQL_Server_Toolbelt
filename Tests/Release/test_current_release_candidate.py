@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import zipfile
+from ssis_historical_context import BASELINE, historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
@@ -17,7 +18,8 @@ import prepare_release as release
 class CurrentReleaseCandidateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.commit, cls.sources = release.snapshot("HEAD")
+        historical_root(ROOT)
+        cls.commit, cls.sources = release.snapshot(BASELINE)
 
     def test_current_dependencies_and_qualification_boundary_are_preserved(self):
         plan = candidate.current_plan(self.sources, self.commit)
@@ -84,7 +86,7 @@ class CurrentReleaseCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "SSIS-Buildquelle"):
             candidate.installer_inputs(files)
 
-    def test_exact_head_roundtrip_and_self_consistent_tampering(self):
+    def test_exact_qualified_revision_roundtrip_and_self_consistent_tampering(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "current.zip"
             candidate.build(self.commit, path)
