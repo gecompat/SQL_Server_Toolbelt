@@ -43,7 +43,11 @@ def main():
     api_contract=json.loads((MODULE/"Contracts/Api.json").read_text(encoding="utf-8"))
     names=[p["name"] for p in api_contract["parameters"]]
     check(components_overlay["baseContract"]=="Contracts/Api.json" and components_overlay["contract"]=="ssis-debug-current" and components_overlay["operation"]=="bindings-template", "current profile overlay identity")
-    check(names[:10]==["@PackageBytes","@Operation","@ProjectContext","@Bindings","@CatalogBindings","@TargetFlow","@InspectStage","@LookupPolicies","@ComparisonCollation","@TSqlVersion"] and names[-4:]==["@ResultTable","@KeepData","@Debug","@Hilfe"] and len(names[10:-4])==24, "24 named resource limits before unchanged common tail")
+    limits=api_contract["parameters"][10:-6]
+    check(names[:10]==["@PackageBytes","@Operation","@ProjectContext","@Bindings","@CatalogBindings","@TargetFlow","@InspectStage","@LookupPolicies","@ComparisonCollation","@TSqlVersion"] and
+          len(limits)==24 and all(p["name"].startswith("@Max") and p["type"]=="bigint" for p in limits) and
+          names[-6:]==["@ProcedureSchema","@ProcedureName","@ResultTable","@KeepData","@Debug","@Hilfe"],
+          "24 named resource limits and procedure names before unchanged common tail")
     def canonical(value):
         value=copy.deepcopy(value)
         value.pop("producer")
