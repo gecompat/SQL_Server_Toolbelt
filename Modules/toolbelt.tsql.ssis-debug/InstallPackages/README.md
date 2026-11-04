@@ -17,6 +17,13 @@ bindet die reparierten Bytes. Die [Installationsanleitung](../Documentation/Curr
 zeigt Vorbereitung, lokale und zentrale Nutzung. Das Paket ist unveröffentlicht;
 seine Ablage im Repository ist kein Release oder Tag.
 
+Der [separate Paketnachweis](../Tests/Qualification/Current.Build.Delivery.20261104.json)
+bindet genau diese Archivbytes: bytegleicher Doppelbuild, acht
+Installationsprüfungen und 222 Prozedurprüfungen aus dem entpackten Paket auf
+Windows SQL2025/CU8, CL170 lokal, mit frischem Windows-Abschlussaudit.
+Er ergänzt den im ZIP enthaltenen nativen Buildnachweis; die übrigen
+Versions-/CL-/Modusaussagen folgen der ausdrücklich dokumentierten Anwendbarkeit.
+
 ## Prozedurdefinition V1
 
 Das folgende unveränderte Paket liegt vor der Fehlerkorrektur. Sein Nachweis

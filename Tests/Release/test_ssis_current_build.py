@@ -7,6 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Scripts/Release'))
 import validate_ssis_current_build as validator
+import validate_ssis_current_qualified_package as delivery
 
 
 class CurrentBuildTests(unittest.TestCase):
@@ -15,6 +16,17 @@ class CurrentBuildTests(unittest.TestCase):
 
     def test_bound_report(self):
         validator.validate(self.report)
+
+    def test_qualified_delivery(self):
+        delivery.validate_delivery()
+
+    def test_qualified_delivery_cannot_omit_audit_or_change_build(self):
+        record = json.loads((delivery.ROOT / delivery.REPORT).read_bytes())
+        for key, value in [('cleanup_audit', 'not executed'), ('result', 'FAILED_CLEANED'), ('procedure_assertions', 91)]:
+            changed = copy.deepcopy(record)
+            changed['case'][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                delivery.validate_delivery(changed, check_files=False)
 
     def rejected(self, mutate):
         value = copy.deepcopy(self.report)
