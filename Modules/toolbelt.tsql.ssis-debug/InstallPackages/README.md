@@ -5,10 +5,15 @@
 Das [V1-Installations-ZIP](SSIS-Debug-ProcedureV1-Install-Windows.zip) enthält
 die neue öffentliche Signatur und die drei benötigten Module.
 Die [Prüfsumme](SSIS-Debug-ProcedureV1-Install-Windows.zip.sha256) bindet die
-Archivbytes. Der [Paketnachweis](../Tests/Qualification/ProcedureV1.InstallPackage.Windows2025.20261104.json)
+Archivbytes. Der [ursprüngliche Paketnachweis](../Tests/Qualification/ProcedureV1.InstallPackage.Windows2025.20261104.json)
 belegt Neuinstallation, Wiederholung, Entfernung und den vollständigen
 Prozedurfall aus den entpackten Artefakten auf Windows SQL Server 2025/CU8,
 CL150, lokal. Der unabhängige Windows-Abschlussaudit ist Teil dieses Nachweises.
+Der [erweiterte Matrixnachweis](../Tests/Qualification/ProcedureV1.InstallPackage.Matrix.Windows.20261104.json)
+qualifiziert genau diese Archivbytes zusätzlich auf Windows SQL2019/CU32,
+SQL2022/CU26 und SQL2025/CU8 mit allen jeweils unterstützten CL150/160/170
+und beiden Installationsmodi. Er ergänzt die im ZIP enthaltene ursprüngliche
+Abnahme.
 Die [Installationsanleitung](../Documentation/CurrentInstallation.md#prozedurdefinition-v1-installieren)
 führt zum Aufrufbeispiel.
 

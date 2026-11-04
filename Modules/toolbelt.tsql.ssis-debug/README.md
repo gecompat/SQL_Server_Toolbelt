@@ -41,6 +41,9 @@ Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head separat
 nachgewiesen. Die vorhandene Windows-Funktionsqualifikation gilt für ihre
 gebundenen Buildbytes. Die parametrisierte Prozedurdefinition hat einen
 [eigenen Prüfstand](Tests/README.md#parametrisierte-prozedurdefinition-v1).
+Das [V1-Installationspaket](InstallPackages/README.md#prozedurdefinition-v1)
+ist auf Windows SQL2019/2022/2025 mit den unterstützten Compatibility Levels
+lokal und zentral geprüft.
 Das Modul bleibt `unreleased`.
 
 Das [vollständige SSMS-Beispiel](Examples/README.md) mit
@@ -110,8 +113,8 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-04`
-- Nachweis: `local: ProcedureDefinition und Installation aus dem exakten V1-ZIP`
-- Scope: Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen.
+- Nachweis: `local: vollständige Windows-/CL-/Modusmatrix des V1-ZIPs`
+- Scope: Dasselbe V1-ZIP auf Windows SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, lokal und zentral. Zwölf Kontexte mit 1092 Prozedur- und 96 Installationsassertions. Ein gültiger Fall wiederverwendet, elf neu ausgeführt und unabhängig auditiert. Zentrale Aufrufe verwenden getrennte Consumer-Datenbanken. Ein bereinigter Setupfehler und sein Audit bleiben erhalten. 24 neue Ziel-/Auditaufrufe, 19 eigene Datenbanken entfernt. Funktionaler Transport, keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
