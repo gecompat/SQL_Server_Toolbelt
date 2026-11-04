@@ -16,7 +16,7 @@
       "default": "explain",
       "required": false,
       "nullable": false,
-      "description": "Taxativ, ordinal/case- und whitespace-sensitiv: explain (Default) analysiert die gebundenen Datenflüsse und erzeugt Workflow, Stufenverzeichnis, Debug-SQL und Diagnosen; bindings-template erzeugt ausschließlich die paket-/kontextgebundene Schema-2-Eingabevorlage zum Bearbeiten unter values. Template verlangt Bindings=NULL und CatalogBindings=NULL. Kein -v2-Alias, kein Opt-in; NULL/leer/andere Schreibweisen ungültig."
+      "description": "Taxativ, ordinal/case- und whitespace-sensitiv. explain (Default) analysiert die gebundenen Datenflüsse und liefert Workflow, Stufenverzeichnis, Debug-SQL und Diagnosen. bindings-template liefert nur die paket-/kontextgebundene Schema-2-Eingabevorlage zum Bearbeiten unter values und verlangt Bindings=NULL sowie CatalogBindings=NULL. procedure-definition liefert Definition und Manifest für einen geeigneten gebundenen Zielpfad zur gesonderten Installation. Dazu sind TargetFlow, ProcedureSchema und ProcedureName Pflicht und InspectStage muss NULL sein. NULL, leer und andere Schreibweisen sind ungültig."
     },
     {
       "name": "@ProjectContext",
@@ -48,7 +48,7 @@
       "default": "NULL",
       "required": false,
       "nullable": true,
-      "description": "NULL (Default) berücksichtigt alle erkannten Zielflüsse getrennt. Sonst exakte modellinterne TargetFlowId aus der Workflow-/StageIndex-Ausgabe desselben Pakets, maximal varchar(64); keine frei gewählte Komponentenbezeichnung oder dauerhafte Projekt-ID. Groß-/Kleinschreibung/Whitespace werden nicht normalisiert; unbekannt/leer ungültig im Explain-Pfad."
+      "description": "NULL (Default) berücksichtigt alle erkannten Zielflüsse getrennt. Sonst exakte modellinterne TargetFlowId aus der Workflow-/StageIndex-Ausgabe desselben Pakets, maximal varchar(64). Groß-/Kleinschreibung und Whitespace bleiben erhalten. Leer oder unbekannt ist ungültig. Bei procedure-definition ist genau eine vorhandene TargetFlowId erforderlich."
     },
     {
       "name": "@InspectStage",
@@ -56,7 +56,7 @@
       "default": "NULL",
       "required": false,
       "nullable": true,
-      "description": "Taxativ für Steuerwerte: NULL (Default) liefert Zielskript/Stufenverzeichnis ohne zusätzliche StageSql-Auswahl; all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören. all benötigt keinen expliziten TargetFlow. Kein Trim/Casefold; unbekannte/leere konkrete ID ungültig."
+      "description": "Taxativ für Steuerwerte: NULL (Default) liefert Zielskript/Stufenverzeichnis ohne zusätzliche StageSql-Auswahl; all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören. all benötigt keinen expliziten TargetFlow. Kein Trim/Casefold; unbekannte/leere konkrete ID ungültig. Bei procedure-definition ist ausschließlich NULL zulässig."
     },
     {
       "name": "@LookupPolicies",
@@ -275,6 +275,22 @@
       "description": "bigint 0..9223372036854775807, Default 0: Millisekunden kooperatives Analysezeitbudget, keine harte Gesamtwallclock-Garantie. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
     },
     {
+      "name": "@ProcedureSchema",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "Bei procedure-definition Name des vorgesehenen dedizierten Zielschemas. 1 bis 128 ASCII-Zeichen. Das erste ist ein Buchstabe, danach sind Buchstaben, Ziffern und Unterstriche zulässig. Unquotierter Einzelname ohne Trim oder Normalisierung. NULL (Default) ist bei explain und bindings-template erforderlich und bei procedure-definition ungültig."
+    },
+    {
+      "name": "@ProcedureName",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "Bei procedure-definition Objektname mit exakt großem Präfix USP_ und mindestens einem Folgezeichen. Bis zu 128 ASCII-Zeichen insgesamt, zulässig sind Buchstaben, Ziffern und Unterstriche. Unquotierter Einzelname ohne Trim oder Normalisierung. NULL (Default) ist bei explain und bindings-template erforderlich und bei procedure-definition ungültig."
+    },
+    {
       "name": "@ResultTable",
       "type": "sysname",
       "default": "NULL",
@@ -312,7 +328,7 @@
       "name": "ArtifactKind",
       "type": "varchar(32)",
       "nullable": false,
-      "description": "BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql, CleanupSql, DebugScript, FlatFileWriteProjection, ColumnLineage oder Diagnostic."
+      "description": "BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql, CleanupSql, DebugScript, FlatFileWriteProjection, ColumnLineage, ProcedureDefinition, ProcedureManifest oder Diagnostic."
     },
     {
       "name": "TargetFlowId",

@@ -259,7 +259,8 @@ namespace Toolbelt.Tsql.SsisDebug
             limits.Check("artifacts", Rows.Count + 1);
             if (a.Kind == "Diagnostic") limits.Check("diagnostics", ++diagnostics);
             if (a.Content == null) a.Content = "";
-            if (a.Kind.EndsWith("Sql", StringComparison.Ordinal)) limits.Check("sqlArtifactBytes", (long)a.Content.Length * 2);
+            if (a.Kind.EndsWith("Sql", StringComparison.Ordinal) || a.Kind == "ProcedureDefinition")
+                limits.Check("sqlArtifactBytes", (long)a.Content.Length * 2);
             bytes += 2L * (a.Content.Length + (a.Details ?? "").Length); limits.Check("totalOutputBytes", bytes);
             a.Ordinal = Rows.Count + 1; Rows.Add(a);
         }

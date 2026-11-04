@@ -476,8 +476,8 @@ python Scripts/Release/validate_ssis_ssms_gui.py
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-03`
-- Nachweis: `local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit`
-- Scope: Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung.
+- Datum: `2026-11-04`
+- Nachweis: `local: ProcedureDefinition und Installation aus dem exakten V1-ZIP`
+- Scope: Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

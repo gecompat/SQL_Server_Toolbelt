@@ -14,7 +14,7 @@ CLASSES = {
 }
 
 
-def build(format_version):
+def build(format_version, procedure=False):
     def d(name): return f"{{{D}}}{name}"
     root = E.Element(d("Executable"), {d("refId"): "Package", d("ExecutableType"): "SSIS.Package.3" if format_version == 6 else "Microsoft.Package"})
     E.SubElement(root, d("Property"), {d("Name"): "PackageFormatVersion"}).text = str(format_version)
@@ -68,12 +68,30 @@ def build(format_version):
     def path(output, input):
         E.SubElement(paths, "path", {"refId": "path" + str(len(paths) + 1), "startId": output.get("refId"), "endId": input.get("refId")})
 
+    def destination(label, output, projection):
+        ip = port(component(label, "destination"), "Input", True)
+        for name, lineage in projection:
+            column(ip, name, lineage, True)
+        path(output, ip)
+
     sources = []
-    for suffix in ("A", "B"):
+    for suffix in ("A",) if procedure else ("A", "B"):
         source = component("Source" + suffix, "source", {"AccessMode": 2, "SqlCommand": "SELECT KeyA, KeyB, Amount FROM dbo.SyntheticSource" + suffix + " WHERE Amount >= ?", "ParameterMapping": '"@Floor:Input",' + variable_ids["SourceFloor"] + ';'}, True)
         output = port(source, "Rows")
         ids = {n: column(output, n, external=True) for n in ("KeyA", "KeyB", "Amount")}
         sources.append((output, ids))
+    if procedure:
+        source_output, source_columns = sources[0]
+        derived = component("Derived", "derived")
+        derived.set("version", "0")
+        derived_input, derived_output = port(derived, "Input", True), port(derived, "Rows")
+        derived_output.set("synchronousInputId", derived_input.get("refId"))
+        path(source_output, derived_input)
+        adjusted = column(derived_output, "Adjusted", values={"Expression": "[Amount] + @[User::Offset]"})
+        destination("Destination", derived_output, [("KeyA", source_columns["KeyA"]), ("Adjusted", adjusted)])
+        E.indent(root)
+        return E.tostring(root, encoding="utf-8", xml_declaration=True)
+
     union = component("Union", "union")
     union_out = port(union, "Rows")
     union_ids = {n: column(union_out, n) for n in ("KeyA", "KeyB", "Amount")}
@@ -96,10 +114,7 @@ def build(format_version):
     high = port(split, "High", values={"EvaluationOrder": 0, "Expression": "[Adjusted] > @[User::Threshold]", "IsDefaultOut": "false"})
     low = port(split, "Default", values={"EvaluationOrder": 1, "IsDefaultOut": "true"})
     for label, output in [("High", high), ("Default", low)]:
-        dest = component("Destination" + label, "destination")
-        ip = port(dest, "Input", True)
-        for name, lineage in [("KeyA", union_ids["KeyA"]), ("KeyB", union_ids["KeyB"]), ("Adjusted", adjusted), ("Score", score)]: column(ip, name, lineage, True)
-        path(output, ip)
+        destination("Destination" + label, output, [("KeyA", union_ids["KeyA"]), ("KeyB", union_ids["KeyB"]), ("Adjusted", adjusted), ("Score", score)])
     E.indent(root)
     return E.tostring(root, encoding="utf-8", xml_declaration=True)
 
@@ -107,3 +122,4 @@ def build(format_version):
 if __name__ == "__main__":
     folder = Path(__file__).resolve().parent
     for version in (6, 8): (folder / f"synthetic-{version}.dtsx").write_bytes(build(version))
+    (folder / "procedure-8.dtsx").write_bytes(build(8, procedure=True))

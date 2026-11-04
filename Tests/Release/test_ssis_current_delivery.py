@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from unittest import mock
 import zipfile
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
@@ -22,7 +23,7 @@ class CurrentDelivery(unittest.TestCase):
 
     def test_current_package_and_installer_have_actual_runtime_bindings(self):
         with contextlib.redirect_stdout(io.StringIO()):
-            record = installer.validate_runtime()
+            record = installer.validate_runtime(historical_root(ROOT))
         self.assertEqual(record['scope']['installed_mode_contexts'], 4)
 
     def test_current_package_carries_current_api_and_installation_route(self):
@@ -66,21 +67,22 @@ class CurrentDelivery(unittest.TestCase):
             installer.validate_package_qualification(altered, composer.sha(altered), package_sha)
 
     def test_exact_xml_line_ending_checkout_and_negative_controls(self):
+        root = historical_root(ROOT)
         original = installer.renderer.read_regular_bounded
         corrupt = False
         def read(path, maximum):
             data = original(path, maximum)
-            if path.relative_to(ROOT).as_posix() in installer.XML_LINE_ENDINGS:
+            if path.relative_to(root).as_posix() in installer.XML_LINE_ENDINGS:
                 data = data.replace(b'\r\n', b'\n')
                 return data + b'synthetic-corruption' if corrupt else data
             return data
         with mock.patch.object(installer.renderer, 'read_regular_bounded', side_effect=read):
             with contextlib.redirect_stdout(io.StringIO()):
-                record = installer.validate_runtime()
+                record = installer.validate_runtime(root)
             self.assertEqual(len(record['integration_binding']['changes']), 2)
             corrupt = True
             with self.assertRaisesRegex(ValueError, 'XML fixture checkout'):
-                installer.validate_runtime()
+                installer.validate_runtime(root)
         changed = json.loads((ROOT / installer.RUNTIME).read_bytes())
         changed['integration_binding']['changes'][0]['transform'] = 'arbitrary-normalization'
         def bad_bridge(path, maximum):

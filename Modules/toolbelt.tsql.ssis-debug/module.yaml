@@ -2,7 +2,7 @@ module_id: "toolbelt.tsql.ssis-debug"
 module_name: "SSIS Data Flow Debug SELECT"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Gemeinsamer typisierter DTSX-Kern für Debug-SELECT und externen neutralen Modellaustausch; kein Paketexecutor."
 sql_server_versions:
@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "validated: aktueller freigegebener Debugvertrag auf SQL2019/2022/2025, CL150/160/170 soweit unterstützt, lokal/zentral; Caller-/Client- und weitere Supportgrenzen in Tests/README.md, keine Veröffentlichung."
+  windows: "partially validated: Prozedurdefinition und exaktes Installations-ZIP nativ auf SQL2025/CU8, CL150, lokal geprüft. Frühere Builds behalten ihre gebundenen Windows-Nachweise."
   linux: "not applicable: UNSAFE SQL CLR wird nicht unterstützt."
 providers:
   - id: clr-ssis-debug
@@ -70,6 +70,7 @@ documentation:
     - "Examples/README.md"
     - "Examples/SsmsDebugWalkthrough.sql"
     - "Tests/Fixtures/synthetic-8.dtsx"
+    - "Tests/Fixtures/procedure-8.dtsx"
     - "Examples/Installation/README.md"
     - "Examples/Installation/PrepareServer.sql"
     - "Examples/Installation/Install-Local.ps1"
@@ -96,6 +97,7 @@ contracts:
   ssis_scope_object_identities: "1.2.0"
   ssis_pipeline_identities: "1.0.0"
   ssis_export_bundle: "1.0.0"
+  ssis_procedure_definition: "1.0.0"
 tests:
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/Invoke-Contract.ps1"
@@ -230,4 +232,19 @@ validation_evidence:
   - date: "2026-11-03"
     workflow: "local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit"
     scope: "Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung."
+    result: "success"
+
+  - date: "2026-11-03"
+    workflow: "local: ProcedureDefinition, Framework Full, SQL-Syntax und Windows-Lab-Audit"
+    scope: "Reproduzierbarer CLR-Build, 27 Framework-Fälle und 15 SQL-Syntaxfälle bestanden. Windows SQL2025/CU8, CL150 erzeugte und installierte die Definition und wies die doppelte Erstinstallation ab. Der Gesamtfall endete vor der Lowpriv-Anmeldung mit einem Adapterfehler und FAILED_CLEANED. Die korrigierte Verbindungseigenschaft wurde offline geprüft. Der unabhängige Abschlussaudit bestand. Paket- und vollständige native Qualifikation bleiben offen."
+    result: "partial"
+
+  - date: "2026-11-04"
+    workflow: "local: korrigierter ProcedureDefinition-Lauf und unabhängiger Windows-Lab-Audit"
+    scope: "Windows SQL2025/CU8, CL150: echte Lowpriv-Quellrechte, Projektion und Ergebnismetadaten, ResultTable, Temp-Kollision, parallele Aufrufe, Update und Driftprüfung bestanden. Der letzte Ownership-Textvergleich vor dem expliziten DROP scheiterte, Gesamtfall FAILED_CLEANED. Abschlussaudit für Testdatenbank, Login, Konfiguration und Trust PASS. Vollständige V1- und Paketqualifikation bleiben offen."
+    result: "partial"
+
+  - date: "2026-11-04"
+    workflow: "local: ProcedureDefinition und Installation aus dem exakten V1-ZIP"
+    scope: "Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen."
     result: "success"

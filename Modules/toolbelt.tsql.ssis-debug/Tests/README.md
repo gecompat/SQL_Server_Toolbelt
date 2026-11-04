@@ -3,6 +3,51 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Parametrisierte Prozedurdefinition V1
+
+Am 2026-11-03 bestanden der statische Vertragscheck, der reproduzierbare
+CLR-Build und `Invoke-Contract.ps1 -Profile Full` mit 27 begrenzten
+Framework-Fällen. Das Profil `ProcedureDefinition` prüft darunter die
+typisierte Definition, Manifestbindung, stabile SQL-Ausgabe bei veränderten
+Szenariowerten und die Abweisung ungeeigneter Pfade und Namen.
+
+`Invoke-ProcedureDefinitionLab.ps1 -Mode Run` erreichte auf Windows SQL
+Server 2025/CU8, CL150, die Erzeugung über die öffentliche API, die Ausführung
+der DDL und die Abweisung einer doppelten Erstinstallation. Der Lauf endete
+mit `FAILED_CLEANED`, weil der PowerShell-Testadapter vor dem Lowpriv-Aufruf
+eine Verbindungseigenschaft falsch setzte. Die korrigierte Eigenschaftsbindung
+ist offline geprüft. Der unabhängige Windows-Abschlussaudit mit `-Mode Audit`
+bestand und bestätigte die Bereinigung. Der Lauf verwendete den funktionalen
+Transportvertrag.
+
+Der am 2026-11-04 freigegebene einzelne Wiederholungslauf erreichte den
+echten Lowpriv-Aufruf. Fehlendes Quell-SELECT wurde trotz gleicher Ownership
+abgewiesen. Projektion und Metadaten einschließlich leerer Ergebnisse,
+ResultTable-Replace/Append, Temp-Kollisionen, Parallelität, Update mit
+erhaltenem EXECUTE und Abweisung der Quelldrift bestanden. Die abschließende
+Ownership-Prüfung vor dem expliziten DROP verglich Katalogtext mit dem
+eingesandten ALTER-Text und schlug fehl. Der Gesamtfall bleibt
+`FAILED_CLEANED`. Der frische Windows-Audit bestätigte die Bereinigung der
+eigenen Testdatenbank und des eigenen Logins sowie die Wiederherstellung des
+Trust- und Konfigurationszustands. Der korrigierte Adapter prüft den
+tatsächlich installierten Versionsstand und die Objektidentität vor dem DROP.
+Elf gezielte Offline-Gegenproben bestanden.
+
+Die anschließende autonome Abnahme bestand mit
+[91 nativen Prüfungen](Qualification/ProcedureV1.Windows2025.20261104.json).
+Der Lauf bestätigte auch die tatsächliche Objektentfernung und den Erhalt
+der fremden Vergleichsprozedur. Der unabhängige Windows-Audit war grün.
+Der [separate Paketlauf](Qualification/ProcedureV1.InstallPackage.Windows2025.20261104.json)
+wiederholte diese 91 Prüfungen an den entpackten Artefakten und prüfte acht
+weitere Installations-, Wiederholungs- und Uninstall-Assertions. Beide
+Nachweise sind auf Windows SQL Server 2025/CU8, CL150 und lokale Installation
+begrenzt. Das ZIP wurde zweimal bytegleich gebaut.
+
+Die bisherigen ZIPs, die Standalone-Datei und ihre Qualifikationen bleiben
+an den früheren Stand gebunden. Offline-Evidenztests laden hierfür die
+eingefrorene Vorgängerrevision. Die Prüfung des V1-ZIPs bindet dagegen den
+aktuellen Produktquellstand und den separaten Paketlauf.
+
 ## Nativer Windows-SSMS-Gesamtfall
 
 Der [Gesamtnachweis vom 2026-11-03](Qualification/SsmsClient.Complete.Windows.20261103.json)
@@ -987,9 +1032,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-03`
-- Nachweis: `local: nativer Windows-SSMS-SQLCMD-Gesamtfall und frischer Windows-Audit`
-- Scope: Windows SQL2025/CU8, CL150. Sichtbarer NTLM-Zielvorcheck, öffentlicher Installer, aktuelle API und hashgleiche Unicode-Zellenkopie bestanden. SQLCMD brach bei Fehler 51001 vor dem späteren Kontrollbatch ab. Die vollständige Ausführung lieferte zwei erwartete Zeilen und das bestätigte Phase2-Receipt. Ein Fall mit 17 Prüfungen, PASS_CLEANED und separater Windows-Audit PASS gegen das finale Journal. Benutzer unterstützte Verbindung und Gridoptionen. Ein Lauf, eine Testdatenbank und Audit innerhalb von 45 Minuten. Functional-Transport, keine Veröffentlichung.
+- Datum: `2026-11-04`
+- Nachweis: `local: ProcedureDefinition und Installation aus dem exakten V1-ZIP`
+- Scope: Windows SQL2025/CU8, CL150, lokal. 91 native Prozedurprüfungen einschließlich Lowpriv, Versionsprüfung und explizitem DROP mit Erhalt der fremden Vergleichsprozedur. Separater Lauf aus dem bytegleich reproduzierten ZIP mit 91 Prozedur- und acht Installationsprüfungen. Zwei eigene Testdatenbanken bereinigt und zwei unabhängige Windows-Audits PASS. Funktionaler Transport. Historische Pakete unverändert, weitere Kontexte für den neuen Build offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

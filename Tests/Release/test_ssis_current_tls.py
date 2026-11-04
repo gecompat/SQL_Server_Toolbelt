@@ -3,6 +3,7 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+from ssis_historical_context import historical_root
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,7 +23,7 @@ class TlsEvidence(unittest.TestCase):
             tls.validate(ROOT, changed, check_files=False)
 
     def test_actual_record_and_current_artifact_binding(self):
-        tls.validate(ROOT)
+        tls.validate(historical_root(ROOT))
 
     def test_missing_context(self):
         self.reject(lambda r: r["cases"].pop())

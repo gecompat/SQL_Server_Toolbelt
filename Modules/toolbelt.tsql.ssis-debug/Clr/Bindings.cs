@@ -9,6 +9,8 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class Options
     {
         internal string Operation, ProjectContext, Bindings, CatalogBindings, Target, Stage, LookupPolicies, ComparisonCollation, BindingProfile;
+        internal string ProcedureSchema, ProcedureName;
+        internal bool ProcedureDefinition { get { return Operation == "procedure-definition"; } }
         internal Dictionary<string, object> ProjectContextValue;
         internal int Version;
         internal Toolbelt.Ssis.Exchange.ResourceLimits Limits;

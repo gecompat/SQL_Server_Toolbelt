@@ -14,6 +14,8 @@ on:
       - 'Scripts/Release/validate_ssis_current_matrix.py'
       - 'Tests/Release/*CurrentStandalone*.ps1'
       - 'Tests/Release/test_ssis_current_delivery.py'
+      - 'Tests/Release/test_ssis_procedure_delivery.py'
+      - 'Tests/Release/ssis_historical_context.py'
       - 'Tests/Release/test_ssis_current_matrix.py'
       - 'Tests/Release/test_ssis_current_snapshot.py'
       - 'Tests/Release/test_ssis_current_qualification.py'
@@ -51,6 +53,8 @@ on:
       - 'Scripts/Release/validate_ssis_current_matrix.py'
       - 'Tests/Release/*CurrentStandalone*.ps1'
       - 'Tests/Release/test_ssis_current_delivery.py'
+      - 'Tests/Release/test_ssis_procedure_delivery.py'
+      - 'Tests/Release/ssis_historical_context.py'
       - 'Tests/Release/test_ssis_current_matrix.py'
       - 'Tests/Release/test_ssis_current_snapshot.py'
       - 'Tests/Release/test_ssis_current_qualification.py'
@@ -89,6 +93,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch the frozen predecessor for historical evidence checks
+        run: git fetch --no-tags --depth=1 origin 763d46d4eafa79394399d51aec7d3ab90d0dad0c
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -113,6 +119,8 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_components_v2_delivery.py
       - name: Current package, standalone runtime binding and tampering controls without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_delivery.py
+      - name: Exact procedure V1 package scope and tampering controls without SQL
+        run: python -m unittest discover -s Tests/Release -p test_ssis_procedure_delivery.py
       - name: Current package full 12-context matrix provenance without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_matrix.py
       - name: Current DebugScript snapshot coherence evidence without SQL
@@ -139,8 +147,9 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_sqlcmd_envelope.py
       - name: Current standalone T-SQL installer CL matrix composition without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_standalone_matrix.py
-      - name: Current standalone T-SQL installer matrix evidence binding without SQL
-        run: python Scripts/Release/validate_ssis_current_standalone_matrix.py
+      - name: Historical standalone T-SQL installer matrix evidence binding without SQL
+        run: >-
+          python -c "import sys; sys.path[:0]=['Tests/Release','Scripts/Release']; from ssis_historical_context import historical_root; from validate_ssis_current_standalone_matrix import ROOT, validate; validate(historical_root(ROOT)); print('SSIS_HISTORICAL_STANDALONE_MATRIX_PASS')"
       - name: Reproduce current provider build
         shell: pwsh
         run: |

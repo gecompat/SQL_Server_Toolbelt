@@ -67,7 +67,8 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
 
 Die erste Spalte `ArtifactKind` unterscheidet Vorlage, Workflow, StageIndex,
 Vorbereitung, StageSql, PlanManifest, PlanUnitSql, TargetSql, RowCountSql,
-Cleanup, DebugScript, FlatFileWriteProjection, ColumnLineage und Diagnose.
+Cleanup, DebugScript, ProcedureDefinition, ProcedureManifest,
+FlatFileWriteProjection, ColumnLineage und Diagnose.
 `IsComplete`, `SafetyStatus`, `IsExecutable` und `EvidenceClass` gelten pro
 Artefakt. Einzelne SQL-Artefakte werden jeweils vollständig in einer
 SSMS-Sitzung im angegebenen `defaultDatabase` ausgeführt. Innerhalb eines
@@ -119,18 +120,79 @@ des Analyseaufrufs; sie ist keine Sperre gegen spätere DDL.
 `@KeepData` folgt dem kanonischen ResultTable-Vertrag. Fehler liefern 50000
 mit `TBX_SSISDBG_` und ohne vertrauliche Quellfehlermeldungen.
 
+## Geprüften Zielpfad als Prozedur wiederverwenden
+
+Erzeuge die Definition im Katalogkontext der späteren Installation. Die
+Ziel-ID kommt aus der vorhandenen Analyse. Wähle einen vollständig gebundenen
+Pfad von einer gewöhnlichen SQL-Tabelle über genau eine Derived Column bis zur
+SQL-Zielprojektion in derselben Datenbank.
+
+```sql
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
+    @PackageBytes = @PackageBytes,
+    @Bindings = @Bindings,
+    @CatalogBindings = @CatalogBindings,
+    @TargetFlow = 'f0001',
+    @Operation = 'procedure-definition',
+    @ProcedureSchema = N'ContosoDebug',
+    @ProcedureName = N'USP_Synthetic';
+```
+
+Prüfe `ProcedureManifest` und `ProcedureDefinition` gemeinsam. Das Manifest
+enthält den SHA-256 der Definition als UTF-8, gebundene Quellen, die fachlichen
+Parameter mit Herkunft und das geordnete Spaltenschema. `IsExecutable=0`
+kennzeichnet die gesondert zu installierende DDL. Bei einer Diagnose ohne
+Definition kann der vorhandene Explain-Aufruf den Blocker weiter eingrenzen.
+
+Führe die geprüfte Definition als eigenen `CREATE PROCEDURE`-Batch in der
+gebundenen Datenbank und im vorhandenen dedizierten Debug-Schema aus. Ein
+gleichnamiges Objekt lässt die Erstinstallation scheitern. Halte Manifest,
+installierte Moduldefinition aus `sys.sql_modules`, Objekt-ID und Objektname
+im Installationsnachweis fest. Prüfe vor einem `ALTER PROCEDURE` oder
+`DROP PROCEDURE` den erwarteten Altstand und die Ownership anhand dieses
+Nachweises. Erfasse nach erfolgreichem ALTER den neuen Katalogstand. Eine
+identische Version braucht keine DDL. Vergib für eine inkompatible Signatur
+einen neuen Namen.
+Toolbelt-Deploy und -Uninstall verwalten die erzeugte Prozedur nicht.
+
+Die Hilfe zeigt die tatsächlichen Parameternamen und Typen. In der synthetischen
+Fixture sind `@v0001` und `@v0003` die Eingaben für Filter und Offset. Werte
+für andere Abläufe stehen im jeweiligen Manifest.
+
+```sql
+EXEC ContosoDebug.USP_Synthetic @Hilfe = 1;
+EXEC ContosoDebug.USP_Synthetic @v0001 = 150, @v0003 = 7;
+```
+
+Der fachliche Aufruf liefert ein Resultset mit den Namen, SQL-Typen und der
+Nullbarkeit aus dem Manifest, auch bei null Zeilen. Die Zeilenreihenfolge
+ist offen. `@ResultTable` leitet die Projektion mit der üblichen
+`@KeepData`-Semantik in eine vorhandene lokale Temp-Tabelle. `@Debug` schreibt
+Status in Messages. Führe den fachlichen Aufruf außerhalb offener oder
+impliziter Transaktionen aus.
+
+Fachliche Eingaben sind nicht sensitive, nicht NULL-fähige Szenariowerte vom
+Typ `int`, `bigint` oder `decimal(p,s)`. Strukturelle Abhängigkeiten bleiben
+gebunden. Das Profil schließt unter anderem Lookup, Cross-DB, berechnete
+Quellspalten und RLS-Quellen aus. Bei Schema- oder Objektänderung prüfe den
+Ablauf erneut und erzeuge eine neue Definition. Der Aufrufer braucht
+`EXECUTE`, `SELECT` auf den verwendeten Quelldaten, `VIEW DEFINITION` in
+der gebundenen Datenbank und Lesesicht auf die Sicherheitsprädikate.
+Für die ResultTable-Option benötigt er auch Zugriff auf den kanonischen
+Helper `toolbelt_core.USP_PrepareResultTable`.
+
 ## Vollständiger Eingabevertrag
 
 <!-- API_PARAMETERS:BEGIN -->
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@PackageBytes` | `varbinary(max)` | `NULL` | Input | Genau ein vollständiges DTSX-XML-Paket als UTF-8-/UTF-16-Bytepuffer varbinary(max), kein Pfad/Base64-/XML-Stringparameter. DTSX-Formatprofile PackageFormatVersion 6 oder 8 werden unterstützt; kein verschlüsselter Container, DTD, externer Resolver oder XInclude. Leer/NULL ungültig, NULL ist nur technischer Help-Default. MaxPackageBytes begrenzt die Rohbytes; XML-Tiefe bleibt absolut 128. Paket/enthaltenes SQL werden beim Analysieren nicht ausgeführt. |
-| `@Operation` | `varchar(32)` | `N'explain'` | Input | Taxativ, ordinal/case- und whitespace-sensitiv: explain (Default) analysiert die gebundenen Datenflüsse und erzeugt Workflow, Stufenverzeichnis, Debug-SQL und Diagnosen; bindings-template erzeugt ausschließlich die paket-/kontextgebundene Schema-2-Eingabevorlage zum Bearbeiten unter values. Template verlangt Bindings=NULL und CatalogBindings=NULL. Kein -v2-Alias, kein Opt-in; NULL/leer/andere Schreibweisen ungültig. |
+| `@Operation` | `varchar(32)` | `N'explain'` | Input | Taxativ, ordinal/case- und whitespace-sensitiv. explain (Default) analysiert die gebundenen Datenflüsse und liefert Workflow, Stufenverzeichnis, Debug-SQL und Diagnosen. bindings-template liefert nur die paket-/kontextgebundene Schema-2-Eingabevorlage zum Bearbeiten unter values und verlangt Bindings=NULL sowie CatalogBindings=NULL. procedure-definition liefert Definition und Manifest für einen geeigneten gebundenen Zielpfad zur gesonderten Installation. Dazu sind TargetFlow, ProcedureSchema und ProcedureName Pflicht und InspectStage muss NULL sein. NULL, leer und andere Schreibweisen sind ungültig. |
 | `@ProjectContext` | `nvarchar(max)` | `NULL` | Input | NULL (Default) bedeutet leeren Schema-2-Projektkontext. Sonst JSON-Objekt {"schemaVersion":2,"projectParameters":[...],"connectionManagers":[...]}; beide Arrays optional. Parameterentry: name, ssisType sowie optional designValue, required und sensitive (JSON-Booleans); Connectionentry: refId, name, provider. Provider taxativ sqlserver-oledb oder sqlserver-adonet, beide ordnen vorhandene SQL-Server-Connections zu; keine Connectionstrings/Credentials. Eindeutige Namen/refIds, Projektconnections dürfen Paketconnections nicht überlagern. Typ-/Wertabbildung im Abschnitt SSIS-Eingabetypen der Objektreferenz; unbekannte Typen sind nicht bindbar. Andere Rootkeys, resourceOptions und schemaVersion ungleich 2 ungültig. Feste Kontrollprotokollgrenze 4194304 UTF-16-Bytes zusätzlich zu den gewählten JSON-Limits; beim Zurückgeben der Bindings denselben Kontext verwenden. |
 | `@Bindings` | `nvarchar(max)` | `NULL` | Input | NULL (Default) verwendet vorhandene nicht sensitive Designdefaults; benötigte fehlende Laufzeitwerte bleiben als fehlender Kontext sichtbar. Sonst vollständiges von bindings-template zurückgegebenes JSON-Objekt mit schemaVersion=2, profile exakt ssis-debug-components-v2, packageSha256, contextSha256, availableInputs und values. Ausschließlich values nach generierten Eingabekeys bearbeiten; Paket-/Kontexthashes und vollständige Herkunftsmetadaten unverändert zurückgeben. values ist ein Objekt typisierter JSON-Werte: Stringtexte/ISO-Datum/-GUID/-Hex, JSON-Boolean für bit, exakte Zahlen gemäß SSIS-Eingabetypen; JSON-null als SQL-NULL, keine SQL-Ausdrücke. Sensitive/ unbekannte/nicht bindbare Keys abgewiesen. Im Template-Modus ausschließlich NULL; kein leeres Ersatzobjekt und keine Ressourcenoptionen. |
 | `@CatalogBindings` | `nvarchar(max)` | `NULL` | Input | NULL (Default) liefert keine explizite Katalogzuordnung; fehlende erforderliche Bindungen bleiben missing_context. Sonst JSON-Objekt mit schemaVersion 1 oder 2, defaultDatabase als Name, databases als Array eindeutiger erlaubter Same-instance-Datenbanknamen und connections als Objekt {importierteConnectionId:Datenbankname}. Default und jede Zuordnung müssen in databases stehen; Connection-IDs müssen im Paket/Projektkontext vorhanden sein. Version 1 erlaubt nur diese Felder; Version 2 ergänzt flatFileInputs als Objekt (auch {}). Je Flatfileentry: database, schema, object, columns als Mapping importierter Spalten-IDs zu SQL-Spaltennamen; optional rowOrdinalColumn und errorRows als entsprechender Quellobjekt-/Spaltenbeschreiber gemäß Komponentenvertrag. Keine freien SQL-Fragmente, Server-/Credential-/Dateipfade oder automatische Rechte. Template-Modus verlangt NULL; leer/andere Shapes ungültig. |
-| `@TargetFlow` | `varchar(64)` | `NULL` | Input | NULL (Default) berücksichtigt alle erkannten Zielflüsse getrennt. Sonst exakte modellinterne TargetFlowId aus der Workflow-/StageIndex-Ausgabe desselben Pakets, maximal varchar(64); keine frei gewählte Komponentenbezeichnung oder dauerhafte Projekt-ID. Groß-/Kleinschreibung/Whitespace werden nicht normalisiert; unbekannt/leer ungültig im Explain-Pfad. |
-| `@InspectStage` | `varchar(64)` | `NULL` | Input | Taxativ für Steuerwerte: NULL (Default) liefert Zielskript/Stufenverzeichnis ohne zusätzliche StageSql-Auswahl; all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören. all benötigt keinen expliziten TargetFlow. Kein Trim/Casefold; unbekannte/leere konkrete ID ungültig. |
+| `@TargetFlow` | `varchar(64)` | `NULL` | Input | NULL (Default) berücksichtigt alle erkannten Zielflüsse getrennt. Sonst exakte modellinterne TargetFlowId aus der Workflow-/StageIndex-Ausgabe desselben Pakets, maximal varchar(64). Groß-/Kleinschreibung und Whitespace bleiben erhalten. Leer oder unbekannt ist ungültig. Bei procedure-definition ist genau eine vorhandene TargetFlowId erforderlich. |
+| `@InspectStage` | `varchar(64)` | `NULL` | Input | Taxativ für Steuerwerte: NULL (Default) liefert Zielskript/Stufenverzeichnis ohne zusätzliche StageSql-Auswahl; all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören. all benötigt keinen expliziten TargetFlow. Kein Trim/Casefold; unbekannte/leere konkrete ID ungültig. Bei procedure-definition ist ausschließlich NULL zulässig. |
 | `@LookupPolicies` | `nvarchar(max)` | `NULL` | Input | NULL (Default) bedeutet beliebige, pro relevantem Snapshot einmal materialisierte Trefferauswahl. Sonst exakt JSON-Objekt {"schemaVersion":1,"lookups":{"&lt;Lookup-Komponenten-ID&gt;":{"orderBy":[{"column":"&lt;Referenzspalte&gt;","direction":"asc"}]}}}. IDs müssen existierende Lookupkomponenten adressieren, orderBy nicht leer und ohne doppelte Spalten. direction taxativ asc = aufsteigend oder desc = absteigend, exakt kleingeschrieben. Keine freien ORDER-BY-Ausdrücke; vollständige Sortierbindung erforderlich, Gleichstände erhalten keine erfundene Eindeutigkeit. |
 | `@ComparisonCollation` | `sysname` | `NULL` | Input | NULL (Default) verwendet bei Katalogbindung die Collation der expliziten defaultDatabase. Sonst genau ein tatsächlich vom Server unterstützter Collationname als sysname, kein COLLATE-SQL-Fragment; Prüfung gegen sys.fn_helpcollations. Dynamische Serverwertemenge, kein festes erfundenes Inventar: SELECT name FROM sys.fn_helpcollations() zeigt sie. Dient Vergleichs-/Ausdrucksbindung und ändert keine DB-/Spaltencollation; leer/unbekannt ungültig. |
 | `@TSqlVersion` | `smallint` | `150` | Input | Taxativ: 150 = SQL-Server-2019-Grammatik (Default), 160 = 2022, 170 = 2025 für die Parser-/Sicherheitsprüfung erzeugten SQLs. Kein automatischer Dialektwechsel/Ablesen der Engineversion. NULL/andere smallint-Werte ungültig. |
@@ -158,6 +220,8 @@ mit `TBX_SSISDBG_` und ohne vertrauliche Quellfehlermeldungen.
 | `@MaxSqlArtifactBytes` | `bigint` | `2097152` | Input | bigint 0..9223372036854775807, Default 2097152: UTF-16-Bytes je erzeugtem SQL-Artefakt. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben. |
 | `@MaxTotalOutputBytes` | `bigint` | `134217728` | Input | bigint 0..9223372036854775807, Default 134217728: UTF-16-Bytes der gezählten Gesamtausgabe. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben. |
 | `@MaxAnalysisMilliseconds` | `bigint` | `0` | Input | bigint 0..9223372036854775807, Default 0: Millisekunden kooperatives Analysezeitbudget, keine harte Gesamtwallclock-Garantie. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben. |
+| `@ProcedureSchema` | `nvarchar(max)` | `NULL` | Input | Bei procedure-definition Name des vorgesehenen dedizierten Zielschemas. 1 bis 128 ASCII-Zeichen. Das erste ist ein Buchstabe, danach sind Buchstaben, Ziffern und Unterstriche zulässig. Unquotierter Einzelname ohne Trim oder Normalisierung. NULL (Default) ist bei explain und bindings-template erforderlich und bei procedure-definition ungültig. |
+| `@ProcedureName` | `nvarchar(max)` | `NULL` | Input | Bei procedure-definition Objektname mit exakt großem Präfix USP_ und mindestens einem Folgezeichen. Bis zu 128 ASCII-Zeichen insgesamt, zulässig sind Buchstaben, Ziffern und Unterstriche. Unquotierter Einzelname ohne Trim oder Normalisierung. NULL (Default) ist bei explain und bindings-template erforderlich und bei procedure-definition ungültig. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Name 2..116 UTF-16-Einheiten; der vollständige Artefaktsatz wird vor Zielmutation erzeugt. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 still, 1..255 eine redigierte Abschlussmessage mit Artefakt-/SQL-Prüfeinheitenzählern. Kein zusätzliches Resultset und keine Quell-/Secretwerte; der interne ResultTable-Helper wird ausdrücklich mit Debug=0 aufgerufen. |

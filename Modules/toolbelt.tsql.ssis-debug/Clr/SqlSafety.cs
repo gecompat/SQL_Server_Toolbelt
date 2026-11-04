@@ -14,10 +14,13 @@ namespace Toolbelt.Tsql.SsisDebug
     {
         internal string Name, SqlType, Collation, Computed;
         internal bool Nullable;
+        internal int ColumnId, SystemTypeId, UserTypeId, Length, Precision, Scale;
     }
     internal sealed class BoundObject
     {
         internal string Database, Schema, Name, Kind, Definition, Synonym, Fingerprint;
+        internal int ObjectId;
+        internal DateTime Modified;
         internal bool MemoryOptimized, External;
         internal readonly List<BoundColumn> Columns = new List<BoundColumn>();
         internal readonly List<string> SecurityFunctions = new List<string>();
@@ -354,6 +357,11 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         internal void Generated(string sql, string database, IEnumerable<string> owned, bool v2Expressions = false)
         { Validate(Parse(sql), database, new HashSet<string>(owned, StringComparer.Ordinal), null, v2Expressions); }
+
+        internal IEnumerable<BoundObject> BoundObjects()
+        {
+            return objects.Values.GroupBy(o => o.Key).Select(g => g.First()).OrderBy(o => o.Key, StringComparer.Ordinal);
+        }
 
         // Nur echte Tabellenreferenzen mit exakt registriertem Ein-Part-Namen
         // werden ersetzt. Textuelles Replace könnte sonst Literale, Identifier

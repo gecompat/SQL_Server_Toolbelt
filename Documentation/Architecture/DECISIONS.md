@@ -891,3 +891,16 @@ Der vorhandene Installationseintrag für das absichtlich projektspezifische
 Benutzerauftrag fortgeschrieben. Foundation-Quellmanifest, Auswahl,
 Installationsdatum und unveränderter Managed-Block bleiben erhalten; dies ist
 kein Foundation-Upgrade und keine Aktivierung optionaler Runtimes.
+
+## DEC-2026-038: Parametrisierte SSIS-Debug-Ablaufdefinition
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-11-03 |
+| Status | accepted |
+| Entscheidung | `procedure-definition` rendert einen vollständig gebundenen SQL-Zielpfad über eine Derived Column als separat installierbare Prozedur samt Manifest. |
+| Begründung | Ein geprüfter Plan kann für typisierte Szenariowerte in einem Aufruf wiederverwendet werden. Der feste parametrisierte Batch führt die Datenabfrage im Aufruferkontext aus und erhält die Quellrechteprüfung auch bei gleicher Ownership. |
+| Scope | Ein SQL-Pfad in einer Datenbank, numerische nicht sensitive Szenariowerte, lesende Zielprojektion. |
+| Auswirkungen | Die Ergebnisspalten bleiben je Definition fest. Der Betreiber prüft und verwaltet die Installation im eigenen Schema. Das Toolbelt-Modul deployt und entfernt diese Objekte nicht. Bestehende Paket- und Laufnachweise bleiben an ihre ursprünglichen Artefakte gebunden. |
+| Alternativen | Die Textkapselung des Mehrbatch-DebugScripts verletzt Batch- und Temp-Lebensdauer. Ein statischer Lese-Body kann bei gleicher Ownership die Prüfung von Quellrechten auslassen. |
+| Betroffene Verträge | [SSIS-Debug-Vertrag](SSIS_CURRENT_API_CONTRACT.md#parametrisierte-ablaufdefinition), [freigegebener V1-Vertrag](../../Backlog/TOOLBELT_CANDIDATES.md#vertrag-für-die-erste-umsetzung). |

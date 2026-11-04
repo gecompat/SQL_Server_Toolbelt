@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
+
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
@@ -17,6 +20,9 @@ from new_ssis_standalone_tsql import read_regular_bounded
 class CurrentSnapshotEvidence(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        scope = mock.patch.object(snapshot, "ROOT", historical_root(ROOT))
+        scope.start()
+        cls.addClassCleanup(scope.stop)
         cls.package_report_bytes = read_regular_bounded(ROOT / snapshot.PACKAGE_REPORT, 1024 * 1024)
         cls.native_report_bytes = read_regular_bounded(ROOT / snapshot.NATIVE_REPORT, 2 * 1024 * 1024)
         cls.package_report = json.loads(cls.package_report_bytes)

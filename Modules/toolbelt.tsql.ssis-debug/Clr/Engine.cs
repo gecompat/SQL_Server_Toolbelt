@@ -21,7 +21,9 @@ namespace Toolbelt.Tsql.SsisDebug
         private static Artifacts AnalyzeCore(byte[] bytes, Options options, ICatalog catalog, Budget budget)
         {
             if (bytes == null) throw new DebugFault("unresolved_binding", "PackageBytes erforderlich.");
-            if (options.Operation != "bindings-template" && options.Operation != "explain") throw new DebugFault("unresolved_binding", "Operation muss bindings-template oder explain sein.");
+            if (options.Operation != "bindings-template" && options.Operation != "explain" && !options.ProcedureDefinition)
+                throw new DebugFault("unresolved_binding", "Operation muss bindings-template, explain oder procedure-definition sein.");
+            ProcedureDefinition.ValidateOptions(options);
             if (options.Version != 150 && options.Version != 160 && options.Version != 170) throw new DebugFault("unresolved_binding", "TSqlVersion muss 150, 160 oder 170 sein.");
             if (options.Stage != null && options.Stage != "all" && options.Target == null) throw new DebugFault("unresolved_binding", "Konkrete Stufe verlangt Zielfluss.");
             bool contextV2;

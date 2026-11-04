@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_procedure_v1_package_qualification",
+  "qualification_date": "2026-11-04",
+  "publication_authorized": false,
+  "package": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-ProcedureV1-Install-Windows.zip",
+    "sha256": "516E1283227EF74B7A632D1E76C8FF7B22140E61115A6A9727828119879E069E",
+    "manifest_sha256": "FFB99892D42F37AF5A0055F7DBBE4C2F7C4851AFE2821340EAF5D66BCBF023C3"
+  },
+  "case": {
+    "platform": "windows",
+    "sql_version": "2025",
+    "patch": "CU8",
+    "compatibility_level": 150,
+    "deployment_mode": "local",
+    "test_purpose": "Functional",
+    "authenticated_tls": "not executed",
+    "package_assertions": 8,
+    "procedure_assertions": 91,
+    "result": "PASS",
+    "cleanup_audit": "PASS"
+  },
+  "execution_inputs": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/procedure-8.dtsx": "5CDA809A5FBD73841F11C86A7F5A14CE0A7620880E4948645DEEE4526913BEC1",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1B8D9E877D39D6A52174922016DDE89F500D0506807A9FABBB57F6606350D4CC",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1": "30DD642419BC5841F1BEA0BFABF54052446CE6C5310CA2D5937230DC65C73DD1",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentQualificationLab.ps1": "43574FE85527D5C08593BA57EBE86EE7CA6249E54A83B749A9A85E84B9250AB9",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411A966484EAF55FB05778B5E26829D7AFED94D6028CB6F77323F92C5C7E570",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-PackageInstallCases.ps1": "8A03FA030717571AE17310823CE7D901B2BC2AF3C3706C673E7763674C3BC351",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ProcedureDefinitionCases.ps1": "E3FBBDF106FBB15EEF6609C68E6DBB1E797044A914A5B13882066FD586A60464",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ProcedureDefinitionLab.ps1": "D6B432B267D9557FB4452747AF11D745E105EEE09C71C90B91FB6DC17761C2ED",
+    "Tests/CI/LabQualifiedContract.ps1": "F4EEE1FF18EF973BEE2B870E99928D23D3F4EA3DA1B4C628E303B1B9DFC8AB15",
+    "Tests/CI/run-lab-local.ps1": "5BD0F1D0308EC2D0EFE9FAC9A24D1242F3D7968AF1477DEE333F3E4483738846"
+  }
+}

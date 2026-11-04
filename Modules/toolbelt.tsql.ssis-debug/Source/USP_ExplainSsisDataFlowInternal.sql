@@ -52,6 +52,8 @@ CREATE OR ALTER PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlowInternal
     @MaxSqlArtifactBytes bigint = 2097152,
     @MaxTotalOutputBytes bigint = 134217728,
     @MaxAnalysisMilliseconds bigint = 0,
+    @ProcedureSchema nvarchar(max),
+    @ProcedureName nvarchar(max),
     @ResultTable sysname = NULL,
     @KeepData bit = 0,
     @Debug tinyint = 0,

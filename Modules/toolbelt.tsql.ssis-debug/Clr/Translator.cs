@@ -57,7 +57,11 @@ namespace Toolbelt.Tsql.SsisDebug
             { object v; effective.Add(input.Key, b.Values.TryGetValue(input.Key, out v) ? Types.Literal(input, v) : input.HasDefault && !input.Sensitive && input.SqlType != null ? Types.Literal(input, input.Default) : input.Expression ?? "<runtime>"); }
             runHash = Util.Hash(p.Hash + b.ContextHash + Json.Write(effective, b.Limits) + (o.CatalogBindings == null ? "" : Json.Write(Json.Parse(o.CatalogBindings, b.Limits), b.Limits)) + (o.LookupPolicies == null ? "" : Json.Write(Json.Parse(o.LookupPolicies, b.Limits), b.Limits)) + b.Collation + o.Version);
             string generationSalt = bindings.ComponentsV2 ? Guid.NewGuid().ToString("N") : "";
-            runToken = Util.Hash(runHash + "|" + generationSalt).Substring(0, 16);
+            // Prozedurdefinitionen verwenden stabile Temp-Namen ohne Analysewerte.
+            runToken = (options.ProcedureDefinition
+                ? Util.Hash(Json.Write(Json.Obj("package", p.Hash, "target", o.Target, "database", b.DefaultDatabase,
+                    "schema", o.ProcedureSchema, "procedure", o.ProcedureName), b.Limits))
+                : Util.Hash(runHash + "|" + generationSalt)).Substring(0, 16);
             int lookups = 0;
             foreach (Flow flow in p.Flows) foreach (Component component in flow.Components)
             {
@@ -86,6 +90,17 @@ namespace Toolbelt.Tsql.SsisDebug
                     Details = Json.Write(pathDetails, bindings.Limits) });
                 foreach (Stage stage in ancestors)
                     output.Add(new Artifact { Kind = "StageIndex", Target = target.Key, Stage = stage.Id, Component = stage.Component, Content = stage.Cte, Complete = stage.Error == null, Evidence = stage.Error == null ? "pragmatic" : "unsupported", Safety = stage.Error == null ? "not_checked" : "blocked", Details = Json.Write(Json.Obj("parents", stage.Parents.Select(x => (object)x.Id).ToList(), "columns", stage.Columns.Select(c => (object)Json.Obj("lineageId", c.Id, "name", c.Name, "sqlAlias", c.Alias, "sqlType", c.Type)).ToList(), "status", stage.Error == null ? "available" : "blocked", "rootCause", stage.Error == null ? null : Json.Obj("code", stage.RootCauseCode ?? stage.Error, "stageId", stage.RootCauseStage ?? stage.Id, "componentId", stage.RootCauseComponent ?? stage.Component, "message", stage.RootCauseText ?? stage.ErrorText)), bindings.Limits) });
+                if (options.ProcedureDefinition)
+                {
+                    if (end.Error != null) output.Diagnostic(end.Error, destination.Id, end.ErrorText, target.Key);
+                    else if (ancestors.Count != 3 || destination.Kind != "destination" ||
+                        flow.Components.Single(c => c.Id == ancestors[0].Component).Kind != "source" ||
+                        flow.Components.Single(c => c.Id == ancestors[1].Component).Kind != "derived" ||
+                        ancestors[1].Parents.Count != 1 || ancestors.Any(s => s.StructureGuards.Count != 0 || s.Caches.Count != 0))
+                        output.Diagnostic("procedure_profile", destination.Id, "Prozedur erfordert einen linearen SQL-Quellpfad über eine Derived Column zur SQL-Zielprojektion.", target.Key);
+                    else EmitV2Plan(end, "TargetSql", target.Key);
+                    continue;
+                }
                 if (options.Stage != null && options.Stage != "all" && !ancestors.Any(s => s.Id == options.Stage)) throw new DebugFault("unresolved_binding", "Stufe gehört nicht zum ausgewählten Zielfluss.");
                 if (options.Stage == "all") foreach (Stage stage in ancestors.Where(s => s.Error == null)) Emit(stage, "StageSql", target.Key);
                 else if (options.Stage != null) { Stage stage = ancestors.Single(s => s.Id == options.Stage); if (stage.Error == null) Emit(stage, "StageSql", target.Key); }
@@ -870,6 +885,12 @@ namespace Toolbelt.Tsql.SsisDebug
             }
 
             ValidateV2Plan(units, stageCaches, targetStage, inputs);
+            if (options.ProcedureDefinition)
+            {
+                ProcedureDefinition.Emit(options, bindings, safety, output, target, targetStage,
+                    units.Select(u => u.Value).ToArray(), inputs);
+                return;
+            }
             var allCaches = lookup.Concat(units.Select(u => u.Value)).Distinct().ToList();
             var owned = allCaches.SelectMany(c => new[] { c.Name, c.StateName }).ToList();
             string planHash = Util.Hash(String.Join("|", units.Select(u => u.Key.Id + ":" + Util.Hash(u.Value.Insert + u.Value.Definition))));

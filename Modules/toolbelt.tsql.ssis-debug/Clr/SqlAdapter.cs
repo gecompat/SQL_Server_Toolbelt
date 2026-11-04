@@ -75,7 +75,7 @@ LEFT JOIN sys.synonyms AS y WITH (NOLOCK) ON y.object_id=o.object_id
 LEFT JOIN sys.external_tables AS x WITH (NOLOCK) ON x.object_id=o.object_id
 WHERE o.object_id=@oid;
 SELECT c.column_id,c.name,bt.name,c.max_length,c.precision,c.scale,c.is_nullable,c.collation_name,
- cc.definition,ut.is_user_defined,ut.is_assembly_type
+ cc.definition,ut.is_user_defined,ut.is_assembly_type,c.system_type_id,c.user_type_id
 FROM sys.columns AS c WITH (NOLOCK)
 JOIN sys.types AS ut WITH (NOLOCK) ON ut.user_type_id=c.user_type_id
 JOIN sys.types AS bt WITH (NOLOCK) ON bt.user_type_id=c.system_type_id AND bt.system_type_id=c.system_type_id
@@ -114,14 +114,19 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
                 {
                     if (!r.Read()) return null;
                     var o = new BoundObject { Database = database, Schema = r.GetString(7), Name = r.GetString(8), Kind = r.GetString(1).Trim(), Definition = r.IsDBNull(2) ? null : r.GetString(2), Synonym = r.IsDBNull(3) ? null : r.GetString(3), MemoryOptimized = r.GetBoolean(4), External = r.GetBoolean(5) };
-                    var facts = new List<object> { r.GetInt32(0), o.Kind, o.Definition, o.Synonym, o.MemoryOptimized, o.External, r.GetDateTime(6).ToString("O", CultureInfo.InvariantCulture), o.Schema, o.Name };
+                    o.ObjectId = r.GetInt32(0);
+                    o.Modified = r.GetDateTime(6);
+                    var facts = new List<object> { o.ObjectId, o.Kind, o.Definition, o.Synonym, o.MemoryOptimized, o.External, o.Modified.ToString("O", CultureInfo.InvariantCulture), o.Schema, o.Name };
                     if (r.Read() || !r.NextResult()) throw new DebugFault("catalog_drift", "Objektmetadaten inkonsistent.");
                     while (r.Read())
                     {
                         budget.Check(); Budget.Limit(facts.Count, 65536);
                         Budget.Limit(o.Columns.Count + 1, 8192);
                         string type = r.GetBoolean(9) || r.GetBoolean(10) ? null : CatalogType(r.GetString(2), r.GetInt16(3), r.GetByte(4), r.GetByte(5));
-                        var c = new BoundColumn { Name = r.GetString(1), SqlType = type, Nullable = r.GetBoolean(6), Collation = r.IsDBNull(7) ? null : r.GetString(7), Computed = r.IsDBNull(8) ? null : r.GetString(8) };
+                        var c = new BoundColumn { Name = r.GetString(1), SqlType = type, Nullable = r.GetBoolean(6),
+                            Collation = r.IsDBNull(7) ? null : r.GetString(7), Computed = r.IsDBNull(8) ? null : r.GetString(8),
+                            ColumnId = r.GetInt32(0), Length = r.GetInt16(3), Precision = r.GetByte(4), Scale = r.GetByte(5),
+                            SystemTypeId = r.GetByte(11), UserTypeId = r.GetInt32(12) };
                         o.Columns.Add(c); facts.Add(Json.Obj("id", r.GetInt32(0), "name", c.Name, "type", type, "nullable", c.Nullable, "collation", c.Collation, "computed", c.Computed));
                     }
                     if (!r.NextResult()) throw new DebugFault("catalog_drift", "RLS-Metadaten fehlen.");
@@ -178,7 +183,7 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
             SqlInt64 maxPackageBytes, SqlInt64 maxXmlCharacters, SqlInt64 maxXmlNodes, SqlInt64 maxModelNodes, SqlInt64 maxModelEdges, SqlInt64 maxComponents, SqlInt64 maxPaths, SqlInt64 maxColumns, SqlInt64 maxInputs,
             SqlInt64 maxJsonDocumentBytes, SqlInt64 maxAllJsonBytes, SqlInt64 maxJsonNodes, SqlInt64 maxExpressionBytes, SqlInt64 maxExpressionTokens, SqlInt64 maxExpressionNodes, SqlInt64 maxPlanUnits,
             SqlInt64 maxCatalogObjects, SqlInt64 maxCatalogQueries, SqlInt64 maxParserCalls, SqlInt64 maxArtifacts, SqlInt64 maxDiagnostics, SqlInt64 maxSqlArtifactBytes, SqlInt64 maxTotalOutputBytes, SqlInt64 maxAnalysisMilliseconds,
-            SqlString resultTable, SqlBoolean keepData, SqlByte debug, SqlBoolean hilfe)
+            SqlString procedureSchema, SqlString procedureName, SqlString resultTable, SqlBoolean keepData, SqlByte debug, SqlBoolean hilfe)
         {
             using (var connection = new SqlConnection("context connection=true"))
             {
@@ -190,6 +195,8 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
                     return;
                 }
                 var options = new Options { Operation = Value(operation), ProjectContext = Value(projectContext), Bindings = Value(bindings), CatalogBindings = Value(catalogBindings), Target = Value(targetFlow), Stage = Value(inspectStage), LookupPolicies = Value(lookupPolicies), ComparisonCollation = Value(comparisonCollation), Version = tSqlVersion.IsNull ? -1 : tSqlVersion.Value };
+                options.ProcedureSchema = Value(procedureSchema);
+                options.ProcedureName = Value(procedureName);
                 options.Limits = ResourceOptions.FromSqlParameters(maxPackageBytes,maxXmlCharacters,maxXmlNodes,maxModelNodes,maxModelEdges,maxComponents,maxPaths,maxColumns,maxInputs,
                     maxJsonDocumentBytes,maxAllJsonBytes,maxJsonNodes,maxExpressionBytes,maxExpressionTokens,maxExpressionNodes,maxPlanUnits,maxCatalogObjects,maxCatalogQueries,maxParserCalls,
                     maxArtifacts,maxDiagnostics,maxSqlArtifactBytes,maxTotalOutputBytes,maxAnalysisMilliseconds);

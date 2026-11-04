@@ -1197,7 +1197,7 @@ benannten Abschnitte zur Auffindbarkeit, ohne neue Referenzfamilie/Allocator.
 | **Prüfdatum** | 2026-10-16 |
 | **Nächster Schritt** | Freigegebenen [V1-Vertrag](../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md) mit PR-/CI-Nachweisen integrieren; kein automatischer Merge oder Release. Sichere finale Referenzvergabe und spätere USP-/Schreibfunktionen bleiben getrennt. |
 
-### Spätere Funktion: parametrisierte USP-Kapselung
+### Parametrisierte USP-Kapselung
 
 | Feld | Wert |
 |---|---|
@@ -1215,10 +1215,53 @@ benannten Abschnitte zur Auffindbarkeit, ohne neue Referenzfamilie/Allocator.
 | **Plattformgrenzen** | Folgen den gewählten Generator-/Installationsprovidern; ungeprüft |
 | **Dependencies** | Geeigneter vollständig geprüfter Debug-Ablauf, Parameter-/USP-Vertrag, Modul-/Lifecyclemodell |
 | **Duplikatprüfung** | Keine vorhandene SSIS-zu-USP-Kapselung im geprüften Toolbelt; Analyzer-USP und die hier erzeugte Ablauf-USP sind verschiedene Funktionen. |
-| **Status** | `proposed`; keine Implementierungs-, Installations- oder Ausführungsfreigabe |
+| **Status** | V1 zur Implementierung freigegeben am 2026-11-03. Betreiber entscheiden separat über die Installation ihrer erzeugten Definitionen. |
 | **Primärquellen** | [Analyse und Voraussetzungen](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md#kleine-umsetzungsschritte-und-getrennte-spätere-funktionen), [USP-Vertrag](../Documentation/Standards/USP_CONTRACT.md), [Deploymentmodell](../Documentation/Architecture/DEPLOYMENT_MODEL.md) |
 | **Prüfdatum** | 2026-10-16 |
-| **Nächster Schritt** | Nach qualifiziertem Debug-Slice konkreten Parametrierungs-, Resultset-, Installations-/Update-/Uninstall- und Revalidierungsvertrag besprechen und eigens freigeben. |
+| **Freigabe** | Zweck, Vertrag, Alternativen und Risiken des folgenden V1-Umfangs wurden besprochen. Der Benutzer bestätigte anschließend mit „freigegeben“. |
+
+#### Vertrag für die erste Umsetzung
+
+Ein geprüfter Datenfluss soll sich für verschiedene Szenariowerte in einem
+Aufruf wiederverwenden lassen. Der erste Umfang ist ein vollständig
+auflösbarer SQL-Zielpfad in einer Datenbank, von einer SQL-Quelle über
+eine Derived Column bis zur Zielprojektion. Die Katalogbindung und die
+Zielauswahl stehen bei der Erzeugung fest. Weitere Stufenprofile, Lookup,
+Cross-DB-Ausführung und schreibende Zielverarbeitung sind eigene Folgeschritte.
+
+| Bereich | Freigegebener Vertrag |
+|---|---|
+| Erzeugung | `toolbelt_tsql.USP_ExplainSsisDataFlow` erhält `@Operation = 'procedure-definition'`. Die Operation verlangt eine exakte `@TargetFlow`-ID und `@InspectStage = NULL`. Die neuen Parameter `@ProcedureSchema` und `@ProcedureName` sind `nvarchar(max) = NULL` und für die anderen Operationen NULL. Für die Erzeugung sind beide Pflicht. Jeder Name enthält 1 bis 128 ASCII-Zeichen, beginnt mit einem Buchstaben und verwendet danach Buchstaben, Ziffern oder Unterstriche. Der Objektname beginnt mit `USP_` und enthält einen Suffix. Beide Namen werden vor jeder Typverengung validiert und getrennt quotiert. Das Ergebnis enthält `ProcedureDefinition` als DDL zur gesonderten Prüfung und `ProcedureManifest` mit Version, Planbindung, Parameter- und Spaltenschema sowie geprüften Abhängigkeiten. Unvollständige oder ungeeignete Pfade liefern eine konkrete Diagnose ohne Definition. |
+| Eingaben beim Aufruf | Jede genutzte, nicht sensitive skalare Szenarioeingabe erhält ihren stabilen Bindings-Key und den exakten SQL-Typ. Für den ersten Umfang gelten `int`, `bigint` und `decimal(p,s)`. Fachlich sind diese Werte Pflicht und dürfen im Normalaufruf nicht NULL sein. Der technische NULL-Default ermöglicht den reinen Help-Aufruf. Analysewerte werden nicht als Defaults persistiert. Objekt-, Connection- und SQL-Strukturwerte gehören zur festen Planbindung. |
+| Fachliches Ergebnis | Eine Zielprojektion mit festem Spaltenschema je Definition. Reihenfolge und Namen der Spalten, SQL-Typen und Nullbarkeit stehen in Manifest und Hilfe. Das Schema gilt auch bei null Zeilen. Zeilen haben keine zugesicherte Reihenfolge. Standardtail und Help folgen dem [USP-Vertrag](../Documentation/Standards/USP_CONTRACT.md). `@ResultTable` adressiert eine bestehende lokale Temp-Tabelle mit kanonischer Replace-/Append-Semantik. Debugmeldungen erscheinen in Messages. |
+| Ausführungsrechte | `EXECUTE` auf der erzeugten Prozedur und die vorhandenen erforderlichen Metadaten- und Leserechte auf den gebundenen Quellen. Der erzeugte Leseplan läuft als parametrisierter, fester Batch im Aufruferkontext. Dadurch bleiben die Rechteprüfungen auf den Quellen auch bei gleicher Objekt-Ownership wirksam. Die V1-Tests prüfen dies mit einem echten Login. Keine automatische Rechtevergabe. |
+| Installation | Definition und Manifest sind getrennte, prüfbare Ausgaben. Der Installationsverantwortliche führt `CREATE PROCEDURE` im gebundenen Zielkontext und in einem vorhandenen dedizierten Debug-Schema aus. Der Generator selbst erzeugt keine Datenbankobjekte. Namenskonflikte verhindern die Erstinstallation. Modul-Deploy und -Uninstall verwalten diese nutzereigenen Prozeduren nicht. |
+| Wiederholung, Update und Entfernung | Eine identische bekannte Definition benötigt keine DDL. Die Betreiberanleitung bindet Installationsnachweis und Definition an Datenbank, Schema und Objektname. Ein Update verwendet für dasselbe nachweislich eigene Objekt und den erwarteten Altstand ein kontrolliertes `ALTER PROCEDURE`. Eine inkompatible Signatur erhält einen neuen Namen. Entfernung setzt denselben Ownership- und Altstandsabgleich voraus. Die Laufzeit prüft die gebundenen Quellen und Spaltendefinitionen vor der fachlichen Ausgabe. Bei Namenskonflikt, Abhängigkeitsdrift oder unbekanntem Objektzustand wird abgebrochen und bei Bedarf neu generiert. |
+
+Die Prozedurausgabe verwendet denselben typisierten Plan und dieselben
+Quell- und Sicherheitsprüfungen wie der Debugpfad. Ein separater Renderer
+ordnet Deklarationen, Temp-Lebensdauer, Zielprojektion und Bereinigung
+für einen Prozeduraufruf. Die Texthülle um das vorhandene DebugScript wurde
+als Alternative geprüft. Dessen `GO`-Grenzen trennen wiederholte Deklarationen,
+während die lokalen Temp-Objekte im selben Client weiterleben. Das lässt sich
+nicht durch Entfernen von `GO` oder unabhängige dynamische Batches übernehmen.
+Ein direkt statischer Prozedurbody wäre kleiner, könnte bei gleicher
+Ownership jedoch die Prüfung von Quellrechten auslassen. Ein dynamischer
+Batch wird deshalb ausschließlich aus dem geprüften Plan erzeugt.
+Szenariowerte werden als SQL-Parameter übergeben.
+[Microsoft: GO](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/sql-server-utilities-statements-go)
+und [Microsoft: Ausführungskontext und Ownership Chaining](https://learn.microsoft.com/en-us/sql/t-sql/statements/execute-as-clause-transact-sql).
+
+Die Abnahme vergleicht zwei Sätze typisierter Eingaben mit dem bisherigen
+Debugpfad auf synthetischen Daten. Dazu gehören leeres Ergebnis, exakte
+Resultset-Metadaten, Help-only, ResultTable-Replace/Append und Fehlerschutz.
+Gegenproben decken fehlendes Quell-`SELECT` trotz gleicher Ownership,
+Schemaänderung, ungültige Namen, konkurrierende Aufrufe, Temp-Kollisionen,
+Fehler-Cleanup und Schutz fremder DDL-Objekte ab. Der erste native Zielnachweis
+ist Windows SQL Server 2025/CU8, CL150, mit frischem Abschlussaudit.
+Die Prozedur übernimmt die bestehende Grenze für Planmutation außerhalb
+offener oder impliziter Callertransaktionen. Plattform- und
+Erweiterungsabnahmen werden an ihren jeweiligen Ergebnissen ausgewiesen.
 
 ### Spätere Option: SSIS-gleiche USP für einen validierten Teilumfang
 
