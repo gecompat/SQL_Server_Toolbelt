@@ -1,9 +1,5 @@
 # Work-Queue-Objekte
 
-Für Einrichtung, Anwendung, Einsatzentscheidungen und zusammenhängende
-SSMS-Beispiele beginne mit [Queue verwenden](USAGE.md). Diese Seite ist die
-gemeinsame technische Referenz.
-
 ## Einzelreferenzen
 
 Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
@@ -26,13 +22,15 @@ Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
 ## Zustands- und Ownership-Modell
 
 ```text
-QUEUED ---------> CLAIMED -------> COMPLETED
-BARRIER_WAIT ---> CLAIMED -------> FAILED
-                  CLAIMED -------> RETRY_WAIT (Versuche verbleiben)
-                  CLAIMED -------> DEAD_LETTER (Retryzyklus ausgeschöpft)
-RETRY_WAIT --fällig--> CLAIMED (SHARED)
-RETRY_WAIT --fällig--> BARRIER_WAIT (DRAIN_BARRIER, neuer Snapshot)
-DEAD_LETTER --explizites Requeue--> QUEUED oder BARRIER_WAIT
+QUEUED -------> CLAIMED -------> COMPLETED
+  |                |  |
+  |                |  +--------> FAILED
+  |                +-----------> RETRY_WAIT -> QUEUED
+  |                                      |
+  +--------------------------------------+-> DEAD_LETTER
+
+BARRIER_WAIT -> CLAIMED
+DEAD_LETTER -> QUEUED oder BARRIER_WAIT (explizites Requeue)
 ```
 
 `BARRIER_WAIT` ist der wartende Zustand eines gruppenexklusiven `DRAIN_BARRIER`-Items. `RETRY_WAIT` wird erst bei Fälligkeit wieder beanspruchbar. `DEAD_LETTER` ist terminal, bis ein berechtigter Aufrufer das Item ausdrücklich in einen neuen Retry-Zyklus überführt.
@@ -105,6 +103,6 @@ Die Reihenfolge gilt bestmöglich unter fälligen, sichtbaren und handlerfähige
 
 ## Work Queue 2.1 – neutrale Managedintegration
 
-2.1 ergänzt interne Claim-/Fail-/Retrykerne und den queueeigenen WorkQueueManagedGate. Öffentliche Signaturen bleiben unverändert. Managedmodus ist opt-in; dann sind direkte Claims und Holdbypässe ausgeschlossen. Admission ist transient, einmalig und an genau eine gesunde äußere Admissiontransaktion gebunden. Das Modul hat keine Rückabhängigkeit auf Worker-Control. Der Lifecycle erlaubt ausschließlich den vollständig geprüften ruhenden Queue2.1-/Control1.0-Repeat; andere Consumerstände, aktive Claims und Holds bleiben gesperrt. Der Uninstall behält die Consumerabweisung. Die [Modulbeschreibung](../README.md) und der [Repeatvertrag](../../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md) führen zu den aktuellen begrenzten Nachweisen. Historische 2.0-Evidenz qualifiziert die spätere Managedintegration nicht.
+2.1 ergänzt interne Claim-/Fail-/Retrykerne und den queueeigenen WorkQueueManagedGate. Öffentliche Signaturen bleiben unverändert. Managedmodus ist opt-in; dann sind direkte Claims und Holdbypässe ausgeschlossen. Admission ist transient, einmalig und an genau eine gesunde äußere Admissiontransaktion gebunden. Das Modul hat keine Rückabhängigkeit auf Worker-Control. Lifecycle lehnt dessen installierten Consumer sowie Managedclaims und Holds vor und unter AppLock ab. Vorhandene 2.0-Evidenz qualifiziert diese neue Integration nicht; 2.0→2.1 Upgrade und Managedfälle sind noch NOT EXECUTED.
 
 Der private Managedclaimtransport verwendet ausschließlich die aus dem kanonischen UPDATE OUTPUT entstandene Claim-ID. Reserve liest diese ID mit exakter ManagedReservationId im selben Admission-TX in den festen internen Transport. Öffentliche ResultTable-Namen bleiben unverändert validiert; kein SkipValidation und kein INSERT EXEC wird verwendet.

@@ -429,6 +429,12 @@ Holds und Consumer können Wartung verhindern. Historische Versionen haben
 unterschiedliche Upgradevoraussetzungen. Die Anleitungen ersetzen weder
 Backups noch den zur installierten Version passenden Migrationsvertrag.
 
-Technische Vertiefung: [Objektverträge](WORK_QUEUE_OBJECTS.md),
-[Claim-/Schedulermechanik](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#queue)
+Die [ältere gemeinsame Objektreferenz](WORK_QUEUE_OBJECTS.md) ist bytegenau
+an historische Release-Nachweise gebunden und bleibt deshalb unverändert.
+Ihr Zustandsdiagramm und ihre frühen Managed-Nachweisangaben beschreiben
+nicht durchgehend den aktuellen Stand. Für die aktuelle Anwendung dienen
+dieser Leitfaden, die oben verlinkten Einzelparameterreferenzen und die
+Nachweisabgrenzung in der Modul-README.
+
+Technische Vertiefung: [Claim-/Schedulermechanik](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#queue)
 und [SQL-Quellen](../Source).
