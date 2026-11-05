@@ -1057,6 +1057,9 @@ change_impact:
         - Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md
         - Modules/toolbelt.metadata.table-clone/module.yaml
         - Tests/CI/run-script-parser-lab.ps1
+        - Tests/CI/Invoke-ScriptParserCurrentLab.ps1
+        - Tests/CI/ParserCurrentSnapshot.ps1
+        - Tests/Release/Test-ParserCurrentLab.ps1
         - .github/workflows/script-parser-guard.yml
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md
