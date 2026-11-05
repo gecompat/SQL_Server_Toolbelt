@@ -61,8 +61,21 @@ ein Arbeitspaket/ein PR, ein Implementierungsverantwortlicher, höchstens ein
 zusätzlicher unabhängiger Reviewagent und ein Folgeauftrag an denselben Reviewer
 nur für geänderte Inputs nach einem konkreten Befund. Erforderliche Prüfungen
 werden nicht weggelassen; unerledigte Gates werden am Checkpoint genannt.
-Keine neue Entwicklungswelle nach Abschluss. Ein begründeter größerer Scope
-benötigt ein ausdrücklich festgelegtes gemeinsames Limit vor weiterer Delegation.
+Der Abschluss beendet das abgegrenzte Paket und dessen Testfenster. Ein
+fortbestehender ausdrücklicher Autonomieauftrag für mehrere bereits fachlich
+freigegebene Backlog-Punkte bleibt davon unberührt. Nach Bestands-, Aktivitäts-
+und Nachweisabgleich darf das nächste ausführbare Restpaket ausgewählt werden;
+vor seinem Start erhält es einen endlichen Scope, Verantwortlichen und Rahmen.
+Übergeordnete gemeinsame Budgets und Stop-Gates bleiben über alle Pakete hinweg
+wirksam. Ohne einen solchen fortbestehenden Auftrag beginnt keine weitere Welle.
+Ein begründeter größerer Scope benötigt ein ausdrücklich festgelegtes gemeinsames
+Limit vor weiterer Delegation.
+
+Ein Paketwechsel, freie Restplätze, ein Timer oder grüne CI erneuern keine
+ausgeschöpfte oder abgelaufene ziel-/laufgebundene Testfreigabe. Deren Verbräuche,
+Fehler, Ownership- und Sicherheitssperren bleiben erhalten; eine erforderliche
+neue konkrete endliche Freigabe wird nicht durch allgemeine Autonomie ersetzt.
+Neue Fachfunktionen behalten unabhängig davon ihr Implementierungs-Gate.
 Unbekannte Verbräuche bleiben unbekannt, sind weder null noch gemessene Limits.
 
 Fortsetzungsautomationen sind ein Sicherheitsnetz. Ein unveränderter
