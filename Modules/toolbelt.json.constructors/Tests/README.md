@@ -31,7 +31,10 @@ Wiederherstellungsjournale bleiben privat.
 
 Die getesteten Produkt-, Fixture- und Adapterquellen sind im
 [Quellstand cfcc9f4f](https://github.com/gecompat/SQL_Server_Toolbelt/tree/cfcc9f4fa8e7641ea0a727894eb0a7a8093c572a)
-gebunden; der anschließende Nachtrag verändert ausschließlich Testdokumentation.
+gebunden. Die anschließenden Nachträge ergänzen Dokumentation und erhöhen die
+erste kalte CI-Core-Kompilierung von 15 auf 60 Sekunden. Produkt-, Fixture- und
+Windows-Labadapterbytes bleiben dabei unverändert; die Native-Fälle werden
+durch diese Offline-Prozessgrenze nicht verändert.
 Die drei DLLs wurden anhand der
 [aktuellen Closure](../../toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json)
 als exakt bekannte Bytes wiederverwendet. Es wurde kein neuer Binarybuild

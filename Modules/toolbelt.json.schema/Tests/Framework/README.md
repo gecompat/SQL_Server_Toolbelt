@@ -104,7 +104,10 @@ oder Truständerung. Ausgabe ausschließlich in einem neuen ignorierten
 `.runtime`-Unterverzeichnis; keine automatische Löschung. Produkt-, Harness-,
 Compiler-, Referenz-, Fixture- und Driverinputs werden vor und nach dem Lauf
 gehasht. Childprozesse haben tatsächliche Exit-/Capture-/Stderrprüfungen und
-15/30/45-Sekunden-Grenzen. Dies ist Source-Frameworkevidenz, noch keine bekannte
+15/30/45-Sekunden-Grenzen. Die erste kalte Core-Kompilierung erhält seit
+2026-11-05 eine eigene 60-Sekunden-Grenze, nachdem zwei CI-Versuche am
+bisherigen 15-Sekunden-Limit endeten. Alle übrigen Phasenlimits, Optionen und
+Binary-/Ergebnisorakel bleiben erhalten. Dies ist Source-Frameworkevidenz, noch keine bekannte
 Releaseartifact-Zeile oder kanonische MSBuild-Abnahme. Der eigene vollständige
 IL-Aufrufscan ist enthalten; er zertifiziert keine transitive Framework-SAFE-
 Implementierung oder tatsächliche SQL-Host-Ladbarkeit.
