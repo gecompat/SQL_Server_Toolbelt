@@ -32,6 +32,11 @@ getrennte Nachweise.
 
 Originalausführung und aktuelle Anwendbarkeit bleiben ausdrücklich getrennt:
 
+Die folgende Tabelle beschreibt die Anerkennung bei der Abnahme vom
+2026-11-04. Die [frische Ergänzung vom 2026-11-05](#frische-buildgebundene-ausgabeabnahme)
+führt die inzwischen tatsächlich ausgeführten ZIP-, SSMS- und TLS-Gesamtfälle
+am selben korrigierten DLL auf. Die ursprünglichen Berichte bleiben unverändert.
+
 | Umfang | Aktuelle Anerkennung |
 |---|---|
 | Frühere zwölf Windows-/CL-/Moduskontexte | Unveränderte Defaultzweige und vorhandene normale Prozedurfälle bleiben an ihre alten Bytes gebunden. Der korrigierte Fehlerpfad ist auf allen drei Engines und SQL-Dialekten 150/160/170 neu geprüft. Keine neue zwölfteilige ZIP-Ausführung behauptet. |
@@ -59,6 +64,78 @@ Labziel und vollständiger Testinputliste; `Invoke-Contract.ps1 -Profile Full`;
 Die neue Evidenz- und Adapterprüfung läuft im vorhandenen SSIS-CI-Job;
 es gibt keinen zusätzlichen nativen CI-Lauf oder Reviewagenten. Unveränderte
 historische Evidenz wird geprüft und nicht erneut nativ ausgeführt.
+
+## Frische buildgebundene Ausgabeabnahme
+
+Die [frische Gesamtabnahme](Qualification/Fresh.Build.20261104.json), ausgeführt
+am **2026-11-05**, bindet alle drei Umfänge an denselben korrigierten
+40-Parameter-DLL und das unveränderte qualifizierte ZIP:
+
+| Umfang | Tatsächliche neue Ausführung |
+|---|---|
+| Vollständige ZIP-Matrix | Zwölf Windows-Kontexte: SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, jeweils lokal und zentral. 15.204 Assertions, zwölf frische unabhängige Abschlussaudits. Kein Matrixkontext wiederverwendet. |
+| Sichtbarer Windows-/SSMS-Gesamtfall | SQL2025/CU8, CL150, lokal: Windows-NTLM, verschlüsselte Verbindung am ausgewählten Labziel, öffentliche Erst-/Wiederholungsinstallation, aktuelle API, echte vollständige Unicode-Zellenkopie und gespeicherte Hashbindung. Native SQLCMD-Fehlerprobe stoppt den Folgebatch; vollständiges Script liefert zwei erwartete Zeilen und Phase-2-Receipt. Koordinator `PASS_CLEANED`, 17 Prüfungen und frischer Windows-Audit PASS. Benutzer übernahm Anmeldung und Gridoptionen. |
+| Strikter TLS-Gesamtfall | Ununterbrochener öffentlicher Windows-SQL2025-RTM-Neuaufbau, CL170, lokal/zentral; signierter V2-Export, zwei strikte Clientstacks, SQL-Anmeldung und 416 aktuelle SSIS-Assertions. SQL-Audit, regulärer Abbau und unabhängiger VM-/Fremdzustandsaudit PASS. |
+
+Die funktionale Windows-Anmeldung in SSMS und der strikte TLS-Consumer mit
+SQL-Anmeldung sind getrennte Nachweise. Es wird keine gemeinsame
+Windows-Anmeldung mit authentifiziertem TLS behauptet. Eigene Ressourcen sind
+entfernt; Konfiguration, Trust und andere Verbraucher blieben unverändert.
+Vorherige Fehler bleiben erhalten: ursprünglicher Cleanup-Timeout,
+ungültiger BOM-Eingabeweg und veraltete 38-Parameter-Erwartung des neuen
+Testadapters werden durch die erfolgreichen getrennten Fälle nicht umbenannt.
+Der Debugvertrag bleibt `validated` und `unreleased`; OS-/VM-Verlust des
+Koordinators, vollständige SSIS-Runtime-Parität und unbegrenzte Kapazität sind
+kein Bestandteil dieser Abnahme.
+
+Zusätzliche frische Ausführungen werden von der oben beschriebenen
+Wiederverwendungsabnahme getrennt. Derselbe aktuelle DLL muss sowohl im
+ausgeführten ZIP als auch in SSMS und im strikten TLS-Consumer nachgewiesen
+werden. Erst vollständige aktuelle Koordinatoren samt frischen Abschlussaudits
+ergeben einen neuen Gesamt-PASS; ein früherer Teilnachweis ersetzt keinen Receipt.
+
+Der [kombinierte ZIP-Adapter](Runtime/Invoke-FreshBuildLab.ps1) verwendet die
+unveränderten Fach-, Rechte-, Lifecycle- und Prozedur-Oracles des aktuellen
+Builds. Für den vollständigen kombinierten Fall besitzt er eine einzige
+15-Minuten-Uhr und eine zusätzliche Cleanupminute; die Uhr startet nicht
+zwischen den Prüfphasen neu. Die Einzelkommandogrenze bleibt 45 Sekunden.
+Der alte Fünf-Minuten-Adapter bleibt als historischer Nachweis unverändert.
+
+Der [aktuelle sichtbare SSMS-Adapter](WindowsClientRecovery/Invoke-CurrentBuildSsms.ps1)
+bindet die aktuelle 40-Parameter-Gesamtabnahme und ihre exakten DLL-, Deploy-,
+Uninstall- und Trustmanifestbytes. Parserherkunft und unveränderte
+ResultTable-Helper-Pins bleiben zusätzlich geprüft. Auch die Metadatenprüfung
+der tatsächlich installierten API erwartet 40 Parameter; der historische
+38-Parameter-Koordinator bleibt unverändert. Die eigentliche
+Windows-Anmeldung übernimmt der Benutzer; Zielvorcheck, echte Unicodekopie,
+gespeicherte Dateibindung, SQLCMD-Fehlerstop und vollständiges Script mit
+Phase-2-Receipt bleiben Teile des sichtbaren Gesamtfalls.
+
+Beim Einfügen einer gespeicherten SQL-Datei in den verbundenen Editor muss
+der Controller zuerst deren UTF-8- beziehungsweise UTF-16-Kodierung dekodieren.
+Eine Byte Order Mark gehört zur Dateikodierung und darf nicht als SQL-Zeichen
+eingefügt werden. Vor der Ausführung werden Ziel, vollständiger Editorinhalt
+und die passende GUI-Reservierung geprüft. Ein Syntaxfehler verbraucht den
+reservierten Versuch; eine Korrektur eröffnet keine automatische Wiederholung.
+
+Die [Lab-seitige TLS-Orchestrierung](https://github.com/gecompat/SQL_Server_Lab/blob/751473356bd55d482510de95a656d8974a064319/Tests/Integration/Invoke-ToolbeltSsisCurrentTlsAcceptance.ps1)
+besitzt New/Export/Remove und den frischen VM-/Fremdzustandsaudit. Toolbelt
+verwendet seinen bestehenden strikten SQL-Consumer und dessen separaten
+SQL-Abschlussaudit. Der feste Fall gilt für Windows SQL2025 RTM, CL170, lokal
+und zentral, mit SQL-Anmeldung. Er ist von der funktionalen Windows-Anmeldung
+in SSMS getrennt. Ein erhöhter Prozess derselben registrierten Lab-Identität
+ist Voraussetzung; Toolbelt baut keine Labressource selbst auf.
+
+Die neuen Offlineprüfungen sind `Test-FreshBuildAdapter.ps1`,
+`test_ssis_current_ssms.py` und `test_ssis_fresh_build.py` unter `Tests/Release`.
+Sie prüfen die tatsächlich komponierten Adapter und Gegenbeispiele für alte
+DLLs, Quelldrift, fehlende Matrixzellen, fehlenden Fehlerstop, fehlende Receipts
+und fehlende Audits. Sie sind eigene Methodengates und keine native Abnahme.
+`python Scripts/Release/validate_ssis_fresh_build.py` prüft die gemeinsame
+Evidenz einschließlich aktueller DLL-, ZIP- und Quellenbindung. Die Gates
+nutzen den vorhandenen SSIS-CI-Job. Der wegen der Repo-Map-Änderung erforderliche
+vollständige Dokumentationsaudit prüft zusätzlich die bestehenden Manifeste
+und Release-Gates; daraus entstehen keine weiteren nativen Testläufe.
 
 ## Parametrisierte Prozedurdefinition V1
 
@@ -1120,9 +1197,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-04`
-- Nachweis: `local: CurrentBuild Functional/ProcedureBoundary und unabhängige Windows-Audits; Framework Full; unabhängige Sicherheitsabnahme`
-- Scope: Aktueller korrigierter 40-Parameter-Build: 3804 zusammengesetzte Assertions mit breiten Fach-/API-/Rechte-/Lifecyclefällen und je222 Prozedurprüfungen auf Windows SQL2019/CU32 CL150 lokal, SQL2022/CU26 CL160 zentral und SQL2025/CU8 CL170 lokal. Int64-/Decimal-Grenzen, alle ResultTable-/KeepData-Zustände, Caller-TX/SET und Fehleratomarität bestanden. Native Überlaufprobe fand Datenverlust durch Statementfortsetzung; äußere TRY/CATCH-Grenze korrigiert und separat unabhängig akzeptiert. Full27 am korrigierten DLL PASS. Frühere Versions-/CL-/Modus-, Windows-/SSMS-, TLS-, Installer-, Lowpriv- und Abbruchnachweise nur mit expliziter unveränderter Mechanismus-/Defaultpfadbindung wiederverwendet. Keine neue GUI-/TLS-Ausführung behauptet. Fehlgeschlagene Koordinatoren bleiben FAILED_CLEANED; ihr erfüllter Teilumfang wird nicht zum Gesamt-PASS umbenannt. Gesamtabnahme Current.Build.20261104.json; unveröffentlicht.
+- Datum: `2026-11-05`
+- Nachweis: `local: frische ZIP12-, sichtbare Windows-/SSMS- und strikte TLS-Gesamtfälle mit unabhängigen Abschlussaudits`
+- Scope: Derselbe korrigierte 40-Parameter-DLL und unverändertes qualifiziertes ZIP: zwölf neu ausgeführte Windows-/CL-/Moduskontexte mit 15204 Assertions und zwölf frischen Audits. Sichtbarer Windows-NTLM-/SSMS-Gesamtfall auf SQL2025/CU8 CL150 lokal mit Erst-/Wiederholungsinstallation, echter vollständiger Unicode-Kopie, gespeichertem Hash, nativer SQLCMD-Fehlerprobe, zwei Ergebniszeilen und Phase-2-Receipt; PASS_CLEANED mit17 Prüfungen und frischem Windows-Audit. Benutzer übernahm Anmeldung und Gridoptionen. Getrennter ununterbrochener öffentlicher Windows-SQL2025-RTM-TLS-Neuaufbau, CL170 lokal/zentral, SQL-Anmeldung, 416 aktuelle SSIS-Assertions und frische SQL-/VM-/Fremdzustandsaudits PASS. Eigene Ressourcen entfernt, Konfiguration/Trust/andere Verbraucher unverändert. Frühere Fehler unverändert erhalten; Fresh.Build.20261104.json ergänzt die ursprüngliche Gesamtabnahme. Vereinbarter Debugvertrag, keine volle SSIS-Runtime-Parität oder OS-/VM-Verlustqualifikation; unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

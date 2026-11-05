@@ -21,8 +21,12 @@ Der [separate Paketnachweis](../Tests/Qualification/Current.Build.Delivery.20261
 bindet genau diese Archivbytes: bytegleicher Doppelbuild, acht
 Installationsprüfungen und 222 Prozedurprüfungen aus dem entpackten Paket auf
 Windows SQL2025/CU8, CL170 lokal, mit frischem Windows-Abschlussaudit.
-Er ergänzt den im ZIP enthaltenen nativen Buildnachweis; die übrigen
-Versions-/CL-/Modusaussagen folgen der ausdrücklich dokumentierten Anwendbarkeit.
+Er ergänzt den im ZIP enthaltenen nativen Buildnachweis. Die anschließende
+[frische Ausgabeabnahme](../Tests/README.md#frische-buildgebundene-ausgabeabnahme)
+führt genau dieses ZIP auf allen zwölf unterstützten Windows-/CL-/Moduskontexten
+neu aus: 15.204 Assertions und zwölf unabhängige Abschlussaudits. Sie bindet
+außerdem frische SSMS- und strikte TLS-Gesamtfälle an denselben DLL.
+Die spätere Evidenz im Repository verändert keine Archiv- oder Snapshotbytes.
 
 ## Prozedurdefinition V1
 

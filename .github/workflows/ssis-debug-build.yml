@@ -18,6 +18,10 @@ on:
       - 'Tests/Release/test_ssis_procedure_matrix.py'
       - 'Tests/Release/test_ssis_current_build.py'
       - 'Tests/Release/Test-CurrentBuildAdapter.ps1'
+      - 'Tests/Release/Test-FreshBuildAdapter.ps1'
+      - 'Tests/Release/test_ssis_current_ssms.py'
+      - 'Tests/Release/test_ssis_fresh_build.py'
+      - 'Scripts/Release/validate_ssis_fresh_build.py'
       - 'Scripts/Release/validate_ssis_procedure_matrix.py'
       - 'Tests/Release/ssis_historical_context.py'
       - 'Tests/Release/test_ssis_current_matrix.py'
@@ -61,6 +65,10 @@ on:
       - 'Tests/Release/test_ssis_procedure_matrix.py'
       - 'Tests/Release/test_ssis_current_build.py'
       - 'Tests/Release/Test-CurrentBuildAdapter.ps1'
+      - 'Tests/Release/Test-FreshBuildAdapter.ps1'
+      - 'Tests/Release/test_ssis_current_ssms.py'
+      - 'Tests/Release/test_ssis_fresh_build.py'
+      - 'Scripts/Release/validate_ssis_fresh_build.py'
       - 'Scripts/Release/validate_ssis_procedure_matrix.py'
       - 'Tests/Release/ssis_historical_context.py'
       - 'Tests/Release/test_ssis_current_matrix.py'
@@ -137,6 +145,15 @@ jobs:
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_build.py
       - name: Current build native adapter rejection before SQL
         run: ./Tests/Release/Test-CurrentBuildAdapter.ps1
+      - name: Fresh combined build scope and visible current SSMS guards without SQL
+        run: |
+          ./Tests/Release/Test-FreshBuildAdapter.ps1
+          python -m unittest discover -s Tests/Release -p test_ssis_current_ssms.py
+          if ($LASTEXITCODE -ne 0) { throw 'Fresh SSMS adapter checks failed' }
+          python -m unittest discover -s Tests/Release -p test_ssis_fresh_build.py
+          if ($LASTEXITCODE -ne 0) { throw 'Fresh evidence counterexamples failed' }
+          python Scripts/Release/validate_ssis_fresh_build.py
+          if ($LASTEXITCODE -ne 0) { throw 'Fresh current-build evidence failed' }
       - name: Current package full 12-context matrix provenance without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_matrix.py
       - name: Current DebugScript snapshot coherence evidence without SQL

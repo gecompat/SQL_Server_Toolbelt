@@ -27,14 +27,14 @@ zeigt den anschließenden Generator- und Prozeduraufruf.
 | 2022 | CU26 | 150, 160 | lokal und zentral |
 | 2025 | CU8 | 150, 160, 170 | lokal und zentral |
 
-Die Abdeckung setzt die ursprüngliche zwölfteilige Paketmatrix, deren
-unveränderte normalen Zweige und aktuelle native Brücken auf allen drei
-Engines zusammen. Der korrigierte Fehlerpfad und die Typgrenzen sind auf
-SQL2019/CL150 lokal, SQL2022/CL160 zentral und SQL2025/CL170 lokal geprüft.
-Eine neue zwölfteilige Ausführung des korrigierten ZIPs wird nicht behauptet.
-Neue native Fälle prüfen eigene Ressourcen und erhalten einen frischen
-Windows-Abschlussaudit. Details und die Trennung der Originalausführungen
-stehen in der [Prüfmatrix](../Tests/README.md#gesamtabnahme-des-korrigierten-builds).
+Die [frische Ausgabeabnahme](../Tests/README.md#frische-buildgebundene-ausgabeabnahme)
+belegt alle zwölf Kontexte am unveränderten qualifizierten ZIP mit
+15.204 Assertions und zwölf frischen Windows-Abschlussaudits. Sie ergänzt
+die ursprüngliche Wiederverwendungsabnahme, deren Berichte unverändert bleiben.
+Ein zusätzlicher sichtbarer SSMS-Gesamtfall auf SQL2025/CU8 CL150 prüft
+Windows-Anmeldung, vollständige Unicode-Kopie, SQLCMD-Fehlerstop und Receipt.
+Der getrennte strikte TLS-Consumer auf Windows SQL2025 RTM CL170 verwendet
+SQL-Anmeldung; er ist kein Nachweis für Windows-Anmeldung mit striktem TLS.
 
 ## Zentrale Installation und Consumer-Datenbank
 
