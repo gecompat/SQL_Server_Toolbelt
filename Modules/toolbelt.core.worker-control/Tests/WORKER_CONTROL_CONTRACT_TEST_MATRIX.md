@@ -1,6 +1,21 @@
 # Worker Control – Vertragsmatrix
 
-| Vertragsrisiko | Gezielter Nachweis | Aktueller Laufzeitstatus |
+## Aktuelle Windows-SQL-Ergänzung
+
+Die [quellgebundene Teilabnahme vom 2026-11-06](README.md#aktuelle-windows-sql-gates-vom-2026-11-06)
+belegt `WorkerControl.Contract.sql` und je sechs exakte, datenwahrende
+Lifecycle-Abweisungen lokal auf Windows2019/CL150, Windows2022/CL150/160 und
+Windows2025/CL150/160/170. Alle sechs separaten frischen Audits bestanden;
+Produkt- und Fixtureorakel sind unverändert. Der genaue Quellen-, Patch-,
+Adapter- und Bereinigungsbezug steht im verlinkten Nachweis.
+Provider, Rechte und Transport-/Hostverlust bleiben getrennt.
+
+## Historische risikobezogene Baseline
+
+Die folgende Tabelle erhält die früheren abgegrenzten SQL-/Providerstände.
+Die neue SQL-Teilabnahme wertet nicht pauschal sämtliche Tabellenrisiken auf.
+
+| Vertragsrisiko | Gezielter Nachweis | Damaliger Laufzeitstatus |
 |---|---|---|
 | Globale Admission über zwei Supervisoren | Zwei Supervisoren mit Capacity 1, Budget 2; Senkung 1, Erhöhung 3, Nullbudget, UNKNOWN belegt | SQL-Vertrag und fokussierte Managedläufe auf 2019 Linux/2025 Windows CU8 bestanden; Windows-Workerhost |
 | Stop/Hold gewinnt während Handlertransaktion | Actual Connection Cancellation/Rollback, keine Witness-Stop-Deadlocks; Stop mehrerer exakter Generationen | Einzelabbruch/Rollback/Hold im fokussierten Providerlauf bestanden; Mehrgenerationenstop separat SQL-geprüft |
