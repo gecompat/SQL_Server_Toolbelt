@@ -12,7 +12,53 @@
 - `Runtime/Lifecycle.Snapshot.sql` und `Runtime/Lifecycle.CollisionFixture.sql` — private Vergleichssnapshots und synthetische Fehlerzustände, ohne öffentliche Runtime-Evidenz.
 - `Runtime/Central.Contract.sql` — Cross-Database-Aufruf im Central-Deployment-Modus.
 
-## Aktueller Status vom 2026-10-19
+## Aktueller Stand vom 2026-11-05
+
+Der unveränderte aktuelle Providerbuild besteht die native API-Matrix und
+datenbanklokalen Minimalrechte auf Windows SQL Server 2019/CU32 CL150,
+2022/CU26 CL150/160 sowie 2025/CU8 CL150/160/170, jeweils lokal und zentral.
+Insgesamt bestanden 72 Suite-Ausführungen. Jeder finale Lauf ist
+`PASS_CLEANED`, sein frischer Parser-Audit ist PASS; Konfiguration, Trust und
+Verbraucherzustand sind separat frisch wiederhergestellt und geprüft.
+Auf 2025 blockierte zunächst ein eigener DMV-Prüftask die Wiederherstellung;
+dieser Fehler bleibt erhalten. Nach eng begrenzter Taskzuordnung ist auch
+der separate finale Wiederherstellungsaudit PASS.
+
+Die Testidentität ist ein eigener temporärer Datenbankbenutzer ohne Login.
+Der Benutzer hat diese eng begrenzte Abweichung vom früheren Testplan
+ausdrücklich freigegeben. Nur SELECT auf die vier öffentlichen Funktionen
+wurde erteilt; alle vier positiven Aufrufe und die DENY-Gegenprobe bestanden,
+ohne db_owner, CONTROL oder ALTER ANY ASSEMBLY. Dies belegt keine neue
+Clientanmeldung und keine gemappte Lowpriv-Cross-DB-Identität.
+
+Die öffentliche Token-Grenze 8191/8192/8193 ist auf allen zwölf Kontexten
+nativ geprüft. Die Errors-Fälle 255/256 sowie der vorgelagerte Atomfehler
+bei 257 sind zusätzlich auf den zehn Kontexten von 2022/2025 geprüft.
+Eine echte 257er-Errors-Quotenüberschreitung wird daraus nicht abgeleitet.
+Der abschließende Frameworklauf hat 248 Fälle, darunter das Originalbudget
+mit gleichzeitig unveränderten Produktionslimits. Eine separate
+Invariantenprüfung verwirft sieben unsichere Quellmutanten; die
+Qualifikationsprüfung verwirft zwölf falsche Ergebnis-/Bindungsbehauptungen.
+
+Der [aggregierte Nachweis](Qualification/Current.Build.20261105.json)
+bewahrt die nicht ausgeführten öffentlichen Grenzaufrufe. Der
+[kombinierte Nachweisvertrag](OUTPUT_QUOTA_ACCEPTANCE_PROPOSAL.md)
+ist durch ausdrückliche Benutzerentscheidung vom 2026-11-05 freigegeben.
+Das Modul ist für diesen aktuellen Build und Nachweisvertrag `validated`,
+weiterhin `unreleased`. Native-, Binary- und Invariantenbelege bleiben
+getrennt; daraus wird kein vollständiger nativer Quoten-Branchlauf.
+Konkrete private Artefakt-, Quellen-, Ziel-, Journal- und Auditbindungen
+sind separat erhalten; der öffentliche Quellvergleich dient der
+Drifterkennung, nicht als Ersatz dieser Originalnachweise.
+
+Die ersten Fehler durch einen veralteten Lifecycle-Hash und die ursprüngliche
+SQL-2025-Caller-Wiederherstellungsblockade bleiben Historie. Der Lifecycle-Test
+liest seine exakten Sollhashes jetzt aus dem vor SQL validierten Manifest;
+ein neues Produktbinary wird nicht gegen einen früheren Literalhash geprüft.
+Die SQL-2022-Matrix enthält ausschließlich CL150/160. Keine Wiederholung der
+abgeschlossenen SSIS-Welle, kein Produktcodewechsel und keine Veröffentlichung.
+
+## Historischer Status vom 2026-10-19
 
 Parser 2.0.1 bleibt `partially validated` und `unreleased`. Der pfadbereinigte
 Build und 245 Frameworkfälle sind seit 2026-10-18 nachgewiesen. Auf Windows
@@ -97,8 +143,8 @@ Die [Hardening-Qualifikation](../../../Documentation/Architecture/TSQL_SCRIPT_PA
 Der Lab-Adapter [run-script-parser-lab.ps1](../../../Tests/CI/run-script-parser-lab.ps1) erfordert den frisch qualifizierten Release-Stand, die exakte vorherige 1.0.0-Assembly für echten Upgrade-Nachweis und bereits aktiviertes CLR bei unveränderter Strict Security. `-OptInExactTrust` bleibt der sichtbare administrative Testschritt mit vorhandenen Rechten und neuem privatem Journal. Die hashgebundene Trust-Freigabe für einzeln freigegebene Entwicklungswellen besteht seit 2026-10-10; das Deployment registriert Trust weiterhin nicht selbst. Vorhandene Einträge bleiben erhalten. Nur eindeutig neu angelegte Einträge ohne Assembly-Verbraucher werden nach eigenem Datenbank-Cleanup entfernt; unklare Scope-/Registrierungs-/Cleanup-Zustände bleiben ausdrücklich blockiert. Es gibt kein RECONFIGURE, keine Rechtevergabe, keinen Container- oder Provider-Fallback.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-18`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1 in zwei verschiedenen Buildroots; Framework/Invoke-Contract.ps1 -QualificationProfile Full; SSIS Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
-- Scope: Ausdrücklich freigegebener pfadbereinigter Build2.0.1: DebugType=none und synthetischer PathMap, bytegleicher Build aus zwei Verzeichnissen,57 Methoden-ILs unverändert,245 begrenzte Frameworkfälle bestanden. Neu gebundene SSIS-/TableClone-Consumer auf Windows2019/2022/2025 lokal/zentral: echter Parser2.0.0-Upgrade und Triggerfixtures, wiederholtes Deployment sowie Consumer-/Uninstallschutz bestanden; eigene Journale PASS_CLEANED. ScriptDom unverändert. Keine neue Vollqualifikation aller nativen Parser-APIs oder Ausgabeceilings; Functional, authentifizierte TLS-Abnahme und aktueller Head-CI-/Releaseabschluss separat.
+- Datum: `2026-11-05`
+- Nachweis: `local: Invoke-ScriptParserCurrentLab.ps1 plus separate configuration recovery/audit; Framework/Invoke-Contract.ps1`
+- Scope: Unveränderter aktueller Quellbuild2.0.1: native API-/datenbanklokale Minimalrechtematrix Windows2019CU32/2022CU26/2025CU8 über unterstützte CLs lokal/zentral,72 Suites; frische Parser-/Konfigurationsaudits PASS. Erste Lifecycle-Literalhashfehler und ursprüngliche2025Caller-Restoreblockade bleiben erhalten, finale eigene Wiederherstellung PASS. Token-Grenze nativ, Errors255/256 und vorgelagerte257er-Atomablehnung auf2022/2025. Framework248 inklusive unveränderter Originalbudgets; kombinierte Quotenabnahme ausdrücklich am2026-11-05 freigegeben, keine Aufwertung nicht ausgeführter öffentlicher Grenzaufrufe.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -62,7 +62,7 @@ IF NOT EXISTS
        INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
        WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
          AND HASHBYTES(N'SHA2_512', af.content) =
-             0x7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506
+             $(ExpectedProviderHash)
    )
  OR NOT EXISTS
    (
@@ -71,7 +71,7 @@ IF NOT EXISTS
        INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
        WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
          AND HASHBYTES(N'SHA2_512', af.content) =
-             0x459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7
+             $(ExpectedScriptDomHash)
    )
     THROW 53123, N'Die installierten Parser-Binaries stimmen nicht mit dem qualifizierten Pin überein.', 5;
 

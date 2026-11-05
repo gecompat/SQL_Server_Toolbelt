@@ -64,6 +64,9 @@ function Invoke-Bounded([string]$Executable, [string[]]$Arguments, [string]$Expe
 Invoke-Bounded $guardExe @() 'GUARD_PASS '
 Invoke-Bounded $providerExe @('parameters') 'FRAMEWORK_PASS'
 Invoke-Bounded $providerExe @('quotas') 'FRAMEWORK_PASS'
+Invoke-Bounded $providerExe @('public-token-ceiling') 'FRAMEWORK_PASS'
+Invoke-Bounded $providerExe @('public-error-admission') 'FRAMEWORK_PASS'
+Invoke-Bounded $providerExe @('actual-output-budgets') 'FRAMEWORK_PASS'
 foreach ($version in @(80,90,100,110,120,130,140,150,160,170)) { Invoke-Bounded $providerExe @('legacy', [string]$version) 'FRAMEWORK_PASS' }
 $cases=[Collections.Generic.List[object]]::new()
 function Add-Case($Version,$Name,$N,$Status,[int]$Atoms=-1,[int]$Comments=-1){$cases.Add([pscustomobject]@{Version=$Version;Name=$Name;N=$N;Status=$Status;Atoms=$Atoms;Comments=$Comments})}

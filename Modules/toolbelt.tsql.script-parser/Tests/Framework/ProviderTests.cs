@@ -174,6 +174,55 @@ internal static class ProviderTests
             }
         }
     }
+    private static void PublicTokenCeiling()
+    {
+        string text = new string(' ',4096).Replace(" "," \n");
+        Assert(Collect(Call("TokenizeScript",text.Substring(0,8190))).Count == 8191);
+        Assert(Collect(Call("TokenizeScript",text.Substring(0,8191))).Count == 8192);
+        Failure(() => Collect(Call("TokenizeScript",text)),"TBX_TSQLPARSE_OUTPUT_LIMIT");
+    }
+    private static void PublicErrorAdmission()
+    {
+        string batch="SELECT\nGO\n";
+        Assert(Collect(Call("ParseScriptErrors",new string(' ',255).Replace(" ",batch))).Count == 255);
+        Assert(Collect(Call("ParseScriptErrors",new string(' ',256).Replace(" ",batch))).Count == 256);
+        Failure(() => Collect(Call("ParseScriptErrors",new string(' ',257).Replace(" ",batch))),"TBX_TSQLPARSE_PREPARSE_COMPLEXITY_LIMIT");
+    }
+    private static void ActualOutputBudgets()
+    {
+        Type type=typeof(ScriptParserProvider).GetNestedType("OutputBudget",BindingFlags.NonPublic);
+        ConstructorInfo ctor=type.GetConstructor(BindingFlags.NonPublic|BindingFlags.Instance,null,new[]{typeof(int),typeof(long)},null);
+        MethodInfo add=type.GetMethod("Add",BindingFlags.NonPublic|BindingFlags.Instance);
+        FieldInfo rows=type.GetField("rows",BindingFlags.NonPublic|BindingFlags.Instance);
+        FieldInfo bytes=type.GetField("bytes",BindingFlags.NonPublic|BindingFlags.Instance);
+        foreach(int cap in new[]{256,8192,32768})
+        {
+            object budget=ctor.Invoke(new object[]{cap,16777216L});
+            for(int i=0;i<cap;i++)add.Invoke(budget,new object[]{new[]{"x"}});
+            long before=(long)bytes.GetValue(budget);
+            Assert((int)rows.GetValue(budget)==cap);
+            Failure(()=>{try{add.Invoke(budget,new object[]{new[]{"x"}});}catch(TargetInvocationException e){throw e.InnerException;}},"TBX_TSQLPARSE_OUTPUT_LIMIT");
+            Assert((int)rows.GetValue(budget)==cap && (long)bytes.GetValue(budget)==before);
+        }
+        // Both production limits stay fixed. UTF-16 plus the fixed overhead permits only even byte charges.
+        foreach(int delta in new[]{-1,0,1})
+        {
+            object budget=ctor.Invoke(new object[]{131072,16777216L});
+            string value=new string('x',(16777216-128)/2+delta);
+            if(delta>0)
+            {
+                Failure(()=>{try{add.Invoke(budget,new object[]{new[]{value}});}catch(TargetInvocationException e){throw e.InnerException;}},"TBX_TSQLPARSE_OUTPUT_LIMIT");
+                Assert((int)rows.GetValue(budget)==0 && (long)bytes.GetValue(budget)==0);
+            }
+            else {add.Invoke(budget,new object[]{new[]{value}});Assert((long)bytes.GetValue(budget)==16777216L+2*delta);}
+        }
+        // A property name is nonempty and its shortest kind is Enum: at least 138 charged bytes.
+        object properties=ctor.Invoke(new object[]{131072,16777216L});
+        int admissible=16777216/138;
+        for(int i=0;i<admissible;i++)add.Invoke(properties,new object[]{new[]{"x","Enum",""}});
+        Failure(()=>{try{add.Invoke(properties,new object[]{new[]{"x","Enum",""}});}catch(TargetInvocationException e){throw e.InnerException;}},"TBX_TSQLPARSE_OUTPUT_LIMIT");
+        Assert((int)rows.GetValue(properties)==admissible && admissible<131071);
+    }
     public static int Main(string[] args)
     {
         Exception failure = null;
@@ -181,6 +230,9 @@ internal static class ProviderTests
             switch (args[0]) {
                 case "parameters": Parameters(); break;
                 case "quotas": Quotas(); break;
+                case "public-token-ceiling": PublicTokenCeiling(); break;
+                case "public-error-admission": PublicErrorAdmission(); break;
+                case "actual-output-budgets": ActualOutputBudgets(); break;
                 case "boundary": Boundary(args[1], Int32.Parse(args[2]), Int32.Parse(args[3]), args[4]); break;
                 case "negative": Assert(Collect(Call("ParseScriptErrors", System.IO.File.ReadAllText(args[1]), Int32.Parse(args[2]))).Count > 0); Assert(Collect(Call("ParseScriptNodes", System.IO.File.ReadAllText(args[1]), Int32.Parse(args[2]))).Count == 0); break;
                 case "corpus": Corpus(System.IO.File.ReadAllText(args[1]), Int32.Parse(args[2])); break;

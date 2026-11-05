@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference='Stop';Set-StrictMode -Version Latest
 $repoRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $canonical=Join-Path $PSScriptRoot 'run-script-parser-lab.ps1'
-if((Get-FileHash $canonical).Hash -cne 'B9E6FD0417B695D163BE2F8E36B14A720AB0EB27C23F099876E0F787AE0305E8'){throw 'PARSER_CURRENT_METHOD_CHANGED'}
+if((Get-FileHash $canonical).Hash -cne 'F2F70C57A10F589CE1EADAF61FA97B4804896E98D217115570416654FACFFEA7'){throw 'PARSER_CURRENT_METHOD_CHANGED'}
 $text=[IO.File]::ReadAllText($canonical)
 function Replace-CurrentParserOnce([string]$Old,[string]$New){
  if($script:text.Split($Old,[StringSplitOptions]::None).Count -ne 2){throw 'PARSER_CURRENT_COMPOSITION_ANCHOR'}
@@ -16,6 +16,8 @@ function Replace-CurrentParserOnce([string]$Old,[string]$New){
 }
 if($text.Split('$command.CommandTimeout = 90',[StringSplitOptions]::None).Count -ne 3){throw 'PARSER_CURRENT_TIMEOUT_ANCHOR'}
 $text=$text.Replace('$command.CommandTimeout = 90','$command.CommandTimeout = Get-CurrentParserTimeout')
+Replace-CurrentParserOnce "            `$levels = if (`$Version -eq '2019') {@(150)} else {@(150,160,170)}" "            `$levels = if (`$Version -eq '2019') {@(150)} elseif (`$Version -eq '2022') {@(150,160)} else {@(150,160,170)}"
+Replace-CurrentParserOnce "@('ScriptParser.Contract.sql','Bounds.Contract.sql','Syntax.Contract.sql','Lifecycle.Contract.sql')" "@('ScriptParser.Contract.sql','Bounds.Contract.sql','Syntax.Contract.sql','Lifecycle.Contract.sql','OutputCeilings.Contract.sql','MinimalRights.Contract.sql')"
 Replace-CurrentParserOnce '        $master.Open()' @'
         [void](Get-CurrentParserTimeout)
         $master.Open()

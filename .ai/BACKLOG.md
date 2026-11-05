@@ -11,7 +11,7 @@ bleiben mit ihren ursprünglichen Quellen und Grenzen erhalten.
 |---|---|
 | SSIS-Debug einschließlich parametrisierter Prozedurdefinition V1 | Der aktuelle 40-Parameter-Build ist für den vereinbarten Debugvertrag `validated`, `unreleased`. Die [frische Ausgabeabnahme](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#frische-buildgebundene-ausgabeabnahme) belegt ZIP12, sichtbaren Windows-/SSMS-Gesamtfall mit nativer SQLCMD-Stopprobe und Phase-2-Receipt sowie den ununterbrochenen öffentlichen Windows-TLS-Gesamtfall. PR #507 ist regulär integriert; tatsächliche Head- und Main-CI sind erfolgreich. Keine erneute Ausführung dieser geschlossenen Welle. |
 | Windows-FileSystemRoot-Repeat | Der später dokumentierte vierte Versuch bestand den ausgewählten Windows-SQL2025-/CL170-/Local-Scope samt frischem Audit. Frühere Angaben „nächster offener Repeat“ beschreiben den damaligen Stand. Weitere Kontexte, Rechte und Datei-I/O werden dadurch nicht geschlossen. |
-| Freigegebene Parser-Härtung P1a, aktueller Build 2.0.1 | Implementiert, weiterhin `partially validated`. Consumer-/Trigger-/Upgradebelege ersetzen keine vollständige native Prüfung der vier Parser-APIs. Der [begrenzte aktuelle Nativeinstieg](../Modules/toolbelt.tsql.script-parser/Tests/README.md#begrenzter-aktueller-nativeinstieg) bestand den aktuellen 245-Fälle-Frameworktest, scheiterte aber vor der ersten API-Suite am Adapter. Eigene Datenbank entfernt und Konfiguration separat frisch wiederhergestellt/geprüft. Variablenkollision und Audit-Präfixprüfung offline korrigiert; native Bestätigung der Korrekturen bleibt offen. Die verbrauchte Testwelle bleibt geschlossen. |
+| Freigegebene Parser-Härtung P1a, aktueller Build 2.0.1 | Die [aktuelle Qualifikation](../Modules/toolbelt.tsql.script-parser/Tests/README.md#aktueller-stand-vom-2026-11-05) besteht die vier APIs und datenbanklokalen Minimalrechte auf Windows2019/2022/2025 über alle unterstützten CLs lokal/zentral: 72 Suites, frische Parser- und Konfigurationsaudits PASS. Eigene temporäre SELECT-Testidentität und kombinierter Quoten-Nachweisvertrag sind ausdrücklich freigegeben. Token-Grenze nativ, Errors255/256 plus vorgelagerter 257er-Atomfehler auf2022/2025; Framework248, Originalbudgets mit festen Produktionslimits, Invarianten und Dominanznachweise PASS. Modul für aktuellen Build und vereinbarten Vertrag `validated`, unveröffentlicht. Nicht ausgeführte öffentliche Quoten-Branchaufrufe und ursprüngliche Fehler bleiben ausdrücklich erhalten. |
 | Gesamtdeployment und übrige Modulqualifikation | Vorhandene freigegebene Restarbeit bleibt offen. Gültige spätere Nachweise vor Wiederholungen abgleichen; bei tatsächlicher Abhängigkeit oder fehlender Autorität unabhängig ausführbare Arbeit vorziehen. |
 | Neue Fachfunktionen und Veröffentlichung | Kandidatenstatus oder allgemeine Autonomie ersetzen keine konkrete Funktionsfreigabe. Vorgeschlagene SSIS-Schreib-/Paritätsfunktionen bleiben getrennt; es wird nicht veröffentlicht. |
 
@@ -1284,7 +1284,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 23 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 

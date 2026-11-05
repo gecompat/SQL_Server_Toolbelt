@@ -16,6 +16,17 @@ MAX_SOURCE_BYTES = 1024 * 1024
 BOUNDARY_TEST = 'Tests/Release/test_xlsx_boundary_evidence.py'
 BOUNDARY_TEST_CURRENT_SHA256 = 'c41138df973120e30c6948e779f5cfe92d138214c09da2b9e05d6cab1aac606e'
 SOURCES = {
+    # Parser qualification evolves independently. These are only the exact
+    # original package-source bytes, never evidence for the current provider.
+    'Modules/toolbelt.tsql.script-parser/Tests/Framework/ProviderTests.cs': {
+        'historical': 'a71f44051612ecccfca70855d040dabb63473c6d581b59079e8910840402d221',
+    },
+    'Modules/toolbelt.tsql.script-parser/Tests/Framework/Invoke-Contract.ps1': {
+        'historical': '83acc923eb17f76767e7da6d46028b252590849e1d2498ecd4fc583a3b3ea6df',
+    },
+    'Modules/toolbelt.tsql.script-parser/module.yaml': {
+        'historical': '9aa29956f866987964c9972abe05b430ad2b02be84923d031de73c60909a8358',
+    },
     'Modules/toolbelt.tsql.ssis-debug/module.yaml': {
         'historical': 'ab519faa5743e872f44e70499ebafcdeeed065e079eec2e95e8d5c518286bf8f',
     },
