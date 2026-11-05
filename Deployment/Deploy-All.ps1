@@ -523,14 +523,24 @@ $selectedModuleIds = @{}
 foreach ($module in $modules) {
     $selectedModuleIds[$module.ModuleId] = $true
 }
-foreach ($moduleId in $ModuleVariables.Keys) {
-    if (-not $allModuleIds.ContainsKey([string]$moduleId)) {
-        throw "SQLCMD-Variablen wurden für unbekanntes Modul '$moduleId' übergeben."
+$normalizedModuleVariables = @{}
+foreach ($inputKey in $ModuleVariables.Keys) {
+    $inputModuleId = [string]$inputKey
+    if (-not $allModuleIds.ContainsKey($inputModuleId)) {
+        throw "SQLCMD-Variablen wurden für unbekanntes Modul '$inputModuleId' übergeben."
     }
-    if (-not $selectedModuleIds.ContainsKey([string]$moduleId)) {
-        throw "SQLCMD-Variablen wurden für nicht ausgewähltes Modul '$moduleId' übergeben."
+    if (-not $selectedModuleIds.ContainsKey($inputModuleId)) {
+        throw "SQLCMD-Variablen wurden für nicht ausgewähltes Modul '$inputModuleId' übergeben."
     }
+    # Auswahl und Variablennamen sind case-insensitive. Auch ein explizit
+    # case-sensitives IDictionary muss dieselben Modulwerte liefern; zwei
+    # Schreibweisen derselben ID sind mehrdeutig und werden nie überschrieben.
+    if ($normalizedModuleVariables.ContainsKey($inputModuleId)) {
+        throw "Doppelte SQLCMD-Modulzuordnung für '$inputModuleId'."
+    }
+    $normalizedModuleVariables[$inputModuleId] = $ModuleVariables[$inputKey]
 }
+$ModuleVariables = $normalizedModuleVariables
 
 $moduleInputs = @{}
 $planRows = [System.Collections.Generic.List[object]]::new()

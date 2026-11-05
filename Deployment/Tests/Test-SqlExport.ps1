@@ -133,6 +133,25 @@ try {
     Assert-Export (-not $schemaText.Contains('toolbelt.string.regex')) 'selection-only'
     Assert-Export ([regex]::Matches($schemaText, 'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count -eq 4) 'selected-guards4'
 
+    Start-ExportCase 'case-sensitive-module-input-map'
+    $ordinalInputs = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+    $ordinalInputs.Add('TOOLBELT.JSON.CORE', @{ ASSEMBLYBITS = '0x0102' })
+    $ordinalPath = Join-Path $ownedRoot 'ordinal-inputs.sql'
+    Invoke-Export $runner @{DeploymentMode='local';ModuleId=@('toolbelt.json.core');ModuleVariables=$ordinalInputs;OutputSqlFile=$ordinalPath}
+    $ordinalText = Read-Export $ordinalPath
+    Assert-Export ((@(Get-MarkedIds $ordinalText) -join ',') -ceq 'toolbelt.json.core') 'ordinal-exact-closure'
+    Assert-Export ($ordinalText.Contains('0x0102')) 'ordinal-binary-preserved'
+
+    foreach ($reverse in @($false, $true)) {
+        Start-ExportCase ('duplicate-module-input-map-' + [int]$reverse)
+        $duplicateInputs = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+        $keys = @('toolbelt.json.core', 'TOOLBELT.JSON.CORE')
+        if ($reverse) { [array]::Reverse($keys) }
+        foreach ($key in $keys) { $duplicateInputs.Add($key, @{AssemblyBits='0x0102'}) }
+        $duplicatePath = Join-Path $ownedRoot ($script:caseId + '.sql')
+        Assert-Rejected $runner @{DeploymentMode='local';ModuleId=@('toolbelt.json.core');ModuleVariables=$duplicateInputs;OutputSqlFile=$duplicatePath} 'Doppelte SQLCMD-Modulzuordnung' $duplicatePath
+    }
+
     Start-ExportCase 'actual-ssis-selected-central'
     $ssisPath = Join-Path $ownedRoot 'ssis.sql'
     $ssisInputs = @{'toolbelt.tsql.script-parser'=$allInputs['toolbelt.tsql.script-parser'];'toolbelt.tsql.ssis-debug'=$allInputs['toolbelt.tsql.ssis-debug']}
