@@ -2,6 +2,27 @@
 
 Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentation.
 
+## Begrenzte Dokumentationsabnahme
+
+`Documentation/validate_documentation.py` führt die Releaseprüfungen über
+[`run_release_validation.py`](Documentation/run_release_validation.py) aus.
+Dieser Einstieg führt jeden unterschiedlichen Release-Test aus. Ausschließlich
+die bekannte doppelte Registrierung derselben CSV-Metadatenklasse wird
+zusammengeführt; andere oder dreifache Registrierungen scheitern zur Klärung.
+Subtests, negative Kontrollen und unabhängige Pflichtwiederholungen bleiben
+erhalten. Die historisch gepinnte eigenständige Releasesuite bleibt unverändert.
+
+Der Runner meldet vor jedem Test eine Fortschrittsmarke. Bei einem Timeout
+beendet der Validator den Lauf als Fehler und zeigt Skript, ursprüngliche
+Zeitgrenze, zuletzt gestarteten Test und begrenzte Ausgabeteile. Auch ein
+bereits gestarteter, aber nicht abgeschlossener Test gilt nicht als bestanden.
+Die bisherigen Zeitgrenzen und das Unterdrücken von Windows-Konsolenfenstern
+bleiben erhalten. Reproduzierbare Gegenproben:
+
+```powershell
+python Tests/Documentation/test_validation_execution.py
+```
+
 Die [CSV-/Phonetic-Framework-Paketprofile](../Releases/1.0.0/CLR-FRAMEWORK-PACKAGE-QUALIFICATION.md)
 verknüpfen zwei vorhandene CLR-Harnesses mit den ausgelieferten DLL-Bytes.
 Es handelt sich um begrenzte Offlinebelege ohne SQL-Ausführung oder Änderung

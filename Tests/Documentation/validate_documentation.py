@@ -22,7 +22,27 @@ def run_hidden(*args, **kwargs):
     """Preserve subprocess results while suppressing Windows console creation."""
     if sys.platform == "win32":
         kwargs["creationflags"] = kwargs.get("creationflags", 0) | subprocess.CREATE_NO_WINDOW
-    return subprocess.run(*args, **kwargs)
+    try:
+        return subprocess.run(*args, **kwargs)
+    except subprocess.TimeoutExpired as error:
+        def tail(value):
+            if isinstance(value, bytes):
+                value = value.decode(kwargs.get("encoding") or "utf-8", errors="replace")
+            return (value or "")[-4096:]
+        complete_stdout = error.stdout or ""
+        if isinstance(complete_stdout, bytes):
+            complete_stdout = complete_stdout.decode(kwargs.get("encoding") or "utf-8", errors="replace")
+        stdout, stderr = tail(complete_stdout), tail(error.stderr)
+        progress = re.findall(r"(?m)^VALIDATION_TEST_START [^\r\n]{1,512}$", complete_stdout)
+        last_test = progress[-1] if progress else "Kein gestarteter Einzeltest im erfassten Ausgabeteil."
+        command_name = "Unterprozess"
+        if isinstance(error.cmd, (list, tuple)) and error.cmd:
+            script = next((str(item) for item in error.cmd if str(item).endswith((".py", ".ps1"))), str(error.cmd[0]))
+            command_name = Path(script).name
+        raise ValidationError(
+            f"Unterprozess-Zeitlimit für {command_name} ({error.timeout} Sekunden); Prüfung nicht abgeschlossen.\n"
+            f"{last_test}\nstdout (letzter Ausschnitt):\n{stdout}\nstderr (letzter Ausschnitt):\n{stderr}"
+        ) from None
 
 from pathlib import Path
 
@@ -1795,12 +1815,12 @@ def main() -> int:
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
     if "release_preparation" in checks:
-        # The release suite now contains 280 checks instead of the former131.
-        # Retain every check and a finite eleven-minute process boundary;
-        # isolated cold-run diagnosis confirmed the old boundary was too tight.
+        # Preserve every unique check; the documentation runner collapses only
+        # the known duplicate CSV-class registration in the unchanged pinned suite.
+        # Keep the existing finite eleven-minute boundary, with progress on timeout.
         # Keep the hidden process boundary so no console window steals focus.
         result = run_hidden(
-            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/run_release_validation.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=660,
         )
         if result.returncode:
@@ -1842,6 +1862,13 @@ def main() -> int:
         if result.returncode:
             raise ValidationError(f"Change-Impact-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stdout.strip())
+        result = run_hidden(
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_validation_execution.py")],
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+        )
+        if result.returncode:
+            raise ValidationError(f"Validierungsausführung-Regressionen:\n{result.stdout}{result.stderr}")
+        print(result.stderr.strip())
     if "foundation_host_redirects" in checks:
         run_foundation_redirects()
     if "foundation_http_responses" in checks:
