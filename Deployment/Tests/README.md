@@ -3,6 +3,13 @@
 `Test-SqlExport.ps1` prüft den Exportvertrag offline mit synthetischen Dateien.
 Es verbindet sich nicht mit SQL Server und ersetzt keine Runtimequalifikation.
 
+Die Eingabegegenproben prüfen auch ein case-sensitives `IDictionary` mit
+abweichend geschriebener Modul-ID. Der Export muss die ausgewählten Werte
+vollständig übernehmen; doppelte Modulzuordnungen in unterschiedlicher
+Schreibweise müssen unabhängig von ihrer Einfügereihenfolge vor Dateianlage
+scheitern. Diese Offlinefälle prüfen den gemeinsamen Eingabepreflight, keine
+native Installation oder neue Rechte.
+
 SSIS-V1-Integration vom 2026-10-17: Der geschlossene aktuelle Bestand umfasst
 45 Module. Der Offlineexport besteht 33 Fälle mit178 Assertions einschließlich
 vollständigem Export/Repeat, ausgewähltem zentralem SSIS-/Parser-/ResultTable-
