@@ -162,3 +162,47 @@ foreach($case in $auditCases){
 }
 if($auditCases.Count-ne23){throw 'JSON_SCOPE_DISPOSITION_CASE_COUNT'}
 'PASS JSON_DRIVER_DISPOSITION_SCOPE_AGREEMENT 23'
+
+# Den echten Read-only-Verbraucherguard isoliert mit synthetischen Katalogen
+# prüfen. Ein Compiler-/Lab-/SQL-Prozess wird dabei nicht gestartet.
+$consumerGuards=@($ast.FindAll({param($node)$node-is[Management.Automation.Language.FunctionDefinitionAst]-and$node.Name-ceq'Assert-JsonTrustConsumersAbsent'},$true))
+$consumerCalls=@($ast.FindAll({param($node)$node-is[Management.Automation.Language.CommandAst]-and$node.GetCommandName()-ceq'Assert-JsonTrustConsumersAbsent'},$true))
+$trustDrops=@($ast.FindAll({param($node)$node-is[Management.Automation.Language.CommandAst]-and$node.GetCommandName()-ceq'Sql'-and$node.Extent.Text.Contains('EXEC sys.sp_drop_trusted_assembly')},$true))
+if($consumerGuards.Count-ne1-or$consumerCalls.Count-ne1-or$trustDrops.Count-ne1-or$consumerCalls[0].Extent.StartOffset-ge$trustDrops[0].Extent.StartOffset){throw 'JSON_SCOPE_CONSUMER_GUARD_ORDER'}
+. ([scriptblock]::Create($consumerGuards[0].Extent.Text))
+function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Rows){
+ if(-not$Rows-or$Text-notmatch'^SELECT '){throw 'JSON_SCOPE_CONSUMER_PROBE_NOT_READ_ONLY'}
+ if($Text.Contains('IS_SRVROLEMEMBER')){return [pscustomobject]@{Allowed=$(if($script:consumerScenario-ceq'visibility'){0}else{1})}}
+ if($Text.Contains('FROM sys.databases')){
+  $script:consumerCatalogReads++
+  if($script:consumerScenario-ceq'catalog-empty'){return @()}
+  $name=if($script:consumerScenario-ceq'catalog-change'-and$script:consumerCatalogReads-gt1){'Fabrikam'}else{'Contoso]Db'}
+  return [pscustomobject]@{name=$name;state=$(if($script:consumerScenario-ceq'offline'){[byte]6}else{[byte]0})}
+ }
+ if($script:consumerScenario-ceq'read-failure'){throw 'synthetic private diagnostics'}
+ if(-not$Text.Contains('[Contoso]]Db].sys.assemblies')-or$Parameters.Keys.Count-ne1-or-not$Parameters.ContainsKey('@Hash')-or$Parameters['@Hash'].Length-ne64){throw 'JSON_SCOPE_CONSUMER_QUERY_BINDING'}
+ $script:consumerAssemblyReads++
+ if($script:consumerScenario-ceq'result-empty'){return @()}
+ $count=switch($script:consumerScenario){'present'{[long]1};'negative'{[long]-1};'malformed'{'0'};default{[long]0}}
+ return [pscustomobject]@{Consumers=$count}
+}
+$consumerCases=@(
+ @{Name='absent';Error=$null},
+ @{Name='present';Error='JSON_SCHEMA_TRUST_CONSUMER_PRESENT'},
+ @{Name='visibility';Error='JSON_SCHEMA_TRUST_CONSUMER_VISIBILITY'},
+ @{Name='catalog-empty';Error='JSON_SCHEMA_TRUST_CONSUMER_CATALOG'},
+ @{Name='offline';Error='JSON_SCHEMA_TRUST_CONSUMER_DATABASE_UNAVAILABLE'},
+ @{Name='read-failure';Error='JSON_SCHEMA_TRUST_CONSUMER_READ_FAILED'},
+ @{Name='result-empty';Error='JSON_SCHEMA_TRUST_CONSUMER_RESULT'},
+ @{Name='negative';Error='JSON_SCHEMA_TRUST_CONSUMER_RESULT'},
+ @{Name='malformed';Error='JSON_SCHEMA_TRUST_CONSUMER_RESULT'},
+ @{Name='catalog-change';Error='JSON_SCHEMA_TRUST_CONSUMER_CATALOG_CHANGED'}
+)
+foreach($case in $consumerCases){
+ $script:consumerScenario=$case.Name;$script:consumerCatalogReads=0;$script:consumerAssemblyReads=0;$actual=$null
+ try{Assert-JsonTrustConsumersAbsent $null ([byte[]]::new(64))}catch{$actual=$_.Exception.Message}
+ if($actual-cne$case.Error){throw 'JSON_SCOPE_CONSUMER_EXPECTED_OUTCOME'}
+ if($case.Name-cin@('visibility','catalog-empty','offline')-and$script:consumerAssemblyReads-ne0){throw 'JSON_SCOPE_CONSUMER_EARLY_STOP'}
+}
+try{Assert-JsonTrustConsumersAbsent $null ([byte[]]::new(63));throw 'JSON_SCOPE_CONSUMER_HASH_ACCEPTED'}catch{if($_.Exception.Message-cne'JSON_SCHEMA_TRUST_CONSUMER_HASH'){throw}}
+'PASS JSON_TRUST_CONSUMER_GUARD 11'

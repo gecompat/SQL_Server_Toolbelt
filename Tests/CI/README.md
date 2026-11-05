@@ -631,6 +631,24 @@ war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
 am 2026-09-01 erfolgreich; das Modul ist `validated`.
 
+## JSON-Lab: sichere eigene Trustbereinigung
+
+`run-json-schema-lab.ps1` entfernt einen selbst angelegten Trusteintrag nur
+bei unverändertem exaktem Eigentumstupel und frischem Nullnachweis für den
+SHA2-512-Hash in den Assemblydateien aller Datenbanken. Bestehender Verbrauch,
+fehlende administrative Sicht, nicht verfügbare Datenbanken, Lesefehler oder
+Katalogdrift blockieren die Entfernung. Vorbestehende Trusteinträge werden
+nicht entfernt. Dieser Guard gewährt keine Rechte und repariert keine fremden
+Zustände; bei Blockierung das private Journal prüfen und Ownership klären.
+
+`Test-JsonSchemaLabScope.ps1` prüft den echten extrahierten Guard mit elf
+synthetischen Fällen sowie seine Position vor der Trustentfernung. Die
+[native Constructor-Teilabnahme](../../Modules/toolbelt.json.constructors/Tests/README.md#aktuelle-windows-2025-ergänzung-vom-2026-11-05)
+bindet die zusätzliche Verbrauchergegenprobe und den aktuellen Windowsumfang.
+Das ist keine Garantie gegen unkoordinierte gleichzeitige Fremdinstallationen;
+Testverbraucher und eigene Bereinigung bleiben innerhalb ihres Scopes zu
+koordinieren. Keine Erweiterung der Lab-Infrastrukturfreigabe.
+
 ## Gezielte Security-Korrekturtests
 
 `run-security-contracts-lab.ps1 -Platform linux -Version 2019 -Patch latest`
