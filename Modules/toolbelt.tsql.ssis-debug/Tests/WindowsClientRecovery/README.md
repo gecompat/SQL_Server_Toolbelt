@@ -7,14 +7,21 @@ unter dem ignorierten `.runtime/`; der öffentliche
 [Abnahmenachweis](../Qualification/PreparationRecovery.Windows.20261101.json)
 enthält nur aggregierte Orakel und statische Quellbindungen.
 
-## Abgeschlossene Nachweise
+## Aktueller Build und ursprüngliche Teilnachweise
+
+Für den korrigierten 40-Parameter-Build verwende
+[`Invoke-CurrentBuildSsms.ps1`](Invoke-CurrentBuildSsms.ps1). Die
+[frische Ausgabeabnahme](../README.md#frische-buildgebundene-ausgabeabnahme)
+belegt dessen sichtbaren Gesamtlauf einschließlich nativer SQLCMD-Stopprobe,
+Phase-2-Receipt und frischem Windows-Audit. Die folgenden datierten
+Teilnachweise beschreiben ihre ursprünglichen Artefakte und bleiben unverändert.
 
 | Teilumfang | Tatsächliche Abnahme |
 |---|---|
 | Öffentliches `PrepareServer.sql` | Windows SQL2019/CU32, 2022/CU26, 2025/CU8; je18 Assertions und frischer unabhängiger Audit |
 | Portabler Exporthost | Fünf Ausgabeformen, jeweils echter Prozessabbruch und geschlossene stdout-Pipe; zehn Fälle, 95 Assertions |
 | SQL-Client | Aktuelles DebugScript unter beobachtetem eigenen Sch-M-Lock und aktuelle API in offener Callertransaktion; zwei Fälle, 18 Assertions und frischer Audit |
-| Öffentlicher Windows-Installer und CLI/API | Windows SQL2025/CU8, CL150; öffentliche Vorbereitung, Erst-/Wiederholungsinstallation, aktuelle38-Parameter-API und vollständiges DebugScript mit zwei Ergebniszeilen; zehn Assertions und frischer Windows-Audit |
+| Öffentlicher Windows-Installer und CLI/API | Windows SQL2025/CU8, CL150; öffentliche Vorbereitung, Erst-/Wiederholungsinstallation, damalige 38-Parameter-API und vollständiges DebugScript mit zwei Ergebniszeilen; zehn Assertions und frischer Windows-Audit |
 | Sichtbarer Windows-/SSMS-Gesamtfall | Windows SQL2025/CU8, CL150; [native Stopprobe und Phase2-Receipt](../Qualification/SsmsClient.Complete.Windows.20261103.json), 17 Prüfungen und frischer Windows-Audit |
 
 Der separate [Windows-Installer-/Clientrecord](../Qualification/InstallerClient.Windows.20261101.json)
@@ -476,8 +483,8 @@ python Scripts/Release/validate_ssis_ssms_gui.py
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-04`
-- Nachweis: `local: CurrentBuild Functional/ProcedureBoundary und unabhängige Windows-Audits; Framework Full; unabhängige Sicherheitsabnahme`
-- Scope: Aktueller korrigierter 40-Parameter-Build: 3804 zusammengesetzte Assertions mit breiten Fach-/API-/Rechte-/Lifecyclefällen und je222 Prozedurprüfungen auf Windows SQL2019/CU32 CL150 lokal, SQL2022/CU26 CL160 zentral und SQL2025/CU8 CL170 lokal. Int64-/Decimal-Grenzen, alle ResultTable-/KeepData-Zustände, Caller-TX/SET und Fehleratomarität bestanden. Native Überlaufprobe fand Datenverlust durch Statementfortsetzung; äußere TRY/CATCH-Grenze korrigiert und separat unabhängig akzeptiert. Full27 am korrigierten DLL PASS. Frühere Versions-/CL-/Modus-, Windows-/SSMS-, TLS-, Installer-, Lowpriv- und Abbruchnachweise nur mit expliziter unveränderter Mechanismus-/Defaultpfadbindung wiederverwendet. Keine neue GUI-/TLS-Ausführung behauptet. Fehlgeschlagene Koordinatoren bleiben FAILED_CLEANED; ihr erfüllter Teilumfang wird nicht zum Gesamt-PASS umbenannt. Gesamtabnahme Current.Build.20261104.json; unveröffentlicht.
+- Datum: `2026-11-05`
+- Nachweis: `local: frische ZIP12-, sichtbare Windows-/SSMS- und strikte TLS-Gesamtfälle mit unabhängigen Abschlussaudits`
+- Scope: Derselbe korrigierte 40-Parameter-DLL und unverändertes qualifiziertes ZIP: zwölf neu ausgeführte Windows-/CL-/Moduskontexte mit 15204 Assertions und zwölf frischen Audits. Sichtbarer Windows-NTLM-/SSMS-Gesamtfall auf SQL2025/CU8 CL150 lokal mit Erst-/Wiederholungsinstallation, echter vollständiger Unicode-Kopie, gespeichertem Hash, nativer SQLCMD-Fehlerprobe, zwei Ergebniszeilen und Phase-2-Receipt; PASS_CLEANED mit17 Prüfungen und frischem Windows-Audit. Benutzer übernahm Anmeldung und Gridoptionen. Getrennter ununterbrochener öffentlicher Windows-SQL2025-RTM-TLS-Neuaufbau, CL170 lokal/zentral, SQL-Anmeldung, 416 aktuelle SSIS-Assertions und frische SQL-/VM-/Fremdzustandsaudits PASS. Eigene Ressourcen entfernt, Konfiguration/Trust/andere Verbraucher unverändert. Frühere Fehler unverändert erhalten; Fresh.Build.20261104.json ergänzt die ursprüngliche Gesamtabnahme. Vereinbarter Debugvertrag, keine volle SSIS-Runtime-Parität oder OS-/VM-Verlustqualifikation; unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

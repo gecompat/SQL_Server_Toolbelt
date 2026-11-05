@@ -181,6 +181,14 @@ sources_of_truth:
   ssis_ssms_sqlcmd_envelope: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/New-SsmsSqlcmdEnvelope.ps1
   ssis_ssms_preflight_observation: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Write-SsmsPreflightObservation.ps1
   ssis_ssms_sqlcmd_checks: Tests/Release/test_ssis_sqlcmd_envelope.py
+  ssis_fresh_build_driver: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-FreshBuildLab.ps1
+  ssis_current_build_ssms_driver: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-CurrentBuildSsms.ps1
+  ssis_current_build_ssms_artifacts: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/CurrentBuildArtifacts.ps1
+  ssis_current_build_ssms_checks: Tests/Release/test_ssis_current_ssms.py
+  ssis_fresh_build_adapter_checks: Tests/Release/Test-FreshBuildAdapter.ps1
+  ssis_fresh_build_validator: Scripts/Release/validate_ssis_fresh_build.py
+  ssis_fresh_build_qualification: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json
+  ssis_fresh_build_checks: Tests/Release/test_ssis_fresh_build.py
   ssis_preparation_recovery_guide: Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md
   ssis_preparation_recovery_validator: Scripts/Release/validate_ssis_preparation_recovery.py
   ssis_preparation_recovery_checks: Tests/Release/test_ssis_preparation_recovery.py
