@@ -19,6 +19,15 @@ Für die zusätzlichen CLR-Module führt
 [CLR ohne eigenen Build installieren](../Releases/1.0.0/CLR-INSTALL.md)
 zu den fertigen DLLs und dem passenden SQL-Installationsprofil.
 
+## Queue und Worker verstehen und verwenden
+
+Der [Queue-Lernweg](../Modules/toolbelt.core.work-queue/Documentation/USAGE.md)
+führt von der passenden Einsatzentscheidung über Installation und Rechte zu
+vollständigen SSMS-Beispielen mit erklärten Ergebnissen. Alle Queue-APIs,
+Retry, Dead Letter, Recovery und Gruppen-Barriers sind dort eingeordnet.
+Der [Worker-Lernweg](../Workers/ExternalQueue/USAGE.md) ergänzt Startparameter,
+Managedbetrieb, Parallelität, Stop/Hold und bewusste Wiederfreigabe.
+
 ## Ein Modul gezielt auswählen
 
 SQL Server Toolbelt richtet sich an Entwickler und Administratoren mit

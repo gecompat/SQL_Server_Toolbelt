@@ -1,5 +1,9 @@
 # Managed Worker Control
 
+**Anleitung und Beispiele:** [Worker starten und steuern](../../Workers/ExternalQueue/USAGE.md).
+Der Leitfaden erklärt alle öffentlichen Steuerfunktionen, globale/lokale
+Parallelität, Betriebsarten, Pause/Drain/Stop, Hold und Wiederfreigabe.
+
 SQL2.1-Integration und eigener Worker-Control1.0-Lifecycle. [Vertrag](../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md).
 
 Source implementiert; SQL-Vertrag auf SQL Server 2019 Linux und 2025 Windows/CU8 teilweise validiert, unreleased. Vollständiger paralleler Providerlauf, exakte Head-CI bleiben offen. Keine globale Kapazitäts-, Exactly-once-, Installation- oder Rechtezusage. Vorhandene Module separat installieren.

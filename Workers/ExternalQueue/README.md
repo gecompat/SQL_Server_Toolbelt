@@ -1,5 +1,11 @@
 # Externer Queue-Worker
 
+**Anwenderleitfaden:** [Worker starten und steuern](USAGE.md) mit vollständiger
+Parameterübersicht, Einsatzentscheidung und Beispielen für Start, Retry,
+Managedbetrieb, Parallelität, Pause, Stop/Hold und Wiederfreigabe.
+Die [Queue-Anleitung](../../Modules/toolbelt.core.work-queue/Documentation/USAGE.md)
+erklärt zuvor Registrierung, Einreihung und Claims.
+
 Manuell gestarteter erster Provider für die einzeln freigegebene
 Queue-Verarbeitung. Der [verbindliche Vertrag](../../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
 steht vor Source im Commit `1872985`. Der Worker verwendet den bestehenden
@@ -46,8 +52,6 @@ er aktive Arbeit und wartet weiter. `DefaultTimeoutSeconds` des Work Types
 fordert kooperative Cancellation an; es ist kein harter Command-Timeout.
 Die vollständige Laufzeit eines unkooperativen Handlers ist damit unbegrenzt.
 Ein Hostabbruch kann diese Zusagen nicht aufrechterhalten.
-
-## Abschluss, Cancellation und Fehler
 
 ## Ausdrücklich gewählter Managed-Pfad
 

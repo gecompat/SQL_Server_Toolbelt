@@ -17,7 +17,7 @@ Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase;
 
 WorkItemId bigint NOT NULL; ClaimGeneration bigint NOT NULL; Status varchar(16) NOT NULL; HoldVersion binary(8) NOT NULL
 
-Hilfe zuerst ohne Mutation, Debug nur Messages. ResultTable atomar nach kanonischem Vertrag. Bestehende Rechte, keine Grants. Fehler54210..54239 und unveränderte Engine-/Queuefehler. Sourcevorbereitung: not executed, unreleased.
+Hilfe zuerst ohne Mutation, Debug nur Messages. ResultTable atomar nach kanonischem Vertrag. Bestehende Rechte, keine Grants. Fehler54210..54239 und unveränderte Engine-/Queuefehler. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
 
 ## Aufrufparameter
 
@@ -35,9 +35,14 @@ Hilfe zuerst ohne Mutation, Debug nur Messages. ResultTable atomar nach kanonisc
 ## Voraussetzungen für den Aufruf
 
 - Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-- Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+- Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Aktuelle Nachweise und Grenzen stehen im [Modulstatus](../README.md).
 
 ## Beispielaufruf
+
+Zusammenhängende Betriebsbeispiele mit Beschaffung der IDs/Versionen und
+Ergebnisdeutung: [Worker starten und steuern](../../../Workers/ExternalQueue/USAGE.md).
+Ein untenstehender `@Hilfe=1`-Aufruf liest nur die Referenz, er führt keine
+Workeraktion aus.
 
 ```sql
 EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;

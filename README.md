@@ -76,6 +76,13 @@ für den im Modul dokumentierten Umfang. Für Beiträge gilt
 [CONTRIBUTING.md](./CONTRIBUTING.md). Der ausdrücklich getrennte Einstieg für
 KI-Systeme ist [AGENTS.md](./AGENTS.md).
 
+## Aufträge mit der Queue verarbeiten
+
+Der [Queue-Leitfaden mit vollständigen SSMS-Beispielen](./Modules/toolbelt.core.work-queue/Documentation/USAGE.md)
+erklärt Einsatzfälle, Einrichtung, Einreihung, Claims, Retry/Dead Letter,
+Prioritäten und Barriers. Der [Worker-Leitfaden](./Workers/ExternalQueue/USAGE.md)
+zeigt Ausführung, zentrale Parallelität, Pause, Stop/Hold und Wiederfreigabe.
+
 ## SQL-Objekte nachschlagen
 
 Die Parametertabellen nennen für jeden Parameter Datenform, Grenzen,
