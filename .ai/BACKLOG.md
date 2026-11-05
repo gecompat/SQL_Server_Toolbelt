@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Aktueller Fortsetzungsstand — 2026-11-05
+
+Der Benutzer hat die autonome Bearbeitung vorhandener freigegebener Arbeit
+erneut bestätigt. Der Abschluss einer einzelnen Qualifikationswelle ist kein
+Abschluss des gesamten Backlogs. Die folgenden älteren, datierten Einträge
+bleiben mit ihren ursprünglichen Quellen und Grenzen erhalten.
+
+| Arbeit | Aktueller Abgleich und Fortsetzung |
+|---|---|
+| SSIS-Debug einschließlich parametrisierter Prozedurdefinition V1 | Der aktuelle 40-Parameter-Build ist für den vereinbarten Debugvertrag `validated`, `unreleased`. Die [frische Ausgabeabnahme](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#frische-buildgebundene-ausgabeabnahme) belegt ZIP12, sichtbaren Windows-/SSMS-Gesamtfall mit nativer SQLCMD-Stopprobe und Phase-2-Receipt sowie den ununterbrochenen öffentlichen Windows-TLS-Gesamtfall. PR #507 ist regulär integriert; tatsächliche Head- und Main-CI sind erfolgreich. Keine erneute Ausführung dieser geschlossenen Welle. |
+| Windows-FileSystemRoot-Repeat | Der später dokumentierte vierte Versuch bestand den ausgewählten Windows-SQL2025-/CL170-/Local-Scope samt frischem Audit. Frühere Angaben „nächster offener Repeat“ beschreiben den damaligen Stand. Weitere Kontexte, Rechte und Datei-I/O werden dadurch nicht geschlossen. |
+| Freigegebene Parser-Härtung P1a, aktueller Build 2.0.1 | Implementiert, weiterhin `partially validated`. Consumer-/Trigger-/Upgradebelege ersetzen keine vollständige native Prüfung der vier Parser-APIs. Als nächste Qualifikationsarbeit werden die aktuellen [Parserprüfungen](../Modules/toolbelt.tsql.script-parser/Tests/README.md#aktueller-status-vom-2026-10-19) und verfügbaren Voraussetzungen abgeglichen; native Restfälle erst mit eigenem begrenztem Lauf-/Cleanupplan. |
+| Gesamtdeployment und übrige Modulqualifikation | Vorhandene freigegebene Restarbeit bleibt offen. Gültige spätere Nachweise vor Wiederholungen abgleichen; bei tatsächlicher Abhängigkeit oder fehlender Autorität unabhängig ausführbare Arbeit vorziehen. |
+| Neue Fachfunktionen und Veröffentlichung | Kandidatenstatus oder allgemeine Autonomie ersetzen keine konkrete Funktionsfreigabe. Vorgeschlagene SSIS-Schreib-/Paritätsfunktionen bleiben getrennt; es wird nicht veröffentlicht. |
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)
