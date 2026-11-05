@@ -1,5 +1,59 @@
 # Testausführung
 
+## Aktuelle Windows-Teilabnahme vom 2026-11-05
+
+Der öffentliche `Tests/CI/run-json-schema-lab.ps1` unterstützt für
+`QualificationScope=constructors` zusätzlich Windows SQL Server 2019/CU32
+mit CL150 und SQL Server 2022/CU26 mit CL150/160. Die Scopegrenzen von
+Schema und Migration bleiben bei ihren bisherigen Zielkombinationen.
+Patch und CL werden ausdrücklich gewählt; es gibt keinen Ersatzprovider.
+
+| SQL Server im schema-validierten Labvertrag | CL | Installation | Constructor-Fixtures | Frischer unabhängiger Audit |
+|---|---|---|---|---|
+| Windows 2019/CU32 | 150 | local | vier bestanden | bestanden |
+| Windows 2019/CU32 | 150 | direkt central | vier bestanden | bestanden |
+| Windows 2022/CU26 | 150 | local | vier bestanden | bestanden |
+| Windows 2022/CU26 | 150 | direkt central | vier bestanden | bestanden |
+| Windows 2022/CU26 | 160 | local | vier bestanden | bestanden |
+| Windows 2022/CU26 | 160 | direkt central | vier bestanden | bestanden |
+
+Jeder Kontext führte `JsonAggregates.Contract.sql`,
+`JsonConstructors.Contract.sql`, `JsonGroups.Contract.sql` und
+`InstalledMetadata.Contract.sql` aus. Dazu gehören die unveränderten
+synthetischen 16-MiB-/100000-Einträge-Fälle, exakte aktuelle Metadaten,
+Repeat, Dependency-Abweisung, Uninstall/Repeat und erhaltener Core.
+Die unabhängigen Audits binden jeweils das finale Journal. Alle sechs
+eigenen Datenbanken sind entfernt; eigene Trusttupel und die vorübergehend
+unter bestehender Freigabe hergestellte CLR-Voraussetzung wurden
+wiederhergestellt. Zwei zusätzliche frische Konfigurationsaudits bestätigten
+auch unveränderte fremde CLR-Verbraucher und Serveridentität. Originale und
+Wiederherstellungsjournale bleiben privat.
+
+Die getesteten Produkt-, Fixture- und Adapterquellen sind im
+[Quellstand cfcc9f4f](https://github.com/gecompat/SQL_Server_Toolbelt/tree/cfcc9f4fa8e7641ea0a727894eb0a7a8093c572a)
+gebunden; der anschließende Nachtrag verändert ausschließlich Testdokumentation.
+Die drei DLLs wurden anhand der
+[aktuellen Closure](../../toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json)
+als exakt bekannte Bytes wiederverwendet. Es wurde kein neuer Binarybuild
+oder neuer Trustvertrag eingeführt.
+
+Dieser Umfang belegt lokale und direkt zentrale Aufrufe. Eigene
+CrossDB-Consumer, vollständige historische Upgrade-/Owner-/Kollisionsmatrix,
+Minimalrechte und allgemeine Heap-/Parallelkapazität bleiben separat.
+Die älteren Windows-2025-Läufe belegen ihren ursprünglichen Quellenstand;
+sie werden hier nicht zur frischen Abnahme späterer Security-/Helpänderungen
+aufgewertet. Das Modul bleibt teilweise validiert und unveröffentlicht.
+
+Vor einem weiteren Lauf die separat qualifizierten drei DLLs bereitstellen,
+die vorhandenen CLR-/Sicherheitsvoraussetzungen und Zielberechtigung prüfen
+und einen eigenen endlichen Lauf mit unabhängigem Abschlussaudit reservieren.
+Der öffentliche Treiber ändert keine Serverkonfiguration oder Berechtigungen.
+`Test-JsonSchemaLabScope.ps1` prüft seine Metadatenrouten offline: 53
+Scope-/Selektorfälle, neun historische Versionsfälle und 23 gemeinsame
+Driver-/Audittupel. Eine grüne Offlineprüfung ist keine neue SQL-Ausführung.
+
+## Historischer Teilstand vom 2026-10-03
+
 Die 1.2-Sourcewelle ergänzt `JsonEntryBridge.Contract.sql` und `JsonAggregates.Contract.sql`. Ein separat geprüfter privater CLR-Nativeadapter bestand am 2026-10-03 lokal auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/CU8 CL170 jeweils alle acht kanonischen Fixtures einschließlich Bridge, AGFs, Constructors und Gruppen-Grenzen. Eigene Bereinigung und frische Abwesenheitsprüfung bestanden; keine Serverkonfigurations-, Rechte- oder Owneränderung. Das ist keine vollständige Lifecycle-/Central-/Minimalrechte- oder Releasequalifikation. Der historische Gruppen-Labadapter stoppt bei Version 1.2 weiterhin vor Labdiscovery.
 
 ## Gemeinsamer CLR-Kern 1.2.0 (2026-10-03)
