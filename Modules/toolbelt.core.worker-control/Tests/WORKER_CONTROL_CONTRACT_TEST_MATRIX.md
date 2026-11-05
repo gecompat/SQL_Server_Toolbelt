@@ -1,5 +1,14 @@
 # Worker Control – Vertragsmatrix
 
+## Aktueller Windows-Providerkontext
+
+Der [frische Nachweis vom 2026-11-06](README.md#aktueller-windows-workerprovider-vom-2026-11-06)
+belegt den tatsächlichen Windows-Workerhost gegen WindowsSQL2025/CU8/CL170,
+local, mit allen elf fokussierten Providerfällen und separatem frischem Audit.
+Das unveränderte Providerergebnis bleibt `FullProduct=false`. Weitere
+Versionen/CLs, Rechte und echter Host-/Committransportverlust werden dadurch
+nicht geschlossen; historische Risiken unten behalten ihren Umfang.
+
 ## Aktuelle Windows-SQL-Ergänzung
 
 Die [quellgebundene Teilabnahme vom 2026-11-06](README.md#aktuelle-windows-sql-gates-vom-2026-11-06)

@@ -1,5 +1,43 @@
 # Worker Control – Testnachweise
 
+## Aktueller Windows-Workerprovider vom 2026-11-06
+
+Ein separater frischer `ManagedOnly`-Gesamtfall mit tatsächlichem
+Windows-Workerhost gegen WindowsSQL2025/CU8/CL170, local, bestand alle elf
+festen Fälle des aktuellen
+[`Invoke-ManagedContract.ps1`](../../../Workers/ExternalQueue/Tests/Runtime/Invoke-ManagedContract.ps1).
+Produkt-, Provider- und Fixturequellen sind an
+[d271b846](https://github.com/gecompat/SQL_Server_Toolbelt/tree/d271b846b3df91ba31004808d634d72e81f39e3d)
+gebunden und bleiben unverändert.
+
+Die bestehenden Orakel beobachteten leere BOUNDED-/CONTINUOUS-Betriebsarten
+mit zwei Supervisoren, Nullbudget und reduzierte Livekapazität ohne Abbruch
+laufender Arbeit, tatsächlichen Cancel/Rollback mit Hold, explizite Freigabe
+und den anderen registrierten Worker, Legacyclaim-Abweisung, bekannten Commit
+gegen späten Stop sowie den echten Completion-/Stop-Rendezvous.
+Der gezielte Controltimeout blieb UNKNOWN, belegte seinen Slot und verhinderte
+Replay. Unberechtigte UNKNOWN-Freigabe wurde abgewiesen; explizite
+Reconciliation bestätigte das gesonderte Ressourcenende.
+
+Der private quellgebundene Aufrufer bindet wie im SQL-Gateumfang eigene
+GUID/Runmarker/CL/Pfade, endliche Timeouts und das Originaljournal. Zusätzlich
+bewahrt er das tatsächliche Providerergebnis mit genau den elf quellfesten
+PASS-Fällen, ohne Nebenfehler und mit unverändertem `FullProduct=false`.
+Ein frischer separater lesender Audit bindet Plan, finales Originaljournal,
+Adapter und Providerergebnis und bestätigt eigene DB-Abwesenheit sowie
+unveränderte erfasste Server-, Konfigurations-, Trust-, Principal-/Rechte-
+und CLR-Zustände. Eigene Fixtureverzeichnisse sind entfernt; alle drei
+reservierten Ziel-/Auditdispatches sind abgeschlossen. Keine Rechte-,
+Konfigurations-, Trust- oder Infrastrukturänderung. Postpins bestanden vor
+den abgeleiteten Dokumentationsnachträgen; Originale bleiben privat.
+
+Das ist der tatsächliche fokussierte Windows-Providerpfad dieses Kontexts.
+Weitere SQL-Versionen/CLs des Providers, zentrale/CrossDB-Identitäten,
+Minimalrechte, echter Host-/Committransportverlust und volle Modulqualifikation
+bleiben gesondert. Der folgende sechsfach ausgeführte SQL-Gateumfang ist ein
+anderer Testpfad und wird nicht als zusätzliche Provider-Matrix ausgegeben.
+Teilweise validiert und unveröffentlicht.
+
 ## Aktuelle Windows-SQL-Gates vom 2026-11-06
 
 Die aktuellen Produkt- und Fixturequellen aus
