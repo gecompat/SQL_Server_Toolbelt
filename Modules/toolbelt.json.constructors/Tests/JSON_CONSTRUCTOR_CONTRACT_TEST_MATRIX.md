@@ -1,5 +1,13 @@
 # JSON Constructor Testmatrix
 
+Die [aktuelle Windows-2025-Ergänzung](README.md#aktuelle-windows-2025-ergänzung-vom-2026-11-05)
+belegt zusätzlich sechs frische Kontexte CL150/160/170 lokal/direkt zentral
+mit je vier unveränderten Fixtures und einem unabhängigen Abschlussaudit.
+Der neue Trust-Verbraucherguard bestand elf Offlinefälle sowie die native
+Abweisungs-/Nullprobe. Der erste private Adapterfehler und seine getrennte,
+frisch auditierte Bereinigung bleiben erhalten. Dieser Umfang ersetzt keine
+Minimalrechte-, CrossDB-Consumer- oder vollständige Lifecyclequalifikation.
+
 ## Aktuelle Windows-Kontexte der Constructor-Fixtures
 
 Die [gebundene Teilabnahme vom 2026-11-05](README.md#aktuelle-windows-teilabnahme-vom-2026-11-05)

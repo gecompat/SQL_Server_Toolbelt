@@ -1,5 +1,55 @@
 # Testausführung
 
+## Aktuelle Windows-2025-Ergänzung vom 2026-11-05
+
+Die aktuellen Produkt- und Fixturequellen aus
+[2aea5b08](https://github.com/gecompat/SQL_Server_Toolbelt/tree/2aea5b08cb20e5d69b3829afc3050cc443cf99c3)
+bestanden mit dem gehärteten
+[Labadapter cb251204](https://github.com/gecompat/SQL_Server_Toolbelt/tree/cb251204)
+auf dem ausdrücklich ausgewählten Windows-SQL-2025-/CU8-Ziel:
+
+| CL | Installation | Constructor-Fixtures | Frischer unabhängiger Audit |
+|---|---|---|---|
+| 150 | local | vier bestanden | bestanden |
+| 150 | direkt central | vier bestanden | bestanden |
+| 160 | local | vier bestanden | bestanden |
+| 160 | direkt central | vier bestanden | bestanden |
+| 170 | local | vier bestanden | bestanden |
+| 170 | direkt central | vier bestanden | bestanden |
+
+Je Kontext liefen dieselben vier unten genannten Fixtures einschließlich
+16 MiB/100000 Einträgen, aktuellen Metadaten und Repeat-/Uninstall-Lifecycle.
+Die sechs Audits binden die jeweiligen finalen Journale. Die drei DLLs wurden
+gegen die aktuelle bekannte Closure geprüft und unverändert wiederverwendet.
+Vorhandene CLR-/Strict-Security-Einstellungen genügten; diese Welle änderte
+keine Serverkonfiguration, Rechte oder bestehenden Identitäten.
+
+Der Adapter prüft vor Entfernung eines eigenen Trusteintrags zusätzlich alle
+sichtbaren Datenbanken auf verbleibende Assembly-Verbraucher des exakten
+Hashes. Fehlende Sicht, nicht verfügbare Datenbanken, Lesefehler und geänderte
+Kataloge blockieren die Entfernung. Elf isolierte synthetische Gegenproben
+bestanden. Eine separate native Probe mit eigener bekannter SAFE-Assembly
+bestätigte die Abweisung bei vorhandenem Verbraucher und das unveränderte
+Trusttupel; nach Entfernung des eigenen Verbrauchers bestand der Nullnachweis.
+Ihr frischer unabhängiger Audit ist bestanden.
+
+Der erste zusätzliche Consumer-Test scheiterte im privaten Verbindungsadapter
+vor Assemblyanlage. Sein ursprüngliches Fehlerjournal bleibt erhalten. Die
+noch unmarkierte eigene leere Datenbank wurde erst nach lesender Prüfung von
+Erzeugungszeit, Eigentümer, exakter Identität und unverändertem Inhalt
+bereinigt; der separate frische Audit bestand. Die korrigierte Probe ist ein
+eigener Nachweis und ersetzt den Fehler nicht. Der abschließende lesende
+Gesamtaudit bestätigt die Abwesenheit aller acht eigenen Testdatenbanken und
+den vorgesehenen Trustzustand. Private Originale bleiben außerhalb Git.
+
+Damit ist der aktuelle Fixtureumfang auf Windows2019/2022/2025 über die
+jeweils unterstützten CLs lokal und direkt zentral belegt. Eigene
+CrossDB-Consumer, Minimalrechte, vollständige historische Upgrade-/Owner-/
+Kollisionsmatrix und allgemeine Heap-/Parallelkapazität bleiben separat.
+Das Modul bleibt teilweise validiert und unveröffentlicht. Die folgende
+Windows2019-/2022-Teilabnahme wird unverändert wiederverwendet; deren grüne
+Native-Fälle wurden nicht wiederholt.
+
 ## Aktuelle Windows-Teilabnahme vom 2026-11-05
 
 Der öffentliche `Tests/CI/run-json-schema-lab.ps1` unterstützt für

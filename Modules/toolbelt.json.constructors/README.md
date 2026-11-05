@@ -20,6 +20,9 @@ local/central samt vier Fixtures, nachgelagertem Schema und frischem Audit.
 Vollständige API-/Lifecycle-/Releasequalifikation bleibt getrennt offen.
 Die [aktuelle Windows-Teilabnahme](Tests/README.md#aktuelle-windows-teilabnahme-vom-2026-11-05)
 ergänzt die neuen Windows2019-/2022-Kontexte mit den aktuellen SQL-Sources.
+Die [aktuelle Windows-2025-Ergänzung](Tests/README.md#aktuelle-windows-2025-ergänzung-vom-2026-11-05)
+belegt denselben Fixtureumfang frisch für CL150/160/170 lokal und direkt
+zentral sowie den zusätzlichen Verbraucherschutz bei eigener Trustbereinigung.
 Die genaue Reichweite steht in [Tests](Tests/README.md). Teilweise validiert und unveröffentlicht; keine Übertragung der
 historischen1.0-/1.1-/1.2-Nachweise auf1.3.
 [JSON-1.2-Vertrag](../../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md),
