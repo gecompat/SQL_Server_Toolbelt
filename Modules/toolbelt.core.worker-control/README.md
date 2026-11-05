@@ -13,6 +13,11 @@ mit frischen Audits. Provider-, zentrale/CrossDB-, Minimalrechte- und
 Recoveryumfänge bleiben gesondert abzugrenzen. Keine globale Kapazitäts-,
 Exactly-once-, Installation- oder Rechtezusage. Vorhandene Module separat installieren.
 
+Der [frische Windows-Workerprovider](Tests/README.md#aktueller-windows-workerprovider-vom-2026-11-06)
+bestand zusätzlich auf WindowsSQL2025/CU8/CL170 alle elf fokussierten Fälle
+einschließlich tatsächlichem Cancel/Rollback/Hold, Rennen, Controltimeout und
+separatem Abschlussaudit. Weitere Providerkontexte bleiben getrennt.
+
 Globale Admission zählt IsOccupied unabhängig vom Proofstatus. Generationen haben feste registrierte Intervalle; administrative Pause überlebt Close/Expiry/Neuregistrierung. Stop/Hold und private Witness-/Sessionlockproofs schützen gegen Replay. UNKNOWN bleibt belegt.
 
 [Testmatrix](Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md), [Evidenz](Tests/README.md).
