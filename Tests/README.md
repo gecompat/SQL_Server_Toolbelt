@@ -16,8 +16,14 @@ Der Runner meldet vor jedem Test eine Fortschrittsmarke. Bei einem Timeout
 beendet der Validator den Lauf als Fehler und zeigt Skript, ursprüngliche
 Zeitgrenze, zuletzt gestarteten Test und begrenzte Ausgabeteile. Auch ein
 bereits gestarteter, aber nicht abgeschlossener Test gilt nicht als bestanden.
-Die bisherigen Zeitgrenzen und das Unterdrücken von Windows-Konsolenfenstern
-bleiben erhalten. Reproduzierbare Gegenproben:
+Die vollständige Releasesuite hat lokal und in CI ein Limit von 20 Minuten;
+die bisherige Elf-Minuten-Grenze reichte für erfolgreiche lokale Läufe nicht
+mehr aus. Der umschließende Dokumentations-CI-Job ist auf 35 Minuten begrenzt,
+damit nach der Suite auch die Kandidatenprüfungen (zwei Minuten), die
+Paketintegritätsprüfung (vier Minuten) und die übrigen Konsistenzprüfungen
+Platz haben. Deren eigene Grenzen und das Unterdrücken von
+Windows-Konsolenfenstern bleiben erhalten. Die Grenzen sind Abbruchschranken,
+keine garantierten Laufzeiten. Reproduzierbare Gegenproben:
 
 ```powershell
 python Tests/Documentation/test_validation_execution.py
