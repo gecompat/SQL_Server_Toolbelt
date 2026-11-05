@@ -18,6 +18,32 @@ Ablehnung abweichender SHA2-512-Eingaben sowie beider Definitionsüberschreibung
 Kleine synthetische Binarywerte sind keine installierbaren oder vertrauenswürdigen
 Assemblies. Kein nativer Gesamtdeployment- oder TLS-Nachweis.
 
+## Aktueller Queue1.1-Main-Nachweis vom 2026-11-06
+
+Der bestehende `External Queue Worker`-Main-Push-Lauf
+[42106698029](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/42106698029)
+am Commit `28576cda0f4a883b839af657a62be91cfa66a46b` ist vollständig erfolgreich.
+Am 2026-11-06 wurden API-Job-/Schrittstatus, tatsächliche Checkout-Commitzeilen
+aller drei Jobs und die Ausgabe des genau abgegrenzten
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade`-Schritts geprüft.
+Genuine1.1→2.1 mit unmittelbarem Vergleich, Repeat derselben Datei und eigener
+DB-/Dateicleanup bestanden auf SQL2019/Linux/CL150 local/central; der getrennte
+Containercleanup bestand ebenfalls. Die beiden Windows-/Linux-Faultjobs
+sind erfolgreich, ihr Betriebssystem ist keine zusätzliche SQL-Zielplattform.
+
+Der vollständige Git-Vergleich der relevanten Deployment-, Produkt-, Fixture-,
+Helper-, Worker- und Workflowpfade gegenüber `633eb6a2` ist leer. Der vorhandene
+aktuelle Nachweis wird ohne SQL-Wiederholung wiederverwendet; öffentliche
+Evidenz enthält nur abgeleitete Ergebnisse und Quellenbindung. Originallogs
+bleiben privat. Die unten erklärte historische Markerbezeichnung
+`fourteen-tables` ist unverändert; das echte Orakel vergleicht 15 Tabellen.
+
+Dieser Abgleich schließt die fehlende aktuelle Zuordnung des begrenzten
+Queue1.1-Export-/Repeatfalls. Weitere Versionen/CLs, Windows-SQL, Minimalrechte,
+Benutzergrants, vollständiger Gesamtdeployment-Lifecycle, TLS und Release
+bleiben getrennt. Alle früheren Fehler und damaligen Cleanupgrenzen bleiben
+erhalten; die neue Head-/Main-CI des Nachtrags wird separat geprüft.
+
 ## Queue1.1: Abgleich des späteren Main-Nachweises 2026-10-20
 
 Die nachfolgenden Queue1.1-Fehlerberichte und damaligen offenen Gates bleiben

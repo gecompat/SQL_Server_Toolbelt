@@ -1,5 +1,30 @@
 # Work-Queue-Testevidenz
 
+## Aktueller Queue1.1-Nachweisabgleich vom 2026-11-06
+
+Der spätere aktuelle
+[Main-Worker-Lauf 42106698029](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/42106698029)
+am Commit `28576cda0f4a883b839af657a62be91cfa66a46b` bestand alle drei Jobs.
+Sein abgegrenzter `Queue11Upgrade`-Schritt belegt genuine Queue1.1→2.1,
+unmittelbaren Daten-/Katalogvergleich und Repeat derselben Exportdatei auf
+SQL2019/Linux/CL150 lokal und zentral. Der eigene DB-/Dateicleanup dieses
+Falls und der getrennte Containercleanup sind erfolgreich. Tatsächliche
+Checkout-Commitzeilen, Schrittstatus und fallbezogene Abschlusszeugen wurden
+lesend geprüft. Details und Grenzen stehen im
+[Deploymentabgleich](../../../Deployment/Tests/README.md#aktueller-queue11-main-nachweis-vom-2026-11-06).
+
+Die relevanten Produkt-, Exporter-, Fixture-, Helper-, Worker- und
+Workflowbytes stimmen mit dem aktuellen Quellstand `633eb6a2` überein.
+Dieser vorhandene Nachweis wird wiederverwendet; der Abgleich startet keinen
+neuen SQL-Lauf und ersetzt keine aktuelle Head-/Main-CI dieses Nachtrags.
+Windows-SQL, weitere Queue1.1-Versionen/CLs, nichtleere Benutzergrants,
+Minimalrechte, allgemeiner Gesamtdeployment-Lifecycle und Release bleiben
+gesondert offen. Das Modul bleibt teilweise validiert und unveröffentlicht.
+
+Die folgenden älteren Fehlerberichte und damaligen NOT_QUALIFIED-Angaben
+bleiben als Historie erhalten. Der spätere Erfolg erklärt keine frühere
+Fehlerursache und belegt keine nachträgliche Bereinigung früherer Versuche.
+
 ### Anonymer CHECK-Witness benötigt explizites NULL
 
 Die genuine1.1-Testfixture deklariert `#ExpectedChecks.ConstraintName` ausdrücklich nullable: der absichtlich anonyme SchedulerCHECK-Witness verwendet NULL statt eines festen Constraintnamens. Nur diese Deklaration und der zentrale Caller-Assertpin ändern sich. Fachliche CHECK-/Scheduler-/systemnamed-Bindung, Definitions-Erwartungen, States, Produkt/API und Cleanup bleiben erhalten.
