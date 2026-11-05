@@ -77,3 +77,32 @@ foreach($example in @(
 }
 if($script:cases-ne33){throw 'JSON_SCOPE_ASSERTION_COUNT'}
 'PASS JSON_LAB_SCOPE_BINDING_AND_SELECTOR 33'
+
+# Nur die reine Versionsprüfung des historischen SQL-only-Adapters auswerten.
+# Weder dessen Top-level-Initialisierung noch Lab-/SQL-Funktionen ausführen.
+$legacyAst=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'run-json-groups-lab.ps1'),[ref]$tokens,[ref]$errors)
+if($errors.Count){throw 'JSON_LEGACY_SCOPE_DRIVER_PARSE'}
+$versionGuards=@($legacyAst.FindAll({param($node)$node-is[Management.Automation.Language.FunctionDefinitionAst]-and$node.Name-ceq'Assert-LegacyJsonLabVersion'},$true))
+$versionCalls=@($legacyAst.FindAll({param($node)$node-is[Management.Automation.Language.CommandAst]-and$node.GetCommandName()-ceq'Assert-LegacyJsonLabVersion'},$true))
+$legacyPaths=@($legacyAst.FindAll({param($node)$node-is[Management.Automation.Language.AssignmentStatementAst]-and$node.Left.Extent.Text-ceq'$legacy'},$true))
+if($versionGuards.Count-ne1-or$versionCalls.Count-ne1-or$legacyPaths.Count-ne1-or$versionCalls[0].Extent.StartOffset-ge$legacyPaths[0].Extent.StartOffset){throw 'JSON_LEGACY_SCOPE_EARLY_GUARD'}
+. ([scriptblock]::Create($versionGuards[0].Extent.Text))
+$legacyCases=0
+foreach($case in @(
+ @{Text='version: "1.1.0"';Accept=$true},
+ @{Text="module_id: Contoso`r`nversion: `"1.1.0`"`r`n";Accept=$true},
+ @{Text='version: "1.2.0"';Accept=$false},
+ @{Text='version: "1.3.0"';Accept=$false},
+ @{Text='version: "2.0.0"';Accept=$false},
+ @{Text='';Accept=$false},
+ @{Text='version: 1.1.0';Accept=$false},
+ @{Text="version: `"1.1.0`"`nversion: `"1.3.0`"";Accept=$false},
+ @{Text="version: `"1.1.0`"`nversion: `"1.1.0`"";Accept=$false}
+)){
+ $accepted=$true
+ try{Assert-LegacyJsonLabVersion $case.Text}catch{if($_.Exception.Message-cne'JSON_CLR_NATIVE_ADAPTER_REVIEW_REQUIRED'){throw};$accepted=$false}
+ if($accepted-ne$case.Accept){throw 'JSON_LEGACY_SCOPE_VERSION_CASE_FAILED'}
+ $legacyCases++
+}
+if($legacyCases-ne9){throw 'JSON_LEGACY_SCOPE_ASSERTION_COUNT'}
+'PASS JSON_LEGACY_SCOPE_VERSION_AND_ORDER 9'

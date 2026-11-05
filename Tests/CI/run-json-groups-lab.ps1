@@ -15,9 +15,16 @@ $ErrorActionPreference='Stop'
 
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $module=Join-Path $repo 'Modules/toolbelt.json.constructors'
-if([IO.File]::ReadAllText((Join-Path $module 'module.yaml')) -match '(?m)^version: "1\.2\.0"$'){
-    throw 'JSON_CLR_NATIVE_ADAPTER_REVIEW_REQUIRED'
+function Assert-LegacyJsonLabVersion([string]$ManifestText){
+    # Dieser historische Adapter setzt den fünfteiligen SQL-only-Stand 1.1
+    # voraus. Andere, fehlende oder doppelte Versionen benötigen eine eigene
+    # Abnahme, bevor Legacydateien oder der Labvertrag überhaupt gelesen werden.
+    $versions=[regex]::Matches($ManifestText,'(?m)^version:[^\r\n]*')
+    if($versions.Count-ne1-or$versions[0].Value-cnotmatch'^version:[ \t]*"1\.1\.0"[ \t]*$'){
+        throw 'JSON_CLR_NATIVE_ADAPTER_REVIEW_REQUIRED'
+    }
 }
+Assert-LegacyJsonLabVersion ([IO.File]::ReadAllText((Join-Path $module 'module.yaml')))
 $legacy=(Resolve-Path -LiteralPath $LegacyDirectory).Path
 
 # Ausschließlich geprüfte Funktionen importieren; keine Top-level-Mutatoren.
