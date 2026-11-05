@@ -40,7 +40,8 @@ foreach($patch in @('CU8','latest')){
 foreach($patch in @('CU7','CU9','base','cu8')){
  Assert-BoundScope @{Platform='windows';Version='2025';Patch=$patch} $false
 }
-Assert-BoundScope @{Platform='windows';Version='2022';Patch='CU8'} $false $true
+Assert-BoundScope @{Platform='windows';Version='2022';Patch='CU8'} $false
+Assert-BoundScope @{Platform='windows';Version='2017';Patch='CU8'} $false $true
 Assert-BoundScope @{Platform='windows';Version='2025';Patch='CU8';CompatibilityLevel=151} $false $true
 foreach($platform in @('Windows','WINDOWS','WiNdOwS')){
  Assert-BoundScope @{Platform=$platform;Version='2019';Patch='latest'} $false $true
@@ -75,8 +76,27 @@ foreach($example in @(
  if($selected.Count-ne$example.Count){throw 'JSON_SCOPE_SELECTOR_CASE_FAILED'}
  $script:cases++
 }
-if($script:cases-ne33){throw 'JSON_SCOPE_ASSERTION_COUNT'}
-'PASS JSON_LAB_SCOPE_BINDING_AND_SELECTOR 33'
+# Neue Constructor-Kontexte erweitern weder Schema noch Migration. Falsche
+# Patches, Linux-Ersatzwahl und nicht unterstützte CLs bleiben abgewiesen.
+foreach($selection in @(
+ @{Version='2019';Patch='CU32';CompatibilityLevel=150},
+ @{Version='2022';Patch='CU26';CompatibilityLevel=150},
+ @{Version='2022';Patch='CU26';CompatibilityLevel=160}
+)){
+ foreach($scope in @('constructors','core-schema','migration')){
+  Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope=$scope} ($scope-ceq'constructors')
+ }
+ foreach($patch in @('base',$selection.Patch.ToLowerInvariant())){
+  Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope='constructors'} $false
+ }
+}
+foreach($level in @(160,170)){
+ Assert-BoundScope @{Platform='windows';Version='2019';Patch='CU32';CompatibilityLevel=$level;QualificationScope='constructors'} $false
+}
+Assert-BoundScope @{Platform='windows';Version='2022';Patch='CU26';CompatibilityLevel=170;QualificationScope='constructors'} $false
+Assert-BoundScope @{Platform='linux';Version='2022';Patch='CU26';QualificationScope='constructors'} $false
+if($script:cases-ne53){throw 'JSON_SCOPE_ASSERTION_COUNT'}
+'PASS JSON_LAB_SCOPE_BINDING_AND_SELECTOR 53'
 
 # Nur die reine Versionsprüfung des historischen SQL-only-Adapters auswerten.
 # Weder dessen Top-level-Initialisierung noch Lab-/SQL-Funktionen ausführen.
@@ -106,3 +126,39 @@ foreach($case in @(
 }
 if($legacyCases-ne9){throw 'JSON_LEGACY_SCOPE_ASSERTION_COUNT'}
 'PASS JSON_LEGACY_SCOPE_VERSION_AND_ORDER 9'
+
+# Auch der unabhängige Audit muss genau dieselben Ziel-/CL-/Scopetupel
+# akzeptieren. Nur dessen reine Guard-AST ausführen, niemals den SQL-Teil.
+$dispositionAst=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Test-JsonSchemaLabDisposition.ps1'),[ref]$tokens,[ref]$errors)
+if($errors.Count){throw 'JSON_SCOPE_DISPOSITION_PARSE'}
+$dispositionGuards=@($dispositionAst.FindAll({param($node)$node-is[Management.Automation.Language.IfStatementAst]-and$node.Extent.Text.Contains('JSON_DISPOSITION_TARGET_SCOPE')},$true))
+if($dispositionGuards.Count-ne1){throw 'JSON_SCOPE_DISPOSITION_DISCOVERY'}
+. ([scriptblock]::Create('function Test-BoundJsonDispositionScope { param($journal); '+$dispositionGuards[0].Extent.Text+'; "ACCEPTED" }'))
+$auditCases=[Collections.Generic.List[object]]::new()
+$auditCases.Add(@{Platform='linux';Version='2019';Patch='latest';CompatibilityLevel=150;Scope='core-schema';Accept=$true})
+$auditCases.Add(@{Platform='windows';Version='2025';Patch='CU8';CompatibilityLevel=170;Scope='core-schema';Accept=$true})
+foreach($selection in @(
+ @{Version='2019';Patch='CU32';CompatibilityLevel=150},
+ @{Version='2022';Patch='CU26';CompatibilityLevel=150},
+ @{Version='2022';Patch='CU26';CompatibilityLevel=160}
+)){
+ foreach($scope in @('constructors','core-schema','migration')){
+  $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope=$scope;Accept=($scope-ceq'constructors')})
+ }
+ foreach($patch in @('base',$selection.Patch.ToLowerInvariant())){
+  $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope='constructors';Accept=$false})
+ }
+}
+foreach($level in @(160,170)){$auditCases.Add(@{Platform='windows';Version='2019';Patch='CU32';CompatibilityLevel=$level;Scope='constructors';Accept=$false})}
+$auditCases.Add(@{Platform='windows';Version='2022';Patch='CU26';CompatibilityLevel=170;Scope='constructors';Accept=$false})
+$auditCases.Add(@{Platform='windows';Version='2025';Patch='CU8';CompatibilityLevel=170;Scope='unknown';Accept=$false})
+$auditCases.Add(@{Platform='linux';Version='2022';Patch='CU26';CompatibilityLevel=150;Scope='constructors';Accept=$false})
+$auditCases.Add(@{Platform='windows';Version='2017';Patch='CU8';CompatibilityLevel=150;Scope='constructors';Accept=$false})
+foreach($case in $auditCases){
+ $driverAccepted=$false;$auditAccepted=$false
+ try{$driverAccepted=(Test-BoundJsonLabScope @base -Platform $case.Platform -Version $case.Version -Patch $case.Patch -CompatibilityLevel $case.CompatibilityLevel -QualificationScope $case.Scope)-ceq'ACCEPTED'}catch{if($_.Exception-isnot[Management.Automation.ParameterBindingException]-and$_.Exception.Message-cne'JSON_SCHEMA_APPROVED_TARGET_SCOPE'){throw}}
+ try{$auditAccepted=(Test-BoundJsonDispositionScope ([pscustomobject]$case))-ceq'ACCEPTED'}catch{if($_.Exception.Message-cne'JSON_DISPOSITION_TARGET_SCOPE'){throw}}
+ if($driverAccepted-ne$case.Accept-or$auditAccepted-ne$case.Accept){throw 'JSON_SCOPE_DRIVER_DISPOSITION_DISAGREE'}
+}
+if($auditCases.Count-ne23){throw 'JSON_SCOPE_DISPOSITION_CASE_COUNT'}
+'PASS JSON_DRIVER_DISPOSITION_SCOPE_AGREEMENT 23'

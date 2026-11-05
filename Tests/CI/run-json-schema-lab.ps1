@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][ValidateSet('linux','windows',IgnoreCase=$false)][string]$Platform,
- [Parameter(Mandatory)][ValidateSet('2019','2025',IgnoreCase=$false)][string]$Version,
+ [Parameter(Mandatory)][ValidateSet('2019','2022','2025',IgnoreCase=$false)][string]$Version,
  [Parameter(Mandatory)][string]$Patch,[ValidateSet(150,160,170)][int]$CompatibilityLevel=150,
  [ValidateSet('core-schema','constructors','migration',IgnoreCase=$false)][string]$QualificationScope='core-schema',
  [ValidateSet('local','central',IgnoreCase=$false)][string[]]$DeploymentModes=@('local','central'),
@@ -21,8 +21,16 @@ $prefix=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))+[IO.Path]::Director
 if(-not$output.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)-or(Test-Path -LiteralPath $output)){throw 'JSON_SCHEMA_OUTPUT_SCOPE'}
 & git -C $repo check-ignore --quiet -- $output
 if($LASTEXITCODE-ne0){throw 'JSON_SCHEMA_OUTPUT_NOT_IGNORED'}
-if(($Platform-ceq'linux'-and($Version-cne'2019'-or$Patch-cne'latest'-or$CompatibilityLevel-ne150))-or
- ($Platform-ceq'windows'-and($Version-cne'2025'-or$Patch-cne'CU8'))){throw 'JSON_SCHEMA_APPROVED_TARGET_SCOPE'}
+# Zusätzliche Windows-Ziele gelten nur für die vorhandenen Constructor-Fixtures.
+# Schema-/Migrationsscopes behalten ihre bisherige Auswahl; kein Patchfallback.
+if(-not(
+ ($Platform-ceq'linux'-and$Version-ceq'2019'-and$Patch-ceq'latest'-and$CompatibilityLevel-eq150)-or
+ ($Platform-ceq'windows'-and$Version-ceq'2025'-and$Patch-ceq'CU8')-or
+ ($QualificationScope-ceq'constructors'-and$Platform-ceq'windows'-and(
+  ($Version-ceq'2019'-and$Patch-ceq'CU32'-and$CompatibilityLevel-eq150)-or
+  ($Version-ceq'2022'-and$Patch-ceq'CU26'-and$CompatibilityLevel-in@(150,160))
+ ))
+)){throw 'JSON_SCHEMA_APPROVED_TARGET_SCOPE'}
 if($DeploymentModes.Count-lt1-or@($DeploymentModes|Sort-Object -Unique).Count-ne$DeploymentModes.Count-or
  $ConstructorTests.Count-lt1-or@($ConstructorTests|Sort-Object -Unique).Count-ne$ConstructorTests.Count){throw 'JSON_SCHEMA_DUPLICATE_OR_EMPTY_SCOPE'}
 $helper=Join-Path $PSScriptRoot 'run-lab-local.ps1';$errors=$null

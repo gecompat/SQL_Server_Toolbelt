@@ -22,9 +22,16 @@ if(-not$journal.psobject.Properties['FrozenInputs']){throw 'JSON_DISPOSITION_LEG
 if($journal.State-cnotin@('COMPLETE','FAILED_CLEANED')-or-not$journal.PostPins-or-not$journal.DispositionVerified-or
  $journal.ConfigurationChanges-ne0-or$journal.RightsChanges-ne0){throw 'JSON_DISPOSITION_UNFINISHED_SCOPE'}
 if(@($journal.Databases).Count-gt2-or@($journal.Trust).Count-gt4){throw 'JSON_DISPOSITION_UNBOUNDED_SCOPE'}
-if(($journal.Platform-ceq'linux'-and($journal.Version-cne'2019'-or$journal.Patch-cne'latest'))-or
- ($journal.Platform-ceq'windows'-and($journal.Version-cne'2025'-or$journal.Patch-cne'CU8'))-or
- $journal.Platform-cnotin@('linux','windows')){throw 'JSON_DISPOSITION_TARGET_SCOPE'}
+# Dieselbe endliche Target-/CL-Grenze wie der Lauf; neue Windowsziele dürfen
+# ausschließlich Constructor-Journale verwenden, keine Schema-/Migrationswelle.
+if($journal.Scope-cnotin@('core-schema','constructors','migration')-or-not(
+ ($journal.Platform-ceq'linux'-and$journal.Version-ceq'2019'-and$journal.Patch-ceq'latest'-and$journal.CompatibilityLevel-eq150)-or
+ ($journal.Platform-ceq'windows'-and$journal.Version-ceq'2025'-and$journal.Patch-ceq'CU8'-and$journal.CompatibilityLevel-in@(150,160,170))-or
+ ($journal.Scope-ceq'constructors'-and$journal.Platform-ceq'windows'-and(
+  ($journal.Version-ceq'2019'-and$journal.Patch-ceq'CU32'-and$journal.CompatibilityLevel-eq150)-or
+  ($journal.Version-ceq'2022'-and$journal.Patch-ceq'CU26'-and$journal.CompatibilityLevel-in@(150,160))
+ ))
+)){throw 'JSON_DISPOSITION_TARGET_SCOPE'}
 $helper=Join-Path $PSScriptRoot 'run-lab-local.ps1';$errors=$null;$tokens=$null
 $tree=[Management.Automation.Language.Parser]::ParseFile($helper,[ref]$tokens,[ref]$errors)
 if($errors.Count){throw 'JSON_DISPOSITION_HELPER_PARSE'}

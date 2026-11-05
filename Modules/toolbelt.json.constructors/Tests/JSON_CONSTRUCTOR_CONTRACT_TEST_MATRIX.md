@@ -1,5 +1,21 @@
 # JSON Constructor Testmatrix
 
+## Aktuelle Windows-Kontexte der Constructor-Fixtures
+
+Die [gebundene Teilabnahme vom 2026-11-05](README.md#aktuelle-windows-teilabnahme-vom-2026-11-05)
+ergänzt Windows2019/CU32/CL150 und Windows2022/CU26/CL150/160 jeweils
+local und direkt central. Die vier aktuellen Fixturedateien pro Kontext und
+ihre unabhängigen Abschlussaudits sind bestanden. Gruppen-/Aggregatpläne,
+Metadaten und Lifecycle werden dabei am tatsächlich gesetzten CL geprüft.
+Schema- und genuine Migrationsscopes werden durch die zusätzliche
+Constructor-Zielauswahl nicht erweitert.
+
+Die folgenden älteren CLR-/Lifecycle-Gates bleiben in ihrem jeweiligen
+Versions- und Quellenbezug erhalten. Die neue Fixtureabnahme schließt keine
+Minimalrechte-, eigenen CrossDB-Consumer-, vollständige Kollisions-/Owner-
+oder Ressourcenqualifikation. Ältere Windows2025-Ergebnisse sind keine
+frische Qualifikation der später geänderten SQL-Sources.
+
 ## Owner- und ID-gebundener CI-Container-Cleanup
 
 Normaler EXIT-Cleanup bindet volle64-Hex-ID und zufälligen32-Hex-Owner aus

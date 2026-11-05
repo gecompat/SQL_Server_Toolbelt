@@ -18,6 +18,8 @@ eigene CLR-Slots/Assembly und weist verlustgefährdete Rechte-/Ownertupel oder
 zusätzliche Metadaten vorher ab. Sie bestand auf beiden genannten Zielen
 local/central samt vier Fixtures, nachgelagertem Schema und frischem Audit.
 Vollständige API-/Lifecycle-/Releasequalifikation bleibt getrennt offen.
+Die [aktuelle Windows-Teilabnahme](Tests/README.md#aktuelle-windows-teilabnahme-vom-2026-11-05)
+ergänzt die neuen Windows2019-/2022-Kontexte mit den aktuellen SQL-Sources.
 Die genaue Reichweite steht in [Tests](Tests/README.md). Teilweise validiert und unveröffentlicht; keine Übertragung der
 historischen1.0-/1.1-/1.2-Nachweise auf1.3.
 [JSON-1.2-Vertrag](../../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md),
