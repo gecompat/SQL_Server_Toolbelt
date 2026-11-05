@@ -23,6 +23,59 @@ beschreibt diesen begrenzten Scope. Alle nativen Parser-APIs, tatsächliche
 Ausgabeceilings und Minimalrechte sind dadurch nicht vollständig qualifiziert.
 Die frühere Pending-Konfiguration ist kein pauschaler aktueller Testblocker.
 
+## Begrenzter aktueller Nativeinstieg
+
+[`Invoke-ScriptParserCurrentLab.ps1`](../../../Tests/CI/Invoke-ScriptParserCurrentLab.ps1)
+ergänzt den unveränderten, hashgebundenen nativen Parseradapter um einen
+aktuellen Quellen-/Artefaktplan, eine exklusive Budgetreservierung und einen
+separaten frischen Abschlussaudit. Er erzeugt keine neue Implementierungs-
+oder Testfreigabe und konfiguriert keine Servereinstellung.
+
+`Describe` komponiert den Adapter ohne SQL; `Run -ValidateOnly` prüft den
+vorbereiteten Plan ohne Verbindung. `Run` und `Audit` benötigen jeweils
+`PlanPath`, `ExpectedPlanSha256` und `BudgetPath`; `Audit` zusätzlich den
+exakten `ExpectedJournalSha256` des finalen Laufjournals. Der private Plan
+`parser-current-lab/v1` bindet Version, exakten CU-Patch, genau einen
+schema-validierten Labselektor, Vertragspfad/-hash, Releaseverzeichnis,
+vollständige Quellen- und vier Artefakthashes sowie ein eigenes temporäres
+Verzeichnis außerhalb jedes Git-Worktrees. Konkrete Pläne, Zielinformationen,
+Journale und Laufzeitausgaben bleiben privat. Keine Zugangsdaten im Plan.
+
+Das vorbereitete Budget bindet dieselbe Welle/Version/Patch, höchstens einen
+Lauf und einen Audit sowie drei eigene Datenbanken. Der Lauf hat 25 Minuten,
+sein Cleanup ein eigenes 120-Sekundenfenster und der Audit fünf Minuten;
+der gemeinsame verbleibende Zeitraum muss jeweils ausreichen. Der bestehende
+Full-Framework-Test bleibt vor der ersten SQL-Verbindung. Ein begonnenes
+Suitejournal ist kein Suite-PASS. Fehler bleiben Fehler, auch bei erfolgreicher
+Bereinigung; ein unvollständiges Eigentumsjournal oder ein fehlender frischer
+Audit erlaubt keinen Gesamterfolg. CLR-Voraussetzungen sind separat unter
+der jeweiligen Testkonfigurationsfreigabe zu koordinieren.
+
+Am 2026-11-05 wurde der aktuelle Quellstand in zwei getrennten Buildpfaden
+reproduzierbar gebaut. Der Full-Framework-Test bestand seine 245 Fälle.
+Der begrenzte Windows-SQL-2019-/CU32-Versuch scheiterte anschließend vor
+der ersten API-Suite an einer Variablenkollision im neuen Adapter.
+Die eigene Datenbank wurde entfernt; der Parser-Abschlussaudit wurde durch
+eine unzutreffende Präfixprüfung blockiert. Ein separater frischer
+Konfigurationsaudit bestätigte anschließend die Wiederherstellung und den
+unveränderten Trust-/Verbraucherzustand. Der erste Versuch mit fehlender
+CLR-Voraussetzung bleibt ebenfalls fehlgeschlagen, mit eigenem Audit-PASS.
+Diese Befunde qualifizieren keine native Parser-API und keinen Gesamtfall.
+
+Die Korrekturen sind durch ausführbare Offlinegegenproben abgesichert:
+
+```powershell
+./Tests/Release/Test-ParserCurrentLab.ps1
+```
+
+Die Gegenproben prüfen unter anderem die geerbte `ValidateSet`-Kollision,
+beide tatsächlichen Datenbankpräfixe, fremde Präfixe, geblockten Trust,
+abgelaufene Fristen, vollständige JSON-Mehrteiler und manipulierte Pläne.
+Ihre Korrekturen sind noch nicht erneut nativ ausgeführt. Der Vollscope für
+2.0.1 auf Windows 2019/2022/2025, tatsächliche öffentliche Ausgabeceilings
+und Minimalrechte bleiben offen. Vorhandene Consumer-/Upgrade-Nachweise
+behalten ihren ursprünglichen Scope; das Modul bleibt `partially validated`.
+
 ## Historischer Status des 2.0.0-Vollscopes
 
 Die folgende Tabelle erhält die damaligen Ergebnisse. Ihre nicht ausgeführten
