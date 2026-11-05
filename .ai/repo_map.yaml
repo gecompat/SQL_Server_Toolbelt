@@ -435,6 +435,8 @@ change_impact:
   packages:
     release_preparation:
       paths:
+        - Tests/Documentation/run_release_validation.py
+        - Tests/Documentation/test_validation_execution.py
         - Releases/**
         - Scripts/Release/**
         - Tests/Release/**
@@ -483,6 +485,8 @@ change_impact:
         - public_api_catalog_selftests
     change_impact_selftests:
       paths:
+        - Tests/Documentation/run_release_validation.py
+        - Tests/Documentation/test_validation_execution.py
         - .ai/repo_map.yaml
         - Tests/Documentation/validate_documentation.py
         - Tests/Documentation/test_change_impact.py
