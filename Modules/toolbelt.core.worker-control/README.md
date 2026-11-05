@@ -6,7 +6,12 @@ Parallelität, Betriebsarten, Pause/Drain/Stop, Hold und Wiederfreigabe.
 
 SQL2.1-Integration und eigener Worker-Control1.0-Lifecycle. [Vertrag](../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md).
 
-Source implementiert; SQL-Vertrag auf SQL Server 2019 Linux und 2025 Windows/CU8 teilweise validiert, unreleased. Vollständiger paralleler Providerlauf, exakte Head-CI bleiben offen. Keine globale Kapazitäts-, Exactly-once-, Installation- oder Rechtezusage. Vorhandene Module separat installieren.
+Source implementiert, teilweise validiert und unveröffentlicht. Die
+[aktuellen Windows-SQL-Gates](Tests/README.md#aktuelle-windows-sql-gates-vom-2026-11-06)
+belegen sechs lokale Kontexte auf SQL2019/2022/2025 über die unterstützten CLs
+mit frischen Audits. Provider-, zentrale/CrossDB-, Minimalrechte- und
+Recoveryumfänge bleiben gesondert abzugrenzen. Keine globale Kapazitäts-,
+Exactly-once-, Installation- oder Rechtezusage. Vorhandene Module separat installieren.
 
 Globale Admission zählt IsOccupied unabhängig vom Proofstatus. Generationen haben feste registrierte Intervalle; administrative Pause überlebt Close/Expiry/Neuregistrierung. Stop/Hold und private Witness-/Sessionlockproofs schützen gegen Replay. UNKNOWN bleibt belegt.
 

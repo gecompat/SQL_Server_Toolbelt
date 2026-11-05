@@ -1,5 +1,54 @@
 # Worker Control – Testnachweise
 
+## Aktuelle Windows-SQL-Gates vom 2026-11-06
+
+Die aktuellen Produkt- und Fixturequellen aus
+[633eb6a2](https://github.com/gecompat/SQL_Server_Toolbelt/tree/633eb6a26f2e4b11f5c01051ff0e68dff189e415)
+bestanden den vorhandenen `ManagedSqlOnly`-Umfang auf sechs ausdrücklich
+ausgewählten Windows-SQL-/CL-Kontexten im schema-validierten Labvertrag:
+
+| SQL-Ziel | CL | Deployment | SQL-Fixture und sechs Lifecycle-Abweisungen | Frischer separater Audit |
+|---|---|---|---|---|
+| Windows 2019/CU32 | 150 | local | bestanden | bestanden |
+| Windows 2022/CU26 | 150 | local | bestanden | bestanden |
+| Windows 2022/CU26 | 160 | local | bestanden | bestanden |
+| Windows 2025/CU8 | 150 | local | bestanden | bestanden |
+| Windows 2025/CU8 | 160 | local | bestanden | bestanden |
+| Windows 2025/CU8 | 170 | local | bestanden | bestanden |
+
+`WorkerControl.Contract.sql` prüft die bestehenden SQL-Gates für Admission,
+Generationen, Holds und private Autorität. Pro Kontext wurden anschließend
+Occupied, Held und Dependency jeweils gegen den tatsächlichen Deploy- und
+Uninstallaufruf geprüft: sechs exakte Number-/State-Abweisungen mit vorherigem
+Snapshot und nachfolgendem vollständigem Datenvergleich, insgesamt 36.
+
+Der quellgebundene private Adapter leitet denselben vorhandenen Weg aus
+`Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1 -ManagedSqlOnly` ab.
+Er bindet eigene GUID-Datenbank, Runmarker und Dateipfade, setzt und prüft den
+CL ausschließlich in dieser Datenbank, begrenzt Command-Timeouts und bewahrt
+das finale Originaljournal vor dessen regulärer Dateibereinigung. Produkt-
+und Fixtureorakel sind unverändert; zusätzliche öffentliche Parameter wurden
+nicht eingeführt. Vor SQL-Zugriff bestanden die exakten Adapteranker und
+Grammatikprüfung sowie synthetische Snapshot-Stabilitäts-/Driftgegenproben.
+
+Alle sechs eigenen Datenbanken und temporären Fixtureverzeichnisse sind
+entfernt. Sechs frische lesende Audits binden jeweils finales Plan- und
+Originaljournal und bestätigen unveränderte Serveridentität, Konfiguration,
+Trust sowie erfasste fremde Datenbank-, Principal-, Rechte- und CLR-Zustände.
+Keine Serverkonfigurations-, Trust-, SQL-GRANT-, Login- oder Rollenänderung.
+Alle 15 reservierten Ziel-/Auditdispatches sind abgeschlossen. Quellenpins
+bestanden vor den abgeleiteten Dokumentationsnachträgen; Originale bleiben
+privat. Die Produkt- und Fixturebytes bleiben auch nach diesen Nachträgen
+unverändert.
+
+Windows bezeichnet hier die SQL-Zielplattform. Die Funktionsverbindungen
+verwenden die erforderliche Verschlüsselung und den expliziten Trustwert des
+Labvertrags. Authentifiziertes TLS, Windows-/SSMS-Anmeldung, Workerprovider,
+zentrale/CrossDB-Verwendung, Minimalrechte, Transport-/Hostverlust und volle
+Modulqualifikation sind gesonderte Nachweise. Das Modul bleibt teilweise
+validiert und unveröffentlicht. Frühere datierte Ergebnisse unten behalten
+ihren ursprünglichen Quellen- und Umfangsbezug.
+
 Der zusätzliche ruhende Verbundrepeat wird im vorhandenen `QueueUpgradeOnly`-
 Adapter nach dem genuine Queueupgrade und dessen bisherigen Repeats geprüft.
 Legacyclaims werden vor Controlinstallation ausdrücklich abgeschlossen.
