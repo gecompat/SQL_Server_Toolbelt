@@ -95,7 +95,17 @@ Frühere fehlgeschlagene Läufe bleiben erhalten: 53609/4 im Escape-Budget-Orake
 
 Neue Minimalrechte, weitere Zielkombinationen und Produktions-/Parallelkapazität bleiben offen. Die Uninstall-Voraussetzung `VIEW DEFINITION`/`SELECT` wurde am 2026-10-02 einzeln freigegeben; die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen. Aktuelle CI wird als separater PR-Mergegate nachgewiesen. Status `partially validated`, `unreleased`. Historische 1.0-Evidenz unten gilt ausschließlich für die damaligen drei Slots.
 
-Historischer nativer Gruppenadapter: `Tests/CI/run-json-groups-lab.ps1`; bei Version 1.2 stoppt er ausdrücklich vor Labdiscovery. Die 1.2-Teilnachweise stammen aus separat geprüften privaten Adaptern. Die Bash-Labroute ist für Lab explizit gesperrt; GitHub-Container verwenden den Bash-Runner weiterhin als gesonderten aktuellen PR-Head-Gate.
+Historischer nativer Gruppenadapter: `Tests/CI/run-json-groups-lab.ps1`; er
+akzeptiert ausschließlich den ursprünglichen SQL-only-Stand 1.1.0. Andere,
+fehlende oder doppelte Versionsangaben stoppen vor dem Lesen der Legacydateien
+und vor Labdiscovery mit `JSON_CLR_NATIVE_ADAPTER_REVIEW_REQUIRED`. Die frühere
+Sperre nur für 1.2 erfasste den aktuellen Stand 1.3 nicht; eine spätere
+Source-Anzahlprüfung verhinderte weiterhin die SQL-Ausführung. Neun
+Offlinegegenproben im bestehenden `Test-JsonSchemaLabScope.ps1` prüfen Versionen
+und frühe Aufrufreihenfolge. Dies qualifiziert keinen neuen nativen Adapter.
+Die 1.2-Teilnachweise stammen aus separat geprüften privaten Adaptern. Die
+Bash-Labroute ist für Lab explizit gesperrt; GitHub-Container verwenden den
+Bash-Runner weiterhin als gesonderten aktuellen PR-Head-Gate.
 
 Der flüchtige CI-Container erhält eine zufällige Owner-Kennung. Beim normalen
 Prozessende werden volle Container-ID und Owner aus derselben Inspectaufnahme
