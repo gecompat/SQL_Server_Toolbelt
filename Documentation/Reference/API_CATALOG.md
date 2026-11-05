@@ -2064,7 +2064,7 @@ Fachliche Fassade der privaten atomaren Managed-Admission.
 
 Vertrag und Quelle: [USP_ClaimWorkerWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ClaimWorkerWork.sql), [USP_ClaimWorkerWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ClaimWorkerWork.md).
 
-<!-- Source/Vertrag SHA256: 8b2d4f811d0374b1cf2a3663883553f202879fb6cf313a12dd9e75f8ee9e796e -->
+<!-- Source/Vertrag SHA256: b78292046196ebda3e94c6babff82db5816c7e3becaa999585f83b2a5bb56559 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2100,7 +2100,7 @@ Schließt ausschließlich eine Generation ohne belegte oder ungeklärte Reservat
 
 Vertrag und Quelle: [USP_CloseWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql), [USP_CloseWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_CloseWorker.md).
 
-<!-- Source/Vertrag SHA256: 0035929607d5961fd32b281bff4aff8dc5704c43de6095595fafdb00d9179018 -->
+<!-- Source/Vertrag SHA256: ab44280b73ae66fe0ab5357e2243e0e5d973c7ddf28eb27f1df4ef43092d8f24 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2134,7 +2134,7 @@ Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder unge
 
 Vertrag und Quelle: [USP_DisableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql), [USP_DisableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_DisableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: 4bb68acffbdeeeb9bf2a049550e205df72818ce8bc0f528530a58aa0e739a321 -->
+<!-- Source/Vertrag SHA256: d4b289310abc14ae75eca24a89048a4775342fd3a49bbd00cfc670004626757e -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2168,7 +2168,7 @@ Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder unge
 
 Vertrag und Quelle: [USP_EnableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql), [USP_EnableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_EnableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: 296bc29ba40a469be50119fcb0cf96667b23b8a8844a301912d1f69896405111 -->
+<!-- Source/Vertrag SHA256: bc7060f8fb606587f314b18cebf6afdeb7b4daf8162f2b7b843332c7d52f59fb -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2202,7 +2202,7 @@ Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu ü
 
 Vertrag und Quelle: [USP_HeartbeatWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql), [USP_HeartbeatWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_HeartbeatWorker.md).
 
-<!-- Source/Vertrag SHA256: e61363e538122fbad399f44bda9f2b4f465ee6d54d56c21ebcf4e64ea8b55a33 -->
+<!-- Source/Vertrag SHA256: 6424135e35d747af6e5507a49047483ccc8b43591ebf77f737014feba20013f7 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2236,7 +2236,7 @@ Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispat
 
 Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 57b89019aeff7a6407b18e8d61b36da553199fe8a2165cb39a0dcf65203faac5 -->
+<!-- Source/Vertrag SHA256: 326e1bab8ba8c4654f8bf7198df3693777ee025f517e7c2815fceadcccf27682 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2271,7 +2271,7 @@ Registriert eine neue principal- und generationgebundene Workeridentität; über
 
 Vertrag und Quelle: [USP_RegisterWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql), [USP_RegisterWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_RegisterWorker.md).
 
-<!-- Source/Vertrag SHA256: 6f9bc1994a7e215a4dc34c4969cf62722990e23f497b9f40c35d0f23386f1178 -->
+<!-- Source/Vertrag SHA256: d867c96b5f3b7ca4262a3993ffb8947314adaee706fed1cdb4d9103f8c007d84 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2307,7 +2307,7 @@ Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase;
 
 Vertrag und Quelle: [USP_ReleaseHeldWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReleaseHeldWork.sql), [USP_ReleaseHeldWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReleaseHeldWork.md).
 
-<!-- Source/Vertrag SHA256: 82e7b59620ade50e695787cb4fd16377b7427af24a226aa4a9f1ceeade8505ea -->
+<!-- Source/Vertrag SHA256: c5cdab7647a6df21b87f5b243340798c6369911233cc6171a3d4dd238d2259c1 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2342,7 +2342,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerCapacity.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql), [USP_SetWorkerCapacity.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerCapacity.md).
 
-<!-- Source/Vertrag SHA256: 4069cd3a9b45103b8a5c14bdd88b9673c93be7e432524314c2a64ddefd89700e -->
+<!-- Source/Vertrag SHA256: 944fd84bdf107e4ef5ee1a3e978c9b84f99a23b299e4ef6e16464d380bc0c103 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2379,7 +2379,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerConcurrency.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql), [USP_SetWorkerConcurrency.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerConcurrency.md).
 
-<!-- Source/Vertrag SHA256: ca5371730399ec145db000eb890b7c6b685322689a704209c8d5c2293c021dcc -->
+<!-- Source/Vertrag SHA256: 897b6e85ef823fb4091751bbc6bb0a79cbb391cf6ab06c7351839ea01e7f09e9 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2414,7 +2414,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerIntervals.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql), [USP_SetWorkerIntervals.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerIntervals.md).
 
-<!-- Source/Vertrag SHA256: 6ad23717fc1c9b40d9de30bdb3fdbeb773451f730dbb7de0b116f8fdcb53198c -->
+<!-- Source/Vertrag SHA256: 51ede882f01dd399bad578ec3fa04e1fe43719ce48931b2c9f260263408e7d51 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2450,7 +2450,7 @@ Steuert ACTIVE, PAUSED oder DRAINING einer exakten lebenden Workergeneration.
 
 Vertrag und Quelle: [USP_SetWorkerState.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql), [USP_SetWorkerState.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerState.md).
 
-<!-- Source/Vertrag SHA256: 9d26158435ec76e65affd6912e0cf135e2ff6125ce4596123c03ef7c6264d7f9 -->
+<!-- Source/Vertrag SHA256: 9ee9b85a1b2df56f1448379131d85678553b120b3480e8ad48cf2d4e335dd464 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2487,7 +2487,7 @@ Persistiert generationgebunden Stop und Hold vor Providerabbruch; Completiongewi
 
 Vertrag und Quelle: [USP_StopWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkerExecution.sql), [USP_StopWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 8b9d45dbe119cf4a3ca1fe299737470517f57727895ec848cc7ee216d849deef -->
+<!-- Source/Vertrag SHA256: c64054232f6583053a7536956a9e9267740c432ee2777cf1496af518c8865cc3 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2522,7 +2522,7 @@ Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/H
 
 Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md).
 
-<!-- Source/Vertrag SHA256: 52a58729ad6048700377f8447e6625b2ae0adaa1776ff0a8e5220c1b88fae24e -->
+<!-- Source/Vertrag SHA256: 9591949c416a1c1cfa77a8daf2cb5eb5298e88814998eeff328fc61771a50f4b -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
