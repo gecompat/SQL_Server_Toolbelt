@@ -86,18 +86,18 @@ class ExecutionTests(unittest.TestCase):
 
     def test_timeout_is_failure_with_last_test_even_after_large_output(self):
         output = b'VALIDATION_TEST_START synthetic.last\n' + b'x' * 20000
-        timeout = subprocess.TimeoutExpired(['python', 'synthetic.py'], 660, output=output, stderr=b'bounded error')
+        timeout = subprocess.TimeoutExpired(['python', 'synthetic.py'], 1200, output=output, stderr=b'bounded error')
         with mock.patch.object(validator.subprocess, 'run', side_effect=timeout) as run:
             with self.assertRaises(validator.ValidationError) as caught:
-                validator.run_hidden(['python', 'synthetic.py'], timeout=660, text=True, encoding='utf-8')
+                validator.run_hidden(['python', 'synthetic.py'], timeout=1200, text=True, encoding='utf-8')
         message = str(caught.exception)
         self.assertIn('synthetic.last', message)
-        self.assertIn('660 Sekunden', message)
+        self.assertIn('1200 Sekunden', message)
         self.assertIn('synthetic.py', message)
         self.assertIn('nicht abgeschlossen', message)
         self.assertIn('bounded error', message)
         self.assertLess(len(message), 9000)
-        self.assertEqual(run.call_args.kwargs['timeout'], 660)
+        self.assertEqual(run.call_args.kwargs['timeout'], 1200)
 
     def test_missing_or_non_utf8_timeout_output_still_reports_failure(self):
         for output in (None, b'\xff'):

@@ -1817,11 +1817,12 @@ def main() -> int:
     if "release_preparation" in checks:
         # Preserve every unique check; the documentation runner collapses only
         # the known duplicate CSV-class registration in the unchanged pinned suite.
-        # Keep the existing finite eleven-minute boundary, with progress on timeout.
+        # Der vollständige Lauf überschreitet lokal elf Minuten. Zwanzig Minuten
+        # geben ihm begrenzte Reserve; Fortschritt bleibt bei Timeout sichtbar.
         # Keep the hidden process boundary so no console window steals focus.
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/run_release_validation.py")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=660,
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=1200,
         )
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
