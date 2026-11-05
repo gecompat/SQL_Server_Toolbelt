@@ -1,5 +1,9 @@
 # Work Type Catalog
 
+**Praktischer Einstieg:** [Queue-Anleitung mit Handlerregistrierung und Policies](../toolbelt.core.work-queue/Documentation/USAGE.md#work-types-und-berechtigungen).
+Das vollständige Beispiel richtet einen synthetischen Handler und die
+erforderlichen ENQUEUE-/CLAIM-Freigaben ein.
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 ## Status

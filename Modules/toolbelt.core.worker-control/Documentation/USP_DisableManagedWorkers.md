@@ -16,7 +16,7 @@ Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder unge
 
 ConfigVersion binary(8) NOT NULL; ManagedEnabled bit NOT NULL
 
-Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis nutzt den kanonischen ResultTable-Vertrag atomar. Fehler 54210..54239, bestehende Queue-/Enginefehler bleiben getrennt. Vorhandene EXECUTE-Rechte sind erforderlich; keine Rechtevergabe. Sourcevorbereitung: not executed, unreleased.
+Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis nutzt den kanonischen ResultTable-Vertrag atomar. Fehler 54210..54239, bestehende Queue-/Enginefehler bleiben getrennt. Vorhandene EXECUTE-Rechte sind erforderlich; keine Rechtevergabe. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
 
 ## Aufrufparameter
 
@@ -33,9 +33,14 @@ Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis 
 ## Voraussetzungen für den Aufruf
 
 - Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-- Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+- Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Aktuelle Nachweise und Grenzen stehen im [Modulstatus](../README.md).
 
 ## Beispielaufruf
+
+Zusammenhängende Betriebsbeispiele mit Beschaffung der IDs/Versionen und
+Ergebnisdeutung: [Worker starten und steuern](../../../Workers/ExternalQueue/USAGE.md).
+Ein untenstehender `@Hilfe=1`-Aufruf liest nur die Referenz, er führt keine
+Workeraktion aus.
 
 ```sql
 EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;

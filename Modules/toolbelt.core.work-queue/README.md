@@ -1,5 +1,13 @@
 # Transactional Work Queue
 
+Persistente SQL-Aufträge einreihen, über Claims verteilen und ihren Abschluss
+nachverfolgen. Ein Worker führt die registrierten Handler aus.
+
+**Einstieg:** [Queue verwenden – Anleitung, Einsatzfälle und vollständige Beispiele](Documentation/USAGE.md).
+Dort stehen Installation, Rechte, Retry/Dead Letter, Prioritäten, Barriers,
+Statusdeutung und Fehlerklärung. Weiter zum
+[externen und verwalteten Workerbetrieb](../../Workers/ExternalQueue/USAGE.md).
+
 ## Security-Korrektur 2026-10-14
 
 SC-029/SC-032: Die Legacyclaim-Prüfung erfolgt erneut unter einer bis Transaktionsende gehaltenen Tabellensperre. Der Barrier-Contract weist vorzeitige Barrierclaims vor Blockerabschluss ausdrücklich ab.
@@ -37,8 +45,9 @@ datierten Quellen und qualifiziert die spätere 2.1-Integration nicht.
 Das Modul reiht Aufträge für registrierte Work Types ein, beansprucht sie
 atomar für eine begrenzte Lease und schließt sie mit einem nicht erratbaren
 Claim-Token als `COMPLETED` oder `FAILED` ab. Heartbeats verlängern nur eine
-noch aktive Lease. Eine ausdrückliche Recovery setzt abgelaufene Claims auf
-`QUEUED` zurück und invalidiert das bisherige Token. Die interne Tabelle ist
+noch aktive Lease. Eine ausdrückliche Recovery überführt geeignete abgelaufene Claims gemäß
+ihrer Retry-Policy nach `RETRY_WAIT` oder `DEAD_LETTER` und invalidiert das
+bisherige Token. Managedclaims und Holds werden dabei nicht übernommen. Die interne Tabelle ist
 kein öffentlicher DML-Vertrag.
 
 ## Öffentliche Objekte
