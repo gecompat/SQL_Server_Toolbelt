@@ -170,6 +170,31 @@ function Reject($Connection,[string]$Text,[int]$Expected){
  }
  if(-not$rejected){throw 'JSON_SCHEMA_EXPECTED_REJECTION'}
 }
+function Assert-JsonTrustConsumersAbsent($Connection,[byte[]]$Hash){
+ # Ein eigener Trusteintrag kann inzwischen von einer fremden Datenbank
+ # verwendet werden. Ohne vollständige Sicht und frischen Nullnachweis wird
+ # nichts entfernt. Namen/Fehltexte bleiben aus dem öffentlichen Ergebnis fern.
+ if($null-eq$Hash-or$Hash.Length-ne64){throw 'JSON_SCHEMA_TRUST_CONSUMER_HASH'}
+ try{
+  $visible=@(Sql $Connection "SELECT CONVERT(int,IS_SRVROLEMEMBER(N'sysadmin')) AS Allowed;" -Rows)
+  if($visible.Count-ne1-or$visible[0].Allowed-ne1){throw 'JSON_SCHEMA_TRUST_CONSUMER_VISIBILITY'}
+  $databases=@(Sql $Connection 'SELECT name,state FROM sys.databases ORDER BY name;' -Rows)
+  if($databases.Count-lt1){throw 'JSON_SCHEMA_TRUST_CONSUMER_CATALOG'}
+  foreach($database in $databases){
+   if($database.name-isnot[string]-or[string]::IsNullOrWhiteSpace($database.name)-or$database.name.Length-gt128-or$database.state-ne0){throw 'JSON_SCHEMA_TRUST_CONSUMER_DATABASE_UNAVAILABLE'}
+   $safe=$database.name.Replace(']',']]')
+   $sql='SELECT COUNT_BIG(*) AS Consumers FROM ['+$safe+'].sys.assemblies a JOIN ['+$safe+'].sys.assembly_files f ON f.assembly_id=a.assembly_id WHERE f.file_id=1 AND HASHBYTES(N''SHA2_512'',f.content)=@Hash;'
+   $consumers=@(Sql $Connection $sql @{'@Hash'=$Hash} -Rows)
+   if($consumers.Count-ne1-or$consumers[0].Consumers-isnot[long]-or$consumers[0].Consumers-lt0){throw 'JSON_SCHEMA_TRUST_CONSUMER_RESULT'}
+   if($consumers[0].Consumers-ne0){throw 'JSON_SCHEMA_TRUST_CONSUMER_PRESENT'}
+  }
+  $after=@(Sql $Connection 'SELECT name,state FROM sys.databases ORDER BY name;' -Rows)
+  if(($databases|ConvertTo-Json -Depth 3 -Compress)-cne($after|ConvertTo-Json -Depth 3 -Compress)){throw 'JSON_SCHEMA_TRUST_CONSUMER_CATALOG_CHANGED'}
+ }catch{
+  if($_.Exception.Message-cmatch'^JSON_SCHEMA_TRUST_CONSUMER_[A-Z_]+$'){throw}
+  throw 'JSON_SCHEMA_TRUST_CONSUMER_READ_FAILED'
+ }
+}
 $control=$null;$failed=$false
 try{
  Save-Journal;Assert-Pins;$stage='PREFLIGHT';$control=Open-Connection 'master'
@@ -361,6 +386,7 @@ IF DB_ID(@Name) IS NOT NULL THROW 55692,N'Own removal failed.',8;
     if($present.Count-eq1-and$present[0].Present-eq0){$entry.State='RESTORED';Save-Journal;continue}
    }
    if($entry.State-cne'OWNED'){throw 'JSON_SCHEMA_CLEANUP_UNKNOWN_TRUST'}
+   Assert-JsonTrustConsumersAbsent $control ([Convert]::FromHexString($entry.Hash))
    Sql $control @'
 IF NOT EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=@Hash AND CONVERT(varbinary(max),description)=CONVERT(varbinary(max),@Description) AND CONVERT(varbinary(max),create_date)=@Creation AND CONVERT(varbinary(max),created_by)=CONVERT(varbinary(max),@Creator)) THROW 55692,N'Own trust identity changed.',9;
 DECLARE @ExactHash varbinary(64)=@Hash;
