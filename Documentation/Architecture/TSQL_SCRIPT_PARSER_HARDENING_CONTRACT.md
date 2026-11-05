@@ -140,3 +140,34 @@ Major 2.0.0 dokumentiert bewusste Inkompatibilitäten: endliche NULL-Grenzen, Ab
 Install/Upgrade/Uninstall müssen eine vorhandene Caller-Transaktion **vor SET-Änderungen und jeder Mutation** ablehnen. Dafür werden ein nicht doomendes `RAISERROR` und unmittelbares `RETURN` verwendet: kein `THROW` unter geerbtem `XACT_ABORT`, kein Rollback fremder Arbeit und keine Änderung vorgemerkter Sessionoptionen auf diesem Ablehnungspfad. Die vorhandene interne Ownership für Deployment-Transaktion/Applock bleibt erhalten. Fehlertests belegen erhaltene Caller-Arbeit, Transaktionszähler/-zustand und SET-Optionen sowie mutationsfreie Fehler bei fremden Objekten oder unbekannten Versionen.
 
 Statische/Contract-Prüfungen und isolierte Qualifikation gehen Live-Tests voraus. Für diese Welle sind risikobasiert **Windows SQL Server 2019 und 2025** über den vorhandenen schema-validierten Lab-Vertrag ausgewählt. Windows SQL Server 2022 bleibt separat **nicht ausgeführt/offen**, sofern kein zusätzlicher begründeter Testbedarf ausgewählt wird; die Zielmatrix wird damit nicht verkleinert. Geprüft werden saubere Installation, lokale/zentrale Nutzung, Upgrade, Wiederholung, Grenzen/Fehler/Atomarität, Dependency-Kollisionen, Ownership und vorhandene minimale Rechte ohne Rechtevergabe. Infrastruktur-Lücken werden getrennt von fehlgeschlagenen Assertions gemeldet. Dieser Vertrag behauptet keine Live-Ausführung, kein Release, keine Trust-Mutation und keine neue finale Entscheidungs-ID.
+
+## Freigegebene aktuelle Abnahme vom 2026-11-05
+
+Der Benutzer hat die native aktuelle API-Matrix, Ausgabegrenzen und
+Minimalrechte ausdrücklich zur autonomen Qualifikation freigegeben.
+Die neu ausgeführte API-Matrix umfasst Windows SQL2019/CU32 CL150,
+SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, jeweils lokal und
+zentral. Historische Ausführungen oben behalten ihren damaligen Scope.
+
+Als eng begrenzte Abweichung vom früheren Testplan ist ein eigener
+temporärer Datenbankbenutzer **ohne Login** mit SELECT ausschließlich auf
+die vier öffentlichen Funktionen ausdrücklich freigegeben. Bestehende
+Identitäten und Serverrechte werden nicht verändert. Die Positive-/DENY-
+Prüfung belegt datenbanklokale Rechte, keine neue Clientanmeldung oder
+gemappte Lowpriv-Cross-DB-Identität.
+
+Für die Ausgabequoten ist der
+[kombinierte buildgebundene Nachweisvertrag](../../Modules/toolbelt.tsql.script-parser/Tests/OUTPUT_QUOTA_ACCEPTANCE_PROPOSAL.md)
+ausdrücklich freigegeben: öffentliche Native-Grenzaufrufe, Originalbudget
+mit gleichzeitig unveränderten Produktionslimits sowie quellgebundene
+Invarianten- und Dominanzprüfungen werden als getrennte Nachweisarten
+zusammengeführt. Die Aussage zur fehlenden Ersetzbarkeit von Helper- durch
+Native-Evidenz bleibt erhalten; die genehmigte Abnahme verlangt keinen
+fiktiven vollständigen nativen Quoten-Branchlauf. Nicht ausgeführte
+öffentliche Grenzaufrufe bleiben als nicht ausgeführt ausgewiesen.
+Kein numerisches Limit und kein Produktbinary wurde dafür geändert.
+
+Die [aktuelle Prüfmatrix](../../Modules/toolbelt.tsql.script-parser/Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md)
+und der [aggregierte Nachweis](../../Modules/toolbelt.tsql.script-parser/Tests/Qualification/Current.Build.20261105.json)
+halten die Source-/Methodenbindung, Ergebnisse und verbleibenden
+Aussagegrenzen fest. Dies erteilt keine Veröffentlichungsfreigabe.

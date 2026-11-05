@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-11-05 – Aktuellen Parserbuild nach vereinbartem Quotenvertrag qualifiziert
+
+Die native API- und datenbanklokale Minimalrechtematrix von Parser2.0.1
+bestand auf Windows SQL2019/CU32,2022/CU26,2025/CU8 alle unterstützten
+Compatibility Levels lokal/zentral:72 Suites und frische Parser-/
+Konfigurationsaudits PASS. Der erste veraltete Lifecycle-Literalhash und die
+ursprüngliche SQL2025-Caller-Restoreblockade bleiben erhalten; finale eigene
+Wiederherstellung frisch geprüft. Der Lifecycle-Sollhash ist jetzt an das
+validierte Release-Manifest gebunden, SQL2022 nutzt nur CL150/160.
+
+Der ausdrücklich freigegebene kombinierte Ausgabequotenvertrag verbindet
+gekennzeichnete Nativeaufrufe mit Originalbudget-, Invarianten- und
+Dominanzprüfungen; abschließender Frameworklauf248 Fälle. Nicht ausgeführte
+öffentliche Quoten-Branchaufrufe bleiben ausdrücklich nicht ausgeführt.
+Kein Produktbinary oder numerisches Limit geändert. Modul `validated` für
+diesen Build und Nachweisvertrag, weiterhin `unreleased`.
+[Methode und Aussagegrenzen](Modules/toolbelt.tsql.script-parser/Tests/README.md#aktueller-stand-vom-2026-11-05).
+
 ## 2026-11-01 – Sichtbaren Windows-SSMS-Teilumfang nachgewiesen
 
 Der neue getrennte Clientnachweis bindet Windows-NTLM am ausgewählten Labziel,
@@ -2293,7 +2311,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 23 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

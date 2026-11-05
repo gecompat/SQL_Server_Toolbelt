@@ -14,6 +14,14 @@ Assert-ParserProbe ($composed.Contains('$script:parserCurrentCleanup=$true') -an
 Assert-ParserProbe ($composed.Contains('Assert-NoAssemblyConsumer') -and $composed.Contains('PRIVATE_JOURNAL_MUST_BE_OUTSIDE_GIT'))
 $tokens=$null;$errors=$null
 $composedAst=[Management.Automation.Language.Parser]::ParseInput($composed,[ref]$tokens,[ref]$errors)
+Assert-ParserProbe ($composed.Contains("elseif (`$Version -eq '2022') {@(150,160)}"))
+Assert-ParserProbe ($composed.Contains("'OutputCeilings.Contract.sql','MinimalRights.Contract.sql'"))
+Assert-ParserProbe ($composed.Contains('ExpectedProviderHash=$manifest.sqlServerHexLiteral') -and $composed.Contains('ExpectedScriptDomHash=$manifest.scriptDomSqlServerHexLiteral'))
+$readScript=$composedAst.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Read-ParserScript'},$true)
+. ([scriptblock]::Create($readScript[0].Extent.Text))
+$lifecyclePath=Join-Path $root 'Modules/toolbelt.tsql.script-parser/Tests/Runtime/Lifecycle.Contract.sql'
+$boundLifecycle=Read-ParserScript $lifecyclePath @{ExpectedProviderHash=('0x'+('A'*128));ExpectedScriptDomHash=('0x'+('B'*128))}
+Assert-ParserProbe ($boundLifecycle.Contains('0x'+('A'*128)) -and $boundLifecycle.Contains('0x'+('B'*128)) -and -not $boundLifecycle.Contains('$('))
 Assert-ParserProbe (@($composedAst.FindAll({param($n)$n -is [Management.Automation.Language.VariableExpressionAst] -and $n.VariablePath.UserPath -ieq 'mode'},$true)).Count -eq 0)
 # Reproduce the native inherited-ValidateSet failure without loading a SQL provider.
 $modeLoop=$composedAst.FindAll({param($n)$n -is [Management.Automation.Language.ForEachStatementAst] -and $n.Variable.VariablePath.UserPath -ceq 'parserCurrentDeploymentMode'},$true)

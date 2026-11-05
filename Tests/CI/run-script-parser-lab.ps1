@@ -68,7 +68,7 @@ function Invoke-ParserBatches {
                 $failure = $_.Exception
                 while ($failure.InnerException) { $failure = $failure.InnerException }
                 if ($Scope -ne 'UNSPECIFIED' -and $failure -is [Data.SqlClient.SqlException]) {
-                    throw ('PARSER_SQL_FAILED_' + $failure.Number + '_SCOPE_' + $Scope + '_BATCH_' + $batchOrdinal)
+                    throw ('PARSER_SQL_FAILED_' + $failure.Number + '_STATE_' + $failure.State + '_SCOPE_' + $Scope + '_BATCH_' + $batchOrdinal)
                 }
                 throw
             }
@@ -437,7 +437,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         $consumer = [Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
         $consumer.Open()
         foreach ($mode in @('local','central')) {
-            $variables = @{DeploymentMode=$mode;ConfirmNoExternalConsumers='1';ToolbeltDatabase=$database}
+            $variables = @{DeploymentMode=$mode;ConfirmNoExternalConsumers='1';ToolbeltDatabase=$database;ExpectedProviderHash=$manifest.sqlServerHexLiteral;ExpectedScriptDomHash=$manifest.scriptDomSqlServerHexLiteral}
             $deploy = Read-ParserScript (Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql') $variables
             $uninstall = Read-ParserScript (Join-Path $moduleRoot 'Deployment/Uninstall.sql') $variables
             if ($previous) {

@@ -86,6 +86,18 @@ class ParameterHelp(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     transition.restore_verifier_source(ROOT,path,(ROOT/path).read_bytes()+b"\n# changed oracle\n")
 
+    def test_parser_catalog_read_adapter_does_not_admit_changed_pins_or_functions(self):
+        path = "Scripts/Release/ssis_historical_source_bridge.py"
+        current = (ROOT / path).read_bytes()
+        for before, after in (
+            (b"a71f44051612ecccfca70855d040dabb63473c6d581b59079e8910840402d221", b"0" * 64),
+            (b"MAX_SOURCE_BYTES = 1024 * 1024", b"MAX_SOURCE_BYTES = 2 * 1024 * 1024"),
+            (b"return original", b"return current"),
+        ):
+            self.assertIn(before, current)
+            with self.assertRaisesRegex(ValueError, "qualification method differs"):
+                transition.restore_verifier_source(ROOT, path, current.replace(before, after))
+
     def test_missing_extra_or_invalid_parameter_metadata_is_rejected(self):
         item = next(i for i in generator.catalog.objects(ROOT) if i["name"] == "USP_BeginExecution")
         _, params = generator.catalog.signature(item)

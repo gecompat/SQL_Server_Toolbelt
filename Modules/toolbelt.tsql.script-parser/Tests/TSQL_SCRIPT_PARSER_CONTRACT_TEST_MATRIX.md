@@ -1,5 +1,23 @@
 # T-SQL Script Parser Contract-Testmatrix
 
+## Aktuelle native API-/Rechtematrix vom 2026-11-05
+
+| Windows-Ziel | Compatibility Levels | Modi | Bestandene Suites | Abschluss |
+|---|---|---|---:|---|
+| SQL2019/CU32 | 150 | local, central | 12 | Native PASS_CLEANED, frischer Parser- und Konfigurationsaudit PASS |
+| SQL2022/CU26 | 150, 160 | local, central | 24 | Native PASS_CLEANED, frischer Parser- und Konfigurationsaudit PASS |
+| SQL2025/CU8 | 150, 160, 170 | local, central | 36 | Native PASS_CLEANED, frischer Parseraudit PASS; ursprüngliche Caller-Restoreblockade erhalten, eng begrenzte Wiederherstellung und finaler frischer Konfigurationsaudit PASS |
+
+Pro Kontext: vier bestehende API-/Bounds-/Syntax-/Lifecycle-Suites sowie
+OutputCeilings und datenbanklokale Minimalrechte. Der zusätzliche zentrale
+Caller-Vertrag und die bisherigen Transaktions-/Kollisions-/Lock-/Rollback-
+und Uninstallprüfungen bleiben im kanonischen Ablauf erhalten.
+Grenzarten, nicht ausgeführte öffentliche Quotenaufrufe und die ausdrückliche
+Freigabe des eigenen Testbenutzers stehen im
+[aktuellen Nachweis](README.md#aktueller-stand-vom-2026-11-05).
+Historische Upgrades bleiben separate Belege; diese Welle ist kein neuer
+Upgrade-Lauf und keine Veröffentlichung.
+
 > Die 2026-10-02-Nachweise unten gelten für den damaligen ScriptDom-Pin
 > 18.0.56.2. Sie qualifizieren nicht den am 2026-10-07 ausgewählten
 > ScriptDom 18.0.117.0-Pin.
@@ -60,8 +78,8 @@ Semantische Namens- und Spaltenauflösung sowie automatisches Rewriting sind nic
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-18`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1 in zwei verschiedenen Buildroots; Framework/Invoke-Contract.ps1 -QualificationProfile Full; SSIS Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
-- Scope: Ausdrücklich freigegebener pfadbereinigter Build2.0.1: DebugType=none und synthetischer PathMap, bytegleicher Build aus zwei Verzeichnissen,57 Methoden-ILs unverändert,245 begrenzte Frameworkfälle bestanden. Neu gebundene SSIS-/TableClone-Consumer auf Windows2019/2022/2025 lokal/zentral: echter Parser2.0.0-Upgrade und Triggerfixtures, wiederholtes Deployment sowie Consumer-/Uninstallschutz bestanden; eigene Journale PASS_CLEANED. ScriptDom unverändert. Keine neue Vollqualifikation aller nativen Parser-APIs oder Ausgabeceilings; Functional, authentifizierte TLS-Abnahme und aktueller Head-CI-/Releaseabschluss separat.
+- Datum: `2026-11-05`
+- Nachweis: `local: Invoke-ScriptParserCurrentLab.ps1 plus separate configuration recovery/audit; Framework/Invoke-Contract.ps1`
+- Scope: Unveränderter aktueller Quellbuild2.0.1: native API-/datenbanklokale Minimalrechtematrix Windows2019CU32/2022CU26/2025CU8 über unterstützte CLs lokal/zentral,72 Suites; frische Parser-/Konfigurationsaudits PASS. Erste Lifecycle-Literalhashfehler und ursprüngliche2025Caller-Restoreblockade bleiben erhalten, finale eigene Wiederherstellung PASS. Token-Grenze nativ, Errors255/256 und vorgelagerte257er-Atomablehnung auf2022/2025. Framework248 inklusive unveränderter Originalbudgets; kombinierte Quotenabnahme ausdrücklich am2026-11-05 freigegeben, keine Aufwertung nicht ausgeführter öffentlicher Grenzaufrufe.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

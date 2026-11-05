@@ -1,0 +1,126 @@
+{
+  "schema": "parser-current-qualification/v1",
+  "moduleVersion": "2.0.1",
+  "date": "2026-11-05",
+  "result": "PASS_FOR_APPROVED_COMBINED_SCOPE",
+  "publicationAuthorized": false,
+  "cases": [
+    {
+      "freshParserAudit": "PASS",
+      "sqlVersion": "2019",
+      "levels": [
+        150
+      ],
+      "tokenCeiling": "NATIVE_PASS",
+      "guardedRecoveryPerformed": false,
+      "completedSuites": 12,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "minimalRights": "DB_USER_WITHOUT_LOGIN_SELECT_ONLY_PASS",
+      "originalCallerRestoreBlocked": false,
+      "nativeResult": "PASS_CLEANED",
+      "patch": "CU32",
+      "configurationFinalAudit": "PASS",
+      "errorAdmission": "NOT_EXECUTED"
+    },
+    {
+      "freshParserAudit": "PASS",
+      "sqlVersion": "2022",
+      "levels": [
+        150,
+        160
+      ],
+      "tokenCeiling": "NATIVE_PASS",
+      "guardedRecoveryPerformed": false,
+      "completedSuites": 24,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "minimalRights": "DB_USER_WITHOUT_LOGIN_SELECT_ONLY_PASS",
+      "originalCallerRestoreBlocked": false,
+      "nativeResult": "PASS_CLEANED",
+      "patch": "CU26",
+      "configurationFinalAudit": "PASS",
+      "errorAdmission": "NATIVE_PASS_AT_256_THEN_PREPARSE_REJECTION"
+    },
+    {
+      "freshParserAudit": "PASS",
+      "sqlVersion": "2025",
+      "levels": [
+        150,
+        160,
+        170
+      ],
+      "tokenCeiling": "NATIVE_PASS",
+      "guardedRecoveryPerformed": true,
+      "completedSuites": 36,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "minimalRights": "DB_USER_WITHOUT_LOGIN_SELECT_ONLY_PASS",
+      "originalCallerRestoreBlocked": true,
+      "nativeResult": "PASS_CLEANED",
+      "patch": "CU8",
+      "configurationFinalAudit": "PASS",
+      "errorAdmission": "NATIVE_PASS_AT_256_THEN_PREPARSE_REJECTION"
+    }
+  ],
+  "totalCompletedSuites": 72,
+  "apiMatrix": "PASS",
+  "minimalRights": "PASS_FOR_DATABASE_SCOPED_IDENTITY",
+  "quotaAcceptance": "APPROVED_COMBINED_EVIDENCE",
+  "publicBoundaryCallsNotExecuted": [
+    "Nodes:32767/32768/32769",
+    "Properties:16MiB transition",
+    "Errors:257 quota-overflow branch"
+  ],
+  "frameworkFinalCases": 248,
+  "historicalFailuresPreserved": true,
+  "productCodeChanged": false,
+  "productSources": {
+    "Source/TT_TokenReplacement.sql": "AAB37117622F9375793AC896EBD085B17F13335B0570E83470F345CA2986A41B",
+    "Source/TVF_TokenizeScript.sql": "E07C605E2FE98EDF9434482CE2A0AEECCE545DA0CBDBB021DC5A4AC47033F0D8",
+    "Source/TVF_ExtractScriptTableReferences.sql": "6179DA4C5B3B0E20660694065EC16D5817FDD61895191CAA4825DF4960330667",
+    "Source/TVF_ParseScriptNodeProperties.sql": "4EAB0502ED75F4B7C9E502E8D0BE1C161AF89CDB5F8F150025BB5A7B50ED5FCE",
+    "Source/USP_RewriteScriptToGlcGuids.sql": "DA01C7D1869C4F2AC49DE32B7021CA55F39D516624F652D958B85BECA5D7A4D6",
+    "Deployment/Deploy.sql": "D60B535F463745BB5F6D307097090A726AB7D647A22EE94E60D73AE7D6450AD9",
+    "Deployment/Add-TrustedAssembly.sql": "24AB54D57222AC90A76E3F281519BE78A91504CDE029AC118B2D77AB363A6F54",
+    "Source/USP_TranslateGlcGuidsToScript.sql": "CD084429ACB822E12E23A74EAD3A6D1E4D862BD1FE648ABCE20E4E2AA5B20A25",
+    "Source/TVF_ParseScriptNodes.sql": "6F560744DDEF419BFAE19107B47AAFA00A03AD6411A03554BF5259CD606095DA",
+    "Clr/Toolbelt.Tsql.ScriptParser.csproj": "A1A097E654154C57D108A859FDB28D10A913854DBF0CAF5668FE6F85A5FF965E",
+    "Source/TVF_ParseScriptErrors.sql": "9F056EA7D1031BAAC1C90D737E76295BFAC4C409F791C4DE357E934F6A541B8F",
+    "Source/TVF_ParseTenantDatabaseName.sql": "50FDA9D6DE1462C728E0A8CDE60C32BB995401958C6F26C33D1C5EAD1A3A64FF",
+    "Clr/ScriptParserProvider.cs": "F74488C0E657E886CA4AD1E86FFE96463AE3CADCF1E90989819E8697C8A8F2CF",
+    "Deployment/Uninstall.sql": "1970BA8045FCB87DA79F0BF5FF060557755F6169FC50A603D9BB0CB891A103F6",
+    "Source/TVF_ResolveSynonyms.sql": "A651C0DD271E41893437390D15072447877F71F85B62E759577DA0FA5B99DC5B",
+    "Source/TVF_ExtractScriptColumnReferences.sql": "EF321456D0B86923659B1112FA3F6DD9368601A21A2DFADFDE4EBBC9E624B53A",
+    "Clr/PreparseGuard.cs": "83A84FBDA92B416FAE56DB0C52030547FA9E482D9D671971C2E64D748E3C366E",
+    "Source/USP_ApplyTokenReplacements.sql": "1D9E84ECA6B6E7B7A9965AB34BD7233F6F32B507A000B057142CECEDC1C7DBEA",
+    "Clr/Properties/AssemblyInfo.cs": "3AA4B3107EAA7C75CECD06BC9E41E78B08BF6110958C909B2002BB320FDFACE4",
+    "Clr/PreparseGuardCore.cs": "0635250F5A30064985D50A1E982F6D66FE022769AE20D72885E9B24505E36B52"
+  },
+  "fullNativeBoundaryCoverage": false,
+  "binaryBudgetTests": "PASS_ACTUAL_FIXED_LIMITS",
+  "sourceInvariant": "PASS_REVIEWED_BODY",
+  "dominanceProof": "PASS_PINNED_CATALOG",
+  "methodSources": {
+    "Tests/CI/run-script-parser-lab.ps1": "F2F70C57A10F589CE1EADAF61FA97B4804896E98D217115570416654FACFFEA7",
+    "Tests/CI/Invoke-ScriptParserCurrentLab.ps1": "E5F254C685292240646849B38D90CFC5FB03B3E9521F9AA7CEC6B7D1919B590B",
+    "Tests/CI/ParserCurrentSnapshot.ps1": "C69191E67889488BB5C2A9D87371954ED2BBC38E815C108C9408C76D2CD75601",
+    "Tests/Release/Test-ParserCurrentLab.ps1": "7A5E9775A94EF4272D5BD166903FDED7C776193B27349850AF60578FBADEBE9A",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/ProviderTests.cs": "DAF18A1CCCF369083417B0DCBD7790FA9183C4B169EBB8FD4091BD1A63068E8D",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/TestInputs.cs": "B799543722356FC943D1013DDE23A78BFD0F96FD8A8E19E159C0661FE640E730",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/Invoke-Contract.ps1": "F377650F47092F6072170F85693FD2AADE7B76003EEB7D6CB4A3DC871464AFC8",
+    "Modules/toolbelt.tsql.script-parser/Tests/Framework/Test-OutputDominance.ps1": "BCCE7ECE82F9B9B4C9E3A45CD1285EE33D389A7127A9A6A7A19FDDB0158AE7D6",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Lifecycle.Contract.sql": "17ABD6F121AA2FE7C471475FE44D47B7A4216A0E08DAA9C8983E61C597D94DC2",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/MinimalRights.Contract.sql": "FB8A50CE41820C842B402437896EA06F8322289DFE6089051A4CEF2FF340C0B3",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/OutputCeilings.Contract.sql": "6E1E43044BF23DC357AB70DE8B51BF7CEEA58B37275FD11D0FE38DA173FBC560",
+    "Modules/toolbelt.tsql.script-parser/Tests/Static/validate_contract.py": "1E1C6981923650BA561FCAFC93C87438DB3DA73375A834662B22A57BBBB5D7B7",
+    "Modules/toolbelt.tsql.script-parser/Tests/Static/validate_output_invariants.py": "64F1106DB11DBFCFFFBF48D491AF34C3100A485592719A709F915A50C9EB9E0E",
+    "Modules/toolbelt.tsql.script-parser/Tests/Static/validate_qualification.py": "6D092A9827AF17DCA5143150953E97524A084C96D582B2EB9515E344A7746E12"
+  }
+}

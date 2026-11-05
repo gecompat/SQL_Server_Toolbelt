@@ -1,5 +1,12 @@
 # T-SQL Script Parser
 
+Die aktuelle native API- und datenbanklokale Rechtematrix auf Windows
+SQL Server 2019, 2022 und 2025 ist bestanden. Das Modul ist für den aktuellen
+Build und den ausdrücklich freigegebenen kombinierten Quoten-Nachweisvertrag
+validiert und bleibt unveröffentlicht. Der
+[aktuelle Qualifikationsstand](Tests/README.md#aktueller-stand-vom-2026-11-05)
+trennt öffentliche Nativeaufrufe, Binary-/Invariantenprüfungen und offene Fälle.
+
 Buildnachtrag 2026-10-18: Für das ausdrücklich gewünschte
 [SSIS-Debug-Installationspaket](../toolbelt.tsql.ssis-debug/InstallPackages/README.md)
 enthält der Releasebuild keine PDB-Debugdaten und verwendet synthetische
@@ -8,13 +15,14 @@ ausdrücklich gebunden; die öffentlichen APIs und Limits bleiben unverändert.
 
 Patch 2.0.1 vom 2026-10-16 extrahiert den gemeinsamen lexikalischen Vorfilter
 für das separat freigegebene [SSIS-Debug-Modul](../toolbelt.tsql.ssis-debug/README.md).
-Die vier öffentlichen TVFs behalten ihre bisherigen Grenzen. Die aktuelle
+Die vier öffentlichen TVFs behalten ihre bisherigen Grenzen. Die damalige
 Patchqualifikation umfasst 245 isolierte Framework-Kindprozesse, 60 Guardfälle
 und statische Vertragsprüfungen. Zusätzlich sind der echte 2.0.0→2.0.1-Upgrade
 und die gekoppelte Table-Clone-Triggerregression nativ geprüft; siehe
 [SSIS-Prüfmatrix](../toolbelt.tsql.ssis-debug/Tests/README.md).
-Weitere Parserqualifikation bleibt getrennt offen. Frühere Laufzeitnachweise
-gelten für ihre damaligen Versionen und Binarypins.
+Diese damaligen Nachweise werden durch die oben verlinkte aktuelle
+Qualifikation ergänzt. Frühere Laufzeitnachweise gelten für ihre damaligen
+Versionen und Binarypins.
 
 `toolbelt.tsql.script-parser` stellt deterministische, rein lesende SQL-CLR Table-Valued Functions (TVFs) auf Basis von Microsoft ScriptDom (.NET Framework 4.8) bereit, um begrenzten T-SQL-Code syntaktisch in AST-Knoten, Knoteneigenschaften, einen verlustfreien Tokenstrom und strukturierte Fehlerlisten zu zerlegen.
 
@@ -44,8 +52,8 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-18`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1 in zwei verschiedenen Buildroots; Framework/Invoke-Contract.ps1 -QualificationProfile Full; SSIS Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
-- Scope: Ausdrücklich freigegebener pfadbereinigter Build2.0.1: DebugType=none und synthetischer PathMap, bytegleicher Build aus zwei Verzeichnissen,57 Methoden-ILs unverändert,245 begrenzte Frameworkfälle bestanden. Neu gebundene SSIS-/TableClone-Consumer auf Windows2019/2022/2025 lokal/zentral: echter Parser2.0.0-Upgrade und Triggerfixtures, wiederholtes Deployment sowie Consumer-/Uninstallschutz bestanden; eigene Journale PASS_CLEANED. ScriptDom unverändert. Keine neue Vollqualifikation aller nativen Parser-APIs oder Ausgabeceilings; Functional, authentifizierte TLS-Abnahme und aktueller Head-CI-/Releaseabschluss separat.
+- Datum: `2026-11-05`
+- Nachweis: `local: Invoke-ScriptParserCurrentLab.ps1 plus separate configuration recovery/audit; Framework/Invoke-Contract.ps1`
+- Scope: Unveränderter aktueller Quellbuild2.0.1: native API-/datenbanklokale Minimalrechtematrix Windows2019CU32/2022CU26/2025CU8 über unterstützte CLs lokal/zentral,72 Suites; frische Parser-/Konfigurationsaudits PASS. Erste Lifecycle-Literalhashfehler und ursprüngliche2025Caller-Restoreblockade bleiben erhalten, finale eigene Wiederherstellung PASS. Token-Grenze nativ, Errors255/256 und vorgelagerte257er-Atomablehnung auf2022/2025. Framework248 inklusive unveränderter Originalbudgets; kombinierte Quotenabnahme ausdrücklich am2026-11-05 freigegeben, keine Aufwertung nicht ausgeführter öffentlicher Grenzaufrufe.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -117,7 +117,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 45 Module sind implementiert. 23 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -135,13 +135,16 @@ vom 2026-10-19 `validated`. Der
 [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md) ersetzt die historischen
 Kohorten-Restfälle; alle Module bleiben `unreleased`.
 Script Parser 1.0.0 war auf Windows SQL Server 2019, 2022 und 2025 validiert;
-die einzeln freigegebene Härtung 2.0.0 ist aktiv und `partially validated`:
+die einzeln freigegebene Härtung 2.0.0 war `partially validated`:
 245 integrierte Framework-Kindprozesse und Windows 2025/CU8 CL150/160/170
 bestanden. Die damaligen 2019-/2022-Lücken betreffen diesen historischen
 2.0.0-Vollscope. Der freigegebene 2.0.1-Build besteht seit 2026-10-18
 Parser-Upgrades und SSIS-/Table-Clone-Consumerprüfungen auf Windows
-2019/2022/2025 lokal und zentral. Das ist keine Vollqualifikation aller
-nativen Parser-APIs oder Ausgabeceilings; siehe die
+2019/2022/2025 lokal und zentral. Seit2026-11-05 ist der aktuelle Build2.0.1
+auch für die native API-/datenbanklokale Rechtematrix über alle unterstützten
+Windows-CLs und den ausdrücklich freigegebenen kombinierten Quotenvertrag
+`validated`, weiterhin unveröffentlicht. Öffentliche Nativeaufrufe und
+Binary-/Invariantenbelege bleiben getrennt; siehe die
 [aktuelle Parser-Evidenz](../Modules/toolbelt.tsql.script-parser/Tests/README.md).
 Der vor Source qualifizierte Wächterkandidat ersetzt keine integrierte
 Framework- oder Live-SQL-Abnahme. File Content benötigt weiterhin

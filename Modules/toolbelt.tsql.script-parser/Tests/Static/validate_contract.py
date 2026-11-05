@@ -91,6 +91,13 @@ def validate_lifecycle(content: str, name: str) -> None:
 
 
 def main() -> int:
+    from validate_output_invariants import selftest as validate_invariants
+    from validate_qualification import main as validate_current_qualification
+    try:
+        validate_invariants()
+        validate_current_qualification()
+    except (ValueError, AssertionError, KeyError) as error:
+        raise ContractError(str(error)) from error
     required = (
         "Clr/Toolbelt.Tsql.ScriptParser.csproj",
         "Clr/Properties/AssemblyInfo.cs",
@@ -228,8 +235,8 @@ def main() -> int:
     require(
         read("Tests/Runtime/Lifecycle.Contract.sql"),
         "Lifecycle-Contract",
-        "7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506",
-        SCRIPT_DOM_SHA512,
+        "$(ExpectedProviderHash)",
+        "$(ExpectedScriptDomHash)",
     )
     for name in ("TVF_ParseScriptNodes", "TVF_ParseScriptNodeProperties", "TVF_TokenizeScript", "TVF_ParseScriptErrors"):
         source = read("Source/" + name + ".sql")
