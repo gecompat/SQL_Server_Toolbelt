@@ -22,16 +22,12 @@ if(-not$journal.psobject.Properties['FrozenInputs']){throw 'JSON_DISPOSITION_LEG
 if($journal.State-cnotin@('COMPLETE','FAILED_CLEANED')-or-not$journal.PostPins-or-not$journal.DispositionVerified-or
  $journal.ConfigurationChanges-ne0-or$journal.RightsChanges-ne0){throw 'JSON_DISPOSITION_UNFINISHED_SCOPE'}
 if(@($journal.Databases).Count-gt2-or@($journal.Trust).Count-gt4){throw 'JSON_DISPOSITION_UNBOUNDED_SCOPE'}
-# Dieselbe endliche Target-/CL-Grenze wie der Lauf; neue Windowsziele dürfen
-# ausschließlich Constructor-Journale verwenden, keine Schema-/Migrationswelle.
-if($journal.Scope-cnotin@('core-schema','constructors','migration')-or-not(
- ($journal.Platform-ceq'linux'-and$journal.Version-ceq'2019'-and$journal.Patch-ceq'latest'-and$journal.CompatibilityLevel-eq150)-or
- ($journal.Platform-ceq'windows'-and$journal.Version-ceq'2025'-and$journal.Patch-ceq'CU8'-and$journal.CompatibilityLevel-in@(150,160,170))-or
- ($journal.Scope-ceq'constructors'-and$journal.Platform-ceq'windows'-and(
-  ($journal.Version-ceq'2019'-and$journal.Patch-ceq'CU32'-and$journal.CompatibilityLevel-eq150)-or
-  ($journal.Version-ceq'2022'-and$journal.Patch-ceq'CU26'-and$journal.CompatibilityLevel-in@(150,160))
- ))
-)){throw 'JSON_DISPOSITION_TARGET_SCOPE'}
+# Dieselbe quellgebundene Auswahl wie der Producer, vor dem Lab-/SQL-Zugriff.
+$scopeHelper=Join-Path $PSScriptRoot 'JsonSchemaQualificationScope.ps1'
+$scopePin=@($journal.FrozenInputs|Where-Object{$_.Role-ceq'RepositoryOrOwnPackage'-and$_.Path-ceq'Tests/CI/JsonSchemaQualificationScope.ps1'})
+if($scopePin.Count-ne1-or(Get-FileHash -LiteralPath $scopeHelper -Algorithm SHA256).Hash-cne$scopePin[0].SHA256){throw 'JSON_DISPOSITION_SCOPE_PIN'}
+. $scopeHelper
+if(-not(Test-JsonSchemaTargetScope $journal.Platform $journal.Version $journal.Patch $journal.CompatibilityLevel $journal.Scope)){throw 'JSON_DISPOSITION_TARGET_SCOPE'}
 $helper=Join-Path $PSScriptRoot 'run-lab-local.ps1';$errors=$null;$tokens=$null
 $tree=[Management.Automation.Language.Parser]::ParseFile($helper,[ref]$tokens,[ref]$errors)
 if($errors.Count){throw 'JSON_DISPOSITION_HELPER_PARSE'}
@@ -50,7 +46,7 @@ foreach($binding in @(@('Contract',$lab.Path),@('Schema',$lab.SchemaPath),@('Pro
 }
 $targets=@(Get-LabTargetsForSelector -Contract $lab.Contract -Selector ([pscustomobject]@{Platform=$journal.Platform;Version=$journal.Version;Patch=$journal.Patch}))
 if($targets.Count-ne1){throw 'JSON_DISPOSITION_EXACT_TARGET'}
-$pins=@($journalPath,$helper,$lab.Path,$lab.SchemaPath,$prompt,$PSCommandPath)|ForEach-Object{[pscustomobject]@{Path=$_;Hash=(Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash}}
+$pins=@($journalPath,$scopeHelper,$helper,$lab.Path,$lab.SchemaPath,$prompt,$PSCommandPath)|ForEach-Object{[pscustomobject]@{Path=$_;Hash=(Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash}}
 $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $targets[0]))
 $connection=$null;$record=[ordered]@{Scope='FRESH_READ_ONLY_OWN_DISPOSITION';State='FAILED';JournalSHA256=$ExpectedJournalSHA256.ToLowerInvariant();Databases=0;Trust=0;PostPins=$false}
 function Assert-Sql([string]$Text,[hashtable]$Parameters){

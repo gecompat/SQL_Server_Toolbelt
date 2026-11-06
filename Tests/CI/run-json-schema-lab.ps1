@@ -21,16 +21,10 @@ $prefix=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))+[IO.Path]::Director
 if(-not$output.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)-or(Test-Path -LiteralPath $output)){throw 'JSON_SCHEMA_OUTPUT_SCOPE'}
 & git -C $repo check-ignore --quiet -- $output
 if($LASTEXITCODE-ne0){throw 'JSON_SCHEMA_OUTPUT_NOT_IGNORED'}
-# Zusätzliche Windows-Ziele gelten nur für die vorhandenen Constructor-Fixtures.
-# Schema-/Migrationsscopes behalten ihre bisherige Auswahl; kein Patchfallback.
-if(-not(
- ($Platform-ceq'linux'-and$Version-ceq'2019'-and$Patch-ceq'latest'-and$CompatibilityLevel-eq150)-or
- ($Platform-ceq'windows'-and$Version-ceq'2025'-and$Patch-ceq'CU8')-or
- ($QualificationScope-ceq'constructors'-and$Platform-ceq'windows'-and(
-  ($Version-ceq'2019'-and$Patch-ceq'CU32'-and$CompatibilityLevel-eq150)-or
-  ($Version-ceq'2022'-and$Patch-ceq'CU26'-and$CompatibilityLevel-in@(150,160))
- ))
-)){throw 'JSON_SCHEMA_APPROVED_TARGET_SCOPE'}
+# Neue physische Ziele betreffen ausschließlich den bestehenden Core-/Schema-
+# Funktionsscope. Migration und Constructors erhalten keine zusätzliche Auswahl.
+$scopeHelper=Join-Path $PSScriptRoot 'JsonSchemaQualificationScope.ps1';. $scopeHelper
+if(-not(Test-JsonSchemaTargetScope $Platform $Version $Patch $CompatibilityLevel $QualificationScope)){throw 'JSON_SCHEMA_APPROVED_TARGET_SCOPE'}
 if($DeploymentModes.Count-lt1-or@($DeploymentModes|Sort-Object -Unique).Count-ne$DeploymentModes.Count-or
  $ConstructorTests.Count-lt1-or@($ConstructorTests|Sort-Object -Unique).Count-ne$ConstructorTests.Count){throw 'JSON_SCHEMA_DUPLICATE_OR_EMPTY_SCOPE'}
 $helper=Join-Path $PSScriptRoot 'run-lab-local.ps1';$errors=$null
@@ -49,9 +43,11 @@ if($targets.Count-ne1){throw 'JSON_SCHEMA_EXACT_SINGLE_TARGET_REQUIRED'}
 $target=$targets[0]
 $registryPath=Join-Path $repo 'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json'
 $registry=Get-Content -LiteralPath $registryPath -Raw|ConvertFrom-Json
-$expected=@($registry.artifacts|ForEach-Object{$_.Fields.binarySha512.ToLowerInvariant()}|Sort-Object -CaseSensitive)
+# Core/Schema installiert keine Constructors; dessen Hash wird hier auch nicht
+# bloß wegen der gemeinsamen Offlinepaketierung serverweit registriert.
+$expected=@($registry.artifacts|Where-Object{$QualificationScope-cne'core-schema'-or$_.Fields.moduleId-cne'toolbelt.json.constructors'}|ForEach-Object{$_.Fields.binarySha512.ToLowerInvariant()}|Sort-Object -CaseSensitive)
 $approved=@($ApprovedTrustHashes|ForEach-Object{$_.ToLowerInvariant()}|Sort-Object -CaseSensitive)
-if($approved.Count-ne3-or($approved-join'|')-cne($expected-join'|')){throw 'JSON_SCHEMA_EXACT_TRUST_OPT_IN_REQUIRED'}
+if($approved.Count-ne$expected.Count-or($approved-join'|')-cne($expected-join'|')){throw 'JSON_SCHEMA_EXACT_TRUST_OPT_IN_REQUIRED'}
 if($QualificationScope-ceq'migration'){
  $historical=[IO.Path]::GetFullPath($HistoricalDirectory)
  if(-not$historical.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){throw 'JSON_SCHEMA_HISTORICAL_SCOPE'}
@@ -66,7 +62,7 @@ if($QualificationScope-ceq'migration'){
  $expected+=@($historicalRow.Fields.binarySha512)
 }
 [void][IO.Directory]::CreateDirectory($output)
-$pinPaths=@($PSCommandPath,$helper,$prompt,$lab.Path,$lab.SchemaPath)
+$pinPaths=@($PSCommandPath,$scopeHelper,$helper,$prompt,$lab.Path,$lab.SchemaPath)
 foreach($module in @('toolbelt.json.core','toolbelt.json.schema','toolbelt.json.constructors','toolbelt.core.result-table')){
  $pinPaths+=@(Get-ChildItem -LiteralPath (Join-Path $repo ('Modules/'+$module)) -Recurse -File|Where-Object{$_.FullName-notmatch '[\\/](bin|obj|__pycache__)[\\/]'}|ForEach-Object FullName)
 }
