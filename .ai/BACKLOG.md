@@ -5813,6 +5813,16 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 
 ### AP-2026-020: TC-2026-034 Verarbeitungswelle 2 (Implementierungswelle V1A)
 
+Qualifikationsnachtrag 2026-11-06, Codex: Die bestehende ZIP-Archivgrenze
+268435456/268435457 Bytes wurde für beide öffentlichen Reader-USPs auf
+Windows2025/CU8 CL170 und Linux2019/latest CL150 lokal/direkt zentral nativ
+geprüft: acht positive und acht strikte Fehlerproben, zwei Gesamtläufe und
+zwei frische Audits bestanden. Vier Aufrufe/vier eigene DBs innerhalb der
+Originalfrist geschlossen; kein Fehler und keine Wiederholung. Die bisher
+belegte Entryanzahl wurde nicht erneut getestet. [Nachweis und Grenzen](../Releases/1.0.0/ZIP-ARCHIVE-BYTE-QUALIFICATION.md).
+Keine Produkt-/Quoten-/Rechteänderung; komprimierte Entry-/Ausgabegrenzen und
+vollständige Modulqualifikation bleiben getrennt.
+
 | Feld | Wert |
 |---|---|
 | ID | `AP-2026-020` |
