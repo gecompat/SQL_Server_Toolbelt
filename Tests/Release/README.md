@@ -80,6 +80,29 @@ keine native SQL-Ausführung; Git-Snapshots werden gebündelt gelesen und
 unveränderliche Inhalte pro Prozess wiederverwendet. Livebytes und Archive
 werden vor Wiederverwendung erneut geprüft.
 
+
+## Aktuelle Qualifikationsübersicht
+
+Die [zentrale Übersicht](../../Releases/1.0.0/RELEASE-GATES.md#aktueller-qualifikationsabgleich-vom-2026-11-06)
+leitet die aktuellen SSIS- und Parserumfänge aus ihren kanonischen Records ab.
+`python -B Scripts/Release/current_qualification_overview.py` prüft zuerst
+mit den bestehenden Modulvalidatoren Quellen, Paket und Recordgrenzen und
+vergleicht dann die Darstellung. Änderungen an diesen Records erfordern eine
+neue Prüfung der betroffenen Darstellung; es gibt keine neue Statusregistry.
+
+Windows-Anmeldung im funktionalen SSMS-Fall und striktes TLS mit SQL-Anmeldung
+bleiben getrennte Nachweise. Die kombinierte Parserabnahme ersetzt keine
+fehlenden öffentlichen nativen Quoten-Branches. Historische Release- und
+SSMS-Fehlläufe bleiben in ihren ursprünglichen Records erhalten.
+
+Dreizehn [Gegenproben](test_current_qualification_overview.py) sichern unter anderem
+fehlende Audits, überhöhte Zahlen, vermischte Authentifizierungsarten,
+Quellendrift und zu weit gehende Parserbehauptungen. Sie laufen einmal im
+bestehenden Runner; kein neuer CI-Job, keine Agenten, keine SQL-/GUI-/TLS-
+Wiederholung und keine neue native Testfreigabe. Die Testübersicht bleibt ein
+Leseweg zu den Modulmatrizen; die ursprünglichen Quell-/Artefaktnachweise werden
+weder umgeschrieben noch als Ausführung eines späteren Builds ausgegeben.
+
 ## Aktueller Quellkandidat
 
 Die [Kandidatenanleitung](../../Releases/1.0.0/CURRENT-CANDIDATE.md) führt zum
