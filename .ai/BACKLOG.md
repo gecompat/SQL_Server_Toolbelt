@@ -15,6 +15,22 @@ bleiben mit ihren ursprünglichen Quellen und Grenzen erhalten.
 | Gesamtdeployment und übrige Modulqualifikation | Vorhandene freigegebene Restarbeit bleibt offen. Gültige spätere Nachweise vor Wiederholungen abgleichen; bei tatsächlicher Abhängigkeit oder fehlender Autorität unabhängig ausführbare Arbeit vorziehen. |
 | Neue Fachfunktionen und Veröffentlichung | Kandidatenstatus oder allgemeine Autonomie ersetzen keine konkrete Funktionsfreigabe. Vorgeschlagene SSIS-Schreib-/Paritätsfunktionen bleiben getrennt; es wird nicht veröffentlicht. |
 
+## Ergänzender Qualifikationsabgleich — 2026-11-06
+
+Der fortbestehende Autonomieauftrag führte nach der abgeschlossenen
+Windows-Provider-Teilmatrix zu weiteren unabhängigen Prüfungen. Es gibt
+weiterhin offene Arbeit; kein Abschluss der folgenden Teilpakete ist eine
+vollständige Freigabe aller45 Module oder eine Veröffentlichung.
+
+| Arbeit | Nachgewiesener Stand und verbleibende Grenze |
+|---|---|
+| Monotone Worker-Terminalhistorie | [PR523](https://github.com/gecompat/SQL_Server_Toolbelt/pull/523) ist integriert; alle tatsächlichen Head- und Mainchecks bestanden. Der neue Linux-SQL2019-Verbraucher prüft echten Rollback, terminalen Fehlerabschluss, unveränderte Reservation nach zweimaligem Reconcile, Folgeclaim derselben Arbeit, getrennte historische Disposition und exakte Stale-Abweisung. Der lokale Windows-Erstlauf blieb fehlgeschlagen und wurde regulär bereinigt; kein Windows-Gesamt-PASS daraus. Der [Testweg](../Workers/ExternalQueue/Tests/README.md#terminalhistorie-nach-fehlerabschluss-und-folgeclaim) erhält die ursprünglichen Fehler und Scopegrenzen. |
+| Cancellation: befüllter Repeat und Principalbindung | [PR524](https://github.com/gecompat/SQL_Server_Toolbelt/pull/524) ist integriert; acht Headchecks und fünf anwendbare Mainchecks bestanden. Elf Windows-Kontexte des ursprünglichen fünfspaltigen Tests und fünf frische Gesamt-Audits bestanden; Windows2019 lokal blieb fehlgeschlagen, alle sechs eigenen DBs sind entfernt. Die Welle ist mit15/15 Ziel-/Auditaufrufen geschlossen. Der erweiterte Test aller acht Spalten und drei isolierten Principalgegenproben bestand auf Linux2019/2022/2025 lokal/zentral: sechs Gesamtfälle und18 Gegenproben. Für die neue achtspaltige Windows-Matrix ist eine gesonderte endliche Restwelle vorbereitet und angefragt; sie ist noch nicht gestartet. [Nachweise und Ausführungsgrenzen](../Modules/toolbelt.core.execution-cancel/Tests/README.md). |
+| Release-Regressionsbaseline: historische und aktuelle Quellen | Ein zusätzlich angestoßener lokaler Vollcheck meldete274 Tests mit zwölf Fehlern und29 Ausführungsfehlern. Ein einzeln wiederholter, verbindungsloser Work-Type-Berichtstest reproduziert die Abweichung am heutigen `Deployment/Deploy-All.ps1`. Der erwartete Quellhash stimmt exakt mit dem im unveränderten Bericht aufgezeichneten Baseline-Commit überein; die aktuellen Exporterbytes unterscheiden sich auch ohne Zeilenendungsunterschied. Das ist keine nachträgliche Aufwertung historischer Nachweise und keine vollständige Diagnose aller41 Fehlmeldungen. Die vorhandenen exakten Quellen-/Helpübergänge bleiben gültig in ihrem jeweiligen Scope. Nächster Schritt: betroffene Fach- und Methodeninputs einzeln zuordnen, historische Integrität vom aktuellen Qualifikationsgate trennen und diese Trennung negativ prüfen. Weder alte Berichte/Goldenwerte pauschal neu hashen noch Quellenabweichungen allgemein ignorieren. [Bestehender Release-Testweg](../Tests/Release/README.md). |
+
+Keine dieser Ergänzungen erteilt neue SQL-Rechte, setzt verbrauchte
+Testgrenzen zurück oder erweitert die Veröffentlichungsfreigabe.
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)
