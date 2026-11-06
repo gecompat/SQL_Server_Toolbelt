@@ -140,3 +140,15 @@ physische Nachweise und frische Bereinigung unabhängig geprüft. Head-CI separa
 im PR. Weitere
 Versionen/CL, Minimalrechte, große Nutzdaten-/Heapmatrix und vollständige
 Produktqualifikation werden nicht aus diesen fünf Gruppen abgeleitet.
+
+### Ergänzte Copy-Zielmatrix 2026-11-06
+
+Der [aktuelle Copy-Zielbericht](../../../Releases/1.0.0/TABLE-CLONE-COPY-TARGET-QUALIFICATION.md)
+ergänzt22 bisher fehlende lokale/direkt zentrale Kontexte auf Windows und
+Linux SQL2019/2022/2025 mit CL150/160/170 entsprechend der Engineversion:
+zwölf Gesamtläufe,110 Gruppenzeugen, zwölf frische unabhängige Audits und
+22 entfernte eigene Datenbanken. Die beiden oben belegten lokalen Fälle
+wurden nach begrenztem Fachpfadvergleich wiederverwendet, nicht wiederholt.
+Die historischen Originale und ihre Fehler bleiben unverändert. Keine neuen
+Rechte, CLR-/Trust-/Serveränderungen; Minimalrechte, Last und vollständige
+Planner-/Executor-/Modulqualifikation bleiben getrennt.

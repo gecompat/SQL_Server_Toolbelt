@@ -4510,6 +4510,17 @@ wiederverwendet; keine Wiederholung erfolgreicher Fälle. Head-CI gesondert
 im PR, weiterhin teilweise validiert und unveröffentlicht. Historische4.0-
 Zeugen werden nicht zur Copyqualifikation umgedeutet.
 
+Qualifikationsnachtrag 2026-11-06, Codex: Unter dem fortbestehenden Auftrag
+zur autonomen Qualifikation bestanden22 bislang fehlende Copy-Kontexte auf
+Windows/Linux2019/2022/2025 über die enginegerechten CL150/160/170 lokal und
+direkt zentral. Zwölf Gesamtläufe mit110 Gruppenzeugen und zwölf frischen
+Audits;24/24 Aufrufe und22/22 eigene DBs geschlossen, ohne nativen Fehler.
+Die zwei historischen lokalen Copy-Fälle bleiben nach dokumentiertem
+Fachpfadvergleich begrenzt anwendbar und wurden nicht wiederholt.
+[Nachweis und Grenzen](../Releases/1.0.0/TABLE-CLONE-COPY-TARGET-QUALIFICATION.md).
+Keine neuen Rechte oder Produktfunktionen, keine CLR-/Trust-/Serveränderung;
+Minimalrechte, Last und vollständige Modulqualifikation bleiben separat.
+
 Zusatzfreigabe 2026-10-04: Der Benutzer bestätigte ausdrücklich maximal
 100000 Zeilen und 16 MiB Nutzdaten, durch Caller absenkbar, sowie die
 Rollbackgrenze bei Identity-Zählerfortschritt ohne automatisches RESEED.
