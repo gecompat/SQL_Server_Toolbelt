@@ -1,5 +1,13 @@
 # JSON Constructor Testmatrix
 
+Aktueller Callerabgleich2026-11-06: Die vier öffentlichen USPs bestehen das
+ausdrücklich freigegebene sechsrechtige Profil auf [Windows](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
+und [Linux-SQL-Zielen](../../../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)
+über alle unterstützten Engine-/CL-Paare lokal/direkt zentral. Frühere pauschale
+offene USP-Minimalrechteangaben sind für genau dieses Profil erledigt.
+Aggregate, weitere Owner-/Lifecycle-/Clientprofile und echte CrossDB-Identitäten
+werden dadurch nicht neu qualifiziert. Historische Fehler bleiben unverändert.
+
 Die [aktuelle Windows-2025-Ergänzung](README.md#aktuelle-windows-2025-ergänzung-vom-2026-11-05)
 belegt zusätzlich sechs frische Kontexte CL150/160/170 lokal/direkt zentral
 mit je vier unveränderten Fixtures und einem unabhängigen Abschlussaudit.

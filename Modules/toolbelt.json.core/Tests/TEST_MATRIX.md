@@ -1,5 +1,13 @@
 # Shared Core – Abnahmematrix
 
+Aktueller [physischer Ergänzungsnachweis2026-11-06](../../../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md):
+Core wird mit seinem bestehenden Schema-Consumer auf acht weiteren physischen
+Ziel-/CL-Paaren jeweils lokal/direkt zentral installiert, wiederholt und
+deinstalliert. Core-Consumer-Abweisung, Erhalt bei Schema-Uninstall und eigener
+Cleanup bestehen. Das sind16 neue Kontexte mit acht frischen Audits; kein
+Constructor-Migrations-, vollständiger Owner-/Drift-/Lock- oder Modulgesamtfall.
+Die nachfolgende ältere Tabelle bleibt in ihrem damaligen Scope erhalten.
+
 | Bereich | Nachweis | Zustand |
 |---|---|---|
 | Budget und Tokenpolicy | 10 Budgetfälle, 37 Tokenfälle/95 Assertions | bestanden offline |

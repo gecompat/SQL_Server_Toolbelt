@@ -4139,6 +4139,17 @@ Keine neue Assertion als ausgeführter Nachweis dargestellt.
 
 ### JSON Schema / gemeinsamer Kern – ausdrücklich freigegeben2026-10-05
 
+Qualifikationsnachtrag2026-11-06, Codex: Der fortbestehende autonome Auftrag
+ergänzt acht bislang fehlende physische Core-/Schema-Ziel-/CL-Paare auf
+Windows2019/2022 und Linux2022/2025 jeweils lokal/direkt zentral.16 aktuelle
+Contract-/Safety-/Clientmetadatenkontexte, ausgewählte Consumer-/Repeat-/
+Uninstallfälle, acht frische Audits und vier wiederhergestellte/frisch
+auditierte Konfigurationsbereiche bestanden.24/24 Aufrufe und16/16 eigene DBs
+geschlossen, ohne nativen Fehler. [Bericht und Grenzen](../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md).
+Keine neue Fachfunktion oder Rechtevergabe. Das alte pauschal offene
+Schema-Datenpfad-Minimalrechtegate ist durch Callerbericht und spätere
+Manifest-/Paketbindung erledigt; übrige Modulpflichtfälle bleiben getrennt.
+
 Nach konkreter Besprechung in PR175 antwortete der Benutzer:
 
 > Diese Schema-/Kern-Welle freigegeben

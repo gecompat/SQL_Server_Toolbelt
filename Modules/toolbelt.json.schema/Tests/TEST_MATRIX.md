@@ -1,5 +1,16 @@
 # JSON Schema – Abnahmematrix
 
+## Aktueller physischer Ergänzungsnachweis2026-11-06
+
+Der [Core-/Schema-Zielbericht](../../../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md)
+ergänzt Windows2019/CU32 CL150,Windows2022/CU26 CL150/160,
+Linux2022/latest CL150/160 und Linux2025/latest CL150/160/170 jeweils lokal
+und direkt zentral:16 aktuelle Contract-/Safety-/Clientmetadatenkontexte,
+ausgewählte Repeat-/Consumer-/Uninstallfälle und acht frische unabhängige
+Abschlussaudits. Alle16 eigenen DBs entfernt; vier Konfigurationsbereiche
+wiederhergestellt/frisch auditiert. Keine Rechtevergabe. Historische
+Linux2019-/Windows2025-Nachweise bleiben getrennt; keine Gesamtfreigabe.
+
 Additiver Nachweis 2026-10-25: Das [Caller-Rechteprofil](../../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) ergänzt zwölf Ziel-/CL-Fälle lokal/direkt zentral mit genau drei Objektrechten und direkten/ResultTable-Ausgaben. Frühere offene Minimalrechteangaben bleiben historisch; diese neue Abnahme schließt ausschließlich das dokumentierte Datenpfadprofil. Andere Lifecycle-, Client-, Ressourcen- und CrossDB-Gates bleiben getrennt.
 
 ## Deployment-AppLock-Funktionsnachweis (2026-10-30)
