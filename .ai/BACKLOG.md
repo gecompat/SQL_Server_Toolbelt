@@ -5813,6 +5813,15 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 
 ### AP-2026-020: TC-2026-034 Verarbeitungswelle 2 (Implementierungswelle V1A)
 
+Weiterer Qualifikationsnachtrag 2026-11-06, Codex: Die bestehenden128-MiB-
+Komprimat-/64-MiB-Ausgabegrenzen der öffentlichen Extraktion und jeweils ein
+Byte darüber bestanden separat auf Windows2025/CU8 CL170 und Linux2019/latest
+CL150 lokal/direkt zentral. Acht positive/acht strikte Fehlerproben, zwei
+Gesamtläufe und zwei frische Audits; vier Aufrufe/vier eigene DBs geschlossen,
+kein nativer Fehler oder Replay. [Entry-Nachweis und Grenzen](../Releases/1.0.0/ZIP-ENTRY-BYTE-QUALIFICATION.md).
+Keine Produkt-/Quoten-/Rechteänderung oder Wiederholung der bereits grünen
+Archiv-/Entryanzahl-Grenzen. Andere Zielkontexte und gesamte Modulabnahme separat.
+
 Qualifikationsnachtrag 2026-11-06, Codex: Die bestehende ZIP-Archivgrenze
 268435456/268435457 Bytes wurde für beide öffentlichen Reader-USPs auf
 Windows2025/CU8 CL170 und Linux2019/latest CL150 lokal/direkt zentral nativ

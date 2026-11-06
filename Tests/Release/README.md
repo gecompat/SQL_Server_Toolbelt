@@ -47,6 +47,17 @@ werden dadurch nicht gestartet.
 
 ## Historische Quellen und aktuelle Qualifikation
 
+Die [native ZIP-Entry-Byteprüfung](../../Releases/1.0.0/ZIP-ENTRY-BYTE-QUALIFICATION.md)
+verwendet `compose_zip_entry_limits.py` für gültige DEFLATE-/Stored-Archive an
+128-MiB-Komprimat-/64-MiB-Ausgabegrenzen und jeweils ein Byte darüber.
+`Invoke-ZipEntryLimitsLab.ps1` prüft die öffentliche Extraktions-USP über ihre
+ResultTable samt tatsächlicher Payloadlänge/-digest und strikten Fehlerorakeln.
+Die sechs Offlinegegenproben erzeugen und dekodieren auch die großen festen
+Grenzarchive in temporären privaten Verzeichnissen. Keine heruntergesetzten
+Produktionsquoten. Scope-/Audit-/Pin-/Ownership-Verträge entsprechen der
+getrennten Archivbyte-Prüfung; jede neue Nativewelle braucht ihren eigenen
+endlichen autorisierten Scope, geschlossene Wellen werden nicht wiederholt.
+
 Die [native ZIP-Archivbyte-Grenze](../../Releases/1.0.0/ZIP-ARCHIVE-BYTE-QUALIFICATION.md)
 verwendet gültige synthetische Archive an der ursprünglichen256-MiB-Grenze und
 ein Byte darüber. `compose_zip_archive_limit.py` erzeugt die großen Inputs nur
