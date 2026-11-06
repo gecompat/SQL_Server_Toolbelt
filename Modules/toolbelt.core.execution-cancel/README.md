@@ -18,10 +18,11 @@ kontrollierten Work-Queue-Ausgang.
 Die Objekte, Berechtigungen, Fehler und Beispiele stehen in
 [EXECUTION_CANCELLATION_OBJECTS.md](Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
-Die [aktuellen Testnachweise](Tests/README.md) trennen den elf Kontexte
-umfassenden Windows-Teilnachweis des früheren Repeat-Tests vom erweiterten
-Test aller acht Spalten mit isolierten Principalgegenproben. Das Modul bleibt
-teilweise validiert und unveröffentlicht.
+Die [aktuellen Testnachweise](Tests/README.md#vollständige-achtspaltige-windows-repeat-matrix-vom-2026-11-06)
+belegen den befüllten Repeat aller acht Spalten einschließlich isolierter
+Principalgegenproben auf Windows2019/2022/2025 über alle unterstützten CLs
+lokal und direkt zentral. Frühere Teilnachweise bleiben getrennt erhalten.
+Das Modul bleibt teilweise validiert und unveröffentlicht.
 
 ## Aktuelle Validierungsevidenz
 
