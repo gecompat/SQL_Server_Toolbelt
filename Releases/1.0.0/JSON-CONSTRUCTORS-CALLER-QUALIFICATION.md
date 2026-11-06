@@ -1,10 +1,17 @@
 # JSON-Constructor: begrenztes Callerprofil
 
 Am 2026-11-06 bestanden die vier vorhandenen Constructor-USPs unter einem
-synthetischen Datenbankbenutzer ohne Login auf Windows SQL2025/CU8 mit
-CL150, CL160 und CL170, jeweils lokal und direkt zentral. Das sind sechs
-Kontexte, 72 positive API-/Routenprofile und 72 erwartete SQL229-Abweisungen.
-Jeder der drei Gesamtläufe bestand beide Modi und einen frischen separaten
+synthetischen Datenbankbenutzer ohne Login auf den folgenden Windows-Zielen,
+jeweils lokal und direkt zentral:
+
+| SQL-Version / Patch | Compatibility Levels | Bestandene Kontexte |
+|---|---|---|
+| 2019 / CU32 | 150 | 2 |
+| 2022 / CU26 | 150,160 | 4 |
+| 2025 / CU8 | 150,160,170 | 6 |
+
+Das sind zwölf Kontexte,144 positive API-/Routenprofile und144 erwartete
+SQL229-Abweisungen. Jeder der sechs erfolgreichen Gesamtläufe bestand beide Modi und einen frischen separaten
 Abschlussaudit. Ergebnis: **PASS_FOR_DECLARED_SCOPE**, keine Modulgesamtfreigabe.
 
 ## Rechte und Orakel
@@ -66,11 +73,23 @@ Gesamtlauf nicht erfolgreich.
   Erst die getrennte Sitzungsbeobachtung der korrigierten Methode bestand
   anschließend auf den drei noch nicht versuchten SQL2025-Kontexten.
 
-Für SQL2019/2022 gibt es daher keinen bestandenen neuen Caller-Gesamtfall und
-keinen rückwirkenden PASS. Historische fachliche Constructor-Matrizen behalten
-ihren ursprünglichen Scope. Die geschlossenen alten und neuen Budgets werden
-nicht erneuert. Zehn Offlinegegenproben sichern Authority, Frist, Zielauswahl,
-Bytepins und die beiden konkreten Testadapterkorrekturen ab.
+Zum Abschluss dieser ersten Welle gab es keinen bestandenen SQL2019-/2022-
+Caller-Gesamtfall. Anschließend hat der Benutzer ausdrücklich genau die
+korrigierte Restmatrix freigegeben: drei Läufe mit drei separaten frischen
+Audits, sechs eigene Datenbanken und45 Minuten, keine weitere Wiederholung.
+Diese eigenständige zweite Welle bestand SQL2019/CU32 CL150 und SQL2022/CU26
+CL150/160 jeweils lokal und zentral mit unveränderter korrigierter Methode.
+Alle6/6 zusätzlichen Aufrufe und6/6 Datenbanken sind innerhalb ihrer eigenen
+Originalfrist geschlossen. Die ursprünglichen zwölf Aufrufe und Fehler wurden
+weder zurückgesetzt noch aufgewertet.
+
+Über beide Wellen sind18 Ziel-/Auditaufrufe und18 DB-Reservierungen verbraucht;
+15 tatsächlich angelegte eigene Datenbanken wurden entfernt. Alle neun frischen
+Audits sind vollständig, davon sechs an erfolgreiche Gesamtfälle gebunden.
+Die drei ursprünglichen FAILED_CLEANED bleiben unverändert. Historische
+fachliche Constructor-Matrizen behalten ihren ursprünglichen Scope. Zehn
+Offlinegegenproben sichern Authority, Frist, Zielauswahl, Bytepins und die
+beiden konkreten Testadapterkorrekturen ab.
 
 Aggregate, direkte Clientmetadaten, Netzwerklogins, tatsächliche CrossDB-
 Identitäten, andere Owner, Produktionskapazität, authentifiziertes TLS und

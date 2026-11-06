@@ -123,8 +123,9 @@ keine neuen Workflows, Agenten, Produkt-/Runtimeänderungen oder Statuspromotion
 ## Constructor-Caller mit sechs Objektrechten
 
 Der [native Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
-trennt die sechs bestandenen Windows-SQL2025-Kontexte von den drei bereinigten
-SQL2019-/2022-Fehlversuchen und dem jeweils frischen Abschlussaudit.
+belegt zwölf Windows-SQL2019-/2022-/2025-Kontexte lokal/direkt zentral und
+trennt die erfolgreiche korrigierte Restmatrix von den drei ursprünglichen
+bereinigten Fehlversuchen und dem jeweils frischen Abschlussaudit.
 
 `Invoke-JsonConstructorsCallerLab.ps1` prüft ausschließlich die vier vorhandenen
 öffentlichen Constructor-USPs mit einem datenbanklokalen Benutzer ohne Login.
