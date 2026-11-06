@@ -1,7 +1,8 @@
 # Constructor-Callerqualifikation mit privatem Trust-/Konfigurationsjournal.
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,
- [Parameter(Mandatory)][ValidateRange(0,5)][int]$CaseIndex,[switch]$AuditOnly,[switch]$ValidateOnly)
+ [Parameter(Mandatory)][ValidateRange(0,5)][int]$CaseIndex,
+ [ValidateSet('windows','linux')][string]$Platform='windows',[switch]$AuditOnly,[switch]$ValidateOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -30,9 +31,17 @@ try {
  if($deadline -ne $started.AddMinutes(45) -or $started -gt [DateTimeOffset]::UtcNow -or
   (-not $AuditOnly -and [DateTimeOffset]::UtcNow.AddMinutes(7) -ge $deadline)) {throw 'CONSTRUCTOR_CALLER_ADMISSION_CLOSED'}
  $case=$runset.cases[$CaseIndex]
- $expected=@('2019/CU32/150','2022/CU26/150','2022/CU26/160','2025/CU8/150','2025/CU8/160','2025/CU8/170')
- if(([string]$case.Version+'/'+[string]$case.Patch+'/'+[string]$case.CL) -cne $expected[$CaseIndex]){throw 'CONSTRUCTOR_CALLER_CASE_SCOPE'}
- if($case.Platform -cne 'windows' -or $case.Version -cnotin @('2019','2022','2025') -or
+ $expected=if($Platform -ceq 'windows'){
+  @('2019/CU32/150','2022/CU26/150','2022/CU26/160','2025/CU8/150','2025/CU8/160','2025/CU8/170')
+ }else{@('2019/latest/150','2022/latest/150','2022/latest/160','2025/latest/150','2025/latest/160','2025/latest/170')}
+ # Das Profil ist explizit: keine Plattformmischung und kein Patchfallback,
+ # auch nicht in den späteren, noch nicht ausgeführten Runsetkontexten.
+ for($position=0;$position -lt 6;$position++){
+  $selected=$runset.cases[$position]
+  if($selected.Platform -cne $Platform -or
+   ([string]$selected.Version+'/'+[string]$selected.Patch+'/'+[string]$selected.CL) -cne $expected[$position]){throw 'CONSTRUCTOR_CALLER_CASE_SCOPE'}
+ }
+ if($case.Platform -cne $Platform -or $case.Version -cnotin @('2019','2022','2025') -or
   [int]$case.CL -notin @{ '2019'=@(150);'2022'=@(150,160);'2025'=@(150,160,170) }[[string]$case.Version]){throw 'CLR_CALLER_CASE_INVALID'}
  Assert-ReleaseInputs
  foreach($required in @($PSCommandPath,$runset.fixture,$runset.exports.local,$runset.exports.central,

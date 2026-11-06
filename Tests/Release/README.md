@@ -135,8 +135,12 @@ Keine Rollen-, Schema-, Datenbank- oder Serverrechte und keine bestehenden
 Identitäten werden angepasst. Der Helper-Grant ist ein begrenztes zugelassenes
 Profil; seine Notwendigkeit wird nicht aus einem erfolgreichen Aufruf abgeleitet.
 
-Der private Runset bindet sechs explizite Windows-Engine-/CL-Auswahlen, lokale
-und zentrale Exports, zwei bekannte SAFE-Artefakte, Fixture und Methodenpins.
+Der private Runset bindet je Plattform sechs explizite Engine-/CL-Auswahlen,
+lokale und zentrale Exports, zwei bekannte SAFE-Artefakte, Fixture und Methodenpins.
+Default ist das Windows-Profil mit CU32/CU26/CU8; `-Platform linux` wählt
+ausschließlich das separate Linux-Profil mit Patch `latest`. Alle sechs
+Runsetkontexte werden vor SQL auf Plattform, Patch und Reihenfolge geprüft.
+Ein Mischprofil oder stillschweigender Provider-/Patchfallback ist ausgeschlossen.
 `-ValidateOnly` prüft die Admission ohne Labimport oder SQL. Der echte Lauf
 verweigert Wiederholung bestehender Journale; `-AuditOnly` verwendet eine neue
 Verbindung und bindet sein Ergebnis an das unveränderte finale Originaljournal.
