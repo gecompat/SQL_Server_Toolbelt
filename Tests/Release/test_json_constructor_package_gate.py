@@ -44,7 +44,7 @@ class JsonConstructorPackageGateMixin:
         self.assertEqual(record["files"]["Toolbelt.JsonCore.dll"]["sha256"],
                          hashlib.sha256(binaries["Toolbelt.JsonCore.dll"]).hexdigest())
 
-    def test_public_evidence_binds_recorded_sources_package_and_scope(self):
+    def test_public_evidence_binds_current_sources_package_and_scope(self):
         report = json.loads((ROOT / "Releases/1.0.0/JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.json").read_bytes())
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["scope"], "JSON_CONSTRUCTORS_RELEASE_PACKAGE_FRAMEWORK_AND_CORE_CLOSURE_IL")
@@ -112,7 +112,7 @@ class JsonConstructorPackageGateMixin:
             "elapsed_seconds": 298.935,
         })
         self.assertEqual(report["post_run_evidence_binding_test"], {
-            "test": "CallerMetadataTests.test_public_evidence_binds_recorded_sources_package_and_scope",
+            "test": "CallerMetadataTests.test_public_evidence_binds_current_sources_package_and_scope",
             "status": "PASS",
             "tests": 1,
             "elapsed_seconds": 0.266,

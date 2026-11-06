@@ -51,7 +51,7 @@ class ZipCallerProfileMixin:
                          probes['additional_internal_and_counter_api_229_denials'])
         self.assertEqual(probes['fixed_result_rows_total'], matrix['context_count'] * 8)
 
-    def test_public_source_pins_match_recorded_synthetic_inputs(self):
+    def test_public_source_pins_match_current_synthetic_inputs(self):
         report = json.loads(REPORT.read_bytes())
         pins = report['source_sha256']
         self.assertEqual(len(pins), 32)

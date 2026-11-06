@@ -55,10 +55,12 @@ def _report_bytes(root, relative):
     return file.read_bytes()
 
 
-def _git(root, *args, data=None):
+def _git(root, *args, data=None, missing_ok=False):
     options = {'creationflags': subprocess.CREATE_NO_WINDOW} if sys.platform == 'win32' else {}
     result = subprocess.run(['git', '-C', str(root), *args], input=data,
                             capture_output=True, timeout=30, **options)
+    if missing_ok and result.returncode != 0:
+        return None
     _require(result.returncode == 0, "recorded Git source unavailable")
     return result.stdout
 
@@ -75,8 +77,13 @@ def _snapshot(root, revision, paths):
     key = (str(root), revision, paths)
     if key in _trees:
         return _trees[key]
-    _require(_git(root, 'cat-file', '-t', revision).strip() == b'commit',
-             "recorded revision is not a commit")
+    kind = _git(root, 'cat-file', '-t', revision, missing_ok=True)
+    if kind is None:
+        # Deleted/unpublished historical branches may be absent from a full
+        # remote clone. Try only the remaining declared snapshots; exact pin
+        # checks still fail if none can supply the original bytes.
+        return {}
+    _require(kind.strip() == b'commit', "recorded revision is not a commit")
     listing = _git(root, 'ls-tree', '-r', '-z', revision, '--', *paths)
     entries = {}
     for row in listing.split(b'\x00'):

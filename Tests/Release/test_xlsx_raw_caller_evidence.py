@@ -75,7 +75,7 @@ class XlsxRawCallerEvidenceMixin:
     def setUp(self):
         self.raw_report = json.loads(REPORT_PATH.read_bytes())
 
-    def test_public_source_hashes_bind_recorded_originals(self):
+    def test_public_source_hashes_match_current_repository_bytes(self):
         report = self.raw_report
         validate_source_bindings(report, ROOT)
         self.assertIn('Tests/Release/Invoke-XlsxRawCallerLab.ps1', report['source_sha256'])

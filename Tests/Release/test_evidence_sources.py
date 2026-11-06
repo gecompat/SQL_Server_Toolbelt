@@ -189,5 +189,20 @@ class EvidenceSourceTests(unittest.TestCase):
                     transition.restore_verifier_source(root, name, current + b'\n# unexpected drift\n')
 
 
+    def test_missing_declared_commit_uses_only_other_exact_recorded_sources(self):
+        missing = 'f' * 40
+        self.report['source_commit'] = missing
+        self.report_file.write_text(json.dumps(self.report), encoding='utf-8')
+        self.git('add', '.')
+        self.git('-c', 'user.name=Contoso', '-c', 'user.email=test@example.invalid',
+                 'commit', '-qm', 'Synthetic unavailable source anchor')
+        self.file.write_bytes(b'drift')
+        bound = sources.report_sources(self.root, self.path)
+        self.assertEqual(bound['Modules/Contoso.sql'].original, b'original\r\n')
+        self.assertFalse(bound['Modules/Contoso.sql'].current_matches)
+        with self.assertRaisesRegex(ValueError, 'exact original source unavailable'):
+            sources.resolve(self.root, self.report['source_sha256'], revisions=[missing])
+
+
 if __name__ == '__main__':
     unittest.main()

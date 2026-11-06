@@ -36,6 +36,8 @@ Zwei weitere Offlineprüfungen binden den Abschlussrecord an die vollständige
 Zwölfermatrix und die Originalbytes des tatsächlichen Ausführungscommits;
 eine fehlende Zeile oder erfundene Veröffentlichungsfreigabe wird abgewiesen.
 Die heutige Suite prüft historische Quellen über ihre exakten Originalbytes.
+Historische Testnamen bleiben ebenfalls erhalten, einschließlich damaliger
+Bezeichnungen wie „current“; maßgeblich ist der getrennte Quellvergleich.
 Alle ursprünglichen eindeutigen Tests bleiben erhalten; nur die bekannte
 Registrierung von sechs CSV-Tests in jeweils zwei Klassenpfaden wird im
 Dokumentationsrunner entfernt.
@@ -51,7 +53,9 @@ unveränderte öffentliche Berichte, deren explizite Quellcommits oder exakte
 Archivduplikate und Größen sind begrenzt. Es gibt keine freie Git-Historiensuche,
 keine Zeilenenden-Normalisierung und kein Umschreiben alter Pins oder Archive.
 Benötigte Git-Commits müssen lokal vorhanden sein; der Leser lädt nichts aus
-dem Netz nach. Fehlen exakte Originale, bleibt die Prüfung fehlgeschlagen.
+dem Netz nach. Fehlt ein aufgezeichneter Commit, werden nur die übrigen
+expliziten Quellenanker geprüft. Fehlen exakte Originalbytes in allen Ankern,
+bleibt die Prüfung fehlgeschlagen.
 Vorhandene geschlossene Help-/Metadatenübergänge bleiben separat geprüft.
 Die beiden ausdrücklich nach Ausführung aktualisierten XLSX-Testadapter
 werden ausschließlich an ihre damals dokumentierten Adapterbytes gebunden;

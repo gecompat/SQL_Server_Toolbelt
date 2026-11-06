@@ -1390,7 +1390,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertFalse(audit['server_configuration_changes'] or audit['assembly_trust_changes'])
         self.assertTrue(report['remaining_gates'])
 
-    def test_execution_context_rights_report_binds_isolated_scope_and_recorded_payload(self):
+    def test_execution_context_rights_report_binds_isolated_scope_and_current_payload(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/execution-context-rights-qualification.json').read_bytes())
         self.assertFalse(report['publication_authorized'])
@@ -1885,7 +1885,7 @@ class StableSqlPackageTests(unittest.TestCase):
 
 
 class FunctionCallerQualificationTests(unittest.TestCase):
-    def test_fixed_function_compositions_and_recorded_native_reports(self):
+    def test_fixed_function_compositions_and_current_native_reports(self):
         import hashlib
         import re
         expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in

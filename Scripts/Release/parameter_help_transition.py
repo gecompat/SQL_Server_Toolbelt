@@ -30,7 +30,7 @@ VERIFIER_PINS_SHA256 = "d0321bc15ba5f7a303f47bc81121bd4ed0c876985a68aaa23c845238
 # historical pin file changed; this is not current native qualification.
 ADDITIONAL_REVIEWED_READ_ADAPTERS = {
     "Tests/Release/test_zip_caller_profile.py":
-        "5bd325e0c8f3ecc90ff634f268729a90a2296931cff065d62ce3ca262df9c465",
+        "a4789e0c8fa0d02e69323e1c3c2e16f164cedb066f590038c5d4f858b73fa83b",
     "Scripts/Release/xlsx_sst_budget.py":
         "5ce0b28d1402bc7d3dcfbeb7e05f6e9252cd7982e87200dc700b2b00abe40cbc",
     "Scripts/Release/ssis_historical_source_bridge.py":
@@ -46,15 +46,15 @@ ADDITIONAL_REVIEWED_READ_ADAPTERS = {
     "Scripts/Release/json_schema_uninstall_confirmation.py":
         "468ee9d1993191a4d19ca9a569d6979939359a1e4cfa9c8ddeae9b51f413825a",
     "Tests/Release/test_prepare_release.py":
-        "b8f39ffa6fd75ca63aaffacbf779a5cd4dab1253c8b83bb1144f263754dfcdd9",
+        "0e88af05b653d853ae7fba8ffeb654c6fdec9a788a58f19ecb1a6d720e8fdaed",
     "Tests/Release/test_xlsx_boundary_evidence.py":
         "8fecb8df67f1eae7636b9a7c4d95f6088adc51760432693f273ce87281bcdd32",
     "Tests/Release/test_xlsx_cell_caller_qualification.py":
         "72237e9e04917214949c7417ed3a18d8d112402134750d0ae95863eab850c114",
     "Tests/Release/test_xlsx_raw_caller_evidence.py":
-        "2604659e038da167d14ca9f4347513677f5f981a84cd78d683bf77a7f123d2fd",
+        "fc59528a3d1978c34d462a33c60a0967e22bed02e729aae840ba7a13575bcb2a",
     "Tests/Release/test_zip_entry_count_composer.py":
-        "053f41ae76d47b87a6ced9e9932bf074efbf2c60678f95cb1292af8e7725616a",
+        "7c1a786af1ecead814a7f23591a547716df6903199c9f0699bd93b0ca59aa8bb",
 }
 
 
