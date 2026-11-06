@@ -7,7 +7,15 @@ belegt Listing mit10000 Einträgen, die Abweisung von10001 sowie des zu großen
 MaxEntries-Parameters auf zwölf Ziel-/CL-Paaren lokal/direkt zentral. Die
 nachfolgende alte `not executed`-Zeile für Entry-Count ist deshalb kein heutiger
 offener Punkt dieses Listingprofils. Sie bleibt als historischer Eintrag erhalten.
-Dies belegt weder Archiv256MiB noch komprimierten Extraktionsinput128MiB.
+Dies belegt für sich weder Archiv256MiB noch komprimierten Extraktionsinput128MiB.
+Die spätere [native Archivbyte-Prüfung](../../../Releases/1.0.0/ZIP-ARCHIVE-BYTE-QUALIFICATION.md)
+schließt separat exakt256MiB und ein Byte darüber für öffentliche Listing- und
+Extraktionsaufrufe auf Windows2025/CU8 CL170 und Linux2019/latest CL150 jeweils
+lokal/direkt zentral: acht positive und acht strikte Fehlerproben, beide
+Gesamtläufe und frischen Abschlussaudits bestanden. Die große Füllpayload ist
+nicht zur Extraktion ausgewählt; komprimierte Entry- und Ausgabegrenzen sowie
+weitere Ziel-/CL-Kombinationen bleiben davon unberührt. Historische Tabellen
+werden nicht nachträglich als neue Ausführungen umetikettiert.
 Die [Caller-Metadatenpflege](../../../Releases/1.0.0/ZIP-METADATA-UPDATE.md)
 bindet außerdem die bereits berichteten Rechteprofile an deren Paketstand;
 sie ist keine neue native Ausführung oder vollständige Modulqualifikation.

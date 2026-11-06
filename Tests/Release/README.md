@@ -47,6 +47,16 @@ werden dadurch nicht gestartet.
 
 ## Historische Quellen und aktuelle Qualifikation
 
+Die [native ZIP-Archivbyte-Grenze](../../Releases/1.0.0/ZIP-ARCHIVE-BYTE-QUALIFICATION.md)
+verwendet gültige synthetische Archive an der ursprünglichen256-MiB-Grenze und
+ein Byte darüber. `compose_zip_archive_limit.py` erzeugt die großen Inputs nur
+explizit in einem neuen privaten Verzeichnis; die normale Offlineprüfung nutzt
+kleine Strukturgegenproben. `Invoke-ZipArchiveLimitLab.ps1` bindet den exakten
+bekannten ZIP-DLL-Stand, beide ausgewählten Ziele, Sourcepins und Originaldateien.
+`-ValidateOnly` prüft Scope/kleine Pins ohne Payload-/Lab-/SQL-Zugriff;
+`-AuditOnly` liest den gebundenen finalen Zustand frisch ohne Wiederherstellung.
+Keine Quotenänderung, Rechtevergabe oder automatische Labaktivierung.
+
 Die [physische Core-/Schema-Ergänzung](../../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md)
 verwendet den vorhandenen `run-json-schema-lab.ps1` im Scope `core-schema`
 auf acht zusätzlichen Ziel-/CL-Paaren. `JsonSchemaQualificationScope.ps1`
