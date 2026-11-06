@@ -18,6 +18,7 @@ from compose_zip_entry_count import (
     write_output,
 )
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import evidence_sources
 import help_contract_source
 import ssis_historical_source_bridge
 
@@ -76,8 +77,7 @@ class ZipEntryCountComposerMixin:
             elif relative in ssis_historical_source_bridge.source_paths():
                 ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected_sha256)
             else:
-                import parameter_help_transition
-                data = parameter_help_transition.bound_source(ROOT, relative, expected_sha256)
+                data = evidence_sources.original_for(ROOT, report, relative, expected_sha256)
                 self.assertEqual(hashlib.sha256(data).hexdigest(), expected_sha256)
 
         package_path = ROOT / report['package']['path']

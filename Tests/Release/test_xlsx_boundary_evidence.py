@@ -10,6 +10,7 @@ import copy
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import evidence_sources
 import xlsx_sst_budget
 import caller_metadata
 import help_contract_source
@@ -104,11 +105,19 @@ class XlsxBoundaryEvidenceMixin:
                     data = help_contract_source.validate_historical_source(ROOT, relative, expected)
                 elif relative in ssis_historical_source_bridge.source_paths():
                     data = ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected)
+                elif relative == report['source_eol_projection']['path']:
+                    # This record explicitly binds both the canonical LF bytes and
+                    # the executed CRLF projection; keep that closed exception.
+                    canonical = report['source_eol_projection']['canonical_lf_sha256']
+                    revisions = evidence_sources.report_revisions(
+                        ROOT, REPORT.relative_to(ROOT).as_posix(), report)
+                    data = evidence_sources.resolve(ROOT, {relative: canonical},
+                                                    revisions=revisions)[relative].original
                 else:
                     import parameter_help_transition
                     data = (parameter_help_transition.bound_source(ROOT, relative, expected)
                             if relative in parameter_help_transition.PATHS | parameter_help_transition.VERIFIER_PATHS
-                            else (ROOT / relative).read_bytes())
+                            else evidence_sources.original_for(ROOT, report, relative, expected))
                 if relative == report['source_eol_projection']['path']:
                     projection = report['source_eol_projection']
                     normalized = data.replace(b'\r\n', b'\n')
@@ -281,7 +290,10 @@ class XlsxBoundaryEvidenceMixin:
         self.assertEqual(original[original.index(cleanup):], projected[projected.index(cleanup):])
 
     def test_sst_offline_source_projection_is_method_scoped(self):
-        current = (ROOT / xlsx_sst_budget.OFFLINE_TEST_PATH).read_bytes()
+        import parameter_help_transition
+        live = (ROOT / xlsx_sst_budget.OFFLINE_TEST_PATH).read_bytes()
+        current = parameter_help_transition.restore_verifier_source(
+            ROOT, xlsx_sst_budget.OFFLINE_TEST_PATH, live)
         record = xlsx_sst_budget.read_record(ROOT)
         binding = record['offline_test_source']
         projection = xlsx_sst_budget.offline_test_projection(current)

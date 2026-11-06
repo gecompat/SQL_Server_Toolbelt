@@ -35,13 +35,50 @@ oder automatische native SQL-Ausführung.
 Zwei weitere Offlineprüfungen binden den Abschlussrecord an die vollständige
 Zwölfermatrix und die Originalbytes des tatsächlichen Ausführungscommits;
 eine fehlende Zeile oder erfundene Veröffentlichungsfreigabe wird abgewiesen.
-Der historische `test_prepare_release.py`-Loader ist bytegleich zu seinem
-exakt qualifizierten Stand wiederhergestellt. Der Dokumentationsvalidator ruft
-die elf RC-Tests und sechs neuen Abnahmetests im selben `release_preparation`-
-Zweig als gemeinsamen begrenzten Offlineprozess auf. Die ursprüngliche Suite
-behält 280 Tests; insgesamt bleiben alle 297 Assertionsfälle erhalten. Für den
-gesamten Releasecheck gibt es weiterhin genau einen CI-Job; native Labtests
+Die heutige Suite prüft historische Quellen über ihre exakten Originalbytes.
+Historische Testnamen bleiben ebenfalls erhalten, einschließlich damaliger
+Bezeichnungen wie „current“; maßgeblich ist der getrennte Quellvergleich.
+Alle ursprünglichen eindeutigen Tests bleiben erhalten; nur die bekannte
+Registrierung von sechs CSV-Tests in jeweils zwei Klassenpfaden wird im
+Dokumentationsrunner entfernt.
+RC- und Stable-19-Guards laufen weiterhin im selben begrenzten Offlineprozesszweig.
+Für den Releasecheck gibt es weiterhin genau einen CI-Job; native Labtests
 werden dadurch nicht gestartet.
+
+## Historische Quellen und aktuelle Qualifikation
+
+[`evidence_sources.py`](../../Scripts/Release/evidence_sources.py) bindet historische SHA-256-Pins an
+unveränderte öffentliche Berichte, deren explizite Quellcommits oder exakte
+`Sources`-Einträge des im Bericht gebundenen Pakets. Pfade, Dateitypen,
+Archivduplikate und Größen sind begrenzt. Es gibt keine freie Git-Historiensuche,
+keine Zeilenenden-Normalisierung und kein Umschreiben alter Pins oder Archive.
+Benötigte Git-Commits müssen lokal vorhanden sein; der Leser lädt nichts aus
+dem Netz nach. Fehlt ein aufgezeichneter Commit, werden nur die übrigen
+expliziten Quellenanker geprüft. Fehlen exakte Originalbytes in allen Ankern,
+bleibt die Prüfung fehlgeschlagen.
+Vorhandene geschlossene Help-/Metadatenübergänge bleiben separat geprüft.
+Die beiden ausdrücklich nach Ausführung aktualisierten XLSX-Testadapter
+werden ausschließlich an ihre damals dokumentierten Adapterbytes gebunden;
+daraus entstehen keine fehlenden ursprünglichen Ausführungsbytes. Die feste
+XLSX-Methodenprojektion prüft ihren exakten Verifier-Vorgänger; der zusätzliche
+Leseradapterschritt ist keine neue Ausführung des historischen Gesamtfalls.
+
+`report_sources` liefert Originalbytes und den getrennten aktuellen Digest.
+`applicability` benennt geänderte oder fehlende aktuelle Quellen; reine
+Quellintegrität begründet niemals native Qualifikation. `require_current`
+weist jeden solchen Drift ab. Die produktiven Paket-/Framework-Livegates
+bleiben streng; Tests historischer Receipts verwenden eigene temporäre
+Originalquellen statt die heutige Arbeitskopie als damalige auszugeben.
+Die ursprünglichen Berichte, ZIPs und Verifierarchive bleiben unverändert.
+
+Gegenproben in [test_evidence_sources.py](test_evidence_sources.py) schützen unter anderem manipulierte
+Berichte/Archive, doppelte ZIP-Einträge, fremde Pins, fehlende Originale,
+Pfadgrenzen und den weiterhin ablehnenden produktiven Framework-Livegate.
+Der bestehende Runner führt sie einmal zusätzlich aus. Verarbeitungskosten:
+ein Implementierungsverantwortlicher, kein weiterer Reviewagent oder CI-Job,
+keine native SQL-Ausführung; Git-Snapshots werden gebündelt gelesen und
+unveränderliche Inhalte pro Prozess wiederverwendet. Livebytes und Archive
+werden vor Wiederverwendung erneut geprüft.
 
 ## Aktueller Quellkandidat
 

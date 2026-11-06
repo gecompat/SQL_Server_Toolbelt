@@ -7,6 +7,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Tests/Release'))
+sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import evidence_sources
 from prepare_function_rights import compose
 from test_xlsx_raw_caller_composer import XlsxRawCallerComposerMixin
 from test_xlsx_raw_caller_evidence import XlsxRawCallerEvidenceMixin
@@ -56,8 +58,7 @@ class XlsxCellCallerTests(XlsxRawCallerComposerMixin, XlsxRawCallerEvidenceMixin
             if path in xlsx_sst_budget.XLSX_HELP_SOURCE_SHA256:
                 xlsx_sst_budget.validate_historical_help_source(ROOT, path, digest)
                 continue
-            import parameter_help_transition
-            data = parameter_help_transition.bound_source(ROOT, path, digest)
+            data = evidence_sources.original_for(ROOT, r, path, digest)
             self.assertEqual(hashlib.sha256(data).hexdigest(), digest, path)
         self.assertEqual({a['name'] for a in r['public_apis']}, {'TVF_InterpretXlsxCell', 'TVF_FormatXlsxCell'})
         self.assertTrue(all(a['permission'] == 'SELECT' for a in r['public_apis']))

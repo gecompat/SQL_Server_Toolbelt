@@ -56,47 +56,19 @@ def validate_source_bindings(report, root):
                 raise ValueError(f'invalid {field} for {relative}')
         by_path[relative] = update
 
-    for relative, digest in pins.items():
-        path = Path(relative)
-        if path.is_absolute() or '..' in path.parts:
-            raise ValueError(f'unsafe source pin path: {relative}')
-        if relative == xlsx_metadata.MANIFEST:
-            xlsx_metadata.validate_source(root, relative, digest)
-            continue
-        if relative == zip_metadata.MANIFEST:
-            zip_metadata.validate_source(root, relative, digest)
-            continue
-        if relative == xlsx_metadata.OFFLINE_SOURCE:
-            xlsx_metadata.validate_source(root, relative, digest)
-            continue
-        if relative == xlsx_sst_budget.WORKBOOK:
-            xlsx_sst_budget.validate_historical_source(root, relative, digest)
-            continue
-        if relative in help_contract_source.source_paths(root):
-            help_contract_source.validate_historical_source(root, relative, digest)
-            continue
-        current_bytes = (root / path).read_bytes()
-        import parameter_help_transition
-        if relative in parameter_help_transition.PATHS:
-            current_bytes = parameter_help_transition.bound_source(root, relative, digest)
-        if relative == xlsx_sst_budget.CELL_TEST:
-            current_bytes = xlsx_sst_budget.restore_help_cell_test(root, current_bytes)
-        current = hashlib.sha256(current_bytes).hexdigest().upper()
-        expected = by_path.get(relative, {}).get('current_sha256', digest)
-        if current != expected.upper():
-            raise ValueError(f'source bytes differ from bound hash: {relative}')
-    for relative, digest in report.get('documentation_source_sha256', {}).items():
-        path = Path(relative)
-        if path.is_absolute() or '..' in path.parts:
-            raise ValueError(f'unsafe documentation source path: {relative}')
-        if relative in help_contract_source.source_paths(root):
-            help_contract_source.validate_historical_source(root, relative, digest)
-            continue
-        source = (parameter_documentation_transition.native_documentation_source(root, relative, digest)
-                  if relative in parameter_documentation_transition.NATIVE_PATHS else (root / path).read_bytes())
-        current = hashlib.sha256(source).hexdigest().upper()
-        if current != digest.upper():
-            raise ValueError(f'documentation bytes differ from bound hash: {relative}')
+    import evidence_sources
+    record_path = evidence_sources.report_path(root, report)
+    # The fields called current_sha256 are the recorded post-native transition,
+    # not a declaration that arbitrary future checkouts are qualified.
+    # These two historical adapters were explicitly recorded after execution.
+    # Validate those exact recorded bytes; do not invent missing execution bytes.
+    recorded_pins = dict(pins)
+    for relative, update in by_path.items():
+        recorded_pins[relative] = update['current_sha256']
+    evidence_sources.report_sources(root, record_path, bindings=recorded_pins)
+    documentation = report.get('documentation_source_sha256', {})
+    if documentation:
+        evidence_sources.report_sources(root, record_path, bindings=documentation)
 
 
 class XlsxRawCallerEvidenceMixin:

@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import shutil
 from pathlib import Path
 import sys
 import tempfile
@@ -14,17 +15,28 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import json_schema_package as gate
+import evidence_sources
 
 
 class JsonSchemaPackageGateMixin:
     def _fixture(self, framework_root: Path, match_package: bool = False):
         report, _ = gate.validate_predecessor(ROOT)
-        public_pins = gate.validate_source_pins(ROOT, report)
+        self.recorded_root = framework_root.parent.parent
+        inputs = evidence_sources.report_sources(ROOT, gate.PREDECESSOR_REPORT.as_posix(), field='framework_input_pins')
+        for relative, binding in inputs.items():
+            target = self.recorded_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(binding.original)
+        for relative in (gate.PREDECESSOR_REPORT, gate.PACKAGE_REL, Path(str(gate.PACKAGE_REL) + '.sha256')):
+            target = self.recorded_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        public_pins = gate.validate_source_pins(self.recorded_root, report)
         package_binaries = {}
         if match_package:
             _, package_binaries = gate.inspect_package(ROOT, report["package"]["sha256"])
         frozen = [
-            {"path": str(gate._repo_path(ROOT, path)), "sha256": digest}
+            {"path": str(gate._repo_path(self.recorded_root, path)), "sha256": digest}
             for path, digest in public_pins.items()
         ]
         for index in range(5):
@@ -60,7 +72,7 @@ class JsonSchemaPackageGateMixin:
         self.assertEqual(gate.sha256(historic), gate.PREDECESSOR_REPORT_SHA256)
         self.assertEqual(report["package"]["sha256"], "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287")
         self.assertEqual(report["framework"]["schema_binary_package_bound"], False)
-        pins = gate.validate_source_pins(ROOT, report)
+        pins = {p:b.recorded_sha256 for p,b in evidence_sources.report_sources(ROOT,gate.PREDECESSOR_REPORT.as_posix(),field='framework_input_pins').items()}
         self.assertEqual(len(pins), 38)
         package, binaries = gate.inspect_package(ROOT, report["package"]["sha256"])
         self.assertEqual(package["archive_sha256"], report["package"]["sha256"])
@@ -131,11 +143,11 @@ class JsonSchemaPackageGateMixin:
             "command": "python -B Tests/Release/test_prepare_release.py",
             "tests": 148, "status": "PASS", "elapsed_seconds": 291.842,
         })
-        self.assertEqual(gate.validate_source_pins(ROOT, predecessor), predecessor["framework_input_pins"])
+        self.assertEqual({p:b.recorded_sha256 for p,b in evidence_sources.report_sources(ROOT,gate.PREDECESSOR_REPORT.as_posix(),field='framework_input_pins').items()}, predecessor["framework_input_pins"])
         for item in evidence["oracles"].values():
             self.assertEqual(hashlib.sha256((ROOT / item["path"]).read_bytes()).hexdigest(), item["sha256"])
         for relative, digest in evidence["implementation_pins"].items():
-            self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), digest)
+            self.assertEqual(hashlib.sha256(evidence_sources.original_for(ROOT, evidence, relative, digest)).hexdigest(), digest)
         self.assertEqual(set(evidence["implementation_pins"]), {
             "Scripts/Release/json_schema_package.py",
             "Tests/Release/Invoke-JsonSchemaPackageQualification.ps1",
@@ -148,32 +160,32 @@ class JsonSchemaPackageGateMixin:
     def test_framework_receipt_requires_complete_phases_and_fresh_sources(self):
         (ROOT / ".runtime").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / ".runtime", prefix="json-schema-gate-") as temp:
-            framework = Path(temp) / "framework"
-            framework.mkdir()
+            framework = Path(temp) / "repo" / ".runtime" / "framework"
+            framework.mkdir(parents=True)
             report, public_pins, receipt, frozen, schema_il, binaries = self._fixture(framework)
-            actual = gate.validate_framework_receipt(ROOT, framework, public_pins, receipt, frozen, schema_il)
+            actual = gate.validate_framework_receipt(self.recorded_root, framework, public_pins, receipt, frozen, schema_il)
             self.assertEqual(len(actual), 9)
             self.assertEqual(actual[gate.SCHEMA_DLL]["sha256"], hashlib.sha256(binaries[gate.SCHEMA_DLL]).hexdigest())
 
             bad_phase = json.loads(json.dumps(receipt))
             bad_phase["phases"][7]["exitCode"] = 1
             with self.assertRaisesRegex(gate.SchemaPackageError, "FRAMEWORK_PHASES_INCOMPLETE"):
-                gate.validate_framework_receipt(ROOT, framework, public_pins, bad_phase, frozen, schema_il)
+                gate.validate_framework_receipt(self.recorded_root, framework, public_pins, bad_phase, frozen, schema_il)
             bad_witness = json.loads(json.dumps(receipt))
             bad_witness["phases"][12]["witness"] = "unexpected output"
             with self.assertRaisesRegex(gate.SchemaPackageError, "FRAMEWORK_PHASES_INCOMPLETE"):
-                gate.validate_framework_receipt(ROOT, framework, public_pins, bad_witness, frozen, schema_il)
+                gate.validate_framework_receipt(self.recorded_root, framework, public_pins, bad_witness, frozen, schema_il)
             with self.assertRaisesRegex(gate.SchemaPackageError, "FRAMEWORK_RECEIPT_INVALID"):
-                gate.validate_framework_receipt(ROOT, framework, public_pins, None, frozen, schema_il)
+                gate.validate_framework_receipt(self.recorded_root, framework, public_pins, None, frozen, schema_il)
 
             bad_input = json.loads(json.dumps(frozen))
             bad_input[0]["sha256"] = "0" * 64
             with self.assertRaisesRegex(gate.SchemaPackageError, "FRAMEWORK_FROZEN_INPUT_DRIFT"):
-                gate.validate_framework_receipt(ROOT, framework, public_pins, receipt, bad_input, schema_il)
+                gate.validate_framework_receipt(self.recorded_root, framework, public_pins, receipt, bad_input, schema_il)
 
             (framework / gate.SCHEMA_DLL).write_bytes(b"unexpected synthetic output")
             with self.assertRaisesRegex(gate.SchemaPackageError, "FRAMEWORK_BINARY_OUTPUT_DRIFT"):
-                gate.validate_framework_receipt(ROOT, framework, public_pins, receipt, frozen, schema_il)
+                gate.validate_framework_receipt(self.recorded_root, framework, public_pins, receipt, frozen, schema_il)
 
     def test_schema_manifest_hash_is_checked_even_with_matching_outer_hash(self):
         package_path = ROOT / gate.PACKAGE_REL
@@ -220,10 +232,10 @@ class JsonSchemaPackageGateMixin:
     def test_schema_framework_output_must_equal_the_package_binary(self):
         (ROOT / ".runtime").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / ".runtime", prefix="json-schema-output-") as temp:
-            framework = Path(temp) / "framework"
-            framework.mkdir()
+            framework = Path(temp) / "repo" / ".runtime" / "framework"
+            framework.mkdir(parents=True)
             report, public_pins, receipt, frozen, schema_il, binaries = self._fixture(framework, match_package=True)
-            framework_pins = gate.validate_framework_receipt(ROOT, framework, public_pins, receipt, frozen, schema_il)
+            framework_pins = gate.validate_framework_receipt(self.recorded_root, framework, public_pins, receipt, frozen, schema_il)
             package_record, package_binaries = gate.inspect_package(ROOT, report["package"]["sha256"])
             gate.validate_source_package_match(framework, package_binaries, framework_pins)
             self.assertEqual(package_record["schema"]["sha256"], framework_pins[gate.SCHEMA_DLL]["sha256"])
@@ -250,14 +262,14 @@ class JsonSchemaPackageGateMixin:
         (ROOT / ".runtime").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / ".runtime", prefix="json-schema-reuse-") as temp:
             temporary = Path(temp)
-            framework = temporary / "framework"
-            framework.mkdir()
+            framework = temporary / "repo" / ".runtime" / "framework"
+            framework.mkdir(parents=True)
             _, _, receipt, frozen, schema_il, _ = self._fixture(framework, match_package=True)
             (framework / "Receipt.private.json").write_text(json.dumps(receipt), encoding="utf-8")
             (framework / "FrozenInputs.private.json").write_text(json.dumps(frozen), encoding="utf-8")
             (framework / "Toolbelt.JsonSchema.IL.private.json").write_text(json.dumps(schema_il), encoding="utf-8")
-            output = temporary / "qualification"
-            prepared = gate.prepare(ROOT, framework, output)
+            output = self.recorded_root / ".runtime" / "qualification"
+            prepared = gate.prepare(self.recorded_root, framework, output)
             binding = json.loads((output / "Binding.private.json").read_bytes())
             self.assertEqual(len(binding["source_framework_output_sha256"]), 9)
             self.assertEqual(len(binding["source_receipt_sha256"]), 64)
@@ -270,4 +282,4 @@ class JsonSchemaPackageGateMixin:
                     pin["sha256"] = hashlib.sha256(changed.read_bytes()).hexdigest()
             (framework / "Receipt.private.json").write_text(json.dumps(receipt), encoding="utf-8")
             with self.assertRaisesRegex(gate.SchemaPackageError, "PACKAGE_BINDING_CHANGED_DURING_IL"):
-                gate.postvalidate(ROOT, framework, output)
+                gate.postvalidate(self.recorded_root, framework, output)

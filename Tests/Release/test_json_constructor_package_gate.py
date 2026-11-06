@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
+import evidence_sources
 import json_constructor_package as gate
 
 
@@ -93,7 +94,7 @@ class JsonConstructorPackageGateMixin:
         self.assertEqual(set(report["framework_input_pins"]), expected_inputs)
         self.assertTrue(all(path.startswith("Modules/") for path in report["framework_input_pins"]))
         for relative, digest in report["framework_input_pins"].items():
-            self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), digest)
+            self.assertEqual(hashlib.sha256(evidence_sources.original_for(ROOT, report, relative, digest)).hexdigest(), digest)
         self.assertEqual(report["setup_history"][0]["status"], "FAILED_BEFORE_FRAMEWORK_PHASES")
         self.assertEqual(report["setup_history"][0]["framework_phases"], 0)
         self.assertEqual(report["setup_history"][1], {"status": "PASS", "framework_phases": 27})
@@ -123,7 +124,7 @@ class JsonConstructorPackageGateMixin:
                              hashlib.sha256(payload).hexdigest())
             self.assertTrue(report["package_binaries"][filename]["framework_source_binary_byte_match"])
         for relative, digest in report["implementation_pins"].items():
-            self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), digest)
+            self.assertEqual(hashlib.sha256(evidence_sources.original_for(ROOT, report, relative, digest)).hexdigest(), digest)
 
     def test_outer_package_hash_mismatch_is_rejected(self):
         data = self._package_bytes()

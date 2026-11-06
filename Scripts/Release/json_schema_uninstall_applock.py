@@ -142,9 +142,9 @@ def validate_record(root: Path, record: dict | None = None) -> dict:
         if not isinstance(digest, str) or re.fullmatch(r"[a-f0-9]{64}", digest) is None:
             raise QualificationError("source hash shape mismatch")
         if _sha256(_relative_file(root, relative)) != digest:
-            import parameter_help_transition
+            import evidence_sources
             try:
-                parameter_help_transition.bound_source(root, relative, digest)
+                evidence_sources.report_sources(root, REPORT_PATH, bindings={relative: digest})
             except ValueError as error:
                 raise QualificationError("public source pin drift") from error
 
