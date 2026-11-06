@@ -18,6 +18,11 @@ kontrollierten Work-Queue-Ausgang.
 Die Objekte, Berechtigungen, Fehler und Beispiele stehen in
 [EXECUTION_CANCELLATION_OBJECTS.md](Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
+Die [aktuellen Testnachweise](Tests/README.md) trennen den elf Kontexte
+umfassenden Windows-Teilnachweis des früheren Repeat-Tests vom erweiterten
+Test aller acht Spalten mit isolierten Principalgegenproben. Das Modul bleibt
+teilweise validiert und unveröffentlicht.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

@@ -19,7 +19,10 @@ SELECT @Phase, 'rows', CONVERT(varbinary(max), CONVERT(nvarchar(max),
     (SELECT ExecutionId, RequestedAtUtc,
             CONVERT(varbinary(max), RequestedBy) AS RequestedByBytes,
             CONVERT(varbinary(max), CancellationReason) AS CancellationReasonBytes,
-            CONVERT(binary(8), RowVersion) AS RowVersionBytes
+            CONVERT(binary(8), RowVersion) AS RowVersionBytes,
+            RequestedByPrincipalId,
+            CONVERT(varbinary(max), RequestedByPrincipalSid) AS RequestedByPrincipalSidBytes,
+            CONVERT(binary(8), RequestedByPrincipalCreatedAt) AS RequestedByPrincipalCreatedAtBytes
      FROM toolbelt_core.ExecutionCancellation ORDER BY ExecutionId
      FOR XML PATH('row'), ELEMENTS XSINIL, TYPE)));
 

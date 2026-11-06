@@ -11,7 +11,8 @@ required = [
     'Tests/Runtime/ExecutionCancellation.Contract.sql', 'Tests/Runtime/Concurrency.Contract.sql',
     'Tests/Runtime/Lifecycle.Contract.sql', 'Tests/Runtime/Central.Contract.sql',
     'Tests/Runtime/RepeatCurrent.Contract.sql', 'Tests/Runtime/RepeatCurrent.Capture.sql',
-    'Tests/Runtime/RepeatCurrent.Assert.sql', 'module.yaml'
+    'Tests/Runtime/RepeatCurrent.Assert.sql', 'Tests/Runtime/RepeatCurrent.Negative.sql',
+    'Tests/Runtime/RepeatCurrent.NormalizeNegativeVersion.sql', 'module.yaml'
 ]
 missing = [path for path in required if not (root / path).is_file()]
 if missing:
@@ -35,6 +36,8 @@ for include, count in ((':r Deploy.sql', 2),
         raise SystemExit('Befüllter Repeat muss zwei echte Deploys mit identischen Orakeln ausführen.')
 for marker in ('ExecutionId', 'RequestedAtUtc', 'CONVERT(varbinary(max), RequestedBy)',
                'CONVERT(varbinary(max), CancellationReason)', 'CONVERT(binary(8), RowVersion)',
+               'RequestedByPrincipalId', 'CONVERT(varbinary(max), RequestedByPrincipalSid)',
+               'CONVERT(binary(8), RequestedByPrincipalCreatedAt)',
                'sys.objects', 'sys.schemas', 'sys.tables', 'sys.columns', 'sys.indexes',
                'sys.index_columns', 'sys.key_constraints', 'sys.default_constraints',
                'sys.check_constraints', 'sys.foreign_keys', 'sys.foreign_key_columns',
@@ -43,6 +46,21 @@ for marker in ('ExecutionId', 'RequestedAtUtc', 'CONVERT(varbinary(max), Request
         raise SystemExit('Cancellation-Repeat-Snapshot fehlt: ' + marker)
 if assertion.count('EXCEPT') != 2 or '@@TRANCOUNT <> 0' not in assertion or 'XACT_STATE() <> 0' not in assertion:
     raise SystemExit('Repeat muss bidirektional vergleichen und den Sessionabschluss prüfen.')
+negative = (root / 'Tests/Runtime/RepeatCurrent.Negative.sql').read_text('utf-8')
+normalization = (root / 'Tests/Runtime/RepeatCurrent.NormalizeNegativeVersion.sql').read_text('utf-8')
+if repeat.count(':r ../Tests/Runtime/RepeatCurrent.Negative.sql') != 1:
+    raise SystemExit('Drei isolierte Principalgegenproben müssen vor den echten Deploys laufen.')
+for include in ('RepeatCurrent.Capture.sql', 'RepeatCurrent.NormalizeNegativeVersion.sql', 'RepeatCurrent.Assert.sql'):
+    if negative.count(':r ../Tests/Runtime/' + include) != 3:
+        raise SystemExit('Jede Principalgegenprobe benötigt originales Capture und Assert mit isolierter Rowversion.')
+for column in ('RequestedByPrincipalId', 'RequestedByPrincipalSid', 'RequestedByPrincipalCreatedAt'):
+    if f'SET {column} =' not in negative:
+        raise SystemExit('Principalgegenprobe fehlt: ' + column)
+if ('ERROR_NUMBER() = 52743 AND ERROR_STATE() = 1' not in assertion
+        or 'ROLLBACK TRANSACTION' not in assertion or 'THROW 52747' not in assertion
+        or 'replace value of' not in normalization or 'RowVersionBytes/text()' not in normalization
+        or 'sql:variable("@Version")' not in normalization):
+    raise SystemExit('Negative müssen das exakte Originalorakel trotz kompensierter Rowversion beweisen.')
 if repeat.count("sys.sp_addextendedproperty @name = N'MS_Description'") != 2 or repeat.count(
         "sys.sp_dropextendedproperty @name = N'MS_Description'") != 2:
     raise SystemExit('Repeat muss eigene Tabellen- und Spaltenbeschreibungen prüfen und bereinigen.')

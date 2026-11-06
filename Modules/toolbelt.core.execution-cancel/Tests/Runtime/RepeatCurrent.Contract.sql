@@ -37,11 +37,13 @@ CREATE TABLE #tbx_CancellationRepeat_Snapshot
 -- Deterministische Auditwerte vermeiden reale Login-/Laufzeitdaten.
 -- NULL, Leerstring, Unicode, Padding und 100-ns-Anteile bleiben unterscheidbar.
 INSERT toolbelt_core.ExecutionCancellation
-    (ExecutionId, RequestedAtUtc, RequestedBy, CancellationReason)
-VALUES ('00000000-0000-0000-0000-000000000041', '2026-01-02T03:04:05.1234567', N'Synthetic requester', NULL),
-       ('00000000-0000-0000-0000-000000000042', '2026-02-03T04:05:06.0000001', N'Synthetic empty', N''),
-       ('00000000-0000-0000-0000-000000000043', '2026-03-04T05:06:07.9999999', N'Synthetic ä 中', N'Unicode ä 中 '),
-       ('00000000-0000-0000-0000-000000000044', '2026-04-05T06:07:08.0000000', N'Synthetic trailing ', N' ');
+    (ExecutionId, RequestedAtUtc, RequestedBy, CancellationReason,
+     RequestedByPrincipalId, RequestedByPrincipalSid, RequestedByPrincipalCreatedAt)
+-- Synthetische gespeicherte Zuordnungen; keine echten Principals oder Grants.
+VALUES ('00000000-0000-0000-0000-000000000041', '2026-01-02T03:04:05.1234567', N'Synthetic requester', NULL, NULL, NULL, NULL),
+       ('00000000-0000-0000-0000-000000000042', '2026-02-03T04:05:06.0000001', N'Synthetic empty', N'', 1001, 0x010203, '2026-01-02T03:04:05.003'),
+       ('00000000-0000-0000-0000-000000000043', '2026-03-04T05:06:07.9999999', N'Synthetic ä 中', N'Unicode ä 中 ', 1001, 0x010203, '2026-01-02T03:04:05.003'),
+       ('00000000-0000-0000-0000-000000000044', '2026-04-05T06:07:08.0000000', N'Synthetic trailing ', N' ', 1002, 0x0001020300, '2026-02-03T04:05:06.997');
 -- Ein bereits veränderter Rowversionwert muss ebenfalls bytegleich überleben.
 UPDATE toolbelt_core.ExecutionCancellation SET CancellationReason = N'Unicode ä 中 '
 WHERE ExecutionId = '00000000-0000-0000-0000-000000000043';
@@ -67,6 +69,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
      @level2type = N'COLUMN', @level2name = N'CancellationReason';
 GO
 :r ../Tests/Runtime/RepeatCurrent.Capture.sql
+:r ../Tests/Runtime/RepeatCurrent.Negative.sql
 
 UPDATE #tbx_CancellationRepeat_State SET Phase = 1;
 GO
