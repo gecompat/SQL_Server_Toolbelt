@@ -1,5 +1,20 @@
 # Worker Control – Vertragsmatrix
 
+## Aktueller lokaler Windows-Providerumfang
+
+Der [Abschluss der Teilmatrix](README.md#aktueller-abschluss-der-lokalen-windows-provider-teilmatrix)
+belegt sechs lokale Kontexte mit tatsächlichem Windows-Workerhost:
+SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170, jeweils elf feste
+Providerfälle, vollständiger Koordinator und separater frischer Audit.
+Drei neue Restfälle schließen 2022/CL160 und 2025/CL150/160; drei bereits
+grüne Kontexte werden wiederverwendet. Der alte 2022/CL160-Fehler bleibt
+fehlgeschlagen und separat bereinigt, sein konkreter Auslöser ungemessen.
+Der neue lesende Quieszenzpfad lässt den vollständigen Originalguard
+unverändert. `FullProduct=false`, andere Deployment-/Rechte-/Providerumfänge
+und echter Host-/Committransportverlust bleiben gesondert.
+
+Die folgenden Abschnitte erhalten die vorherigen Zwischenstände und Risiken.
+
 Die [weitere Windows-Providerabnahme](README.md#weitere-windows-providerkontexte-vom-2026-11-06)
 belegt zusätzlich komplette Gesamtfälle auf 2019/CL150 und 2022/CL150 mit
 je elf Fällen und frischen Audits. Auf 2022/CL160 bestand der Providerpfad,

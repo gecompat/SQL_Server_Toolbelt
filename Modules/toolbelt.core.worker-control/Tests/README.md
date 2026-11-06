@@ -1,6 +1,65 @@
 # Worker Control – Testnachweise
 
+## Aktueller Abschluss der lokalen Windows-Provider-Teilmatrix
+
+Die ausdrücklich freigegebene Restwelle vom 2026-11-06 bestand die drei
+verbliebenen Gesamtfälle mit tatsächlichem Windows-Workerhost: SQL2022/CU26
+CL160 und SQL2025/CU8 CL150/160. Jeweils alle elf unveränderten Providerfälle,
+der vollständige Koordinator, reguläre Bereinigung und ein separater frischer
+lesender Audit sind bestanden. Die bereits grünen drei anderen Kontexte
+werden mit ihren ursprünglichen Bindungen wiederverwendet.
+
+| Windows-SQL-Ziel | CL | Deployment | Elf Providerfälle, Gesamtkoordinator und Audit |
+|---|---|---|---|
+| 2019/CU32 | 150 | local | bestanden, Nachweis aus PR521 wiederverwendet |
+| 2022/CU26 | 150 | local | bestanden, Nachweis aus PR521 wiederverwendet |
+| 2022/CU26 | 160 | local | neuer korrigierter Gesamtfall bestanden |
+| 2025/CU8 | 150 | local | neuer Gesamtfall bestanden |
+| 2025/CU8 | 160 | local | neuer Gesamtfall bestanden |
+| 2025/CU8 | 170 | local | bestanden, Nachweis aus PR520 wiederverwendet |
+
+Das belegt 66 feste Providerfälle über sechs ausgewählte lokale Kontexte.
+Produkt-, Provider- und Fixturebytes sind gegenüber
+[e51d68c7](https://github.com/gecompat/SQL_Server_Toolbelt/tree/e51d68c75db3e63cf93b037e087c3741ae5f252a)
+unverändert; der relevante Quellenvergleich zu den wiederverwendeten
+Gesamtfällen ist leer. Der neue private Adapter ergänzt ausschließlich vor
+dem ursprünglichen Bereinigungsguard ein höchstens fünf Sekunden langes
+lesendes Warten auf Quieszenz und private Faktenaufzeichnung. Sicht, exakte
+ID/Erzeugungsbytes/Owner, Runmarker und Slotbelegung bleiben strikt; Drift
+blockiert. Der vollständige ursprüngliche Guard folgt unverändert. Es gibt
+weder KILL noch forcierte Trennung oder gelockerte Eigentumsprüfung.
+
+Zehn source-extracted Offlinegegenproben bestanden: sofortige Quieszenz,
+Session-/Requestende, fehlende Sicht, Identitäts-/Markerdrift, belegter Slot,
+Lesefehler, falsche Readerform und endliche Zeitüberschreitung. Auch die
+Grammatik und unveränderte Originalguard-Extent wurden geprüft. Im neuen
+SQL2025/CL150-Lauf beobachtete der Wartepfad tatsächlich zunächst noch andere
+Sessions/Requests und danach Quieszenz bei weiterhin gültiger Identität.
+Das erklärt nicht rückwirkend den ungemessenen ursprünglichen 2022/CL160-
+Fehler. Dessen alter fehlgeschlagener Koordinator und separate Recovery unten
+bleiben unverändert; der korrigierte Lauf ist ein eigener erfolgreicher Fall.
+
+Alle acht freigegebenen Ziel-/Auditdispatches sind abgeschlossen: zwei
+lesende Vorprüfungen und drei Lauf-/Auditpaare. Drei eigene Datenbanken und
+Fixtureverzeichnisse sind entfernt. Die frischen Audits binden finale Pläne,
+Originaljournale, Adapter, tatsächliche Providerergebnisse und Quieszenzfakten
+und bestätigen unveränderte erfasste Server-, Konfigurations-, Trust-,
+Principal-/Rechte- und CLR-Zustände. Keine SQL-GRANT-, Login-, Rollen-,
+Serverkonfigurations-, Trust-, CLR- oder Infrastrukturänderung. Vollständige
+Postpins bestanden vor den Dokumentationsnachträgen; Originale bleiben privat.
+Alte Verbräuche, Fristen, Fehler und Sicherheitsgrenzen wurden nicht erneuert.
+
+Jedes Providerergebnis bleibt `FullProduct=false`. Zentrale/CrossDB-Kontexte,
+Minimalrechte, weitere Provider-/Betriebssystemkombinationen, echte Host-/
+Committransportunterbrechung und volle Modulqualifikation bleiben gesondert.
+Die Verbindungen sind Functional mit erforderlicher Verschlüsselung und
+explizitem Lab-Trustwert; dies erweitert keine authentifizierte TLS- oder
+Windows-/SSMS-Anmeldequalifikation. Teilweise validiert und unveröffentlicht.
+
 ## Weitere Windows-Providerkontexte vom 2026-11-06
+
+Dieser Abschnitt erhält den Zwischenstand aus PR521 vor der oben gebundenen
+freigegebenen Restwelle einschließlich damaliger Fehler und offener Angaben.
 
 Zwei weitere aktuelle `ManagedOnly`-Gesamtfälle bestanden mit tatsächlichem
 Windows-Workerhost und unveränderten elf Providerorakeln. Der bereits grüne
