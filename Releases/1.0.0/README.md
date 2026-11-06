@@ -80,6 +80,11 @@ bindet den vorhandenen Framework-/IL-Nachweis an die Constructor- und Core-DLLs
 aus dem CLR-Installationspaket. Sie ist ein begrenzter Offlinebeleg und ändert
 keinen Modulstatus.
 
+Die [direkte Constructor-Clientmatrix](JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
+ergänzt separat24 lokale/direkt zentrale Windows-/Linux-SQL-Kontexte mit
+480 Reader-/Help-/ResultTable-/AGF-Rückgabetyp-Profilen und zwölf frischen Audits.
+Keine neue Rechte-/Identitätsvergabe, kein Linux-Clienthost oder Modulgesamt-PASS.
+
 Die getrennte [JSON-Schema-Paket-IL-Qualifikation](JSON-SCHEMA-PACKAGE-QUALIFICATION.md)
 bindet die Schema-DLL bytegenau an das geprüfte Installationspaket und führt
 den vorhandenen IL-Guard direkt auf dieser Paket-DLL aus. Sie verwendet den

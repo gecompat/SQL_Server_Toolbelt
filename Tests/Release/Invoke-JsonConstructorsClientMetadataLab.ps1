@@ -199,5 +199,5 @@ try {
   finally {if($control){$control.Dispose()}}
  }
 }
-if($failure){if($ValidateOnly){throw $failure};Write-Output 'FAIL CONSTRUCTOR_METADATA_RIGHTS; inspect private journal; never replay without reconciliation';exit 1}
-if($AuditOnly){'PASS CONSTRUCTOR_METADATA_RIGHTS independent input/absence audit'}else{'PASS CONSTRUCTOR_METADATA_RIGHTS local/direct-central; independent audit required'}
+if($failure){if($ValidateOnly){throw $failure};Write-Output 'FAIL CONSTRUCTOR_CLIENT_METADATA; inspect private journal; never replay without reconciliation';exit 1}
+if($AuditOnly){'PASS CONSTRUCTOR_CLIENT_METADATA independent input/absence audit'}else{'PASS CONSTRUCTOR_CLIENT_METADATA local/direct-central; independent audit required'}

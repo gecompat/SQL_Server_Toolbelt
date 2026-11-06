@@ -47,6 +47,17 @@ werden dadurch nicht gestartet.
 
 ## Historische Quellen und aktuelle Qualifikation
 
+Die [direkte Constructor-Clientmatrix](../../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
+verwendet `Invoke-JsonConstructorsClientMetadataLab.ps1` und
+`JsonConstructors.ClientMetadata.ps1`. Der Adapter übernimmt den kanonischen
+Vier-USP-Readerloop per AST ohne dessen alte Anmeldehülle, ersetzt ausschließlich
+drei Timeouts und ergänzt direkte bestehende AGF-nvarchar(max)-Wertprofile.
+Geliehene Verbindung muss bereits offen sein; die Quelle und bekannten zwei
+SAFE-DLLs werden vor Labzugriff geprüft. Sechs verbindungslose Gegenproben,
+maximal24 native Lauf-/Auditdispatches/24DBs/45min pro neuer kohärenter Welle,
+keine neue Rechtevergabe. `-ValidateOnly` ist kein nativer Nachweis; abgeschlossene
+Budgets werden dadurch nicht erneuert. Native Host-/TLS-/Callergrenzen im Bericht.
+
 Die [native ZIP-Entry-Byteprüfung](../../Releases/1.0.0/ZIP-ENTRY-BYTE-QUALIFICATION.md)
 verwendet `compose_zip_entry_limits.py` für gültige DEFLATE-/Stored-Archive an
 128-MiB-Komprimat-/64-MiB-Ausgabegrenzen und jeweils ein Byte darüber.
