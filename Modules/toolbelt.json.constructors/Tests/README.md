@@ -1,5 +1,11 @@
 # Testausführung
 
+Der ergänzende [Linux-SQL-Callerbericht vom 2026-11-06](../../../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)
+belegt dieselben vier USPs und benannten Objektrechte auf Linux SQL2019/2022/2025
+über alle unterstützten CLs lokal/direkt zentral: zwölf Kontexte,144 positive
+Profile,144 SQL229-Abweisungen und sechs frische Audits. Der Prüfhost war Windows;
+keine Linux-Clienthost-, Netzwerklogin-, Aggregate- oder Modulgesamtqualifikation.
+
 Der [Callerbericht vom 2026-11-06](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
 belegt die vier öffentlichen USPs unter einem Benutzer ohne Login auf
 Windows SQL2019/CU32 CL150,SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170

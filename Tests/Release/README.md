@@ -126,6 +126,9 @@ Der [native Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFI
 belegt zwölf Windows-SQL2019-/2022-/2025-Kontexte lokal/direkt zentral und
 trennt die erfolgreiche korrigierte Restmatrix von den drei ursprünglichen
 bereinigten Fehlversuchen und dem jeweils frischen Abschlussaudit.
+Der separate [Linux-SQL-Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)
+ergänzt zwölf latest-Kontexte derselben Engine-/CL-/Modusmatrix, ohne
+Windows-Fälle zu wiederholen oder eine Linux-Clienthostabnahme zu behaupten.
 
 `Invoke-JsonConstructorsCallerLab.ps1` prüft ausschließlich die vier vorhandenen
 öffentlichen Constructor-USPs mit einem datenbanklokalen Benutzer ohne Login.
