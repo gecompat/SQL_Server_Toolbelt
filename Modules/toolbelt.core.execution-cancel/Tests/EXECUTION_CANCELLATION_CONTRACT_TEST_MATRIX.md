@@ -11,16 +11,24 @@
 | Isolierte Principalgegenproben | Drei zurückgerollte Datenänderungen mit tatsächlichem52743/1 aus dem originalen Capture-/Assert-Paar; automatische Rowversiondifferenz nur im temporären Negativsnapshot kompensiert, damit sie keine ausgelassene Principalspalte verdeckt |
 | Plattformmatrix | SQL Server 2019, 2022 und 2025 auf Linux und Windows; CU nur bei patchabhängigem Test |
 
-Der [aktuelle Windows-Teilnachweis](README.md#windows-repeat-vom-2026-11-06-elf-abgegrenzte-kontexte)
+Die [vollständige achtspaltige Windows-Repeat-Matrix](README.md#vollständige-achtspaltige-windows-repeat-matrix-vom-2026-11-06)
+bestand auf SQL2019/CU32 CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8
+CL150/160/170 jeweils lokal und direkt zentral: zwölf Kontexte,
+24 Deploywiederholungen, 36 isolierte Gegenproben sowie sechs vollständige
+Koordinatoren und sechs frische Audits. Das ist keine vollständige neue
+API-/Rechte-/Transport- oder Unterbrechungsqualifikation.
+
+Der historische [Windows-Teilnachweis](README.md#windows-repeat-vom-2026-11-06-elf-abgegrenzte-kontexte)
 belegt elf Kontexte des vorherigen fünfspaltigen Tests; Windows2019 lokal
 bleibt fehlgeschlagen und separat bereinigt. Der [erweiterte achtspaltige Test](README.md#aktueller-repeat-mit-vollständiger-principalbindung)
-benötigt eigene erfolgreiche Ausführung, bestehende Nachweise erweitern
-ihren Datenumfang nicht rückwirkend.
+wurde in der späteren Restwelle eigens ausgeführt; bestehende Nachweise
+erweitern ihren Datenumfang nicht rückwirkend.
 
 Der befüllte Repeat ist unabhängig vom historischen Lifecycle zu
 qualifizieren. Er verändert weder Source noch Deployment, erzeugt keine
-Benutzergrants und belegt keine tatsächlichen Minimalrechte. Windows, weitere
-Repeat-Compatibility-Levels und historische Versionsübergänge bleiben ohne
+Benutzergrants und belegt keine tatsächlichen Minimalrechte. Die neue
+Windows-Repeat-Matrix ist oben geschlossen; weitere Linux-Repeat-CLs und
+historische Versionsübergänge bleiben ohne
 eigene erfolgreiche Evidenz `not executed`. Das Fixture benötigt eine eigene
 leere Installationsdatenbank; sein Adapter verantwortet Cleanup auch nach
 SQLCMD-Fehlerabbruch. Einzelheiten und Ausführungsgrenzen stehen in

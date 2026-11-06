@@ -1,5 +1,51 @@
 # Testevidenz
 
+## Vollständige achtspaltige Windows-Repeat-Matrix vom 2026-11-06
+
+Die ausdrücklich auf15 Ziel-/Auditaufrufe, sechs eigene Datenbanken und
+45 Minuten begrenzte Restwelle bestand den aktuellen achtspaltigen
+`RepeatCurrent` in sämtlichen ausgewählten Windows-Kontexten:
+
+| SQL-Version / Patch | Compatibility Levels | Deploymentmodi | Gesamtfälle je CL |
+|---|---|---|---|
+| Windows2019 / CU32 | 150 | local, central | beide bestanden |
+| Windows2022 / CU26 | 150, 160 | local, central | beide bestanden |
+| Windows2025 / CU8 | 150, 160, 170 | local, central | beide bestanden |
+
+Zwölf Kontexte bestanden je zwei echte Deploys und drei isolierte
+Principalgegenproben: insgesamt24 Wiederholungen und36 Gegenproben.
+Sechs vollständige Gesamtkoordinatoren und sechs separate frische Audits
+bestätigten Erfolg, Entfernung aller eigenen Datenbanken und unveränderte
+fremde Konfiguration, Trusts, Principals, Permissions und CLR-Verbraucher.
+Die drei übrigen Aufrufe waren lesende Vorprüfungen der exakt ausgewählten,
+schema-validierten Labziele einschließlich tatsächlicher Windows-/SQL-/CU-
+Identität. Alle15 Aufrufe und sechs Datenbanken sind verbraucht und geschlossen;
+es gab keinen fehlgeschlagenen Versuch und keine Wiederholung in dieser Welle.
+
+Produkt- und Testquellen sind an
+[`89f15fe5`](https://github.com/gecompat/SQL_Server_Toolbelt/tree/89f15fe58eb2ec17618a37cf74ce7a20ca1ba5f8)
+gebunden. Der private Adapter führt die unveränderten Originalincludes aus,
+prüft das tatsächliche CL und verlangt je Kontext die drei geordneten
+Gegenprobenzeugen sowie den abschließenden Repeatzeugen. Jeder Audit bindet
+das finale Originaljournal und seine Quellpins; alle Bindungen wurden vor
+diesem abgeleiteten Dokumentationsnachtrag erneut geprüft. Rohdaten und
+Originaljournale bleiben privat.
+
+Damit ist die achtspaltige Windows-Repeat-Lücke über alle unterstützten CLs
+lokal und direkt zentral geschlossen. Die früheren fünfspaltigen Ergebnisse
+und der damals fehlgeschlagene Windows2019-/local-Fall bleiben unverändert
+historisch. Der neue Erfolg ersetzt keine alte Fehlermeldung und wird nicht
+als deren nachträglicher PASS ausgelegt.
+
+Dies ist Bestandserhaltung einschließlich synthetischer Principal-ID, SID
+und Erzeugungsbytes, keine neue Caller-/Quoten-/CrossDB-Identitätsabnahme.
+Functional verwendet erforderliche Verschlüsselung mit dem expliziten
+Lab-Trustwert; authentifiziertes TLS ist hier nicht qualifiziert.
+SQL-Rechte, Serveroptionen, CLR, Trust und Labressourcen wurden nicht geändert.
+Minimalrechte, nichtleere Benutzergrants, historische Migrationen und harte
+Unterbrechungen bleiben separat. Das Modul bleibt teilweise validiert und
+unveröffentlicht.
+
 ## Windows-Repeat vom 2026-11-06: elf abgegrenzte Kontexte
 
 Der unveränderte bisherige `RepeatCurrent` bestand am Produkt-/Fixturestand
@@ -60,6 +106,10 @@ Main-Run zugeordnet werden; die elf Windows-Altfälle werden durch diese
 Teständerung nicht zu achtspaltigen oder vollständigen Matrixnachweisen.
 Eine weitere native Windows-Ausführung ist in der geschlossenen Welle
 nicht enthalten.
+Die spätere, separat freigegebene
+[vollständige Windows-Restwelle](#vollständige-achtspaltige-windows-repeat-matrix-vom-2026-11-06)
+belegt nun die oben beschriebene achtspaltige Matrix; die vorherige Welle
+bleibt geschlossen.
 
 Der erste CI-Head der Erweiterung scheiterte auf allen drei Linux-Versionen
 mit1934, weil die neue XML-Methode im frischen SQLCMD-Testprozess
