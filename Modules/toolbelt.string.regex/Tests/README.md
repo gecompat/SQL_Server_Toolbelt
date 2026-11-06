@@ -1,5 +1,16 @@
 # Regex-Tests
 
+## Aktueller Nachweisumfang
+
+Die [aktuelle Einordnung](../../../Releases/1.0.0/RELEASE-GATES.md#regex-aktueller-nachweisabgleich-vom-2026-11-06)
+verwendet die späteren gebundenen Regex1.3-/Capture-/Rechtenachweise. Die
+physische API-Matrix ist belegt; das historische Capture-Gate ist für die exakte
+DLL mit ausdrücklich akzeptiertem Restrisiko angenommen. Die Ursache bleibt
+ungeklärt, alte FAIL/PARTIAL bleiben erhalten. Die folgenden datierten älteren
+Abschnitte dürfen nicht als erneute Offenliste dieser abgeschlossenen
+Teilumfänge gelesen werden. Aktuelle Ressourcen-/CrossDB-/Host-Recovery- und
+weitere Modulgrenzen bleiben separat; teilweise validiert und unveröffentlicht.
+
 ## Ownership des flüchtigen CI-Containers
 
 `Tests/CI/run-regex-linux.sh` prüft im Runnerpfad Run-/Attempt-/SQL-/CL-Namen

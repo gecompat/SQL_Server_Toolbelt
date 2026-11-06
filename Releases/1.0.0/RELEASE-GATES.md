@@ -116,6 +116,35 @@ vergleicht diese Darstellung mit den Records. Sie startet keine SQL-/GUI-/
 TLS-Wiederholung und erteilt keine neue Testfreigabe.
 
 
+## Regex: aktueller Nachweisabgleich vom 2026-11-06
+
+Für den unveränderten Regex-Binarystand1.3.0 ist die physische API-Matrix
+Windows/Linux SQL2019 CL150,SQL2022 CL150/160 und SQL2025 CL150/160/170
+lokal/zentral bereits in der [Timeout-Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md)
+gebunden:203 Fixtureaufrufe bestanden, ein ursprünglicher Captureaufruf blieb
+PARTIAL. Diese historische Zählung bleibt unverändert.
+
+Die spätere [Capture-Abnahme](CAPTURE-RELEASE-ACCEPTANCE.md) schließt das
+historische Capture-Gate für exakt diese DLL mit ausdrücklich akzeptiertem
+Restrisiko. Die Ursache bleibt ungeklärt/nicht reproduziert; es wird keine
+Capture-Produktkorrektur oder Garantie timeoutfreier Ausführung unter beliebigem
+Scheduling behauptet. Originalfixture mit Vorlauf, Client-/Ausgabe-/Atomikorakel
+und tatsächliche Capture-Minimalrechte lokal/direkt zentral bilden den
+angenommenen Umfang. Frühere FAIL/PARTIAL werden nicht nachträglich PASS.
+
+Die anschließende [Regex-Rechtequalifikation](REGEX-RIGHTS-QUALIFICATION.md)
+bindet den korrigierten skalaren EXECUTE-Vertrag, aktuelle kanonische
+Rechtedokumentation und gekoppelte finale Paketquellen. Ältere Aussagen
+„Capture-Gate offen“ oder „weitere R2b-Ziele offen“ beschreiben deshalb nicht
+mehr diese bereits belegten Teilumfänge. Die bestehende Releaseprüfung prüft
+die Source-/Evidenzbindungen nach ihrem ursprünglichen Hashvertrag und die
+gelieferte DLL; Originalberichte und Pakete werden dafür nicht geändert.
+
+Lowpriv-CrossDB-Logins, weitere Ressourcen-/Parallelitäts-/Host-Recovery- und
+andere ausdrücklich benannte Modulpflichtfälle bleiben getrennt. Dieser Abgleich
+ist keine neue native Ausführung oder Modulgesamtfreigabe; Status bleibt
+teilweise validiert/unveröffentlicht. Keine Veröffentlichung oder Tags.
+
 ## Was technisch geprüft ist
 
 | Prüfung | Tatsächlicher Nachweis | Grenze |
