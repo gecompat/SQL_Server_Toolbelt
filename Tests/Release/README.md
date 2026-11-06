@@ -103,6 +103,23 @@ Wiederholung und keine neue native Testfreigabe. Die Testübersicht bleibt ein
 Leseweg zu den Modulmatrizen; die ursprünglichen Quell-/Artefaktnachweise werden
 weder umgeschrieben noch als Ausführung eines späteren Builds ausgegeben.
 
+## Windows-Terminalhistorie des Workers
+
+Der [native Einzelfall](../../Releases/1.0.0/WORKER-TERMINAL-HISTORY-WINDOWS.md)
+belegt den korrigierten tatsächlichen Terminalhistorienverbraucher im
+ManagedSqlOnly-Gesamtlauf auf Windows SQL2025/CU8 CL170 lokal. Die neu
+freigegebenen3/3 Aufrufe und1/1 Datenbank sind geschlossen; keine neue SQL-
+Freigabe folgt aus dem Quellencheck. Originalfehler und frühere CI-Heads
+bleiben getrennt.
+
+`python -B Scripts/Release/worker_terminal_qualification.py` prüft die
+öffentliche Projektion und ihre168 öffentlichen Inputs am unveränderlichen
+Ausführungscommit. Heutiger Quelldrift wird getrennt ausgewiesen; die privaten
+Originaljournale, der gebundene Controller und der frische Audit bleiben die
+Ausführungsnachweise. Der Checker simuliert keine Ausführung oder unabhängige
+Producerbeglaubigung. Dreizehn Gegenproben laufen einmal im bestehenden Runner;
+keine neuen Workflows, Agenten, Produkt-/Runtimeänderungen oder Statuspromotion.
+
 ## Aktueller Quellkandidat
 
 Die [Kandidatenanleitung](../../Releases/1.0.0/CURRENT-CANDIDATE.md) führt zum

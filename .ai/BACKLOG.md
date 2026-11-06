@@ -67,6 +67,29 @@ isolierte Kontrolllauf nahe dieser Grenze begründen sechs Minuten äußere
 Reserve; alle Assertions, inneren Prozessgrenzen und der35-Minuten-CI-Rahmen
 bleiben erhalten. Kein zusätzlicher Job oder nativer Lauf.
 
+## Neue begrenzte Windows-Terminalhistorie des Workers — 2026-11-06
+
+Der Benutzer hat nach konkreter SQL-freier Vorbereitung ausdrücklich eine neue
+Welle freigegeben: SQL2025/CU8 CL170 lokal, genau ein ManagedSqlOnly-Gesamtlauf
+mit tatsächlicher Terminalhistorie, eine eigene Datenbank, ein Readonly-Prepare
+und frischer separater Audit, höchstens3 Ziel-/Auditaufrufe und45 Minuten,
+keine Wiederholung oder Rechte-/Server-/Trust-/Labänderung. Der Start erfolgte
+erst nach erfolgreicher tatsächlicher Main-CI von PR528.
+
+Der [neue native Nachweis](../Releases/1.0.0/WORKER-TERMINAL-HISTORY-WINDOWS.md)
+besteht beide festen Witnesses, ursprünglichen fehlerfreien Abschluss und
+frischen Audit einschließlich finaler Plan-/Journal-/Cleanupbindung,
+Datenbankabwesenheit, unveränderter Fremdzustände und Sourcepins. Alle3/3 Aufrufe
+und1/1 Datenbankreservierung sind innerhalb der Originalfrist geschlossen.
+Keine Providerfälle oder FullProduct-Qualifikation daraus ableiten.
+
+Der alte SQL208-Windowsfehler und sein geschlossener3/3-Rahmen bleiben erhalten;
+kein Budgetreset und keine Aufwertung. Aktuelle Quellenprüfung und13
+Gegenproben laufen im vorhandenen Releasecheck. Ein Paket/ein PR, keine
+Agenten, neuen CI-Jobs, Produkt-/Paket-/Modulstatusänderungen oder Veröffentlichung.
+Weitere Worker-Identitäts-, Ziel-, Host-/Transport- und Minimalrechtegates
+bleiben separat. Keine weitere SQL-Welle aus freien Zeitresten oder grüner CI.
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)
