@@ -92,6 +92,16 @@ bleiben separat. Keine weitere SQL-Welle aus freien Zeitresten oder grüner CI.
 
 ## Constructor-Caller: neue Rechtefreigabe und Teilqualifikation — 2026-11-06
 
+Ergänzung2026-11-07, Codex: Die [direkte Clientmatrix](../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
+besteht auf Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt
+zentral:24Kontexte,480 Reader-/Help-/ResultTable-/AGF-nvarchar(max)-Typ-/Wertprofile,
+zwölf Gesamtläufe und zwölf frische Audits.24Aufrufe/24DBs geschlossen, kein
+nativer Fehler oder Replay. Bestehender administrativer Caller, keine neue
+Rechtevergabe oder Identität. Alte pauschale Client-Offenangaben gelten für
+diesen Umfang nicht mehr. Direkte AGF-Minimalrechte, Netzwerk-/CrossDB-Identitäten,
+Linux-Clienthost und vollständige Modulpflichtfälle bleiben separat; historische
+Nachweise und native Fehler unverändert. Kein Release/Tag.
+
 Direkter Benutzerauftrag: offene Qualifikationspunkte autonom bearbeiten und
 die vorbereitete temporäre Constructor-Rechtevergabe umsetzen. Der Umfang
 bleibt bei vier öffentlichen USP-EXECUTE-Grants sowie VIEW DEFINITION und

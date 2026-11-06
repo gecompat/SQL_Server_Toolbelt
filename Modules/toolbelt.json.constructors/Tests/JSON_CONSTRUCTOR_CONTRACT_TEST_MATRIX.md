@@ -1,5 +1,14 @@
 # JSON Constructor Testmatrix
 
+Aktueller [direkter Clientnachweis2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md):
+Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt zentral,
+24Kontexte/480Reader-/Help-/ResultTable-/AGF-Rückgabetyp-Profile und zwölf frische
+Audits bestanden. Bestehende administrative Anmeldung, keine neuen Rechte oder
+Identitäten. Vier-USP-Nullability/MAX-Schema und direkte AGF-nvarchar(max)-Werte
+sind nachgewiesen; kein neues AGF-Nullable-Versprechen. Frühere offene direkte
+Clientangaben sind für diesen Umfang erledigt, nicht für beliebige Treiber,
+Linux-Clienthosts, direkte AGF-Minimalrechte oder vollständige Modulabnahme.
+
 Aktueller Callerabgleich2026-11-06: Die vier öffentlichen USPs bestehen das
 ausdrücklich freigegebene sechsrechtige Profil auf [Windows](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
 und [Linux-SQL-Zielen](../../../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)

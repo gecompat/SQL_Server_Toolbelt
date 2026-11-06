@@ -1,5 +1,12 @@
 # Testausführung
 
+Der [direkte Clientnachweis vom2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
+ergänzt die untenstehenden Caller-/Fachbelege um24 aktuelle Kontexte auf
+Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt zentral.
+480 feste Reader-/Help-/ResultTable-/AGF-Typ-/Wertprofile und zwölf frische
+Audits bestanden, keine Rechte oder Identitäten angelegt. ClienthostWindows;
+kein neuer Lowpriv-Aggregat-, Netzwerk-/CrossDB- oder Linux-Clienthostbeleg.
+
 Der ergänzende [Linux-SQL-Callerbericht vom 2026-11-06](../../../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)
 belegt dieselben vier USPs und benannten Objektrechte auf Linux SQL2019/2022/2025
 über alle unterstützten CLs lokal/direkt zentral: zwölf Kontexte,144 positive
