@@ -118,6 +118,28 @@ Ein Paket/ein PR, keine Agenten, weiteren SQL-Wiederholungen, Veröffentlichung
 oder Tags. Linux-, Aggregate-, Netzwerk-/CrossDB- und übrige Modulpflichtfälle
 bleiben separat.
 
+## Constructor-Caller auf Linux-SQL-Zielen — 2026-11-06
+
+Unter dem fortbestehenden ausdrücklichen autonomen Qualifikationsauftrag und
+derselben freigegebenen sechsrechtigen temporären Testidentität wurde nach
+grüner tatsächlicher Main-CI von PR530 ein unabhängiger Linux-SQL-Scope
+zugelassen. Keine Windows-Wiederholung oder neue Produktfunktion. Der
+[Linux-Bericht](../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)
+belegt SQL2019/latest CL150,SQL2022/latest CL150/160,SQL2025/latest CL150/160/170
+lokal/direkt zentral: zwölf Kontexte,144 positive Profile,144 SQL229-Abweisungen,
+sechs Gesamtläufe und sechs frische unabhängige Audits. Alle zwölf eigenen DBs
+entfernt, eigener Trust-/CLR-Konfigurationsumfang wiederhergestellt.
+
+Das neue explizite Plattformprofil verweigert gemischte spätere Kontexte und
+Patchfallback vor SQL. Zwölf tatsächliche Offlinegegenproben bestehen; SQL-
+Orakel, Produkt, DLLs und Modulstatus bleiben unverändert. Alle12/12 Aufrufe und
+12/12 DBs innerhalb der eigenen45-Minutenfrist geschlossen, kein Fehlversuch
+oder Retry. Die18 Windows-Aufrufe und drei ursprünglichen Fehler bleiben
+unverändert. Ein Verantwortlicher/ein PR, keine Agenten, neuen Workflowjobs,
+weiteren SQL-Wiederholungen, Veröffentlichung oder Tags. Prüfhost ist Windows;
+Linux-Clienthost, Aggregate, Netzwerk-/CrossDB-Identitäten und übrige
+Modulpflichtfälle bleiben separat.
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)

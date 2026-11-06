@@ -126,6 +126,9 @@ Der [native Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFI
 belegt zwölf Windows-SQL2019-/2022-/2025-Kontexte lokal/direkt zentral und
 trennt die erfolgreiche korrigierte Restmatrix von den drei ursprünglichen
 bereinigten Fehlversuchen und dem jeweils frischen Abschlussaudit.
+Der separate [Linux-SQL-Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-LINUX-CALLER-QUALIFICATION.md)
+ergänzt zwölf latest-Kontexte derselben Engine-/CL-/Modusmatrix, ohne
+Windows-Fälle zu wiederholen oder eine Linux-Clienthostabnahme zu behaupten.
 
 `Invoke-JsonConstructorsCallerLab.ps1` prüft ausschließlich die vier vorhandenen
 öffentlichen Constructor-USPs mit einem datenbanklokalen Benutzer ohne Login.
@@ -135,8 +138,12 @@ Keine Rollen-, Schema-, Datenbank- oder Serverrechte und keine bestehenden
 Identitäten werden angepasst. Der Helper-Grant ist ein begrenztes zugelassenes
 Profil; seine Notwendigkeit wird nicht aus einem erfolgreichen Aufruf abgeleitet.
 
-Der private Runset bindet sechs explizite Windows-Engine-/CL-Auswahlen, lokale
-und zentrale Exports, zwei bekannte SAFE-Artefakte, Fixture und Methodenpins.
+Der private Runset bindet je Plattform sechs explizite Engine-/CL-Auswahlen,
+lokale und zentrale Exports, zwei bekannte SAFE-Artefakte, Fixture und Methodenpins.
+Default ist das Windows-Profil mit CU32/CU26/CU8; `-Platform linux` wählt
+ausschließlich das separate Linux-Profil mit Patch `latest`. Alle sechs
+Runsetkontexte werden vor SQL auf Plattform, Patch und Reihenfolge geprüft.
+Ein Mischprofil oder stillschweigender Provider-/Patchfallback ist ausgeschlossen.
 `-ValidateOnly` prüft die Admission ohne Labimport oder SQL. Der echte Lauf
 verweigert Wiederholung bestehender Journale; `-AuditOnly` verwendet eine neue
 Verbindung und bindet sein Ergebnis an das unveränderte finale Originaljournal.

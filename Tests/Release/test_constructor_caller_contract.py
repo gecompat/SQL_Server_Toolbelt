@@ -43,11 +43,11 @@ class ConstructorCallerAdmissionTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def admission(self, record=None, index=0):
+    def admission(self, record=None, index=0, platform='windows'):
         path = self.directory / 'runset.json'
         path.write_text(json.dumps(record or self.record), encoding='utf-8')
         result = subprocess.run(['pwsh', '-NoProfile', '-File', str(DRIVER), '-RunsetPath', str(path),
-                                 '-CaseIndex', str(index), '-ValidateOnly'], cwd=ROOT,
+                                 '-CaseIndex', str(index), '-Platform', platform, '-ValidateOnly'], cwd=ROOT,
                                 capture_output=True, text=True, timeout=20)
         self.assertEqual(list(self.directory.glob('case-*')), [], 'No native journal in offline admission')
         return result
@@ -71,8 +71,11 @@ class ConstructorCallerAdmissionTests(unittest.TestCase):
 
     def test_no_extended_or_expired_deadline(self):
         self.reject(lambda r: r.update(deadline_utc=(datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()))
-        self.reject(lambda r: r.update(started_utc=(datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
-                                      deadline_utc=(datetime.now(timezone.utc) - timedelta(minutes=75)).isoformat()))
+        expired = datetime.now(timezone.utc) - timedelta(hours=2)
+        # Exakt45 Minuten: diese Gegenprobe muss die abgelaufene Frist treffen,
+        # nicht versehentlich die Dauerprüfung wegen zweier now()-Zeitpunkte.
+        self.reject(lambda r: r.update(started_utc=expired.isoformat(),
+                                      deadline_utc=(expired + timedelta(minutes=45)).isoformat()))
 
     def test_unsupported_platform_and_patch_are_rejected(self):
         self.reject(lambda r: r['cases'][0].update(Platform='linux'))
@@ -102,6 +105,23 @@ class ConstructorCallerAdmissionTests(unittest.TestCase):
         self.assertIn('DECLARE @FinalTranCount int=@@TRANCOUNT,@FinalXactState int=XACT_STATE();', sql)
         self.assertIn('@FinalTranCount<>0 OR @FinalXactState<>0', sql)
         self.assertIn("'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;'", DRIVER.read_text(encoding='utf-8'))
+
+    def test_explicit_linux_profile_passes_without_lab_import(self):
+        record = copy.deepcopy(self.record)
+        for case in record['cases']:
+            case.update(Platform='linux', Patch='latest')
+        result = self.admission(record, index=5, platform='linux')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('no Lab import or SQL', result.stdout)
+
+    def test_mixed_platform_or_patch_in_later_context_is_rejected(self):
+        record = copy.deepcopy(self.record)
+        record['cases'][5].update(Platform='linux', Patch='latest')
+        self.assertNotEqual(self.admission(record, index=0).returncode, 0)
+        for case in record['cases']:
+            case.update(Platform='linux', Patch='latest')
+        record['cases'][5].update(Patch='CU8')
+        self.assertNotEqual(self.admission(record, index=0, platform='linux').returncode, 0)
 
 
 if __name__ == '__main__':
