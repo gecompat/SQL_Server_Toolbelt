@@ -7,10 +7,17 @@
 | Context und Transaktion | implizite aktuelle ExecutionId, fehlender Context, aktive und uncommittable Caller-Transaktion |
 | Konkurrenz | parallele Anforderungen derselben ExecutionId ergeben genau eine Statuszeile |
 | Lifecycle | Dependency-, Kollisions-, Redeploy-, Local-, Central- und Uninstall-Vertrag |
-| Befüllter 1.0.0-Repeat | Zwei echte Deploys in Local/Central; alle fünf Spalten inklusive Rowversionbytes, UTC-Auditwerte, NULL/Leerstring/Unicode/Padding, Objekt-IDs und ausgewählte Katalogmetadaten einschließlich vorhandener Permissions, eigener Annotationen und nichtleerer Tabellen-/Spalten-MS_Description; Status-API danach read-only |
+| Befüllter 1.0.0-Repeat | Zwei echte Deploys in Local/Central; alle acht Spalten einschließlich Principal-ID/SID/Erzeugungsbytes und Rowversion, UTC-Auditwerte, NULL/Leerstring/Unicode/Padding, Objekt-IDs und ausgewählte Katalogmetadaten einschließlich vorhandener Permissions, eigener Annotationen und nichtleerer Tabellen-/Spalten-MS_Description; Status-API danach read-only |
+| Isolierte Principalgegenproben | Drei zurückgerollte Datenänderungen mit tatsächlichem52743/1 aus dem originalen Capture-/Assert-Paar; automatische Rowversiondifferenz nur im temporären Negativsnapshot kompensiert, damit sie keine ausgelassene Principalspalte verdeckt |
 | Plattformmatrix | SQL Server 2019, 2022 und 2025 auf Linux und Windows; CU nur bei patchabhängigem Test |
 
-Der neue befüllte Repeat ist unabhängig vom historischen Lifecycle zu
+Der [aktuelle Windows-Teilnachweis](README.md#windows-repeat-vom-2026-11-06-elf-abgegrenzte-kontexte)
+belegt elf Kontexte des vorherigen fünfspaltigen Tests; Windows2019 lokal
+bleibt fehlgeschlagen und separat bereinigt. Der [erweiterte achtspaltige Test](README.md#aktueller-repeat-mit-vollständiger-principalbindung)
+benötigt eigene erfolgreiche Ausführung, bestehende Nachweise erweitern
+ihren Datenumfang nicht rückwirkend.
+
+Der befüllte Repeat ist unabhängig vom historischen Lifecycle zu
 qualifizieren. Er verändert weder Source noch Deployment, erzeugt keine
 Benutzergrants und belegt keine tatsächlichen Minimalrechte. Windows, weitere
 Repeat-Compatibility-Levels und historische Versionsübergänge bleiben ohne

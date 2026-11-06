@@ -1,5 +1,84 @@
 # Testevidenz
 
+## Windows-Repeat vom 2026-11-06: elf abgegrenzte Kontexte
+
+Der unveränderte bisherige `RepeatCurrent` bestand am Produkt-/Fixturestand
+`4ed7aad3` auf Windows SQL2019/CU32 zentral bei CL150, SQL2022/CU26 lokal und
+zentral bei CL150/160 sowie SQL2025/CU8 lokal und zentral bei CL150/160/170.
+Das sind elf erfolgreiche Kontexte mit je zwei echten Deploys, insgesamt
+22 Wiederholungen, und fünf erfolgreiche Gesamtkoordinatoren mit separaten
+frischen Audits. Alle eigenen Datenbanken sind entfernt; fremde Konfiguration,
+Trusts, Principals, Permissions und CLR-Verbraucher blieben unverändert.
+
+Windows2019/CL150 lokal bleibt fehlgeschlagen: Der zusätzliche private
+Cleanup-/Transaktionsguard verwarf den ersten Lauf mit54980/3. Die eigene DB
+wurde regulär entfernt, der frische Audit bestätigte Abwesenheit und
+unveränderte fremde Zustände. Einzelwerte des damaligen kombinierten
+Prädikats wurden nicht erfasst; daraus wird keine nachträgliche Rootcause oder
+ein bestandener Gesamtfall abgeleitet. Es gab keine Wiederholung dieses Falls.
+Die Welle ist mit15 Ziel-/Auditaufrufen und sechs eigenen DBs geschlossen.
+
+Eine lesende Gegenprobe im ohnehin vorgesehenen späteren Vorcheck zeigte
+auf SQL2022 und SQL2025 einen abweisenden kombinierten Ausdruck trotz
+neutraler Transaktionswerte außerhalb der Tabellenabfrage. Der korrigierte
+private Adapter prüft Transaktionszustand und Tabelleninhalt in getrennten
+Statements, behält beide verlangten Zustände und sämtliche ursprünglichen
+Ownership-/Consumer-Gates bei. Nur zuvor unbegonnene Matrixfälle wurden
+innerhalb derselben unveränderten Obergrenzen fortgesetzt; der Erstfehler
+bleibt fehlgeschlagen. Originalquellen und Journale bleiben privat erhalten.
+
+Diese Windows-Abnahme prüfte fünf historische Nutzdatenspalten und den
+ausgewählten Katalog. Sie belegt nicht die Datenwerte der drei später
+ergänzten Principalspalten. Deren neuer Nachweis folgt über den unten
+beschriebenen erweiterten Test. Das Modul bleibt `partially validated` und
+unveröffentlicht; Minimalrechte, nichtleere Benutzergrants, historische
+Migrationen und harte Unterbrechungen bleiben eigenständige Nachweise.
+
+## Aktueller Repeat mit vollständiger Principalbindung
+
+Der aktuelle Test erweitert die Zeilensnapshots um `RequestedByPrincipalId`,
+die exakten SIDbytes und die acht gespeicherten `datetime`-Bytes von
+`RequestedByPrincipalCreatedAt`. Er umfasst damit alle acht Tabellenspalten.
+Die eigene Fixture enthält eine vollständig NULL-belegte historische
+Zuordnung und drei synthetische nichtleere Zuordnungen. Dafür werden weder
+Principals angelegt noch SQL-Rechte erteilt; dies ist Datenbestandserhaltung,
+keine zusätzliche Quoten-/Callerrechteabnahme.
+
+Drei Gegenproben ändern jeweils eines dieser Felder in einer eigenen
+Rollbacktransaktion. Das originale Capture-/Assert-Paar muss jeweils exakt
+52743/State1 auslösen; ein übersehener Unterschied scheitert mit52747.
+Die automatische Rowversionänderung wird ausschließlich im temporären
+Gegenprobensnapshot auf den alten Wert kompensiert. Damit kann sie ein
+fehlendes Principal-Feld im Snapshot nicht verdecken. Die persistente
+Mutation und sämtliche Snapshotanpassungen werden zurückgerollt. Positive
+Deployvergleiche verwenden diese Kompensation nicht.
+
+Der vorhandene [Runtimeworkflow](../../../.github/workflows/w6d-execution-cancel-runtime.yml)
+führt den erweiterten Test auf seinen ausgewiesenen Linux-Versionen/CLs
+lokal und zentral aus. Ein Erfolg muss dem tatsächlich geprüften Head oder
+Main-Run zugeordnet werden; die elf Windows-Altfälle werden durch diese
+Teständerung nicht zu achtspaltigen oder vollständigen Matrixnachweisen.
+Eine weitere native Windows-Ausführung ist in der geschlossenen Welle
+nicht enthalten.
+
+Der erste CI-Head der Erweiterung scheiterte auf allen drei Linux-Versionen
+mit1934, weil die neue XML-Methode im frischen SQLCMD-Testprozess
+`QUOTED_IDENTIFIER ON` benötigt. Der Test setzt diesen Parse-Time-Modus nun
+vor einem eigenen Batchtrenner explizit. Alle drei eigenen CI-Zielbereinigungen
+bestanden; der Erstlauf bleibt fehlgeschlagen und belegt keine Abnahme.
+
+Die neuen Includes sind über den bestehenden Runtimeeinstieg und die
+statische Artefaktprüfung erreichbar; das Modulmanifest, Exportpakete und
+Produktversion werden nicht geändert. Ein zusätzlich angestoßener lokaler
+Releasevorbereitungs-Vollcheck war nicht erfolgreich:274 Tests meldeten
+zwölf Fehler und29 Ausführungsfehler, darunter nicht mehr aktuelle historische
+Sourcepins. Diese Prüfung ist keine Releaseabnahme; alte Nachweise oder
+Goldenwerte werden dafür nicht auf den heutigen Stand umgeschrieben. Der
+Fehler bleibt von den tatsächlich ausgeführten Cancellation-Runtimefällen
+und deren begrenztem Erfolg getrennt.
+
+## Historische Funktionsnachweise
+
 Die Runtime-Suite deckt den lokalen Vertrag, Idempotenz, Context-Auflösung,
 Transaktionsschutz, Parallelität, Lifecycle und Central Deployment ab. Die
 physische SQL_Server_Lab-Matrix ist für SQL Server 2019, 2022 und 2025 unter
