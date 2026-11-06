@@ -50,6 +50,12 @@ Workerbudget null. Die Historienfixture reserviert deshalb vor ihrem Claim
 Wert nach terminalem Abschluss wieder her. Das sind ausschließlich Daten
 der eigenen Testinstallation. Die Claim-Assertion bleibt unverändert.
 
+Der dritte Head bestand den echten Rollback und Fehlerabschluss, scheiterte
+jedoch vor Reconcile an der adapterseitigen Hextext-/Binärkonvertierung mit
+SQL8114. Die Holdversion wird nun als exakt acht Bytes gelesen, auf diese Form
+geprüft und direkt als Binärparameter übergeben. Der fehlgeschlagene Versuch
+wird dadurch nicht zum Gesamt-PASS aufgewertet.
+
 ## Flüchtiges CI-Ziel: Ownership und Bereinigung
 
 Der bestehende Linux-Workerworkflow verwendet einen validierten Run-/Attempt-

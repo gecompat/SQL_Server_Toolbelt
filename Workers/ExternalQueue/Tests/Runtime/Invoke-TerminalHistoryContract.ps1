@@ -117,8 +117,9 @@ SELECT SlotReservationId,WorkerId,WorkerGeneration,WorkItemId,ClaimGeneration,Cl
  Expect-Stale $handler $finalize $parameters 54220 2
  $handler.Dispose();$handler=$null
  $historyPhase='terminal-reconcile'
- $hold=Sql $control 'SELECT CONVERT(varchar(18),HoldVersion,1) FROM toolbelt_core.WorkerExecutionDisposition WHERE SlotReservationId=@Slot;' $parameters
- $reconcile="DECLARE @Version binary(8)=CONVERT(binary(8),@Hold,1); EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Slot,@ExpectedHoldVersion=@Version,@ResultTable=N'#HistoryResult';"
+ $hold=Sql $control 'SELECT CONVERT(binary(8),HoldVersion) FROM toolbelt_core.WorkerExecutionDisposition WHERE SlotReservationId=@Slot;' $parameters
+ if($hold-isnot[byte[]]-or$hold.Length-ne8){throw 'HISTORY.HOLD_VERSION_SHAPE'}
+ $reconcile="EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Slot,@ExpectedHoldVersion=@Hold,@ResultTable=N'#HistoryResult';"
  foreach($iteration in 1..2){
   [void](Sql $control $reconcile ($parameters+@{'@Hold'=$hold}))
   [void](Sql $control "IF NOT EXISTS(SELECT 1 FROM #HistoryResult WHERE SlotReservationId=@Slot AND Outcome='ROLLED_BACK' AND Occupied=0) THROW 54970,N'Terminal reconcile changed outcome.',8;" $parameters)
