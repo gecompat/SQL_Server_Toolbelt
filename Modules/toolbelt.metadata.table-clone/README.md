@@ -21,6 +21,11 @@ bestanden; vier dynamische Identity-Zustände und zwei SNAPSHOT-Konkurrenzfälle
 separat auf Linux2019 geprüft. Abgeschlossene Teilnachweise aus Fehlerläufen
 bleiben getrennt; Head-CI gesondert im PR. Historische Planner-/Executor-Evidenz
 qualifiziert diese Erweiterung nicht.
+Die [ergänzte Copy-Zielmatrix](../../Releases/1.0.0/TABLE-CLONE-COPY-TARGET-QUALIFICATION.md)
+belegt seit2026-11-06 die fünf Copygruppen über die unterstützten Windows-/
+Linux-Engine-/CL-Paare lokal und direkt zentral:22 neue Kontexte und zwei
+ausdrücklich begrenzt wiederverwendete historische lokale Fälle. Minimalrechte
+und vollständige Modulqualifikation bleiben separat.
 Vier Slots13/14/14/9, interner Zweckpfad
 COPY_FK; öffentliche Planner-/Executor-Signaturen bleiben erhalten.
 

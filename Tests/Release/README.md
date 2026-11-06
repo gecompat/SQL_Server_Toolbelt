@@ -120,6 +120,17 @@ Ausführungsnachweise. Der Checker simuliert keine Ausführung oder unabhängige
 Producerbeglaubigung. Dreizehn Gegenproben laufen einmal im bestehenden Runner;
 keine neuen Workflows, Agenten, Produkt-/Runtimeänderungen oder Statuspromotion.
 
+## Copy-Funktionen über die physische Zielmatrix
+
+Der [Copy-Zielbericht](../../Releases/1.0.0/TABLE-CLONE-COPY-TARGET-QUALIFICATION.md)
+trennt22 neue native Kontexte von zwei historischen lokalen Zeugen.
+`Invoke-TableCloneCopyTargetsLab.ps1` verwendet ausschließlich die vorhandenen
+fünf Copygruppen und eine reine T-SQL-Closure. Zwölf feste Ziel-/CL-Auswahlen,
+verbindliche Quellenpins, ausgeschlossene grüne lokale Modi und unabhängige
+Owner-/Abwesenheitsaudits begrenzen den Lauf. `-ValidateOnly` verbindet nicht;
+`-AuditOnly` verändert nichts. Keine Rechtevergabe, CLR-/Truständerung oder
+automatische Labaktivierung. Weitere Modul- und Minimalrechtegates bleiben offen.
+
 ## Constructor-Caller mit sechs Objektrechten
 
 Der [native Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
