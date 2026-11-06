@@ -16,6 +16,13 @@ Gesamtläufe und frischen Abschlussaudits bestanden. Die große Füllpayload ist
 nicht zur Extraktion ausgewählt; komprimierte Entry- und Ausgabegrenzen sowie
 weitere Ziel-/CL-Kombinationen bleiben davon unberührt. Historische Tabellen
 werden nicht nachträglich als neue Ausführungen umetikettiert.
+Die getrennte [native Entry-Byteprüfung](../../../Releases/1.0.0/ZIP-ENTRY-BYTE-QUALIFICATION.md)
+belegt auf denselben zwei Ziel-/CL-Paaren lokal/direkt zentral die tatsächlichen
+128-MiB-Komprimat- und64-MiB-Ausgabegrenzen sowie jeweils ein Byte darüber:
+acht positive/acht strikte Fehlerproben, zwei Gesamtläufe/zwei frische Audits.
+Gültige DEFLATE-/Stored-Inputs und der öffentliche ResultTable-Weg isolieren
+die Grenzen; keine Quotenänderung oder Wiederholung der grünen Archiv-/Entryanzahl-
+Proben. Weitere Zielkontexte und vollständige Modulabnahme bleiben separat.
 Die [Caller-Metadatenpflege](../../../Releases/1.0.0/ZIP-METADATA-UPDATE.md)
 bindet außerdem die bereits berichteten Rechteprofile an deren Paketstand;
 sie ist keine neue native Ausführung oder vollständige Modulqualifikation.
