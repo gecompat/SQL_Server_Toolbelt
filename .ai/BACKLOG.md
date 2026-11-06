@@ -44,6 +44,24 @@ Archiv-/Berichtsmanipulationen ab. Keine neue SQL-Welle oder Veröffentlichung.
 Keine dieser Ergänzungen erteilt neue SQL-Rechte, setzt verbrauchte
 Testgrenzen zurück oder erweitert die Veröffentlichungsfreigabe.
 
+## Aktueller Qualifikationsabgleich der zentralen Lesewege — 2026-11-06
+
+Direkter Auftrag zur autonomen Bearbeitung übriger freigegebener Qualifikations-
+und Backlog-Punkte. Die zentrale Releaseübersicht führte spätere SSIS-Gesamtfälle
+weiter als offen; Testübersicht und Releasesuitebeschreibung waren veraltet.
+Der [aktuelle Abgleich](../Releases/1.0.0/RELEASE-GATES.md#aktueller-qualifikationsabgleich-vom-2026-11-06)
+verwendet die bestehenden SSIS-/Parserrecords samt Quell-/Artefaktvalidatoren.
+Die Testmatrixübersicht nennt zusätzlich die abgeschlossene achtspaltige
+Windows-Cancellation-Matrix und ihre tatsächlich verbleibenden Grenzen.
+
+Ein Paket/ein PR, ein Verantwortlicher, keine Agenten oder nativen Aufrufe.
+Zwölf Gegenproben im vorhandenen Releasecheck verhindern falsche unionsartige
+Anmeldequalifikation und die Aufwertung kombinierter Parserbelege zu vollständiger
+nativer Quotenabdeckung. Historische JSON-/ZIP-/Verifiernachweise und alte
+Fehlläufe bleiben unverändert. Diese Korrektur ist eine überprüfte Zuordnung
+vorhandener Belege, keine neue native Qualifikation oder Veröffentlichung.
+Geschlossene Windows-/Worker-/Cancellation-Testgrenzen werden nicht erneuert.
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)

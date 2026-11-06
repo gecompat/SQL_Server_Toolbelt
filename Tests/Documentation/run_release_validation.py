@@ -54,10 +54,11 @@ def main():
     module = importlib.import_module("test_prepare_release")
     suite = unittest.defaultTestLoader.loadTestsFromModule(module)
     unique, discovered, removed = unique_checks(suite, module.CsvMetadataTests)
-    source_tests = importlib.import_module("test_evidence_sources")
-    source_suite = unittest.defaultTestLoader.loadTestsFromModule(source_tests)
-    discovered += source_suite.countTestCases()
-    unique.addTests(source_suite)
+    for module_name in ("test_evidence_sources", "test_current_qualification_overview"):
+        source_tests = importlib.import_module(module_name)
+        source_suite = unittest.defaultTestLoader.loadTestsFromModule(source_tests)
+        discovered += source_suite.countTestCases()
+        unique.addTests(source_suite)
     print(f"VALIDATION_DISCOVERY discovered={discovered} unique={unique.countTestCases()} duplicate_registrations={removed}", flush=True)
     result = unittest.TextTestRunner(resultclass=ProgressResult).run(unique)
     return 0 if result.wasSuccessful() else 1
