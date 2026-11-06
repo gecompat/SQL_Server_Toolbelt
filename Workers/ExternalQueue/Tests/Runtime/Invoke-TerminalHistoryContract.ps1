@@ -60,6 +60,7 @@ function Expect-Stale($Connection,[string]$Text,[hashtable]$Parameters,[int]$Num
 }
 try {
  $control=Open-OwnedConnection
+ $priorConcurrency=[int](Sql $control 'SELECT MaxConcurrentExecutions FROM toolbelt_core.WorkerControlConfiguration WHERE ConfigurationId=1;')
  [void](Sql $control 'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1) THROW 54970,N''History fixture requires quiescence.'',2; CREATE TABLE dbo.TbxTerminalHistoryEffect(Value int NOT NULL);')
  [void](Sql $control 'CREATE OR ALTER PROCEDURE dbo.USP_TbxTerminalHistoryNone AS BEGIN SET NOCOUNT ON; END;')
  # Temp tables must be created in a nonparameterized outer batch: SqlClient
@@ -72,6 +73,10 @@ EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.worker.history'
 EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.worker.history',@Principal=N'dbo',@PermissionName='CLAIM';
 EXEC toolbelt_core.USP_RegisterWorker @WorkerId=@Worker,@Capacity=1,@RunMode='BOUNDED',@ResultTable=N'#HistoryWorker';
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.worker.history',@MaxAttempts=1,@ResultTable=N'#HistoryResult';
+-- The preceding admission fixture intentionally leaves the global budget zero.
+-- Set one slot through the public CAS API before requesting this new attempt.
+DECLARE @Config binary(8)=(SELECT ConfigVersion FROM toolbelt_core.WorkerControlConfiguration WHERE ConfigurationId=1);
+EXEC toolbelt_core.USP_SetWorkerConcurrency @MaxConcurrentExecutions=1,@ExpectedConfigVersion=@Config,@ResultTable=N'#HistoryResult';
 '@ @{'@Worker'=[guid]::NewGuid()})
  # Compile observations only after the ResultTable helper has prepared schema.
  $historyPhase='claim'
@@ -150,6 +155,7 @@ SELECT @Version=HoldVersion FROM toolbelt_core.WorkerExecutionDisposition WHERE 
 EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@NewSlot,@ExpectedHoldVersion=@Version,@ResultTable=N'#HistoryResult';
 '@)
  [void](Sql $control "IF (SELECT COUNT(*) FROM #HistoryResult)<>1 OR NOT EXISTS(SELECT 1 FROM #HistoryResult r JOIN #HistoryClaim c ON c.SlotReservationId=r.SlotReservationId WHERE r.Outcome='ROLLED_BACK_HELD' AND r.Occupied=0) OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1) THROW 54970,N'Successor cleanup not terminal.',12;")
+ [void](Sql $control 'DECLARE @Config binary(8)=(SELECT ConfigVersion FROM toolbelt_core.WorkerControlConfiguration WHERE ConfigurationId=1); EXEC toolbelt_core.USP_SetWorkerConcurrency @MaxConcurrentExecutions=@Maximum,@ExpectedConfigVersion=@Config,@ResultTable=N''#HistoryResult'';' @{'@Maximum'=$priorConcurrency})
  'PASS: terminal history; real rollback, failure finalization, repeated reconcile, successor isolation and stale rejection.'
 }catch{
  $cause=$_.Exception

@@ -43,6 +43,13 @@ bleibt fehlgeschlagen; ein Erfolg ist nur dem tatsächlich geprüften neuen
 Quellstand zuzuordnen. Fehlerdiagnostik enthält ausschließlich feste Phasen
 und numerische SQL-Codes, keine SQL-Messages oder Livezeilen.
 
+Der zweite CI-Head erreichte die Claim-Assertion und wurde dort abgewiesen:
+Der vorgeschaltete Admissiontest hinterlässt absichtlich das globale
+Workerbudget null. Die Historienfixture reserviert deshalb vor ihrem Claim
+über die öffentliche CAS-API ein Budget von eins und stellt den vorherigen
+Wert nach terminalem Abschluss wieder her. Das sind ausschließlich Daten
+der eigenen Testinstallation. Die Claim-Assertion bleibt unverändert.
+
 ## Flüchtiges CI-Ziel: Ownership und Bereinigung
 
 Der bestehende Linux-Workerworkflow verwendet einen validierten Run-/Attempt-
