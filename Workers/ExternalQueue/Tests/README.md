@@ -35,6 +35,14 @@ Die Korrektur ist kein lokaler Windows-PASS. Ihr ausgeführtes CI-Ergebnis ist
 am jeweiligen exakten Actions-/PR-Stand zu beurteilen. Dieser Test qualifiziert
 weder Host-/Committransportverlust noch Minimalrechte oder sämtliche Plattformen.
 
+Der erste CI-Head scheiterte anschließend mit SQL207 im neuen Verbraucher;
+die vorgeschalteten Workerfälle bestanden, die eigene CI-Zielbereinigung
+bestand ebenfalls. Die folgende Korrektur trennt ResultTable-Vorbereitung und
+anschließende Spaltenabfragen in separat kompilierte Batches. Der Erstfehler
+bleibt fehlgeschlagen; ein Erfolg ist nur dem tatsächlich geprüften neuen
+Quellstand zuzuordnen. Fehlerdiagnostik enthält ausschließlich feste Phasen
+und numerische SQL-Codes, keine SQL-Messages oder Livezeilen.
+
 ## Flüchtiges CI-Ziel: Ownership und Bereinigung
 
 Der bestehende Linux-Workerworkflow verwendet einen validierten Run-/Attempt-

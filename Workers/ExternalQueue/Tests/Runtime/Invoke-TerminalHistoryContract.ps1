@@ -11,7 +11,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 # Runs only inside the parent fixture's identified disposable database. Two
 # nonpooled sessions exercise the real handler binding and rollback protocol.
-$clock=[Diagnostics.Stopwatch]::StartNew();$control=$null;$handler=$null
+$clock=[Diagnostics.Stopwatch]::StartNew();$control=$null;$handler=$null;$historyPhase='preflight'
 function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Json) {
  if($clock.Elapsed.TotalSeconds-ge120){throw 'HISTORY.DEADLINE'}
  $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=10
@@ -65,25 +65,30 @@ try {
  # Temp tables must be created in a nonparameterized outer batch: SqlClient
  # executes parameterized text in an RPC scope that would discard new tables.
  [void](Sql $control 'CREATE TABLE #HistoryWorker(Dummy int NULL); CREATE TABLE #HistoryClaim(Dummy int NULL); CREATE TABLE #HistoryResult(Dummy int NULL);')
+ $historyPhase='registration'
  [void](Sql $control @'
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.worker.history',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxTerminalHistoryNone',@ParameterMode='NONE';
 EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.worker.history',@Principal=N'dbo',@PermissionName='ENQUEUE';
 EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.worker.history',@Principal=N'dbo',@PermissionName='CLAIM';
 EXEC toolbelt_core.USP_RegisterWorker @WorkerId=@Worker,@Capacity=1,@RunMode='BOUNDED',@ResultTable=N'#HistoryWorker';
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.worker.history',@MaxAttempts=1,@ResultTable=N'#HistoryResult';
-DECLARE @Generation bigint,@Token uniqueidentifier;
-SELECT @Generation=WorkerGeneration,@Token=WorkerToken FROM #HistoryWorker;
-EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Worker,@WorkerGeneration=@Generation,@WorkerToken=@Token,@ResultTable=N'#HistoryClaim';
-IF (SELECT COUNT(*) FROM #HistoryClaim)<>1 OR EXISTS(SELECT 1 FROM #HistoryClaim WHERE WorkTypeName<>'test.worker.history') THROW 54970,N'History claim mismatch.',3;
-SELECT CONVERT(nvarchar(36),SlotReservationId) FROM #HistoryClaim;
 '@ @{'@Worker'=[guid]::NewGuid()})
+ # Compile observations only after the ResultTable helper has prepared schema.
+ $historyPhase='claim'
+ [void](Sql $control @'
+DECLARE @Worker uniqueidentifier,@Generation bigint,@Token uniqueidentifier;
+SELECT @Worker=WorkerId,@Generation=WorkerGeneration,@Token=WorkerToken FROM #HistoryWorker;
+EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Worker,@WorkerGeneration=@Generation,@WorkerToken=@Token,@ResultTable=N'#HistoryClaim';
+'@)
  # Values stay in memory; neither tokens nor live rows are emitted as evidence.
  $binding=Sql $control @'
+IF (SELECT COUNT(*) FROM #HistoryClaim)<>1 OR EXISTS(SELECT 1 FROM #HistoryClaim WHERE WorkTypeName<>'test.worker.history') THROW 54970,N'History claim mismatch.',3;
 SELECT c.SlotReservationId,c.ClaimGeneration,c.ClaimToken,c.ExecutionId,w.WorkerId,w.WorkerGeneration,w.WorkerToken
  FROM #HistoryClaim c CROSS JOIN #HistoryWorker w FOR JSON PATH,WITHOUT_ARRAY_WRAPPER;
 '@ -Json
  $b=$binding|ConvertFrom-Json
  $parameters=@{'@Slot'=[guid]$b.SlotReservationId;'@Claim'=[guid]$b.ClaimToken;'@Execution'=[guid]$b.ExecutionId}
+ $historyPhase='handler-rollback'
  $handler=Open-OwnedConnection
  [void](Sql $handler @'
 EXEC toolbelt_core.USP_BindWorkerExecution @SlotReservationId=@Slot,@WorkerId=@Worker,@WorkerGeneration=@Generation,@WorkerToken=@Token,@ClaimGeneration=@ClaimGeneration,@ClaimToken=@Claim,@ExecutionId=@Execution;
@@ -96,6 +101,7 @@ EXEC toolbelt_core.USP_RecordWorkerRollback @SlotReservationId=@Slot,@ClaimToken
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE SlotReservationId=@Slot AND State='ROLLED_BACK' AND IsOccupied=1 AND EndedAtUtc IS NULL) THROW 54970,N'Rollback proof prematurely released slot.',5;
 '@ ($parameters+@{'@Worker'=[guid]$b.WorkerId;'@Generation'=[long]$b.WorkerGeneration;'@Token'=[guid]$b.WorkerToken;'@ClaimGeneration'=[long]$b.ClaimGeneration}))
  $finalize="DECLARE @Outcome varchar(24); EXEC toolbelt_core.USP_FinalizeWorkerFailure @SlotReservationId=@Slot,@ClaimToken=@Claim,@ExecutionId=@Execution,@FailureCode='TEST.HISTORY',@Retry=1,@Outcome=@Outcome OUTPUT; IF @Outcome<>'DEAD_LETTER' THROW 54970,N'Expected terminal dead letter.',6;"
+ $historyPhase='finalize'
  [void](Sql $handler $finalize $parameters)
  $snapshotSql=@'
 SELECT SlotReservationId,WorkerId,WorkerGeneration,WorkItemId,ClaimGeneration,ClaimToken,ExecutionId,AttemptNonce,BoundPrincipalId,State,IsOccupied,CreatedAtUtc,EndedAtUtc
@@ -105,12 +111,15 @@ SELECT SlotReservationId,WorkerId,WorkerGeneration,WorkItemId,ClaimGeneration,Cl
  [void](Sql $control "IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE SlotReservationId=@Slot AND State='ROLLED_BACK' AND IsOccupied=0 AND EndedAtUtc IS NOT NULL) THROW 54970,N'Terminal slot not released.',7;" $parameters)
  Expect-Stale $handler $finalize $parameters 54220 2
  $handler.Dispose();$handler=$null
+ $historyPhase='terminal-reconcile'
  $hold=Sql $control 'SELECT CONVERT(varchar(18),HoldVersion,1) FROM toolbelt_core.WorkerExecutionDisposition WHERE SlotReservationId=@Slot;' $parameters
- $reconcile="DECLARE @Version binary(8)=CONVERT(binary(8),@Hold,1); EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Slot,@ExpectedHoldVersion=@Version,@ResultTable=N'#HistoryResult'; IF NOT EXISTS(SELECT 1 FROM #HistoryResult WHERE SlotReservationId=@Slot AND Outcome='ROLLED_BACK' AND Occupied=0) THROW 54970,N'Terminal reconcile changed outcome.',8;"
+ $reconcile="DECLARE @Version binary(8)=CONVERT(binary(8),@Hold,1); EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Slot,@ExpectedHoldVersion=@Version,@ResultTable=N'#HistoryResult';"
  foreach($iteration in 1..2){
   [void](Sql $control $reconcile ($parameters+@{'@Hold'=$hold}))
+  [void](Sql $control "IF NOT EXISTS(SELECT 1 FROM #HistoryResult WHERE SlotReservationId=@Slot AND Outcome='ROLLED_BACK' AND Occupied=0) THROW 54970,N'Terminal reconcile changed outcome.',8;" $parameters)
   if((Sql $control $snapshotSql $parameters -Json)-cne$terminal){throw 'HISTORY.TERMINAL_RESERVATION_CHANGED'}
  }
+ $historyPhase='successor'
  [void](Sql $control @'
 DECLARE @Item bigint=(SELECT WorkItemId FROM #HistoryClaim),@Version binary(8),@Worker uniqueidentifier,@Generation bigint,@Token uniqueidentifier;
 SELECT @Version=RowVersion FROM toolbelt_core.WorkItem WHERE WorkItemId=@Item;
@@ -129,17 +138,27 @@ SELECT (SELECT SlotReservationId,WorkerId,WorkerGeneration,WorkItemId,ClaimGener
  (SELECT WorkItemId,Status,ClaimGeneration,ClaimToken,ManagedReservationId,ManagedHold,ManagedCompletionNonce,RowVersion,LeaseUntilUtc FROM toolbelt_core.WorkItem ORDER BY WorkItemId FOR JSON PATH) Items FOR JSON PATH;
 '@
  $before=Sql $control $allSql -Json
+ $historyPhase='stale-reconcile'
  Expect-Stale $control $reconcile ($parameters+@{'@Hold'=$hold}) 54227 2
  if((Sql $control $allSql -Json)-cne$before){throw 'HISTORY.STALE_RECONCILE_CHANGED_CURRENT_ATTEMPT'}
+ $historyPhase='successor-cleanup'
  [void](Sql $control @'
 DECLARE @NewSlot uniqueidentifier,@Generation bigint,@Version binary(8);
 SELECT @NewSlot=SlotReservationId,@Generation=ClaimGeneration FROM #HistoryClaim;
 EXEC toolbelt_core.USP_StopWorkerExecution @SlotReservationId=@NewSlot,@ExpectedClaimGeneration=@Generation,@ResultTable=N'#HistoryResult';
 SELECT @Version=HoldVersion FROM toolbelt_core.WorkerExecutionDisposition WHERE SlotReservationId=@NewSlot;
 EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@NewSlot,@ExpectedHoldVersion=@Version,@ResultTable=N'#HistoryResult';
-IF NOT EXISTS(SELECT 1 FROM #HistoryResult WHERE SlotReservationId=@NewSlot AND Outcome='ROLLED_BACK_HELD' AND Occupied=0) OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1) THROW 54970,N'Successor cleanup not terminal.',12;
 '@)
+ [void](Sql $control "IF (SELECT COUNT(*) FROM #HistoryResult)<>1 OR NOT EXISTS(SELECT 1 FROM #HistoryResult r JOIN #HistoryClaim c ON c.SlotReservationId=r.SlotReservationId WHERE r.Outcome='ROLLED_BACK_HELD' AND r.Occupied=0) OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1) THROW 54970,N'Successor cleanup not terminal.',12;")
  'PASS: terminal history; real rollback, failure finalization, repeated reconcile, successor isolation and stale rejection.'
+}catch{
+ $cause=$_.Exception
+ while($null-ne$cause-and$cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
+ if($null-ne$cause){
+  # Fixed phase and numeric fields only; never SQL messages, tokens or endpoints.
+  Write-Information "HISTORY_SQL_FAILURE phase=$historyPhase number=$($cause.Number) state=$($cause.State) line=$($cause.LineNumber)" -InformationAction Continue
+ }
+ throw
 }finally{
  if($null-ne$handler){$handler.Dispose()}
  if($null-ne$control){$control.Dispose()}
