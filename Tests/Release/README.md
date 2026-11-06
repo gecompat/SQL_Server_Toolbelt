@@ -47,6 +47,16 @@ werden dadurch nicht gestartet.
 
 ## Historische Quellen und aktuelle Qualifikation
 
+Die [physische Core-/Schema-Ergänzung](../../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md)
+verwendet den vorhandenen `run-json-schema-lab.ps1` im Scope `core-schema`
+auf acht zusätzlichen Ziel-/CL-Paaren. `JsonSchemaQualificationScope.ps1`
+ist ein reines, quellgebundenes Auswahlprädikat für Lauf und unabhängigen
+Dispositionsaudit; ohne dessen Originaljournalpin verbindet der Audit nicht.
+Constructor-/Migrationsgrenzen werden nicht erweitert. Neue Calls bleiben
+unter separatem endlichem Rahmen, Schema braucht nur Core-/Schema-Trusthashes.
+Die bereits grünen Callerprofile werden nicht wiederholt; historische
+Offen-Einträge müssen mit den späteren Modulberichten abgeglichen werden.
+
 [`evidence_sources.py`](../../Scripts/Release/evidence_sources.py) bindet historische SHA-256-Pins an
 unveränderte öffentliche Berichte, deren explizite Quellcommits oder exakte
 `Sources`-Einträge des im Bericht gebundenen Pakets. Pfade, Dateitypen,
