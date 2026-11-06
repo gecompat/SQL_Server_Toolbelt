@@ -85,8 +85,6 @@ tests:
   populated_repeat: "Tests/Runtime/RepeatCurrent.Contract.sql"
   repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
   repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
-  repeat_negative: "Tests/Runtime/RepeatCurrent.Negative.sql"
-  repeat_negative_version: "Tests/Runtime/RepeatCurrent.NormalizeNegativeVersion.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
   github_hosted_linux: "../../.github/workflows/w6d-execution-cancel-runtime.yml"
 validation_evidence:

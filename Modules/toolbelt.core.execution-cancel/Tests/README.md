@@ -67,6 +67,16 @@ mit1934, weil die neue XML-Methode im frischen SQLCMD-Testprozess
 vor einem eigenen Batchtrenner explizit. Alle drei eigenen CI-Zielbereinigungen
 bestanden; der Erstlauf bleibt fehlgeschlagen und belegt keine Abnahme.
 
+Die neuen Includes sind über den bestehenden Runtimeeinstieg und die
+statische Artefaktprüfung erreichbar; das Modulmanifest, Exportpakete und
+Produktversion werden nicht geändert. Ein zusätzlich angestoßener lokaler
+Releasevorbereitungs-Vollcheck war nicht erfolgreich:274 Tests meldeten
+zwölf Fehler und29 Ausführungsfehler, darunter nicht mehr aktuelle historische
+Sourcepins. Diese Prüfung ist keine Releaseabnahme; alte Nachweise oder
+Goldenwerte werden dafür nicht auf den heutigen Stand umgeschrieben. Der
+Fehler bleibt von den tatsächlich ausgeführten Cancellation-Runtimefällen
+und deren begrenztem Erfolg getrennt.
+
 ## Historische Funktionsnachweise
 
 Die Runtime-Suite deckt den lokalen Vertrag, Idempotenz, Context-Auflösung,
