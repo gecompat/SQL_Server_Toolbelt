@@ -1,5 +1,12 @@
 # Testausführung
 
+Der [Callerbericht vom 2026-11-06](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
+belegt die vier öffentlichen USPs unter einem Benutzer ohne Login auf
+Windows SQL2025/CU8 CL150/160/170 lokal und direkt zentral mit genau benannten
+Objektrechten und frischen Abschlussaudits. SQL2019-/2022-Caller-Gesamtfälle
+dieser Welle blieben fehlgeschlagen; historische Fachmatrix, Aggregate,
+Netzwerk-/CrossDB-Identitäten und vollständige Modulabnahme bleiben getrennt.
+
 ## Aktuelle Windows-2025-Ergänzung vom 2026-11-05
 
 Die aktuellen Produkt- und Fixturequellen aus
