@@ -120,6 +120,37 @@ Ausführungsnachweise. Der Checker simuliert keine Ausführung oder unabhängige
 Producerbeglaubigung. Dreizehn Gegenproben laufen einmal im bestehenden Runner;
 keine neuen Workflows, Agenten, Produkt-/Runtimeänderungen oder Statuspromotion.
 
+## Constructor-Caller mit sechs Objektrechten
+
+Der [native Callerbericht](../../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
+belegt zwölf Windows-SQL2019-/2022-/2025-Kontexte lokal/direkt zentral und
+trennt die erfolgreiche korrigierte Restmatrix von den drei ursprünglichen
+bereinigten Fehlversuchen und dem jeweils frischen Abschlussaudit.
+
+`Invoke-JsonConstructorsCallerLab.ps1` prüft ausschließlich die vier vorhandenen
+öffentlichen Constructor-USPs mit einem datenbanklokalen Benutzer ohne Login.
+Die ausdrücklich freigegebenen Rechte sind vier einzelne EXECUTE-Grants sowie
+VIEW DEFINITION und EXECUTE auf `toolbelt_core.USP_PrepareResultTable`.
+Keine Rollen-, Schema-, Datenbank- oder Serverrechte und keine bestehenden
+Identitäten werden angepasst. Der Helper-Grant ist ein begrenztes zugelassenes
+Profil; seine Notwendigkeit wird nicht aus einem erfolgreichen Aufruf abgeleitet.
+
+Der private Runset bindet sechs explizite Windows-Engine-/CL-Auswahlen, lokale
+und zentrale Exports, zwei bekannte SAFE-Artefakte, Fixture und Methodenpins.
+`-ValidateOnly` prüft die Admission ohne Labimport oder SQL. Der echte Lauf
+verweigert Wiederholung bestehender Journale; `-AuditOnly` verwendet eine neue
+Verbindung und bindet sein Ergebnis an das unveränderte finale Originaljournal.
+Ein frischer Audit über einem fehlgeschlagenen Lauf wertet diesen nicht auf.
+
+Die SQL-Fixture verlangt feste binäre JSON-Ergebnisse, getrennte Direct-/
+ResultTable-Wege, ResultTable-Spaltentypen und Nullability, interne Abweisungen,
+einzeln widerrufene öffentliche EXECUTE-Rechte, REVERT und Benutzerbereinigung.
+Direkte Clientmetadaten, Aggregate, Netzwerklogins, echte CrossDB-Identitäten
+und eine vollständige Modulabnahme bleiben separate Prüfungen. Der Runset und
+sämtliche Originaljournale gehören ausschließlich nach `.runtime`; sie enthalten
+keine zu veröffentlichende Evidenz. Native Ausführung benötigt eine eigene
+endliche Admission; der vorhandene Treiber erteilt sie nicht.
+
 ## Aktueller Quellkandidat
 
 Die [Kandidatenanleitung](../../Releases/1.0.0/CURRENT-CANDIDATE.md) führt zum

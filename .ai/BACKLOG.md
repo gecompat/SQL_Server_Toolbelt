@@ -90,6 +90,34 @@ Agenten, neuen CI-Jobs, Produkt-/Paket-/Modulstatusänderungen oder Veröffentli
 Weitere Worker-Identitäts-, Ziel-, Host-/Transport- und Minimalrechtegates
 bleiben separat. Keine weitere SQL-Welle aus freien Zeitresten oder grüner CI.
 
+## Constructor-Caller: neue Rechtefreigabe und Teilqualifikation — 2026-11-06
+
+Direkter Benutzerauftrag: offene Qualifikationspunkte autonom bearbeiten und
+die vorbereitete temporäre Constructor-Rechtevergabe umsetzen. Der Umfang
+bleibt bei vier öffentlichen USP-EXECUTE-Grants sowie VIEW DEFINITION und
+EXECUTE auf dem ResultTable-Helper in eigenen temporären Datenbanken, ohne
+Login oder breite Rechte. Der [neue Bericht](../Releases/1.0.0/JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md)
+belegt Windows SQL2019/CU32 CL150,SQL2022/CU26 CL150/160 und SQL2025/CU8
+CL150/160/170 jeweils lokal und direkt zentral:144 positive Profile,144
+SQL229-Abweisungen, sechs erfolgreiche Gesamtläufe und frische Audits.
+
+Die drei ursprünglichen Gesamtfehler der ersten Welle am Metadaten-/Bilanzorakel
+bleiben FAILED_CLEANED. Zehn
+Offlinegegenproben und getrennte Sitzungsbeobachtung sichern die Korrektur;
+keine Produkt-/API-/Manifest-/Modulstatusänderung. Zwölf Ziel-/Auditaufrufe und
+zwölf DB-Reservierungen sind geschlossen; neun tatsächlich angelegte eigene
+DBs entfernt, alle sechs frischen Audits vollständig. Anschließend explizite
+Benutzerantwort „Diese begrenzte Restmatrix freigeben“: genau drei korrigierte
+SQL2019-/2022-Läufe, drei frische Audits, sechs eigene DBs,45 Minuten ohne
+weitere Wiederholung. Diese zweite Welle bestand vollständig mit unveränderter
+korrigierter Methode;6/6 zusätzliche Aufrufe und6/6 DBs geschlossen. Insgesamt
+18 Aufrufe/18 Reservierungen,15 tatsächlich angelegte eigene DBs entfernt und
+neun vollständige Audits; kein rückwirkender PASS der drei ersten Fehler.
+Historische Constructor-Fachmatrix und frühere Budgets bleiben unverändert.
+Ein Paket/ein PR, keine Agenten, weiteren SQL-Wiederholungen, Veröffentlichung
+oder Tags. Linux-, Aggregate-, Netzwerk-/CrossDB- und übrige Modulpflichtfälle
+bleiben separat.
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)

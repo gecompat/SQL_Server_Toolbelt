@@ -55,7 +55,7 @@ def main():
     suite = unittest.defaultTestLoader.loadTestsFromModule(module)
     unique, discovered, removed = unique_checks(suite, module.CsvMetadataTests)
     for module_name in ("test_evidence_sources", "test_current_qualification_overview",
-                        "test_worker_terminal_qualification"):
+                        "test_worker_terminal_qualification", "test_constructor_caller_contract"):
         source_tests = importlib.import_module(module_name)
         source_suite = unittest.defaultTestLoader.loadTestsFromModule(source_tests)
         discovered += source_suite.countTestCases()
