@@ -19,15 +19,15 @@ class JsonSchemaTargetScopeTests(unittest.TestCase):
         for platform, version, patch, level, scope in itertools.product(
                 ('windows', 'linux', 'WINDOWS'), ('2019', '2022', '2025', '2017'),
                 ('CU32', 'CU26', 'CU8', 'latest', 'base'), (150, 160, 170),
-                ('core-schema', 'constructors', 'migration', 'unknown')):
+                ('core-schema', 'constructors', 'migration', 'unknown', 'MIGRATION')):
             native = level in levels.get(version, ()) and (
                 platform == 'windows' and patch == patches.get(version) or
                 platform == 'linux' and patch == 'latest')
             old = native and (platform == 'windows' and version == '2025' or
                               platform == 'linux' and version == '2019')
-            expected = native if scope == 'core-schema' else (
+            expected = native if scope in ('core-schema', 'migration') else (
                 old or native and platform == 'windows') if scope == 'constructors' else (
-                old if scope == 'migration' else False)
+                False)
             rows.append(dict(Platform=platform, Version=version, Patch=patch,
                              CL=level, Scope=scope, Expected=bool(expected)))
         with tempfile.TemporaryDirectory(prefix='schema-scope-', dir=ROOT / '.runtime') as directory:
