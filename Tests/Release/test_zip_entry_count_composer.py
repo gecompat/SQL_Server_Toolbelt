@@ -18,12 +18,13 @@ from compose_zip_entry_count import (
     write_output,
 )
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import evidence_sources
 import help_contract_source
 import ssis_historical_source_bridge
 
 
 class ZipEntryCountComposerMixin:
-    def test_zip_entry_count_evidence_is_bound_to_current_sources_and_package(self):
+    def test_zip_entry_count_evidence_is_bound_to_recorded_sources_and_package(self):
         report_path = ROOT / 'Releases/1.0.0/zip-entry-count-qualification.json'
         report = json.loads(report_path.read_bytes())
         self.assertEqual(report['schema_version'], 'toolbelt-zip-entry-count-boundary/v1')
@@ -76,8 +77,7 @@ class ZipEntryCountComposerMixin:
             elif relative in ssis_historical_source_bridge.source_paths():
                 ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected_sha256)
             else:
-                import parameter_help_transition
-                data = parameter_help_transition.bound_source(ROOT, relative, expected_sha256)
+                data = evidence_sources.original_for(ROOT, report, relative, expected_sha256)
                 self.assertEqual(hashlib.sha256(data).hexdigest(), expected_sha256)
 
         package_path = ROOT / report['package']['path']

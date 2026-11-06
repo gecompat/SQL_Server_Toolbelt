@@ -28,6 +28,19 @@ vollständige Freigabe aller45 Module oder eine Veröffentlichung.
 | Cancellation: befüllter Repeat und Principalbindung | [PR524](https://github.com/gecompat/SQL_Server_Toolbelt/pull/524) ist integriert; acht Headchecks und fünf anwendbare Mainchecks bestanden. Elf Windows-Kontexte des ursprünglichen fünfspaltigen Tests und fünf frische Gesamt-Audits bestanden; Windows2019 lokal blieb fehlgeschlagen, alle sechs eigenen DBs sind entfernt. Die alte Welle bleibt mit15/15 Ziel-/Auditaufrufen geschlossen. Der erweiterte achtspaltige Test bestand anschließend in der eigens freigegebenen Windows-Restwelle: SQL2019/2022/2025, alle unterstützten CLs lokal/zentral, zwölf Kontexte,24 Deploywiederholungen,36 isolierte Gegenproben und sechs Gesamtkoordinatoren mit frischen Audits. Alle sechs eigenen DBs sind entfernt,15/15 Aufrufe geschlossen; kein Fehlversuch oder Retry in der neuen Welle. Der Linux-Nachweis aus PR524 bleibt bei seinen sechs Gesamtfällen und18 Gegenproben. Keine vollständige neue API-/Rechte-/Quotenabnahme oder Veröffentlichung. [Nachweise und Ausführungsgrenzen](../Modules/toolbelt.core.execution-cancel/Tests/README.md#vollständige-achtspaltige-windows-repeat-matrix-vom-2026-11-06). |
 | Release-Regressionsbaseline: historische und aktuelle Quellen | Ein zusätzlich angestoßener lokaler Vollcheck meldete274 Tests mit zwölf Fehlern und29 Ausführungsfehlern. Ein einzeln wiederholter, verbindungsloser Work-Type-Berichtstest reproduziert die Abweichung am heutigen `Deployment/Deploy-All.ps1`. Der erwartete Quellhash stimmt exakt mit dem im unveränderten Bericht aufgezeichneten Baseline-Commit überein; die aktuellen Exporterbytes unterscheiden sich auch ohne Zeilenendungsunterschied. Das ist keine nachträgliche Aufwertung historischer Nachweise und keine vollständige Diagnose aller41 Fehlmeldungen. Die vorhandenen exakten Quellen-/Helpübergänge bleiben gültig in ihrem jeweiligen Scope. Nächster Schritt: betroffene Fach- und Methodeninputs einzeln zuordnen, historische Integrität vom aktuellen Qualifikationsgate trennen und diese Trennung negativ prüfen. Weder alte Berichte/Goldenwerte pauschal neu hashen noch Quellenabweichungen allgemein ignorieren. [Bestehender Release-Testweg](../Tests/Release/README.md). |
 
+
+### Release-Quellenbindungen — Korrektur vom 2026-11-06
+
+Der Benutzer hat die Behebung der offenen Release-Quellenbindungen ausdrücklich
+freigegeben. Der historische Ausgangsbefund oben bleibt erhalten. Die
+[Nachweisleser](../Tests/Release/README.md#historische-quellen-und-aktuelle-qualifikation)
+trennen nun die exakten aufgezeichneten Originalquellen von den aktuellen
+Arbeitsbaumbytes. Alte Berichte, Pakete, Verifierarchive und Goldenwerte werden
+nicht umgeschrieben. Fehlende Originale bleiben Fehler; Quellintegrität allein
+begründet keine aktuelle native Qualifikation. Die produktiven Live-Paketgates
+bleiben unverändert streng. Gegenproben sichern diese Grenze einschließlich
+Archiv-/Berichtsmanipulationen ab. Keine neue SQL-Welle oder Veröffentlichung.
+
 Keine dieser Ergänzungen erteilt neue SQL-Rechte, setzt verbrauchte
 Testgrenzen zurück oder erweitert die Veröffentlichungsfreigabe.
 

@@ -7,6 +7,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+import evidence_sources
 import csv_metadata
 
 
@@ -47,7 +48,7 @@ class CsvCallerProfileTests(unittest.TestCase):
             self.assertFalse(Path(path).is_absolute())
             self.assertNotIn('..', Path(path).parts)
             self.assertRegex(digest, r'^[a-f0-9]{64}$')
-            csv_metadata.validate_source(ROOT, path, digest)
+            evidence_sources.original_for(ROOT, self.record, path, digest)
             self.assertNotIn('ssis', path.lower())
         driver = (ROOT / 'Tests/Release/Invoke-CsvCallerLab.ps1').read_text(encoding='utf-8')
         self.assertIn("$runset.artifacts.Count -ne 1", driver)

@@ -25,12 +25,36 @@ VERIFIERS_SHA256 = "071cf643f50de39341defd6f34e086d812808a92776bca83650e857b7f1b
 VERIFIER_PINS = "Scripts/Release/HistoricalSources/parameter-help-20261030/VerifierPins.json"
 VERIFIER_PINS_SHA256 = "d0321bc15ba5f7a303f47bc81121bd4ed0c876985a68aaa23c845238b185241a"
 
-# Additive, reviewed archive-reader catalog: three parser source paths now
-# resolve to their original immutable package bytes. No oracle/function or
-# historical pin file changed; this is not evidence for the current provider.
+# Additive, reviewed archive-reader catalog: updated historical-source readers
+# restore their exact immutable verifier predecessors. No oracle/function or
+# historical pin file changed; this is not current native qualification.
 ADDITIONAL_REVIEWED_READ_ADAPTERS = {
+    "Tests/Release/test_zip_caller_profile.py":
+        "5bd325e0c8f3ecc90ff634f268729a90a2296931cff065d62ce3ca262df9c465",
+    "Scripts/Release/xlsx_sst_budget.py":
+        "5ce0b28d1402bc7d3dcfbeb7e05f6e9252cd7982e87200dc700b2b00abe40cbc",
     "Scripts/Release/ssis_historical_source_bridge.py":
         "d9583588f01c41fee0da15310305a5caacb20b38f538817b4a169be8de24832f",
+    "Scripts/Release/json_schema_caller_transaction.py":
+        "0244e4170aa772fe0f4ea731d0d4a7d3a389db523ac35b615a5985f3069b20b7",
+    "Scripts/Release/json_schema_deploy_applock.py":
+        "941c042775b5af5c81c7005a51639eba8b3eccc123dacc7e678708b5310c66c3",
+    "Scripts/Release/json_schema_deploy_collision.py":
+        "f091df943a2dbdb1a94881e471841e4677988e6611a6d15d74735d1ff8ca9528",
+    "Scripts/Release/json_schema_uninstall_applock.py":
+        "9e6c23511978ad684b913bc25930b01212039a6202d1345f7b54c95affda7ad9",
+    "Scripts/Release/json_schema_uninstall_confirmation.py":
+        "468ee9d1993191a4d19ca9a569d6979939359a1e4cfa9c8ddeae9b51f413825a",
+    "Tests/Release/test_prepare_release.py":
+        "b8f39ffa6fd75ca63aaffacbf779a5cd4dab1253c8b83bb1144f263754dfcdd9",
+    "Tests/Release/test_xlsx_boundary_evidence.py":
+        "8fecb8df67f1eae7636b9a7c4d95f6088adc51760432693f273ce87281bcdd32",
+    "Tests/Release/test_xlsx_cell_caller_qualification.py":
+        "72237e9e04917214949c7417ed3a18d8d112402134750d0ae95863eab850c114",
+    "Tests/Release/test_xlsx_raw_caller_evidence.py":
+        "2604659e038da167d14ca9f4347513677f5f981a84cd78d683bf77a7f123d2fd",
+    "Tests/Release/test_zip_entry_count_composer.py":
+        "053f41ae76d47b87a6ced9e9932bf074efbf2c60678f95cb1292af8e7725616a",
 }
 
 

@@ -51,7 +51,7 @@ class ZipCallerProfileMixin:
                          probes['additional_internal_and_counter_api_229_denials'])
         self.assertEqual(probes['fixed_result_rows_total'], matrix['context_count'] * 8)
 
-    def test_public_source_pins_match_current_synthetic_inputs(self):
+    def test_public_source_pins_match_recorded_synthetic_inputs(self):
         report = json.loads(REPORT.read_bytes())
         pins = report['source_sha256']
         self.assertEqual(len(pins), 32)
@@ -66,8 +66,8 @@ class ZipCallerProfileMixin:
                 if relative == zip_metadata.MANIFEST:
                     zip_metadata.validate_source(ROOT, relative, expected)
                 else:
-                    import parameter_help_transition
-                    data = parameter_help_transition.bound_source(ROOT, relative, expected)
+                    import evidence_sources
+                    data = evidence_sources.original_for(ROOT, report, relative, expected)
                     self.assertEqual(hashlib.sha256(data).hexdigest().upper(), expected)
         self.assertIn('Tests/Release/Runtime/ZipMemory.CallerRights.sql', pins)
         self.assertIn('Tests/Release/Invoke-ZipCallerLab.ps1', pins)

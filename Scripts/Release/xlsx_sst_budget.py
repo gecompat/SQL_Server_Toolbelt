@@ -458,6 +458,12 @@ def validate_offline_test_source(root, record):
             and digest(archive_bytes) == archive_binding['sha256'],
             'offline qualification archive hash differs')
     current = (Path(root) / OFFLINE_TEST_PATH).read_bytes()
+    # The reviewed evidence-reader update is not a new execution of this method.
+    # Recover its exact verifier predecessor before checking the old projection.
+    import parameter_help_transition
+    reviewed = parameter_help_transition.ADDITIONAL_REVIEWED_READ_ADAPTERS.get(OFFLINE_TEST_PATH)
+    if digest(current) == reviewed:
+        current = parameter_help_transition.restore_verifier_source(root, OFFLINE_TEST_PATH, current)
     current_projection = offline_test_projection(current)
     require(digest(current_projection) == binding['projection_sha256'],
             'offline qualification projection differs')

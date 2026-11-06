@@ -1816,7 +1816,7 @@ def main() -> int:
         validate_generated_status(modules, arguments.write)
     if "release_preparation" in checks:
         # Preserve every unique check; the documentation runner collapses only
-        # the known duplicate CSV-class registration in the unchanged pinned suite.
+        # the known duplicate CSV-class registration in the historical evidence suite.
         # Der vollständige Lauf überschreitet lokal elf Minuten. Zwanzig Minuten
         # geben ihm begrenzte Reserve; Fortschritt bleibt bei Timeout sichtbar.
         # Keep the hidden process boundary so no console window steals focus.
@@ -1827,7 +1827,7 @@ def main() -> int:
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
-        # Der historische Suite-Loader ist selbst exakt qualifikationsgebunden.
+        # Historische Quellen und aktuelle Kandidatenguards bleiben getrennt.
         # RC- und Stable-19-Guards deshalb im selben vorhandenen Validierungszweig
         # ausführen; kein neuer CI-Job und keine native SQL-Ausführung.
         result = run_hidden(
