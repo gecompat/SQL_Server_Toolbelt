@@ -24,7 +24,28 @@ function Invoke-ConstructorClientMetadata([Data.SqlClient.SqlConnection]$Connect
  try{
   $output=@(. $loop)
   if($output.Count){throw 'CONSTRUCTOR_METADATA_UNEXPECTED_ADAPTER_OUTPUT'}
-  # Feste4 APIs x(2SELECT+1Help+1ResultTable); nur nach vollständigem Loop.
-  return [pscustomobject]@{state='COMPLETE';profiles=16;selectProfiles=8;helpProfiles=4;resultTableProfiles=4}
+  # Auch die bereits vorhandenen AGFs versprechen nvarchar(max). Die Abfrage-
+  # aliase sind probeeigen; ein Nullable-Metadatenbit ist für AGFs nicht zugesagt
+  # und wird nur privat beobachtet. Dies ist kein Lowpriv-/GRANT-Nachweis.
+  $aggregateObservations=[Collections.Generic.List[object]]::new()
+  foreach($aggregateApi in @('AGF_JsonArray','AGF_JsonObject')){
+   $isObject=$aggregateApi-ceq'AGF_JsonObject'
+   foreach($empty in @($true,$false)){
+    $command=$Connection.CreateCommand();$reader=$null
+    try{
+     $command.CommandTimeout=Get-ReleaseTimeout
+     $call=if($isObject){'AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile)'}else{'AGF_JsonArray(Ordinal,ValueKind,[Value],Profile)'}
+     $insert=if($empty){''}else{"INSERT #AggregateMetadataInput VALUES(2,N'b',N'number',N'2',1),(1,N'a',N'string',N'x',1);"}
+     $command.CommandText="SET NOCOUNT ON;CREATE TABLE #AggregateMetadataInput(Ordinal int NOT NULL,[Key] nvarchar(max) NOT NULL,ValueKind nvarchar(max) NOT NULL,[Value] nvarchar(max) NULL,Profile tinyint NOT NULL);$insert SELECT toolbelt_json.$call AS JsonValue FROM #AggregateMetadataInput;DROP TABLE #AggregateMetadataInput;"
+     $reader=$command.ExecuteReader();$schema=$reader.GetSchemaTable()
+     if($reader.FieldCount-ne1-or$reader.GetName(0)-cne'JsonValue'-or$reader.GetDataTypeName(0)-cne'nvarchar'-or$schema.Rows[0].ColumnSize-ne[int]::MaxValue){throw 'CONSTRUCTOR_AGGREGATE_CLIENT_TYPE'}
+     $expected=if($isObject){if($empty){'{}'}else{'{"a":"x","b":2}'}}else{if($empty){'[]'}else{'["x",2]'}}
+     if(-not$reader.Read()-or$reader.IsDBNull(0)-or$reader.GetString(0)-cne$expected-or$reader.Read()-or$reader.NextResult()){throw 'CONSTRUCTOR_AGGREGATE_CLIENT_VALUE'}
+     $aggregateObservations.Add([pscustomobject]@{api=$aggregateApi;empty=$empty;allowDBNull=[bool]$schema.Rows[0].AllowDBNull})
+    }finally{if($reader){$reader.Dispose()};$command.Dispose()}
+   }
+  }
+  # Vier USP x(2SELECT+Help+ResultTable), zwei AGF x(leer+befüllt).
+  return [pscustomobject]@{state='COMPLETE';profiles=(16+$aggregateObservations.Count);selectProfiles=8;helpProfiles=4;resultTableProfiles=4;aggregateProfiles=$aggregateObservations.Count;aggregateObservations=@($aggregateObservations)}
  }finally{$Connection.remove_InfoMessage($handler)}
 }

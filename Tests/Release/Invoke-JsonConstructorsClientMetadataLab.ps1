@@ -103,7 +103,7 @@ try {
   if((Get-FileHash -LiteralPath $journal -Algorithm SHA256).Hash -cne $originalJournalHash){throw 'CONSTRUCTOR_CLIENT_METADATA_AUDIT_JOURNAL_DRIFT'}
   [IO.File]::WriteAllText(($journal+'.audit.json'),([ordered]@{
    state='COMPLETE';readOnly=$true;originalJournalSHA256=$originalJournalHash;
-   originalRunPassed=($prior.state -ceq 'COMPLETE' -and $null -eq $prior.failure -and $prior.completedModes.Count -eq 2 -and $prior.witnesses.Count -eq 2 -and @($prior.witnesses|Where-Object{$_.metadata.state-cne'COMPLETE'-or$_.metadata.profiles-ne16-or$_.metadata.selectProfiles-ne8-or$_.metadata.helpProfiles-ne4-or$_.metadata.resultTableProfiles-ne4}).Count-eq0);
+   originalRunPassed=($prior.state -ceq 'COMPLETE' -and $null -eq $prior.failure -and $prior.completedModes.Count -eq 2 -and $prior.witnesses.Count -eq 2 -and @($prior.witnesses|Where-Object{$_.metadata.state-cne'COMPLETE'-or$_.metadata.profiles-ne20-or$_.metadata.selectProfiles-ne8-or$_.metadata.helpProfiles-ne4-or$_.metadata.resultTableProfiles-ne4-or$_.metadata.aggregateProfiles-ne4}).Count-eq0);
    databaseAbsence=$true;trustRestored=$true;configurationRestored=$true;postPins=$true
   }|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
  } else {
@@ -160,7 +160,7 @@ try {
    $db.Dispose();$stage='CONTRACT_'+$mode
    $db=Open-ReleaseConnection $name
    $witness=@(Invoke-ConstructorClientMetadata $db)
-   if($witness.Count-ne1-or$witness[0].state-cne'COMPLETE'-or$witness[0].profiles-ne16-or$witness[0].selectProfiles-ne8-or$witness[0].helpProfiles-ne4-or$witness[0].resultTableProfiles-ne4){throw 'CONSTRUCTOR_METADATA_WITNESS'}
+   if($witness.Count-ne1-or$witness[0].state-cne'COMPLETE'-or$witness[0].profiles-ne20-or$witness[0].selectProfiles-ne8-or$witness[0].helpProfiles-ne4-or$witness[0].resultTableProfiles-ne4-or$witness[0].aggregateProfiles-ne4){throw 'CONSTRUCTOR_METADATA_WITNESS'}
    $ledger.witnesses+=@(@{mode=$mode;metadata=$witness[0]});Save-ReleaseJournal
    $session=@(Invoke-ReleaseSql $db 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
    if($session.Count -ne 1 -or $session[0].TranCount -ne 0 -or $session[0].XactState -ne 0){throw 'CONSTRUCTOR_CLIENT_METADATA_SESSION_NOT_NEUTRAL'}
