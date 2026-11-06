@@ -17,6 +17,10 @@ Der [frische Windows-Workerprovider](Tests/README.md#aktueller-windows-workerpro
 bestand zusätzlich auf WindowsSQL2025/CU8/CL170 alle elf fokussierten Fälle
 einschließlich tatsächlichem Cancel/Rollback/Hold, Rennen, Controltimeout und
 separatem Abschlussaudit. Weitere Providerkontexte bleiben getrennt.
+Die [weitere Providerabnahme](Tests/README.md#weitere-windows-providerkontexte-vom-2026-11-06)
+ergänzt grüne Gesamtfälle für WindowsSQL2019/CL150 und 2022/CL150. Der
+2022/CL160-Koordinator scheiterte nach erfolgreichen Providerfällen am
+Bereinigungsguard und wurde separat sicher bereinigt; weitere 2025-CLs sind offen.
 
 Globale Admission zählt IsOccupied unabhängig vom Proofstatus. Generationen haben feste registrierte Intervalle; administrative Pause überlebt Close/Expiry/Neuregistrierung. Stop/Hold und private Witness-/Sessionlockproofs schützen gegen Replay. UNKNOWN bleibt belegt.
 
