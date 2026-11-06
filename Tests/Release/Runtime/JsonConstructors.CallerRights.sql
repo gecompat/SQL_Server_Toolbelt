@@ -135,6 +135,14 @@ BEGIN CATCH
  IF @Created=1 DROP USER ContosoJsonCaller;
  THROW;
 END CATCH;
-IF @Positive<>12 OR @Denied<>12 OR USER_ID(N'ContosoJsonCaller') IS NOT NULL OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 52098,N'Constructor-Rechtefixture unvollständig.',6;
+-- Den Sitzungszustand ohne Katalogzugriff erfassen: dessen interne Autocommit-
+-- Transaktion kann im selben Ausdruck XACT_STATE=1 bei @@TRANCOUNT=0 liefern.
+DECLARE @FinalTranCount int=@@TRANCOUNT,@FinalXactState int=XACT_STATE();
+IF @Positive<>12 OR @Denied<>12 OR USER_ID(N'ContosoJsonCaller') IS NOT NULL OR @FinalTranCount<>0 OR @FinalXactState<>0
+BEGIN
+ DECLARE @Diagnostic nvarchar(2048)=CONCAT(N'Constructor-Rechtefixture unvollständig: positive=',@Positive,
+  N';denied=',@Denied,N';trancount=',@FinalTranCount,N';xact=',@FinalXactState,
+  N';userAbsent=',CASE WHEN USER_ID(N'ContosoJsonCaller') IS NULL THEN 1 ELSE 0 END);
+ THROW 52098,@Diagnostic,6;
+END;
 SELECT 'CONSTRUCTOR_CALLER_PASS' Witness,@Positive PositiveProfiles,@Denied Denials;

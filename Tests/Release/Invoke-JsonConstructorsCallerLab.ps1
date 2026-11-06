@@ -136,6 +136,8 @@ try {
    $witness=@(Invoke-ReleaseSql $db ([IO.File]::ReadAllText($runset.fixture)) -Rows)
    if($witness.Count -ne 1 -or $witness[0].Witness -cne 'CONSTRUCTOR_CALLER_PASS' -or
     $witness[0].PositiveProfiles -ne 12 -or $witness[0].Denials -ne 12){throw 'CONSTRUCTOR_CALLER_WITNESS_INVALID'}
+   $session=@(Invoke-ReleaseSql $db 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
+   if($session.Count -ne 1 -or $session[0].TranCount -ne 0 -or $session[0].XactState -ne 0){throw 'CONSTRUCTOR_CALLER_SESSION_NOT_NEUTRAL'}
    $afterAssemblies=@(Invoke-ReleaseSql $db "SELECT a.name,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) Hash,a.permission_set_desc Permission FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.is_user_defined=1;" -Rows)
    if(($assemblies|Sort-Object name|ConvertTo-Json -Depth 4 -Compress) -cne ($afterAssemblies|Sort-Object name|ConvertTo-Json -Depth 4 -Compress)){throw 'CLR_CALLER_ASSEMBLY_POST_DRIFT'}
    $after=@(Invoke-ReleaseSql $db $definitions -Rows)|ConvertTo-Json -Depth 4 -Compress

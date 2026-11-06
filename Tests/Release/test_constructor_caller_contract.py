@@ -97,6 +97,12 @@ class ConstructorCallerAdmissionTests(unittest.TestCase):
         self.assertIn("name=N''GroupOrdinal'')>=(SELECT column_id", sql)
         self.assertIn('max_length=-1 AND is_nullable=0', sql)
 
+    def test_session_state_is_observed_separately_from_catalog_transaction(self):
+        sql = (ROOT / 'Tests/Release/Runtime/JsonConstructors.CallerRights.sql').read_text(encoding='utf-8')
+        self.assertIn('DECLARE @FinalTranCount int=@@TRANCOUNT,@FinalXactState int=XACT_STATE();', sql)
+        self.assertIn('@FinalTranCount<>0 OR @FinalXactState<>0', sql)
+        self.assertIn("'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;'", DRIVER.read_text(encoding='utf-8'))
+
 
 if __name__ == '__main__':
     unittest.main()
