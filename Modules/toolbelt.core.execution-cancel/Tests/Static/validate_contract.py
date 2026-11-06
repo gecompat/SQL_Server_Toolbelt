@@ -50,6 +50,8 @@ negative = (root / 'Tests/Runtime/RepeatCurrent.Negative.sql').read_text('utf-8'
 normalization = (root / 'Tests/Runtime/RepeatCurrent.NormalizeNegativeVersion.sql').read_text('utf-8')
 if repeat.count(':r ../Tests/Runtime/RepeatCurrent.Negative.sql') != 1:
     raise SystemExit('Drei isolierte Principalgegenproben müssen vor den echten Deploys laufen.')
+if 'SET QUOTED_IDENTIFIER ON;\nGO' not in repeat:
+    raise SystemExit('XML-Gegenproben benötigen expliziten QUOTED_IDENTIFIER vor dem nächsten Batch.')
 for include in ('RepeatCurrent.Capture.sql', 'RepeatCurrent.NormalizeNegativeVersion.sql', 'RepeatCurrent.Assert.sql'):
     if negative.count(':r ../Tests/Runtime/' + include) != 3:
         raise SystemExit('Jede Principalgegenprobe benötigt originales Capture und Assert mit isolierter Rowversion.')

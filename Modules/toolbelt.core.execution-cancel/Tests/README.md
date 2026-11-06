@@ -61,6 +61,12 @@ Teständerung nicht zu achtspaltigen oder vollständigen Matrixnachweisen.
 Eine weitere native Windows-Ausführung ist in der geschlossenen Welle
 nicht enthalten.
 
+Der erste CI-Head der Erweiterung scheiterte auf allen drei Linux-Versionen
+mit1934, weil die neue XML-Methode im frischen SQLCMD-Testprozess
+`QUOTED_IDENTIFIER ON` benötigt. Der Test setzt diesen Parse-Time-Modus nun
+vor einem eigenen Batchtrenner explizit. Alle drei eigenen CI-Zielbereinigungen
+bestanden; der Erstlauf bleibt fehlgeschlagen und belegt keine Abnahme.
+
 ## Historische Funktionsnachweise
 
 Die Runtime-Suite deckt den lokalen Vertrag, Idempotenz, Context-Auflösung,

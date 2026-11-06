@@ -4,6 +4,9 @@
 -- Zwei echte Deploys; keine neue API, Rechte-, Config- oder Provideränderung.
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
+-- XML-Methoden der isolierten Gegenproben benötigen diesen Parse-Time-Modus.
+SET QUOTED_IDENTIFIER ON;
+GO
 IF @@TRANCOUNT <> 0
     THROW 52740, N'Der Repeat-Test benötigt eine eigene Session ohne Callertransaktion.', 1;
 IF (2 & @@OPTIONS) = 2
