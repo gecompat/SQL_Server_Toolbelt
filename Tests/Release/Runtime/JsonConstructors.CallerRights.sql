@@ -23,7 +23,7 @@ ELSE BEGIN
  EXEC toolbelt_json.USP_JsonArray @EntriesTable=N''#EntriesOne'',@ResultTable=N''#Destination'';
  DECLARE @FlatId int=OBJECT_ID(N''tempdb..#Destination'',N''U'');
  IF @FlatId IS NULL OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=@FlatId)<>1
-  OR NOT EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@FlatId AND column_id=1 AND name=N''JsonValue'' AND system_type_id=231 AND max_length=-1 AND is_nullable=0 AND collation_name=N''Latin1_General_100_BIN2'')
+  OR NOT EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@FlatId AND name=N''JsonValue'' AND system_type_id=231 AND max_length=-1 AND is_nullable=0 AND collation_name=N''Latin1_General_100_BIN2'')
   THROW 52098,N''Einfaches ResultTable-Schema.'',15;
  EXEC sys.sp_executesql N''INSERT #Flat SELECT JsonValue FROM #Destination;'';
 END;
@@ -52,8 +52,9 @@ IF @Route=1
 BEGIN
  DECLARE @Id int=OBJECT_ID(N''tempdb..#Destination'',N''U'');
  IF @Id IS NULL OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=@Id)<>2
-  OR NOT EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@Id AND column_id=1 AND name=N''GroupOrdinal'' AND system_type_id=56 AND max_length=4 AND is_nullable=0)
-  OR NOT EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@Id AND column_id=2 AND name=N''JsonValue'' AND system_type_id=231 AND max_length=-1 AND is_nullable=0 AND collation_name=N''Latin1_General_100_BIN2'')
+  OR NOT EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@Id AND name=N''GroupOrdinal'' AND system_type_id=56 AND max_length=4 AND is_nullable=0)
+  OR NOT EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@Id AND name=N''JsonValue'' AND system_type_id=231 AND max_length=-1 AND is_nullable=0 AND collation_name=N''Latin1_General_100_BIN2'')
+  OR (SELECT column_id FROM tempdb.sys.columns WHERE object_id=@Id AND name=N''GroupOrdinal'')>=(SELECT column_id FROM tempdb.sys.columns WHERE object_id=@Id AND name=N''JsonValue'')
   THROW 52098,N''Gruppiertes ResultTable-Schema.'',14;
 END;
 ';

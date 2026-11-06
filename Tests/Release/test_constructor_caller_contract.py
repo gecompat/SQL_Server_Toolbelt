@@ -88,6 +88,15 @@ class ConstructorCallerAdmissionTests(unittest.TestCase):
     def test_missing_mandatory_method_pin_is_rejected(self):
         self.reject(lambda r: r['pins'].pop(0))
 
+    def test_metadata_oracle_accepts_sparse_in_place_column_ids(self):
+        # ALTER DROP/ADD lässt stabile IDs mit Lücken bestehen. Der ausgeführte
+        # SQL-Oracle muss die Reihenfolge statt erfundener dichter IDs prüfen.
+        sql = (ROOT / 'Tests/Release/Runtime/JsonConstructors.CallerRights.sql').read_text(encoding='utf-8')
+        self.assertNotIn('column_id=1', sql)
+        self.assertNotIn('column_id=2', sql)
+        self.assertIn("name=N''GroupOrdinal'')>=(SELECT column_id", sql)
+        self.assertIn('max_length=-1 AND is_nullable=0', sql)
+
 
 if __name__ == '__main__':
     unittest.main()
