@@ -1,5 +1,12 @@
 # Worker Control – Vertragsmatrix
 
+Die [weitere Windows-Providerabnahme](README.md#weitere-windows-providerkontexte-vom-2026-11-06)
+belegt zusätzlich komplette Gesamtfälle auf 2019/CL150 und 2022/CL150 mit
+je elf Fällen und frischen Audits. Auf 2022/CL160 bestand der Providerpfad,
+der Gesamtkoordinator blieb wegen des Bereinigungsguards fehlgeschlagen;
+separate Recovery und frischer Audit bestanden. 2025/CL150/160 wurden nicht
+ausgeführt. Keine vollständige Providermatrix oder Aufwertung des Fehlers.
+
 ## Aktueller Windows-Providerkontext
 
 Der [frische Nachweis vom 2026-11-06](README.md#aktueller-windows-workerprovider-vom-2026-11-06)

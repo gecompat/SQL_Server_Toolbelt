@@ -1,5 +1,46 @@
 # Worker Control – Testnachweise
 
+## Weitere Windows-Providerkontexte vom 2026-11-06
+
+Zwei weitere aktuelle `ManagedOnly`-Gesamtfälle bestanden mit tatsächlichem
+Windows-Workerhost und unveränderten elf Providerorakeln. Der bereits grüne
+2025/CL170-Kontext wurde wiederverwendet, nicht wiederholt.
+
+| Windows-SQL-Ziel | CL | Umfang | Gesamtkoordinator und separater Audit |
+|---|---|---|---|
+| 2019/CU32 | 150 | local, elf Providerfälle | bestanden |
+| 2022/CU26 | 150 | local, elf Providerfälle | bestanden |
+| 2025/CU8 | 170 | unten gebundener vorhandener Gesamtfall | bestanden, wiederverwendet |
+| 2022/CU26 | 160 | elf Providerfälle bestanden | Gesamtlauf fehlgeschlagen, separat bereinigt und frisch auditiert |
+| 2025/CU8 | 150/160 | weitere Provider-Gesamtfälle | nicht ausgeführt |
+
+Die neuen Produkt-/Provider-/Fixturequellen sind an
+[00ae181b](https://github.com/gecompat/SQL_Server_Toolbelt/tree/00ae181bc6b160ec2d6d16ddf776e8c0dba1285c)
+gebunden und unverändert. Die beiden grünen Fälle haben jeweils ein finales,
+hashgebundenes Providerergebnis mit elf PASS-Fällen ohne Nebenfehler und einen
+separaten frischen Audit. `FullProduct=false` bleibt erhalten.
+
+Der 2022/CL160-Aufrufer scheiterte nach erfolgreichem Providerpfad am
+unveränderten kombinierten Katalog-/Verbraucherguard mit SQL50000/State1.
+Welches Prädikat zum damaligen Zeitpunkt abwies, wurde nicht gemessen.
+Die spätere lesende Inspektion bestätigte dieselbe eigene Datenbankidentität,
+Erzeugungsbytes, Eigentümer und Runmarker, keine anderen Sessions/Requests
+und keine belegten Slots. Erst danach entfernte der unveränderte ursprüngliche
+Dropguard die eigene DB. Ein zunächst wegen des leeren Fixtureunterverzeichnisses
+blockierter eigener Dateischritt wurde separat eng begrenzt abgeschlossen;
+alle Originale und Fehler bleiben erhalten. Der reservierte frische lesende
+Audit bestätigte finale DB-/Dateiabwesenheit und unveränderte erfasste fremde
+Zustände. Das macht den ursprünglichen Gesamtkoordinator nicht zum PASS.
+
+Die restlichen Providerfälle wurden gestoppt. Elf der höchstens 13 reservierten
+Ziel-/Auditdispatches dieses Rahmens sind verbraucht und geschlossen, drei
+eigene Datenbanken entfernt. Zusammen mit dem vorherigen Einzelkontext sind
+14 von maximal 16 Providerdispatches und vier eigene Datenbanken verbraucht;
+freie Plätze eröffnen keinen erneuten Gesamtlauf. Keine Rechte-, Server-,
+Trust-, CLR- oder Infrastrukturänderung. Quellenpins bestanden vor den
+Dokumentationsnachträgen. Die vollständige Windows-Providermatrix bleibt
+offen; teilweise validiert und unveröffentlicht.
+
 ## Aktueller Windows-Workerprovider vom 2026-11-06
 
 Ein separater frischer `ManagedOnly`-Gesamtfall mit tatsächlichem
