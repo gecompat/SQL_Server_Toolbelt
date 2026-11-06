@@ -1,5 +1,17 @@
 # Contract-Testmatrix: ZIP Memory CLR Inspection
 
+## Nachweisabgleich2026-11-06
+
+Die spätere [Entryanzahl-Qualifikation](../../../Releases/1.0.0/ZIP-ENTRY-COUNT-QUALIFICATION.md)
+belegt Listing mit10000 Einträgen, die Abweisung von10001 sowie des zu großen
+MaxEntries-Parameters auf zwölf Ziel-/CL-Paaren lokal/direkt zentral. Die
+nachfolgende alte `not executed`-Zeile für Entry-Count ist deshalb kein heutiger
+offener Punkt dieses Listingprofils. Sie bleibt als historischer Eintrag erhalten.
+Dies belegt weder Archiv256MiB noch komprimierten Extraktionsinput128MiB.
+Die [Caller-Metadatenpflege](../../../Releases/1.0.0/ZIP-METADATA-UPDATE.md)
+bindet außerdem die bereits berichteten Rechteprofile an deren Paketstand;
+sie ist keine neue native Ausführung oder vollständige Modulqualifikation.
+
 Der ergänzende Callerrechte-Nachweis umfasst ausschließlich die drei
 bestehenden öffentlichen Listing-, Extraktions- und Writer-USPs mit festen
 synthetischen ZIPs: [ZIP-Callerprofil](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md).

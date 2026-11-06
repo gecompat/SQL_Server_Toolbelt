@@ -1,5 +1,16 @@
 # Contract-Testmatrix: Console Message
 
+## Aktueller Nachweisabgleich2026-11-06
+
+Das [Modulmanifest](../module.yaml) führt den freigegebenen Umfang als
+`validated`. Sein späterer Nachweis vom2026-10-19 ergänzt den physischen
+Windows-/Linux-Adapter2019/2022/2025 mit enginegerechten CLs, lokalem/zentralem
+Lifecycle und Uninstall, ODBC/sqlcmd-Ausgabe sowie separaten ADO.NET-Frames,
+Unicode, atomarer Ablehnung und NOWAIT-Beobachtungen. Die frühere offene
+Client-/Framingaussage unten bleibt an ihren damaligen Septemberstand gebunden.
+Eine allgemeine Latenz-, Darstellungs- oder beliebige Treiberzusage entsteht
+daraus nicht; diese wäre ein zusätzlicher Vertrag.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; zusätzliche Client-/Treiber-, Buffering- und Framing-Evidenz war damals offen. Der damalige Modulstatus war `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
