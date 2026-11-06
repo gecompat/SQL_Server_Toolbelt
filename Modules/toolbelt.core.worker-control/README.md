@@ -9,18 +9,17 @@ SQL2.1-Integration und eigener Worker-Control1.0-Lifecycle. [Vertrag](../../Docu
 Source implementiert, teilweise validiert und unveröffentlicht. Die
 [aktuellen Windows-SQL-Gates](Tests/README.md#aktuelle-windows-sql-gates-vom-2026-11-06)
 belegen sechs lokale Kontexte auf SQL2019/2022/2025 über die unterstützten CLs
-mit frischen Audits. Provider-, zentrale/CrossDB-, Minimalrechte- und
+mit frischen Audits. Zentrale/CrossDB-, Minimalrechte- und
 Recoveryumfänge bleiben gesondert abzugrenzen. Keine globale Kapazitäts-,
 Exactly-once-, Installation- oder Rechtezusage. Vorhandene Module separat installieren.
 
-Der [frische Windows-Workerprovider](Tests/README.md#aktueller-windows-workerprovider-vom-2026-11-06)
-bestand zusätzlich auf WindowsSQL2025/CU8/CL170 alle elf fokussierten Fälle
-einschließlich tatsächlichem Cancel/Rollback/Hold, Rennen, Controltimeout und
-separatem Abschlussaudit. Weitere Providerkontexte bleiben getrennt.
-Die [weitere Providerabnahme](Tests/README.md#weitere-windows-providerkontexte-vom-2026-11-06)
-ergänzt grüne Gesamtfälle für WindowsSQL2019/CL150 und 2022/CL150. Der
-2022/CL160-Koordinator scheiterte nach erfolgreichen Providerfällen am
-Bereinigungsguard und wurde separat sicher bereinigt; weitere 2025-CLs sind offen.
+Die [lokale Windows-Provider-Teilmatrix](Tests/README.md#aktueller-abschluss-der-lokalen-windows-provider-teilmatrix)
+ist für die sechs ausgewählten SQL2019-/2022-/2025-CL-Kontexte abgeschlossen:
+je elf fokussierte Fälle einschließlich tatsächlichem Cancel/Rollback/Hold,
+Rennen und Controltimeout, vollständiger Koordinator und separater Audit.
+Der ursprüngliche 2022/CL160-Bereinigungsfehler bleibt neben dem erfolgreichen
+korrigierten Lauf dokumentiert. `FullProduct=false` und die weiterführenden
+Provider-/Rechte-/Recoverygrenzen bleiben erhalten.
 
 Globale Admission zählt IsOccupied unabhängig vom Proofstatus. Generationen haben feste registrierte Intervalle; administrative Pause überlebt Close/Expiry/Neuregistrierung. Stop/Hold und private Witness-/Sessionlockproofs schützen gegen Replay. UNKNOWN bleibt belegt.
 
