@@ -1,5 +1,61 @@
 # Worker-Qualifikation
 
+## Terminalhistorie nach Fehlerabschluss und Folgeclaim
+
+`Runtime/Invoke-TerminalHistoryContract.ps1` läuft über den bestehenden
+`Invoke-Contract.ps1 -ManagedSqlOnly`-Einstieg in dessen eigener Testdatenbank.
+Der Einstieg wird im [Workerworkflow](../../../.github/workflows/external-queue-worker.yml)
+aufgerufen. Voraussetzungen und Datenbank-Ownership bleiben beim übergeordneten
+Adapter; der neue Verbraucher vergibt keine SQL-Rechte und ändert keine
+Serverkonfiguration.
+
+Zwei nicht gepoolte Verbindungen prüfen die tatsächliche Attemptbindung,
+einen innerhalb der Handlertransaktion angelegten und zurückgerollten Witness
+sowie eine ebenfalls zurückgerollte Testwirkung. Rollback allein muss den Slot
+weiter belegen. Erst die terminale Fehlerentscheidung gibt ihn frei. Danach
+müssen zwei Reconcile-Aufrufe die vollständige Reservation unverändert lassen;
+ein doppelter Fehlerabschluss wird exakt abgewiesen. Ein öffentlicher
+Deadletter-Requeue erzeugt einen Folgeclaim derselben Arbeit: Beide Versuche
+bleiben sichtbar, die alte Reservation übernimmt keine aktuelle Holdversion.
+Ein Reconcile mit deren veralteter Autorität muss ohne Zustandsänderung scheitern.
+Der ungebundene Folgeclaim wird abschließend über Stop/Reconcile gehalten beendet.
+
+JSON-Snapshots werden vollständig über alle Readerzeilen gelesen und begrenzt,
+nicht auf das erste SQL-JSON-Fragment verkürzt. Tokens und Livezeilen bleiben
+im Speicher. Erwartet wird genau die feste Ausgabe `PASS: terminal history;`
+mit den anschließend genannten Vertragsprüfungen; zusätzlich müssen der
+übergeordnete Lauf und dessen Bereinigung erfolgreich sein.
+
+Der lokale Windows-Erstlauf vom 2026-11-06 scheiterte im Testadapter mit SQL208:
+Neue temporäre Tabellen waren nur im parametrisierten RPC-Scope vorhanden.
+Die Korrektur legt sie im äußeren, nicht parametrisierten Batch an. Der alte
+Lauf bleibt fehlgeschlagen; seine Datenbank wurde regulär entfernt, ein frischer
+lesender Audit bestätigte Abwesenheit und unveränderte fremde Zustände.
+Die Korrektur ist kein lokaler Windows-PASS. Ihr ausgeführtes CI-Ergebnis ist
+am jeweiligen exakten Actions-/PR-Stand zu beurteilen. Dieser Test qualifiziert
+weder Host-/Committransportverlust noch Minimalrechte oder sämtliche Plattformen.
+
+Der erste CI-Head scheiterte anschließend mit SQL207 im neuen Verbraucher;
+die vorgeschalteten Workerfälle bestanden, die eigene CI-Zielbereinigung
+bestand ebenfalls. Die folgende Korrektur trennt ResultTable-Vorbereitung und
+anschließende Spaltenabfragen in separat kompilierte Batches. Der Erstfehler
+bleibt fehlgeschlagen; ein Erfolg ist nur dem tatsächlich geprüften neuen
+Quellstand zuzuordnen. Fehlerdiagnostik enthält ausschließlich feste Phasen
+und numerische SQL-Codes, keine SQL-Messages oder Livezeilen.
+
+Der zweite CI-Head erreichte die Claim-Assertion und wurde dort abgewiesen:
+Der vorgeschaltete Admissiontest hinterlässt absichtlich das globale
+Workerbudget null. Die Historienfixture reserviert deshalb vor ihrem Claim
+über die öffentliche CAS-API ein Budget von eins und stellt den vorherigen
+Wert nach terminalem Abschluss wieder her. Das sind ausschließlich Daten
+der eigenen Testinstallation. Die Claim-Assertion bleibt unverändert.
+
+Der dritte Head bestand den echten Rollback und Fehlerabschluss, scheiterte
+jedoch vor Reconcile an der adapterseitigen Hextext-/Binärkonvertierung mit
+SQL8114. Die Holdversion wird nun als exakt acht Bytes gelesen, auf diese Form
+geprüft und direkt als Binärparameter übergeben. Der fehlgeschlagene Versuch
+wird dadurch nicht zum Gesamt-PASS aufgewertet.
+
 ## Flüchtiges CI-Ziel: Ownership und Bereinigung
 
 Der bestehende Linux-Workerworkflow verwendet einen validierten Run-/Attempt-

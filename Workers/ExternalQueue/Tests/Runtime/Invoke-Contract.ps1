@@ -405,6 +405,7 @@ try{
    $phase='managed-sql-runtime'
    Save-ManagedFixtureJournal
    Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/WorkerControl.Contract.sql')
+   & (Join-Path $PSScriptRoot 'Invoke-TerminalHistoryContract.ps1') -ConnectionStringEnvironmentVariable $privateEnvironment -ExpectedDatabaseId $managedIdentity.Id -ExpectedDatabaseCreatedBytes $managedIdentity.CreatedBytes -ExpectedDatabaseRunMarkerName $managedMarker -ExpectedRunId $managedRun
    foreach($lifecycleCase in @('Occupied','Held','Dependency')){
     $phase='managed-lifecycle-'+$lifecycleCase.ToLowerInvariant();Save-ManagedFixtureJournal
     Invoke-FixtureFile (Join-Path $root ('Modules/toolbelt.core.worker-control/Tests/Runtime/Lifecycle'+$lifecycleCase+'.Setup.sql'))
