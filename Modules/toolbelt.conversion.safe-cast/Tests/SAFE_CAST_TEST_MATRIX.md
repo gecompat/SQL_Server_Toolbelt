@@ -1,5 +1,15 @@
 # Safe Cast 1.0.0 – Testmatrix
 
+## Späterer Caller-Nachweis und Abgleich2026-11-06
+
+Die [Callerprüfung vom2026-10-25](../../../Releases/1.0.0/SAFE-CAST-RIGHTS-QUALIFICATION.md)
+belegt alle sechs öffentlichen TVFs mit jeweils einzelnem SELECT auf zwölf
+Windows-/Linux-Ziel-/CL-Paaren lokal und direkt zentral. Die darunter erhaltene
+Aussage „Minimalrechte offen“ des2026-10-19-Scopes ist für genau diesen
+Datenpfad überholt. Lifecycle-DDL-Rechte, tatsächliche CrossDB-Identitäten,
+Ressourcen/Recovery und übrige ausdrücklich zugesagte Profile bleiben separat;
+eine neue Ausführung oder volle Modulfreigabe wird daraus nicht abgeleitet.
+
 Die sechs einzeln freigegebenen Inline-TVFs folgen dem
 [kanonischen Vertrag](../../../Documentation/Architecture/SAFE_CAST_CONTRACT.md).
 Testcode ist kein Ausführungsnachweis. Am 2026-10-19 bestanden alle zwölf

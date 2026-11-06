@@ -1,5 +1,16 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Spätere Copy-Zielnachweise2026-11-06
+
+Der [Copy-Zielbericht](../../../Releases/1.0.0/TABLE-CLONE-COPY-TARGET-QUALIFICATION.md)
+ergänzt22 neue lokale/direkt zentrale Kontexte auf Windows/Linux2019/2022/2025
+über die unterstützten CLs,110 Gruppenzeugen und zwölf frische Audits.
+Zwei historische lokale Fälle werden ausschließlich nach dem dort beschriebenen
+Fachpfadvergleich wiederverwendet. Die folgenden datierten V1-/W1-/W2-/Copy-
+Tabellen bleiben historische Teilumfänge; ihre früher fehlenden Copy-Ziele
+werden nicht nochmals als neue Arbeit ausgewählt. Minimalrechte, Last und
+vollständige Planner-/Executor-/Lifecyclequalifikation bleiben separat.
+
 ## Runner-Containerbereinigung
 
 Der vorhandene flüchtige Linux-CI-Adapter trennt seinen Containernamen nach
