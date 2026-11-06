@@ -140,6 +140,24 @@ weiteren SQL-Wiederholungen, Veröffentlichung oder Tags. Prüfhost ist Windows;
 Linux-Clienthost, Aggregate, Netzwerk-/CrossDB-Identitäten und übrige
 Modulpflichtfälle bleiben separat.
 
+## Regex: gültige spätere Nachweise wiederverwenden — 2026-11-06
+
+Der fortbestehende autonome Auftrag verlangt gültige Nachweise vor neuen Tests.
+Der aktuelle [Abgleich](../Releases/1.0.0/RELEASE-GATES.md#regex-aktueller-nachweisabgleich-vom-2026-11-06)
+behebt eine veraltete R2b1.2-Ziel-/Capture-Offenliste in der Testübersicht:
+spätere Regex1.3-Matrix, ausdrücklich angenommene Capture-Abnahme und nachfolgende
+Rechte-/Paketpflege sind bereits gebunden. Die bestehende Releaseprüfung
+validiert Originalquellen/Evidenz und ausgelieferte DLL; aktuelle Head-/Main-CI
+von PR531 bestanden diese Canonicalchecks. Kein neuer nativer Regexlauf nötig.
+
+Original203 bestandene Fixtureaufrufe, ein Capture-PARTIAL und die unbekannte,
+nicht reproduzierte historische Ursache bleiben erhalten. Kein Capture-Fix,
+keine vollständige Modul-/Produktions-/CrossDB-/Host-Recovery-Zusage aus der
+angenommenen Teilabnahme. Historische Berichte/JSON/Pakete und Modulstatus
+unverändert; nur aktuelle menschliche Lesewege und AI-Fortsetzung gepflegt.
+Ein Owner/ein PR, keine Agenten, neuen Reader/Gates, Testjobs, SQL-Aufrufe,
+Wiederholung grüner Matrizen, Veröffentlichung oder Tags.
+
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 
 Der freigegebene [Windows-/SSMS-Gesamtfall](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md#nativer-windows-ssms-gesamtfall)
