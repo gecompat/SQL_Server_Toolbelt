@@ -24,6 +24,7 @@ on:
       - "Tests/CI/run-json-constructors-linux.sh"
       - "Tests/CI/run-json-groups-lab.ps1"
       - "Tests/CI/run-json-schema-lab.ps1"
+      - "Tests/CI/JsonSchemaQualificationScope.ps1"
       - "Tests/CI/Test-JsonSchemaLabScope.ps1"
       - "Tests/CI/Test-JsonSchemaLabDisposition.ps1"
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
@@ -57,6 +58,7 @@ on:
       - "Tests/CI/run-json-constructors-linux.sh"
       - "Tests/CI/run-json-groups-lab.ps1"
       - "Tests/CI/run-json-schema-lab.ps1"
+      - "Tests/CI/JsonSchemaQualificationScope.ps1"
       - "Tests/CI/Test-JsonSchemaLabScope.ps1"
       - "Tests/CI/Test-JsonSchemaLabDisposition.ps1"
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.

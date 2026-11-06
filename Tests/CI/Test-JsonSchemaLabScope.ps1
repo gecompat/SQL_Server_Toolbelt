@@ -2,6 +2,7 @@
 param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'JsonSchemaQualificationScope.ps1')
 $repo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $tokens=$null;$errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'run-json-schema-lab.ps1'),[ref]$tokens,[ref]$errors)
@@ -30,7 +31,7 @@ foreach($level in @(150,160,170)){
 foreach($scope in @('core-schema','constructors','migration')){
  Assert-BoundScope @{Platform='windows';Version='2025';Patch='CU8';QualificationScope=$scope} $true
 }
-Assert-BoundScope @{Platform='linux';Version='2025';Patch='latest';CompatibilityLevel=150} $false
+Assert-BoundScope @{Platform='linux';Version='2025';Patch='latest';CompatibilityLevel=150} $true
 foreach($level in @(160,170)){
  Assert-BoundScope @{Platform='linux';Version='2019';Patch='latest';CompatibilityLevel=$level} $false
 }
@@ -76,15 +77,15 @@ foreach($example in @(
  if($selected.Count-ne$example.Count){throw 'JSON_SCOPE_SELECTOR_CASE_FAILED'}
  $script:cases++
 }
-# Neue Constructor-Kontexte erweitern weder Schema noch Migration. Falsche
-# Patches, Linux-Ersatzwahl und nicht unterstützte CLs bleiben abgewiesen.
+# Constructor-Auswahl bleibt erhalten; Core/Schema hat seinen eigenen erweiterten
+# Scope. Migration, falsche Patches und nicht unterstützte CLs bleiben begrenzt.
 foreach($selection in @(
  @{Version='2019';Patch='CU32';CompatibilityLevel=150},
  @{Version='2022';Patch='CU26';CompatibilityLevel=150},
  @{Version='2022';Patch='CU26';CompatibilityLevel=160}
 )){
  foreach($scope in @('constructors','core-schema','migration')){
-  Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope=$scope} ($scope-ceq'constructors')
+  Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope=$scope} ($scope-cin@('constructors','core-schema'))
  }
  foreach($patch in @('base',$selection.Patch.ToLowerInvariant())){
   Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope='constructors'} $false
@@ -143,7 +144,7 @@ foreach($selection in @(
  @{Version='2022';Patch='CU26';CompatibilityLevel=160}
 )){
  foreach($scope in @('constructors','core-schema','migration')){
-  $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope=$scope;Accept=($scope-ceq'constructors')})
+  $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope=$scope;Accept=($scope-cin@('constructors','core-schema'))})
  }
  foreach($patch in @('base',$selection.Patch.ToLowerInvariant())){
   $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope='constructors';Accept=$false})
