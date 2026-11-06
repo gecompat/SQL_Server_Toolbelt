@@ -55,12 +55,17 @@ Die Testmatrixübersicht nennt zusätzlich die abgeschlossene achtspaltige
 Windows-Cancellation-Matrix und ihre tatsächlich verbleibenden Grenzen.
 
 Ein Paket/ein PR, ein Verantwortlicher, keine Agenten oder nativen Aufrufe.
-Zwölf Gegenproben im vorhandenen Releasecheck verhindern falsche unionsartige
+Dreizehn Gegenproben im vorhandenen Releasecheck verhindern falsche unionsartige
 Anmeldequalifikation und die Aufwertung kombinierter Parserbelege zu vollständiger
 nativer Quotenabdeckung. Historische JSON-/ZIP-/Verifiernachweise und alte
 Fehlläufe bleiben unverändert. Diese Korrektur ist eine überprüfte Zuordnung
 vorhandener Belege, keine neue native Qualifikation oder Veröffentlichung.
 Geschlossene Windows-/Worker-/Cancellation-Testgrenzen werden nicht erneuert.
+Die alten Abschnittsanker des Releaseberichts bleiben erreichbar. Ein belegter
+Timeout des getrennten Paketprüfschritts bei240 Sekunden und der erfolgreiche
+isolierte Kontrolllauf nahe dieser Grenze begründen sechs Minuten äußere
+Reserve; alle Assertions, inneren Prozessgrenzen und der35-Minuten-CI-Rahmen
+bleiben erhalten. Kein zusätzlicher Job oder nativer Lauf.
 
 ## SSIS-Restqualifikation: Vorbereitung und harte Clientabbrüche — 2026-11-01
 

@@ -1840,9 +1840,10 @@ def main() -> int:
         result = run_hidden(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),
              "--verify", str(REPOSITORY_ROOT / "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip")],
-            # Die kalte Archivwiederherstellung überschritt das bisherige
-            # 150-Sekundenlimit; 240 Sekunden halten den Prüfschritt begrenzt.
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=240,
+            # Ein bestätigter kalter Windowslauf lag praktisch am bisherigen
+            # 240-Sekundenlimit. Sechs Minuten geben begrenzte Reserve; Umfang,
+            # Assertions und innere Prozessgrenzen bleiben unverändert.
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=360,
         )
         if result.returncode:
             raise ValidationError(f"Releasepaket-Integrität:\n{result.stdout}{result.stderr}")

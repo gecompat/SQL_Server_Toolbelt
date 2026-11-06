@@ -95,7 +95,7 @@ bleiben getrennte Nachweise. Die kombinierte Parserabnahme ersetzt keine
 fehlenden öffentlichen nativen Quoten-Branches. Historische Release- und
 SSMS-Fehlläufe bleiben in ihren ursprünglichen Records erhalten.
 
-Zwölf [Gegenproben](test_current_qualification_overview.py) sichern unter anderem
+Dreizehn [Gegenproben](test_current_qualification_overview.py) sichern unter anderem
 fehlende Audits, überhöhte Zahlen, vermischte Authentifizierungsarten,
 Quellendrift und zu weit gehende Parserbehauptungen. Sie laufen einmal im
 bestehenden Runner; kein neuer CI-Job, keine Agenten, keine SQL-/GUI-/TLS-

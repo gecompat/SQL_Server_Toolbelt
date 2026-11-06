@@ -346,6 +346,8 @@ keine persönliche Commitmetadaten ins Paket auf und erweitert keine API-,
 Minimalrechte-, Heap-/Parallelitäts-, Dateiidentitäts-, Worker-Recovery- oder
 authentifizierte TLS-Zusage. Alle Module bleiben `unreleased`.
 
+<a id="was-vor-veröffentlichung-offen-bleibt"></a>
+
 ## Weitere Releasepflichten und historische Teilnachweise
 
 Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) und der
@@ -381,6 +383,8 @@ Lowpriv-CrossDB-Mappings und übrige Modulpflichtfälle bleiben offen.
 | Gemeinsamer Paket-Lifecycle | Erledigt für die vier abgegrenzten Profile: Erst-/Repeat-/Uninstall-/Absent-Repeat und zentrale Consumer in zwölf physischen Ziel-/CL-Fällen; eigenständige CLR-Profile nochmals separat geprüft | Kein universeller historischer Upgradepfad und keine vollständige neue APIabnahme aller 45 Module |
 | Finaler Releasekandidat | Paketintegrität, Dokumentationsaudit und echte CI am endgültigen Head bestätigen; geänderte Inputs mit betroffenem Nachweis abgleichen | Nach Abschluss der noch offenen Inhalte; heutige grüne CI qualifiziert keine späteren Änderungen |
 | Öffentliche Veröffentlichung | Separater ausdrücklicher Auftrag; danach tatsächlichen Tag, Release-URL, Zeitpunkt, Assethashes und `publication_record` je veröffentlichter Modulversion pflegen | Noch nicht autorisiert; kein Tag, kein GitHub-Release und keine Statusaufwertung |
+
+<a id="aktueller-restgate-status-und-voraussetzungen"></a>
 
 ### Allgemeine Gateklassen und datierte Teilnachweise
 

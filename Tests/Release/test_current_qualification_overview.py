@@ -24,6 +24,11 @@ class CurrentQualificationOverviewTests(unittest.TestCase):
             with self.subTest(text=text[-50:]), self.assertRaises(ValueError):
                 overview.validate(text, self.ssis, self.parser)
 
+    def test_historical_incoming_section_links_keep_their_targets(self):
+        for target in ('was-vor-veröffentlichung-offen-bleibt',
+                       'aktueller-restgate-status-und-voraussetzungen'):
+            self.assertEqual(self.text.count('<a id="' + target + '"></a>'), 1)
+
     def test_wrong_assertion_total_is_rejected(self):
         with self.assertRaises(ValueError):
             overview.validate(self.text.replace('15204 Assertions', '15205 Assertions', 1),

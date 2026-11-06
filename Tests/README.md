@@ -22,9 +22,12 @@ Die vollständige Releasesuite hat lokal und in CI ein Limit von 20 Minuten;
 die bisherige Elf-Minuten-Grenze reichte für erfolgreiche lokale Läufe nicht
 mehr aus. Der umschließende Dokumentations-CI-Job ist auf 35 Minuten begrenzt,
 damit nach der Suite auch die Kandidatenprüfungen (zwei Minuten), die
-Paketintegritätsprüfung (vier Minuten) und die übrigen Konsistenzprüfungen
+Paketintegritätsprüfung (sechs Minuten) und die übrigen Konsistenzprüfungen
 Platz haben. Deren eigene Grenzen und das Unterdrücken von
-Windows-Konsolenfenstern bleiben erhalten. Die Grenzen sind Abbruchschranken,
+Windows-Konsolenfenstern bleiben erhalten. Die Paketgrenze erhält nach einem belegten Timeout und einem erfolgreichen
+Einzellauf nahe der alten Vier-Minuten-Grenze zwei Minuten Reserve; Assertions,
+innere Prozessgrenzen und Testumfang bleiben erhalten. Kein neuer Job und
+keine neue native Testwelle entstehen. Die Grenzen sind Abbruchschranken,
 keine garantierten Laufzeiten. Reproduzierbare Gegenproben:
 
 ```powershell
