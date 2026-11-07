@@ -145,6 +145,17 @@ function Assert-CloneGenuineInventory($Connection,[string]$Version,[string]$Mode
  if($objects.Count-ne$expected.Count){throw 'CLONE_GENUINE_OBJECT_COUNT'}
  foreach($name in $expected.Keys){if(@($objects|Where-Object{$_.name-ceq$name-and$_.TypeCode-ceq'P'-and$_.Parameters-eq$expected[$name]}).Count-ne1){throw 'CLONE_GENUINE_SIGNATURES'}}
 }
+function Invoke-CloneGenuineLegacySession($Observer,[string]$Mode){
+ $legacy=$null
+ try{
+  # Der echte V1-Installer behält benannte lokale Temps bis zum Sitzungsende.
+  # Ausschließlich diese eigene Sitzung schließen; keine fremden Temps löschen.
+  $legacy=Open-ReleaseConnection $Observer.Database
+  Invoke-CloneGenuineSqlBatches $legacy ([IO.File]::ReadAllText($runset.lifecycleTexts.$Mode.Legacy))
+  $neutral=@(Invoke-ReleaseSql $legacy 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
+  if($neutral.Count-ne1-or$neutral[0].TranCount-ne0-or$neutral[0].XactState-ne0){throw 'CLONE_GENUINE_LEGACY_SESSION_NOT_NEUTRAL'}
+ }finally{if($legacy){$legacy.Dispose()}}
+}
 function Invoke-CloneGenuineLifecycle($Connection,[string]$Mode){
  $dependency=Get-CloneGenuineDependencySnapshot $Connection
  $profiles=@(Get-CloneGenuineProfiles $Mode)
@@ -175,7 +186,7 @@ function Invoke-CloneGenuineLifecycle($Connection,[string]$Mode){
    'genuine-install'{'Legacy'} 'current-uninstall-genuine'{'Uninstall'} 'genuine-reinstall'{'Legacy'}
    'genuine-upgrade'{'Deploy'} 'same-version-repeat'{'Deploy'} 'current-uninstall'{'Uninstall'} 'uninstall-repeat'{'Uninstall'}
   }
-  Invoke-CloneGenuineSqlBatches $Connection ([IO.File]::ReadAllText($runset.lifecycleTexts.$Mode.$kind))
+  if($kind-ceq'Legacy'){Invoke-CloneGenuineLegacySession $Connection $Mode}else{Invoke-CloneGenuineSqlBatches $Connection ([IO.File]::ReadAllText($runset.lifecycleTexts.$Mode.$kind))}
   $version=switch -CaseSensitive ($profile){'genuine-install'{'1.0.0'} 'genuine-reinstall'{'1.0.0'} 'genuine-upgrade'{'4.1.1'} 'same-version-repeat'{'4.1.1'} default{'ABSENT'}}
   Assert-CloneGenuineInventory $Connection $version $Mode
   $after=Get-CloneGenuineModuleSnapshot $Connection
@@ -301,7 +312,7 @@ try{
    if($modeMarkers.Count-ne1-or$modeMarkers[0].Value-cne$mode){throw 'CLONE_GENUINE_DEPENDENCY_MODE'}
    if([int](@(Invoke-ReleaseSql $db 'SELECT COUNT(*) N FROM sys.assemblies WHERE is_user_defined=1;' -Rows)[0].N)-ne0){throw 'CLONE_GENUINE_UNEXPECTED_CLR'}
    if($carryActive-and$mode-ceq'local'){
-    $dep=Get-CloneGenuineDependencySnapshot $db;Invoke-CloneGenuineSqlBatches $db ([IO.File]::ReadAllText($runset.lifecycleTexts.local.Legacy));Assert-CloneGenuineInventory $db '1.0.0' 'local';if((Get-CloneGenuineDependencySnapshot $db)-cne$dep){throw 'CLONE_GENUINE_CARRY_SETUP_DEPENDENCY'}
+    $dep=Get-CloneGenuineDependencySnapshot $db;Invoke-CloneGenuineLegacySession $db 'local';Assert-CloneGenuineInventory $db '1.0.0' 'local';if((Get-CloneGenuineDependencySnapshot $db)-cne$dep){throw 'CLONE_GENUINE_CARRY_SETUP_DEPENDENCY'}
     $ledger['carrySetup']=@{qualificationProfile=$false;originalJournalSHA256=$runset.carry.journal.sha256;originalAuditSHA256=$runset.carry.audit.sha256;reusedProfiles=4;canonicalSHA256=(Get-FileHash -LiteralPath $runset.lifecycleTexts.local.Legacy).Hash};Save-ReleaseJournal
    }
    $profiles=@(Invoke-CloneGenuineLifecycle $db $mode)

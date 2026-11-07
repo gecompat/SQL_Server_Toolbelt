@@ -133,6 +133,22 @@ class CloneGenuineAdmissionTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('PROFILE_PASS', result.stdout)
 
+    def test_legacy_session_closes_on_success_and_failure(self):
+        path = self.directory / 'synthetic-legacy.sql'
+        path.write_text('-- Synthetic test text; executor is mocked.\n', encoding='utf-8')
+        command = UTF8 + "$ErrorActionPreference='Stop';$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile(" + quote(DRIVER) + ",[ref]$null,[ref]$e);" + \
+            "$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Invoke-CloneGenuineLegacySession'},$true));if($e.Count-or$n.Count-ne1){throw 'LEGACY_SESSION_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text));" + \
+            "$script:closed=0;$script:executed=0;$script:fail=$false;$script:fresh=[pscustomobject]@{Database='Contoso'};$script:fresh|Add-Member ScriptMethod Dispose {$script:closed++};$observer=[pscustomobject]@{Database='Contoso'};" + \
+            "$script:runset=@{lifecycleTexts=@{local=@{Legacy=" + quote(path) + "}}};" + \
+            "function Open-ReleaseConnection($Database){if($Database-cne'Contoso'){throw 'WRONG_DATABASE'};return $script:fresh};" + \
+            "function Invoke-CloneGenuineSqlBatches($Connection,$Text){if(-not[object]::ReferenceEquals($Connection,$script:fresh)){throw 'OBSERVER_REUSED'};$script:executed++;if($script:fail){throw 'SYNTHETIC_FAILURE'}};" + \
+            "function Invoke-ReleaseSql($Connection,$Text,[switch]$Rows){return [pscustomobject]@{TranCount=0;XactState=0}};" + \
+            "Invoke-CloneGenuineLegacySession $observer 'local';if($script:closed-ne1-or$script:executed-ne1){throw 'SUCCESS_SESSION_LEAK'};$script:fail=$true;$caught=$false;try{Invoke-CloneGenuineLegacySession $observer 'local'}catch{if($_.Exception.Message-cne'SYNTHETIC_FAILURE'){throw};$caught=$true};if(-not$caught-or$script:closed-ne2-or$script:executed-ne2){throw 'FAILURE_SESSION_LEAK'};'LEGACY_SESSION_PASS'"
+        result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', command],
+            cwd=ROOT, capture_output=True, text=True, encoding='utf-8', timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('LEGACY_SESSION_PASS', result.stdout)
+
     def test_valid_original_tree_without_lab_import(self):
         result = self.admission(self.record)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
