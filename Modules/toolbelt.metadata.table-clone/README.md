@@ -1,5 +1,13 @@
 # Table Clone Planner, Executor und Datenkopie
 
+Der [aktuelle Trigger-Consumer-Nachweis vom 2026-11-07](../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+belegt zwölf Windows-Kontexte über alle unterstützten CLs lokal/direkt zentral,
+24 vollständige Originalfixture-Ausführungen und sechs frische Audits. Der
+vorher veraltete Providerpin ist auf das aktuelle separat qualifizierte
+Parser-2.0.1-Artefakt korrigiert. Option-0-Nachweise werden mit geprüfter
+Quellenäquivalenz wiederverwendet; frühere Upgrade-/Consumerbelege darunter
+behalten ihren damaligen Scope. Keine Modulgesamtfreigabe.
+
 Patch 4.1.1 bindet nach ausdrücklicher SSIS-Debug-Freigabe den Parser 2.0.1
 und dessen exakten Providerhash bei unverändertem ScriptDom-Pin. Die
 Releaseversion im Planhash und die Lifecycle-Manifestzeilen sind angepasst;

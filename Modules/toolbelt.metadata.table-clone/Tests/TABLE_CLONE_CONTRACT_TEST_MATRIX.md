@@ -1,5 +1,16 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Aktueller Windows-Trigger-Consumer — 2026-11-07
+
+Der [aktuelle Triggerbericht](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+belegt beide Originalfixtures auf zwölf lokalen/direkt zentralen Windows-Kontexten
+über alle unterstützten CLs: 24 vollständige Ausführungen und sechs frische Audits.
+Die frühere Parserhashbindung ist durch das exakte aktuelle qualifizierte Paar
+ersetzt. Eigene DBs und Trusteinträge entfernt, eigene Konfiguration wiederhergestellt.
+Die untenstehenden Option-0-Nachweise bleiben über ausdrücklich geprüfte
+Quellenäquivalenz gültig; keine identischen alten/neuen Rohhashes behauptet.
+Weitere reale Minimalrechte-/Client-/Upgrade-/Uninstall-/Modulpflichten bleiben separat.
+
 ## Aktuelle W1-/W2-Fixtures — 2026-11-07
 
 Der [aktuelle W1-/W2-Bericht](../../../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)

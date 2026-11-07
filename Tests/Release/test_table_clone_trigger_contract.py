@@ -11,6 +11,11 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = ROOT / 'Tests/Release/Invoke-TableCloneTriggerLab.ps1'
+UTF8_CONSOLE = '[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);$OutputEncoding=[Console]::OutputEncoding;'
+
+
+def ps_quote(value):
+    return "'" + str(value).replace("'", "''") + "'"
 
 
 @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required')
@@ -45,11 +50,14 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def admission(self, record=None):
+    def admission(self, record=None, startup_codepage=None):
         path = self.directory / 'runset.json'
         path.write_text(json.dumps(record or self.record), encoding='utf-8')
-        result = subprocess.run(['pwsh', '-NoProfile', '-File', str(DRIVER), '-RunsetPath', str(path),
-                                 '-CaseIndex', '5', '-ValidateOnly'], cwd=ROOT, capture_output=True, text=True, timeout=20)
+        initial = '' if startup_codepage is None else '[Console]::OutputEncoding=[Text.Encoding]::GetEncoding(' + str(startup_codepage) + ');'
+        command = initial + UTF8_CONSOLE + "$ErrorActionPreference='Stop';& " + ps_quote(DRIVER) + \
+            ' -RunsetPath ' + ps_quote(path) + ' -CaseIndex 5 -ValidateOnly'
+        result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', command],
+                                cwd=ROOT, capture_output=True, text=True, encoding='utf-8', timeout=20)
         self.assertEqual(list(self.directory.glob('case-*')), [])
         return result
 
@@ -65,6 +73,12 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
         result = self.admission()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('parserArtifact', result.stdout + result.stderr)
+
+    def test_utf8_transport_overrides_both_windows_startup_codepages(self):
+        for codepage in (850, 1252):
+            result = self.admission(startup_codepage=codepage)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('parserArtifact', result.stdout + result.stderr)
 
     def test_authority_requires_boolean_true(self):
         for value in (False, 'true'):
@@ -108,12 +122,12 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
     def scope(self, text, from_file=False):
         quoted = "'" + str(text).replace("'", "''") + "'"
         payload = '([IO.File]::ReadAllText(' + quoted + '))' if from_file else quoted
-        script = "$ErrorActionPreference='Stop';$errors=$null;" + \
+        script = UTF8_CONSOLE + "$ErrorActionPreference='Stop';$errors=$null;" + \
             "$ast=[Management.Automation.Language.Parser]::ParseFile('" + str(DRIVER).replace("'", "''") + "',[ref]$null,[ref]$errors);" + \
             "$functions=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Assert-CloneTriggerFixtureScope'},$true));" + \
             "if($errors.Count-or$functions.Count-ne1){throw 'SCOPE_FUNCTION'};. ([scriptblock]::Create($functions[0].Extent.Text));" + \
             'Assert-CloneTriggerFixtureScope ' + payload + ";'PASS fixture scope without SQL'"
-        return subprocess.run(['pwsh', '-NoProfile', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
+        return subprocess.run(['pwsh', '-NoProfile', '-Command', script], cwd=ROOT, capture_output=True, text=True, encoding='utf-8', timeout=20)
 
     def test_fixture_rights_and_server_scope_rejected(self):
         for text in ('GRANT EXECUTE ON dbo.Synthetic TO Contoso;', 'CREATE USER Contoso WITHOUT LOGIN;',

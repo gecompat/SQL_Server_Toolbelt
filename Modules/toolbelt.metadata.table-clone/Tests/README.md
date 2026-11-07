@@ -1,5 +1,14 @@
 # Testausführung
 
+Die [aktuelle Windows-Trigger-Matrix vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+bindet den aktuellen separat qualifizierten Parser 2.0.1: zwölf Kontexte,
+24 Originalfixture-Ausführungen und sechs frische Audits bestanden. Eigene
+DBs/Trusteinträge entfernt, eigene Konfiguration wiederhergestellt. Die einzige
+Produktänderung ist das exakte Providerhashliteral im Option-1-Gate. Für
+Option 0 werden die folgenden gültigen Nachweise mit geprüfter vollständiger
+Quellenäquivalenz wiederverwendet; ihre ursprünglichen Hashes bleiben historisch.
+Weitere echte Rechte-/Client-/Lifecyclepflichten bleiben getrennt.
+
 Die [aktuelle W1-/W2-Matrix vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)
 besteht auf 24 lokalen/direkt zentralen Windows-/Linux-Kontexten über alle
 unterstützten CLs: 168 vollständige Ausführungen von sieben Originalfixtures,

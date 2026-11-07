@@ -1,5 +1,11 @@
 # USP_ScriptTableClone
 
+Der [aktuelle Windows-Trigger-Nachweis](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+bindet den aktuellen qualifizierten Parser 2.0.1 auf zwölf lokalen/direkt
+zentralen Kontexten über alle unterstützten CLs. Beide Originalfixtures und
+sechs frische Audits bestanden. Die früheren datierten Teilnachweise bleiben
+historisch; weitere echte Rechte-/Client-/Lifecyclepflichten bleiben separat.
+
 Version4.1.0: die öffentliche13-Parameter-Vorschau bleibt unverändert; interner
 Zweckparameter nur im Core für die separat freigegebene Datenkopie.
 Trigger-Opt-in aus4.0 einzeln freigegeben2026-10-01 und konkretisiert2026-10-04;
