@@ -169,18 +169,24 @@ class CloneSqlcmdCallerAdmissionTests(unittest.TestCase):
             "$n=@($ast.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'New-SqlcmdCallerArguments'},$true));if($e.Count-or$n.Count-ne1){throw 'ARGUMENT_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text));" + \
             "$b=[Data.SqlClient.SqlConnectionStringBuilder]::new();$b['Data Source']='tcp:127.0.0.1,1433';$b['User ID']='Contoso';$b['Password']='Synthetic_Contoso_Secret';$b['Encrypt']=$true;" + \
             "$file=" + ps_quote(self.directory / 'Contoso.sql') + ";foreach($trust in @($false,$true)){$b['TrustServerCertificate']=$trust;$a=@(New-SqlcmdCallerArguments $b ('Toolbelt_Release_'+('a'*32)+'_l') $file);" + \
-            "if($a-ccontains$b.Password-or$a-ccontains'-P'-or$a-ccontains'-E'-or$a-cnotcontains'-N'-or(($a-ccontains'-C')-ne$trust)){throw 'ARGUMENT_SECRET_OR_TRUST'} };$b.Clear();'PASS synthetic argument policy'"
+            "if($a-ccontains$b.Password-or$a-ccontains'-P'-or$a-ccontains'-E'-or$a-cnotcontains'-N'-or$a-cnotcontains'-x'-or$a-ccontains'-X1'-or(($a-ccontains'-C')-ne$trust)){throw 'ARGUMENT_SECRET_OR_TRUST'} };$b.Clear();'PASS synthetic argument policy'"
         result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', command], cwd=ROOT,
                                 capture_output=True, text=True, encoding='utf-8', timeout=20)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_process_composition_preserves_unicode_and_closes_stdin(self):
+        child = '[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);' + \
+            '[Console]::WriteLine([char]0x03A9);[Console]::Error.WriteLine([char]::ConvertFromUtf32(0x1F9EA));' + \
+            'if($null-ne[Console]::In.ReadLine()){throw 42};' + \
+            '$keys=@([Environment]::GetEnvironmentVariables().Keys|Where-Object{([string]$_).StartsWith("SQLCMD",[StringComparison]::OrdinalIgnoreCase)-or([string]$_).StartsWith("OSQL",[StringComparison]::OrdinalIgnoreCase)});' + \
+            'if($keys.Count-ne1-or$keys[0]-cne"SQLCMDPASSWORD"-or[Environment]::GetEnvironmentVariable("SQLCMDPASSWORD")-cne"Synthetic_Child_Secret"){throw 43};'
         command = UTF8_CONSOLE + "$ErrorActionPreference='Stop';$e=$null;$repo=" + ps_quote(ROOT) + ";" + \
             "$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $repo 'Tests/Release/Invoke-ApiQualificationLab.ps1'),[ref]$null,[ref]$e);$n=@($ast.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Import-ClrFunctions'},$true));. ([scriptblock]::Create($n[0].Extent.Text));" + \
             "$ast=[Management.Automation.Language.Parser]::ParseFile(" + ps_quote(DRIVER) + ",[ref]$null,[ref]$e);$n=@($ast.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Initialize-SqlcmdCallerProcess'},$true));if($e.Count-or$n.Count-ne1){throw 'PROCESS_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text));. (Initialize-SqlcmdCallerProcess);" + \
-            "$code='[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);[Console]::WriteLine([char]0x03A9);[Console]::Error.WriteLine([char]::ConvertFromUtf32(0x1F9EA));if($null-ne[Console]::In.ReadLine()){throw 42}';" + \
-            "$r=Invoke-SqlcmdCallerOwnedProcess -FileName (Get-Process -Id $PID).Path -Arguments @('-NoProfile','-NonInteractive','-Command',$code) -TimeoutMilliseconds 10000;" + \
-            "if($r.ExitCode-ne0-or-not$r.CaptureComplete-or-not$r.Stdout.Contains('Ω')-or-not$r.Stderr.Contains('🧪')){throw 'PROCESS_UNICODE_OR_STDIN'};'PASS process policy'"
+            "$env:SQLCMDINI='C:/Contoso/NotToRun.sql';$env:SQLCMDSERVER='Contoso_Unselected';$env:OSQLPASSWORD='Synthetic_Parent_Secret';$env:SQLCMDPASSWORD='Synthetic_Parent_Secret';$code=" + ps_quote(child) + ";" + \
+            "$r=Invoke-SqlcmdCallerOwnedProcess -FileName (Get-Process -Id $PID).Path -Arguments @('-NoProfile','-NonInteractive','-Command',$code) -TimeoutMilliseconds 10000 -SqlcmdPassword 'Synthetic_Child_Secret';" + \
+            "if($r.ExitCode-ne0-or-not$r.CaptureComplete-or-not$r.Stdout.Contains('Ω')-or-not$r.Stderr.Contains('🧪')){throw 'PROCESS_UNICODE_OR_STDIN_OR_ENV'};" + \
+            "if($env:SQLCMDINI-cne'C:/Contoso/NotToRun.sql'-or$env:SQLCMDPASSWORD-cne'Synthetic_Parent_Secret'-or$env:OSQLPASSWORD-cne'Synthetic_Parent_Secret'){throw 'PARENT_ENV_DRIFT'};'PASS process policy'"
         result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', command], cwd=ROOT,
                                 capture_output=True, text=True, encoding='utf-8', timeout=20)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

@@ -38,10 +38,14 @@ function Initialize-SqlcmdCallerProcess {
  $original=$blocks[0].ToString();$text=$original
  $a='$info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true'
  $b='if(-not $child.Start()){throw ''OWNED_PROCESS_START''};$started=$true'
- if(([regex]::Matches($text,[regex]::Escape($a))).Count-ne1-or([regex]::Matches($text,[regex]::Escape($b))).Count-ne1){throw 'SQLCMD_CALLER_PROCESS_ANCHOR'}
+ $parameter='[string]$BinaryOutputPath)'
+ foreach($anchor in @($a,$b,$parameter)){if(([regex]::Matches($text,[regex]::Escape($anchor))).Count-ne1){throw 'SQLCMD_CALLER_PROCESS_ANCHOR'}}
  $stream=';$info.RedirectStandardInput=$true;$info.StandardOutputEncoding=[Text.UTF8Encoding]::new($false,$true);$info.StandardErrorEncoding=[Text.UTF8Encoding]::new($false,$true)'
- $text=$text.Replace($a,$a+$stream).Replace($b,$b+';$child.StandardInput.Close()').Replace('function Invoke-OwnedProcess {','function Invoke-SqlcmdCallerOwnedProcess {')
- $reverse=$text.Replace('function Invoke-SqlcmdCallerOwnedProcess {','function Invoke-OwnedProcess {').Replace($stream,'').Replace(';$child.StandardInput.Close()','')
+ # Ausschließlich im Kindprozess: keine übernommenen SQLCMD-/OSQL-Startwerte.
+ $environment=';foreach($key in @($info.Environment.Keys)){if(([string]$key).StartsWith("SQLCMD",[StringComparison]::OrdinalIgnoreCase)-or([string]$key).StartsWith("OSQL",[StringComparison]::OrdinalIgnoreCase)){[void]$info.Environment.Remove($key)}};$info.Environment["SQLCMDPASSWORD"]=$SqlcmdPassword'
+ $newParameter='[string]$BinaryOutputPath,[Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$SqlcmdPassword)'
+ $text=$text.Replace($parameter,$newParameter).Replace($a,$a+$stream+$environment).Replace($b,$b+';$child.StandardInput.Close()').Replace('function Invoke-OwnedProcess {','function Invoke-SqlcmdCallerOwnedProcess {')
+ $reverse=$text.Replace('function Invoke-SqlcmdCallerOwnedProcess {','function Invoke-OwnedProcess {').Replace($newParameter,$parameter).Replace($stream+$environment,'').Replace(';$child.StandardInput.Close()','')
  if($reverse-cne$original){throw 'SQLCMD_CALLER_UNRELATED_PROCESS_CHANGE'}
  return [scriptblock]::Create($text)
 }
@@ -85,8 +89,7 @@ function Invoke-SqlcmdCallerProfile([string]$Mode,[string]$Kind,[string]$Abort,[
  $before=[Environment]::GetEnvironmentVariable('SQLCMDPASSWORD','Process')
  try{
   $arguments=@(New-SqlcmdCallerArguments $builder $Database $path)
-  [Environment]::SetEnvironmentVariable('SQLCMDPASSWORD',$builder.Password,'Process')
-  $result=Invoke-SqlcmdCallerOwnedProcess -FileName $runset.sqlcmd.path -Arguments $arguments -TimeoutMilliseconds ((Get-ReleaseTimeout)*1000)
+  $result=Invoke-SqlcmdCallerOwnedProcess -FileName $runset.sqlcmd.path -Arguments $arguments -TimeoutMilliseconds ((Get-ReleaseTimeout)*1000) -SqlcmdPassword $builder.Password
   $prefix=Join-Path (Split-Path -Parent $RunsetPath) ('case-'+$CaseIndex+'.'+$Mode+'.'+$Kind+'.'+$Abort)
   [IO.File]::WriteAllText(($prefix+'.stdout.private.log'),$result.Stdout,[Text.UTF8Encoding]::new($false))
   [IO.File]::WriteAllText(($prefix+'.stderr.private.log'),$result.Stderr,[Text.UTF8Encoding]::new($false))
@@ -98,7 +101,7 @@ function Invoke-SqlcmdCallerProfile([string]$Mode,[string]$Kind,[string]$Abort,[
   }
   $entry.state='PASS';$entry.passed=$true;Save-ReleaseJournal
  }finally{
-  $builder.Clear();[Environment]::SetEnvironmentVariable('SQLCMDPASSWORD',$before,'Process')
+  $builder.Clear()
   if(-not[string]::Equals($before,[Environment]::GetEnvironmentVariable('SQLCMDPASSWORD','Process'),[StringComparison]::Ordinal)){throw 'SQLCMD_CALLER_PASSWORD_ENVIRONMENT_DRIFT'}
  }
 }
@@ -108,7 +111,7 @@ function New-SqlcmdCallerArguments([Data.SqlClient.SqlConnectionStringBuilder]$B
  if($Builder.IntegratedSecurity-or[string]::IsNullOrEmpty($Builder.UserID)-or[string]::IsNullOrEmpty($Builder.Password)-or-not$Builder.Encrypt){throw 'SQLCMD_CALLER_EXPLICIT_SQL_ENCRYPTED_IDENTITY_REQUIRED'}
  if($Database-cnotmatch'^Toolbelt_Release_[a-f0-9]{32}_[lc]$'){throw 'SQLCMD_CALLER_OWN_DATABASE_REQUIRED'}
  if(-not[IO.Path]::IsPathRooted($InputPath)-or[IO.Path]::GetExtension($InputPath)-cne'.sql'){throw 'SQLCMD_CALLER_ABSOLUTE_INPUT_REQUIRED'}
- $arguments=@('-S',$Builder.DataSource,'-U',$Builder.UserID,'-d',$Database,'-N','-b','-r1','-f','65001','-l','30','-t','45','-i',$InputPath,'-X1')
+ $arguments=@('-S',$Builder.DataSource,'-U',$Builder.UserID,'-d',$Database,'-N','-b','-r1','-f','65001','-l','30','-t','45','-i',$InputPath,'-x')
  if($Builder.TrustServerCertificate){$arguments+=@('-C')}
  if($arguments-ccontains$Builder.Password-or$arguments-ccontains'-P'-or$arguments-ccontains'-E'){throw 'SQLCMD_CALLER_SECRET_OR_AUTH_FALLBACK_ARGUMENT'}
  return $arguments
