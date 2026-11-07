@@ -1,5 +1,12 @@
 # Table Clone Planner, Executor und Datenkopie
 
+Der [aktuelle Windows-Client-Metadatennachweis vom 2026-11-07](../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+belegt 24 lokale/direkt zentrale Windows-/Linux-SQL-Kontexte und zwölf frische
+Audits. Der Reader prüft Metadaten, Help, ResultTable und frühe Caller-
+Transaktionsguards mit der korrigierten aktuellen Dreizehn-Parameter-Erwartung.
+Windows ist der Clienthost; ein Linux-Clienthost bleibt separat. Alle 24 eigenen
+DBs entfernt, Produkt-SQL und Berechtigungen unverändert; keine Modulgesamtfreigabe.
+
 Der [aktuelle Trigger-Consumer-Nachweis vom 2026-11-07](../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
 belegt zwölf Windows-Kontexte über alle unterstützten CLs lokal/direkt zentral,
 24 vollständige Originalfixture-Ausführungen und sechs frische Audits. Der

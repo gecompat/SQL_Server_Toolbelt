@@ -1,5 +1,11 @@
 # Releasevorbereitung prüfen
 
+Die [aktuelle Table-Clone-Clientmatrix](../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+belegt den Windows-System.Data.SqlClient-Reader auf 24 Windows-/Linux-SQL-
+Kontexten mit 24 vollständigen Fixture-Ausführungen und zwölf frischen Audits.
+Elf verbindungslose Gegenproben und der korrigierte Dreizehn-Help-Vertrag
+bestanden. Eigene DBs entfernt; keine neuen Rechte, Assemblies oder Serveränderung.
+
 Die [aktuelle Table-Clone-Trigger-Matrix](../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
 belegt zwölf Windows-Kontexte, 24 Originalfixture-Ausführungen und sechs frische
 Audits. Der aktuelle Parserhash ersetzt genau ein Literal im Option-1-Gate;

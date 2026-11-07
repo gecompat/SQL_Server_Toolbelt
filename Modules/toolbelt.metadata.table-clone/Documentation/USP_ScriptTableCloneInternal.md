@@ -1,5 +1,11 @@
 # Interner kanonischer Scriptkern
 
+Der [aktuelle Windows-Clientreader](../../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+prüft die öffentliche Fassade auf 24 Windows-/Linux-SQL-Kontexten. Der interne
+Core und seine Produktdefinition bleiben unverändert; die Korrektur betrifft
+allein die veraltete Help-Parameterzahl der Clientfixture. Keine zusätzlichen
+Grants auf den Kern oder Änderung seines Aufrufvertrags.
+
 Der [aktuelle Trigger-Consumer-Nachweis](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
 qualifiziert den aktuellen Parserpin im vorhandenen Option-1-Gate auf zwölf
 Windows-Kontexten. Option 0 erreicht den korrigierten Pin nicht; seine gültigen
