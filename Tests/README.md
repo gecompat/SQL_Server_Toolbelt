@@ -1,5 +1,14 @@
 # Tests – SQL Server Toolbelt
 
+Die [aktuelle genuine V1-Lifecycle-Profilmatrix](../Releases/1.0.0/TABLE-CLONE-GENUINE-V1-LIFECYCLE-QUALIFICATION.md)
+belegt 240 eindeutige Profile auf 24 lokalen/direkt zentralen Windows-/Linux-
+Kontexten: elf vollständige Fälle und ein Fall mit vier gebunden wiederverwendeten
+Profilen plus bestandenem Restumfang. Beide ursprünglichen Koordinatoren bleiben
+fehlgeschlagen. Alle 26 eigenen DBs entfernt, 14 frische Audits bestanden;
+keine Rechte-/Produkt-SQL-/Server-/Labänderung. V1-Upgrade, aktuelles Uninstall,
+Repeat und die drei gezielten Rollbackprofile sind damit belegt. Andere genuine
+Zwischenversionen und übrige Modulpflichten bleiben getrennt.
+
 Der [vollständige SQLCMD-Caller-Abbruch vom 2026-11-07](../Releases/1.0.0/TABLE-CLONE-SQLCMD-CALLER-QUALIFICATION.md)
 besteht auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
 24 Kontexte, 96 vollständige Deploy-/Uninstall-Profile mit XACT_ABORT OFF/ON.
