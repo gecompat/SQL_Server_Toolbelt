@@ -8,10 +8,21 @@ für eine eigene temporäre Identität `WITHOUT LOGIN` in eigenen Testdatenbanke
 Keine Rollen-, Schema-, Datenbank- oder Servergrants, keine bestehende Identität.
 Die früheren sechs USP-/ResultTable-Rechte enthalten diese Direktaufrufe nicht.
 
-**Die native Aggregate-Minimalrechtequalifikation ist noch offen.** Der erste
-Lauf blieb `FAILED_CLEANED`; sein frischer unabhängiger Abschlussaudit bestand.
-Der korrigierte Gesamtlauf wurde noch nicht ausgeführt. Grüne Offline- oder
-GitHub-Prüfungen werden nicht als nativer Rechte-PASS ausgegeben.
+**PASS_FOR_DECLARED_AGGREGATE_CALLER_SCOPE:** Der abschließend korrigierte,
+erneut ausdrücklich freigegebene Gesamtlauf bestand am2026-11-07 auf24
+Installationskontexten mit48 positiven Rechteprofilen und144 exakten
+SQL229-Abweisungen. Zwölf frische unabhängige Abschlussaudits bestanden.
+Beide früheren Versuche bleiben `FAILED_CLEANED` mit jeweils frischem Audit
+PASS; sie werden nicht als bestandene Gesamtfälle gewertet.
+
+| SQL-Ziel | CLs | Kontexte lokal/direkt zentral | Positive Profile | SQL229 | Audits |
+|---|---|---:|---:|---:|---:|
+| Windows2019/CU32 | 150 | 2 | 4 | 12 | 1 |
+| Windows2022/CU26 | 150,160 | 4 | 8 | 24 | 2 |
+| Windows2025/CU8 | 150,160,170 | 6 | 12 | 36 | 3 |
+| Linux2019/latest | 150 | 2 | 4 | 12 | 1 |
+| Linux2022/latest | 150,160 | 4 | 8 | 24 | 2 |
+| Linux2025/latest | 150,160,170 | 6 | 12 | 36 | 3 |
 
 ## Methode und vorbereiteter Vertrag
 
@@ -23,7 +34,7 @@ Linux:2019/2022/2025 jeweils latest mit denselben Engine-CLs. Clienthost Windows
 direkt zentral ist SameDB-Nutzung, keine CrossDB-Identität. Nur tatsächlich
 ausgeführte Kontexte dürfen später als bestanden gelten.
 
-Je Kontext sind zwei positive Profile vorgesehen: je Aggregat feste gruppierte
+Je Kontext bestanden zwei positive Profile: je Aggregat feste gruppierte
 und leere Ausgaben mit ordinaler Sortierung und exaktem Unicodewert. Sechs
 SQL229-Abweisungen prüfen vor Grant, das andere Aggregat während des Einzelgrants
 und nach Revoke. `EXECUTE AS USER`/`REVERT` wechseln den tatsächlichen Caller.
@@ -65,12 +76,49 @@ und übergibt ausschließlich diese begrenzte Variable. Eine Gegenprobe sichert
 die tatsächliche Aufrufstelle. Neue native Bestätigung benötigt eine neue
 endliche Freigabe; alte Zähler und Journale bleiben unverändert.
 
-Sieben verbindungslose Offlineprüfungen bestehen beide Plattformzulassungen,
+Die danach ausdrücklich freigegebene zweite Welle verwendete Methode
+[`09023e52`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/09023e5265f3da961f648f5339772b02e2a8534a).
+Die typisierte Kontextübergabe funktionierte; die Rechtefixture scheiterte
+beim `EXCEPT` zwischen Katalog und lokaler ACL-Tabelle an verschiedenen
+Collations. Wieder zwei Dispatches/zwei DB-Reservierungen, eine tatsächliche
+DB entfernt, null vollständige Rechteprofile. Die Zahl eventuell ausgeführter
+Grants wurde in diesem Fehlversuch nicht unabhängig beobachtet und wird nicht
+als null ausgegeben. Der frische Audit bestätigte das exakte Originaljournal,
+DB-Abwesenheit und vollständige Konfigurations-/Trustwiederherstellung.
+Weitere Fälle wurden nicht begonnen. Die beiden Katalogcode-Spalten `type`
+und `state` verwenden jetzt an allen drei Projektionsstellen ausdrücklich
+`COLLATE DATABASE_DEFAULT`; eine Gegenprobe sichert beide EXCEPT-Richtungen.
+
+Acht verbindungslose Offlineprüfungen bestehen beide Plattformzulassungen,
 fehlende/typfalsche Rechtefreigabe, Ziel-/Pin-/Fristabweichungen, fremde selbst
 gehashte DLLs, bytegleiche fremde Fixture, exakt zwei einzelne Grants/Revoke-
-Orakel, typisierte Kontextübergabe und erhaltene Source-/Cleanup-Guards.
+Orakel, typisierte Kontextübergabe, Collation-Angleichung und erhaltene
+Source-/Cleanup-Guards.
 Fixture und beide expandierten dynamischen Werteorakel sind zusätzlich mit
 ScriptDom Parser150 geprüft. Syntax/Quellchecks ersetzen keinen SQL-PASS.
+
+## Abschließend korrigierte native Welle
+
+Der Benutzer genehmigte vor dem neuen Start genau24 Lauf-/Auditdispatches,
+24 eigene DBs und45 Minuten ohne Wiederholung. Ausgeführt wurde Methode
+[`402eb754`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/402eb754acc9d122e93c97d988f4cfc11aecca4a).
+Alle zwölf Engine-/CL-Paare bestanden jeweils lokal/direkt zentral mit der
+vorhandenen administrativen Lab-Anmeldung vom Windows-Clienthost zum SQL-Ziel;
+die Rechteaufrufe selbst laufen unter der synthetischen Minimalidentität.
+Je Kontext wurden genau zwei einzelne EXECUTE-Objektgrants erteilt und widerrufen,
+der Baseline-ACL-Zustand wiederhergestellt und der eigene Benutzer entfernt.
+Die 48 Profile enthalten je einen gruppierten und einen leeren Wertevergleich;
+sie zählen Orakelgruppen, keine hochgerechneten Einzelassertions.
+
+Alle24 Dispatches/24 DBs sind abgeschlossen und die ursprüngliche45-Minutenfrist
+eingehalten. Zwölf separate frische Audits binden unveränderte finale Journale,
+DB-Abwesenheit, vollständige Trust-/Konfigurationsvergleiche und Inputpins.
+Der private Nachprüfer verifiziert alle24 Callerzeugen, beide Plattformrunsets,
+bekannte installierte SAFE-Bytes und tatsächliche Major-/Plattform-/Versionbindung.
+Keine native Wiederholung innerhalb der finalen Welle, keine fehlgeschlagenen
+Gesamtfälle in ihr. Die vorherigen vier Dispatches/zwei tatsächlich entfernten
+DBs sowie beide Originalfehler und Audits bleiben separat und unverändert.
+Keine Produkt-, Binär-, Manifest- oder Paketänderung.
 
 ## Grenzen
 
