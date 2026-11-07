@@ -1,4 +1,4 @@
--- Neuer enger Native-Zeuge; keine Produktfunktion oder Quotenänderung.
+-- Neuer enger Native-Zeuge; keine Produktfunktion oder QuotenÃ¤nderung.
 SET NOCOUNT ON;
 DECLARE @Wkt nvarchar(max)=N'POINT (0 0)',@Depth int=0;
 WHILE @Depth<9
@@ -7,7 +7,10 @@ DECLARE @Boundary geography=geography::STGeomFromText(@Wkt,4326);
 DECLARE @Bytes int=DATALENGTH(CONVERT(varbinary(max),@Boundary));
 IF @Boundary IS NULL OR @Bytes<>129 OR @Boundary.STIsValid()<>1
  OR @Boundary.STGeometryType()<>N'GeometryCollection'
- THROW 54090,N'Exact native 129-byte geography witness unavailable.',1;
+BEGIN
+ DECLARE @Message nvarchar(2048)=CONCAT(N'Exact native 129-byte geography witness unavailable. ActualBytes=',COALESCE(CONVERT(nvarchar(12),@Bytes),N'NULL'));
+ THROW 54090,@Message,1;
+END;
 DECLARE @B table([Value] geography,ErrorCode int);
 INSERT @B SELECT [Value],ErrorCode FROM toolbelt_pseudonymization.TVF_DeterministicGeoJitter(@Boundary,0x01,1,0,100);
 IF (SELECT COUNT(*) FROM @B)<>1 OR NOT EXISTS(SELECT 1 FROM @B WHERE ErrorCode=15 AND [Value] IS NULL)
