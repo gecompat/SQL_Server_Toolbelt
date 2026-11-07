@@ -1,5 +1,15 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Der [direkte Aggregate-Minimalrechtetest](JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
+besteht seit2026-11-07 die ausdrücklich freigegebenen zwei temporären EXECUTE-
+Objektrechte auf24 lokalen/direkt zentralen Kontexten Windows/Linux2019/2022/2025
+über alle unterstützten CLs:48 positive Profile,144 SQL229-Abweisungen und zwölf
+frische Abschlussaudits. Alle24 eigenen DBs/Benutzer entfernt, Trust/Konfiguration
+wiederhergestellt. Zwei frühere bereinigte Adapterfehler samt separaten Audits
+bleiben erhalten; acht Offlinegegenproben bestanden. Kein Netzwerk-/CrossDB-
+Login-, Linux-Clienthost- oder Modulgesamt-PASS.
+
+
 Der [korrigierte XLSX-SST-Quellkandidat](XLSX-SST-BUDGET-CORRECTION.md)
 besteht 50.000/50.001 Shared Strings auf zwölf lokalen/direkt zentralen
 Ziel-/CL-Fällen bei unverändertem 5.000-ms-Budget. Der aktuelle

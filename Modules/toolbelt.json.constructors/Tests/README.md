@@ -1,5 +1,15 @@
 # Testausführung
 
+Der [direkte Aggregate-Minimalrechtetest](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
+besteht seit2026-11-07 die ausdrücklich freigegebenen zwei temporären EXECUTE-
+Objektrechte auf24 lokalen/direkt zentralen Kontexten Windows/Linux2019/2022/2025
+über alle unterstützten CLs:48 positive Profile,144 SQL229-Abweisungen und zwölf
+frische Abschlussaudits. Alle24 eigenen DBs/Benutzer entfernt, Trust/Konfiguration
+wiederhergestellt. Zwei frühere bereinigte Adapterfehler samt separaten Audits
+bleiben erhalten; acht Offlinegegenproben bestanden. Kein Netzwerk-/CrossDB-
+Login-, Linux-Clienthost- oder Modulgesamt-PASS.
+
+
 Die [aktuelle genuine Migration vom2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
 belegt bekannte1.2→1.3 plus aktuellen Core1.0.0/Schema1.0.1-Consumer auf24
 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt

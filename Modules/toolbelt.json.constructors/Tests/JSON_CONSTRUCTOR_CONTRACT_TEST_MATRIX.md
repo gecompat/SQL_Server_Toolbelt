@@ -1,5 +1,14 @@
 # JSON Constructor Testmatrix
 
+Der [direkte Aggregate-Callerbeleg2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
+schließt für genau zwei freigegebene temporäre EXECUTE-Objektrechte die
+Minimalmatrix auf24 Kontexten Windows/Linux2019/2022/2025 über alle
+unterstützten CLs lokal/direkt zentral:48 positive Profile,144 SQL229-Denials,
+zwölf frische Audits. Benutzer und DBs entfernt, Konfiguration/Trust restauriert.
+Zwei frühere bereinigte Gesamtfehler bleiben separat; übrige Identitäten,
+Owner-/Lifecycle-/Ressourcenverträge und Modulabnahme werden nicht aufgewertet.
+
+
 Die [aktuelle genuine Migrationsmatrix2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
 besteht bekannte1.2→aktuelle1.3 mit Core1.0.0/Schema1.0.1 auf24 lokalen/direkt
 zentralen Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs.

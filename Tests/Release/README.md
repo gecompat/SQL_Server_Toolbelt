@@ -1,5 +1,15 @@
 # Releasevorbereitung prüfen
 
+Der [direkte Aggregate-Minimalrechtetest](../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
+besteht seit2026-11-07 die ausdrücklich freigegebenen zwei temporären EXECUTE-
+Objektrechte auf24 lokalen/direkt zentralen Kontexten Windows/Linux2019/2022/2025
+über alle unterstützten CLs:48 positive Profile,144 SQL229-Abweisungen und zwölf
+frische Abschlussaudits. Alle24 eigenen DBs/Benutzer entfernt, Trust/Konfiguration
+wiederhergestellt. Zwei frühere bereinigte Adapterfehler samt separaten Audits
+bleiben erhalten; acht Offlinegegenproben bestanden. Kein Netzwerk-/CrossDB-
+Login-, Linux-Clienthost- oder Modulgesamt-PASS.
+
+
 ## Aktuelle 19 stabile Kandidaten abnehmen
 
 Die [Abnahmeübersicht](../../Releases/1.0.0/STABLE19-ACCEPTANCE.md) trennt
