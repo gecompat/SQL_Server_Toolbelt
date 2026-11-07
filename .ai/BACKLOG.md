@@ -1,5 +1,14 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+Der [exakte native129-Byte-Geography-Nachweis vom2026-11-07](../Releases/1.0.0/GEO-EXACT129-QUALIFICATION.md)
+schließt den bisher unbeobachteten Grenzoperand auf24 lokalen/direkt zentralen
+Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs:24 gemessene
+129-Byte-Ablehnungen mit ErrorCode15/NULL und24 gültige Punkt-Kontrollen,
+zwölf frische Audits,alle24 eigenen DBs entfernt. Keine Rechte-/Principal-/
+CLR-/Trust-/Serveränderung. Die älteren129er-Integer- und128/>128-UDT-Belege
+bleiben mit ihren ursprünglichen Grenzen erhalten; keine Modulgesamtfreigabe.
+
+
 ## Cancellation-Linux-Repeat: explizite CL-Zuordnung — 2026-11-07
 
 Der fortbestehende autonome Qualifikationsauftrag schließt die tatsächliche
