@@ -1,5 +1,10 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [aktuelle W1-/W2-Zielmatrix](TABLE-CLONE-W1-W2-QUALIFICATION.md) besteht
+auf 24 Kontexten mit 168 vollständigen Originalfixture-Ausführungen und
+13 frischen Audits. Erstfehler, gezielte Adapterkorrektur und SQL-freie
+Fristreparatur bleiben getrennt; alle 25 tatsächlich angelegten DBs entfernt.
+
 Die [aktuelle Table-Clone-Planner-/Executor-Matrix](TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
 belegt vier unveränderte 4.1.1-Fixtures auf 24 Kontexten mit 96 Ausführungen
 und zwölf frischen Audits. Rechte, weitere Profile und Modulgesamtfreigabe

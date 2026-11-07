@@ -1,5 +1,14 @@
 # Testausführung
 
+Die [aktuelle W1-/W2-Matrix vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)
+besteht auf 24 lokalen/direkt zentralen Windows-/Linux-Kontexten über alle
+unterstützten CLs: 168 vollständige Ausführungen von sieben Originalfixtures,
+zwölf erfolgreiche Gesamtfälle, 13 frische Audits. Ein erster bereinigter
+Adapterfehler und eine SQL-freie Steuerungsreparatur bleiben erhalten;
+26 Aufrufe/Reservierungen, alle 25 tatsächlich angelegten DBs entfernt,
+ursprüngliche 90-Minuten-Frist unverändert. Predicate-Injektion bleibt eine
+Admin-Gegenprobe; echte weitere Rechte-/Trigger-/Client-/Lifecyclepflichten separat.
+
 Die [aktuelle Planner-/Executor-Zielmatrix vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
 belegt vier unveränderte Fixtures des Vertrags 4.1.1 auf 24 lokalen/direkt
 zentralen Windows-/Linux-Kontexten über alle unterstützten CLs. 96 vollständige

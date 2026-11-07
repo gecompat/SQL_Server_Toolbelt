@@ -1,5 +1,19 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Table Clone: aktuelle W1-/W2-Zielmatrix — 2026-11-07
+
+Der [neue physische Zielnachweis](../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)
+schließt sieben Originalfixtures auf 24 Windows-/Linux-Kontexten über alle
+unterstützten CLs lokal/direkt zentral: 168 Fixture-Ausführungen und zwölf
+erfolgreiche Gesamtfälle. Einschließlich Erstfehler: 26 Aufrufe/Reservierungen,
+25 tatsächliche eigene DBs entfernt, 13 frische Audits. Eine geänderte
+Batchrahmenkorrektur und eine SQL-freie Reparatur der kulturabhängigen
+Fristinterpretation erhielten die ursprünglichen UTC-Zeitpunkte und Zähler.
+Der Erstfehler bleibt `FAILED_CLEANED`; alle ungenutzten Plätze geschlossen.
+Keine neuen Rechte, Principals, CLR-/Trusteinträge oder Server-/Labänderungen.
+Predicate-Gegenprobe unter Admin ist kein echter Lowpriv-Caller; weitere
+Trigger-/Rechte-/Client-/Upgrade-/Uninstall-/Modulpflichten bleiben separat.
+
 ## Table Clone: aktuelle Planner-/Executor-Zielmatrix — 2026-11-07
 
 Der [aktuelle Nachweis](../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)

@@ -58,7 +58,8 @@ def main():
                         "test_worker_terminal_qualification", "test_constructor_caller_contract",
                         "test_copy_targets_contract", "test_json_schema_target_scope", "test_zip_archive_limit", "test_zip_entry_limits",
                         "test_constructor_client_metadata", "test_constructor_aggregate_caller", "test_geo129_contract",
-                        "test_constructor_acl_contract", "test_table_clone_planner_contract"):
+                        "test_constructor_acl_contract", "test_table_clone_planner_contract",
+                        "test_table_clone_waves_contract"):
         source_tests = importlib.import_module(module_name)
         source_suite = unittest.defaultTestLoader.loadTestsFromModule(source_tests)
         discovered += source_suite.countTestCases()
