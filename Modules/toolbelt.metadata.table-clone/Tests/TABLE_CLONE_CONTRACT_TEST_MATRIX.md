@@ -1,5 +1,18 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Aktuelle Planner-/Executor-Fixtures — 2026-11-07
+
+Der [aktuelle Zielbericht](../../../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
+qualifiziert `TableClone.Contract.sql`, `Execute.Contract.sql`,
+`Execute.Safety.sql` und `Lifecycle.Contract.sql` des unveränderten Vertrags
+4.1.1 auf Windows/Linux 2019/2022/2025 über alle unterstützten CLs lokal/direkt
+zentral. 24 Kontexte, 96 Fixture-Ausführungen, zwölf frische Audits und die
+Entfernung aller 24 eigenen DBs sind belegt, ohne Rechte-/Principal-/CLR-/
+Serveränderung. Dies ersetzt die historische Beschränkung dieser vier
+ausgewählten Fixtures auf frühere Produktstände; weitere W1-/W2-/Quoten-,
+Trigger-, echte Rechte-, Client-, Upgrade-/Uninstall- und gesamte Modulpflichten
+werden nicht aufgewertet. Die folgenden datierten Originalbelege bleiben erhalten.
+
 ## Spätere Copy-Zielnachweise2026-11-06
 
 Der [Copy-Zielbericht](../../../Releases/1.0.0/TABLE-CLONE-COPY-TARGET-QUALIFICATION.md)

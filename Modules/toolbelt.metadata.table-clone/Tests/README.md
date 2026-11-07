@@ -1,5 +1,12 @@
 # Testausführung
 
+Die [aktuelle Planner-/Executor-Zielmatrix vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
+belegt vier unveränderte Fixtures des Vertrags 4.1.1 auf 24 lokalen/direkt
+zentralen Windows-/Linux-Kontexten über alle unterstützten CLs. 96 vollständige
+Fixture-Ausführungen und zwölf frische Audits bestanden; alle 24 eigenen DBs
+sind entfernt. Weitere W1-/W2-, Trigger-, Rechte-, Upgrade-/Uninstall- und
+Modulpflichtfälle bleiben getrennt; historische Teilberichte unverändert.
+
 Die [Trigger-Welle](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
 erhält zwei begrenzte Windows-Fixtures: `Trigger.Contract.sql` für tatsächlich
 ausgeführte synthetische Vorschaupläne und `Trigger.Safety.sql` für atomare
