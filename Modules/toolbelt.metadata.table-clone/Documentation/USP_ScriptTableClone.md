@@ -1,5 +1,12 @@
 # USP_ScriptTableClone
 
+Die [aktuelle Windows-Client-Metadatenmatrix](../../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+belegt den direkten Reader auf 24 lokalen/direkt zentralen Windows-/Linux-
+SQL-Kontexten: Plan-/Help-Metadaten, dreizehn Help-Parameter, ResultTable-
+SELECT-Unterdrückung und frühe Caller-Guardfragmente bestanden. Zwölf frische
+Audits bestätigen eigene DB-Entfernung und unveränderten Serverzustand.
+Ein Linux-Clienthost und vollständige Lifecyclepfade bleiben getrennt.
+
 Der [aktuelle Windows-Trigger-Nachweis](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
 bindet den aktuellen qualifizierten Parser 2.0.1 auf zwölf lokalen/direkt
 zentralen Kontexten über alle unterstützten CLs. Beide Originalfixtures und

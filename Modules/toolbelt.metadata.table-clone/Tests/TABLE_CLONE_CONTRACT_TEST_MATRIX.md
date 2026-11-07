@@ -1,5 +1,16 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Aktueller Windows-Clientreader — 2026-11-07
+
+Der [aktuelle Clientbericht](../../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+belegt 24 Windows-/Linux-SQL-Kontexte lokal/direkt zentral mit direktem
+System.Data.SqlClient-Reader vom Windows-Host: 24 vollständige Fixture-Abschlüsse
+und zwölf frische Audits. Das veraltete Help-Orakel erwartet jetzt die korrekten
+dreizehn Parameter. Metadaten/Help/ResultTable und frühe Caller-Guardfragmente
+bestanden, alle 24 eigenen DBs entfernt; keine Rechte-/Server-/Truständerungen.
+Linux-Clienthost, vollständige SQLCMD-Includes und genuine Lifecyclepflichten
+bleiben getrennt. Die Produkt-SQL-/Fachnachweise darunter bleiben unverändert.
+
 ## Aktueller Windows-Trigger-Consumer — 2026-11-07
 
 Der [aktuelle Triggerbericht](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)

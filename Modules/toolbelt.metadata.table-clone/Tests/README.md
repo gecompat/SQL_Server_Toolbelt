@@ -1,5 +1,14 @@
 # Testausführung
 
+Der [aktuelle Windows-Clientreader vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+besteht auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten mit
+24 vollständigen Clientfixture-Ausführungen und zwölf frischen Audits.
+Das alte Zwölf-Help-Parameter-Orakel ist auf die aktuellen dreizehn Zeilen
+korrigiert. Metadaten, Reader-/Help-/ResultTable-Verhalten und frühe Caller-
+Tx-Guardfragmente bestanden; eigene DBs entfernt, keine Rechte-/Serveränderung.
+Windows-Clienthost ist vom weiterhin getrennten Linux-Clienthost zu unterscheiden.
+Vollständige SQLCMD-Includes und genuine Lifecyclefälle bleiben separat.
+
 Die [aktuelle Windows-Trigger-Matrix vom 2026-11-07](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
 bindet den aktuellen separat qualifizierten Parser 2.0.1: zwölf Kontexte,
 24 Originalfixture-Ausführungen und sechs frische Audits bestanden. Eigene

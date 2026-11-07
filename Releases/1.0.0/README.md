@@ -1,5 +1,11 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [aktuelle Windows-Client-Metadatenmatrix](TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+belegt 24 lokale/direkt zentrale Windows-/Linux-SQL-Kontexte und zwölf frische
+Audits. Das veraltete Zwölf-Help-Orakel ist auf dreizehn Parameter korrigiert;
+alle 24 eigenen DBs entfernt, Produkt-SQL und Rechte unverändert. Linux-
+Clienthost und vollständige Lifecyclepfade bleiben gesondert.
+
 Der [aktuelle Table-Clone-Trigger-Consumer](TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
 belegt zwölf Windows-Kontexte mit 24 vollständigen Originalfixture-Ausführungen
 und sechs frischen Audits. Die einzige Produktänderung korrigiert den exakten

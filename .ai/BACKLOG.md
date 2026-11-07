@@ -1,5 +1,18 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Table Clone: aktueller Windows-Clientreader — 2026-11-07
+
+Der [aktuelle Client-Metadatennachweis](../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
+schließt den Windows-System.Data.SqlClient-Reader auf zwölf Windows-/Linux-
+Engine-/CL-Paaren lokal/direkt zentral: 24 Kontexte, 24 vollständige Original-
+Clientfixture-Ausführungen und zwölf frische Audits. Die veraltete Zwölf-
+Help-Parameter-Erwartung ist auf die aktuellen dreizehn kanonischen Zeilen
+korrigiert. Alle 24 eigenen DBs entfernt, keine Rechte-/Principal-/Assembly-/
+Server-/Trust-/Labänderungen. Produkt-SQL und grüne Fachmatrizen unverändert.
+Linux bezeichnet hier das SQL-Ziel; Linux-Clienthost, weitere echte Rechte/
+Identitäten, vollständige SQLCMD-Includes und genuine aktuelle Lifecycle-/
+Recoverypflichten bleiben getrennt. Keine Modulgesamtfreigabe.
+
 ## Table Clone: aktueller Windows-Trigger-Consumer — 2026-11-07
 
 Der [aktuelle Trigger-Nachweis](../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
