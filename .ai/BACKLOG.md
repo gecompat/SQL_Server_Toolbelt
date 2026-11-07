@@ -1,5 +1,30 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Planner: freigegebene Fünfrechtematrix — 2026-11-07
+
+
+Die [aktuelle Planner-Fünfrechtematrix](../Releases/1.0.0/TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md)
+besteht auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:
+24 vollständige Originalfixtures mit gebundener interner Direktaufrufverweigerung
+und zwölf frische Audits. Alle 24 temporären Benutzer und eigenen DBs entfernt;
+keine Rechte außerhalb dieser eigenen DBs. Der gezielte Planner-Sichtbarkeits-
+und Aufrufketten-Scope ist geschlossen; Executor-/Copy-/Trigger-Rechte sowie
+andere Clients/Identitäten und Modulgesamtpflichten bleiben getrennt.
+
+## Table Clone: begrenzte Planner-Testrechte — Freigabe 2026-11-07
+
+Der Benutzer hat nach konkreter Besprechung die temporäre Identität ohne Login
+und genau fünf Rechte ausschließlich in eigenen synthetischen Testdatenbanken
+freigegeben: EXECUTE auf `USP_ScriptTableClone` und `USP_PrepareResultTable`,
+VIEW DEFINITION auf synthetische Quelle, Schema dbo und eigene Testdatenbank.
+Der Scope ist die vorhandene `MinimumRights.Contract.sql` plus verweigerter
+Direktaufruf des internen Kerns; keine internen Grants, Serverrechte oder
+Änderungen bestehender Identitäten. Maximal 28 Lauf-/Auditaufrufe,
+28 DB-Reservierungen und 60 Minuten. Die
+[Nachweisvorbereitung](../Releases/1.0.0/TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md)
+ist inzwischen nativ vollständig im deklarierten Fünfrechtescope bestanden. Andere Rechte-/Executor-/Copy-/Identitäts-
+oder Modulgesamtpflichten werden dadurch nicht freigegeben oder geschlossen.
+
 ## Genuine V1-Lifecycle-Profilmatrix — 2026-11-07
 
 
