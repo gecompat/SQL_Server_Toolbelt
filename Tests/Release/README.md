@@ -1,5 +1,12 @@
 # Releasevorbereitung prüfen
 
+Die [aktuelle Table-Clone-Trigger-Matrix](../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+belegt zwölf Windows-Kontexte, 24 Originalfixture-Ausführungen und sechs frische
+Audits. Der aktuelle Parserhash ersetzt genau ein Literal im Option-1-Gate;
+Option-0-Nachweise werden mit geprüfter Quellenäquivalenz wiederverwendet.
+Zwölf öffentliche Offlineprüfungen und zwölf private Artefaktgegenproben bestanden.
+Eigene Datenbanken/Trusteinträge entfernt und eigene Konfiguration wiederhergestellt.
+
 Die [aktuelle Table-Clone-W1-/W2-Matrix](../../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)
 belegt 24 Kontexte, 168 Originalfixture-Ausführungen und 13 frische Audits.
 Ein bereinigter Erstfehler und die unveränderte ursprüngliche Frist bleiben

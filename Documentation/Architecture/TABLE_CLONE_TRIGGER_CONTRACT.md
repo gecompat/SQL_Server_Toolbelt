@@ -1,4 +1,19 @@
-# Table Clone Trigger-Scriptklon / 4.0.0
+# Table Clone Trigger-Scriptklon / 4.1.1
+
+
+## Aktuelle Quellenbindung — 2026-11-07
+
+Der Trigger-Consumer bindet den aktuellen, separat qualifizierten Parser 2.0.1
+mit Provider-SHA-512 `F2213559FA9085BDAC9B6A4C1954D7BE18EAAE9BFBF950E2A29CC0121D8B36D6838D4366327D3A6B0C9ED655179ACBE898E2887D917AA0D0C2B7C243C891C16A`.
+ScriptDom 18.0.117.0 und dessen Pin bleiben unverändert. Die tatsächlichen
+Binaries, alle Quell-/Deploymentpins und die ursprünglichen nativen
+Artefaktpins stimmen überein; kein neuer Provider oder Parserbuild.
+Die Korrektur ersetzt ausschließlich den alten Hash im vorhandenen
+`IncludeTriggers=1`-Gate. Option 0 erreicht diese Prüfung nicht.
+Die Quellenbindung allein ist keine Triggerqualifikation; den aktuellen
+Ausführungsstand und seine Grenzen führt der
+[separate Nachweisbericht](../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md).
+Alle früheren Paare und ihre ursprünglichen Nachweise bleiben historisch.
 
 Stand 2026-10-04, Codex. Die Funktion wurde am 2026-10-01 einzeln
 freigegeben; am 2026-10-04 bestätigte der Benutzer Parameterposition,
@@ -11,12 +26,12 @@ sind keine Trigger-Rewriting-Qualifikation. RelatedReference: `TC-2026-044`.
 
 ## ScriptDom-Dependency-Nachtrag 2026-10-07
 
-Buildnachtrag 2026-10-18: Der Benutzer verlangt vor der Aufnahme des
+Historischer Buildnachtrag 2026-10-18: Der Benutzer verlangt vor der Aufnahme des
 SSIS-Debug-ZIPs ins Repository einen Parserbuild ohne lokalen Debugpfad und
 dessen neue Qualifikation. Der folgende aktuelle Pin bindet diesen Build;
 der ScriptDom-Pin und der fachliche Triggervertrag bleiben unverändert.
 
-Aktueller Patchnachtrag 2026-10-16: Der ausdrücklich freigegebene SSIS-Debug-
+Historischer Patchnachtrag 2026-10-16: Der ausdrücklich freigegebene SSIS-Debug-
 Vertrag extrahiert den gemeinsamen Vorfilter ohne Änderung des öffentlichen
 Parserprofils. Table Clone **4.1.1** bindet deshalb ausschließlich Parser
 **2.0.1**, Provider-SHA-512
@@ -57,7 +72,7 @@ Prozedur, kein frei gelieferter SQL-Text und keine Ausführung des Plans.
 Option 0 bewahrt die bestehende Triggerablehnung und Windows-/Linux-Nutzung.
 Sie ruft keinen Parser auf und verlangt keine Parserinstallation. Option 1
 ist Windows-only und benötigt die vorhandenen vier registrierten TVFs des
-separat installierten Parsers 2.0.0 in derselben Installationsdatenbank:
+separat installierten Parsers 2.0.1 in derselben Installationsdatenbank:
 Nodes, NodeProperties, Tokens und Errors. Vor Parseraufrufen müssen die
 bekannten Modul-/Objektmarker, Signaturen und CLR-Bindings sowie die exakten
 Provider-/Dependency-Binaryhashes zum bestehenden Parservertrag passen.
@@ -70,7 +85,7 @@ nicht ein behaupteter SourceHash-Marker oder die bloße Trustregistrierung.
 Provider-SHA512:
 
 ```text
-2113ABD6828CE5A1454EF0259F7558F8744A0399E46345E4E54C9E012641BC983F5A0A08C6E2F7BF258A14EAEE5082FA6DE9E4DC25C813BDB5246D5D34701773
+F2213559FA9085BDAC9B6A4C1954D7BE18EAAE9BFBF950E2A29CC0121D8B36D6838D4366327D3A6B0C9ED655179ACBE898E2887D917AA0D0C2B7C243C891C16A
 ```
 
 ScriptDom-SHA512 ist der bestehende Pin des Parservertrags:

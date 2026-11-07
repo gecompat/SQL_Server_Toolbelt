@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Table Clone: aktueller Windows-Trigger-Consumer — 2026-11-07
+
+Der [aktuelle Trigger-Nachweis](../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+schließt die veraltete Consumer-Bindung an einen früheren Parserbuild und die
+beiden Original-Triggerfixtures auf Windows 2019/2022/2025 über alle unterstützten
+CLs lokal/direkt zentral: zwölf Kontexte, 24 Fixture-Ausführungen, sechs frische
+Audits. Alle zwölf eigenen DBs und zwölf eigenen Trusteinträge entfernt;
+drei eigene CLR-Konfigurationsscopes wiederhergestellt. Keine native Wiederholung.
+Der einzige Produktdelta ist das Hashliteral im vorhandenen Option-1-Gate;
+Option-0-Nachweise werden mit geprüfter vollständiger Quellenäquivalenz
+wiederverwendet. Ältere Paare und Fehler bleiben an ihre Originale gebunden.
+Die pauschal offene aktuelle Trigger-Consumer-Matrix ist damit ersetzt;
+echte weitere Minimalrechte, Clients, aktuelle genuine Upgrade-/Uninstall-/
+Recovery- und übrige Modulpflichten bleiben getrennt. Keine Modulgesamtfreigabe.
+
 ## Table Clone: aktuelle W1-/W2-Zielmatrix — 2026-11-07
 
 Der [neue physische Zielnachweis](../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)

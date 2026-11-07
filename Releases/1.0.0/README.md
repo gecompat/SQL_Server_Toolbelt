@@ -1,5 +1,11 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Der [aktuelle Table-Clone-Trigger-Consumer](TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+belegt zwölf Windows-Kontexte mit 24 vollständigen Originalfixture-Ausführungen
+und sechs frischen Audits. Die einzige Produktänderung korrigiert den exakten
+Parserhash im Option-1-Gate. Die folgenden Option-0-Nachweise werden mit
+geprüfter Quellenäquivalenz wiederverwendet; eigene Ressourcen sind bereinigt.
+
 Die [aktuelle W1-/W2-Zielmatrix](TABLE-CLONE-W1-W2-QUALIFICATION.md) besteht
 auf 24 Kontexten mit 168 vollständigen Originalfixture-Ausführungen und
 13 frischen Audits. Erstfehler, gezielte Adapterkorrektur und SQL-freie

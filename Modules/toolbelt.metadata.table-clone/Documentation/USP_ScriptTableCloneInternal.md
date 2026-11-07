@@ -1,5 +1,11 @@
 # Interner kanonischer Scriptkern
 
+Der [aktuelle Trigger-Consumer-Nachweis](../../../Releases/1.0.0/TABLE-CLONE-TRIGGER-CURRENT-QUALIFICATION.md)
+qualifiziert den aktuellen Parserpin im vorhandenen Option-1-Gate auf zwölf
+Windows-Kontexten. Option 0 erreicht den korrigierten Pin nicht; seine gültigen
+Nachweise werden mit geprüfter vollständiger Quellenäquivalenz wiederverwendet.
+Der interne Core erhält dadurch keine neue Signatur oder Ausführungsgrenze.
+
 `USP_ScriptTableCloneInternal` verwendet dieselben fachlichen Vorschauparameter
 und vier Resultspalten wie die [öffentliche Fassade](USP_ScriptTableClone.md).
 In4.1 besitzt nur der interne Core zusätzlich `InternalPurpose varchar(16)='PREVIEW'`
