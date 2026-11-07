@@ -1,5 +1,15 @@
 # Releasevorbereitung prüfen
 
+Der [vollständige SQLCMD-Caller-Abbruch vom 2026-11-07](../../Releases/1.0.0/TABLE-CLONE-SQLCMD-CALLER-QUALIFICATION.md)
+besteht auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
+24 Kontexte, 96 vollständige Deploy-/Uninstall-Profile mit XACT_ABORT OFF/ON.
+Einschließlich erhaltenem Erstfehler bestätigen 13 frische Audits die Entfernung
+aller 25 angelegten eigenen DBs. Die geänderte Kindprozess-Isolation behebt
+nur den Testadapter; Produkt-SQL, Rechte und Serverzustand bleiben unverändert.
+Die früher pauschal offenen vollständigen SQLCMD-Caller-Includes sind damit
+geschlossen. Linux-Clienthost und genuine Upgrade-/Uninstall-/Recoveryfälle
+bleiben separat; ältere datierte Teilnachweise behalten ihren ursprünglichen Scope.
+
 Die [aktuelle Table-Clone-Clientmatrix](../../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
 belegt den Windows-System.Data.SqlClient-Reader auf 24 Windows-/Linux-SQL-
 Kontexten mit 24 vollständigen Fixture-Ausführungen und zwölf frischen Audits.
