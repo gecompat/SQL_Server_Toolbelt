@@ -1,5 +1,16 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Planner: freigegebene Fünfrechtematrix — 2026-11-07
+
+
+Die [aktuelle Planner-Fünfrechtematrix](../../../Releases/1.0.0/TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md)
+besteht auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:
+24 vollständige Originalfixtures mit gebundener interner Direktaufrufverweigerung
+und zwölf frische Audits. Alle 24 temporären Benutzer und eigenen DBs entfernt;
+keine Rechte außerhalb dieser eigenen DBs. Der gezielte Planner-Sichtbarkeits-
+und Aufrufketten-Scope ist geschlossen; Executor-/Copy-/Trigger-Rechte sowie
+andere Clients/Identitäten und Modulgesamtpflichten bleiben getrennt.
+
 ## Genuine V1-Lifecycle-Profilmatrix — 2026-11-07
 
 

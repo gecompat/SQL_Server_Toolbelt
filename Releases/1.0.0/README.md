@@ -1,5 +1,13 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [aktuelle Planner-Fünfrechtematrix](TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md)
+besteht auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:
+24 vollständige Originalfixtures mit gebundener interner Direktaufrufverweigerung
+und zwölf frische Audits. Alle 24 temporären Benutzer und eigenen DBs entfernt;
+keine Rechte außerhalb dieser eigenen DBs. Der gezielte Planner-Sichtbarkeits-
+und Aufrufketten-Scope ist geschlossen; Executor-/Copy-/Trigger-Rechte sowie
+andere Clients/Identitäten und Modulgesamtpflichten bleiben getrennt.
+
 Die [aktuelle genuine V1-Lifecycle-Profilmatrix](TABLE-CLONE-GENUINE-V1-LIFECYCLE-QUALIFICATION.md)
 belegt 240 eindeutige Profile auf 24 lokalen/direkt zentralen Windows-/Linux-
 Kontexten: elf vollständige Fälle und ein Fall mit vier gebunden wiederverwendeten
