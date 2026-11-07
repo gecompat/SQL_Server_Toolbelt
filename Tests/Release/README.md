@@ -47,6 +47,15 @@ werden dadurch nicht gestartet.
 
 ## Historische Quellen und aktuelle Qualifikation
 
+Die [aktuelle genuine Constructor-Migration](../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
+verwendet den bestehenden `run-json-schema-lab.ps1 -QualificationScope migration`
+und `Test-JsonSchemaLabDisposition.ps1`. Das tatsächliche gemeinsame Prädikat
+akzeptiert nun die unterstützte Windows-/Linux-SQL2019/2022/2025-CL-Matrix mit
+exakten Patchwerten.900 reine Kombinationen und63/9/33/11 PS-Gegenproben bestehen;
+unbekannte Scopes, Schreibweisen und ungebundene Audits bleiben abgewiesen.
+Bekannte echte1.2 und drei aktuelle DLLs, keine Builds oder neuen Rechte.
+Die aktuelle Integration ersetzt keine historischen Source-/Gesamtpaketatteste.
+
 Die [direkte Constructor-Clientmatrix](../../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
 verwendet `Invoke-JsonConstructorsClientMetadataLab.ps1` und
 `JsonConstructors.ClientMetadata.ps1`. Der Adapter übernimmt den kanonischen
@@ -84,7 +93,8 @@ verwendet den vorhandenen `run-json-schema-lab.ps1` im Scope `core-schema`
 auf acht zusätzlichen Ziel-/CL-Paaren. `JsonSchemaQualificationScope.ps1`
 ist ein reines, quellgebundenes Auswahlprädikat für Lauf und unabhängigen
 Dispositionsaudit; ohne dessen Originaljournalpin verbindet der Audit nicht.
-Constructor-/Migrationsgrenzen werden nicht erweitert. Neue Calls bleiben
+Die damalige Core-/Schemawelle erweiterte Constructor/Migration nicht; die
+aktuelle Migration ist im getrennten Bericht oben abgegrenzt. Neue Calls bleiben
 unter separatem endlichem Rahmen, Schema braucht nur Core-/Schema-Trusthashes.
 Die bereits grünen Callerprofile werden nicht wiederholt; historische
 Offen-Einträge müssen mit den späteren Modulberichten abgeglichen werden.

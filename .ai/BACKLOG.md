@@ -92,6 +92,16 @@ bleiben separat. Keine weitere SQL-Welle aus freien Zeitresten oder grüner CI.
 
 ## Constructor-Caller: neue Rechtefreigabe und Teilqualifikation — 2026-11-06
 
+Weiterer aktueller Abgleich2026-11-07, Codex: Die [genuine Migrationsmatrix](../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
+qualifiziert bekannte1.2→1.3 mit aktuellem Core1.0.0/Schema1.0.1 auf24 Kontexten
+Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt zentral.
+Zwölf Läufe/zwölf frische Fallaudits/sechs finale Konfigurations-/Trustaudits,
+240 Fixture-Checkpoints bestanden;36Aufrufe/24DBs innerhalb45Minuten geschlossen,
+kein Fehler/Replay. Alte vier Migrationsläufe haben spätere Quellenabweichungen
+und bleiben historisch, keine pauschale Aufwertung. Keine GRANTs/neuen Identitäten
+oder Ownerreparatur. Nichtleere ACLs, absichtlich andere Owner, direkte AGF-
+Minimalrechte und übrige Modulpflichtfälle separat; kein Release/Tag.
+
 Ergänzung2026-11-07, Codex: Die [direkte Clientmatrix](../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
 besteht auf Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt
 zentral:24Kontexte,480 Reader-/Help-/ResultTable-/AGF-nvarchar(max)-Typ-/Wertprofile,

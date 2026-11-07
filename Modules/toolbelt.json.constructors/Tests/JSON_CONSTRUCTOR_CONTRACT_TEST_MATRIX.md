@@ -1,5 +1,13 @@
 # JSON Constructor Testmatrix
 
+Die [aktuelle genuine Migrationsmatrix2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
+besteht bekannte1.2→aktuelle1.3 mit Core1.0.0/Schema1.0.1 auf24 lokalen/direkt
+zentralen Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs.
+Zwölf Läufe/zwölf frische Fallaudits/sechs Konfigurations-/Trustaudits bestanden,
+240 Fixture-Checkpoints; keine Rechte- oder Owneränderung. Historische vier
+Migrationskontexte werden wegen späterer Quellenänderungen nicht hochgestuft.
+Absichtliche andere Owner/nichtleere ACLs und übrige Modulpflichtfälle separat.
+
 Aktueller [direkter Clientnachweis2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md):
 Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt zentral,
 24Kontexte/480Reader-/Help-/ResultTable-/AGF-Rückgabetyp-Profile und zwölf frische

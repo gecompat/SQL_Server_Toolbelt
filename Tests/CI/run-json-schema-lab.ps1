@@ -21,8 +21,8 @@ $prefix=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))+[IO.Path]::Director
 if(-not$output.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)-or(Test-Path -LiteralPath $output)){throw 'JSON_SCHEMA_OUTPUT_SCOPE'}
 & git -C $repo check-ignore --quiet -- $output
 if($LASTEXITCODE-ne0){throw 'JSON_SCHEMA_OUTPUT_NOT_IGNORED'}
-# Neue physische Ziele betreffen ausschließlich den bestehenden Core-/Schema-
-# Funktionsscope. Migration und Constructors erhalten keine zusätzliche Auswahl.
+# Core-/Schema und aktuelle genuine Migration verwenden die unterstützte Matrix.
+# Der eigenständige Constructor-Fixturescope erhält keine zusätzliche Auswahl.
 $scopeHelper=Join-Path $PSScriptRoot 'JsonSchemaQualificationScope.ps1';. $scopeHelper
 if(-not(Test-JsonSchemaTargetScope $Platform $Version $Patch $CompatibilityLevel $QualificationScope)){throw 'JSON_SCHEMA_APPROVED_TARGET_SCOPE'}
 if($DeploymentModes.Count-lt1-or@($DeploymentModes|Sort-Object -Unique).Count-ne$DeploymentModes.Count-or

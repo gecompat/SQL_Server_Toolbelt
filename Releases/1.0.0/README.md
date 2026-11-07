@@ -85,6 +85,12 @@ ergänzt separat24 lokale/direkt zentrale Windows-/Linux-SQL-Kontexte mit
 480 Reader-/Help-/ResultTable-/AGF-Rückgabetyp-Profilen und zwölf frischen Audits.
 Keine neue Rechte-/Identitätsvergabe, kein Linux-Clienthost oder Modulgesamt-PASS.
 
+Die [aktuelle genuine Constructor-Migrationsmatrix](JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
+belegt bekannte1.2→1.3 mit aktuellem Core/Schema-Consumer auf24 lokalen/direkt
+zentralen Windows-/Linux-SQL-Kontexten, zwölf frischen Fallaudits und sechs
+abschließenden Konfigurations-/Trustaudits. Historische Quellenbindungen bleiben
+getrennt; keine Owner-/Rechteerweiterung oder vollständige Modulfreigabe.
+
 Die getrennte [JSON-Schema-Paket-IL-Qualifikation](JSON-SCHEMA-PACKAGE-QUALIFICATION.md)
 bindet die Schema-DLL bytegenau an das geprüfte Installationspaket und führt
 den vorhandenen IL-Guard direkt auf dieser Paket-DLL aus. Sie verwendet den

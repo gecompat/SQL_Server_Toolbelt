@@ -6,7 +6,7 @@ function Test-JsonSchemaTargetScope([string]$Platform,[string]$Version,[string]$
  if($CompatibilityLevel-notin$levels){return $false}
  $windows=$Platform-ceq'windows'-and$Patch-ceq@{'2019'='CU32';'2022'='CU26';'2025'='CU8'}[$Version]
  $linux=$Platform-ceq'linux'-and$Patch-ceq'latest'
- if($QualificationScope-ceq'core-schema'){return ($windows-or$linux)}
+ if($QualificationScope-cin@('core-schema','migration')){return ($windows-or$linux)}
  if($QualificationScope-cnotin@('constructors','migration')){return $false}
- return (($linux-and$Version-ceq'2019')-or($windows-and$Version-ceq'2025')-or($QualificationScope-ceq'constructors'-and$windows))
+ return (($linux-and$Version-ceq'2019')-or$windows)
 }

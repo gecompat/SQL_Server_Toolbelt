@@ -77,15 +77,15 @@ foreach($example in @(
  if($selected.Count-ne$example.Count){throw 'JSON_SCOPE_SELECTOR_CASE_FAILED'}
  $script:cases++
 }
-# Constructor-Auswahl bleibt erhalten; Core/Schema hat seinen eigenen erweiterten
-# Scope. Migration, falsche Patches und nicht unterstützte CLs bleiben begrenzt.
+# Constructor-Auswahl bleibt erhalten; Core/Schema und genuine Migration haben
+# die unterstützte Matrix. Falsche Patches und CLs bleiben begrenzt.
 foreach($selection in @(
  @{Version='2019';Patch='CU32';CompatibilityLevel=150},
  @{Version='2022';Patch='CU26';CompatibilityLevel=150},
  @{Version='2022';Patch='CU26';CompatibilityLevel=160}
 )){
  foreach($scope in @('constructors','core-schema','migration')){
-  Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope=$scope} ($scope-cin@('constructors','core-schema'))
+  Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope=$scope} $true
  }
  foreach($patch in @('base',$selection.Patch.ToLowerInvariant())){
   Assert-BoundScope @{Platform='windows';Version=$selection.Version;Patch=$patch;CompatibilityLevel=$selection.CompatibilityLevel;QualificationScope='constructors'} $false
@@ -96,8 +96,16 @@ foreach($level in @(160,170)){
 }
 Assert-BoundScope @{Platform='windows';Version='2022';Patch='CU26';CompatibilityLevel=170;QualificationScope='constructors'} $false
 Assert-BoundScope @{Platform='linux';Version='2022';Patch='CU26';QualificationScope='constructors'} $false
-if($script:cases-ne53){throw 'JSON_SCOPE_ASSERTION_COUNT'}
-'PASS JSON_LAB_SCOPE_BINDING_AND_SELECTOR 53'
+foreach($selection in @(
+ @{Version='2022';Levels=@(150,160)},@{Version='2025';Levels=@(150,160,170)}
+)){
+ foreach($level in $selection.Levels){
+  Assert-BoundScope @{Platform='linux';Version=$selection.Version;Patch='latest';CompatibilityLevel=$level;QualificationScope='migration'} $true
+  Assert-BoundScope @{Platform='linux';Version=$selection.Version;Patch='latest';CompatibilityLevel=$level;QualificationScope='constructors'} $false
+ }
+}
+if($script:cases-ne63){throw 'JSON_SCOPE_ASSERTION_COUNT'}
+'PASS JSON_LAB_SCOPE_BINDING_AND_SELECTOR 63'
 
 # Nur die reine Versionsprüfung des historischen SQL-only-Adapters auswerten.
 # Weder dessen Top-level-Initialisierung noch Lab-/SQL-Funktionen ausführen.
@@ -144,7 +152,7 @@ foreach($selection in @(
  @{Version='2022';Patch='CU26';CompatibilityLevel=160}
 )){
  foreach($scope in @('constructors','core-schema','migration')){
-  $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope=$scope;Accept=($scope-cin@('constructors','core-schema'))})
+  $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$selection.Patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope=$scope;Accept=$true})
  }
  foreach($patch in @('base',$selection.Patch.ToLowerInvariant())){
   $auditCases.Add(@{Platform='windows';Version=$selection.Version;Patch=$patch;CompatibilityLevel=$selection.CompatibilityLevel;Scope='constructors';Accept=$false})
@@ -155,14 +163,20 @@ $auditCases.Add(@{Platform='windows';Version='2022';Patch='CU26';CompatibilityLe
 $auditCases.Add(@{Platform='windows';Version='2025';Patch='CU8';CompatibilityLevel=170;Scope='unknown';Accept=$false})
 $auditCases.Add(@{Platform='linux';Version='2022';Patch='CU26';CompatibilityLevel=150;Scope='constructors';Accept=$false})
 $auditCases.Add(@{Platform='windows';Version='2017';Patch='CU8';CompatibilityLevel=150;Scope='constructors';Accept=$false})
+foreach($selection in @(@{Version='2022';Levels=@(150,160)},@{Version='2025';Levels=@(150,160,170)})){
+ foreach($level in $selection.Levels){
+  $auditCases.Add(@{Platform='linux';Version=$selection.Version;Patch='latest';CompatibilityLevel=$level;Scope='migration';Accept=$true})
+  $auditCases.Add(@{Platform='linux';Version=$selection.Version;Patch='latest';CompatibilityLevel=$level;Scope='constructors';Accept=$false})
+ }
+}
 foreach($case in $auditCases){
  $driverAccepted=$false;$auditAccepted=$false
  try{$driverAccepted=(Test-BoundJsonLabScope @base -Platform $case.Platform -Version $case.Version -Patch $case.Patch -CompatibilityLevel $case.CompatibilityLevel -QualificationScope $case.Scope)-ceq'ACCEPTED'}catch{if($_.Exception-isnot[Management.Automation.ParameterBindingException]-and$_.Exception.Message-cne'JSON_SCHEMA_APPROVED_TARGET_SCOPE'){throw}}
  try{$auditAccepted=(Test-BoundJsonDispositionScope ([pscustomobject]$case))-ceq'ACCEPTED'}catch{if($_.Exception.Message-cne'JSON_DISPOSITION_TARGET_SCOPE'){throw}}
  if($driverAccepted-ne$case.Accept-or$auditAccepted-ne$case.Accept){throw 'JSON_SCOPE_DRIVER_DISPOSITION_DISAGREE'}
 }
-if($auditCases.Count-ne23){throw 'JSON_SCOPE_DISPOSITION_CASE_COUNT'}
-'PASS JSON_DRIVER_DISPOSITION_SCOPE_AGREEMENT 23'
+if($auditCases.Count-ne33){throw 'JSON_SCOPE_DISPOSITION_CASE_COUNT'}
+'PASS JSON_DRIVER_DISPOSITION_SCOPE_AGREEMENT 33'
 
 # Den echten Read-only-Verbraucherguard isoliert mit synthetischen Katalogen
 # prüfen. Ein Compiler-/Lab-/SQL-Prozess wird dabei nicht gestartet.

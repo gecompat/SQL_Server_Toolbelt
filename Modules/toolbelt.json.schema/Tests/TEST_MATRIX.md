@@ -1,5 +1,12 @@
 # JSON Schema – Abnahmematrix
 
+Die [aktuelle Constructor-Migrationsmatrix2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
+ergänzt den aktuellen Schema1.0.1-Consumer nach genuiner1.2→1.3-Migration auf
+24 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt
+zentral. Kanonische Schema-Vertragsfixture, eigene Entfernung, zwölf frische
+Fallaudits und sechs finale Konfigurations-/Trustaudits bestanden. Keine neue
+volle Schema-Safety-/Client-/Lifecycleabnahme aus diesem Consumerscope ableiten.
+
 ## Aktueller physischer Ergänzungsnachweis2026-11-06
 
 Der [Core-/Schema-Zielbericht](../../../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md)

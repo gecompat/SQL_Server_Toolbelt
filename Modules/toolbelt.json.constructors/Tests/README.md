@@ -1,5 +1,12 @@
 # Testausführung
 
+Die [aktuelle genuine Migration vom2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
+belegt bekannte1.2→1.3 plus aktuellen Core1.0.0/Schema1.0.1-Consumer auf24
+Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt
+zentral. Zwölf Gesamtläufe/zwölf frische Fallaudits/sechs Konfigurationsaudits,
+240 Fixture-Checkpoints bestanden; alle24DBs entfernt. Keine neuen Rechte oder
+Ownerreparatur. Die älteren Migrationsbelege unten behalten ihre Originalquellen.
+
 Der [direkte Clientnachweis vom2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CLIENT-METADATA-QUALIFICATION.md)
 ergänzt die untenstehenden Caller-/Fachbelege um24 aktuelle Kontexte auf
 Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt zentral.
@@ -122,8 +129,8 @@ Vor einem weiteren Lauf die separat qualifizierten drei DLLs bereitstellen,
 die vorhandenen CLR-/Sicherheitsvoraussetzungen und Zielberechtigung prüfen
 und einen eigenen endlichen Lauf mit unabhängigem Abschlussaudit reservieren.
 Der öffentliche Treiber ändert keine Serverkonfiguration oder Berechtigungen.
-`Test-JsonSchemaLabScope.ps1` prüft seine Metadatenrouten offline: 53
-Scope-/Selektorfälle, neun historische Versionsfälle und 23 gemeinsame
+`Test-JsonSchemaLabScope.ps1` prüft seine Metadatenrouten offline: 63
+Scope-/Selektorfälle, neun historische Versionsfälle und 33 gemeinsame
 Driver-/Audittupel. Eine grüne Offlineprüfung ist keine neue SQL-Ausführung.
 
 ## Historischer Teilstand vom 2026-10-03
