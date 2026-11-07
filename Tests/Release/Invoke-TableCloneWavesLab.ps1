@@ -22,6 +22,15 @@ function Assert-CloneWavesFixtureScope([string]$Text){
   throw 'CLONE_WAVES_FIXTURE_EXCEEDS_SCOPE'
  }
 }
+function Get-CloneWavesSqlBatches([string]$Text){
+ $Text=[regex]::Replace($Text,'(?im)^[\t ]*:ON[\t ]+ERROR[\t ]+EXIT[\t ]*\r?$','')
+ if($Text-match'(?m)^[\t ]*:'-or$Text.Contains('$(')){throw 'CLONE_WAVES_UNRESOLVED_SQLCMD'}
+ # Nur horizontale Leerzeichen: der Kommentar der Folgezeile gehört zum SQL.
+ return @([regex]::Split($Text,'(?im)^[\t ]*GO[\t ]*(?:--[^\r\n]*)?\r?$')|Where-Object{-not[string]::IsNullOrWhiteSpace($_)})
+}
+function Invoke-CloneWavesSqlBatches($Connection,[string]$Text){
+ foreach($batch in Get-CloneWavesSqlBatches $Text){Invoke-ReleaseSql $Connection $batch}
+}
 try{
  $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
  $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json -DateKind String
@@ -106,7 +115,7 @@ try{
    $entry.state='OWNED';Save-ReleaseJournal;Invoke-ReleaseSql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=$($case.CL);"
    $actualCl=@(Invoke-ReleaseSql $db 'SELECT compatibility_level CL FROM sys.databases WHERE database_id=DB_ID();' -Rows)
    if($actualCl.Count-ne1-or$actualCl[0].CL-ne$case.CL){throw 'CLONE_WAVES_ACTUAL_CL'}
-   $stage='INSTALL_'+$mode;Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($runset.exports.$mode))
+   $stage='INSTALL_'+$mode;Invoke-CloneWavesSqlBatches $db ([IO.File]::ReadAllText($runset.exports.$mode))
    $markers=@(Invoke-ReleaseSql $db "SELECT name,CONVERT(nvarchar(128),value) Value FROM sys.extended_properties WHERE class=0 AND name LIKE N'Toolbelt.Module.%.Version';" -Rows)
    if($markers.Count-ne2-or@($markers|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.core.result-table.Version'-and$_.Value-ceq'1.0.0'}).Count-ne1-or@($markers|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.metadata.table-clone.Version'-and$_.Value-ceq'4.1.1'}).Count-ne1){throw 'CLONE_WAVES_MODULE_CLOSURE'}
    $modeMarkers=@(Invoke-ReleaseSql $db "SELECT CONVERT(nvarchar(128),value) Value FROM sys.extended_properties WHERE class=0 AND name IN(N'Toolbelt.Module.toolbelt.core.result-table.DeploymentMode',N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode');" -Rows)
@@ -117,7 +126,7 @@ try{
    $completedFixtures=@()
    foreach($fixture in $fixtures){
     $stage='CLONE_WAVES_'+$mode+'_'+[IO.Path]::GetFileName($fixture)
-    Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($fixture))
+    Invoke-CloneWavesSqlBatches $db ([IO.File]::ReadAllText($fixture))
     $session=@(Invoke-ReleaseSql $db 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
     if($session.Count-ne1-or$session[0].TranCount-ne0-or$session[0].XactState-ne0){throw 'CLONE_WAVES_SESSION_NOT_NEUTRAL'}
     $completedFixtures+=@([IO.Path]::GetFileName($fixture))

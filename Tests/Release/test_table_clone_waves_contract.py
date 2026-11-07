@@ -116,6 +116,40 @@ class CloneWavesAdmissionTests(unittest.TestCase):
             result = self.scope(path, from_file=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def batches(self, text):
+        path = self.directory / 'batches.sql'
+        path.write_bytes(text.encode('utf-8'))
+        script = "$ErrorActionPreference='Stop';$errors=$null;" + \
+            "$ast=[Management.Automation.Language.Parser]::ParseFile('" + str(DRIVER).replace("'", "''") + "',[ref]$null,[ref]$errors);" + \
+            "$f=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Get-CloneWavesSqlBatches'},$true));" + \
+            "if($errors.Count-or$f.Count-ne1){throw 'BATCH_FUNCTION'};. ([scriptblock]::Create($f[0].Extent.Text));" + \
+            "$b=@(Get-CloneWavesSqlBatches ([IO.File]::ReadAllText('" + str(path).replace("'", "''") + "')));ConvertTo-Json -InputObject $b -Compress"
+        return subprocess.run(['pwsh', '-NoProfile', '-Command', script], cwd=ROOT,
+                              capture_output=True, text=True, timeout=20)
+
+    def test_go_cannot_consume_following_comment_or_definition_prefix(self):
+        text = 'SELECT 1;\nGO\n-- canonical first comment\nCREATE OR ALTER PROCEDURE dbo.Synthetic AS SELECT 2;\n'
+        result = self.batches(text)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        parts = json.loads(result.stdout)
+        self.assertEqual(parts, ['SELECT 1;\n', '\n-- canonical first comment\nCREATE OR ALTER PROCEDURE dbo.Synthetic AS SELECT 2;\n'])
+
+    def test_go_inline_comment_and_crlf_preserve_next_line(self):
+        result = self.batches('SELECT 1;\r\n \tGO -- separator comment\r\n-- next batch\r\nSELECT 2;\r\n')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        parts = json.loads(result.stdout)
+        self.assertEqual(len(parts), 2)
+        self.assertIn('-- next batch', parts[1])
+        self.assertNotIn('separator comment', parts[1])
+
+    def test_only_on_error_exit_directive_is_accepted(self):
+        valid = self.batches(':On Error Exit\n-- preserved\nSELECT 1;\nGO\n')
+        self.assertEqual(valid.returncode, 0, valid.stdout + valid.stderr)
+        self.assertIn('-- preserved', json.loads(valid.stdout)[0])
+        invalid = self.batches(':r foreign.sql\nSELECT 1;\n')
+        self.assertNotEqual(invalid.returncode, 0)
+        self.assertIn('CLONE_WAVES_UNRESOLVED_SQLCMD', invalid.stdout + invalid.stderr)
+
     def test_fresh_audit_binds_original_target_journal_and_complete_witnesses(self):
         source = DRIVER.read_text(encoding='utf-8-sig')
         for guard in ('CLONE_WAVES_AUDIT_TARGET_DRIFT', 'originalJournalSHA256',
