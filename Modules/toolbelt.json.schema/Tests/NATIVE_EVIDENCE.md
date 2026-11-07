@@ -1,5 +1,12 @@
 # Begrenzte native JSON-Closure-Qualifikation
 
+Aktueller [Consumerbeleg2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md):
+Schema1.0.1 nach genuiner Constructor1.2→1.3-Migration mit aktuellem Core auf24
+lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten über alle unterstützten CLs.
+Kanonischer Contract und eigene Schemaentfernung bestanden, zwölf frische
+Fallaudits/sechs Konfigurations-/Trustaudits. Historische Berichte bleiben
+unverändert; keine daraus abgeleitete vollständige Schema-Modulqualifikation.
+
 Additiver Nachweis 2026-10-25: Das [Caller-Rechteprofil](../../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) ergänzt zwölf Ziel-/CL-Fälle lokal/direkt zentral mit genau drei Objektrechten und direkten/ResultTable-Ausgaben. Frühere offene Minimalrechteangaben bleiben historisch; diese neue Abnahme schließt ausschließlich das dokumentierte Datenpfadprofil. Andere Lifecycle-, Client-, Ressourcen- und CrossDB-Gates bleiben getrennt.
 
 ## Schema1.0.1: erfolgreicher nativer CI-Nachweis, 2026-10-06
