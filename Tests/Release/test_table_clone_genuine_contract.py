@@ -118,6 +118,21 @@ class CloneGenuineAdmissionTests(unittest.TestCase):
         self.assertIn('PURE_FAULT_PASS', result.stdout)
         self.assertEqual(list(self.directory.glob('case-*')), [])
 
+    def test_carry_cannot_select_another_mode(self):
+        self.reject(lambda r: r.update(carry=dict(schema_version='genuine-v1-prefix/v1', caseIndex=0, mode='central', profileCount=4)), 'CARRY_SCOPE')
+
+    def test_carry_cannot_change_prefix_size(self):
+        self.reject(lambda r: r.update(carry=dict(schema_version='genuine-v1-prefix/v1', caseIndex=0, mode='local', profileCount=3)), 'CARRY_SCOPE')
+
+    def test_carried_profiles_cannot_run_again(self):
+        command = UTF8 + "$ErrorActionPreference='Stop';$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile(" + quote(DRIVER) + ",[ref]$null,[ref]$e);" + \
+            "$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Get-CloneGenuineProfiles'},$true));if($e.Count-or$n.Count-ne1){throw 'PROFILE_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text));" + \
+            "$script:carryActive=$true;$l=@(Get-CloneGenuineProfiles 'local');$c=@(Get-CloneGenuineProfiles 'central');if($l.Count-ne6-or$c.Count-ne10-or$l[0]-cne'genuine-upgrade-rollback'){throw 'REMAINDER_SCOPE'};foreach($p in @('clean-current-rollback','genuine-install','current-uninstall-genuine','genuine-reinstall')){if($l-ccontains$p){throw 'GREEN_PROFILE_REPLAY'}};$script:carryActive=$false;if(@(Get-CloneGenuineProfiles 'local').Count-ne10){throw 'UNTESTED_CASE_TRUNCATED'};'PROFILE_PASS'"
+        result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', command],
+            cwd=ROOT, capture_output=True, text=True, encoding='utf-8', timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('PROFILE_PASS', result.stdout)
+
     def test_valid_original_tree_without_lab_import(self):
         result = self.admission(self.record)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
