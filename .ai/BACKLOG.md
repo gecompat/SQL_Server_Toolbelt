@@ -1,5 +1,17 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Genuine V1-Lifecycle-Profilmatrix — 2026-11-07
+
+
+Die [aktuelle genuine V1-Lifecycle-Profilmatrix](../Releases/1.0.0/TABLE-CLONE-GENUINE-V1-LIFECYCLE-QUALIFICATION.md)
+belegt 240 eindeutige Profile auf 24 lokalen/direkt zentralen Windows-/Linux-
+Kontexten: elf vollständige Fälle und ein Fall mit vier gebunden wiederverwendeten
+Profilen plus bestandenem Restumfang. Beide ursprünglichen Koordinatoren bleiben
+fehlgeschlagen. Alle 26 eigenen DBs entfernt, 14 frische Audits bestanden;
+keine Rechte-/Produkt-SQL-/Server-/Labänderung. V1-Upgrade, aktuelles Uninstall,
+Repeat und die drei gezielten Rollbackprofile sind damit belegt. Andere genuine
+Zwischenversionen und übrige Modulpflichten bleiben getrennt.
+
 ## Vollständiger SQLCMD-Caller-Abbruch — 2026-11-07
 
 
@@ -10,7 +22,8 @@ Einschließlich erhaltenem Erstfehler bestätigen 13 frische Audits die Entfernu
 aller 25 angelegten eigenen DBs. Die geänderte Kindprozess-Isolation behebt
 nur den Testadapter; Produkt-SQL, Rechte und Serverzustand bleiben unverändert.
 Die früher pauschal offenen vollständigen SQLCMD-Caller-Includes sind damit
-geschlossen. Linux-Clienthost und genuine Upgrade-/Uninstall-/Recoveryfälle
+geschlossen. Der darüber verlinkte neue V1-Nachweis schließt seinen gezielten
+Upgrade-/Uninstall-/Repeat-/Rollback-Scope. Linux-Clienthost und weitere Recoveryfälle
 bleiben separat; ältere datierte Teilnachweise behalten ihren ursprünglichen Scope.
 
 ## Table Clone: aktueller Windows-Clientreader — 2026-11-07
