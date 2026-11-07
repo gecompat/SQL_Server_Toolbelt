@@ -1,4 +1,4 @@
-"""Windows-only admission negatives; no private artifacts, Lab import or SQL."""
+"""Windows-Admission-Gegenproben ohne private Artefakte, Labimport oder SQL."""
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import copy
@@ -69,7 +69,7 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
         self.assertIn(reason, result.stdout + result.stderr)
 
     def test_public_scope_reaches_explicit_private_artifact_boundary(self):
-        # Positive real-artifact admission is checked privately, not fabricated in CI.
+        # Die positive echte Artefakt-Admission wird privat geprüft und in CI nicht erfunden.
         result = self.admission()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('parserArtifact', result.stdout + result.stderr)
@@ -143,7 +143,7 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_option_zero_reuse_requires_exact_single_pin_change(self):
-        # Previous Main's complete normalized source, not an inferred runtime PASS.
+        # Vollständige normalisierte Quelle des vorherigen Main; kein abgeleiteter Runtime-PASS.
         source = (ROOT / 'Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql').read_bytes().replace(b'\r\n', b'\n')
         current = b'F2213559FA9085BDAC9B6A4C1954D7BE18EAAE9BFBF950E2A29CC0121D8B36D6838D4366327D3A6B0C9ED655179ACBE898E2887D917AA0D0C2B7C243C891C16A'
         previous = b'7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506'
