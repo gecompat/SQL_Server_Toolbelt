@@ -2,7 +2,7 @@
 set -euo pipefail
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
 sql_version="${TBX_SQL_VERSION:-2025}"
-case "${sql_version}" in 2019) levels="150";; 2022) levels="160";; 2025) levels="150 160 170";; *) exit 1;; esac
+case "${sql_version}" in 2019) levels="150";; 2022) levels="150 160";; 2025) levels="150 160 170";; *) exit 1;; esac
 container_name="tbx-w6d-${GITHUB_RUN_ID:-local}"
 if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
     container_name="tbx-w6d-${sql_version}-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
@@ -88,6 +88,26 @@ run_file(){ local db="$1" wd="$2" file="$3"; shift 3; docker exec --workdir "${w
 deploy(){ run_file "$1" "/workspace/$2/Deployment" Deploy.sql -v DeploymentMode="$3"; }
 uninstall(){ run_file "$1" "/workspace/$2/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers="$3" AllowDataLoss="$4"; }
 
+
+# Repeat benötigt einen expliziten Engine-/CL-Zeugen; Image-Defaults reichen nicht.
+set_compatibility_level(){
+ local db="$1" level="$2"
+ case "${sql_version}/${level}" in
+  2019/150|2022/150|2022/160|2025/150|2025/160|2025/170) ;;
+  *) echo 'W6D_REPEAT_SCOPE_INVALID' >&2; return 64;;
+ esac
+ run_query "${db}" "ALTER DATABASE [${db}] SET COMPATIBILITY_LEVEL=${level}; IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=DB_ID() AND compatibility_level=${level}) THROW 52748,N'Cancellation compatibility level differs.',1;"
+}
+run_repeat_matrix(){
+ local db="$1" mode="$2" level
+ for level in ${levels}; do
+  set_compatibility_level "${db}" "${level}" || return $?
+  run_file "${db}" /workspace/Modules/toolbelt.core.execution-cancel/Deployment \
+   ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode="${mode}" || return $?
+  echo "W6D_REPEAT_LEVEL_VERIFIED version=${sql_version} level=${level} mode=${mode}"
+ done
+}
+
 dependency_db=tbx_w6d_dependency
 run_query master "CREATE DATABASE [${dependency_db}];"
 set +e; deploy "${dependency_db}" Modules/toolbelt.core.execution-cancel local >"${private_dir}/w6d-dependency.out" 2>&1; rc=$?; set -e
@@ -97,13 +117,12 @@ local_db=tbx_w6d_local
 run_query master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy "${local_db}" Modules/toolbelt.core.execution-context local
 deploy "${local_db}" Modules/toolbelt.core.execution-cancel local
-run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Deployment \
- ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=local
+run_repeat_matrix "${local_db}" local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Lifecycle.Contract.sql
 # Freigegebene Securitygrenzen einmal pro physischem Testziel.
 run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Security.Contract.sql -t 180
 for level in ${levels}; do
- run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level};"
+ set_compatibility_level "${local_db}" "${level}"
  run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime ExecutionCancellation.Contract.sql
  pids=(); for worker in 1 2 3 4; do run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Concurrency.Contract.sql & pids+=("$!"); done
  for pid in "${pids[@]}"; do wait "${pid}"; done
@@ -117,8 +136,7 @@ central_db=tbx_w6d_central; consumer_db=tbx_w6d_consumer
 run_query master "CREATE DATABASE [${central_db}]; CREATE DATABASE [${consumer_db}];"
 deploy "${central_db}" Modules/toolbelt.core.execution-context central
 deploy "${central_db}" Modules/toolbelt.core.execution-cancel central
-run_file "${central_db}" /workspace/Modules/toolbelt.core.execution-cancel/Deployment \
- ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=central
+run_repeat_matrix "${central_db}" central
 run_file "${consumer_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Central.Contract.sql -v ToolbeltDatabase="${central_db}"
 uninstall "${central_db}" Modules/toolbelt.core.execution-cancel 1 1
 uninstall "${central_db}" Modules/toolbelt.core.execution-context 1 0

@@ -8,6 +8,7 @@ on:
       - "Modules/toolbelt.core.execution-cancel/**"
       - "Modules/toolbelt.core.execution-context/**"
       - "Tests/CI/run-w6d-execution-cancel-linux.sh"
+      - "Tests/CI/test_w6d_repeat_levels.py"
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
       - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
@@ -22,6 +23,7 @@ on:
       - "Modules/toolbelt.core.execution-cancel/**"
       - "Modules/toolbelt.core.execution-context/**"
       - "Tests/CI/run-w6d-execution-cancel-linux.sh"
+      - "Tests/CI/test_w6d_repeat_levels.py"
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
       - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
@@ -50,7 +52,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate static contract
-        run: python3 Modules/toolbelt.core.execution-cancel/Tests/Static/validate_contract.py
+        run: |
+          python3 Modules/toolbelt.core.execution-cancel/Tests/Static/validate_contract.py
+          python3 Tests/CI/test_w6d_repeat_levels.py
       - name: Execute synthetic contracts
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}

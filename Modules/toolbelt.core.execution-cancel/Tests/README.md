@@ -1,5 +1,39 @@
 # Testevidenz
 
+## Linux-Repeat mit explizitem Compatibility Level
+
+Der [bestehende Runtimeworkflow](../../../.github/workflows/w6d-execution-cancel-runtime.yml)
+prüft den befüllten achtspaltigen Repeat lokal und direkt zentral auf SQL2019
+CL150, SQL2022 CL150/160 und SQL2025 CL150/160/170. Der
+[Shelltreiber](../../../Tests/CI/run-w6d-execution-cancel-linux.sh) setzt vor
+jeder Repeat-Fixture den Level und verlangt den passenden aktuellen
+`sys.databases`-Wert. Ein fehlender oder abweichender Wert scheitert mit52748;
+unzulässige Engine-/Levelpaare werden vor der SQL-Abfrage abgewiesen.
+Image-Defaults gelten nicht als Levelnachweis.
+
+Je vollständigem Workflowlauf sind zwölf Repeatkontexte,24 echte Deploys
+und36 isolierte Principalgegenproben erforderlich. Erst nach erfolgreichem
+Originalskript erscheint je Kontext `W6D_REPEAT_LEVEL_VERIFIED` mit Version,
+Level und Modus. Die drei vorhandenen SQL-Jobs,35-Minuten-Fristen und eigenen
+Container-/DB-Cleanupverträge bleiben erhalten. API-/Concurrency-/Security-,
+Consumer- und Uninstall-Prüfungen bleiben Bestandteil derselben Jobs.
+SQL2022 führt die bestehenden API-/Concurrency-Prüfungen zusätzlich auf CL150 aus.
+
+Die [Offlineprobe](../../../Tests/CI/test_w6d_repeat_levels.py) führt die echten extrahierten
+Shellfunktionen mit SQL-/Datei-Stubs aus. Sechs Fälle prüfen alle unterstützten
+Paare und Modi, ungültige Auswahl, Level-/Fixturefehler, reale Aufrufstellen
+und vollständige Bash-Syntax. Sie läuft im vorhandenen statischen Schritt;
+kein Docker, Lab oder SQL. Der vorhandene Cleanup-Selbsttest belegt separat
+unveränderte Ownership-/Fehler-/Signalguards. Native Ergebnisse müssen den
+exakten tatsächlichen Head-/Main-CI-Jobs zugeordnet werden; Quellcode und
+Offlineprobe allein belegen keinen nativen PASS. Die untenstehenden älteren
+Windows- und Linux-Zeugen behalten ihre ursprünglichen Grenzen.
+
+Dies ist Erhaltung synthetischer Bestandsdaten, keine neue Rechtevergabe,
+Identitätsanlage, Quoten-/CrossDB- oder harte Host-Recoveryqualifikation.
+Die Produktquellen und Runtime-Fixtures bleiben unverändert.
+
+
 ## Vollständige achtspaltige Windows-Repeat-Matrix vom 2026-11-06
 
 Die ausdrücklich auf15 Ziel-/Auditaufrufe, sechs eigene Datenbanken und
