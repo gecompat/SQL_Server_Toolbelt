@@ -1,5 +1,18 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Vollständiger SQLCMD-Caller-Abbruch — 2026-11-07
+
+
+Der [vollständige SQLCMD-Caller-Abbruch vom 2026-11-07](../Releases/1.0.0/TABLE-CLONE-SQLCMD-CALLER-QUALIFICATION.md)
+besteht auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
+24 Kontexte, 96 vollständige Deploy-/Uninstall-Profile mit XACT_ABORT OFF/ON.
+Einschließlich erhaltenem Erstfehler bestätigen 13 frische Audits die Entfernung
+aller 25 angelegten eigenen DBs. Die geänderte Kindprozess-Isolation behebt
+nur den Testadapter; Produkt-SQL, Rechte und Serverzustand bleiben unverändert.
+Die früher pauschal offenen vollständigen SQLCMD-Caller-Includes sind damit
+geschlossen. Linux-Clienthost und genuine Upgrade-/Uninstall-/Recoveryfälle
+bleiben separat; ältere datierte Teilnachweise behalten ihren ursprünglichen Scope.
+
 ## Table Clone: aktueller Windows-Clientreader — 2026-11-07
 
 Der [aktuelle Client-Metadatennachweis](../Releases/1.0.0/TABLE-CLONE-WINDOWS-CLIENT-METADATA-QUALIFICATION.md)
@@ -10,8 +23,8 @@ Help-Parameter-Erwartung ist auf die aktuellen dreizehn kanonischen Zeilen
 korrigiert. Alle 24 eigenen DBs entfernt, keine Rechte-/Principal-/Assembly-/
 Server-/Trust-/Labänderungen. Produkt-SQL und grüne Fachmatrizen unverändert.
 Linux bezeichnet hier das SQL-Ziel; Linux-Clienthost, weitere echte Rechte/
-Identitäten, vollständige SQLCMD-Includes und genuine aktuelle Lifecycle-/
-Recoverypflichten bleiben getrennt. Keine Modulgesamtfreigabe.
+Identitäten und genuine aktuelle Lifecycle-/Recoverypflichten bleiben getrennt.
+Der vollständige SQLCMD-Caller-Abbruch ist im darüberstehenden aktuellen Bericht geschlossen. Keine Modulgesamtfreigabe.
 
 ## Table Clone: aktueller Windows-Trigger-Consumer — 2026-11-07
 
