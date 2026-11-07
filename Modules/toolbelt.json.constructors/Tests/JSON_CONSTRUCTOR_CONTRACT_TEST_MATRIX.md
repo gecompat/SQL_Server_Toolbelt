@@ -1,5 +1,10 @@
 # JSON Constructor Testmatrix
 
+Für [nichtleere USP-ACLs](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+bleibt der native Upgrade-/Rollback-/Repeat-Nachweis offen. Der erste neue
+Adapterlauf ist bereinigt und frisch auditiert; die korrigierte Abhängigkeits-
+closure besteht den verbindungslosen Vorcheck und elf Offlinegegenproben.
+
 Der [direkte Aggregate-Callerbeleg2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
 schließt für genau zwei freigegebene temporäre EXECUTE-Objektrechte die
 Minimalmatrix auf24 Kontexten Windows/Linux2019/2022/2025 über alle

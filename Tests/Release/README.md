@@ -1,5 +1,9 @@
 # Releasevorbereitung prüfen
 
+Der [Constructor-ACL-Erstlauf](../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+bleibt `FAILED_CLEANED` mit frischem Audit PASS. Korrigierte Exportclosure und
+elf Offlineprüfungen bestehen; keine native ACL-Erhaltungsqualifikation daraus.
+
 Der [exakte native129-Byte-Geography-Nachweis vom2026-11-07](../../Releases/1.0.0/GEO-EXACT129-QUALIFICATION.md)
 schließt den bisher unbeobachteten Grenzoperand auf24 lokalen/direkt zentralen
 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs:24 gemessene
