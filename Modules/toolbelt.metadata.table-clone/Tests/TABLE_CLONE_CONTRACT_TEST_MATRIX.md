@@ -1,5 +1,14 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+Die [aktuelle direkte Vorgängermatrix](../../../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
+belegt fünf echte öffentliche Versionen 2.0.0/3.0.0/3.1.0/4.0.0/4.1.0
+gegen 4.1.1 auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:
+360 eindeutige Uninstall-/Upgrade-Rollback-/Direktupgradeprofile, zwölf
+vollständige Läufe und zwölf frische Audits. Alle 24 eigenen DBs entfernt;
+keine Fehler, Wiederholung grüner Profile, Produkt- oder Rechteänderung.
+Ältere pauschale Offenangaben zu diesen direkten Vorgängerpfaden sind damit
+erledigt; historische Teilnachweise und übrige Modulpflichten bleiben getrennt.
+
 ## Planner: freigegebene Fünfrechtematrix — 2026-11-07
 
 
