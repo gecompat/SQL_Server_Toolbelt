@@ -140,6 +140,16 @@ class ConstructorAggregateCallerTests(unittest.TestCase):
         self.assertNotRegex(source, r'GRANT (?:SELECT|CONTROL|IMPERSONATE|ALTER|CREATE)')
         self.assertNotIn('ALTER ROLE', source)
 
+    def test_catalog_acl_except_projects_both_code_columns_with_database_collation(self):
+        # Katalogspalten können auf Windows eine andere Collation als die eigene DB
+        # haben. Jeder Katalogoperand des Baseline-EXCEPT muss sie explizit angleichen.
+        source = FIXTURE.read_text(encoding='utf-8-sig')
+        projection = 'SELECT class,major_id,minor_id,grantor_principal_id,type COLLATE DATABASE_DEFAULT,state COLLATE DATABASE_DEFAULT FROM sys.database_permissions'
+        self.assertEqual(source.count(projection), 3)
+        self.assertNotIn('grantor_principal_id,type,state FROM sys.database_permissions', source)
+        self.assertIn('EXCEPT SELECT * FROM @Baseline', source)
+        self.assertIn('SELECT * FROM @Baseline EXCEPT SELECT', source)
+
     def test_session_context_owner_is_bounded_before_sql_variant_conversion(self):
         # Der echte Release-SQL-Helfer bindet Strings als nvarchar(max).
         # SQL-variant-Kontextwerte brauchen deshalb eine lokale begrenzte Variable.

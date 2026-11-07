@@ -36,7 +36,7 @@ INSERT @Profiles VALUES
 CREATE USER [ContosoAggregateCaller] WITHOUT LOGIN;
 -- Eventuelle Engine-Defaults (z.B. CONNECT) erfassen, nicht als eigenen Grant zählen.
 DECLARE @Baseline table(class tinyint,major_id int,minor_id int,grantor_principal_id int,type char(4),state char(1));
-INSERT @Baseline SELECT class,major_id,minor_id,grantor_principal_id,type,state FROM sys.database_permissions
+INSERT @Baseline SELECT class,major_id,minor_id,grantor_principal_id,type COLLATE DATABASE_DEFAULT,state COLLATE DATABASE_DEFAULT FROM sys.database_permissions
  WHERE grantee_principal_id=USER_ID(N'ContosoAggregateCaller');
 IF EXISTS(SELECT 1 FROM @Baseline WHERE class<>0 OR type<>N'CO' OR state<>N'G')
  OR EXISTS(SELECT 1 FROM sys.database_role_members WHERE member_principal_id=USER_ID(N'ContosoAggregateCaller'))
@@ -60,8 +60,8 @@ BEGIN TRY
    IF @Phase=3
    BEGIN
     SELECT @Acl=RevokeSql FROM @Profiles WHERE Id=@I;EXEC sys.sp_executesql @Acl;
-    IF EXISTS(SELECT class,major_id,minor_id,grantor_principal_id,type,state FROM sys.database_permissions WHERE grantee_principal_id=USER_ID(N'ContosoAggregateCaller')
-      EXCEPT SELECT * FROM @Baseline) OR EXISTS(SELECT * FROM @Baseline EXCEPT SELECT class,major_id,minor_id,grantor_principal_id,type,state FROM sys.database_permissions WHERE grantee_principal_id=USER_ID(N'ContosoAggregateCaller'))
+    IF EXISTS(SELECT class,major_id,minor_id,grantor_principal_id,type COLLATE DATABASE_DEFAULT,state COLLATE DATABASE_DEFAULT FROM sys.database_permissions WHERE grantee_principal_id=USER_ID(N'ContosoAggregateCaller')
+      EXCEPT SELECT * FROM @Baseline) OR EXISTS(SELECT * FROM @Baseline EXCEPT SELECT class,major_id,minor_id,grantor_principal_id,type COLLATE DATABASE_DEFAULT,state COLLATE DATABASE_DEFAULT FROM sys.database_permissions WHERE grantee_principal_id=USER_ID(N'ContosoAggregateCaller'))
      THROW 53695,N'Object grant remains after revoke.',9;
    END;
    SELECT @Sql=QuerySql FROM @Profiles WHERE Id=CASE WHEN @Phase=2 THEN 3-@I ELSE @I END;
