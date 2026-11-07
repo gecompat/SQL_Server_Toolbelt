@@ -3,6 +3,14 @@
 ## Planner: freigegebene Fünfrechtematrix — 2026-11-07
 
 
+Vorbereitung 2026-11-07 – Codex: Der fortbestehende Benutzerauftrag zur autonomen
+Qualifikation deckt die fehlenden direkten Lifecycle-Pfade der bereits
+unterstützten Table-Clone-Vorgänger ab. Der
+[begrenzte Nachweisvertrag](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
+prüft fünf echte öffentliche Originalstände, keine neue Fachfunktion oder
+Rechtevergabe. Native Abnahme steht an diesem Methodenstand noch aus;
+historische Nachweise und die getrennte Constructor-Freigabe bleiben erhalten.
+
 Die [aktuelle Planner-Fünfrechtematrix](../Releases/1.0.0/TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md)
 besteht auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:
 24 vollständige Originalfixtures mit gebundener interner Direktaufrufverweigerung
