@@ -73,6 +73,41 @@ class ConstructorAclTests(unittest.TestCase):
         return subprocess.run(['pwsh', '-NoProfile', '-Command', command], cwd=ROOT,
                               capture_output=True, text=True, timeout=20)
 
+    def export_record(self):
+        exports = {}
+        for mode in ('local', 'central'):
+            paths = {}
+            for part, text in (
+                ('base', ':On Error Exit\n-- BEGIN MODULE toolbelt.core.result-table\nSELECT 1;\n-- BEGIN MODULE toolbelt.json.core\nSELECT 1;\n'),
+                ('historical12', 'SELECT 1;\n'), ('current13', '  SET @AssemblyId=NULL;\n')):
+                path = self.directory / (mode + '.' + part + '.sql')
+                path.write_text(text, encoding='utf-8')
+                paths[part] = str(path)
+            exports[mode] = paths
+        path = self.directory / 'exports.json'
+        path.write_text(json.dumps(exports), encoding='utf-8')
+        return exports, "$exports=Get-Content -Raw -LiteralPath '" + str(path).replace("'", "''") + "'|ConvertFrom-Json; "
+
+    def test_complete_base_required_before_sql_in_both_modes(self):
+        exports, load = self.export_record()
+        result = self.profile(load + "function Invoke-ReleaseSql {throw 'SQL_MUST_NOT_RUN'}; Assert-ConstructorAclExports $exports; 'PASS complete base without SQL'")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for text in ('-- BEGIN MODULE toolbelt.json.core\n', '-- BEGIN MODULE toolbelt.core.result-table\n',
+                     '-- BEGIN MODULE toolbelt.json.core\n-- BEGIN MODULE toolbelt.core.result-table\n',
+                     '-- BEGIN MODULE toolbelt.core.result-table\n-- BEGIN MODULE toolbelt.json.core\n-- BEGIN MODULE toolbelt.unapproved.extra\n'):
+            Path(exports['central']['base']).write_text(text, encoding='utf-8')
+            result = self.profile(load + "try{Assert-ConstructorAclExports $exports;throw 'ACCEPTED_BAD_CLOSURE'}catch{if($_.Exception.Message-ne'CONSTRUCTOR_ACL_BASE_CLOSURE_REQUIRED'){throw}}; 'PASS wrong closure rejected'")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_fault_anchor_and_unresolved_exports_fail_before_sql(self):
+        exports, load = self.export_record()
+        for text, error in (('SELECT 1;\n', 'CONSTRUCTOR_ACL_ROLLBACK_ANCHOR'),
+                            ('  SET @AssemblyId=NULL;\n  SET @AssemblyId=NULL;\n', 'CONSTRUCTOR_ACL_ROLLBACK_ANCHOR'),
+                            (':r unapproved.sql\n  SET @AssemblyId=NULL;\n', 'CONSTRUCTOR_ACL_EXPORT_UNRESOLVED_DIRECTIVES')):
+            Path(exports['central']['current13']).write_text(text, encoding='utf-8')
+            result = self.profile(load + "try{Assert-ConstructorAclExports $exports;throw 'ACCEPTED_BAD_EXPORT'}catch{if($_.Exception.Message-ne'" + error + "'){throw}}; 'PASS wrong export rejected'")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_empty_partial_or_extra_acl_never_counts_as_nonempty_profile(self):
         result = self.profile(r'''
 function Invoke-ReleaseSql {param($Connection,$Sql,[switch]$Rows);return $script:FakeRows}

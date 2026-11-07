@@ -1,4 +1,19 @@
 # Nur bereits genehmigte vier Objekt-EXECUTE-Rechte im eigenen Constructor-Test.
+function Assert-ConstructorAclExports($Exports){
+ foreach($mode in @('local','central')){
+  $paths=$Exports.$mode
+  $base=[IO.File]::ReadAllText($paths.base)
+  $modules=@([regex]::Matches($base,'(?m)^-- BEGIN MODULE ([a-z0-9.-]+)\r?$')|ForEach-Object{$_.Groups[1].Value})
+  if(($modules-join',')-cne'toolbelt.core.result-table,toolbelt.json.core'){throw 'CONSTRUCTOR_ACL_BASE_CLOSURE_REQUIRED'}
+  foreach($part in @('base','historical12','current13')){
+   $text=[IO.File]::ReadAllText($paths.$part)
+   $text=[regex]::Replace($text,'(?im)^\s*:ON\s+ERROR\s+EXIT\s*$','')
+   if($text-match'(?m)^\s*:'-or$text.Contains('$(')){throw 'CONSTRUCTOR_ACL_EXPORT_UNRESOLVED_DIRECTIVES'}
+  }
+  $current=[IO.File]::ReadAllText($paths.current13)
+  if([regex]::Matches($current,[regex]::Escape('  SET @AssemblyId=NULL;')).Count-ne1){throw 'CONSTRUCTOR_ACL_ROLLBACK_ANCHOR'}
+ }
+}
 function Get-ConstructorAclSnapshot($Connection){
  $sql=@'
 SELECT N'procedure' Kind,o.object_id Id,ISNULL(o.principal_id,-1) Owner,

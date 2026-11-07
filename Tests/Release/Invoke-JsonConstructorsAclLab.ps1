@@ -72,6 +72,7 @@ try {
   (Join-Path $repo 'Tests/CI/run-lab-local.ps1'),(Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'))+$exportPaths){
   if(@($runset.pins|Where-Object path -CEQ $required).Count-ne1){throw 'CONSTRUCTOR_ACL_REQUIRED_PIN_MISSING'}
  }
+ Assert-ConstructorAclExports $runset.exports
  if($ValidateOnly){'PASS CONSTRUCTOR_ACL_UPGRADE_OFFLINE_ADMISSION; no Lab import or SQL';return}
  . (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1')
  foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/CI/run-lab-local.ps1') @(
@@ -148,6 +149,10 @@ try {
    if($actualCl.Count-ne1-or$actualCl[0].CL-ne$case.CL){throw 'CONSTRUCTOR_ACL_ACTUAL_CL'}
    $stage='BASE_'+$mode
    Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($runset.exports.$mode.base))
+   $baseMarkers=@(Invoke-ReleaseSql $db "SELECT name,CONVERT(nvarchar(128),value) Value FROM sys.extended_properties WHERE class=0 AND name LIKE N'Toolbelt.Module.%.Version';" -Rows)
+   if($baseMarkers.Count-ne2-or@($baseMarkers|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.core.result-table.Version'-and$_.Value-ceq'1.0.0'}).Count-ne1-or
+    @($baseMarkers|Where-Object{$_.name-ceq'Toolbelt.Module.toolbelt.json.core.Version'-and$_.Value-ceq'1.0.0'}).Count-ne1){throw 'CONSTRUCTOR_ACL_BASE_INSTALLED_CLOSURE'}
+   Invoke-ReleaseSql $db "IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P') IS NULL THROW 53695,N'Complete Constructor base dependency required.',6;"
    $stage='ACL_UPGRADE_'+$mode
    $witness=Invoke-ConstructorAclUpgrade $db $mode
    if($witness.state-cne'COMPLETE'-or$witness.aclEntries-ne4-or$witness.procedureIdentities-ne5-or
