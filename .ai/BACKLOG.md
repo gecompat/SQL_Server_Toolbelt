@@ -1,5 +1,18 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Abgleich der offenen Constructor-Rechteangabe — 2026-11-07
+
+Die aktuelle modulübergreifende [Testübersicht](../Tests/README.md#modulspezifische-testmatrizen)
+berücksichtigt jetzt den in PR540 gemergten direkten Aggregate-Callerbeleg.
+Die ältere Aussage „direkte AGF-Minimalrechte separat/offen“ gilt nicht mehr
+für das ausdrücklich genehmigte Zwei-Objektrechte-Profil auf24 Kontexten.
+48 positive Profile,144 SQL229-Abweisungen und zwölf frische Audits bleiben
+an die ursprüngliche Methode und den unveränderten Produktstand gebunden.
+Andere Owner, nichtleere Upgrade-ACLs und echte Netzwerk-/CrossDB-Identitäten
+sind davon getrennt. Historische Reports/JSON/Pakete/Fehler bleiben unverändert.
+Dieser reine Lesewegabgleich startet keine SQL-Welle und vergibt keine Rechte.
+
+
 Der [direkte Aggregate-Minimalrechtetest](../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
 besteht seit2026-11-07 die ausdrücklich freigegebenen zwei temporären EXECUTE-
 Objektrechte auf24 lokalen/direkt zentralen Kontexten Windows/Linux2019/2022/2025
