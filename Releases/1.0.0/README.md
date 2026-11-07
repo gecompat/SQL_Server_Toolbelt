@@ -1,5 +1,9 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [Constructor-Migration mit nichtleeren USP-ACLs](JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+bleibt nach dem bereinigten Erstlauf offen. Die vorbereitete Adapterkorrektur
+und der frische Cleanup-Audit sind getrennt vom fehlenden nativen Gesamtfall.
+
 Der [exakte native129-Byte-Geography-Nachweis vom2026-11-07](GEO-EXACT129-QUALIFICATION.md)
 schließt den bisher unbeobachteten Grenzoperand auf24 lokalen/direkt zentralen
 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs:24 gemessene

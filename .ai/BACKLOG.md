@@ -1,5 +1,15 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Constructor: nichtleere USP-ACLs — 2026-11-07
+
+Der [erste neue ACL-Lauf](../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+ist `FAILED_CLEANED` mit frischem Cleanup-Audit PASS. Ursache war die im
+Testadapter ausgelassene ResultTable-Abhängigkeit; vor Identität/Grants gestoppt,
+eine eigene DB entfernt. Die korrigierte echte Exportclosure und elf
+Offlinegegenproben bestehen. Native Wiederaufnahme benötigt neue endliche
+Freigabe; die geschlossene No-Retry-Welle und alle alten Nachweise bleiben
+unverändert. Vier bereits genehmigte USP-EXECUTE-Rechte, keine Ownererweiterung.
+
 Der [exakte native129-Byte-Geography-Nachweis vom2026-11-07](../Releases/1.0.0/GEO-EXACT129-QUALIFICATION.md)
 schließt den bisher unbeobachteten Grenzoperand auf24 lokalen/direkt zentralen
 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs:24 gemessene

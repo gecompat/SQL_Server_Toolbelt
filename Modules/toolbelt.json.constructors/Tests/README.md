@@ -1,5 +1,10 @@
 # Testausführung
 
+Die [nichtleere USP-ACL-Migration](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+ist noch nicht nativ qualifiziert: erster Adapterlauf `FAILED_CLEANED`,
+frischer Cleanup-Audit PASS; korrigierte Exportclosure und elf Offlineprüfungen
+bestanden. Die frühere leere ACL-Migration wird dadurch nicht aufgewertet.
+
 Der [direkte Aggregate-Minimalrechtetest](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
 besteht seit2026-11-07 die ausdrücklich freigegebenen zwei temporären EXECUTE-
 Objektrechte auf24 lokalen/direkt zentralen Kontexten Windows/Linux2019/2022/2025
