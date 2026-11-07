@@ -1,5 +1,21 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Cancellation-Linux-Repeat: explizite CL-Zuordnung — 2026-11-07
+
+Der fortbestehende autonome Qualifikationsauftrag schließt die tatsächliche
+Repeat-Lücke des vorhandenen Linux-CI-Treibers: Die ursprünglichen beiden
+Aufrufe lagen außerhalb der CL-Schleife und belegten nur Image-Defaults.
+Der [aktuelle Testweg](../Modules/toolbelt.core.execution-cancel/Tests/README.md#linux-repeat-mit-explizitem-compatibility-level)
+setzt und verifiziert jetzt SQL2019/150,SQL2022/150/160 und SQL2025/150/160/170
+für jeden lokalen/direkt zentralen achtspaltigen Repeat. Originale Deploy-,
+Capture-/Assert- und drei Principalgegenproben bleiben unverändert. Native
+Abnahme erfordert tatsächliche vollständige Jobs am exakten Head und Main;
+sechs Offlinegegenproben und Quellcode allein sind kein PASS. Die vorhandenen
+drei Runtimejobs und35-Minuten-Fristen bleiben erhalten. Keine neuen Rechte,
+Labänderungen, Produktfunktionen oder Veröffentlichung. Alte Windowsbudgets,
+Fehler und Linux-Teilnachweise werden nicht zurückgesetzt oder umgedeutet.
+
+
 ## Abgleich der offenen Constructor-Rechteangabe — 2026-11-07
 
 Die aktuelle modulübergreifende [Testübersicht](../Tests/README.md#modulspezifische-testmatrizen)

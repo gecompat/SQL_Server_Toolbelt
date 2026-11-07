@@ -1,5 +1,20 @@
 # Execution Cancellation Contract Test Matrix
 
+## Explizites Linux-Repeatprofil
+
+Der [aktuelle CI-Testweg](README.md#linux-repeat-mit-explizitem-compatibility-level)
+verlangt SQL2019/150,SQL2022/150/160 und SQL2025/150/160/170 jeweils lokal und
+direkt zentral. Beide Repeat-Einstiege setzen und verifizieren den Level vor
+jeder achtspaltigen Originalfixture. Erwartet je Workflowlauf: zwölf Kontexte,
+24 Deploys und36 Principalgegenproben. Ein Level- oder Fixturefehler verhindert
+den Erfolgsmarker und weitere Levels. Reale Head-/Main-Jobergebnisse sind die
+native Evidenz; sechs source-extracted Offlinefälle allein sind kein SQL-Nachweis.
+Die bisherige Stellung außerhalb der CL-Schleife belegte nur den Image-Default,
+keine vollständige Repeat-CL-Matrix. Bestehende Windows- und alte Linuxnachweise
+werden weder wiederholt noch rückwirkend aufgewertet. Weitere Callerrechte,
+nichtleere Grants und harte Recovery bleiben eigene Verträge.
+
+
 | Bereich | Nachweis |
 |---|---|
 | Öffentlicher Vertrag | Parameter, Help, TVF- und SVF-Signatur, sichere Statusspalten |
