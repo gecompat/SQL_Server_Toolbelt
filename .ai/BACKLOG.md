@@ -1,5 +1,19 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Table Clone: begrenzte Planner-Testrechte — Freigabe 2026-11-07
+
+Der Benutzer hat nach konkreter Besprechung die temporäre Identität ohne Login
+und genau fünf Rechte ausschließlich in eigenen synthetischen Testdatenbanken
+freigegeben: EXECUTE auf `USP_ScriptTableClone` und `USP_PrepareResultTable`,
+VIEW DEFINITION auf synthetische Quelle, Schema dbo und eigene Testdatenbank.
+Der Scope ist die vorhandene `MinimumRights.Contract.sql` plus verweigerter
+Direktaufruf des internen Kerns; keine internen Grants, Serverrechte oder
+Änderungen bestehender Identitäten. Maximal 28 Lauf-/Auditaufrufe,
+28 DB-Reservierungen und 60 Minuten. Die
+[Nachweisvorbereitung](../Releases/1.0.0/TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md)
+behauptet noch keinen nativen PASS. Andere Rechte-/Executor-/Copy-/Identitäts-
+oder Modulgesamtpflichten werden dadurch nicht freigegeben oder geschlossen.
+
 ## Genuine V1-Lifecycle-Profilmatrix — 2026-11-07
 
 
