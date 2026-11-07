@@ -160,7 +160,7 @@ try {
    $before=@(Invoke-ReleaseSql $db $definitions -Rows)|ConvertTo-Json -Depth 4 -Compress
    $db.Dispose();$stage='CONTRACT_'+$mode
    $db=Open-ReleaseConnection $name
-   Invoke-ReleaseSql $db "EXEC sys.sp_set_session_context @key=N'Test.Constructor.AggregateRights.Approved',@value=1; EXEC sys.sp_set_session_context @key=N'Test.Constructor.AggregateRights.Owner',@value=@Owner;" @{'@Owner'=$ledger.owner}
+   Invoke-ReleaseSql $db "DECLARE @ContextOwner nvarchar(32)=@Owner; EXEC sys.sp_set_session_context @key=N'Test.Constructor.AggregateRights.Approved',@value=1; EXEC sys.sp_set_session_context @key=N'Test.Constructor.AggregateRights.Owner',@value=@ContextOwner;" @{'@Owner'=$ledger.owner}
    $witness=@(Invoke-ReleaseSql $db ([IO.File]::ReadAllText($runset.fixture)) -Rows)
    if($witness.Count-ne1-or$witness[0].Positive-ne2-or$witness[0].Denied-ne6-or$witness[0].UserRemoved-ne1){throw 'CONSTRUCTOR_AGGREGATE_CALLER_WITNESS'}
    $ledger.witnesses+=@(@{mode=$mode;caller=$witness[0]});Save-ReleaseJournal

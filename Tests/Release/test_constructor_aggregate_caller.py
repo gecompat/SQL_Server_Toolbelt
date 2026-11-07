@@ -140,6 +140,16 @@ class ConstructorAggregateCallerTests(unittest.TestCase):
         self.assertNotRegex(source, r'GRANT (?:SELECT|CONTROL|IMPERSONATE|ALTER|CREATE)')
         self.assertNotIn('ALTER ROLE', source)
 
+    def test_session_context_owner_is_bounded_before_sql_variant_conversion(self):
+        # Der echte Release-SQL-Helfer bindet Strings als nvarchar(max).
+        # SQL-variant-Kontextwerte brauchen deshalb eine lokale begrenzte Variable.
+        source = DRIVER.read_text(encoding='utf-8-sig')
+        batch = next(line for line in source.splitlines() if 'sp_set_session_context' in line)
+        self.assertIn('DECLARE @ContextOwner nvarchar(32)=@Owner;', batch)
+        self.assertIn("Rights.Owner',@value=@ContextOwner;", batch)
+        self.assertNotIn("Rights.Owner',@value=@Owner;", batch)
+        self.assertLess(batch.index('DECLARE @ContextOwner'), batch.index('sp_set_session_context'))
+
     def test_source_pinning_product_and_full_server_restoration_are_preserved(self):
         source = DRIVER.read_text(encoding='utf-8-sig')
         for guard in ('Assert-ReleaseInputs', 'originalJournalSHA256', 'Read-ConstructorAggregateCallerTarget',

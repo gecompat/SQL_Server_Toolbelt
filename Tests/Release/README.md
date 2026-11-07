@@ -1,5 +1,13 @@
 # Releasevorbereitung prüfen
 
+Der [direkte Aggregate-Minimalrechtetest](../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
+ist seit2026-11-07 für genau zwei temporäre EXECUTE-Objektrechte freigegeben.
+Der erste native Lauf endete vor Grants/Benutzeranlage FAILED_CLEANED mit
+frischem Audit PASS. Die typisierte Kontextkorrektur besteht sieben
+Offlineprüfungen; die native Aggregate-Rechtequalifikation bleibt offen.
+Eine Wiederholung benötigt eine neue konkrete endliche Freigabe.
+
+
 ## Aktuelle 19 stabile Kandidaten abnehmen
 
 Die [Abnahmeübersicht](../../Releases/1.0.0/STABLE19-ACCEPTANCE.md) trennt

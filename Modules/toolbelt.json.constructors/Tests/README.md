@@ -1,5 +1,13 @@
 # Testausführung
 
+Der [direkte Aggregate-Minimalrechtetest](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
+ist seit2026-11-07 für genau zwei temporäre EXECUTE-Objektrechte freigegeben.
+Der erste native Lauf endete vor Grants/Benutzeranlage FAILED_CLEANED mit
+frischem Audit PASS. Die typisierte Kontextkorrektur besteht sieben
+Offlineprüfungen; die native Aggregate-Rechtequalifikation bleibt offen.
+Eine Wiederholung benötigt eine neue konkrete endliche Freigabe.
+
+
 Die [aktuelle genuine Migration vom2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
 belegt bekannte1.2→1.3 plus aktuellen Core1.0.0/Schema1.0.1-Consumer auf24
 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt
