@@ -114,6 +114,15 @@ ein dritter lokaler Full-Lauf wurde nicht gestartet. Der native Produkt-/
 Treiberstand und seine Audits bleiben unverändert bestanden; keine native
 Wiederholung.
 
+Am ersten PR-Head bestanden alle 420 Release- und 18 Paketprüfungen sowie
+alle drei Runtime-Jobs und deren Containerbereinigungen. Der Gesamtstatus
+dieses CI-Laufs bleibt fehlgeschlagen: Der aus der geänderten öffentlichen
+Objektdokumentation abgeleitete API-Katalog war noch veraltet. Der vorhandene
+Generator aktualisierte genau dessen einen Source-/Vertragshash; seine
+anschließende Standardprüfung bestand. Auch dieser ursprüngliche CI-Fehler
+bleibt erhalten. Der finale Head erhält seine tatsächlichen aktuellen Checks
+und den zusätzlich explizit ausgewählten vollständigen Dokumentationsaudit.
+
 ## Wiederverwendung und getrennte Restpunkte
 
 Die einzige Produktänderung liegt im vorhandenen, bei Option 0 unerreichbaren
