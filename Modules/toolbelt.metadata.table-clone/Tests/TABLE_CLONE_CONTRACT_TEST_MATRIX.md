@@ -1,5 +1,17 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Aktuelle W1-/W2-Fixtures — 2026-11-07
+
+Der [aktuelle W1-/W2-Bericht](../../../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)
+belegt die sieben dort genannten Originalfixtures auf Windows/Linux
+2019/2022/2025 über alle unterstützten CLs lokal/direkt zentral: 24 Kontexte,
+168 vollständige Fixture-Ausführungen, zwölf erfolgreiche Gesamtfälle und
+13 frische Audits. Der erste native Gesamtfehler bleibt `FAILED_CLEANED`;
+ursprüngliche UTC-Frist und Zähler blieben bei der geänderten Adapterkorrektur
+erhalten. Alle 25 tatsächlich angelegten DBs entfernt, keine Rechte-/Principal-/
+CLR-/Serveränderung. Nur ausgeführte Quoten-Branches, keine tatsächliche
+Lowpriv-Abnahme aus Predicate-Injektion. Originale und getrennte Scopegrenzen erhalten.
+
 ## Aktuelle Planner-/Executor-Fixtures — 2026-11-07
 
 Der [aktuelle Zielbericht](../../../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)

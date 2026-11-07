@@ -1,5 +1,10 @@
 # Releasevorbereitung prüfen
 
+Die [aktuelle Table-Clone-W1-/W2-Matrix](../../Releases/1.0.0/TABLE-CLONE-W1-W2-QUALIFICATION.md)
+belegt 24 Kontexte, 168 Originalfixture-Ausführungen und 13 frische Audits.
+Ein bereinigter Erstfehler und die unveränderte ursprüngliche Frist bleiben
+nachprüfbar erhalten; alle 25 tatsächlich angelegten DBs sind entfernt.
+
 Die [aktuelle Planner-/Executor-Matrix](../../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
 besteht auf 24 lokalen/direkt zentralen Kontexten mit 96 vollständigen
 Ausführungen von vier Originalfixtures und zwölf frischen Audits. Keine
