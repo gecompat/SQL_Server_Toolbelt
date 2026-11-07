@@ -1,5 +1,10 @@
 # Releasevorbereitung prüfen
 
+Die [aktuelle Planner-/Executor-Matrix](../../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
+besteht auf 24 lokalen/direkt zentralen Kontexten mit 96 vollständigen
+Ausführungen von vier Originalfixtures und zwölf frischen Audits. Keine
+Rechte-/CLR-/Serveränderung; weitere Modulprofile bleiben getrennt.
+
 Der [Constructor-ACL-Erstlauf](../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
 bleibt `FAILED_CLEANED` mit frischem Audit PASS. Korrigierte Exportclosure und
 elf Offlineprüfungen bestehen; keine native ACL-Erhaltungsqualifikation daraus.

@@ -1,5 +1,17 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Table Clone: aktuelle Planner-/Executor-Zielmatrix — 2026-11-07
+
+Der [aktuelle Nachweis](../Releases/1.0.0/TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
+schließt die gezielte Zielmatrix für vier unveränderte 4.1.1-Fixtures:
+`TableClone.Contract.sql`, `Execute.Contract.sql`, `Execute.Safety.sql` und
+`Lifecycle.Contract.sql`. Windows/Linux 2019/2022/2025, alle unterstützten CLs
+lokal/direkt zentral: 24 Kontexte, 96 Fixture-Ausführungen, zwölf frische Audits,
+alle 24 eigenen DBs entfernt. Keine Rechte, Principals, CLR-/Trusteinträge,
+Server- oder Labänderungen. Weitere W1-/W2-/Quoten-, Trigger-, Minimalrechte-,
+Client-, Upgrade-/Uninstall- und Modulpflichtfälle bleiben separat. Historische
+Originalberichte und die getrennte Copy-Qualifikation werden nicht umgedeutet.
+
 ## Constructor: nichtleere USP-ACLs — 2026-11-07
 
 Der [erste neue ACL-Lauf](../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)

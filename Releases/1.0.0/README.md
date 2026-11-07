@@ -1,5 +1,10 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
+Die [aktuelle Table-Clone-Planner-/Executor-Matrix](TABLE-CLONE-PLANNER-EXECUTOR-QUALIFICATION.md)
+belegt vier unveränderte 4.1.1-Fixtures auf 24 Kontexten mit 96 Ausführungen
+und zwölf frischen Audits. Rechte, weitere Profile und Modulgesamtfreigabe
+bleiben separat; alle 24 eigenen DBs sind entfernt.
+
 Die [Constructor-Migration mit nichtleeren USP-ACLs](JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
 bleibt nach dem bereinigten Erstlauf offen. Die vorbereitete Adapterkorrektur
 und der frische Cleanup-Audit sind getrennt vom fehlenden nativen Gesamtfall.
