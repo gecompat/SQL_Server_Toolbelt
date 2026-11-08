@@ -102,7 +102,9 @@ REVOKE EXECUTE ON OBJECT::toolbelt_json.USP_JsonObject FROM ContosoJsonCaller;
 REVOKE EXECUTE ON OBJECT::toolbelt_json.USP_JsonArraysByGroup FROM ContosoJsonCaller;
 REVOKE EXECUTE ON OBJECT::toolbelt_json.USP_JsonObjectsByGroup FROM ContosoJsonCaller;
 DROP USER ContosoJsonCaller;
-IF USER_ID(N'ContosoJsonCaller') IS NOT NULL OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
+-- Sitzungszustand vor dem Katalogprädikat erfassen; dessen Autocommit ist kein Caller-Tx.
+DECLARE @FinalTranCount int=@@TRANCOUNT,@FinalXactState int=XACT_STATE();
+IF USER_ID(N'ContosoJsonCaller') IS NOT NULL OR @FinalTranCount<>0 OR @FinalXactState<>0
  THROW 53695,N'Own ACL caller cleanup/session not complete.',5;
 EXEC sys.sp_set_session_context @key=N'Test.Constructor.AclProfile.Approved',@value=NULL;
 EXEC sys.sp_set_session_context @key=N'Test.Constructor.AclProfile.Owner',@value=NULL;

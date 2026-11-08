@@ -59,9 +59,15 @@ besteht auf 24 lokalen/direkt zentralen Kontexten mit 96 vollständigen
 Ausführungen von vier Originalfixtures und zwölf frischen Audits. Keine
 Rechte-/CLR-/Serveränderung; weitere Modulprofile bleiben getrennt.
 
-Der [Constructor-ACL-Erstlauf](../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
-bleibt `FAILED_CLEANED` mit frischem Audit PASS. Korrigierte Exportclosure und
-elf Offlineprüfungen bestehen; keine native ACL-Erhaltungsqualifikation daraus.
+Die [nichtleere Constructor-ACL-Migration](../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+bleibt am 2026-11-08 nativ unqualifiziert: Auch die erneut freigegebene Welle
+stoppte vor Testbenutzer/Grants und ist FAILED_CLEANED mit frischem Audit PASS.
+Eine eigene DB entfernt, Konfiguration/Trust wiederhergestellt; beide alten
+Fehlläufe bleiben erhalten. Die Katalog-/Sitzungsbeobachtung des Adapters ist
+korrigiert; 14 Offlinegegenproben und vier typisierte SQL150-AST-Fälle bestehen.
+Keine native Bestätigung der Korrektur oder Modulgesamtfreigabe. Die
+No-Retry-Welle ist geschlossen; neue native Zulassung benötigt neue endliche
+Freigabe, keine zusätzlichen Objekt- oder Serverrechte.
 
 Der [exakte native129-Byte-Geography-Nachweis vom2026-11-07](../../Releases/1.0.0/GEO-EXACT129-QUALIFICATION.md)
 schließt den bisher unbeobachteten Grenzoperand auf24 lokalen/direkt zentralen
