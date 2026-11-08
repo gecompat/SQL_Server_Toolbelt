@@ -1,4 +1,4 @@
-"""BefÃƒÂ¼llter File-Content-Repeat: echte Admission ohne Lab/SQL."""
+"""Befüllter File-Content-Repeat: echte Admission ohne Lab/SQL."""
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import copy
@@ -149,6 +149,41 @@ class FileRepeatAdmissionTests(unittest.TestCase):
             result = self.expand_repeat(':r ' + include + '\n')
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(expected, result.stdout + result.stderr)
+
+    def test_original_repeat_batches_equal_canonical_first_install(self):
+        quote = lambda p: "'" + str(p).replace("'", "''") + "'"
+        script = "$ErrorActionPreference='Stop';Set-StrictMode -Version Latest;$repo=" + quote(ROOT) + ";$output=" + quote(self.directory / 'canonical.sql') + ";" + r"""
+function Import-One([string]$Path,[string]$Name){
+ $e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($Path,[ref]$null,[ref]$e)
+ $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$Name},$true))
+ if($e.Count-or$n.Count-ne1){throw 'EXPORT_FUNCTION'};return [scriptblock]::Create($n[0].Extent.Text)
+}
+$deploy=Join-Path $repo 'Deployment/Deploy-All.ps1'
+foreach($name in @('Get-ManifestDependencies','Get-SqlcmdScriptTree','Get-SqlcmdTreeVariables','Get-DeploymentModules','ConvertTo-StandaloneSql','Export-DeploymentSql')){. (Import-One $deploy $name)}
+$modulesRoot=Join-Path $repo 'Modules'
+$modules=@(Get-DeploymentModules -ModulesRoot $modulesRoot|Where-Object{$_.ModuleId-in@('toolbelt.core.result-table','toolbelt.file.content')})
+if($modules.Count-ne2){throw 'EXPORT_CLOSURE'}
+Export-DeploymentSql -Modules $modules -Inputs @{'toolbelt.core.result-table'=@{};'toolbelt.file.content'=@{}} -Mode local -ModulesRoot $modulesRoot -OutputPath $output|Out-Null
+. (Import-One (Join-Path $repo 'Tests/Release/Invoke-FileContentRepeatLab.ps1') 'Get-FileRepeatText')
+. (Import-One (Join-Path $repo 'Tests/Release/Invoke-StablePackageLab.ps1') 'Invoke-ReleaseBatches')
+function Invoke-ReleaseSql($Connection,[string]$Sql){$script:batches.Add($Sql)}
+$script:batches=[Collections.Generic.List[string]]::new();Invoke-ReleaseBatches $null ([IO.File]::ReadAllText($output))
+$initial=@{}
+foreach($name in @('USP_LoadBinaryFile','USP_LoadTextFile')){
+ $m=@($batches|Where-Object{$_.Contains('CREATE OR ALTER PROCEDURE [toolbelt_file].['+$name+']')})
+ if($m.Count-ne1){throw 'EXPORT_INITIAL_COUNT'};$initial[$name]=$m[0]
+}
+$script:batches=[Collections.Generic.List[string]]::new();Invoke-ReleaseBatches $null (Get-FileRepeatText 'local')
+foreach($name in @('USP_LoadBinaryFile','USP_LoadTextFile')){
+ $m=@($batches|Where-Object{$_.Contains('CREATE OR ALTER PROCEDURE [toolbelt_file].['+$name+']')})
+ if($m.Count-ne2){throw 'EXPORT_REPEAT_COUNT'}
+ foreach($batch in $m){if($batch-cne$initial[$name]){throw 'EXPORT_REPEAT_DEFINITION_DRIFT'}}
+}
+'PASS canonical first-install and both original repeat batches; SQL mocked'
+"""
+        result = subprocess.run(['pwsh', '-NoProfile', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('SQL mocked', result.stdout)
 
     def test_fresh_audit_binds_original_target_journal_and_complete_witnesses(self):
         source = DRIVER.read_text(encoding='utf-8-sig')

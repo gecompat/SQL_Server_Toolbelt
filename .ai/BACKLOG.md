@@ -6546,3 +6546,20 @@ Die frühere Achte-Welle-Angabe zu sechs ungeprüften niedrigeren CLs ist durch
 den bereits vorhandenen CL-Abschluss historisch erledigt, keine neue Ausführung.
 Weitere Lifecycle-/Collation-/Ressourcen-/Recovery-/Linux-Clienthost- und echte
 Lowpriv-CrossDB-Punkte bleiben separat; keine Veröffentlichung oder neue Funktion.
+
+## File Content: Quellenbindung und Repeat-Restversuch — 2026-11-08
+
+Der [Nachweis](../Releases/1.0.0/FILE-CONTENT-REPEAT-QUALIFICATION.md) verwendet
+einen neueren tatsächlichen Linux-Main-CI-Lauf mit 23 unveränderten relevanten
+Quellen wieder; drei Default-CL-Repeats bleiben gültig. Die neun neuen
+Windows-/niedrigeren-CL-Paare sind als Gesamtmatrix nicht abgeschlossen.
+Erster Restfall nach lokalen Originalorakeln am Definitionenvergleich
+FAILED_CLEANED: zwei Aufrufe, zwei Reservierungen, eine eigene DB entfernt,
+null Gesamtfälle. Frischer separater Audit PASS mit originalRunPassed=false.
+Ursprünglicher 18/18/45-Minuten-No-Retry-Rahmen geschlossen; keine Restplatznutzung.
+Nach Renderer-Korrektur stimmen vier Produktbatches bytegenau mit dem kanonischen
+Erstexport überein. 13 Offlineprüfungen PASS; individuelle native Vor-/Nachhashes
+fehlen im alten Lauf und werden künftig vor dem Guard gespeichert.
+Keine native Bestätigung der Korrektur und keine Produkt-/Rechte-/Serveränderung.
+Der korrigierte Gesamtlauf benötigt neue konkrete endliche Freigabe;
+unabhängige freigegebene Punkte bleiben bearbeitbar. Keine Veröffentlichung.

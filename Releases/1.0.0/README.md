@@ -501,4 +501,10 @@ Produktstand `--refresh --product-commit <Commit>` verwenden und anschließend
 alle betroffenen Nachweise erneut zuordnen. Die Prüfung verwirft Produktdrift
 gegenüber der festgehaltenen Basis; sie wertet keinen Prüfstatus auf.
 
+Die [File-Content-Bindung und Repeat-Restwelle](FILE-CONTENT-REPEAT-QUALIFICATION.md)
+verwendet gültige Linux-CI-Nachweise weiter. Der neue Windows-Restkoordinator
+ist FAILED_CLEANED mit frischem Audit PASS; seine Rendererkorrektur besteht
+13 Offlineprüfungen, ist aber nativ nicht ausgeführt. Keine Gesamtmatrixabnahme
+oder Modulstatusänderung daraus.
+
 [Entwurf der Release Notes](RELEASE-NOTES.md) · [Releaseübersicht](../README.md)

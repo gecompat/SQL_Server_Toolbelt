@@ -1,4 +1,4 @@
-# BefÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼llter File-Content-Repeat ohne Datei-I/O oder neue Rechte.
+# Befüllter File-Content-Repeat ohne Datei-I/O oder neue Rechte.
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,
  [Parameter(Mandatory)][ValidateRange(0,8)][int]$CaseIndex,[switch]$AuditOnly,[switch]$ValidateOnly)
@@ -23,7 +23,8 @@ function Get-FileRepeatText([string]$Mode){
  function Expand-FileRepeat([string]$Path,[string[]]$Stack=@()){
   $full=[IO.Path]::GetFullPath($Path)
   if(-not$full.StartsWith($moduleRoot,[StringComparison]::OrdinalIgnoreCase)-or$Stack-contains$full){throw 'FILE_REPEAT_INCLUDE_OUTSIDE_OR_CYCLE'}
-  $text=[IO.File]::ReadAllText($full)
+  # Wie Get-SqlcmdScriptTree: Zeilen einlesen, Dateiende nicht doppelt einbetten.
+  $text=[IO.File]::ReadAllLines($full) -join "`n"
   return [regex]::Replace($text,'(?m)^[ \t]*:r[ \t]+([^\r\n]+)[ \t]*\r?$',{
    param($m)
    $name=$m.Groups[1].Value.Trim()
@@ -111,7 +112,7 @@ try{
    serverConfigurationAndTrustUnchanged=$true;postPins=$true}|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
  }else{
   if(Test-Path -LiteralPath $journal){throw 'FILE_REPEAT_CASE_ALREADY_ATTEMPTED'}
-  $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();completedModes=@();witnesses=@();serverSnapshot=$null;observedTarget=$null;failure=$null};Save-ReleaseJournal
+  $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();completedModes=@();witnesses=@();fixtureCompletions=@();definitionSnapshots=@();serverSnapshot=$null;observedTarget=$null;failure=$null};Save-ReleaseJournal
   $control=Open-ReleaseConnection 'master'
   $actual=@(Invoke-ReleaseSql $control "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion')) Version,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)
   if($actual.Count-ne1-or$actual[0].Major-ne@{'2019'=15;'2022'=16;'2025'=17}[[string]$case.Version]-or$actual[0].Platform-ine$case.Platform-or$actual[0].Admin-ne1){throw 'FILE_REPEAT_ACTUAL_TARGET_MISMATCH'}
@@ -135,7 +136,8 @@ try{
    if($modeMarkers.Count-ne2-or@($modeMarkers|Where-Object{$_.Value-cne$mode}).Count){throw 'FILE_REPEAT_DEPLOYMENT_MODE'}
    if([int](@(Invoke-ReleaseSql $db 'SELECT COUNT(*) N FROM sys.assemblies WHERE is_user_defined=1;' -Rows)[0].N)-ne0){throw 'FILE_REPEAT_UNEXPECTED_CLR'}
    $definitions="SELECT o.object_id,o.type,CONVERT(varchar(64),HASHBYTES('SHA2_256',m.definition),2) Hash FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id WHERE o.is_ms_shipped=0 AND s.name LIKE N'toolbelt[_]%' ORDER BY o.object_id;"
-   $before=@(Invoke-ReleaseSql $db $definitions -Rows)|ConvertTo-Json -Depth 4 -Compress
+   $beforeRows=@(Invoke-ReleaseSql $db $definitions -Rows)
+   $before=$beforeRows|ConvertTo-Json -Depth 4 -Compress
    $completedFixtures=@()
    foreach($fixture in $fixtures){
     $stage='FILE_REPEAT_'+$mode+'_'+[IO.Path]::GetFileName($fixture)
@@ -144,9 +146,12 @@ try{
     $session=@(Invoke-ReleaseSql $db 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
     if($session.Count-ne1-or$session[0].TranCount-ne0-or$session[0].XactState-ne0){throw 'FILE_REPEAT_SESSION_NOT_NEUTRAL'}
     $completedFixtures+=@([IO.Path]::GetFileName($fixture))
+    $ledger.fixtureCompletions+=@(@{mode=$mode;fixture=[IO.Path]::GetFileName($fixture);transactionNeutral=$true});Save-ReleaseJournal
    }
    if(($completedFixtures-join',')-cne($fixtureNames-join',')){throw 'FILE_REPEAT_INCOMPLETE_FIXTURES'}
-   $after=@(Invoke-ReleaseSql $db $definitions -Rows)|ConvertTo-Json -Depth 4 -Compress
+   $afterRows=@(Invoke-ReleaseSql $db $definitions -Rows)
+   $after=$afterRows|ConvertTo-Json -Depth 4 -Compress
+   $ledger.definitionSnapshots+=@(@{mode=$mode;before=$beforeRows;after=$afterRows});Save-ReleaseJournal
    if($before-cne$after){throw 'FILE_REPEAT_PRODUCT_DEFINITION_DRIFT'}
    $ledger.witnesses+=@(@{mode=$mode;fixtures=$completedFixtures;compatibilityLevel=$actualCl[0].CL;transactionNeutral=$true;definitionsUnchanged=$true})
    $ledger.completedModes+=@($mode);Save-ReleaseJournal;$db.Dispose()
