@@ -285,6 +285,28 @@ def _record(root):
     return root, record
 
 
+def _restore_file_content_repeat_metadata(path, current):
+    """Nur die abgegrenzte Status-/Navigationspflege im Speicher zurückführen."""
+    changes = {
+        'Modules/toolbelt.file.content/module.yaml': (
+            b'  windows: "partially validated"\n',
+            b'  windows: "not executed"\n'),
+        'Modules/toolbelt.file.content/README.md': (
+            ('Die [befüllte Repeat-Matrix](../../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)\n'
+             'ist auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral belegt:\n'
+             'neun neue Lab-Läufe und drei gültig gebundene frühere Linux-CI-Fälle.\n'
+             'Windows ist damit im Lifecycle-Teilumfang teilweise validiert; Dateiprovider,\n'
+             'Minimalrechte und weitere Modulpflichten bleiben getrennt.\n').encode('utf-8'),
+            'Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung.\n'.encode('utf-8')),
+    }
+    if path not in changes:
+        return None
+    after, before = changes[path]
+    _require(current.count(after) == 1,
+             'File Content repeat metadata transition differs')
+    return current.replace(after, before, 1)
+
+
 def validate_historical_source(root, path, expected_sha256):
     """Return exact baseline bytes only when archive, record, and current bytes bind."""
     root, record = _record(root)
@@ -308,6 +330,11 @@ def validate_historical_source(root, path, expected_sha256):
              'Help baseline entry differs from its fixed digest')
     current = (root / path).read_bytes()
     if _digest(current) != record['current_source_sha256'][path]:
+        restored = _restore_file_content_repeat_metadata(path, current)
+        if restored is not None:
+            _require(_digest(restored) == record['current_source_sha256'][path],
+                     'File Content repeat metadata includes unrelated drift')
+            return original
         import parameter_help_transition
         if path in parameter_help_transition.PATHS:
             parameter_help_transition.predecessor_source(root, path, record['current_source_sha256'][path])

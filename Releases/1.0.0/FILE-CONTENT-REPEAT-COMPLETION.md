@@ -32,6 +32,14 @@ Der alte Manifestpin wird nicht umgeschrieben; seine Originalbytes liegen in
 der privaten Quellkapsel. Der Nachprüfer erlaubt ausschließlich diesen exakt
 bestimmten Statuswechsel, keine sonstige Quelldrift.
 
+Der historische Help-Quellenleser führt genau diesen Manifestwechsel und den
+zugehörigen README-Abschnitt ausschließlich im Speicher auf die fest gepinnten
+Vorgängerbytes zurück. Historische Archive und Digests bleiben unverändert.
+Drei neue Gegenproben verwerfen zusätzliche Versions-/Textänderungen und eine
+unbelegte Hochstufung auf `validated`; zurückgegebene historische Bytes erfüllen
+weiterhin nicht die getrennte aktuelle Quellenqualifikation. Die beiden zuvor
+betroffenen XLSX-/ZIP-Bindungsprüfungen und alle Quellenlesertests bestehen.
+
 ## Unveränderte Orakel und nun native Korrekturbestätigung
 
 Der [qualifizierte Adapter](../../Tests/Release/Invoke-FileContentRepeatLab.ps1)
