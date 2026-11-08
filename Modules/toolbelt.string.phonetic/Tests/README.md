@@ -93,3 +93,13 @@ in Repository oder Evidenz kopiert.
 - Scope: Bereits dokumentierter einmaliger Offlinevergleich unter Windows/.NET Framework 4.8 mit explizitem JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen: 36 feste Fälle, davon 20 Cologne und 16 Double Metaphone, stimmen in vollständigen Primary-/Alternatebytes überein. Vier Ergänzungen HCL/ACL/-CR/ACR liefern 45/085/47/087; die 32 bisherigen Fälle bleiben unverändert. Vorhandene Assembly mit belegter Herkunft aus fünf unveränderten aktuellen C#-Quellen wiederverwendet, kein neuer Produktbuild. Zwei Compiler und zwei Consumer erfolgreich. stderr nur decodiert leer; kein Datei-Cleanup-PASS. Keine vollständige Scanner-, SQL-, SAFE-, Zielmatrix-, Minimalrechte- oder Releasequalifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Vorhandene DLL mit aktuellem Compiler — 2026-11-08
+
+Der [aktuelle Frameworknachweis](../../../Releases/1.0.0/PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
+belegt 223 Assertions je en-US/de-DE/tr-TR, insgesamt 669, ohne Produktbuild
+oder SQL. DLL und fünf C#-Quellen sind an den erhaltenen Build gebunden.
+Der gegenüber dem alten Binding geänderte Compiler wurde neu ausdrücklich
+ausgewählt und seine gültige Microsoft-Signatur geprüft; alte Pins bleiben
+unverändert. Ein Runner, vier Kinder, Postpins unverändert; private Dateien
+bleiben erhalten. Keine Scanner-/SAFE-/SQL-/Gesamtmatrixaufwertung.

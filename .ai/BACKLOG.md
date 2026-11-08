@@ -6563,3 +6563,15 @@ fehlen im alten Lauf und werden künftig vor dem Guard gespeichert.
 Keine native Bestätigung der Korrektur und keine Produkt-/Rechte-/Serveränderung.
 Der korrigierte Gesamtlauf benötigt neue konkrete endliche Freigabe;
 unabhängige freigegebene Punkte bleiben bearbeitbar. Keine Veröffentlichung.
+
+## Phonetik: aktuelle Compiler-/Frameworkbindung — 2026-11-08
+
+Der [Frameworknachweis](../Releases/1.0.0/PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
+belegt 669 Assertions für eine vorhandene DLL mit fünf unveränderten aktuellen
+C#-Quellen. Konkreter neuer Input ist der geänderte vorhandene Compiler,
+neu mit gültiger Microsoft-Signatur und eigenem aktuellen Pin ausgewählt.
+Eine Runnerinvocation/vier Kinder innerhalb des vorab gewählten Rahmens;
+Postpins unverändert, unbenutzte Restplätze geschlossen, kein Produktbuild/SQL.
+Historische Compilerpins, Build- und Differentialnachweise bleiben unverändert.
+Scanner-Vollabdeckung, SQL-/SAFE-/Ziel-/Rechte-/Lifecyclegates bleiben separat.
+Keine Produkt-/Manifest-/Server-/Labänderung oder Veröffentlichung.

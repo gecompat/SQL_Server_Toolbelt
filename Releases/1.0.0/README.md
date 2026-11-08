@@ -507,4 +507,9 @@ ist FAILED_CLEANED mit frischem Audit PASS; seine Rendererkorrektur besteht
 13 Offlineprüfungen, ist aber nativ nicht ausgeführt. Keine Gesamtmatrixabnahme
 oder Modulstatusänderung daraus.
 
+Der [aktuelle Phonetik-Frameworklauf](PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
+belegt 669 Assertions für die vorhandene DLL unter dem ausdrücklich neu
+geprüften Compiler. Keine erneute Produktkompilierung oder SQL-Ausführung;
+weiterhin nur dieser begrenzte Frameworkscope, keine Modulgesamtabnahme.
+
 [Entwurf der Release Notes](RELEASE-NOTES.md) · [Releaseübersicht](../README.md)
