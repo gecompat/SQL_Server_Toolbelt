@@ -1,9 +1,14 @@
 # JSON Constructor Testmatrix
 
-Für [nichtleere USP-ACLs](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
-bleibt der native Upgrade-/Rollback-/Repeat-Nachweis offen. Der erste neue
-Adapterlauf ist bereinigt und frisch auditiert; die korrigierte Abhängigkeits-
-closure besteht den verbindungslosen Vorcheck und elf Offlinegegenproben.
+Die [nichtleere Constructor-ACL-Migration](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+bleibt am 2026-11-08 nativ unqualifiziert: Auch die erneut freigegebene Welle
+stoppte vor Testbenutzer/Grants und ist FAILED_CLEANED mit frischem Audit PASS.
+Eine eigene DB entfernt, Konfiguration/Trust wiederhergestellt; beide alten
+Fehlläufe bleiben erhalten. Die Katalog-/Sitzungsbeobachtung des Adapters ist
+korrigiert; 14 Offlinegegenproben und vier typisierte SQL150-AST-Fälle bestehen.
+Keine native Bestätigung der Korrektur oder Modulgesamtfreigabe. Die
+No-Retry-Welle ist geschlossen; neue native Zulassung benötigt neue endliche
+Freigabe, keine zusätzlichen Objekt- oder Serverrechte.
 
 Der [direkte Aggregate-Callerbeleg2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
 schließt für genau zwei freigegebene temporäre EXECUTE-Objektrechte die

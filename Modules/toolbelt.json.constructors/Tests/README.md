@@ -1,9 +1,14 @@
 # Testausführung
 
-Die [nichtleere USP-ACL-Migration](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
-ist noch nicht nativ qualifiziert: erster Adapterlauf `FAILED_CLEANED`,
-frischer Cleanup-Audit PASS; korrigierte Exportclosure und elf Offlineprüfungen
-bestanden. Die frühere leere ACL-Migration wird dadurch nicht aufgewertet.
+Die [nichtleere Constructor-ACL-Migration](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+bleibt am 2026-11-08 nativ unqualifiziert: Auch die erneut freigegebene Welle
+stoppte vor Testbenutzer/Grants und ist FAILED_CLEANED mit frischem Audit PASS.
+Eine eigene DB entfernt, Konfiguration/Trust wiederhergestellt; beide alten
+Fehlläufe bleiben erhalten. Die Katalog-/Sitzungsbeobachtung des Adapters ist
+korrigiert; 14 Offlinegegenproben und vier typisierte SQL150-AST-Fälle bestehen.
+Keine native Bestätigung der Korrektur oder Modulgesamtfreigabe. Die
+No-Retry-Welle ist geschlossen; neue native Zulassung benötigt neue endliche
+Freigabe, keine zusätzlichen Objekt- oder Serverrechte.
 
 Der [direkte Aggregate-Minimalrechtetest](../../../Releases/1.0.0/JSON-CONSTRUCTORS-AGGREGATE-CALLER-QUALIFICATION.md)
 besteht seit2026-11-07 die ausdrücklich freigegebenen zwei temporären EXECUTE-

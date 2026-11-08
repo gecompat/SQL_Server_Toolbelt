@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import copy
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -12,6 +13,26 @@ ROOT = Path(__file__).resolve().parents[2]
 DRIVER = ROOT / 'Tests/Release/Invoke-JsonConstructorsAclLab.ps1'
 PROFILE = ROOT / 'Tests/Release/JsonConstructors.AclUpgrade.ps1'
 FIXTURE = ROOT / 'Tests/Release/Runtime/JsonConstructors.AclSetup.sql'
+
+
+def scalar_session_guard(sql):
+    """Prüft nur die eng begrenzten Fixture-Prädikate, kein allgemeiner SQL-Parser."""
+    # Kommentare/Literale dürfen weder eine Beobachtung noch eine Prüfung vortäuschen.
+    clean = re.sub(r"--[^\r\n]*|/\*.*?\*/|N?'(?:''|[^'])*'", ' ', sql, flags=re.S | re.I)
+    declarations = list(re.finditer(
+        r'DECLARE\s+(@\w+)\s+int\s*=\s*@@TRANCOUNT\s*,\s*(@\w+)\s+int\s*=\s*XACT_STATE\(\)\s*;',
+        clean, re.I))
+    predicates = list(re.finditer(r'\bIF\b(.*?)(?=\bTHROW\b|\bBEGIN\b)', clean, re.S | re.I))
+    catalog = [p for p in predicates if re.search(r'\b(?:USER_ID|OBJECT_ID|EXISTS)\b', p.group(1), re.I)]
+    if any(re.search(r'\bXACT_STATE\s*\(', predicate.group(1), re.I) for predicate in catalog):
+        return False
+    for predicate in catalog:
+        for declaration in declarations:
+            if declaration.end() <= predicate.start() and all(
+                    re.search(re.escape(name) + r'\s*<>\s*0', predicate.group(1), re.I)
+                    for name in declaration.groups()):
+                return True
+    return False
 
 
 @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required')
@@ -159,6 +180,31 @@ if($before-ceq(Get-ConstructorAclSnapshot $null)){throw 'CALLER_REPLACEMENT_HIDD
         self.assertIn('Test.Constructor.AclProfile.Approved', sql)
         self.assertNotIn('ALTER AUTHORIZATION', sql)
         self.assertNotIn('CONTROL', sql)
+
+    def test_catalog_autocommit_counterexamples_are_not_neutral_session_proofs(self):
+        for predicate in (
+                "USER_ID(N'Contoso') IS NOT NULL OR @@TRANCOUNT<>0 OR XACT_STATE()<>0",
+                "XACT_STATE()<>0 OR EXISTS(SELECT 1 FROM sys.objects)"):
+            self.assertFalse(scalar_session_guard('IF ' + predicate + ' THROW 53695,N\'stop\',2;'))
+        self.assertFalse(scalar_session_guard(
+            "-- DECLARE @T int=@@TRANCOUNT,@X int=XACT_STATE();\n"
+            "IF USER_ID(N'Contoso') IS NOT NULL OR @T<>0 OR @X<>0 THROW 53695,N'stop',2;"))
+
+    def test_scalar_observation_must_precede_catalog_and_remain_checked(self):
+        capture = 'DECLARE @T int=@@TRANCOUNT,@X int=XACT_STATE();'
+        guard = "IF USER_ID(N'Contoso') IS NOT NULL OR @T<>0 OR @X<>0 THROW 53695,N'stop',2;"
+        self.assertTrue(scalar_session_guard(capture + guard))
+        self.assertFalse(scalar_session_guard(guard + capture))
+        self.assertFalse(scalar_session_guard(capture + guard.replace(' OR @X<>0', '')))
+        self.assertFalse(scalar_session_guard(capture + guard.replace('@X<>0', '0<>0')))
+        self.assertFalse(scalar_session_guard(
+            capture + guard + " IF USER_ID(N'Contoso') IS NOT NULL OR XACT_STATE()<>0 THROW 53695,N'stop',2;"))
+
+    def test_entry_and_cleanup_keep_both_session_guards_outside_catalog(self):
+        self.assertTrue(scalar_session_guard(FIXTURE.read_text(encoding='utf-8-sig')))
+        profile = PROFILE.read_text(encoding='utf-8-sig')
+        cleanup = profile.split("$cleanup=@'", 1)[1].split("'@", 1)[0]
+        self.assertTrue(scalar_session_guard(cleanup))
 
 
 if __name__ == '__main__':

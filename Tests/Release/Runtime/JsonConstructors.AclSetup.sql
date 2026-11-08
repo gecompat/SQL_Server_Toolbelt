@@ -4,8 +4,15 @@ IF ISNULL(TRY_CONVERT(bit,SESSION_CONTEXT(N'Test.Constructor.AclProfile.Approved
  OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Test.Release.Owner'
  AND CONVERT(nvarchar(32),value)=TRY_CONVERT(nvarchar(32),SESSION_CONTEXT(N'Test.Constructor.AclProfile.Owner')))
  THROW 53695,N'Own approved Constructor ACL fixture required.',1;
-IF USER_ID(N'ContosoJsonCaller') IS NOT NULL OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 53695,N'Fresh own Constructor caller required.',2;
+-- Katalogzugriff kann eine interne Autocommit-Transaktion öffnen; vorher skalar beobachten.
+DECLARE @InitialTranCount int=@@TRANCOUNT,@InitialXactState int=XACT_STATE();
+IF USER_ID(N'ContosoJsonCaller') IS NOT NULL OR @InitialTranCount<>0 OR @InitialXactState<>0
+BEGIN
+ DECLARE @AdmissionDiagnostic nvarchar(2048)=CONCAT(N'Fresh own Constructor caller required. trancount=',
+  @InitialTranCount,N';xact=',@InitialXactState,N';callerPresent=',
+  CASE WHEN USER_ID(N'ContosoJsonCaller') IS NULL THEN 0 ELSE 1 END);
+ THROW 53695,@AdmissionDiagnostic,2;
+END;
 IF EXISTS(SELECT 1 FROM (VALUES(N'USP_JsonArray'),(N'USP_JsonObject'),(N'USP_JsonArraysByGroup'),(N'USP_JsonObjectsByGroup')) v(Name)
  WHERE OBJECT_ID(N'toolbelt_json.'+v.Name,N'P') IS NULL)
  THROW 53695,N'Genuine four public procedure slots required.',3;

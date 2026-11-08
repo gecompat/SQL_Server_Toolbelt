@@ -1,10 +1,11 @@
 # Constructor-Upgrade mit nichtleeren USP-Berechtigungen
 
-Stand 2026-11-07: **NATIVE_NOT_QUALIFIED**. Die erste neue Welle endete
-`FAILED_CLEANED`; der separate frische Abschlussaudit bestand. Eine
-korrigierte native Welle ist vorbereitet und wartet auf die neue endliche
-Freigabe. Bestehende grüne API-, Caller- und Migrationsnachweise bleiben
-auf ihren jeweiligen ursprünglichen Umfang begrenzt.
+Stand 2026-11-08: **NATIVE_NOT_QUALIFIED**. Auch die erneut ausdrücklich
+freigegebene Welle stoppte vor Testbenutzer und Rechtevergabe; ihr separater
+frischer Abschlussaudit bestand. Die Sitzungsbeobachtung des Testadapters
+ist korrigiert und verbindungslos geprüft, nativ noch nicht bestätigt.
+Beide fehlgeschlagenen Originalfälle bleiben `FAILED_CLEANED`.
+Bestehende grüne API-, Caller- und Migrationsnachweise behalten ihren Scope.
 
 ## Konkreter Prüfumfang
 
@@ -59,7 +60,7 @@ und Trust, unveränderte Pins und den exakten finalen Originaljournalhash.
 Sein Cleanup-PASS wertet `FAILED_CLEANED` ausdrücklich nicht zum Gesamt-PASS auf.
 Die Welle und ihre unbenutzten Restplätze bleiben geschlossen.
 
-## Vorbereitete Korrektur und verbindungslose Gegenproben
+## Abhängigkeitskorrektur und Gegenproben vom 2026-11-07
 
 Der korrigierte Adapter exportiert ausdrücklich **ResultTable und Core**.
 Vor Labimport oder SQL verlangt der Treiber beide kanonischen Modulabschnitte
@@ -86,6 +87,60 @@ Vorhandene CLR-Konfigurations-/Trustfreigaben werden nur mit den bestehenden
 Ownership-, Consumer-, Wiederherstellungs- und Driftprüfungen verwendet.
 Jeder Producer/Audit bleibt auf 400 Sekunden und getrennte 4-MiB-Kanäle
 begrenzt; vor dem nächsten Fall bleiben mindestens 15 Minuten Reserve.
+
+## Erneut freigegebene Welle vom 2026-11-08
+
+Der Benutzer gab ausdrücklich höchstens 24 Ziel-/Auditaufrufe, 24 eigene
+Testdatenbanken und 45 Minuten frei. Die vorbereitete No-Retry-Zulassung
+blieb erhalten. Der tatsächliche Build war
+[`3e5e02f9`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3e5e02f97e1d320440a93b4cb4c7349db9f7be34);
+die ACL-Methode und relevanten Produktquellen waren gegenüber der integrierten
+Abhängigkeitskorrektur unverändert. Reale Lab-ValidateOnly-Zulassung und
+elf vorhandene Offlinegegenproben bestanden vor jedem SQL-Zugriff.
+
+Bereits Windows SQL2019/CU32 CL150 lokal stoppte im Fresh-Caller-Vorcheck
+mit SQL-Fehlertext „Fresh own Constructor caller required.“. Die echte
+historische Installation war zuvor geprüft; `CREATE USER` und alle vier
+Grants wurden nicht erreicht. Keine bestandenen ACL-Kontexte oder
+Gesamtfälle. Der neue Fall verbrauchte **zwei Aufrufe und zwei Reservierungen**;
+die **eine tatsächlich angelegte eigene Datenbank** ist entfernt.
+Sein frischer separater Audit bindet das unveränderte finale Journal,
+DB-Abwesenheit, wiederhergestellte Konfiguration/Trust und ursprüngliche Pins.
+Der unabhängige Nachprüfer bestätigt zusätzlich ursprüngliche Git-Bytes und
+Quellenkapseln der später korrigierten drei Methodendateien. Rohdaten bleiben privat.
+
+Der kombinierte Vorcheck vermischte `USER_ID` und `XACT_STATE()` in einem
+Prädikat. Dieselbe interne Katalog-Autocommit-Falle war im
+[Caller-Nachweis](JSON-CONSTRUCTORS-CALLER-QUALIFICATION.md#erhaltene-fehler-und-grenzen)
+bereits beobachtet und durch
+[`2ef5fb41`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/2ef5fb41d92ed4a420dc0f544dd43fca00bcf060)
+behoben worden. Im neuen Journal sind die drei Einzelwerte des abgebrochenen
+Prädikats nicht erfasst; daraus wird weder eine tatsächlich offene
+Caller-Transaktion noch ein bereits vorhandener Testbenutzer abgeleitet.
+
+Die enge Adapterkorrektur erfasst `@@TRANCOUNT` und `XACT_STATE()` bei Einstieg
+und Cleanup zuerst skalar, bevor der Katalogzugriff erfolgt. Die Forderung
+nach neutraler Sitzung und der Schutz vorhandener Benutzer bleiben unverändert.
+Keine nachträgliche Transaktionsbereinigung, kein Entfernen fremder Benutzer,
+keine zusätzlichen Rechte und keine Änderung am Constructor-Produkt.
+Ein künftiger Entryfehler nennt die zuvor erfassten beiden Zustandswerte
+und die Testbenutzerpräsenz ausschließlich im privaten Fehlerjournal.
+
+**14 Offlinegegenproben** bestehen. Die drei neuen Gegenproben verwerfen
+gemischte Katalog-/Sitzungsausdrücke, bloß kommentierte oder zu spät erfasste
+Werte sowie entfernte/konstant ersetzte Zustandsprüfungen. Ein separater
+typisierter SQL150-AST-Vergleich erkennt beide ursprünglichen unsicheren
+Prädikate und akzeptiert die beiden korrigierten Formen, jeweils syntaktisch
+gültig. Das sind vier verbindungslose AST-Fälle, keine native SQL-Ausführung.
+
+Die neue Welle ist **STOPPED_NO_NEW_ADMISSIONS**, ohne Wiederholung und
+ohne Übertragung ihrer unbenutzten Restplätze. Die alte Welle vom 2026-11-07
+bleibt zusätzlich unverändert geschlossen. Für die noch fehlenden zwölf
+nativen Gesamtfälle und zwölf Audits ist eine neue konkrete endliche
+Freigabe nötig; eine bestandene Cleanup-, Offline- oder CI-Prüfung ersetzt
+diese native Abnahme nicht. Tatsächliche Head-/Main-CI der Methodenintegration
+werden getrennt in [PR #553](https://github.com/gecompat/SQL_Server_Toolbelt/pull/553)
+nachgewiesen. Keine Modulgesamtfreigabe.
 
 ## Getrennte Grenzen
 
