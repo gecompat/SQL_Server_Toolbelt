@@ -33,3 +33,12 @@ Rechte vergeben.
 - Scope: Bereits dokumentierter einmaliger Offlinevergleich unter Windows/.NET Framework 4.8 mit explizitem JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen: 36 feste Fälle, davon 20 Cologne und 16 Double Metaphone, stimmen in vollständigen Primary-/Alternatebytes überein. Vier Ergänzungen HCL/ACL/-CR/ACR liefern 45/085/47/087; die 32 bisherigen Fälle bleiben unverändert. Vorhandene Assembly mit belegter Herkunft aus fünf unveränderten aktuellen C#-Quellen wiederverwendet, kein neuer Produktbuild. Zwei Compiler und zwei Consumer erfolgreich. stderr nur decodiert leer; kein Datei-Cleanup-PASS. Keine vollständige Scanner-, SQL-, SAFE-, Zielmatrix-, Minimalrechte- oder Releasequalifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Ergänzung: aktueller Compilerkontext — 2026-11-08
+
+Der [begrenzte Frameworklauf](../../../Releases/1.0.0/PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
+bestand erneut für die vorhandene quellengebundene DLL, weil der aktuelle
+Compiler gegenüber dem historischen Binding geändert ist: 223 Assertions je
+Kultur, 669 insgesamt, kein Produktbuild/SQL und keine Änderung alter Pins.
+Dies ergänzt ausschließlich die Framework-/Toolchainbindung. Die oben
+getrennten Scanner-, SQL-, SAFE-, Ziel-, Rechte- und Lifecyclegrenzen bleiben.
