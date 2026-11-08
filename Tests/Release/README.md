@@ -1351,3 +1351,26 @@ Die [native Bestätigung vom 2026-11-08](../../Releases/1.0.0/FILE-CONTENT-LIFEC
 belegt zwölf vollständige Läufe/24 Kontexte/288 Profile und zwölf frische Audits.
 Alle 24 eigenen Datenbanken entfernt, keine Wiederholung; genau dieser
 Lifecycle-Teilumfang ist geschlossen. Andere Modulpflichten bleiben getrennt.
+
+## Split Advanced: gezielte aktuelle Lifecycleprofile
+
+`Invoke-SplitAdvancedLifecycleLab.ps1` bindet die Originalfixture
+`Runtime/SplitAdvanced.LifecycleProfiles.Contract.ps1` und zwölf ausdrücklich
+ausgewählte Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral. Pro Kontext
+werden zehn gezielte Profile geprüft: unbekannte Versionsmarker für Deploy/
+Uninstall, lokale ungültige beziehungsweise zentral fehlende Bestätigung,
+same-version Drift-/Typreparatur, ein synthetischer aufgelöster Consumer,
+Fremdobjekterhalt, Neuinstallation, Leerschemaentfernung und fehlendes Uninstall.
+Reparaturen und Neuinstallation müssen die vollständigen kanonischen aktuellen
+Objektdefinitionen wiederherstellen. Lokale CS_AS-/zentrale BIN2-Collation wird
+nativ gelesen und mit der gewählten Vorgabe verglichen.
+
+Aufruf nach privater endlicher Vorbereitung mit `-RunsetPath` und `-CaseIndex`;
+`-ValidateOnly` öffnet keine SQL-Verbindung und importiert kein Lab. Ein eigener
+frischer Prozess mit `-AuditOnly` bindet das genaue finale Journal und prüft
+DB-Abwesenheit sowie unveränderte Konfiguration/Trust. Alte grüne API-/Client-/
+Rechtefixtures werden nicht erneut ausgeführt. Elf verbindungslose Prüfungen
+einschließlich des kanonischen Erst-/Reparaturbatchvergleichs stehen in
+`test_split_advanced_lifecycle_lab_contract.py` und im zentralen Register.
+Keine Rechtevergabe, Datei-I/O, CLR-/Trust-/Server-/Labänderung, Genuine-Upgrade-,
+allgemeine Collation-/Recovery- oder vollständige Modulabnahme aus Testcode allein.
