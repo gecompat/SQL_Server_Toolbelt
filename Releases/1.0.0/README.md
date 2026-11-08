@@ -513,6 +513,11 @@ belegten Linux-CI-Default-Paaren sind zwölf Engine-/CL-Paare lokal/zentral
 abgedeckt. Die obige Sperraussage gilt historisch für die erste Welle;
 weitere Modulpflichten und der ursprüngliche Fehlnachweis bleiben getrennt.
 
+Die [zusätzliche File-Content-Lifecyclematrix](FILE-CONTENT-LIFECYCLE-QUALIFICATION.md)
+belegt 288 gezielte Versions-/Kollisions-/Uninstall-/Neuinstallationsprofile auf
+24 Windows-/Linux-Kontexten mit zwölf frischen Audits. Die Repeat-Matrix wurde
+nicht wiederholt; weitere Modulpflichten bleiben getrennt.
+
 Der [aktuelle Phonetik-Frameworklauf](PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
 belegt 669 Assertions für die vorhandene DLL unter dem ausdrücklich neu
 geprüften Compiler. Keine erneute Produktkompilierung oder SQL-Ausführung;

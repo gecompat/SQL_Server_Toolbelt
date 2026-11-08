@@ -1323,3 +1323,31 @@ bestand nach neuer ausdrücklicher Freigabe auf neun zusätzlichen Paaren:
 DBs entfernt. Die protokollierten Definitionszeilen bestätigen die Korrektur
 nativ. Zusammen mit drei gültig gebundenen Linux-CI-Paaren ist der erklärte
 Repeat-Scope vollständig; der alte Fehlnachweis bleibt fehlgeschlagen.
+
+## File Content: weitere Lifecycleprofile ohne Datei-I/O
+
+`Invoke-FileContentLifecycleLab.ps1` führt ausschließlich die gebundene
+`Runtime/LifecycleProfiles.Contract.ps1` auf zwölf expliziten Windows-/Linux-
+Engine-/CL-Paaren lokal/direkt zentral aus. Er verwendet aktuelle öffentliche
+Deploy-/Uninstall-Batches: unbekannte Versionsmarker und drei fremde
+Namenskollisionen müssen mit exakt 51273/1 beziehungsweise 51274/1 vor jeder
+Änderung scheitern. Ein synthetischer Fremdgegenstand mit fester Zeile und
+unveränderter Schema-/Objektidentität bleibt beim Uninstall erhalten.
+Neuinstallation, Entfernung des anschließend leeren Schemas und ein erneutes
+Uninstall bei fehlendem Modul werden getrennt geprüft. ResultTable bleibt erhalten.
+
+Der private Runset verlangt eine eigene endliche Freigabe, feste Quellenpins,
+kanonische Exporte und alle zwölf Kontextpaare. `-ValidateOnly` prüft ohne
+Labimport oder SQL. Reguläre Aufrufe verwenden `-RunsetPath` und `-CaseIndex`;
+ein frischer separater Prozess mit `-AuditOnly` prüft das finale Originaljournal,
+eigene DB-Abwesenheit sowie unveränderte Serverkonfiguration und Assemblytrust.
+Die ursprünglichen Repeat-Belege werden nicht wiederholt oder umgeschrieben.
+Keine Rechtevergabe, Datei-I/O, CLR-/Trust-/Server-/Labänderung oder allgemeine
+Lifecycle-/Minimalrechte-/TLS-/Host-Recoveryabnahme. Der Testcode allein ist
+kein nativer Nachweis. Zehn verbindungslose Admission-/Fehlerorakelprüfungen
+stehen in `test_file_content_lifecycle_lab_contract.py` und im zentralen Register.
+
+Die [native Bestätigung vom 2026-11-08](../../Releases/1.0.0/FILE-CONTENT-LIFECYCLE-QUALIFICATION.md)
+belegt zwölf vollständige Läufe/24 Kontexte/288 Profile und zwölf frische Audits.
+Alle 24 eigenen Datenbanken entfernt, keine Wiederholung; genau dieser
+Lifecycle-Teilumfang ist geschlossen. Andere Modulpflichten bleiben getrennt.
