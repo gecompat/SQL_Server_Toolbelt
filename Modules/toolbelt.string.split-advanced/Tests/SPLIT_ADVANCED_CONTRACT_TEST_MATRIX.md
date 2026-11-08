@@ -71,5 +71,19 @@ Fremdobjekterhalt, Neuinstallation, Leerschemaentfernung und fehlendes Uninstall
 Lokale CS_AS-/zentrale BIN2-Collation nativ bestätigt; zwölf frische Audits,
 alle 24 eigenen DBs entfernt. Frühere allgemeine Linux-Lifecyclefälle bleiben
 enger gebunden; alte grüne API-/Client-/Rechtefixtures wurden nicht wiederholt.
-Weitere Genuine-/Lock-/Rollback-/Session-, Consumer-Collation-, Rechte-/
+Weitere Genuine-/Rollback-/Session-, Consumer-Collation-, Rechte-/
 Identitäts-/Ressourcen-/Recoveryprofile bleiben separat.
+
+## AppLock mit getrennter Sitzung — 2026-11-08
+
+Die [gezielte Sperrmatrix](../../../Releases/1.0.0/SPLIT-ADVANCED-APPLOCK-QUALIFICATION.md)
+ergänzt zwölf vollständige Läufe, 24 lokale/direkt zentrale Windows-/Linux-
+Kontexte und 96 Profile: 48 exakte 51677/State1-Abweisungen von Deploy/Uninstall
+unter tatsächlich bestätigter exklusiver Sitzungssperre und 48 erfolgreiche
+Schritte nach eigener verifizierter Freigabe. Verschiedene positive Sitzungs-IDs,
+weiterhin gehaltene Sperre, NoLock nach Release, neutrale Transaktionen und
+erhaltene Core-Definitionen sind geprüft. Zwölf frische Audits bestätigen alle
+24 eigenen DBs entfernt und unveränderte Serverkonfiguration/Trust.
+Der 24-Aufrufe-/24-DB-/45-Minuten-Rahmen ist ohne Wiederholung geschlossen.
+Frühere pauschale AppLock-Offenangaben gelten nicht für diesen Scope; allgemeine
+Race-/Rollback-/SET-/Caller-/Identitäts-/Ressourcen-/Recoveryprofile bleiben separat.
