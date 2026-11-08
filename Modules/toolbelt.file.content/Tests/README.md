@@ -110,3 +110,14 @@ befüllte Repeat-Matrix auf zwölf Engine-/CL-Paaren lokal/zentral geschlossen.
 Alle 18 neuen Vor-/Nachdefinitionspaare stimmen exakt überein. Der frühere
 FAILED_CLEANED-Fall bleibt erhalten; seine Warteangabe ist historisch erledigt.
 Weitere Rechte-, Lifecycle-, Ressourcen- und Providerfälle bleiben separat.
+
+## Gezielte weitere Lifecycleprofile — 2026-11-08
+
+Der [aktuelle Lifecyclebericht](../../../Releases/1.0.0/FILE-CONTENT-LIFECYCLE-QUALIFICATION.md)
+belegt auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral 288
+Profile: unbekannte Versionsmarker, drei fremde Namenskollisionen jeweils
+für Deploy/Uninstall, Schema-/Fremdobjekterhalt, Neuinstallation, Entfernen des
+leeren Schemas und idempotentes Uninstall bei fehlendem Modul. Zwölf frische
+Audits bestanden; alle 24 eigenen DBs entfernt. Der Repeat-Scope wurde nicht
+wiederholt. Weitere Drift-/Lock-/Rechte-/Ressourcen-/Providerprofile bleiben
+getrennt; keine allgemeine Lifecycle- oder Modulgesamtabnahme.

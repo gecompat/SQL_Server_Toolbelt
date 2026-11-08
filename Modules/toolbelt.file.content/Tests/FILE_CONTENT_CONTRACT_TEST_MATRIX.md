@@ -90,3 +90,14 @@ Die anschließende [korrigierte Welle](../../../Releases/1.0.0/FILE-CONTENT-REPE
 wurde ausdrücklich neu freigegeben und vollständig bestanden. Die vorherige
 Fehler-/Sperrbeschreibung bleibt historische Evidenz; die konkrete
 Windows-/zusätzliche-CL-Repeatlücke ist geschlossen, andere Teilgates bleiben.
+
+## Weitere aktuelle Lifecycleprofile — 2026-11-08
+
+Der [gezielte Nachweis](../../../Releases/1.0.0/FILE-CONTENT-LIFECYCLE-QUALIFICATION.md)
+belegt unbekannte Versionsmarker und drei fremde Namenskollisionen jeweils
+für Deploy/Uninstall sowie Fremdobjekt-/Schemaerhalt, Neuinstallation,
+Leerschemaentfernung und Uninstall bei fehlendem Modul. Zwölf vollständige
+Windows-/Linux-Läufe lokal/direkt zentral: 24 Kontexte, 288 Profile, zwölf
+frische Audits; alle 24 eigenen Datenbanken entfernt. Keine Wiederholung der
+Repeat-Matrix, keine Produkt- oder Rechteänderung. Weitere Drift-/Lock-/
+Rechte-/Ressourcen-/Providerprofile bleiben getrennt.

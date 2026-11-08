@@ -1346,3 +1346,8 @@ Keine Rechtevergabe, Datei-I/O, CLR-/Trust-/Server-/Labänderung oder allgemeine
 Lifecycle-/Minimalrechte-/TLS-/Host-Recoveryabnahme. Der Testcode allein ist
 kein nativer Nachweis. Zehn verbindungslose Admission-/Fehlerorakelprüfungen
 stehen in `test_file_content_lifecycle_lab_contract.py` und im zentralen Register.
+
+Die [native Bestätigung vom 2026-11-08](../../Releases/1.0.0/FILE-CONTENT-LIFECYCLE-QUALIFICATION.md)
+belegt zwölf vollständige Läufe/24 Kontexte/288 Profile und zwölf frische Audits.
+Alle 24 eigenen Datenbanken entfernt, keine Wiederholung; genau dieser
+Lifecycle-Teilumfang ist geschlossen. Andere Modulpflichten bleiben getrennt.
