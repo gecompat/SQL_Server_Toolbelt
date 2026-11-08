@@ -410,3 +410,16 @@ Hard-Interrupt-Recovery bleibt offen.
 - Scope: Aktuelle physische Windows-/Linux-Matrix SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170: zwölf vollständige local/central/Consumer-Adapter erfolgreich, je 3072 feste Contract-/Safety-APPLY-Oracles, 15 direkte Clientreader und 42 Lifecyclefälle. Alle Exit0, vollständige Kanäle, leeres Stderr. Zwölf frische read-only Kontrollverbindungen bestätigten tatsächliche Version/Plattform, unveränderte Input-/Sourcepins vor dem Evidenznachtrag, je zwei exakt restaurierte Marker-/Fremdslot-/Dependencyfixtures mit je zwei Abweisungen und alle 36 eigenen DBs abwesend. Keine Konfigurations-/Rechte-/Truständerungen. Functional mit erforderlicher Verschlüsselung und explizitem Lab-Trustwert; authentifizierte TLS-Abnahme separat. Aktueller Source einschließlich freigegebener SC-006-Härtung gebunden; deren separate Security.Contract.sql gehört nicht zum physischen full-Adapter. Keine neue Last-, Minimalrechte-, Heap-/Parallel-, Host-Recovery- oder Releasequalifikation; aktuelle Head-CI separat. Weiterhin teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Aktueller Security-Abschluss — 2026-11-08
+
+Die [separate kleine Securityfixture](../../../Releases/1.0.0/JSON-POINTER-SECURITY-QUALIFICATION.md)
+ist jetzt auf 24 erklärten lokalen/direkt zentralen Kontexten belegt:
+18 neue Ausführungen auf Windows und zentralem Linux, sechs wiederverwendete
+lokale Linux-CL-Kontexte aus drei erfolgreichen CI-Jobs. Zwölf neue frische
+Audits, alle 18 eigenen DBs entfernt; keine grüne lokale Linux-Wiederholung.
+Nur die feste Arbeitsbudgetabweisung und JSON_NULL sind dadurch ergänzt;
+keine Maximallast-/Heap-/Parallelitäts- oder Recoveryaufwertung.
+Die [vorhandenen direkten SELECT-Callerrechte](../../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md)
+bleiben eigenständig gültig; Lifecycle-DDL-Rechte und echte Lowpriv-CrossDB-
+Identitäten behalten ihre getrennten Gates.

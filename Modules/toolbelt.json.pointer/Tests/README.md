@@ -238,3 +238,20 @@ Releasequalifikation bleiben offen.
 - Scope: Aktuelle physische Windows-/Linux-Matrix SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170: zwölf vollständige local/central/Consumer-Adapter erfolgreich, je 3072 feste Contract-/Safety-APPLY-Oracles, 15 direkte Clientreader und 42 Lifecyclefälle. Alle Exit0, vollständige Kanäle, leeres Stderr. Zwölf frische read-only Kontrollverbindungen bestätigten tatsächliche Version/Plattform, unveränderte Input-/Sourcepins vor dem Evidenznachtrag, je zwei exakt restaurierte Marker-/Fremdslot-/Dependencyfixtures mit je zwei Abweisungen und alle 36 eigenen DBs abwesend. Keine Konfigurations-/Rechte-/Truständerungen. Functional mit erforderlicher Verschlüsselung und explizitem Lab-Trustwert; authentifizierte TLS-Abnahme separat. Aktueller Source einschließlich freigegebener SC-006-Härtung gebunden; deren separate Security.Contract.sql gehört nicht zum physischen full-Adapter. Keine neue Last-, Minimalrechte-, Heap-/Parallel-, Host-Recovery- oder Releasequalifikation; aktuelle Head-CI separat. Weiterhin teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Kleine Securityfixture vervollständigt — 2026-11-08
+
+Der [aktuelle Securitynachweis](../../../Releases/1.0.0/JSON-POINTER-SECURITY-QUALIFICATION.md)
+ergänzt zwölf Windows- und sechs direkt zentrale Linux-Kontexte mit der
+unveränderten `Security.Contract.sql`: feste WORK_LIMIT-Abweisung und JSON_NULL.
+Zwölf frische Audits bestanden, alle 18 eigenen DBs entfernt. Sechs lokale
+Linux-CL-Kontexte werden aus drei quellengebundenen erfolgreichen CI-Jobs
+wiederverwendet; keine erneute Ausführung. Damit ist genau diese Zwei-Fälle-
+Fixture auf 24 lokalen/direkt zentralen Kontexten belegt. Kein neuer
+Maximalworkload-, Heap-/Parallelitäts- oder Modulgesamtstatus.
+
+Die [direkten SELECT-Callerprofile](../../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md)
+mit 24 positiven Profilen/72 SQL229-Abweisungen sind bereits separat belegt;
+öffentliche TVF bytegleich, Originalquellen historisch gebunden. Pauschale
+ältere Minimalrechte-Offenangaben gelten dafür nicht. Lifecycle-DDL-Rechte,
+echte Lowpriv-CrossDB-Identitäten und weitere zugesagte Betriebsfälle bleiben separat.

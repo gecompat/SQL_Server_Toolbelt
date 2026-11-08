@@ -6619,3 +6619,18 @@ sowie API-/Client-/Rechtebelege behalten ihren engeren Originalscope; keine
 erneute Vollfixture-Ausführung. Weitere Genuine-/Lock-/Rollback-/Session-/
 Consumer-Collation-/Rechte-/Identitäts-/Ressourcen-/Recoveryprofile bleiben
 getrennt. Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung oder Veröffentlichung.
+
+## JSON Pointer: kleine Securityfixture vollständig zugeordnet — 2026-11-08
+
+Die [gezielte Ergänzung](../Releases/1.0.0/JSON-POINTER-SECURITY-QUALIFICATION.md)
+bestand auf 18 neuen Windows-/direkt zentralen Linux-Kontexten mit zwölf
+frischen Audits; alle 18 eigenen DBs entfernt. Sechs bereits grüne lokale
+Linux-Kontexte aus Main-CI 40171363163 werden nach elf Quellen-/Methoden-
+vergleichen wiederverwendet, keine Überschneidung mit neuen Läufen. Genau
+WORK_LIMIT und JSON_NULL sind so auf 24 Moduskontexten belegt. 24/24 Aufrufe,
+18/18 DB-Reservierungen, 45-Minuten-Frist eingehalten, keine Wiederholung.
+Bestehende direkte SELECT-Callerprofile bleiben separat belegt; pauschale
+Offenangaben dafür sind erledigt, Lifecycle-DDL-Rechte und echte CrossDB-
+Identitäten bleiben offen. Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung,
+neue Maximalworkload-/Heap-/Parallelitäts-/Recovery- oder Modulgesamtabnahme.
+Keine Veröffentlichung oder Tags; Originale und historische Fehler unverändert.

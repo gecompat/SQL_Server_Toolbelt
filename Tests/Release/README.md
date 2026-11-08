@@ -1406,3 +1406,12 @@ Tests einschließlich verbotener Linux-local-Wiederholung und Timeoutgrenzen
 stehen in `test_json_pointer_security_lab_contract.py` und im zentralen Register.
 Keine Rechtevergabe, neue Identität, Datei-I/O, CLR-/Trust-/Server-/Labänderung
 oder allgemeine Modul-/TLS-/Recoveryabnahme aus Testcode allein.
+
+Die [native Ergänzung vom 2026-11-08](../../Releases/1.0.0/JSON-POINTER-SECURITY-QUALIFICATION.md)
+bestand auf 18 neuen Kontexten mit zwölf frischen Audits, alle 18 eigenen DBs
+entfernt. Sechs lokale Linux-Kontexte wurden mit elf unveränderten Quellen-
+und Methodenbindungen aus drei erfolgreichen CI-Jobs wiederverwendet;
+der optionale manuelle Lastjob war SKIPPED, kein PASS. 24/24 Lauf-/Auditaufrufe,
+18/18 Reservierungen innerhalb 45 Minuten, keine Wiederholung. Nur der erklärte
+Zwei-Fälle-Securityscope ist geschlossen; ältere volle API-/Client-/Lifecycle-
+und direkte SELECT-Rechtebelege bleiben getrennt erhalten.
