@@ -64,7 +64,11 @@ Queryfragment `Source/FileContentRootPredicate.sql` ein.
 - [Beispiele](Examples/FileContent.sql)
 - [Testmatrix](Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md)
 
-Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung.
+Die [befüllte Repeat-Matrix](../../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
+ist auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral belegt:
+neun neue Lab-Läufe und drei gültig gebundene frühere Linux-CI-Fälle.
+Windows ist damit im Lifecycle-Teilumfang teilweise validiert; Dateiprovider,
+Minimalrechte und weitere Modulpflichten bleiben getrennt.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356
 

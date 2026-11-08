@@ -204,5 +204,59 @@ class EvidenceSourceTests(unittest.TestCase):
             sources.resolve(self.root, self.report['source_sha256'], revisions=[missing])
 
 
+class FileContentRepeatMetadataTests(unittest.TestCase):
+    """Statuspflege darf weder alte Bytes noch aktuelle Qualifikation erfinden."""
+
+    def setUp(self):
+        import help_contract_source as help_sources
+        self.help = help_sources
+        self.repository = Path(__file__).resolve().parents[2]
+        self.record = json.loads((self.repository / self.help.RECORD).read_bytes())
+        self.paths = ('Modules/toolbelt.file.content/module.yaml',
+                      'Modules/toolbelt.file.content/README.md')
+
+    def sandbox(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        for relative in (*self.paths, self.help.RECORD, self.help.ARCHIVE, 'LICENSE.md'):
+            target = root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((self.repository / relative).read_bytes())
+        return root
+
+    def test_exact_status_navigation_transition_preserves_original_not_current_claim(self):
+        for path in self.paths:
+            expected = self.record['baseline_source_sha256'][path]
+            original = self.help.validate_historical_source(self.repository, path, expected)
+            self.assertEqual(hashlib.sha256(original).hexdigest(), expected)
+            bound = sources.resolve(self.repository, {path: expected}, originals={path: original})
+            self.assertFalse(bound[path].current_matches)
+            with self.assertRaisesRegex(ValueError, 'current source qualification missing'):
+                sources.require_current(bound)
+
+    def test_extra_manifest_drift_and_overstated_validation_are_rejected(self):
+        root = self.sandbox()
+        path = self.paths[0]
+        current = (root / path).read_bytes()
+        for changed in (current.replace(b'version: "1.0.0"', b'version: "1.0.1"', 1),
+                        current.replace(b'  windows: "partially validated"',
+                                        b'  windows: "validated"', 1)):
+            self.assertNotEqual(changed, current)
+            (root / path).write_bytes(changed)
+            with self.assertRaisesRegex(ValueError, 'File Content repeat metadata'):
+                self.help.validate_historical_source(root, path, self.record['baseline_source_sha256'][path])
+
+    def test_extra_readme_drift_and_historical_pin_changes_are_rejected(self):
+        root = self.sandbox()
+        path = self.paths[1]
+        current = (root / path).read_bytes()
+        (root / path).write_bytes(current + b'\nUnexpected navigation drift.\n')
+        with self.assertRaisesRegex(ValueError, 'File Content repeat metadata'):
+            self.help.validate_historical_source(root, path, self.record['baseline_source_sha256'][path])
+        with self.assertRaisesRegex(ValueError, 'Historical Help source pin differs'):
+            self.help.validate_historical_source(self.repository, path, '0' * 64)
+
+
 if __name__ == '__main__':
     unittest.main()

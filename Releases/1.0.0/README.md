@@ -501,11 +501,17 @@ Produktstand `--refresh --product-commit <Commit>` verwenden und anschließend
 alle betroffenen Nachweise erneut zuordnen. Die Prüfung verwirft Produktdrift
 gegenüber der festgehaltenen Basis; sie wertet keinen Prüfstatus auf.
 
-Die [File-Content-Bindung und Repeat-Restwelle](FILE-CONTENT-REPEAT-QUALIFICATION.md)
-verwendet gültige Linux-CI-Nachweise weiter. Der neue Windows-Restkoordinator
-ist FAILED_CLEANED mit frischem Audit PASS; seine Rendererkorrektur besteht
-13 Offlineprüfungen, ist aber nativ nicht ausgeführt. Keine Gesamtmatrixabnahme
-oder Modulstatusänderung daraus.
+Die [historische erste File-Content-Restwelle](FILE-CONTENT-REPEAT-QUALIFICATION.md)
+verwendete gültige Linux-CI-Nachweise weiter. Ihr Windows-Restkoordinator bleibt
+FAILED_CLEANED mit frischem Audit PASS; die damals nur offline geprüfte
+Rendererkorrektur belegte noch keine Gesamtmatrixabnahme oder Statusänderung.
+
+Der [anschließende native Repeat-Abschluss](FILE-CONTENT-REPEAT-COMPLETION.md)
+belegt die nach neuer Freigabe korrigierte Welle: 18 neue Kontexte, 36 Fixtures,
+neun frische Audits und vollständig entfernter eigener DB-Scope. Mit den drei
+belegten Linux-CI-Default-Paaren sind zwölf Engine-/CL-Paare lokal/zentral
+abgedeckt. Die obige Sperraussage gilt historisch für die erste Welle;
+weitere Modulpflichten und der ursprüngliche Fehlnachweis bleiben getrennt.
 
 Der [aktuelle Phonetik-Frameworklauf](PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
 belegt 669 Assertions für die vorhandene DLL unter dem ausdrücklich neu

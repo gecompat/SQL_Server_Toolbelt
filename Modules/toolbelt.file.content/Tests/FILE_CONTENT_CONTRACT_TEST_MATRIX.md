@@ -30,8 +30,11 @@
 
 LC-004 bis LC-006 verwenden `RepeatCurrent.Contract.sql` in eigenen leeren
 Testdatenbanken lokal/zentral ohne Datei-I/O, Serverkonfiguration oder Grants.
-Linux-CI: native Default-CLs 2019/150, 2022/160, 2025/170. Zusätzliche CLs,
-Windows, nichtleere Benutzergrants, Minimalrechte, unbekannte Schemas und
+Linux-CI: native Default-CLs 2019/150, 2022/160, 2025/170. Der
+[aktuelle Abschluss](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
+ergänzt Windows und die niedrigeren Linux-CLs: zwölf Engine-/CL-Paare lokal/zentral,
+18 neue Kontexte/36 Fixtures/neun frische Audits und sechs wiederverwendete
+CI-Kontexte. Nichtleere Benutzergrants, Minimalrechte, unbekannte Schemas und
 historische Versionsmigrationen sind dadurch nicht qualifiziert.
 
 ## Contract-Tests (ohne echtes Dateisystem)
@@ -72,7 +75,7 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3069226735
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
-## Aktuelle Quellenbindung und Restversuch — 2026-11-08
+## Historische Quellenbindung und erster Restversuch — 2026-11-08
 
 Der [Nachweis](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-QUALIFICATION.md)
 bestätigt die aktuelle Bindung dreier früherer Linux-CI-Default-Repeats.
@@ -82,3 +85,8 @@ Die Adapterkorrektur besteht 13 Offlineprüfungen einschließlich des echten
 Erstexport-/Repeat-Batchvergleichs, ist aber nativ nicht ausgeführt. Historische
 Ausführungen werden nicht hochgestuft; Windows und zusätzliche Repeat-CLs
 bleiben offen. Der geschlossene No-Retry-Rahmen benötigt neue endliche Freigabe.
+
+Die anschließende [korrigierte Welle](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
+wurde ausdrücklich neu freigegeben und vollständig bestanden. Die vorherige
+Fehler-/Sperrbeschreibung bleibt historische Evidenz; die konkrete
+Windows-/zusätzliche-CL-Repeatlücke ist geschlossen, andere Teilgates bleiben.

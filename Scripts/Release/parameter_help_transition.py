@@ -29,6 +29,8 @@ VERIFIER_PINS_SHA256 = "d0321bc15ba5f7a303f47bc81121bd4ed0c876985a68aaa23c845238
 # restore their exact immutable verifier predecessors. No oracle/function or
 # historical pin file changed; this is not current native qualification.
 ADDITIONAL_REVIEWED_READ_ADAPTERS = {
+    "Scripts/Release/help_contract_source.py":
+        "6962c1f5e08ca01c55837433f001116ff7ba0e033f0e5d0019c3992ae3ef9039",
     "Tests/Release/test_zip_caller_profile.py":
         "a4789e0c8fa0d02e69323e1c3c2e16f164cedb066f590038c5d4f858b73fa83b",
     "Scripts/Release/xlsx_sst_budget.py":

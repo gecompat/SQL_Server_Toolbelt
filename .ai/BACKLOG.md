@@ -6575,3 +6575,19 @@ Postpins unverändert, unbenutzte Restplätze geschlossen, kein Produktbuild/SQL
 Historische Compilerpins, Build- und Differentialnachweise bleiben unverändert.
 Scanner-Vollabdeckung, SQL-/SAFE-/Ziel-/Rechte-/Lifecyclegates bleiben separat.
 Keine Produkt-/Manifest-/Server-/Labänderung oder Veröffentlichung.
+
+## File Content: korrigierte Repeat-Restmatrix abgeschlossen — 2026-11-08
+
+Nach neuer ausdrücklicher endlicher Freigabe abgeschlossen: Die
+[Restmatrix](../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
+bestand neun Läufe/18 lokale-zentrale Kontexte/36 Originalfixtures/neun frische
+Audits; alle 18 eigenen DBs entfernt. 18/22 Aufrufe und Reservierungen innerhalb
+45 Minuten, null weitere Korrekturfälle, Restplätze geschlossen. Alle 18
+Vor-/Nachdefinitionspaare stimmen exakt überein. Drei vorhandene Linux-CI-Paare
+bleiben quellengebunden wiederverwendet, keine Wiederholung dieser grünen Fälle.
+Die erklärte zwölfpaarige Repeat-Matrix ist geschlossen; die frühere
+NOT_EXECUTED-/Freigabesperre ist historisch erledigt. Alter FAILED_CLEANED-Fall,
+seine zwei Aufrufe und Originalaudits unverändert. Windows-Manifeststatus
+wegen des bestandenen Lifecycle-Teilumfangs jetzt partially validated;
+keine Produkt-SQL-/Rechte-/Server-/Labänderung. Andere Modulpflichten bleiben
+separat. Keine Veröffentlichung oder Tags.
