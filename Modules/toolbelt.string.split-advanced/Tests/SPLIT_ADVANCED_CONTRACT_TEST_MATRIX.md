@@ -61,3 +61,15 @@ Die [direkten Callerprofile](../../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETIO
 werden mit der im aktuellen Bericht erklärten unveränderten Fachpfadbindung
 wiederverwendet. Echte Lowpriv-CrossDB-Mappings, weitere Lifecycleprofile,
 Collations, Linux-Clienthost, Heap/Konkurrenz und harte Recovery bleiben getrennt.
+
+## Gezielte Lifecycleergänzung — 2026-11-08
+
+Der [aktuelle Nachweis](../../../Releases/1.0.0/SPLIT-ADVANCED-LIFECYCLE-QUALIFICATION.md)
+schließt 240 gezielte Profile auf zwölf Engine-/CL-Paaren lokal/direkt zentral:
+exakte Versions-/Bestätigungs-/Consumerabweisungen, kanonische Drift-/Typreparatur,
+Fremdobjekterhalt, Neuinstallation, Leerschemaentfernung und fehlendes Uninstall.
+Lokale CS_AS-/zentrale BIN2-Collation nativ bestätigt; zwölf frische Audits,
+alle 24 eigenen DBs entfernt. Frühere allgemeine Linux-Lifecyclefälle bleiben
+enger gebunden; alte grüne API-/Client-/Rechtefixtures wurden nicht wiederholt.
+Weitere Genuine-/Lock-/Rollback-/Session-, Consumer-Collation-, Rechte-/
+Identitäts-/Ressourcen-/Recoveryprofile bleiben separat.
