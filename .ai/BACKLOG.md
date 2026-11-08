@@ -6578,7 +6578,7 @@ Keine Produkt-/Manifest-/Server-/Labänderung oder Veröffentlichung.
 
 ## File Content: korrigierte Repeat-Restmatrix abgeschlossen — 2026-11-08
 
-Nach neuer ausdrücklicher endlicher Freigabe wurde die
+Nach neuer ausdrücklicher endlicher Freigabe abgeschlossen: Die
 [Restmatrix](../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
 bestand neun Läufe/18 lokale-zentrale Kontexte/36 Originalfixtures/neun frische
 Audits; alle 18 eigenen DBs entfernt. 18/22 Aufrufe und Reservierungen innerhalb
