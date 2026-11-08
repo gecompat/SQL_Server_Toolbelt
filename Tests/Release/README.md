@@ -1380,3 +1380,38 @@ belegt zwölf vollständige Läufe/24 Kontexte/240 Profile und zwölf frische Au
 alle 24 eigenen DBs entfernt, 24/24 Aufrufe innerhalb 45 Minuten, keine Wiederholung.
 Frühere allgemeinere Linux-Lifecycle- sowie API-/Client-/Rechtebelege bleiben
 an ihre Originale gebunden. Nur der neue erklärte Lifecycle-Teilumfang ist geschlossen.
+
+## JSON Pointer: fehlende Security-Kontexte ohne Maximallast
+
+`Invoke-JsonPointerSecurityLab.ps1` führt ausschließlich die unveränderte
+`Modules/toolbelt.json.pointer/Tests/Runtime/Security.Contract.sql` aus:
+ein festes Dokument mit einer Million Zeichen und Tiefe40 muss `INVALID`/
+`WORK_LIMIT`/NULL liefern, ein fester JSON-Null-Wert `JSON_NULL`. Keine
+16-MiB-Verarbeitungs-, Heap-, Performance- oder Parallelitätsqualifikation.
+
+Die zwölf festen Engine-/CL-Paare enthalten sechs Windows-Paare lokal/direkt
+zentral und sechs Linux-Paare ausschließlich direkt zentral. Die sechs bereits
+CI-qualifizierten lokalen Linux-Kontexte werden ausdrücklich nicht wiederholt.
+Kanonischer Pointer-Export ohne zusätzliche Module, tatsächliche Version/
+Plattform/CL und Modus, unveränderte Definitionen und neutrale Transaktion
+sowie ein frischer separater finaler DB-/Konfigurations-/Trustaudit sind Pflicht.
+Nach eigener endlicher privater Vorbereitung: `-RunsetPath`, `-CaseIndex`;
+`-AuditOnly` nur für den reservierten unabhängigen Abschlussprozess.
+`-ValidateOnly` öffnet keine SQL-Verbindung und importiert kein Lab.
+
+Nur die originale Security-Fixture erhält wie im bestehenden CI maximal180s
+Commandtimeout; sonst45s. Das 300s-Arbeits-/60s-Cleanupfenster je Producer und
+der gemeinsame endliche Rahmen werden nicht verlängert. Zehn verbindungslose
+Tests einschließlich verbotener Linux-local-Wiederholung und Timeoutgrenzen
+stehen in `test_json_pointer_security_lab_contract.py` und im zentralen Register.
+Keine Rechtevergabe, neue Identität, Datei-I/O, CLR-/Trust-/Server-/Labänderung
+oder allgemeine Modul-/TLS-/Recoveryabnahme aus Testcode allein.
+
+Die [native Ergänzung vom 2026-11-08](../../Releases/1.0.0/JSON-POINTER-SECURITY-QUALIFICATION.md)
+bestand auf 18 neuen Kontexten mit zwölf frischen Audits, alle 18 eigenen DBs
+entfernt. Sechs lokale Linux-Kontexte wurden mit elf unveränderten Quellen-
+und Methodenbindungen aus drei erfolgreichen CI-Jobs wiederverwendet;
+der optionale manuelle Lastjob war SKIPPED, kein PASS. 24/24 Lauf-/Auditaufrufe,
+18/18 Reservierungen innerhalb 45 Minuten, keine Wiederholung. Nur der erklärte
+Zwei-Fälle-Securityscope ist geschlossen; ältere volle API-/Client-/Lifecycle-
+und direkte SELECT-Rechtebelege bleiben getrennt erhalten.

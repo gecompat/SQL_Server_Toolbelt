@@ -465,6 +465,12 @@ Speicher-, Parallelitäts-, Recovery- oder TLS-Gates.
 
 [JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
+Die [kleine Pointer-Securityfixture](JSON-POINTER-SECURITY-QUALIFICATION.md)
+ergänzt 18 neue und sechs gültig wiederverwendete lokale Linux-Kontexte.
+Zwölf frische Audits bestätigen alle 18 eigenen DBs entfernt. Genau die beiden
+festen WORK_LIMIT-/JSON_NULL-Orakel sind damit auf 24 Moduskontexten belegt;
+keine neue Maximallast-/Heap-/Parallelitäts- oder Modulgesamtabnahme.
+
 [Capability-Katalog mit einzelnem SELECT-Recht](CATALOG-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 [Konsolenausgabe mit einzelnem EXECUTE-Recht](CONSOLE-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
