@@ -116,15 +116,16 @@ Originalberichte und die getrennte Copy-Qualifikation werden nicht umgedeutet.
 
 ## Constructor: nichtleere USP-ACLs — aktueller Stand 2026-11-08
 
-Die [nichtleere Constructor-ACL-Migration](../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
-bleibt am 2026-11-08 nativ unqualifiziert: Auch die erneut freigegebene Welle
-stoppte vor Testbenutzer/Grants und ist FAILED_CLEANED mit frischem Audit PASS.
-Eine eigene DB entfernt, Konfiguration/Trust wiederhergestellt; beide alten
-Fehlläufe bleiben erhalten. Die Katalog-/Sitzungsbeobachtung des Adapters ist
-korrigiert; 14 Offlinegegenproben und vier typisierte SQL150-AST-Fälle bestehen.
-Keine native Bestätigung der Korrektur oder Modulgesamtfreigabe. Die
-No-Retry-Welle ist geschlossen; neue native Zulassung benötigt neue endliche
-Freigabe, keine zusätzlichen Objekt- oder Serverrechte.
+Die [nichtleere Constructor-USP-ACL-Matrix](../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
+besteht am 2026-11-08 nach neuer ausdrücklicher Freigabe auf 24 lokalen/direkt
+zentralen Windows-/Linux-SQL-Kontexten: zwölf vollständige Originalkoordinatoren
+und zwölf frische Audits, 120 erhaltene Prozeduridentitäten und 96 Objektgrants
+über Rollback, echtes Upgrade und Repeat. Alle 24 Benutzer und DBs entfernt,
+96 eigene Grants widerrufen; Konfiguration/Trust wiederhergestellt.
+Die zwei vorherigen bereinigten Fehlläufe behalten ihre eigenen Audits und
+geschlossenen Grenzen. Der ausgewählte Vier-USP-Erhaltungsumfang ist damit
+geschlossen; direkte CLR-/Assembly-ACLs, andere Owner, Netzwerk-/CrossDB- und
+Linux-Clienthostfälle sowie die Modulgesamtqualifikation bleiben getrennt.
 
 Der [exakte native129-Byte-Geography-Nachweis vom2026-11-07](../Releases/1.0.0/GEO-EXACT129-QUALIFICATION.md)
 schließt den bisher unbeobachteten Grenzoperand auf24 lokalen/direkt zentralen
@@ -159,8 +160,9 @@ Die ältere Aussage „direkte AGF-Minimalrechte separat/offen“ gilt nicht meh
 für das ausdrücklich genehmigte Zwei-Objektrechte-Profil auf24 Kontexten.
 48 positive Profile,144 SQL229-Abweisungen und zwölf frische Audits bleiben
 an die ursprüngliche Methode und den unveränderten Produktstand gebunden.
-Andere Owner, nichtleere Upgrade-ACLs und echte Netzwerk-/CrossDB-Identitäten
-sind davon getrennt. Historische Reports/JSON/Pakete/Fehler bleiben unverändert.
+Andere Owner und echte Netzwerk-/CrossDB-Identitäten bleiben getrennt.
+Die später bestandene nichtleere Vier-USP-ACL-Migration steht oben; sie ist
+kein Bestandteil des früheren Aggregate-Callerprofils. Historische Reports/JSON/Pakete/Fehler bleiben unverändert.
 Dieser reine Lesewegabgleich startet keine SQL-Welle und vergibt keine Rechte.
 
 

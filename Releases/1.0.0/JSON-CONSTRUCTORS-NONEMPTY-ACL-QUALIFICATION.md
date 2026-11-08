@@ -1,18 +1,21 @@
 # Constructor-Upgrade mit nichtleeren USP-Berechtigungen
 
-Stand 2026-11-08: **NATIVE_NOT_QUALIFIED**. Auch die erneut ausdrücklich
-freigegebene Welle stoppte vor Testbenutzer und Rechtevergabe; ihr separater
-frischer Abschlussaudit bestand. Die Sitzungsbeobachtung des Testadapters
-ist korrigiert und verbindungslos geprüft, nativ noch nicht bestätigt.
-Beide fehlgeschlagenen Originalfälle bleiben `FAILED_CLEANED`.
-Bestehende grüne API-, Caller- und Migrationsnachweise behalten ihren Scope.
+Stand 2026-11-08: **PASS_FOR_DECLARED_NONEMPTY_CONSTRUCTOR_ACL_SCOPE**.
+Die anschließend ausdrücklich freigegebene korrigierte Matrix bestand mit
+zwölf vollständigen Läufen, 24 lokalen/direkt zentralen Kontexten und zwölf
+frischen unabhängigen Abschlussaudits. Erhalten sind 120 Prozeduridentitäten
+und 96 Objektgrants über Rollback, echtes 1.2→1.3-Upgrade und Repeat.
+Alle 24 eigenen Testbenutzer und Datenbanken sind entfernt. Kein neuer
+nativer Fehler oder Retry. Beide früheren Fehlläufe bleiben unverändert
+FAILED_CLEANED; ihre Cleanup-PASS werden nicht zu Gesamt-PASS aufgewertet.
+Dies ist die erklärte Metadaten-/ACL-Erhaltungsabnahme, keine Modulgesamtfreigabe.
 
 ## Konkreter Prüfumfang
 
 Der [Testtreiber](../../Tests/Release/Invoke-JsonConstructorsAclLab.ps1) und
-das [enge Profil](../../Tests/Release/JsonConstructors.AclUpgrade.ps1) sollen
-die echte bekannte Constructor-Version 1.2.0 auf den aktuellen Vertrag 1.3.0
-heben. Windows SQL 2019/CU32, 2022/CU26, 2025/CU8 und Linux SQL
+das [enge Profil](../../Tests/Release/JsonConstructors.AclUpgrade.ps1) prüfen
+den Erhalt beim Upgrade der echten bekannten Constructor-Version 1.2.0
+auf den aktuellen Vertrag 1.3.0. Windows SQL 2019/CU32, 2022/CU26, 2025/CU8 und Linux SQL
 2019/2022/2025 werden über alle unterstützten Compatibility Levels jeweils
 lokal und direkt zentral ausgewählt: zwölf Engine-/CL-Paare, 24 Kontexte.
 Direkt zentral ist SameDB-Nutzung; Clienthost ist Windows.
@@ -88,7 +91,7 @@ Ownership-, Consumer-, Wiederherstellungs- und Driftprüfungen verwendet.
 Jeder Producer/Audit bleibt auf 400 Sekunden und getrennte 4-MiB-Kanäle
 begrenzt; vor dem nächsten Fall bleiben mindestens 15 Minuten Reserve.
 
-## Erneut freigegebene Welle vom 2026-11-08
+## Zweiter Fehlversuch am 2026-11-08, vor der Sitzungskorrektur
 
 Der Benutzer gab ausdrücklich höchstens 24 Ziel-/Auditaufrufe, 24 eigene
 Testdatenbanken und 45 Minuten frei. Die vorbereitete No-Retry-Zulassung
@@ -133,6 +136,9 @@ typisierter SQL150-AST-Vergleich erkennt beide ursprünglichen unsicheren
 Prädikate und akzeptiert die beiden korrigierten Formen, jeweils syntaktisch
 gültig. Das sind vier verbindungslose AST-Fälle, keine native SQL-Ausführung.
 
+Der folgende Absatz beschreibt den damaligen Abschlussstand dieses Fehlversuchs;
+die danach neu freigegebene erfolgreiche Matrix ist im nächsten Abschnitt belegt.
+
 Die neue Welle ist **STOPPED_NO_NEW_ADMISSIONS**, ohne Wiederholung und
 ohne Übertragung ihrer unbenutzten Restplätze. Die alte Welle vom 2026-11-07
 bleibt zusätzlich unverändert geschlossen. Für die noch fehlenden zwölf
@@ -141,6 +147,83 @@ Freigabe nötig; eine bestandene Cleanup-, Offline- oder CI-Prüfung ersetzt
 diese native Abnahme nicht. Tatsächliche Head-/Main-CI der Methodenintegration
 werden getrennt in [PR #553](https://github.com/gecompat/SQL_Server_Toolbelt/pull/553)
 nachgewiesen. Keine Modulgesamtfreigabe.
+
+## Abschließende ausdrücklich freigegebene Matrix vom 2026-11-08
+
+Die zusätzliche konkrete Freigabe umfasste zwölf Läufe und zwölf separate
+frische Audits, höchstens 24 zusätzliche Ziel-/Auditaufrufe, 24 eigene
+Datenbanken und 45 Minuten ab neuem Start, keine weitere Wiederholung.
+Die beiden alten Wellen wurden nicht neu gestartet: neuer Controller,
+neue eigene Datenbanken und unveränderte alte Fehler, Zähler, Audits
+und Originaljournale.
+
+Ausgeführter Build:
+[67f40998](https://github.com/gecompat/SQL_Server_Toolbelt/commit/67f409981fbe4a524011ebb94f81e5df720f3611),
+die regulär integrierte Korrektur aus
+[PR #553](https://github.com/gecompat/SQL_Server_Toolbelt/pull/553).
+Vor Start waren die tatsächliche finale Head-CI und die lokale betroffene
+Prüfung mit 491 Release-Tests, 18 Kandidatentests und 45 Modulmanifesten grün.
+Auch die tatsächliche Main-PUSH-CI der Methodenintegration bestand.
+Bekannte drei DLLs, 22 genuine historische Sourcepins, aktuelle Helfer,
+exakte Exportclosure, Labvertrag/-schema/-prompt, Regeln, neue Autorität
+und ursprüngliche Quellenkapseln waren frisch gebunden. Alle vier
+Objektrechte sind die bereits genehmigten Rechte; keine neue Rechteklasse.
+
+| Ausgewähltes SQL-Ziel | Compatibility Levels | Modi | Kontexte |
+|---|---|---|---:|
+| Windows 2019/CU32 | 150 | lokal/direkt zentral | 2 |
+| Windows 2022/CU26 | 150, 160 | lokal/direkt zentral | 4 |
+| Windows 2025/CU8 | 150, 160, 170 | lokal/direkt zentral | 6 |
+| Linux 2019/latest | 150 | lokal/direkt zentral | 2 |
+| Linux 2022/latest | 150, 160 | lokal/direkt zentral | 4 |
+| Linux 2025/latest | 150, 160, 170 | lokal/direkt zentral | 6 |
+
+Windows ist der Clienthost mit System.Data.SqlClient und vorhandener
+administrativer SQL-Lab-Anmeldung. Linux bezeichnet das SQL-Ziel.
+Funktionale Abnahme mit erforderlicher Verschlüsselung und unverändertem
+explizitem Trustwert; keine neue Windows-SSPI-/GUI-/Serveridentitätsabnahme.
+
+Je Kontext wurden die vollständigen fünf Prozeduridentitäten einschließlich
+expliziter/effektiver Owner, alle vier ACL-Tupel einschließlich Grantor und
+die Benutzeridentität mit SID/Erstellungszeit verglichen. Die Bestände sind
+nach dem kontrollierten post-DROP-Fehler 53691, dem tatsächlichen genuinen
+1.2→1.3-Upgrade und dem Wiederholungsdeployment exakt identisch.
+Der gesonderte Rollbacksnapshot erhält CLR-Slots, Assembly-/Corebindung
+und vollständige relevante Properties. Der installierte aktuelle Stand,
+SAFE-Berechtigung und die aktuelle Core-Referenz sind zusätzlich geprüft.
+Keine erneute allgemeine API-/Quoten-/Caller- oder Schema-Consumer-Matrix.
+
+Ergebnis: **zwölf vollständige erfolgreiche Originalkoordinatoren**,
+24 erhaltene Rollback-/Upgrade-/Repeatprofile je Phase, 120 erhaltene
+Prozeduridentitäten und 96 erhaltene Objektgrants. Alle 96 eigenen Grants
+wurden anschließend ausdrücklich widerrufen, alle 24 eigenen Benutzer und
+Datenbanken entfernt. Die zwölf frischen separaten Audits binden die
+finalen unveränderten Originaljournale, Datenbankabwesenheit, tatsächliches
+SQL-Ziel, wiederhergestellte Konfiguration/Trust und sämtliche Inputpins.
+Verbrauch der neuen Welle: **24/24 Aufrufe und 24/24 DB-Reservierungen**,
+innerhalb der neuen 45-Minuten-Grenze; null native Fehler/Retry, alle Slots geschlossen.
+
+Der unabhängige Nachprüfer kontrolliert zusätzlich die exakten Namen/IDs
+der vier öffentlichen Zielprozeduren, Objektklasse, minor_id=0, Grantee und
+Grantzustand sowie die vollständigen Vor-/Nach-Tupel. Seine erste rein lokale
+Auswertung erwartete einen ungepolsterten Berechtigungscode.
+Die [Katalogspalte type ist char(4)](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-permissions-transact-sql);
+der ergänzende Nachprüfer verlangt deshalb exakt den EXECUTE-Code EX mit
+zwei ASCII-Leerzeichen. Ausschließlich dieses eine Prädikat wurde korrigiert
+und per Rückvergleich auf unveränderten Restcode geprüft. Originalprüfer,
+gescheiterte Auswertung und gepinnte Originaldaten bleiben unverändert.
+Der ergänzende Nachprüfer besteht vollständig. Keine neue SQL-Verbindung,
+kein Native-Retry, keine pauschale Whitespace-Normalisierung oder Änderung
+von Journalen, Audithashes, ACLs oder sonstigen Prüfbedingungen.
+
+In den drei getrennten Wellen bleiben damit zwei fehlgeschlagene
+Originalfälle und zwölf bestandene Originalfälle mit insgesamt 14 frischen
+Audits erhalten. Die beiden Fehlfälle verbrauchten zusammen vier frühere
+Aufrufe/Reservierungen und zwei tatsächlich angelegte eigene Datenbanken;
+sie sind keine bestandenen Kontexte der neuen Matrix. Ihre Grenzen werden
+weder zurückgesetzt noch mit den 24 neuen Aufrufen verrechnet.
+Tatsächliche Head-/Main-CI dieses Nachweisintegrationsstands sind separate
+Integrationsgates; Ergebnisse stehen im zugehörigen Nachweis-PR.
 
 ## Getrennte Grenzen
 
