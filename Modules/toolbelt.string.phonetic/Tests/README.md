@@ -103,3 +103,18 @@ Der gegenüber dem alten Binding geänderte Compiler wurde neu ausdrücklich
 ausgewählt und seine gültige Microsoft-Signatur geprüft; alte Pins bleiben
 unverändert. Ein Runner, vier Kinder, Postpins unverändert; private Dateien
 bleiben erhalten. Keine Scanner-/SAFE-/SQL-/Gesamtmatrixaufwertung.
+
+## Aktueller Abgleich der direkten Callerrechte — 2026-11-08
+
+Die [aktuelle Quellenzuordnung](../../../Releases/1.0.0/CLR-STRING-CALLER-CURRENT-BINDING.md) bestätigt den
+[gemeinsamen Caller-Nachweis](../../../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md)
+für die unveränderten Phonetik-/Edit-Distance-Modulinputs. Zusammen fünf TVFs,
+zwölf Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral: 120 positive
+Einzel-SELECT-Profile, 1440 SQL229-Abweisungen und 480 feste Wertorakel.
+Alle 29 ausgewählten Moduldateien sind aktuell bytegleich; Originalpins und
+Ausführungen bleiben unverändert, keine neue SQL-/Build-/Rechtewelle.
+
+Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
+direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
+CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
+zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.

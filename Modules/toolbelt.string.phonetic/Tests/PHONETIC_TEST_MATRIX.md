@@ -11,7 +11,8 @@ Die [Testevidenz](README.md) beschreibt die tatsächlichen begrenzten Läufe.
 | Artefakt | Build; eigene IL-/Metadatenprüfung ohne unbekannte eigene IL-Aufrufe; vier installierte Slots und exakte Binarybindung | Bestanden im Kandidatenscope; keine transitive SAFE-Vollqualifikation |
 | Lifecycle | Clean/repeat, resolved Consumer Deploy/Uninstall55266/1, zentrale Confirm0-Ablehnung55267/1, unveränderter Snapshot/gesunde Session, Uninstall/repeat und frische eigene Bereinigung | Begrenzter local/central Scope bestanden; unresolved NOT_ESTABLISHED, übrige Negativmatrix offen |
 | Plattform | Linux SQL2019/latest CL150 und Windows SQL2025/exakt CU8 CL170; local/central innerhalb derselben eigenen Testdatenbank | Ausgewählte Ziele bestanden; weitere Ziele/CL und CrossDB offen |
-| Betrieb / CI | Tatsächliche Minimalrechte, Heap/CPU/Wallclock/Produktionskapazität und aktuelle Head-CI | Offen; öffentliche CI ist Windows-Offline, kein SQL-Lauf |
+| Direkte Callerrechte | Zwei öffentliche TVFs mit einzelnem SELECT; internes CLR und andere Einstiege verweigert | Vorhandener gemeinsamer Caller-Nachweis; aktuelle Quellenbindung siehe unten, keine neue Ausführung |
+| Betrieb / CI | Lifecycle-DDL-/Markerrechte, Heap/CPU/Wallclock/Produktionskapazität und aktuelle Head-CI | Offen; öffentliche CI ist Windows-Offline, kein SQL-Lauf |
 
 Keine vollständige Matrixpflicht vor jedem kleinen Fix. Ein Teilnachweis wird
 niemals als gesamte Produktvalidierung gezählt. Historische Fehlversuche
@@ -42,3 +43,18 @@ Compiler gegenüber dem historischen Binding geändert ist: 223 Assertions je
 Kultur, 669 insgesamt, kein Produktbuild/SQL und keine Änderung alter Pins.
 Dies ergänzt ausschließlich die Framework-/Toolchainbindung. Die oben
 getrennten Scanner-, SQL-, SAFE-, Ziel-, Rechte- und Lifecyclegrenzen bleiben.
+
+## Aktueller Abgleich der direkten Callerrechte — 2026-11-08
+
+Die [aktuelle Quellenzuordnung](../../../Releases/1.0.0/CLR-STRING-CALLER-CURRENT-BINDING.md) bestätigt den
+[gemeinsamen Caller-Nachweis](../../../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md)
+für die unveränderten Phonetik-/Edit-Distance-Modulinputs. Zusammen fünf TVFs,
+zwölf Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral: 120 positive
+Einzel-SELECT-Profile, 1440 SQL229-Abweisungen und 480 feste Wertorakel.
+Alle 29 ausgewählten Moduldateien sind aktuell bytegleich; Originalpins und
+Ausführungen bleiben unverändert, keine neue SQL-/Build-/Rechtewelle.
+
+Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
+direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
+CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
+zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.

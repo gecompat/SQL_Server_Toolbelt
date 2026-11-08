@@ -463,6 +463,11 @@ Speicher-, Parallelitäts-, Recovery- oder TLS-Gates.
 
 [Providerview mit einzelnem SELECT-Recht](PROVIDER-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
+Der [aktuelle CLR-String-Callerrechteabgleich](CLR-STRING-CALLER-CURRENT-BINDING.md)
+ordnet die vorhandenen Phonetik-/Edit-Distance-SELECT-Profile ihren 29 unveränderten
+Modulinputs zu. Pauschale ältere Datenpfad-Minimalrechte-Offenangaben sind
+überholt; Lifecycle-DDL-/Owner-/CrossDB-Rechte und weitere Modulpflichten bleiben getrennt.
+
 [JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 
 Die [kleine Pointer-Securityfixture](JSON-POINTER-SECURITY-QUALIFICATION.md)
