@@ -84,3 +84,17 @@ Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
 direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
 CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
 zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.
+
+## Fehlende physische API-Kontexte — 2026-11-09
+
+Die [neue Restmatrix](../../../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+belegt Windows2019/CL150, Windows2022/CL150/160, Linux2022/CL150/160 und
+Linux2025/CL150/160/170 jeweils lokal/direkt zentral: 16 Kontexte, 96 vollständige
+Original-SQL-Fixtures und acht frische Audits, alle 16 eigenen DBs entfernt.
+Exakte vorhandene Paket-DLL, alle 13 Originalmodulquellen aktuell bytegleich;
+kein neuer Build, keine erneute Framework-/IL-/Callerrechtequalifikation.
+Vorherige Windows2025-/Linux2019-Läufe behalten ihren ursprünglichen Scope;
+kein neuer gemeinsamer Zwölf-Paare-Paketlauf. Die historischen pauschalen
+Ziel-Offenangaben sind für die acht neuen Paare erledigt. Read-only Lifecycle-
+Baseline ist kein vollständiger Lifecyclelauf; DDL-/Owner-/CrossDB-Rechte,
+Heap-/Betriebs-/Recoveryprofile und übrige Modulpflichten bleiben separat.

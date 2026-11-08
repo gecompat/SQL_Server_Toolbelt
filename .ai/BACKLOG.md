@@ -6676,3 +6676,18 @@ Status-/Fehler-/Abwesenheitshelfer wiederverwendet, keine grünen Vollfixtures.
 Pauschale AppLock-Offenangaben sind für diesen Scope erledigt; übrige Genuine-/
 Rollback-/SET-/Caller-/Identitäts-/Ressourcen-/Recoveryprofile bleiben getrennt.
 Keine neue Fachfunktion, Rechte-/Manifest-/Server-/Labänderung oder Veröffentlichung.
+
+## Edit Distance 1.1: fehlende physische API-Kontexte — 2026-11-09
+
+Die [neue Restmatrix](../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+bestand auf acht fehlenden Engine-/CL-Paaren lokal/direkt zentral: 16 Kontexte,
+96 vollständige unveränderte Distanz-/Jaro-/Metadaten-/Baselinefixtures und acht
+frische unabhängige Audits. Alle 16 eigenen DBs entfernt; sämtliche Konfiguration
+und Trust im Vorzustand. Vorhandene qualifizierte Paket-DLL und 13 bytegleiche
+Originalmodulquellen, kein neuer Build oder erneute Framework-/IL-/Callerwelle.
+16/16 Aufrufe und DB-Reservierungen innerhalb 45 Minuten ohne Wiederholung;
+frühere geschlossene Wellen/Fehler und Windows2025-/Linux2019-Nachweise behalten
+ihren ursprünglichen Scope. Kein gemeinsamer neuer Zwölf-Paare-Paketlauf.
+Pauschale Ziel-Offenangaben sind für diese acht Paare erledigt; weitere
+Lifecycle-/DDL-/Owner-/CrossDB-/Heap-/Betriebs-/Recoverypflichten bleiben separat.
+Keine Produkt-/Manifest-/Statusänderung, neuen Rechte oder Veröffentlichung.
