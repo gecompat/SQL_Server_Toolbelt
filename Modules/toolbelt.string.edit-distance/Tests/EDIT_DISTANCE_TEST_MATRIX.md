@@ -1,5 +1,8 @@
 # Editierdistanz-Testmatrix
 
+Der [aktuelle Callerrechteabgleich](../../../Releases/1.0.0/CLR-STRING-CALLER-CURRENT-BINDING.md)
+präzisiert die historischen pauschalen Minimalrechte-Offenangaben unten.
+
 ## Historische 1.0-Qualifikation
 
 |Gate|Stand|Grenze|
@@ -45,3 +48,18 @@ Der erste Linux-Lauf SQL468/State9 (Metadaten-Fixture-Collation) ist FAILED_CLEA
 
 Historische 1.0-Nachweise oben sind keine 1.1-Qualifikation. Die neue Evidenz
 ist separat in [Tests/README.md](README.md) dokumentiert. Tatsächliche Minimalrechte mit eigenem Principal, weitere physische Ziele und Heap-/Produktionskapazität bleiben offen. Die aktuelle CI ist ein separater Mergegate am exakten PR-Head; teilweise validiert und unveröffentlicht.
+
+## Aktueller Abgleich der direkten Callerrechte — 2026-11-08
+
+Die [aktuelle Quellenzuordnung](../../../Releases/1.0.0/CLR-STRING-CALLER-CURRENT-BINDING.md) bestätigt den
+[gemeinsamen Caller-Nachweis](../../../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md)
+für die unveränderten Phonetik-/Edit-Distance-Modulinputs. Zusammen fünf TVFs,
+zwölf Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral: 120 positive
+Einzel-SELECT-Profile, 1440 SQL229-Abweisungen und 480 feste Wertorakel.
+Alle 29 ausgewählten Moduldateien sind aktuell bytegleich; Originalpins und
+Ausführungen bleiben unverändert, keine neue SQL-/Build-/Rechtewelle.
+
+Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
+direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
+CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
+zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.

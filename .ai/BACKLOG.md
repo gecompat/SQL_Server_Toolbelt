@@ -6648,3 +6648,16 @@ Status-/Fehler-/Abwesenheitshelfer, keine grünen Vollfixtures. Alter Repeat-/
 Lifecycle- und Fehlerstand bleibt erhalten. Pauschal fehlende AppLockprüfung
 für diesen Scope ist erledigt; andere Rechte-/Identitäts-/Race-/Betriebsgates
 bleiben separat. Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung oder Veröffentlichung.
+
+## CLR-Stringfunktionen: direkte Callerrechte aktuell zugeordnet — 2026-11-08
+
+Der [Quellenabgleich](../Releases/1.0.0/CLR-STRING-CALLER-CURRENT-BINDING.md)
+bestätigt 29 bytegleiche Phonetik-/Edit-Distance-Modulinputs des unveränderten
+Callerrecords: fünf TVFs, zwölf Windows-/Linux-Ziel-/CL-Paare lokal/direkt zentral,
+120 positive Einzel-SELECT-Profile, 1440 SQL229-Abweisungen und 480 feste
+Wertorakel. Keine neue SQL-/Build-/Rechtewelle oder Aufwertung alter Methoden/
+Artefakte. Pauschale direkte Minimalrechte-Offenangaben sind erledigt;
+Lifecycle-DDL-/Markerrechte, andere Owner, echte CrossDB-Identitäten und übrige
+Modulpflichten bleiben getrennt. Historische datierte/generated Nachweise,
+Fehler, Binaries und Pins unverändert; kein Produkt-/Manifest-/Statusdelta,
+keine Veröffentlichung oder Tags.
