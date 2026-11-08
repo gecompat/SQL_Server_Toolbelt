@@ -71,3 +71,14 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3069226735
 - Scope: Commit 8effcee91106cb4b8924c7a839928d550c0653b6: befüllter 1.0.0-Repeat zweimal lokal und zentral, SQL Server 2019/150, 2022/160 und 2025/170 Linux; exakte Zeilen/Identity/Katalog/Annotationen und Uninstall; vorhandene Permissions nur beobachtet, keine Benutzergrants erzeugt; bestehende Datei-I/O-Suite anschließend erfolgreich; Windows/weitere Repeat-CLs/Minimalrechte/historische Migrationen offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Aktuelle Quellenbindung und Restversuch — 2026-11-08
+
+Der [Nachweis](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-QUALIFICATION.md)
+bestätigt die aktuelle Bindung dreier früherer Linux-CI-Default-Repeats.
+Der neue Windows-Restkoordinator ist FAILED_CLEANED mit frischem Audit PASS,
+null bestandenen Gesamtfällen und vollständig entferntem eigenem DB-Scope.
+Die Adapterkorrektur besteht 13 Offlineprüfungen einschließlich des echten
+Erstexport-/Repeat-Batchvergleichs, ist aber nativ nicht ausgeführt. Historische
+Ausführungen werden nicht hochgestuft; Windows und zusätzliche Repeat-CLs
+bleiben offen. Der geschlossene No-Retry-Rahmen benötigt neue endliche Freigabe.

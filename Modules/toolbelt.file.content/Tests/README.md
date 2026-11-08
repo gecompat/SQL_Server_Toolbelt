@@ -84,3 +84,17 @@ Die binären Runtime-Fixtures werden durch `Tests/CI/run-file-content-linux.sh` 
 - Scope: Commit 8effcee91106cb4b8924c7a839928d550c0653b6: befüllter 1.0.0-Repeat zweimal lokal und zentral, SQL Server 2019/150, 2022/160 und 2025/170 Linux; exakte Zeilen/Identity/Katalog/Annotationen und Uninstall; vorhandene Permissions nur beobachtet, keine Benutzergrants erzeugt; bestehende Datei-I/O-Suite anschließend erfolgreich; Windows/weitere Repeat-CLs/Minimalrechte/historische Migrationen offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Aktuelle Bindung und gestoppte Restmatrix — 2026-11-08
+
+Der [aktuelle Nachweis](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-QUALIFICATION.md)
+bindet drei erfolgreiche Linux-Main-CI-Jobs mit 23 unveränderten relevanten
+Quellen an den aktuellen Stand. Die befüllten Default-CL-Repeats lokal/zentral
+bleiben gültig und wurden nicht wiederholt. Der erste Windows-Restfall ist
+FAILED_CLEANED; eigene DB entfernt, frischer unabhängiger Windows-Audit PASS.
+Die Rendererabweichung ist offline reproduziert und durch eine echte
+Erstexport-/Repeat-Batchgegenprobe korrigiert; 13 Offlineprüfungen bestehen.
+Kein bestandener Gesamtfall, keine neue Windows-/Restmatrixabnahme daraus.
+Der No-Retry-Rahmen ist geschlossen; Korrektur nativ NOT_EXECUTED. Vor einer
+Fortsetzung ist eine neue konkrete endliche Freigabe nötig. Andere Rechte-,
+Lifecycle- und Providerfälle sowie optionale Datei-I/O bleiben getrennt.

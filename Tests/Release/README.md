@@ -1303,3 +1303,16 @@ dieselbe geprüfte Fixture. Der Schlüssel bindet zusätzlich Bundlebytes und
 Quell-/Produktcommit; Scope- und Dependencywechsel sowie Fehler bleiben
 Gegenproben. Keine Produktionsfunktion erhält einen Cache; die vollständige
 Suite behält ihre 120-Sekunden-Grenze.
+
+## File-Content-Repeat und kanonischen Export vergleichen
+
+`Invoke-FileContentRepeatLab.ps1` prüft neun fehlende Engine-/CL-Paare lokal
+und direkt zentral mit den ursprünglichen Repeat-/Lifecyclefixtures.
+Die gültigen Linux-Default-Repeats werden nach Quellenvergleich wiederverwendet.
+Der [Nachweis](../../Releases/1.0.0/FILE-CONTENT-REPEAT-QUALIFICATION.md)
+führt den ursprünglichen Restlauf als FAILED_CLEANED mit frischem Audit PASS,
+die Rendererkorrektur als SOURCE_ONLY. Kein neuer nativer Start ohne neue
+endliche Freigabe; alte Journale und Grenzen bleiben erhalten.
+`test_file_content_repeat_lab_contract.py` enthält 13 verbindungslose Gegenproben
+und ist im zentralen Release-Testregister registriert. Die echte Erstexport-/
+Repeat-Produktbatchprobe mockt nur den SQL-Executor, nicht die Renderer.
