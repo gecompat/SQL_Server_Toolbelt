@@ -120,7 +120,7 @@ Caller-Transaktion noch ein bereits vorhandener Testbenutzer abgeleitet.
 
 Die enge Adapterkorrektur erfasst `@@TRANCOUNT` und `XACT_STATE()` bei Einstieg
 und Cleanup zuerst skalar, bevor der Katalogzugriff erfolgt. Die Forderung
-nach neutraler Sitzung und fremdem Benutzerbestand bleibt unverändert.
+nach neutraler Sitzung und der Schutz vorhandener Benutzer bleiben unverändert.
 Keine nachträgliche Transaktionsbereinigung, kein Entfernen fremder Benutzer,
 keine zusätzlichen Rechte und keine Änderung am Constructor-Produkt.
 Ein künftiger Entryfehler nennt die zuvor erfassten beiden Zustandswerte
@@ -139,7 +139,8 @@ bleibt zusätzlich unverändert geschlossen. Für die noch fehlenden zwölf
 nativen Gesamtfälle und zwölf Audits ist eine neue konkrete endliche
 Freigabe nötig; eine bestandene Cleanup-, Offline- oder CI-Prüfung ersetzt
 diese native Abnahme nicht. Tatsächliche Head-/Main-CI der Methodenintegration
-werden getrennt im zugehörigen PR nachgewiesen. Keine Modulgesamtfreigabe.
+werden getrennt in [PR #553](https://github.com/gecompat/SQL_Server_Toolbelt/pull/553)
+nachgewiesen. Keine Modulgesamtfreigabe.
 
 ## Getrennte Grenzen
 
