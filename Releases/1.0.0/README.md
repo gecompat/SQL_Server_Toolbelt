@@ -270,6 +270,12 @@ zwölf frischen Audits. Exakte Versions-/Bestätigungs-/Consumerabweisungen,
 kanonische Drift-/Typreparatur, Fremdobjekterhalt, Neuinstallation und fehlendes
 Uninstall sind darin belegt; weitere Modulpflichten bleiben getrennt.
 
+Die [Split-Advanced-AppLockergänzung](SPLIT-ADVANCED-APPLOCK-QUALIFICATION.md)
+belegt 24 weitere Moduskontexte mit 96 Sperr-/Freigabeprofilen und zwölf frischen
+Audits: exakte 51677/State1-Abweisungen von Deploy/Uninstall unter bestätigter
+zweiter Sitzungssperre, Erfolg nach verifiziertem Release, Core erhalten und alle
+24 eigenen DBs entfernt. Kein allgemeiner Race-/Recovery- oder Gesamtmodulnachweis.
+
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen sechs Producer-/Status-/Viewprofile. Die
 [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) ergänzen sieben

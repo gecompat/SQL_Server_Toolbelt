@@ -68,5 +68,15 @@ Profile, zwölf frische Audits und 24 entfernte eigene Datenbanken. Unbekannte
 Marker, exakte Bestätigungs-/Consumerabweisungen, kanonische Drift-/Typreparatur,
 Fremdobjekterhalt, Neuinstallation und fehlendes Uninstall sind in lokalen
 CS_AS-/zentralen BIN2-Kontexten qualifiziert. Alte API-/Client-/Rechtefixtures
-wurden nicht erneut ausgeführt. Weitere Genuine-/Lock-/Rollback-/Session-/
+wurden nicht erneut ausgeführt. Weitere Genuine-/Rollback-/Session-/
 Consumer-Collation-/Ressourcen-/Identitätsprofile bleiben getrennt.
+
+## AppLock mit getrennter Sitzung — 2026-11-08
+
+Der [aktuelle Sperrnachweis](../../../Releases/1.0.0/SPLIT-ADVANCED-APPLOCK-QUALIFICATION.md)
+ergänzt 24 lokale/direkt zentrale Windows-/Linux-Kontexte und 96 Profile:
+Deploy und Uninstall weisen unter tatsächlich gehaltener fremder Sitzungssperre
+exakt mit 51677/State1 ab; nach verifizierter eigener Freigabe funktionieren
+beide. Zwölf frische Audits, alle 24 eigenen Datenbanken entfernt, keine neuen
+Rechte oder Server-/Labänderungen. Kein allgemeiner Race-/Recoverynachweis;
+übrige Modulpflichtfälle bleiben getrennt, Status teilweise validiert/unveröffentlicht.

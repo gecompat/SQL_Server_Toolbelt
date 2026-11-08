@@ -6661,3 +6661,18 @@ Lifecycle-DDL-/Markerrechte, andere Owner, echte CrossDB-Identitäten und übrig
 Modulpflichten bleiben getrennt. Historische datierte/generated Nachweise,
 Fehler, Binaries und Pins unverändert; kein Produkt-/Manifest-/Statusdelta,
 keine Veröffentlichung oder Tags.
+
+## Split Advanced: AppLock mit getrennter Sitzung — 2026-11-08
+
+Die [gezielte Sperrmatrix](../Releases/1.0.0/SPLIT-ADVANCED-APPLOCK-QUALIFICATION.md)
+bestand zwölf vollständige Läufe, 24 lokale/direkt zentrale Windows-/Linux-
+Kontexte, 96 Profile und zwölf frische Audits. Positive verschiedene Sitzungs-IDs
+und exklusive Leases geprüft; 48 exakte 51677/State1-Abweisungen, nach eigener
+verifizierter Freigabe 48 erfolgreiche Deploy-/Uninstallschritte. Alle 24 eigenen
+DBs entfernt, Core-Definitionen erhalten, Serverkonfiguration/Trust unverändert.
+24/24 Aufrufe und DB-Reservierungen innerhalb 45 Minuten ohne Wiederholung;
+frühere geschlossene Wellen und Originalnachweise unverändert. Nur bestehende
+Status-/Fehler-/Abwesenheitshelfer wiederverwendet, keine grünen Vollfixtures.
+Pauschale AppLock-Offenangaben sind für diesen Scope erledigt; übrige Genuine-/
+Rollback-/SET-/Caller-/Identitäts-/Ressourcen-/Recoveryprofile bleiben getrennt.
+Keine neue Fachfunktion, Rechte-/Manifest-/Server-/Labänderung oder Veröffentlichung.
