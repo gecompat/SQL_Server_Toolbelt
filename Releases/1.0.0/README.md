@@ -530,6 +530,12 @@ belegt 288 gezielte Versions-/Kollisions-/Uninstall-/Neuinstallationsprofile auf
 24 Windows-/Linux-Kontexten mit zwölf frischen Audits. Die Repeat-Matrix wurde
 nicht wiederholt; weitere Modulpflichten bleiben getrennt.
 
+Die [File-Content-AppLockergänzung](FILE-CONTENT-APPLOCK-QUALIFICATION.md)
+belegt getrennte echte Sitzungen, exakte Sperrabweisungen und erfolgreiche
+Deploy-/Uninstallpfade nach verifizierter Freigabe auf 24 Moduskontexten:
+96 Profile, zwölf frische Audits, alle 24 eigenen DBs entfernt. Andere
+Identitäts-/Race-/Betriebs- und Modulpflichten bleiben separat.
+
 Der [aktuelle Phonetik-Frameworklauf](PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
 belegt 669 Assertions für die vorhandene DLL unter dem ausdrücklich neu
 geprüften Compiler. Keine erneute Produktkompilierung oder SQL-Ausführung;

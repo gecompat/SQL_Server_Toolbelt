@@ -1439,3 +1439,10 @@ API-/Client-/Lifecyclefixtures werden nicht wiederholt. Keine anderen Benutzer,
 Rechtevergabe, Datei-I/O, CLR-/Trust-/Server-/Labänderung, allgemeine Race-/
 Host-Recovery- oder Modulgesamtabnahme. Zehn verbindungslose Prüfungen stehen
 in `test_file_content_lock_lab_contract.py` und im zentralen Testregister.
+
+Die [native Bestätigung vom 2026-11-08](../../Releases/1.0.0/FILE-CONTENT-APPLOCK-QUALIFICATION.md)
+bestand auf zwölf Paaren/24 Kontexten mit 96 Profilen und zwölf frischen
+Audits. Alle 24 eigenen DBs entfernt; 24/24 Aufrufe und Reservierungen innerhalb
+45 Minuten, kein Fehler und keine Wiederholung. Originale der früheren
+Repeat-/Lifecyclewellen bleiben unverändert; nur der erklärte AppLockscope
+ist ergänzt, keine allgemeine Race-/Recovery- oder Modulgesamtabnahme.
