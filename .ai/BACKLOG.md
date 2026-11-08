@@ -6529,3 +6529,20 @@ für beide neuen Modi erforderlich. Native SQL-Ausführung bleibt Root
 vorbehalten. Bis zu tatsächlichem Ziel-PASS und Audit bleibt diese zusätzliche
 Funktionsqualifikation offen; sie erweitert weder die allgemeine SSIS- noch
 eine SDK-/Runtime-Paritätsaussage.
+
+## Split-Advanced: aktuelle Funktions-/Clientzielmatrix — 2026-11-08
+
+Die [aktuelle Qualifikation](../Releases/1.0.0/SPLIT-ADVANCED-CURRENT-QUALIFICATION.md)
+schließt den freigegebenen unabhängigen Funktions-/USP-/Clientscope auf zwölf
+Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral: 24 Kontexte,
+96 vollständige Original-SQL-Fixtures, 24 Clientproben und zwölf frische Audits.
+Alle 24 eigenen DBs entfernt; 24/24 Aufrufe und 24/24 DB-Reservierungen in der
+vorab gewählten 45-Minuten-Welle verbraucht, kein nativer Fehler/Retry.
+Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung. Die geänderte Clientaufnahme
+ist im Erfolgsweg nativ ausgeführt; Dispose-Fehlerinjektion bleibt getrennt.
+Historische Callerrechte werden bei geprüfter unveränderter Eingangs-/Fachpfadbindung
+wiederverwendet; ihre Projektionen und alten Grenzen bleiben unverändert.
+Die frühere Achte-Welle-Angabe zu sechs ungeprüften niedrigeren CLs ist durch
+den bereits vorhandenen CL-Abschluss historisch erledigt, keine neue Ausführung.
+Weitere Lifecycle-/Collation-/Ressourcen-/Recovery-/Linux-Clienthost- und echte
+Lowpriv-CrossDB-Punkte bleiben separat; keine Veröffentlichung oder neue Funktion.
