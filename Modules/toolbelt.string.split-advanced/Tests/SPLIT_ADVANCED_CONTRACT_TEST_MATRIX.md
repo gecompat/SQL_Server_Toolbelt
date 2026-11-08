@@ -48,3 +48,16 @@ auf SQL Server 2025 Linux ausgeführt, nicht rückwirkend auf anderen Zielen.
 - Scope: 1.1.0: SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8; S2-Regression, Unquoting inklusive Dense65536, USP/Help/ResultTable/OwnTransaction/Savepoint/doomed Caller, echte 1.0-Installerupgradefixture aus gepinntem Git, neue Namenskollisionen, alle API-Marker/SourceHashes, lokale/zentral-DB-Minimalrechte, administrative Cross-DB-Aufrufe. Lab-only SqlClient-Metadaten/NOT-NULL/Resultsetprobe erfolgreich. Andere neue Version-/Plattformkombinationen, GitHub-1.1-Workflow und niedrigprivilegierter mapped Caller Cross-DB nicht ausgeführt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Aktuelle Funktions- und Clientergänzung — 2026-11-08
+
+Die [aktuelle Matrix](../../../Releases/1.0.0/SPLIT-ADVANCED-CURRENT-QUALIFICATION.md)
+besteht auf allen zwölf ausgewählten Windows-/Linux-Engine-/CL-Paaren lokal und
+direkt zentral: 24 Kontexte, 96 vollständige Split-/Unquote-/USP-/read-only-
+Lifecyclefixtures und 24 unveränderte Clientproben, zwölf frische Audits.
+Alle 24 eigenen Datenbanken entfernt, keine neue Rechtevergabe oder Serveränderung.
+Die ältere pauschale Ziel-/Client-Offenangabe gilt damit nur historisch.
+Die [direkten Callerprofile](../../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
+werden mit der im aktuellen Bericht erklärten unveränderten Fachpfadbindung
+wiederverwendet. Echte Lowpriv-CrossDB-Mappings, weitere Lifecycleprofile,
+Collations, Linux-Clienthost, Heap/Konkurrenz und harte Recovery bleiben getrennt.

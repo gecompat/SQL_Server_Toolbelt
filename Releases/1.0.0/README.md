@@ -258,6 +258,11 @@ sind mit dem [ergänzenden CL-Abschluss](SPLIT-ADVANCED-CL-COMPLETION.md)
 lokal/direkt zentral auf allen zwölf Ziel-/CL-Kombinationen belegt: sechs
 neue niedrigere CL-Fälle und sechs unverändert wiederverwendete Fälle.
 Drei Einzelgrants und der Helperpfad bleiben getrennt; weitere Modulpflichtfälle offen.
+Die [aktuelle Funktions-/Clientmatrix](SPLIT-ADVANCED-CURRENT-QUALIFICATION.md)
+ergänzt 24 Kontexte mit 96 Original-SQL-Fixtures und 24 Clientproben,
+zwölf frischen Audits und entferntem eigenem DB-Scope. Die Bindung der alten
+Rechtepfade und aktuelle Hilfeausgabe werden ausdrücklich getrennt; weitere
+Lifecycle-/Collation-/Ressourcen-/Identitätsfälle bleiben offen.
 
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen sechs Producer-/Status-/Viewprofile. Die

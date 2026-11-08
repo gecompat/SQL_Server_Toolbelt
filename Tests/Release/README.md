@@ -1129,6 +1129,14 @@ bei jeweils höchstem CL. Der spätere
 die sechs niedrigeren CL-Kombinationen bei identischen Ausführungsinputs;
 die bereits grünen Fälle und Orakelkontrollen werden nicht wiederholt.
 
+Der [aktuelle Funktions-/Clientnachweis](../../Releases/1.0.0/SPLIT-ADVANCED-CURRENT-QUALIFICATION.md)
+verwendet `Invoke-SplitAdvancedLab.ps1`: vier unveränderte SQL-Fixtures und
+die originale Metadatenprobe auf 24 lokalen/direkt zentralen Kontexten,
+zwölf frische Audits, alle 24 DBs entfernt. Keine Rechteprobe wiederholt;
+aktuelle Help-/Clientbytes sind neu nativ ausgeführt. Zehn Offlinegegenproben
+in `test_split_advanced_lab_contract.py` schützen die endliche Admission.
+Vorbereitung und Grenzen stehen im Bericht; Modulgesamtpflichten bleiben separat.
+
 `Runtime/QueueWorker.Rights.sql` prüft sieben direkte unmanaged Worker-APIs
 und eine befüllte Blockerview. Claim benötigt zusätzlich Handler-EXECUTE;
 die feste CLAIM-Policy bleibt separat. Der

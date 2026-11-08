@@ -23,7 +23,20 @@ Am 2026-10-01 ist zusätzlich die [GitHub-hosted Linux-Matrix 2019/2022/2025](ht
 
 Quellenstand SOURCE_ONLY, neue lokale/native Qualifikation NOT_EXECUTED. Der vorhandene Caller führt diese Probe ausschließlich im Lab-Pfad aus; hosted CI allein qualifiziert die geänderte Aufnahme-/Fehlerroute nicht. SQL-Texte, Timeouts, Orakel und Erfolgmarker bleiben unverändert. Der folgende generierte Nachweis bleibt historische Evidenz seines damaligen Quellstands.
 
-## Aktuelle Validierungsevidenz
+## Aktuelle Funktions- und Clientmatrix — 2026-11-08
+
+Der [aktuelle Nachweis](../../../Releases/1.0.0/SPLIT-ADVANCED-CURRENT-QUALIFICATION.md)
+schließt die Funktions-/USP-/Clientmatrix auf zwölf Windows-/Linux-Engine-/CL-Paaren
+lokal und direkt zentral: 24 Kontexte, 96 vollständige Original-SQL-Fixtures,
+24 originale Clientproben und zwölf frische Audits; alle 24 eigenen DBs entfernt.
+Damit ist auch der Erfolgsweg der oben historisch nur quellseitig geprüften
+Command-/Readeraufnahme nativ ausgeführt. Keine injizierten Dispose-Fehler.
+Die vorhandenen [Callerrechte](../../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
+bleiben bei der im Bericht erklärten Eingangs-/Fachpfadbindung verwendbar und
+wurden nicht wiederholt. Weitere Lifecycle-/Collation-/Ressourcen-/Recovery-
+und echte Lowpriv-CrossDB-Fälle bleiben separat. `partially validated`, `unreleased`.
+
+## Historische Validierungsevidenz — 2026-10-01
 
 Die folgenden Befehle wurden am 2026-10-01 mit dem finalen 1.1.0-Adapter
 erfolgreich ausgeführt (Exit 0); keine reale Ausgabe wird versioniert:
