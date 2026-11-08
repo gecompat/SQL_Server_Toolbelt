@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "not executed"
+  windows: "partially validated"
   linux: "partially validated"
 providers:
   - id: tsql-openrowset-bulk

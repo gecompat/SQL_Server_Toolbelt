@@ -1316,3 +1316,10 @@ endliche Freigabe; alte Journale und Grenzen bleiben erhalten.
 `test_file_content_repeat_lab_contract.py` enthält 13 verbindungslose Gegenproben
 und ist im zentralen Release-Testregister registriert. Die echte Erstexport-/
 Repeat-Produktbatchprobe mockt nur den SQL-Executor, nicht die Renderer.
+
+Die [anschließende native Bestätigung](../../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
+bestand nach neuer ausdrücklicher Freigabe auf neun zusätzlichen Paaren:
+18 Kontexte, 36 vollständige Fixtures und neun frische Audits, alle 18 eigenen
+DBs entfernt. Die protokollierten Definitionszeilen bestätigen die Korrektur
+nativ. Zusammen mit drei gültig gebundenen Linux-CI-Paaren ist der erklärte
+Repeat-Scope vollständig; der alte Fehlnachweis bleibt fehlgeschlagen.

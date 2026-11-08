@@ -85,7 +85,7 @@ Die binären Runtime-Fixtures werden durch `Tests/CI/run-file-content-linux.sh` 
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
-## Aktuelle Bindung und gestoppte Restmatrix — 2026-11-08
+## Historische Bindung und gestoppte erste Restmatrix — 2026-11-08
 
 Der [aktuelle Nachweis](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-QUALIFICATION.md)
 bindet drei erfolgreiche Linux-Main-CI-Jobs mit 23 unveränderten relevanten
@@ -98,3 +98,15 @@ Kein bestandener Gesamtfall, keine neue Windows-/Restmatrixabnahme daraus.
 Der No-Retry-Rahmen ist geschlossen; Korrektur nativ NOT_EXECUTED. Vor einer
 Fortsetzung ist eine neue konkrete endliche Freigabe nötig. Andere Rechte-,
 Lifecycle- und Providerfälle sowie optionale Datei-I/O bleiben getrennt.
+
+## Korrigierte Restmatrix abgeschlossen — 2026-11-08
+
+Die [ausdrücklich freigegebene Fortsetzung](../../../Releases/1.0.0/FILE-CONTENT-REPEAT-COMPLETION.md)
+bestand neun Läufe auf Windows2019/2022/2025 und zusätzlichen Linux-CLs,
+18 Kontexte, 36 Original-SQL-Fixtures und neun frische Audits. Alle 18 eigenen
+DBs entfernt; 18/22 Aufrufe und Reservierungen verbraucht, keine Korrekturfälle.
+Mit drei unverändert wiederverwendeten Linux-Default-Paaren ist genau die
+befüllte Repeat-Matrix auf zwölf Engine-/CL-Paaren lokal/zentral geschlossen.
+Alle 18 neuen Vor-/Nachdefinitionspaare stimmen exakt überein. Der frühere
+FAILED_CLEANED-Fall bleibt erhalten; seine Warteangabe ist historisch erledigt.
+Weitere Rechte-, Lifecycle-, Ressourcen- und Providerfälle bleiben separat.
