@@ -32,7 +32,8 @@ function Get-FileRepeatText([string]$Mode){
   })
  }
  $text=Expand-FileRepeat (Join-Path $base '../Tests/Runtime/RepeatCurrent.Contract.sql')
- return $text.Replace('$(DeploymentMode)',$Mode)
+ # Dieselbe LF-Normalisierung wie der kanonische Erstinstallations-Export.
+ return $text.Replace('$(DeploymentMode)',$Mode).Replace("`r`n","`n").Replace("`r","`n")
 }
 function Assert-FileRepeatFixtureScope([string]$Text){
  if($Text-match'(?i)\b(GRANT|DENY|REVOKE|TRUSTWORTHY|sp_configure|sp_add_trusted_assembly)\b|CREATE\s+(USER|LOGIN|ASSEMBLY)|ALTER\s+(AUTHORIZATION|DATABASE)|ALL\s+SERVER'){

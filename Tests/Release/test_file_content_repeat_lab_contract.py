@@ -126,12 +126,13 @@ class FileRepeatAdmissionTests(unittest.TestCase):
         deploy.mkdir(parents=True, exist_ok=True)
         runtime.mkdir(parents=True, exist_ok=True)
         (runtime / 'RepeatCurrent.Contract.sql').write_bytes(fixture_text.encode('utf-8'))
-        (deploy / 'Deploy.sql').write_text("SELECT N'$(DeploymentMode)';", encoding='utf-8')
+        (deploy / 'Deploy.sql').write_bytes("SELECT N'$(DeploymentMode)';\r\nSELECT 1;\r\n".encode('utf-8'))
         quote = lambda p: "'" + str(p).replace("'", "''") + "'"
         script = "$ErrorActionPreference='Stop';$repo=" + quote(fake) + ";$errors=$null;" + \
             "$ast=[Management.Automation.Language.Parser]::ParseFile(" + quote(DRIVER) + ",[ref]$null,[ref]$errors);" + \
             "$f=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq'Get-FileRepeatText'},$true));" + \
-            "if($errors.Count-or$f.Count-ne1){throw 'EXPANSION_FUNCTION'};. ([scriptblock]::Create($f[0].Extent.Text));Get-FileRepeatText 'central'"
+            "if($errors.Count-or$f.Count-ne1){throw 'EXPANSION_FUNCTION'};. ([scriptblock]::Create($f[0].Extent.Text));" + \
+            "$expanded=Get-FileRepeatText 'central';if($expanded.Contains([string][char]13)){throw 'FILE_REPEAT_RENDER_CR'};$expanded"
         return subprocess.run(['pwsh', '-NoProfile', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
 
     def test_repeat_uses_fixed_deployment_working_directory(self):
