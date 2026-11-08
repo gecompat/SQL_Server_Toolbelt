@@ -1415,3 +1415,34 @@ der optionale manuelle Lastjob war SKIPPED, kein PASS. 24/24 Lauf-/Auditaufrufe,
 18/18 Reservierungen innerhalb 45 Minuten, keine Wiederholung. Nur der erklärte
 Zwei-Fälle-Securityscope ist geschlossen; ältere volle API-/Client-/Lifecycle-
 und direkte SELECT-Rechtebelege bleiben getrennt erhalten.
+
+## File Content: getrennte AppLock-Sitzung und Freigabe
+
+`Invoke-FileContentLockLab.ps1` bindet
+`Runtime/FileContent.LockProfiles.Contract.ps1`. Die Fixture verwendet die
+vorhandenen quellgebundenen Status-, Fehler- und Abwesenheitsorakel aus
+`Runtime/LifecycleProfiles.Contract.ps1`, nicht deren vollständigen Ablauf.
+Eine zweite echte Verbindung zur eigenen Testdatenbank muss eine exklusive
+Session-AppLock halten; ihre positive Sitzungs-ID muss von der Arbeitsverbindung
+abweichen. Originales Deploy und Uninstall müssen exakt 51277/State 1 liefern
+und den ausgewählten Katalog-/Transaktionszustand erhalten. Die Sperre wird
+danach erneut als gehalten und ihre eigene Freigabe mit `NoLock` verifiziert.
+Erst dann folgen der erfolgreiche Deploy- und Uninstallpfad.
+
+Zwölf feste Engine-/CL-Paare lokal/direkt zentral, kanonische Exporte und
+eindeutige eigene DB-Identität sind Pflicht. `-ValidateOnly` öffnet keine
+SQL-Verbindung und importiert kein Lab. Regulär `-RunsetPath`/`-CaseIndex`,
+frischer reservierter Abschlussprozess mit `-AuditOnly`. Der Audit bindet das
+genaue finale Journal, beide Sperrreceipts, vier Profile je Modus, Zielversion,
+DB-Abwesenheit sowie unveränderte Konfiguration und Trust. Alte grüne Repeat-/
+API-/Client-/Lifecyclefixtures werden nicht wiederholt. Keine anderen Benutzer,
+Rechtevergabe, Datei-I/O, CLR-/Trust-/Server-/Labänderung, allgemeine Race-/
+Host-Recovery- oder Modulgesamtabnahme. Zehn verbindungslose Prüfungen stehen
+in `test_file_content_lock_lab_contract.py` und im zentralen Testregister.
+
+Die [native Bestätigung vom 2026-11-08](../../Releases/1.0.0/FILE-CONTENT-APPLOCK-QUALIFICATION.md)
+bestand auf zwölf Paaren/24 Kontexten mit 96 Profilen und zwölf frischen
+Audits. Alle 24 eigenen DBs entfernt; 24/24 Aufrufe und Reservierungen innerhalb
+45 Minuten, kein Fehler und keine Wiederholung. Originale der früheren
+Repeat-/Lifecyclewellen bleiben unverändert; nur der erklärte AppLockscope
+ist ergänzt, keine allgemeine Race-/Recovery- oder Modulgesamtabnahme.

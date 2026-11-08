@@ -121,3 +121,14 @@ leeren Schemas und idempotentes Uninstall bei fehlendem Modul. Zwölf frische
 Audits bestanden; alle 24 eigenen DBs entfernt. Der Repeat-Scope wurde nicht
 wiederholt. Weitere Drift-/Lock-/Rechte-/Ressourcen-/Providerprofile bleiben
 getrennt; keine allgemeine Lifecycle- oder Modulgesamtabnahme.
+
+## AppLock zwischen zwei echten Sitzungen — 2026-11-08
+
+Die [gezielte AppLockmatrix](../../../Releases/1.0.0/FILE-CONTENT-APPLOCK-QUALIFICATION.md)
+schließt 96 Profile auf 24 lokalen/direkt zentralen Windows-/Linux-Kontexten:
+je exakte Deploy-/Uninstallabweisung unter einer bestätigten exklusiven
+zweiten Sitzungssperre und erfolgreicher Pfad nach verifizierter Freigabe.
+Zwölf frische Audits bestanden, alle 24 eigenen DBs entfernt. Keine neue
+Identität oder Rechtevergabe, kein Full-Repeat-/API-/Lifecycle-Rerun.
+Die vorherige pauschale AppLock-Offenangabe gilt für diesen Scope nicht mehr;
+weitere Race-/Caller-/SET-/Rollback-/Ressourcen-/Rechtefälle bleiben getrennt.

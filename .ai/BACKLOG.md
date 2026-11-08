@@ -6634,3 +6634,17 @@ Offenangaben dafür sind erledigt, Lifecycle-DDL-Rechte und echte CrossDB-
 Identitäten bleiben offen. Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung,
 neue Maximalworkload-/Heap-/Parallelitäts-/Recovery- oder Modulgesamtabnahme.
 Keine Veröffentlichung oder Tags; Originale und historische Fehler unverändert.
+
+## File Content: AppLock mit getrennter Sitzung — 2026-11-08
+
+Die [gezielte Sperrmatrix](../Releases/1.0.0/FILE-CONTENT-APPLOCK-QUALIFICATION.md)
+bestand zwölf vollständige Läufe/24 lokale-direkt zentrale Windows-/Linux-
+Kontexte, 96 Profile und zwölf frische Audits. 24 getrennte positive Sitzungs-
+ID-Paare und bestätigte exklusive Leases; 48 exakte 51277/1-Abweisungen,
+Freigabe/NoLock verifiziert, danach 48 erfolgreiche Deploy-/Uninstallschritte.
+Alle 24 eigenen DBs entfernt; 24/24 Aufrufe und Reservierungen innerhalb
+45 Minuten, keine Wiederholung. Wiederverwendet werden nur qualifizierte
+Status-/Fehler-/Abwesenheitshelfer, keine grünen Vollfixtures. Alter Repeat-/
+Lifecycle- und Fehlerstand bleibt erhalten. Pauschal fehlende AppLockprüfung
+für diesen Scope ist erledigt; andere Rechte-/Identitäts-/Race-/Betriebsgates
+bleiben separat. Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung oder Veröffentlichung.

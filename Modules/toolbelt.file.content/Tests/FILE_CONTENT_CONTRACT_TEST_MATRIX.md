@@ -101,3 +101,12 @@ Windows-/Linux-Läufe lokal/direkt zentral: 24 Kontexte, 288 Profile, zwölf
 frische Audits; alle 24 eigenen Datenbanken entfernt. Keine Wiederholung der
 Repeat-Matrix, keine Produkt- oder Rechteänderung. Weitere Drift-/Lock-/
 Rechte-/Ressourcen-/Providerprofile bleiben getrennt.
+
+## Aktuelle AppLockergänzung — 2026-11-08
+
+Die [getrennte Sitzungssperre](../../../Releases/1.0.0/FILE-CONTENT-APPLOCK-QUALIFICATION.md)
+ist auf zwölf Engine-/CL-Paaren lokal/direkt zentral nativ qualifiziert:
+48 exakte 51277/State1-Abweisungen und 48 erfolgreiche Schritte nach bestätigter
+Freigabe, 24 verschiedene Arbeits-/Sperrsitzungspaare, zwölf frische Audits,
+alle 24 eigenen DBs entfernt. Keine erneute Vollfixture. Andere Identitäten,
+Race-/Caller-/SET-/Rollback-/Ressourcen-/Provider- und Modulgesamtgates bleiben separat.
