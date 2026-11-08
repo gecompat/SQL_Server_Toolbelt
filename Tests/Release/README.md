@@ -1374,3 +1374,9 @@ einschließlich des kanonischen Erst-/Reparaturbatchvergleichs stehen in
 `test_split_advanced_lifecycle_lab_contract.py` und im zentralen Register.
 Keine Rechtevergabe, Datei-I/O, CLR-/Trust-/Server-/Labänderung, Genuine-Upgrade-,
 allgemeine Collation-/Recovery- oder vollständige Modulabnahme aus Testcode allein.
+
+Die [native Bestätigung vom 2026-11-08](../../Releases/1.0.0/SPLIT-ADVANCED-LIFECYCLE-QUALIFICATION.md)
+belegt zwölf vollständige Läufe/24 Kontexte/240 Profile und zwölf frische Audits;
+alle 24 eigenen DBs entfernt, 24/24 Aufrufe innerhalb 45 Minuten, keine Wiederholung.
+Frühere allgemeinere Linux-Lifecycle- sowie API-/Client-/Rechtebelege bleiben
+an ihre Originale gebunden. Nur der neue erklärte Lifecycle-Teilumfang ist geschlossen.

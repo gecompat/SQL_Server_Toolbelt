@@ -6603,3 +6603,19 @@ Uninstall sind im erklärten Scope geschlossen. Alle 24 eigenen DBs entfernt;
 Vorherige Repeat-/Fehlernachweise unverändert. Keine Produkt-SQL-/Manifest-/
 Rechte-/Server-/Labänderung. Weitere Drift-/Lock-/Rechte-/Ressourcen-/Provider-
 und Modulgesamtpflichten bleiben getrennt; keine Veröffentlichung oder Tags.
+
+## Split Advanced: gezielte aktuelle Lifecycleprofile — 2026-11-08
+
+Die [neue Lifecyclematrix](../Releases/1.0.0/SPLIT-ADVANCED-LIFECYCLE-QUALIFICATION.md)
+bestand zwölf vollständige Läufe/24 lokale-direkt zentrale Windows-/Linux-
+Kontexte, 240 Profile und zwölf frische Audits. 96 exakte Versions-/Bestätigungs-/
+Consumerabweisungen und 144 positive Reparatur-/Uninstall-/Neuinstallationsprofile
+sind belegt, lokale CS_AS-/zentrale BIN2-Collation nativ bestätigt. Alle 24
+eigenen DBs entfernt; 24/24 Aufrufe und Reservierungen innerhalb 45 Minuten,
+keine Wiederholung. Der anfängliche Neun-Paare-Vorbereitungsplan wurde vor
+jeder nativen Zulassung nach Orakelabgleich präzisiert und bleibt unverändert
+privat erhalten; darunter null native Aufrufe. Frühere Linux-Lifecyclefälle
+sowie API-/Client-/Rechtebelege behalten ihren engeren Originalscope; keine
+erneute Vollfixture-Ausführung. Weitere Genuine-/Lock-/Rollback-/Session-/
+Consumer-Collation-/Rechte-/Identitäts-/Ressourcen-/Recoveryprofile bleiben
+getrennt. Keine Produkt-/Manifest-/Rechte-/Server-/Labänderung oder Veröffentlichung.

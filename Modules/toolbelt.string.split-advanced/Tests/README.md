@@ -59,3 +59,14 @@ die zentralen fachlichen ResultTable-/TVF-Proben nutzen denselben Adapter.
 - Scope: 1.1.0: SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8; S2-Regression, Unquoting inklusive Dense65536, USP/Help/ResultTable/OwnTransaction/Savepoint/doomed Caller, echte 1.0-Installerupgradefixture aus gepinntem Git, neue Namenskollisionen, alle API-Marker/SourceHashes, lokale/zentral-DB-Minimalrechte, administrative Cross-DB-Aufrufe. Lab-only SqlClient-Metadaten/NOT-NULL/Resultsetprobe erfolgreich. Andere neue Version-/Plattformkombinationen, GitHub-1.1-Workflow und niedrigprivilegierter mapped Caller Cross-DB nicht ausgeführt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Aktuelle gezielte Lifecycleprofile — 2026-11-08
+
+Die [aktuelle Lifecyclematrix](../../../Releases/1.0.0/SPLIT-ADVANCED-LIFECYCLE-QUALIFICATION.md)
+belegt zwölf Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral: 240 gezielte
+Profile, zwölf frische Audits und 24 entfernte eigene Datenbanken. Unbekannte
+Marker, exakte Bestätigungs-/Consumerabweisungen, kanonische Drift-/Typreparatur,
+Fremdobjekterhalt, Neuinstallation und fehlendes Uninstall sind in lokalen
+CS_AS-/zentralen BIN2-Kontexten qualifiziert. Alte API-/Client-/Rechtefixtures
+wurden nicht erneut ausgeführt. Weitere Genuine-/Lock-/Rollback-/Session-/
+Consumer-Collation-/Ressourcen-/Identitätsprofile bleiben getrennt.

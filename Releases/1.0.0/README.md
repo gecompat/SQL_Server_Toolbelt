@@ -264,6 +264,12 @@ zwölf frischen Audits und entferntem eigenem DB-Scope. Die Bindung der alten
 Rechtepfade und aktuelle Hilfeausgabe werden ausdrücklich getrennt; weitere
 Lifecycle-/Collation-/Ressourcen-/Identitätsfälle bleiben offen.
 
+Die [gezielte aktuelle Lifecyclematrix](SPLIT-ADVANCED-LIFECYCLE-QUALIFICATION.md)
+ergänzt 240 neue Profile auf 24 lokalen/zentralen CS_AS-/BIN2-Kontexten mit
+zwölf frischen Audits. Exakte Versions-/Bestätigungs-/Consumerabweisungen,
+kanonische Drift-/Typreparatur, Fremdobjekterhalt, Neuinstallation und fehlendes
+Uninstall sind darin belegt; weitere Modulpflichten bleiben getrennt.
+
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen sechs Producer-/Status-/Viewprofile. Die
 [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) ergänzen sieben
