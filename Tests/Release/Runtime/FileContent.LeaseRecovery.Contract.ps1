@@ -2,6 +2,9 @@
 foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'LifecycleProfiles.Contract.ps1') @(
  'Get-FileLifecycleState','Assert-FileLifecycleAbsent')){. $block}
 foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'FileContent.LockProfiles.Contract.ps1') @('Assert-FileLockHeld')){. $block}
+foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/Release/Invoke-JsonSchemaAppLockLab.ps1') @(
+ 'Read-Scalar','Get-ExternalSessionState','Get-ContenderStateSamples','Test-ExternalSessionIdle','Test-ContenderStateIdle')){. $block}
+function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Rows){Invoke-ReleaseSql $Connection $Text $Parameters -Rows:$Rows}
 function Assert-FileRecoveryIdentity($Observed,$Worker){
  $guid=[guid]::Empty
  # Die DMV-Abfrage kann im eigenen lesenden Statement XACT_STATE()=1 zeigen,
@@ -70,9 +73,12 @@ function Invoke-FileRecoveryProfiles($Db,[string]$Mode){
    Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText((Join-Path $repo 'Modules/toolbelt.file.content/Deployment/Uninstall.sql')))
    Assert-FileLifecycleAbsent $Db $false
   }
-  $locks=@(Invoke-ReleaseSql $Db "SELECT APPLOCK_MODE(N'public',N'toolbelt.deploy.toolbelt.file.content',N'Transaction') TransactionLock,APPLOCK_MODE(N'public',N'toolbelt.deploy.toolbelt.file.content',N'Session') SessionLock;" -Rows)
-  $state=@(Invoke-ReleaseSql $Db 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
-  if($state.Count-ne1-or$state[0].TranCount-ne0-or$state[0].XactState-ne0-or$locks.Count-ne1-or$locks[0].TransactionLock-cne'NoLock'-or$locks[0].SessionLock-cne'NoLock'){throw 'FILE_RECOVERY_TRANSACTION_OR_LOCK_LEAK'}
+  # Das bestehende Orakel prüft die ruhende Sitzung extern und nimmt den
+  # lokalen Zustand vor der lesenden SELECT-Transaktion in Variablen auf.
+  # APPLOCK_MODE mit Transaction wäre ohne Benutzertransaktion selbst ungültig.
+  $samples=Get-ContenderStateSamples $control $Db $worker[0].Spid
+  $receipt['endSamples']=$samples;Save-ReleaseJournal
+  if(-not(Test-ContenderStateIdle $samples $Db.State $worker[0].Spid)){throw 'FILE_RECOVERY_TRANSACTION_OR_LOCK_LEAK'}
   $receipt.recovered=$true
   $ledger.profileCompletions+=@(@{mode=$Mode;profile=$operation+'-after-idle-session-termination';unchanged=$true});Save-ReleaseJournal
  }

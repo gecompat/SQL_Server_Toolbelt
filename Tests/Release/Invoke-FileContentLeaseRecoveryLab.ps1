@@ -63,6 +63,7 @@ try{
  if(($runset.fixtures-join'|')-cne($fixtures-join'|')){throw 'FILE_RECOVERY_CANONICAL_FIXTURES_REQUIRED'}
  foreach($path in @($PSCommandPath,$runset.exports.local,$runset.exports.central)+$fixtures+$repeatDependencies+@(
   (Join-Path $PSScriptRoot 'Invoke-ApiQualificationLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'),
+  (Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'),
   (Join-Path $repo 'Tests/CI/run-lab-local.ps1'),(Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'))){
   if(@($runset.pins|Where-Object path -CEQ $path).Count-ne1){throw 'FILE_RECOVERY_REQUIRED_PIN_MISSING'}
  }

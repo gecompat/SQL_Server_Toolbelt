@@ -25,7 +25,7 @@ class FileRecoveryAdmissionTests(unittest.TestCase):
             exports[mode] = str(path)
         fixtures = [ROOT / ('Tests/Release/Runtime/' + name) for name in ('FileContent.LeaseRecovery.Contract.ps1',)]
         files = [DRIVER, *fixtures, *(Path(p) for p in exports.values()), *(ROOT / p for p in (
-            'Tests/Release/Invoke-ApiQualificationLab.ps1', 'Tests/Release/Invoke-StablePackageLab.ps1',
+            'Tests/Release/Invoke-ApiQualificationLab.ps1', 'Tests/Release/Invoke-StablePackageLab.ps1', 'Tests/Release/Invoke-JsonSchemaAppLockLab.ps1',
             'Tests/CI/run-lab-local.ps1', 'Tests/CI/LabQualifiedContract.ps1'))]
         files += [ROOT / 'Tests/Release/Runtime/FileContent.LockProfiles.Contract.ps1', ROOT / 'Modules/toolbelt.file.content/Deployment/Uninstall.sql', ROOT / 'Tests/Release/Runtime/LifecycleProfiles.Contract.ps1']
         for module in ('toolbelt.core.result-table','toolbelt.file.content'):
@@ -158,6 +158,32 @@ foreach($rows in @(@(),@([pscustomobject]@{DatabaseId=9;TranCount=1;XactState=1;
  if(-not$blocked){throw 'INVALID_CALLER_IDENTITY_ACCEPTED'}
 }
 'PASS autocommit statement versus user transaction distinction'
+"""
+        result = subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
+    def test_original_idle_oracle_keeps_external_transaction_and_lock_checks(self):
+        helper = ROOT / 'Tests/Release/Invoke-JsonSchemaAppLockLab.ps1'
+        script = "$ErrorActionPreference='Stop';$e=$null;" + \
+            "$a=[Management.Automation.Language.Parser]::ParseFile('" + str(helper).replace("'", "''") + "',[ref]$null,[ref]$e);" + r"""
+foreach($name in @('Test-ExternalSessionIdle','Test-ContenderStateIdle')){
+ $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));if($e.Count-or$n.Count-ne1){throw 'ORACLE_FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
+}
+function New-Samples{
+ return [ordered]@{errors=@{external=$null;combined=$null;isolated=$null;session=$null};
+  external_rows=@([pscustomobject]@{SessionId=71;OpenTransactionCount=0;UserTransactionCount=0;ApplicationLockCount=0});
+  combined_rows=@([pscustomobject]@{Spid=71;TranCount=0;XactState=1});isolated_rows=@([pscustomobject]@{TranCount=0;XactState=0});session_rows=@([pscustomobject]@{ScalarValue=71})}
+}
+$s=New-Samples
+if(-not(Test-ContenderStateIdle $s ([Data.ConnectionState]::Open) 71)){throw 'ORIGINAL_IDLE_PROFILE_REJECTED'}
+foreach($field in @('OpenTransactionCount','UserTransactionCount','ApplicationLockCount')){
+ $s=New-Samples;$s.external_rows[0].$field=1
+ if(Test-ContenderStateIdle $s ([Data.ConnectionState]::Open) 71){throw 'EXTERNAL_LEAK_ACCEPTED'}
+}
+$s=New-Samples;$s.isolated_rows[0].XactState=-1
+if(Test-ContenderStateIdle $s ([Data.ConnectionState]::Open) 71){throw 'DOOMED_STATE_ACCEPTED'}
+$s=New-Samples;$s.errors.external='synthetic adapter failure'
+if(Test-ContenderStateIdle $s ([Data.ConnectionState]::Open) 71){throw 'OBSERVER_ERROR_ACCEPTED'}
 """
         result = subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
