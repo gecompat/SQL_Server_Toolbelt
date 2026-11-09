@@ -248,6 +248,11 @@ Ihre Teilnachweise sind getrennt von historischen Constructorständen dokumentie
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
+Der aktuelle Status am Anfang jeder Inventarzeile muss dem kanonischen
+`validation_status` im Modulmanifest entsprechen. Die bestehende
+Dokumentationsprüfung vergleicht diese Angaben automatisch. Historische
+Teilnachweise und deren damalige Statuswörter bleiben davon getrennt erhalten.
+
 ## Testdaten
 
 - ausschließlich deterministische synthetische Testdaten;
