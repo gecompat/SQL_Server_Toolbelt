@@ -139,6 +139,29 @@ foreach($p in @(@(71,71,9),@(1,72,9),@(71,1,9),@(71,72,1),@(0,72,9))){
         result = subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
+    def test_read_statement_transaction_is_not_a_user_transaction(self):
+        fixture = ROOT / 'Tests/Release/Runtime/FileContent.LeaseRecovery.Contract.ps1'
+        script = "$ErrorActionPreference='Stop';$e=$null;" + \
+            "$a=[Management.Automation.Language.Parser]::ParseFile('" + str(fixture).replace("'", "''") + "',[ref]$null,[ref]$e);" + r"""
+$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Assert-FileRecoveryIdentity'},$true))
+if($e.Count-or$n.Count-ne1){throw 'IDENTITY_FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
+$worker=[pscustomobject]@{Spid=71;DatabaseId=9}
+foreach($state in @(0,1)){
+ Assert-FileRecoveryIdentity @([pscustomobject]@{Spid=72;DatabaseId=9;TranCount=0;XactState=$state;ConnectionId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}) $worker
+}
+foreach($rows in @(@(),@([pscustomobject]@{DatabaseId=9;TranCount=1;XactState=1;ConnectionId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}),
+ @([pscustomobject]@{DatabaseId=9;TranCount=0;XactState=-1;ConnectionId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}),
+ @([pscustomobject]@{DatabaseId=8;TranCount=0;XactState=0;ConnectionId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}),
+ @([pscustomobject]@{DatabaseId=9;TranCount=0;XactState=0;ConnectionId='00000000-0000-0000-0000-000000000000'}))){
+ $blocked=$false
+ try{Assert-FileRecoveryIdentity $rows $worker}catch{if($_.Exception.Message-ne'FILE_RECOVERY_IDLE_CONNECTION_REQUIRED'){throw};$blocked=$true}
+ if(-not$blocked){throw 'INVALID_CALLER_IDENTITY_ACCEPTED'}
+}
+'PASS autocommit statement versus user transaction distinction'
+"""
+        result = subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
 
 if __name__ == '__main__':
     unittest.main()

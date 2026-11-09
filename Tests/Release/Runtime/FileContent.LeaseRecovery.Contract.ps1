@@ -2,6 +2,16 @@
 foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'LifecycleProfiles.Contract.ps1') @(
  'Get-FileLifecycleState','Assert-FileLifecycleAbsent')){. $block}
 foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'FileContent.LockProfiles.Contract.ps1') @('Assert-FileLockHeld')){. $block}
+function Assert-FileRecoveryIdentity($Observed,$Worker){
+ $guid=[guid]::Empty
+ # Die DMV-Abfrage kann im eigenen lesenden Statement XACT_STATE()=1 zeigen,
+ # obwohl kein BEGIN TRANSACTION vorliegt. Benutzertransaktionen bleiben durch
+ # @@TRANCOUNT und danach extern open_transaction_count=0/keinen Request ausgeschlossen.
+ if(@($Observed).Count-ne1-or$Observed[0].DatabaseId-ne$Worker.DatabaseId-or$Observed[0].TranCount-ne0-or
+    $Observed[0].XactState-notin@(0,1)-or-not[guid]::TryParse([string]$Observed[0].ConnectionId,[ref]$guid)-or$guid-eq[guid]::Empty){
+  throw 'FILE_RECOVERY_IDLE_CONNECTION_REQUIRED'
+ }
+}
 function Get-FileRecoveryKillSql([int]$LeaseSpid,[int]$WorkerSpid,[int]$DatabaseId){
  if($LeaseSpid-le50-or$WorkerSpid-le50-or$LeaseSpid-eq$WorkerSpid-or$DatabaseId-le4){throw 'FILE_RECOVERY_OWN_SEPARATE_SESSION_REQUIRED'}
  # SPID/DB-ID sind typisierte positive Zahlen. GUID und Zufallstag bleiben Parameter.
@@ -30,8 +40,8 @@ function Invoke-FileRecoveryProfiles($Db,[string]$Mode){
    $token=[guid]::NewGuid().ToByteArray()
    Invoke-ReleaseSql $lease 'SET CONTEXT_INFO @OwnerTag;' @{'@OwnerTag'=$token}
    $identity=@(Invoke-ReleaseSql $lease "SELECT @@SPID Spid,DB_ID() DatabaseId,@@TRANCOUNT TranCount,XACT_STATE() XactState,CONVERT(nvarchar(36),connection_id) ConnectionId FROM sys.dm_exec_connections WHERE session_id=@@SPID;" -Rows)
-   if($identity.Count-ne1-or$identity[0].DatabaseId-ne$worker[0].DatabaseId-or$identity[0].TranCount-ne0-or$identity[0].XactState-ne0-or
-      $identity[0].ConnectionId-cnotmatch'^[a-fA-F0-9-]{36}$'){throw 'FILE_RECOVERY_IDLE_CONNECTION_REQUIRED'}
+   $receipt['identityObservation']=@($identity);Save-ReleaseJournal
+   Assert-FileRecoveryIdentity $identity $worker[0]
    $kill=Get-FileRecoveryKillSql $identity[0].Spid $worker[0].Spid $worker[0].DatabaseId
    $acquired=@(Invoke-ReleaseSql $lease "DECLARE @R int;EXEC @R=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.file.content',@LockMode=N'Exclusive',@LockOwner=N'Session',@LockTimeout=0,@DbPrincipal=N'public';SELECT @R Result;" -Rows)
    if($acquired.Count-ne1-or$acquired[0].Result-lt0){throw 'FILE_RECOVERY_ACQUIRE_FAILED'}
@@ -60,8 +70,9 @@ function Invoke-FileRecoveryProfiles($Db,[string]$Mode){
    Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText((Join-Path $repo 'Modules/toolbelt.file.content/Deployment/Uninstall.sql')))
    Assert-FileLifecycleAbsent $Db $false
   }
-  $state=@(Invoke-ReleaseSql $Db "SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState,APPLOCK_MODE(N'public',N'toolbelt.deploy.toolbelt.file.content',N'Transaction') TransactionLock,APPLOCK_MODE(N'public',N'toolbelt.deploy.toolbelt.file.content',N'Session') SessionLock;" -Rows)
-  if($state.Count-ne1-or$state[0].TranCount-ne0-or$state[0].XactState-ne0-or$state[0].TransactionLock-cne'NoLock'-or$state[0].SessionLock-cne'NoLock'){throw 'FILE_RECOVERY_TRANSACTION_OR_LOCK_LEAK'}
+  $locks=@(Invoke-ReleaseSql $Db "SELECT APPLOCK_MODE(N'public',N'toolbelt.deploy.toolbelt.file.content',N'Transaction') TransactionLock,APPLOCK_MODE(N'public',N'toolbelt.deploy.toolbelt.file.content',N'Session') SessionLock;" -Rows)
+  $state=@(Invoke-ReleaseSql $Db 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
+  if($state.Count-ne1-or$state[0].TranCount-ne0-or$state[0].XactState-ne0-or$locks.Count-ne1-or$locks[0].TransactionLock-cne'NoLock'-or$locks[0].SessionLock-cne'NoLock'){throw 'FILE_RECOVERY_TRANSACTION_OR_LOCK_LEAK'}
   $receipt.recovered=$true
   $ledger.profileCompletions+=@(@{mode=$Mode;profile=$operation+'-after-idle-session-termination';unchanged=$true});Save-ReleaseJournal
  }
