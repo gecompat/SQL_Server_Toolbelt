@@ -6744,3 +6744,20 @@ wiederverwendet, keine grünen Vollfixtures oder neuen Rechte. Aktive Mutations-
 Clientprozess-/Transport-/OS-/VM-/Koordinatorverluste und übrige Rechte-/
 Identitäts-/Recoveryprofile bleiben getrennt. Keine Produkt-/Manifeständerung,
 Veröffentlichung oder Tags; private Originale erhalten.
+
+## Split Advanced: echter gemappter SQL-CrossDB-Caller — 2026-11-09
+
+Der [gezielte Nachweis](../Releases/1.0.0/SPLIT-ADVANCED-MAPPED-CALLER-QUALIFICATION.md)
+schließt den zuvor tatsächlich offenen zentralen Windows2025/CU8-/CL170-Pfad
+mit realem SQL-TCP-Login und zwei SID-genauen DB-Mappings. Benutzerfreigabe:
+eigener temporärer Login, zwei eigene gemappte Benutzer, CONNECT in beiden
+DBs und SELECT ausschließlich auf TVF_SplitAdvanced; keine weiteren Rechte.
+Sechs Profile bestanden, einschließlich fehlender Zuordnung, fehlendem SELECT,
+fremder API, Helper und Widerruf. Vier Aufrufe/vier DB-Reservierungen innerhalb
+des gemeinsamen 45-Minuten-Fensters geschlossen; alle vier DBs und beide Logins
+entfernt, zwei frische Audits PASS. Erster Adapterfehler bleibt FAILED_CLEANED;
+der vorab genehmigte geänderte Fall besteht. Frühere pauschale Offenangaben
+gelten nicht mehr für diesen Scope; zwölf bestehende lokale/direkt zentrale
+Caller-Zielpaare werden wiederverwendet. Andere Netzwerkidentitäts-/Zielpfade,
+weitere APIs, DDL-/Lifecycle-Rechte und übrige Modulpflichten bleiben separat.
+Keine neue Produktfunktion, Veröffentlichung oder Tags.

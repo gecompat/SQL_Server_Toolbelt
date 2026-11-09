@@ -579,3 +579,9 @@ DB-Bereinigungen bestanden; zwei vorherige Adapterfehler bleiben getrennt.
 Keine Rechteänderung oder aktive Mutations-/Host-/Transportunterbrechung.
 
 [Entwurf der Release Notes](RELEASE-NOTES.md) · [Releaseübersicht](../README.md)
+
+Die [echte gemappte Split-CrossDB-Identität](SPLIT-ADVANCED-MAPPED-CALLER-QUALIFICATION.md)
+ist für SQL-Authentifizierung über TCP auf Windows2025/CU8 CL170 zentral
+mit getrennter Consumer-DB belegt: drei gezielte DB-Rechte, sechs Profile,
+strikter Widerruf und frischer Audit. Frühere DB-Benutzerprofile bleiben
+unverändert gültig; andere Identitäts- und Netzwerkzielpfade bleiben separat.
