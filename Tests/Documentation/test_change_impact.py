@@ -56,6 +56,27 @@ def triggered(path: str, patterns: list[str]) -> bool:
 
 
 class ChangeImpactTests(unittest.TestCase):
+    def test_inventory_status_follows_manifest_not_historical_prose(self):
+        modules = [{"id": "toolbelt.core.contoso", "validation_status": "partially validated"}]
+        row = "| `toolbelt.core.contoso` | [Matrix](matrix.md) | `partially validated`; historische Plattform: `validated` | Rest |\n"
+        validator.validate_test_inventory_statuses(row, modules)
+        bad_rows = (
+            row.replace("`partially validated`;", "`validated`;"),
+            row.replace("`partially validated`;", "partially validated;"),
+            row + row,
+            "",
+            row.replace("toolbelt.core.contoso", "toolbelt.core.fabrikam"),
+        )
+        for bad in bad_rows:
+            with self.subTest(row=bad), self.assertRaises(validator.ValidationError):
+                validator.validate_test_inventory_statuses(bad, modules)
+        for status in ("validated", "not executed", "not applicable"):
+            with self.subTest(status=status):
+                validator.validate_test_inventory_statuses(
+                    row.replace("`partially validated`;", f"`{status}`;"),
+                    [{"id": modules[0]["id"], "validation_status": status}],
+                )
+
     @classmethod
     def setUpClass(cls):
         _, cls.packages, cls.global_paths = validator.parse_repo_map()

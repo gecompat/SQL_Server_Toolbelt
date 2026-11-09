@@ -930,6 +930,26 @@ def validate_catalog_navigation(root_text: str, catalog_text: str, module_ids: s
         )
 
 
+def validate_test_inventory_statuses(text: str, modules: list[dict[str, object]]) -> None:
+    """Bind the current row status; historical prose is not a module promotion."""
+    expected = {str(module["id"]): str(module["validation_status"]) for module in modules}
+    rows = re.findall(r"^\| `(toolbelt\.[^`]+)` \|[^|\n]*\|([^|\n]*)\|", text, re.MULTILINE)
+    seen: set[str] = set()
+    for module_id, cell in rows:
+        if module_id not in expected or module_id in seen:
+            raise ValidationError(f"Testinventar: unbekannte oder doppelte Statuszeile {module_id}")
+        seen.add(module_id)
+        status = re.match(r"\s*`([^`]+)`", cell)
+        if status is None or status.group(1) != expected[module_id]:
+            actual = status.group(1) if status else "fehlender eindeutiger Zeilenstatus"
+            raise ValidationError(
+                f"{module_id}: Testinventarstatus {actual!r} weicht vom Manifest "
+                f"{expected[module_id]!r} ab"
+            )
+    if seen != set(expected):
+        raise ValidationError(f"Testinventar: fehlende Statuszeilen {sorted(set(expected) - seen)}")
+
+
 def validate_inventory_truth(modules: list[dict[str, object]]) -> None:
     module_ids = {str(module["id"]) for module in modules}
     validate_catalog_navigation(read(README), read(MODULES_README), module_ids)
@@ -946,6 +966,8 @@ def validate_inventory_truth(modules: list[dict[str, object]]) -> None:
             f"fehlend={sorted(module_ids - test_ids)}, "
             f"zusätzlich={sorted(test_ids - module_ids)}"
         )
+
+    validate_test_inventory_statuses(tests_section, modules)
 
     statuses = candidate_statuses()
     implemented_candidates = {
