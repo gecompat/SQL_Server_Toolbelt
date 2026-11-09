@@ -6726,3 +6726,21 @@ Keine Modul-/Assemblyinstallation, Builds, Rechte-/Owner-/Trust-/Server-/Lab-
 oder Datei-I/O-Änderung. Ursprüngliche Scopes und Fehler unverändert; installierter
 Uninstall-ON-/vollständiger Session-/Lifecycle-/Rechte-/Recoveryumfang bleibt
 getrennt. Keine Veröffentlichung oder Tags; private Originale bleiben erhalten.
+
+## File Content: Verlust eigener ruhender AppLock-Halter — 2026-11-09
+
+Der [neue Recovery-Nachweis](../Releases/1.0.0/FILE-CONTENT-LEASE-RECOVERY.md)
+schließt vier vollständige Deploy-/Uninstallfälle auf Windows2025/CU8 CL170
+lokal/zentral nach erzwungenem Ende eigener ruhender Session-Sperren. Halter-
+GUID/Tag/DB/SPID und Ruhezustand vor Beenden, ursprüngliche Verbindung abwesend,
+Sperre verfügbar, kanonischer Katalog beziehungsweise Uninstall, ResultTable-
+Erhalt und externe/isolierte Sitzungsneutralität bestanden. Frischer Audit,
+beide eigenen DBs entfernt, Konfiguration/Trust unverändert. Zwei vorherige
+Adapterfehler bleiben FAILED_CLEANED mit frischen PASS-Cleanup-Audits; keine
+nachträgliche Aufwertung. Insgesamt sieben verbrauchte Ziel-/Auditaufrufe,
+sechs DB-Reservierungen und vier tatsächlich angelegte/entfernte DBs über
+drei getrennt geschlossene endliche Wellen. Vorhandene Orakel als Funktionen
+wiederverwendet, keine grünen Vollfixtures oder neuen Rechte. Aktive Mutations-,
+Clientprozess-/Transport-/OS-/VM-/Koordinatorverluste und übrige Rechte-/
+Identitäts-/Recoveryprofile bleiben getrennt. Keine Produkt-/Manifeständerung,
+Veröffentlichung oder Tags; private Originale erhalten.

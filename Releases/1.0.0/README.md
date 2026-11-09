@@ -572,4 +572,10 @@ bei fehlenden Modulen auf Windows2025/CU8 CL170. Bestehende Orakel wiederverwend
 Caller/Savepoint/Daten/Optionen erhalten, frischer Audit und eigene DB-Entfernung
 bestanden. Keine Modulinstallation oder neue Rechte; weitere Gates bleiben getrennt.
 
+Die [File-Content-Sitzungsverlustprüfung](FILE-CONTENT-LEASE-RECOVERY.md) ergänzt
+vier vollständige Deploy-/Uninstallfälle nach dem Ende eigener ruhender AppLock-
+Halter auf Windows2025/CU8 CL170 lokal/zentral. Frischer Audit und beide eigenen
+DB-Bereinigungen bestanden; zwei vorherige Adapterfehler bleiben getrennt.
+Keine Rechteänderung oder aktive Mutations-/Host-/Transportunterbrechung.
+
 [Entwurf der Release Notes](RELEASE-NOTES.md) · [Releaseübersicht](../README.md)
