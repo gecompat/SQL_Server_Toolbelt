@@ -169,7 +169,7 @@ function Save-ReleaseJournal{}
 $script:proof=1;$script:adminFlag=0
 function Invoke-ReleaseSql($Connection,$Text,$Parameters=@{},[switch]$Rows){
  if($Text.Contains('SET CONTEXT_INFO')){return}
- if($Text.Contains('ORIGINAL_LOGIN')){return [pscustomobject]@{Spid=71;LoginName=$ledger.login.name;UserName=$ledger.login.name;Sid=[byte[]](1..16);Admin=$script:adminFlag;OwnerRole=0;DbControl=0;Definition=0;ServerControl=0;AnyDefinition=0;ServerState=0;ServerPerformanceState=0}}
+ if($Text.Contains('ORIGINAL_LOGIN')){if(([regex]::Matches($Text,'HAS_PERMS_BY_NAME\(NULL,NULL,')).Count-ne4){throw 'INVALID_SERVER_PERMISSION_CLASS'};return [pscustomobject]@{Spid=71;LoginName=$ledger.login.name;UserName=$ledger.login.name;Sid=[byte[]](1..16);Admin=$script:adminFlag;OwnerRole=0;DbControl=0;Definition=0;ServerControl=0;AnyDefinition=0;ServerState=0;ServerPerformanceState=0}}
  if(-not$Text.Contains('s.context_info=@Tag')-or-not$Text.Contains("c.auth_scheme=N'SQL'")-or-not$Text.Contains("c.net_transport=N'TCP'")-or$Parameters['@Tag'].Length-ne16){throw 'NETWORK_IDENTITY_PREDICATE'}
  return [pscustomobject]@{N=$script:proof}
 }
