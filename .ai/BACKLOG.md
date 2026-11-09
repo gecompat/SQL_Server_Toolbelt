@@ -6711,3 +6711,18 @@ keine grünen API-/Repeat-/Lifecycle-/AppLock-Vollfixtures. Tabellen-/Schema-/
 Owner-/ACLdrift und übrige Rechte-/Session-/Rollback-/Ressourcen-/Provider-/
 Recoverypflichten bleiben getrennt. Keine neuen Grants, Produkt-/Manifest-/
 Server-/Labänderungen oder Veröffentlichung; private Originale bleiben erhalten.
+
+## JSON Schema: frühe Caller-Guards mit XACT_ABORT ON — 2026-11-09
+
+Die [neue Sessionergänzung](../Releases/1.0.0/JSON-SCHEMA-XACT-ABORT-QUALIFICATION.md)
+belegt vier negative Fälle auf Windows2025/CU8 CL170 bei fehlenden Modulen:
+Deploy/Uninstall, XACT_ABORT ON mit NOCOUNT OFF/ON. Exakt50000/1/16 und
+unveränderte gesunde Callertransaktion/Sessionoptionen/Modul-/Rechte-/Principal-
+Snapshots sowie Zeugenwert300; Savepointrollback200 und voller Rollback100,
+unabhängiger Observer und frischer Abschlussaudit bestanden. Eine eigene DB
+entfernt, 2/2 Ziel-/Auditaufrufe/1DB/45min beim ersten Versuch geschlossen.
+Vorhandene r35/r33-Orakel als Funktionen wiederverwendet, keine OFF/OFF-Vollwelle.
+Keine Modul-/Assemblyinstallation, Builds, Rechte-/Owner-/Trust-/Server-/Lab-
+oder Datei-I/O-Änderung. Ursprüngliche Scopes und Fehler unverändert; installierter
+Uninstall-ON-/vollständiger Session-/Lifecycle-/Rechte-/Recoveryumfang bleibt
+getrennt. Keine Veröffentlichung oder Tags; private Originale bleiben erhalten.

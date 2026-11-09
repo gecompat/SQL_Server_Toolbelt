@@ -566,4 +566,10 @@ belegt 669 Assertions für die vorhandene DLL unter dem ausdrücklich neu
 geprüften Compiler. Keine erneute Produktkompilierung oder SQL-Ausführung;
 weiterhin nur dieser begrenzte Frameworkscope, keine Modulgesamtabnahme.
 
+Die [JSON-Schema-Sessionergänzung](JSON-SCHEMA-XACT-ABORT-QUALIFICATION.md)
+belegt vier neue frühe Caller-Guardfälle mit XACT_ABORT ON und NOCOUNT OFF/ON
+bei fehlenden Modulen auf Windows2025/CU8 CL170. Bestehende Orakel wiederverwendet,
+Caller/Savepoint/Daten/Optionen erhalten, frischer Audit und eigene DB-Entfernung
+bestanden. Keine Modulinstallation oder neue Rechte; weitere Gates bleiben getrennt.
+
 [Entwurf der Release Notes](RELEASE-NOTES.md) · [Releaseübersicht](../README.md)

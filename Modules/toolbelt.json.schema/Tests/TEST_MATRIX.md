@@ -1,5 +1,16 @@
 # JSON Schema – Abnahmematrix
 
+## Früher Caller-Guard mit XACT_ABORT ON — 2026-11-09
+
+Die [Sessionergänzung](../../../Releases/1.0.0/JSON-SCHEMA-XACT-ABORT-QUALIFICATION.md)
+bestand vier Fälle auf Windows2025/CU8 CL170 bei fehlenden Toolbelt-Modulen:
+Deploy/Uninstall jeweils XACT_ABORT ON, NOCOUNT OFF/ON. Exakt50000/1/16,
+gesunde Callertransaktion und unveränderte Optionen/Katalog/Wert300;
+Savepointrollback200/voller Rollback100, unabhängiger Observer und frischer Audit.
+Eine eigene DB entfernt, 2/2 Aufrufe/1DB/45min ohne Wiederholung geschlossen.
+Bestehende OFF/OFF-Orakel wiederverwendet; kein installierter Uninstall-ON-,
+vollständiger Session-/Lifecycle-/Rechte- oder Modulnachweis.
+
 Die [aktuelle Constructor-Migrationsmatrix2026-11-07](../../../Releases/1.0.0/JSON-CONSTRUCTORS-CURRENT-MIGRATION-QUALIFICATION.md)
 ergänzt den aktuellen Schema1.0.1-Consumer nach genuiner1.2→1.3-Migration auf
 24 Kontexten Windows/Linux2019/2022/2025 über alle unterstützten CLs lokal/direkt
