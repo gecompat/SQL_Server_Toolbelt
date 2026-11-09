@@ -230,3 +230,20 @@ Modulinstallation, neuen Rechte/Identitäten oder Produkt-/Manifeständerungen.
 Bestehende OFF/OFF- und ON-Profile werden wiederverwendet. Installierter
 Uninstall unter weiteren SET-Profilen, übrige Lifecycle-/Rechte-/Recovery-
 und Modulpflichten bleiben separat; keine Veröffentlichung oder Tags.
+
+## JSON Schema: installierte Uninstall-Callerprofile — 2026-11-09
+
+Die [gezielte Ergänzung](../../../Releases/1.0.0/JSON-SCHEMA-INSTALLED-SESSION-QUALIFICATION.md) schließt auf Windows2025/CU8 CL170 lokal
+drei neue gesunde Callerfälle mit installiertem aktuellem Core/Schema:
+Uninstall unter XACT_ABORT/NOCOUNT OFF/ON,ON/OFF,ON/ON. Exakte Guardmeldung,
+Callertransaktion/Sessionbits/Snapshots, Zeugen-/Savepoint-/Vollrollbackwerte
+und unabhängiger Observer bestanden. Frischer Audit PASS, eigene DB und zwei
+eigene Releasehash-Trusteinträge entfernt, ursprüngliche Konfiguration/Trust
+exakt erhalten. Aktuelle Registry-/Projekt-/Quell-/Paketbytebindung, zehn
+Offlinegegenproben und kanonischer Preflight PASS. Erster Gesamtlauf COMPLETE;
+zwei Aufrufe/eine DB innerhalb des gemeinsamen4-Aufrufe-/2-DB-/45-Minuten-
+Rahmens, ungenutzte Korrekturreserve geschlossen. Keine alten Grenzen erneuert
+und keine grünen OFF/OFF- oder Missing-Modulprofile wiederholt. Keine Builds,
+Produkt-/Manifeständerungen, Grants/Principals/Owner-/Konfig-/Lab-/Datei-I/O.
+Weitere Ziel-/SET-/Lifecycle-/Rechte-/Recoverypflichten bleiben eigenständig.
+Keine Veröffentlichung oder Tags; private Originale erhalten.
