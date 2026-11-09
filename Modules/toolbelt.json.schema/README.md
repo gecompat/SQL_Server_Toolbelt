@@ -60,9 +60,14 @@ auf Linux2019/latest CL150 und Windows2025/CU8 bleiben historische
 SQL2019/CL150,2022/CL160 und2025/CL170 jeweils local/central mit
 genuine1.0.0→1.0.1-Upgrade, Rollback,40 Contractfällen pro Modus, Safety,
 CrossDB, Repeat und Cleanup. Frühere Fehlläufe bleiben historische Records.
-Jeder spätere Head benötigt vor Integration eigene erfolgreiche Checks;
-weitere physische Matrix, Minimalrechte und vollständige Lifecycle-/
-Kapazitätsabnahme bleiben offen. Aktuell teilweise validiert,
+Jeder spätere Head benötigt vor Integration eigene erfolgreiche Checks.
+Die spätere [physische Ergänzung](../../Releases/1.0.0/JSON-SCHEMA-MISSING-TARGETS-QUALIFICATION.md)
+und das oben verlinkte Callerprofil schließen die dort genannten Ziel- und
+Datenpfad-Minimalrechteprüfungen; die ältere pauschale Offenangabe gilt dafür
+nicht mehr. Die registrierten Help-/Manifest-Übergänge erhalten die ursprünglichen
+Nachweise mit ihren Grenzen und behaupten keine erneute native Ausführung.
+Weitere Lifecycle-, Identitäts- und Ressourcenprofile bleiben getrennt offen.
+Aktuell teilweise validiert,
 unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 
 ## Früher Caller-Guard mit XACT_ABORT ON — 2026-11-09
