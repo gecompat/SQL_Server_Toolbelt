@@ -87,3 +87,14 @@ erhaltene Core-Definitionen sind geprüft. Zwölf frische Audits bestätigen all
 Der 24-Aufrufe-/24-DB-/45-Minuten-Rahmen ist ohne Wiederholung geschlossen.
 Frühere pauschale AppLock-Offenangaben gelten nicht für diesen Scope; allgemeine
 Race-/Rollback-/SET-/Caller-/Identitäts-/Ressourcen-/Recoveryprofile bleiben separat.
+
+## Echter gemappter SQL-Netzwerkcaller — 2026-11-09
+
+Die [gezielte Ergänzung](../../../Releases/1.0.0/SPLIT-ADVANCED-MAPPED-CALLER-QUALIFICATION.md)
+schließt den ausgewählten zentralen Windows-SQL2025/CU8-/CL170-Pfad mit
+getrennter Consumer-DB: echter SQL-TCP-Login, zwei SID-genaue Zuordnungen,
+drei gezielte DB-Rechte, ein positives Drei-Token-Orakel und fünf strikte
+Rechteabweisungen einschließlich Widerruf. Zwei frische Audits bestätigen
+Cleanup beider Versuche; der erste Adapterfehler bleibt FAILED_CLEANED.
+Frühere pauschale CrossDB-Offenangaben gelten nicht mehr für diesen Scope.
+Windows/Kerberos/SSMS, andere Netzwerkzielpaare und weitere APIs bleiben separat.
