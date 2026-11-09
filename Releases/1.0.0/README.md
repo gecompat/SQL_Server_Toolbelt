@@ -474,12 +474,13 @@ ordnet die vorhandenen Phonetik-/Edit-Distance-SELECT-Profile ihren 29 unveränd
 Modulinputs zu. Pauschale ältere Datenpfad-Minimalrechte-Offenangaben sind
 überholt; Lifecycle-DDL-/Owner-/CrossDB-Rechte und weitere Modulpflichten bleiben getrennt.
 
-Die [Edit-Distance-Restmatrix](EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
-ergänzt acht fehlende Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral mit
-der vorhandenen Paket-DLL: 16 Kontexte, 96 unveränderte SQL-Fixtures und acht
-frische Audits; alle 16 eigenen DBs entfernt. Alte Windows2025-/Linux2019-Belege
-bleiben separat gebunden, kein gemeinsamer neuer Zwölf-Paare-Paketlauf.
-Weitere Lifecycle-/DDL-/Identitäts-/Heap-/Betriebsprofile bleiben getrennt.
+Der [aktuelle API-Quellenabgleich](CLR-STRING-API-CURRENT-BINDING.md) bestätigt
+die vorhandenen Phonetik-/Edit-Distance-API-Fixtures auf jeweils zwölf Zielpaaren
+lokal/direkt zentral; pauschale API-Ziellücken sind überholt, keine neue Matrix nötig.
+Die [Edit-Distance-Neuausführung](EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+hatte diesen Record übersehen: 80 redundante API-Fixtures und 16 read-only
+Baseline-Receipts mit Paketbytebindung, acht frische Audits, alle 16 eigenen DBs
+entfernt. Verbrauch und Originale bleiben erhalten; übrige Modulpflichten getrennt.
 
 [JSON Pointer mit einzelnem SELECT-Recht](POINTER-CALLER-QUALIFICATION.md): eine API, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
 

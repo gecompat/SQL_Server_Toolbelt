@@ -1,4 +1,4 @@
-# Edit Distance 1.1: fehlende physische API-Kontexte
+# Edit Distance 1.1: aktuelle Paketbaseline und Nachweisabgleich
 
 Am 2026-11-09 bestand der erklärte Restumfang mit der vorhandenen qualifizierten
 Paket-DLL: **acht vollständige Läufe, 16 lokale/direkt zentrale Kontexte,
@@ -6,6 +6,18 @@ Paket-DLL: **acht vollständige Läufe, 16 lokale/direkt zentrale Kontexte,
 Alle 16 eigenen Testdatenbanken sind entfernt. Ergebnis:
 **PASS_FOR_DECLARED_EDIT_DISTANCE_MISSING_TARGET_SCOPE**.
 Modulstatus bleibt `partially validated`, `unreleased`.
+
+**Korrektur der ursprünglichen Lückenannahme:** Der
+[vorhandene Gesamt-API-Nachweis](API-QUALIFICATION.md) enthält bereits die fünf
+API-/Grenz-/Metadatenfixtures auf zwölf Zielpaaren lokal/zentral. Ihre
+[aktuelle Quellenzuordnung](CLR-STRING-API-CURRENT-BINDING.md) ist bestätigt.
+Die pauschale Annahme fehlender API-Ziele war falsch. Von den neuen 96
+Fixtureausführungen wiederholen 80 bereits belegte API-Fixtures; neu ergänzt
+sind 16 read-only Lifecyclebaselines und die ausdrückliche native Bindung der
+hier verwendeten Paketbytes. Sämtliche Aufrufe und Originalreceipts bleiben
+gezählt. Die ursprüngliche Laufkennung oben wird nicht umbenannt oder als
+Beweis einer zuvor fehlenden API-Matrix ausgelegt. Weitere Wiederholungen
+dieser API-Fixtures werden dadurch nicht begründet.
 
 ## Ziele, Paket und Originalfixtures
 
@@ -86,10 +98,11 @@ Fixtureumfang und Paket-/DLL-Herkunft. Eine umgehashte fremde DLL oder kopierte
 Ersatz-Provenienzdatei reicht nicht. Kanonischer Exportpreflight bestanden;
 Tests zentral registriert.
 
-Die bereits geprüften Windows-2025-/Linux-2019-Kontexte werden nicht erneut
-ausgeführt. Ihre ursprünglichen Artefakt-/Methodenbindungen bleiben erhalten;
-kein neuer gemeinsamer Zwölf-Paare-Paketlauf wird behauptet. Pauschale fehlende
-physische Vollfixture-Kontexte sind für die acht oben ausgewählten Paare erledigt.
+Die Windows-2025-/Linux-2019-Kontexte werden in dieser Welle nicht erneut
+ausgeführt. Alle zwölf früheren API-Kontextepaare behalten ihre ursprünglichen
+Artefakt-/Methodenbindungen; kein neuer gemeinsamer Zwölf-Paare-Paketlauf wird
+behauptet. Alte pauschale API-Ziel-Offenangaben werden anhand des vorhandenen
+Nachweises bereinigt, nicht erst durch diese teilweise redundante Neuausführung.
 Weitere Lifecycle-/DDL-/Owner-/CrossDB-Rechte, Heap-/Parallelitäts-/Betriebs-/
 Recoveryprofile und Modulgesamtabnahme bleiben separat. Keine Produkt-, Manifest-,
 Status- oder Versionsänderung und keine Veröffentlichung oder Tags.

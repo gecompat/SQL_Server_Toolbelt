@@ -118,3 +118,14 @@ Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
 direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
 CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
 zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.
+
+## Vorhandene API-Matrix aktuell zugeordnet — 2026-11-09
+
+Der [Quellenabgleich](../../../Releases/1.0.0/CLR-STRING-API-CURRENT-BINDING.md)
+bestätigt bereits zwölf Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral
+mit Phonetic.Contract.sql, Phonetic.Boundaries.sql und InstalledMetadata.Contract.sql:
+69 damals neu bestandene und drei gültig übernommene Aufrufe, keine blockierte
+Phonetikfixture. Originalfixtures und ausgewählte Produktinputs sind aktuell
+bytegleich. Historische pauschale API-Ziel-Offenangaben sind überholt; keine neue
+native Matrix. Scanner-/SAFE-/Lifecycle-/DDL-/Identitäts-/Betriebs-/Recovery-
+und übrige Modulpflichten bleiben separat; historische Records unverändert.

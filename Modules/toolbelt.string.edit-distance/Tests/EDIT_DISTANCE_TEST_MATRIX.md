@@ -64,17 +64,18 @@ direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
 CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
 zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.
 
-## Fehlende physische API-Kontexte — 2026-11-09
+## Vorhandene API-Matrix aktuell zugeordnet — 2026-11-09
 
-Die [neue Restmatrix](../../../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
-schließt die sechs unveränderten Distanz-/Jaro-/Metadaten-/Baselinefixtures auf
-acht weiteren Engine-/CL-Paaren lokal/direkt zentral: 16 Kontexte, 96 Fixtures,
-acht frische Audits, alle 16 eigenen DBs entfernt. Windows2019/CL150,
-Windows2022/CL150/160, Linux2022/CL150/160 und Linux2025/CL150/160/170.
-Vorhandene exakt qualifizierte Paket-DLL und 13 unveränderte Originalquellen;
-keine neuen Rechte, Neubuilds oder erneuten Framework-/IL-/Callerfixtures.
-16/16 Ziel-/Auditaufrufe und DB-Reservierungen innerhalb 45 Minuten, keine
-Wiederholung; Vorzustände von Konfiguration/Trust wiederhergestellt und frisch geprüft.
-Frühere Windows2025-/Linux2019-Nachweise bleiben separat gebunden. Kein neuer
-gemeinsamer Zwölf-Paare-Paketlauf oder vollständiger Lifecycle-/Rechte-/
-Heap-/Betriebs-/Recovery-/Modulnachweis; Status bleibt teilweise validiert.
+Der [aktuelle Quellenabgleich](../../../Releases/1.0.0/CLR-STRING-API-CURRENT-BINDING.md)
+bestätigt den Gesamt-API-Nachweis auf zwölf Windows-/Linux-Engine-/CL-Paaren
+lokal/direkt zentral: fünf unveränderte Distanz-/Jaro-/Metadatenfixtures,
+115 damals neue und fünf übernommene Aufrufe, kein blockierter Modulfall.
+Alle ausgewählten Originalfixtures und Produktinputs bleiben bytegleich.
+Pauschal fehlende API-Ziele sind überholt; hierfür keine neue SQL-Welle.
+Die [spätere Neuausführung](../../../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+umfasst 80 bereits belegte API-Fixtures und 16 zusätzliche read-only Baseline-
+receipts auf acht Paaren: alle 16 eigenen DBs entfernt, acht frische Audits,
+16/16 Aufrufe/DB-Reservierungen innerhalb 45 Minuten, keine Wiederholung.
+Diese Redundanz bleibt dokumentiert; ursprüngliche Kennung und Pins unverändert.
+Kein gemeinsamer neuer Zwölf-Paare-Paketlauf oder vollständiger Lifecycle-/
+DDL-/Owner-/CrossDB-/Heap-/Betriebs-/Recoverynachweis; Status bleibt teilweise validiert.
