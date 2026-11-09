@@ -142,3 +142,11 @@ exakt kanonischer Body/Katalog sowie unveränderte Allowlist-Zeilen/Identity und
 Berechtigungen. Zwölf frische Audits, alle 24 eigenen DBs entfernt. Alte
 Vollfixtures nicht wiederholt, keine neuen Rechte oder Datei-I/O. Tabellen-/
 Owner-/ACLdrift und übrige Modulpflichten bleiben getrennt.
+
+Der [Sitzungsverlust-Nachweis](../../../Releases/1.0.0/FILE-CONTENT-LEASE-RECOVERY.md)
+ergänzt vier vollständige lokale/zentrale Deploy-/Uninstallfälle nach Beenden
+eigener ruhender AppLock-Haltersitzungen auf Windows2025/CU8 CL170. Verifizierte
+Sperrfreigabe, neutrale Sitzung, Katalog-/ResultTable-Erhalt und frischer Audit
+bestanden. Beide eigenen DBs entfernt; zwei ältere Fehlläufe und ihre Audits
+bleiben erhalten. Keine Unterbrechung einer aktiven Mutation, keine allgemeine
+Host-/Transport- oder Rechtequalifikation.

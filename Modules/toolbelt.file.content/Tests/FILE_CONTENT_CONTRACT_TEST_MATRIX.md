@@ -122,3 +122,16 @@ Audits bestätigen alle 24 eigenen DBs entfernt und Konfiguration/Trust unverän
 24/24 Aufrufe/DB-Reservierungen innerhalb 45 Minuten ohne Wiederholung;
 keine pauschal offene Bodyreparatur dieses Scopes. Andere Drift-/Rechte-/
 Session-/Rollback-/Ressourcen-/Provider-/Recoveryfälle bleiben separat.
+
+## Eigene ruhende AppLock-Haltersitzung beenden — 2026-11-09
+
+Der [Recovery-Nachweis](../../../Releases/1.0.0/FILE-CONTENT-LEASE-RECOVERY.md)
+belegt vier vollständige Deploy-/Uninstallfälle nach erzwungenem Ende einer
+eigenen ruhenden Session-Sperre auf Windows2025/CU8 CL170 lokal/zentral.
+Exakte Halteridentität, ursprüngliche Verbindung verschwunden, Sperre verfügbar,
+kanonischer Deploy beziehungsweise vollständiger Uninstall, ResultTable-Erhalt
+und externe/lokale Transaktions-/Sperrneutralität bestanden. Frischer Audit,
+beide eigenen DBs entfernt, Konfiguration/Trust unverändert. Zwei frühere
+Adapterfehler bleiben FAILED_CLEANED mit frischen PASS-Cleanup-Audits.
+Kein aktiver Mutations-, Clientprozess-/Transport-/Host-/VM-/Koordinatorabbruch,
+keine neuen Rechte oder Modulgesamtabnahme.

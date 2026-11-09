@@ -86,3 +86,9 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3069226735
 SC-040: USP_LoadTextFile verwendet genau einen SINGLE_BLOB-Snapshot. Bytezahl, BOM und Inhalt stammen aus derselben Aufnahme. UTF-8/UTF-16-LE-BOM wird vor Dekodierung entfernt; UTF-8 wird mit expliziter UTF8-Collation und binärem Roundtrip geprüft, UTF-16-LE verlangt gerade Bytezahl. Windows-1252 wird mit expliziter 1252-Collation auch auf Linux dekodiert. UTF-16-BE/UTF-32 bleiben ausgeschlossen. MaxBytes schützt nach der ersten Aufnahme; keine vorgezogene Heapgarantie.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+Die [Recovery-Ergänzung](../../Releases/1.0.0/FILE-CONTENT-LEASE-RECOVERY.md)
+belegt Deploy und Uninstall nach dem Ende eigener ruhender AppLock-Haltersitzungen
+auf Windows2025/CU8 CL170 lokal/zentral. Sie erweitert die reguläre Sperrfreigabe,
+qualifiziert aber keinen aktiven Mutations-, Transport- oder Hostabbruch und
+keine weiteren Rechte-/Identitätsprofile.
