@@ -642,13 +642,13 @@ Quellkapseln erhalten; keine Veröffentlichung oder Tags.
 
 Die [aktuelle Executor-Rechtematrix](TABLE-CLONE-EXECUTOR-RIGHTS-QUALIFICATION.md)
 besteht auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
-24 Kontexte,144 Profile, zwölf erfolgreiche Gesamtläufe und zwölf frische Audits.
+24 Kontexte, 144 Profile, zwölf erfolgreiche Gesamtläufe und zwölf frische Audits.
 Je Fall ein eigener SQL-/TCP-Login mit genehmigtem VIEW ANY DEFINITION,
 zwei exakt SID-gemappte Benutzer und sechs gezielte DB-Rechte; keine Rollen.
 EXECUTE-/DDL-Abweisung, erfolgreicher hashgebundener Grundfall, Daten-/Helper-
-Verweigerung und wirksamer EXECUTE-Widerruf bestanden. Alle24eigenenDBs und
-zwölfLogins entfernt, Konfiguration/Trust unverändert.24/28Aufrufe und DB-,
-12/14Login-Reservierungen innerhalb45Minuten; erster nativer Versuch erfolgreich,
+Verweigerung und wirksamer EXECUTE-Widerruf bestanden. Alle 24 eigenen DBs und
+zwölf Logins entfernt, Konfiguration und Trust unverändert. 24 von 28 Aufruf-/DB-
+und zwölf von 14 Login-Reservierungen innerhalb von 45 Minuten; erster Versuch erfolgreich,
 keine Wiederholung. Ältere pauschale Offenangaben zu Executor-Rechten sind für
 exakt dieses Grundprofil erledigt. Erweiterte Executor-/Copy-/Trigger-Rechte,
 FK-/ResultTable- und weitere Identitäts-/Recoverypflichten bleiben getrennt;

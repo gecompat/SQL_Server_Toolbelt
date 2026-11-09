@@ -66,8 +66,8 @@ Geprüfter Methodencommit:
 `0470ecf4e253541a1855788900d9b024bd422962`.
 Der [Treiber](../../Tests/Release/Invoke-TableCloneExecutorRightsLab.ps1)
 bindet schema-validierten Functional-Labvertrag, exakte READY-Auswahl, aktuelle
-Produktquellen und vollständige kanonische Exporte für ResultTable1.0.0 und
-TableClone4.1.1. Die [Fixture](../../Tests/Release/Runtime/TableClone.ExecutorRights.Contract.ps1)
+Produktquellen und vollständige kanonische Exporte für ResultTable 1.0.0 und
+TableClone 4.1.1. Die [Fixture](../../Tests/Release/Runtime/TableClone.ExecutorRights.Contract.ps1)
 verwendet die etablierten SID-/Ownership-/Consumer-Prüfungen mit eigener eng
 begrenzter Rechteausnahme. Neun [Offlineprüfungen](../../Tests/Release/test_table_clone_executor_rights_contract.py)
 belegen Admission, Booleanfreigaben, Frist-/Matrix-/Pinabwehr, konkrete Grantziele,
@@ -75,9 +75,9 @@ Identitätsdrift und Hashgleichheit mit dem originalen Clientbeispiel. Ein vor
 SQL entdeckter Array-/Stringfehler des neuen Grantorakels wurde durch eine
 Gegenprobe korrigiert; kein nativer Fehlversuch und keine Wiederholung.
 
-Die gemeinsame Welle ist geschlossen: **24 von maximal28 Ziel-/Auditaufrufen,
-24 von maximal28 DB- und zwölf von maximal14 Login-Reservierungen innerhalb
-derselben45Minuten**, ohne zusätzlichen Adapterfall. Zwölf frische Audits binden
+Die gemeinsame Welle ist geschlossen: **24 von maximal 28 Ziel-/Auditaufrufen,
+24 von maximal 28 DB- und zwölf von maximal 14 Login-Reservierungen innerhalb
+derselben 45 Minuten**, ohne zusätzlichen Adapterfall. Zwölf frische Audits binden
 jeweils das exakte endgültige Journal und prüfen DB-/Login-/SID-Mapping-Abwesenheit
 sowie unveränderte vollständige Serverkonfiguration und Assemblytrust. Eigene
 aktive Sessions werden geschlossen; fremde SID-Consumer, Rechte oder
