@@ -6761,3 +6761,18 @@ gelten nicht mehr für diesen Scope; zwölf bestehende lokale/direkt zentrale
 Caller-Zielpaare werden wiederverwendet. Andere Netzwerkidentitäts-/Zielpfade,
 weitere APIs, DDL-/Lifecycle-Rechte und übrige Modulpflichten bleiben separat.
 Keine neue Produktfunktion, Veröffentlichung oder Tags.
+
+## JSON Schema: Callerprofil XACT_ABORT OFF / NOCOUNT ON — 2026-11-09
+
+Die [gezielte Ergänzung](../Releases/1.0.0/JSON-SCHEMA-NOCOUNT-QUALIFICATION.md) belegt zwei neue frühe Caller-Guardfälle
+für Deploy/Uninstall auf Windows2025/CU8 CL170 lokal bei fehlenden Modulen.
+XACT_ABORT OFF/NOCOUNT ON tatsächlich geprüft; exakt50000/1/16, gesunde
+Callertransaktion, Sessionoptionen, Snapshots, Zeugenwerte und Savepoint-/
+Vollrollback sowie unabhängiger Observer erhalten. Frischer Audit PASS,
+eigene DB entfernt, Konfiguration/Trust unverändert. Acht Offlinegegenproben
+und kanonischer Preflight bestanden. 2/2 Aufrufe,1DB,45Minuten beim ersten
+Versuch geschlossen; alte Fehler/Grenzen/Nachweise erhalten. Keine Assembly-/
+Modulinstallation, neuen Rechte/Identitäten oder Produkt-/Manifeständerungen.
+Bestehende OFF/OFF- und ON-Profile werden wiederverwendet. Installierter
+Uninstall unter weiteren SET-Profilen, übrige Lifecycle-/Rechte-/Recovery-
+und Modulpflichten bleiben separat; keine Veröffentlichung oder Tags.
