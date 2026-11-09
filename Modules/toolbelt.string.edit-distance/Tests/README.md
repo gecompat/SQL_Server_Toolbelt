@@ -84,3 +84,18 @@ Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
 direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
 CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
 zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.
+
+## Vorhandene API-Matrix aktuell zugeordnet — 2026-11-09
+
+Der [Quellenabgleich](../../../Releases/1.0.0/CLR-STRING-API-CURRENT-BINDING.md)
+bestätigt bereits zwölf Windows-/Linux-Engine-/CL-Paare lokal/direkt zentral
+im vorhandenen Gesamt-API-Nachweis: fünf Originalfixtures je Kontext,
+115 damals neu bestandene und fünf gültig übernommene Aufrufe. Die fünf
+Fixturepins und die gebundenen Modulinputs sind aktuell bytegleich.
+Pauschale API-Ziel-Offenangaben sind damit überholt; kein erneuter API-Lauf nötig.
+Die [spätere Neuausführung](../../../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+hatte diesen Nachweis übersehen: 80 redundante API-Fixtures plus 16 read-only
+Lifecyclebaselines mit Paketbytebindung, acht frische Audits, alle 16 eigenen
+DBs entfernt. Originale und Verbrauch bleiben erhalten; kein gemeinsamer neuer
+Zwölf-Paare-Paketlauf. DDL-/Owner-/CrossDB-/Heap-/Betriebs-/Recovery- und übrige
+Modulpflichten bleiben separat; Baseline ist kein vollständiger Lifecyclelauf.

@@ -6676,3 +6676,23 @@ Status-/Fehler-/Abwesenheitshelfer wiederverwendet, keine grünen Vollfixtures.
 Pauschale AppLock-Offenangaben sind für diesen Scope erledigt; übrige Genuine-/
 Rollback-/SET-/Caller-/Identitäts-/Ressourcen-/Recoveryprofile bleiben getrennt.
 Keine neue Fachfunktion, Rechte-/Manifest-/Server-/Labänderung oder Veröffentlichung.
+
+## CLR-String-API: vorhandene Matrix aktuell zugeordnet — 2026-11-09
+
+Korrektur der vorigen pauschalen API-Ziellückenannahme: Der
+[Quellenabgleich](../Releases/1.0.0/CLR-STRING-API-CURRENT-BINDING.md) bestätigt
+bereits zwölf Engine-/CL-Paare lokal/direkt zentral für beide Module. Phonetik:
+69 damals neue plus drei übernommene Originalfixtureaufrufe; Edit Distance:
+115 plus fünf, keine blockierten Modulfixtures. Acht Originalfixturepins und
+29 gebundene Produktinputs sind aktuell bytegleich. Alte API-Ziel-Offenangaben
+sind überholt; keine weitere SQL-/Build-/Rechtewelle für diese vorhandenen Gates.
+
+Die [Edit-Distance-Neuausführung](../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+hatte diesen Record übersehen und enthält 80 redundante API-Fixtures sowie
+16 zusätzliche read-only Baselinereceipts mit Paketbytebindung. Acht frische
+Audits, alle 16 eigenen DBs entfernt, Konfiguration/Trust im Vorzustand.
+Alle 16/16 verbrauchten Aufrufe und DB-Reservierungen, ursprüngliche Kennung,
+Plan, Fehlerhistorie und Originale bleiben erhalten; keine Limits zurückgesetzt.
+Kein gemeinsamer neuer Zwölf-Paare-Paketlauf. Weitere Scanner-/SAFE-/Lifecycle-/
+DDL-/Owner-/CrossDB-/Heap-/Betriebs-/Recoverypflichten bleiben separat.
+Keine Produkt-/Manifest-/Statusänderung, neuen Rechte oder Veröffentlichung.

@@ -63,3 +63,19 @@ Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
 direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
 CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
 zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.
+
+## Vorhandene API-Matrix aktuell zugeordnet — 2026-11-09
+
+Der [aktuelle Quellenabgleich](../../../Releases/1.0.0/CLR-STRING-API-CURRENT-BINDING.md)
+bestätigt den Gesamt-API-Nachweis auf zwölf Windows-/Linux-Engine-/CL-Paaren
+lokal/direkt zentral: fünf unveränderte Distanz-/Jaro-/Metadatenfixtures,
+115 damals neue und fünf übernommene Aufrufe, kein blockierter Modulfall.
+Alle ausgewählten Originalfixtures und Produktinputs bleiben bytegleich.
+Pauschal fehlende API-Ziele sind überholt; hierfür keine neue SQL-Welle.
+Die [spätere Neuausführung](../../../Releases/1.0.0/EDIT-DISTANCE-MISSING-TARGETS-QUALIFICATION.md)
+umfasst 80 bereits belegte API-Fixtures und 16 zusätzliche read-only Baseline-
+receipts auf acht Paaren: alle 16 eigenen DBs entfernt, acht frische Audits,
+16/16 Aufrufe/DB-Reservierungen innerhalb 45 Minuten, keine Wiederholung.
+Diese Redundanz bleibt dokumentiert; ursprüngliche Kennung und Pins unverändert.
+Kein gemeinsamer neuer Zwölf-Paare-Paketlauf oder vollständiger Lifecycle-/
+DDL-/Owner-/CrossDB-/Heap-/Betriebs-/Recoverynachweis; Status bleibt teilweise validiert.

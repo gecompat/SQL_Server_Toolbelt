@@ -10,7 +10,7 @@ Die [Testevidenz](README.md) beschreibt die tatsächlichen begrenzten Läufe.
 | Bridge / SQL | Acht echte Reader je local/central und zwei lokale Größenwitnesses je Ziel; Typen, NULL, Status, Bytes, eine Zeile, EOF/noNext | Begrenzter Scope bestanden; Größen aus Quelle hergeleitet; kein Differentialnachweis dieser SQL-Größenfälle |
 | Artefakt | Build; eigene IL-/Metadatenprüfung ohne unbekannte eigene IL-Aufrufe; vier installierte Slots und exakte Binarybindung | Bestanden im Kandidatenscope; keine transitive SAFE-Vollqualifikation |
 | Lifecycle | Clean/repeat, resolved Consumer Deploy/Uninstall55266/1, zentrale Confirm0-Ablehnung55267/1, unveränderter Snapshot/gesunde Session, Uninstall/repeat und frische eigene Bereinigung | Begrenzter local/central Scope bestanden; unresolved NOT_ESTABLISHED, übrige Negativmatrix offen |
-| Plattform | Linux SQL2019/latest CL150 und Windows SQL2025/exakt CU8 CL170; local/central innerhalb derselben eigenen Testdatenbank | Ausgewählte Ziele bestanden; weitere Ziele/CL und CrossDB offen |
+| Plattform / API | Vorhandene Contract-/Boundaries-/InstalledMetadatafixtures auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral | Aktuelle Quellenzuordnung siehe unten; eigene Bridge-/Lifecycleprofile und echte CrossDB-Identitäten bleiben separat |
 | Direkte Callerrechte | Zwei öffentliche TVFs mit einzelnem SELECT; internes CLR und andere Einstiege verweigert | Vorhandener gemeinsamer Caller-Nachweis; aktuelle Quellenbindung siehe unten, keine neue Ausführung |
 | Betrieb / CI | Lifecycle-DDL-/Markerrechte, Heap/CPU/Wallclock/Produktionskapazität und aktuelle Head-CI | Offen; öffentliche CI ist Windows-Offline, kein SQL-Lauf |
 
@@ -58,3 +58,14 @@ Frühere pauschale Minimalrechte-Offenangaben gelten nicht für diese belegten
 direkten Datenpfade. Lifecycle-DDL-/Markerrechte, andere Owner, echte Netzwerk-/
 CrossDB-Identitäten und übrige Modulpflichten bleiben separat. Keine Aussage
 zu abweichenden oder beliebig neu gebauten DLLs, keine Modulstatushochsetzung.
+
+## Vorhandene API-Matrix aktuell zugeordnet — 2026-11-09
+
+Der [aktuelle Quellenabgleich](../../../Releases/1.0.0/CLR-STRING-API-CURRENT-BINDING.md)
+bestätigt den Gesamt-API-Nachweis vom 2026-10-23: zwölf Windows-/Linux-Engine-/
+CL-Paare lokal/direkt zentral, je drei Originalfixtures; 69 damals neue und drei
+gültig übernommene Aufrufe, kein blockierter Phonetikfall. Fixturepins und
+gebundene Produktinputs sind aktuell bytegleich; kein neuer SQL-/Buildlauf.
+Pauschale fehlende API-/Grenz-/Metadatenziele sind überholt. Vollständige Scanner-,
+transitive SAFE-, weitere Bridge-/Lifecycle-/DDL-/Owner-/CrossDB-/Betriebs- und
+Recoverypflichten bleiben separat; Modulstatus bleibt teilweise validiert.
