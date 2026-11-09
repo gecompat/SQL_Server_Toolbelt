@@ -637,3 +637,19 @@ Keine neuen Builds, Produkt-/Manifest-/Statusänderungen, Grants/Principals/
 Owner-/Lab-/serverseitige Datei-I/O. Weitere Owner-/ACL-/Drift-/Migrations-/
 SET-/Ressourcen-/Recoverypflichten bleiben separat. Private Originale und
 Quellkapseln erhalten; keine Veröffentlichung oder Tags.
+
+## Executor: echtes begrenztes Anmelde-/Rechteprofil — 2026-11-09
+
+Die [aktuelle Executor-Rechtematrix](TABLE-CLONE-EXECUTOR-RIGHTS-QUALIFICATION.md)
+besteht auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
+24 Kontexte,144 Profile, zwölf erfolgreiche Gesamtläufe und zwölf frische Audits.
+Je Fall ein eigener SQL-/TCP-Login mit genehmigtem VIEW ANY DEFINITION,
+zwei exakt SID-gemappte Benutzer und sechs gezielte DB-Rechte; keine Rollen.
+EXECUTE-/DDL-Abweisung, erfolgreicher hashgebundener Grundfall, Daten-/Helper-
+Verweigerung und wirksamer EXECUTE-Widerruf bestanden. Alle24eigenenDBs und
+zwölfLogins entfernt, Konfiguration/Trust unverändert.24/28Aufrufe und DB-,
+12/14Login-Reservierungen innerhalb45Minuten; erster nativer Versuch erfolgreich,
+keine Wiederholung. Ältere pauschale Offenangaben zu Executor-Rechten sind für
+exakt dieses Grundprofil erledigt. Erweiterte Executor-/Copy-/Trigger-Rechte,
+FK-/ResultTable- und weitere Identitäts-/Recoverypflichten bleiben getrennt;
+keine Modulgesamtaufwertung. Private Originale erhalten, nichts veröffentlicht.
