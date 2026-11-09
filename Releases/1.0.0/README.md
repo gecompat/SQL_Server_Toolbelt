@@ -617,3 +617,23 @@ und keine grünen OFF/OFF- oder Missing-Modulprofile wiederholt. Keine Builds,
 Produkt-/Manifeständerungen, Grants/Principals/Owner-/Konfig-/Lab-/Datei-I/O.
 Weitere Ziel-/SET-/Lifecycle-/Rechte-/Recoverypflichten bleiben eigenständig.
 Keine Veröffentlichung oder Tags; private Originale erhalten.
+
+## JSON Core: direkte Lifecycle-Sperrmatrix — 2026-11-09
+
+Die [gezielte Ergänzung](JSON-CORE-APPLOCK-QUALIFICATION.md) belegt die direkte Core-Deploy-/Uninstall-
+Sperrabwehr auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
+24 Kontexte,48 exakte55627/1/16-Abweisungen unter eigener bestätigter
+exklusiver Sitzungssperre,48 erfolgreiche Schritte nach verifizierter Freigabe.
+Coreprojektion und lokale/externe Sitzungsneutralität erhalten, kanonischer
+Repeat beziehungsweise vollständiger Uninstall geprüft. Vorhandene Schema-
+Shared-Lock-Belege bleiben getrennt; keine API-Vollsuiten wiederholt.
+Erster Adapterfehler wegen fehlendem SPID-Parameter bleibt FAILED_CLEANED;
+Gegenprobe mit echtem Orakel reproduziert ihn, korrigierter Rest vollständig
+PASS.26 verbrauchte Aufrufe/DB-Reservierungen im gemeinsamen28/28/45-Minuten-
+Rahmen,25 tatsächlich angelegte DBs entfernt,13 frische Audits einschließlich
+Fehlversuch. Eigene Trust-/notwendige CLR-Konfigurationsänderungen nach
+bestehenden Freigaben vollständig zurückgenommen; fremde Zustände unverändert.
+Keine neuen Builds, Produkt-/Manifest-/Statusänderungen, Grants/Principals/
+Owner-/Lab-/serverseitige Datei-I/O. Weitere Owner-/ACL-/Drift-/Migrations-/
+SET-/Ressourcen-/Recoverypflichten bleiben separat. Private Originale und
+Quellkapseln erhalten; keine Veröffentlichung oder Tags.
