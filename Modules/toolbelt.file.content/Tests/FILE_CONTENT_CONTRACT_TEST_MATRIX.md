@@ -110,3 +110,15 @@ ist auf zwölf Engine-/CL-Paaren lokal/direkt zentral nativ qualifiziert:
 Freigabe, 24 verschiedene Arbeits-/Sperrsitzungspaare, zwölf frische Audits,
 alle 24 eigenen DBs entfernt. Keine erneute Vollfixture. Andere Identitäten,
 Race-/Caller-/SET-/Rollback-/Ressourcen-/Provider- und Modulgesamtgates bleiben separat.
+
+## Gezielte Prozedurdefinitionsdrift — 2026-11-09
+
+Die [aktuelle Driftmatrix](../../../Releases/1.0.0/FILE-CONTENT-DEFINITION-DRIFT-QUALIFICATION.md)
+belegt zwölf vollständige Windows-/Linux-Engine-/CL-Läufe lokal/direkt zentral,
+24 Kontexte, 48 etablierte Body-Driftzustände und 48 erfolgreiche Reparaturen.
+Beide Prozeduren behalten ihre Objekt-ID; Originaldefinitionen/Katalog,
+Allowlist-Daten/Identity und Berechtigungen sind exakt erhalten. Zwölf frische
+Audits bestätigen alle 24 eigenen DBs entfernt und Konfiguration/Trust unverändert.
+24/24 Aufrufe/DB-Reservierungen innerhalb 45 Minuten ohne Wiederholung;
+keine pauschal offene Bodyreparatur dieses Scopes. Andere Drift-/Rechte-/
+Session-/Rollback-/Ressourcen-/Provider-/Recoveryfälle bleiben separat.

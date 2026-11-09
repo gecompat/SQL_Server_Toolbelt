@@ -132,3 +132,13 @@ Zwölf frische Audits bestanden, alle 24 eigenen DBs entfernt. Keine neue
 Identität oder Rechtevergabe, kein Full-Repeat-/API-/Lifecycle-Rerun.
 Die vorherige pauschale AppLock-Offenangabe gilt für diesen Scope nicht mehr;
 weitere Race-/Caller-/SET-/Rollback-/Ressourcen-/Rechtefälle bleiben getrennt.
+
+## Gezielte Definitionsreparatur — 2026-11-09
+
+Die [neue Driftmatrix](../../../Releases/1.0.0/FILE-CONTENT-DEFINITION-DRIFT-QUALIFICATION.md)
+belegt 48 gezielte Reparaturen auf 24 lokalen/direkt zentralen Windows-/Linux-
+Kontexten: gleiche positive Objekt-ID, absichtlich anderer Bodyhash, danach
+exakt kanonischer Body/Katalog sowie unveränderte Allowlist-Zeilen/Identity und
+Berechtigungen. Zwölf frische Audits, alle 24 eigenen DBs entfernt. Alte
+Vollfixtures nicht wiederholt, keine neuen Rechte oder Datei-I/O. Tabellen-/
+Owner-/ACLdrift und übrige Modulpflichten bleiben getrennt.
