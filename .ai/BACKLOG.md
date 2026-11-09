@@ -6696,3 +6696,18 @@ Plan, Fehlerhistorie und Originale bleiben erhalten; keine Limits zurückgesetzt
 Kein gemeinsamer neuer Zwölf-Paare-Paketlauf. Weitere Scanner-/SAFE-/Lifecycle-/
 DDL-/Owner-/CrossDB-/Heap-/Betriebs-/Recoverypflichten bleiben separat.
 Keine Produkt-/Manifest-/Statusänderung, neuen Rechte oder Veröffentlichung.
+
+## File Content: gezielte Definitionsreparatur — 2026-11-09
+
+Die [neue Driftmatrix](../Releases/1.0.0/FILE-CONTENT-DEFINITION-DRIFT-QUALIFICATION.md)
+bestand auf zwölf Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:
+24 Kontexte, 48 absichtlich etablierte Prozedurbody-Driftzustände und 48 exakte
+Reparaturen durch das unveränderte öffentliche Same-Version-Deploy. Gleiche
+positive Objekt-ID, kanonische Definition/Katalog, unveränderte Allowlist-Daten,
+Identity und Rechte; zwölf frische Audits, alle 24 eigenen DBs entfernt.
+24/24 Ziel-/Auditaufrufe und DB-Reservierungen innerhalb 45 Minuten ohne Retry;
+frühere Grenzen und Fehler unverändert. Nur bestehender Kataloghelfer wiederverwendet,
+keine grünen API-/Repeat-/Lifecycle-/AppLock-Vollfixtures. Tabellen-/Schema-/
+Owner-/ACLdrift und übrige Rechte-/Session-/Rollback-/Ressourcen-/Provider-/
+Recoverypflichten bleiben getrennt. Keine neuen Grants, Produkt-/Manifest-/
+Server-/Labänderungen oder Veröffentlichung; private Originale bleiben erhalten.

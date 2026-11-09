@@ -555,6 +555,12 @@ Deploy-/Uninstallpfade nach verifizierter Freigabe auf 24 Moduskontexten:
 96 Profile, zwölf frische Audits, alle 24 eigenen DBs entfernt. Andere
 Identitäts-/Race-/Betriebs- und Modulpflichten bleiben separat.
 
+Die [File-Content-Definitionsdriftmatrix](FILE-CONTENT-DEFINITION-DRIFT-QUALIFICATION.md)
+ergänzt 48 gezielte Reparaturen nach jeweils bestätigtem verändertem Prozedurbody
+bei stabiler Objekt-ID: 24 Moduskontexte, erhaltene Allowlist-Zeilen/Identity und
+Rechte, zwölf frische Audits, alle 24 eigenen DBs entfernt. Keine neue Datei-I/O,
+Rechtevergabe oder Wiederholung der bereits grünen Vollfixtures; übrige Gates getrennt.
+
 Der [aktuelle Phonetik-Frameworklauf](PHONETIC-CURRENT-FRAMEWORK-QUALIFICATION.md)
 belegt 669 Assertions für die vorhandene DLL unter dem ausdrücklich neu
 geprüften Compiler. Keine erneute Produktkompilierung oder SQL-Ausführung;
