@@ -115,10 +115,13 @@ if((Test-CoreLockErrorFacts @())-or(Test-CoreLockErrorFacts @($good,$good))){thr
         script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
 $e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
 $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Assert-CoreLockNeutral'},$true));if($n.Count-ne1){throw 'CORE_NEUTRAL_FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
-$script:t=0;$script:x=0;$script:spid=71;$script:idle=$true;$control=$null
+$oraclePath=Join-Path (Split-Path -Parent (Split-Path -Parent $path)) 'Invoke-JsonSchemaAppLockLab.ps1'
+$a=[Management.Automation.Language.Parser]::ParseFile($oraclePath,[ref]$null,[ref]$e)
+$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Test-ExternalSessionIdle'},$true));if($n.Count-ne1){throw 'QUALIFIED_IDLE_ORACLE'};. ([scriptblock]::Create($n[0].Extent.Text))
+$script:t=0;$script:x=0;$script:spid=71;$script:idle=$true;$control=$null;$ledger=[ordered]@{}
+function Save-ReleaseJournal{}
 function Sql($Db,$Text,[switch]$Rows){if(-not$Text.Contains('DECLARE @T int=@@TRANCOUNT,@X smallint=XACT_STATE()')){throw 'UNISOLATED_LOCAL_STATE'};return [pscustomobject]@{T=$script:t;X=$script:x;Spid=$script:spid}}
-function Get-ExternalSessionState($Control,$Spid){if($Spid-ne71){throw 'WRONG_EXTERNAL_SPID'};return 'synthetic'}
-function Test-ExternalSessionIdle($State){return $script:idle}
+function Get-ExternalSessionState($Control,$Spid){if($Spid-ne71){throw 'WRONG_EXTERNAL_SPID'};return [pscustomobject]@{SessionId=71;OpenTransactionCount=0;UserTransactionCount=0;ApplicationLockCount=[int](-not$script:idle)}}
 Assert-CoreLockNeutral $null
 foreach($wrong in @('tran','xact','spid','external')){
  $script:t=0;$script:x=0;$script:spid=71;$script:idle=$true

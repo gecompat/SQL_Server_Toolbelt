@@ -10,7 +10,11 @@ function Assert-CoreLockNeutral($Db){
  $local=@(Sql $Db 'DECLARE @T int=@@TRANCOUNT,@X smallint=XACT_STATE();SELECT @T T,@X X,@@SPID Spid;' -Rows)
  if($local.Count-ne1-or$local[0].T-ne0-or$local[0].X-ne0-or$local[0].Spid-le0){throw 'CORE_LOCK_LOCAL_TRANSACTION_LEAK'}
  $state=Get-ExternalSessionState $control $local[0].Spid
- if(-not(Test-ExternalSessionIdle $state)){throw 'CORE_LOCK_EXTERNAL_TRANSACTION_OR_LOCK_LEAK'}
+ if($ledger){
+  if(-not$ledger.Contains('neutralityObservations')){$ledger['neutralityObservations']=@()}
+  $ledger.neutralityObservations+=@(@{local=@($local);external=@($state);expectedSpid=$local[0].Spid});Save-ReleaseJournal
+ }
+ if(-not(Test-ExternalSessionIdle $state $local[0].Spid)){throw 'CORE_LOCK_EXTERNAL_TRANSACTION_OR_LOCK_LEAK'}
 }
 function Invoke-CoreLockProfiles($Db,[string]$Mode){
  $resource='toolbelt.deploy.json.shared-core'
