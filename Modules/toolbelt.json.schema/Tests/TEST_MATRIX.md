@@ -215,3 +215,18 @@ qualifizieren damit keine neue Hilfe.
 - Scope: Schema1.0.1 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1: Windows und Linux-SQL2019/CL150,2022/CL160,2025/CL170 PASS. Schema je SQL-Version local/central: genuine1.0.0-DLL, Mode-Abweisung, erwarteter post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat, zweimal40 Contractfälle, Safety, CrossDB und Cleanup; je acht Upgrade- und zwei Safety-Witnesses, kein UnexpectedSQL/CleanupUnverified-Witness. SQLCMD-Dateifaulttransport im tatsächlichen Testpfad bestanden. Breitere Constructor-CL-Matrix ist kein Schema-Nachweis. Docs37532174428 am selben Head PASS; frühere failed/PENDING-Records bleiben Historie, Actual168-Rootcause nicht bewiesen. Neuer Dokumentationshead benötigt eigene exakte CI; übrige physische-/Minimalrechte-/Lifecycle-/Kapazitätsmatrix und Release offen. Partially validated, unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## JSON Schema: Callerprofil XACT_ABORT OFF / NOCOUNT ON — 2026-11-09
+
+Die [gezielte Ergänzung](../../../Releases/1.0.0/JSON-SCHEMA-NOCOUNT-QUALIFICATION.md) belegt zwei neue frühe Caller-Guardfälle
+für Deploy/Uninstall auf Windows2025/CU8 CL170 lokal bei fehlenden Modulen.
+XACT_ABORT OFF/NOCOUNT ON tatsächlich geprüft; exakt50000/1/16, gesunde
+Callertransaktion, Sessionoptionen, Snapshots, Zeugenwerte und Savepoint-/
+Vollrollback sowie unabhängiger Observer erhalten. Frischer Audit PASS,
+eigene DB entfernt, Konfiguration/Trust unverändert. Acht Offlinegegenproben
+und kanonischer Preflight bestanden. 2/2 Aufrufe,1DB,45Minuten beim ersten
+Versuch geschlossen; alte Fehler/Grenzen/Nachweise erhalten. Keine Assembly-/
+Modulinstallation, neuen Rechte/Identitäten oder Produkt-/Manifeständerungen.
+Bestehende OFF/OFF- und ON-Profile werden wiederverwendet. Installierter
+Uninstall unter weiteren SET-Profilen, übrige Lifecycle-/Rechte-/Recovery-
+und Modulpflichten bleiben separat; keine Veröffentlichung oder Tags.

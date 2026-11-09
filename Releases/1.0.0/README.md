@@ -585,3 +585,18 @@ ist für SQL-Authentifizierung über TCP auf Windows2025/CU8 CL170 zentral
 mit getrennter Consumer-DB belegt: drei gezielte DB-Rechte, sechs Profile,
 strikter Widerruf und frischer Audit. Frühere DB-Benutzerprofile bleiben
 unverändert gültig; andere Identitäts- und Netzwerkzielpfade bleiben separat.
+
+## JSON Schema: Callerprofil XACT_ABORT OFF / NOCOUNT ON — 2026-11-09
+
+Die [gezielte Ergänzung](JSON-SCHEMA-NOCOUNT-QUALIFICATION.md) belegt zwei neue frühe Caller-Guardfälle
+für Deploy/Uninstall auf Windows2025/CU8 CL170 lokal bei fehlenden Modulen.
+XACT_ABORT OFF/NOCOUNT ON tatsächlich geprüft; exakt50000/1/16, gesunde
+Callertransaktion, Sessionoptionen, Snapshots, Zeugenwerte und Savepoint-/
+Vollrollback sowie unabhängiger Observer erhalten. Frischer Audit PASS,
+eigene DB entfernt, Konfiguration/Trust unverändert. Acht Offlinegegenproben
+und kanonischer Preflight bestanden. 2/2 Aufrufe,1DB,45Minuten beim ersten
+Versuch geschlossen; alte Fehler/Grenzen/Nachweise erhalten. Keine Assembly-/
+Modulinstallation, neuen Rechte/Identitäten oder Produkt-/Manifeständerungen.
+Bestehende OFF/OFF- und ON-Profile werden wiederverwendet. Installierter
+Uninstall unter weiteren SET-Profilen, übrige Lifecycle-/Rechte-/Recovery-
+und Modulpflichten bleiben separat; keine Veröffentlichung oder Tags.
