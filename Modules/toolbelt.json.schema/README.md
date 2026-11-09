@@ -65,6 +65,15 @@ weitere physische Matrix, Minimalrechte und vollständige Lifecycle-/
 Kapazitätsabnahme bleiben offen. Aktuell teilweise validiert,
 unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 
+## Früher Caller-Guard mit XACT_ABORT ON — 2026-11-09
+
+Die [neue Sessionqualifikation](../../Releases/1.0.0/JSON-SCHEMA-XACT-ABORT-QUALIFICATION.md)
+belegt vier negative Deploy-/Uninstallfälle bei fehlenden Toolbelt-Modulen:
+XACT_ABORT ON mit NOCOUNT OFF/ON auf Windows2025/CU8 CL170. Callertransaktion,
+Sessionoptionen, Katalog, Savepoint und Daten bleiben geschützt; frischer Audit
+und eigene DB-Entfernung bestanden. Keine Modul-/Assemblyinstallation oder
+Rechte-/Trust-/Konfigurationsänderung; übrige Session-/Lifecyclepflichten separat.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
