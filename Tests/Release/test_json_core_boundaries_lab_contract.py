@@ -101,6 +101,15 @@ foreach($spec in @(@{id='mode-upper';operation='deploy';variable='DeploymentMode
         r=copy.deepcopy(self.record);next(x for x in r['pins'] if x['path']==str(p))['sha256']=hashlib.sha256(p.read_bytes()).hexdigest().upper()
         self.assertNotEqual(self.admission(r).returncode,0)
 
+    def test_marker_setup_uses_variant_compatible_value_and_catalog_lookup(self):
+        text=(ROOT/'Tests/Release/Runtime/JsonCore.Boundaries.Contract.ps1').read_text(encoding='utf-8-sig')
+        # Native generic binding is nvarchar(max); the procedure value must be bounded before sql_variant.
+        self.assertIn('DECLARE @TypedValue nvarchar(16)=@Value;',text)
+        self.assertIn('@value=@TypedValue;',text)
+        self.assertNotIn('sp_addextendedproperty @name=@Name,@value=@Value;',text)
+        # The installed assembly is resolved through the real sys.assemblies catalog, not an invented builtin.
+        self.assertNotIn('ASSEMBLY_ID(',text)
+        self.assertIn("major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonCore')",text)
     def test_argument_scripts_cannot_be_swapped_or_rewritten(self):
         self.reject(lambda r:r['argument_scripts'][0].update(value='local'))
         self.reject(lambda r:r['argument_scripts'].pop())

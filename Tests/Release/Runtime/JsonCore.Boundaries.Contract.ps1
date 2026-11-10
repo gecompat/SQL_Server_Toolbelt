@@ -94,7 +94,7 @@ function Invoke-CoreBoundaryProfiles($Db,[string]$Mode){
  $installed=Get-CoreBoundaryState $Db
  Invoke-CoreBoundaryCallerGroup $Db $Mode 'caller-installed'
  # Point 4: preserve exact typed tuples, using a caller-local sql_variant copy.
- Sql $Db "SELECT name,value INTO #CoreBoundaryOriginalMarkers FROM sys.extended_properties WHERE class=5 AND major_id=ASSEMBLY_ID(N'Toolbelt_JsonCore');"
+ Sql $Db "SELECT name,value INTO #CoreBoundaryOriginalMarkers FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonCore');"
  if([int](Read-Scalar $Db 'SELECT COUNT(*) ScalarValue FROM #CoreBoundaryOriginalMarkers;')-ne6){throw 'CORE_BOUNDARY_SIX_ORIGINAL_MARKERS_REQUIRED'}
  foreach($name in @('Toolbelt.Managed','Toolbelt.ModuleId','Toolbelt.ModuleVersion','Toolbelt.DeploymentMode','Toolbelt.AssemblySha512','Toolbelt.ArtifactId')){
   Sql $Db @'
