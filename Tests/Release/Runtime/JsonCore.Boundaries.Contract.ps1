@@ -77,7 +77,7 @@ function Invoke-CoreBoundaryProfiles($Db,[string]$Mode){
  # Point 3: an orphan DB marker must be preserved, never adopted or removed.
  foreach($suffix in @('Version','DeploymentMode')){
   $name='Toolbelt.Module.toolbelt.json.core.'+$suffix;$value=if($suffix-ceq'Version'){'1.0.0'}else{$Mode}
-  Sql $Db 'EXEC sys.sp_addextendedproperty @name=@Name,@value=@Value;' @{'@Name'=$name;'@Value'=$value}
+  Sql $Db 'DECLARE @TypedValue nvarchar(16)=@Value;EXEC sys.sp_addextendedproperty @name=@Name,@value=@TypedValue;' @{'@Name'=$name;'@Value'=$value}
   $damaged=Get-CoreBoundaryState $Db
   try{foreach($op in @('deploy','uninstall')){
    $path=if($op-ceq'deploy'){$runset.exports.$Mode}else{$runset.uninstall}
