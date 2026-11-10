@@ -6833,12 +6833,13 @@ keine Modulgesamtaufwertung. Private Originale erhalten, nichts veröffentlicht.
 
 Der [neue Teilnachweis](../Releases/1.0.0/JSON-CORE-FIVE-BOUNDARIES-QUALIFICATION.md) prüft
 Callertransaktionen ohne/mit Core, verwaiste DB-Marker, sechs typisierte
-Assembly-Marker und Argument-/Consumer-Bestätigungen. Zehn Windows-/Linux-
-Zielpaare bestehen lokal/zentral mit 730 Profilen; 28 gültige Originalprofile
-bleiben erhalten. Insgesamt 758 von 876 Profilen belegt, 118 in zwei gezielt
-vorbereiteten Restläufen noch nicht ausgeführt. Zwei ursprüngliche Adapterfehler
-bleiben FAILED_CLEANED mit frischen PASS-Audits. Zwölf Audits insgesamt,
-22 eigene DBs entfernt; Config/Trust im Vorzustand, keine neuen Rechte/Identitäten.
-Der vorab gewählte Präfix-Retry-Stopp benötigt eine konkrete Ausnahme; kein
-Gesamtabschluss der fünf Punkte oder des Moduls. Alte Sperr-/Consumerbelege
-werden nicht wiederholt. Private Originale erhalten, keine Veröffentlichung.
+Assembly-Marker und Argument-/Consumer-Bestätigungen. Zwölf Windows-/Linux-
+Zielpaare sind lokal/zentral mit 876 eindeutigen Profilen belegt: zehn vollständige
+Paare plus zwei gezielte Restläufe, die 28 gültige Originalprofile unverändert
+verwenden. Beide ursprünglichen Fehler bleiben FAILED_CLEANED. Vierzehn frische
+Audits, 26 eigene DBs entfernt; Konfiguration/Trust im Vorzustand, keine neuen
+Rechte/Identitäten. Die unnötigen Rückfragen wurden zurückgenommen: nur echte
+Lücken innerhalb derselben unveränderten 28-Aufrufe-/28-DB-/45-Minuten-Grenze,
+keine neue Freigabe, Frist oder Welle. Die fünf Punkte sind abgeschlossen;
+keine Modulgesamtaufwertung. Alte Sperr-/Consumerbelege nicht wiederholt.
+Private Originale erhalten, keine Veröffentlichung.
