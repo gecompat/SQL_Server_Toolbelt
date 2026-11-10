@@ -132,6 +132,9 @@ try{
   $text=ConvertTo-StandaloneSql -Node $tree -Values $values -ModulesRoot (Join-Path $repo 'Modules')
   if([IO.File]::ReadAllText($row.path)-cne$text){throw 'CORE_BOUNDARY_ORIGINAL_ARGUMENT_SCRIPT'}
  }
+ . ($fixtures[0])
+ $script:coreBoundaryExcluded=@(Get-CoreBoundaryReusedKeys)
+ $expectedCallerRows=32-@($script:coreBoundaryExcluded|Where-Object{$_-cmatch'/caller-'}).Count
  if($ValidateOnly){'PASS CORE_BOUNDARY_OFFLINE_ADMISSION; no Lab import or SQL';return}
  . (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1')
  foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/CI/run-lab-local.ps1') @(
@@ -140,7 +143,6 @@ try{
  if((Get-FileHash -LiteralPath $lab.Path -Algorithm SHA256).Hash-cne$runset.contract_sha256){throw 'CORE_BOUNDARY_CONTRACT_DRIFT'}
  $targets=@(Get-LabTargetsForSelector -Contract $lab.Contract -Selector $case)
  if($targets.Count-ne1){throw 'CORE_BOUNDARY_EXACT_TARGET_REQUIRED'};$target=$targets[0]
- . ($fixtures[0])
  $journal=Assert-ReleasePrivatePath (Join-Path (Split-Path -Parent $RunsetPath) ('case-'+$CaseIndex+'.json'))
  if($AuditOnly){
   $hash=(Get-FileHash -LiteralPath $journal -Algorithm SHA256).Hash
@@ -160,12 +162,14 @@ try{
   [IO.File]::WriteAllText(($journal+'.audit.json'),([ordered]@{state='COMPLETE';readOnly=$true;
    originalJournalSHA256=$hash;originalRunPassed=($prior.state-ceq'COMPLETE'-and$null-eq$prior.failure-and
     (@($prior.completedModes)-join',')-ceq'local,central'-and$prior.witnesses.Count-eq2-and
-    (Test-CoreBoundaryCoverage $prior.profileCompletions)-and$prior.results.Count-eq32-and
+    (Test-CoreBoundaryCoverage $prior.profileCompletions $script:coreBoundaryExcluded)-and$prior.results.Count-eq$expectedCallerRows-and
     @($prior.results|Where-Object{-not$_.exact_error-or-not$_.transaction_preserved-or-not$_.witness_preserved-or-not$_.application_locks_absent}).Count-eq0);databaseAbsence=$true;
    serverConfigurationAndTrustUnchanged=$true;postPins=$true}|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
  }else{
   if(Test-Path -LiteralPath $journal){throw 'CORE_BOUNDARY_CASE_ALREADY_ATTEMPTED'}
   $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();completedModes=@();witnesses=@();fixtureCompletions=@();profileCompletions=@();results=@();trust=@();configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()};definitionSnapshots=@();serverSnapshot=$null;observedTarget=$null;failure=$null};Save-ReleaseJournal
+  $ledger['declaredScope']=if($script:coreBoundaryExcluded.Count){'UNEXECUTED_TAIL_ONLY'}else{'FULL_FIVE_POINT_PAIR'}
+  $ledger['excludedOriginalProfiles']=@($script:coreBoundaryExcluded);Save-ReleaseJournal
   $control=Open-ReleaseConnection 'master'
   $actual=@(Invoke-ReleaseSql $control "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion')) Version,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)
   if($actual.Count-ne1-or$actual[0].Major-ne@{'2019'=15;'2022'=16;'2025'=17}[[string]$case.Version]-or$actual[0].Platform-ine$case.Platform-or$actual[0].Admin-ne1){throw 'CORE_BOUNDARY_ACTUAL_TARGET_MISMATCH'}

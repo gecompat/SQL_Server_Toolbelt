@@ -15,10 +15,44 @@ function Get-CoreBoundaryKeys([string]$Mode){
  if($Mode-ceq'central'){$keys.Add('arguments/central-unconfirmed')}
  return $keys.ToArray()
 }
-function Test-CoreBoundaryCoverage($Rows){
- $expected=@(foreach($mode in @('local','central')){foreach($key in Get-CoreBoundaryKeys $mode){$mode+'/'+$key}})|Sort-Object
+function Test-CoreBoundaryCoverage($Rows,[string[]]$Excluded=@()){
+ $expected=@(foreach($mode in @('local','central')){foreach($key in Get-CoreBoundaryKeys $mode){$mode+'/'+$key}})|Where-Object{$_-cnotin$Excluded}|Sort-Object
  $actual=@($Rows|ForEach-Object{$_.mode+'/'+$_.id}|Sort-Object)
- return [bool](@($Rows).Count-eq73-and@($Rows|Where-Object passed -NE $true).Count-eq0-and($expected-join'|')-ceq($actual-join'|'))
+ return [bool](@($Rows).Count-eq(73-$Excluded.Count)-and@($Rows|Where-Object passed -NE $true).Count-eq0-and($expected-join'|')-ceq($actual-join'|'))
+}
+function Get-CoreBoundaryReusedKeys{
+ if(-not$runset.PSObject.Properties['partial_tail']){return}
+ $tail=$runset.partial_tail
+ if($tail.approved-isnot[bool]-or-not$tail.approved-or$tail.case_index-ne$CaseIndex-or$CaseIndex-notin@(0,1)){throw 'CORE_BOUNDARY_TAIL_EXPLICIT_AUTHORITY_REQUIRED'}
+ foreach($binding in @(@{path=$tail.journal;sha256=$tail.journal_sha256},@{path=$tail.audit;sha256=$tail.audit_sha256},@{path=$tail.approval;sha256=$tail.approval_sha256},@{path=$tail.original_runset;sha256=$tail.original_runset_sha256})){
+  [void](Assert-ReleasePrivatePath $binding.path);Assert-ReleasePin $binding.path $binding.sha256
+  if(@($runset.pins|Where-Object{$_.path-ceq$binding.path-and$_.sha256-ceq$binding.sha256}).Count-ne1){throw 'CORE_BOUNDARY_TAIL_BINDING_MISSING'}
+ }
+ $old=Get-Content $tail.journal -Raw|ConvertFrom-Json -DateKind String;$audit=Get-Content $tail.audit -Raw|ConvertFrom-Json -DateKind String
+ if($old.state-cne'FAILED_CLEANED'-or$audit.state-cne'COMPLETE'-or$audit.originalRunPassed-ne$false-or$audit.originalJournalSHA256-cne$tail.journal_sha256-or-not$audit.databaseAbsence-or-not$audit.serverConfigurationAndTrustUnchanged-or-not$audit.postPins){throw 'CORE_BOUNDARY_TAIL_ORIGINAL_CLEANUP_REQUIRED'}
+ $sourcePath=Assert-ReleasePrivatePath $tail.original_runset
+ $prior=Get-Content $sourcePath -Raw|ConvertFrom-Json -DateKind String
+ if($prior.contract_sha256-cne$runset.contract_sha256){throw 'CORE_BOUNDARY_TAIL_LAB_BINDING_CHANGED'}
+ foreach($field in @('Platform','Version','Patch','CL')){if($prior.cases[$CaseIndex].$field-cne$runset.cases[$CaseIndex].$field){throw 'CORE_BOUNDARY_TAIL_CONTEXT_CHANGED'}}
+ foreach($pin in @($prior.pins|Where-Object{$_.path.StartsWith((Join-Path $repo 'Modules')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)})){
+  Assert-ReleasePin $pin.path $pin.sha256
+  if(@($runset.pins|Where-Object{$_.path-ceq$pin.path-and$_.sha256-ceq$pin.sha256}).Count-ne1){throw 'CORE_BOUNDARY_TAIL_PRODUCT_DRIFT'}
+ }
+ $fixture=Join-Path $repo 'Tests/Release/Runtime/JsonCore.Boundaries.Contract.ps1'
+ $caps=@($prior.source_capsules|Where-Object originalPath -CEQ $fixture)
+ if($caps.Count-ne1){throw 'CORE_BOUNDARY_TAIL_ORIGINAL_SOURCE_REQUIRED'}
+ [void](Assert-ReleasePrivatePath $caps[0].snapshotPath);Assert-ReleasePin $caps[0].snapshotPath $caps[0].sha256
+ $e=$null;$originalAst=[Management.Automation.Language.Parser]::ParseFile($caps[0].snapshotPath,[ref]$null,[ref]$e);if($e.Count){throw 'CORE_BOUNDARY_TAIL_ORIGINAL_PARSE'}
+ $currentAst=[Management.Automation.Language.Parser]::ParseFile($fixture,[ref]$null,[ref]$e);if($e.Count){throw 'CORE_BOUNDARY_TAIL_CURRENT_PARSE'}
+ foreach($name in @('Invoke-CoreBoundaryCallerGroup','Get-CoreBoundaryState','Assert-CoreBoundaryDenied','Test-CoreBoundaryError')){
+  $left=@($originalAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+  $right=@($currentAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+  if($left.Count-ne1-or$right.Count-ne1-or$left[0].Extent.Text.Replace("`r`n","`n")-cne$right[0].Extent.Text.Replace("`r`n","`n")){throw 'CORE_BOUNDARY_TAIL_REUSED_ORACLE_CHANGED'}
+ }
+ $keys=@($old.profileCompletions|ForEach-Object{$_.mode+'/'+$_.id})
+ $expected=@(Get-CoreBoundaryKeys 'local'|Where-Object{$_-cmatch'^caller-absent/'-or($CaseIndex-eq1-and$_-cmatch'^(caller-installed|orphan)/')}|ForEach-Object{'local/'+$_})
+ if(@($old.profileCompletions|Where-Object passed -NE $true).Count-or(($keys|Sort-Object)-join'|')-cne(($expected|Sort-Object)-join'|')){throw 'CORE_BOUNDARY_TAIL_EXACT_PREFIX_REQUIRED'}
+ return $keys
 }
 function Get-CoreBoundaryState($Db){
  $types=@(Sql $Db @'
@@ -73,9 +107,10 @@ function Invoke-CoreBoundaryProfiles($Db,[string]$Mode){
  $script:guardConnection=$Db;$script:coreBoundaryMode=$Mode
  Sql $Db 'CREATE TABLE dbo.JsonSchemaCallerTransactionWitness(WitnessId int NOT NULL PRIMARY KEY,WitnessValue int NOT NULL);INSERT dbo.JsonSchemaCallerTransactionWitness VALUES(1,100);'
  $empty=Get-CoreBoundaryState $Db
- Invoke-CoreBoundaryCallerGroup $Db $Mode 'caller-absent'
+ if(($Mode+'/caller-absent/xa0nc0/deploy')-cnotin$script:coreBoundaryExcluded){Invoke-CoreBoundaryCallerGroup $Db $Mode 'caller-absent'}
  # Point 3: an orphan DB marker must be preserved, never adopted or removed.
  foreach($suffix in @('Version','DeploymentMode')){
+  if(($Mode+'/orphan/'+$suffix+'/deploy')-cin$script:coreBoundaryExcluded){continue}
   $name='Toolbelt.Module.toolbelt.json.core.'+$suffix;$value=if($suffix-ceq'Version'){'1.0.0'}else{$Mode}
   Sql $Db 'DECLARE @TypedValue nvarchar(16)=@Value;EXEC sys.sp_addextendedproperty @name=@Name,@value=@TypedValue;' @{'@Name'=$name;'@Value'=$value}
   $damaged=Get-CoreBoundaryState $Db
@@ -92,7 +127,7 @@ function Invoke-CoreBoundaryProfiles($Db,[string]$Mode){
  $known=@(Sql $Db "SELECT a.assembly_id Id,a.permission_set,a.is_visible,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) H FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_JsonCore';" -Rows)
  if($known.Count-ne1-or$known[0].permission_set-ne1-or$known[0].is_visible-or$known[0].H-cne(Get-FileHash $binary -Algorithm SHA512).Hash){throw 'CORE_BOUNDARY_CURRENT_KNOWN_CORE_REQUIRED'}
  $installed=Get-CoreBoundaryState $Db
- Invoke-CoreBoundaryCallerGroup $Db $Mode 'caller-installed'
+ if(($Mode+'/caller-installed/xa0nc0/deploy')-cnotin$script:coreBoundaryExcluded){Invoke-CoreBoundaryCallerGroup $Db $Mode 'caller-installed'}
  # Point 4: preserve exact typed tuples, using a caller-local sql_variant copy.
  Sql $Db "SELECT name,value INTO #CoreBoundaryOriginalMarkers FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonCore');"
  if([int](Read-Scalar $Db 'SELECT COUNT(*) ScalarValue FROM #CoreBoundaryOriginalMarkers;')-ne6){throw 'CORE_BOUNDARY_SIX_ORIGINAL_MARKERS_REQUIRED'}
@@ -126,7 +161,7 @@ EXEC sys.sp_updateextendedproperty @name=@Name,@value=@Bad,@level0type=N'ASSEMBL
  }
  if((Get-CoreBoundaryState $Db)-cne$installed){throw 'CORE_BOUNDARY_FINAL_INSTALLED_IDENTITY_DRIFT'}
  $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
- $expected=@(Get-CoreBoundaryKeys $Mode|Sort-Object)
+ $expected=@(Get-CoreBoundaryKeys $Mode|Where-Object{($Mode+'/'+$_)-cnotin$script:coreBoundaryExcluded}|Sort-Object)
  if(($actual-join'|')-cne($expected-join'|')){throw 'CORE_BOUNDARY_FIVE_POINT_COVERAGE_REQUIRED'}
  # Final successful teardown is cleanup after newly exercised drift profiles.
  Invoke-PinnedLifecycle 'uninstall';Assert-CoreLockNeutral $Db

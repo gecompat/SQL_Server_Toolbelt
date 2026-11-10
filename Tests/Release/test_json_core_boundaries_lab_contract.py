@@ -116,6 +116,9 @@ foreach($spec in @(@{id='mode-upper';operation='deploy';variable='DeploymentMode
         path=Path(self.record['argument_scripts'][0]['path']);path.write_text('SELECT 1;',encoding='utf-8')
         r=copy.deepcopy(self.record);next(p for p in r['pins'] if p['path']==str(path))['sha256']=hashlib.sha256(path.read_bytes()).hexdigest().upper()
         self.assertNotEqual(self.admission(r).returncode,0)
+    def test_tail_requires_explicit_boolean_and_exact_case(self):
+        self.reject(lambda r:r.update(partial_tail={'approved':'true','case_index':0}))
+        self.reject(lambda r:r.update(partial_tail={'approved':False,'case_index':0}))
     def test_exact_five_point_coverage_and_error_oracles(self):
         fixture=ROOT/'Tests/Release/Runtime/JsonCore.Boundaries.Contract.ps1'
         script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
@@ -127,6 +130,11 @@ $rows=@(foreach($mode in @('local','central')){foreach($id in Get-CoreBoundaryKe
 if($rows.Count-ne73-or-not(Test-CoreBoundaryCoverage $rows)){throw 'COVERAGE_GOLDEN'}
 if(Test-CoreBoundaryCoverage @($rows[1..72])){throw 'MISSING_PROFILE_ACCEPTED'}
 if(Test-CoreBoundaryCoverage @($rows+$rows[0])){throw 'DUPLICATE_PROFILE_ACCEPTED'}
+$excluded=@($rows|Where-Object{$_.mode-ceq'local'-and$_.id-cmatch'^caller-absent/'}|ForEach-Object{$_.mode+'/'+$_.id})
+$tail=@($rows|Where-Object{($_.mode+'/'+$_.id)-cnotin$excluded})
+if($tail.Count-ne65-or-not(Test-CoreBoundaryCoverage $tail $excluded)){throw 'DECLARED_TAIL_COVERAGE'}
+if(Test-CoreBoundaryCoverage $tail){throw 'TAIL_PROMOTED_TO_FULL_PAIR'}
+if(Test-CoreBoundaryCoverage $rows $excluded){throw 'GREEN_PREFIX_REPEATED'}
 $rows[0].passed=$false;if(Test-CoreBoundaryCoverage $rows){throw 'FAILED_PROFILE_ACCEPTED'}
 $good=[pscustomobject]@{Number=55623;State=1;Class=16;Message='Contoso exact error'}
 if(-not(Test-CoreBoundaryError @($good) 55623 'Contoso exact error')){throw 'ERROR_GOLDEN'}
