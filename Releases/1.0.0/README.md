@@ -653,3 +653,16 @@ keine Wiederholung. Ältere pauschale Offenangaben zu Executor-Rechten sind für
 exakt dieses Grundprofil erledigt. Erweiterte Executor-/Copy-/Trigger-Rechte,
 FK-/ResultTable- und weitere Identitäts-/Recoverypflichten bleiben getrennt;
 keine Modulgesamtaufwertung. Private Originale erhalten, nichts veröffentlicht.
+## JSON Core: fünf direkte Lifecycle-Grenzen — 2026-11-10
+
+Der [neue Teilnachweis](JSON-CORE-FIVE-BOUNDARIES-QUALIFICATION.md) prüft
+Callertransaktionen ohne/mit Core, verwaiste DB-Marker, sechs typisierte
+Assembly-Marker und Argument-/Consumer-Bestätigungen. Zehn Windows-/Linux-
+Zielpaare bestehen lokal/zentral mit 730 Profilen; 28 gültige Originalprofile
+bleiben erhalten. Insgesamt 758 von 876 Profilen belegt, 118 in zwei gezielt
+vorbereiteten Restläufen noch nicht ausgeführt. Zwei ursprüngliche Adapterfehler
+bleiben FAILED_CLEANED mit frischen PASS-Audits. Zwölf Audits insgesamt,
+22 eigene DBs entfernt; Config/Trust im Vorzustand, keine neuen Rechte/Identitäten.
+Der vorab gewählte Präfix-Retry-Stopp benötigt eine konkrete Ausnahme; kein
+Gesamtabschluss der fünf Punkte oder des Moduls. Alte Sperr-/Consumerbelege
+werden nicht wiederholt. Private Originale erhalten, keine Veröffentlichung.

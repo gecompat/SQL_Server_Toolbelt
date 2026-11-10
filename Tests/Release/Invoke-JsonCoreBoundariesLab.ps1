@@ -1,4 +1,4 @@
-# Direct Core lifecycle mutex qualification; current known Core binary only.
+# Five direct Core lifecycle boundaries; current known Core binary only.
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,
  [Parameter(Mandatory)][ValidateRange(0,11)][int]$CaseIndex,[switch]$AuditOnly,[switch]$ValidateOnly)
@@ -212,4 +212,4 @@ finally{
  }
 }
 if($failure){if($ValidateOnly){throw $failure};'FAIL CORE_BOUNDARY_TARGETS; inspect private journal; no automatic replay';exit 1}
-if($AuditOnly){'PASS CORE_BOUNDARY_TARGETS fresh independent final journal/absence audit'}else{'PASS CORE_BOUNDARY direct Core mutex profiles; independent audit required; independent audit required'}
+if($AuditOnly){'PASS CORE_BOUNDARY_TARGETS fresh independent final journal/absence audit'}else{'PASS CORE_BOUNDARY five direct Core boundary groups; independent audit required'}
