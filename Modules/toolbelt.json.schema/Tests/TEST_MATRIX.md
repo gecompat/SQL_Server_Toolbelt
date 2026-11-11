@@ -1,5 +1,21 @@
 # JSON Schema – Abnahmematrix
 
+## Aktuelle fünf Lifecycle-Grenzen — 2026-11-11
+
+Die [Fünfpunktmatrix](../../../Releases/1.0.0/JSON-SCHEMA-FIVE-BOUNDARIES-QUALIFICATION.md)
+belegt verwaiste DB-Marker, sechs typisierte Assemblymarker, drei Ownership-
+Marker an beiden registrierten Objekten, reservierten Deploy-Callerzustand
+und exakte ungültige Modus-/Consumer-Eingaben auf allen zwölf unterstützten
+Windows-/Linux-Engine-/CL-Paaren lokal/direkt zentral:828 eindeutige Profile,
+vier davon gültig historisch wiederverwendet. Ein erhaltener Fehlkoordinator
+mit fünf gültigen Präfixprofilen wird nicht zum Gesamt-PASS. Alle13 frischen
+Audits PASS, alle25 angelegten eigenen DBs entfernt, Konfiguration/Trust
+wiederhergestellt. Zwölf Offlinegegenproben und kanonischer Preflight PASS.
+Frühere Offenangaben zu genau diesen Grenzen sind damit erledigt; andere
+Caller-/Lock-/Fremdslot-/Owner-/Rechte-/Recoverypflichten bleiben eigenständig.
+Keine neue Fachfunktion, Rechtevergabe oder Veröffentlichung; Modul weiterhin
+partially validated und unreleased. Historische Abschnitte bleiben unverändert.
+
 ## Früher Caller-Guard mit XACT_ABORT ON — 2026-11-09
 
 Die [Sessionergänzung](../../../Releases/1.0.0/JSON-SCHEMA-XACT-ABORT-QUALIFICATION.md)
