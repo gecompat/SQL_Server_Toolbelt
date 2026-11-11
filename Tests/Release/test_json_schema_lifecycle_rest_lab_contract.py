@@ -125,6 +125,25 @@ foreach($mode in @('local','central')){
         p=Path(self.record['baselines']['local']);p.write_text('SELECT 1;',encoding='utf-8')
         r=copy.deepcopy(self.record);next(x for x in r['pins'] if x['path']==str(p))['sha256']=hashlib.sha256(p.read_bytes()).hexdigest().upper()
         self.assertNotEqual(self.admission(r).returncode,0)
+    def test_positive_receipt_does_not_claim_unchanged_before_state(self):
+        fixture=ROOT/'Tests/Release/Runtime/JsonSchema.LifecycleRest.Contract.ps1'
+        script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
+$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
+$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Add-SchemaRestReceipt'},$true))
+if($e.Count-or$n.Count-ne1){throw 'FUNCTION_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text))
+function Save-ReleaseJournal{}
+$ledger=[ordered]@{profileCompletions=@()}
+Add-SchemaRestReceipt 'local' 'locks-deploy/module/after-release' 0 'Contoso resulting state'
+$positive=$ledger.profileCompletions[0]
+if($positive.Contains('snapshotPreserved')-or$positive.canonicalState-ne$true-or$positive.snapshotPhase-cne'after-positive'){throw 'POSITIVE_MISLABELLED_AS_UNCHANGED'}
+Add-SchemaRestReceipt 'local' 'locks-deploy/module/blocked' 55637 'Contoso unchanged state'
+$negative=$ledger.profileCompletions[1]
+if($negative.Contains('canonicalState')-or$negative.snapshotPreserved-ne$true-or$negative.snapshotPhase-cne'before-denial'){throw 'DENIAL_MISLABELLED'}
+$caught=$false;try{Add-SchemaRestReceipt 'local' 'caller-missing/xa0nc0/deploy' 0 'wrong phase'}catch{$caught=$_.Exception.Message-ceq'SCHEMA_REST_RECEIPT_PHASE_MISMATCH'}
+if(-not$caught-or$ledger.profileCompletions.Count-ne2){throw 'WRONG_PHASE_ACCEPTED'}
+"""
+        result=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
     def test_exact_five_point_coverage_and_error_oracles(self):
         fixture=ROOT/'Tests/Release/Runtime/JsonSchema.LifecycleRest.Contract.ps1'
         script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""

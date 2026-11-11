@@ -86,7 +86,12 @@ function Test-SchemaRestError($Errors,[int]$Number,[string]$Message){
  return [bool]($bad.Count-eq1-and$bad[0].Number-eq$Number-and$bad[0].State-eq1-and$bad[0].Class-eq16-and$bad[0].Message-ceq$Message)
 }
 function Add-SchemaRestReceipt([string]$Mode,[string]$Id,[int]$Number,[string]$Snapshot){
- $ledger.profileCompletions+=@([ordered]@{mode=$Mode;id=$Id;passed=$true;number=$Number;snapshotPreserved=$true;snapshotSHA256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Snapshot)))});Save-ReleaseJournal
+ $positive=$Id-cmatch'^locks-(deploy|uninstall)/(shared-core|module)/after-release$'
+ if($positive-ne($Number-eq0)){throw 'SCHEMA_REST_RECEIPT_PHASE_MISMATCH'}
+ $receipt=[ordered]@{mode=$Mode;id=$Id;passed=$true;number=$Number;snapshotSHA256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Snapshot)))}
+ if($positive){$receipt['canonicalState']=$true;$receipt['snapshotPhase']='after-positive'}
+ else{$receipt['snapshotPreserved']=$true;$receipt['snapshotPhase']='before-denial'}
+ $ledger.profileCompletions+=@($receipt);Save-ReleaseJournal
 }
 function Assert-SchemaRestDenied($Db,[string]$Mode,[string]$Id,[string]$Text,[int]$Number,[string]$Message){
  $before=Get-SchemaRestState $Db;$caught=$null
