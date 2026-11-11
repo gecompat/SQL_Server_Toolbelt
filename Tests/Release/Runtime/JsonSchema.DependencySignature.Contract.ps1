@@ -25,6 +25,13 @@ function New-SchemaGuardSignature([string]$Original,$Spec){
  if($first-lt0-or$head.IndexOf($Spec.before,$first+1,[StringComparison]::Ordinal)-ge0){throw 'SCHEMA_GUARD_EXACT_SINGLE_PARAMETER'}
  return $head.Replace($Spec.before,$Spec.after)+$Original.Substring($match.Index)
 }
+function ConvertTo-SchemaGuardAlterCommand([string]$Definition){
+ # SQL Server may store CREATE OR ALTER as CREATE in OBJECT_DEFINITION.
+ $match=[regex]::Match($Definition,'(?im)^(?<Indent>\s*)(?:CREATE(?:\s+OR\s+ALTER)?|ALTER)(?<Space>\s+)PROCEDURE\b')
+ if(-not$match.Success){throw 'SCHEMA_GUARD_EXISTING_PROCEDURE_DDL_REQUIRED'}
+ $replacement=$match.Groups['Indent'].Value+'CREATE OR ALTER'+$match.Groups['Space'].Value+'PROCEDURE'
+ return $Definition.Substring(0,$match.Index)+$replacement+$Definition.Substring($match.Index+$match.Length)
+}
 function Get-SchemaGuardKeys([string]$Mode){
  if($Mode-cnotin@('local','central')){throw 'SCHEMA_GUARD_EXACT_MODE'}
  foreach($spec in Get-SchemaGuardSignatureCases){foreach($op in @('deploy','uninstall')){'signature/'+$spec.id+'/'+$op}}
@@ -81,15 +88,19 @@ function Assert-SchemaGuardDenied($Db,[string]$Mode,[string]$Id,[string]$Text,[i
 function Invoke-SchemaGuardProfiles($Db,[string]$Mode){
  $script:guardConnection=$Db;$script:schemaGuardMode=$Mode
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.baselines.$Mode));Invoke-PinnedLifecycle 'deploy'
+ # Capture the stable existing-object DDL branch, including its catalog text/hash.
+ # This setup is not counted as a new Repeat qualification profile.
+ Invoke-PinnedLifecycle 'deploy'
  $installed=Get-SchemaGuardState $Db
  $original=[string](Read-Scalar $Db "SELECT OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema')) ScalarValue;")
+ $ledger.definitionSnapshots+=@(@{mode=$Mode;scope='owned-public-procedure';definition=$original});Save-ReleaseJournal
  $catalogSql="SELECT parameter_id,name,system_type_id,user_type_id,max_length,[precision],[scale],is_output FROM sys.parameters WHERE object_id=OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') ORDER BY parameter_id;"
  $originalParameters=@(Sql $Db $catalogSql -Rows)
  if($originalParameters.Count-ne12){throw 'SCHEMA_GUARD_ORIGINAL_PUBLIC_PARAMETER_COUNT'}
  foreach($spec in Get-SchemaGuardSignatureCases){
   $changed=New-SchemaGuardSignature $original $spec
   if($changed-ceq$original){throw 'SCHEMA_GUARD_SIGNATURE_NOT_CHANGED'}
-  Invoke-ReleaseBatches $Db $changed;$damaged=Get-SchemaGuardState $Db
+  Invoke-ReleaseBatches $Db (ConvertTo-SchemaGuardAlterCommand $changed);$damaged=Get-SchemaGuardState $Db
   $actualParameters=@(Sql $Db $catalogSql -Rows)
   if($actualParameters.Count-ne12){throw 'SCHEMA_GUARD_ACTUAL_PARAMETER_COUNT'}
   $changedNames=@(for($i=0;$i-lt12;$i++){if(($actualParameters[$i]|ConvertTo-Json -Compress)-cne($originalParameters[$i]|ConvertTo-Json -Compress)){$actualParameters[$i].name}})
@@ -100,7 +111,7 @@ function Invoke-SchemaGuardProfiles($Db,[string]$Mode){
    Assert-SchemaGuardDenied $Db $Mode ('signature/'+$spec.id+'/'+$op) ([IO.File]::ReadAllText($path)) 55633 'JSON Schema lifecycle: öffentliche Parametersignatur inkohärent.'
   }}finally{
    if((Get-SchemaGuardState $Db)-cne$damaged){throw 'SCHEMA_GUARD_SIGNATURE_RESTORE_DRIFT'}
-   Invoke-ReleaseBatches $Db $original
+   Invoke-ReleaseBatches $Db (ConvertTo-SchemaGuardAlterCommand $original)
   }
   if((Get-SchemaGuardState $Db)-cne$installed){throw 'SCHEMA_GUARD_SIGNATURE_ORIGINAL_NOT_RESTORED'}
  }

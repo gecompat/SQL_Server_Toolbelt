@@ -133,6 +133,21 @@ if(-not$caught){throw 'MISSING_PARAMETER_ACCEPTED'}
 """
         result=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    def test_catalog_create_definition_uses_idempotent_alter_command(self):
+        fixture=ROOT/'Tests/Release/Runtime/JsonSchema.DependencySignature.Contract.ps1'
+        script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
+$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
+$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'ConvertTo-SchemaGuardAlterCommand'},$true));if($e.Count-or$n.Count-ne1){throw 'FUNCTION_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text))
+foreach($verb in @('CREATE','ALTER','CREATE OR ALTER')){
+ $input=$verb+" PROCEDURE dbo.Contoso @Value int=1`nAS`nBEGIN SELECT @Value;END;"
+ $expected="CREATE OR ALTER PROCEDURE dbo.Contoso @Value int=1`nAS`nBEGIN SELECT @Value;END;"
+ if((ConvertTo-SchemaGuardAlterCommand $input)-cne$expected){throw 'CATALOG_CREATE_NOT_CONVERTED'}
+}
+$caught=$false;try{ConvertTo-SchemaGuardAlterCommand 'CREATE VIEW dbo.Contoso AS SELECT 1 X;'}catch{$caught=$_.Exception.Message-ceq'SCHEMA_GUARD_EXISTING_PROCEDURE_DDL_REQUIRED'}
+if(-not$caught){throw 'FOREIGN_DDL_ACCEPTED'}
+"""
+        result=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
     def test_fixture_restores_original_typed_values_and_observes_real_consumer(self):
         text=(ROOT/'Tests/Release/Runtime/JsonSchema.DependencySignature.Contract.ps1').read_text(encoding='utf-8-sig')
         self.assertIn('DECLARE @V sql_variant;SELECT @V=value FROM #SchemaGuardCoreMarkers',text)
