@@ -1,5 +1,21 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: Caller-, Sperr- und Fremdslotmatrizen geschlossen — 2026-11-11
+
+Die [nächste Fünfpunktmatrix](../Releases/1.0.0/JSON-SCHEMA-SESSION-LOCK-SLOTS-QUALIFICATION.md)
+belegt gesunde Callertransaktionen bei fehlenden und installierten Modulen,
+Deploy-/Uninstall-Abweisung an beiden Sperrressourcen samt Erfolg nach Freigabe
+und fremde Tabellen an beiden reservierten Slots. Zwölf Windows-/Linux-
+Engine-/CL-Paare lokal/direkt zentral:672 eindeutige Profile,652 neu und20 gültig
+wiederverwendet. Alle zwölf Erstversuche und zwölf frischen Audits PASS;
+alle24 eigenen DBs entfernt, Konfiguration/Trust wiederhergestellt. Gemeinsamer
+Rahmen mit24/28 Aufrufen und24/28 DB-Reservierungen innerhalb45Minuten geschlossen.
+Ein zu breites Receiptlabel positiver Schritte wurde ausschließlich offline
+präzisiert; keine nativen Assertions geändert oder grüne Profile wiederholt.
+Ältere pauschale Offenangaben zu genau diesen Profilmatrizen sind erledigt;
+andere Zustände/Owner-/Rechte-/Identitäts-/Recoverypflichten bleiben getrennt.
+Historische Nachweise unverändert, keine Modulgesamtaufwertung oder Veröffentlichung.
+
 ## JSON Schema: fünf Lifecycle-Grenzen geschlossen — 2026-11-11
 
 Die [aktuelle Fünfpunktmatrix](../Releases/1.0.0/JSON-SCHEMA-FIVE-BOUNDARIES-QUALIFICATION.md)

@@ -1,5 +1,21 @@
 # JSON Schema – Abnahmematrix
 
+## Caller-, Sperr- und Fremdslotmatrizen — 2026-11-11
+
+Die [aktuelle Ergänzung](../../../Releases/1.0.0/JSON-SCHEMA-SESSION-LOCK-SLOTS-QUALIFICATION.md)
+schließt fünf weitere Profilmatrizen auf zwölf unterstützten Windows-/Linux-
+Engine-/CL-Paaren lokal/direkt zentral: gesunde Callertransaktionen mit vier
+XACT_ABORT-/NOCOUNT-Kombinationen ohne/mit Schema, Deploy-/Uninstall-Konflikte
+an beiden Sperrressourcen samt freigegebenem Erfolg und Fremdtabellen an beiden
+reservierten Objektslots. 672 eindeutige Profile, davon20 gültig wiederverwendet;
+zwölf vollständige Erstläufe und zwölf frische Audits PASS. Alle24 eigenen DBs
+entfernt, ursprüngliche Konfiguration/Trust erhalten. Elf Offlinegegenproben
+einschließlich getrennten Positiv-/Abweisungsreceipts und kanonischer Preflight
+bestanden; keine SQL-Wiederholung für die reine Metadatenlabelkorrektur.
+Ältere pauschale Offenangaben gelten für genau diese Profilmatrizen nicht mehr;
+andere Caller-/Recoveryzustände, Owner-/Assembly-/Rechte-/Identitäts- und
+Ressourcenpflichten bleiben separat. Partially validated, unreleased.
+
 ## Aktuelle fünf Lifecycle-Grenzen — 2026-11-11
 
 Die [Fünfpunktmatrix](../../../Releases/1.0.0/JSON-SCHEMA-FIVE-BOUNDARIES-QUALIFICATION.md)
