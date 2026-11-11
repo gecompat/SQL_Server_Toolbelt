@@ -33,6 +33,38 @@ function Get-SchemaBoundaryReusedKeys{
   }
  }
  if($CaseIndex-eq5){'local/reserved/deploy';'local/orphan/DeploymentMode/deploy';'central/arguments/confirm-leading-zero';'central/arguments/central-unconfirmed'}
+ if($runset.PSObject.Properties['partial_tail']){
+  $tail=$runset.partial_tail
+  if($tail.case_index-ne0){throw 'SCHEMA_BOUNDARY_TAIL_CONTEXT'}
+  foreach($binding in @(@{path=$tail.journal;sha256=$tail.journal_sha256},@{path=$tail.audit;sha256=$tail.audit_sha256},@{path=$tail.original_runset;sha256=$tail.original_runset_sha256})){
+   [void](Assert-ReleasePrivatePath $binding.path);Assert-ReleasePin $binding.path $binding.sha256
+   if(@($runset.pins|Where-Object{$_.path-ceq$binding.path-and$_.sha256-ceq$binding.sha256}).Count-ne1){throw 'SCHEMA_BOUNDARY_TAIL_BINDING'}
+  }
+  $old=Get-Content $tail.journal -Raw|ConvertFrom-Json -DateKind String
+  $audit=Get-Content $tail.audit -Raw|ConvertFrom-Json -DateKind String
+  $original=Get-Content $tail.original_runset -Raw|ConvertFrom-Json -DateKind String
+  if($old.state-cne'FAILED_CLEANED'-or$audit.state-cne'COMPLETE'-or$audit.originalRunPassed-ne$false-or$audit.originalJournalSHA256-cne$tail.journal_sha256-or-not$audit.databaseAbsence-or-not$audit.serverConfigurationAndTrustUnchanged-or-not$audit.postPins){throw 'SCHEMA_BOUNDARY_TAIL_FRESH_CLEANUP_REQUIRED'}
+  if($original.contract_sha256-cne$runset.contract_sha256){throw 'SCHEMA_BOUNDARY_TAIL_CONTRACT_DRIFT'}
+  $fixture=Join-Path $repo 'Tests/Release/Runtime/JsonSchema.Boundaries.Contract.ps1'
+  $caps=@($original.source_capsules|Where-Object originalPath -CEQ $fixture)
+  if($caps.Count-ne1){throw 'SCHEMA_BOUNDARY_TAIL_ORIGINAL_ORACLES_REQUIRED'}
+  [void](Assert-ReleasePrivatePath $caps[0].snapshotPath);Assert-ReleasePin $caps[0].snapshotPath $caps[0].sha256
+  $e=$null;$beforeAst=[Management.Automation.Language.Parser]::ParseFile($caps[0].snapshotPath,[ref]$null,[ref]$e);if($e.Count){throw 'SCHEMA_BOUNDARY_TAIL_PARSE'}
+  $afterAst=[Management.Automation.Language.Parser]::ParseFile($fixture,[ref]$null,[ref]$e);if($e.Count){throw 'SCHEMA_BOUNDARY_TAIL_PARSE'}
+  foreach($name in @('Assert-SchemaBoundaryDenied','Test-SchemaBoundaryError','Get-SchemaBoundaryState')){
+   $left=@($beforeAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+   $right=@($afterAst.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+   if($left.Count-ne1-or$right.Count-ne1-or$left[0].Extent.Text.Replace("`r`n","`n")-cne$right[0].Extent.Text.Replace("`r`n","`n")){throw 'SCHEMA_BOUNDARY_TAIL_ORACLE_DRIFT'}
+  }
+  foreach($pin in @($original.pins|Where-Object{$_.path.StartsWith((Join-Path $repo 'Modules')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)})){
+   Assert-ReleasePin $pin.path $pin.sha256
+   if(@($runset.pins|Where-Object{$_.path-ceq$pin.path-and$_.sha256-ceq$pin.sha256}).Count-ne1){throw 'SCHEMA_BOUNDARY_TAIL_PRODUCT_DRIFT'}
+  }
+  $expected=@('local/reserved/deploy','local/orphan/Version/deploy','local/orphan/Version/uninstall','local/orphan/DeploymentMode/deploy','local/orphan/DeploymentMode/uninstall')|Sort-Object
+  $actual=@($old.profileCompletions|ForEach-Object{$_.mode+'/'+$_.id}|Sort-Object)
+  if(@($old.profileCompletions|Where-Object passed -NE $true).Count-or($actual-join'|')-cne($expected-join'|')){throw 'SCHEMA_BOUNDARY_TAIL_EXACT_PREFIX'}
+  if($CaseIndex-eq0){$actual}
+ }
 }
 function Get-SchemaBoundaryState($Db){
  $types=@(Sql $Db @'
@@ -80,6 +112,7 @@ function Invoke-SchemaBoundaryProfiles($Db,[string]$Mode){
   }finally{Sql $Db 'DROP TABLE #tbx_JsonSchema_DeployState;'}
  }
  foreach($suffix in @('Version','DeploymentMode')){
+  if(@('deploy','uninstall'|Where-Object{($Mode+'/orphan/'+$suffix+'/'+$_)-cnotin$script:schemaBoundaryExcluded}).Count-eq0){continue}
   $name='Toolbelt.Module.toolbelt.json.schema.'+$suffix;$value=if($suffix-ceq'Version'){'1.0.1'}else{$Mode}
   Sql $Db 'DECLARE @TypedValue nvarchar(16)=@Value;EXEC sys.sp_addextendedproperty @name=@Name,@value=@TypedValue;' @{'@Name'=$name;'@Value'=$value}
   $damaged=Get-SchemaBoundaryState $Db
@@ -99,7 +132,7 @@ function Invoke-SchemaBoundaryProfiles($Db,[string]$Mode){
  $known=@(Sql $Db "SELECT a.permission_set,a.is_visible,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) H FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_JsonSchema';" -Rows)
  if($known.Count-ne1-or$known[0].permission_set-ne1-or-not$known[0].is_visible-or$known[0].H-cne(Get-FileHash $binary -Algorithm SHA512).Hash){throw 'SCHEMA_BOUNDARY_CURRENT_KNOWN_SCHEMA_REQUIRED'}
  $installed=Get-SchemaBoundaryState $Db
- Sql $Db "SELECT class,major_id,name,value INTO #SchemaBoundaryOriginalMarkers FROM sys.extended_properties WHERE (class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema')) OR (class=1 AND major_id IN(OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema'),OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal')));"
+ Sql $Db "SELECT class,major_id,name,value INTO #SchemaBoundaryOriginalMarkers FROM sys.extended_properties WHERE (class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema')) OR (class=1 AND name IN(N'Toolbelt.ModuleId',N'Toolbelt.ModuleVersion',N'Toolbelt.DeploymentMode') AND major_id IN(OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema'),OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal')));"
  if([int](Read-Scalar $Db 'SELECT COUNT(*) ScalarValue FROM #SchemaBoundaryOriginalMarkers;')-ne12){throw 'SCHEMA_BOUNDARY_TWELVE_ORIGINAL_MARKERS_REQUIRED'}
  foreach($group in @('typed','ownership')){
   $slots=if($group-ceq'typed'){@('Toolbelt_JsonSchema')}else{@('USP_ValidateJsonSchema','FT_ValidateJsonSchemaInternal')}

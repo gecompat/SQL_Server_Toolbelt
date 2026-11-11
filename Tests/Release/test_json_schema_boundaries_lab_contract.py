@@ -129,6 +129,16 @@ foreach($mode in @('local','central')){
         path=Path(self.record['argument_scripts'][0]['path']);path.write_text('SELECT 1;',encoding='utf-8')
         r=copy.deepcopy(self.record);next(p for p in r['pins'] if p['path']==str(path))['sha256']=hashlib.sha256(path.read_bytes()).hexdigest().upper()
         self.assertNotEqual(self.admission(r).returncode,0)
+    def test_original_marker_copy_excludes_additional_object_properties(self):
+        fixture=(ROOT/'Tests/Release/Runtime/JsonSchema.Boundaries.Contract.ps1').read_text(encoding='utf-8-sig')
+        deployment=(ROOT/'Modules/toolbelt.json.schema/Deployment/Deploy.sql').read_text(encoding='utf-8-sig')
+        self.assertIn("N'Toolbelt.ContractVersion'",deployment)
+        self.assertIn("N'Toolbelt.SourceHash'",deployment)
+        self.assertIn("class=1 AND name IN(N'Toolbelt.ModuleId',N'Toolbelt.ModuleVersion',N'Toolbelt.DeploymentMode')",fixture)
+        self.assertIn("COUNT(*) ScalarValue FROM #SchemaBoundaryOriginalMarkers;')-ne12",fixture)
+    def test_partial_tail_requires_original_context_and_bindings(self):
+        self.reject(lambda r:r.update(partial_tail={'case_index':1}))
+        self.reject(lambda r:r.update(partial_tail={'case_index':0}))
     def test_exact_five_point_coverage_and_error_oracles(self):
         fixture=ROOT/'Tests/Release/Runtime/JsonSchema.Boundaries.Contract.ps1'
         script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
