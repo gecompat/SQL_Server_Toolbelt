@@ -138,7 +138,7 @@ if(-not$caught){throw 'MISSING_PARAMETER_ACCEPTED'}
         script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
 $e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
 $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'ConvertTo-SchemaGuardAlterCommand'},$true));if($e.Count-or$n.Count-ne1){throw 'FUNCTION_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text))
-foreach($verb in @('CREATE','ALTER','CREATE OR ALTER')){
+foreach($verb in @('CREATE','ALTER','CREATE OR ALTER','CREATE  ','CREATE    ')){
  $input=$verb+" PROCEDURE dbo.Contoso @Value int=1`nAS`nBEGIN SELECT @Value;END;"
  $expected="CREATE OR ALTER PROCEDURE dbo.Contoso @Value int=1`nAS`nBEGIN SELECT @Value;END;"
  if((ConvertTo-SchemaGuardAlterCommand $input)-cne$expected){throw 'CATALOG_CREATE_NOT_CONVERTED'}
@@ -167,6 +167,12 @@ if($rows.Count-ne92-or-not(Test-SchemaGuardCoverage $rows)){throw 'COVERAGE_GOLD
 if(Test-SchemaGuardCoverage @($rows[1..91])){throw 'MISSING_PROFILE_ACCEPTED'}
 if(Test-SchemaGuardCoverage @($rows+$rows[0])){throw 'DUPLICATE_PROFILE_ACCEPTED'}
 if(Test-SchemaGuardCoverage $rows @('local/signature/Json/deploy')){throw 'UNAUTHORISED_PROFILE_EXCLUSION'}
+$excluded=@('local/signature/Json/deploy','local/signature/Json/uninstall');$tail=@($rows|Where-Object{($_.mode+'/'+$_.id)-cnotin$excluded})
+if($tail.Count-ne90-or-not(Test-SchemaGuardCoverage $tail $excluded)){throw 'BOUND_TAIL_COVERAGE'}
+if(Test-SchemaGuardCoverage $tail){throw 'TAIL_PROMOTED_TO_FULL'}
+if(Test-SchemaGuardCoverage $rows $excluded){throw 'GREEN_PREFIX_REPEATED'}
+if(Test-SchemaGuardCoverage $tail @('unknown')){throw 'UNKNOWN_REUSE'}
+if(Test-SchemaGuardCoverage $tail @($excluded+$excluded)){throw 'DUPLICATE_REUSE'}
 $rows[0].passed=$false;if(Test-SchemaGuardCoverage $rows){throw 'FAILED_PROFILE_ACCEPTED'}
 $good=[pscustomobject]@{Number=55623;State=1;Class=16;Message='Contoso exact error'}
 if(-not(Test-SchemaGuardError @($good) 55623 'Contoso exact error')){throw 'ERROR_GOLDEN'}

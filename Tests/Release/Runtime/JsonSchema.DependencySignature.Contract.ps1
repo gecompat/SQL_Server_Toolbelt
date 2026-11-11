@@ -29,7 +29,8 @@ function ConvertTo-SchemaGuardAlterCommand([string]$Definition){
  # SQL Server may store CREATE OR ALTER as CREATE in OBJECT_DEFINITION.
  $match=[regex]::Match($Definition,'(?im)^(?<Indent>\s*)(?:CREATE(?:\s+OR\s+ALTER)?|ALTER)(?<Space>\s+)PROCEDURE\b')
  if(-not$match.Success){throw 'SCHEMA_GUARD_EXISTING_PROCEDURE_DDL_REQUIRED'}
- $replacement=$match.Groups['Indent'].Value+'CREATE OR ALTER'+$match.Groups['Space'].Value+'PROCEDURE'
+ # Do not carry catalog padding from removed OR/ALTER tokens into a new command.
+ $replacement=$match.Groups['Indent'].Value+'CREATE OR ALTER PROCEDURE'
  return $Definition.Substring(0,$match.Index)+$replacement+$Definition.Substring($match.Index+$match.Length)
 }
 function Get-SchemaGuardKeys([string]$Mode){
@@ -41,10 +42,38 @@ function Get-SchemaGuardKeys([string]$Mode){
  foreach($op in @('deploy','uninstall')){'bridge-consumer/'+$op}
 }
 function Test-SchemaGuardCoverage($Rows,[string[]]$Excluded=@()){
- if($Excluded.Count){return $false}
- $expected=@(foreach($mode in @('local','central')){foreach($id in Get-SchemaGuardKeys $mode){$mode+'/'+$id}})|Sort-Object
+ $all=@(foreach($mode in @('local','central')){foreach($id in Get-SchemaGuardKeys $mode){$mode+'/'+$id}})
+ if(@($Excluded|Select-Object -Unique).Count-ne$Excluded.Count-or@($Excluded|Where-Object{$_-cnotin$all}).Count){return $false}
+ $expected=@($all|Where-Object{$_-cnotin$Excluded}|Sort-Object)
  $actual=@($Rows|ForEach-Object{$_.mode+'/'+$_.id}|Sort-Object)
- return [bool](@($Rows).Count-eq92-and@($Rows|Where-Object passed -NE $true).Count-eq0-and($expected-join'|')-ceq($actual-join'|'))
+ return [bool](@($Rows).Count-eq(92-$Excluded.Count)-and@($Rows|Where-Object passed -NE $true).Count-eq0-and($expected-join'|')-ceq($actual-join'|'))
+}
+function Get-SchemaGuardReusedKeys{
+ if(-not$runset.PSObject.Properties['partial_tail']){return}
+ $tail=$runset.partial_tail;if($tail.case_index-ne0){throw 'SCHEMA_GUARD_TAIL_CONTEXT'}
+ foreach($binding in @(@{path=$tail.journal;sha256=$tail.journal_sha256},@{path=$tail.audit;sha256=$tail.audit_sha256},@{path=$tail.original_runset;sha256=$tail.original_runset_sha256})){
+  [void](Assert-ReleasePrivatePath $binding.path);Assert-ReleasePin $binding.path $binding.sha256
+  if(@($runset.pins|Where-Object{$_.path-ceq$binding.path-and$_.sha256-ceq$binding.sha256}).Count-ne1){throw 'SCHEMA_GUARD_TAIL_PIN'}
+ }
+ $old=Get-Content $tail.journal -Raw|ConvertFrom-Json -DateKind String;$audit=Get-Content $tail.audit -Raw|ConvertFrom-Json -DateKind String
+ $prior=Get-Content $tail.original_runset -Raw|ConvertFrom-Json -DateKind String
+ if($old.state-cne'FAILED_CLEANED'-or$old.failure.privateDiagnostic-cne'SCHEMA_GUARD_SIGNATURE_ORIGINAL_NOT_RESTORED'-or$audit.state-cne'COMPLETE'-or$audit.originalRunPassed-ne$false-or$audit.originalJournalSHA256-cne$tail.journal_sha256-or-not$audit.databaseAbsence-or-not$audit.serverConfigurationAndTrustUnchanged-or-not$audit.postPins){throw 'SCHEMA_GUARD_TAIL_ORIGINAL_CLEANUP'}
+ if($prior.contract_sha256-cne$runset.contract_sha256){throw 'SCHEMA_GUARD_TAIL_TARGET_DRIFT'}
+ foreach($pin in $prior.pins|Where-Object{$_.path.StartsWith((Join-Path $repo 'Modules')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)}){
+  Assert-ReleasePin $pin.path $pin.sha256;if(@($runset.pins|Where-Object{$_.path-ceq$pin.path-and$_.sha256-ceq$pin.sha256}).Count-ne1){throw 'SCHEMA_GUARD_TAIL_PRODUCT_DRIFT'}
+ }
+ $fixture=Join-Path $repo 'Tests/Release/Runtime/JsonSchema.DependencySignature.Contract.ps1'
+ $caps=@($prior.source_capsules|Where-Object originalPath -CEQ $fixture);if($caps.Count-ne1){throw 'SCHEMA_GUARD_TAIL_ORIGINAL_ORACLES'}
+ [void](Assert-ReleasePrivatePath $caps[0].snapshotPath);Assert-ReleasePin $caps[0].snapshotPath $caps[0].sha256
+ $e=$null;$before=[Management.Automation.Language.Parser]::ParseFile($caps[0].snapshotPath,[ref]$null,[ref]$e);if($e.Count){throw 'SCHEMA_GUARD_TAIL_PARSE'}
+ $after=[Management.Automation.Language.Parser]::ParseFile($fixture,[ref]$null,[ref]$e);if($e.Count){throw 'SCHEMA_GUARD_TAIL_PARSE'}
+ foreach($name in @('Get-SchemaGuardState','Assert-SchemaGuardDenied','Test-SchemaGuardError','Add-SchemaGuardReceipt','New-SchemaGuardSignature')){
+  $left=@($before.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true));$right=@($after.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+  if($left.Count-ne1-or$right.Count-ne1-or$left[0].Extent.Text.Replace("`r`n","`n")-cne$right[0].Extent.Text.Replace("`r`n","`n")){throw 'SCHEMA_GUARD_TAIL_REUSED_ORACLE_CHANGED'}
+ }
+ $keys=@($old.profileCompletions|ForEach-Object{$_.mode+'/'+$_.id}|Sort-Object)
+ if(@($old.profileCompletions|Where-Object passed -NE $true).Count-or($keys-join'|')-cne'local/signature/Json/deploy|local/signature/Json/uninstall'){throw 'SCHEMA_GUARD_TAIL_EXACT_PREFIX'}
+ if($CaseIndex-eq0){$keys}
 }
 function Get-SchemaGuardState($Db){
  $types=@(Sql $Db @'
@@ -98,6 +127,7 @@ function Invoke-SchemaGuardProfiles($Db,[string]$Mode){
  $originalParameters=@(Sql $Db $catalogSql -Rows)
  if($originalParameters.Count-ne12){throw 'SCHEMA_GUARD_ORIGINAL_PUBLIC_PARAMETER_COUNT'}
  foreach($spec in Get-SchemaGuardSignatureCases){
+  if(@('deploy','uninstall'|Where-Object{($Mode+'/signature/'+$spec.id+'/'+$_)-cnotin$script:schemaGuardExcluded}).Count-eq0){continue}
   $changed=New-SchemaGuardSignature $original $spec
   if($changed-ceq$original){throw 'SCHEMA_GUARD_SIGNATURE_NOT_CHANGED'}
   Invoke-ReleaseBatches $Db (ConvertTo-SchemaGuardAlterCommand $changed);$damaged=Get-SchemaGuardState $Db

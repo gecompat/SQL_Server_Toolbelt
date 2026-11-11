@@ -127,7 +127,7 @@ try{
   if([IO.File]::ReadAllText($runset.baselines.$mode)-cne($parts-join"`nGO`n")){throw 'SCHEMA_GUARD_CANONICAL_DEPENDENCIES_REQUIRED'}
  }
  . ($fixtures[0])
- $script:schemaGuardExcluded=@()
+ $script:schemaGuardExcluded=@(Get-SchemaGuardReusedKeys)
  $expectedCallerRows=0
 
  if($ValidateOnly){'PASS SCHEMA_GUARD_OFFLINE_ADMISSION; no Lab import or SQL';return}
