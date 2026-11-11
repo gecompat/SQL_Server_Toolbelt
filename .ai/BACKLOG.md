@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: Dependency- und Signaturguards geschlossen — 2026-11-11
+
+Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-SCHEMA-DEPENDENCY-SIGNATURE-QUALIFICATION.md)
+belegt öffentliche Parameterdrift, delegierte Core-Markertupel, ResultTable-
+Metadatendrift, verwaiste Constructorregistrierung und interne Bridge-Consumer
+auf24 Windows-/Linux-Kontexten lokal/direkt zentral:1104 eindeutige Profile,
+davon46 gültige erhaltene Teilprofile. Drei ursprüngliche Koordinatoren bleiben
+FAILED_CLEANED. Alle15 frischen Audits PASS; alle26 eigenen DBs entfernt,
+Konfiguration/Trust wiederhergestellt. Ursprüngliche28/28-Aufrufe-/28-DB-Welle
+und ausdrücklich separat genehmigter2-Aufrufe-/1-DB-Restlauf jeweils innerhalb
+ihrer45Minuten geschlossen; keine Grenzen erneuert oder grünen Profile wiederholt.
+Die fünf genannten Lücken sind erledigt; übrige Owner-/Rechte-/Identitäts-/
+Binding-/Recoverypflichten bleiben getrennt. Historische Nachweise unverändert,
+keine Modulgesamtaufwertung, Produktänderung oder Veröffentlichung.
+
 ## JSON Schema: Caller-, Sperr- und Fremdslotmatrizen geschlossen — 2026-11-11
 
 Die [nächste Fünfpunktmatrix](../Releases/1.0.0/JSON-SCHEMA-SESSION-LOCK-SLOTS-QUALIFICATION.md)

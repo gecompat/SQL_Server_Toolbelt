@@ -1,5 +1,22 @@
 # JSON Schema – Abnahmematrix
 
+## Dependency- und Signaturguards — 2026-11-11
+
+Die [aktuelle Fünfpunktmatrix](../../../Releases/1.0.0/JSON-SCHEMA-DEPENDENCY-SIGNATURE-QUALIFICATION.md)
+schließt einzelne Driftvarianten aller zwölf öffentlichen Parameter, sechs
+Core-Markertupel im tatsächlichen Schema-Aufrufpfad, fünf ResultTable-
+Metadatenvarianten, drei verwaiste Constructorregistrierungen ohne Assembly
+und einen fremden internen Bridge-Consumer. 24 lokale/direkt zentrale
+Windows-/Linux-Kontexte,1104 eindeutige Profile,46 gültige Teilprofile
+wiederverwendet; drei originale Koordinatorfehler bleiben erhalten. Alle15
+frischen Audits PASS, alle26 eigenen DBs entfernt, Konfiguration/Trust
+wiederhergestellt. Ursprünglicher28-Aufrufe-Rahmen und separat genehmigter
+zentraler2-Aufrufe-/1-DB-Rest jeweils geschlossen; keine grünen Wiederholungen.
+Zwölf Matrix- und vier Restadapter-Offlinegegenproben samt kanonischen Preflights
+bestanden. Frühere pauschale Offenangaben gelten für genau diese Varianten
+nicht mehr; andere Owner-/Binding-/Rechte-/Recoverypflichten bleiben separat.
+Partially validated, unreleased; keine Produkt-/Rechteänderung oder Veröffentlichung.
+
 ## Caller-, Sperr- und Fremdslotmatrizen — 2026-11-11
 
 Die [aktuelle Ergänzung](../../../Releases/1.0.0/JSON-SCHEMA-SESSION-LOCK-SLOTS-QUALIFICATION.md)

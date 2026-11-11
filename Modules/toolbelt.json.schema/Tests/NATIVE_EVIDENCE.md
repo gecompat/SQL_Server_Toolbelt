@@ -1,5 +1,15 @@
 # Begrenzte native JSON-Closure-Qualifikation
 
+Aktuelle [Dependency-/Signaturmatrix2026-11-11](../../../Releases/1.0.0/JSON-SCHEMA-DEPENDENCY-SIGNATURE-QUALIFICATION.md):
+1104 eindeutige Profile auf24 lokalen/direkt zentralen Windows-/Linux-Kontexten.
+46 gültige Teilprofile unverändert verwendet; drei ursprüngliche Koordinatoren
+bleiben FAILED_CLEANED. Alle15 frischen Audits PASS, alle26 eigenen DBs und30
+eigenen Trusteinträge entfernt, acht Konfigurationsänderungen wiederhergestellt.
+Ursprüngliche28/28-Aufrufe-/28-DB-Welle geschlossen; danach separat ausdrücklich
+genehmigter2/2-Aufrufe-/1-DB-Rest für46 zentrale SQL2019-Profile bestanden.
+Keine alten Grenzen erneuert, keine grünen Profile wiederholt oder gesamte
+Schema-Modulqualifikation behauptet. Private Originale erhalten, unveröffentlicht.
+
 Aktuelle [Caller-/Lock-/Slotmatrix2026-11-11](../../../Releases/1.0.0/JSON-SCHEMA-SESSION-LOCK-SLOTS-QUALIFICATION.md):
 24 lokale/direkt zentrale Windows-/Linux-Kontexte,672 eindeutige Profile,
 davon652 neu nativ und20 gültig wiederverwendet. Alle zwölf ursprünglichen
