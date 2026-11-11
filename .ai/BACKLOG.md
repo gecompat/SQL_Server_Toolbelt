@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: fünf Lifecycle-Grenzen geschlossen — 2026-11-11
+
+Die [aktuelle Fünfpunktmatrix](../Releases/1.0.0/JSON-SCHEMA-FIVE-BOUNDARIES-QUALIFICATION.md)
+schließt verwaiste DB-Marker, typisierte Assemblymarker, objektgenaue
+Ownershipmarker, reservierte Deploy-Temp-Tabelle und exakte Modus-/Consumer-
+Eingabegrenzen auf24 lokalen/direkt zentralen Windows-/Linux-Kontexten:
+828 eindeutige Profile, davon vier gültig historisch wiederverwendet.
+Der erste Fehler bleibt FAILED_CLEANED; seine fünf bestandenen Profile wurden
+nicht wiederholt. Alle13 frischen Audits PASS; alle25 angelegten eigenen DBs
+entfernt, Konfiguration/Trust wiederhergestellt. Der gemeinsame Rahmen ist
+mit26/28 Aufrufen und26/28 DB-Reservierungen innerhalb45Minuten geschlossen.
+Ältere pauschale Offenangaben sind für genau diese fünf Grenzen erledigt;
+übrige Lifecycle-/Rechte-/Identitäts-/Recoverypflichten und historische
+Nachweise bleiben getrennt. Keine Produkt-/Rechteänderung oder Veröffentlichung.
+
 Die [aktuelle direkte Vorgängermatrix](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
 belegt fünf echte öffentliche Versionen 2.0.0/3.0.0/3.1.0/4.0.0/4.1.0
 gegen 4.1.1 auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:
