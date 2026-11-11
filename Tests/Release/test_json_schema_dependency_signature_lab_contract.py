@@ -159,7 +159,7 @@ if(-not$caught){throw 'FOREIGN_DDL_ACCEPTED'}
         fixture=ROOT/'Tests/Release/Runtime/JsonSchema.DependencySignature.Contract.ps1'
         script="$ErrorActionPreference='Stop';$path='"+str(fixture).replace("'","''")+"';"+r"""
 $e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
-foreach($name in @('Get-SchemaGuardSignatureCases','Get-SchemaGuardKeys','Test-SchemaGuardCoverage','Test-SchemaGuardError')){
+foreach($name in @('Get-SchemaGuardSignatureCases','Get-SchemaGuardKeys','Test-SchemaGuardCoverage','Test-SchemaGuardModeCoverage','Test-SchemaGuardError')){
  $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));if($e.Count-or$n.Count-ne1){throw 'FUNCTION_SOURCE'};. ([scriptblock]::Create($n[0].Extent.Text))
 }
 $rows=@(foreach($mode in @('local','central')){foreach($id in Get-SchemaGuardKeys $mode){[pscustomobject]@{mode=$mode;id=$id;passed=$true}}})
@@ -173,6 +173,9 @@ if(Test-SchemaGuardCoverage $tail){throw 'TAIL_PROMOTED_TO_FULL'}
 if(Test-SchemaGuardCoverage $rows $excluded){throw 'GREEN_PREFIX_REPEATED'}
 if(Test-SchemaGuardCoverage $tail @('unknown')){throw 'UNKNOWN_REUSE'}
 if(Test-SchemaGuardCoverage $tail @($excluded+$excluded)){throw 'DUPLICATE_REUSE'}
+if(-not(Test-SchemaGuardModeCoverage $tail 'local' $excluded)){throw 'REUSED_MODE_PREFIX_COUNTED_TWICE'}
+if(Test-SchemaGuardModeCoverage $tail 'local'){throw 'MISSING_MODE_PROFILES_ACCEPTED'}
+if(-not(Test-SchemaGuardModeCoverage $rows 'central')){throw 'CENTRAL_MODE_COVERAGE'}
 $rows[0].passed=$false;if(Test-SchemaGuardCoverage $rows){throw 'FAILED_PROFILE_ACCEPTED'}
 $good=[pscustomobject]@{Number=55623;State=1;Class=16;Message='Contoso exact error'}
 if(-not(Test-SchemaGuardError @($good) 55623 'Contoso exact error')){throw 'ERROR_GOLDEN'}

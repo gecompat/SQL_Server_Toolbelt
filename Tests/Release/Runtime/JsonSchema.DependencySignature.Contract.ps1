@@ -48,6 +48,11 @@ function Test-SchemaGuardCoverage($Rows,[string[]]$Excluded=@()){
  $actual=@($Rows|ForEach-Object{$_.mode+'/'+$_.id}|Sort-Object)
  return [bool](@($Rows).Count-eq(92-$Excluded.Count)-and@($Rows|Where-Object passed -NE $true).Count-eq0-and($expected-join'|')-ceq($actual-join'|'))
 }
+function Test-SchemaGuardModeCoverage($Rows,[string]$Mode,[string[]]$Excluded=@()){
+ $expected=@(Get-SchemaGuardKeys $Mode|Where-Object{($Mode+'/'+$_)-cnotin$Excluded}|Sort-Object)
+ $actual=@($Rows|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
+ return [bool](@($Rows|Where-Object{$_.mode-ceq$Mode-and$_.passed-ne$true}).Count-eq0-and($actual-join'|')-ceq($expected-join'|'))
+}
 function Get-SchemaGuardReusedKeys{
  if(-not$runset.PSObject.Properties['partial_tail']){return}
  $tail=$runset.partial_tail;if($tail.case_index-ne0){throw 'SCHEMA_GUARD_TAIL_CONTEXT'}
@@ -205,8 +210,6 @@ EXEC sys.sp_updateextendedproperty @name=@Name,@value=@Bad,@level0type=N'ASSEMBL
   Sql $Db 'DROP VIEW dbo.ContosoSchemaBridgeConsumer;'
  }
  if((Get-SchemaGuardState $Db)-cne$installed){throw 'SCHEMA_GUARD_FINAL_ORIGINAL_NOT_RESTORED'}
- $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
- $expected=@(Get-SchemaGuardKeys $Mode|Sort-Object)
- if(($actual-join'|')-cne($expected-join'|')){throw 'SCHEMA_GUARD_EXACT_FIVE_POINT_COVERAGE'}
+ if(-not(Test-SchemaGuardModeCoverage $ledger.profileCompletions $Mode $script:schemaGuardExcluded)){throw 'SCHEMA_GUARD_EXACT_FIVE_POINT_COVERAGE'}
  Invoke-PinnedLifecycle 'uninstall';Assert-CoreLockNeutral $Db
 }
