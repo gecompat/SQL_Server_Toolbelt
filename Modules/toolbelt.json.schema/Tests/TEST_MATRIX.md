@@ -296,3 +296,20 @@ und keine grünen OFF/OFF- oder Missing-Modulprofile wiederholt. Keine Builds,
 Produkt-/Manifeständerungen, Grants/Principals/Owner-/Konfig-/Lab-/Datei-I/O.
 Weitere Ziel-/SET-/Lifecycle-/Rechte-/Recoverypflichten bleiben eigenständig.
 Keine Veröffentlichung oder Tags; private Originale erhalten.
+
+## Binary-, Registrierungs- und CL-Guards — 2026-11-12
+
+Der [gemeinsame Core-/Schema-Nachweis](../../../Releases/1.0.0/JSON-LIFECYCLE-BINARY-REGISTRATION-QUALIFICATION.md)
+schließt fünf Restmatrizen: ungültige Zielbytes beider Deploy-Einstiege,
+installierte DB-Version-/Modusdrift bei Deploy/Uninstall und tatsächliche
+CL140-Abweisung aller vier Lifecycleeinstiege. 816 eindeutige Profile auf24
+lokalen/direkt zentralen Windows-/Linux-Kontexten; zwölf Erstläufe und zwölf
+frische unabhängige Audits PASS. Alle24 eigenen DBs/Trusteinträge entfernt,
+fünf eigene Konfigurationsänderungen zurückgenommen. CL140 je physischer
+Engine/Modus einmal geprüft, keine identischen Wiederholungen bei höheren
+Ausgangs-CLs. Zwölf Offlinegegenproben und kanonischer Preflight bestanden.
+24/32 Aufrufe und24/32 DB-Reservierungen innerhalb60Minuten geschlossen.
+Frühere pauschale Drift-/CL-Offenangaben gelten für genau diese Varianten
+nicht mehr; andere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben getrennt.
+Historische Abschnitte und generierte Evidenz unverändert; Module weiterhin
+partially validated, unreleased. Keine Produkt-/Rechteänderung oder Veröffentlichung.
