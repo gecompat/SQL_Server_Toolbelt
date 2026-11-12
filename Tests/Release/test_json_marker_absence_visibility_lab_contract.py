@@ -28,7 +28,7 @@ class MarkerAbsenceTests(unittest.TestCase):
     def test_profile_closure_typed_restore_and_exact_mutation_scope(self):
         script="$ErrorActionPreference='Stop';$repo='"+str(ROOT).replace("'","''")+"';$path='"+str(FIXTURE).replace("'","''")+"';"+r"""
 $e=$null;$ast=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e);if($e.Count){throw 'PARSE'}
-foreach($name in @('Get-MarkerAbsenceSpecs','Get-LifecycleGuardKeys','Get-MarkerAbsenceError','Get-MarkerAbsenceParameters')){
+foreach($name in @('Get-MarkerAbsenceSpecs','Get-LifecycleGuardKeys','Get-MarkerAbsenceError','Get-MarkerAbsenceParameters','Test-MarkerVisibilityEngineError','Test-MarkerAbsencePrefix')){
  $n=@($ast.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));if($n.Count-ne1){throw 'FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
 }
 $specs=@(Get-MarkerAbsenceSpecs);if($specs.Count-ne18){throw 'SPEC_CLOSURE'}
@@ -48,17 +48,26 @@ $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitio
 foreach($cl in @(150,160,170)){
  $case=[pscustomobject]@{CL=$cl}
  $rows=@(foreach($mode in @('local','central')){foreach($id in Get-LifecycleGuardKeys $mode $cl){[pscustomobject]@{mode=$mode;id=$id;passed=$true}}})
- if($rows.Count-ne156-or-not(Test-LifecycleGuardCoverage $rows)){throw 'FULL_CLOSURE'}
- if(Test-LifecycleGuardCoverage @($rows[1..155])){throw 'MISSING_ACCEPTED'}
+ if($rows.Count-ne154-or-not(Test-LifecycleGuardCoverage $rows)){throw 'FULL_CLOSURE'}
+ if(Test-LifecycleGuardCoverage @($rows[1..153])){throw 'MISSING_ACCEPTED'}
  if(Test-LifecycleGuardCoverage @($rows+$rows[0])){throw 'DUPLICATE_ACCEPTED'}
  $rows[0].passed=$false;if(Test-LifecycleGuardCoverage $rows){throw 'FAILURE_ACCEPTED'}
 }
+$prefix=@(Get-LifecycleGuardKeys 'local' 150|Where-Object{$_-cne'visibility/schema/engine-denied'}|ForEach-Object{[pscustomobject]@{mode='local';id=$_;passed=$true;snapshotPreserved=$true}})
+if(-not(Test-MarkerAbsencePrefix $prefix)){throw 'PREFIX_GOLDEN'}
+if(Test-MarkerAbsencePrefix @($prefix[1..75])){throw 'PREFIX_MISSING_ACCEPTED'}
+if(Test-MarkerAbsencePrefix @($prefix+$prefix[0])){throw 'PREFIX_DUPLICATE_ACCEPTED'}
+$prefix[0].snapshotPreserved=$false;if(Test-MarkerAbsencePrefix $prefix){throw 'PREFIX_FAILED_RESTORE_ACCEPTED'}
 $text=[IO.File]::ReadAllText($path)
 if($text-notmatch'permission_set,is_visible'-or-not$text.Contains('$script:markerAbsenceBaseState')){throw 'CORE_AND_SCHEMA_VISIBILITY_SNAPSHOT_REQUIRED'}
 if($text-notmatch'@V sql_variant'-or$text-notmatch'sp_addextendedproperty'-or$text-notmatch'sp_updateextendedproperty'-or$text-notmatch'RESTORE_DRIFT'){throw 'TYPED_RESTORE_REQUIRED'}
 $alters=@([regex]::Matches($text,'ALTER ASSEMBLY \[Toolbelt_Json(Core|Schema)\] WITH VISIBILITY=(ON|OFF);'))
-if($alters.Count-ne4-or$text-match'(?i)PERMISSION_SET\s*=|ALTER\s+AUTHORIZATION|\b(GRANT|DENY|REVOKE)\b'){throw 'VISIBILITY_ONLY_SCOPE'}
-'MARKER_ABSENCE_ORACLES_PASS'
+if($alters.Count-ne3-or$text-match'(?i)PERMISSION_SET\s*=|ALTER\s+AUTHORIZATION|\b(GRANT|DENY|REVOKE)\b'){throw 'VISIBILITY_ONLY_SCOPE'}
+$good=[pscustomobject]@{Number=6284;Class=16;Message="ALTER ASSEMBLY failed because it is referenced by object 'FT_ValidateJsonSchemaInternal'. Assemblies that are referenced by SQL objects cannot be made invisible."}
+if(-not(Test-MarkerVisibilityEngineError @($good))){throw 'ENGINE_GOLDEN'}
+if(Test-MarkerVisibilityEngineError @($good,$good)){throw 'ENGINE_DUPLICATE_ACCEPTED'}
+$good.Number=55633;if(Test-MarkerVisibilityEngineError @($good)){throw 'ENGINE_WRONG_ERROR_ACCEPTED'}
+'MARKER_ABSENCE_ORACLES_PASS' 
 """
         r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)
