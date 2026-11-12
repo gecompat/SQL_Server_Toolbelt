@@ -1,5 +1,19 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Core/Schema: Binary-, Registrierungs- und CL-Guards geschlossen — 2026-11-12
+
+Die [Fünfpunktmatrix](../Releases/1.0.0/JSON-LIFECYCLE-BINARY-REGISTRATION-QUALIFICATION.md)
+belegt ungültige Zielbytes durch beide öffentlichen Deploy-Einstiege,
+installierte DB-Version-/Modusdrift durch beide Lifecycleoperationen sowie
+CL140-Abweisung durch alle vier Einstiege. 816 eindeutige Profile auf24
+lokalen/direkt zentralen Windows-/Linux-Kontexten; zwölf Erstläufe und zwölf
+frische Audits PASS. Alle24 eigenen DBs/Trusteinträge entfernt, fünf eigene
+Konfigurationsänderungen zurückgenommen. 24/32 Aufrufe und24/32 DB-Reservierungen
+innerhalb60Minuten geschlossen, keine Fehler oder Wiederholungen. Genau diese
+fünf Restmatrizen erledigt; weitere Owner-/Rechte-/Identitäts-/Recoverypflichten
+bleiben separat. Historische Evidenz unverändert, keine Produktänderung,
+Modulgesamtaufwertung oder Veröffentlichung.
+
 ## JSON Schema: Dependency- und Signaturguards geschlossen — 2026-11-11
 
 Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-SCHEMA-DEPENDENCY-SIGNATURE-QUALIFICATION.md)

@@ -18,8 +18,8 @@ jobs:
   change-impact:
     name: Incremental change impact
     runs-on: ubuntu-latest
-    # 20 Minuten Releasesuite plus nachfolgende Paket-/Konsistenzprüfungen.
-    timeout-minutes: 35
+    # 30 Minuten Releasesuite plus nachfolgende Paket-/Konsistenzprüfungen.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
