@@ -67,7 +67,7 @@ $good=[pscustomobject]@{Number=6284;Class=16;Message="ALTER ASSEMBLY failed beca
 if(-not(Test-MarkerVisibilityEngineError @($good))){throw 'ENGINE_GOLDEN'}
 if(Test-MarkerVisibilityEngineError @($good,$good)){throw 'ENGINE_DUPLICATE_ACCEPTED'}
 $good.Number=55633;if(Test-MarkerVisibilityEngineError @($good)){throw 'ENGINE_WRONG_ERROR_ACCEPTED'}
-'MARKER_ABSENCE_ORACLES_PASS' 
+'MARKER_ABSENCE_ORACLES_PASS'
 """
         r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)

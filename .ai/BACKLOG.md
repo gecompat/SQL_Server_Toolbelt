@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Core/Schema: fehlende Marker und Sichtbarkeitsgrenzen — 2026-11-12
+
+Der [neue Fünfpunktnachweis](../Releases/1.0.0/JSON-MARKER-ABSENCE-VISIBILITY-QUALIFICATION.md)
+belegt fehlende/SQL-NULL-Assemblymarker bei Core und Schema, fehlende/NULL-
+Ownershipmarker beider Schema-Slots, direkte/delegierte Core-Sichtbarkeitsabwehr
+und die SQL-Engine-Sperre gegen unsichtbare verwendete Schema-Assemblies.
+1848 eindeutige Profile auf24 Windows-/Linux-Kontexten lokal/direkt zentral,
+davon76 gültige Originalprofile und1772 neue. Der erste Koordinator bleibt
+FAILED_CLEANED; zwölf korrigierte Koordinatoren und alle13 frischen Audits PASS.
+Die zwei ursprünglich vorgesehenen öffentlichen Schema-Aufrufe bei unsichtbarer
+vollständiger Installation sind not executed;24 Enginefälle6284 werden nicht
+zu48 öffentlichen Guards aufgewertet. Alle25 eigenen DBs/26 Trusteinträge entfernt,
+sechs Konfigurationsscopes wiederhergestellt. Gemeinsame26/32 Aufrufe und26/32
+DB-Reservierungen innerhalb ursprünglicher60Minuten geschlossen. Kein grünes
+Profil wiederholt; historische Belege und übrige Modulpflichten bleiben separat.
+Keine Produkt-/Rechteänderung, Modulgesamtaufwertung oder Veröffentlichung.
+
 ## Core/Schema: Binary-, Registrierungs- und CL-Guards geschlossen — 2026-11-12
 
 Die [Fünfpunktmatrix](../Releases/1.0.0/JSON-LIFECYCLE-BINARY-REGISTRATION-QUALIFICATION.md)
