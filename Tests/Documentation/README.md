@@ -97,6 +97,27 @@ ausschließlich über den Impact-Validator geprüft; keine zweite direkte Ausfü
 `test_change_impact.py` prüft die Auswahl, unbekannte Inputs, Selbsttesttrennung,
 Workflowdokumentationsfilter und die erhaltenen gemeinsamen Abhängigkeiten.
 
+## Endliche Laufzeit und Verarbeitungsaufwand
+
+Die gewachsene vollständige Releasesuite besitzt ein festes Unterprozesslimit
+von30Minuten. Der umgebende CI-Job bleibt auf45Minuten begrenzt, einschließlich
+der nachfolgenden Paket-/Konsistenzprüfungen. Ein Timeout ist weiterhin ein
+Fehler und nennt den letzten gestarteten Test; keine unvollständige Suite wird
+als bestanden gewertet. Einzeltestlimits und erforderliche Prüfungen bleiben
+erhalten.
+
+Anlass ist der [20-Minuten-Abbruch der Head-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/43222624287)
+während der gewachsenen Suite. Die zuvor fertig geprüfte Windows-Consumer-
+Fixture ersetzt den abgebrochenen Hauptjob nicht. Die Korrektur erweitert
+ausschließlich die endlichen Zeitgrenzen von20/35 auf30/45Minuten, ohne neue
+Trigger, Jobs, Modellaufrufe, Reviewketten oder zusätzliche Logartefakte.
+Die existierende CSV-Deduplication bewahrt alle eindeutigen Tests; keine
+weiteren Prüfungen werden zur Laufzeitverkürzung entfernt. Lokal werden nur
+betroffene Ausführungs-/Impactgegenproben ergänzt beziehungsweise geprüft;
+die vollständige Suite bleibt in Head- und Main-CI und wird nicht parallel
+noch einmal lokal ausgeführt. Die bereits abgeschlossenen nativen SQL-Tests
+werden wegen dieser CI-Zeitkorrektur nicht wiederholt.
+
 ## Generierte Statusabschnitte
 
 ```bash

@@ -95,6 +95,12 @@ identisch. Die Auswertung verwendet die tatsächlichen Profilkeys und Journale,
 keine Konsolenbehauptung. Originale und damalige Quellenkapseln bleiben erhalten;
 keine SQL-Wiederholung für die Textkorrektur.
 
+Die erste aktuelle Head-CI brach während der gewachsenen Releasesuite am
+20-Minuten-Unterprozesslimit ab; daraus folgt kein vollständiger CI-PASS.
+Die [begrenzte CI-Korrektur und Aufwandseinschätzung](../../Tests/Documentation/README.md#endliche-laufzeit-und-verarbeitungsaufwand)
+erhöht ausschließlich das Suite-/Joblimit auf30/45Minuten. Fehlerbehandlung,
+Prüfungsumfang und sämtliche nativen Grenzen bleiben erhalten.
+
 Private Originaljournale, Fehlerausgaben und Quellenkapseln bleiben außerhalb
 Git erhalten. Öffentliche Evidenz enthält nur synthetischen Scope, Anzahlen
 und Quellreferenzen; keine privaten Endpoints, Credentials oder Trustwerte.
