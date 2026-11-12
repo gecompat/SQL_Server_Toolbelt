@@ -203,7 +203,7 @@ try{
    $entry.state='OWNED';Save-ReleaseJournal;Invoke-ReleaseSql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=$($case.CL);"
    $actualCl=@(Invoke-ReleaseSql $db 'SELECT compatibility_level CL FROM sys.databases WHERE database_id=DB_ID();' -Rows)
    if($actualCl.Count-ne1-or$actualCl[0].CL-ne$case.CL){throw 'LIFECYCLE_GUARD_ACTUAL_CL'}
-   $stage='SCHEMA_FIVE_BOUNDARIES_'+$mode
+   $stage='LIFECYCLE_BINARY_REGISTRATION_'+$mode
    Invoke-LifecycleGuardProfiles $db $mode
    $state=@(Invoke-ReleaseSql $db 'DECLARE @Tc int=@@TRANCOUNT,@Xs smallint=XACT_STATE();SELECT @Tc TranCount,@Xs XactState;' -Rows)
    if($state.Count-ne1-or$state[0].TranCount-ne0-or$state[0].XactState-ne0){throw 'LIFECYCLE_GUARD_NOT_NEUTRAL'}
@@ -229,4 +229,4 @@ finally{
  }
 }
 if($failure){if($ValidateOnly){throw $failure};'FAIL LIFECYCLE_GUARD_TARGETS; inspect private journal; no automatic replay';exit 1}
-if($AuditOnly){'PASS LIFECYCLE_GUARD_TARGETS fresh independent final journal/absence audit'}else{'PASS LIFECYCLE_GUARD five Schema dependency/signature guard matrices; independent audit required'}
+if($AuditOnly){'PASS LIFECYCLE_GUARD_TARGETS fresh independent final journal/absence audit'}else{'PASS LIFECYCLE_GUARD five Core/Schema binary/registration/compatibility matrices; independent audit required'}

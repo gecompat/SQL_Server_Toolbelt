@@ -88,6 +88,13 @@ quellgebundene Preflight bestehen. Die Suite ist im vorhandenen Releasevalidator
 registriert. Unveränderte frühere Produkt-/Closurebelege bleiben bei ihrer
 ursprünglichen Quellenbindung verwendbar; keine Behauptung eines neuen Volltests.
 
+Ein geerbter Konsolen-Abschlusstext und ein Stagelabel benannten noch den
+älteren Schema-Scope. Ausschließlich diese beiden Anzeigetexte wurden nach
+Abschluss präzisiert; sämtliche nativen SQL-/Abdeckungs-/Cleanuporakel bleiben
+identisch. Die Auswertung verwendet die tatsächlichen Profilkeys und Journale,
+keine Konsolenbehauptung. Originale und damalige Quellenkapseln bleiben erhalten;
+keine SQL-Wiederholung für die Textkorrektur.
+
 Private Originaljournale, Fehlerausgaben und Quellenkapseln bleiben außerhalb
 Git erhalten. Öffentliche Evidenz enthält nur synthetischen Scope, Anzahlen
 und Quellreferenzen; keine privaten Endpoints, Credentials oder Trustwerte.
