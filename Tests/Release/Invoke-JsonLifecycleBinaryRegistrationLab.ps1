@@ -1,4 +1,4 @@
-# Five Core/Schema binary, installed registration and lower compatibility guards.
+# Canonical Core/Schema guard matrix runner with exact versioned fixture selection.
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,
  [Parameter(Mandatory)][ValidateRange(0,11)][int]$CaseIndex,[switch]$AuditOnly,[switch]$ValidateOnly)
@@ -57,7 +57,7 @@ function Assert-JsonSchemaSessionFixtureScope([string]$Text){
 try{
  $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
  $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json -DateKind String
- if($runset.schema_version-cne'json-lifecycle-binary-registration/v1'-or$runset.cases.Count-ne12-or
+ if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1')-or$runset.cases.Count-ne12-or
   $runset.explicit_qualification_approved-isnot[bool]-or$runset.explicit_qualification_approved-ne$true){throw 'LIFECYCLE_GUARD_RUNSET_SCOPE'}
  $started=[DateTimeOffset]::Parse($runset.started_utc);$deadline=[DateTimeOffset]::Parse($runset.deadline_utc)
  if($deadline-ne$started.AddMinutes(60)-or$started-gt[DateTimeOffset]::UtcNow-or
@@ -70,10 +70,11 @@ try{
  }
  $case=$runset.cases[$CaseIndex];Assert-ReleaseInputs
  $fixtureRoot=Join-Path $PSScriptRoot 'Runtime'
- $fixtureNames=@('JsonLifecycle.BinaryRegistration.Contract.ps1')
+ $fixtureNames=if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')}else{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}
  $fixtures=@($fixtureNames|ForEach-Object{Join-Path $fixtureRoot $_})
  $repeatDependencies=@((Join-Path $PSScriptRoot 'Invoke-JsonSchemaUninstallAppLockLab.ps1'),(Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'),(Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'),(Join-Path $repo 'Deployment/Deploy-All.ps1'))
 
+ if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1')}
  if(($runset.fixtures-join'|')-cne($fixtures-join'|')){throw 'LIFECYCLE_GUARD_CANONICAL_FIXTURES_REQUIRED'}
  foreach($path in @($PSCommandPath,$runset.exports.local,$runset.exports.central,$runset.uninstall,$runset.artifact.path,$runset.core_artifact.path,$runset.baselines.local,$runset.baselines.central,$runset.core_exports.local,$runset.core_exports.central,$runset.core_uninstall,$runset.provenance,$runset.package)+$fixtures+$repeatDependencies+@(
   (Join-Path $PSScriptRoot 'Runtime/JsonCore.Lock.Contract.ps1'),
@@ -135,6 +136,7 @@ try{
  $tree=Get-SqlcmdScriptTree -Path (Join-Path $repo 'Modules/toolbelt.json.core/Deployment/Uninstall.sql');Assert-CoreNodePin $tree
  $text=ConvertTo-StandaloneSql -Node $tree -Values @{ConfirmNoExternalConsumers='1'} -ModulesRoot (Join-Path $repo 'Modules')
  if([IO.File]::ReadAllText($runset.core_uninstall)-cne$text){throw 'LIFECYCLE_GUARD_CANONICAL_CORE_UNINSTALL'}
+ if($runset.schema_version-ceq'json-lifecycle-binary-registration/v1'){
  if($runset.binary_guards.Count-ne8){throw 'LIFECYCLE_GUARD_BINARY_VECTOR_CLOSURE'}
  $ordinal=0
  foreach($module in @('core','schema')){foreach($id in @('null','empty','zero','other')){
@@ -148,8 +150,10 @@ try{
    if([IO.File]::ReadAllText($path)-cne$text){throw 'LIFECYCLE_GUARD_ORIGINAL_BINARY_VECTOR'}
   }
  }}
+ }
  . ($fixtures[0])
  $script:lifecycleGuardExcluded=@()
+ if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$script:lifecycleGuardExcluded=@(Get-MarkerAbsenceReusedKeys)}
  $expectedCallerRows=0
 
  if($ValidateOnly){'PASS LIFECYCLE_GUARD_OFFLINE_ADMISSION; no Lab import or SQL';return}
@@ -203,7 +207,7 @@ try{
    $entry.state='OWNED';Save-ReleaseJournal;Invoke-ReleaseSql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=$($case.CL);"
    $actualCl=@(Invoke-ReleaseSql $db 'SELECT compatibility_level CL FROM sys.databases WHERE database_id=DB_ID();' -Rows)
    if($actualCl.Count-ne1-or$actualCl[0].CL-ne$case.CL){throw 'LIFECYCLE_GUARD_ACTUAL_CL'}
-   $stage='LIFECYCLE_BINARY_REGISTRATION_'+$mode
+   $stage=$runset.schema_version+'_'+$mode
    Invoke-LifecycleGuardProfiles $db $mode
    $state=@(Invoke-ReleaseSql $db 'DECLARE @Tc int=@@TRANCOUNT,@Xs smallint=XACT_STATE();SELECT @Tc TranCount,@Xs XactState;' -Rows)
    if($state.Count-ne1-or$state[0].TranCount-ne0-or$state[0].XactState-ne0){throw 'LIFECYCLE_GUARD_NOT_NEUTRAL'}
@@ -229,4 +233,4 @@ finally{
  }
 }
 if($failure){if($ValidateOnly){throw $failure};'FAIL LIFECYCLE_GUARD_TARGETS; inspect private journal; no automatic replay';exit 1}
-if($AuditOnly){'PASS LIFECYCLE_GUARD_TARGETS fresh independent final journal/absence audit'}else{'PASS LIFECYCLE_GUARD five Core/Schema binary/registration/compatibility matrices; independent audit required'}
+if($AuditOnly){'PASS LIFECYCLE_GUARD_TARGETS fresh independent final journal/absence audit'}else{'PASS LIFECYCLE_GUARD '+$runset.schema_version+'; independent audit required'}

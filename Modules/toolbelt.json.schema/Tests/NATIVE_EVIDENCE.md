@@ -272,3 +272,21 @@ Frühere pauschale Drift-/CL-Offenangaben gelten für genau diese Varianten
 nicht mehr; andere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben getrennt.
 Historische Abschnitte und generierte Evidenz unverändert; Module weiterhin
 partially validated, unreleased. Keine Produkt-/Rechteänderung oder Veröffentlichung.
+
+## Fehlende Marker und Sichtbarkeitsgrenzen — 2026-11-12
+
+Der [gemeinsame Core-/Schema-Nachweis](../../../Releases/1.0.0/JSON-MARKER-ABSENCE-VISIBILITY-QUALIFICATION.md)
+schließt die deklarierten missing/null-Matrizen der Assemblymarker, Ownership-
+marker an beiden Schema-Slots, direkte/delegierte Core-Sichtbarkeitsabwehr und
+die tatsächliche SQL-Engine-Sperre6284 bei verwendeter Schema-Assembly.
+1848 eindeutige Profile auf24 lokalen/direkt zentralen Windows-/Linux-Kontexten,
+davon76 unverändert übernommen und1772 neu. Ein ursprünglicher Koordinator
+bleibt FAILED_CLEANED; zwölf korrigierte Koordinatoren/13 frische Audits PASS.
+Die öffentlichen Schema-Guards bei unsichtbarer vollständiger Installation sind
+not executed: deren Zustand wird bereits durch die Engine verhindert. Keine
+Umdeutung der24 Engineprofile zu48 öffentlichen Lifecycle-Abweisungen.
+Alle25 eigenen DBs/26 Trusteinträge entfernt, sechs Konfigurationsscopes
+wiederhergestellt;26/32 Aufrufe/DB-Reservierungen innerhalb derselben60Minuten
+abgeschlossen, keine Grenzen erneuert oder grünen Profile wiederholt.
+Andere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat. Historische
+und generierte Evidenz unverändert, weiterhin partially validated, unreleased.
