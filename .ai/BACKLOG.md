@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: interne CLR-Parameter und Ergebnisspalten — 2026-11-13
+
+Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-CLR-BINDING-QUALIFICATION.md)
+belegt acht Parameternamen, die Profile-Eingabelänge, zehn Ergebnisspaltennamen,
+fünf SqlString-Ausgabelängen und drei CLR-kompatible Nachbartausche am internen
+Slot durch beide öffentlichen Lifecycle-Einstiege. 1296 eindeutige Profile auf24
+lokalen/direkt zentralen Windows-/Linux-Kontexten; zwölf Erstläufe und zwölf
+frische Audits PASS, kein nativer Fehler oder Retry. Alle24 eigenen DBs/Trust-
+einträge entfernt, fünf Konfigurationsscopes zurückgenommen. Originaler32/32/
+60-Minuten-Rahmen mit24 Aufrufen/DB-Reservierungen geschlossen, Reserve ebenfalls.
+Die übrigen Typ-/Längen-/Nullability-/Class-/Methoden- und Bindingvarianten bleiben
+getrennt; keine vollständige CLR-Binding-Matrix oder Core-Aufwertung behauptet.
+Vorhandene USP-/Marker-/Caller-/Lock-/Dependencybelege unverändert und nicht
+wiederholt. Keine Produkt-/Rechteänderung, Modulgesamtaufwertung oder Veröffentlichung.
+
 ## JSON Schema: OUTPUT-, Alias-, Arity- und Ordinalsignaturen — 2026-11-13
 
 Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-SIGNATURE-SHAPE-QUALIFICATION.md)

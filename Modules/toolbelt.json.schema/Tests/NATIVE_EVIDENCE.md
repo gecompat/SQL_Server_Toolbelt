@@ -322,3 +322,18 @@ Aufrufen/DB-Reservierungen geschlossen. Keine grünen Wiederholungen, Rechte-/
 Principal-/Produktänderungen oder Core-Modulaufwertung. Historische Belege und
 übrige Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat; partially
 validated, unreleased. Keine Veröffentlichung.
+
+## Interne CLR-Parameter und Ergebnisspalten — 2026-11-13
+
+Die [neue Fünfpunktmatrix](../../../Releases/1.0.0/JSON-CLR-BINDING-QUALIFICATION.md)
+belegt die acht Parameternamen, Profile-Eingabelänge32→31, zehn Spaltennamen,
+fünf SqlString-Ausgabelängen und drei kompatible Nachbartausche des internen
+CLR-Slots über öffentliche Deploy-/Uninstall-Abweisung. 1296 eindeutige Profile
+auf24 Windows-/Linux-Kontexten lokal/direkt zentral; zwölf Erstläufe und zwölf
+frische Audits PASS, kein nativer Fehler oder Retry. Tatsächliche Kataloge exakt
+abgeglichen, Originaldeklaration bei gleicher Objektidentität/ACL wiederhergestellt.
+Alle24 eigenen DBs/Trusteinträge entfernt, fünf Konfigurationsscopes zurückgenommen;
+24/32 Aufrufe/DB-Reservierungen innerhalb ursprünglicher60Minuten geschlossen.
+Andere Längen-/Typ-/Nullability-/Class-/Methoden-/Binding-/Owner-/Recoverypflichten
+bleiben separat. Kein neuer Core-Nachweis, keine Produkt-/Rechteänderung oder
+Modulgesamtaufwertung; teilweise validiert und unveröffentlicht.
