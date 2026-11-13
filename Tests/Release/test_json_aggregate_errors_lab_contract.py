@@ -74,26 +74,45 @@ $e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,
 foreach($name in @('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-LifecycleGuardKeys','Get-AggregateErrorInput','Get-AggregateErrorStatement','Test-AggregateErrorTuple')){
  $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));if($n.Count-ne1){throw 'FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
 }
-$specs=@(Get-AggregateErrorSpecs);if($specs.Count-ne124){throw 'VECTOR_CLOSURE'}
+$specs=@(Get-AggregateErrorSpecs);if($specs.Count-ne128){throw 'VECTOR_CLOSURE'}
 $waves=@($specs|ForEach-Object{$_.aggregate+'/'+$_.wave}|Select-Object -Unique);if($waves.Count-ne20){throw 'WAVE_CLOSURE'}
-foreach($cl in @(150,160,170)){foreach($mode in @('local','central')){$k=@(Get-LifecycleGuardKeys $mode $cl);if($k.Count-ne124-or@($k|Select-Object -Unique).Count-ne124){throw 'KEY_CLOSURE'}}}
+foreach($cl in @(150,160,170)){foreach($mode in @('local','central')){$k=@(Get-LifecycleGuardKeys $mode $cl);if($k.Count-ne128-or@($k|Select-Object -Unique).Count-ne128){throw 'KEY_CLOSURE'}}}
 foreach($spec in $specs){
  $p=Get-AggregateErrorInput $spec;$sql=Get-AggregateErrorStatement $spec
  if($sql-notmatch('AGF_Json'+$(if($spec.aggregate-ceq'array'){'Array'}else{'Object'}))){throw 'WRONG_AGGREGATE'}
- if($spec.wave-ceq'entry-limit-1'-and$p['@Count']-ne10001){throw 'PROFILE1_COUNT'}
- if($spec.wave-ceq'entry-limit-2'-and$p['@Count']-ne100001){throw 'PROFILE2_COUNT'}
+ if($spec.wave-ceq'entry-priority-1'-and$p['@Count']-ne$(if($spec.id-ceq'at-limit'){10000}else{10001})){throw 'PROFILE1_COUNT'}
+ if($spec.wave-ceq'entry-priority-2'-and$p['@Count']-ne$(if($spec.id-ceq'at-limit'){100000}else{100001})){throw 'PROFILE2_COUNT'}
  if($spec.wave-ceq'profile-invalid'-and$p['@Profile']-cin@(1,2)){throw 'VALID_PROFILE_IN_NEGATIVE'}
  $good=@([pscustomobject]@{Number=6522;Class=16;State=1;Message=('Wrapped: '+$spec.tag+' at Synthetic.Frame')})
  if(-not(Test-AggregateErrorTuple $good $spec.tag)){throw 'EXPECTED_TAG_REJECTED'}
  $good[0].Message+=' TBX_JSON_AGG_RESOURCE_FAILURE';if(Test-AggregateErrorTuple $good $spec.tag){throw 'MULTIPLE_TAGS_ACCEPTED'}
  $good[0].Message=$spec.tag;$good[0].Number=229;if(Test-AggregateErrorTuple $good $spec.tag){throw 'WRONG_SQL_ERROR_ACCEPTED'}
 }
-$bad=[pscustomobject]@{aggregate='array';wave='entry-limit-2';id='one-over';profile=1;tag='TBX_JSON_AGG_ENTRY_LIMIT'}
+$bad=[pscustomobject]@{aggregate='array';wave='entry-priority-2';id='one-over';profile=1;tag='TBX_JSON_AGG_ENTRY_LIMIT'}
 $caught=$false;try{Get-AggregateErrorInput $bad}catch{$caught=$true};if(-not$caught){throw 'UNSELECTED_VECTOR_ACCEPTED'}
 $t=[IO.File]::ReadAllText($path)
-foreach($required in @('$rows-ne0','AGGREGATE_ERRORS_ACTUAL_INPUT_COUNT','AGGREGATE_ERRORS_MUTATED_MODULE_OR_INPUT','SHA2_256','FOR XML RAW,BINARY BASE64','Assert-CoreLockNeutral','inputDigest','aggregateTag','constructor_uninstall')){if(-not$t.Contains($required)){throw 'SAFETY_ORACLE_MISSING'}}
+foreach($required in @('$rows-ne0','AGGREGATE_ERRORS_ACTUAL_INPUT_COUNT','AGGREGATE_ERRORS_MUTATED_MODULE_OR_INPUT','SHA2_256','FOR XML RAW,BINARY BASE64','Assert-CoreLockNeutral','inputDigest','aggregateTag','constructor_uninstall','SELECT 0,NULL,N''null'',NULL','AGGREGATE_ERRORS_REUSE_PREFIX_INPUT_CHANGED')){if(-not$t.Contains($required)){throw 'SAFETY_ORACLE_MISSING'}}
 if($t-match'(?i)\b(GRANT|DENY|REVOKE)\b|ALTER\s+AUTHORIZATION|CREATE\s+(USER|LOGIN|ASSEMBLY)'){throw 'SCOPE_EXCEEDED'}
 'AGGREGATE_ERROR_WAVES_COUNTEREXAMPLES_PASS'
+"""
+        r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+
+    def test_reused_prefix_rejects_missing_reordered_or_false_receipts(self):
+        script="$ErrorActionPreference='Stop';$path='"+str(FIXTURE).replace("'","''")+"';"+r"""
+$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
+foreach($name in @('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-AggregateErrorInput','Test-AggregateOriginalPrefix')){$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));. ([scriptblock]::Create($n[0].Extent.Text))}
+function New-Receipts{
+ foreach($spec in @(Get-AggregateErrorSpecs|Select-Object -First 60)){$p=Get-AggregateErrorInput $spec;[pscustomobject]@{mode='local';id=(Get-AggregateErrorKey $spec);passed=$true;number=6522;aggregateTag=$spec.tag;partialRows=0;inputCount=$(if($p['@Second']-eq1){2}else{1});snapshotPreserved=$true;snapshotSHA256=('A'*64);inputDigest=('B'*64)}}
+}
+$r=@(New-Receipts);if(-not(Test-AggregateOriginalPrefix $r)){throw 'VALID_PREFIX_REJECTED'}
+foreach($field in @('mode','id','number','aggregateTag','partialRows','inputCount','snapshotPreserved','snapshotSHA256','inputDigest')){
+ $r=@(New-Receipts);switch($field){'mode'{$r[0].mode='central'};'id'{$r[0].id='unselected'};'number'{$r[0].number=229};'aggregateTag'{$r[0].aggregateTag='TBX_JSON_AGG_RESOURCE_FAILURE'};'partialRows'{$r[0].partialRows=1};'inputCount'{$r[0].inputCount=999};'snapshotPreserved'{$r[0].snapshotPreserved=$false};'snapshotSHA256'{$r[0].snapshotSHA256='bad'};'inputDigest'{$r[0].inputDigest='bad'}}
+ if(Test-AggregateOriginalPrefix $r){throw 'BAD_PREFIX_ACCEPTED'}
+}
+$r=@(New-Receipts);if(Test-AggregateOriginalPrefix @($r|Select-Object -First 59)){throw 'MISSING_RECEIPT_ACCEPTED'}
+$r=@(New-Receipts);$x=$r[0];$r[0]=$r[1];$r[1]=$x;if(Test-AggregateOriginalPrefix $r){throw 'REORDERED_PREFIX_ACCEPTED'}
+'AGGREGATE_PREFIX_COUNTEREXAMPLES_PASS'
 """
         r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)

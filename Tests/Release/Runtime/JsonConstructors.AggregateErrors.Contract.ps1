@@ -17,7 +17,7 @@ function Get-AggregateErrorSpecs{
    foreach($id in @('leading-zero','plus','fraction','exponent','nan')){[pscustomobject]@{aggregate=$aggregate;wave='number-invalid';id=$id;profile=$profile;tag='TBX_JSON_AGG_NUMBER_INVALID'}}
    foreach($id in @('upper','space','mixed','numeric')){[pscustomobject]@{aggregate=$aggregate;wave='boolean-invalid';id=$id;profile=$profile;tag='TBX_JSON_AGG_BOOLEAN_INVALID'}}
   }
-  foreach($profile in @(1,2)){[pscustomobject]@{aggregate=$aggregate;wave=('entry-limit-'+$profile);id='one-over';profile=$profile;tag='TBX_JSON_AGG_ENTRY_LIMIT'}}
+  foreach($profile in @(1,2)){foreach($id in @('at-limit','one-over')){[pscustomobject]@{aggregate=$aggregate;wave=('entry-priority-'+$profile);id=$id;profile=$profile;tag=$(if($id-ceq'at-limit'){'TBX_JSON_AGG_ORDINAL_INVALID'}else{'TBX_JSON_AGG_ENTRY_LIMIT'})}}}
  }
 }
 function Assert-AggregateErrorSpec($Spec){
@@ -41,7 +41,7 @@ function Get-AggregateErrorInput($Spec){
   'value-null'{if($Spec.id-ceq'null-value'){$kind='null';$value='x'}else{$kind=$Spec.id;$value=$null}}
   'number-invalid'{$value=switch -CaseSensitive($Spec.id){'leading-zero'{'01'};'plus'{'+1'};'fraction'{'1.'};'exponent'{'1e'};'nan'{'NaN'}}}
   'boolean-invalid'{$kind='boolean';$value=switch -CaseSensitive($Spec.id){'upper'{'TRUE'};'space'{' false'};'mixed'{'False'};'numeric'{'1'}}}
-  default{if($Spec.wave-cnotin@('entry-limit-1','entry-limit-2')){throw 'AGGREGATE_ERRORS_INPUT_SCOPE'};$count=if($profile-eq1){10001}else{100001}}
+  default{if($Spec.wave-cnotin@('entry-priority-1','entry-priority-2')){throw 'AGGREGATE_ERRORS_INPUT_SCOPE'};$count=$(if($profile-eq1){10000}else{100000})+$(if($Spec.id-ceq'one-over'){1}else{0})}
  }
  return @{'@Ordinal'=$(if($null-eq$ordinal){[DBNull]::Value}else{$ordinal});'@Ordinal2'=$ordinal2;'@Kind'=$(if($null-eq$kind){[DBNull]::Value}else{$kind});'@Kind2'=$kind2;'@Value'=$(if($null-eq$value){[DBNull]::Value}else{$value});'@Profile'=$(if($null-eq$profile){[DBNull]::Value}else{$profile});'@Profile2'=$profile2;'@Second'=[int]$second;'@Reverse'=[int]($Spec.wave-ceq'ordinal-duplicate'-and$Spec.id-ceq'reverse');'@Count'=$count}
 }
@@ -106,11 +106,11 @@ BEGIN
 END
 ELSE
 BEGIN
- IF TRY_CONVERT(int,@Count) NOT IN(10001,100001) THROW 52098,N'Owned bounded count required.',1;
+ IF TRY_CONVERT(int,@Count) NOT IN(10000,10001,100000,100001) THROW 52098,N'Owned bounded count required.',1;
  ;WITH D(n) AS(SELECT n FROM(VALUES(0),(1),(2),(3),(4),(5),(6),(7),(8),(9))v(n)),
  N(n) AS(SELECT TOP(TRY_CONVERT(int,@Count)) CONVERT(int,ROW_NUMBER() OVER(ORDER BY(SELECT NULL))) FROM D a CROSS JOIN D b CROSS JOIN D c CROSS JOIN D d CROSS JOIN D e CROSS JOIN D f)
  INSERT #AggregateWaveInput(Ordinal,[Key],ValueKind,[Value],Profile)
- SELECT n,N'k'+CONVERT(nvarchar(12),n),N'null',NULL,TRY_CONVERT(tinyint,@Profile) FROM N;
+ SELECT 0,NULL,N'null',NULL,TRY_CONVERT(tinyint,@Profile) FROM N;
 END;
 '@ $p
   Assert-AggregateError $Db $Mode $spec
@@ -158,12 +158,20 @@ function Get-AggregateErrorReusedKeys{
  Assert-ReleasePin $caps[0].snapshotPath $caps[0].sha256
  $e=$null;$left=[Management.Automation.Language.Parser]::ParseFile($caps[0].snapshotPath,[ref]$null,[ref]$e);if($e.Count){throw 'AGGREGATE_ERRORS_REUSE_PARSE'}
  $right=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'JsonConstructors.AggregateErrors.Contract.ps1'),[ref]$null,[ref]$e);if($e.Count){throw 'AGGREGATE_ERRORS_REUSE_PARSE'}
- foreach($name in @('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-AggregateErrorInput','Get-AggregateInputState','Get-AggregateErrorStatement','Test-AggregateErrorTuple','Get-LifecycleGuardState','Assert-AggregateError')){
+ foreach($name in @('Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-AggregateInputState','Get-AggregateErrorStatement','Test-AggregateErrorTuple','Get-LifecycleGuardState','Assert-AggregateError')){
   $a=@($left.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true));$b=@($right.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
   if($a.Count-ne1-or$b.Count-ne1){throw 'AGGREGATE_ERRORS_REUSE_FUNCTION'}
   $text=$b[0].Extent.Text.Replace("`r`n","`n").Replace('Save-AggregateErrorMismatch $Spec $caught $rows $input;','').Replace('while($caught-isnot[Data.SqlClient.SqlException]-and$caught.InnerException){$caught=$caught.InnerException}','while($caught.InnerException){$caught=$caught.InnerException}')
   if($a[0].Extent.Text.Replace("`r`n","`n")-cne$text){throw 'AGGREGATE_ERRORS_REUSE_ORACLE_CHANGED'}
  }
+ $prefixFunctions=@('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-AggregateErrorInput')
+ $oldPrefix=@(& {
+  param($ast,$names)
+  foreach($name in $names){$nodes=@($ast.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true));if($nodes.Count-ne1){throw 'AGGREGATE_ERRORS_PREFIX_FUNCTION'};. ([scriptblock]::Create($nodes[0].Extent.Text))}
+  foreach($spec in @(Get-AggregateErrorSpecs|Select-Object -First 60)){$p=Get-AggregateErrorInput $spec;$v=[ordered]@{};foreach($key in @($p.Keys|Sort-Object)){$v[$key]=if($p[$key]-is[DBNull]){'DBNULL'}else{$p[$key]}};[pscustomobject][ordered]@{spec=$spec;parameters=$v}}
+ } $left $prefixFunctions)
+ $newPrefix=@(foreach($spec in @(Get-AggregateErrorSpecs|Select-Object -First 60)){$p=Get-AggregateErrorInput $spec;$v=[ordered]@{};foreach($key in @($p.Keys|Sort-Object)){$v[$key]=if($p[$key]-is[DBNull]){'DBNULL'}else{$p[$key]}};[pscustomobject][ordered]@{spec=$spec;parameters=$v}})
+ if(($oldPrefix|ConvertTo-Json -Depth 8 -Compress)-cne($newPrefix|ConvertTo-Json -Depth 8 -Compress)){throw 'AGGREGATE_ERRORS_REUSE_PREFIX_INPUT_CHANGED'}
  if(-not(Test-AggregateOriginalPrefix $old.profileCompletions)){throw 'AGGREGATE_ERRORS_REUSE_PREFIX'}
  foreach($r in $old.profileCompletions){$r.mode+'/'+$r.id}
 }
