@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: zehn weitere interne CLR-Facetten — 2026-11-13
+
+Die [Zehnermatrix](../Releases/1.0.0/JSON-CLR-FACETS-QUALIFICATION.md)
+belegt weitere Unicode-Typ-/Längenfacetten am internen CLR-Slot sowie die
+NOT-NULL-Enginegrenze für alle zehn Rückgabespalten. 1.248 öffentliche Lifecycle-
+Profile und 240 getrennte Enginefälle in 24 Windows-/Linux-Kontexten lokal/direkt
+zentral; zwölf korrigierte Koordinatoren und alle 13 frischen Audits PASS.
+Der erste Koordinator bleibt FAILED_CLEANED mit null Profilen und eigenem
+frischem Cleanup-Audit PASS. 480 technisch nicht erreichbare öffentliche
+NOT-NULL-Spiegel bleiben ausdrücklich not executed; Engine6526 ist kein
+öffentlicher Guard-PASS. Vorhandene Namen-/kurze Längen-/Ordinalbelege nicht
+wiederholt. Alle 25 eigenen DBs/26 Trusteinträge entfernt, sechs Konfigurations-
+scopes zurückgenommen; ursprünglicher 32/32/60-Minuten-Rahmen mit 26 Aufrufen/
+DB-Reservierungen geschlossen. Aktive unabhängige Arbeit und private Originale
+bleiben erhalten. Keine Produkt-/Rechteänderung, vollständige Binding-/Modul-
+qualifikation oder Veröffentlichung; weitere Modulpflichten separat.
+
 ## Core/Schema: zehn Registrierungs-Textmatrizen — 2026-11-13
 
 Die [Zehnermatrix](../Releases/1.0.0/JSON-REGISTRATION-TEXT-QUALIFICATION.md)
