@@ -102,4 +102,23 @@ if($t-match'(?i)\b(GRANT|DENY|REVOKE)\b|ALTER\s+AUTHORIZATION|CREATE\s+(USER|LOG
         result=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
+    def test_partial_failure_receipts_are_an_exact_two_row_prefix(self):
+        script="$ErrorActionPreference='Stop';$path='"+str(FIXTURE).replace("'","''")+"';"+r"""
+$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e)
+$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Test-DependencyValuePrefix'},$true));. ([scriptblock]::Create($n[0].Extent.Text))
+function New-Rows{
+ foreach($name in @('Toolbelt.Managed','Toolbelt.ModuleId')){[pscustomobject]@{mode='local';id=('absent-constructor-value/'+$name+'/deploy');passed=$true;number=55633;snapshotPreserved=$true;snapshotSHA256=('A'*64)}}
+}
+if(-not(Test-DependencyValuePrefix @(New-Rows))){throw 'VALID_PREFIX_REJECTED'}
+foreach($kind in @('mode','id','passed','number','snapshotPreserved','snapshotSHA256')){
+ $r=@(New-Rows);switch($kind){'mode'{$r[0].mode='central'};'id'{$r[0].id='unselected'};'passed'{$r[0].passed=$false};'number'{$r[0].number=55632};'snapshotPreserved'{$r[0].snapshotPreserved=$false};'snapshotSHA256'{$r[0].snapshotSHA256='bad'}}
+ if(Test-DependencyValuePrefix $r){throw 'BAD_PREFIX_ACCEPTED'}
+}
+if(Test-DependencyValuePrefix @(@(New-Rows)[0])){throw 'TRUNCATED_PREFIX_ACCEPTED'}
+$rows=@(New-Rows);if(Test-DependencyValuePrefix @($rows[1],$rows[0])){throw 'REORDERED_PREFIX_ACCEPTED'}
+'EXACT_PARTIAL_PREFIX_COUNTEREXAMPLES_PASS'
+"""
+        r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=20)
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+
 if __name__=='__main__':unittest.main()

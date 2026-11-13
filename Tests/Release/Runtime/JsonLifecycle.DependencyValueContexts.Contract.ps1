@@ -33,6 +33,7 @@ WHERE (class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N
 '@
  if([int](Read-Scalar $Db 'SELECT COUNT(*) ScalarValue FROM #ConstructorValueOriginals;')-ne8){throw 'DEPENDENCY_VALUES_EIGHT_ORIGINALS'}
  foreach($spec in Get-ConstructorValueSpecs){
+  if(($Mode+'/'+$Parent+'-constructor-'+$spec.group+'/'+$spec.id+'/deploy')-cin$script:lifecycleGuardExcluded){continue}
   $parameters=Get-ConstructorValueParameters $spec $Mode
   if($spec.class-eq5){
    Sql $Db @'
@@ -82,8 +83,47 @@ function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
  Assert-DependencyParent $Db $true
  Invoke-ConstructorValueGuards $Db $Mode 'installed'
  $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
- if(($actual-join'|')-cne(@(Get-LifecycleGuardKeys $Mode $case.CL|Sort-Object)-join'|')){throw 'DEPENDENCY_VALUES_TEN_POINT_CLOSURE'}
+ if(($actual-join'|')-cne(@(Get-LifecycleGuardKeys $Mode $case.CL|Where-Object{($Mode+'/'+$_)-cnotin$script:lifecycleGuardExcluded}|Sort-Object)-join'|')){throw 'DEPENDENCY_VALUES_TEN_POINT_CLOSURE'}
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.uninstall));Assert-CoreLockNeutral $Db
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_uninstall));Assert-CoreLockNeutral $Db
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.core_uninstall));Assert-CoreLockNeutral $Db
+}
+
+function Test-DependencyValuePrefix($Rows){
+ $expected=@('absent-constructor-value/Toolbelt.Managed/deploy','absent-constructor-value/Toolbelt.ModuleId/deploy')
+ if(@($Rows).Count-ne2){return $false}
+ for($i=0;$i-lt2;$i++){if($Rows[$i].mode-cne'local'-or$Rows[$i].id-cne$expected[$i]-or$Rows[$i].passed-ne$true-or$Rows[$i].number-ne55633-or$Rows[$i].snapshotPreserved-ne$true-or$Rows[$i].snapshotSHA256-cnotmatch'^[A-F0-9]{64}$'){return $false}}
+ return $true
+}
+function Get-DependencyValueReusedKeys{
+ if(-not$runset.PSObject.Properties['reuse']-or$CaseIndex-ne10){return}
+ $reuse=$runset.reuse
+ foreach($binding in @($reuse.journal,$reuse.audit,$reuse.runset,$reuse.blocked)){
+  [void](Assert-ReleasePrivatePath $binding.path);Assert-ReleasePin $binding.path $binding.sha256
+  if(@($runset.pins|Where-Object{$_.path-ceq$binding.path-and$_.sha256-ceq$binding.sha256}).Count-ne1){throw 'DEPENDENCY_VALUES_REUSE_PIN'}
+ }
+ $old=Get-Content $reuse.journal.path -Raw|ConvertFrom-Json -DateKind String
+ $blocked=Get-Content $reuse.blocked.path -Raw|ConvertFrom-Json -DateKind String
+ $audit=Get-Content $reuse.audit.path -Raw|ConvertFrom-Json -DateKind String
+ $prior=Get-Content $reuse.runset.path -Raw|ConvertFrom-Json -DateKind String
+ if($old.state-cne'FAILED_CLEANED'-or$blocked.state-cne'CLEANUP_BLOCKED'-or$old.recoveryOriginalJournalSHA256-cne$reuse.blocked.sha256-or$old.owner-cne$blocked.owner-or$old.failure.privateDiagnostic-cne$blocked.failure.privateDiagnostic-or($old.profileCompletions|ConvertTo-Json -Depth 6 -Compress)-cne($blocked.profileCompletions|ConvertTo-Json -Depth 6 -Compress)){throw 'DEPENDENCY_VALUES_REUSE_ORIGINAL_FAILURE'}
+ if($audit.state-cne'COMPLETE'-or$audit.originalRunPassed-ne$false-or$audit.originalJournalSHA256-cne$reuse.journal.sha256-or-not$audit.databaseAbsence-or-not$audit.serverConfigurationAndTrustUnchanged-or-not$audit.postPins){throw 'DEPENDENCY_VALUES_REUSE_FRESH_AUDIT'}
+ if($prior.contract_sha256-cne$runset.contract_sha256-or$prior.schema_version-cne$runset.schema_version){throw 'DEPENDENCY_VALUES_REUSE_CONTRACT'}
+ foreach($field in @('Platform','Version','Patch','CL')){if($prior.cases[10].$field-cne$case.$field){throw 'DEPENDENCY_VALUES_REUSE_CONTEXT'}}
+ foreach($pin in @($prior.pins|Where-Object{$_.path.StartsWith((Join-Path $repo 'Modules')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)-or$_.path-cin@((Join-Path $PSScriptRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $PSScriptRoot 'JsonLifecycle.ConstructorDependency.Contract.ps1'),(Join-Path $PSScriptRoot 'JsonLifecycle.DependencyContexts.Contract.ps1'),(Join-Path $PSScriptRoot 'JsonSchema.DependencySignature.Contract.ps1'))})){
+  Assert-ReleasePin $pin.path $pin.sha256
+  if(@($runset.pins|Where-Object{$_.path-ceq$pin.path-and$_.sha256-ceq$pin.sha256}).Count-ne1){throw 'DEPENDENCY_VALUES_REUSE_PRODUCT_OR_ORACLE_DRIFT'}
+ }
+ $caps=@($prior.source_capsules|Where-Object originalPath -CEQ (Join-Path $PSScriptRoot 'JsonLifecycle.DependencyValueContexts.Contract.ps1'));if($caps.Count-ne1){throw 'DEPENDENCY_VALUES_REUSE_SOURCE_CAPSULE'}
+ Assert-ReleasePin $caps[0].snapshotPath $caps[0].sha256
+ $e=$null;$left=[Management.Automation.Language.Parser]::ParseFile($caps[0].snapshotPath,[ref]$null,[ref]$e);if($e.Count){throw 'DEPENDENCY_VALUES_REUSE_PARSE'}
+ $right=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'JsonLifecycle.DependencyValueContexts.Contract.ps1'),[ref]$null,[ref]$e);if($e.Count){throw 'DEPENDENCY_VALUES_REUSE_PARSE'}
+ foreach($name in @('Get-ConstructorValueSpecs','Get-ConstructorValueParameters','Invoke-ConstructorValueGuards')){
+  $a=@($left.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true));$b=@($right.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
+  if($a.Count-ne1-or$b.Count-ne1){throw 'DEPENDENCY_VALUES_REUSE_FUNCTION'}
+  $new=$b[0].Extent.Text.Replace("`r`n","`n").Replace("  if((`$Mode+'/'+`$Parent+'-constructor-'+`$spec.group+'/'+`$spec.id+'/deploy')-cin`$script:lifecycleGuardExcluded){continue}`n",'')
+  if($a[0].Extent.Text.Replace("`r`n","`n")-cne$new){throw 'DEPENDENCY_VALUES_REUSE_ORACLE_CHANGED'}
+ }
+ if(-not(Test-DependencyValuePrefix $old.profileCompletions)){throw 'DEPENDENCY_VALUES_REUSE_EXACT_PREFIX'}
+ foreach($r in $old.profileCompletions){$r.mode+'/'+$r.id}
 }
