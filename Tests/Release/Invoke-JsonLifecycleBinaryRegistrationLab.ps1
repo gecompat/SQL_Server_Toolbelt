@@ -180,6 +180,7 @@ try{
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$script:lifecycleGuardExcluded=@(Get-MarkerAbsenceReusedKeys)}
  if($runset.schema_version-ceq'json-lifecycle-signature-shape/v1'){$script:lifecycleGuardExcluded=@(Get-SignatureShapeReusedKeys)}
  if($runset.schema_version-ceq'json-lifecycle-dependency-value-contexts/v1'){$script:lifecycleGuardExcluded=@(Get-DependencyValueReusedKeys)}
+ if($runset.schema_version-ceq'json-constructors-aggregate-errors/v1'){$script:lifecycleGuardExcluded=@(Get-AggregateErrorReusedKeys)}
  $expectedCallerRows=0
 
  if($ValidateOnly){'PASS LIFECYCLE_GUARD_OFFLINE_ADMISSION; no Lab import or SQL';return}
