@@ -22,6 +22,15 @@ function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.baselines.$Mode))
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_exports.$Mode))
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.exports.$Mode))
+ Invoke-ConstructorDependencyGuards $Db $Mode
+ $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
+ if(($actual-join'|')-cne(@(Get-LifecycleGuardKeys $Mode $case.CL|Sort-Object)-join'|')){throw 'CONSTRUCTOR_DEPENDENCY_MODE_CLOSURE'}
+ Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.uninstall));Assert-CoreLockNeutral $Db
+ Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_uninstall));Assert-CoreLockNeutral $Db
+ Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.core_uninstall));Assert-CoreLockNeutral $Db
+}
+
+function Invoke-ConstructorDependencyGuards($Db,[string]$Mode,[string]$Prefix=''){
  $installed=Get-LifecycleGuardState $Db
  Sql $Db @'
 SELECT class,major_id,name,value INTO #ConstructorDependencyOriginals FROM sys.extended_properties
@@ -53,7 +62,7 @@ EXEC sys.sp_updateextendedproperty @name=@Name,@value=@Bad,@level0type=@L0,@leve
   }
   $damaged=Get-LifecycleGuardState $Db;if($damaged-ceq$installed){throw 'CONSTRUCTOR_DEPENDENCY_FIXTURE_NOT_CHANGED'}
   try{
-   Assert-LifecycleGuardDenied $Db $Mode ($spec.group+'/'+$spec.id+'/deploy') ([IO.File]::ReadAllText($runset.exports.$Mode)) 55633 (Get-ConstructorDependencyError $spec)
+   Assert-LifecycleGuardDenied $Db $Mode ($Prefix+$spec.group+'/'+$spec.id+'/deploy') ([IO.File]::ReadAllText($runset.exports.$Mode)) 55633 (Get-ConstructorDependencyError $spec)
   }finally{
    if((Get-LifecycleGuardState $Db)-cne$damaged){throw 'CONSTRUCTOR_DEPENDENCY_RESTORE_DRIFT'}
    $parameters['@Missing']=[int]$drop
@@ -68,9 +77,4 @@ ELSE EXEC sys.sp_updateextendedproperty @name=@Name,@value=@V,@level0type=@L0,@l
   if((Get-LifecycleGuardState $Db)-cne$installed){throw 'CONSTRUCTOR_DEPENDENCY_ORIGINAL_NOT_RESTORED'}
  }
  Sql $Db 'DROP TABLE #ConstructorDependencyOriginals;'
- $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
- if(($actual-join'|')-cne(@(Get-LifecycleGuardKeys $Mode $case.CL|Sort-Object)-join'|')){throw 'CONSTRUCTOR_DEPENDENCY_MODE_CLOSURE'}
- Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.uninstall));Assert-CoreLockNeutral $Db
- Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_uninstall));Assert-CoreLockNeutral $Db
- Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.core_uninstall));Assert-CoreLockNeutral $Db
 }
