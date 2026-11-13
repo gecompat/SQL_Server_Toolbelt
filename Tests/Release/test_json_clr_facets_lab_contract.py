@@ -39,9 +39,10 @@ foreach($entry in @(@{path=(Join-Path $repo 'Tests/Release/Runtime/JsonLifecycle
 $source=[IO.File]::ReadAllText((Join-Path $repo 'Modules/toolbelt.json.schema/Source/JsonSchemaBridge.sql'));$original=Get-ClrBindingOriginal $source
 $specs=@(Get-ClrFacetSpecs);if($specs.Count-ne36){throw 'VECTOR_CLOSURE'}
 foreach($cl in @(150,160,170)){foreach($mode in @('local','central')){
- $keys=@(Get-LifecycleGuardKeys $mode $cl);if($keys.Count-ne72-or@($keys|Select-Object -Unique).Count-ne72){throw 'KEY_CLOSURE'}
+ $keys=@(Get-LifecycleGuardKeys $mode $cl);if($keys.Count-ne62-or@($keys|Select-Object -Unique).Count-ne62){throw 'KEY_CLOSURE'}
  $counts=@($keys|ForEach-Object{$_.Split('/')[0]}|Group-Object|ForEach-Object Count|Sort-Object)
- if(($counts-join',')-cne'2,2,4,4,4,6,10,10,10,20'){throw 'TEN_GROUPS'}
+ if(@($keys|Where-Object{$_-like'column-not-null/*/engine-denied'}).Count-ne10-or@($keys|Where-Object{$_-like'column-not-null/*/deploy'-or$_-like'column-not-null/*/uninstall'}).Count){throw 'FICTIONAL_NULLABLE_PUBLIC_KEY'}
+ if(($counts-join',')-cne'2,2,4,4,4,6,10,10,10,10'){throw 'TEN_GROUPS'}
 }}
 $pNames=@('Json','Schema','Profile','MaxDocumentBytes','MaxSchemaBytes','MaxDepth','MaxEvaluationSteps','MaxErrors');$pTypes=@(231,231,231,127,127,56,127,56);$pLengths=@(-1,-1,64,8,8,4,8,4)
 $cNames=@('RowKind','ErrorOrdinal','Status','Profile','IsValid','DocumentPointer','SchemaPointer','Keyword','ErrorCode','ErrorsTruncated');$cTypes=@(231,56,231,231,104,231,231,231,231,104);$cLengths=@(16,4,48,64,1,-1,-1,256,64,1)
@@ -64,7 +65,7 @@ $bad=[pscustomobject]@{group='column-not-null';id='RowKind';index=0;scope='c';ty
 $caught=$false;try{New-ClrFacetDeclaration $original $bad}catch{$caught=$true};if(-not$caught){throw 'UNSELECTED_VECTOR_ACCEPTED'}
 $text=[IO.File]::ReadAllText($path)
 if($text-match'(?i)\b(GRANT|DENY|REVOKE)\b|ALTER\s+AUTHORIZATION|ALTER\s+ASSEMBLY|CREATE\s+TYPE'){throw 'SCOPE_EXCEEDED'}
-foreach($required in @('sys.columns','RESTORE_DRIFT','ORIGINAL_NOT_RESTORED','CLR_FACETS_EXACT_CATALOG_REQUIRED')){if(-not$text.Contains($required)){throw 'STATE_OR_RESTORE_MISSING'}}
+foreach($required in @('sys.columns','RESTORE_DRIFT','ORIGINAL_NOT_RESTORED','CLR_FACETS_EXACT_CATALOG_REQUIRED','CLR_FACETS_ENGINE_DENIAL_MUTATED_STATE','6526')){if(-not$text.Contains($required)){throw 'STATE_OR_RESTORE_MISSING'}}
 'CLR_FACET_COUNTEREXAMPLES_PASS'
 """
         r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)

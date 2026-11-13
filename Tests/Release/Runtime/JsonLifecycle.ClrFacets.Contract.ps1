@@ -24,7 +24,7 @@ function Assert-ClrFacetSpec($Spec){
 }
 function Get-LifecycleGuardKeys([string]$Mode,[int]$CL){
  if($Mode-cnotin@('local','central')-or$CL-notin@(150,160,170)){throw 'CLR_FACETS_EXACT_CONTEXT'}
- foreach($spec in Get-ClrFacetSpecs){foreach($op in @('deploy','uninstall')){$spec.group+'/'+$spec.id+'/'+$op}}
+ foreach($spec in Get-ClrFacetSpecs){if($spec.group-ceq'column-not-null'){$spec.group+'/'+$spec.id+'/engine-denied'}else{foreach($op in @('deploy','uninstall')){$spec.group+'/'+$spec.id+'/'+$op}}}
 }
 function New-ClrFacetDeclaration([string]$Original,$Spec){
  Assert-ClrFacetSpec $Spec
@@ -64,6 +64,12 @@ function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
  $cSql="SELECT column_id,name,system_type_id,user_type_id,max_length,[precision],[scale],is_nullable,collation_name FROM sys.columns WHERE object_id=OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') ORDER BY column_id;"
  $beforeP=@(Sql $Db $pSql -Rows);$beforeC=@(Sql $Db $cSql -Rows)
  foreach($spec in Get-ClrFacetSpecs){
+  if($spec.group-ceq'column-not-null'){
+   $message="Cannot use 'NOT NULL' constraint in the result table of a streaming user-defined function (column '"+$spec.id+"')."
+   Assert-LifecycleGuardDenied $Db $Mode ($spec.group+'/'+$spec.id+'/engine-denied') (New-ClrFacetDeclaration $original $spec) 6526 $message
+   if((Get-LifecycleGuardState $Db)-cne$installed){throw 'CLR_FACETS_ENGINE_DENIAL_MUTATED_STATE'}
+   continue
+  }
   Invoke-ReleaseBatches $Db (New-ClrFacetDeclaration $original $spec)
   $actualP=@(Sql $Db $pSql -Rows);$actualC=@(Sql $Db $cSql -Rows)
   if(-not(Test-ClrFacetCatalog $beforeP $beforeC $actualP $actualC $spec)){throw 'CLR_FACETS_EXACT_CATALOG_REQUIRED'}
