@@ -25,9 +25,15 @@ function Assert-AggregateErrorSpec($Spec){
  if($known.Count-ne1){throw 'AGGREGATE_ERRORS_EXACT_VECTOR'}
 }
 function Get-AggregateErrorKey($Spec){$Spec.aggregate+'/'+$Spec.wave+'/'+$Spec.id+'/p'+$Spec.profile}
+function Get-AggregateSelectedSpecs{
+ $selection='twenty-with-count-priority'
+ if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_error_scope']){$selection=$runset.aggregate_error_scope}
+ if($selection-cnotin@('twenty-with-count-priority','small-errors-only')){throw 'AGGREGATE_ERRORS_CLOSED_SELECTION'}
+ Get-AggregateErrorSpecs|Where-Object{$selection-ceq'twenty-with-count-priority'-or-not$_.wave.StartsWith('entry-priority-',[StringComparison]::Ordinal)}
+}
 function Get-LifecycleGuardKeys([string]$Mode,[int]$CL){
  if($Mode-cnotin@('local','central')-or$CL-notin@(150,160,170)){throw 'AGGREGATE_ERRORS_EXACT_CONTEXT'}
- foreach($spec in Get-AggregateErrorSpecs){Get-AggregateErrorKey $spec}
+ foreach($spec in Get-AggregateSelectedSpecs){Get-AggregateErrorKey $spec}
 }
 function Get-AggregateErrorInput($Spec){
  Assert-AggregateErrorSpec $Spec
@@ -86,7 +92,7 @@ function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.baselines.$Mode))
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_exports.$Mode))
  Sql $Db 'CREATE TABLE #AggregateWaveInput(InputId int IDENTITY,Ordinal int NULL,[Key] nvarchar(max) NULL,ValueKind nvarchar(max) NULL,[Value] nvarchar(max) NULL,Profile tinyint NULL);'
- foreach($spec in Get-AggregateErrorSpecs){
+ foreach($spec in Get-AggregateSelectedSpecs){
   if(($Mode+'/'+(Get-AggregateErrorKey $spec))-cin$script:lifecycleGuardExcluded){continue}
   $p=Get-AggregateErrorInput $spec
   Sql $Db @'

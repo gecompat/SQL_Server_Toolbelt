@@ -71,7 +71,7 @@ $text=ConvertTo-StandaloneSql -Node $tree -Values @{ConfirmNoExternalConsumers='
     def test_twenty_waves_inputs_error_tags_and_partial_row_barrier(self):
         script="$ErrorActionPreference='Stop';$path='"+str(FIXTURE).replace("'","''")+"';"+r"""
 $e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$e);if($e.Count){throw 'PARSE'}
-foreach($name in @('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-LifecycleGuardKeys','Get-AggregateErrorInput','Get-AggregateErrorStatement','Test-AggregateErrorTuple')){
+foreach($name in @('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-AggregateSelectedSpecs','Get-LifecycleGuardKeys','Get-AggregateErrorInput','Get-AggregateErrorStatement','Test-AggregateErrorTuple')){
  $n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));if($n.Count-ne1){throw 'FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
 }
 $specs=@(Get-AggregateErrorSpecs);if($specs.Count-ne128){throw 'VECTOR_CLOSURE'}
@@ -88,6 +88,8 @@ foreach($spec in $specs){
  $good[0].Message+=' TBX_JSON_AGG_RESOURCE_FAILURE';if(Test-AggregateErrorTuple $good $spec.tag){throw 'MULTIPLE_TAGS_ACCEPTED'}
  $good[0].Message=$spec.tag;$good[0].Number=229;if(Test-AggregateErrorTuple $good $spec.tag){throw 'WRONG_SQL_ERROR_ACCEPTED'}
 }
+$runset=[pscustomobject]@{aggregate_error_scope='small-errors-only'};if(@(Get-AggregateSelectedSpecs).Count-ne120-or@(Get-LifecycleGuardKeys local 150).Count-ne120){throw 'SMALL_SCOPE_CLOSURE'}
+$runset.aggregate_error_scope='unknown';$refused=$false;try{Get-AggregateSelectedSpecs}catch{$refused=$true};if(-not$refused){throw 'UNKNOWN_SCOPE_ACCEPTED'};Remove-Variable runset
 $bad=[pscustomobject]@{aggregate='array';wave='entry-priority-2';id='one-over';profile=1;tag='TBX_JSON_AGG_ENTRY_LIMIT'}
 $caught=$false;try{Get-AggregateErrorInput $bad}catch{$caught=$true};if(-not$caught){throw 'UNSELECTED_VECTOR_ACCEPTED'}
 $t=[IO.File]::ReadAllText($path)
