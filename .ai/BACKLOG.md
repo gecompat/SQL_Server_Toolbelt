@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Core/Schema: zehn Registrierungs-Textmatrizen — 2026-11-13
+
+Die [Zehnermatrix](../Releases/1.0.0/JSON-REGISTRATION-TEXT-QUALIFICATION.md)
+belegt weitere Core-/Schema-DB-Versions-/Modusformate und sechs Textmatrizen der
+Ownership-Properties an beiden Schema-Slots. 2.208 eindeutige öffentliche
+Deploy-/Uninstall-Profile in 24 Windows-/Linux-Kontexten lokal/direkt zentral:
+480 direkte Core- und 1.728 direkte Schema-Einstiege. Zwölf Erstläufe und zwölf
+frische unabhängige Audits PASS, kein nativer Fehler oder Retry. Bestehende
+Typ-/Fehlwert-/NULL-/Löschungs-/Altversions-/DB-Gegenmodusfälle nicht wiederholt.
+Alle 24 eigenen DBs/Trusteinträge entfernt, fünf Konfigurationsscopes
+zurückgenommen; ursprünglicher 32/32/60-Minuten-Rahmen mit 24 Aufrufen und
+DB-Reservierungen geschlossen. Typed Restore und vollständige Snapshots sowie
+externe Neutralitätsorakel bestehen. Andere Modulpflichten separat, keine
+Produkt-/Rechteänderung, Modulgesamtaufwertung oder Veröffentlichung.
+
 ## JSON Schema: zehn weitere Dependency-Wertkontexte — 2026-11-13
 
 Die [neue Zehnermatrix](../Releases/1.0.0/JSON-DEPENDENCY-VALUE-CONTEXTS-QUALIFICATION.md)
