@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: zehn Dependency-Zustände vor Erstinstallation und im Bestand — 2026-11-13
+
+Die [Zehnermatrix](../Releases/1.0.0/JSON-DEPENDENCY-CONTEXTS-QUALIFICATION.md)
+belegt fünf Constructor-Driftgruppen bei tatsächlich fehlendem Schema-Modul
+und fünf neue ResultTable-Präsenz-/NULL-/Format-/Objekttextgrenzen bei installiertem
+Schema. 960 eindeutige Deploy-Profile auf24 Windows-/Linux-Kontexten lokal/direkt
+zentral; zwölf Erstläufe und zwölf frische Audits PASS, kein nativer Fehler/Retry.
+Die624 bestehenden Constructor-Wiederholungsprofile bleiben unverändert und
+wurden nicht wiederholt. Gemeinsame Mutations-/Restorelogik nur in eine Funktion
+mit optionalem Receiptpräfix gehoben; SQL-/Orakelinhalt deterministisch identisch.
+Ein geerbtes FIVE-Label für die neue Zehnerwelle nach Abschluss ausschließlich
+als Metadatum korrigiert, Originaljournale/Quellenkapseln erhalten, kein SQL-Retry.
+Alle24 eigenen DBs/36 Trusteinträge entfernt, fünf Konfigurationsscopes zurückgenommen;
+24/32 Aufrufe/DB-Reservierungen innerhalb ursprünglicher60Minuten geschlossen.
+Keine fiktiven Uninstallprofile, Produkt-/Rechteänderung, Modulgesamtaufwertung
+oder Veröffentlichung. Andere Modulpflichten bleiben separat.
+
 ## JSON Schema: installierte Constructor-Dependency — 2026-11-13
 
 Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-CONSTRUCTOR-DEPENDENCY-QUALIFICATION.md)

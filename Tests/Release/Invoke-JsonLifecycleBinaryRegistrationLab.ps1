@@ -211,7 +211,7 @@ try{
  }else{
   if(Test-Path -LiteralPath $journal){throw 'LIFECYCLE_GUARD_CASE_ALREADY_ATTEMPTED'}
   $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();completedModes=@();witnesses=@();fixtureCompletions=@();profileCompletions=@();results=@();trust=@();configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()};definitionSnapshots=@();serverSnapshot=$null;observedTarget=$null;failure=$null};Save-ReleaseJournal
-  $ledger['declaredScope']=if($script:lifecycleGuardExcluded.Count){'CURRENT_GAPS_WITH_BOUND_REUSE'}else{'FULL_FIVE_POINT_PAIR'}
+  $ledger['declaredScope']=if($script:lifecycleGuardExcluded.Count){'CURRENT_GAPS_WITH_BOUND_REUSE'}elseif($runset.schema_version-ceq'json-lifecycle-dependency-contexts/v1'){'FULL_TEN_POINT_PAIR'}else{'FULL_FIVE_POINT_PAIR'}
   $ledger['excludedOriginalProfiles']=@($script:lifecycleGuardExcluded);Save-ReleaseJournal
   $control=Open-ReleaseConnection 'master'
   $actual=@(Invoke-ReleaseSql $control "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion')) Version,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)

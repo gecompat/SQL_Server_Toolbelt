@@ -354,3 +354,19 @@ zusätzlich geprüft, eigene Vorbereitung unter bestehender Root-Freigabe berein
 Historische Orphan-/direkte Constructor- und sonstige gültige Belege unverändert.
 Keine neue API-/Rechte-/Migrations-/Core-/Constructor-Gesamtqualifikation;
 übrige Modulpflichten separat, partially validated und unveröffentlicht.
+
+## Zehn weitere Dependency-Zustände — 2026-11-13
+
+Die [Zehnermatrix](../../../Releases/1.0.0/JSON-DEPENDENCY-CONTEXTS-QUALIFICATION.md)
+belegt fünf Constructor-Driftgruppen im tatsächlich fehlenden Schema-Elternzustand
+und fünf zusätzliche ResultTable-Präsenz-/NULL-/Format-/Objekttextgruppen bei
+installiertem Schema. 960 eindeutige Deploy-Profile auf24 lokalen/direkt zentralen
+Windows-/Linux-Kontexten; zwölf Erstläufe und zwölf frische Audits PASS. Vor und
+nach der ersten Phase Schema-Präsenz0, für die zweite Phase5 geprüft, falsche/
+teilweise Zustände abgewiesen. Die624 alten Wiederholungsprofile nicht erneut
+geprüft. Ein geerbtes Scope-Label nach Abschluss präzisiert, originale Journale
+und Quellenkapseln unverändert, SQL-/Restoreorakel identisch. Alle24 eigenen DBs/
+36 Trusteinträge entfernt, fünf Konfigurationsscopes zurückgenommen; ursprünglicher
+32/32/60-Minuten-Rahmen mit24 Aufrufen/DB-Reservierungen geschlossen. Übrige
+Modulpflichten separat; keine fiktiven Uninstall-, direkten Constructor-/Core-
+oder Modulgesamtbelege, keine Produkt-/Rechteänderung oder Veröffentlichung.
