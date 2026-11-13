@@ -1,4 +1,4 @@
-"""New fixture dispatch and exact missing/NULL/visibility closure; reuse admission setup."""
+"""Fixturezulassung, geschlossene CLR-Facetten und getrennte Engine-/Lifecycle-Keys."""
 from pathlib import Path
 import copy,hashlib,shutil,subprocess,unittest
 import test_json_lifecycle_binary_registration_lab_contract as admission
