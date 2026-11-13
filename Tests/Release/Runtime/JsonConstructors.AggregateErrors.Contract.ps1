@@ -72,7 +72,7 @@ function Assert-AggregateError($Db,[string]$Mode,$Spec){
  try{
   $reader=$command.ExecuteReader()
   try{do{while($reader.Read()){$rows++}}while($reader.NextResult())}finally{$reader.Dispose()}
- }catch{$caught=$_.Exception;while($caught.InnerException){$caught=$caught.InnerException}}finally{$command.Dispose()}
+ }catch{$caught=$_.Exception;while($caught-isnot[Data.SqlClient.SqlException]-and$caught.InnerException){$caught=$caught.InnerException}}finally{$command.Dispose()}
  if($caught-isnot[Data.SqlClient.SqlException]-or-not(Test-AggregateErrorTuple $caught.Errors $Spec.tag)-or$rows-ne0){Save-AggregateErrorMismatch $Spec $caught $rows $input;throw 'AGGREGATE_ERRORS_EXACT_FAILURE_WITHOUT_PARTIAL_ROW_REQUIRED'}
  if((Get-LifecycleGuardState $Db)-cne$before-or(Get-AggregateInputState $Db)-cne$input){throw 'AGGREGATE_ERRORS_MUTATED_MODULE_OR_INPUT'}
  Assert-CoreLockNeutral $Db
@@ -161,7 +161,7 @@ function Get-AggregateErrorReusedKeys{
  foreach($name in @('Get-AggregateErrorSpecs','Assert-AggregateErrorSpec','Get-AggregateErrorKey','Get-AggregateErrorInput','Get-AggregateInputState','Get-AggregateErrorStatement','Test-AggregateErrorTuple','Get-LifecycleGuardState','Assert-AggregateError')){
   $a=@($left.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true));$b=@($right.FindAll({param($n)$n-is[Management.Automation.Language.FunctionDefinitionAst]-and$n.Name-ceq$name},$true))
   if($a.Count-ne1-or$b.Count-ne1){throw 'AGGREGATE_ERRORS_REUSE_FUNCTION'}
-  $text=$b[0].Extent.Text.Replace("`r`n","`n").Replace('Save-AggregateErrorMismatch $Spec $caught $rows $input;','')
+  $text=$b[0].Extent.Text.Replace("`r`n","`n").Replace('Save-AggregateErrorMismatch $Spec $caught $rows $input;','').Replace('while($caught-isnot[Data.SqlClient.SqlException]-and$caught.InnerException){$caught=$caught.InnerException}','while($caught.InnerException){$caught=$caught.InnerException}')
   if($a[0].Extent.Text.Replace("`r`n","`n")-cne$text){throw 'AGGREGATE_ERRORS_REUSE_ORACLE_CHANGED'}
  }
  if(-not(Test-AggregateOriginalPrefix $old.profileCompletions)){throw 'AGGREGATE_ERRORS_REUSE_PREFIX'}
