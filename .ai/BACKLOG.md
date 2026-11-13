@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Core/Schema: typisierte Markerwerte, fehlende Registrierung und Parameternamen — 2026-11-13
+
+Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-TYPED-VALUES-PARAMETER-NAMES-QUALIFICATION.md)
+belegt falsche Assemblymarkerwerte bei unverändertem Typ/MaxLength/DATALENGTH
+für Core und Schema, vollständig gelöschte DB-Version-/Modusregistrierungen
+beider installierter Module sowie reine Großschreibung aller zwölf öffentlichen
+Schema-Parameternamen. 1344 eindeutige Profile auf24 lokalen/direkt zentralen
+Windows-/Linux-Kontexten; zwölf Erstläufe und zwölf frische Audits PASS.
+Alle24 eigenen DBs/Trusteinträge entfernt, fünf Konfigurationsscopes zurückgenommen.
+24/32 Aufrufe und24/32 DB-Reservierungen innerhalb ursprünglicher60Minuten
+geschlossen, kein nativer Fehlversuch oder Retry. Die bisherigen Typdrift-,
+NULL-/Fehlmarker- und Signaturtypbelege bleiben unverändert; keine grünen Profile
+wiederholt. Andere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat.
+Keine Produkt-/Rechteänderung, Modulgesamtaufwertung oder Veröffentlichung.
+
 ## Core/Schema: fehlende Marker und Sichtbarkeitsgrenzen — 2026-11-12
 
 Der [neue Fünfpunktnachweis](../Releases/1.0.0/JSON-MARKER-ABSENCE-VISIBILITY-QUALIFICATION.md)

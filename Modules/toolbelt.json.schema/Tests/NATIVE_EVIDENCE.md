@@ -290,3 +290,19 @@ wiederhergestellt;26/32 Aufrufe/DB-Reservierungen innerhalb derselben60Minuten
 abgeschlossen, keine Grenzen erneuert oder grünen Profile wiederholt.
 Andere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat. Historische
 und generierte Evidenz unverändert, weiterhin partially validated, unreleased.
+
+## Typisierte Markerwerte, fehlende Registrierung und Parameternamen — 2026-11-13
+
+Die [gemeinsame Fünfpunktmatrix](../../../Releases/1.0.0/JSON-TYPED-VALUES-PARAMETER-NAMES-QUALIFICATION.md)
+schließt falsche gleich typisierte/gleich lange Assemblymarkerwerte bei Core
+und Schema, gelöschte DB-Version-/Modusregistrierung beider installierter Module
+und reine Namensdrift aller zwölf öffentlichen Schema-Parameter. 1344 eindeutige
+Profile auf24 lokalen/direkt zentralen Windows-/Linux-Kontexten; zwölf Erstläufe
+und zwölf frische Audits PASS. Alle24 eigenen DBs/Trusteinträge entfernt, fünf
+Konfigurationsscopes zurückgenommen. Ursprünglicher32/32/60-Minuten-Rahmen mit
+24 Aufrufen/DB-Reservierungen geschlossen; kein nativer Fehler oder Retry.
+Gültige Typdrift-/NULL-/Fehlmarker-/Signaturtypbelege nicht wiederholt. Typisierte
+Originale und ursprüngliche Prozedurdefinitionen exakt wiederhergestellt;
+DDL-Zeitstempel der temporären Fixture sind kein behaupteter Restorevertrag.
+Weitere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat. Historische
+und generierte Evidenz unverändert, weiterhin partially validated, unreleased.
