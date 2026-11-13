@@ -22,6 +22,10 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
             Assert ($LinuxSessionRef -ceq ('a'*64)) 'opaque session forwarded'
             $script:readerCalls++
             $script:lastStack=$LinuxClientStack
+            if($script:mode -ceq 'document-failure'){throw 'TLS_LINUX_EXPORT_DOCUMENT_INVALID'}
+            if($script:mode -ceq 'payload-failure'){throw 'TLS_LINUX_EXPORT_PAYLOAD_INVALID'}
+            if($script:mode -ceq 'binding-failure'){throw 'TLS_LINUX_EXPORT_BINDING_INVALID'}
+            if($script:mode -ceq 'private-failure'){throw 'TLS_LINUX_EXPORT_DOCUMENT_INVALID password=synthetic-secret'}
             $q=[pscustomobject]@{ClientPlatform='linux';ClientRef='11111111-1111-1111-1111-111111111111';ClientContextDigest=('b'*64);ExpiresAt=[DateTimeOffset]::UtcNow.AddMinutes(2).ToString('o')}
             switch($script:mode){
                 ref {$q.ClientRef='foreign'}
@@ -57,6 +61,16 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
             Assert (Reject {Read-LabQualifiedSnapshot $script:bytes $script:ctx} 'LAB_QUALIFIED_EXPORT_REJECTED') ("reject changed returned Linux binding: "+$bad)
             Assert ($script:readerCalls -eq 1) 'no reader fallback/retry'
         }
+        foreach($case in @(
+            @{Mode='document-failure';Code='TLS_LINUX_EXPORT_DOCUMENT_INVALID'},
+            @{Mode='payload-failure';Code='TLS_LINUX_EXPORT_PAYLOAD_INVALID'},
+            @{Mode='binding-failure';Code='TLS_LINUX_EXPORT_BINDING_INVALID'}
+        )){
+            Reset;$script:mode=$case.Mode
+            Assert (Reject {Read-LabQualifiedSnapshot $script:bytes $script:ctx} $case.Code) ('preserve only the fixed safe reader category: '+$case.Mode)
+        }
+        Reset;$script:mode='private-failure'
+        Assert (Reject {Read-LabQualifiedSnapshot $script:bytes $script:ctx} 'LAB_QUALIFIED_EXPORT_REJECTED') 'private exception detail remains collapsed'
         foreach($field in @('LinuxSessionRef','LinuxClientRef','LinuxClientContextDigest')){
             foreach($value in @('wrong',$null,@('a'*64))){
                 Reset;$script:ctx.$field=$value

@@ -48,6 +48,22 @@ function Get-LabQualifiedReaderArguments {
     return $arguments
 }
 
+function Get-LabQualifiedLinuxReaderFailureCode {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord)
+    $safeCodes=@(
+        'TLS_LINUX_VERIFIER_REPLY_REJECTED','TLS_LINUX_EXPORT_DOCUMENT_INVALID',
+        'TLS_LINUX_EXPORT_PAYLOAD_INVALID','TLS_LINUX_EXPORT_BINDING_INVALID',
+        'TLS_LINUX_PEER_REJECTED'
+    )
+    $exception=$ErrorRecord.Exception
+    while($null-ne$exception){
+        $message=[string]$exception.Message
+        if($safeCodes-ccontains$message){return $message}
+        $exception=$exception.InnerException
+    }
+    return 'LAB_QUALIFIED_EXPORT_REJECTED'
+}
+
 function Read-LabQualifiedSnapshot {
     param([byte[]]$Bytes,[object]$TlsContext,[string]$ClientStack='SYSTEM_DATA_SQLCLIENT')
     $platform=Get-LabQualifiedClientHost
@@ -75,7 +91,7 @@ function Read-LabQualifiedSnapshot {
             $snapshot.ExportSha256 -cne (Get-LabContractByteHash $Bytes) -or $snapshot.ExportSha256 -cne (Get-LabContractByteHash $snapshot.ExportBytes) -or $snapshot.Contract.contractVersion -cne 'SqlServerLab.TestEnvironment/2.0' -or
             $snapshot.Contract.environments.Count -ne 1){throw 'LAB_SNAPSHOT_INVALID'}
         return $snapshot
-    }catch {throw 'LAB_QUALIFIED_EXPORT_REJECTED'}
+    }catch {throw (Get-LabQualifiedLinuxReaderFailureCode $_)}
 }
 
 function Assert-LabQualifiedConnectWindow {
