@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: zehn weitere Dependency-Wertkontexte — 2026-11-13
+
+Die [neue Zehnermatrix](../Releases/1.0.0/JSON-DEPENDENCY-VALUE-CONTEXTS-QUALIFICATION.md)
+belegt Constructor-Wert-/Versionsformat-/Modusformatfehler jeweils bei fehlendem
+und installiertem Schema sowie vier neue ResultTable-Gruppen vor Erstinstallation.
+1.008 eindeutige Deploy-Profile in 24 Windows-/Linux-Kontexten lokal/direkt zentral;
+zwölf erfolgreiche Koordinatoren und 13 frische Audits PASS. Ein ursprünglicher
+Transportfehllauf bleibt CLEANUP_BLOCKED, sein separater hashgebundener Recovery-
+Abschluss FAILED_CLEANED mit frischem Audit PASS. Zwei gültige Einzelprofile
+werden gebunden übernommen, 1.006 weitere durch erfolgreiche Koordinatoren
+geprüft; keine grünen Wiederholungen oder Umdeutung des Originalfehlers.
+Alle 25 eigenen DBs/39 Trusteinträge entfernt, fünf Konfigurationsscopes
+zurückgenommen. Derselbe ursprüngliche 32/32/60-Minuten-Rahmen ist mit 28 Aufrufen
+und 26 DB-Reservierungen geschlossen. Andere Modulpflichten bleiben separat;
+keine fiktiven Uninstallprofile, Produkt-/Rechteänderung, Modulgesamtaufwertung
+oder Veröffentlichung.
+
 ## JSON Schema: zehn Dependency-Zustände vor Erstinstallation und im Bestand — 2026-11-13
 
 Die [Zehnermatrix](../Releases/1.0.0/JSON-DEPENDENCY-CONTEXTS-QUALIFICATION.md)
