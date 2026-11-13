@@ -25,6 +25,7 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
             if($script:mode -ceq 'document-failure'){throw 'TLS_LINUX_EXPORT_DOCUMENT_INVALID'}
             if($script:mode -ceq 'payload-failure'){throw 'TLS_LINUX_EXPORT_PAYLOAD_INVALID'}
             if($script:mode -ceq 'binding-failure'){throw 'TLS_LINUX_EXPORT_BINDING_INVALID'}
+            if($script:mode -ceq 'reader-code'){throw $script:readerCode}
             if($script:mode -ceq 'private-failure'){throw 'TLS_LINUX_EXPORT_DOCUMENT_INVALID password=synthetic-secret'}
             $q=[pscustomobject]@{ClientPlatform='linux';ClientRef='11111111-1111-1111-1111-111111111111';ClientContextDigest=('b'*64);ExpiresAt=[DateTimeOffset]::UtcNow.AddMinutes(2).ToString('o')}
             switch($script:mode){
@@ -68,6 +69,16 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
         )){
             Reset;$script:mode=$case.Mode
             Assert (Reject {Read-LabQualifiedSnapshot $script:bytes $script:ctx} $case.Code) ('preserve only the fixed safe reader category: '+$case.Mode)
+        }
+        foreach($code in @(
+            'TLS_LINUX_VERIFIER_EXCHANGE_REJECTED','TLS_LINUX_VERIFIER_REPLY_REJECTED',
+            'TLS_LINUX_VERIFIER_REPLY_FRAME_REJECTED','TLS_LINUX_VERIFIER_REPLY_SCHEMA_REJECTED',
+            'TLS_LINUX_VERIFIER_REPLY_BINDING_REJECTED','TLS_LINUX_VERIFIER_REPLY_TIME_REJECTED',
+            'TLS_LINUX_VERIFIER_REPLY_WINDOW_REJECTED','TLS_LINUX_VERIFIER_REPLY_DEADLINE_EXCEEDED'
+        )){
+            Reset;$script:mode='reader-code';$script:readerCode=$code
+            Assert (Reject {Read-LabQualifiedSnapshot $script:bytes $script:ctx} $code) ('preserve closed verifier diagnostic through consumer catch: '+$code)
+            Assert ($script:readerCalls -eq 1) 'reader failure does not retry or fall back'
         }
         Reset;$script:mode='private-failure'
         Assert (Reject {Read-LabQualifiedSnapshot $script:bytes $script:ctx} 'LAB_QUALIFIED_EXPORT_REJECTED') 'private exception detail remains collapsed'
