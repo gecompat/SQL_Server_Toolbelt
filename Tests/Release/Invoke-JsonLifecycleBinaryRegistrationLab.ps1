@@ -22,7 +22,8 @@ function Start-CoreLockTrust($Control){
  $ready=@(Invoke-ReleaseSql $Control "SELECT CONVERT(int,value_in_use) Effective FROM sys.configurations WHERE name=N'clr enabled';" -Rows)
  if($ready.Count-ne1-or$ready[0].Effective-ne1){throw 'JSON_INSTALLED_CLR_MUST_ALREADY_BE_ENABLED'}
  $trustFiles=@($binary,$coreBinary)
- if($runset.schema_version-cin@('json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$trustFiles+=@($constructorBinary)}
+ if($runset.schema_version-cin@('json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$trustFiles+=@($constructorBinary)}
+ if($runset.schema_version-ceq'json-constructors-aggregate-errors/v1'){$trustFiles=@($coreBinary,$constructorBinary)}
  foreach($file in $trustFiles){
   $hash=(Get-FileHash -LiteralPath $file -Algorithm SHA512).Hash
   $existing=Get-ClrCallerTrust $Control ([Convert]::FromHexString($hash))
@@ -59,7 +60,7 @@ function Assert-JsonSchemaSessionFixtureScope([string]$Text){
 try{
  $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
  $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json -DateKind String
- if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1','json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1','json-lifecycle-registration-text/v1','json-lifecycle-clr-facets/v1','json-lifecycle-public-facets/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')-or$runset.cases.Count-ne12-or
+ if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1','json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1','json-lifecycle-registration-text/v1','json-lifecycle-clr-facets/v1','json-lifecycle-public-facets/v1','json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')-or$runset.cases.Count-ne12-or
   $runset.explicit_qualification_approved-isnot[bool]-or$runset.explicit_qualification_approved-ne$true){throw 'LIFECYCLE_GUARD_RUNSET_SCOPE'}
  $started=[DateTimeOffset]::Parse($runset.started_utc);$deadline=[DateTimeOffset]::Parse($runset.deadline_utc)
  if($deadline-ne$started.AddMinutes(60)-or$started-gt[DateTimeOffset]::UtcNow-or
@@ -72,12 +73,12 @@ try{
  }
  $case=$runset.cases[$CaseIndex];Assert-ReleaseInputs
  $fixtureRoot=Join-Path $PSScriptRoot 'Runtime'
- $fixtureNames=switch -CaseSensitive($runset.schema_version){'json-lifecycle-marker-absence-visibility/v1'{@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')};'json-lifecycle-marker-values-names/v1'{@('JsonLifecycle.MarkerValuesNames.Contract.ps1')};'json-lifecycle-signature-shape/v1'{@('JsonLifecycle.SignatureShape.Contract.ps1')};'json-lifecycle-clr-binding/v1'{@('JsonLifecycle.ClrBinding.Contract.ps1')};'json-lifecycle-clr-facets/v1'{@('JsonLifecycle.ClrFacets.Contract.ps1')};'json-lifecycle-public-facets/v1'{@('JsonLifecycle.PublicFacets.Contract.ps1')};'json-lifecycle-registration-text/v1'{@('JsonLifecycle.RegistrationText.Contract.ps1')};'json-lifecycle-constructor-dependency/v1'{@('JsonLifecycle.ConstructorDependency.Contract.ps1')};'json-lifecycle-dependency-contexts/v1'{@('JsonLifecycle.DependencyContexts.Contract.ps1')};'json-lifecycle-dependency-value-contexts/v1'{@('JsonLifecycle.DependencyValueContexts.Contract.ps1')};default{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}}
+ $fixtureNames=switch -CaseSensitive($runset.schema_version){'json-lifecycle-marker-absence-visibility/v1'{@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')};'json-lifecycle-marker-values-names/v1'{@('JsonLifecycle.MarkerValuesNames.Contract.ps1')};'json-lifecycle-signature-shape/v1'{@('JsonLifecycle.SignatureShape.Contract.ps1')};'json-lifecycle-clr-binding/v1'{@('JsonLifecycle.ClrBinding.Contract.ps1')};'json-lifecycle-clr-facets/v1'{@('JsonLifecycle.ClrFacets.Contract.ps1')};'json-lifecycle-public-facets/v1'{@('JsonLifecycle.PublicFacets.Contract.ps1')};'json-constructors-aggregate-errors/v1'{@('JsonConstructors.AggregateErrors.Contract.ps1')};'json-lifecycle-registration-text/v1'{@('JsonLifecycle.RegistrationText.Contract.ps1')};'json-lifecycle-constructor-dependency/v1'{@('JsonLifecycle.ConstructorDependency.Contract.ps1')};'json-lifecycle-dependency-contexts/v1'{@('JsonLifecycle.DependencyContexts.Contract.ps1')};'json-lifecycle-dependency-value-contexts/v1'{@('JsonLifecycle.DependencyValueContexts.Contract.ps1')};default{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}}
  $fixtures=@($fixtureNames|ForEach-Object{Join-Path $fixtureRoot $_})
  $repeatDependencies=@((Join-Path $PSScriptRoot 'Invoke-JsonSchemaUninstallAppLockLab.ps1'),(Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'),(Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'),(Join-Path $repo 'Deployment/Deploy-All.ps1'))
 
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1')}
- if($runset.schema_version-cin@('json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1','json-lifecycle-registration-text/v1','json-lifecycle-clr-facets/v1','json-lifecycle-public-facets/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$repeatDependencies+=@((Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $fixtureRoot 'JsonSchema.DependencySignature.Contract.ps1'))}
+ if($runset.schema_version-cin@('json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1','json-lifecycle-registration-text/v1','json-lifecycle-clr-facets/v1','json-lifecycle-public-facets/v1','json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$repeatDependencies+=@((Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $fixtureRoot 'JsonSchema.DependencySignature.Contract.ps1'))}
  if($runset.schema_version-cin@('json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.ConstructorDependency.Contract.ps1')}
  if($runset.schema_version-ceq'json-lifecycle-dependency-value-contexts/v1'){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.DependencyContexts.Contract.ps1')}
  if($runset.schema_version-ceq'json-lifecycle-clr-facets/v1'){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.ClrBinding.Contract.ps1')}
@@ -96,7 +97,7 @@ try{
  $coreBinary=Assert-ReleasePrivatePath $runset.core_artifact.path
  if((Get-FileHash $binary).Hash-ine$q.binaries.'Toolbelt.JsonSchema.dll'.sha256-or(Get-FileHash $coreBinary).Hash-ine$q.binaries.'Toolbelt.JsonCore.dll'.sha256){throw 'LIFECYCLE_GUARD_DLL_PROVENANCE'}
 
- if($runset.schema_version-cin@('json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){
+ if($runset.schema_version-cin@('json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){
   $constructorBinary=Assert-ReleasePrivatePath $runset.constructor_artifact.path
   foreach($path in @($constructorBinary,$runset.constructor_exports.local,$runset.constructor_exports.central,$runset.constructor_uninstall)){if(@($runset.pins|Where-Object path -CEQ $path).Count-ne1){throw 'CONSTRUCTOR_DEPENDENCY_REQUIRED_PIN'}}
   if((Get-FileHash $constructorBinary).Hash-ine$q.binaries.'Toolbelt.JsonConstructors.dll'.sha256){throw 'CONSTRUCTOR_DEPENDENCY_PACKAGE_BINARY'}
@@ -107,7 +108,7 @@ try{
  $registry=Get-Content -LiteralPath $registryPath -Raw|ConvertFrom-Json
  if($registry.status-cne'OFFLINE_QUALIFIED_KNOWN_ARTIFACTS'){throw 'JSON_INSTALLED_REGISTRY_STATUS'}
  $modules=@('toolbelt.json.core','toolbelt.json.schema')
- if($runset.schema_version-cin@('json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$modules+=@('toolbelt.json.constructors')}
+ if($runset.schema_version-cin@('json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){$modules+=@('toolbelt.json.constructors')}
  foreach($module in $modules){
   $rows=@($registry.artifacts|Where-Object{$_.Fields.moduleId-ceq$module})
   if($rows.Count-ne1){throw 'JSON_INSTALLED_CLOSURE_ROW'};$fields=$rows[0].Fields
@@ -164,7 +165,7 @@ try{
   }
  }}
  }
- if($runset.schema_version-cin@('json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){
+ if($runset.schema_version-cin@('json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){
   foreach($mode in @('local','central')){
    $tree=Get-SqlcmdScriptTree -Path (Join-Path $repo 'Modules/toolbelt.json.constructors/Deployment/Deploy.sql');Assert-CoreNodePin $tree
    $text=ConvertTo-StandaloneSql -Node $tree -Values @{DeploymentMode=$mode;AssemblyBits=('0x'+[Convert]::ToHexString([IO.File]::ReadAllBytes($constructorBinary)))} -ModulesRoot (Join-Path $repo 'Modules')
@@ -179,6 +180,7 @@ try{
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$script:lifecycleGuardExcluded=@(Get-MarkerAbsenceReusedKeys)}
  if($runset.schema_version-ceq'json-lifecycle-signature-shape/v1'){$script:lifecycleGuardExcluded=@(Get-SignatureShapeReusedKeys)}
  if($runset.schema_version-ceq'json-lifecycle-dependency-value-contexts/v1'){$script:lifecycleGuardExcluded=@(Get-DependencyValueReusedKeys)}
+ if($runset.schema_version-ceq'json-constructors-aggregate-errors/v1'){$script:lifecycleGuardExcluded=@(Get-AggregateErrorReusedKeys)}
  $expectedCallerRows=0
 
  if($ValidateOnly){'PASS LIFECYCLE_GUARD_OFFLINE_ADMISSION; no Lab import or SQL';return}
@@ -214,7 +216,8 @@ try{
  }else{
   if(Test-Path -LiteralPath $journal){throw 'LIFECYCLE_GUARD_CASE_ALREADY_ATTEMPTED'}
   $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');state='RUNNING';databases=@();completedModes=@();witnesses=@();fixtureCompletions=@();profileCompletions=@();results=@();trust=@();configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()};definitionSnapshots=@();serverSnapshot=$null;observedTarget=$null;failure=$null};Save-ReleaseJournal
-  $ledger['declaredScope']=if($script:lifecycleGuardExcluded.Count){'CURRENT_GAPS_WITH_BOUND_REUSE'}elseif($runset.schema_version-ceq'json-lifecycle-public-facets/v1'){'FULL_TWENTY_POINT_PAIR'}elseif($runset.schema_version-cin@('json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1','json-lifecycle-registration-text/v1','json-lifecycle-clr-facets/v1')){'FULL_TEN_POINT_PAIR'}else{'FULL_FIVE_POINT_PAIR'}
+  $ledger['declaredScope']=if($script:lifecycleGuardExcluded.Count){'CURRENT_GAPS_WITH_BOUND_REUSE'}elseif($runset.schema_version-cin@('json-lifecycle-public-facets/v1','json-constructors-aggregate-errors/v1')){'FULL_TWENTY_POINT_PAIR'}elseif($runset.schema_version-cin@('json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1','json-lifecycle-registration-text/v1','json-lifecycle-clr-facets/v1')){'FULL_TEN_POINT_PAIR'}else{'FULL_FIVE_POINT_PAIR'}
+  if($runset.schema_version-ceq'json-constructors-aggregate-errors/v1'-and$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-ceq'small-errors-only'){$ledger.declaredScope='SELECTED_SIXTEEN_SMALL_ERROR_FAMILIES'}
   $ledger['excludedOriginalProfiles']=@($script:lifecycleGuardExcluded);Save-ReleaseJournal
   $control=Open-ReleaseConnection 'master'
   $actual=@(Invoke-ReleaseSql $control "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion')) Version,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)
