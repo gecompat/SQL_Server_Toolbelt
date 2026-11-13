@@ -155,6 +155,7 @@ try{
  . ($fixtures[0])
  $script:lifecycleGuardExcluded=@()
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$script:lifecycleGuardExcluded=@(Get-MarkerAbsenceReusedKeys)}
+ if($runset.schema_version-ceq'json-lifecycle-signature-shape/v1'){$script:lifecycleGuardExcluded=@(Get-SignatureShapeReusedKeys)}
  $expectedCallerRows=0
 
  if($ValidateOnly){'PASS LIFECYCLE_GUARD_OFFLINE_ADMISSION; no Lab import or SQL';return}

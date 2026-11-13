@@ -30,7 +30,7 @@ class SignatureShapeTests(unittest.TestCase):
     def test_exact_shape_vectors_and_header_transforms(self):
         script="$ErrorActionPreference='Stop';$repo='"+str(ROOT).replace("'","''")+"';$path='"+str(FIXTURE).replace("'","''")+"';"+r"""
 $e=$null
-foreach($entry in @(@{path=(Join-Path $repo 'Tests/Release/Runtime/JsonSchema.DependencySignature.Contract.ps1');names=@('Get-SchemaGuardSignatureCases')},@{path=$path;names=@('Get-SignatureShapeSpecs','Get-LifecycleGuardKeys','New-SignatureShape','Test-SignatureShapeCatalog')})){
+foreach($entry in @(@{path=(Join-Path $repo 'Tests/Release/Runtime/JsonSchema.DependencySignature.Contract.ps1');names=@('Get-SchemaGuardSignatureCases')},@{path=$path;names=@('Get-SignatureShapeSpecs','Get-LifecycleGuardKeys','New-SignatureShape','Test-SignatureShapeCatalog','Read-ShapeScalar','Test-SignatureShapePrefix')})){
  $a=[Management.Automation.Language.Parser]::ParseFile($entry.path,[ref]$null,[ref]$e);if($e.Count){throw 'PARSE'}
  foreach($name in $entry.names){$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq$name},$true));if($n.Count-ne1){throw 'FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))}
 }
@@ -58,6 +58,18 @@ foreach($spec in $specs){
 $text=[IO.File]::ReadAllText($path)
 if($text-match'(?i)\b(GRANT|DENY|REVOKE|sp_addtype)\b|ALTER\s+AUTHORIZATION|ALTER\s+ASSEMBLY'){throw 'SCOPE_EXCEEDED'}
 foreach($required in @('sys.parameter_type_usages','ALIAS_IDENTITY_DRIFT','CREATE TYPE dbo.','DROP TYPE dbo.','ORIGINAL_NOT_RESTORED')){if(-not$text.Contains($required)){throw 'OWNED_ALIAS_OR_RESTORE_GUARD_MISSING'}}
+$expectedParameters=@{'@Name'='dbo.ContosoFixture'}
+function Sql($Db,$Text,$Parameters,[switch]$Rows){
+ if(-not[object]::ReferenceEquals($Parameters,$expectedParameters)-or-not$Rows-or$Text-cne'SELECT TYPE_ID(@Name) ScalarValue;'){throw 'PARAMETERS_NOT_FORWARDED'}
+ [pscustomobject]@{ScalarValue=777}
+}
+if((Read-ShapeScalar $null 'SELECT TYPE_ID(@Name) ScalarValue;' $expectedParameters)-ne777){throw 'SCALAR_VALUE_LOST'}
+$case=[pscustomobject]@{CL=150}
+$prefix=@(Get-LifecycleGuardKeys 'local' 150|Where-Object{$_.StartsWith('output/')}|ForEach-Object{[pscustomobject]@{mode='local';id=$_;passed=$true;snapshotPreserved=$true}})
+if(-not(Test-SignatureShapePrefix $prefix)){throw 'PREFIX_GOLDEN'}
+if(Test-SignatureShapePrefix @($prefix+$prefix[0])){throw 'PREFIX_DUPLICATE_ACCEPTED'}
+if(Test-SignatureShapePrefix @($prefix[1..23])){throw 'PREFIX_MISSING_ACCEPTED'}
+$prefix[0].passed=$false;if(Test-SignatureShapePrefix $prefix){throw 'PREFIX_FAILED_ACCEPTED'}
 'ALL_SHAPE_COUNTEREXAMPLES_PASS'
 """
         result=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
