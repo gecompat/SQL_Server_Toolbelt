@@ -378,3 +378,20 @@ Alle24 eigenen DBs/Trusteinträge entfernt, fünf Konfigurationsscopes zurückge
 Andere Längen-/Typ-/Nullability-/Class-/Methoden-/Binding-/Owner-/Recoverypflichten
 bleiben separat. Kein neuer Core-Nachweis, keine Produkt-/Rechteänderung oder
 Modulgesamtaufwertung; teilweise validiert und unveröffentlicht.
+
+## Tatsächlich installierte Constructor-Dependency — 2026-11-13
+
+Die [Fünfpunktmatrix](../../../Releases/1.0.0/JSON-CONSTRUCTOR-DEPENDENCY-QUALIFICATION.md)
+belegt bei tatsächlich installiertem bekanntem Constructor1.3 sechs abweichende
+Assemblymarker-Typfacetten, fehlende/NULL-Assemblymarker und vier Version-/vier
+Modusregistrierungsdrifts durch originale öffentliche Schema-Deploy-Abweisung.
+624 eindeutige Deploy-Profile auf24 lokalen/direkt zentralen Windows-/Linux-
+Kontexten; zwölf Erstläufe und zwölf frische Audits PASS. Keine Uninstall-
+Abweisungsprofile aus der nur beim Installieren geprüften Dependency ableiten.
+Alle24 eigenen DBs/36 Trusteinträge entfernt, fünf Konfigurationsscopes zurückgenommen;
+24/32 Aufrufe/DB-Reservierungen innerhalb ursprünglicher60Minuten geschlossen.
+Bekannte Constructor-Binary-/Projekt-/Compilerquellen und kanonische Scripts
+zusätzlich geprüft, eigene Vorbereitung unter bestehender Root-Freigabe bereinigt.
+Historische Orphan-/direkte Constructor- und sonstige gültige Belege unverändert.
+Keine neue API-/Rechte-/Migrations-/Core-/Constructor-Gesamtqualifikation;
+übrige Modulpflichten separat, partially validated und unveröffentlicht.

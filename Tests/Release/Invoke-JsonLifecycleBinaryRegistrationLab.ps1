@@ -21,7 +21,9 @@ function Get-JsonSchemaSessionServerSnapshot($Control){
 function Start-CoreLockTrust($Control){
  $ready=@(Invoke-ReleaseSql $Control "SELECT CONVERT(int,value_in_use) Effective FROM sys.configurations WHERE name=N'clr enabled';" -Rows)
  if($ready.Count-ne1-or$ready[0].Effective-ne1){throw 'JSON_INSTALLED_CLR_MUST_ALREADY_BE_ENABLED'}
- foreach($file in @($binary,$coreBinary)){
+ $trustFiles=@($binary,$coreBinary)
+ if($runset.schema_version-ceq'json-lifecycle-constructor-dependency/v1'){$trustFiles+=@($constructorBinary)}
+ foreach($file in $trustFiles){
   $hash=(Get-FileHash -LiteralPath $file -Algorithm SHA512).Hash
   $existing=Get-ClrCallerTrust $Control ([Convert]::FromHexString($hash))
   $entry=[ordered]@{hash=$hash;preexisting=($null-ne$existing);fingerprint=$null;state='PREEXISTING';description=$null}
@@ -57,7 +59,7 @@ function Assert-JsonSchemaSessionFixtureScope([string]$Text){
 try{
  $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
  $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json -DateKind String
- if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1','json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1')-or$runset.cases.Count-ne12-or
+ if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1','json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1','json-lifecycle-constructor-dependency/v1')-or$runset.cases.Count-ne12-or
   $runset.explicit_qualification_approved-isnot[bool]-or$runset.explicit_qualification_approved-ne$true){throw 'LIFECYCLE_GUARD_RUNSET_SCOPE'}
  $started=[DateTimeOffset]::Parse($runset.started_utc);$deadline=[DateTimeOffset]::Parse($runset.deadline_utc)
  if($deadline-ne$started.AddMinutes(60)-or$started-gt[DateTimeOffset]::UtcNow-or
@@ -70,12 +72,12 @@ try{
  }
  $case=$runset.cases[$CaseIndex];Assert-ReleaseInputs
  $fixtureRoot=Join-Path $PSScriptRoot 'Runtime'
- $fixtureNames=switch -CaseSensitive($runset.schema_version){'json-lifecycle-marker-absence-visibility/v1'{@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')};'json-lifecycle-marker-values-names/v1'{@('JsonLifecycle.MarkerValuesNames.Contract.ps1')};'json-lifecycle-signature-shape/v1'{@('JsonLifecycle.SignatureShape.Contract.ps1')};'json-lifecycle-clr-binding/v1'{@('JsonLifecycle.ClrBinding.Contract.ps1')};default{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}}
+ $fixtureNames=switch -CaseSensitive($runset.schema_version){'json-lifecycle-marker-absence-visibility/v1'{@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')};'json-lifecycle-marker-values-names/v1'{@('JsonLifecycle.MarkerValuesNames.Contract.ps1')};'json-lifecycle-signature-shape/v1'{@('JsonLifecycle.SignatureShape.Contract.ps1')};'json-lifecycle-clr-binding/v1'{@('JsonLifecycle.ClrBinding.Contract.ps1')};'json-lifecycle-constructor-dependency/v1'{@('JsonLifecycle.ConstructorDependency.Contract.ps1')};default{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}}
  $fixtures=@($fixtureNames|ForEach-Object{Join-Path $fixtureRoot $_})
  $repeatDependencies=@((Join-Path $PSScriptRoot 'Invoke-JsonSchemaUninstallAppLockLab.ps1'),(Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'),(Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'),(Join-Path $repo 'Deployment/Deploy-All.ps1'))
 
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1')}
- if($runset.schema_version-cin@('json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1')){$repeatDependencies+=@((Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $fixtureRoot 'JsonSchema.DependencySignature.Contract.ps1'))}
+ if($runset.schema_version-cin@('json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1','json-lifecycle-clr-binding/v1','json-lifecycle-constructor-dependency/v1')){$repeatDependencies+=@((Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $fixtureRoot 'JsonSchema.DependencySignature.Contract.ps1'))}
  if(($runset.fixtures-join'|')-cne($fixtures-join'|')){throw 'LIFECYCLE_GUARD_CANONICAL_FIXTURES_REQUIRED'}
  foreach($path in @($PSCommandPath,$runset.exports.local,$runset.exports.central,$runset.uninstall,$runset.artifact.path,$runset.core_artifact.path,$runset.baselines.local,$runset.baselines.central,$runset.core_exports.local,$runset.core_exports.central,$runset.core_uninstall,$runset.provenance,$runset.package)+$fixtures+$repeatDependencies+@(
   (Join-Path $PSScriptRoot 'Runtime/JsonCore.Lock.Contract.ps1'),
@@ -91,15 +93,22 @@ try{
  $coreBinary=Assert-ReleasePrivatePath $runset.core_artifact.path
  if((Get-FileHash $binary).Hash-ine$q.binaries.'Toolbelt.JsonSchema.dll'.sha256-or(Get-FileHash $coreBinary).Hash-ine$q.binaries.'Toolbelt.JsonCore.dll'.sha256){throw 'LIFECYCLE_GUARD_DLL_PROVENANCE'}
 
+ if($runset.schema_version-ceq'json-lifecycle-constructor-dependency/v1'){
+  $constructorBinary=Assert-ReleasePrivatePath $runset.constructor_artifact.path
+  foreach($path in @($constructorBinary,$runset.constructor_exports.local,$runset.constructor_exports.central,$runset.constructor_uninstall)){if(@($runset.pins|Where-Object path -CEQ $path).Count-ne1){throw 'CONSTRUCTOR_DEPENDENCY_REQUIRED_PIN'}}
+  if((Get-FileHash $constructorBinary).Hash-ine$q.binaries.'Toolbelt.JsonConstructors.dll'.sha256){throw 'CONSTRUCTOR_DEPENDENCY_PACKAGE_BINARY'}
+ }
  . (Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1')
  $registryPath=Join-Path $repo 'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json'
  if(@($runset.pins|Where-Object path -CEQ $registryPath).Count-ne1){throw 'JSON_INSTALLED_REGISTRY_PIN_REQUIRED'}
  $registry=Get-Content -LiteralPath $registryPath -Raw|ConvertFrom-Json
  if($registry.status-cne'OFFLINE_QUALIFIED_KNOWN_ARTIFACTS'){throw 'JSON_INSTALLED_REGISTRY_STATUS'}
- foreach($module in @('toolbelt.json.core','toolbelt.json.schema')){
+ $modules=@('toolbelt.json.core','toolbelt.json.schema')
+ if($runset.schema_version-ceq'json-lifecycle-constructor-dependency/v1'){$modules+=@('toolbelt.json.constructors')}
+ foreach($module in $modules){
   $rows=@($registry.artifacts|Where-Object{$_.Fields.moduleId-ceq$module})
   if($rows.Count-ne1){throw 'JSON_INSTALLED_CLOSURE_ROW'};$fields=$rows[0].Fields
-  $file=if($module-ceq'toolbelt.json.core'){$coreBinary}else{$binary}
+  $file=if($module-ceq'toolbelt.json.core'){$coreBinary}elseif($module-ceq'toolbelt.json.constructors'){$constructorBinary}else{$binary}
   if((Get-FileHash $file).Hash-ine$fields.binarySha256-or(Get-FileHash $file -Algorithm SHA512).Hash-ine$fields.binarySha512){throw 'JSON_INSTALLED_KNOWN_BINARY_REQUIRED'}
   $sourceRoot=Join-Path $repo ('Modules/'+$module+'/Clr')
   $project=Join-Path $sourceRoot ($fields.managedAssembly+'.csproj')
@@ -151,6 +160,16 @@ try{
    if([IO.File]::ReadAllText($path)-cne$text){throw 'LIFECYCLE_GUARD_ORIGINAL_BINARY_VECTOR'}
   }
  }}
+ }
+ if($runset.schema_version-ceq'json-lifecycle-constructor-dependency/v1'){
+  foreach($mode in @('local','central')){
+   $tree=Get-SqlcmdScriptTree -Path (Join-Path $repo 'Modules/toolbelt.json.constructors/Deployment/Deploy.sql');Assert-CoreNodePin $tree
+   $text=ConvertTo-StandaloneSql -Node $tree -Values @{DeploymentMode=$mode;AssemblyBits=('0x'+[Convert]::ToHexString([IO.File]::ReadAllBytes($constructorBinary)))} -ModulesRoot (Join-Path $repo 'Modules')
+   if([IO.File]::ReadAllText($runset.constructor_exports.$mode)-cne$text){throw 'CONSTRUCTOR_DEPENDENCY_CANONICAL_DEPLOY'}
+  }
+  $tree=Get-SqlcmdScriptTree -Path (Join-Path $repo 'Modules/toolbelt.json.constructors/Deployment/Uninstall.sql');Assert-CoreNodePin $tree
+  $text=ConvertTo-StandaloneSql -Node $tree -Values @{ConfirmNoExternalConsumers='1'} -ModulesRoot (Join-Path $repo 'Modules')
+  if([IO.File]::ReadAllText($runset.constructor_uninstall)-cne$text){throw 'CONSTRUCTOR_DEPENDENCY_CANONICAL_UNINSTALL'}
  }
  . ($fixtures[0])
  $script:lifecycleGuardExcluded=@()
