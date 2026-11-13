@@ -57,7 +57,7 @@ function Assert-JsonSchemaSessionFixtureScope([string]$Text){
 try{
  $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
  $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json -DateKind String
- if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1','json-lifecycle-marker-values-names/v1')-or$runset.cases.Count-ne12-or
+ if($runset.schema_version-cnotin@('json-lifecycle-binary-registration/v1','json-lifecycle-marker-absence-visibility/v1','json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1')-or$runset.cases.Count-ne12-or
   $runset.explicit_qualification_approved-isnot[bool]-or$runset.explicit_qualification_approved-ne$true){throw 'LIFECYCLE_GUARD_RUNSET_SCOPE'}
  $started=[DateTimeOffset]::Parse($runset.started_utc);$deadline=[DateTimeOffset]::Parse($runset.deadline_utc)
  if($deadline-ne$started.AddMinutes(60)-or$started-gt[DateTimeOffset]::UtcNow-or
@@ -70,12 +70,12 @@ try{
  }
  $case=$runset.cases[$CaseIndex];Assert-ReleaseInputs
  $fixtureRoot=Join-Path $PSScriptRoot 'Runtime'
- $fixtureNames=switch -CaseSensitive($runset.schema_version){'json-lifecycle-marker-absence-visibility/v1'{@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')};'json-lifecycle-marker-values-names/v1'{@('JsonLifecycle.MarkerValuesNames.Contract.ps1')};default{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}}
+ $fixtureNames=switch -CaseSensitive($runset.schema_version){'json-lifecycle-marker-absence-visibility/v1'{@('JsonLifecycle.MarkerAbsenceVisibility.Contract.ps1')};'json-lifecycle-marker-values-names/v1'{@('JsonLifecycle.MarkerValuesNames.Contract.ps1')};'json-lifecycle-signature-shape/v1'{@('JsonLifecycle.SignatureShape.Contract.ps1')};default{@('JsonLifecycle.BinaryRegistration.Contract.ps1')}}
  $fixtures=@($fixtureNames|ForEach-Object{Join-Path $fixtureRoot $_})
  $repeatDependencies=@((Join-Path $PSScriptRoot 'Invoke-JsonSchemaUninstallAppLockLab.ps1'),(Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1'),(Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaAppLockLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-JsonSchemaCallerTransactionLab.ps1'),(Join-Path $repo 'Deployment/Deploy-All.ps1'))
 
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$repeatDependencies+=@(Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1')}
- if($runset.schema_version-ceq'json-lifecycle-marker-values-names/v1'){$repeatDependencies+=@((Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $fixtureRoot 'JsonSchema.DependencySignature.Contract.ps1'))}
+ if($runset.schema_version-cin@('json-lifecycle-marker-values-names/v1','json-lifecycle-signature-shape/v1')){$repeatDependencies+=@((Join-Path $fixtureRoot 'JsonLifecycle.BinaryRegistration.Contract.ps1'),(Join-Path $fixtureRoot 'JsonSchema.DependencySignature.Contract.ps1'))}
  if(($runset.fixtures-join'|')-cne($fixtures-join'|')){throw 'LIFECYCLE_GUARD_CANONICAL_FIXTURES_REQUIRED'}
  foreach($path in @($PSCommandPath,$runset.exports.local,$runset.exports.central,$runset.uninstall,$runset.artifact.path,$runset.core_artifact.path,$runset.baselines.local,$runset.baselines.central,$runset.core_exports.local,$runset.core_exports.central,$runset.core_uninstall,$runset.provenance,$runset.package)+$fixtures+$repeatDependencies+@(
   (Join-Path $PSScriptRoot 'Runtime/JsonCore.Lock.Contract.ps1'),
@@ -155,6 +155,7 @@ try{
  . ($fixtures[0])
  $script:lifecycleGuardExcluded=@()
  if($runset.schema_version-ceq'json-lifecycle-marker-absence-visibility/v1'){$script:lifecycleGuardExcluded=@(Get-MarkerAbsenceReusedKeys)}
+ if($runset.schema_version-ceq'json-lifecycle-signature-shape/v1'){$script:lifecycleGuardExcluded=@(Get-SignatureShapeReusedKeys)}
  $expectedCallerRows=0
 
  if($ValidateOnly){'PASS LIFECYCLE_GUARD_OFFLINE_ADMISSION; no Lab import or SQL';return}

@@ -347,3 +347,19 @@ Originale und ursprüngliche Prozedurdefinitionen exakt wiederhergestellt;
 DDL-Zeitstempel der temporären Fixture sind kein behaupteter Restorevertrag.
 Weitere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat. Historische
 und generierte Evidenz unverändert, weiterhin partially validated, unreleased.
+
+## OUTPUT-, Alias-, Arity- und Ordinalsignaturen — 2026-11-13
+
+Die [Fünfpunktmatrix](../../../Releases/1.0.0/JSON-SIGNATURE-SHAPE-QUALIFICATION.md)
+belegt alle einzelnen OUTPUT-Flags, basistypgleichen echten Aliase, fehlenden
+Parameter, benachbarten Ordinalvertauschungen und einen zusätzlichen Parameter
+über öffentliche Deploy-/Uninstall-Abweisung. 2304 eindeutige Profile auf24
+lokalen/direkt zentralen Windows-/Linux-Kontexten;24 gültig übernommen,2280 neu.
+Ein ursprünglicher Adapterfehler bleibt FAILED_CLEANED; zwölf korrigierte
+Koordinatoren und13 frische Audits PASS. Alle288 Alias-Fixtures nach Referenz-/
+Identitätsprüfung entfernt,25 eigene DBs/26 Trusteinträge entfernt, sechs
+Konfigurationsscopes zurückgenommen. Derselbe32/32/60-Minuten-Rahmen mit26
+Aufrufen/DB-Reservierungen geschlossen. Keine grünen Wiederholungen, Rechte-/
+Principal-/Produktänderungen oder Core-Modulaufwertung. Historische Belege und
+übrige Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat; partially
+validated, unreleased. Keine Veröffentlichung.

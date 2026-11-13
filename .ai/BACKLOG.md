@@ -1,5 +1,21 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: OUTPUT-, Alias-, Arity- und Ordinalsignaturen — 2026-11-13
+
+Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-SIGNATURE-SHAPE-QUALIFICATION.md)
+belegt alle zwölf einzelnen OUTPUT-Flags, zwölf echte basistypgleiche Aliase,
+zwölf fehlende Parameter mit kompilierbarer lokaler Ersatzdeklaration, elf
+Nachbarvertauschungen und einen zusätzlichen Parameter durch beide öffentlichen
+Lifecycle-Einstiege. 2304 eindeutige Profile auf24 Windows-/Linux-Kontexten,
+davon24 gültig übernommen und2280 erstmals ausgeführt. Der erste Koordinator
+bleibt FAILED_CLEANED (fehlende Dictionaryweitergabe im Adapter); zwölf korrigierte
+Koordinatoren und alle13 frischen Audits PASS. Alle288 eigenen Alias-Fixtures,
+25 eigenen DBs/26 Trusteinträge entfernt, sechs Konfigurationsscopes zurückgenommen.
+Derselbe ursprüngliche32/32/60-Minuten-Rahmen mit26 Aufrufen/DB-Reservierungen
+geschlossen; keine grünen Profile oder geschlossenen Grenzen erneuert.
+Andere Owner-/ACL-/Identitäts-/Recoverypflichten bleiben separat. Keine Produkt-/
+Rechteänderung, Modulgesamtaufwertung oder Veröffentlichung.
+
 ## Core/Schema: typisierte Markerwerte, fehlende Registrierung und Parameternamen — 2026-11-13
 
 Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-TYPED-VALUES-PARAMETER-NAMES-QUALIFICATION.md)
