@@ -41,6 +41,13 @@ $specs=@(Get-SignatureShapeSpecs);if($specs.Count-ne48){throw 'VECTOR_CLOSURE'}
 foreach($spec in $specs){
  $changed=New-SignatureShape $original $spec
  if($changed-ceq$original){throw 'NO_CHANGE'}
+ $oldBoundary=[regex]::Match($original,'(?im)^\s*AS\s*\r?\nBEGIN\b');$newBoundary=[regex]::Match($changed,'(?im)^\s*AS\s*\r?\nBEGIN\b')
+ $oldTail=$original.Substring($oldBoundary.Index+$oldBoundary.Length);$newTail=$changed.Substring($newBoundary.Index+$newBoundary.Length)
+ if($spec.group-ceq'missing'){
+  $line=[regex]::Match($original,'(?im)^\s*'+[regex]::Escape('@'+$spec.id)+'\s+[^\r\n]+').Value.Trim().TrimEnd(',')
+  if($newTail-cne("`n DECLARE "+$line+';'+$oldTail)){throw 'MISSING_BODY_CHANGED_BEYOND_LOCAL_DECLARATION'}
+ }elseif($newTail-cne$oldTail){throw 'UNRELATED_BODY_CHANGED'}
+
  $before=@(for($i=0;$i-lt12;$i++){[pscustomobject][ordered]@{parameter_id=$i+1;name=('@'+$names[$i]);system_type_id=56;user_type_id=56;max_length=4;precision=10;scale=0;is_output=$false}})
  $after=@($before|ConvertTo-Json|ConvertFrom-Json)
  switch -CaseSensitive($spec.group){
