@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## JSON Schema: installierte Constructor-Dependency — 2026-11-13
+
+Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-CONSTRUCTOR-DEPENDENCY-QUALIFICATION.md)
+belegt am tatsächlich installierten bekannten Constructor1.3 abweichende
+Assemblymarker-Typfacetten, fehlende und SQL-NULL-Marker sowie DB-Version-/
+Modusregistrierungsdrift durch öffentliche Schema-Deploy-Abweisung. 624 eindeutige
+Deploy-Profile auf24 Windows-/Linux-Kontexten lokal/direkt zentral; zwölf Erstläufe
+und zwölf frische Audits PASS, kein nativer Fehler oder Retry. Keine fiktiven
+Uninstallprofile: diese optionale Dependency wird dort nicht geprüft.
+Alle24 eigenen DBs/36 Trusteinträge entfernt, fünf Konfigurationsscopes zurückgenommen;
+24/32 Aufrufe/DB-Reservierungen innerhalb ursprünglicher60Minuten geschlossen.
+Constructor-DLL/Projekt/Compilerquellen und Originalscripts zusätzlich gebunden;
+Root-autorisierten eigenen Hashtrust journalgeführt zurückgenommen. Vorhandene
+Orphan-/direkte Constructor-/Core-/Signatur-/Callerbelege nicht wiederholt.
+Andere Modulpflichten bleiben separat, keine Produkt-/Rechteänderung,
+Modulgesamtaufwertung oder Veröffentlichung.
+
 ## JSON Schema: interne CLR-Parameter und Ergebnisspalten — 2026-11-13
 
 Die [neue Fünfpunktmatrix](../Releases/1.0.0/JSON-CLR-BINDING-QUALIFICATION.md)
