@@ -38,6 +38,16 @@ function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
  Assert-DependencyParent $Db $false
  Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.exports.$Mode))
  Assert-DependencyParent $Db $true
+ Invoke-ResultDependencyGuards $Db $Mode
+ Assert-DependencyParent $Db $true
+ $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
+ if(($actual-join'|')-cne(@(Get-LifecycleGuardKeys $Mode $case.CL|Sort-Object)-join'|')){throw 'DEPENDENCY_CONTEXT_TEN_POINT_CLOSURE'}
+ Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.uninstall));Assert-CoreLockNeutral $Db
+ Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_uninstall));Assert-CoreLockNeutral $Db
+ Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.core_uninstall));Assert-CoreLockNeutral $Db
+}
+
+function Invoke-ResultDependencyGuards($Db,[string]$Mode,[object[]]$Specs=(Get-ResultDependencySpecs),[string]$Prefix=''){
  $installed=Get-LifecycleGuardState $Db
  Sql $Db @'
 SELECT class,major_id,name,value INTO #DependencyContextResultOriginals FROM sys.extended_properties
@@ -45,7 +55,7 @@ WHERE (class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version')
  OR (class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable') AND name IN(N'Toolbelt.ModuleId',N'Toolbelt.ModuleVersion'));
 '@
  if([int](Read-Scalar $Db 'SELECT COUNT(*) ScalarValue FROM #DependencyContextResultOriginals;')-ne3){throw 'DEPENDENCY_CONTEXT_THREE_ORIGINALS'}
- foreach($spec in Get-ResultDependencySpecs){
+ foreach($spec in $Specs){
   $parameters=Get-ResultDependencyParameters $spec
   if($spec.operation-ceq'missing'){
    Sql $Db 'EXEC sys.sp_dropextendedproperty @name=@Name,@level0type=@L0,@level0name=@N0,@level1type=@L1,@level1name=@N1;' $parameters
@@ -61,7 +71,7 @@ EXEC sys.sp_updateextendedproperty @name=@Name,@value=@Bad,@level0type=@L0,@leve
   }
   $damaged=Get-LifecycleGuardState $Db;if($damaged-ceq$installed){throw 'DEPENDENCY_CONTEXT_RESULT_NOT_CHANGED'}
   try{
-   Assert-LifecycleGuardDenied $Db $Mode ($spec.group+'/'+$spec.id+'/deploy') ([IO.File]::ReadAllText($runset.exports.$Mode)) 55632 'JSON Schema lifecycle: registrierte ResultTable-Dependency >=1.0.0 fehlt.'
+   Assert-LifecycleGuardDenied $Db $Mode ($Prefix+$spec.group+'/'+$spec.id+'/deploy') ([IO.File]::ReadAllText($runset.exports.$Mode)) 55632 'JSON Schema lifecycle: registrierte ResultTable-Dependency >=1.0.0 fehlt.'
   }finally{
    if((Get-LifecycleGuardState $Db)-cne$damaged){throw 'DEPENDENCY_CONTEXT_RESULT_RESTORE_DRIFT'}
    $parameters['@Missing']=[int]($spec.operation-ceq'missing')
@@ -76,10 +86,4 @@ ELSE EXEC sys.sp_updateextendedproperty @name=@Name,@value=@V,@level0type=@L0,@l
   if((Get-LifecycleGuardState $Db)-cne$installed){throw 'DEPENDENCY_CONTEXT_RESULT_ORIGINAL_NOT_RESTORED'}
  }
  Sql $Db 'DROP TABLE #DependencyContextResultOriginals;'
- Assert-DependencyParent $Db $true
- $actual=@($ledger.profileCompletions|Where-Object mode -CEQ $Mode|ForEach-Object id|Sort-Object)
- if(($actual-join'|')-cne(@(Get-LifecycleGuardKeys $Mode $case.CL|Sort-Object)-join'|')){throw 'DEPENDENCY_CONTEXT_TEN_POINT_CLOSURE'}
- Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.uninstall));Assert-CoreLockNeutral $Db
- Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.constructor_uninstall));Assert-CoreLockNeutral $Db
- Invoke-ReleaseBatches $Db ([IO.File]::ReadAllText($runset.core_uninstall));Assert-CoreLockNeutral $Db
 }
