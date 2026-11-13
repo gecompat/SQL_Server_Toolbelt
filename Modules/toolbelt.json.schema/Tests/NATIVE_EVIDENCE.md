@@ -419,3 +419,21 @@ scopes zurückgenommen; ursprünglicher 32/32/60-Minuten-Rahmen mit 26 Aufrufen/
 DB-Reservierungen geschlossen. Aktive unabhängige Arbeit und private Originale
 bleiben erhalten. Keine Produkt-/Rechteänderung, vollständige Binding-/Modul-
 qualifikation oder Veröffentlichung; weitere Modulpflichten separat.
+
+## Zwanzig öffentliche Parametergrenzen — 2026-11-13
+
+Die [Zwanzigpunktmatrix](../../../Releases/1.0.0/JSON-PUBLIC-FACETS-QUALIFICATION.md)
+belegt zwanzig konkret benannte neue Typ-/Längengrenzen der öffentlichen
+Schema-Prozedur, einschließlich fester Zeichenformen, MAX-/Minimal-/größerer
+Längen, decimal(19,0)-Budgets, breiterer Ganzzahlen und abweichender ResultTable-
+Deklarationen. Je 48 Profile pro Punkt: 960 eindeutige öffentliche Deploy-/
+Uninstall-Profile in 24 Windows-/Linux-Kontexten lokal/direkt zentral; zwölf
+Erstkoordinatoren und zwölf frische unabhängige Audits PASS, kein nativer Fehler
+oder Retry. Tatsächlicher vollständiger Parameterkatalog, unveränderter Inhalt/
+Defaultliterale, genaue Abweisung und exakter Restore geprüft. Vorhandene Typ-/
+kurze Längen-/Alias-/OUTPUT-/Arity-/Ordinal-/Namensfälle nicht wiederholt.
+Alle 24 eigenen DBs/Trusteinträge entfernt, fünf Konfigurationsscopes
+zurückgenommen; ursprünglicher 32/32/60-Minuten-Rahmen mit 24 Aufrufen und
+DB-Reservierungen geschlossen. Private Originale und unabhängige aktive Arbeit
+bleiben erhalten. Keine Produkt-/Rechteänderung, Modulgesamtaufwertung oder
+Veröffentlichung; andere Modulpflichten separat.
