@@ -1,5 +1,14 @@
 # JSON Constructor Testmatrix
 
+Die [Aggregate-Fehlerwelle vom 2026-11-13](../../../Releases/1.0.0/JSON-AGGREGATE-ERRORS-QUALIFICATION.md)
+belegt 16 kleine Fehlerfamilien auf 22 lokalen/direkt zentralen Windows-/Linux-
+Kontexten: 2.640 eindeutige Profile, davon 60 gültig wiederverwendet. Elf vollständige
+Restkoordinatoren und insgesamt 15 frische Abschlussaudits bestehen; vier frühere
+Fehlversuche einschließlich einer getrennt bereinigten Eingangsdrift bleiben erhalten.
+Linux SQL2025/latest CL170 lokal/zentral und vier große gültige Eintragsgrenzen
+bleiben offen. Zwei gesonderte Array-Count-Prioritätsreceipts gelten nur für ihren
+einen Kontext; kein vollständiger Zwanzig-Punkte-, Ressourcen- oder Modul-PASS.
+
 Die [nichtleere Constructor-USP-ACL-Matrix](../../../Releases/1.0.0/JSON-CONSTRUCTORS-NONEMPTY-ACL-QUALIFICATION.md)
 besteht am 2026-11-08 nach neuer ausdrücklicher Freigabe auf 24 lokalen/direkt
 zentralen Windows-/Linux-SQL-Kontexten: zwölf vollständige Originalkoordinatoren
