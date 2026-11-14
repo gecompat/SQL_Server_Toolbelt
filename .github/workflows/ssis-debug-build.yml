@@ -113,6 +113,7 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin 763d46d4eafa79394399d51aec7d3ab90d0dad0c
           git fetch --no-tags --depth=1 origin 410c994f657888faf5ccb1097b1d1a985a98ec96
+          git fetch --no-tags --depth=1 origin 6e1985aee3e0ded746d1a32c6d494b370049872b
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
