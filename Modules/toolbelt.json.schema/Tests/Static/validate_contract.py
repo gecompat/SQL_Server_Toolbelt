@@ -72,6 +72,12 @@ assert prior_ctor['fieldOrder'] == current_ctor['fieldOrder']
 assert {key for key in current_ctor['Fields'] if current_ctor['Fields'][key] != prior_ctor['Fields'][key]} == {
     'binarySha256', 'binarySha512', 'source/OwnedAggregateBuilder.cs', 'source/JsonAggregates.cs'}
 assert prior_ctor['ArtifactId'] != current_ctor['ArtifactId']
+# Aktive CI-/Katalogleser müssen exakt denselben aktuellen Zielhash verlangen.
+ci_text = (repo / 'Tests/CI/run-json-constructors-linux.sh').read_text(encoding='utf-8')
+metadata_text = (modules / 'toolbelt.json.constructors/Tests/Runtime/InstalledMetadata.Contract.sql').read_text(encoding='utf-8')
+assert ('json-clr/Toolbelt.JsonConstructors.dll ' + current_ctor['Fields']['binarySha512']) in ci_text
+assert ('0x' + current_ctor['Fields']['binarySha512']) in metadata_text
+
 assert historical_rows['toolbelt.json.schema']['Fields']['moduleVersion'] == '1.0.0'
 assert rows['toolbelt.json.schema']['Fields']['moduleVersion'] == '1.0.1'
 schema_known = (modules / 'toolbelt.json.schema/Deployment/KnownArtifact.sql').read_text(encoding='utf-8')
