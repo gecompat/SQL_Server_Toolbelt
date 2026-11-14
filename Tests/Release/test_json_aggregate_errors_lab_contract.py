@@ -8,6 +8,39 @@ FIXTURE=ROOT/'Tests/Release/Runtime/JsonConstructors.AggregateErrors.Contract.ps
 
 @unittest.skipUnless(shutil.which('pwsh'),'PowerShell 7 required')
 class AggregateErrorWaveTests(unittest.TestCase):
+    def test_source_candidate_admission_is_closed_and_rejects_drift(self):
+        base=admission.JsonLifecycleGuardAdmissionTests();base.setUp()
+        try:
+            directory=base.directory
+            ctor=directory/'Toolbelt.JsonConstructors.dll';core=directory/'Toolbelt.JsonCore.dll'
+            ctor.write_bytes(b'Contoso constructor fixture');core.write_bytes(b'Contoso core fixture')
+            frozen=[dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest().upper()) for path in [ROOT/'Modules/toolbelt.json.constructors/Clr/OwnedAggregateBuilder.cs',ROOT/'Modules/toolbelt.json.constructors/Clr/JsonAggregates.cs',ROOT/'Modules/toolbelt.json.constructors/Tests/Framework/RunTransportHarness.cs']]
+            fpath=directory/'FrozenInputs.private.json';fpath.write_text(json.dumps(frozen),encoding='utf-8')
+            il=directory/'Toolbelt.JsonConstructors.IL.private.json';il.write_text(json.dumps(dict(status='PASS',unknown=[],frameworkTransitiveSafe=False)),encoding='utf-8')
+            record=dict(scope='OFFLINE_SOURCE_FRAMEWORK_ONLY',status='COMPLETE',postPins=True,phases=[dict(name=n,exitCode=0,captureComplete=True,emptyStderr=True) for n in ['Compile-Toolbelt.JsonConstructors','IL-Toolbelt.JsonConstructors','AggregateRunTransport','ConstructorLarge']],binaryPins=[dict(fileName=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest().upper()) for p in (ctor,core)])
+            receipt=directory/'Receipt.private.json';receipt.write_text(json.dumps(record),encoding='utf-8')
+            script="$ErrorActionPreference='Stop';$repo='"+str(ROOT).replace("'","''")+"';$directory='"+str(directory).replace("'","''")+"';"+r"""
+$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile((Join-Path $repo 'Tests/Release/Invoke-JsonLifecycleBinaryRegistrationLab.ps1'),[ref]$null,[ref]$e)
+$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Assert-ConstructorSourceCandidate'},$true));. ([scriptblock]::Create($n[0].Extent.Text))
+function Assert-ReleasePrivatePath($p){$prefix=Join-Path $repo '.runtime';if(-not[IO.Path]::GetFullPath($p).StartsWith($prefix)){throw 'PRIVATE'};return $p}
+function Assert-ReleasePin($p,$h){if((Get-FileHash $p).Hash-cne$h){throw 'PIN'}}
+$runset=[pscustomobject]@{schema_version='json-constructors-aggregate-errors/v1';pins=@('Receipt.private.json','FrozenInputs.private.json','Toolbelt.JsonConstructors.IL.private.json')|ForEach-Object{@{path=(Join-Path $directory $_)}}}
+function Check {Assert-ConstructorSourceCandidate (Join-Path $directory 'Receipt.private.json') (Join-Path $directory 'Toolbelt.JsonConstructors.dll') (Join-Path $directory 'Toolbelt.JsonCore.dll')}
+function Reject([scriptblock]$action,[string]$code){$caught=$false;try{&$action}catch{if($_.Exception.Message-cne$code){throw};$caught=$true};if(-not$caught){throw 'EXPECTED_REJECTION'}}
+Check
+$runset.schema_version='json-lifecycle-constructor-dependency/v1';Reject {Check} 'CONSTRUCTOR_CANDIDATE_SCOPE';$runset.schema_version='json-constructors-aggregate-errors/v1'
+$original=Get-Content (Join-Path $directory 'Receipt.private.json') -Raw
+$r=$original|ConvertFrom-Json;$r.postPins=$false;$r|ConvertTo-Json -Depth 6|Set-Content (Join-Path $directory 'Receipt.private.json');Reject {Check} 'CONSTRUCTOR_CANDIDATE_UNQUALIFIED'
+$r=$original|ConvertFrom-Json;$r.phases=@($r.phases|Where-Object name -CNE 'AggregateRunTransport');$r|ConvertTo-Json -Depth 6|Set-Content (Join-Path $directory 'Receipt.private.json');Reject {Check} 'CONSTRUCTOR_CANDIDATE_PHASE'
+Set-Content (Join-Path $directory 'Receipt.private.json') $original
+$last=$runset.pins[-1];$runset.pins=@($runset.pins|Select-Object -First 2);Reject {Check} 'CONSTRUCTOR_CANDIDATE_REQUIRED_PIN';$runset.pins+=@($last)
+Set-Content (Join-Path $directory 'Toolbelt.JsonConstructors.dll') 'changed';Reject {Check} 'CONSTRUCTOR_CANDIDATE_BINARY'
+'PASS_SOURCE_CANDIDATE_COUNTERCHECKS'
+"""
+            result=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        finally:base.tearDown()
+
     def test_new_scope_requires_exact_new_fixture_and_reuses_canonical_preflight(self):
         base=admission.JsonLifecycleGuardAdmissionTests()
         base.setUp()
@@ -49,6 +82,14 @@ $text=ConvertTo-StandaloneSql -Node $tree -Values @{ConfirmNoExternalConsumers='
             for path in dict.fromkeys(files):
                 if str(path) not in existing:r['pins'].append(dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest().upper()));existing.add(str(path))
             valid=base.admission(r)
+            # Ein historisches Paket darf geÃ¤nderte aktuelle Constructorquellen
+            # nicht qualifizieren. Der neue Quellkandidat wird separat geprÃ¼ft.
+            closure=json.loads((ROOT/'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json').read_text(encoding='utf-8-sig'))
+            current=next(row['Fields']['binarySha256'] for row in closure['artifacts'] if row['Fields']['moduleId']=='toolbelt.json.constructors')
+            if hashlib.sha256(binary.read_bytes()).hexdigest()!=current:
+                self.assertNotEqual(valid.returncode,0)
+                self.assertIn('JSON_INSTALLED_KNOWN_BINARY_REQUIRED',valid.stdout+valid.stderr)
+                return
             self.assertEqual(valid.returncode,0,valid.stdout+valid.stderr)
             wrong=copy.deepcopy(r);wrong['fixtures']=base.record['fixtures']
             self.assertNotEqual(base.admission(wrong).returncode,0)

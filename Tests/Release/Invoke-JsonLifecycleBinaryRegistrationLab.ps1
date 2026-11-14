@@ -13,6 +13,30 @@ if($nodes.Count-ne1){throw 'LIFECYCLE_GUARD_HELPER_AMBIGUOUS'};. ([scriptblock]:
 foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1') @(
  'Assert-ReleasePin','Assert-ReleasePrivatePath','Get-ReleaseTimeout','Invoke-ReleaseSql',
  'Open-ReleaseConnection','Invoke-ReleaseBatches','Save-ReleaseJournal','Assert-ReleaseInputs','Assert-ReleaseOwnIdentity')){. $block}
+# Ein neuer unveröffentlichter Constructorbuild braucht eine frische Quellabnahme;
+# historische Paketnachweise bleiben ausschließlich an ihre ursprünglichen DLLs gebunden.
+function Assert-ConstructorSourceCandidate([string]$ReceiptPath,[string]$Constructor,[string]$Core){
+ if($runset.schema_version-cne'json-constructors-aggregate-errors/v1'){throw 'CONSTRUCTOR_CANDIDATE_SCOPE'}
+ $ReceiptPath=Assert-ReleasePrivatePath $ReceiptPath;$directory=Split-Path -Parent $ReceiptPath
+ $frozenPath=Join-Path $directory 'FrozenInputs.private.json';$ilPath=Join-Path $directory 'Toolbelt.JsonConstructors.IL.private.json'
+ foreach($path in @($ReceiptPath,$frozenPath,$ilPath)){if(@($runset.pins|Where-Object path -CEQ $path).Count-ne1){throw 'CONSTRUCTOR_CANDIDATE_REQUIRED_PIN'}}
+ $receipt=Get-Content $ReceiptPath -Raw|ConvertFrom-Json -DateKind String
+ if($receipt.scope-cne'OFFLINE_SOURCE_FRAMEWORK_ONLY'-or$receipt.status-cne'COMPLETE'-or$receipt.postPins-ne$true){throw 'CONSTRUCTOR_CANDIDATE_UNQUALIFIED'}
+ foreach($phase in @('Compile-Toolbelt.JsonConstructors','IL-Toolbelt.JsonConstructors','AggregateRunTransport','ConstructorLarge')){
+  $rows=@($receipt.phases|Where-Object name -CEQ $phase)
+  if($rows.Count-ne1-or$rows[0].exitCode-ne0-or$rows[0].captureComplete-ne$true-or$rows[0].emptyStderr-ne$true){throw 'CONSTRUCTOR_CANDIDATE_PHASE'}
+ }
+ if(@($receipt.phases|Where-Object{$_.exitCode-ne0-or$_.captureComplete-ne$true-or$_.emptyStderr-ne$true}).Count){throw 'CONSTRUCTOR_CANDIDATE_PHASE'}
+ $frozen=@(Get-Content $frozenPath -Raw|ConvertFrom-Json -DateKind String)
+ foreach($pin in $frozen){Assert-ReleasePin $pin.path $pin.sha256}
+ foreach($path in @((Join-Path $repo 'Modules/toolbelt.json.constructors/Clr/OwnedAggregateBuilder.cs'),(Join-Path $repo 'Modules/toolbelt.json.constructors/Clr/JsonAggregates.cs'),(Join-Path $repo 'Modules/toolbelt.json.constructors/Tests/Framework/RunTransportHarness.cs'))){if(@($frozen|Where-Object path -CEQ $path).Count-ne1){throw 'CONSTRUCTOR_CANDIDATE_SOURCE_PIN'}}
+ foreach($item in @(@{file='Toolbelt.JsonConstructors.dll';path=$Constructor},@{file='Toolbelt.JsonCore.dll';path=$Core})){
+  $pins=@($receipt.binaryPins|Where-Object fileName -CEQ $item.file)
+  if($pins.Count-ne1-or(Get-FileHash $item.path).Hash-cne$pins[0].sha256-or(Get-FileHash (Join-Path $directory $item.file)).Hash-cne$pins[0].sha256){throw 'CONSTRUCTOR_CANDIDATE_BINARY'}
+ }
+ $il=Get-Content $ilPath -Raw|ConvertFrom-Json
+ if($il.status-cne'PASS'-or@($il.unknown).Count-ne0-or$il.frameworkTransitiveSafe-ne$false){throw 'CONSTRUCTOR_CANDIDATE_IL'}
+}
 function Get-JsonSchemaSessionServerSnapshot($Control){
  $sql="SELECT configuration_id,name,CONVERT(int,value) Configured,CONVERT(int,value_in_use) Effective FROM sys.configurations ORDER BY configuration_id; SELECT CONVERT(varchar(128),hash,2) Hash,description,create_date,created_by FROM sys.trusted_assemblies ORDER BY hash;"
  return (@(Invoke-ReleaseSql $Control $sql -Rows)|ConvertTo-Json -Depth 5 -Compress)
@@ -100,7 +124,8 @@ try{
  if($runset.schema_version-cin@('json-constructors-aggregate-errors/v1','json-lifecycle-constructor-dependency/v1','json-lifecycle-dependency-contexts/v1','json-lifecycle-dependency-value-contexts/v1')){
   $constructorBinary=Assert-ReleasePrivatePath $runset.constructor_artifact.path
   foreach($path in @($constructorBinary,$runset.constructor_exports.local,$runset.constructor_exports.central,$runset.constructor_uninstall)){if(@($runset.pins|Where-Object path -CEQ $path).Count-ne1){throw 'CONSTRUCTOR_DEPENDENCY_REQUIRED_PIN'}}
-  if((Get-FileHash $constructorBinary).Hash-ine$q.binaries.'Toolbelt.JsonConstructors.dll'.sha256){throw 'CONSTRUCTOR_DEPENDENCY_PACKAGE_BINARY'}
+  if($runset.PSObject.Properties['constructor_source_qualification']){Assert-ConstructorSourceCandidate $runset.constructor_source_qualification $constructorBinary $coreBinary}
+  elseif((Get-FileHash $constructorBinary).Hash-ine$q.binaries.'Toolbelt.JsonConstructors.dll'.sha256){throw 'CONSTRUCTOR_DEPENDENCY_PACKAGE_BINARY'}
  }
  . (Join-Path $PSScriptRoot 'ClrCaller.Environment.ps1')
  $registryPath=Join-Path $repo 'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json'
