@@ -127,6 +127,8 @@ $runset=[pscustomobject]@{aggregate_error_scope='remaining-boundaries';deadline_
 $r=@(Get-AggregateSelectedSpecs);if($r.Count-ne12-or@($r|Where-Object wave -Like 'entry-valid-*').Count-ne4){throw 'BOUNDARY_CLOSURE'}
 foreach($s in $r){$p=Get-AggregateErrorInput $s;if($p['@Count']-ne($(if($s.profile-eq1){10000}else{100000})+$(if($s.id-ceq'one-over'){1}else{0}))){throw 'COUNT'};if((Get-AggregateErrorStatement $s)-notmatch'OPTION \(MAXDOP 1\)'){throw 'SERIAL_SHAPE'}}
 $CaseIndex=11;if(@(Get-AggregateSelectedSpecs).Count-ne132){throw 'LINUX_REST_CLOSURE'}
+$runset.aggregate_error_scope='valid-boundaries';foreach($CaseIndex in @(0,11)){if(@(Get-AggregateSelectedSpecs).Count-ne4){throw 'VALID_BOUNDARIES_ONLY'}}
+$runset|Add-Member aggregate_capture_plan 'true';$refused=$false;try{Get-AggregateSelectedSpecs}catch{$refused=$true};if(-not$refused){throw 'UNTRUSTED_PLAN_BOOLEAN'};$runset.PSObject.Properties.Remove('aggregate_capture_plan');$runset.aggregate_error_scope='remaining-boundaries'
 $s=Get-AggregateSelectedSpecs|Where-Object wave -CEQ 'number-invalid'|Select-Object -First 1;if((Get-AggregateErrorStatement $s)-match'MAXDOP'){throw 'SMALL_SHAPE_CHANGED'}
 $script:clock=[Diagnostics.Stopwatch]::StartNew();$script:cleanup=$false;if((Get-ReleaseTimeout)-ne180){throw 'REST_TIMEOUT'}
 $runset.aggregate_error_scope='small-errors-only';if((Get-ReleaseTimeout)-ne45){throw 'OLD_TIMEOUT_CHANGED'}

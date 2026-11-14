@@ -29,9 +29,11 @@ function Get-AggregateErrorKey($Spec){$Spec.aggregate+'/'+$Spec.wave+'/'+$Spec.i
 function Get-AggregateSelectedSpecs{
  $selection='twenty-with-count-priority'
  if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_error_scope']){$selection=$runset.aggregate_error_scope}
- if($selection-cnotin@('twenty-with-count-priority','small-errors-only','remaining-boundaries')){throw 'AGGREGATE_ERRORS_CLOSED_SELECTION'}
+ if($selection-cnotin@('twenty-with-count-priority','small-errors-only','remaining-boundaries','valid-boundaries')){throw 'AGGREGATE_ERRORS_CLOSED_SELECTION'}
+ if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_capture_plan']-and$runset.aggregate_capture_plan-isnot[bool]){throw 'AGGREGATE_ERRORS_PLAN_BOOLEAN_REQUIRED'}
  Get-AggregateErrorSpecs|Where-Object{
-  if($selection-ceq'remaining-boundaries'){$_.wave.StartsWith('entry-',[StringComparison]::Ordinal)-or$CaseIndex-eq11}
+  if($selection-ceq'valid-boundaries'){$_.wave.StartsWith('entry-valid-',[StringComparison]::Ordinal)}
+  elseif($selection-ceq'remaining-boundaries'){$_.wave.StartsWith('entry-',[StringComparison]::Ordinal)-or$CaseIndex-eq11}
   elseif($selection-ceq'small-errors-only'){-not$_.wave.StartsWith('entry-',[StringComparison]::Ordinal)}
   else{-not$_.wave.StartsWith('entry-valid-',[StringComparison]::Ordinal)}
  }
@@ -66,12 +68,12 @@ SELECT (SELECT COUNT_BIG(*) FROM #AggregateWaveInput) EntryCount,
 }
 function Get-AggregateErrorStatement($Spec){
  Assert-AggregateErrorSpec $Spec
- $hint=if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-ceq'remaining-boundaries'-and$Spec.wave.StartsWith('entry-',[StringComparison]::Ordinal)){' OPTION (MAXDOP 1)'}else{''}
+ $hint=if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-cin@('remaining-boundaries','valid-boundaries')-and$Spec.wave.StartsWith('entry-',[StringComparison]::Ordinal)){' OPTION (MAXDOP 1)'}else{''}
  if($Spec.aggregate-ceq'array'){"SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) JsonValue FROM #AggregateWaveInput$hint;"}
  else{"SELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile) JsonValue FROM #AggregateWaveInput$hint;"}
 }
 function Get-ReleaseTimeout{
- $rest=$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-ceq'remaining-boundaries'
+ $rest=$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-cin@('remaining-boundaries','valid-boundaries')
  $limit=if($script:cleanup){if($rest){780000}else{360000}}else{if($rest){720000}else{300000}}
  $remaining=$limit-$script:clock.ElapsedMilliseconds
  if($rest){$globalRemaining=([DateTimeOffset]::Parse($runset.deadline_utc)-[DateTimeOffset]::UtcNow).TotalMilliseconds-$(if($script:cleanup){0}else{60000});$remaining=[Math]::Min($remaining,$globalRemaining)}
@@ -84,11 +86,28 @@ function Test-AggregateErrorTuple($Errors,[string]$Tag){
  $tags=@([regex]::Matches($severe[0].Message,'TBX_JSON_AGG_[A-Z_]+')|ForEach-Object Value|Select-Object -Unique)
  return [bool]($tags.Count-eq1-and$tags[0]-ceq$Tag)
 }
+function Save-AggregateEstimatedPlan($Db,[string]$Mode,$Spec){
+ if(-not$runset.PSObject.Properties['aggregate_capture_plan']-or$runset.aggregate_capture_plan-ne$true){return}
+ $command=$Db.CreateCommand();$command.CommandTimeout=Get-ReleaseTimeout
+ try{
+  $command.CommandText='SET SHOWPLAN_XML ON;';[void]$command.ExecuteNonQuery()
+  $command.CommandText=Get-AggregateErrorStatement $Spec;$result=$command.ExecuteScalar()
+  $text=if($result-is[Data.SqlTypes.SqlXml]){$result.Value}else{[string]$result}
+  if([string]::IsNullOrWhiteSpace($text)-or$text.Length-gt2097152){throw 'AGGREGATE_ERRORS_ESTIMATED_PLAN_SHAPE'}
+ }finally{
+  try{$command.CommandText='SET SHOWPLAN_XML OFF;';[void]$command.ExecuteNonQuery()}finally{$command.Dispose()}
+ }
+ if(-not$ledger.Contains('aggregateEstimatedPlans')){$ledger['aggregateEstimatedPlans']=@()}
+ $ledger.aggregateEstimatedPlans+=@(@{mode=$Mode;id=(Get-AggregateErrorKey $Spec);xml=$text;executed=$false})
+ Save-ReleaseJournal
+}
 function Assert-AggregateError($Db,[string]$Mode,$Spec){
+ Save-AggregateEstimatedPlan $Db $Mode $Spec
  $before=Get-LifecycleGuardState $Db;$input=Get-AggregateInputState $Db;$rows=0;$caught=$null
  $parameters=Get-AggregateErrorInput $Spec;$expectedCount=if($parameters['@Count']-gt0){$parameters['@Count']}elseif($parameters['@Second']-eq1){2}else{1}
  if(($input|ConvertFrom-Json).EntryCount-ne$expectedCount){throw 'AGGREGATE_ERRORS_ACTUAL_INPUT_COUNT'}
  $command=$Db.CreateCommand();$command.CommandTimeout=Get-ReleaseTimeout;$command.CommandText=Get-AggregateErrorStatement $Spec
+ $elapsed=[Diagnostics.Stopwatch]::StartNew()
  try{
   $reader=$command.ExecuteReader()
   try{do{while($reader.Read()){$rows++}}while($reader.NextResult())}finally{$reader.Dispose()}
@@ -100,6 +119,7 @@ function Assert-AggregateError($Db,[string]$Mode,$Spec){
  $receipt=$ledger.profileCompletions[-1]
  $receipt['aggregateTag']=$Spec.tag;$receipt['sqlState']=@($caught.Errors|Where-Object Class -GE 11)[0].State
  $receipt['partialRows']=$rows;$receipt['inputCount']=$expectedCount;$receipt['inputDigest']=($input|ConvertFrom-Json).Digest
+ $receipt['commandElapsedMilliseconds']=$elapsed.ElapsedMilliseconds
  $receipt['wave']=$Spec.aggregate+'/'+$Spec.wave;Save-ReleaseJournal
 }
 function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
