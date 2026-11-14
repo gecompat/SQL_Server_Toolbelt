@@ -2,9 +2,9 @@
 
 Die [Restwelle vom 2026-11-14](../../../Releases/1.0.0/JSON-AGGREGATE-BOUNDARY-REST-QUALIFICATION.md)
 endete durch Sitzungsverluste ohne neue Gesamtqualifikation. Vier große
-Eintragsgrenzen und Linux SQL2025/latest CL170 bleiben offen. Ein verlorenes
-Ownership-Journal sperrt die automatische Linux-Bereinigung; die konkrete
-Sicherheitsfreigabe und der Abschluss werden separat im PR dokumentiert.
+Eintragsgrenzen und Linux SQL2025/latest CL170 bleiben offen. Nach Verlust des
+Ownership-Journals bestand die konkret freigegebene separate Linux-Sicherheitsbereinigung
+mit frischem Audit; daraus folgt kein nachträglicher Fach- oder Gesamt-PASS.
 Die neue persistente Journal-/Backuphärtung besteht Offlinegegenproben,
 qualifiziert aber keinen OS-Ausfall und ersetzt keinen frischen nativen Nachweis.
 

@@ -49,14 +49,19 @@ Qualifikationsläufe begonnen.
 Zwei danach ausschließlich lesende Sicherheitsprüfungen fanden eine temporäre
 Testdatenbank und zwei Trust-Einträge mit passendem gemeinsamen Owner-Marker.
 Der verlorene Vorzustand wird daraus nicht rekonstruiert oder als bewiesen
-behauptet. Eine konkrete private Kandidatenbindung ist für eine ausdrücklich
-autorisierte Sicherheitsbereinigung vorbereitet. Bis zur konkreten Freigabe
-werden diese Ressourcen nicht entfernt; der verlorene CLR-Konfigurationsvorzustand
-wird auch bei einer solchen Bereinigung nicht geraten. Der spätere
-Sicherheitsabschluss ist im zugehörigen PR separat auszuweisen.
+behauptet. Nach ausdrücklicher Benutzerfreigabe wurden ausschließlich diese
+exakt gebundenen drei Ressourcen entfernt: Datenbankidentität, Erzeugungszeit,
+Owner-Marker, Trusthashes/-beschreibungen/-zeiten, aktuelle Fingerprints und
+fehlende fremde Verbraucher wurden erneut geprüft. Ein neues explizit autorisiertes
+Rebound-Journal und ein unabhängiger frischer Audit bestehen. Konfiguration und
+fremde Trust-Einträge blieben gegenüber dem Vorzustand dieser Sicherheitsbereinigung
+unverändert. Der verlorene ursprüngliche Konfigurationsvorzustand bleibt unbekannt.
+Das beschädigte Original bleibt unverändert; die Bereinigung ist kein nachträglicher
+PASS des verlorenen Fachlaufs. Sie benötigte zwei gesondert freigegebene
+Sicherheitsaufrufe innerhalb von höchstens 15 Minuten und keine neue Testdatenbank.
 
-Die Abrechnung bleibt konservativ: zwölf Ziel-/Auditreservierungen einschließlich
-zwei nachgelagerter Sicherheits-Leseaufrufe, sechs DB-Reservierungen, keine
+Die Abrechnung bleibt konservativ: vierzehn Ziel-/Auditreservierungen einschließlich
+zwei nachgelagerter Sicherheits-Leseaufrufe und zwei expliziter Sicherheitsaufrufe, sechs DB-Reservierungen, keine
 abgeschlossene neue Fachmatrix. Freie Plätze verlängern die abgelaufenen
 60 Minuten nicht. Die frühere Welle mit 32 verbrauchten Aufrufen bleibt getrennt.
 
@@ -82,8 +87,8 @@ Wiederherstellung nach beliebigem OS-/Datenträgerausfall wird nicht behauptet.
 Fünf Offlineprüfungen bestehen: kanonische Admission/Provenienz, geschlossene
 Fehlervektoren, beschädigte Wiederverwendungsreceipts, Restscope/Statementzeit/
 Gesamtfrist und echte Dateifehler-Gegenproben für Journalersatz, vorherigen
-Zustand, temporäre Dateien und NUL-Korruption. Die Journalhärtung wurde in dieser
-abgelaufenen Welle nicht erneut nativ qualifiziert. Head- und tatsächliche
+Zustand, temporäre Dateien und NUL-Korruption. Die Journalhärtung wurde nach Ablauf ausschließlich im ausdrücklich freigegebenen
+Sicherheitscleanup eingesetzt; es gab keine erneute native Fachqualifikation. Head- und tatsächliche
 Main-PUSH-CI sind getrennte Integrationsgates; sie schließen keine native Lücke.
 
 Die [Testmatrix](../../Modules/toolbelt.json.constructors/Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md)
