@@ -48,6 +48,10 @@ internal static class RunTransportHarness {
   byte[] mismatch=(byte[])bitmap.Clone();mismatch[33]=7;Reject(Seal(mismatch),obj);
   OwnedAggregateBuilder clone=a.Clone();Add(a,2,obj,profile);A(Frame(a).Length==64);A(Frame(clone).Length==66);clone.Merge(clone);A(clone.Outcome()=="ORDINAL");
  }}
+ static void LargeSpan(){foreach(bool obj in new[]{false,true})foreach(byte profile in new byte[]{1,2}){
+  int limit=profile==1?10000:100000;OwnedAggregateBuilder b=new OwnedAggregateBuilder(obj);Add(b,limit+1,obj,profile);
+  for(int i=1;i<=limit;i++){Add(b,i,obj,profile);if(i<limit){byte[] f=Frame(b);A(f.Length<=25066);b=Read(f,obj);}else A(b.Outcome()=="COUNT");}
+ }}
  static void Malformed(){foreach(bool obj in new[]{false,true}){
   OwnedAggregateBuilder b=new OwnedAggregateBuilder(obj);Add(b,9,obj,1);Add(b,10,obj,1);byte[] f=Frame(b);A(f.Length==64);
   for(int i=0;i<64;i++)for(int bit=0;bit<8;bit++){byte[] bad=(byte[])f.Clone();bad[i]^=(byte)(1<<bit);Reject(bad,obj);}
@@ -58,5 +62,5 @@ internal static class RunTransportHarness {
   Reject(f,!obj);
   JsonArrayAggregate a=new JsonArrayAggregate();a.Init();a.Accumulate(1,C("null"),C(null),1);byte[] invalid=(byte[])f.Clone();invalid[30]=1;try{using(BinaryReader r=new BinaryReader(new MemoryStream(invalid)))a.Read(r);throw new Exception();}catch(InvalidOperationException){}A(new string(a.Terminate().Value)=="[null]");
  }}
- public static int Main(){try{Bounds();Transitions();Unordered();Malformed();Console.WriteLine("PASS AGGREGATE_RUN_TRANSPORT");return 0;}catch(Exception e){Console.WriteLine(e.ToString());return 1;}}
+ public static int Main(){try{Bounds();Transitions();Unordered();LargeSpan();Malformed();Console.WriteLine("PASS AGGREGATE_RUN_TRANSPORT");return 0;}catch(Exception e){Console.WriteLine(e.ToString());return 1;}}
 }
