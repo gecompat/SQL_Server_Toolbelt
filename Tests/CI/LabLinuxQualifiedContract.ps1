@@ -72,6 +72,23 @@ function Get-LabQualifiedLinuxReaderFailureCode {
     return 'LAB_QUALIFIED_EXPORT_REJECTED'
 }
 
+function Get-LabLinuxSqlClientTimeoutFailureCode {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord,[ValidateSet('OPEN','QUERY')][string]$Stage)
+    $code='TLS_SQLCLIENT_'+$Stage+'_TIMEOUT'
+    $exception=$ErrorRecord.Exception
+    while($null-ne$exception){
+        if($exception -is [TimeoutException]){return $code}
+        if($exception.GetType().FullName -ceq 'System.Data.SqlClient.SqlException'){
+            $numberProperty=$exception.GetType().GetProperty('Number',[Reflection.BindingFlags]'Instance,Public')
+            if($numberProperty){
+                try{if([int]$numberProperty.GetValue($exception)-eq-2){return $code}}catch{}
+            }
+        }
+        $exception=$exception.InnerException
+    }
+    return $null
+}
+
 function Read-LabQualifiedSnapshot {
     param([byte[]]$Bytes,[object]$TlsContext,[string]$ClientStack='SYSTEM_DATA_SQLCLIENT')
     $platform=Get-LabQualifiedClientHost

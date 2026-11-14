@@ -24,12 +24,22 @@ try{
     $connection=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString);$builder.Clear()
     try{
         Assert-LabQualifiedConnectWindow $snapshot
-        $connection.Open()
+        try{$connection.Open()}catch{
+            $failureCode=Get-LabLinuxSqlClientTimeoutFailureCode $_ OPEN
+            if($failureCode){throw $failureCode}
+            throw
+        }
         $command=$connection.CreateCommand();$command.CommandTimeout=10
         $command.CommandText="SET NOCOUNT ON; SELECT CONVERT(varchar(32),SERVERPROPERTY('ProductVersion')),encrypt_option FROM sys.dm_exec_connections WHERE session_id=@@SPID"
         try{
-            $reader=$command.ExecuteReader()
-            try{if(-not$reader.Read()-or$reader.GetString(0)-cne$q.SqlBuild-or$reader.GetString(1)-cne'TRUE'-or$reader.Read()){throw 'LAB_LINUX_SQLCLIENT_RESULT'}}finally{$reader.Dispose()}
+            try{
+                $reader=$command.ExecuteReader()
+                try{if(-not$reader.Read()-or$reader.GetString(0)-cne$q.SqlBuild-or$reader.GetString(1)-cne'TRUE'-or$reader.Read()){throw 'LAB_LINUX_SQLCLIENT_RESULT'}}finally{$reader.Dispose()}
+            }catch{
+                $failureCode=Get-LabLinuxSqlClientTimeoutFailureCode $_ QUERY
+                if($failureCode){throw $failureCode}
+                throw
+            }
         }finally{$command.Dispose()}
     }finally{$connection.Dispose()}
     $snapshot=Read-LabQualifiedSnapshot $copy $TlsContext ODBC_SQLCMD

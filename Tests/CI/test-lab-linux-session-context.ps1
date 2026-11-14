@@ -52,6 +52,29 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
     }
     $script:RunChecks={
         Reset
+        $timeoutInner=[TimeoutException]::new('synthetic-private-timeout-detail')
+        $timeoutOuter=[InvalidOperationException]::new('wrapper password=synthetic-secret',$timeoutInner)
+        $timeoutRecord=[Management.Automation.ErrorRecord]::new($timeoutOuter,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+        Assert ((Get-LabLinuxSqlClientTimeoutFailureCode $timeoutRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_TIMEOUT') 'SQL open timeout maps to its fixed stage token without exposing exception detail'
+        Assert ((Get-LabLinuxSqlClientTimeoutFailureCode $timeoutRecord QUERY)-ceq'TLS_SQLCLIENT_QUERY_TIMEOUT') 'SQL query timeout maps to its fixed stage token without exposing exception detail'
+        $flags=[Reflection.BindingFlags]::Instance -bor [Reflection.BindingFlags]::NonPublic -bor [Reflection.BindingFlags]::Public
+        $sqlAssembly=[Reflection.Assembly]::Load('System.Data.SqlClient')
+        $sqlErrorType=$sqlAssembly.GetType('System.Data.SqlClient.SqlError',$true)
+        $sqlErrorCollectionType=$sqlAssembly.GetType('System.Data.SqlClient.SqlErrorCollection',$true)
+        $sqlExceptionType=$sqlAssembly.GetType('System.Data.SqlClient.SqlException',$true)
+        $sqlErrorConstructor=$sqlErrorType.GetConstructors($flags)|Where-Object {$_.GetParameters().Count -eq 8}|Select-Object -First 1
+        $sqlCollectionAdd=$sqlErrorCollectionType.GetMethod('Add',$flags)
+        $sqlExceptionConstructor=$sqlExceptionType.GetConstructors($flags)|Where-Object {$_.GetParameters().Count -eq 4}|Select-Object -First 1
+        foreach($sqlCase in @(@{Number=-2;Stage='OPEN';Code='TLS_SQLCLIENT_OPEN_TIMEOUT'},@{Number=-2;Stage='QUERY';Code='TLS_SQLCLIENT_QUERY_TIMEOUT'},@{Number=18456;Stage='OPEN';Code=$null})){
+            $sqlError=$sqlErrorConstructor.Invoke([object[]]@($sqlCase.Number,[byte]0,[byte]0,'synthetic','synthetic-private-sql-detail','',0,$null))
+            $sqlErrors=[Activator]::CreateInstance($sqlErrorCollectionType,$true);$null=$sqlCollectionAdd.Invoke($sqlErrors,[object[]]@($sqlError))
+            $sqlException=$sqlExceptionConstructor.Invoke([object[]]@('synthetic-private-sql-detail',$sqlErrors,$null,[guid]::Empty))
+            $sqlRecord=[Management.Automation.ErrorRecord]::new($sqlException,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+            Assert ((Get-LabLinuxSqlClientTimeoutFailureCode $sqlRecord $sqlCase.Stage)-ceq$sqlCase.Code) ('SqlException.Number timeout classification and non-timeout rejection: '+$sqlCase.Stage+'/'+$sqlCase.Number)
+        }
+        $nonTimeout=[InvalidOperationException]::new('synthetic-private-failure')
+        $nonTimeoutRecord=[Management.Automation.ErrorRecord]::new($nonTimeout,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+        Assert ($null-eq(Get-LabLinuxSqlClientTimeoutFailureCode $nonTimeoutRecord OPEN)) 'unclassified SQL open failures preserve the existing safe fallback'
         foreach($stack in @('SYSTEM_DATA_SQLCLIENT','ODBC_SQLCMD')){
             $null=Read-LabQualifiedSnapshot $script:bytes $script:ctx $stack
             Assert ($script:lastStack -ceq $stack) 'actual shared reader forwards selected stack'
