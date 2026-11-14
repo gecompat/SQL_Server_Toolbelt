@@ -27,6 +27,8 @@ Permit 'System.IO.MemoryStream' @('System.Void .ctor()','System.Void .ctor(Syste
 Permit 'System.IO.BinaryReader' @('System.Void .ctor(System.IO.Stream)','System.Byte[] ReadBytes(System.Int32)','System.Byte ReadByte()','System.UInt16 ReadUInt16()','System.UInt32 ReadUInt32()','System.Int32 ReadInt32()','System.Int64 ReadInt64()','System.IO.Stream get_BaseStream()','System.Void Dispose()')
 Permit 'System.IO.BinaryWriter' @('System.Void .ctor(System.IO.Stream,System.Text.Encoding,System.Boolean)','System.Void Write(System.Byte[])','System.Void Write(System.UInt16)','System.Void Write(System.Int64)','System.Void Write(System.Byte)','System.Void Write(System.UInt32)','System.Void Write(System.Int32)','System.Void Flush()','System.Void Dispose()')
 Permit 'System.Security.Cryptography.SHA256' @('System.Security.Cryptography.SHA256 Create()')
+# Fester Frameworkalgorithmus im kleinen Engineframe; keine dynamische Providerauflösung.
+Permit 'System.Security.Cryptography.SHA256Managed' @('System.Void .ctor()')
 Permit 'System.Security.Cryptography.HashAlgorithm' @('System.Byte[] ComputeHash(System.Byte[])','System.Int32 TransformBlock(System.Byte[],System.Int32,System.Int32,System.Byte[],System.Int32)','System.Byte[] TransformFinalBlock(System.Byte[],System.Int32,System.Int32)','System.Byte[] get_Hash()','System.Void Dispose()')
 Permit 'System.Text.Encoding' @('System.Text.Encoding get_UTF8()')
 Permit 'System.Text.StringBuilder' @('System.Void .ctor()','System.Void .ctor(System.Int32)','System.Text.StringBuilder Append(System.Char)','System.Text.StringBuilder Append(System.String)','System.String ToString()')

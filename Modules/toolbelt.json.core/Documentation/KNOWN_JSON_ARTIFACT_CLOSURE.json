@@ -58,7 +58,7 @@
       "nativeQualification": "NOT_EXECUTED"
     },
     {
-      "ArtifactId": "df7c243ce6e4e48cf53ff57e4a5316f6192b727ce1754137f69b47f27576529c",
+      "ArtifactId": "76b14373363df5f97da00a77e7c4b21dec4e0bee30de05df6344c54961176f44",
       "fieldOrder": [
         "registrySchema",
         "moduleId",
@@ -108,8 +108,8 @@
         "managedVersion": "1.3.0.0",
         "sqlAssembly": "Toolbelt_JsonConstructors",
         "permissionSet": "SAFE",
-        "binarySha256": "2a47770e1c5fe8aab23c2b0d88f793c6af7e60270cfed93addc6f63f766da49e",
-        "binarySha512": "577fd74127cf8ca682809b5e1ef76b593e6fc1a4e6b9d029fce1a99a3315abab2fe4525649742c72419a1af6cc14839d7d603bc63a4a74bcf00bb41a2d2198b4",
+        "binarySha256": "7d6a9803f3b503c2de84354706eb46277cfc2a4590803dc32ce489543e541d87",
+        "binarySha512": "702f2e4ff36638a0837f18636ba48b18b0cc450921b7ef45c2daeff724e1d2f31006d42a69b664a314527ecb076658fb29fd6708eb7cb46340953fe50c09d489",
         "buildProfile": "net48;csharp7.3;Release;AnyCPU;checked;deterministic;warnaserror;no-debug;no-generated-framework-attribute",
         "qualificationScope": "OFFLINE_SOURCE_FRAMEWORK_AND_OWN_IL_AND_CANONICAL_PROJECT_BYTE_EQUALITY",
         "nativeQualification": "NOT_EXECUTED",
@@ -136,7 +136,7 @@
         "source/AgfValidCodec.cs": "c61702bb01337089bba9f1f6b2e4105ee0e166a315f1bae55d4975715aa5eecc",
         "source/AgfFaultCodec.cs": "04e8d7b6c1851e063796cbfd52f87f0b8b51ed71fdab4c5651de3245852c84c3",
         "source/AgfDispatcher.cs": "e838d33430f9410deb1f0141e3ca27713cf0c7362669d786821d05be15ca6c56",
-        "source/OwnedAggregateBuilder.cs": "a1c5a49b8c55f6d6ae0739a65c96ff1ed43be2a2e4740bfed08e12943fb965ba",
+        "source/OwnedAggregateBuilder.cs": "8ba115e4882adf1b29feda4854ac9a3fb3e8cbdc8fec561d81ae1dd1c319b038",
         "source/JsonAggregates.cs": "67a909113aff6dbb063f67be9626a5093b8e4de119b6d093865f959bc9fd8b41",
         "source/JsonEntryEvaluateBridge.cs": "fcb13d767b7e0e449f8c7bdadcce8344d4d4953d7ea098d07a3d4d115fcd868e",
         "source/Properties/AssemblyInfo.cs": "30c176d1a995719679021428991700afb5056a6d7f07fba28f1f60893b5f66d6"

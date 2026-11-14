@@ -17,6 +17,8 @@ internal static class RunTransportHarness {
   OwnedAggregateBuilder b=new OwnedAggregateBuilder(obj);int limit=profile==1?10000:100000;
   for(int i=1;i<=limit;i++){Add(b,i,obj,profile);byte[] f=Frame(b);A(f.Length==64);b=Read(f,obj);}
   OwnedAggregateBuilder canonical=OwnedAggregateBuilder.FromTransport(b.Clone().Transport());Same(b,canonical);A(Frame(b).Length==64);
+  OwnedAggregateBuilder doubled=b.Clone();doubled.Merge(doubled);A(doubled.Outcome()=="COUNT");A(Frame(b).Length==64);
+  OwnedAggregateBuilder otherProfile=new OwnedAggregateBuilder(obj);Add(otherProfile,1,obj,profile==1?(byte)2:(byte)1);OwnedAggregateBuilder mixed=b.Clone();mixed.Merge(otherProfile);A(mixed.Outcome()=="PROFILE");A(Frame(otherProfile).Length==64);
   Add(b,limit+1,obj,profile);A(b.Outcome()=="COUNT");A(Read(Frame(b),obj).Outcome()=="COUNT");
   b=new OwnedAggregateBuilder(obj);for(int i=1;i<=limit;i++)Add(b,i,obj,profile);
   b.Add(SqlInt32.Null,C(null),C("bad"),C("invalid"),profile);A(b.Outcome()=="COUNT");

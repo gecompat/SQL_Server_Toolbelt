@@ -113,11 +113,12 @@ public sealed class OwnedAggregateBuilder {
  }
  public void Merge(OwnedAggregateBuilder other){
   Usable();AgfErrors.Need(other!=null&&other.ObjectMode==ObjectMode);other.Usable();
-  MaterializeRun();if(other.uniformRun){other=other.Clone();other.MaterializeRun();}
   // Selbstmerge braucht keine Quellkopie: Kosten verdoppeln, vorhandene Identitäten duplizieren.
-  if(Object.ReferenceEquals(this,other)){MergeSelf();return;}
+  if(Object.ReferenceEquals(this,other)){if(uniformRun&&2*N<=MaxN)MaterializeRun();MergeSelf();return;}
   Mask|=other.Mask;InvalidProfile|=other.InvalidProfile;if(InvalidProfile||Mask==3){Normalize();return;}if(Mask==0)return;
-  N=Sat(checked(N+other.N),MaxN);if(N>MaxN){Normalize();return;}
+  long combined=Sat(checked(N+other.N),MaxN);if(combined>MaxN){N=combined;Normalize();return;}
+  // Profil-/Count-Gates vor jeder Expansion der kompakten Zustände.
+  MaterializeRun();if(other.uniformRun){other=other.Clone();other.MaterializeRun();}N=combined;
   Flags|=other.Flags;Raw=Sat(checked(Raw+other.Raw),Cap);Pre=Sat(checked(Pre+other.Pre),Cap);Strong=Sat(checked(Strong+other.Strong),Cap);Output=Sat(checked(Output+other.Output),Cap);
   foreach(int id in other.ids)if(!ids.Add(id))Flags|=4;
   if(Raw>Cap||Pre+Syntax>Cap)ClearKeys();
@@ -224,7 +225,7 @@ public sealed class OwnedAggregateBuilder {
   body[8]=(byte)(ObjectMode?1:0);body[9]=(byte)Profile;
   int count=checked((int)N);for(int i=0;i<4;i++){body[12+i]=(byte)((runStart>>(8*i))&255);body[16+i]=(byte)((count>>(8*i))&255);body[20+i]=(byte)((runSpan>>(8*i))&255);body[24+i]=(byte)((bytes>>(8*i))&255);}
   if(packed!=null)Array.Copy(packed,0,body,32,bytes);
-  byte[] digest;using(System.Security.Cryptography.SHA256 hash=System.Security.Cryptography.SHA256.Create())digest=hash.ComputeHash(body);
+  byte[] digest;using(System.Security.Cryptography.SHA256 hash=new System.Security.Cryptography.SHA256Managed())digest=hash.ComputeHash(body);
   writer.Write(body);writer.Write(digest);return true;
  }
  static byte[] ReadRunBytes(Stream input,int count){
@@ -240,7 +241,7 @@ public sealed class OwnedAggregateBuilder {
   int size=span==0?0:(span+7)/8,encoded=BitConverter.ToInt32(header,24);
   AgfErrors.Need(span==0?encoded==0:encoded>0&&encoded%2==0&&encoded<=2*size);
   byte[] packed=ReadRunBytes(input,encoded);byte[] body=new byte[32+encoded];Array.Copy(header,body,32);Array.Copy(packed,0,body,32,encoded);
-  byte[] actual=FaultCodec.Exact(input,32);using(System.Security.Cryptography.SHA256 hash=System.Security.Cryptography.SHA256.Create())AgfErrors.Need(ValidCodec.Equal(actual,hash.ComputeHash(body)));
+  byte[] actual=FaultCodec.Exact(input,32);using(System.Security.Cryptography.SHA256 hash=new System.Security.Cryptography.SHA256Managed())AgfErrors.Need(ValidCodec.Equal(actual,hash.ComputeHash(body)));
   byte[] bits=new byte[size];int at=0;for(int i=0;i<encoded;i+=2){int countBytes=packed[i];AgfErrors.Need(countBytes>0&&countBytes<=size-at&&(i==0||packed[i+1]!=packed[i-1]||packed[i-2]==255));for(int k=0;k<countBytes;k++)bits[at++]=packed[i+1];}AgfErrors.Need(at==size);
   if(span>0){AgfErrors.Need(HasBit(bits,0)&&HasBit(bits,span-1)&&CountBits(bits,0,span-1)==count);if((span&7)!=0)AgfErrors.Need((bits[size-1]&~((1<<(span&7))-1))==0);}
   OwnedAggregateBuilder fresh=new OwnedAggregateBuilder(expectedMode);fresh.uniformRun=true;fresh.runStart=start;fresh.Mask=header[9];fresh.N=count;fresh.runSpan=span;fresh.runBits=span==0?null:bits;
