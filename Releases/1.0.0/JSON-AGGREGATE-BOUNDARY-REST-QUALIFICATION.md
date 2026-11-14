@@ -84,6 +84,15 @@ Wiederherstellungsinformationen notwendig. Keine neuen CI-Trigger, Agenten,
 Reviewketten oder parallelen Vollprüfungen werden eingeführt. Eine garantierte
 Wiederherstellung nach beliebigem OS-/Datenträgerausfall wird nicht behauptet.
 
+Historische Regex- und SSIS-Installer-Nachweise behalten ihre unveränderten
+Runnerhashes. Ihre Prüfer lesen diesen früheren Runner über den vorhandenen
+kanonischen `evidence_sources`-Resolver aus den deklarierten beziehungsweise
+exakten unveränderten Report-Commits. Die Listeneinträge des Installerberichts
+werden weiterhin einzeln auf ihren originalen Hash geprüft. Aktuelle abweichende
+Runnerbytes gelten damit ausdrücklich nicht als historisch ausgeführt; die neue
+Journalfunktion hat eigene aktuelle Gegenproben. Keine historischen Berichte,
+Quellpins, Pakete oder Archive werden umgeschrieben.
+
 Fünf Offlineprüfungen bestehen: kanonische Admission/Provenienz, geschlossene
 Fehlervektoren, beschädigte Wiederverwendungsreceipts, Restscope/Statementzeit/
 Gesamtfrist und echte Dateifehler-Gegenproben für Journalersatz, vorherigen
