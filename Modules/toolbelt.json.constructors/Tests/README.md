@@ -1,5 +1,15 @@
 # Testausführung
 
+Die [stabile Restwelle vom 2026-11-14](../../../Releases/1.0.0/JSON-AGGREGATE-STABLE-HOST-REST-QUALIFICATION.md)
+schließt Linux SQL2025/latest CL170 lokal/zentral mit 240 neuen kleinen Profilen
+und frischem Audit. Zusammen sind die 16 kleinen Fehlerfamilien auf allen
+24 Kontexten mit 2.880 Profilen belegt. Die vier großen nativen Grenzen bleiben
+blockiert: Array/Profil1 erreicht auf allen sechs Engines das Statementlimit;
+ein Hash-Plan ist nicht kompilierbar. Vier ergänzende Managed-Prüfungen der
+unveränderten Original-DLLs bestehen Maximalzustand/Transport/zusätzlichen Eintrag,
+ersetzen aber keinen SQL-Grenzaufruf. Alle eigenen Ressourcen sind frisch auditiert
+bereinigt; kein Modulgesamt-PASS.
+
 Die [Restwelle vom 2026-11-14](../../../Releases/1.0.0/JSON-AGGREGATE-BOUNDARY-REST-QUALIFICATION.md)
 endete durch Sitzungsverluste ohne neue Gesamtqualifikation. Vier große
 Eintragsgrenzen und Linux SQL2025/latest CL170 bleiben offen. Nach Verlust des
