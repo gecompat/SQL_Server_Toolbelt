@@ -20,6 +20,8 @@ qualifizieren ihre ursprünglichen Builds; dieser Record ergänzt nur den
 benannten Deltaumfang. Die Originale werden am historischen Snapshot geprüft.
 Aktueller Gesamtmodulstatus: `partially validated`, `unreleased`.
 
+<a id="gesamtabnahme-des-korrigierten-builds"></a>
+
 ## Bisherige Gesamtabnahme des Builds vor Copy Column
 
 Die [Gesamtabnahme vom 2026-11-04](Qualification/Current.Build.20261104.json)

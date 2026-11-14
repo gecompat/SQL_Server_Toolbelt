@@ -1,7 +1,9 @@
 Artifacts/
 
-# Nur der ausdrücklich bereitgestellte Installationssatz wird versioniert.
+# Nur die ausdrücklich bereitgestellten Installationssätze werden versioniert.
 InstallPackages/*
+!InstallPackages/SSIS-Debug-CopyColumnV1-Install-Windows.zip
+!InstallPackages/SSIS-Debug-CopyColumnV1-Install-Windows.zip.sha256
 !InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip
 !InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip.sha256
 !InstallPackages/README.md

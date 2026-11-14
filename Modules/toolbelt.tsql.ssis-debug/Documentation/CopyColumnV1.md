@@ -10,6 +10,11 @@ Parameter, keine neue SQL-Prozedur und keinen Opt-in. `procedure-definition`
 weist einen Pfad mit Copy Column mit `procedure_profile` ab; die separate
 Prozedurerzeugung wurde durch diesen Slice nicht erweitert.
 
+Der aktuelle Quellsatz und die separat qualifizierte DLL stehen im
+[unveröffentlichten Installationspaket](../InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1).
+Dessen Offline-Integrität ist von einer tatsächlichen neuen ZIP-Ausführung
+getrennt.
+
 ## Voraussetzungen und Ergebnis
 
 Der unterstützte Paketkatalog umfasst die beiden nativen Copy-Column-ClassIDs

@@ -99,8 +99,8 @@ Andere Buildquellen und Modulprofile bleiben exakt gebunden.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-05`
-- Nachweis: `local: frische ZIP12-, sichtbare Windows-/SSMS- und strikte TLS-Gesamtfälle mit unabhängigen Abschlussaudits`
-- Scope: Derselbe korrigierte 40-Parameter-DLL und unverändertes qualifiziertes ZIP: zwölf neu ausgeführte Windows-/CL-/Moduskontexte mit 15204 Assertions und zwölf frischen Audits. Sichtbarer Windows-NTLM-/SSMS-Gesamtfall auf SQL2025/CU8 CL150 lokal mit Erst-/Wiederholungsinstallation, echter vollständiger Unicode-Kopie, gespeichertem Hash, nativer SQLCMD-Fehlerprobe, zwei Ergebniszeilen und Phase-2-Receipt; PASS_CLEANED mit17 Prüfungen und frischem Windows-Audit. Benutzer übernahm Anmeldung und Gridoptionen. Getrennter ununterbrochener öffentlicher Windows-SQL2025-RTM-TLS-Neuaufbau, CL170 lokal/zentral, SQL-Anmeldung, 416 aktuelle SSIS-Assertions und frische SQL-/VM-/Fremdzustandsaudits PASS. Eigene Ressourcen entfernt, Konfiguration/Trust/andere Verbraucher unverändert. Frühere Fehler unverändert erhalten; Fresh.Build.20261104.json ergänzt die ursprüngliche Gesamtabnahme. Vereinbarter Debugvertrag, keine volle SSIS-Runtime-Parität oder OS-/VM-Verlustqualifikation; unveröffentlicht.
+- Datum: `2026-11-14`
+- Nachweis: `local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits`
+- Scope: PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -9,12 +9,15 @@ import subprocess
 import tempfile
 import unittest
 import sys
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[2]
 MODULE=ROOT/'Modules/toolbelt.tsql.ssis-debug'
 DRIVER=MODULE/'Tests/Runtime/Invoke-CopyColumnLab.ps1'
 sys.path.insert(0,str(ROOT/'Scripts/Release'))
 import validate_ssis_copy_column as evidence
+import validate_ssis_current_package as package_guard
+from new_ssis_current_package import COPY_COLUMN_PROFILE,COPY_COLUMN_NAME
 
 
 class CopyColumnEvidence(unittest.TestCase):
@@ -44,6 +47,44 @@ class CopyColumnEvidence(unittest.TestCase):
         with self.assertRaises(ValueError):evidence.validate(record)
         record=copy.deepcopy(evidence.validate());record['pre_guard_product_sha256'][evidence.MODULE+'Clr/Translator.cs']='0'*64
         with self.assertRaises(ValueError):evidence.validate(record)
+
+
+class CopyColumnPackage(unittest.TestCase):
+    archive=MODULE/'InstallPackages'/(COPY_COLUMN_NAME+'.zip')
+
+    def test_exact_native_sources_and_corrected_dll_are_packaged(self):
+        manifest,release,payload=package_guard.validate(self.archive,profile=COPY_COLUMN_PROFILE)
+        record=evidence.validate()
+        self.assertEqual(release['sha512'],record['qualified_assembly_sha512'])
+        self.assertEqual(manifest['componentProfile'],COPY_COLUMN_PROFILE)
+        for name,digest in record['source_sha256'].items():
+            self.assertEqual(hashlib.sha256(payload[name]).hexdigest(),digest)
+
+    def test_self_consistent_rehashed_fixture_cannot_replace_native_input(self):
+        prefix=COPY_COLUMN_NAME+'/'
+        with zipfile.ZipFile(self.archive) as archive:
+            payload={name[len(prefix):]:archive.read(name) for name in archive.namelist()}
+        selected=evidence.MODULE+'Tests/Fixtures/copy-column-6-int.dtsx'
+        original=payload[selected]
+        self.assertIn(b'\r\n',original)
+        payload[selected]=original.replace(b'\r\n',b'\n')
+        # The candidate ZIP remains internally self-consistent. Its source
+        # receipt must still reject the unexecuted replacement input bytes.
+        manifest=json.loads(payload['PACKAGE-MANIFEST.json'])
+        for row in manifest['files']:
+            if row['path']==selected:
+                row['bytes']=len(payload[selected]);row['sha256']=hashlib.sha256(payload[selected]).hexdigest().upper()
+        payload['PACKAGE-MANIFEST.json']=(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
+        payload['SHA256SUMS.txt']=''.join(hashlib.sha256(data).hexdigest().upper()+'  '+name+'\n' for name,data in sorted(payload.items()) if name!='SHA256SUMS.txt').encode('ascii')
+        with tempfile.TemporaryDirectory(dir=ROOT/'.runtime',prefix='copy-package-') as directory:
+            path=Path(directory)/self.archive.name
+            with zipfile.ZipFile(path,'w',zipfile.ZIP_DEFLATED) as archive:
+                for name,data in payload.items():
+                    entry=zipfile.ZipInfo(prefix+name);entry.create_system=3;entry.external_attr=0o100644<<16;entry.compress_type=zipfile.ZIP_DEFLATED
+                    archive.writestr(entry,data)
+            path.with_suffix('.zip.sha256').write_text(hashlib.sha256(path.read_bytes()).hexdigest().upper()+'  '+path.name+'\n',encoding='ascii')
+            with self.assertRaisesRegex(ValueError,'Copy Column qualification source payload'):
+                package_guard.validate(path,profile=COPY_COLUMN_PROFILE)
 
 
 @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required')
