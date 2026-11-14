@@ -332,7 +332,7 @@ namespace Toolbelt.Ssis.Exchange
                         object errorFlagValue = Flag(a("isErrorOut"));
                         string portRole = errorFlagValue as bool? == true ? "ERROR" : "UNKNOWN";
                         if (ComponentsV2 && e.Name == "output" && owner != null && (owner.ComponentKind == "copy-column" || owner.ComponentKind == "derived" || owner.ComponentKind == "split" || owner.ComponentKind == "rowcount" || owner.ComponentKind == "flatfile-source" || owner.ComponentKind == "flatfile-destination") && errorFlagValue as bool? != true)
-                            portRole = errorFlagValue as bool? == false || e.Attribute("isErrorOut") == null && e.Attribute(Dts + "isErrorOut") == null ? "NORMAL" : "UNKNOWN";
+                            portRole = errorFlagValue as bool? == false || e.Attribute("isErrorOut") == null && e.Attribute(Dts + "isErrorOut") == null ? "REGULAR" : "UNKNOWN";
                         if (e.Name == "output" && portRole != "ERROR" && owner != null && owner.ComponentKind == "lookup")
                         {
                             var normal = owner.Element.Element("outputs").Elements("output").Where(x => Flag(Attribute(x,"isErrorOut")) as bool? != true).ToList();

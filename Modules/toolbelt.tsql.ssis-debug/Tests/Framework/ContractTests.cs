@@ -484,7 +484,7 @@ internal static partial class ContractTests
             var flatSource = portModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "FlatSource");
             Assert(derivedWithError.ComponentKind == "derived" && flatSource.ComponentKind == "flatfile-source", "V2_NORMAL_AND_ERROR_PORT_PROFILES");
             var derivedPortRoles = portModel.Definitions.Where(x => x.Kind == "PORT" && x.Parent == derivedWithError.Id && Json.Text(x.Attributes["direction"]) == "OUTPUT").Select(x => Json.Text(x.Attributes["portRole"])).OrderBy(x => x, StringComparer.Ordinal).ToArray();
-            Assert(derivedPortRoles.SequenceEqual(new[] { "ERROR", "NORMAL" }), "V2_PORT_ROLE_FROM_FLAG_AND_RENAMED_NAME");
+            Assert(derivedPortRoles.SequenceEqual(new[] { "ERROR", "REGULAR" }), "V2_PORT_ROLE_FROM_FLAG_AND_RENAMED_NAME");
             byte[] badDerivedSync = Change(qualifiedPorts, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Element("outputs").Element("output").SetAttributeValue("synchronousInputId", "not-the-input"));
             var badSyncModel = PackageDocument.Read(badDerivedSync, null, true);
             Assert(badSyncModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "Derived").ComponentKind == "unsupported", "V2_BAD_SYNC_MAPPING_REJECTED");

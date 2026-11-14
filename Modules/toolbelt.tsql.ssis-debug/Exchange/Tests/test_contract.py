@@ -122,7 +122,7 @@ def main():
                 check(unknown==(version!="1"),"Copy Column native version admission")
                 if version=="1":
                     ports=[n for n in model["nodes"] if n["kind"]=="PORT" and n["parentId"]==node["id"] and n["attributes"].get("direction")=="OUTPUT"]
-                    check(len(ports)==1 and ports[0]["attributes"].get("portRole")=="NORMAL","Copy Column synchronous normal output")
+                    check(len(ports)==1 and ports[0]["attributes"].get("portRole")=="REGULAR","Copy Column synchronous normal output")
         def assignment_fixture(include_unknown=True):
             document=ET.fromstring(v2_fixture)
             variables=document.find(DTS+"Variables")
