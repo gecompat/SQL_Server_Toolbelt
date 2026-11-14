@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "Scripts/Release"))
 import new_ssis_standalone_tsql as installer
 import help_contract_source
 import ssis_historical_source_bridge
+import evidence_sources
 
 
 class StandaloneTsqlInstallerTests(unittest.TestCase):
@@ -59,6 +60,13 @@ class StandaloneTsqlInstallerTests(unittest.TestCase):
             if pin["path"] == "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json":
                 pinned_bytes = ssis_historical_source_bridge.read_r28_api_source(
                     ROOT, pin["path"], pin["sha256"])
+            elif pin["path"] == "Tests/Release/Invoke-StablePackageLab.ps1":
+                # List-shaped execution pins stay anchored in this unchanged
+                # report's declared/committed snapshots, never current HEAD.
+                revisions = evidence_sources.report_revisions(
+                    ROOT, report_path.relative_to(ROOT).as_posix(), report)
+                pinned_bytes = evidence_sources.resolve(
+                    ROOT, {pin["path"]: pin["sha256"]}, revisions=revisions)[pin["path"]].original
             else:
                 pinned_bytes = (ROOT / pin["path"]).read_bytes()
             self.assertEqual(hashlib.sha256(pinned_bytes).hexdigest().upper(), pin["sha256"], pin["path"])

@@ -48,7 +48,7 @@ ADDITIONAL_REVIEWED_READ_ADAPTERS = {
     "Scripts/Release/json_schema_uninstall_confirmation.py":
         "468ee9d1993191a4d19ca9a569d6979939359a1e4cfa9c8ddeae9b51f413825a",
     "Tests/Release/test_prepare_release.py":
-        "0e88af05b653d853ae7fba8ffeb654c6fdec9a788a58f19ecb1a6d720e8fdaed",
+        "c508c55f9f4e73b1ee8e0c55db1c2fcad86ae8eadfb4f96f87102c39a62004a7",
     "Tests/Release/test_xlsx_boundary_evidence.py":
         "8fecb8df67f1eae7636b9a7c4d95f6088adc51760432693f273ce87281bcdd32",
     "Tests/Release/test_xlsx_cell_caller_qualification.py":

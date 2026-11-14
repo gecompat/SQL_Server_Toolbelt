@@ -1578,6 +1578,10 @@ class ApiQualificationTests(unittest.TestCase):
                     self.assertEqual(manifest['product_commit'], report['product_commit'])
                 _, product, _ = release.recovered_snapshot(bundle, manifest['source_commit'], report['product_commit'])
                 self.assertEqual(hashlib.sha256(product[path].replace(b'\r\n', b'\n')).hexdigest(), digest)
+            elif path == 'Tests/Release/Invoke-StablePackageLab.ps1':
+                # Journalhärtung ist neuer Testcode, kein nachträglicher
+                # Nachweis für die historische Regex-Ausführung.
+                assert_report_source_pin(self, path, digest, report)
             else:
                 self.assertEqual(current, digest)
         data = release.read_zip((ROOT / release.CLR_PACKAGE).read_bytes())

@@ -1,5 +1,13 @@
 # Testausführung
 
+Die [Restwelle vom 2026-11-14](../../../Releases/1.0.0/JSON-AGGREGATE-BOUNDARY-REST-QUALIFICATION.md)
+endete durch Sitzungsverluste ohne neue Gesamtqualifikation. Vier große
+Eintragsgrenzen und Linux SQL2025/latest CL170 bleiben offen. Nach Verlust des
+Ownership-Journals bestand die konkret freigegebene separate Linux-Sicherheitsbereinigung
+mit frischem Audit; daraus folgt kein nachträglicher Fach- oder Gesamt-PASS.
+Die neue persistente Journal-/Backuphärtung besteht Offlinegegenproben,
+qualifiziert aber keinen OS-Ausfall und ersetzt keinen frischen nativen Nachweis.
+
 Die [Aggregate-Fehlerwelle vom 2026-11-13](../../../Releases/1.0.0/JSON-AGGREGATE-ERRORS-QUALIFICATION.md)
 belegt 16 kleine Fehlerfamilien auf 22 lokalen/direkt zentralen Windows-/Linux-
 Kontexten: 2.640 eindeutige Profile, davon 60 gültig wiederverwendet. Elf vollständige
