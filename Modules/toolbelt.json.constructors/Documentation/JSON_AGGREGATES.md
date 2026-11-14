@@ -39,3 +39,14 @@ INSERT @Entries VALUES(2,N'number',N'2',1),(1,N'string',N'a',1);
 SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,Value,Profile) AS JsonValue
 FROM @Entries;
 ```
+
+## Aktuelle Engine-Transportkorrektur
+
+Die native Engine kann UserDefined-Zustände pro Eingabe lesen und schreiben.
+Für gültige Nullmengen in begrenzter Ordinalspanne verwendet der aktuelle Constructorbuild
+jetzt eine vollständig geprüfte adaptive Run-/Bitmapform. Allgemeine Werte und Fehler
+bleiben im allgemeinen AGF3-Pfad. Öffentliche Parameter, Fehlerprioritäten und
+Quoten bleiben gleich. Voraussetzungen, Fallback, Frameaufbau und Grenzen
+stehen im [Transportvertrag](../../../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md#kompakte-aktuelle-engine-zustände-für-nullmengen).
+Historische Native-/Paketnachweise qualifizieren weiterhin ausschließlich ihre
+ursprünglichen Binaries; die neue native Restabnahme ist gesondert zu lesen.
