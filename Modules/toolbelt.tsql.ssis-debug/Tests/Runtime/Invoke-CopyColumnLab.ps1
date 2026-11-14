@@ -20,7 +20,7 @@ foreach($pin in $runset.pins){
  $file=[IO.Path]::GetFullPath($pin.path)
  if(-not $file.StartsWith($repo+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or -not $seen.Add($file) -or (Get-FileHash -LiteralPath $file).Hash -cne $pin.sha256){throw 'SSIS_COPY_INPUT_DRIFT'}
 }
-foreach($required in @($PSCommandPath,(Join-Path $PSScriptRoot 'Invoke-LabContract.ps1'),(Join-Path $PSScriptRoot 'Invoke-CopyColumnCases.ps1'),(Join-Path $PSScriptRoot 'Invoke-CurrentCases.ps1'),(Join-Path $PSScriptRoot 'Invoke-ComponentsV2Audit.ps1'))){if(-not $seen.Contains([IO.Path]::GetFullPath($required))){throw 'SSIS_COPY_REQUIRED_PIN'}}
+foreach($required in @($PSCommandPath,(Join-Path $PSScriptRoot 'Invoke-LabContract.ps1'),(Join-Path $PSScriptRoot 'Invoke-CopyColumnCases.ps1'),(Join-Path $PSScriptRoot 'Invoke-CurrentCases.ps1'),(Join-Path $PSScriptRoot 'Invoke-ComponentsV2Lab.ps1'),(Join-Path $PSScriptRoot 'Invoke-ComponentsV2Audit.ps1'),(Join-Path $repo 'Tests/CI/run-lab-local.ps1'),(Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'))){if(-not $seen.Contains([IO.Path]::GetFullPath($required))){throw 'SSIS_COPY_REQUIRED_PIN'}}
 if(-not $seen.Contains([IO.Path]::GetFullPath($runset.framework))){throw 'SSIS_COPY_FRAMEWORK_PIN'}
 $framework=Get-Content -LiteralPath $runset.framework -Raw|ConvertFrom-Json
 if($framework.result -cne 'PASS' -or $framework.scope -cne 'offline-framework' -or $framework.profile -cne 'Full' -or $framework.cases -ne 29 -or $framework.sqlExecuted -isnot [bool] -or $framework.sqlExecuted -or $framework.providerSha512 -cne $runset.providerSha512){throw 'SSIS_COPY_FRAMEWORK_BINDING'}
