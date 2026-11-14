@@ -86,7 +86,11 @@ Sechs fokussierte Adaptergegenproben und zwei Constructor-Dependency-Gegenproben
 bestanden. Ein historisches Paket mit abweichenden Constructorbytes wird nicht als
 aktueller Sourcebuild zugelassen. Der optionale frische Sourcekandidat ist auf
 den Aggregate-Errors-Scope beschränkt und bindet Frameworkreceipt, FrozenInputs,
-eigene IL, aktuelle Quellen und exakt bekannte Binaries. Ein unabhängiger lokaler
+eigene IL, aktuelle Quellen und exakt bekannte Binaries. Die paketbasierten Metadata-/Aggregate-Caller- und Dependency-Kontext-
+Offlinefixtures prüfen bei diesen alten ZIP-Bytes ausdrücklich die Ablehnung
+als aktuelle Constructor-Artefakte. Ihre getrennten Rechte-/Reader-/Orakeltests
+bleiben aktiv; daraus wird kein neuer nativer Gesamt- oder ZIP-Nachweis.
+Ein unabhängiger lokaler
 Verifier prüft Originaljournale, exakte Auditbindungen, Quellkapseln, aktuelle
 Build-/Registrybytes, eindeutige 96 Profilkeys und die gemeinsame Zählung.
 
