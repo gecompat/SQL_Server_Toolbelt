@@ -72,7 +72,7 @@ function Get-AggregateErrorStatement($Spec){
 }
 function Get-ReleaseTimeout{
  $rest=$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-ceq'remaining-boundaries'
- $limit=if($script:cleanup){if($rest){960000}else{360000}}else{if($rest){900000}else{300000}}
+ $limit=if($script:cleanup){if($rest){780000}else{360000}}else{if($rest){720000}else{300000}}
  $remaining=$limit-$script:clock.ElapsedMilliseconds
  if($rest){$globalRemaining=([DateTimeOffset]::Parse($runset.deadline_utc)-[DateTimeOffset]::UtcNow).TotalMilliseconds-$(if($script:cleanup){0}else{60000});$remaining=[Math]::Min($remaining,$globalRemaining)}
  if($remaining-lt1000){throw 'RELEASE_DEADLINE'}
