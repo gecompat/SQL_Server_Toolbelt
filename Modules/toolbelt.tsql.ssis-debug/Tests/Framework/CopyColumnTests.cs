@@ -84,6 +84,12 @@ internal static partial class ContractTests
             Assert(String.Join(",", lineage.Select(c => Json.Text(c["lineageId"]))) == "101,102,103,201,202", "COPY_DECLARATION_ORDER");
             Assert(Json.Text(lineage[0]["sqlType"]) == Json.Text(lineage[3]["sqlType"]) && Json.Text(lineage[2]["sqlType"]) == Json.Text(lineage[4]["sqlType"]), "COPY_EXACT_TYPES");
             Assert(PackageDocument.Read(package, null, true).Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "Copy").ComponentKind == "copy-column", "COPY_RECOGNIZED");
+            var procedureOptions=Options("explain");
+            procedureOptions.Operation="procedure-definition"; procedureOptions.Target="f0001";
+            procedureOptions.ProcedureSchema="ContosoDebug"; procedureOptions.ProcedureName="USP_CopyNotApproved";
+            procedureOptions.Bindings=Engine.Analyze(package,Options("bindings-template"),catalog,new Budget()).Rows.Single().Content;
+            var deniedProcedure=Engine.Analyze(package,procedureOptions,catalog,new Budget());
+            Assert(!deniedProcedure.Rows.Any(x => x.Kind == "ProcedureDefinition") && deniedProcedure.Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "procedure_profile"), "COPY_NO_UNAPPROVED_PROCEDURE_DEFINITION");
             if (args.Length > 2)
             {
                 string template = Engine.Analyze(package, Options("bindings-template"), catalog, new Budget()).Rows.Single().Content;

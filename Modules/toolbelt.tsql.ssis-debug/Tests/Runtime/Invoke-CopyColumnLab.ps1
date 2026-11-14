@@ -32,6 +32,8 @@ foreach($folder in @('Clr','Exchange/Core')){
 foreach($format in @(6,8)){foreach($kind in @('int','text')){if(-not $seen.Contains([IO.Path]::GetFullPath((Join-Path $runset.fixtureRoot "format-$format/copy-column-$kind/package.dtsx")))){throw 'SSIS_COPY_FIXTURE_PIN'}}}
 $case=$runset.cases[$CaseIndex]
 if(-not ([IO.Path]::GetFullPath($case.journal)).StartsWith($private,[StringComparison]::OrdinalIgnoreCase)){throw 'SSIS_COPY_JOURNAL_SCOPE'}
+$caseProfile=if($runset.PSObject.Properties['caseProfile']){[string]$runset.caseProfile}else{'explain'}
+if($caseProfile -cnotin @('explain','procedure-guard-only') -or ($caseProfile -ceq 'procedure-guard-only' -and $CaseIndex -notin 10,11)){throw 'SSIS_COPY_CASE_PROFILE'}
 if($ValidateOnly){'SSIS_COPY_COLUMN_ADMISSION_PASS; no SQL';return}
 if($Action -ceq 'Audit'){
  $journal=Join-Path $case.journal 'target-1.json'
@@ -44,7 +46,8 @@ $text=[IO.File]::ReadAllText($original)
 $anchor="& (Join-Path `$PSScriptRoot 'Invoke-ApiCases.ps1') -Connection `$connection"
 if($text.Split($anchor,[StringSplitOptions]::None).Count -ne 2){throw 'SSIS_COPY_CASE_HOOK'}
 $fixture=$runset.fixtureRoot.Replace("'","''")
-$text=$text.Replace($anchor,"& (Join-Path `$PSScriptRoot 'Invoke-CopyColumnCases.ps1') -Connection `$connection -FixtureRoot '$fixture'")
+$guard=if($caseProfile -ceq 'procedure-guard-only'){' -ProcedureGuardOnly'}else{''}
+$text=$text.Replace($anchor,"& (Join-Path `$PSScriptRoot 'Invoke-CopyColumnCases.ps1') -Connection `$connection -FixtureRoot '$fixture'$guard")
 # Der geprüfte Binder ersetzt nur AST-Variablen, keine SQL-/Metadatenliterale.
 $errors=$null;$tree=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Invoke-ComponentsV2Lab.ps1'),[ref]$null,[ref]$errors)
 $binders=@($tree.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Bind-ComponentsV2ScriptRoot'},$true))

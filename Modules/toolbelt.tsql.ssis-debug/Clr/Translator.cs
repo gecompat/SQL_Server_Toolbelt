@@ -525,6 +525,11 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         private void CopyColumn(Component c, Port port, Stage stage)
         {
+            // Die Einzelfreigabe umfasst nur Debug-SQL. Der gemeinsame
+            // Stagebuilder darf die Komponente nicht stillschweigend auch
+            // für die getrennte Prozedurdefinition zulassen.
+            if (options.ProcedureDefinition)
+                throw new DebugFault("procedure_profile", "Copy Column V1 ist ausschließlich für explain freigegeben.");
             if (stage.Parents.Count != 1 || c.Inputs.Count != 1 || c.Outputs.Count != 1 || c.Outputs[0].Error || port.Id != c.Outputs[0].Id || port.Sync != c.Inputs[0].Id)
                 throw new DebugFault("unsupported_component", "Copy Column benötigt genau einen synchronen Eingang und einen normalen Ausgang ohne Fehlerausgang.");
 

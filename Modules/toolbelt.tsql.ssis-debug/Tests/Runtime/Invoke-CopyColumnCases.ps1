@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][Data.SqlClient.SqlConnection]$Connection,
-      [Parameter(Mandatory)][string]$FixtureRoot)
+      [Parameter(Mandatory)][string]$FixtureRoot,[switch]$ProcedureGuardOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 if($Connection.State -cne 'Open'){throw 'SSIS_COPY_OPEN_CONNECTION_REQUIRED'}
@@ -33,6 +33,16 @@ foreach($format in @(6,8)){
    $before=[string](Invoke-CurrentSql $witness).Rows[0][0]
    $bytes=[IO.File]::ReadAllBytes((Join-Path $FixtureRoot "format-$format/copy-column-$type/package.dtsx"))
    $template=[string](Invoke-CurrentExplain -Bytes $bytes -Operation 'bindings-template').Rows[0].Content
+   if($ProcedureGuardOnly){
+    $command=$Connection.CreateCommand();$command.CommandType='StoredProcedure';$command.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow';$command.CommandTimeout=Get-SsisNativeTimeout 45
+    try{
+     foreach($p in @(@('PackageBytes',[Data.SqlDbType]::VarBinary,-1,$bytes),@('Operation',[Data.SqlDbType]::VarChar,32,'procedure-definition'),@('TargetFlow',[Data.SqlDbType]::NVarChar,256,'f0001'),@('Bindings',[Data.SqlDbType]::NVarChar,-1,$template),@('CatalogBindings',[Data.SqlDbType]::NVarChar,-1,$catalog),@('ProcedureSchema',[Data.SqlDbType]::NVarChar,128,'ContosoDebug'),@('ProcedureName',[Data.SqlDbType]::NVarChar,128,'USP_CopyNotApproved'))){[void]$command.Parameters.Add('@'+$p[0],$p[1],[int]$p[2]);$command.Parameters['@'+$p[0]].Value=$p[3]}
+     [void]$command.Parameters.Add('@TSqlVersion',[Data.SqlDbType]::SmallInt);$command.Parameters['@TSqlVersion'].Value=$script:currentDialect
+     $reader=$command.ExecuteReader();try{$answer=[Data.DataTable]::new();$answer.Load($reader)}finally{$reader.Dispose()}
+     Assert-Current (@($answer.Rows|Where-Object ArtifactKind -CEQ 'ProcedureDefinition').Count -eq 0 -and @($answer.Rows|Where-Object {$_.ArtifactKind -ceq 'Diagnostic' -and $_.DiagnosticCode -ceq 'procedure_profile'}).Count -gt 0) 'COPY_NO_PROCEDURE_DEFINITION'
+    }finally{$command.Dispose()}
+    continue
+   }
    $artifacts=Invoke-CurrentExplain -Bytes $bytes -Bindings $template -Catalog $catalog
    $bundle=@($artifacts.Rows|Where-Object ArtifactKind -CEQ 'DebugScript')
    Assert-Current ($bundle.Count -eq 1) 'COPY_SINGLE_BUNDLE'
@@ -53,4 +63,5 @@ foreach($format in @(6,8)){
   }finally{[void](Invoke-CurrentSql 'DROP TABLE dbo.SyntheticSourceA;')}
  }
 }
-"SSIS_COPY_COLUMN_NATIVE_PASS assertions=$script:checks profiles=4"
+if($ProcedureGuardOnly){"SSIS_COPY_COLUMN_PROCEDURE_GUARD_PASS assertions=$script:checks profiles=4"}
+else{"SSIS_COPY_COLUMN_NATIVE_PASS assertions=$script:checks profiles=4"}
