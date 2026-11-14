@@ -10,6 +10,11 @@ Für einen gebundenen SQL-Pfad über eine Derived Column erzeugt
 ein Manifest. Der [parametrisierte Aufruf](Documentation/USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
 verwendet typisierte Szenariowerte und liefert eine feste Zielprojektion.
 
+Copy Column V1 ist als zusätzlicher Debug-SQL-Stage implementiert und im
+[additiven Vertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md#additiver-einzelfunktionsvertrag-copy-column-v1--2026-11-13)
+konkret freigegeben. Der Quellstand ist noch nicht gebaut oder qualifiziert;
+der bestehende validierte Build weist diese Erweiterung nicht nach.
+
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
 denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
 das Modell ohne CLR- oder Toolbelt-Installation. Die bestehenden

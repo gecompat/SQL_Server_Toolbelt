@@ -3,6 +3,14 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Aktuell offene Source-Erweiterung
+
+Copy Column V1 wurde am 2026-11-13 funktionsbezogen freigegeben und im Source
+ergänzt. Die vorhandenen Build-, Binary-, SQL- und CI-Nachweise enthalten diese
+Änderung nicht. Synthetische Orakel, Komponentenversion-/Lineagegrenzen,
+Exact-head-Buildbindung und die dadurch betroffenen Qualifikationsgates bleiben
+offen; der Modulstatus wird dadurch nicht hochgestuft.
+
 ## Gesamtabnahme des korrigierten Builds
 
 Die [Gesamtabnahme vom 2026-11-04](Qualification/Current.Build.20261104.json)

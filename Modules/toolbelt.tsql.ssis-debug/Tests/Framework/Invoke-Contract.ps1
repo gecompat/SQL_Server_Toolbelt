@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
-    [ValidateSet('Focused','Full','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation','ProcedureDefinition')][string]$Profile = 'Full',
+    [ValidateSet('Focused','Full','CopyColumn','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation','ProcedureDefinition')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
     [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
@@ -26,7 +26,7 @@ Copy-Item -LiteralPath $ScriptDomDllPath -Destination $tempRoot
 Copy-Item -LiteralPath $ProviderAssemblyPath -Destination $tempRoot
 $executable = Join-Path $tempRoot 'Toolbelt.Tsql.SsisDebug.Tests.exe'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$compilerArguments = @('/nologo','/optimize+','/target:exe',"/out:$executable",'/reference:System.Data.dll','/reference:System.Core.dll','/reference:System.Xml.dll','/reference:System.Xml.Linq.dll',"/reference:$ScriptDomDllPath","/reference:$ProviderAssemblyPath",(Join-Path $PSScriptRoot 'ContractTests.cs'))
+$compilerArguments = @('/nologo','/optimize+','/target:exe',"/out:$executable",'/reference:System.Data.dll','/reference:System.Core.dll','/reference:System.Xml.dll','/reference:System.Xml.Linq.dll',"/reference:$ScriptDomDllPath","/reference:$ProviderAssemblyPath",(Join-Path $PSScriptRoot 'ContractTests.cs'),(Join-Path $PSScriptRoot 'CopyColumnTests.cs'))
 $compilerResult = Invoke-OwnedProcess -FileName $compiler -Arguments $compilerArguments -TimeoutMilliseconds 120000
 if ($compilerResult.ExitCode -ne 0) { throw ('SSIS_HARNESS_BUILD_FAILED: ' + $compilerResult.Stderr + $compilerResult.Stdout) }
 $cases = 0
@@ -44,7 +44,7 @@ function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRA
         if (-not $child.WaitForExit($TimeoutMilliseconds)) { $child.Kill(); throw ('SSIS_FRAMEWORK_CHILD_TIMEOUT ordinal={0} name={1}' -f $caseOrdinal,$caseName) }
         $output = $stdout.GetAwaiter().GetResult(); $errorOutput = $stderr.GetAwaiter().GetResult()
         if ($child.ExitCode -ne 0 -or $output.Length -gt 4096 -or $errorOutput.Length -gt 16384 -or $output -notmatch $ExpectedPattern -or $errorOutput.Length -ne 0) {
-            if (($Profile -eq 'ComponentsV2Remainder' -or $Profile -eq 'ComponentsV2Translate') -and $errorOutput -match '(?m)(?:System\.)?Exception: ([A-Z][A-Z0-9_]+)') {
+            if (($Profile -eq 'ComponentsV2Remainder' -or $Profile -eq 'ComponentsV2Translate' -or $Profile -eq 'CopyColumn') -and $errorOutput -match '(?m)(?:System\.)?Exception: ([A-Z][A-Z0-9_]+)') {
                 throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1} assertion={2}' -f $caseOrdinal,$caseName,$Matches[1])
             }
             throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1}' -f $caseOrdinal,$caseName)
@@ -83,6 +83,18 @@ if ($Profile -eq 'ComponentsV2Branch') {
 }
 $procedureCase = @('procedure-definition', (Join-Path $moduleRoot 'Tests/Fixtures/procedure-8.dtsx'),
     (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+if ($Profile -eq 'CopyColumn') {
+    try {
+        foreach ($format in @(6,8)) {
+            $copyArgs = @('copy-column', (Join-Path $moduleRoot "Tests/Fixtures/synthetic-$format.dtsx"))
+            if ($FixtureExportRoot) { $copyArgs += (Join-Path $FixtureExportRoot "format-$format") }
+            Invoke-Case $copyArgs
+        }
+        if ((Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash -cne $providerHash) { throw 'SSIS_PROVIDER_CHANGED_DURING_TEST' }
+        "SSIS_FRAMEWORK_PASS $cases bounded children"
+        return
+    } finally { Remove-FrameworkTemp }
+}
 if ($Profile -eq 'ProcedureDefinition') {
     try {
         Invoke-Case $procedureCase
@@ -168,6 +180,7 @@ foreach ($format in @(6,8)) {
     $fixture = Join-Path $moduleRoot "Tests/Fixtures/synthetic-$format.dtsx"
     Invoke-Case @('import', $fixture)
     Invoke-Case @('translate', $fixture)
+    if ($Profile -eq 'Full') { Invoke-Case @('copy-column', $fixture) }
 }
 if ($Profile -eq 'Full') {
     # Weitere adversariale und Ressourcenfälle werden mit demselben begrenzten

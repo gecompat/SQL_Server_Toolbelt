@@ -47,7 +47,7 @@ internal sealed class NullCatalog : ICatalog
     public string BindIdentifier(string database, IEnumerable<string> candidates, string name) { throw Offline(); }
     public BoundObject Resolve(string database, string schema, string name) { throw Offline(); }
 }
-internal static class ContractTests
+internal static partial class ContractTests
 {
     private static int checks;
     private static void Assert(bool value, string name) { checks++; if (!value) throw new Exception(name); }
@@ -101,7 +101,8 @@ internal static class ContractTests
     { try { var safety = Safety(new SyntheticCatalog()); var query = safety.Read("SELECT " + expression + " AS Value", "AdventureWorks"); Assert(Projection.Columns(query, safety)[0].SqlType == expected, "EXACT_SQL_TYPE_" + expected); } catch (Exception e) { throw new Exception("PROJECT_TYPE_" + expression, e); } }
     private static void Run(string[] args)
     {
-        if (args[0] == "procedure-definition")
+        if (args[0] == "copy-column") CopyColumnContract(args);
+        else if (args[0] == "procedure-definition")
         {
             byte[] package = File.ReadAllBytes(args[1]);
             var catalog = new SyntheticCatalog();

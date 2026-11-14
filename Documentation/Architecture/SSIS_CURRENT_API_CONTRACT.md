@@ -11,6 +11,43 @@ Komponenten-, Typ-, SQL-Sicherheits- und Bereinigungsverträge gelten weiter.
 Die projektweite Entwicklungsregel steht in
 [PROJECT_RULES.md](../../.ai/PROJECT_RULES.md#entwicklungsverträge-ohne-legacy-zwang).
 
+## Additiver Einzelfunktionsvertrag: Copy Column V1 — 2026-11-13
+
+Der Benutzer gab am 2026-11-13 ausdrücklich genau diesen Slice frei: eine
+zusätzliche relationale Debug-Stage in der bestehenden `explain`-Ausgabe; keine
+neue USP, kein Datenbankmutator und keine Datei-I/O. Der aktuelle Source-Slice
+ist implementiert, aber noch nicht gebaut, qualifiziert oder ausgeliefert.
+
+- Erkannt werden ausschließlich die nativen Copy Column ClassIDs
+  `{98F16A65-E02F-4B0F-87D4-C217EA074619}` und
+  `{D231ABC4-4754-481B-8F7A-CD4BD8D09832}` in den bestehenden DTSX-Profilen
+  2012/01 und 2014/01; die Komponenten-Version muss exakt `1` sein. Für Copy
+  Column gilt exakt eine synchrone Eingabe, ein normaler Ausgang und kein
+  Error-Ausgang.
+- Die bestehenden Eingabespalten bleiben unverändert im Ausgang enthalten.
+  Jede deklarierte Kopie bindet ihre kanonische positive Integer-
+  `copyColumnId` eindeutig an die Eingangs-Lineage. Sie erhält einen eindeutigen
+  kanonischen positiven Output-Lineagewert,
+  einen nichtleeren case-insensitiv eindeutigen Namen sowie exakt denselben
+  abgeleiteten SQL-Typ, NULL-Wert und Collationkontext wie die Quelle.
+- Die Übersetzung projiziert die Quellspalte als neue interne SQL-Ausgabespalte.
+  Es findet weder Typkonvertierung noch Wertmutation statt. Neue Output-IDs,
+  fehlende oder doppelte Quellen, Alias-/Lineagekonflikte, unerwartete Ports,
+  Komponentenversionen oder Typabweichungen blockieren den abhängigen Pfad mit
+  Diagnose. Es werden keine Namen oder Quellen geraten.
+- Workflow-, StageSql-, Ziel- und Lineage-Artefakte verwenden unverändert das
+  bestehende Resultmodell. Die Prozedurerzeugung erhält keine Erweiterung durch
+  diesen Slice.
+
+Die Zulassung der Komponente folgt der [Microsoft-Dokumentation zum
+Copy-Column-Verhalten](https://learn.microsoft.com/en-us/sql/integration-services/data-flow/transformations/copy-column-transformation),
+der dokumentierten [`copyColumnId`-Eigenschaft](https://learn.microsoft.com/en-us/sql/integration-services/data-flow/transformations/transformation-custom-properties?view=sql-server-ver17)
+und den nativen [DTSX](https://learn.microsoft.com/en-us/openspecs/sql_data_portability/ms-dtsx/056f8eb5-37b5-40b6-aa86-963f15fe399e)-/[DTSX2-ClassID-Katalogen](https://learn.microsoft.com/en-us/openspecs/sql_data_portability/ms-dtsx2/b2f96f16-3e16-414c-93ec-ceca000ebd34).
+Diese Quellen definieren den Klassen-/Metadatenraum; sie sind kein Laufzeit-
+oder native SSIS-Gleichwertigkeitsnachweis. Die bestehende Qualifikationsmatrix
+bleibt offen, bis synthetische Input-/Output-Orakel und die gebundene
+Exact-head-Lieferung geprüft wurden.
+
 ## Zweck und öffentlicher Ablauf
 
 `USP_ExplainSsisDataFlow @PackageBytes = @b` verwendet unmittelbar den aktuellen

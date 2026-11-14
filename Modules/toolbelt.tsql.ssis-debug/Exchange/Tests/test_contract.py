@@ -108,6 +108,21 @@ def main():
         v2_invalid=ET.fromstring(v2_fixture)
         next(x for x in v2_invalid.iter("component") if x.get("componentClassID")=="Microsoft.DerivedColumn").set("version","")
         run_current(ET.tostring(v2_invalid,encoding="utf-8",xml_declaration=True),False)
+        # Dieselben nativen Copy-Column-Profile im CLR- und externen Kern.
+        for guid in ("{98F16A65-E02F-4B0F-87D4-C217EA074619}", "{D231ABC4-4754-481B-8F7A-CD4BD8D09832}"):
+            for version in ("1", "2"):
+                document=ET.fromstring(v2_fixture)
+                component=next(c for c in document.iter("component") if c.get("name")=="Derived")
+                component.set("componentClassID",guid); component.set("version",version)
+                output=component.find("outputs/output")
+                output.set("synchronousInputId",component.find("inputs/input").get("refId"))
+                model=run_current(ET.tostring(document,encoding="utf-8",xml_declaration=True))
+                node=next(n for n in model["nodes"] if n.get("name")=="Derived" and n["kind"]=="COMPONENT")
+                unknown=any(d.get("code")=="UNKNOWN_COMPONENT" and d.get("objectId")==node["id"] for d in model["diagnostics"])
+                check(unknown==(version!="1"),"Copy Column native version admission")
+                if version=="1":
+                    ports=[n for n in model["nodes"] if n["kind"]=="PORT" and n["parentId"]==node["id"] and n["attributes"].get("direction")=="OUTPUT"]
+                    check(len(ports)==1 and ports[0]["attributes"].get("portRole")=="NORMAL","Copy Column synchronous normal output")
         def assignment_fixture(include_unknown=True):
             document=ET.fromstring(v2_fixture)
             variables=document.find(DTS+"Variables")
