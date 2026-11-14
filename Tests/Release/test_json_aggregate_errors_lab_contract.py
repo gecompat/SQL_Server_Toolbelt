@@ -136,4 +136,27 @@ $runset.aggregate_error_scope='remaining-boundaries';$runset.deadline_utc=[DateT
         r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)
 
+    def test_durable_journal_preserves_prior_state_and_rejects_corruption(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            journal=str(Path(directory)/'journal.json').replace("'","''")
+            helper=str(ROOT/'Tests/Release/Invoke-StablePackageLab.ps1').replace("'","''")
+            script="$ErrorActionPreference='Stop';$script:journal='"+journal+"';$helper='"+helper+"';"+r"""
+$e=$null;$a=[Management.Automation.Language.Parser]::ParseFile($helper,[ref]$null,[ref]$e);$n=@($a.FindAll({param($x)$x-is[Management.Automation.Language.FunctionDefinitionAst]-and$x.Name-ceq'Save-ReleaseJournal'},$true));if($n.Count-ne1){throw 'FUNCTION'};. ([scriptblock]::Create($n[0].Extent.Text))
+$script:ledger=[ordered]@{owner='synthetic';state='FIRST'};Save-ReleaseJournal
+if((Get-Content $journal -Raw|ConvertFrom-Json).state-cne'FIRST'-or(Get-Content ($journal+'.previous') -Raw|ConvertFrom-Json).state-cne'FIRST'){throw 'INITIAL_REDUNDANCY'}
+$ledger.state='SECOND';Save-ReleaseJournal
+if((Get-Content $journal -Raw|ConvertFrom-Json).state-cne'SECOND'-or(Get-Content ($journal+'.previous') -Raw|ConvertFrom-Json).state-cne'FIRST'){throw 'PREVIOUS_STATE_LOST'}
+$savedBackup=$journal+'.saved';[IO.File]::Move(($journal+'.previous'),$savedBackup);[void][IO.Directory]::CreateDirectory($journal+'.previous')
+$caught=$false;try{$ledger.state='THIRD';Save-ReleaseJournal}catch{$caught=$true}finally{[IO.Directory]::Delete($journal+'.previous');[IO.File]::Move($savedBackup,($journal+'.previous'))}
+if(-not$caught-or(Get-Content $journal -Raw|ConvertFrom-Json).state-cne'SECOND'){throw 'FAILED_REPLACEMENT_LOST_CURRENT'}
+if(@(Get-ChildItem (Split-Path $journal) -Filter '*.writing').Count){throw 'OWN_TEMP_LEAK'}
+$prior=[IO.File]::ReadAllBytes($journal+'.previous');[IO.File]::WriteAllBytes($journal,[byte[]]::new(64));$caught=$false
+try{Save-ReleaseJournal}catch{if($_.Exception.Message-ceq'RELEASE_JOURNAL_INVALID_EXISTING'){$caught=$true}}
+if(-not$caught-or[Convert]::ToHexString($prior)-cne[Convert]::ToHexString([IO.File]::ReadAllBytes($journal+'.previous'))){throw 'CORRUPTION_MASKED_OR_BACKUP_LOST'}
+'DURABLE_JOURNAL_COUNTEREXAMPLES_PASS'
+"""
+            r=subprocess.run(['pwsh','-NoProfile','-Command',script],cwd=ROOT,capture_output=True,text=True,timeout=25)
+            self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+
 if __name__=='__main__':unittest.main()

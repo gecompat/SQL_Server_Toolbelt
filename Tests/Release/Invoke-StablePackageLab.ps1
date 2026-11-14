@@ -92,9 +92,30 @@ function Read-ReleaseUninstall([string]$Path) {
     return $text.Replace('$(ConfirmNoExternalConsumers)','1')
 }
 function Save-ReleaseJournal {
-    $tmp=$script:journal+'.writing'
-    [IO.File]::WriteAllText($tmp,($script:ledger|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
-    [IO.File]::Move($tmp,$script:journal,$true)
+    # Flush file contents before replacement; retain a separately flushed prior
+    # state. Neither file proves a power-loss recovery without a fresh audit.
+    $encoding=[Text.UTF8Encoding]::new($false,$true)
+    $bytes=$encoding.GetBytes(($script:ledger|ConvertTo-Json -Depth 8))
+    $previous=$bytes
+    if([IO.File]::Exists($script:journal)){
+        $previous=[IO.File]::ReadAllBytes($script:journal)
+        if($previous.Length-eq0-or$previous-contains[byte]0){throw 'RELEASE_JOURNAL_INVALID_EXISTING'}
+        try{$parsed=ConvertFrom-Json -InputObject $encoding.GetString($previous) -ErrorAction Stop}catch{throw 'RELEASE_JOURNAL_INVALID_EXISTING'}
+        if($null-eq$parsed-or$parsed-isnot[pscustomobject]){throw 'RELEASE_JOURNAL_INVALID_EXISTING'}
+    }
+    $nonce=[guid]::NewGuid().ToString('N')
+    $tmp=$script:journal+'.'+$nonce+'.writing'
+    $backupTmp=$script:journal+'.previous.'+$nonce+'.writing'
+    try{
+        foreach($item in @(@{path=$backupTmp;bytes=$previous},@{path=$tmp;bytes=$bytes})){
+            $stream=[IO.FileStream]::new($item.path,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None,4096,[IO.FileOptions]::WriteThrough)
+            try{$stream.Write($item.bytes,0,$item.bytes.Length);$stream.Flush($true)}finally{$stream.Dispose()}
+        }
+        [IO.File]::Move($backupTmp,($script:journal+'.previous'),$true)
+        [IO.File]::Move($tmp,$script:journal,$true)
+    }finally{
+        foreach($ownTemp in @($tmp,$backupTmp)){if([IO.File]::Exists($ownTemp)){[IO.File]::Delete($ownTemp)}}
+    }
 }
 function Assert-ReleaseInputs {
     foreach ($pin in $script:runset.pins) {Assert-ReleasePin $pin.path $pin.sha256}
