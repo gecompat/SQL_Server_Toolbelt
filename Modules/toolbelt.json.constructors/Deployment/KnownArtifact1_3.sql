@@ -1,3 +1,3 @@
 -- Target1.3 separat; die historische1.2-Knownzeile bleibt unverÃƒÂ¤ndert.
-DECLARE @TargetKnownHash varbinary(64)=0x9eb49003c07a444065f67f8c23c5f821726c7e234e584c8f7dcb46cc98cb4805d50d8b4fa90c8f6030b7f70a03dfad768c66e757a7de4c29d02e98bf0566d146,
- @TargetArtifactId varchar(64)='2b79deec15bf7833c0b5ec14d1ca91a92e4743944ce1bc6c898d537e778ab54f';
+DECLARE @TargetKnownHash varbinary(64)=0x577fd74127cf8ca682809b5e1ef76b593e6fc1a4e6b9d029fce1a99a3315abab2fe4525649742c72419a1af6cc14839d7d603bc63a4a74bcf00bb41a2d2198b4,
+ @TargetArtifactId varchar(64)='df7c243ce6e4e48cf53ff57e4a5316f6192b727ce1754137f69b47f27576529c';

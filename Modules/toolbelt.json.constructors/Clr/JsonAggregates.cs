@@ -7,7 +7,7 @@ namespace Toolbelt.JsonConstructors {
 // Privater Bindingkandidat. Keine installierte SQL-Assembly und keine Sourcefreigabe.
 internal static class AggregateBoundary {
  internal static Exception Technical(Exception error){
-  // Keine originalen Messages/InnerExceptions ÃƒÂ¼bernehmen.
+  // Keine originalen Messages/InnerExceptions übernehmen.
   if(error is InvalidOperationException||error is InvalidDataException||error is EndOfStreamException)return AgfErrors.State();
   return AgfErrors.Resource();
  }

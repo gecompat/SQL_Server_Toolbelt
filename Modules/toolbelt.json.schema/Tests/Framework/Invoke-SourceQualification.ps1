@@ -77,8 +77,8 @@ try{
  $core=Join-Path $output 'Toolbelt.JsonCore.dll'
  $ctor=Join-Path $output 'Toolbelt.JsonConstructors.dll'
  $schema=Join-Path $output 'Toolbelt.JsonSchema.dll'
- # Der kalte erste Compilerstart Ã¼berschritt auf zwei CI-Runnern 15 Sekunden.
- # Nur diese Phase erhÃ¤lt Reserve; Optionen, BinÃ¤rorakel und Ã¼brige Limits bleiben.
+ # Der kalte erste Compilerstart überschritt auf zwei CI-Runnern 15 Sekunden.
+ # Nur diese Phase erhält Reserve; Optionen, Binärorakel und übrige Limits bleiben.
  Phase 'CompileCore' $CompilerPath (@($common)+@('/target:library',('/out:'+$core),('/reference:'+$references[0]),('/reference:'+$references[1]))+@($sources['Toolbelt.JsonCore'])) 60000 ''
  Pin-Product $core
  foreach($product in @('Toolbelt.JsonConstructors','Toolbelt.JsonSchema')){
