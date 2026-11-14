@@ -6,7 +6,7 @@ function HashBytes([byte[]]$bytes){$h=[Security.Cryptography.SHA256]::Create();t
 function Shape([Type]$t){if($t.IsByRef){return (Shape $t.GetElementType())+'&'};if($t.IsArray){return (Shape $t.GetElementType())+'[]'};if($t.IsGenericParameter){return '!'+$t.GenericParameterPosition};if($t.IsGenericType){return $t.GetGenericTypeDefinition().FullName+'<'+((@($t.GetGenericArguments()|ForEach-Object{Shape $_}))-join',')+'>'};return $t.FullName}
 # Klassenbindungen sind konkrete, endliche Instanzen; keine beliebigen Product- oder Reflectionargumente.
 $closed=@('System.Collections.Generic.List`1<System.Byte[]>','System.Collections.Generic.List`1<Toolbelt.JsonConstructors.VEntry>','System.Collections.Generic.List`1<System.Int32>','System.Collections.Generic.SortedSet`1<System.Int32>','System.Collections.Generic.SortedSet`1<System.Byte[]>','System.Collections.Generic.IComparer`1<System.Byte[]>','System.Collections.Generic.IComparer`1<Toolbelt.JsonConstructors.VEntry>','System.Collections.Generic.Comparison`1<System.Byte[]>','System.Comparison`1<Toolbelt.JsonConstructors.VEntry>','System.Collections.Generic.List`1+Enumerator<System.Byte[]>','System.Collections.Generic.List`1+Enumerator<Toolbelt.JsonConstructors.VEntry>','System.Collections.Generic.List`1+Enumerator<System.Int32>','System.Collections.Generic.SortedSet`1+Enumerator<System.Int32>','System.Collections.Generic.SortedSet`1+Enumerator<System.Byte[]>')
-# Vollständige Return-/Parameterformen. !0 ist ausschließlich die oben geschlossene Typinstanz.
+# VollstÃ¤ndige Return-/Parameterformen. !0 ist ausschlieÃŸlich die oben geschlossene Typinstanz.
 $allow=@{}
 function Permit([string]$type,[string[]]$bindings){$allow[$type]=$bindings}
 Permit 'System.Object' @('System.Void .ctor()','System.Boolean ReferenceEquals(System.Object,System.Object)')
@@ -27,6 +27,8 @@ Permit 'System.IO.MemoryStream' @('System.Void .ctor()','System.Void .ctor(Syste
 Permit 'System.IO.BinaryReader' @('System.Void .ctor(System.IO.Stream)','System.Byte[] ReadBytes(System.Int32)','System.Byte ReadByte()','System.UInt16 ReadUInt16()','System.UInt32 ReadUInt32()','System.Int32 ReadInt32()','System.Int64 ReadInt64()','System.IO.Stream get_BaseStream()','System.Void Dispose()')
 Permit 'System.IO.BinaryWriter' @('System.Void .ctor(System.IO.Stream,System.Text.Encoding,System.Boolean)','System.Void Write(System.Byte[])','System.Void Write(System.UInt16)','System.Void Write(System.Int64)','System.Void Write(System.Byte)','System.Void Write(System.UInt32)','System.Void Write(System.Int32)','System.Void Flush()','System.Void Dispose()')
 Permit 'System.Security.Cryptography.SHA256' @('System.Security.Cryptography.SHA256 Create()')
+# Fester Frameworkalgorithmus im kleinen Engineframe; keine dynamische Providerauflösung.
+Permit 'System.Security.Cryptography.SHA256Managed' @('System.Void .ctor()')
 Permit 'System.Security.Cryptography.HashAlgorithm' @('System.Byte[] ComputeHash(System.Byte[])','System.Int32 TransformBlock(System.Byte[],System.Int32,System.Int32,System.Byte[],System.Int32)','System.Byte[] TransformFinalBlock(System.Byte[],System.Int32,System.Int32)','System.Byte[] get_Hash()','System.Void Dispose()')
 Permit 'System.Text.Encoding' @('System.Text.Encoding get_UTF8()')
 Permit 'System.Text.StringBuilder' @('System.Void .ctor()','System.Void .ctor(System.Int32)','System.Text.StringBuilder Append(System.Char)','System.Text.StringBuilder Append(System.String)','System.String ToString()')
@@ -41,8 +43,8 @@ Permit 'System.Collections.Generic.IComparer`1' @('System.Int32 Compare(!0,!0)')
 foreach($t in @('SqlInt32','SqlInt64','SqlByte','SqlBoolean')){$v=@{SqlInt32='System.Int32';SqlInt64='System.Int64';SqlByte='System.Byte';SqlBoolean='System.Boolean'}[$t];Permit ('System.Data.SqlTypes.'+$t) @(('System.Void .ctor('+$v+')'),'System.Boolean get_IsNull()',($v+' get_Value()'))}
 Permit 'System.Data.SqlTypes.SqlChars' @('System.Void .ctor(System.Char[])','System.Data.SqlTypes.SqlChars get_Null()','System.Boolean get_IsNull()','System.Int64 get_Length()','System.Int64 Read(System.Int64,System.Char[],System.Int32,System.Int32)')
 Permit 'Microsoft.SqlServer.Server.IBinarySerialize' @('System.Void Read(System.IO.BinaryReader)','System.Void Write(System.IO.BinaryWriter)')
-# Prospektive 1.3/Core/Schema-Bindungen, anhand der konkreten Source geprüft.
-# Collections sind unten zusätzlich auf tatsächliche geschlossene Typen begrenzt.
+# Prospektive 1.3/Core/Schema-Bindungen, anhand der konkreten Source geprÃ¼ft.
+# Collections sind unten zusÃ¤tzlich auf tatsÃ¤chliche geschlossene Typen begrenzt.
 $closed+=@('System.Collections.Generic.List`1<Toolbelt.JsonCore.JsonToken>',
  'System.Collections.Generic.Dictionary`2<System.String,System.Int32>',
  'System.Collections.Generic.Dictionary`2<System.Int32,System.Collections.Generic.Dictionary`2<System.String,System.Int32>>',
@@ -116,7 +118,7 @@ try{
  $ops=@{};foreach($f in [Reflection.Emit.OpCodes].GetFields([Reflection.BindingFlags]'Public,Static')){$o=$f.GetValue($null);$ops[([int]$o.Value-band65535)]=$o}
  foreach($type in $asm.GetTypes()){
   if($type.FullName-match'Diagnostic|Witness|Harness'){throw 'IL_DIAGNOSTIC'}
-  # Neuer Core und Schema erlauben keinen veränderlichen globalen Produktzustand.
+  # Neuer Core und Schema erlauben keinen verÃ¤nderlichen globalen Produktzustand.
   # SignedDecimalDigits.Zero ist das einzige statische nichtliterale Feld dort.
   if($identity.Name-cne'Toolbelt.JsonConstructors'){
    foreach($field in $type.GetFields([Reflection.BindingFlags]'Public,NonPublic,Static,DeclaredOnly')){
