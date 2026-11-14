@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Scripts/Release"))
@@ -254,7 +255,7 @@ class InstallerRuntimeQualification(unittest.TestCase):
         cls.record_bytes = cls.record_path.read_bytes()
 
     def test_runtime_record_and_lf_metadata_bridge_bind_actual_inputs(self):
-        record = installer_renderer.validate_install_runtime_qualification(self.record_bytes)
+        record = installer_renderer.validate_install_runtime_qualification(self.record_bytes, root=historical_root(ROOT))
         self.assertEqual(record["kind"], "ssis_components_v2_standalone_tsql_runtime_qualification")
         self.assertEqual(len(record["execution_input_pins"]), 16)
 

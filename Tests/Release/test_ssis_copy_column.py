@@ -8,10 +8,42 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+import sys
 
 ROOT=Path(__file__).resolve().parents[2]
 MODULE=ROOT/'Modules/toolbelt.tsql.ssis-debug'
 DRIVER=MODULE/'Tests/Runtime/Invoke-CopyColumnLab.ps1'
+sys.path.insert(0,str(ROOT/'Scripts/Release'))
+import validate_ssis_copy_column as evidence
+
+
+class CopyColumnEvidence(unittest.TestCase):
+    def test_original_and_current_builds_are_explicitly_bound(self):
+        record=evidence.validate()
+        self.assertNotEqual(record['native_explain_assembly_sha256'],record['qualified_assembly_sha256'])
+
+    def test_missing_audit_context_guard_or_projection_is_rejected(self):
+        changes=[lambda r:r['cases'].pop(),lambda r:r['cases'][0].update(cleanup_audit='not executed'),
+            lambda r:r['cases'][1].update(deployment_mode='local'),lambda r:r['procedure_guard_cases'].pop(),
+            lambda r:r.update(pre_guard_product_sha256={}),lambda r:r.update(reuse_method='same version'),
+            lambda r:r['procedure_guard_cases'][0].update(assembly_sha256=r['native_explain_assembly_sha256'])]
+        for change in changes:
+            record=copy.deepcopy(evidence.validate());change(record)
+            with self.assertRaises(ValueError):evidence.validate(record,check_files=False)
+
+    def test_partial_delta_cannot_become_full_module_or_fresh_transport(self):
+        for key in ['publication_authorized','full_module_qualification','fresh_zip_matrix']:
+            record=copy.deepcopy(evidence.validate());record[key]=True
+            with self.assertRaises(ValueError):evidence.validate(record,check_files=False)
+        for key in ['fresh_ssms','fresh_authenticated_tls','actual_ssis_runtime_executed','new_principals_or_grants']:
+            record=copy.deepcopy(evidence.validate());record['scope'][key]=True
+            with self.assertRaises(ValueError):evidence.validate(record,check_files=False)
+
+    def test_changed_current_source_or_reused_product_is_rejected(self):
+        record=copy.deepcopy(evidence.validate());record['source_sha256'][evidence.MODULE+'Clr/Translator.cs']='0'*64
+        with self.assertRaises(ValueError):evidence.validate(record)
+        record=copy.deepcopy(evidence.validate());record['pre_guard_product_sha256'][evidence.MODULE+'Clr/Translator.cs']='0'*64
+        with self.assertRaises(ValueError):evidence.validate(record)
 
 
 @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required')
@@ -63,7 +95,8 @@ class CopyColumnAdmission(unittest.TestCase):
         changes=[lambda r:r.update(approved='true'),lambda r:r.update(approved=False),lambda r:r['cases'][0].update(patch='base'),
             lambda r:r['cases'][11].update(cl=160),lambda r:r['cases'].pop(),lambda r:r['pins'].pop(1),
             lambda r:r.update(providerSha512='B'*128),lambda r:r.update(deadlineUtc=(datetime.now(timezone.utc)+timedelta(hours=3)).isoformat()),
-            lambda r:r['pins'][0].update(sha256='0'*64),lambda r:r['cases'][0].update(journal=str(ROOT.parent/'outside'))]
+            lambda r:r['pins'][0].update(sha256='0'*64),lambda r:r['cases'][0].update(journal=str(ROOT.parent/'outside')),
+            lambda r:r.update(caseProfile='procedure-guard-only')]
         for change in changes:
             record=copy.deepcopy(self.record);change(record)
             self.assertNotEqual(self.admission(record).returncode,0)

@@ -16,7 +16,7 @@ Die projektweite Entwicklungsregel steht in
 Der Benutzer gab am 2026-11-13 ausdrücklich genau diesen Slice frei: eine
 zusätzliche relationale Debug-Stage in der bestehenden `explain`-Ausgabe; keine
 neue USP, kein Datenbankmutator und keine Datei-I/O. Der aktuelle Source-Slice
-ist implementiert, aber noch nicht gebaut, qualifiziert oder ausgeliefert.
+ist implementiert und durch die [zusammengesetzte Deltaabnahme](../../Releases/1.0.0/SSIS-COPY-COLUMN-V1-QUALIFICATION.md) geprüft; vollständige neue Liefer-/Client-/Transportabnahmen bleiben getrennt.
 
 - Erkannt werden ausschließlich die nativen Copy Column ClassIDs
   `{98F16A65-E02F-4B0F-87D4-C217EA074619}` und
@@ -37,16 +37,16 @@ ist implementiert, aber noch nicht gebaut, qualifiziert oder ausgeliefert.
   Diagnose. Es werden keine Namen oder Quellen geraten.
 - Workflow-, StageSql-, Ziel- und Lineage-Artefakte verwenden unverändert das
   bestehende Resultmodell. Die Prozedurerzeugung erhält keine Erweiterung durch
-  diesen Slice.
+  diesen Slice; ein Copy-Column-Pfad liefert dort `procedure_profile`.
 
 Die Zulassung der Komponente folgt der [Microsoft-Dokumentation zum
 Copy-Column-Verhalten](https://learn.microsoft.com/en-us/sql/integration-services/data-flow/transformations/copy-column-transformation),
 der dokumentierten [`copyColumnId`-Eigenschaft](https://learn.microsoft.com/en-us/sql/integration-services/data-flow/transformations/transformation-custom-properties?view=sql-server-ver17)
 und den nativen [DTSX](https://learn.microsoft.com/en-us/openspecs/sql_data_portability/ms-dtsx/056f8eb5-37b5-40b6-aa86-963f15fe399e)-/[DTSX2-ClassID-Katalogen](https://learn.microsoft.com/en-us/openspecs/sql_data_portability/ms-dtsx2/b2f96f16-3e16-414c-93ec-ceca000ebd34).
 Diese Quellen definieren den Klassen-/Metadatenraum; sie sind kein Laufzeit-
-oder native SSIS-Gleichwertigkeitsnachweis. Die bestehende Qualifikationsmatrix
-bleibt offen, bis synthetische Input-/Output-Orakel und die gebundene
-Exact-head-Lieferung geprüft wurden.
+oder native SSIS-Gleichwertigkeitsnachweis. Die Deltaabnahme bindet synthetische Input-/Output-Orakel und die Explain-
+Wiederverwendung ausdrücklich an ihre jeweiligen Buildstände. Integrations-CI
+und vollständige Lieferabnahmen bleiben eigene Gates.
 
 ## Zweck und öffentlicher Ablauf
 

@@ -3,18 +3,27 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
-## Aktuell offene Source-Erweiterung
+## Copy Column V1 Deltaabnahme
 
-Copy Column V1 wurde am 2026-11-13 funktionsbezogen freigegeben und im Source
-ergänzt. Die vorhandenen Build-, Binary-, SQL- und CI-Nachweise enthalten diese
-Änderung nicht. Synthetische Orakel, Komponentenversion-/Lineagegrenzen,
-Exact-head-Buildbindung und die dadurch betroffenen Qualifikationsgates bleiben
-offen; der Modulstatus wird dadurch nicht hochgestuft.
+Der [Record](Qualification/CopyColumn.V1.20261114.json) und der
+[Abnahmebericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-V1-QUALIFICATION.md)
+trennen 48 ursprüngliche Explain-Profile auf zwölf Windows-Kontexten von acht
+neuen Prozedurguard-Profilen am finalen Build. 1.112 Assertions und 14 frische
+Audits bestanden. Die Wiederverwendung verlangt eine exakte Produktquellprojektion;
+kein ursprünglicher Lauf wird umetikettiert. Der finale Frameworkstand besteht
+29 begrenzte Prozesse, der gemeinsame CLR-/Hostkern 232 Checks auf Windows.
+Die [Benutzeranleitung](../Documentation/CopyColumnV1.md) verlinkt synthetische
+Fixtures. `procedure-definition` bleibt für Copy Column ausgeschlossen.
 
-## Gesamtabnahme des korrigierten Builds
+Bisherige volle ZIP-, SSMS-, TLS-, Linux-Exporthost- und Sicherheitsabnahmen
+qualifizieren ihre ursprünglichen Builds; dieser Record ergänzt nur den
+benannten Deltaumfang. Die Originale werden am historischen Snapshot geprüft.
+Aktueller Gesamtmodulstatus: `partially validated`, `unreleased`.
+
+## Bisherige Gesamtabnahme des Builds vor Copy Column
 
 Die [Gesamtabnahme vom 2026-11-04](Qualification/Current.Build.20261104.json)
-qualifiziert den aktuellen 40-Parameter-Build für den vereinbarten Debugvertrag.
+qualifiziert den damaligen 40-Parameter-Build für den vereinbarten Debugvertrag.
 Sie kombiniert **3.804 Assertions**: breite Fach-/API-/Rechte-/Lifecyclefälle
 auf SQL2019/CU32 CL150 lokal, SQL2022/CU26 CL160 zentral und SQL2025/CU8
 CL170 lokal sowie je **222** Prozedurprüfungen auf diesen drei Engines.
@@ -1205,9 +1214,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-05`
-- Nachweis: `local: frische ZIP12-, sichtbare Windows-/SSMS- und strikte TLS-Gesamtfälle mit unabhängigen Abschlussaudits`
-- Scope: Derselbe korrigierte 40-Parameter-DLL und unverändertes qualifiziertes ZIP: zwölf neu ausgeführte Windows-/CL-/Moduskontexte mit 15204 Assertions und zwölf frischen Audits. Sichtbarer Windows-NTLM-/SSMS-Gesamtfall auf SQL2025/CU8 CL150 lokal mit Erst-/Wiederholungsinstallation, echter vollständiger Unicode-Kopie, gespeichertem Hash, nativer SQLCMD-Fehlerprobe, zwei Ergebniszeilen und Phase-2-Receipt; PASS_CLEANED mit17 Prüfungen und frischem Windows-Audit. Benutzer übernahm Anmeldung und Gridoptionen. Getrennter ununterbrochener öffentlicher Windows-SQL2025-RTM-TLS-Neuaufbau, CL170 lokal/zentral, SQL-Anmeldung, 416 aktuelle SSIS-Assertions und frische SQL-/VM-/Fremdzustandsaudits PASS. Eigene Ressourcen entfernt, Konfiguration/Trust/andere Verbraucher unverändert. Frühere Fehler unverändert erhalten; Fresh.Build.20261104.json ergänzt die ursprüngliche Gesamtabnahme. Vereinbarter Debugvertrag, keine volle SSIS-Runtime-Parität oder OS-/VM-Verlustqualifikation; unveröffentlicht.
+- Datum: `2026-11-14`
+- Nachweis: `local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits`
+- Scope: PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

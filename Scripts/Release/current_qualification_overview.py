@@ -8,11 +8,13 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import validate_ssis_fresh_build as fresh
 import validate_ssis_current_build as build
+from ssis_historical_scope import pre_copy_column_scope
+import validate_ssis_copy_column as copy_column
 
 PARSER = 'Modules/toolbelt.tsql.script-parser/Tests/Qualification/Current.Build.20261105.json'
 PARSER_VALIDATOR = 'Modules/toolbelt.tsql.script-parser/Tests/Static/validate_qualification.py'
 PAGE = 'Releases/1.0.0/RELEASE-GATES.md'
-HEADING = '## Aktueller Qualifikationsabgleich vom 2026-11-06'
+HEADING = '## Qualifikationsabgleich nach Copy Column V1'
 _spec = importlib.util.spec_from_file_location('parser_qualification_record', ROOT / PARSER_VALIDATOR)
 _parser_validator = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_parser_validator)
@@ -27,10 +29,12 @@ def records():
 
 def render(ssis, parser):
     """Nur die belegten Teilumfänge darstellen, insbesondere keine Authentifizierungsunion."""
-    current = build.validate()
+    delta = copy_column.validate()
+    with pre_copy_column_scope(ROOT):
+        current = build.validate()
+        fresh.validate(ssis)
     if current['qualified_assembly_sha256'] != ssis.get('qualified_assembly_sha256'):
         raise ValueError('Fresh and current build identities differ')
-    fresh.validate(ssis)
     _parser_validator.validate(parser)
     # Keine vollständige native Parserquotenabnahme aus dem kombinierten Vertrag ableiten.
     if (parser.get('result') != 'PASS_FOR_APPROVED_COMBINED_SCOPE'
@@ -47,16 +51,19 @@ def render(ssis, parser):
     parser_link = f'../../{PARSER}'
     return f'''{HEADING}
 
-Diese aktuelle Leseübersicht verwendet die kanonischen Modulrecords und deren
-Quell-/Artefaktprüfer. Sie ersetzt weder Originaljournale noch Modulmanifeste.
+Diese Leseübersicht trennt den vor Copy Column vollständig qualifizierten Build
+von der aktuellen zusammengesetzten Copy-Column-Deltaabnahme. Die alten Records
+werden am unveränderten historischen Snapshot geprüft, der Delta-Record gegen
+die aktuelle Quelle. Sie ersetzt weder Originaljournale noch Modulmanifeste.
 Die älteren datierten Paketberichte und ihre Ausführungspins bleiben unverändert;
 ihre damaligen Wörter „aktuell“ und „offen“ sind keine neue Statusfeststellung.
 
 | Nachweis | Belegter Umfang | Eigenständige verbleibende Grenze |
 |---|---|---|
-| SSIS: frische ZIP-Ausgabe | {matrix['fresh_contexts']} Windows-/Engine-/CL-/Moduskontexte; {assertions} Assertions; {len(matrix['cases'])} frische Audits; {ssis['current_api_parameters']} API-Parameter. [Record]({ssis_link}) | Nur vereinbarter Debugvertrag; keine vollständige SSIS-Runtime-Parität oder unbegrenzte Produktionskapazität. |
-| SSIS: sichtbarer SSMS-Gesamtfall | {gui['authentication']}-Anmeldung; {gui['test_purpose']}; Receiptphase {gui['receipt_phase']}; {gui['result_rows']} Ergebniszeilen; Koordinator {gui['coordinator_result']} und Audit {gui['cleanup_audit']}. [Record]({ssis_link}) | Benutzerhilfe bei Anmeldung und Gridoptionen; keine autonome Anmeldung und kein kombinierter Windows-Anmeldeweg mit authentifiziertem TLS. |
-| SSIS: ununterbrochener öffentlicher TLS-Neuaufbau | {tls['authentication']}-Anmeldung; {tls['test_purpose']}; {tls['strict_client_stacks']} strikte Clientstacks; {tls['sql_assertions']} Assertions; SQL- und Lab-Abschlussaudit PASS. [Record]({ssis_link}) | Windows SQL2025 RTM, CL170, lokal/zentral; keine Qualifikation anderer Identitäts-/Zielkombinationen. |
+| SSIS vor Copy Column: damalige ZIP-Matrix | {matrix['fresh_contexts']} Windows-/Engine-/CL-/Moduskontexte; {assertions} Assertions; {len(matrix['cases'])} frische Audits; {ssis['current_api_parameters']} API-Parameter. [Record]({ssis_link}) | Nur vereinbarter Debugvertrag; keine vollständige SSIS-Runtime-Parität oder unbegrenzte Produktionskapazität. |
+| SSIS vor Copy Column: sichtbarer SSMS-Gesamtfall | {gui['authentication']}-Anmeldung; {gui['test_purpose']}; Receiptphase {gui['receipt_phase']}; {gui['result_rows']} Ergebniszeilen; Koordinator {gui['coordinator_result']} und Audit {gui['cleanup_audit']}. [Record]({ssis_link}) | Benutzerhilfe bei Anmeldung und Gridoptionen; keine autonome Anmeldung und kein kombinierter Windows-Anmeldeweg mit authentifiziertem TLS. |
+| SSIS vor Copy Column: ununterbrochener öffentlicher TLS-Neuaufbau | {tls['authentication']}-Anmeldung; {tls['test_purpose']}; {tls['strict_client_stacks']} strikte Clientstacks; {tls['sql_assertions']} Assertions; SQL- und Lab-Abschlussaudit PASS. [Record]({ssis_link}) | Windows SQL2025 RTM, CL170, lokal/zentral; keine Qualifikation anderer Identitäts-/Zielkombinationen. |
+| SSIS Copy Column V1: aktuelles Delta | {delta['profiles']} native Profile, {delta['assertions']} Assertions, {delta['fresh_audits']} frische Audits; 48 ursprüngliche Explain- und acht finale Prozedurguard-Profile, exakt gebundene Quellprojektion. [Record](../../{copy_column.REPORT}) | Keine vollständige neue ZIP-/Modul-/SSMS-/TLS-/Linux-Hostabnahme. Gesamtmodul teilweise validiert/unveröffentlicht. |
 | Parser: freigegebener kombinierter Nachweis | {parser['totalCompletedSuites']} native Suites; {parser['frameworkFinalCases']} Frameworkfälle; datenbanklokale Minimalrechte; {parser['quotaAcceptance']}. [Record]({parser_link}) | Kein neuer Netzwerklogin oder Lowpriv-CrossDB-Mapping; nicht ausgeführte öffentliche Quoten-Branches bleiben nicht ausgeführt. |
 
 Der vollständige OS-/VM-Verlust des SSIS-Koordinators ist nicht qualifiziert.

@@ -1,6 +1,6 @@
 # SSIS built-in Klassenabdeckung und Entwicklungsplan
 
-Stand: 2026-11-13 · Status: Inventur und Erweiterungsplanung; Copy Column V1 ausdrücklich freigegeben und im Source umgesetzt, noch unvalidiert.
+Stand: 2026-11-13 · Status: Inventur und Erweiterungsplanung; Copy Column V1 ausdrücklich freigegeben und im Source umgesetzt; getrennte Explain-/Prozedurguard-Deltaabnahme bestanden.
 
 ## Ziel und belastbare Grenze
 
@@ -16,7 +16,7 @@ Der aktuelle SSIS-Debug-Vertrag gilt für die bestehende USP und die unterstütz
 | Datenfluss | Data Flow Task/Pipeline; Quellen, Transformationen, Ziele | Pipeline-Graph, Ports, Lineage, Typen und Verbindungen für alle Klassen erfassen. SQL-Übersetzung bleibt pro Klasse und Konfiguration explizit allowlisted. |
 | Bereits validierte Transformationen | Derived Column, Conditional Split, Row Count | Im aktuellen Debugvertrag enthalten. Keine Umsetzung von vorn und keine Wiederholung geschlossener Qualifikation. |
 | Flat-File | Flat-File Source, Flat-File Destination | Bereits genehmigt: Metadaten, Eingaben und relationale Ersatzquellen/-ziele gemäß Vertrag; keine echte Datei-I/O-Behauptung. |
-| Copy Column V1 | Native Copy Column | Am 2026-11-13 konkret besprochen und freigegeben. Eine zusätzliche aliasierte Debugprojektion, keine Mutation; Source umgesetzt, Qualification offen. Vertragsdetails in `SSIS_CURRENT_API_CONTRACT.md`. |
+| Copy Column V1 | Native Copy Column | Am 2026-11-13 konkret besprochen und freigegeben. Eine zusätzliche aliasierte Debugprojektion, keine Mutation; Source umgesetzt; Deltaabnahme bestanden, Liefer-/Client-/Transportgates separat. Vertragsdetails in `SSIS_CURRENT_API_CONTRACT.md`. |
 | Weitere Row-Transformationen | Audit, Character Map, Copy Column, Data Conversion, Export Column, Import Column, OLE DB Command, Script Component | Zuerst Metadateninventar. SQL-seitig übersetzbar priorisieren: Copy Column, Data Conversion, Character Map, Audit (nur deterministische/gebundene Felder). Datei-I/O, beliebiger SQL pro Zeile und Script bleiben Diagnose/unsupported bis gesonderter Vertrag und Berechtigungs-/Nebenwirkungsmodell vorliegen. |
 | Weitere Rowset-Transformationen | Aggregate, Sort, Percentage Sampling, Row Sampling, Pivot, Unpivot | Einzelverträge für NULL-/Kollations-/Sortier-/Stichproben-/Pivotsemantik; deterministische SQL-Kandidaten nach Komponentensemantik qualifizieren. Zufalls-/Laufzeitverhalten nur mit reproduzierbarem Seed/Vertrag. |
 | Split/Join/Lookup | Multicast, Union All, Merge, Merge Join, Lookup, Cache Transform, Balanced Data Distributor | Relationale Kandidaten: Multicast, Union All, Merge Join, Lookup mit vollständiger Cache-/No-match-/Fehlersemantik. Buffer-/Thread-/Cache-Dateiverhalten nicht als bloßes SQL umdeuten. |
@@ -55,7 +55,7 @@ Diese Festlegungen bestimmen die Reihenfolge, ersetzen aber nicht die funktionsb
 - **Abweisung:** doppelte/fehlende Lineage, unauflösbare Quelle, doppelte/konfligierende Output-Identität, unbekannte Komponentenversion oder unerwartete Eingabe-/Portform blockiert den betroffenen Pfad mit konkreter Diagnose; nie stillschweigend Spalten erzeugen/überschreiben.
 - **Alternativen:** nur Metadaten diagnostizieren (sicher, aber unnötig eng bei einfacher relationaler Identität); oder gleich lokale Host-Ausführung einbeziehen (zu großer, anderer Daten-/Laufzeitvertrag). Empfohlener erster Slice ist Debug-SQL; lokale Ausführung folgt als eigene Stufe.
 - **Risiken/Abnahme:** SQL-Aliasreihenfolge und Case-/Collationregeln, Alias-Kollisionen, leere/mehrfache Kopiermappings, unbekannte Versionen, Downstream-Lineage und unveränderte Quellspalte mit synthetischen Fixtures gegen SSIS-oracle vergleichen. Resultat als `recognized`, `translated`, `complete` und `executable` getrennt klassifizieren; Debug-SQLs bestehende Executable-Regel beibehalten.
-- **Benutzerfreigabe 2026-11-13:** „Ja, Copy Column V1 freigeben.“ Die Freigabe umfasst genau diesen Slice; Source implementiert, Tests/Build/Qualifikation offen.
+- **Benutzerfreigabe 2026-11-13:** „Ja, Copy Column V1 freigeben.“ Die Freigabe umfasst genau diesen Slice; Source implementiert; Build und [Deltaabnahme](../Releases/1.0.0/SSIS-COPY-COLUMN-V1-QUALIFICATION.md) bestanden. Vollständige neue Liefer-/Client-/Transportabnahmen bleiben separat.
 
 ## Quellen und Repository-Verträge
 

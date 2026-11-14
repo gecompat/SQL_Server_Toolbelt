@@ -2,7 +2,7 @@ module_id: "toolbelt.tsql.ssis-debug"
 module_name: "SSIS Data Flow Debug SELECT"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "validated"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Gemeinsamer typisierter DTSX-Kern für Debug-SELECT und externen neutralen Modellaustausch; kein Paketexecutor."
 sql_server_versions:
@@ -65,6 +65,7 @@ documentation:
   public_objects:
     - "Documentation/USP_ExplainSsisDataFlow.md"
   examples:
+    - "Documentation/CopyColumnV1.md"
     - "Documentation/CurrentInstallation.md"
     - "Documentation/ComponentsV2Installation.md"
     - "Examples/README.md"
@@ -101,6 +102,7 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/Invoke-Contract.ps1"
+  copy_column: "Tests/Runtime/Invoke-CopyColumnLab.ps1"
   runtime: "Tests/Runtime/Invoke-LabContract.ps1"
 validation_evidence:
   - date: "2026-10-16"
@@ -262,4 +264,9 @@ validation_evidence:
   - date: "2026-11-05"
     workflow: "local: frische ZIP12-, sichtbare Windows-/SSMS- und strikte TLS-Gesamtfälle mit unabhängigen Abschlussaudits"
     scope: "Derselbe korrigierte 40-Parameter-DLL und unverändertes qualifiziertes ZIP: zwölf neu ausgeführte Windows-/CL-/Moduskontexte mit 15204 Assertions und zwölf frischen Audits. Sichtbarer Windows-NTLM-/SSMS-Gesamtfall auf SQL2025/CU8 CL150 lokal mit Erst-/Wiederholungsinstallation, echter vollständiger Unicode-Kopie, gespeichertem Hash, nativer SQLCMD-Fehlerprobe, zwei Ergebniszeilen und Phase-2-Receipt; PASS_CLEANED mit17 Prüfungen und frischem Windows-Audit. Benutzer übernahm Anmeldung und Gridoptionen. Getrennter ununterbrochener öffentlicher Windows-SQL2025-RTM-TLS-Neuaufbau, CL170 lokal/zentral, SQL-Anmeldung, 416 aktuelle SSIS-Assertions und frische SQL-/VM-/Fremdzustandsaudits PASS. Eigene Ressourcen entfernt, Konfiguration/Trust/andere Verbraucher unverändert. Frühere Fehler unverändert erhalten; Fresh.Build.20261104.json ergänzt die ursprüngliche Gesamtabnahme. Vereinbarter Debugvertrag, keine volle SSIS-Runtime-Parität oder OS-/VM-Verlustqualifikation; unveröffentlicht."
+    result: "success"
+
+  - date: "2026-11-14"
+    workflow: "local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits"
+    scope: "PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis."
     result: "success"

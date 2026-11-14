@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("ssis_linux_export", ROOT / "Scripts/Release/validate_ssis_linux_export.py")
@@ -21,8 +22,10 @@ class LinuxExportEvidence(unittest.TestCase):
         with self.assertRaises(ValueError):
             evidence.validate(ROOT, record, check_files=files)
 
-    def test_original_record_and_current_source_binding(self):
-        evidence.validate(ROOT)
+    def test_original_record_keeps_its_archived_source_binding(self):
+        evidence.validate(historical_root(ROOT, "6e1985aee3e0ded746d1a32c6d494b370049872b"))
+        with self.assertRaises(ValueError):
+            evidence.validate(ROOT)
 
     def test_missing_native_linux_run(self):
         self.reject(lambda r: r["runs"].pop())
