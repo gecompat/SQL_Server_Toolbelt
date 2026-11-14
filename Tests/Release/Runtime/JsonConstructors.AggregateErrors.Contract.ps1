@@ -18,6 +18,7 @@ function Get-AggregateErrorSpecs{
    foreach($id in @('upper','space','mixed','numeric')){[pscustomobject]@{aggregate=$aggregate;wave='boolean-invalid';id=$id;profile=$profile;tag='TBX_JSON_AGG_BOOLEAN_INVALID'}}
   }
   foreach($profile in @(1,2)){foreach($id in @('at-limit','one-over')){[pscustomobject]@{aggregate=$aggregate;wave=('entry-priority-'+$profile);id=$id;profile=$profile;tag=$(if($id-ceq'at-limit'){'TBX_JSON_AGG_ORDINAL_INVALID'}else{'TBX_JSON_AGG_ENTRY_LIMIT'})}}}
+  foreach($profile in @(1,2)){[pscustomobject]@{aggregate=$aggregate;wave=('entry-valid-'+$profile);id='one-over';profile=$profile;tag='TBX_JSON_AGG_ENTRY_LIMIT'}}
  }
 }
 function Assert-AggregateErrorSpec($Spec){
@@ -28,8 +29,12 @@ function Get-AggregateErrorKey($Spec){$Spec.aggregate+'/'+$Spec.wave+'/'+$Spec.i
 function Get-AggregateSelectedSpecs{
  $selection='twenty-with-count-priority'
  if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_error_scope']){$selection=$runset.aggregate_error_scope}
- if($selection-cnotin@('twenty-with-count-priority','small-errors-only')){throw 'AGGREGATE_ERRORS_CLOSED_SELECTION'}
- Get-AggregateErrorSpecs|Where-Object{$selection-ceq'twenty-with-count-priority'-or-not$_.wave.StartsWith('entry-priority-',[StringComparison]::Ordinal)}
+ if($selection-cnotin@('twenty-with-count-priority','small-errors-only','remaining-boundaries')){throw 'AGGREGATE_ERRORS_CLOSED_SELECTION'}
+ Get-AggregateErrorSpecs|Where-Object{
+  if($selection-ceq'remaining-boundaries'){$_.wave.StartsWith('entry-',[StringComparison]::Ordinal)-or$CaseIndex-eq11}
+  elseif($selection-ceq'small-errors-only'){-not$_.wave.StartsWith('entry-',[StringComparison]::Ordinal)}
+  else{-not$_.wave.StartsWith('entry-valid-',[StringComparison]::Ordinal)}
+ }
 }
 function Get-LifecycleGuardKeys([string]$Mode,[int]$CL){
  if($Mode-cnotin@('local','central')-or$CL-notin@(150,160,170)){throw 'AGGREGATE_ERRORS_EXACT_CONTEXT'}
@@ -47,7 +52,7 @@ function Get-AggregateErrorInput($Spec){
   'value-null'{if($Spec.id-ceq'null-value'){$kind='null';$value='x'}else{$kind=$Spec.id;$value=$null}}
   'number-invalid'{$value=switch -CaseSensitive($Spec.id){'leading-zero'{'01'};'plus'{'+1'};'fraction'{'1.'};'exponent'{'1e'};'nan'{'NaN'}}}
   'boolean-invalid'{$kind='boolean';$value=switch -CaseSensitive($Spec.id){'upper'{'TRUE'};'space'{' false'};'mixed'{'False'};'numeric'{'1'}}}
-  default{if($Spec.wave-cnotin@('entry-priority-1','entry-priority-2')){throw 'AGGREGATE_ERRORS_INPUT_SCOPE'};$count=$(if($profile-eq1){10000}else{100000})+$(if($Spec.id-ceq'one-over'){1}else{0})}
+  default{if($Spec.wave-cnotin@('entry-priority-1','entry-priority-2','entry-valid-1','entry-valid-2')){throw 'AGGREGATE_ERRORS_INPUT_SCOPE'};$count=$(if($profile-eq1){10000}else{100000})+$(if($Spec.id-ceq'one-over'){1}else{0})}
  }
  return @{'@Ordinal'=$(if($null-eq$ordinal){[DBNull]::Value}else{$ordinal});'@Ordinal2'=$ordinal2;'@Kind'=$(if($null-eq$kind){[DBNull]::Value}else{$kind});'@Kind2'=$kind2;'@Value'=$(if($null-eq$value){[DBNull]::Value}else{$value});'@Profile'=$(if($null-eq$profile){[DBNull]::Value}else{$profile});'@Profile2'=$profile2;'@Second'=[int]$second;'@Reverse'=[int]($Spec.wave-ceq'ordinal-duplicate'-and$Spec.id-ceq'reverse');'@Count'=$count}
 }
@@ -61,8 +66,17 @@ SELECT (SELECT COUNT_BIG(*) FROM #AggregateWaveInput) EntryCount,
 }
 function Get-AggregateErrorStatement($Spec){
  Assert-AggregateErrorSpec $Spec
- if($Spec.aggregate-ceq'array'){'SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) JsonValue FROM #AggregateWaveInput;'}
- else{'SELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile) JsonValue FROM #AggregateWaveInput;'}
+ $hint=if((Get-Variable runset -ErrorAction SilentlyContinue)-and$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-ceq'remaining-boundaries'-and$Spec.wave.StartsWith('entry-',[StringComparison]::Ordinal)){' OPTION (MAXDOP 1)'}else{''}
+ if($Spec.aggregate-ceq'array'){"SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) JsonValue FROM #AggregateWaveInput$hint;"}
+ else{"SELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile) JsonValue FROM #AggregateWaveInput$hint;"}
+}
+function Get-ReleaseTimeout{
+ $rest=$runset.PSObject.Properties['aggregate_error_scope']-and$runset.aggregate_error_scope-ceq'remaining-boundaries'
+ $limit=if($script:cleanup){if($rest){960000}else{360000}}else{if($rest){900000}else{300000}}
+ $remaining=$limit-$script:clock.ElapsedMilliseconds
+ if($rest){$globalRemaining=([DateTimeOffset]::Parse($runset.deadline_utc)-[DateTimeOffset]::UtcNow).TotalMilliseconds-$(if($script:cleanup){0}else{60000});$remaining=[Math]::Min($remaining,$globalRemaining)}
+ if($remaining-lt1000){throw 'RELEASE_DEADLINE'}
+ return [int][Math]::Min($(if($rest){180}else{45}),[Math]::Floor($remaining/1000))
 }
 function Test-AggregateErrorTuple($Errors,[string]$Tag){
  $severe=@($Errors|Where-Object Class -GE 11)
@@ -95,6 +109,7 @@ function Invoke-LifecycleGuardProfiles($Db,[string]$Mode){
  foreach($spec in Get-AggregateSelectedSpecs){
   if(($Mode+'/'+(Get-AggregateErrorKey $spec))-cin$script:lifecycleGuardExcluded){continue}
   $p=Get-AggregateErrorInput $spec
+  $p['@ValidCount']=[int]$spec.wave.StartsWith('entry-valid-',[StringComparison]::Ordinal)
   Sql $Db @'
 TRUNCATE TABLE #AggregateWaveInput;
 IF TRY_CONVERT(int,@Count)=0
@@ -116,7 +131,9 @@ BEGIN
  ;WITH D(n) AS(SELECT n FROM(VALUES(0),(1),(2),(3),(4),(5),(6),(7),(8),(9))v(n)),
  N(n) AS(SELECT TOP(TRY_CONVERT(int,@Count)) CONVERT(int,ROW_NUMBER() OVER(ORDER BY(SELECT NULL))) FROM D a CROSS JOIN D b CROSS JOIN D c CROSS JOIN D d CROSS JOIN D e CROSS JOIN D f)
  INSERT #AggregateWaveInput(Ordinal,[Key],ValueKind,[Value],Profile)
- SELECT 0,NULL,N'null',NULL,TRY_CONVERT(tinyint,@Profile) FROM N;
+ SELECT CASE WHEN TRY_CONVERT(int,@ValidCount)=1 THEN n ELSE 0 END,
+ CASE WHEN TRY_CONVERT(int,@ValidCount)=1 THEN CONVERT(nvarchar(32),n) ELSE NULL END,
+ N'null',NULL,TRY_CONVERT(tinyint,@Profile) FROM N;
 END;
 '@ $p
   Assert-AggregateError $Db $Mode $spec
