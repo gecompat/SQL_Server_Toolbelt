@@ -165,7 +165,7 @@ while read -r artifact hash; do
 done <<'KNOWN_JSON_BYTES'
 json-historical12/Toolbelt.JsonConstructors.dll ff266a2fc46eb4101d87bc046aef63197b985c8ccbaea40f372e9918d1254c44f1f2cf8ced7942383625d28e2e1af5bf6164fa8a16b3dd5a16df5957faa34276
 json-core/Toolbelt.JsonCore.dll 4680e9d34a0870924b5ca003cc5983882fc8ffb653e702bcc549e5f65dde11934c55ba7b356b519503ac5ce1e2478fe64876fea0295176ff13b5b4a6ab61b894
-json-clr/Toolbelt.JsonConstructors.dll 8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf
+json-clr/Toolbelt.JsonConstructors.dll e385b9e42e3e0ab12b56c2e10c841246eca56bfbb47601837966eb422218001682cee72423592d9713ffd336f67c7f802869138b0f4cf9c2fc8053891eb85423
 json-schema/Toolbelt.JsonSchema.dll 523b65979267457e8326ed2d5ec96d0309e9e1c7d5a0b2fbc0a3de68dcf7a9bb5a4f9cdda704ee0ba9f19097edbfb66eb8d649c0f2941b4a16adc2880bef880f
 json-schema-historical10/Toolbelt.JsonSchema.dll f67e0f9f3f6e83acc304e8e60bc98ee2610018e654ac4eb6e430f98a9665f9a1c85e90ef97950d348fcc0fc6389de71b214d1f9101835fec9a305ef39c41af21
 KNOWN_JSON_BYTES
@@ -249,6 +249,11 @@ run_schema_upgrade() {
     [[ "${schema_mode}" == central ]] && wrong_mode=local
     local schema_tests="/workspace/Modules/toolbelt.json.schema/Tests/Runtime"
     run_file "${database_name}" "/workspace/.runtime/json-schema-historical10" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
+    # Unveraenderte Schema1.0 kennt nur die damaligen Constructorbytes.
+    # Die optionale Dependency fehlt beim historischen Einstieg; danach wird
+    # die aktuelle Closure explizit installiert und gegen das Upgrade geprueft.
+    run_file "${database_name}" "${deployment_directory}" Deploy.sql -v DeploymentMode="${schema_mode}"
+    run_file "${database_name}" "${runtime_directory}" Lifecycle.Contract.sql
     run_file "${database_name}" "${schema_tests}" UpgradeCapture.sql
     expect_failure 55633 run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${wrong_mode}"
     run_file "${database_name}" "${schema_tests}" UpgradeVerify.sql -v SchemaExpectedVersion=1.0.0
@@ -257,7 +262,13 @@ run_schema_upgrade() {
     # Neuer Uninstaller muss auch die unveränderte bekannte Vorgängerzeile lesen.
     run_file "${database_name}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
     run_query "${database_name}" "IF OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') IS NOT NULL OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') THROW 55690,N'Previous Schema uninstall incomplete.',22; DROP TABLE dbo.TbxSchemaUpgradeSnapshot;"
+    run_file "${database_name}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=1
     run_file "${database_name}" "/workspace/.runtime/json-schema-historical10" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
+    # Unveraenderte Schema1.0 kennt nur die damaligen Constructorbytes.
+    # Die optionale Dependency fehlt beim historischen Einstieg; danach wird
+    # die aktuelle Closure explizit installiert und gegen das Upgrade geprueft.
+    run_file "${database_name}" "${deployment_directory}" Deploy.sql -v DeploymentMode="${schema_mode}"
+    run_file "${database_name}" "${runtime_directory}" Lifecycle.Contract.sql
     run_file "${database_name}" "${schema_tests}" UpgradeCapture.sql
     run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
     run_file "${database_name}" "${schema_tests}" UpgradeHelpVerify.sql -v SchemaExpectedVersion=1.0.1
@@ -363,8 +374,6 @@ for level in ${compatibility_levels}; do
     for db in "${local_database}" "${central_database}" "${consumer_database}"; do
         run_query master "ALTER DATABASE [${db}] SET COMPATIBILITY_LEVEL=${level}; IF ISNULL((SELECT compatibility_level FROM sys.databases WHERE name=N'${db}'),-1)<>${level} THROW 55690,N'Schema CI compatibility binding failed.',24;"
     done
-    run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
-    run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
     # Neue Schemafunktion auf derselben bekannten Closure; die weiterhin durch
     # Constructors verwendete technische Coreassembly bleibt beim Schema-DROP erhalten.
     run_schema_upgrade "${local_database}" local
@@ -401,6 +410,7 @@ for level in ${compatibility_levels}; do
     expect_failure 55635 run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=0
     run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
     run_query "${central_database}" "IF OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') IS NOT NULL OR OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') IS NOT NULL OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name LIKE N'Toolbelt.Module.toolbelt.json.schema.%') THROW 55690,N'Schema final uninstall incomplete.',23; IF OBJECT_ID(N'dbo.TbxSchemaUpgradeSnapshot',N'U') IS NULL THROW 55690,N'Schema own upgrade snapshot missing.',23; DROP TABLE dbo.TbxSchemaUpgradeSnapshot;"
+    run_file "${central_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=1
     echo "PASS: JSON_SCHEMA_CI_COMPATIBILITY sql=${sql_version} cl=${level} modes=local,central crossdb=1 upgrade=1 disposed=1"
 done
 run_file "${local_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1

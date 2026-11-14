@@ -39,6 +39,7 @@ foreach($project in $projects){
 $references=@('mscorlib.dll','System.dll','System.Data.dll')|ForEach-Object{Join-Path $ReferenceDirectory $_}
 $harnesses=[ordered]@{
  'ProductHarness'=(Join-Path $constructorRoot 'Tests/Framework/ProductHarness.cs')
+ 'RunTransportHarness'=(Join-Path $constructorRoot 'Tests/Framework/RunTransportHarness.cs')
  'TokenHarness'=(Join-Path $coreRoot 'Tests/Framework/TokenHarness.cs')
  'WorkBudgetHarness'=(Join-Path $coreRoot 'Tests/Framework/WorkBudgetHarness.cs')
  'NumberHarness'=(Join-Path $PSScriptRoot 'NumberHarness.cs')
@@ -96,12 +97,13 @@ try{
  foreach($name in $harnesses.Keys){
   $exe=Join-Path $output ($name+'.exe')
   $argsForHarness=@($common)+@('/target:exe',('/out:'+$exe),('/reference:'+$core))+@($references|ForEach-Object{'/reference:'+$_})
-  if($name -eq 'ProductHarness'){$argsForHarness+=('/reference:'+$ctor)}
+  if($name -in @('ProductHarness','RunTransportHarness')){$argsForHarness+=('/reference:'+$ctor)}
   if($name -in @('NumberHarness','SchemaHarness','BridgeHarness')){$argsForHarness+=('/reference:'+$schema)}
   $argsForHarness+=$harnesses[$name]
   Phase ('Compile-'+$name) $CompilerPath $argsForHarness 15000 ''
   Pin-Product $exe
  }
+ Phase 'AggregateRunTransport' (Join-Path $output 'RunTransportHarness.exe') @() 60000 "PASS AGGREGATE_RUN_TRANSPORT`r`n"
  foreach($culture in @('en-US','de-DE','tr-TR')){
   Phase ('Constructors-'+$culture) (Join-Path $output 'ProductHarness.exe') @('SMALL',$culture,$goldens) 45000 ("PASS PRODUCT_FRAMEWORK SMALL $culture ROWS 37 ASSERTIONS 960`r`n")
   Phase ('Numbers-'+$culture) (Join-Path $output 'NumberHarness.exe') @($numberOracles,$culture) 30000 "PASS SCHEMA_NUMBERS CASES 854 ASSERTIONS 6830`r`n"

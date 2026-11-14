@@ -58,7 +58,7 @@
       "nativeQualification": "NOT_EXECUTED"
     },
     {
-      "ArtifactId": "a6d81103af18a73a14e58339abb8c7835e0d16d559951cfc3a03d305b63e4a23",
+      "ArtifactId": "8d5a739bbfa815cd2e31c771d6d74f616c1337bd6d7cf9d705d727e538d2d043",
       "fieldOrder": [
         "registrySchema",
         "moduleId",
@@ -108,8 +108,8 @@
         "managedVersion": "1.3.0.0",
         "sqlAssembly": "Toolbelt_JsonConstructors",
         "permissionSet": "SAFE",
-        "binarySha256": "c61bc00d7cbfffc00b37974cb05b5df51683ba5cfbfd1f808e787ab123099e2b",
-        "binarySha512": "8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf",
+        "binarySha256": "0ea17f02a8137851918e2b571f1c0612ae35194c159e0cbabd75f447ad16a595",
+        "binarySha512": "e385b9e42e3e0ab12b56c2e10c841246eca56bfbb47601837966eb422218001682cee72423592d9713ffd336f67c7f802869138b0f4cf9c2fc8053891eb85423",
         "buildProfile": "net48;csharp7.3;Release;AnyCPU;checked;deterministic;warnaserror;no-debug;no-generated-framework-attribute",
         "qualificationScope": "OFFLINE_SOURCE_FRAMEWORK_AND_OWN_IL_AND_CANONICAL_PROJECT_BYTE_EQUALITY",
         "nativeQualification": "NOT_EXECUTED",
@@ -136,8 +136,8 @@
         "source/AgfValidCodec.cs": "c61702bb01337089bba9f1f6b2e4105ee0e166a315f1bae55d4975715aa5eecc",
         "source/AgfFaultCodec.cs": "04e8d7b6c1851e063796cbfd52f87f0b8b51ed71fdab4c5651de3245852c84c3",
         "source/AgfDispatcher.cs": "e838d33430f9410deb1f0141e3ca27713cf0c7362669d786821d05be15ca6c56",
-        "source/OwnedAggregateBuilder.cs": "047b983c71ab6f36ff50e3865fa3383f24cdb16b3c1cb2910de94434a45eb439",
-        "source/JsonAggregates.cs": "6a87b485c7862097a46164c077c875cbd32b76f2336a0757b25729684772350c",
+        "source/OwnedAggregateBuilder.cs": "cec02922e2536cc71cd7f9d8593b40045bae500837cd13cfb05bce20a3729f27",
+        "source/JsonAggregates.cs": "67a909113aff6dbb063f67be9626a5093b8e4de119b6d093865f959bc9fd8b41",
         "source/JsonEntryEvaluateBridge.cs": "fcb13d767b7e0e449f8c7bdadcce8344d4d4953d7ea098d07a3d4d115fcd868e",
         "source/Properties/AssemblyInfo.cs": "30c176d1a995719679021428991700afb5056a6d7f07fba28f1f60893b5f66d6"
       },

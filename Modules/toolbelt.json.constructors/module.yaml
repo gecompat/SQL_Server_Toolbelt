@@ -114,6 +114,7 @@ tests:
   installed_metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/Invoke-Framework.ps1"
+  run_transport: "Tests/Framework/RunTransportHarness.cs"
   aggregate: "Tests/Runtime/JsonAggregates.Contract.sql"
   runtime: "Tests/Runtime/JsonConstructors.Contract.sql"
   contract: "Tests/Runtime/JsonConstructors.Contract.sql"

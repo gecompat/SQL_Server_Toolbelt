@@ -27,6 +27,8 @@ class ConstructorAggregateCallerTests(unittest.TestCase):
         registry = json.loads(REGISTRY.read_bytes())
         record = json.loads((ROOT / 'Releases/1.0.0/JSON-CONSTRUCTORS-PACKAGE-QUALIFICATION.json').read_bytes())
         cls.artifacts = []
+        historical = json.loads((ROOT / 'Releases/1.0.0/JSON-CLOSURE-BEFORE-NATIVE-RUN-TRANSPORT.json').read_bytes())
+        cls.historical_constructor = False
         # Historical record supplies a package locator, not a current whole-ZIP attestation.
         with zipfile.ZipFile(ROOT / record['package']['path']) as archive:
             for module in ('toolbelt.json.core', 'toolbelt.json.constructors'):
@@ -37,7 +39,11 @@ class ConstructorAggregateCallerTests(unittest.TestCase):
                     raise AssertionError('Unique canonical managed DLL required')
                 binary = archive.read(names[0])
                 if hashlib.sha256(binary).hexdigest() != fields['binarySha256'] or hashlib.sha512(binary).hexdigest() != fields['binarySha512']:
-                    raise AssertionError('Canonical registry binary bytes required')
+                    # Unchanged ZIP bytes remain valid only for their archived closure.
+                    old = next(x['Fields'] for x in historical['artifacts'] if x['Fields']['moduleId'] == module)
+                    if module != 'toolbelt.json.constructors' or hashlib.sha256(binary).hexdigest() != old['binarySha256'] or hashlib.sha512(binary).hexdigest() != old['binarySha512']:
+                        raise AssertionError('Current or exact archived Constructor bytes required')
+                    cls.historical_constructor = True
                 cls.artifacts.append((module, fields, binary))
 
     def setUp(self):
@@ -91,8 +97,12 @@ class ConstructorAggregateCallerTests(unittest.TestCase):
             record = copy.deepcopy(self.record)
             record['cases'] = self.cases(platform)
             result = self.admission(record, platform)
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn('no Lab import or SQL', result.stdout)
+            if self.historical_constructor:
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('CONSTRUCTOR_AGGREGATE_CALLER_KNOWN_ARTIFACT_REQUIRED', result.stdout + result.stderr)
+            else:
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn('no Lab import or SQL', result.stdout)
 
     def test_authority_target_pins_and_expired_window_fail_before_sql(self):
         for mutate in (lambda r: r.update(explicit_qualification_approved='true'),

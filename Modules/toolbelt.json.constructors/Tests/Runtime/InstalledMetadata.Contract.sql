@@ -23,6 +23,6 @@ IF OBJECT_ID(N'toolbelt_json.FT_JsonEntryEvaluateInternal',N'FT') IS NULL
  OBJECT_ID(N'toolbelt_json.AGF_JsonArray'),OBJECT_ID(N'toolbelt_json.AGF_JsonObject')))<>3
  OR NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
  WHERE CONVERT(varbinary(max),a.name)=CONVERT(varbinary(max),N'Toolbelt_JsonConstructors') AND a.permission_set=1
- AND HASHBYTES(N'SHA2_512',f.content)=0x8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf)
+ AND HASHBYTES(N'SHA2_512',f.content)=0xe385b9e42e3e0ab12b56c2e10c841246eca56bfbb47601837966eb422218001682cee72423592d9713ffd336f67c7f802869138b0f4cf9c2fc8053891eb85423)
  THROW 53690,N'JSON exact known SAFE binary and CLR inventory incorrect.',6;
 GO

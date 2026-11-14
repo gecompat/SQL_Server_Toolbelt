@@ -51,6 +51,16 @@ $text=ConvertTo-StandaloneSql -Node $tree -Values @{ConfirmNoExternalConsumers='
             for path in dict.fromkeys(files):
                 if str(path) not in existing:r['pins'].append(dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest().upper()));existing.add(str(path))
             valid=base.admission(r)
+            current=f['binarySha256']
+            if hashlib.sha256(binary.read_bytes()).hexdigest()!=current:
+                # Archived package is not a current Constructor qualification.
+                archive=json.loads((ROOT/'Releases/1.0.0/JSON-CLOSURE-BEFORE-NATIVE-RUN-TRANSPORT.json').read_bytes())
+                old=next(row['Fields'] for row in archive['artifacts'] if row['Fields']['moduleId']=='toolbelt.json.constructors')
+                self.assertEqual(hashlib.sha256(binary.read_bytes()).hexdigest(),old['binarySha256'])
+                self.assertEqual(hashlib.sha512(binary.read_bytes()).hexdigest(),old['binarySha512'])
+                self.assertNotEqual(valid.returncode,0)
+                self.assertIn('JSON_INSTALLED_KNOWN_BINARY_REQUIRED',valid.stdout+valid.stderr)
+                return
             self.assertEqual(valid.returncode,0,valid.stdout+valid.stderr)
             wrong=copy.deepcopy(r);wrong['fixtures']=base.record['fixtures']
             self.assertNotEqual(base.admission(wrong).returncode,0)

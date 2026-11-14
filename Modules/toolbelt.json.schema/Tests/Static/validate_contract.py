@@ -57,8 +57,27 @@ for row in historical['artifacts']:
     assert hashlib.sha256(frame).hexdigest() == row['ArtifactId']
     historical_rows[fields['moduleId']] = row
 assert len(historical_rows) == 3
-for module in ('toolbelt.json.core', 'toolbelt.json.constructors'):
-    assert historical_rows[module] == rows[module]
+# Die Schema-1.0-Historie behält ihren ursprünglichen Constructor. Der aktuelle
+# Constructor besitzt seit der nativen Timeoutkorrektur eine neue Quellbindung.
+archive_path = repo / 'Releases/1.0.0/JSON-CLOSURE-BEFORE-NATIVE-RUN-TRANSPORT.json'
+assert hashlib.sha256(archive_path.read_bytes()).hexdigest() == 'b8862241f3aa135167f99f19db437df809fcf4930b619590b680b5d0b3bc6451'
+archived = json.loads(archive_path.read_text(encoding='utf-8'))
+archived_rows = {row['Fields']['moduleId']: row for row in archived['artifacts']}
+assert set(archived_rows) == set(rows)
+assert historical_rows['toolbelt.json.core'] == archived_rows['toolbelt.json.core'] == rows['toolbelt.json.core']
+assert historical_rows['toolbelt.json.constructors'] == archived_rows['toolbelt.json.constructors']
+assert archived_rows['toolbelt.json.schema'] == rows['toolbelt.json.schema']
+prior_ctor, current_ctor = archived_rows['toolbelt.json.constructors'], rows['toolbelt.json.constructors']
+assert prior_ctor['fieldOrder'] == current_ctor['fieldOrder']
+assert {key for key in current_ctor['Fields'] if current_ctor['Fields'][key] != prior_ctor['Fields'][key]} == {
+    'binarySha256', 'binarySha512', 'source/OwnedAggregateBuilder.cs', 'source/JsonAggregates.cs'}
+assert prior_ctor['ArtifactId'] != current_ctor['ArtifactId']
+# Aktive CI-/Katalogleser müssen exakt denselben aktuellen Zielhash verlangen.
+ci_text = (repo / 'Tests/CI/run-json-constructors-linux.sh').read_text(encoding='utf-8')
+metadata_text = (modules / 'toolbelt.json.constructors/Tests/Runtime/InstalledMetadata.Contract.sql').read_text(encoding='utf-8')
+assert ('json-clr/Toolbelt.JsonConstructors.dll ' + current_ctor['Fields']['binarySha512']) in ci_text
+assert ('0x' + current_ctor['Fields']['binarySha512']) in metadata_text
+
 assert historical_rows['toolbelt.json.schema']['Fields']['moduleVersion'] == '1.0.0'
 assert rows['toolbelt.json.schema']['Fields']['moduleVersion'] == '1.0.1'
 schema_known = (modules / 'toolbelt.json.schema/Deployment/KnownArtifact.sql').read_text(encoding='utf-8')

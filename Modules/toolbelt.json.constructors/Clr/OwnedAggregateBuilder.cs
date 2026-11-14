@@ -29,6 +29,7 @@ public sealed class OwnedAggregateBuilder {
  internal int Mask,Flags,RankOrdinal,RankPhase,RankTag;
  internal bool InvalidProfile,Poisoned;
  internal long N,Raw,Pre,Strong,Output,KeyUnits;
+ bool uniformRun;int runStart,runSpan;byte[] runPacked;
  readonly SortedSet<int> ids=new SortedSet<int>();
  readonly SortedSet<byte[]> keys=new SortedSet<byte[]>(new ByteOrder());
  readonly List<VEntry> payload=new List<VEntry>();
@@ -46,7 +47,7 @@ public sealed class OwnedAggregateBuilder {
  static byte KindByte(string kind){switch(kind){case "string":return 1;case "null":return 2;case "boolean":return 3;case "number":return 4;case "json":return 5;default:return 0;}}
  void Usable(){AgfErrors.Need(!Poisoned);}
  public void Poison(){Poisoned=true;ClearData();}
- void ClearData(){N=Raw=Pre=Strong=Output=KeyUnits=0;Flags=RankOrdinal=RankPhase=RankTag=0;ids.Clear();keys.Clear();payload.Clear();}
+ void ClearData(){uniformRun=false;runStart=runSpan=0;runPacked=null;N=Raw=Pre=Strong=Output=KeyUnits=0;Flags=RankOrdinal=RankPhase=RankTag=0;ids.Clear();keys.Clear();payload.Clear();}
  void ClearKeys(){keys.Clear();KeyUnits=0;Flags&=~32;}
  long Syntax{get{return checked(2*N+2);}}
  string BeforeLate(){
@@ -77,6 +78,9 @@ public sealed class OwnedAggregateBuilder {
  }
  public void Add(SqlInt32 ordinal,SqlChars key,SqlChars kind,SqlChars value,SqlByte profile){
   Usable();AgfErrors.Need(key!=null&&kind!=null&&value!=null);
+  if(TryUniformAdd(ordinal,key,kind,value,profile))return;
+  // COUNT beziehungsweise PROFILE dominieren die verworfene Nutzlast ohnehin.
+  if(uniformRun&&(profile.IsNull||profile.Value!=Mask||N>=MaxN)){uniformRun=false;runStart=runSpan=0;runPacked=null;}else MaterializeRun();
   int bit=profile.IsNull?0:profile.Value==1?1:profile.Value==2?2:0;Mask|=bit;InvalidProfile|=bit==0;
   if(InvalidProfile||Mask==3){Normalize();return;}
   N=Sat(checked(N+1),MaxN);if(N>MaxN){Normalize();return;}
@@ -110,9 +114,11 @@ public sealed class OwnedAggregateBuilder {
  public void Merge(OwnedAggregateBuilder other){
   Usable();AgfErrors.Need(other!=null&&other.ObjectMode==ObjectMode);other.Usable();
   // Selbstmerge braucht keine Quellkopie: Kosten verdoppeln, vorhandene Identitäten duplizieren.
-  if(Object.ReferenceEquals(this,other)){MergeSelf();return;}
+  if(Object.ReferenceEquals(this,other)){if(uniformRun&&2*N<=MaxN)MaterializeRun();MergeSelf();return;}
   Mask|=other.Mask;InvalidProfile|=other.InvalidProfile;if(InvalidProfile||Mask==3){Normalize();return;}if(Mask==0)return;
-  N=Sat(checked(N+other.N),MaxN);if(N>MaxN){Normalize();return;}
+  long combined=Sat(checked(N+other.N),MaxN);if(combined>MaxN){N=combined;Normalize();return;}
+  // Profil-/Count-Gates vor jeder Expansion der kompakten Zustände.
+  MaterializeRun();if(other.uniformRun){other=other.Clone();other.MaterializeRun();}N=combined;
   Flags|=other.Flags;Raw=Sat(checked(Raw+other.Raw),Cap);Pre=Sat(checked(Pre+other.Pre),Cap);Strong=Sat(checked(Strong+other.Strong),Cap);Output=Sat(checked(Output+other.Output),Cap);
   foreach(int id in other.ids)if(!ids.Add(id))Flags|=4;
   if(Raw>Cap||Pre+Syntax>Cap)ClearKeys();
@@ -130,11 +136,11 @@ public sealed class OwnedAggregateBuilder {
   Normalize();
  }
  public OwnedAggregateBuilder Clone(){
-  Usable();OwnedAggregateBuilder copy=new OwnedAggregateBuilder(ObjectMode);copy.Mask=Mask;copy.InvalidProfile=InvalidProfile;copy.N=N;copy.Raw=Raw;copy.Pre=Pre;copy.Strong=Strong;copy.Output=Output;copy.KeyUnits=KeyUnits;copy.Flags=Flags;copy.RankOrdinal=RankOrdinal;copy.RankPhase=RankPhase;copy.RankTag=RankTag;
+  Usable();OwnedAggregateBuilder copy=new OwnedAggregateBuilder(ObjectMode);copy.Mask=Mask;copy.InvalidProfile=InvalidProfile;copy.N=N;copy.Raw=Raw;copy.Pre=Pre;copy.Strong=Strong;copy.Output=Output;copy.KeyUnits=KeyUnits;copy.Flags=Flags;copy.RankOrdinal=RankOrdinal;copy.RankPhase=RankPhase;copy.RankTag=RankTag;copy.uniformRun=uniformRun;copy.runStart=runStart;copy.runSpan=runSpan;copy.runPacked=runPacked==null?null:(byte[])runPacked.Clone();
   foreach(int id in ids)copy.ids.Add(id);foreach(byte[] key in keys)copy.keys.Add((byte[])key.Clone());foreach(VEntry e in payload)copy.payload.Add(new VEntry(e.Ordinal,e.Key,e.Kind,e.Value));return copy;
  }
  VEntry[] SortedPayload(){
-  AgfErrors.Need(Outcome()=="VALID"&&payload.Count==N);VEntry[] entries=payload.ToArray();Array.Sort(entries,delegate(VEntry a,VEntry b){return a.Ordinal.CompareTo(b.Ordinal);});
+  MaterializeRun();AgfErrors.Need(Outcome()=="VALID"&&payload.Count==N);VEntry[] entries=payload.ToArray();Array.Sort(entries,delegate(VEntry a,VEntry b){return a.Ordinal.CompareTo(b.Ordinal);});
   return entries;
  }
  public string Finish(){
@@ -162,8 +168,112 @@ public sealed class OwnedAggregateBuilder {
   }
   fresh.Normalize();return fresh;
  }
- public static OwnedAggregateBuilder Read(Stream input,bool expectedMode){return FromTransport(Dispatcher.Read(input,expectedMode));}
- public void Write(Stream output){byte[] frame=Dispatcher.Write(Transport());output.Write(frame,0,frame.Length);}
+
+ // SQL Server kann UserDefined-Zustände pro Zeile transportieren. Eine verifizierte
+ // Nullfolge benötigt nur Start/Anzahl statt wiederholt aller Ordinale und Schlüssel.
+ // Die allgemeine AGF3-Darstellung bleibt für alle übrigen Zustände zuständig.
+ bool TryUniformAdd(SqlInt32 ordinal,SqlChars key,SqlChars kind,SqlChars value,SqlByte profile){
+  if(!uniformRun&&(Mask!=0||InvalidProfile||N!=0))return false;
+  if(profile.IsNull||(profile.Value!=1&&profile.Value!=2)||ordinal.IsNull||ordinal.Value<=0||!value.IsNull||kind.IsNull||kind.Length!=4)return false;
+  if(uniformRun&&(profile.Value!=Mask||N>=MaxN))return false;
+  if(Copy(kind,4)!="null")return false;
+  string keyText=ObjectMode?ordinal.Value.ToString("D",System.Globalization.CultureInfo.InvariantCulture):null;
+  if(ObjectMode&&(key.IsNull||key.Length!=keyText.Length||Copy(key,key.Length)!=keyText))return false;
+  if(!uniformRun){uniformRun=true;runStart=ordinal.Value;Mask=profile.Value;}
+  else if(!AddRunOrdinal(ordinal.Value))return false;
+  N++;if(runPacked!=null&&N==runSpan){runPacked=null;runSpan=0;}
+  if(ObjectMode)KeyUnits+=keyText.Length;
+  Raw=0;Pre=ObjectMode?checked(2*KeyUnits+6*N):0;Strong=Output=checked(Pre+8*N);
+  AgfErrors.Need(Output+Syntax<=Cap);return true;
+ }
+ bool AddRunOrdinal(int ordinal){
+  int width=runPacked==null?checked((int)N):runSpan;long end=(long)runStart+width-1;
+  if(runPacked==null){
+   if((long)ordinal==end+1)return true;
+   if((long)ordinal==(long)runStart-1){runStart=ordinal;return true;}
+   if(ordinal>=runStart&&ordinal<=end)return false;
+  }else if(ordinal>=runStart&&ordinal<=end&&HasPackedBit(runPacked,ordinal-runStart))return false;
+  int start=ordinal<runStart?ordinal:runStart;long last=ordinal>end?ordinal:end,span=last-start+1;if(span>MaxN+1L)return false;
+  int size=(checked((int)span)+7)/8;byte[] encoded;
+  if(runPacked!=null&&start==runStart){
+   // Nur betroffene Byteposition ändern, bereits komprimierte Runs nicht expandieren.
+   int target=(ordinal-start)>>3,mask=1<<((ordinal-start)&7),position=0,used=0;
+   int oldSize=(width+7)/8;int reserve=Math.Min(2*size,checked(runPacked.Length+8+2*((size-oldSize+254)/255)));byte[] own=new byte[reserve];
+   for(int i=0;i<runPacked.Length;i+=2){int length=runPacked[i];byte value=runPacked[i+1];if(target>=position&&target<position+length){AppendPacked(own,ref used,target-position,value);AppendPacked(own,ref used,1,(byte)(value|mask));AppendPacked(own,ref used,position+length-target-1,value);}else AppendPacked(own,ref used,length,value);position+=length;}
+   if(target>=position){AppendPacked(own,ref used,target-position,0);AppendPacked(own,ref used,1,(byte)mask);}
+   encoded=new byte[used];Array.Copy(own,encoded,used);
+  }else{
+   // Seltene Verschiebung der Untergrenze oder erstmalige Run-Konvertierung.
+   byte[] bits=new byte[size];int shift=runStart-start;
+   for(int i=0;i<width;i++)if(runPacked==null||HasPackedBit(runPacked,i))bits[(i+shift)>>3]|=(byte)(1<<((i+shift)&7));
+   bits[(ordinal-start)>>3]|=(byte)(1<<((ordinal-start)&7));encoded=Pack(bits);
+  }
+  runPacked=encoded;runStart=start;runSpan=checked((int)span);return true;
+ }
+ static void AppendPacked(byte[] own,ref int used,int length,byte value){
+  if(length==0)return;
+  if(used>0&&own[used-1]==value&&own[used-2]<255){int take=Math.Min(255-own[used-2],length);own[used-2]=(byte)(own[used-2]+take);length-=take;}
+  while(length>0){int take=Math.Min(255,length);AgfErrors.Need(used+2<=own.Length);own[used++]=(byte)take;own[used++]=value;length-=take;}
+ }
+ static byte[] Pack(byte[] bits){
+  byte[] own=new byte[2*bits.Length];int used=0;for(int i=0;i<bits.Length;){int length=1;while(length<255&&i+length<bits.Length&&bits[i+length]==bits[i])length++;AppendPacked(own,ref used,length,bits[i]);i+=length;}byte[] result=new byte[used];Array.Copy(own,result,used);return result;
+ }
+ static byte PackedByte(byte[] packed,int target){int at=0;for(int i=0;i<packed.Length;i+=2){if(target<at+packed[i])return packed[i+1];at+=packed[i];}throw AgfErrors.State();}
+ static bool HasPackedBit(byte[] packed,int at){return (PackedByte(packed,at>>3)&(1<<(at&7)))!=0;}
+ static int PopByte(byte b){int x=b;x-=((x>>1)&85);x=(x&51)+((x>>2)&51);return (x+(x>>4))&15;}
+ static int CountPackedBits(byte[] packed,int first,int last){
+  int firstByte=first>>3,lastByte=last>>3,at=0,count=0;
+  for(int i=0;i<packed.Length;i+=2){int end=at+packed[i]-1,lo=at>firstByte?at:firstByte,hi=Math.Min(end,lastByte);byte value=packed[i+1];if(hi>=lo){count+=(hi-lo+1)*PopByte(value);if(lo==firstByte&&(first&7)!=0)count-=PopByte((byte)(value&((1<<(first&7))-1)));if(hi==lastByte&&(last&7)!=7)count-=PopByte((byte)(value&~((1<<((last&7)+1))-1)));}at=end+1;}return count;
+ }
+ void MaterializeRun(){
+  if(!uniformRun)return;
+  int width=runPacked==null?checked((int)N):runSpan;
+  for(int i=0;i<width;i++)if(runPacked==null||HasPackedBit(runPacked,i)){
+   int ordinal=checked(runStart+i);string key=ObjectMode?ordinal.ToString("D",System.Globalization.CultureInfo.InvariantCulture):null;
+   ids.Add(ordinal);if(ObjectMode)keys.Add(ValidCodec.Units(key));payload.Add(new VEntry(ordinal,key,2,null));
+  }
+  uniformRun=false;runStart=runSpan=0;runPacked=null;
+ }
+ static bool IsRunPrefix(byte[] b){return b.Length==8&&b[0]==84&&b[1]==66&&b[2]==88&&b[3]==82&&b[4]==85&&b[5]==78&&b[6]==49&&b[7]==0;}
+ internal bool WriteRun(BinaryWriter writer){
+  Usable();if(!uniformRun)return false;
+  AgfErrors.Need(writer!=null&&Outcome()=="VALID"&&N>0&&N<=MaxN&&(long)runStart+(runSpan==0?N:runSpan)-1<=Int32.MaxValue);
+  int bytes=runPacked==null?0:runPacked.Length;byte[] packed=runPacked;
+  byte[] body=new byte[32+bytes];body[0]=84;body[1]=66;body[2]=88;body[3]=82;body[4]=85;body[5]=78;body[6]=49;
+  body[8]=(byte)(ObjectMode?1:0);body[9]=(byte)Profile;
+  int count=checked((int)N);for(int i=0;i<4;i++){body[12+i]=(byte)((runStart>>(8*i))&255);body[16+i]=(byte)((count>>(8*i))&255);body[20+i]=(byte)((runSpan>>(8*i))&255);body[24+i]=(byte)((bytes>>(8*i))&255);}
+  if(packed!=null)Array.Copy(packed,0,body,32,bytes);
+  byte[] digest;using(System.Security.Cryptography.SHA256 hash=new System.Security.Cryptography.SHA256Managed())digest=hash.ComputeHash(body);
+  writer.Write(body);writer.Write(digest);return true;
+ }
+ static byte[] ReadRunBytes(Stream input,int count){
+  AgfErrors.Need(count>=0&&count<=25002);byte[] own=new byte[count];int used=0;
+  while(used<count){int size=Math.Min(2048,count-used);Array.Copy(FaultCodec.Exact(input,size),0,own,used,size);used+=size;}return own;
+ }
+ static OwnedAggregateBuilder ReadRun(Stream input,byte[] prefix,bool expectedMode){
+  byte[] header=new byte[32];Array.Copy(prefix,header,8);Array.Copy(FaultCodec.Exact(input,24),0,header,8,24);
+  AgfErrors.Need(header[8]==(expectedMode?1:0)&&(header[9]==1||header[9]==2)&&BitConverter.IsLittleEndian&&header[10]==0&&header[11]==0);
+  for(int i=28;i<32;i++)AgfErrors.Need(header[i]==0);
+  int start=BitConverter.ToInt32(header,12),count=BitConverter.ToInt32(header,16),span=BitConverter.ToInt32(header,20);int max=ValidCodec.MaxN(header[9]);
+  AgfErrors.Need(start>0&&count>0&&count<=max&&(span==0||(span>count&&span<=max+1))&&(long)start+(span==0?count:span)-1<=Int32.MaxValue);
+  int size=span==0?0:(span+7)/8,encoded=BitConverter.ToInt32(header,24);
+  AgfErrors.Need(span==0?encoded==0:encoded>0&&encoded%2==0&&encoded<=2*size);
+  byte[] packed=ReadRunBytes(input,encoded);byte[] body=new byte[32+encoded];Array.Copy(header,body,32);Array.Copy(packed,0,body,32,encoded);
+  byte[] actual=FaultCodec.Exact(input,32);using(System.Security.Cryptography.SHA256 hash=new System.Security.Cryptography.SHA256Managed())AgfErrors.Need(ValidCodec.Equal(actual,hash.ComputeHash(body)));
+  int at=0,pop=0;for(int i=0;i<encoded;i+=2){int length=packed[i];AgfErrors.Need(length>0&&length<=size-at&&(i==0||packed[i+1]!=packed[i-1]||packed[i-2]==255));at+=length;pop+=length*PopByte(packed[i+1]);}AgfErrors.Need(at==size);
+  if(span>0){AgfErrors.Need((packed[1]&1)!=0&&(packed[encoded-1]&(1<<((span-1)&7)))!=0&&pop==count);if((span&7)!=0)AgfErrors.Need((packed[encoded-1]&~((1<<(span&7))-1))==0);}
+  OwnedAggregateBuilder fresh=new OwnedAggregateBuilder(expectedMode);fresh.uniformRun=true;fresh.runStart=start;fresh.Mask=header[9];fresh.N=count;fresh.runSpan=span;fresh.runPacked=span==0?null:packed;
+  if(expectedMode){long end=(long)start+(span==0?count:span)-1,lo=1;for(int digits=1;digits<=10;digits++){long hi=lo*10-1;long first=lo>start?lo:start,last=Math.Min(hi,end);if(last>=first){long entries=span==0?last-first+1:CountPackedBits(packed,checked((int)(first-start)),checked((int)(last-start)));fresh.KeyUnits=checked(fresh.KeyUnits+entries*digits);}lo*=10;}}
+  fresh.Pre=expectedMode?checked(2*fresh.KeyUnits+6*fresh.N):0;fresh.Strong=fresh.Output=checked(fresh.Pre+8*fresh.N);AgfErrors.Need(fresh.Output+fresh.Syntax<=fresh.Cap);return fresh;
+ }
+
+ public static OwnedAggregateBuilder Read(Stream input,bool expectedMode){
+  byte[] prefix=FaultCodec.Exact(input,8);
+  if(IsRunPrefix(prefix))return ReadRun(input,prefix,expectedMode);
+  byte[] header=new byte[112];Array.Copy(prefix,header,8);Array.Copy(FaultCodec.Exact(input,104),0,header,8,104);
+  using(HeaderReplayStream replay=new HeaderReplayStream(input,header))return FromTransport(Dispatcher.Read(replay,expectedMode));
+ }
+ public void Write(Stream output){using(BinaryWriter writer=new BinaryWriter(output,Encoding.UTF8,true)){if(WriteRun(writer))return;}byte[] frame=Dispatcher.Write(Transport());output.Write(frame,0,frame.Length);}
 }
 
 }

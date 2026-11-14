@@ -76,6 +76,74 @@ werden vollständig und fail closed transportiert; kein Teilergebnis.
 Die SQL-Engine darf Callbacks, Partitionierung und Merge frei bestimmen;
 daraus folgen keine Callbackhäufigkeits-, Spill-, Heap- oder Hardwallzusagen.
 
+## Kompakte aktuelle Engine-Zustände für Nullmengen
+
+Die Korrektur vom 2026-11-14 ergänzt die allgemeine AGF3-Darstellung um eine
+adaptive aktuelle Run-/Bitmapform ausschließlich für gültige Nullmengen. Sie ist
+kein Legacy-Opt-in und ändert keine SQL-Signatur, Quote oder Fehlerpriorität.
+Ordinale sind positiv und eindeutig; bei Object ist jeder Key die unveränderte
+invariante Dezimaldarstellung dieses Ordinals. ValueKind ist exakt `null`, Value
+SQL-NULL, das Profil bleibt exakt 1 oder 2. Andere Eingaben verwenden die
+allgemeine Darstellung. Ein Übergang materialisiert bei Bedarf eigene Ordinale,
+Keys und Payloads; Merge und Clone bewahren unabhängige Quellen. COUNT und
+PROFILE bleiben höher priorisiert und dürfen bedeutungslose Nutzlast verwerfen.
+
+Die Callbackreihenfolge ist nicht vorausgesetzt. Eine zusammenhängende Menge
+benötigt nur Start/Anzahl. Lücken werden als eigene Bitmap innerhalb einer
+Ordinalspanne von höchstens Profilmaximum plus eins gehalten. Das ist eine
+Darstellungsgrenze, keine erhöhte Entryquote. Bei größerer Spanne greift der
+allgemeine Pfad. Bytefolgen der Bitmap werden deterministisch lauflängencodiert.
+Reader und Builder behalten die Bytefolgen komprimiert. Popcount und
+Dezimalkosten werden über Run-Deskriptoren gefaltet; ein normales Add teilt nur
+die betroffene codierte Byteposition. Eine seltene Verschiebung der Untergrenze
+oder die allgemeine Materialisierung darf die begrenzte Bitmap expandieren.
+Dadurch bleiben auch umgeordnete Eingaben ohne wiederholte Expansion der gesamten
+Payload transportierbar. Geschlossene Lücken normalisieren wieder zur reinen
+Runform; Duplikate fallen zur unveränderten allgemeinen Fehlerprüfung zurück.
+
+Der Frame besteht aus 32 Headerbytes, einer begrenzten optionalen Bitmapcodierung
+und 32 SHA256-Bytes. Offsets gelten ab Framebeginn:
+
+| Offset | Bytes | Inhalt |
+|---|---:|---|
+| 0 | 8 | ASCII `TBXRUN1` plus Nullbyte |
+| 8 | 1 | 0 Array, 1 Object; muss zum Wrapper passen |
+| 9 | 1 | Profil 1 oder 2 |
+| 10 | 2 | reserviert, exakt null |
+| 12 | 4 | positiver Startordinal, Little Endian Int32 |
+| 16 | 4 | positive Anzahl, höchstens das zugehörige Entrymaximum |
+| 20 | 4 | 0 für vollständige Runform, sonst Spanne größer Anzahl und höchstens Maximum plus eins |
+| 24 | 4 | 0 für Runform, sonst gerade positive Anzahl codierter Bitmapbytes |
+| 28 | 4 | reserviert, exakt null |
+| 32 | variabel | Bitmap als Paare aus Wiederholungsanzahl 1..255 und Bytewert |
+| anschließend | 32 | SHA256 über Header und codierte Bitmap |
+
+Die reine Runform bleibt 64 Bytes lang. Codierte Bitmaplänge ist höchstens das
+Doppelte von `ceil(Spanne/8)`, insgesamt höchstens 25.002 Bytes; der gesamte Frame
+also höchstens 25.066 Bytes. Vor jeder größeren Allokation werden Mode, Profil,
+Anzahl, Spanne, überlauffreier letzter Ordinal, Reserven und codierte Länge geprüft.
+Der SHA256-Algorithmus wird über den konkreten Frameworktyp `SHA256Managed`
+erzeugt, ohne dynamische Providerauflösung pro Frame. Kein gemeinsamer mutable
+Hashcache und keine Framework-/Host-Sicherheitsänderung werden eingeführt.
+Nach dem Digest müssen Runlängen exakt die abgeleitete Bitmapgröße ergeben;
+gleiche Nachbarbytes sind nur nach einer ausgeschöpften 255er-Länge zulässig.
+Erstes/letztes Bit, Popcount und ungenutzte Endbits müssen exakt stimmen. Die
+Objectkosten werden über höchstens zehn Dezimalbereiche aus den gesetzten Bits
+abgeleitet. Strong-/Output-/Syntaxkosten bleiben unter denselben Profilcaps.
+
+Ein fehlgeschlagener Read ersetzt den bisherigen Wrapperzustand nicht. Die
+vollständig prüfenden allgemeinen AGF3-Valid-/Fault-Codecs bleiben unverändert.
+Die Kompaktdarstellung vermeidet in ihrem Scope die wiederholte Expansion von
+Ordinal-/Key-/Payloadobjekten. Für beliebige andere Eingabefolgen folgt daraus
+keine Kapazitäts- oder Laufzeitgarantie und keine neue Heap-/Spillzusage.
+
+Die [Transport-Gegenproben](../../Modules/toolbelt.json.constructors/Tests/Framework/RunTransportHarness.cs)
+prüfen Maximalfolgen, jeden Transportübergang, zufällige Reihenfolgen, Bitmap-
+Normalisierung, allgemeine Fallbacks, Fehlerpriorität, Clone/Merge sowie bitweise
+beschädigte, abgeschnittene und neu gehashte ungültige Frames. Die historische
+Registry vor dieser Korrektur bleibt [unverändert erhalten](../../Releases/1.0.0/JSON-CLOSURE-BEFORE-NATIVE-RUN-TRANSPORT.json).
+Native Abnahme und Paketqualifikation sind getrennte Nachweisumfänge.
+
 ## Konkreter qualifizierter Buildkandidat
 
 Die modullokale

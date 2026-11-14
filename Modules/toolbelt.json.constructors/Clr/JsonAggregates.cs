@@ -34,7 +34,7 @@ public sealed class JsonArrayAggregate : IBinarySerialize {
   try{AgfErrors.Need(reader!=null);OwnedAggregateBuilder fresh=OwnedAggregateBuilder.Read(reader.BaseStream,false);builder=fresh;}catch(Exception e){throw AggregateBoundary.Technical(e);}
  }
  public void Write(BinaryWriter writer){
-  try{AggregateBoundary.NeedBuilder(builder);AgfErrors.Need(writer!=null);byte[] bytes=Dispatcher.Write(builder.Transport());writer.Write(bytes);}catch(Exception e){throw AggregateBoundary.Technical(e);}
+  try{AggregateBoundary.NeedBuilder(builder);AgfErrors.Need(writer!=null);if(builder.WriteRun(writer))return;byte[] bytes=Dispatcher.Write(builder.Transport());writer.Write(bytes);}catch(Exception e){throw AggregateBoundary.Technical(e);}
  }
 }
 
@@ -57,7 +57,7 @@ public sealed class JsonObjectAggregate : IBinarySerialize {
   try{AgfErrors.Need(reader!=null);OwnedAggregateBuilder fresh=OwnedAggregateBuilder.Read(reader.BaseStream,true);builder=fresh;}catch(Exception e){throw AggregateBoundary.Technical(e);}
  }
  public void Write(BinaryWriter writer){
-  try{AggregateBoundary.NeedBuilder(builder);AgfErrors.Need(writer!=null);byte[] bytes=Dispatcher.Write(builder.Transport());writer.Write(bytes);}catch(Exception e){throw AggregateBoundary.Technical(e);}
+  try{AggregateBoundary.NeedBuilder(builder);AgfErrors.Need(writer!=null);if(builder.WriteRun(writer))return;byte[] bytes=Dispatcher.Write(builder.Transport());writer.Write(bytes);}catch(Exception e){throw AggregateBoundary.Technical(e);}
  }
 }
 

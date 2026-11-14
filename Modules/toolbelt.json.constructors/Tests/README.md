@@ -1,5 +1,16 @@
 # Testausführung
 
+## Aktueller Abschluss der vier nativen Entrygrenzen
+
+Stand 2026-11-14: Die [Timeoutkorrektur und aktuelle Native-Abnahme](../../../Releases/1.0.0/JSON-AGGREGATE-NATIVE-TIMEOUT-FIX-QUALIFICATION.md)
+schließen Array/Object mal Profil 1/2 auf allen zwölf Engine-/CL-Paaren lokal
+und direkt zentral: 96 aktuelle Profile und zwölf frische Abschlussaudits.
+Quoten, SQL-Parameter und Fehlerpriorität bleiben unverändert. Die folgenden
+älteren Blocker-/Zwischenstände bleiben historische Nachweise ihrer ursprünglichen
+Bytes; sie sind kein aktueller Offen-Eintrag dieser vier Grenzfälle. Dies ist
+kein pauschaler Modul- oder neuer ZIP-Matrix-PASS.
+
+
 Die [stabile Restwelle vom 2026-11-14](../../../Releases/1.0.0/JSON-AGGREGATE-STABLE-HOST-REST-QUALIFICATION.md)
 schließt Linux SQL2025/latest CL170 lokal/zentral mit 240 neuen kleinen Profilen
 und frischem Audit. Zusammen sind die 16 kleinen Fehlerfamilien auf allen

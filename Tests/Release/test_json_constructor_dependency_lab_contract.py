@@ -49,6 +49,14 @@ $text=ConvertTo-StandaloneSql -Node $tree -Values @{ConfirmNoExternalConsumers='
             for path in dict.fromkeys(files):
                 if str(path) not in existing:r['pins'].append(dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest().upper()));existing.add(str(path))
             valid=base.admission(r)
+            # Ein historisches Paket darf geänderte aktuelle Constructorquellen
+            # nicht qualifizieren. Der neue Quellkandidat wird separat geprüft.
+            closure=json.loads((ROOT/'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json').read_text(encoding='utf-8-sig'))
+            current=next(row['Fields']['binarySha256'] for row in closure['artifacts'] if row['Fields']['moduleId']=='toolbelt.json.constructors')
+            if hashlib.sha256(binary.read_bytes()).hexdigest()!=current:
+                self.assertNotEqual(valid.returncode,0)
+                self.assertIn('JSON_INSTALLED_KNOWN_BINARY_REQUIRED',valid.stdout+valid.stderr)
+                return
             self.assertEqual(valid.returncode,0,valid.stdout+valid.stderr)
             wrong=copy.deepcopy(r);wrong['fixtures']=base.record['fixtures']
             self.assertNotEqual(base.admission(wrong).returncode,0)
