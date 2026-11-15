@@ -13,17 +13,24 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import validate_ssis_preparation_recovery as validator
+from ssis_historical_scope import BASELINE
+from ssis_historical_context import historical_root
 
 
 class EvidenceTests(unittest.TestCase):
     def setUp(self):
-        self.report = json.loads((ROOT / validator.RECORD).read_text())
+        self.evidence_root = historical_root(ROOT, BASELINE)
+        self.report = json.loads((self.evidence_root / validator.RECORD).read_text())
 
     def check(self, report=None, read=None):
-        validator.validate_report(report or self.report, read or (lambda p: (ROOT / p).read_bytes()))
+        validator.validate_report(report or self.report, read or (lambda p: (self.evidence_root / p).read_bytes()))
 
     def test_actual_source_bound_aggregate(self):
-        validator.validate(ROOT)
+        validator.validate(self.evidence_root)
+
+    def test_historical_report_is_not_current_product_acceptance(self):
+        with self.assertRaisesRegex(ValueError, "SOURCE_BINDING"):
+            validator.validate(ROOT)
 
     def test_mutated_native_assertions_rejected(self):
         for section, key in [('preparation', 'assertions'), ('host', 'assertions'), ('sql_transport', 'assertions')]:
@@ -77,19 +84,19 @@ class EvidenceTests(unittest.TestCase):
 
     def test_source_and_resealed_source_rejected(self):
         path = validator.AREA + 'RecoveryFixture.ps1'
-        modified = (ROOT / path).read_bytes() + b'\n# changed\n'
-        read = lambda p: modified if p == path else (ROOT / p).read_bytes()
+        modified = (self.evidence_root / path).read_bytes() + b'\n# changed\n'
+        read = lambda p: modified if p == path else (self.evidence_root / p).read_bytes()
         with self.assertRaises(ValueError): self.check(read=read)
         self.report['sql_transport']['source_sha256'][path] = hashlib.sha256(modified).hexdigest().upper()
         with self.assertRaises(ValueError): self.check(read=read)
 
     def test_common_delta_cannot_change_sql_coordinator_branch(self):
-        original = (ROOT / validator.COMMON).read_bytes()
+        original = (self.evidence_root / validator.COMMON).read_bytes()
         changed = original.replace(b"$b['Pooling']=$false", b"$b['Pooling']=$true")
         self.assertNotEqual(original, changed)
         self.report['source_integration']['current_sha256'] = validator.digest(changed)
         with self.assertRaises(ValueError):
-            self.check(read=lambda p: changed if p == validator.COMMON else (ROOT / p).read_bytes())
+            self.check(read=lambda p: changed if p == validator.COMMON else (self.evidence_root / p).read_bytes())
 
     def test_common_change_cannot_be_generalized(self):
         self.report['source_integration']['kind'] = 'any_windows_change'
