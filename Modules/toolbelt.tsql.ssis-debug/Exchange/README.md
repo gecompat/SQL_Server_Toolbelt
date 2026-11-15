@@ -192,7 +192,42 @@ Generator-Frameworkkinder werden nicht verdoppelt. Die unabhängige Prüfung die
 Änderungsschritts umfasste einen Reviewer und einen Folgeauftrag zu dessen
 konkreten Befunden. Weitere Reviews werden dadurch nicht ausgelöst.
 
-Die externe Hostausführung ist zusätzlich mit demselben portablen Binary unter
+### Aktueller Modellhost nach Copy Column V1
+
+Der [neue Plattformnachweis vom 2026-11-15](../Tests/Qualification/ExportHost.CopyColumn.20261115.json)
+belegt dasselbe portable Hostbinary auf Windows und Linux: je 25 Fälle und
+305 Assertions, insgesamt 50 Fälle/610 Assertions. Zu den bisherigen 17 CLI-
+Fällen kommen acht Modellfälle für Copy Column: Paketformate 6/8, Integer/
+Unicode und Komponentenversion 1/2. Version 1 erhält den synchronen `REGULAR`-
+Ausgang und die geordneten typisierten Kopiespalten; Version 2 bleibt mit
+`UNKNOWN_COMPONENT` und nicht qualifizierter Portrolle sichtbar. Beide
+Plattformen liefern exakt gleiche kanonische Outputs und Quell-/Binarypins.
+
+Die [Methode](Tests/qualify_copy_column_host.py) ergänzt die vorhandene
+CLI-Methode. Sie verlangt zusätzlich `--source-commit` mit genau der beim
+Hostbuild eingebetteten Revision. Der aktuelle Host wurde aus dem im Record
+gebundenen Quellsnapshot gebaut; seine relevanten Produktquellen sind zum
+integrierten Copy-Column-Stand bytegleich. Laufbeispiel mit einem zuvor
+gebauten Host und expliziter Runtime, aus einem nativen Repositorycheckout:
+
+```sh
+python3 Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_copy_column_host.py \
+  --host Modules/toolbelt.tsql.ssis-debug/Exchange/Host/bin/Release/net10.0/Toolbelt.Ssis.Export.dll \
+  --dotnet "$(command -v dotnet)" --platform Linux \
+  --source-commit "$BUILD_SOURCE_COMMIT" --result copy-host-result.json
+```
+
+`BUILD_SOURCE_COMMIT` muss der beim Build verwendete `SourceRevisionId` sein.
+Erwartet wird `SSIS_COPY_EXPORT_HOST_PASS platform=Linux cases=25 assertions=305`.
+Zwei Linux-Vorbereitungsfehler vor dem ersten Hostprofil bleiben erhalten;
+der Windows-PASS wurde nicht wiederholt. Die private Linux-Runtime ist
+entfernt. Das ist keine SQL-CLR-, SSIS-Runtime-, ZIP-, SSMS-, TLS- oder
+Modulgesamtabnahme. Der [Bericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md)
+und neun Offlinegegenproben halten diese Grenze fest.
+
+### Historischer Plattformnachweis vor Copy Column
+
+Der ursprüngliche externe Host wurde mit demselben portablen Binary unter
 Windows und Linux mit .NET 10.0.14 geprüft. Der
 [native Plattformnachweis](../Tests/Qualification/ExportHost.Linux.20261101.json)
 enthält je 17 Fälle und 169 Assertions. Beide DTSX-Formatprofile 6/8 laufen

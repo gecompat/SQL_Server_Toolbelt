@@ -14,8 +14,10 @@ Copy Column V1 ist als zusätzlicher Debug-SQL-Stage implementiert und im
 [additiven Vertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md#additiver-einzelfunktionsvertrag-copy-column-v1--2026-11-13)
 konkret freigegeben. Die [Anleitung](Documentation/CopyColumnV1.md) zeigt Quellbindung
 und Ergebnis. Die [Deltaabnahme](Tests/README.md#copy-column-v1-deltaabnahme)
-belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung; bisherige
-Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden.
+belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung. Der
+[aktuelle Windows-/Linux-Modellhost](Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
+besteht separat 50 CLI-/Modellfälle mit 610 Assertions. Bisherige Gesamtabnahmen
+bleiben an ihre ursprünglichen Builds gebunden.
 
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
 denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
@@ -125,9 +127,9 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-14`
-- Nachweis: `local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits`
-- Scope: PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis.
+- Datum: `2026-11-15`
+- Nachweis: `local: aktueller Copy-Column-Modellhost auf Windows und Linux`
+- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
