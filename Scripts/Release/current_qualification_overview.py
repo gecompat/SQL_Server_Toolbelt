@@ -14,6 +14,7 @@ import validate_ssis_copy_column_host as copy_host
 import validate_ssis_copy_column_delivery as copy_delivery
 import validate_ssis_copy_column_ssms as copy_ssms
 import validate_ssis_copy_column_functional as copy_functional
+import validate_ssis_copy_column_tls_security as copy_tls_security
 
 PARSER = 'Modules/toolbelt.tsql.script-parser/Tests/Qualification/Current.Build.20261105.json'
 PARSER_VALIDATOR = 'Modules/toolbelt.tsql.script-parser/Tests/Static/validate_qualification.py'
@@ -45,6 +46,7 @@ def render(ssis, parser):
     if current['qualified_assembly_sha256'] != ssis.get('qualified_assembly_sha256'):
         raise ValueError('Fresh and current build identities differ')
     _parser_validator.validate(parser)
+    current_tls_security = copy_tls_security.validate()
     # Keine vollständige native Parserquotenabnahme aus dem kombinierten Vertrag ableiten.
     if (parser.get('result') != 'PASS_FOR_APPROVED_COMBINED_SCOPE'
             or parser.get('publicationAuthorized') is not False
@@ -81,6 +83,7 @@ ihre damaligen Wörter „aktuell“ und „offen“ sind keine neue Statusfests
 | SSIS Copy Column C7: sichtbarer Windows-/SSMS-Gesamtfall | {ssms_current['case']['checks']} Prüfungen, vollständige Unicode-Kopie, native SQLCMD-Stopprobe, Phase-2-Receipt und frischer Windows-Audit. [Record](../../{copy_ssms.REPORT}) | SQL2025/CU8 CL150 lokal, Windows-NTLM, Functional; Benutzerhilfe Anmeldung/Gridoptionen. Keine neue vollständige funktionale ZIP-/strikte TLS-/Modulabnahme. |
 | Parser: freigegebener kombinierter Nachweis | {parser['totalCompletedSuites']} native Suites; {parser['frameworkFinalCases']} Frameworkfälle; datenbanklokale Minimalrechte; {parser['quotaAcceptance']}. [Record]({parser_link}) | Kein neuer Netzwerklogin oder Lowpriv-CrossDB-Mapping; nicht ausgeführte öffentliche Quoten-Branches bleiben nicht ausgeführt. |
 | SSIS Copy Column C7: vollständige funktionale ZIP-Matrix | {functional_current['contexts']} Windows-/CL-/Moduskontexte; {functional_current['assertions']} Assertions; {functional_current['fresh_audits']} frische Audits; aktuelle Prozedur und konkret freigegebene Minimalrechte. [Record](../../{copy_functional.REPORT}) | 24 eigene DBs und zwölf Logins entfernt; kein neuer gemappter CrossDB-Login-, SSMS-, strikter TLS- oder Modulgesamt-PASS. |
+| SSIS: korrigierter aktueller Provider, strikter TLS-Gesamtfall und Sicherheitsabnahme | {current_tls_security['assertions']} Assertions auf SQL2025 RTM, CL170 lokal/zentral; frische SQL-, Lab- und Hostscope-Audits. Unabhängige Quellabnahme einschließlich isoliertem Setup/Cleanup. [Record](../../{copy_tls_security.REPORT}) | SQL-Anmeldung; keine kombinierte Windows-/TLS-Identität, kein beobachteter Wire-Fingerprint. C7-ZIP-/SSMS-Belege bleiben historisch; keine vollständige neue Modulabnahme. |
 
 Der vollständige OS-/VM-Verlust des SSIS-Koordinators ist nicht qualifiziert.
 Die alten SSMS-Fehlläufe bleiben fehlgeschlagen; ein späterer Gesamt-PASS

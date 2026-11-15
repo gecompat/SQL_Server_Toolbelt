@@ -32,11 +32,27 @@ als vollständige Abnahme des korrigierten Builds.
   die begrenzte TLS-Methode und die gezielte Lab-Kontextauswahl quellseitig:
   [getrennter Reviewrecord](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Security.CopyColumn.20261115.json).
   Sie ist kein nativer TLS- oder Modul-Gesamtnachweis.
-- Der frische strikte TLS-Gesamtfall ist vor VM-/SQL-Start blockiert. Die
-  kanonische Registry verlangt frische Bindungen aller aktiven Authorities,
-  einschließlich unveränderter Datensätze. Eine Kontextkorrektur darf diese
-  Prüfung nicht umgehen oder fremde Datensätze verändern. Vorherige TLS-Belege
-  bleiben ausschließlich an ihre ursprünglichen Artefakte gebunden.
+- Der [frische strikte TLS-Gesamtfall](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Tls.CopyColumn.SecurityCorrection.20261115.json)
+  besteht mit dem korrigierten Provider auf Windows SQL2025 RTM, CL170,
+  lokal/zentral: 416 Assertions, frischer SQL-Audit und unabhängiger Lab-Audit.
+  Der öffentliche Neuaufbau verwendet beide strikten Clientstacks, einen
+  signierten V2-Export und dieselben frisch geprüften Bytes vor jedem Open.
+  SQL-Anmeldung, `Encrypt=True`, `TrustServerCertificate=False`; keine
+  Umdeutung in einen kombinierten Windows-/TLS-Anmeldeweg oder beobachteten
+  Wire-Fingerprint.
+- Die erste Kontextrevision am bestehenden Register bleibt vor Commit gesperrt.
+  Die Registry verlangt frische Bindungen aller aktiven Authorities, auch
+  unveränderter Datensätze. Der separat genehmigte isolierte Root verwendet
+  ausschließlich eine eigene neue CA/Authority. Eine eigene VM und vier
+  Testdatenbanken wurden entfernt, SQL-Konfiguration und Hosttrust
+  wiederhergestellt, der eigene verschlüsselte CA-Schlüssel entfernt.
+  Fremde Bindungen blieben unverändert; der geschlossene Root bleibt nur
+  als privater Originalnachweis erhalten.
+- Die zusätzliche isolierte Sicherheitsprüfung fand zwei Setup-/Cleanupfehler.
+  Plan-/Bindingbindung und Ende der eigenen Receiverinstanz vor Trustcleanup
+  sind korrigiert und unabhängig quellseitig akzeptiert. Dreißig gezielte
+  SQL-freie Gegenproben bestehen. Beide ursprünglichen Findings und die
+  vorangehenden Fehler bleiben erhalten.
 
 Die [Copy-Column-Anleitung](../../Modules/toolbelt.tsql.ssis-debug/Documentation/CopyColumnV1.md)
 erklärt das Verhalten. Die Testadapter

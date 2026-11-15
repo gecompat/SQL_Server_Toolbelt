@@ -108,6 +108,7 @@ tests:
   framework: "Tests/Framework/Invoke-Contract.ps1"
   copy_column: "Tests/Runtime/Invoke-CopyColumnLab.ps1"
   copy_column_ansi_security: "Tests/Runtime/Invoke-CopyColumnAnsiLab.ps1"
+  current_authenticated_tls: "Tests/Runtime/Invoke-CurrentAuthenticatedTlsLab.ps1"
   runtime: "Tests/Runtime/Invoke-LabContract.ps1"
 validation_evidence:
   - date: "2026-10-16"
@@ -294,4 +295,19 @@ validation_evidence:
   - date: "2026-11-15"
     workflow: "local: vollstaendige funktionale Copy-Column-ZIP-Matrix mit konkreter Rechteausnahme"
     scope: "PASS_FOR_DECLARED_SCOPE: zwoelf Windows-/CL-/Moduskontexte SQL2019CU32 CL150, SQL2022CU26 CL150/160, SQL2025CU8 CL150/160/170 lokal/zentral. 15204 Assertions:96 Archiv,12444 funktional,2664 Prozedur; zwoelf PASS_CLEANED-Koordinatoren und frische finaljournalgebundene Audits. Alle24DBs/12Logins entfernt, eigene Benutzer mit eigenem Scope entfernt; Konfiguration/Trust/andere Verbraucher erhalten. Konkrete Benutzerfreigabe2026-11-15 fuer begrenzte API-/Prozedurrechte, keine Serverrechte/Bestandsidentitaetsaenderung. Rahmen24Aufrufe/24DBs/12Logins/180Minuten geschlossen, kein nativerFehler/Retry. Gueltige Framework-/Copy-/Host-/SSMS-Belege erhalten, kein neues striktesTLS/Mapping-/Modulgesamt-PASS oder Veroeffentlichung."
+    result: "success"
+
+  - date: "2026-11-15"
+    workflow: "local: ANSI-Lineage-Korrektur am aktuellen Quellsatz"
+    scope: "PASS_FOR_DECLARED_SCOPE: reproduzierbarer korrigierter Provider, 29 Frameworkfaelle; vier Windows-Kontexte SQL2019/CU32 CL150 und SQL2025/CU8 CL170 lokal/zentral mit372 Assertions/16Profilen und vier frischen Audits. Kataloggepruefte ANSI-Lineage und Copy-Ketten; gemeinsam falsche Port-Codepages gesperrt. Erster Adapter-Zaehlerfehler und spaeterer Audit-Admissionfehler bleiben mit ihren Originalen erhalten. C7-Archiv-/Host-/GUI-/Fachnachweise bleiben historisch, keine neue Modulgesamtqualifikation."
+    result: "success"
+
+  - date: "2026-11-15"
+    workflow: "local: unabhaengige Sicherheitsabnahme des korrigierten Providers und TLS-Verfahrens"
+    scope: "SOURCE_ACCEPTED: ein ausdruecklich genehmigter unabhaengiger Reviewer und vier einzeln begrenzte Folgeauftraege. Zwoelf unveraenderte fruehere Sicherheitsquellen wiederverwendet; Produktdelta, Same-Byte-/Deadline-/Dispatchguards, gebundene Lab-Kontextauswahl und isoliertes Setup/Cleanup geprueft. Alle konkreten Findings quellseitig geschlossen, urspruengliche Fehlreviews erhalten.30 isolierte Gegenproben, neun Receiver- und vier Bootstrappruefungen bestanden; keine Runtimeausfuehrung durch Reviewer, keine automatische Gesamt-/Veroeffentlichungsfreigabe."
+    result: "success"
+
+  - date: "2026-11-15"
+    workflow: "local: frischer strikter TLS-Gesamtfall am korrigierten Provider"
+    scope: "PASS_FOR_DECLARED_SCOPE: oeffentlicher ununterbrochener eigener Windows-/HyperV-/SQL2025-RTM-Neuaufbau, CL170 lokal/zentral,416 Assertions. Beide strikten Labclientstacks, signierterV2-Export und dieselben frisch geprueften Bytes vor jedem Consumer-Open. Worker6/Supervisor8, SQL-/Lab-/HostabschlussauditsPASS. Vier eigene DBs und eineVM entfernt, SQL-Konfiguration/Hosttrust wiederhergestellt, eigener verschluesselter CA-Schluessel entfernt; versiegelterRoot nur als privateEvidenz behalten. Eine vom Benutzer bestaetigteUAC, keine automatisierte Anmeldung. Rahmen1VM/2SQLaufrufe/4DBs/45Minuten ohneRetry geschlossen. SQL-Anmeldung, keine Windows-/TLS-Identitaetsunion, kein beobachteterWire-Fingerprint; ZIP/SSMS bleibenC7, Gesamtmodul teilweisevalidiert/unveroeffentlicht."
     result: "success"

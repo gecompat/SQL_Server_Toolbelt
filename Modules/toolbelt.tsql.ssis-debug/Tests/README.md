@@ -8,6 +8,23 @@ historischen C7-Build. Der neuere Entwicklungsquellsatz korrigiert die
 ANSI-Lineage; seine [gezielte Abnahme und offenen Gates](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
 werden separat geführt. Die alten Records bleiben unverändert.
 
+## Aktuelle ANSI-Korrektur, Sicherheit und strikter TLS-Transport
+
+Der [Korrekturrecord](Qualification/CopyColumn.SecurityCorrection.20261115.json)
+bindet vier native ANSI-Kontexte mit 372 Assertions und vier frischen Audits.
+Die [unabhängige Quellabnahme](Qualification/Security.CopyColumn.20261115.json)
+führt die alten und korrigierten Findings getrennt. Sie behauptet selbst
+keine Laufzeitprüfung durch den Reviewer.
+
+Der [aktuelle TLS-Record](Qualification/Tls.CopyColumn.SecurityCorrection.20261115.json)
+belegt zusätzlich den korrigierten Provider auf Windows SQL2025 RTM, CL170,
+lokal/zentral mit 416 Assertions und frischen SQL-, Lab- und Hostscope-Audits.
+Die Prüfer `validate_ssis_copy_column_security.py` und
+`validate_ssis_copy_column_tls_security.py` binden Quellen, Provider und
+deklarierte Grenzen. Neue Gegenproben verhindern eine Aufwertung alter
+ZIP-/SSMS-Belege, ausgelassener Audits oder reiner Quellreviews zum Gesamt-PASS.
+Das Modul bleibt teilweise validiert und unveröffentlicht.
+
 ## Copy Column V1 Deltaabnahme
 
 Der [Record](Qualification/CopyColumn.V1.20261114.json) und der

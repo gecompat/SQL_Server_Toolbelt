@@ -21,6 +21,10 @@ class SecurityCorrectionTests(unittest.TestCase):
                        lambda r:r['lab_context_revision_review'].update(native_tls_executed=True),
                        lambda r:r['lab_context_revision_review'].update(native_tls_executed=0),
                        lambda r:r['lab_context_revision_review'].update(registry_freshness_floor_preserved=False),
+                       lambda r:r['isolated_setup_review'].update(native_pass_inferred=True),
+                       lambda r:r['isolated_setup_review'].update(runtime_executed_by_reviewer=True),
+                       lambda r:r['isolated_setup_review'].update(original_failed_review_preserved=False),
+                       lambda r:r['isolated_setup_review'].update(native_pass_inferred=0),
                        lambda r:r['open_findings'].append('unresolved')):
             r=copy.deepcopy(evidence.validate_review());change(r)
             with self.assertRaises(ValueError):evidence.validate_review(r)

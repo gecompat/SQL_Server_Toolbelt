@@ -6,7 +6,7 @@
   "independent_reviewer": true,
   "reviewer": "Codex independent review agent",
   "reviewer_agents": 1,
-  "changed_input_followups": 2,
+  "changed_input_followups": 4,
   "runtime_executed_by_reviewer": false,
   "provider": {
     "sha256": "04f2e29becfa551a985537fbc74447984cde416eb8ffde17afbd8e2453a7360f",
@@ -15,6 +15,7 @@
   "scope": {
     "current_product_source": true,
     "bounded_tls_method_source": true,
+    "isolated_tls_setup_source": true,
     "native_tls_result": false,
     "full_module_qualification": false,
     "publication_authorized": false
@@ -112,6 +113,15 @@
     "native_revision_committed": false,
     "native_tls_executed": false,
     "registry_freshness_floor_preserved": true
+  },
+  "isolated_setup_review": {
+    "result": "SOURCE_ACCEPTED",
+    "resolved_findings": ["F-ISO-01", "F-ISO-02"],
+    "reviewed_methods": ["exact_isolated_plan_and_actual_authority_binding", "receiver_instance_end_before_trust_and_key_cleanup"],
+    "original_failed_review_preserved": true,
+    "private_source_originals_retained": true,
+    "runtime_executed_by_reviewer": false,
+    "native_pass_inferred": false
   },
   "limitations": [
     "Keine Testausführung durch den Reviewer.",

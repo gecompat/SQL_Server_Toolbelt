@@ -64,8 +64,8 @@ def validate_review(record=None):
     r=record if record is not None else json.loads((ROOT/REVIEW).read_bytes())
     delta=validate()
     require(r['kind']=='ssis_independent_copy_column_security_acceptance' and r['result']=='SOURCE_ACCEPTED' and r['review_kind']=='static_security_contract','REVIEW_IDENTITY')
-    require(r['independent_reviewer'] is True and r['runtime_executed_by_reviewer'] is False and r['reviewer_agents']==1 and r['changed_input_followups']==2,'INDEPENDENCE')
-    require(r['scope']=={'current_product_source':True,'bounded_tls_method_source':True,'native_tls_result':False,'full_module_qualification':False,'publication_authorized':False} and all(type(v) is bool for v in r['scope'].values()),'REVIEW_SCOPE')
+    require(r['independent_reviewer'] is True and r['runtime_executed_by_reviewer'] is False and r['reviewer_agents']==1 and r['changed_input_followups']==4,'INDEPENDENCE')
+    require(r['scope']=={'current_product_source':True,'bounded_tls_method_source':True,'isolated_tls_setup_source':True,'native_tls_result':False,'full_module_qualification':False,'publication_authorized':False} and all(type(v) is bool for v in r['scope'].values()),'REVIEW_SCOPE')
     require(r['provider']==delta['provider'] and r['open_findings']==[],'REVIEW_PROVIDER_FINDINGS')
     require([(f['id'],f['severity'],f['status']) for f in r['resolved_findings']]==[('F-C7-01','P1','closed'),('F-C7-02','P2','closed'),('F-C7-03','P2','closed'),('F-C7-04','P2','closed')],'FINDING_DISPOSITIONS')
     reuse=r['historical_reuse'];p=ROOT/reuse['record']
@@ -87,6 +87,12 @@ def validate_review(record=None):
             'Tests/Static/Invoke-AuthenticatedTlsContextSelectionChecks.ps1':'28d1e585f17637c6a23bb60b668ce71e6701f460f8613b2c32d4e5c373d9ac8e'},
         'native_revision_committed':False,'native_tls_executed':False,
         'registry_freshness_floor_preserved':True},'LAB_REVIEW_SCOPE')
+    isolated=r['isolated_setup_review']
+    require(all(type(isolated[k]) is bool for k in ('original_failed_review_preserved','private_source_originals_retained','runtime_executed_by_reviewer','native_pass_inferred')),'ISOLATED_REVIEW_TYPES')
+    require(isolated=={'result':'SOURCE_ACCEPTED','resolved_findings':['F-ISO-01','F-ISO-02'],
+        'reviewed_methods':['exact_isolated_plan_and_actual_authority_binding','receiver_instance_end_before_trust_and_key_cleanup'],
+        'original_failed_review_preserved':True,'private_source_originals_retained':True,
+        'runtime_executed_by_reviewer':False,'native_pass_inferred':False},'ISOLATED_REVIEW_SCOPE')
     return r
 
 if __name__=='__main__':
