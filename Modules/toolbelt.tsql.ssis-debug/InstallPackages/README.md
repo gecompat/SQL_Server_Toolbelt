@@ -13,7 +13,9 @@ kontexten mit 96 Assertions und zwölf frischen Audits. Die gültigen Fach-/API-
 Nachweise werden separat übernommen; daraus entsteht keine neue vollständige
 funktionale ZIP-/SSMS-/TLS-/Modulabnahme. Der [aktuelle Windows-/Linux-Modellhost](../Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
 ist eigenständig belegt. Gesamtmodul weiterhin teilweise validiert und
-unveröffentlicht. Für den Slice gilt die
+unveröffentlicht. Der [neue sichtbare Windows-/SSMS-Gesamtfall](../Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
+mit demselben Archiv besteht separat einschließlich Unicode-Kopie, nativer
+SQLCMD-Stopprobe, Phase-2-Receipt und frischem Windows-Audit. Für den Slice gilt die
 [Copy-Column-Anleitung](../Documentation/CopyColumnV1.md); die bestehenden
 Installationsmechanismen aus der [Installationsanleitung](../Documentation/CurrentInstallation.md)
 bleiben gleich. Die Operation ist unmittelbar `explain`, ohne Versions-Opt-in.

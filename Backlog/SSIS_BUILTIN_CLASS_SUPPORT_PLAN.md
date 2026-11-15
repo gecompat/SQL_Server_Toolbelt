@@ -75,6 +75,18 @@ DBs entfernt. Fach-/API-Nachweise wiederverwendet; keine neuen Rechte oder
 Identitäten. Ein erster Fehler vor SQL bleibt erhalten. Kein neuer vollständiger
 funktionaler ZIP-/SSMS-/TLS-/Modul-PASS und keine neue Klassenfreigabe.
 
+## Aktueller sichtbarer SSMS-Gesamtfall vom 2026-11-15
+
+Der [neue SSMS-Bericht](../Releases/1.0.0/SSIS-COPY-COLUMN-SSMS-QUALIFICATION.md)
+belegt am aktuellen Archiv Windows-Anmeldung, öffentliche Erst-/Wiederholungs-
+installation, aktuelle API, echte vollständige Unicode-Kopie, native SQLCMD-
+Stopprobe und vollständiges Script samt Phase-2-Receipt. Ein Koordinator
+`PASS_CLEANED` mit17 Prüfungen und frischer unabhängiger Windows-Audit `PASS`;
+eigene DB/SSMS entfernt, Ausgangszustände wiederhergestellt. Benutzerhilfe nur
+für Anmeldung/Gridoptionen, vier Ausführungen durch den Agenten. Keine grünen
+Matrizen wiederholt, keine neue Klasse oder vollständige funktionale ZIP-/TLS-/
+Modulgesamtabnahme daraus abgeleitet. Die älteren Records bleiben unverändert.
+
 ## Quellen und Repository-Verträge
 
 - [Aktueller SSIS-Debug-Vertrag](../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)

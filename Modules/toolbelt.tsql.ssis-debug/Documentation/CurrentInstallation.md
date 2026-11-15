@@ -5,7 +5,21 @@ Komponentenumfang ohne Versionsschalter. Historische V1-/V2-Dateien sind keine
 Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+## Aktueller Entwicklungsstand mit Copy Column
+
+Für den zusätzlichen freigegebenen Copy-Column-Explain-Slice verwende das
+[Copy-Column-V1-ZIP](../InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1).
+Delta, Windows-/Linux-Modellhost, tatsächliche Archivinstallation und
+Lebenszyklus sowie ein frischer sichtbarer Windows-/SSMS-Gesamtfall besitzen
+[getrennte aktuelle Nachweise](../Tests/README.md#copy-column-v1-deltaabnahme).
+Die vollständige funktionale ZIP-/Prozedur-/Rechte- und strikte TLS-Gesamtabnahme
+dieses erweiterten Builds ist damit nicht belegt. Das Modul bleibt teilweise
+validiert und unveröffentlicht; Installationsmechanismen bleiben gleich.
+
 ## Prozedurdefinition V1 installieren
+
+Die folgenden vollständigen Nachweise und das Qualified-ZIP gelten für den
+Build vor Copy Column. Ihre ursprünglichen Artefakte bleiben unverändert.
 
 Für den neuen 40-Parameter-Stand mit `procedure-definition` verwende das
 [qualifizierte Installations-ZIP](../InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip).

@@ -33,7 +33,8 @@ verhindern falsche Quellen-/Plattform-/Fallzuordnung und Scopeaufwertung.
 Der [Bericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md)
 nennt Reproduktion und Grenzen. Der ältere Delta-Record bleibt unverändert;
 sein damaliges `native_linux_host: not executed` wird nicht umetikettiert.
-Aktuelle ZIP-/SSMS-/TLS-Gesamtfälle bleiben separat, Modulstatus unverändert.
+Dieser Hostrecord enthält keine ZIP-/SSMS-/TLS-Gesamtfälle. Spätere getrennte
+Nachweise stehen in den folgenden Abschnitten; der Modulstatus bleibt unverändert.
 
 ## Aktuelle ZIP-Liefermatrix
 
@@ -47,6 +48,23 @@ CrossDB-Consumer. Zehn Zulassungs- und elf Recordgegenproben bestanden.
 Der erste Journalpfadfehler vor SQL bleibt erhalten und hat keinen fiktiven
 Audit-PASS. Alle 26 Reservierungen bleiben im ursprünglichen Rahmen gezählt.
 Dies ist keine vollständige neue funktionale ZIP-/SSMS-/TLS-/Modulabnahme.
+
+## Aktuelle SSMS-Abnahme am Copy-Column-Archiv
+
+Der [Record](Qualification/Ssms.CopyColumn.20261115.json) und der
+[Bericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SSMS-QUALIFICATION.md)
+belegen einen neuen sichtbaren Gesamtlauf mit der aktuellen qualifizierten DLL:
+Windows SQL2025/CU8 CL150 lokal, Windows-NTLM, richtiges Labziel und
+Verschlüsselung. Öffentliche Erst-/Wiederholungsinstallation, aktuelle API,
+echte vollständige Unicode-Zellenkopie mit 184.441 normalisierten UTF-16-Einheiten,
+native SQLCMD-Stopprobe und vollständiges Script samt Phase-2-Receipt bestanden.
+Koordinator `PASS_CLEANED`, 17 Prüfungen und frischer unabhängiger Windows-Audit
+`PASS`; eigene Datenbank und SSMS-Instanz entfernt, Ausgangszustände wiederhergestellt.
+Benutzerhilfe blieb auf Anmeldung und Gridoptionen begrenzt. Vier sichtbare
+Ausführungen durch den Agenten; keine Wiederholung bestandener Matrizen.
+Neun Zulassungs- und neun Evidenzgegenproben schützen diese Zuordnung.
+Dieser funktionale Clientnachweis ersetzt keine neue vollständige funktionale
+ZIP-/Prozedur-/Rechtematrix, strikte TLS- oder Modulgesamtabnahme.
 
 <a id="gesamtabnahme-des-korrigierten-builds"></a>
 
@@ -1245,8 +1263,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits`
-- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS.
+- Nachweis: `local: sichtbarer Windows-SSMS-Gesamtfall am aktuellen Copy-Column-Archiv`
+- Scope: PASS_FOR_DECLARED_SCOPE: Windows SQL2025/CU8 CL150 lokal, Windows-NTLM, ausgewaehltes Labziel und verschluesselte funktionale Verbindung. Oeffentliche Erst-/Wiederholungsinstallation, aktuelle API, echte Unicode-Zellenkopie mit184441 normalisierten UTF16-Einheiten, native SQLCMD-Stopprobe und vollstaendiges Script mit2 Ergebniszeilen und Phase2-Receipt. Koordinator PASS_CLEANED17, frischer finaljournalgebundener Windows-Audit PASS, eigeneDB/SSMS entfernt und Konfiguration/Trust wiederhergestellt, andereVerbraucher unveraendert. Benutzerhilfe nurAnmeldung/Gridoptionen;4GUI-Ausfuehrungen durchAgent. Rahmen2Aufrufe/1DB/4GUI/45Minuten geschlossen, keine nativenFehler/Wiederholung. Gueltige Delta-/Host-/Archivnachweise uebernommen; keine neue vollstaendige funktionale ZIP-/TLS-/Modulabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
