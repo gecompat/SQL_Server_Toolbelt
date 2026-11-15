@@ -12,6 +12,7 @@ from ssis_historical_scope import pre_copy_column_scope
 import validate_ssis_copy_column as copy_column
 import validate_ssis_copy_column_host as copy_host
 import validate_ssis_copy_column_delivery as copy_delivery
+import validate_ssis_copy_column_ssms as copy_ssms
 
 PARSER = 'Modules/toolbelt.tsql.script-parser/Tests/Qualification/Current.Build.20261105.json'
 PARSER_VALIDATOR = 'Modules/toolbelt.tsql.script-parser/Tests/Static/validate_qualification.py'
@@ -34,6 +35,7 @@ def render(ssis, parser):
     delta = copy_column.validate()
     host = copy_host.validate()
     delivery = copy_delivery.validate()
+    ssms_current = copy_ssms.validate()
     with pre_copy_column_scope(ROOT):
         current = build.validate()
         fresh.validate(ssis)
@@ -70,6 +72,7 @@ ihre damaligen Wörter „aktuell“ und „offen“ sind keine neue Statusfests
 | SSIS Copy Column V1: aktuelles Delta | {delta['profiles']} native Profile, {delta['assertions']} Assertions, {delta['fresh_audits']} frische Audits; 48 ursprüngliche Explain- und acht finale Prozedurguard-Profile, exakt gebundene Quellprojektion. [Record](../../{copy_column.REPORT}) | Keine vollständige neue ZIP-/Modul-/SSMS-/TLS-Abnahme. Gesamtmodul teilweise validiert/unveröffentlicht. |
 | SSIS Copy Column: aktueller Windows-/Linux-Modellhost | {host['case_count']} CLI-/Modellfälle, {host['assertions']} Assertions; identische portable Hostbytes und kanonische Outputs. [Record](../../{copy_host.REPORT}) | Zwei Linux-Vorbereitungsfehler mit null Profilen erhalten; kein SQL-CLR-/SSIS-Runtime-/ZIP-/SSMS-/TLS- oder Modulgesamt-PASS. |
 | SSIS Copy Column: native ZIP-Liefermatrix | {delivery['contexts']} Windows-/CL-/Moduskontexte, {delivery['package_assertions']} Archivinstallations-/Lebenszyklusassertions, {delivery['fresh_audits']} frische Audits. [Record](../../{copy_delivery.REPORT}) | Direkte zentrale Nutzung; Fach-/API-Suiten wiederverwendet. Kein neuer vollständiger funktionaler ZIP-/Prozedur-/Rechte-/SSMS-/TLS-/Modul-PASS; erster Fehler vor SQL ohne Audit-PASS erhalten. |
+| SSIS Copy Column: sichtbarer aktueller Windows-/SSMS-Gesamtfall | {ssms_current['case']['checks']} Prüfungen, vollständige Unicode-Kopie, native SQLCMD-Stopprobe, Phase-2-Receipt und frischer Windows-Audit. [Record](../../{copy_ssms.REPORT}) | SQL2025/CU8 CL150 lokal, Windows-NTLM, Functional; Benutzerhilfe Anmeldung/Gridoptionen. Keine neue vollständige funktionale ZIP-/strikte TLS-/Modulabnahme. |
 | Parser: freigegebener kombinierter Nachweis | {parser['totalCompletedSuites']} native Suites; {parser['frameworkFinalCases']} Frameworkfälle; datenbanklokale Minimalrechte; {parser['quotaAcceptance']}. [Record]({parser_link}) | Kein neuer Netzwerklogin oder Lowpriv-CrossDB-Mapping; nicht ausgeführte öffentliche Quoten-Branches bleiben nicht ausgeführt. |
 
 Der vollständige OS-/VM-Verlust des SSIS-Koordinators ist nicht qualifiziert.

@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: Copy-Column-Explain-/Prozedurguard-Delta, aktueller Modellhost und native Archivinstallations-/Lebenszyklusmatrix separat belegt. Frühere Gesamtabnahmen bleiben historisch; keine neue vollständige funktionale ZIP-/SSMS-/TLS-/Modulabnahme."
+  windows: "partially validated: Copy-Column-Delta, aktueller Modellhost, native Archivinstallations-/Lebenszyklusmatrix und sichtbarer Windows-/SSMS-Gesamtfall separat belegt. Frühere Gesamtabnahmen bleiben historisch; keine neue vollständige funktionale ZIP-/TLS-/Modulabnahme."
   linux: "not applicable für SQL CLR: UNSAFE wird nicht unterstützt. Der externe portable Modellhost ist separat auf Linux qualifiziert."
 providers:
   - id: clr-ssis-debug
@@ -90,6 +90,7 @@ documentation:
     - "Tests/WindowsClientRecovery/README.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md"
+    - "../../Releases/1.0.0/SSIS-COPY-COLUMN-SSMS-QUALIFICATION.md"
 contracts:
   ssis_components: "2.0.0"
   usp: "1.0"
@@ -281,4 +282,9 @@ validation_evidence:
   - date: "2026-11-15"
     workflow: "local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits"
     scope: "PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS."
+    result: "success"
+
+  - date: "2026-11-15"
+    workflow: "local: sichtbarer Windows-SSMS-Gesamtfall am aktuellen Copy-Column-Archiv"
+    scope: "PASS_FOR_DECLARED_SCOPE: Windows SQL2025/CU8 CL150 lokal, Windows-NTLM, ausgewaehltes Labziel und verschluesselte funktionale Verbindung. Oeffentliche Erst-/Wiederholungsinstallation, aktuelle API, echte Unicode-Zellenkopie mit184441 normalisierten UTF16-Einheiten, native SQLCMD-Stopprobe und vollstaendiges Script mit2 Ergebniszeilen und Phase2-Receipt. Koordinator PASS_CLEANED17, frischer finaljournalgebundener Windows-Audit PASS, eigeneDB/SSMS entfernt und Konfiguration/Trust wiederhergestellt, andereVerbraucher unveraendert. Benutzerhilfe nurAnmeldung/Gridoptionen;4GUI-Ausfuehrungen durchAgent. Rahmen2Aufrufe/1DB/4GUI/45Minuten geschlossen, keine nativenFehler/Wiederholung. Gueltige Delta-/Host-/Archivnachweise uebernommen; keine neue vollstaendige funktionale ZIP-/TLS-/Modulabnahme."
     result: "success"

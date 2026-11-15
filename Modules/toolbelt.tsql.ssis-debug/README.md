@@ -19,6 +19,9 @@ belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung. Der
 besteht separat 50 CLI-/Modellfälle mit 610 Assertions. Die
 [ZIP-Liefermatrix](InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1)
 belegt Archivinstallation und Lebenszyklus in zwölf Windows-Kontexten.
+Der [neue sichtbare SSMS-Gesamtfall](Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
+besteht am aktuellen Archiv mit Windows-Anmeldung, vollständiger Unicode-Kopie,
+nativer SQLCMD-Stopprobe, Phase-2-Receipt und frischem Windows-Abschlussaudit.
 Bisherige umfassende Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden.
 
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
@@ -130,8 +133,8 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits`
-- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS.
+- Nachweis: `local: sichtbarer Windows-SSMS-Gesamtfall am aktuellen Copy-Column-Archiv`
+- Scope: PASS_FOR_DECLARED_SCOPE: Windows SQL2025/CU8 CL150 lokal, Windows-NTLM, ausgewaehltes Labziel und verschluesselte funktionale Verbindung. Oeffentliche Erst-/Wiederholungsinstallation, aktuelle API, echte Unicode-Zellenkopie mit184441 normalisierten UTF16-Einheiten, native SQLCMD-Stopprobe und vollstaendiges Script mit2 Ergebniszeilen und Phase2-Receipt. Koordinator PASS_CLEANED17, frischer finaljournalgebundener Windows-Audit PASS, eigeneDB/SSMS entfernt und Konfiguration/Trust wiederhergestellt, andereVerbraucher unveraendert. Benutzerhilfe nurAnmeldung/Gridoptionen;4GUI-Ausfuehrungen durchAgent. Rahmen2Aufrufe/1DB/4GUI/45Minuten geschlossen, keine nativenFehler/Wiederholung. Gueltige Delta-/Host-/Archivnachweise uebernommen; keine neue vollstaendige funktionale ZIP-/TLS-/Modulabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
