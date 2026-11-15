@@ -52,7 +52,7 @@ class DeliveryAdmissionTests(unittest.TestCase):
         for version,patch,levels in [('2019','CU32',[150]),('2022','CU26',[150,160]),('2025','CU8',[150,160,170])]:
             for cl in levels:
                 for mode in ('local','central'):
-                    journal=cls.stage/f'case-{len(cases)}';journal.mkdir()
+                    journal=cls.stage/f'case-{len(cases)}'
                     cases.append({'version':version,'patch':patch,'cl':cl,'mode':mode,
                                   'targetKey':'synthetic-selected-target','journal':str(journal)})
         now=datetime.now(timezone.utc)
@@ -79,6 +79,18 @@ class DeliveryAdmissionTests(unittest.TestCase):
             with self.subTest(index=index):
                 p=self.invoke(index=index);self.assertEqual(p.returncode,0,p.stderr)
                 self.assertIn('SSIS_COPY_DELIVERY_ADMISSION_PASS; no SQL',p.stdout)
+
+    def test_existing_journal_is_rejected_before_native_entry(self):
+        journal=Path(self.base['cases'][0]['journal'])
+        journal.mkdir()
+        try:
+            p=self.invoke();self.assertNotEqual(p.returncode,0)
+            self.assertIn('SSIS_COPY_DELIVERY_JOURNAL_COLLISION',p.stdout+p.stderr)
+            original=(ROOT/AREA/'Tests/Runtime/Invoke-LabContract.ps1').read_text(encoding='utf-8')
+            self.assertLess(original.index("if(Test-Path -LiteralPath $journalRoot)"),
+                            original.index('[void](Invoke-LabPreflight'))
+        finally:
+            journal.rmdir()
 
     def test_strict_boolean_authority(self):
         self.reject(lambda r:r.update(approved='true'),'SSIS_COPY_DELIVERY_DECLARED_SCOPE')

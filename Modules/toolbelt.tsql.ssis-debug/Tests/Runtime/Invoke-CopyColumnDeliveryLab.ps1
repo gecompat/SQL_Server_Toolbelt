@@ -60,7 +60,11 @@ foreach($entry in $manifest.files){
 $provider=Join-Path $packageRoot 'Modules/toolbelt.tsql.ssis-debug/Artifacts/Toolbelt.Tsql.SsisDebug.dll'
 if((Get-FileHash -LiteralPath $provider -Algorithm SHA512).Hash -cne $r.providerSha512){throw 'SSIS_COPY_DELIVERY_PROVIDER'}
 $case=$r.cases[$CaseIndex]
-$journal=Assert-DeliveryLocalPath $case.journal $true
+$journal=[IO.Path]::GetFullPath($case.journal)
+if(-not $journal.StartsWith($private+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'SSIS_COPY_DELIVERY_PRIVATE_PATH'}
+[void](Assert-DeliveryLocalPath ([IO.Path]::GetDirectoryName($journal)) $true)
+if($Action -ceq 'Run' -and (Test-Path -LiteralPath $journal)){throw 'SSIS_COPY_DELIVERY_JOURNAL_COLLISION'}
+if($Action -ceq 'Audit' -and -not (Test-Path -LiteralPath $journal -PathType Container)){throw 'SSIS_COPY_DELIVERY_JOURNAL_MISSING'}
 if($ValidateOnly -and -not $DescribeOnly){'SSIS_COPY_DELIVERY_ADMISSION_PASS; no SQL';return}
 if($Action -ceq 'Audit' -and -not $DescribeOnly){
  $file=Join-Path $journal 'target-1.json'
