@@ -66,6 +66,28 @@ Neun Zulassungs- und neun Evidenzgegenproben schützen diese Zuordnung.
 Dieser funktionale Clientnachweis ersetzt keine neue vollständige funktionale
 ZIP-/Prozedur-/Rechtematrix, strikte TLS- oder Modulgesamtabnahme.
 
+## Vorbereitung der vollständigen aktuellen ZIP-Abnahme
+
+Der [funktionale Archivadapter](Runtime/Invoke-CopyColumnFunctionalLab.ps1)
+bindet dasselbe Copy-Column-Archiv und dessen vollständige Produktquellen an
+die unveränderten Fach-/API-/Prozedur-/Rechte-/Lifecycle-Orakel der bisherigen
+kombinierten Methode. Die [SQL-freien Gegenproben](../../../Tests/Release/test_ssis_copy_column_functional.py)
+prüfen Archiv- und Quellenbindung, vollständige Methodeneingaben, die feste
+Zwölf-Kontexte-Liste und den erhaltenen Lowpriv-Abschlussaudit. Diese Vorbereitung
+ist kein ausgeführter SQL-Fall und ändert keinen Qualifikationsstatus.
+
+Der private Aufrufer benötigt eine konkrete Freigabe für die temporären
+Testidentitäten und ihre gezielten Rechte; ein Planfeld erteilt diese nicht.
+Er reserviert Lauf und frischen Audit gemeinsam und führt das gemeinsame
+180-Minuten-Fenster, höchstens 24 Aufrufe und 24 eigene Datenbanken ohne
+Wiederholung. Ein vollständiger Fall verwendet zwei Datenbanken, auch lokal.
+`ValidateOnly` prüft die Zulassung ohne SQL. `DescribeOnly` prüft zusätzlich
+die tatsächliche Komposition des Run-Pfads, ebenfalls ohne SQL; der Audit-Pfad
+wird nicht über `DescribeOnly` ausgeführt. Ein gemeinsames 900-Sekunden-Fenster
+mit 60 Sekunden Cleanup bleibt im Koordinator bestehen. Ein Fehler oder die
+Abbruchgrenze beendet weitere Tests; nicht gestartete Kontexte bleiben offen.
+Die geschlossenen früheren Testfenster und deren Fehler werden nicht erneuert.
+
 <a id="gesamtabnahme-des-korrigierten-builds"></a>
 
 ## Bisherige Gesamtabnahme des Builds vor Copy Column
