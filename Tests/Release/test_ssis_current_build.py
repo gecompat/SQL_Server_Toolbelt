@@ -8,10 +8,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Scripts/Release'))
 import validate_ssis_current_build as validator
 import validate_ssis_current_qualified_package as delivery
+from ssis_historical_scope import pre_copy_column_scope
 
 
 class CurrentBuildTests(unittest.TestCase):
     def setUp(self):
+        scope=pre_copy_column_scope(Path(__file__).resolve().parents[2])
+        scope.__enter__()
+        self.addCleanup(scope.__exit__,None,None,None)
         self.report = json.loads((validator.ROOT / validator.REPORT).read_text(encoding='utf-8'))
 
     def test_bound_report(self):

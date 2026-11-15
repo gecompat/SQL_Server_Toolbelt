@@ -90,18 +90,23 @@ Die [Freigabematrix](FREIGABEMATRIX.md) bleibt bei 19 stabilen und 26
 Preview-Kandidaten; diese Zielkanäle und der [Supportumfang](SUPPORT.md) sind
 ausdrücklich freigegeben. Alle 45 Modulmanifeste bleiben `unreleased`.
 
-## Aktueller Qualifikationsabgleich vom 2026-11-06
+<a id="aktueller-qualifikationsabgleich-vom-2026-11-06"></a>
 
-Diese aktuelle Leseübersicht verwendet die kanonischen Modulrecords und deren
-Quell-/Artefaktprüfer. Sie ersetzt weder Originaljournale noch Modulmanifeste.
+## Qualifikationsabgleich nach Copy Column V1
+
+Diese Leseübersicht trennt den vor Copy Column vollständig qualifizierten Build
+von der aktuellen zusammengesetzten Copy-Column-Deltaabnahme. Die alten Records
+werden am unveränderten historischen Snapshot geprüft, der Delta-Record gegen
+die aktuelle Quelle. Sie ersetzt weder Originaljournale noch Modulmanifeste.
 Die älteren datierten Paketberichte und ihre Ausführungspins bleiben unverändert;
 ihre damaligen Wörter „aktuell“ und „offen“ sind keine neue Statusfeststellung.
 
 | Nachweis | Belegter Umfang | Eigenständige verbleibende Grenze |
 |---|---|---|
-| SSIS: frische ZIP-Ausgabe | 12 Windows-/Engine-/CL-/Moduskontexte; 15204 Assertions; 12 frische Audits; 40 API-Parameter. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json) | Nur vereinbarter Debugvertrag; keine vollständige SSIS-Runtime-Parität oder unbegrenzte Produktionskapazität. |
-| SSIS: sichtbarer SSMS-Gesamtfall | Windows-Anmeldung; Functional; Receiptphase 2; 2 Ergebniszeilen; Koordinator PASS_CLEANED und Audit PASS. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json) | Benutzerhilfe bei Anmeldung und Gridoptionen; keine autonome Anmeldung und kein kombinierter Windows-Anmeldeweg mit authentifiziertem TLS. |
-| SSIS: ununterbrochener öffentlicher TLS-Neuaufbau | SQL-Anmeldung; AuthenticatedTls; 2 strikte Clientstacks; 416 Assertions; SQL- und Lab-Abschlussaudit PASS. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json) | Windows SQL2025 RTM, CL170, lokal/zentral; keine Qualifikation anderer Identitäts-/Zielkombinationen. |
+| SSIS vor Copy Column: damalige ZIP-Matrix | 12 Windows-/Engine-/CL-/Moduskontexte; 15204 Assertions; 12 frische Audits; 40 API-Parameter. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json) | Nur vereinbarter Debugvertrag; keine vollständige SSIS-Runtime-Parität oder unbegrenzte Produktionskapazität. |
+| SSIS vor Copy Column: sichtbarer SSMS-Gesamtfall | Windows-Anmeldung; Functional; Receiptphase 2; 2 Ergebniszeilen; Koordinator PASS_CLEANED und Audit PASS. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json) | Benutzerhilfe bei Anmeldung und Gridoptionen; keine autonome Anmeldung und kein kombinierter Windows-Anmeldeweg mit authentifiziertem TLS. |
+| SSIS vor Copy Column: ununterbrochener öffentlicher TLS-Neuaufbau | SQL-Anmeldung; AuthenticatedTls; 2 strikte Clientstacks; 416 Assertions; SQL- und Lab-Abschlussaudit PASS. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Fresh.Build.20261104.json) | Windows SQL2025 RTM, CL170, lokal/zentral; keine Qualifikation anderer Identitäts-/Zielkombinationen. |
+| SSIS Copy Column V1: aktuelles Delta | 56 native Profile, 1112 Assertions, 14 frische Audits; 48 ursprüngliche Explain- und acht finale Prozedurguard-Profile, exakt gebundene Quellprojektion. [Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/CopyColumn.V1.20261114.json) | Keine vollständige neue ZIP-/Modul-/SSMS-/TLS-/Linux-Hostabnahme. Gesamtmodul teilweise validiert/unveröffentlicht. |
 | Parser: freigegebener kombinierter Nachweis | 72 native Suites; 248 Frameworkfälle; datenbanklokale Minimalrechte; APPROVED_COMBINED_EVIDENCE. [Record](../../Modules/toolbelt.tsql.script-parser/Tests/Qualification/Current.Build.20261105.json) | Kein neuer Netzwerklogin oder Lowpriv-CrossDB-Mapping; nicht ausgeführte öffentliche Quoten-Branches bleiben nicht ausgeführt. |
 
 Der vollständige OS-/VM-Verlust des SSIS-Koordinators ist nicht qualifiziert.
@@ -114,7 +119,6 @@ nicht autorisiert.
 Die [Releaseprüfung](../../Tests/Release/README.md#aktuelle-qualifikationsübersicht)
 vergleicht diese Darstellung mit den Records. Sie startet keine SQL-/GUI-/
 TLS-Wiederholung und erteilt keine neue Testfreigabe.
-
 
 ## Regex: aktueller Nachweisabgleich vom 2026-11-06
 

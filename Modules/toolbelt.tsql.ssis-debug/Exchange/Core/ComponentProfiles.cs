@@ -39,6 +39,7 @@ namespace Toolbelt.Ssis.Exchange
                 case "{165A526D-D5DE-47FF-96A6-F8274C19826B}": case "Microsoft.OLEDBSource": return "source";
                 case "{4ADA7EAA-136C-4215-8098-D7A7C27FC0D1}": case "Microsoft.OLEDBDestination": return "destination";
                 case "{B594E9A8-4351-4939-891C-CFE1AB93E925}": case "Microsoft.UnionAll": return "union";
+                case "{98F16A65-E02F-4B0F-87D4-C217EA074619}": case "{D231ABC4-4754-481B-8F7A-CD4BD8D09832}": return "copy-column";
                 case "{49928E82-9C4E-49F0-AABE-3812B82707EC}": case "Microsoft.DerivedColumn": return "derived";
                 case "{62B1106C-7DB8-4EC8-ADD6-4C664DFFC54A}": case "Microsoft.DataConvert": return "convert";
                 case "{671046B0-AA63-4C9F-90E4-C06E0B710CE3}": case "Microsoft.Lookup": return "lookup";
@@ -81,6 +82,7 @@ namespace Toolbelt.Ssis.Exchange
             switch (kind)
             {
                 case "derived": return inputs == 1 && normal == 1 && errors <= 1 && allSynchronous;
+                case "copy-column": return inputs == 1 && normal == 1 && errors == 0 && allSynchronous;
                 case "split": return inputs == 1 && normal >= 2 && errors <= 1 && allSynchronous;
                 case "rowcount": return inputs == 1 && normal == 1 && errors == 0 && allSynchronous;
                 case "flatfile-source": return inputs == 0 && normal == 1 && errors <= 1 && sourceSynchronous;

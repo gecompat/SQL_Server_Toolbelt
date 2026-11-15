@@ -190,6 +190,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     case "source": Source(owner, port, result); break;
                     case "flatfile-source": FlatFileSource(owner, port, result); break;
                     case "union": Union(owner, port, result); break;
+                    case "copy-column": CopyColumn(owner, port, result); break;
                     case "derived": case "convert": Derived(owner, port, result); break;
                     case "rowcount": RowCount(owner, port, result); break;
                     case "split": Split(owner, port, result); break;
@@ -246,6 +247,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     case "source": Source(owner, port, result); break;
                     case "flatfile-source": FlatFileSource(owner, port, result); break;
                     case "union": Union(owner, port, result); break;
+                    case "copy-column": CopyColumn(owner, port, result); break;
                     case "derived": case "convert": Derived(owner, port, result); break;
                     case "rowcount": RowCount(owner, port, result); break;
                     case "split": Split(owner, port, result); break;
@@ -520,6 +522,59 @@ namespace Toolbelt.Tsql.SsisDebug
                 stage.Columns.Add(target); projections.Add(target.Id, "CAST(" + value.Sql + " AS " + target.Type + ")");
             }
             stage.Query = "SELECT " + String.Join(", ", stage.Columns.Select(x => projections[x.Id] + " AS " + Util.Q(x.Alias))) + " FROM " + Util.Q(parent.Cte) + " AS m";
+        }
+        private void CopyColumn(Component c, Port port, Stage stage)
+        {
+            // Die Einzelfreigabe umfasst nur Debug-SQL. Der gemeinsame
+            // Stagebuilder darf die Komponente nicht stillschweigend auch
+            // für die getrennte Prozedurdefinition zulassen.
+            if (options.ProcedureDefinition)
+                throw new DebugFault("procedure_profile", "Copy Column V1 ist ausschließlich für explain freigegeben.");
+            if (stage.Parents.Count != 1 || c.Inputs.Count != 1 || c.Outputs.Count != 1 || c.Outputs[0].Error || port.Id != c.Outputs[0].Id || port.Sync != c.Inputs[0].Id)
+                throw new DebugFault("unsupported_component", "Copy Column benötigt genau einen synchronen Eingang und einen normalen Ausgang ohne Fehlerausgang.");
+
+            Stage parent = stage.Parents[0];
+            var sourceLineages = c.Inputs[0].Columns.GroupBy(x => x.Lineage, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+            // Auch unkopierte Eingabespalten gehören zur deklarierten Portform.
+            // Doppelte Bindungen werden nicht durch die Auswahl einer anderen
+            // Kopie verdeckt; die tatsächliche Quelle bleibt der Parentstage.
+            if (sourceLineages.Any(g => g.Value.Count != 1))
+                throw new DebugFault("invalid_lineage", "Copy Column-Eingangs-Lineage ist doppelt deklariert.");
+            var outputNames = new HashSet<string>(parent.Columns.Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+            var outputIds = new HashSet<string>(parent.Columns.Select(x => x.Id), StringComparer.Ordinal);
+            var fields = new List<string>();
+            foreach (StageColumn source in parent.Columns)
+            {
+                stage.Columns.Add(source);
+                fields.Add("m." + Util.Q(source.Alias) + " AS " + Util.Q(source.Alias));
+            }
+
+            foreach (Column copy in port.Columns)
+            {
+                string sourceId = PackageReader.P(copy.Properties, "copyColumnId");
+                int parsedSourceId;
+                if (sourceId == "" || !Int32.TryParse(sourceId, NumberStyles.None, CultureInfo.InvariantCulture, out parsedSourceId) || parsedSourceId <= 0 || sourceId != parsedSourceId.ToString(CultureInfo.InvariantCulture))
+                    throw new DebugFault("invalid_lineage", "Copy Column copyColumnId fehlt oder ist keine positive Lineage-ID.");
+                List<Column> selected;
+                if (!sourceLineages.TryGetValue(sourceId, out selected) || selected.Count != 1)
+                    throw new DebugFault("invalid_lineage", "Copy Column-Quelle ist nicht eindeutig als Eingangsspalte gebunden.");
+                StageColumn input = Find(parent, sourceId);
+                string outputId = copy.Lineage;
+                int parsedOutputId;
+                if (outputId == "" || !Int32.TryParse(outputId, NumberStyles.None, CultureInfo.InvariantCulture, out parsedOutputId) || parsedOutputId <= 0 || outputId != parsedOutputId.ToString(CultureInfo.InvariantCulture) || !outputIds.Add(outputId))
+                    throw new DebugFault("invalid_lineage", "Copy Column-Ausgabe-Lineage fehlt, ist ungültig oder kollidiert mit einer vorhandenen Spalte.");
+                if (copy.Name == "" || !outputNames.Add(copy.Name))
+                    throw new DebugFault("invalid_lineage", "Copy Column-Ausgabename fehlt oder kollidiert case-insensitiv mit einer vorhandenen Spalte.");
+                if (copy.SqlType == null || copy.SqlType != input.Type || selected[0].SqlType != input.Type || copy.CodePage != selected[0].CodePage)
+                    throw new DebugFault("unsupported_component", "Copy Column-Ausgabetyp stimmt nicht exakt mit dem gebundenen Eingangstyp überein.");
+
+                StageColumn outputColumn = NewColumn(outputId, copy.Name, input.Type, input.Nullable);
+                outputColumn.Collation = input.Collation;
+                stage.Columns.Add(outputColumn);
+                fields.Add("m." + Util.Q(input.Alias) + " AS " + Util.Q(outputColumn.Alias));
+            }
+            if (port.Columns.Count == 0) throw new DebugFault("invalid_lineage", "Copy Column-Ausgabespalten fehlen.");
+            stage.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m";
         }
         private ExpressionValue LowerBooleanChain(ExpressionValue value, Component component, ref Stage parent)
         {

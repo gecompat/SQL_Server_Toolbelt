@@ -126,9 +126,12 @@ class EvidenceTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / 'Scripts/Release'))
         import validate_ssis_ssms_gui as validator
         import validate_ssis_preparation_recovery as previous
+        from ssis_historical_scope import BASELINE
+        from ssis_historical_context import historical_root
+        cls.evidence_root = historical_root(ROOT, BASELINE)
         cls.validator = validator
-        cls.report = json.loads((ROOT / validator.RECORD).read_text(encoding='utf-8'))
-        cls.windows = json.loads((ROOT / previous.WINDOWS_RECORD).read_text(encoding='utf-8'))
+        cls.report = json.loads((cls.evidence_root / validator.RECORD).read_text(encoding='utf-8'))
+        cls.windows = json.loads((cls.evidence_root / previous.WINDOWS_RECORD).read_text(encoding='utf-8'))
 
     def reject(self, path, value):
         report = copy.deepcopy(self.report)
@@ -137,10 +140,14 @@ class EvidenceTests(unittest.TestCase):
             item = item[key]
         item[path[-1]] = value
         with self.assertRaises((ValueError, KeyError, TypeError)):
-            self.validator.validate_report(report, lambda p: (ROOT / p).read_bytes(), self.windows)
+            self.validator.validate_report(report, lambda p: (self.evidence_root / p).read_bytes(), self.windows)
 
     def test_actual_report_and_dependencies(self):
-        self.assertEqual(self.validator.validate(ROOT)['result'], 'PASS_FOR_DECLARED_SCOPE')
+        self.assertEqual(self.validator.validate(self.evidence_root)['result'], 'PASS_FOR_DECLARED_SCOPE')
+
+    def test_historical_gui_is_not_current_product_acceptance(self):
+        with self.assertRaisesRegex(ValueError, "SOURCE_BINDING"):
+            self.validator.validate(ROOT)
 
     def test_failed_coordinator_cannot_be_promoted(self):
         for path, value in [(('result',), 'PASS_CLEANED'), (('native_assertions',), 14),
@@ -182,10 +189,10 @@ class EvidenceTests(unittest.TestCase):
         path = next(iter(self.validator.METHODS))
         self.reject(('source_sha256', path), '0' * 64)
         report = copy.deepcopy(self.report)
-        changed = (ROOT / path).read_bytes() + b'\n# changed after native execution\n'
+        changed = (self.evidence_root / path).read_bytes() + b'\n# changed after native execution\n'
         report['source_sha256'][path] = self.validator.digest(changed)
         with self.assertRaises(ValueError):
-            self.validator.validate_report(report, lambda p: changed if p == path else (ROOT / p).read_bytes(), self.windows)
+            self.validator.validate_report(report, lambda p: changed if p == path else (self.evidence_root / p).read_bytes(), self.windows)
 
 
 class NativeSqlcmdEvidenceTests(unittest.TestCase):

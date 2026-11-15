@@ -10,6 +10,13 @@ Für einen gebundenen SQL-Pfad über eine Derived Column erzeugt
 ein Manifest. Der [parametrisierte Aufruf](Documentation/USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
 verwendet typisierte Szenariowerte und liefert eine feste Zielprojektion.
 
+Copy Column V1 ist als zusätzlicher Debug-SQL-Stage implementiert und im
+[additiven Vertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md#additiver-einzelfunktionsvertrag-copy-column-v1--2026-11-13)
+konkret freigegeben. Die [Anleitung](Documentation/CopyColumnV1.md) zeigt Quellbindung
+und Ergebnis. Die [Deltaabnahme](Tests/README.md#copy-column-v1-deltaabnahme)
+belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung; bisherige
+Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden.
+
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
 denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
 das Modell ohne CLR- oder Toolbelt-Installation. Die bestehenden
@@ -118,9 +125,9 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-05`
-- Nachweis: `local: frische ZIP12-, sichtbare Windows-/SSMS- und strikte TLS-Gesamtfälle mit unabhängigen Abschlussaudits`
-- Scope: Derselbe korrigierte 40-Parameter-DLL und unverändertes qualifiziertes ZIP: zwölf neu ausgeführte Windows-/CL-/Moduskontexte mit 15204 Assertions und zwölf frischen Audits. Sichtbarer Windows-NTLM-/SSMS-Gesamtfall auf SQL2025/CU8 CL150 lokal mit Erst-/Wiederholungsinstallation, echter vollständiger Unicode-Kopie, gespeichertem Hash, nativer SQLCMD-Fehlerprobe, zwei Ergebniszeilen und Phase-2-Receipt; PASS_CLEANED mit17 Prüfungen und frischem Windows-Audit. Benutzer übernahm Anmeldung und Gridoptionen. Getrennter ununterbrochener öffentlicher Windows-SQL2025-RTM-TLS-Neuaufbau, CL170 lokal/zentral, SQL-Anmeldung, 416 aktuelle SSIS-Assertions und frische SQL-/VM-/Fremdzustandsaudits PASS. Eigene Ressourcen entfernt, Konfiguration/Trust/andere Verbraucher unverändert. Frühere Fehler unverändert erhalten; Fresh.Build.20261104.json ergänzt die ursprüngliche Gesamtabnahme. Vereinbarter Debugvertrag, keine volle SSIS-Runtime-Parität oder OS-/VM-Verlustqualifikation; unveröffentlicht.
+- Datum: `2026-11-14`
+- Nachweis: `local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits`
+- Scope: PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

@@ -27,7 +27,10 @@ CURRENT_PROFILE = "ssis-debug-current"
 PROCEDURE_PROFILE = "ssis-debug-procedure-v1"
 QUALIFIED_PROFILE = "ssis-debug-qualified"
 QUALIFIED_NAME = "SSIS-Debug-Qualified-Install-Windows"
+COPY_COLUMN_PROFILE = "ssis-debug-copy-column-v1"
+COPY_COLUMN_NAME = "SSIS-Debug-CopyColumnV1-Install-Windows"
 PROFILES = {
+    COPY_COLUMN_PROFILE: (COPY_COLUMN_NAME, (2026, 11, 14), "ssis_copy_column_v1_native_qualification"),
     CURRENT_PROFILE: (NAME, (2026, 10, 29), "ssis_current_native_qualification"),
     PROCEDURE_PROFILE: (PROCEDURE_NAME, (2026, 11, 4), "ssis_procedure_v1_native_qualification"),
     QUALIFIED_PROFILE: (QUALIFIED_NAME, (2026, 11, 4), "ssis_current_build_native_qualification"),
@@ -48,6 +51,10 @@ def encoded(value):
 
 
 def validate_native_record(record, profile):
+    if profile == COPY_COLUMN_PROFILE:
+        from validate_ssis_copy_column import validate
+        validate(record, check_files=False)
+        return
     require(record.get("kind") == PROFILES[profile][2] and record.get("profile") == profile and
             record.get("result") == "PASS" and record.get("publication_authorized") is False,
             "native qualification status")
@@ -187,6 +194,9 @@ def build(args):
     payload["START-HERE.txt"] = (
         b"SSIS-Debug: aktueller unveroeffentlichter Entwicklungsstand fuer Windows.\n" +
         original_notice +
+        (b"\nCopy Column V1: separat qualifiziertes Debug-SQL-Delta auf zwoelf Windows-Kontexten.\n"
+         b"Keine vollstaendige neue Modul-, ZIP-, SSMS-, TLS- oder Linux-Hostabnahme.\n"
+         if profile == COPY_COLUMN_PROFILE else b"") +
         (b"\nProzedurdefinition V1: nativ geprueft auf Windows SQL Server 2025 CU8, CL150, lokal.\n"
          b"Aufruf und Installationsgrenzen stehen in Documentation/USP_ExplainSsisDataFlow.md im SSIS-Modul.\n"
          if profile == PROCEDURE_PROFILE else b"") +
@@ -210,6 +220,8 @@ def build(args):
         nativeQualificationSha256=sha(qualification_bytes),
         predecessorPackageSha256=sha(guard.ARCHIVE.read_bytes()),
         validationScope="Aktueller separat qualifizierter Kandidat; historische Artefakte unveraendert.")
+    if profile == COPY_COLUMN_PROFILE:
+        output_manifest['validationScope'] = 'Copy Column V1 declared native DLL delta; fresh ZIP/SSMS/TLS/Linux-host execution not claimed.'
     output_manifest["files"] = [
         {"path": path, "bytes": len(data), "sha256": sha(data)}
         for path, data in sorted(payload.items())

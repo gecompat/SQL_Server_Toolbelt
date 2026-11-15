@@ -1,6 +1,20 @@
 # SSIS-Debug ohne eigenen Build installieren
 
-## Aktueller qualifizierter Build
+## Aktueller Entwicklungsstand mit Copy Column V1
+
+[SSIS-Debug-CopyColumnV1-Install-Windows.zip](SSIS-Debug-CopyColumnV1-Install-Windows.zip)
+und die [Prüfsumme](SSIS-Debug-CopyColumnV1-Install-Windows.zip.sha256)
+enthalten den aktuellen freigegebenen Explain-Slice. Die DLL ist durch die
+[zusammengesetzte Deltaabnahme](../Tests/README.md#copy-column-v1-deltaabnahme)
+gebunden; Archivintegrität und vollständige Source-/Payloadbindung sind offline
+geprüft. Das ist keine frische native ZIP-Matrix oder neue SSMS-/TLS-/Linux-
+Hostabnahme. Der aktuelle Gesamtmodulstatus bleibt teilweise validiert und
+unveröffentlicht. Für den Slice gilt die
+[Copy-Column-Anleitung](../Documentation/CopyColumnV1.md); die bestehenden
+Installationsmechanismen aus der [Installationsanleitung](../Documentation/CurrentInstallation.md)
+bleiben gleich. Die Operation ist unmittelbar `explain`, ohne Versions-Opt-in.
+
+## Historisch voll qualifizierter Build vor Copy Column
 
 Verwende [SSIS-Debug-Qualified-Install-Windows.zip](SSIS-Debug-Qualified-Install-Windows.zip)
 mit seiner [Prüfsumme](SSIS-Debug-Qualified-Install-Windows.zip.sha256).

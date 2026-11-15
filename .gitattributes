@@ -34,3 +34,11 @@
 *.ico       binary
 *.nupkg     binary
 *.snupkg    binary
+
+# Diese vier synthetischen Native-Eingaben sind bytegebunden (einschließlich
+# CRLF). Eine Checkout-Normalisierung würde ihre tatsächlich geprüften Hashes
+# ändern. Der Override betrifft keine allgemeinen DTSX-Eingabeformate.
+Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-int.dtsx -text
+Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-text.dtsx -text
+Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-int.dtsx -text
+Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-text.dtsx -text

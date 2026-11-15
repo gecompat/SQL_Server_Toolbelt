@@ -10,7 +10,7 @@ import stat
 import zipfile
 
 from new_ssis_current_package import (
-    ROOT, MODULE, LEGACY, PREDECESSOR_SHA256, PROFILES, CURRENT_PROFILE, PROCEDURE_PROFILE, PROCEDURE_NAME,
+    ROOT, MODULE, LEGACY, PREDECESSOR_SHA256, PROFILES, CURRENT_PROFILE, PROCEDURE_PROFILE, PROCEDURE_NAME, COPY_COLUMN_PROFILE,
     load_legacy_guard, require, sha, validate_native_record,
 )
 from new_ssis_standalone_tsql import read_regular_bounded, MAX_PACKAGE_BYTES, MAX_UNCOMPRESSED_BYTES
@@ -62,6 +62,10 @@ def validate(path, *, profile=CURRENT_PROFILE):
             "canonical native qualification")
     record = json.loads(canonical)
     validate_native_record(record, profile)
+    if profile == COPY_COLUMN_PROFILE:
+        for name, digest in record['source_sha256'].items():
+            require(name in payload and sha(payload[name]).lower() == digest,
+                    'Copy Column qualification source payload: ' + name)
     release_bytes = payload[MODULE + "Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json"]
     require(sha(release_bytes) == record["qualified_trust_manifest_sha256"],
             "native-qualified original trust manifest")

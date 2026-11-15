@@ -47,7 +47,7 @@ internal sealed class NullCatalog : ICatalog
     public string BindIdentifier(string database, IEnumerable<string> candidates, string name) { throw Offline(); }
     public BoundObject Resolve(string database, string schema, string name) { throw Offline(); }
 }
-internal static class ContractTests
+internal static partial class ContractTests
 {
     private static int checks;
     private static void Assert(bool value, string name) { checks++; if (!value) throw new Exception(name); }
@@ -101,7 +101,8 @@ internal static class ContractTests
     { try { var safety = Safety(new SyntheticCatalog()); var query = safety.Read("SELECT " + expression + " AS Value", "AdventureWorks"); Assert(Projection.Columns(query, safety)[0].SqlType == expected, "EXACT_SQL_TYPE_" + expected); } catch (Exception e) { throw new Exception("PROJECT_TYPE_" + expression, e); } }
     private static void Run(string[] args)
     {
-        if (args[0] == "procedure-definition")
+        if (args[0] == "copy-column") CopyColumnContract(args);
+        else if (args[0] == "procedure-definition")
         {
             byte[] package = File.ReadAllBytes(args[1]);
             var catalog = new SyntheticCatalog();
@@ -483,7 +484,7 @@ internal static class ContractTests
             var flatSource = portModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "FlatSource");
             Assert(derivedWithError.ComponentKind == "derived" && flatSource.ComponentKind == "flatfile-source", "V2_NORMAL_AND_ERROR_PORT_PROFILES");
             var derivedPortRoles = portModel.Definitions.Where(x => x.Kind == "PORT" && x.Parent == derivedWithError.Id && Json.Text(x.Attributes["direction"]) == "OUTPUT").Select(x => Json.Text(x.Attributes["portRole"])).OrderBy(x => x, StringComparer.Ordinal).ToArray();
-            Assert(derivedPortRoles.SequenceEqual(new[] { "ERROR", "NORMAL" }), "V2_PORT_ROLE_FROM_FLAG_AND_RENAMED_NAME");
+            Assert(derivedPortRoles.SequenceEqual(new[] { "ERROR", "REGULAR" }), "V2_PORT_ROLE_FROM_FLAG_AND_RENAMED_NAME");
             byte[] badDerivedSync = Change(qualifiedPorts, d => d.Descendants("component").Single(x => (string)x.Attribute("name") == "Derived").Element("outputs").Element("output").SetAttributeValue("synchronousInputId", "not-the-input"));
             var badSyncModel = PackageDocument.Read(badDerivedSync, null, true);
             Assert(badSyncModel.Definitions.Single(x => x.Kind == "COMPONENT" && x.Name == "Derived").ComponentKind == "unsupported", "V2_BAD_SYNC_MAPPING_REJECTED");
