@@ -54,8 +54,8 @@ def main():
     module = importlib.import_module("test_prepare_release")
     suite = unittest.defaultTestLoader.loadTestsFromModule(module)
     unique, discovered, removed = unique_checks(suite, module.CsvMetadataTests)
-    for module_name in ("test_evidence_sources", "test_current_qualification_overview", "test_ssis_copy_column", "test_ssis_copy_column_host", "test_ssis_copy_column_delivery", "test_ssis_copy_column_delivery_evidence", "test_ssis_copy_column_ssms", "test_ssis_copy_column_ssms_evidence",
-                        "test_worker_terminal_qualification", "test_constructor_caller_contract",
+    for module_name in ("test_evidence_sources", "test_current_qualification_overview", "test_ssis_copy_column", "test_ssis_copy_column_host", "test_ssis_copy_column_delivery", "test_ssis_copy_column_delivery_evidence", "test_ssis_copy_column_ssms", "test_ssis_copy_column_ssms_evidence", "test_ssis_copy_column_functional",
+                        "test_ssis_copy_column_functional_evidence", "test_worker_terminal_qualification", "test_constructor_caller_contract",
                         "test_copy_targets_contract", "test_json_schema_target_scope", "test_zip_archive_limit", "test_zip_entry_limits",
                         "test_constructor_client_metadata", "test_constructor_aggregate_caller", "test_geo129_contract",
                         "test_constructor_acl_contract", "test_table_clone_planner_contract",

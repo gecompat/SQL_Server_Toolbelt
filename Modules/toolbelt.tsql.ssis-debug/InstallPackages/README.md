@@ -10,8 +10,11 @@ gebunden; Archivintegrität und vollständige Source-/Payloadbindung sind offlin
 geprüft. Die [native ZIP-Liefermatrix](../../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md)
 belegt nun Archivinstallation und Lebenszyklus auf zwölf Windows-/CL-/Modus-
 kontexten mit 96 Assertions und zwölf frischen Audits. Die gültigen Fach-/API-
-Nachweise werden separat übernommen; daraus entsteht keine neue vollständige
-funktionale ZIP-/SSMS-/TLS-/Modulabnahme. Der [aktuelle Windows-/Linux-Modellhost](../Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
+Nachweise werden separat übernommen. Die zusätzliche
+[vollständige funktionale ZIP-/Prozedur-/Rechtematrix](../../../Releases/1.0.0/SSIS-COPY-COLUMN-FUNCTIONAL-ZIP-QUALIFICATION.md)
+besteht auf denselben zwölf Kontexten mit 15.204 Assertions und zwölf frischen
+Audits. Beide Records bleiben getrennt; kein neuer TLS- oder Modulgesamt-PASS.
+Der [aktuelle Windows-/Linux-Modellhost](../Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
 ist eigenständig belegt. Gesamtmodul weiterhin teilweise validiert und
 unveröffentlicht. Der [neue sichtbare Windows-/SSMS-Gesamtfall](../Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
 mit demselben Archiv besteht separat einschließlich Unicode-Kopie, nativer

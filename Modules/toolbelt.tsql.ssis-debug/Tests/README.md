@@ -66,6 +66,39 @@ Neun Zulassungs- und neun Evidenzgegenproben schützen diese Zuordnung.
 Dieser funktionale Clientnachweis ersetzt keine neue vollständige funktionale
 ZIP-/Prozedur-/Rechtematrix, strikte TLS- oder Modulgesamtabnahme.
 
+## Vollständige funktionale aktuelle ZIP-Abnahme
+
+Der [Record](Qualification/CopyColumn.Functional.20261115.json) und der
+[Bericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-FUNCTIONAL-ZIP-QUALIFICATION.md)
+belegen zwölf neue vollständige Fälle auf Windows SQL2019/CU32 CL150,
+SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, jeweils lokal und zentral.
+15.204 Assertions, zwölf Koordinatoren `PASS_CLEANED` und zwölf frische
+journalgebundene Audits bestanden. Alle 24 DBs und zwölf temporären Logins
+sind entfernt; Konfiguration/Trust und andere Verbraucher bleiben erhalten.
+Die konkrete Rechteausnahme wurde am 2026-11-15 erteilt. Der ursprüngliche
+24-Aufrufe-/24-DB-/180-Minuten-Rahmen ist ohne Fehler oder Retry geschlossen.
+Dies ersetzt keine neue strikte TLS- oder Modulgesamtabnahme.
+
+Der [funktionale Archivadapter](Runtime/Invoke-CopyColumnFunctionalLab.ps1)
+bindet dasselbe Copy-Column-Archiv und dessen vollständige Produktquellen an
+die unveränderten Fach-/API-/Prozedur-/Rechte-/Lifecycle-Orakel der bisherigen
+kombinierten Methode. Die [SQL-freien Gegenproben](../../../Tests/Release/test_ssis_copy_column_functional.py)
+prüfen Archiv- und Quellenbindung, vollständige Methodeneingaben, die feste
+Zwölf-Kontexte-Liste und den erhaltenen Lowpriv-Abschlussaudit. 15 Zulassungs-
+und 14 zusätzliche Evidenzgegenproben schützen die aktuelle Nachweiszuordnung.
+
+Der private Aufrufer benötigt eine konkrete Freigabe für die temporären
+Testidentitäten und ihre gezielten Rechte; ein Planfeld erteilt diese nicht.
+Er reserviert Lauf und frischen Audit gemeinsam und führt das gemeinsame
+180-Minuten-Fenster, höchstens 24 Aufrufe und 24 eigene Datenbanken ohne
+Wiederholung. Ein vollständiger Fall verwendet zwei Datenbanken, auch lokal.
+`ValidateOnly` prüft die Zulassung ohne SQL. `DescribeOnly` prüft zusätzlich
+die tatsächliche Komposition des Run-Pfads, ebenfalls ohne SQL; der Audit-Pfad
+wird nicht über `DescribeOnly` ausgeführt. Ein gemeinsames 900-Sekunden-Fenster
+mit 60 Sekunden Cleanup bleibt im Koordinator bestehen. Ein Fehler oder die
+Abbruchgrenze beendet weitere Tests; nicht gestartete Kontexte bleiben offen.
+Die geschlossenen früheren Testfenster und deren Fehler werden nicht erneuert.
+
 <a id="gesamtabnahme-des-korrigierten-builds"></a>
 
 ## Bisherige Gesamtabnahme des Builds vor Copy Column
@@ -1263,8 +1296,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: sichtbarer Windows-SSMS-Gesamtfall am aktuellen Copy-Column-Archiv`
-- Scope: PASS_FOR_DECLARED_SCOPE: Windows SQL2025/CU8 CL150 lokal, Windows-NTLM, ausgewaehltes Labziel und verschluesselte funktionale Verbindung. Oeffentliche Erst-/Wiederholungsinstallation, aktuelle API, echte Unicode-Zellenkopie mit184441 normalisierten UTF16-Einheiten, native SQLCMD-Stopprobe und vollstaendiges Script mit2 Ergebniszeilen und Phase2-Receipt. Koordinator PASS_CLEANED17, frischer finaljournalgebundener Windows-Audit PASS, eigeneDB/SSMS entfernt und Konfiguration/Trust wiederhergestellt, andereVerbraucher unveraendert. Benutzerhilfe nurAnmeldung/Gridoptionen;4GUI-Ausfuehrungen durchAgent. Rahmen2Aufrufe/1DB/4GUI/45Minuten geschlossen, keine nativenFehler/Wiederholung. Gueltige Delta-/Host-/Archivnachweise uebernommen; keine neue vollstaendige funktionale ZIP-/TLS-/Modulabnahme.
+- Nachweis: `local: vollstaendige funktionale Copy-Column-ZIP-Matrix mit konkreter Rechteausnahme`
+- Scope: PASS_FOR_DECLARED_SCOPE: zwoelf Windows-/CL-/Moduskontexte SQL2019CU32 CL150, SQL2022CU26 CL150/160, SQL2025CU8 CL150/160/170 lokal/zentral. 15204 Assertions:96 Archiv,12444 funktional,2664 Prozedur; zwoelf PASS_CLEANED-Koordinatoren und frische finaljournalgebundene Audits. Alle24DBs/12Logins entfernt, eigene Benutzer mit eigenem Scope entfernt; Konfiguration/Trust/andere Verbraucher erhalten. Konkrete Benutzerfreigabe2026-11-15 fuer begrenzte API-/Prozedurrechte, keine Serverrechte/Bestandsidentitaetsaenderung. Rahmen24Aufrufe/24DBs/12Logins/180Minuten geschlossen, kein nativerFehler/Retry. Gueltige Framework-/Copy-/Host-/SSMS-Belege erhalten, kein neues striktesTLS/Mapping-/Modulgesamt-PASS oder Veroeffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
