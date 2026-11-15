@@ -66,6 +66,15 @@ Die zwei vorbereitenden Linux-Fehler bleiben erhalten; kein alter Gesamtfall
 wird aufgewertet. Dies ist keine neue Klassenfreigabe und kein vollständiger
 neuer ZIP-/SSMS-/TLS-/Modul-PASS. Weitere Klassen bleiben Einzelverträgen vorbehalten.
 
+## Native ZIP-Liefermatrix vom 2026-11-15
+
+Die [begrenzte Liefermatrix](../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md)
+schließt Archivinstallation und Lebenszyklus des aktuellen Copy-ZIPs auf zwölf
+Windows-/CL-/Moduskontexten: 96 neue Assertions, zwölf frische Audits, alle eigenen
+DBs entfernt. Fach-/API-Nachweise wiederverwendet; keine neuen Rechte oder
+Identitäten. Ein erster Fehler vor SQL bleibt erhalten. Kein neuer vollständiger
+funktionaler ZIP-/SSMS-/TLS-/Modul-PASS und keine neue Klassenfreigabe.
+
 ## Quellen und Repository-Verträge
 
 - [Aktueller SSIS-Debug-Vertrag](../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)

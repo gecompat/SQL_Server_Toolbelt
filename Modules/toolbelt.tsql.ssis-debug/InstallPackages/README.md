@@ -7,8 +7,12 @@ und die [Prüfsumme](SSIS-Debug-CopyColumnV1-Install-Windows.zip.sha256)
 enthalten den aktuellen freigegebenen Explain-Slice. Die DLL ist durch die
 [zusammengesetzte Deltaabnahme](../Tests/README.md#copy-column-v1-deltaabnahme)
 gebunden; Archivintegrität und vollständige Source-/Payloadbindung sind offline
-geprüft. Das ist keine frische native ZIP-Matrix oder neue SSMS-/TLS-/Linux-
-Hostabnahme. Der aktuelle Gesamtmodulstatus bleibt teilweise validiert und
+geprüft. Die [native ZIP-Liefermatrix](../../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md)
+belegt nun Archivinstallation und Lebenszyklus auf zwölf Windows-/CL-/Modus-
+kontexten mit 96 Assertions und zwölf frischen Audits. Die gültigen Fach-/API-
+Nachweise werden separat übernommen; daraus entsteht keine neue vollständige
+funktionale ZIP-/SSMS-/TLS-/Modulabnahme. Der [aktuelle Windows-/Linux-Modellhost](../Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
+ist eigenständig belegt. Gesamtmodul weiterhin teilweise validiert und
 unveröffentlicht. Für den Slice gilt die
 [Copy-Column-Anleitung](../Documentation/CopyColumnV1.md); die bestehenden
 Installationsmechanismen aus der [Installationsanleitung](../Documentation/CurrentInstallation.md)

@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: Copy-Column-Explain-/Prozedurguard-Delta und aktueller externer Modellhost separat belegt. Frühere Gesamtabnahmen bleiben historisch; keine vollständige neue ZIP-/SSMS-/TLS-/Modulabnahme."
+  windows: "partially validated: Copy-Column-Explain-/Prozedurguard-Delta, aktueller Modellhost und native Archivinstallations-/Lebenszyklusmatrix separat belegt. Frühere Gesamtabnahmen bleiben historisch; keine neue vollständige funktionale ZIP-/SSMS-/TLS-/Modulabnahme."
   linux: "not applicable für SQL CLR: UNSAFE wird nicht unterstützt. Der externe portable Modellhost ist separat auf Linux qualifiziert."
 providers:
   - id: clr-ssis-debug
@@ -89,6 +89,7 @@ documentation:
     - "Tests/InstallerTrust/README.md"
     - "Tests/WindowsClientRecovery/README.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md"
+    - "../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md"
 contracts:
   ssis_components: "2.0.0"
   usp: "1.0"
@@ -275,4 +276,9 @@ validation_evidence:
   - date: "2026-11-15"
     workflow: "local: aktueller Copy-Column-Modellhost auf Windows und Linux"
     scope: "PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS."
+    result: "success"
+
+  - date: "2026-11-15"
+    workflow: "local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits"
+    scope: "PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS."
     result: "success"

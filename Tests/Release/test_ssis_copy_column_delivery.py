@@ -1,6 +1,8 @@
 """SQL-freie Zulassungsgegenproben für den eigenen ZIP-Lieferumfang."""
 from pathlib import Path
 import copy
+import base64
+import os
 from datetime import datetime,timedelta,timezone
 import hashlib
 import json
@@ -62,12 +64,22 @@ class DeliveryAdmissionTests(unittest.TestCase):
                   'packageManifestSha256':hashlib.sha256((cls.package/'PACKAGE-MANIFEST.json').read_bytes()).hexdigest().upper(),
                   'providerSha512':record['qualified_assembly_sha512'].upper(),'contractSha256':'0'*64}
 
-    def invoke(self,record=None,index=0,describe=False):
+    def invoke(self,record=None,index=0,describe=False,legacy_encoding=False):
         path=self.stage/'test-runset.json';path.write_text(json.dumps(record or self.base),encoding='utf-8')
-        args=[shutil.which('pwsh'),'-NoProfile','-File',str(ROOT/DRIVER),'-RunsetPath',str(path),
-              '-ExpectedRunsetSha256',hashlib.sha256(path.read_bytes()).hexdigest().upper(),'-CaseIndex',str(index)]
-        args+=['-DescribeOnly'] if describe else ['-ValidateOnly']
-        return subprocess.run(args,capture_output=True,text=True,encoding='utf-8',timeout=30)
+        # Andere Frameworktests können die geerbte Windows-Konsolencodepage
+        # ändern. Der eigene Reader bekommt explizit UTF-8, unabhängig davon.
+        script=("[Console]::OutputEncoding=[Text.Encoding]::GetEncoding(850);\n" if legacy_encoding else '')
+        script+="""[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
+$call=@{RunsetPath=$env:TB_DELIVERY_RUNSET;ExpectedRunsetSha256=$env:TB_DELIVERY_SUM;CaseIndex=[int]$env:TB_DELIVERY_INDEX}
+if($env:TB_DELIVERY_DESCRIBE -eq '1'){$call.DescribeOnly=$true}else{$call.ValidateOnly=$true}
+& $env:TB_DELIVERY_DRIVER @call
+"""
+        env=dict(os.environ,TB_DELIVERY_DRIVER=str(ROOT/DRIVER),TB_DELIVERY_RUNSET=str(path),
+                 TB_DELIVERY_SUM=hashlib.sha256(path.read_bytes()).hexdigest().upper(),
+                 TB_DELIVERY_INDEX=str(index),TB_DELIVERY_DESCRIBE='1' if describe else '0')
+        encoded=base64.b64encode(script.encode('utf-16le')).decode('ascii')
+        return subprocess.run([shutil.which('pwsh'),'-NoProfile','-EncodedCommand',encoded],
+                              capture_output=True,text=True,encoding='utf-8',env=env,timeout=30)
 
     def reject(self,change,code):
         r=copy.deepcopy(self.base);change(r);p=self.invoke(r)
@@ -112,6 +124,12 @@ class DeliveryAdmissionTests(unittest.TestCase):
 
     def test_unqualified_dll_cannot_be_substituted(self):
         self.reject(lambda r:r.update(providerSha512='0'*128),'SSIS_COPY_DELIVERY_QUALIFIED_ARTIFACT')
+
+    def test_utf8_description_after_legacy_console_encoding(self):
+        p=self.invoke(describe=True,legacy_encoding=True)
+        self.assertEqual(p.returncode,0,p.stderr)
+        self.assertIn('Änderungen',p.stdout)
+        self.assertEqual(p.stdout.count('Invoke-PackageInstallCases.ps1'),1)
 
     def test_bound_shape_preserves_archive_checker_and_removes_old_api(self):
         p=self.invoke(describe=True);self.assertEqual(p.returncode,0,p.stderr)

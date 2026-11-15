@@ -35,6 +35,19 @@ nennt Reproduktion und Grenzen. Der ältere Delta-Record bleibt unverändert;
 sein damaliges `native_linux_host: not executed` wird nicht umetikettiert.
 Aktuelle ZIP-/SSMS-/TLS-Gesamtfälle bleiben separat, Modulstatus unverändert.
 
+## Aktuelle ZIP-Liefermatrix
+
+Der [Lieferrecord](Qualification/CopyColumn.Delivery.20261115.json) und der
+[Bericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md)
+belegen dasselbe aktuelle ZIP auf zwölf Windows-/CL-/Moduskontexten: 96 echte
+Archivinstallations-/Lebenszyklusassertions, zwölf frische Abschlussaudits und
+zwölf entfernte eigene DBs. Vorhandene Fach-/API-/Copy-Nachweise wurden nicht
+wiederholt. Keine neuen Principals/Grants; zentral hier direkt, kein neuer
+CrossDB-Consumer. Zehn Zulassungs- und elf Recordgegenproben bestanden.
+Der erste Journalpfadfehler vor SQL bleibt erhalten und hat keinen fiktiven
+Audit-PASS. Alle 26 Reservierungen bleiben im ursprünglichen Rahmen gezählt.
+Dies ist keine vollständige neue funktionale ZIP-/SSMS-/TLS-/Modulabnahme.
+
 <a id="gesamtabnahme-des-korrigierten-builds"></a>
 
 ## Bisherige Gesamtabnahme des Builds vor Copy Column
@@ -1232,8 +1245,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: aktueller Copy-Column-Modellhost auf Windows und Linux`
-- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS.
+- Nachweis: `local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits`
+- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

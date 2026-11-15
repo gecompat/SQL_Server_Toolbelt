@@ -484,7 +484,7 @@ python Scripts/Release/validate_ssis_ssms_gui.py
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: aktueller Copy-Column-Modellhost auf Windows und Linux`
-- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS.
+- Nachweis: `local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits`
+- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
