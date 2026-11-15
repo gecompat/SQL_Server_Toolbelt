@@ -99,8 +99,8 @@ Andere Buildquellen und Modulprofile bleiben exakt gebunden.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-14`
-- Nachweis: `local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits`
-- Scope: PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis.
+- Datum: `2026-11-15`
+- Nachweis: `local: aktueller Copy-Column-Modellhost auf Windows und Linux`
+- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

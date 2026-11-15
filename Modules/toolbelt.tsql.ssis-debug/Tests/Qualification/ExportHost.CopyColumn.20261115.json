@@ -1,0 +1,447 @@
+{
+  "contract": "ssis-copy-column-export-host-qualification/1",
+  "date": "2026-11-15",
+  "result": "PASS_FOR_DECLARED_SCOPE",
+  "case_count": 50,
+  "assertions": 610,
+  "scope": {
+    "current_model_and_cli": true,
+    "sql_executed": false,
+    "sql_clr_linux": false,
+    "full_module_qualification": false,
+    "native_ssis_runtime": false,
+    "fresh_zip_matrix": false,
+    "fresh_ssms": false,
+    "fresh_authenticated_tls": false,
+    "publication_authorized": false
+  },
+  "runtime": {
+    "version": "10.0.14",
+    "rid": "linux-x64",
+    "archive_url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz",
+    "archive_sha512": "634326028645f38731c8c4e71a68356e4ca0d6b6607139a234ab760687f742063edaf33a1f20dda615742d2dc8300ca2ff857619d51fbb38090383b71334af89",
+    "installation": "private test directory; no global installation"
+  },
+  "history": {
+    "platform_dispatches": 4,
+    "complete_platform_runs": 2,
+    "pre_profile_failed_dispatches": 2,
+    "successful_host_profile_processes": 50,
+    "windows_success_reused_without_repeat": true,
+    "private_runtime_absence_verified": true,
+    "original_failures_preserved": true,
+    "closed": true
+  },
+  "runs": [
+    {
+      "contract": "ssis-copy-column-export-host-native/1",
+      "date": "2026-11-15",
+      "platform": "Windows",
+      "result": "PASS",
+      "sql_executed": false,
+      "host_sha256": "ae8f9041482dde6cc15c94fbaa439034d3fc943462e4dde290052934a3d91c77",
+      "source_commit": "8a495ae4303e50bd7367aaa07e1d7adf422e5122",
+      "source_sha256": {
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "77396af7424dffe82b2d8aca12c6de492a36cab0312db82eb57f518fc53b13fd",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "add1dde7e429ecf3cc14ad699e540ad9c61839ae0e848c9f8e64b6757e1bae72",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_copy_column_host.py": "9106b215847b4b79673c4e34cf186ddf8969f643ec3cadfa76b56f9b39e1cc3a",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-int.dtsx": "267d72187572a67e731af6a015f96a3991af9b446d925b95b64fc8bf37bd4fa6",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-text.dtsx": "c8d2a79c217308bc255b433809eb44e4b218e533096ed77d661ce776d99fc3a0",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-int.dtsx": "9d676890d52503dd37ec81156408afec998edc5d97889e4a8c8652ead648fdd1",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-text.dtsx": "5397590e3c741d4a86145243698587ffe2e12b33c714b581ce9a0def248c930d"
+      },
+      "base": {
+        "contract": "ssis-export-host-native/1",
+        "date": "2026-11-15",
+        "platform": "Windows",
+        "result": "PASS",
+        "sql_executed": false,
+        "host_sha256": "ae8f9041482dde6cc15c94fbaa439034d3fc943462e4dde290052934a3d91c77",
+        "source_commit": "8a495ae4303e50bd7367aaa07e1d7adf422e5122",
+        "source_sha256": {
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+          "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+          "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "77396af7424dffe82b2d8aca12c6de492a36cab0312db82eb57f518fc53b13fd",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "add1dde7e429ecf3cc14ad699e540ad9c61839ae0e848c9f8e64b6757e1bae72",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738"
+        },
+        "case_count": 17,
+        "assertions": 169,
+        "cases": [
+          {
+            "name": "format6:model",
+            "exit_code": 0,
+            "assertions": 12,
+            "output_sha256": "9de0020f766c38d1d7f4ec8b4ca9e53e439d0f6bee54cc836b7cd850fe6a00b7"
+          },
+          {
+            "name": "format6:bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "8cf1db4e4333fdcc8467d815d2d9bd670790b24e80feedf45907aea3160c0488"
+          },
+          {
+            "name": "format6:iteration-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "d17e86ea58a34851e4d58aee348a7f480cc6e897f83230542bdf43cfc16576da"
+          },
+          {
+            "name": "format6:scope-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "49202461883e1c9dd46be32ae32095fa8b15aba4bc7e2a6895da76d8fa7ade81"
+          },
+          {
+            "name": "format6:pipeline-bundle",
+            "exit_code": 0,
+            "assertions": 15,
+            "output_sha256": "b32d52b505f94a49479837e560ea3d55516eb878f012da6d0b332c5ba2c15386"
+          },
+          {
+            "name": "format8:model",
+            "exit_code": 0,
+            "assertions": 12,
+            "output_sha256": "6e794dd7bb4e177573b62143faa3dda7bdabb08b5a5137f9567d77abc040c597"
+          },
+          {
+            "name": "format8:bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "84b4360bd8fbe7231fa952a4ba13ccecbcb8a6a5023ce794f3ae6cf7ad7e3751"
+          },
+          {
+            "name": "format8:iteration-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "08cef27bc79ff0f44df202aa8240abe58a95647d8a4347728e313ccb674b5531"
+          },
+          {
+            "name": "format8:scope-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "d85a587b8f9eae733b53973c2d2c7f77951658a82d77e7f1556c2c01a8360c73"
+          },
+          {
+            "name": "format8:pipeline-bundle",
+            "exit_code": 0,
+            "assertions": 15,
+            "output_sha256": "06ddc2401aafafe95f6ebd0db8b4f30b41d30bad71546882bf6c28cc5d46b159"
+          },
+          {
+            "name": "unicode-path-private-literal",
+            "exit_code": 0,
+            "assertions": 13,
+            "output_sha256": "c73bb3661b77d10fe4bc3b35689c9640e64f630556b926f45a4b3323564fb91b"
+          },
+          {
+            "name": "unknown-format",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "prohibited-dtd",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "malformed-xml",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "wrong-extension",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "missing-file",
+            "exit_code": 4,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "usage",
+            "exit_code": 2,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      },
+      "copy_cases": [
+        {
+          "name": "copy-column-6-int:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "dcb5737d026830bfb64f20aa755c8f47086ecfeb8741095888d6ba27521e9aaa"
+        },
+        {
+          "name": "copy-column-6-int:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "09d4c2ccf9a518416ab196aa63a0dd5b4ecebedbd2e39d8f279364b56609e9f8"
+        },
+        {
+          "name": "copy-column-6-text:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "b8f372b66c4401a70ac191f51cdec98b79babd0e7834380eef54c35868c7add9"
+        },
+        {
+          "name": "copy-column-6-text:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "f9a64af776dadc03554b1765d48d672359952b5856022e64a9f8665de0932f4b"
+        },
+        {
+          "name": "copy-column-8-int:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "b2435e6e622f26c4dfc4095745fa223e6e2c4c580bc22f22eaff2f3f44536081"
+        },
+        {
+          "name": "copy-column-8-int:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "df6b348d4e9eb47a982d06a6c683439197e68acee1059e504545cca75a77e0f6"
+        },
+        {
+          "name": "copy-column-8-text:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "f69ff718bdf1d21d585300c67dd94f72a6694a9385361f7cf3d5539b99dfc444"
+        },
+        {
+          "name": "copy-column-8-text:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "fc586d7ef82218534161669c553ca2d128e47e23a1e4c90339173514b48e240c"
+        }
+      ],
+      "case_count": 25,
+      "assertions": 305
+    },
+    {
+      "contract": "ssis-copy-column-export-host-native/1",
+      "date": "2026-11-15",
+      "platform": "Linux",
+      "result": "PASS",
+      "sql_executed": false,
+      "host_sha256": "ae8f9041482dde6cc15c94fbaa439034d3fc943462e4dde290052934a3d91c77",
+      "source_commit": "8a495ae4303e50bd7367aaa07e1d7adf422e5122",
+      "source_sha256": {
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+        "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "77396af7424dffe82b2d8aca12c6de492a36cab0312db82eb57f518fc53b13fd",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "add1dde7e429ecf3cc14ad699e540ad9c61839ae0e848c9f8e64b6757e1bae72",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738",
+        "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_copy_column_host.py": "9106b215847b4b79673c4e34cf186ddf8969f643ec3cadfa76b56f9b39e1cc3a",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-int.dtsx": "267d72187572a67e731af6a015f96a3991af9b446d925b95b64fc8bf37bd4fa6",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-text.dtsx": "c8d2a79c217308bc255b433809eb44e4b218e533096ed77d661ce776d99fc3a0",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-int.dtsx": "9d676890d52503dd37ec81156408afec998edc5d97889e4a8c8652ead648fdd1",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-text.dtsx": "5397590e3c741d4a86145243698587ffe2e12b33c714b581ce9a0def248c930d"
+      },
+      "base": {
+        "contract": "ssis-export-host-native/1",
+        "date": "2026-11-15",
+        "platform": "Linux",
+        "result": "PASS",
+        "sql_executed": false,
+        "host_sha256": "ae8f9041482dde6cc15c94fbaa439034d3fc943462e4dde290052934a3d91c77",
+        "source_commit": "8a495ae4303e50bd7367aaa07e1d7adf422e5122",
+        "source_sha256": {
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Tests/qualify_host.py": "a1855e1ff72f9125fe98aeefce3284f78fa876faa0f98e274d1b7ed0b5556896",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Program.cs": "5c34e002b8b96c1d63438657eabeead7e4e82036aaaa9e1d23d5f168c704650c",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj": "2043db9cff60be870a7523f40c650c115f8c9537835f5006ac91906ac9c14977",
+          "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx": "b7569fb6a1a4c97ebbac7641e5615d08c3082aeab861443a5d5171e995e866eb",
+          "Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.expected.json": "b1f89fb1ef8f1864d64710248ded8eb8b15324570135a5e2d19473d1071cd510",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "77396af7424dffe82b2d8aca12c6de492a36cab0312db82eb57f518fc53b13fd",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "add1dde7e429ecf3cc14ad699e540ad9c61839ae0e848c9f8e64b6757e1bae72",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+          "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738"
+        },
+        "case_count": 17,
+        "assertions": 169,
+        "cases": [
+          {
+            "name": "format6:model",
+            "exit_code": 0,
+            "assertions": 12,
+            "output_sha256": "9de0020f766c38d1d7f4ec8b4ca9e53e439d0f6bee54cc836b7cd850fe6a00b7"
+          },
+          {
+            "name": "format6:bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "8cf1db4e4333fdcc8467d815d2d9bd670790b24e80feedf45907aea3160c0488"
+          },
+          {
+            "name": "format6:iteration-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "d17e86ea58a34851e4d58aee348a7f480cc6e897f83230542bdf43cfc16576da"
+          },
+          {
+            "name": "format6:scope-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "49202461883e1c9dd46be32ae32095fa8b15aba4bc7e2a6895da76d8fa7ade81"
+          },
+          {
+            "name": "format6:pipeline-bundle",
+            "exit_code": 0,
+            "assertions": 15,
+            "output_sha256": "b32d52b505f94a49479837e560ea3d55516eb878f012da6d0b332c5ba2c15386"
+          },
+          {
+            "name": "format8:model",
+            "exit_code": 0,
+            "assertions": 12,
+            "output_sha256": "6e794dd7bb4e177573b62143faa3dda7bdabb08b5a5137f9567d77abc040c597"
+          },
+          {
+            "name": "format8:bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "84b4360bd8fbe7231fa952a4ba13ccecbcb8a6a5023ce794f3ae6cf7ad7e3751"
+          },
+          {
+            "name": "format8:iteration-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "08cef27bc79ff0f44df202aa8240abe58a95647d8a4347728e313ccb674b5531"
+          },
+          {
+            "name": "format8:scope-bundle",
+            "exit_code": 0,
+            "assertions": 14,
+            "output_sha256": "d85a587b8f9eae733b53973c2d2c7f77951658a82d77e7f1556c2c01a8360c73"
+          },
+          {
+            "name": "format8:pipeline-bundle",
+            "exit_code": 0,
+            "assertions": 15,
+            "output_sha256": "06ddc2401aafafe95f6ebd0db8b4f30b41d30bad71546882bf6c28cc5d46b159"
+          },
+          {
+            "name": "unicode-path-private-literal",
+            "exit_code": 0,
+            "assertions": 13,
+            "output_sha256": "c73bb3661b77d10fe4bc3b35689c9640e64f630556b926f45a4b3323564fb91b"
+          },
+          {
+            "name": "unknown-format",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "prohibited-dtd",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "malformed-xml",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "wrong-extension",
+            "exit_code": 3,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "missing-file",
+            "exit_code": 4,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "usage",
+            "exit_code": 2,
+            "assertions": 3,
+            "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ]
+      },
+      "copy_cases": [
+        {
+          "name": "copy-column-6-int:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "dcb5737d026830bfb64f20aa755c8f47086ecfeb8741095888d6ba27521e9aaa"
+        },
+        {
+          "name": "copy-column-6-int:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "09d4c2ccf9a518416ab196aa63a0dd5b4ecebedbd2e39d8f279364b56609e9f8"
+        },
+        {
+          "name": "copy-column-6-text:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "b8f372b66c4401a70ac191f51cdec98b79babd0e7834380eef54c35868c7add9"
+        },
+        {
+          "name": "copy-column-6-text:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "f9a64af776dadc03554b1765d48d672359952b5856022e64a9f8665de0932f4b"
+        },
+        {
+          "name": "copy-column-8-int:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "b2435e6e622f26c4dfc4095745fa223e6e2c4c580bc22f22eaff2f3f44536081"
+        },
+        {
+          "name": "copy-column-8-int:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "df6b348d4e9eb47a982d06a6c683439197e68acee1059e504545cca75a77e0f6"
+        },
+        {
+          "name": "copy-column-8-text:version1",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "f69ff718bdf1d21d585300c67dd94f72a6694a9385361f7cf3d5539b99dfc444"
+        },
+        {
+          "name": "copy-column-8-text:version2",
+          "exit_code": 0,
+          "assertions": 17,
+          "output_sha256": "fc586d7ef82218534161669c553ca2d128e47e23a1e4c90339173514b48e240c"
+        }
+      ],
+      "case_count": 25,
+      "assertions": 305
+    }
+  ]
+}

@@ -20,6 +20,21 @@ qualifizieren ihre ursprünglichen Builds; dieser Record ergänzt nur den
 benannten Deltaumfang. Die Originale werden am historischen Snapshot geprüft.
 Aktueller Gesamtmodulstatus: `partially validated`, `unreleased`.
 
+## Aktueller Windows-/Linux-Modellhost
+
+Der [eigene Hostrecord](Qualification/ExportHost.CopyColumn.20261115.json)
+qualifiziert den aktuellen gemeinsamen Copy-Column-Modellkern mit derselben
+portablen Hostdatei auf Windows und Linux: je 25 Fälle/305 Assertions, insgesamt
+50 Fälle/610 Assertions, identische kanonische Outputs. Acht neue Copy-Column-
+Modellfälle je Plattform ergänzen die 17 CLI-Fälle. Zwei vorbereitende Linux-
+Fehler mit null Hostprofilen bleiben erhalten; Windows wurde nicht wiederholt.
+Neun [Offlinegegenproben](../../../Tests/Release/test_ssis_copy_column_host.py)
+verhindern falsche Quellen-/Plattform-/Fallzuordnung und Scopeaufwertung.
+Der [Bericht](../../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md)
+nennt Reproduktion und Grenzen. Der ältere Delta-Record bleibt unverändert;
+sein damaliges `native_linux_host: not executed` wird nicht umetikettiert.
+Aktuelle ZIP-/SSMS-/TLS-Gesamtfälle bleiben separat, Modulstatus unverändert.
+
 <a id="gesamtabnahme-des-korrigierten-builds"></a>
 
 ## Bisherige Gesamtabnahme des Builds vor Copy Column
@@ -1216,9 +1231,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-14`
-- Nachweis: `local: Copy Column V1, Full framework, CLR/host parity and independent Windows audits`
-- Scope: PASS_FOR_COMPOSED_DELTA: 48 Explain-Profile/1104 Assertions auf zwoelf Windows-Engine-/CL-/Moduskontexten; nur der unveraenderte Explain-Zweig wird nach exakter 24-Produktdateien-Projektion anerkannt. Finaler procedure-definition-Guard separat auf SQL2025/CU8 CL170 lokal/zentral: acht Profile/acht Assertions. 29 Full-Frameworkprozesse, 232 CLR-/Hostchecks auf Windows. 28 Lauf-/Auditaufrufe, 14 eigene DBs entfernt, 14 frische Audits. Originale Builds/Fehler erhalten; kein vollstaendiger neuer Modul-/ZIP-/SSMS-/TLS-/Linux-Hostnachweis.
+- Datum: `2026-11-15`
+- Nachweis: `local: aktueller Copy-Column-Modellhost auf Windows und Linux`
+- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

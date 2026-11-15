@@ -1,12 +1,12 @@
 # SSIS built-in Klassenabdeckung und Entwicklungsplan
 
-Stand: 2026-11-13 · Status: Inventur und Erweiterungsplanung; Copy Column V1 ausdrücklich freigegeben und im Source umgesetzt; getrennte Explain-/Prozedurguard-Deltaabnahme bestanden.
+Stand: 2026-11-15 · Status: Inventur und Erweiterungsplanung; Copy Column V1 ausdrücklich freigegeben und im Source umgesetzt; getrennte Explain-/Prozedurguard-Deltaabnahme bestanden.
 
 ## Ziel und belastbare Grenze
 
 Ziel ist die möglichst breite, sauber abgegrenzte Unterstützung der eingebauten SSIS-Paketklassen in den bereits unterstützten DTSX-Formaten. „Vollständig“ bedeutet hier: jede eingebaute Klasse wird erkannt, identifiziert und mit Herkunft/Version diagnostiziert; eine Klasse wird nur dann in Debug-SQL oder eine Prozedur übersetzt, wenn ihre Semantik im Toolbelt-Vertrag implementiert und qualifiziert ist. Unbekannte, benutzerdefinierte, Drittanbieter- oder versionsfremde Klassen bleiben sichtbar und `unsupported`; sie werden niemals stillschweigend als ausführbar behandelt. Microsoft beschreibt ausdrücklich erweiterbare Custom Tasks und Custom Transformations, daher gibt es keinen endlichen universellen Plugin-Katalog.
 
-Der aktuelle SSIS-Debug-Vertrag gilt für die bestehende USP und die unterstützten DTSX-Profile. Die fünf genehmigten Komponenten Derived Column, Conditional Split, Row Count sowie Flat-File-Source und -Destination sind im aktuellen Debugumfang enthalten; der aktuelle 40-Parameter-Build ist laut Prüfmatrix für diesen Vertrag validiert und unveröffentlicht. Die historische V2-Evidenz bleibt an ihre alten Artefakte gebunden. Für diese fünf Komponenten ist keine Umsetzung von vorn zu beginnen oder geschlossene Qualifikation zu wiederholen. Die Freigabe erteilt keine pauschale Genehmigung für SQL-seitige Ausführung externer Effekte, beliebige Tasks oder neue SQL-Objekte.
+Der aktuelle SSIS-Debug-Vertrag gilt für die bestehende USP und die unterstützten DTSX-Profile. Die fünf genehmigten Komponenten Derived Column, Conditional Split, Row Count sowie Flat-File-Source und -Destination sind im aktuellen Debugumfang enthalten; die vollständige Abnahme des 40-Parameter-Builds vor Copy Column bleibt historisch gebunden. Für den erweiterten aktuellen Stand gelten die getrennte Copy-Column-Delta- und Modellhostabnahme; das Gesamtmodul bleibt teilweise validiert und unveröffentlicht. Die historische V2-Evidenz bleibt an ihre alten Artefakte gebunden. Für diese fünf Komponenten ist keine Umsetzung von vorn zu beginnen oder geschlossene Qualifikation zu wiederholen. Die Freigabe erteilt keine pauschale Genehmigung für SQL-seitige Ausführung externer Effekte, beliebige Tasks oder neue SQL-Objekte.
 
 ## Klasseninventur
 
@@ -56,6 +56,15 @@ Diese Festlegungen bestimmen die Reihenfolge, ersetzen aber nicht die funktionsb
 - **Alternativen:** nur Metadaten diagnostizieren (sicher, aber unnötig eng bei einfacher relationaler Identität); oder gleich lokale Host-Ausführung einbeziehen (zu großer, anderer Daten-/Laufzeitvertrag). Empfohlener erster Slice ist Debug-SQL; lokale Ausführung folgt als eigene Stufe.
 - **Risiken/Abnahme:** SQL-Aliasreihenfolge und Case-/Collationregeln, Alias-Kollisionen, leere/mehrfache Kopiermappings, unbekannte Versionen, Downstream-Lineage und unveränderte Quellspalte mit synthetischen Fixtures gegen SSIS-oracle vergleichen. Resultat als `recognized`, `translated`, `complete` und `executable` getrennt klassifizieren; Debug-SQLs bestehende Executable-Regel beibehalten.
 - **Benutzerfreigabe 2026-11-13:** „Ja, Copy Column V1 freigeben.“ Die Freigabe umfasst genau diesen Slice; Source implementiert; Build und [Deltaabnahme](../Releases/1.0.0/SSIS-COPY-COLUMN-V1-QUALIFICATION.md) bestanden. Vollständige neue Liefer-/Client-/Transportabnahmen bleiben separat.
+
+## Ergänzung der Modellhostqualifikation vom 2026-11-15
+
+Der [aktuelle Windows-/Linux-Hostbericht](../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md)
+schließt die externe Plattformgrenze des geänderten Copy-Column-Modellkerns:
+50 CLI-/Modellfälle, 610 Assertions und identische portable Hostbytes/Outputs.
+Die zwei vorbereitenden Linux-Fehler bleiben erhalten; kein alter Gesamtfall
+wird aufgewertet. Dies ist keine neue Klassenfreigabe und kein vollständiger
+neuer ZIP-/SSMS-/TLS-/Modul-PASS. Weitere Klassen bleiben Einzelverträgen vorbehalten.
 
 ## Quellen und Repository-Verträge
 
