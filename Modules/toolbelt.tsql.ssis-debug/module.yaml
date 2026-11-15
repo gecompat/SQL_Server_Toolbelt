@@ -107,6 +107,7 @@ tests:
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/Invoke-Contract.ps1"
   copy_column: "Tests/Runtime/Invoke-CopyColumnLab.ps1"
+  copy_column_ansi_security: "Tests/Runtime/Invoke-CopyColumnAnsiLab.ps1"
   runtime: "Tests/Runtime/Invoke-LabContract.ps1"
 validation_evidence:
   - date: "2026-10-16"

@@ -1,0 +1,121 @@
+{
+  "kind": "ssis_independent_copy_column_security_acceptance",
+  "date": "2026-11-15",
+  "result": "SOURCE_ACCEPTED",
+  "review_kind": "static_security_contract",
+  "independent_reviewer": true,
+  "reviewer": "Codex independent review agent",
+  "reviewer_agents": 1,
+  "changed_input_followups": 2,
+  "runtime_executed_by_reviewer": false,
+  "provider": {
+    "sha256": "04f2e29becfa551a985537fbc74447984cde416eb8ffde17afbd8e2453a7360f",
+    "sha512": "b10c498e58a2fc1dddb2d7e7cab3a823523c870cdc3f8378f030d59182664d7cf2e017193e52b5cb24ff50f21973162daf037784ec3ea9a409bbb9f56b04b40b"
+  },
+  "scope": {
+    "current_product_source": true,
+    "bounded_tls_method_source": true,
+    "native_tls_result": false,
+    "full_module_qualification": false,
+    "publication_authorized": false
+  },
+  "open_findings": [],
+  "resolved_findings": [
+    {
+      "id": "F-C7-01",
+      "severity": "P1",
+      "status": "closed",
+      "fix": "Bootstrap interpretiert dieselben gehaltenen und geprüften Empfängerbytes; Aktivierung und Konfiguration werden aus gehaltenen Bytes gelesen."
+    },
+    {
+      "id": "F-C7-02",
+      "severity": "P2",
+      "status": "closed",
+      "fix": "Cancel, Lease und Deadline unmittelbar vor dem exklusiven Dispatch erneut prüfen."
+    },
+    {
+      "id": "F-C7-03",
+      "severity": "P2",
+      "status": "closed",
+      "fix": "Empfänger und Lab-Komposition halten die absolute 45-Minuten-Grenze ein."
+    },
+    {
+      "id": "F-C7-04",
+      "severity": "P2",
+      "status": "closed",
+      "fix": "Copy Column bindet ANSI-Codepage an kataloggeprüfte Quell-Lineage und propagiert sie durch Copy-Ketten."
+    }
+  ],
+  "historical_reuse": {
+    "record": "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Security.CurrentBuild.20261104.json",
+    "sha256": "c139bf98e9d1bc7f5f04e8e11a0f6a62a197c9a1c8c5dc680401b40cb81129df",
+    "unchanged_reviewed_sources": 12,
+    "original_records_preserved": true
+  },
+  "source_sha256": {
+    "Documentation/Standards/USP_CONTRACT.md": "93bc7e9fe5fbadb08c39ae4c2c2e76787dd0e0be50cd90e1ec0c2b5bbac1e307",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "e817f62a0f59596d24db76751109b6389a8b444f593ccd91395cf8c5a26f22d5",
+    "Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs": "0635250f5a30064985d50a1e982f6d66fe022769ae20d72885e9b24505e36b52",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/AssemblyInfo.cs": "5aaee66cc7c97b930b04a8f8e890bac2f93f705433dc13057f1eb836402fe23b",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Bindings.cs": "5f3bf698b46794e1250a101c2534baed5e4f323d0b960afb3419843b516755f8",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/CacheSql.cs": "1669cf2650f07672facde885f8fb1add54d24ddb66dcb6e11b5cfce584cdafe3",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Core.cs": "f4cceb4b9a02cdf407a95c40509a3fa20f79158d987ef90d6fb93f5fbe52da60",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/DependencyPins.Generated.cs": "b4f66a94d541c09793fc89e9e867430d24d6e1458019656fa4ec73780b6233a9",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Engine.cs": "ca250998a50921ab72669191668a137fc79d16f9e8319070ce12f152d815b4d7",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Expressions.cs": "16d2744e9d0650811250fe73e635a8308ef0c587edea47ddb8ee0962563f8b87",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/HelpContract.Generated.cs": "c1862cf78dae30238a29d405de8ae78ac5f36551145257f1b957a92024b36162",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/PackageModel.cs": "060e80f7ab38668087b0cea71d8b284dd7339284c5d6681d73de00978bf9c925",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/ProcedureDefinition.cs": "5b447bed6cbd4cf01f21af52e6d4a80866d132761c1d9335ee0fdfb70104affa",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Projection.cs": "273b6b03f0817031ccf3369ebb40e460bea67f529d430efa9757b50045467aa2",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/ResourceOptions.cs": "b04f57cc6bb92ad9c9242d27f47c6276dc12be0ea776f5ead7431c14c02bfd51",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlAdapter.cs": "c906863328d45fb8b48cd7ff8db62c4f0552577303d919a67823c28a2bc09ae4",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlParameters.cs": "ee2da60ea69aee4fc2c400bcbd258cd64ff414cea0c15dd50b8e785634d9c24e",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlSafety.cs": "eeaf459ecc8d2daa1411bc087551f188823044d5df3b34f58d20c6b5619573ef",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/SqlTypeRules.cs": "a0d31352f0e2aaa926eb2fcc417dbe9c90391915897707e36518fc9c63a8ade2",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Toolbelt.Tsql.SsisDebug.csproj": "630bd0d2d9a10efeaf5e4bb1d4ec9a21094be1616461e9087e9070564848fa0b",
+    "Modules/toolbelt.tsql.ssis-debug/Clr/Translator.cs": "4fc4de83c446b5e3d562bc990ca252ae6741aa1d1d26b012f959fc6312ecbd85",
+    "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json": "16381baf09d2f384ea10dc0c80497574725c95304b18a56a846a7d8f56265898",
+    "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ComponentProfiles.cs": "77396af7424dffe82b2d8aca12c6de492a36cab0312db82eb57f518fc53b13fd",
+    "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ExecutionScopes.cs": "ce659b9871ee08b6ee158d0e720c6105a2e6f9d7052fbf96a096b876634e4f2d",
+    "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PackageDocument.cs": "add1dde7e429ecf3cc14ad699e540ad9c61839ae0e848c9f8e64b6757e1bae72",
+    "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/PipelineIdentities.cs": "f9e890e42124283a7b1392e4bd5c53f24a6dee72c74c43fcecb7ed5717a3e964",
+    "Modules/toolbelt.tsql.ssis-debug/Exchange/Core/ResourceLimits.cs": "d93992c0fe8ea1738bcd3db8802a486ec1a2fd466aa93bf7057260abfbd05738",
+    "Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql": "d9f26e4b2f967613c9d5a25b6d1a1418d0359819b21186905180fb50ef7b972f",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/ContractTests.cs": "304b9a359b1a40a8b2e5115433a56e03cf9c7702d17d7fa90c2c601883ea4e03",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/CopyColumnTests.cs": "95646d9092f7c4f9e7997969e911d1eccafa511f16bdbc2df04ad3fcf815aed7",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-Contract.ps1": "30c62e451e7b2ad0a0a4a20eeb089d41c7bcd3ba0a6c4e8116e127288f20a72b",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Audit.ps1": "1b8d9e877d39d6a52174922016dde89f500d0506807a9fabbb57f6606350d4cc",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ComponentsV2Lab.ps1": "2ea3f7296501b393721f98f86b82cf1f7d7710df2c6236059696317cc156b8f2",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CopyColumnAnsiCases.ps1": "b4252aa3784f2a9cf8a51e3a8a4f2db04e56509ef754e02973b1ad2f1f575ef7",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CopyColumnAnsiLab.ps1": "6be76966493fc082e3538f53bfd5539d5399b2e4e5e9bab5257820945de865b8",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1": "30dd642419bc5841f1bea0bfabf54052446ce6c5310ca2d5937230dc65c73dd1",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1": "4411a966484eaf55fb05778b5e26829d7afed94d6028cb6f77323f92c5c7e570",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846"
+  },
+  "bounded_tls_method": {
+    "repository": "gecompat/SQL_Server_Lab",
+    "path": "Tests/Integration/Invoke-ToolbeltSsisCopyColumnTlsAcceptance.ps1",
+    "sha256": "65503e7c01ffc07bd5645fc303998bd93c23f055c34fa4a0f92f8181478c6b99",
+    "private_bootstrap_originals_retained": true,
+    "review_result": "SOURCE_ACCEPTED"
+  },
+  "lab_context_revision_review": {
+    "result": "SOURCE_ACCEPTED",
+    "finding": "F-LAB-CTX-01",
+    "status": "closed_source_side",
+    "repository": "gecompat/SQL_Server_Lab",
+    "source_sha256": {
+      "Private/AuthenticatedTlsAuthority.ps1": "aa4db12b0ba8a4571f7af928eb8f10a742001d8856f5f604ed392a05c1d1c7ac",
+      "Tests/Static/Invoke-AuthenticatedTlsContextSelectionChecks.ps1": "28d1e585f17637c6a23bb60b668ce71e6701f460f8613b2c32d4e5c373d9ac8e"
+    },
+    "native_revision_committed": false,
+    "native_tls_executed": false,
+    "registry_freshness_floor_preserved": true
+  },
+  "limitations": [
+    "Keine Testausführung durch den Reviewer.",
+    "Der native frische strikte TLS-/Consumer-Gesamtfall benötigt einen eigenen tatsächlichen Koordinator-PASS und frische Audits.",
+    "Keine Veröffentlichung, keine vollständige Modul- oder SSIS-Runtime-Paritätsbehauptung."
+  ]
+}

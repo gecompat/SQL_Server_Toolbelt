@@ -91,5 +91,7 @@ def validate(record=None,*,check_files=True):
 
 
 if __name__=='__main__':
-    validate()
+    from ssis_historical_scope import copy_column_v1_scope
+    with copy_column_v1_scope(ROOT):
+        validate()
     print('SSIS_COPY_COLUMN_EXPORT_HOST_SCOPE_PASS; 50cases/610assertions; no SQL or module-total claim')

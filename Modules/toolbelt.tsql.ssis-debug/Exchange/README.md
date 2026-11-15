@@ -1,5 +1,9 @@
 # Neutrales SSIS Paketmodell exportieren
 
+Die Copy-Column-Hostabnahme auf dieser Seite bindet den historischen C7-Build.
+Für die neuere ANSI-Lineage-Korrektur des Entwicklungsquellsatzes gilt der
+[getrennte Abnahmestand](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md).
+
 Der freigegebene Austauschvertrag mit SQL Server Analyze ergänzt den bestehenden
 Debuggenerator um einen externen Exporthost. Beide verwenden dieselben
 typisierten Definitionen und Beziehungen aus `Core/PackageDocument.cs` sowie

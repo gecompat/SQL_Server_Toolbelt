@@ -30,6 +30,10 @@ ist implementiert und durch die [zusammengesetzte Deltaabnahme](../../Releases/1
   kanonischen positiven Output-Lineagewert,
   einen nichtleeren case-insensitiv eindeutigen Namen sowie exakt denselben
   abgeleiteten SQL-Typ, NULL-Wert und Collationkontext wie die Quelle.
+  Bei ANSI-Lineage müssen die XML-Codepages beider Copy-Column-Ports zusätzlich
+  zur kataloggeprüften Quellcodepage passen. Gleiche XML-Angaben allein genügen
+  nicht. Fehlende oder abweichende vertrauenswürdige Codepage-Lineage blockiert
+  den Pfad mit `unsupported_component`; keine implizite Encodingannahme.
 - Die Übersetzung projiziert die Quellspalte als neue interne SQL-Ausgabespalte.
   Es findet weder Typkonvertierung noch Wertmutation statt. Neue Output-IDs,
   fehlende oder doppelte Quellen, Alias-/Lineagekonflikte, unerwartete Ports,

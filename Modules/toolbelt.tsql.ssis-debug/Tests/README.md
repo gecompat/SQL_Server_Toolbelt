@@ -3,6 +3,11 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+Die nachfolgenden Copy-Column-V1-, Host-, ZIP- und SSMS-Records binden den
+historischen C7-Build. Der neuere Entwicklungsquellsatz korrigiert die
+ANSI-Lineage; seine [gezielte Abnahme und offenen Gates](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
+werden separat geführt. Die alten Records bleiben unverändert.
+
 ## Copy Column V1 Deltaabnahme
 
 Der [Record](Qualification/CopyColumn.V1.20261114.json) und der

@@ -7,13 +7,19 @@ Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 
 ## Aktueller Entwicklungsstand mit Copy Column
 
-Für den zusätzlichen freigegebenen Copy-Column-Explain-Slice verwende das
+Der Quellsatz enthält zusätzlich eine ANSI-Lineage-Sicherheitskorrektur.
+Die folgenden ZIP-Nachweise gelten für den unveränderten Vorgängerbuild C7.
+Die Korrektur ist darin nicht enthalten; ihr eigener
+[Abnahmestand](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
+führt neue Prüfungen und offene Gates getrennt.
+
+Für die historische C7-Lieferung des Copy-Column-Explain-Slices verwende das
 [Copy-Column-V1-ZIP](../InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1).
 Delta, Windows-/Linux-Modellhost, tatsächliche Archivinstallation und
 Lebenszyklus sowie ein frischer sichtbarer Windows-/SSMS-Gesamtfall besitzen
-[getrennte aktuelle Nachweise](../Tests/README.md#copy-column-v1-deltaabnahme).
+[getrennte C7-Nachweise](../Tests/README.md#copy-column-v1-deltaabnahme).
 Die [vollständige funktionale ZIP-/Prozedur-/Rechtematrix](../Tests/README.md#vollständige-funktionale-aktuelle-zip-abnahme)
-dieses erweiterten Builds besteht separat auf zwölf Windows-Kontexten mit
+dieses C7-Builds besteht separat auf zwölf Windows-Kontexten mit
 15.204 Assertions und zwölf frischen Audits. Eine neue strikte TLS-Gesamtabnahme
 ist damit nicht belegt. Das Modul bleibt teilweise
 validiert und unveröffentlicht; Installationsmechanismen bleiben gleich.

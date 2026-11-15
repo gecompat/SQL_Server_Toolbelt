@@ -1,5 +1,10 @@
 # SSIS Data Flow Debug SELECT
 
+Der Entwicklungsquellsatz enthält eine ANSI-Lineage-Sicherheitskorrektur für
+Copy Column. Die folgenden archivgebundenen Copy-Column-Nachweise gehören zum
+Vorgängerbuild C7. Der [aktuelle Korrekturstand](../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
+trennt die neuen Prüfungen davon; eine vollständige neue Modulabnahme ist offen.
+
 Der aktuelle Entwicklungsvertrag erzeugt aus DTSX-Bytes eine bearbeitbare
 JSON-Vorlage und lesende Debug-Scripts für SQL-Server-Datenflüsse. Für ein
 vollständig auflösbares Ziel bündelt `DebugScript` die benötigten
@@ -15,14 +20,14 @@ Copy Column V1 ist als zusätzlicher Debug-SQL-Stage implementiert und im
 konkret freigegeben. Die [Anleitung](Documentation/CopyColumnV1.md) zeigt Quellbindung
 und Ergebnis. Die [Deltaabnahme](Tests/README.md#copy-column-v1-deltaabnahme)
 belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung. Der
-[aktuelle Windows-/Linux-Modellhost](Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
+[Windows-/Linux-Modellhost des C7-Builds](Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
 besteht separat 50 CLI-/Modellfälle mit 610 Assertions. Die
 [ZIP-Liefermatrix](InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1)
 belegt Archivinstallation und Lebenszyklus in zwölf Windows-Kontexten.
-Der [neue sichtbare SSMS-Gesamtfall](Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
-besteht am aktuellen Archiv mit Windows-Anmeldung, vollständiger Unicode-Kopie,
+Der [sichtbare SSMS-Gesamtfall des C7-Builds](Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
+besteht am unveränderten C7-Archiv mit Windows-Anmeldung, vollständiger Unicode-Kopie,
 nativer SQLCMD-Stopprobe, Phase-2-Receipt und frischem Windows-Abschlussaudit.
-Die [vollständige aktuelle funktionale ZIP-Matrix](Tests/README.md#vollständige-funktionale-aktuelle-zip-abnahme)
+Die [vollständige funktionale C7-ZIP-Matrix](Tests/README.md#vollständige-funktionale-aktuelle-zip-abnahme)
 besteht auf zwölf Windows-/CL-/Moduskontexten mit 15.204 Assertions und zwölf
 frischen Audits einschließlich Prozedur und konkret freigegebener Minimalrechte.
 Bisherige umfassende Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden.

@@ -84,5 +84,7 @@ def validate(record=None,*,check_files=True):
     return r
 
 if __name__=='__main__':
-    validate()
+    from ssis_historical_scope import copy_column_v1_scope
+    with copy_column_v1_scope(ROOT):
+        validate()
     print('SSIS_COPY_COLUMN_FUNCTIONAL_ZIP_PASS; 12contexts/15204assertions/12freshaudits; no whole-module/TLS claim')
