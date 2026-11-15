@@ -12,6 +12,8 @@ namespace Toolbelt.Tsql.SsisDebug
     {
         internal string Id, Name, Alias, Type, Collation;
         internal bool Nullable;
+        // ANSI-Lineage nur nach Katalogprüfung setzen; kein Encoding raten.
+        internal int? SourceCodePage;
     }
     internal sealed class Stage
     {
@@ -365,6 +367,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 if (column == null || outputColumn.SqlType == null) throw new DebugFault("unresolved_binding", "Source-Ausgang nicht gegen Abfragespalte gebunden.");
                 ValidateCodePage(outputColumn, column.Collation);
                 var col = NewColumn(outputColumn.Lineage == "" ? outputColumn.Id : outputColumn.Lineage, outputColumn.Name, outputColumn.SqlType, column.Nullable); stage.Columns.Add(col);
+                col.SourceCodePage = outputColumn.Type == "str" ? (int?)outputColumn.CodePage : null;
                 list.Add("CAST(src." + Util.Q(name) + " AS " + col.Type + ") AS " + Util.Q(col.Alias));
             }
             if (list.Count == 0) throw new DebugFault("invalid_lineage", "Source-Ausgang hat keine Metadaten.");
@@ -567,9 +570,15 @@ namespace Toolbelt.Tsql.SsisDebug
                     throw new DebugFault("invalid_lineage", "Copy Column-Ausgabename fehlt oder kollidiert case-insensitiv mit einer vorhandenen Spalte.");
                 if (copy.SqlType == null || copy.SqlType != input.Type || selected[0].SqlType != input.Type || copy.CodePage != selected[0].CodePage)
                     throw new DebugFault("unsupported_component", "Copy Column-Ausgabetyp stimmt nicht exakt mit dem gebundenen Eingangstyp überein.");
+                // Übereinstimmende XML-Ports beweisen keine ANSI-Identität:
+                // beide können dieselbe falsche Codepage deklarieren. Die
+                // tatsächliche Encodinggrenze folgt der aufgelösten Quelle.
+                if (selected[0].Type == "str" && (selected[0].CodePage <= 0 || !input.SourceCodePage.HasValue || input.SourceCodePage.Value != selected[0].CodePage))
+                    throw new DebugFault("unsupported_component", "Copy Column-ANSI-Codepage stimmt nicht mit der aufgelösten Quellcollation überein.");
 
                 StageColumn outputColumn = NewColumn(outputId, copy.Name, input.Type, input.Nullable);
                 outputColumn.Collation = input.Collation;
+                outputColumn.SourceCodePage = input.SourceCodePage;
                 stage.Columns.Add(outputColumn);
                 fields.Add("m." + Util.Q(input.Alias) + " AS " + Util.Q(outputColumn.Alias));
             }

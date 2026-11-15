@@ -49,6 +49,12 @@ und IDs, Typ-/Codepageabweichungen sowie unbekannte Versionen oder Ports
 blockieren den abhängigen Pfad. Die Diagnose ist im Ergebnis sichtbar; eine
 unvollständige Zielprojektion wird nicht als ausführbar ausgegeben.
 
+Bei ANSI-Spalten müssen die Codepages beider Copy-Column-Ports zusätzlich zur
+kataloggeprüften Codepage der tatsächlich aufgelösten Quellspalte passen. Zwei
+gleiche XML-Angaben reichen als Nachweis nicht aus. Fehlt diese verlässliche
+Lineage, bleibt der Pfad mit `unsupported_component` gesperrt; der Generator
+errät keine Codepage. Unicode- und numerische Kopien bleiben unverändert.
+
 Die [Prüfmatrix](../Tests/README.md#copy-column-v1-deltaabnahme)
 trennt die ursprünglichen Explain-Läufe vom abschließenden Prozedurguard.
 Paketintegrität, tatsächliche ZIP-Ausführung, SSMS, TLS und Linux-Exporthost

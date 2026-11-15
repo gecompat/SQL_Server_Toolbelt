@@ -3,6 +3,28 @@
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
+Die nachfolgenden Copy-Column-V1-, Host-, ZIP- und SSMS-Records binden den
+historischen C7-Build. Der neuere Entwicklungsquellsatz korrigiert die
+ANSI-Lineage; seine [gezielte Abnahme und offenen Gates](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
+werden separat geführt. Die alten Records bleiben unverändert.
+
+## Aktuelle ANSI-Korrektur, Sicherheit und strikter TLS-Transport
+
+Der [Korrekturrecord](Qualification/CopyColumn.SecurityCorrection.20261115.json)
+bindet vier native ANSI-Kontexte mit 372 Assertions und vier frischen Audits.
+Die [unabhängige Quellabnahme](Qualification/Security.CopyColumn.20261115.json)
+führt die alten und korrigierten Findings getrennt. Sie behauptet selbst
+keine Laufzeitprüfung durch den Reviewer.
+
+Der [aktuelle TLS-Record](Qualification/Tls.CopyColumn.SecurityCorrection.20261115.json)
+belegt zusätzlich den korrigierten Provider auf Windows SQL2025 RTM, CL170,
+lokal/zentral mit 416 Assertions und frischen SQL-, Lab- und Hostscope-Audits.
+Die Prüfer `validate_ssis_copy_column_security.py` und
+`validate_ssis_copy_column_tls_security.py` binden Quellen, Provider und
+deklarierte Grenzen. Neue Gegenproben verhindern eine Aufwertung alter
+ZIP-/SSMS-Belege, ausgelassener Audits oder reiner Quellreviews zum Gesamt-PASS.
+Das Modul bleibt teilweise validiert und unveröffentlicht.
+
 ## Copy Column V1 Deltaabnahme
 
 Der [Record](Qualification/CopyColumn.V1.20261114.json) und der
@@ -1296,8 +1318,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: vollstaendige funktionale Copy-Column-ZIP-Matrix mit konkreter Rechteausnahme`
-- Scope: PASS_FOR_DECLARED_SCOPE: zwoelf Windows-/CL-/Moduskontexte SQL2019CU32 CL150, SQL2022CU26 CL150/160, SQL2025CU8 CL150/160/170 lokal/zentral. 15204 Assertions:96 Archiv,12444 funktional,2664 Prozedur; zwoelf PASS_CLEANED-Koordinatoren und frische finaljournalgebundene Audits. Alle24DBs/12Logins entfernt, eigene Benutzer mit eigenem Scope entfernt; Konfiguration/Trust/andere Verbraucher erhalten. Konkrete Benutzerfreigabe2026-11-15 fuer begrenzte API-/Prozedurrechte, keine Serverrechte/Bestandsidentitaetsaenderung. Rahmen24Aufrufe/24DBs/12Logins/180Minuten geschlossen, kein nativerFehler/Retry. Gueltige Framework-/Copy-/Host-/SSMS-Belege erhalten, kein neues striktesTLS/Mapping-/Modulgesamt-PASS oder Veroeffentlichung.
+- Nachweis: `local: frischer strikter TLS-Gesamtfall am korrigierten Provider`
+- Scope: PASS_FOR_DECLARED_SCOPE: oeffentlicher ununterbrochener eigener Windows-/HyperV-/SQL2025-RTM-Neuaufbau, CL170 lokal/zentral,416 Assertions. Beide strikten Labclientstacks, signierterV2-Export und dieselben frisch geprueften Bytes vor jedem Consumer-Open. Worker6/Supervisor8, SQL-/Lab-/HostabschlussauditsPASS. Vier eigene DBs und eineVM entfernt, SQL-Konfiguration/Hosttrust wiederhergestellt, eigener verschluesselter CA-Schluessel entfernt; versiegelterRoot nur als privateEvidenz behalten. Eine vom Benutzer bestaetigteUAC, keine automatisierte Anmeldung. Rahmen1VM/2SQLaufrufe/4DBs/45Minuten ohneRetry geschlossen. SQL-Anmeldung, keine Windows-/TLS-Identitaetsunion, kein beobachteterWire-Fingerprint; ZIP/SSMS bleibenC7, Gesamtmodul teilweisevalidiert/unveroeffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

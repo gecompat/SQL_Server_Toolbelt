@@ -67,5 +67,23 @@ class CopySsmsEvidenceTests(unittest.TestCase):
         self.reject(lambda r: r['source_sha256'].update({key: '0' * 64}), 'SOURCE_DRIFT')
 
 
+
+# Historische C7-Quellenbindung bleibt von der aktuellen Korrektur getrennt.
+import sys
+sys.path.insert(0,str(ROOT/'Scripts/Release'))
+from ssis_historical_scope import copy_column_v1_scope
+def setUpModule():
+    global _historical_scope, _original_paths
+    _historical_scope=copy_column_v1_scope(ROOT)
+    snapshot=_historical_scope.__enter__()
+    _original_paths={key:value for key,value in list(globals().items())
+                     if isinstance(value,Path) and value.is_relative_to(ROOT)}
+    original=ROOT
+    for key,value in _original_paths.items():
+        globals()[key]=snapshot/value.relative_to(original)
+def tearDownModule():
+    globals().update(_original_paths)
+    _historical_scope.__exit__(None,None,None)
+
 if __name__ == '__main__':
     unittest.main()

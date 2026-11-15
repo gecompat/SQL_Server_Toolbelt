@@ -23,7 +23,7 @@ class DeliveryAdmissionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         runtime=ROOT/'.runtime';runtime.mkdir(exist_ok=True)
-        cls.temporary=tempfile.TemporaryDirectory(prefix='copy-delivery-admission-',dir=runtime)
+        cls.temporary=tempfile.TemporaryDirectory(prefix='d-',dir=runtime)
         cls.addClassCleanup(cls.temporary.cleanup)
         cls.stage=Path(cls.temporary.name)
         with zipfile.ZipFile(ROOT/ARCHIVE) as z:
@@ -142,6 +142,24 @@ if($env:TB_DELIVERY_DESCRIBE -eq '1'){$call.DescribeOnly=$true}else{$call.Valida
         self.assertNotIn('-ReleaseRights -',source)
         self.assertNotIn('-Full -',source)
 
+
+
+# Historische C7-Quellenbindung bleibt von der aktuellen Korrektur getrennt.
+import sys
+sys.path.insert(0,str(ROOT/'Scripts/Release'))
+from ssis_historical_scope import copy_column_v1_scope
+def setUpModule():
+    global _historical_scope, _original_paths
+    _historical_scope=copy_column_v1_scope(ROOT)
+    snapshot=_historical_scope.__enter__()
+    _original_paths={key:value for key,value in list(globals().items())
+                     if isinstance(value,Path) and value.is_relative_to(ROOT)}
+    original=ROOT
+    for key,value in _original_paths.items():
+        globals()[key]=snapshot/value.relative_to(original)
+def tearDownModule():
+    globals().update(_original_paths)
+    _historical_scope.__exit__(None,None,None)
 
 if __name__=='__main__':
     unittest.main()

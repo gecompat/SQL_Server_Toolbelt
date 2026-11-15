@@ -16,6 +16,7 @@ using Toolbelt.Tsql.SsisDebug;
 internal sealed class SyntheticCatalog : ICatalog
 {
     internal bool TextKeys;
+    internal bool AnsiKeys;
     internal string TextKeyCollation;
     internal bool NullableKeys;
     internal bool NullableKeyB;
@@ -34,7 +35,7 @@ internal sealed class SyntheticCatalog : ICatalog
             Modified = new DateTime(2020, 1, 1), Fingerprint = name + (Drift ? (++resolutions).ToString() : "") };
         if (name == "SyntheticIf") { o.Kind = "IF"; o.Schema = "dbo"; o.Definition = "CREATE FUNCTION dbo.SyntheticIf() RETURNS TABLE AS RETURN (SELECT KeyA,KeyB,Amount FROM dbo.SyntheticSourceA);"; }
         if (name == "SyntheticPure") { o.Kind = "IF"; o.Schema = "dbo"; o.Definition = "CREATE FUNCTION dbo.SyntheticPure() RETURNS TABLE AS RETURN (SELECT 1 AS KeyA,10 AS KeyB,100 AS Amount);"; }
-        foreach (string column in new[] { "KeyA", "KeyB", lookup ? "Score" : "Amount" }) o.Columns.Add(new BoundColumn { Name = column, SqlType = TextKeys && column == "KeyA" ? "nvarchar(10)" : "int", Collation = TextKeys && column == "KeyA" ? TextKeyCollation ?? "Latin1_General_100_CS_AS" : null, Nullable = (NullableKeys && column == "KeyA") || (NullableKeyB && column == "KeyB") || (NullableLookupScore && lookup && column == "Score"), ColumnId = o.Columns.Count + 1, SystemTypeId = 56, UserTypeId = 56, Length = 4, Precision = 10 });
+        foreach (string column in new[] { "KeyA", "KeyB", lookup ? "Score" : "Amount" }) o.Columns.Add(new BoundColumn { Name = column, SqlType = TextKeys && column == "KeyA" ? (AnsiKeys ? "varchar(10)" : "nvarchar(10)") : "int", Collation = TextKeys && column == "KeyA" ? TextKeyCollation ?? "Latin1_General_100_CS_AS" : null, Nullable = (NullableKeys && column == "KeyA") || (NullableKeyB && column == "KeyB") || (NullableLookupScore && lookup && column == "Score"), ColumnId = o.Columns.Count + 1, SystemTypeId = 56, UserTypeId = 56, Length = 4, Precision = 10 });
         return o;
     }
 }

@@ -73,6 +73,51 @@ internal static partial class ContractTests
     private static void CopyColumnContract(string[] args)
     {
         byte[] original = File.ReadAllBytes(args[1]);
+        // Die tatsächliche Quellcollation ist das Orakel, nicht ein zweiter
+        // ebenfalls manipulierbarer XML-Port. Keine SQL-Verbindung erforderlich.
+        foreach (int codePage in new[] { 1252, 65001 })
+        {
+            byte[] ansi = Change(CopyColumnPackage(original, true), d => {
+                foreach (var column in d.Descendants().Where(x => (string)x.Attribute("dataType") == "wstr" || (string)x.Attribute("cachedDataType") == "wstr"))
+                {
+                    column.SetAttributeValue("dataType", "str");
+                    if (column.Attribute("cachedDataType") != null) column.SetAttributeValue("cachedDataType", "str");
+                    column.SetAttributeValue("codePage", codePage.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    column.SetAttributeValue("cachedCodePage", codePage.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                }
+            });
+            var ansiCatalog = new SyntheticCatalog { TextKeys = true, AnsiKeys = true, TextKeyCollation = codePage == 65001 ? "Latin1_General_100_CI_AS_SC_UTF8" : null };
+            var exact = ExplainV2(ansi, catalog: ansiCatalog);
+            Assert(exact.Rows.Any(x => x.Kind == "TargetSql" && x.Executable && x.Complete), "COPY_ANSI_RESOLVED_SOURCE_" + codePage);
+            byte[] chained = Change(ansi, d => {
+                var first = CopyComponent(d);
+                var second = new XElement(first);
+                second.SetAttributeValue("refId", "CopyAgain"); second.SetAttributeValue("name", "CopyAgain");
+                foreach (var attribute in second.DescendantsAndSelf().Attributes().Where(x => x.Value.StartsWith("Copy.", StringComparison.Ordinal)).ToList())
+                    attribute.Value = "CopyAgain." + attribute.Value.Substring(5);
+                second.Descendants("inputColumn").Where(x => (string)x.Attribute("name") == "Amount").Remove();
+                var input = second.Descendants("inputColumn").Single(); input.SetAttributeValue("lineageId", "201"); input.SetAttributeValue("name", "KeyACopy");
+                second.Descendants("outputColumn").Where(x => (string)x.Attribute("name") == "AmountCopy").Remove();
+                var output = second.Descendants("outputColumn").Single(); output.SetAttributeValue("lineageId", "301"); output.SetAttributeValue("name", "SecondKeyCopy");
+                output.Descendants("property").Single().Value = "201";
+                first.AddAfterSelf(second);
+                var path = d.Descendants("path").Single(x => (string)x.Attribute("refId") == "copy-destination");
+                path.SetAttributeValue("startId", "CopyAgain.output");
+                path.AddBeforeSelf(new XElement("path", new XAttribute("refId", "copy-copy"), new XAttribute("startId", "Copy.output"), new XAttribute("endId", "CopyAgain.input")));
+            });
+            Assert(ExplainV2(chained, catalog: ansiCatalog).Rows.Any(x => x.Kind == "TargetSql" && x.Executable && x.Complete), "COPY_ANSI_RESOLVED_CHAIN_" + codePage);
+            if (args.Length > 2)
+            {
+                string template = Engine.Analyze(ansi, Options("bindings-template"), ansiCatalog, new Budget()).Rows.Single().Content;
+                ExportSyntheticFixture(args[2], "copy-column-ansi-" + codePage, ansi, "{}", template, Options("explain").CatalogBindings);
+            }
+            byte[] wrong = Change(ansi, d => {
+                foreach (var column in CopyComponent(d).Descendants().Where(x => (string)x.Attribute("dataType") == "str"))
+                { column.SetAttributeValue("codePage", "850"); column.SetAttributeValue("cachedCodePage", "850"); }
+            });
+            var rejected = ExplainV2(wrong, catalog: ansiCatalog);
+            Assert(rejected.Rows.Any(x => x.Kind == "Diagnostic" && x.Code == "unsupported_component") && !rejected.Rows.Any(x => x.Kind == "TargetSql" && x.Executable), "COPY_ANSI_JOINT_XML_MISMATCH_" + codePage);
+        }
         foreach (bool text in new[] { false, true })
         {
             byte[] package = CopyColumnPackage(original, text);

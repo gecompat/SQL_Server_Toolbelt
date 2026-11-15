@@ -2,9 +2,14 @@
 
 ## Aktueller Entwicklungsstand mit Copy Column V1
 
+Das folgende Archiv bleibt unverändert an den früheren C7-Build gebunden.
+Die neuere ANSI-Lineage-Korrektur des Entwicklungsquellsatzes ist darin nicht
+enthalten. Ihr [separater Abnahmestand](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
+ist maßgeblich; alte Archivnachweise werden nicht auf die neue DLL umetikettiert.
+
 [SSIS-Debug-CopyColumnV1-Install-Windows.zip](SSIS-Debug-CopyColumnV1-Install-Windows.zip)
 und die [Prüfsumme](SSIS-Debug-CopyColumnV1-Install-Windows.zip.sha256)
-enthalten den aktuellen freigegebenen Explain-Slice. Die DLL ist durch die
+enthalten den damaligen C7-Explain-Slice. Die DLL ist durch die
 [zusammengesetzte Deltaabnahme](../Tests/README.md#copy-column-v1-deltaabnahme)
 gebunden; Archivintegrität und vollständige Source-/Payloadbindung sind offline
 geprüft. Die [native ZIP-Liefermatrix](../../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md)
@@ -14,9 +19,9 @@ Nachweise werden separat übernommen. Die zusätzliche
 [vollständige funktionale ZIP-/Prozedur-/Rechtematrix](../../../Releases/1.0.0/SSIS-COPY-COLUMN-FUNCTIONAL-ZIP-QUALIFICATION.md)
 besteht auf denselben zwölf Kontexten mit 15.204 Assertions und zwölf frischen
 Audits. Beide Records bleiben getrennt; kein neuer TLS- oder Modulgesamt-PASS.
-Der [aktuelle Windows-/Linux-Modellhost](../Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
+Der [Windows-/Linux-Modellhost des C7-Builds](../Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
 ist eigenständig belegt. Gesamtmodul weiterhin teilweise validiert und
-unveröffentlicht. Der [neue sichtbare Windows-/SSMS-Gesamtfall](../Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
+unveröffentlicht. Der [sichtbare Windows-/SSMS-Gesamtfall des C7-Builds](../Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
 mit demselben Archiv besteht separat einschließlich Unicode-Kopie, nativer
 SQLCMD-Stopprobe, Phase-2-Receipt und frischem Windows-Audit. Für den Slice gilt die
 [Copy-Column-Anleitung](../Documentation/CopyColumnV1.md); die bestehenden
