@@ -77,7 +77,9 @@ def validate_review(record=None):
     require(sum(r['source_sha256'][name]==digest for name,digest in prior.items())==12,'REVIEW_REUSE_PROJECTION')
     method=r['bounded_tls_method']
     require(method['repository']=='gecompat/SQL_Server_Lab' and method['path']=='Tests/Integration/Invoke-ToolbeltSsisCopyColumnTlsAcceptance.ps1' and method['sha256']=='65503e7c01ffc07bd5645fc303998bd93c23f055c34fa4a0f92f8181478c6b99' and method['private_bootstrap_originals_retained'] is True and method['review_result']=='SOURCE_ACCEPTED','TLS_METHOD_REVIEW')
-    require(r['lab_context_revision_review']=={
+    lab_review=r['lab_context_revision_review']
+    require(all(type(lab_review[k]) is bool for k in ('native_revision_committed','native_tls_executed','registry_freshness_floor_preserved')),'LAB_REVIEW_TYPES')
+    require(lab_review=={
         'result':'SOURCE_ACCEPTED','finding':'F-LAB-CTX-01','status':'closed_source_side',
         'repository':'gecompat/SQL_Server_Lab',
         'source_sha256':{

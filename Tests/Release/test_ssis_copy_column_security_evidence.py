@@ -19,6 +19,7 @@ class SecurityCorrectionTests(unittest.TestCase):
                        lambda r:r['scope'].update(native_tls_result=True),
                        lambda r:r['lab_context_revision_review'].update(native_revision_committed=True),
                        lambda r:r['lab_context_revision_review'].update(native_tls_executed=True),
+                       lambda r:r['lab_context_revision_review'].update(native_tls_executed=0),
                        lambda r:r['lab_context_revision_review'].update(registry_freshness_floor_preserved=False),
                        lambda r:r['open_findings'].append('unresolved')):
             r=copy.deepcopy(evidence.validate_review());change(r)
