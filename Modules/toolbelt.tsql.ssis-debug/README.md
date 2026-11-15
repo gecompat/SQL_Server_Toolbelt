@@ -16,8 +16,10 @@ konkret freigegeben. Die [Anleitung](Documentation/CopyColumnV1.md) zeigt Quellb
 und Ergebnis. Die [Deltaabnahme](Tests/README.md#copy-column-v1-deltaabnahme)
 belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung. Der
 [aktuelle Windows-/Linux-Modellhost](Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
-besteht separat 50 CLI-/Modellfälle mit 610 Assertions. Bisherige Gesamtabnahmen
-bleiben an ihre ursprünglichen Builds gebunden.
+besteht separat 50 CLI-/Modellfälle mit 610 Assertions. Die
+[ZIP-Liefermatrix](InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1)
+belegt Archivinstallation und Lebenszyklus in zwölf Windows-Kontexten.
+Bisherige umfassende Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden.
 
 Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
 denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
@@ -128,8 +130,8 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: aktueller Copy-Column-Modellhost auf Windows und Linux`
-- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe portable Hostbinary, je25 CLI-/Modellfaelle und305 Assertions, insgesamt50/610; acht neue Copy-Column-Format-/Typ-/Versionsfaelle jePlattform. Exakt gleiche Quellen-/Binarypins und kanonische Outputs. Windows beim ersten Lauf bestanden; zwei Linux-Vorbereitungsfehler mit null Hostprofilen erhalten, korrigierter Lauf bestanden. Vier Plattformdispatches im gemeinsamen30-Minuten-Rahmen geschlossen, private Runtime entfernt/Abwesenheit geprueft. Keine SQL-, Rechte-, Trust-, Lab- oder Produktquellaenderung; kein neuer ZIP-/SSMS-/TLS-/Modulgesamt-PASS.
+- Nachweis: `local: native Copy-Column-ZIP-Liefermatrix mit separaten Abschlussaudits`
+- Scope: PASS_FOR_DECLARED_SCOPE: dasselbe ZIP auf zwoelf Windows-/CL-/Moduskontexten, 96 Archivinstallations-/Lebenszyklusassertions und zwoelf frische Audits. Bekannte DLL tatsaechlich aus Archiv installiert, realer CLR-Templateaufruf, Repeat/Uninstall und Abhaengigkeitserhalt. Gueltige Fach-/API-Nachweise ohne Wiederholung uebernommen, zentral direkt ohne neuen CrossDB-Consumer. Ein erster Journalpfadfehler vor SQL erhalten; dessen nicht ausgefuehrter Audit bleibt not executed. 26 Aufruf-/13 DB-Reservierungen im urspruenglichen 28/16/60-Minuten-Rahmen, zwoelf eigene DBs entfernt; keine neuen Identitaeten/Grants. Kein neuer vollstaendiger funktionaler ZIP-/SSMS-/TLS-/Modul-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
