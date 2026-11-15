@@ -1,5 +1,21 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SSIS Copy Column: vollständige aktuelle funktionale ZIP-Matrix — 2026-11-15
+
+Die [neue funktionale Abnahme](../Releases/1.0.0/SSIS-COPY-COLUMN-FUNCTIONAL-ZIP-QUALIFICATION.md)
+schließt die aktuelle ZIP-/Prozedur-/Rechtematrix auf Windows SQL2019/CU32
+CL150, SQL2022/CU26 CL150/160 und SQL2025/CU8 CL150/160/170, jeweils lokal
+und zentral. Zwölf Koordinatoren PASS_CLEANED, 15.204 Assertions und zwölf
+frische finaljournalgebundene Audits bestanden. Die konkrete temporäre Rechte-
+und Identitätsausnahme wurde am 2026-11-15 freigegeben; keine Serverrechte oder
+Änderungen bestehender Identitäten. Alle 24 eigenen DBs und zwölf SQL-Logins
+sind entfernt, Konfiguration/Trust und andere Verbraucher erhalten.
+Ursprünglicher 24-Aufrufe-/24-DB-/180-Minuten-Rahmen geschlossen, kein nativer
+Fehler oder Retry. Gültige Framework-/Copy-/Host-/SSMS-Belege bleiben in ihrem
+Scope; frühere Fehler und Grenzen unverändert. Historische volle ZIP-Abnahmen
+werden nicht umetikettiert. Frisches striktes TLS und eine unabhängige aktuelle
+Sicherheitsgesamtabnahme bleiben getrennt; Modul teilweise validiert/unveröffentlicht.
+
 ## JSON Schema: zehn weitere interne CLR-Facetten — 2026-11-13
 
 Die [Zehnermatrix](../Releases/1.0.0/JSON-CLR-FACETS-QUALIFICATION.md)

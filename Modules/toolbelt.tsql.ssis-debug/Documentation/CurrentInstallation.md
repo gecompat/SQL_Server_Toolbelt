@@ -12,8 +12,10 @@ Für den zusätzlichen freigegebenen Copy-Column-Explain-Slice verwende das
 Delta, Windows-/Linux-Modellhost, tatsächliche Archivinstallation und
 Lebenszyklus sowie ein frischer sichtbarer Windows-/SSMS-Gesamtfall besitzen
 [getrennte aktuelle Nachweise](../Tests/README.md#copy-column-v1-deltaabnahme).
-Die vollständige funktionale ZIP-/Prozedur-/Rechte- und strikte TLS-Gesamtabnahme
-dieses erweiterten Builds ist damit nicht belegt. Das Modul bleibt teilweise
+Die [vollständige funktionale ZIP-/Prozedur-/Rechtematrix](../Tests/README.md#vollständige-funktionale-aktuelle-zip-abnahme)
+dieses erweiterten Builds besteht separat auf zwölf Windows-Kontexten mit
+15.204 Assertions und zwölf frischen Audits. Eine neue strikte TLS-Gesamtabnahme
+ist damit nicht belegt. Das Modul bleibt teilweise
 validiert und unveröffentlicht; Installationsmechanismen bleiben gleich.
 
 ## Prozedurdefinition V1 installieren
