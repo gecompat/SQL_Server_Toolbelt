@@ -95,6 +95,8 @@
     "source_inventory_files": 1723
   },
   "toolbelt_input_count": 119,
+  "authored_source_count": 103,
+  "non_source_input_count": 16,
   "source_sha256": {
     "Modules/toolbelt.tsql.ssis-debug/Clr/AssemblyInfo.cs": "5aaee66cc7c97b930b04a8f8e890bac2f93f705433dc13057f1eb836402fe23b",
     "Modules/toolbelt.tsql.ssis-debug/Clr/Bindings.cs": "5f3bf698b46794e1250a101c2534baed5e4f323d0b960afb3419843b516755f8",
@@ -114,14 +116,6 @@
     "Modules/toolbelt.tsql.ssis-debug/Clr/SqlTypeRules.cs": "a0d31352f0e2aaa926eb2fcc417dbe9c90391915897707e36518fc9c63a8ade2",
     "Modules/toolbelt.tsql.ssis-debug/Clr/Toolbelt.Tsql.SsisDebug.csproj": "630bd0d2d9a10efeaf5e4bb1d4ec9a21094be1616461e9087e9070564848fa0b",
     "Modules/toolbelt.tsql.ssis-debug/Clr/Translator.cs": "4fc4de83c446b5e3d562bc990ca252ae6741aa1d1d26b012f959fc6312ecbd85",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/bin/Release/Microsoft.SqlServer.TransactSql.ScriptDom.dll": "c467c638ed53caba55ec1a4ae534990326ac1811046ef12775f5bbd46478b7cb",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/bin/Release/Toolbelt.Tsql.SsisDebug.dll": "04f2e29becfa551a985537fbc74447984cde416eb8ffde17afbd8e2453a7360f",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/obj/Release/.NETFramework,Version=v4.8.AssemblyAttributes.cs": "af4c24efdd16c0cb3946e8e148fb6df4fc9c501c71cc718738b4728808737373",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/obj/Release/Toolbelt.667AE20A.Up2Date": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/obj/Release/Toolbelt.Tsql.SsisDebug.csproj.AssemblyReference.cache": "be60bf629bc9d45731516bd1c375557a3124ee123f894b098acb00203fd9c4b9",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/obj/Release/Toolbelt.Tsql.SsisDebug.csproj.CoreCompileInputs.cache": "13680ebd34a92224724c0d7937cfda4aa41160a79790d4220a57d40ab8458fb4",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/obj/Release/Toolbelt.Tsql.SsisDebug.csproj.FileListAbsolute.txt": "097d8cd83ba43d143f31c108f5b30bfd6dfd9db2af553444d907ce1472d73e2b",
-    "Modules/toolbelt.tsql.ssis-debug/Clr/obj/Release/Toolbelt.Tsql.SsisDebug.dll": "04f2e29becfa551a985537fbc74447984cde416eb8ffde17afbd8e2453a7360f",
     "Modules/toolbelt.tsql.ssis-debug/Contracts/Api.json": "16381baf09d2f384ea10dc0c80497574725c95304b18a56a846a7d8f56265898",
     "Modules/toolbelt.tsql.ssis-debug/Contracts/ComponentsV2.json": "2361f1447ed5a9b9a4c5352471aadb2145e7967ca9d3d95e9fe98e386df902db",
     "Modules/toolbelt.tsql.ssis-debug/Contracts/ComponentsV2.schema.json": "18261cb929c8be034c723728f8e72ee230c0127c5ebca747d27a68ddd2106893",

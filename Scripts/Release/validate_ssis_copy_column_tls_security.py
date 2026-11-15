@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import json
+import subprocess
 import validate_ssis_copy_column_security as security
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -12,10 +13,11 @@ def require(ok,label):
     if not ok:raise ValueError('SSIS_COPY_TLS_SECURITY_'+label)
 
 def source_paths():
-    paths=set()
-    for directory in ('Tests/Runtime','Tests/Fixtures','Contracts','Clr','Exchange/Core'):
-        paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/MODULE/directory).rglob('*')
-                     if p.is_file() and '__pycache__' not in p.parts)
+    # Authored public inputs, including new nonignored sources. CI-generated
+    # bin/obj files are outputs, not additions to the admitted source closure.
+    directories=[MODULE+p for p in ('Tests/Runtime','Tests/Fixtures','Contracts','Clr','Exchange/Core')]
+    inventory=subprocess.check_output(['git','-C',str(ROOT),'ls-files','-z','--cached','--others','--exclude-standard','--',*directories])
+    paths={name for name in inventory.decode('utf-8').split('\0') if name}
     paths.update(('Tests/CI/LabQualifiedContract.ps1','Tests/CI/run-lab-local.ps1'))
     paths.update(MODULE+'Tests/Qualification/'+name for name in (
         'CopyColumn.SecurityCorrection.20261115.json','CopyColumn.V1.20261114.json','CopyColumn.Delivery.20261115.json'))
@@ -41,7 +43,8 @@ def validate(record=None):
     require(review['path']==security.REVIEW and review['result']=='SOURCE_ACCEPTED' and hashlib.sha256((ROOT/review['path']).read_bytes()).hexdigest()==review['sha256'],'SOURCE_REVIEW')
     lab=r['lab_method']
     require(lab=={'repository':'gecompat/SQL_Server_Lab','native_source_commit':'f81406480d423cc92dcc41ddef0e8e99a8e8cd77','path':'Tests/Integration/Invoke-ToolbeltSsisCopyColumnTlsAcceptance.ps1','sha256':'65503e7c01ffc07bd5645fc303998bd93c23f055c34fa4a0f92f8181478c6b99','source_inventory_files':1723},'LAB_METHOD')
-    require(r['toolbelt_input_count']==119 and set(r['source_sha256'])==source_paths(),'SOURCE_CLOSURE')
+    require(r['toolbelt_input_count']==119 and r['authored_source_count']==103 and r['non_source_input_count']==16
+            and len(r['source_sha256'])==103 and set(r['source_sha256'])==source_paths(),'SOURCE_CLOSURE')
     for name,digest in r['source_sha256'].items():
         p=(ROOT/name).resolve()
         require(p.is_relative_to(ROOT.resolve()) and hashlib.sha256(p.read_bytes()).hexdigest()==digest,'SOURCE_DRIFT')

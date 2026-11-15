@@ -1318,8 +1318,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-11-15`
-- Nachweis: `local: vollstaendige funktionale Copy-Column-ZIP-Matrix mit konkreter Rechteausnahme`
-- Scope: PASS_FOR_DECLARED_SCOPE: zwoelf Windows-/CL-/Moduskontexte SQL2019CU32 CL150, SQL2022CU26 CL150/160, SQL2025CU8 CL150/160/170 lokal/zentral. 15204 Assertions:96 Archiv,12444 funktional,2664 Prozedur; zwoelf PASS_CLEANED-Koordinatoren und frische finaljournalgebundene Audits. Alle24DBs/12Logins entfernt, eigene Benutzer mit eigenem Scope entfernt; Konfiguration/Trust/andere Verbraucher erhalten. Konkrete Benutzerfreigabe2026-11-15 fuer begrenzte API-/Prozedurrechte, keine Serverrechte/Bestandsidentitaetsaenderung. Rahmen24Aufrufe/24DBs/12Logins/180Minuten geschlossen, kein nativerFehler/Retry. Gueltige Framework-/Copy-/Host-/SSMS-Belege erhalten, kein neues striktesTLS/Mapping-/Modulgesamt-PASS oder Veroeffentlichung.
+- Nachweis: `local: frischer strikter TLS-Gesamtfall am korrigierten Provider`
+- Scope: PASS_FOR_DECLARED_SCOPE: oeffentlicher ununterbrochener eigener Windows-/HyperV-/SQL2025-RTM-Neuaufbau, CL170 lokal/zentral,416 Assertions. Beide strikten Labclientstacks, signierterV2-Export und dieselben frisch geprueften Bytes vor jedem Consumer-Open. Worker6/Supervisor8, SQL-/Lab-/HostabschlussauditsPASS. Vier eigene DBs und eineVM entfernt, SQL-Konfiguration/Hosttrust wiederhergestellt, eigener verschluesselter CA-Schluessel entfernt; versiegelterRoot nur als privateEvidenz behalten. Eine vom Benutzer bestaetigteUAC, keine automatisierte Anmeldung. Rahmen1VM/2SQLaufrufe/4DBs/45Minuten ohneRetry geschlossen. SQL-Anmeldung, keine Windows-/TLS-Identitaetsunion, kein beobachteterWire-Fingerprint; ZIP/SSMS bleibenC7, Gesamtmodul teilweisevalidiert/unveroeffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

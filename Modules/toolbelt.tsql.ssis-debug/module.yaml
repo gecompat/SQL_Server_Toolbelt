@@ -88,6 +88,7 @@ documentation:
     - "Tests/README.md"
     - "Tests/InstallerTrust/README.md"
     - "Tests/WindowsClientRecovery/README.md"
+  historical_evidence:
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-SSMS-QUALIFICATION.md"

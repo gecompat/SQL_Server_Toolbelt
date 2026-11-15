@@ -2,12 +2,32 @@
 from pathlib import Path
 import copy
 import sys
+import tempfile
 import unittest
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'Scripts/Release'))
 import validate_ssis_copy_column_tls_security as evidence
 
 class CurrentTlsSecurityTests(unittest.TestCase):
+    def test_generated_ignored_outputs_are_not_authored_sources(self):
+        output=ROOT/'Modules/toolbelt.tsql.ssis-debug/Clr/obj'
+        existed=output.exists();output.mkdir(exist_ok=True)
+        try:
+            with tempfile.TemporaryDirectory(prefix='tls-generated-',dir=output) as temporary:
+                p=Path(temporary)/'SyntheticGenerated.cs';p.write_text('// Synthetic build output\n',encoding='utf-8')
+                self.assertNotIn(p.relative_to(ROOT).as_posix(),evidence.source_paths())
+                evidence.validate()
+        finally:
+            if not existed:output.rmdir()
+
+    def test_new_authored_source_cannot_escape_closure(self):
+        with tempfile.NamedTemporaryFile(prefix='ContosoTlsInput_',suffix='.ps1',dir=ROOT/'Modules/toolbelt.tsql.ssis-debug/Tests/Runtime',delete=False) as f:
+            path=Path(f.name);f.write(b'# Synthetic authored input\n')
+        try:
+            self.assertIn(path.relative_to(ROOT).as_posix(),evidence.source_paths())
+            with self.assertRaisesRegex(ValueError,'SOURCE_CLOSURE'):evidence.validate()
+        finally:path.unlink()
+
     def test_actual_declared_current_scope(self):
         evidence.validate()
 
