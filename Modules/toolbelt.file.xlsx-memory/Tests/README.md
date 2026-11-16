@@ -1,5 +1,7 @@
 # XLSX-Vertragsqualifizierung
 
+Die [disjunkte native Zell-Clientergänzung](../../../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
+
 Aktueller Nachweisabgleich 2026-11-16: Die [acht nativen Vollgroessenfaelle und Paketpflege](../../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) sowie die [fehlenden Typ-/Anzeige-Fixtures](../../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) sind in ihrem genauen Scope geschlossen. Die direkten Zell-/Raw-Callerrechte sind separat belegt. Die folgenden datierten Berichte und die unveraenderte historische Testmatrix sind keine aktuelle pauschale Offenliste; genuine Upgrade-/Consumer-, Kollisions-/Owner-/Client- und Heapgrenzen bleiben getrennt.
 
 ## Raw-Reader-Callerrechte – 2026-10-26

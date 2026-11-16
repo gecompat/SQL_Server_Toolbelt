@@ -54,3 +54,71 @@ foreach($name in @('Invoke-XlsxFullSizeLab.ps1','Invoke-XlsxFullSizeMatrix.ps1',
     if($errors.Count){throw ('XLSX_CELL_PARSER_'+$name)}
 }
 'PASS XLSX_CELL_API two admissions plus 9 negative counterexamples; four adapter parses; no SQL'
+
+# Die tatsächlich eingesetzten Selektorausdrücke aus dem Adapter ausführen:
+# keine kopierte Implementierung und kein geladener SQL-Einstieg.
+$client=[pscustomobject]@{qualification_scope='cell-client-rest';workbooks=@();pins=@()}
+foreach($name in @('Types.Metadata.ps1','Display.Metadata.ps1')){
+    $source=Join-Path $repo ('Modules/toolbelt.file.xlsx-memory/Tests/Runtime/'+$name)
+    $copy=Join-Path $temporary $name
+    [IO.File]::WriteAllBytes($copy,[IO.File]::ReadAllBytes($source))
+    $client.workbooks+=@([pscustomobject]@{name=$name;path=$copy;expected_error='NONE';sha256=(Get-FileHash $source -Algorithm SHA256).Hash.ToLowerInvariant()})
+    foreach($path in @($source,$copy)){$client.pins+=@([pscustomobject]@{path=$path;sha256=(Get-FileHash $path -Algorithm SHA256).Hash})}
+}
+foreach($path in @((Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1'),(Join-Path $PSScriptRoot 'Prepare-XlsxCellApiRunset.ps1'))){
+    $client.pins+=@([pscustomobject]@{path=$path;sha256=(Get-FileHash $path -Algorithm SHA256).Hash})
+}
+Assert-XlsxCellApiWorkload $client 1 $repo
+$caught=$false
+try{Assert-XlsxCellApiWorkload $client 0 $repo}catch{$caught=$true}
+if(-not $caught){throw 'XLSX_CLIENT_ALREADY_QUALIFIED_PAIR_ACCEPTED'}
+$errors=$null
+$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Invoke-XlsxFullSizeLab.ps1'),[ref]$null,[ref]$errors)
+foreach($index in @(1,9,11)){
+    $script:runset=$client;$CaseIndex=$index;$cellApi=$true
+    foreach($variable in @('modes','caseWorkbooks')){
+        $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and
+          $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -ceq $variable},$true))
+        if($nodes.Count -ne 1){throw 'XLSX_CLIENT_SELECTOR_AMBIGUOUS'}
+        . ([scriptblock]::Create($nodes[0].Extent.Text))
+    }
+    $expectedModes=if($index -eq 11){'central'}else{'local|central'}
+    $expectedNames=if($index -ge 9){'Display.Metadata.ps1'}else{'Types.Metadata.ps1|Display.Metadata.ps1'}
+    if(($modes -join '|') -cne $expectedModes -or ($caseWorkbooks.name -join '|') -cne $expectedNames){throw 'XLSX_CLIENT_GREEN_REPLAY_OR_MISSING_FIXTURE'}
+}
+'PASS XLSX_CELL_CLIENT pinned original helpers and 3 live selector contexts; no SQL'
+
+# Reproduziert genau den frischen Kind-Skriptscope des ursprünglichen Fehlers.
+$child=Join-Path $temporary 'budget-child.ps1'
+[IO.File]::WriteAllText($child,'param([scriptblock]$Provider) Set-StrictMode -Version Latest; $script:clock=$null; $script:cleanup=$null; & $Provider')
+$clock=[Diagnostics.Stopwatch]::StartNew()
+$providers=New-XlsxClientBudgetProviders $clock 3
+$seconds=& $child -Provider $providers.Timeout
+if($seconds -lt 1 -or $seconds -gt 3){throw 'XLSX_CLIENT_CHILD_BUDGET_CONTEXT'}
+$expiring=New-XlsxClientBudgetProviders $clock 1
+Start-Sleep -Milliseconds 1100
+$command=[pscustomobject]@{Cancelled=$false}
+$command|Add-Member -MemberType ScriptMethod -Name Cancel -Value {$this.Cancelled=$true}
+$caught=$false
+try{& $expiring.Read $command}catch{$caught=$_.Exception.Message -ceq 'RELEASE_DEADLINE'}
+if(-not $caught -or -not $command.Cancelled){throw 'XLSX_CLIENT_EXPIRED_READ_NOT_CANCELLED'}
+'PASS XLSX_CELL_CLIENT child script closure and monotone expiry/cancel counterexamples; no SQL'
+
+# CaseIndex darf durch eine umgeordnete vollständige Matrix nicht auf einen
+# bereits grünen Kontext zeigen. Den echten Admission-Ifblock isoliert prüfen.
+$checks=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and
+ $n.Extent.Text.StartsWith('if ($actualMatrix.Count -ne 12')},$true))
+if($checks.Count -ne 1){throw 'XLSX_CLIENT_MATRIX_GUARD_AMBIGUOUS'}
+$expectedMatrix=@(foreach($platform in @('linux','windows')){
+ foreach($version in @('2019','2022','2025')){
+  $levels=switch($version){'2019'{150};'2022'{150;160};'2025'{150;160;170}}
+  foreach($level in $levels){"$platform/$version/$level"}
+ }
+})
+$actualMatrix=@($expectedMatrix)
+. ([scriptblock]::Create($checks[0].Extent.Text))
+$actualMatrix=@($expectedMatrix[1],$expectedMatrix[0])+$expectedMatrix[2..11]
+$caught=$false
+try{. ([scriptblock]::Create($checks[0].Extent.Text))}catch{$caught=$_.Exception.Message -ceq 'XLSX_FULL_SIZE_MATRIX_INVALID'}
+if(-not $caught){throw 'XLSX_CLIENT_REORDERED_MATRIX_ACCEPTED'}
+'PASS XLSX_CELL_CLIENT original ordered CaseIndex admission; no SQL'

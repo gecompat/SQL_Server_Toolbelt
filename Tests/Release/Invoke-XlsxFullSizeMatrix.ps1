@@ -9,9 +9,10 @@ $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
 $cellApi=($null -ne $runset.PSObject.Properties['qualification_scope'])
-$maximum=if($cellApi){if($runset.qualification_scope -ceq 'cell-display-rest'){6}else{20}}else{30}
-$allowed=if($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}else{@(1,2,3,4,5,6,7,8)}
-if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest') -or $DiagnosticOnly -or
+$maximum=if($cellApi){switch($runset.qualification_scope){'cell-display-rest'{6};'cell-client-rest'{24};default{20}}}else{30}
+$allowed=if($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){@(1,2,3,4,5,6,7,8,9,10,11)}else{@(1,2,3,4,5,6,7,8)}
+$correctionMax=if($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){1}else{2}
+if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest') -or $DiagnosticOnly -or
    @($CaseIndex|Where-Object {$_ -notin $allowed}).Count)){throw 'XLSX_CELL_MATRIX_SCOPE'}
 $script:ledger=Get-Content -LiteralPath $BudgetPath -Raw|ConvertFrom-Json
 if($script:ledger.PSObject.Properties['native_closed'] -and $script:ledger.native_closed){throw 'MATRIX_CLOSED_BUDGET'}
@@ -22,7 +23,7 @@ if($nodes.Count -ne 1){throw 'MATRIX_JOURNAL_HELPER'}
 . ([scriptblock]::Create($nodes[0].Extent.Text))
 . (Join-Path $repo 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1')
 if($script:ledger.native_ceiling_minutes -ne 60 -or $script:ledger.native_dispatch_max -ne $maximum -or
-   $script:ledger.database_max -ne $maximum -or $script:ledger.changed_adapter_cases_max -ne 2 -or
+   $script:ledger.database_max -ne $maximum -or $script:ledger.changed_adapter_cases_max -ne $correctionMax -or
    $runset.schema_version -cne 'xlsx-full-size-package/v1' -or $runset.cases.Count -ne 12){throw 'MATRIX_SCOPE_DRIFT'}
 if(@($CaseIndex|Sort-Object -Unique).Count -ne $CaseIndex.Count){throw 'MATRIX_DUPLICATE_CASE'}
 if(-not $script:ledger.native_started){
