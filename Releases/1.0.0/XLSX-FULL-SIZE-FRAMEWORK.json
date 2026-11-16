@@ -1,0 +1,138 @@
+{
+  "schema_version": "toolbelt-xlsx-full-size-framework/v1",
+  "date": "2026-11-16",
+  "status": "PASS_FRAMEWORK_ONLY",
+  "scope": "unchanged-sst-candidate-core-and-status-tvf-net48",
+  "limits": {
+    "archive_bytes": 16777216,
+    "part_bytes": 16777216,
+    "total_bytes": 67108864,
+    "parts": 256
+  },
+  "not_executed": [
+    "native_sql",
+    "deployment",
+    "rights",
+    "authenticated_tls",
+    "heap_peak",
+    "production_capacity"
+  ],
+  "product_changed": false,
+  "package_changed": false,
+  "publication_authorized": false,
+  "attempts": {
+    "preflight_failures": 1,
+    "compile_failures": 1,
+    "successful_framework_runs": 1
+  },
+  "positive_rows": 4,
+  "atomic_error_rows": 4,
+  "candidate_bundle": "Releases/1.0.0/Artifacts/Xlsx-Sst-Budget-Candidate.zip",
+  "candidate_bundle_sha256": "6d9607709c018bd881f0b4224ab95175159d0fe80ae6d79be33bd2f878e89d20",
+  "xlsx_dll_sha256": "f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd",
+  "zip_dll_sha256": "bae312b3a125ffa157da72a5ae1b5bf29b6abbe604509638df2cc5e7136b575d",
+  "source_sha256": {
+    "Modules/toolbelt.file.xlsx-memory/Clr/AssemblyInfo.cs": "cb94d2f59c0617fbb8dfdb85e95e05ed8a515b146c1e2e1069dd11f46b640245",
+    "Modules/toolbelt.file.xlsx-memory/Clr/Workbook.cs": "f5b59ed8f625ea8cff21342ff22a2bd4c32ac1428db534d52c7e71556d0b7806",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs": "99f6f2c7120ce68dfff28f78196f767b97ea93590d7665c8c59df6162a80cdcd",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellType.cs": "564162b8c6fef1145842e92a6ceef2f8478bcbe8d30fe4bce360a160d659a300",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplay.cs": "25838f5bbac749f539b65a5e49c692189b19994a36028bd119995233ce746ab8",
+    "Modules/toolbelt.file.xlsx-memory/Clr/XlsxCellDisplayBridge.cs": "e2df235c1ab524f565090bfd36a16bafc47a44d38295da219df5c3c12c0d5b05",
+    "Modules/toolbelt.archive.zip-memory/Clr/ArchiveSession.cs": "7498b00a9fdb7951bf2fcd9878b60f0e2d0fe326308a24a1141747d4156f5a60",
+    "Modules/toolbelt.archive.zip-memory/Clr/Properties/AssemblyInfo.cs": "91a899843830a1de20b2e28c0f9ff4ce255f9a81cfa783b7cefe84b0cb31de16",
+    "Modules/toolbelt.archive.zip-memory/Clr/Toolbelt.Archive.ZipMemory.csproj": "fc2b132dee270b90631ebab9fe34e372283328fd332fb6abbbbd683775fd49aa",
+    "Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs": "c72aaa267bb3e5302463b18600a89255b99aebe6e826b0cd11379e0c2bc604ca",
+    "Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs": "75a63066ec29c90f9330be376bddf611443b92a975a9de6af5dc5c2c720e0a66",
+    "Tests/Release/Invoke-XlsxFullSizeFramework.ps1": "13a411f4602be261f023879441d20c2a3c9fa1c27fa92b3acba86bc98646afa8",
+    "Tests/Release/compose_xlsx_full_size.py": "41d3ec0f81911159ff02fae74c9c5e93cf0a34d5603da4b396abe46bdc823f54",
+    "Tests/Release/Runtime/XlsxFullSize.Framework.cs": "a586418222a2d457f880530a5cc5c86aa322e1d8ea85b74e582c31d29c6cd2a3",
+    "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1": "ff2cce9c0c33335892effac843d90bf2b131b597c68e9514850cc91c80cac993"
+  },
+  "historical_report_sha256": {
+    "Releases/1.0.0/xlsx-sst-budget-correction.json": "bccb7f7c24ad7ebe11124b730c3e9ec357259f1c6a352314e1e8c60a86ac2e97",
+    "Releases/1.0.0/xlsx-boundary-qualification.json": "a1ff6a3281c27ae69a8fbf2dcef0b8b60a2c3884bc473a602bc319456ca2edce",
+    "Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.json": "0ff0f60ca19d673e26502a18931d189df7f199c91232e2edf3ee8916828baafc"
+  },
+  "cases": [
+    {
+      "name": "archive-exact",
+      "sha256": "d8262af62231c3b0136b11187f2ac2ddd0e404bbd5d175605730a65886aceedf",
+      "expected_error": "NONE",
+      "technical_error": "NONE",
+      "archive_bytes": 16777216,
+      "part_bytes": 16775255,
+      "total_bytes": 16776526,
+      "parts": 6
+    },
+    {
+      "name": "archive-plus-one",
+      "sha256": "1566409dc6066ad049681d73aa4b71ab78e0b71c9e8d0aeb75ffe1b7b4b70030",
+      "expected_error": "TBX_XLSX_ARCHIVE_LIMIT",
+      "technical_error": "ZIP_ARCHIVE_LIMIT",
+      "archive_bytes": 16777217,
+      "part_bytes": 16775256,
+      "total_bytes": 16776527,
+      "parts": 6
+    },
+    {
+      "name": "part-exact",
+      "sha256": "c27653fbf6205d283606ad5dbbe4508939817ca172b5031ee258dd50a364d0b0",
+      "expected_error": "NONE",
+      "technical_error": "NONE",
+      "archive_bytes": 127710,
+      "part_bytes": 16777216,
+      "total_bytes": 16778335,
+      "parts": 5
+    },
+    {
+      "name": "part-plus-one",
+      "sha256": "e3c100f82a70fa2e636522a6dc5bf057c036505bfbf26bf389cfbc5ee9e4f1bc",
+      "expected_error": "TBX_XLSX_CONTAINER_INVALID",
+      "technical_error": "ZIP_PART_OR_SUM_LIMIT",
+      "archive_bytes": 127710,
+      "part_bytes": 16777217,
+      "total_bytes": 16778336,
+      "parts": 5
+    },
+    {
+      "name": "total-exact",
+      "sha256": "b941eab587a08f7c635eda1455d1f41899b2d4edac21f734b314b9699c6fa6c6",
+      "expected_error": "NONE",
+      "technical_error": "NONE",
+      "archive_bytes": 507346,
+      "part_bytes": 16777216,
+      "total_bytes": 67108864,
+      "parts": 9
+    },
+    {
+      "name": "total-plus-one",
+      "sha256": "dab671c4f0c8b5571b5e29332b6dee53b383adef531521b85b9689b5bb101321",
+      "expected_error": "TBX_XLSX_CONTAINER_INVALID",
+      "technical_error": "ZIP_PART_OR_SUM_LIMIT",
+      "archive_bytes": 507346,
+      "part_bytes": 16777216,
+      "total_bytes": 67108865,
+      "parts": 9
+    },
+    {
+      "name": "parts-exact",
+      "sha256": "ef68ad6f2027ac7a80ea306368018199952ccc3f18417bb359691faf193be5fe",
+      "expected_error": "NONE",
+      "technical_error": "NONE",
+      "archive_bytes": 27975,
+      "part_bytes": 413,
+      "total_bytes": 1522,
+      "parts": 256
+    },
+    {
+      "name": "parts-plus-one",
+      "sha256": "8438f60caa3b371d8833baf5f35e5c584d20e9515773bf516cf19693032c25c0",
+      "expected_error": "TBX_XLSX_CONTAINER_INVALID",
+      "technical_error": "ZIP_PART_LIMIT",
+      "archive_bytes": 28082,
+      "part_bytes": 413,
+      "total_bytes": 1523,
+      "parts": 257
+    }
+  ]
+}

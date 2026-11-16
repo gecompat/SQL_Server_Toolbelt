@@ -56,6 +56,17 @@ Zeilen und Zellen benötigen explizite gültige Koordinaten. Fehlende Koordinate
 | MaxXmlDepth / MaxCompressionRatio | 64 / 200 |
 | BudgetMilliseconds | 5000 ms |
 
+Für den aktuellen Ressourcenstatus gelten die
+[Vollgrößen-Grenzprüfungen](../../Releases/1.0.0/XLSX-FULL-SIZE-FRAMEWORK.md):
+Archiv, selektierter Worksheet-Part, Archivsumme und Partanzahl bestehen am
+unveränderten SST-Quellkandidaten im Framework. Die native 32/33-Blattmatrix ist
+für ihre ursprünglichen Paketbytes bestanden, die native 50000/50001-SST-Matrix
+für den separat korrigierten Quellkandidaten. Die frühere Sammelzeile „Vollgröße
+übriger Caps“ der quellengebundenen historischen Testmatrix ist damit keine
+aktuelle Offenliste. Native SQL-Ausführung der acht neuen Workbooks und
+Paketpflege bleiben offen; eine vollständige SQL- oder Kapazitätsqualifikation
+folgt daraus nicht. Die historischen Matrixbytes bleiben als Nachweisquelle erhalten.
+
 Alle Limits sind strikt positiv, NULL ist bei nicht-NULL-Binary ungültig, höhere Werte sind ausgeschlossen. Das interne zusätzliche 128-MiB-Chargebudget zählt konservative implementierte Allokationsanteile und ist keine Messung des gesamten Peaks. Jedes ausgewählte String-Ausgabefeld wird vor der SQL-Ausgabe zusätzlich mit vier Bytes je UTF-16-Codeeinheit belastet: StoredType, RawValue, TextValue, FormulaText, FormulaKind und CacheValue beziehungsweise SheetName und Visibility. Wiederholte Shared-Stringreferenzen und identischer Raw-/Cachetext zählen je Ausgabe erneut. Damit kann auch ein Workbook innerhalb der Einzelcaps wegen kumulativer Outputexpansion mit `TBX_XLSX_COUNTED_ALLOCATION_LIMIT` atomar scheitern. Die Grenze darf nicht erhöht werden; kein unabhängiger öffentlicher Allocation-Parameter entsteht.
 
 Inputmaterialisierung, ZIP-Payload-/ToArray-Kopien, XML-/String-/Resultlisten, TVF-Marshalling, T-SQL-Snapshot und Tempdb können gleichzeitig RAM beanspruchen. Kein Streaming, copy-free oder SQL-Memory-Grant wird zugesagt.
