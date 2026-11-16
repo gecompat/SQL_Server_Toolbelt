@@ -25,7 +25,10 @@ if(-not $script:ledger.native_started){
     $script:ledger|Add-Member -NotePropertyName completed_keys -NotePropertyValue @()
     Save-ReleaseJournal
 }
-$deadline=[DateTimeOffset]::Parse($script:ledger.native_started).UtcDateTime.AddMinutes(60)
+$started=if($script:ledger.native_started -is [DateTime]){$script:ledger.native_started.ToUniversalTime()}
+         elseif($script:ledger.native_started -is [DateTimeOffset]){$script:ledger.native_started.UtcDateTime}
+         else{[DateTimeOffset]::Parse([string]$script:ledger.native_started,[Globalization.CultureInfo]::InvariantCulture).UtcDateTime}
+$deadline=$started.AddMinutes(60)
 if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','AUDIT_PASS')}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
 $out=Split-Path -Parent $BudgetPath
 foreach($index in $CaseIndex){
