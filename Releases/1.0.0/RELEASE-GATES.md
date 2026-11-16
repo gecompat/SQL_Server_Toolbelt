@@ -155,6 +155,8 @@ mehr diese bereits belegten Teilumfänge. Die bestehende Releaseprüfung prüft
 die Source-/Evidenzbindungen nach ihrem ursprünglichen Hashvertrag und die
 gelieferte DLL; Originalberichte und Pakete werden dafür nicht geändert.
 
+Die [große native Capture-Ausgabegrenze](REGEX-CAPTURE-BOUNDARY-STATUS.md) ist ebenfalls bereits in der Originalmatrix auf allen 24 Routen belegt: großes Opt-in, exakt 16 MiB GroupName+Value und atomare Abweisung einer weiteren UTF-16-Codeeinheit. Keine neue SQL-Ausführung; die ältere pauschale Nichtausführungsangabe ist für diesen Umfang überholt.
+
 Lowpriv-CrossDB-Logins, weitere Ressourcen-/Parallelitäts-/Host-Recovery- und
 andere ausdrücklich benannte Modulpflichtfälle bleiben getrennt. Dieser Abgleich
 ist keine neue native Ausführung oder Modulgesamtfreigabe; Status bleibt

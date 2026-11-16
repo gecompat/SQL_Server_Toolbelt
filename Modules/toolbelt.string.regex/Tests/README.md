@@ -1,5 +1,7 @@
 # Regex-Tests
 
+Aktueller Grenzabgleich 2026-11-16: Die [16-MiB-Capture-Ausgabegrenze](../../../Releases/1.0.0/REGEX-CAPTURE-BOUNDARY-STATUS.md) ist im unveränderten Originalrecord auf 24 lokalen/direkt zentralen Routen belegt, einschließlich großem Opt-in und atomarer Überschreitung um eine UTF-16-Codeeinheit. Frühere pauschale Nichtausführungsangaben sind für exakt diesen Scope überholt; keine neue SQL-Ausführung, Durchsatz- oder Gesamtfreigabe.
+
 ## Aktueller Nachweisumfang
 
 Die [aktuelle Einordnung](../../../Releases/1.0.0/RELEASE-GATES.md#regex-aktueller-nachweisabgleich-vom-2026-11-06)
@@ -68,9 +70,9 @@ explizit, prüfen Format-/Abwesenheits-/Mismatch-Fehler sowie den zweiten
 Vergleich unter AppLock.
 API-only ist kein Upgrade-,
 Wiederdeployment-, Caller-TX-/Lock-/Rollback- oder Uninstall-Nachweis.
-Weitere SQL-Versionen, neue Minimalrechte/CrossDB-Mappings und die tatsächliche
-16-MiB-Capture-Outputgrenze in SQL sind noch nicht ausgeführt. Keine
-100k-SQL-Capture-Durchsatzbehauptung.
+Die damals noch fehlenden Ziel- und 16-MiB-Capture-Ausgabenachweise sind durch
+den aktuellen Abgleich oben eingeordnet. Echte CrossDB-Identitäten und weitere
+Modulpflichten bleiben getrennt; keine SQL-100k-Durchsatzbehauptung.
 
 Finaler Gesamtadapter vom 2026-10-02: Linux 2019/latest CL150 und Windows
 2025/CU8 CL150/160/170 jeweils lokal und zentral erfolgreich. Der echte
@@ -81,8 +83,9 @@ Historische fehlgeschlagene Gesamtversuche betrafen eine nicht normalisierte
 SQLCMD-Direktive des Vorgängers, `SET NOCOUNT ON` im Snapshot und die nach
 Open credentialbereinigte Connection-String-Quelle des Lock-Halters. Die
 finalen Adapter beseitigen diese Testfehler; die früheren Läufe sind kein PASS.
-Neue Capture-Minimalrechte, weitere Ziele, tatsächliche große SQL-Capture-
-Ausgabe und SQL-100k-Durchsatz bleiben `not executed`; Die aktuelle CI wird separat als PR-Mergegate nachgewiesen.
+Die späteren gebundenen Rechte-/Ziel- und großen Capture-Ausgabenachweise
+schließen ihre jeweiligen Teilumfänge; SQL-100k-Durchsatz bleibt `not executed`.
+Die aktuelle CI wird separat am tatsächlichen Head/Main nachgewiesen.
 
 ## R2b (1.2.0)
 
