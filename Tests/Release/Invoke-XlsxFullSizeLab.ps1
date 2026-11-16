@@ -137,7 +137,7 @@ try {
     })
     $actualMatrix = @($script:runset.cases | ForEach-Object { "$($_.Platform)/$($_.Version)/$($_.CL)" })
     if ($actualMatrix.Count -ne 12 -or @($actualMatrix | Sort-Object -Unique).Count -ne 12 -or
-        (($actualMatrix | Sort-Object) -join '|') -cne (($expectedMatrix | Sort-Object) -join '|')) {
+        ($actualMatrix -join '|') -cne ($expectedMatrix -join '|')) {
         throw 'XLSX_FULL_SIZE_MATRIX_INVALID'
     }
     $case = $script:runset.cases[$CaseIndex]

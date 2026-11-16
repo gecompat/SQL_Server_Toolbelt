@@ -103,3 +103,22 @@ $caught=$false
 try{& $expiring.Read $command}catch{$caught=$_.Exception.Message -ceq 'RELEASE_DEADLINE'}
 if(-not $caught -or -not $command.Cancelled){throw 'XLSX_CLIENT_EXPIRED_READ_NOT_CANCELLED'}
 'PASS XLSX_CELL_CLIENT child script closure and monotone expiry/cancel counterexamples; no SQL'
+
+# CaseIndex darf durch eine umgeordnete vollständige Matrix nicht auf einen
+# bereits grünen Kontext zeigen. Den echten Admission-Ifblock isoliert prüfen.
+$checks=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and
+ $n.Extent.Text.StartsWith('if ($actualMatrix.Count -ne 12')},$true))
+if($checks.Count -ne 1){throw 'XLSX_CLIENT_MATRIX_GUARD_AMBIGUOUS'}
+$expectedMatrix=@(foreach($platform in @('linux','windows')){
+ foreach($version in @('2019','2022','2025')){
+  $levels=switch($version){'2019'{150};'2022'{150;160};'2025'{150;160;170}}
+  foreach($level in $levels){"$platform/$version/$level"}
+ }
+})
+$actualMatrix=@($expectedMatrix)
+. ([scriptblock]::Create($checks[0].Extent.Text))
+$actualMatrix=@($expectedMatrix[1],$expectedMatrix[0])+$expectedMatrix[2..11]
+$caught=$false
+try{. ([scriptblock]::Create($checks[0].Extent.Text))}catch{$caught=$_.Exception.Message -ceq 'XLSX_FULL_SIZE_MATRIX_INVALID'}
+if(-not $caught){throw 'XLSX_CLIENT_REORDERED_MATRIX_ACCEPTED'}
+'PASS XLSX_CELL_CLIENT original ordered CaseIndex admission; no SQL'
