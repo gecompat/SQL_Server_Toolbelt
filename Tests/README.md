@@ -1,12 +1,6 @@
 # Tests – SQL Server Toolbelt
 
-Der [aktuelle genuine 1.1→1.2-Upgradeumfang](../Releases/1.0.0/XLSX-GENUINE11-REST-QUALIFICATION.md) ist separat auf allen 24 lokalen/direkt zentralen Routen mit zwölf frischen Audits belegt. Keine Aufwertung zu vollständiger Lifecycle- oder Modulqualifikation.
-
-Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; übrige Lifecycle-/Consumerpflichten bleiben separat.
-
-Die [disjunkte native Zell-Clientergänzung](../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
-
-Aktueller Nachweisabgleich 2026-11-16: [geschlossene Teilumfaenge und echte Restqualifikation](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md). Die spaeteren gebundenen XLSX-, Aggregate-, Table-Clone- und SSIS-Nachweise haben Vorrang vor pauschalen historischen Offen-Zeilen; kein Gesamtmodulstatus wird dadurch angehoben.
+Der [aktuelle Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md) trennt geschlossene Teilumfänge von echter Restqualifikation. Die [XLSX-Testübersicht](../Modules/toolbelt.file.xlsx-memory/Tests/README.md) führt ihre aktuellen einzelnen Quellenbindungen zusammen. Spätere gültige Belege haben Vorrang vor pauschalen historischen Offen-Zeilen; daraus folgt kein Gesamtmodul-PASS.
 
 Die [aktuelle direkte Vorgängermatrix](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
 belegt fünf echte öffentliche Versionen 2.0.0/3.0.0/3.1.0/4.0.0/4.1.0

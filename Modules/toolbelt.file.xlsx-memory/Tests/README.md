@@ -1,12 +1,23 @@
 # XLSX-Vertragsqualifizierung
 
-Der [aktuelle genuine 1.1→1.2-Upgradeumfang](../../../Releases/1.0.0/XLSX-GENUINE11-REST-QUALIFICATION.md) ist separat auf allen 24 lokalen/direkt zentralen Routen mit zwölf frischen Audits belegt. Keine Aufwertung zu vollständiger Lifecycle- oder Modulqualifikation.
+Aktueller [Abgleich geschlossener Teilumfänge und echter Restqualifikation](../../../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md): Die folgenden separat gebundenen Nachweise gelten ausschließlich für ihre deklarierten aktuellen Inputs und Teilmengen.
 
-Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; übrige Lifecycle-/Consumerpflichten bleiben separat.
+| Teilumfang | Gebundener Nachweis |
+|---|---|
+| Archiv-/XMLgrößen und fokussiertes Paket | [192 native Grenzaufrufe, 24 Routen, zwölf Audits](../../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) |
+| Typ-/Anzeige-Restfixtures | [74 vollständige Fixture-Ausführungen, elf Audits](../../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) |
+| Übrige benannte Clientmetadaten | [37 Originalhelfer, 95 Readerfälle, elf erfolgreiche Fallaudits](../../../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) |
+| Genuine 1.0→heutiger 1.2-Build | [24 Upgrade-Routen, 13 Audits](../../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) |
+| Genuine 1.1→heutiger 1.2-Build | [24 Upgrade-Routen, zwölf Audits](../../../Releases/1.0.0/XLSX-GENUINE11-REST-QUALIFICATION.md) |
+| Benannte negative Lifecycleprofile | [528 Negativfälle auf 24 Routen, zwölf Audits](../../../Releases/1.0.0/XLSX-LIFECYCLE-NEGATIVE-REST-QUALIFICATION.md) |
 
-Die [disjunkte native Zell-Clientergänzung](../../../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
-
-Aktueller Nachweisabgleich 2026-11-16: Die [acht nativen Vollgroessenfaelle und Paketpflege](../../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) sowie die [fehlenden Typ-/Anzeige-Fixtures](../../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) sind in ihrem genauen Scope geschlossen. Die direkten Zell-/Raw-Callerrechte sind separat belegt. Die folgenden datierten Berichte und die unveraenderte historische Testmatrix sind keine aktuelle pauschale Offenliste; genuine Upgrade-/Consumer-, Kollisions-/Owner-/Client- und Heapgrenzen bleiben getrennt.
+Diese Werte werden nicht zu einer vollständigen Modulqualifikation addiert.
+Synthetische 0/NULL-Sichtbarkeitsfehler sind keine echten Minimalrechteprüfungen;
+weitere Clienthosts und Katalognullability bleiben separat. Die unten datierten
+Berichte und die unveränderte historische Contract-Testmatrix behalten ihre
+Originalgrenzen und Fehler. Sie sind keine pauschale aktuelle Offenliste.
+Andere Consumer-/Kollisions-/Owner-/Recoveryprofile und tatsächliche Heap-
+oder Kapazitätszusagen bleiben gemäß aktuellem Abgleich eigenständig.
 
 ## Raw-Reader-Callerrechte – 2026-10-26
 

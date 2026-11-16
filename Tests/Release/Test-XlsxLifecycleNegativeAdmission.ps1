@@ -81,6 +81,32 @@ $script:mockState=3;$caught=$false
 try{Assert-XlsxVisibilityPrepared $null $deploy $uninstall}catch{$caught=$true}
 if(-not $caught){throw 'XLSX_LIFECYCLE_WRONG_ERROR_STATE_ACCEPTED'}
 
+# Vollständiger neuer Adapter: Journalmutationen und kein PASS nach Kinderfehler.
+$script:runset=$runset;$script:case=$runset.cases[0]
+$script:ledger=@{lifecycleNegatives=@()};$script:journalWrites=0;$script:neutralCalls=0
+$script:holder.State=[Data.ConnectionState]::Open;$script:mockState=2
+$script:negativeCalls.Clear();$script:visibilityCalls.Clear()
+function Save-ReleaseJournal {$script:journalWrites++}
+function Assert-XlsxFullSizeNeutral($Connection){$script:neutralCalls++}
+function Assert-XlsxRejected($Connection,[string]$Sql,[int]$Number){
+    $script:negativeCalls.Add(@{text=$Sql;number=$Number})
+}
+$fakeConnection=[pscustomobject]@{Database='ContosoOwned'}
+Invoke-XlsxLifecycleNegative $fakeConnection 'local'
+$group=$script:ledger.lifecycleNegatives[0]
+if($script:ledger.lifecycleNegatives.Count -ne 1 -or $group.status -cne 'PASS' -or $group.mode -cne 'local' -or
+   $group.rollback -ne 4 -or $group.locks -ne 2 -or $group.visibility -ne 16 -or
+   $script:negativeCalls.Count -ne 6 -or $script:visibilityCalls.Count -ne 16 -or
+   $script:journalWrites -ne 5 -or $script:neutralCalls -ne 1){throw 'XLSX_LIFECYCLE_COMPLETE_ADAPTER_COUNTERS'}
+$script:ledger.lifecycleNegatives=@();$script:mutated=$false
+function Get-XlsxSnapshot($Connection){if($script:mutated){'ContosoChangedSnapshot'}else{'ContosoStableSnapshot'}}
+function Assert-XlsxRejected($Connection,[string]$Sql,[int]$Number){$script:mutated=$true}
+$caught=$false;try{Invoke-XlsxLifecycleNegative $fakeConnection 'local'}catch{$caught=$true}
+if(-not $caught -or $script:ledger.lifecycleNegatives.Count -ne 1 -or
+   $script:ledger.lifecycleNegatives[0].status -cne 'RUNNING' -or $script:ledger.lifecycleNegatives[0].rollback -ne 0){
+    throw 'XLSX_LIFECYCLE_CHILD_FAILURE_BECAME_PASS'
+}
+
 # Tatsächliche gemeinsame Modus-/Fixtureselektion statt nachgebauter Bedingungen.
 $errors=$null;$ast=[Management.Automation.Language.Parser]::ParseFile(
     (Join-Path $PSScriptRoot 'Invoke-XlsxFullSizeLab.ps1'),[ref]$null,[ref]$errors)
@@ -97,4 +123,4 @@ foreach($index in @(0,1,11)){
         throw 'XLSX_LIFECYCLE_SELECTOR_SCOPE'
     }
 }
-'PASS XLSX_LIFECYCLE_NEGATIVE 6 admission/seam negatives; own holder; original4rollback/2lock/16visibility and failure cleanup/state controls;3 actual selectors; no SQL'
+'PASS XLSX_LIFECYCLE_NEGATIVE 6 admission/seam negatives; own holder; original4rollback/2lock/16visibility and failure cleanup/state controls; complete adapter/counter/failure controls;3 actual selectors; no SQL'
