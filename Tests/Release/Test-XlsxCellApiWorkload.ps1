@@ -53,4 +53,4 @@ foreach($name in @('Invoke-XlsxFullSizeLab.ps1','Invoke-XlsxFullSizeMatrix.ps1',
     [void][Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $name),[ref]$null,[ref]$errors)
     if($errors.Count){throw ('XLSX_CELL_PARSER_'+$name)}
 }
-'PASS XLSX_CELL_API admission plus 8 negative counterexamples; four adapter parses; no SQL'
+'PASS XLSX_CELL_API two admissions plus 9 negative counterexamples; four adapter parses; no SQL'

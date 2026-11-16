@@ -1,5 +1,7 @@
 # Tests – SQL Server Toolbelt
 
+Aktueller Nachweisabgleich 2026-11-16: [geschlossene Teilumfaenge und echte Restqualifikation](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md). Die spaeteren gebundenen XLSX-, Aggregate-, Table-Clone- und SSIS-Nachweise haben Vorrang vor pauschalen historischen Offen-Zeilen; kein Gesamtmodulstatus wird dadurch angehoben.
+
 Die [aktuelle direkte Vorgängermatrix](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
 belegt fünf echte öffentliche Versionen 2.0.0/3.0.0/3.1.0/4.0.0/4.1.0
 gegen 4.1.1 auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:

@@ -1,5 +1,7 @@
 # XLSX Binary Memory Reader
 
+Aktueller Nachweisabgleich 2026-11-16: [Typ-/Anzeige-Restfixtures](../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) und [native Vollgroessen-/Paketabnahme](../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) sind im jeweils benannten Scope bestanden. Die folgenden datierten 1.0-/1.1-/1.2-Teilstationen behalten ihre Originalgrenzen; pauschale alte Ziel-/Minimalrechte-Offenzeilen sind keine neue Testwarteschlange. [Echte Restqualifikation](../../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md).
+
 Dieses Modul verarbeitet ein vom Aufrufer übergebenes XLSX-Binary im Speicher und stellt zwei Raw-Reader-USPs bereit: eine Worksheetliste und die vorhandenen Rohzellen. Es führt keine Workbookinhalte aus und greift nicht auf Dateien oder Netzwerke zu. Die Objektverträge stehen unter [USP_ListXlsxWorksheets](Documentation/USP_ListXlsxWorksheets.md) und [USP_ReadXlsxWorksheetCells](Documentation/USP_ReadXlsxWorksheetCells.md); Type- und Anzeigeausgaben sind getrennte APIs.
 
 Die [Raw-Caller-Evidenz](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) weist ein schmales Objektprofil für direkte und caller-lokale `ResultTable`-Ausgabe auf zwölf ausgewählten Ziel-/CL-Fällen nach. Der [Zell-Callerbericht](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) deckt die getrennten Typ-/Anzeige-TVFs ab. Das Modul bleibt `partially validated`, `unreleased`; weitere Modul-, Client-, Lifecycle-, Ressourcen-, Identitäts- und Releasegates sind separat.
