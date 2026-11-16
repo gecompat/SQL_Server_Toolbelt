@@ -311,10 +311,8 @@ try {
                 if ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant() -cne $workbook.sha256) { throw 'XLSX_FULL_SIZE_FIXTURE_DRIFT' }
                 if ($cellApi) {
                     if($script:runset.qualification_scope -ceq 'cell-client-rest'){
-                        & $workbook.path -Connection $db -CommandTimeoutProvider { Get-ReleaseTimeout } -ReadBudgetProvider {
-                            param($command)
-                            try{[void](Get-ReleaseTimeout)}catch{try{$command.Cancel()}catch{};throw}
-                        }
+                        $providers=New-XlsxClientBudgetProviders $script:clock (Get-ReleaseTimeout)
+                        & $workbook.path -Connection $db -CommandTimeoutProvider $providers.Timeout -ReadBudgetProvider $providers.Read
                     }else{
                         Invoke-ReleaseBatches $db ([Text.Encoding]::UTF8.GetString($bytes))
                     }

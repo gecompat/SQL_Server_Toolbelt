@@ -87,3 +87,19 @@ foreach($index in @(1,9,11)){
     if(($modes -join '|') -cne $expectedModes -or ($caseWorkbooks.name -join '|') -cne $expectedNames){throw 'XLSX_CLIENT_GREEN_REPLAY_OR_MISSING_FIXTURE'}
 }
 'PASS XLSX_CELL_CLIENT pinned original helpers and 3 live selector contexts; no SQL'
+
+# Reproduziert genau den frischen Kind-Skriptscope des ursprünglichen Fehlers.
+$child=Join-Path $temporary 'budget-child.ps1'
+[IO.File]::WriteAllText($child,'param([scriptblock]$Provider) Set-StrictMode -Version Latest; $script:clock=$null; $script:cleanup=$null; & $Provider')
+$clock=[Diagnostics.Stopwatch]::StartNew()
+$providers=New-XlsxClientBudgetProviders $clock 3
+$seconds=& $child -Provider $providers.Timeout
+if($seconds -lt 1 -or $seconds -gt 3){throw 'XLSX_CLIENT_CHILD_BUDGET_CONTEXT'}
+$expiring=New-XlsxClientBudgetProviders $clock 1
+Start-Sleep -Milliseconds 1100
+$command=[pscustomobject]@{Cancelled=$false}
+$command|Add-Member -MemberType ScriptMethod -Name Cancel -Value {$this.Cancelled=$true}
+$caught=$false
+try{& $expiring.Read $command}catch{$caught=$_.Exception.Message -ceq 'RELEASE_DEADLINE'}
+if(-not $caught -or -not $command.Cancelled){throw 'XLSX_CLIENT_EXPIRED_READ_NOT_CANCELLED'}
+'PASS XLSX_CELL_CLIENT child script closure and monotone expiry/cancel counterexamples; no SQL'

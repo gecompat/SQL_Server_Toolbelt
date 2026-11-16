@@ -30,3 +30,24 @@ function Assert-XlsxCellApiWorkload($Runset, [int]$Index, [string]$Repository) {
         }
     }
 }
+
+# Der originale Metadatentest läuft in seinem eigenen Skriptscope. Deshalb
+# keine dynamischen $script:-Variablen des aufrufenden SQL-Adapters verwenden.
+# Das bereits kanonisch bestimmte Commandlimit wird als monotone Restfrist
+# eingefroren; die Kindprüfung darf es weder neu starten noch verlängern.
+function New-XlsxClientBudgetProviders([Diagnostics.Stopwatch]$Clock,[ValidateRange(1,45)][int]$Seconds) {
+    $ownedClock=$Clock
+    $started=$Clock.ElapsedMilliseconds
+    $limit=1000L*$Seconds
+    $timeout={
+        $remaining=$limit-($ownedClock.ElapsedMilliseconds-$started)
+        if($remaining -lt 1000){throw 'RELEASE_DEADLINE'}
+        [int][Math]::Min(45,[Math]::Floor($remaining/1000))
+    }.GetNewClosure()
+    $readTimeout=$timeout
+    $read={
+        param($command)
+        try{[void](& $readTimeout)}catch{try{$command.Cancel()}catch{};throw}
+    }.GetNewClosure()
+    [pscustomobject]@{Timeout=$timeout;Read=$read}
+}
