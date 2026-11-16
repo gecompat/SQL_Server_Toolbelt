@@ -1,5 +1,7 @@
 # XLSX Binary Memory Reader
 
+Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; genuine 1.1 und übrige Lifecycle-/Consumerpflichten sind separat.
+
 Die [disjunkte native Zell-Clientergänzung](../../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
 
 Aktueller Nachweisabgleich 2026-11-16: [Typ-/Anzeige-Restfixtures](../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) und [native Vollgroessen-/Paketabnahme](../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) sind im jeweils benannten Scope bestanden. Die folgenden datierten 1.0-/1.1-/1.2-Teilstationen behalten ihre Originalgrenzen; pauschale alte Ziel-/Minimalrechte-Offenzeilen sind keine neue Testwarteschlange. [Echte Restqualifikation](../../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md).

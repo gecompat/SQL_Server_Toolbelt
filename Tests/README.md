@@ -1,5 +1,7 @@
 # Tests – SQL Server Toolbelt
 
+Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; genuine 1.1 und übrige Lifecycle-/Consumerpflichten sind separat.
+
 Die [disjunkte native Zell-Clientergänzung](../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
 
 Aktueller Nachweisabgleich 2026-11-16: [geschlossene Teilumfaenge und echte Restqualifikation](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md). Die spaeteren gebundenen XLSX-, Aggregate-, Table-Clone- und SSIS-Nachweise haben Vorrang vor pauschalen historischen Offen-Zeilen; kein Gesamtmodulstatus wird dadurch angehoben.
