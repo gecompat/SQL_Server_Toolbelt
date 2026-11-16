@@ -72,8 +72,9 @@ $repoPaths = @(
     'Scripts/Release/new_xlsx_install_package.py',
     'Scripts/Release/prepare_clr_package.py',
     'Scripts/Release/prepare_release.py',
-    'Scripts/Release/Install-ClrPackage.ps1'
-    'Tests/Release/Test-XlsxFullSizeAdapter.ps1'
+    'Scripts/Release/Install-ClrPackage.ps1',
+    'Tests/Release/Invoke-XlsxFullSizeMatrix.ps1',
+    'Tests/Release/Test-XlsxFullSizeAdapter.ps1',
     'Tests/Release/test_xlsx_native_package.py'
 )
 $deployDiscovery = @(Get-ZipEntryCountDeploymentDiscovery (Join-Path $repo 'Modules'))
@@ -251,6 +252,7 @@ foreach ($path in $runtimeFiles) {
 }
 $runset = [ordered]@{
     schema_version='xlsx-full-size-package/v1'
+    method_commit=(git -C $repo rev-parse HEAD).Trim()
     contract_sha256=(Get-FileHash -LiteralPath $contract.Path -Algorithm SHA256).Hash
     cases=$matrix
     fixture=$fixturePath
