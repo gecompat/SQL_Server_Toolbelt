@@ -75,6 +75,7 @@ $repoPaths = @(
     'Scripts/Release/Install-ClrPackage.ps1',
     'Tests/Release/Invoke-XlsxFullSizeMatrix.ps1',
     'Tests/Release/Invoke-XlsxFullSizePreSqlAudit.ps1',
+    'Tests/Release/Invoke-XlsxFullSizeStateDiagnostic.ps1',
     'Tests/Release/Test-XlsxFullSizeAdapter.ps1',
     'Tests/Release/test_xlsx_native_package.py'
 )

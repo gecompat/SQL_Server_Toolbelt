@@ -2,7 +2,8 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,
       [Parameter(Mandatory)][string]$BudgetPath,
-      [ValidateRange(0,11)][int[]]$CaseIndex=@(0,1,2,3,4,5,6,7,8,9,10,11))
+      [ValidateRange(0,11)][int[]]$CaseIndex=@(0,1,2,3,4,5,6,7,8,9,10,11),
+      [switch]$DiagnosticOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -14,8 +15,8 @@ $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionD
 if($nodes.Count -ne 1){throw 'MATRIX_JOURNAL_HELPER'}
 . ([scriptblock]::Create($nodes[0].Extent.Text))
 . (Join-Path $repo 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1')
-if($script:ledger.native_ceiling_minutes -ne 60 -or $script:ledger.native_dispatch_max -ne 28 -or
-   $script:ledger.database_max -ne 28 -or $script:ledger.changed_adapter_cases_max -ne 2 -or
+if($script:ledger.native_ceiling_minutes -ne 60 -or $script:ledger.native_dispatch_max -ne 30 -or
+   $script:ledger.database_max -ne 30 -or $script:ledger.changed_adapter_cases_max -ne 2 -or
    $runset.schema_version -cne 'xlsx-full-size-package/v1' -or $runset.cases.Count -ne 12){throw 'MATRIX_SCOPE_DRIFT'}
 if(@($CaseIndex|Sort-Object -Unique).Count -ne $CaseIndex.Count){throw 'MATRIX_DUPLICATE_CASE'}
 if(-not $script:ledger.native_started){
@@ -39,8 +40,12 @@ if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin
 $out=Split-Path -Parent $BudgetPath
 foreach($index in $CaseIndex){
     $case=$runset.cases[$index];$key=$case.Platform+'/'+$case.Version+'/'+$case.CL
+    if($DiagnosticOnly){
+        if($CaseIndex.Count -ne 1 -or $index -ne 0 -or @($script:ledger.dispatches|Where-Object {$_.key -like 'diagnostic/*'}).Count){throw 'MATRIX_DIAGNOSTIC_BOUND'}
+        $key='diagnostic/'+$key
+    }
     if($key -cin $script:ledger.completed_keys -or @($script:ledger.dispatches|Where-Object {$_.key -ceq $key -and $_.phase -ceq 'RUN' -and ($_.state -ceq 'COMPLETE' -or $_.completed_modes.Count -gt 0)}).Count){throw 'MATRIX_GREEN_REPLAY_REJECTED'}
-    if($script:ledger.dispatches.Count+2 -gt 28 -or $script:ledger.database_reserved+2 -gt 28 -or
+    if($script:ledger.dispatches.Count+2 -gt 30 -or $script:ledger.database_reserved+2 -gt 30 -or
        ($deadline-[DateTime]::UtcNow).TotalSeconds -lt 780){throw 'MATRIX_NEXT_PAIR_NOT_WITHIN_SHARED_BOUND'}
     foreach($pin in $runset.pins){if((Get-FileHash -LiteralPath $pin.path -Algorithm SHA256).Hash -cne $pin.sha256){throw 'MATRIX_INPUT_DRIFT'}}
     $run=@{id=[guid]::NewGuid().ToString('N');key=$key;phase='RUN';index=$index;state='RESERVED';dispatched=$false;runset_sha256=(Get-FileHash -LiteralPath $RunsetPath -Algorithm SHA256).Hash;exit_code=$null;stderr_empty=$null;completed_modes=@();diagnostic=$null}
@@ -48,7 +53,8 @@ foreach($index in $CaseIndex){
     $script:ledger.dispatches+=@($run,$audit);$script:ledger.database_reserved+=2;Save-ReleaseJournal
     foreach($item in @($run,$audit)){
         $item.dispatched=$true;$item.state='DISPATCHED';Save-ReleaseJournal
-        $args=@('-NoProfile','-NonInteractive','-File',(Join-Path $PSScriptRoot 'Invoke-XlsxFullSizeLab.ps1'),'-RunsetPath',$RunsetPath,'-CaseIndex',([string]$index))
+        $scriptName=if($DiagnosticOnly -and $item.phase -ceq 'RUN'){'Invoke-XlsxFullSizeStateDiagnostic.ps1'}else{'Invoke-XlsxFullSizeLab.ps1'}
+        $args=@('-NoProfile','-NonInteractive','-File',(Join-Path $PSScriptRoot $scriptName),'-RunsetPath',$RunsetPath,'-CaseIndex',([string]$index))
         if($item.phase -ceq 'AUDIT'){$args+='-AuditOnly'}
         $stdoutPath=Join-Path $out ($item.id+'.stdout.private.txt')
         try{$result=Invoke-OwnedProcess -FileName $runset.tools.powershell.path -Arguments $args -TimeoutMilliseconds 390000 -BinaryOutputPath $stdoutPath}
@@ -72,6 +78,12 @@ foreach($index in $CaseIndex){
             $item.state='AUDIT_PASS'
         }
         Save-ReleaseJournal
+    }
+    if($DiagnosticOnly){
+        $diagnosis=Get-Content -LiteralPath $caseJournal -Raw|ConvertFrom-Json
+        if($run.state -cne 'FAILED_CLEANED' -or $diagnosis.failure.privateDiagnostic -cne 'XLSX_FULL_SIZE_DIAGNOSTIC_STOP_AFTER_REPEAT_STATE' -or @($diagnosis.results).Count){throw 'MATRIX_DIAGNOSTIC_INCOMPLETE'}
+        Write-Output 'PASS XLSX_FULL_SIZE state captured; intentional stop and fresh audit; no qualification PASS'
+        continue
     }
     if($run.state -cne 'COMPLETE' -or $run.exit_code -ne 0 -or -not $run.stderr_empty){throw 'MATRIX_CASE_FAILED_CLEANED_AND_AUDITED'}
     $script:ledger.completed_keys+=@($key);Save-ReleaseJournal
