@@ -89,6 +89,58 @@ function Get-LabLinuxSqlClientTimeoutFailureCode {
     return $null
 }
 
+function Get-LabLinuxSqlClientFailureCode {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord,[ValidateSet('CONSTRUCT','OPEN','QUERY','CLEANUP')][string]$Stage)
+    if($Stage -in @('OPEN','QUERY')){
+        $timeout=Get-LabLinuxSqlClientTimeoutFailureCode $ErrorRecord $Stage
+        if($timeout){return $timeout}
+    }
+    $exception=$ErrorRecord.Exception;$category='UNCLASSIFIED'
+    while($null-ne$exception){
+        if($exception.Message-ceq'LAB_LINUX_SQLCLIENT_RESULT'){return 'LAB_LINUX_SQLCLIENT_RESULT'}
+        $type=$exception.GetType().FullName
+        if($type-ceq'System.PlatformNotSupportedException'){return ('TLS_SQLCLIENT_'+$Stage+'_PLATFORM_UNSUPPORTED')}
+        if($type-cin@('System.TypeLoadException','System.IO.FileNotFoundException','System.IO.FileLoadException')){return ('TLS_SQLCLIENT_'+$Stage+'_ASSEMBLY_UNAVAILABLE')}
+        if($type-ceq'System.Security.Authentication.AuthenticationException'){return ('TLS_SQLCLIENT_'+$Stage+'_AUTHENTICATION')}
+        if($type-ceq'System.Net.Sockets.SocketException'){return ('TLS_SQLCLIENT_'+$Stage+'_NETWORK')}
+        if($type-ceq'System.Data.SqlClient.SqlException'){
+            $numberProperty=$exception.GetType().GetProperty('Number',[Reflection.BindingFlags]'Instance,Public')
+            if($numberProperty){try{if([int]$numberProperty.GetValue($exception)-eq-2){return ('TLS_SQLCLIENT_'+$Stage+'_TIMEOUT')}}catch{}}
+            $category='SQL'
+        }
+        if($type-ceq'System.TimeoutException'){return ('TLS_SQLCLIENT_'+$Stage+'_TIMEOUT')}
+        $exception=$exception.InnerException
+    }
+    return ('TLS_SQLCLIENT_'+$Stage+'_'+$category)
+}
+
+function Invoke-LabLinuxSqlClientQualification {
+    param([Parameter(Mandatory)][object]$Builder,[Parameter(Mandatory)][object]$Snapshot,[Parameter(Mandatory)][string]$ExpectedSqlBuild,[Parameter(Mandatory)][scriptblock]$ConnectionFactory)
+    $failureCode=$null;$connection=$null;$command=$null;$reader=$null;$connectionString=$null
+    try{
+        $connectionString=$Builder.ConnectionString
+        try{$connection=& $ConnectionFactory $connectionString}catch{$failureCode=Get-LabLinuxSqlClientFailureCode $_ CONSTRUCT}
+        finally{$connectionString=$null}
+        if(-not$failureCode){
+            try{Assert-LabQualifiedConnectWindow $Snapshot}catch{$failureCode='LAB_QUALIFIED_CONNECT_WINDOW_EXPIRED'}
+            if(-not$failureCode){try{$connection.Open()}catch{$failureCode=Get-LabLinuxSqlClientFailureCode $_ OPEN}}
+        }
+        if(-not$failureCode){
+            try{
+                $command=$connection.CreateCommand();$command.CommandTimeout=10
+                $command.CommandText="SET NOCOUNT ON; SELECT CONVERT(varchar(32),SERVERPROPERTY('ProductVersion')),encrypt_option FROM sys.dm_exec_connections WHERE session_id=@@SPID"
+                $reader=$command.ExecuteReader()
+                if(-not$reader.Read()-or$reader.GetString(0)-cne$ExpectedSqlBuild-or$reader.GetString(1)-cne'TRUE'-or$reader.Read()){$failureCode='LAB_LINUX_SQLCLIENT_RESULT'}
+            }catch{$failureCode=Get-LabLinuxSqlClientFailureCode $_ QUERY}
+            finally{
+                if($reader){try{$reader.Dispose()}catch{if(-not$failureCode){$failureCode=Get-LabLinuxSqlClientFailureCode $_ CLEANUP}}}
+                if($command){try{$command.Dispose()}catch{if(-not$failureCode){$failureCode=Get-LabLinuxSqlClientFailureCode $_ CLEANUP}}}
+            }
+        }
+    }finally{if($connection){try{$connection.Dispose()}catch{if(-not$failureCode){$failureCode=Get-LabLinuxSqlClientFailureCode $_ CLEANUP}}}}
+    return $failureCode
+}
+
 function Read-LabQualifiedSnapshot {
     param([byte[]]$Bytes,[object]$TlsContext,[string]$ClientStack='SYSTEM_DATA_SQLCLIENT')
     $platform=Get-LabQualifiedClientHost

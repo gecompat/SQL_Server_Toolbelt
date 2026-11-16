@@ -1,5 +1,22 @@
 # Synthetic controller/module and host leaves, actual dedicated Linux reader.
 # No provider, trust, process launch, SQL connection or filesystem write.
+class SqlServerLabSyntheticLinuxReader {
+    [string]$Build='17.0.5005.3';[string]$Encrypt='TRUE';[int]$ReadCount=0;[bool]$Disposed=$false;[Exception]$DisposeFailure
+    [bool] Read(){ $this.ReadCount++;return $this.ReadCount-eq1 }
+    [string] GetString([int]$Ordinal){if($Ordinal-eq0){return $this.Build};return $this.Encrypt}
+    [void] Dispose(){ $this.Disposed=$true;if($this.DisposeFailure){throw $this.DisposeFailure} }
+}
+class SqlServerLabSyntheticLinuxCommand {
+    [object]$Reader;[Exception]$ExecuteFailure;[Exception]$DisposeFailure;[int]$CommandTimeout;[string]$CommandText='';[bool]$Disposed=$false
+    [object] ExecuteReader(){if($this.ExecuteFailure){throw $this.ExecuteFailure};return $this.Reader}
+    [void] Dispose(){ $this.Disposed=$true;if($this.DisposeFailure){throw $this.DisposeFailure} }
+}
+class SqlServerLabSyntheticLinuxConnection {
+    [object]$Command;[Exception]$OpenFailure;[Exception]$CreateCommandFailure;[Exception]$DisposeFailure;[int]$OpenCount=0;[bool]$Disposed=$false
+    [void] Open(){ $this.OpenCount++;if($this.OpenFailure){throw $this.OpenFailure} }
+    [object] CreateCommand(){if($this.CreateCommandFailure){throw $this.CreateCommandFailure};return $this.Command}
+    [void] Dispose(){ $this.Disposed=$true;if($this.DisposeFailure){throw $this.DisposeFailure} }
+}
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
 $originalImportCommand=Get-Command Import-Module
@@ -50,6 +67,16 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
         }
         $script:bytes=[Text.Encoding]::UTF8.GetBytes('{"ModuleFile":"export-cannot-select-code","StateRoot":"export-cannot-select-root"}')
     }
+    function New-SyntheticLinuxConnectSnapshot {
+        return [pscustomobject]@{
+            Qualification=[pscustomobject]@{ClientPlatform='linux'}
+            LinuxConnectWindow=[pscustomobject]@{
+                ContractVersion='SqlServerLab.LinuxConnectWindow/0.1'
+                RemainingAtApprovalMilliseconds=60000L
+                Clock=[Diagnostics.Stopwatch]::StartNew()
+            }
+        }
+    }
     $script:RunChecks={
         Reset
         $timeoutInner=[TimeoutException]::new('synthetic-private-timeout-detail')
@@ -71,10 +98,58 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
             $sqlException=$sqlExceptionConstructor.Invoke([object[]]@('synthetic-private-sql-detail',$sqlErrors,$null,[guid]::Empty))
             $sqlRecord=[Management.Automation.ErrorRecord]::new($sqlException,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
             Assert ((Get-LabLinuxSqlClientTimeoutFailureCode $sqlRecord $sqlCase.Stage)-ceq$sqlCase.Code) ('SqlException.Number timeout classification and non-timeout rejection: '+$sqlCase.Stage+'/'+$sqlCase.Number)
+            $phaseCode=Get-LabLinuxSqlClientFailureCode $sqlRecord $sqlCase.Stage
+            $expectedPhaseCode=if($sqlCase.Number-eq-2){$sqlCase.Code}else{'TLS_SQLCLIENT_'+$sqlCase.Stage+'_SQL'}
+            Assert ($phaseCode-ceq$expectedPhaseCode-and$phaseCode -notmatch 'synthetic-private-sql-detail') ('SqlClient phase classifier keeps only the fixed SQL category: '+$sqlCase.Stage+'/'+$sqlCase.Number)
         }
         $nonTimeout=[InvalidOperationException]::new('synthetic-private-failure')
         $nonTimeoutRecord=[Management.Automation.ErrorRecord]::new($nonTimeout,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
         Assert ($null-eq(Get-LabLinuxSqlClientTimeoutFailureCode $nonTimeoutRecord OPEN)) 'unclassified SQL open failures preserve the existing safe fallback'
+        Assert ((Get-LabLinuxSqlClientFailureCode $nonTimeoutRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_UNCLASSIFIED') 'unclassified SqlClient errors retain their bounded operation phase'
+        $authenticationRecord=[Management.Automation.ErrorRecord]::new([Security.Authentication.AuthenticationException]::new('synthetic-private-auth-detail'),'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+        Assert ((Get-LabLinuxSqlClientFailureCode $authenticationRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_AUTHENTICATION') 'TLS authentication errors retain only a fixed phase and category'
+        $wrappedSqlException=$sqlExceptionConstructor.Invoke([object[]]@('synthetic-private-sql-detail',$sqlErrors,$authenticationRecord.Exception,[guid]::Empty))
+        $wrappedAuthenticationRecord=[Management.Automation.ErrorRecord]::new($wrappedSqlException,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+        Assert ((Get-LabLinuxSqlClientFailureCode $wrappedAuthenticationRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_AUTHENTICATION') 'Inner TLS authentication category is retained through a SqlException wrapper'
+        $networkRecord=[Management.Automation.ErrorRecord]::new([Net.Sockets.SocketException]::new([Net.Sockets.SocketError]::ConnectionRefused),'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+        Assert ((Get-LabLinuxSqlClientFailureCode $networkRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_NETWORK') 'Socket errors retain only a fixed phase and category'
+        $resultRecord=[Management.Automation.ErrorRecord]::new([InvalidOperationException]::new('LAB_LINUX_SQLCLIENT_RESULT'),'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
+        Assert ((Get-LabLinuxSqlClientFailureCode $resultRecord QUERY)-ceq'LAB_LINUX_SQLCLIENT_RESULT') 'Qualified SQL result failures keep their existing safe token'
+        $successReader=[SqlServerLabSyntheticLinuxReader]::new()
+        $successCommand=[SqlServerLabSyntheticLinuxCommand]::new();$successCommand.Reader=$successReader
+        $successConnection=[SqlServerLabSyntheticLinuxConnection]::new();$successConnection.Command=$successCommand
+        $successFactory={param([string]$ConnectionString)if(-not$ConnectionString){throw 'SYNTHETIC_CONNECTION_STRING_MISSING'};return $successConnection}.GetNewClosure()
+        $successBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new('Data Source=tcp:localhost,1433;Encrypt=True;TrustServerCertificate=False')
+        $successCode=Invoke-LabLinuxSqlClientQualification -Builder $successBuilder -Snapshot (New-SyntheticLinuxConnectSnapshot) -ExpectedSqlBuild '17.0.5005.3' -ConnectionFactory $successFactory
+        $successBuilder.Clear()
+        Assert ($null-eq$successCode-and$successConnection.OpenCount-eq1-and$successConnection.Disposed-and$successCommand.Disposed-and$successReader.Disposed) 'Synthetic successful SqlClient flow completes and disposes every owned object'
+        $openFailureConnection=[SqlServerLabSyntheticLinuxConnection]::new();$openFailureConnection.OpenFailure=$sqlException
+        $openFailureFactory={param([string]$ConnectionString)return $openFailureConnection}.GetNewClosure()
+        $openFailureBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new('Data Source=tcp:localhost,1433;Encrypt=True;TrustServerCertificate=False')
+        $openFailureCode=Invoke-LabLinuxSqlClientQualification -Builder $openFailureBuilder -Snapshot (New-SyntheticLinuxConnectSnapshot) -ExpectedSqlBuild '17.0.5005.3' -ConnectionFactory $openFailureFactory
+        $openFailureBuilder.Clear()
+        Assert ($openFailureCode-ceq'TLS_SQLCLIENT_OPEN_SQL'-and$openFailureConnection.Disposed-and$openFailureConnection.OpenCount-eq1) 'Synthetic open failure preserves its phase and disposes the connection without touching uncreated query resources'
+        $queryFailureConnection=[SqlServerLabSyntheticLinuxConnection]::new();$queryFailureConnection.CreateCommandFailure=$nonTimeout
+        $queryFailureFactory={param([string]$ConnectionString)return $queryFailureConnection}.GetNewClosure()
+        $queryFailureBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new('Data Source=tcp:localhost,1433;Encrypt=True;TrustServerCertificate=False')
+        $queryFailureCode=Invoke-LabLinuxSqlClientQualification -Builder $queryFailureBuilder -Snapshot (New-SyntheticLinuxConnectSnapshot) -ExpectedSqlBuild '17.0.5005.3' -ConnectionFactory $queryFailureFactory
+        $queryFailureBuilder.Clear()
+        Assert ($queryFailureCode-ceq'TLS_SQLCLIENT_QUERY_UNCLASSIFIED'-and$queryFailureConnection.Disposed) 'Synthetic early query failure remains the query failure and does not read unset reader or command variables'
+        $cleanupReader=[SqlServerLabSyntheticLinuxReader]::new()
+        $cleanupCommand=[SqlServerLabSyntheticLinuxCommand]::new();$cleanupCommand.Reader=$cleanupReader;$cleanupCommand.DisposeFailure=$nonTimeout
+        $cleanupConnection=[SqlServerLabSyntheticLinuxConnection]::new();$cleanupConnection.Command=$cleanupCommand
+        $cleanupFactory={param([string]$ConnectionString)return $cleanupConnection}.GetNewClosure()
+        $cleanupBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new('Data Source=tcp:localhost,1433;Encrypt=True;TrustServerCertificate=False')
+        $cleanupCode=Invoke-LabLinuxSqlClientQualification -Builder $cleanupBuilder -Snapshot (New-SyntheticLinuxConnectSnapshot) -ExpectedSqlBuild '17.0.5005.3' -ConnectionFactory $cleanupFactory
+        $cleanupBuilder.Clear()
+        Assert ($cleanupCode-ceq'TLS_SQLCLIENT_CLEANUP_UNCLASSIFIED'-and$cleanupReader.Disposed-and$cleanupCommand.Disposed-and$cleanupConnection.Disposed) 'Synthetic cleanup failure remains distinguishable after all owned objects are closed'
+        $windowConnection=[SqlServerLabSyntheticLinuxConnection]::new()
+        $windowSnapshot=New-SyntheticLinuxConnectSnapshot
+        $windowFactory={param([string]$ConnectionString)$windowSnapshot.LinuxConnectWindow.Clock.Stop();return $windowConnection}.GetNewClosure()
+        $windowBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new('Data Source=tcp:localhost,1433;Encrypt=True;TrustServerCertificate=False')
+        $windowCode=Invoke-LabLinuxSqlClientQualification -Builder $windowBuilder -Snapshot $windowSnapshot -ExpectedSqlBuild '17.0.5005.3' -ConnectionFactory $windowFactory
+        $windowBuilder.Clear()
+        Assert ($windowCode-ceq'LAB_QUALIFIED_CONNECT_WINDOW_EXPIRED'-and$windowConnection.OpenCount-eq0-and$windowConnection.Disposed) 'Synthetic connection construction that exhausts the window is rejected before Open'
         foreach($stack in @('SYSTEM_DATA_SQLCLIENT','ODBC_SQLCMD')){
             $null=Read-LabQualifiedSnapshot $script:bytes $script:ctx $stack
             Assert ($script:lastStack -ceq $stack) 'actual shared reader forwards selected stack'

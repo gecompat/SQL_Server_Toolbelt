@@ -9,7 +9,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 if(-not$IsLinux){throw 'LAB_LINUX_PEER_REQUIRED'}
 . (Join-Path $PSScriptRoot 'LabLinuxQualifiedContract.ps1')
-$copy=[byte[]]$ExportBytes.Clone();$process=$null;$started=$false;$info=$null
+$copy=[byte[]]$ExportBytes.Clone();$process=$null;$started=$false;$info=$null;$builder=$null;$connection=$null;$command=$null;$reader=$null;$failureCode=$null
 try{
     $snapshot=Read-LabQualifiedSnapshot $copy $TlsContext SYSTEM_DATA_SQLCLIENT
     $entry=$snapshot.Contract.environments[0];$q=$snapshot.Qualification
@@ -17,31 +17,22 @@ try{
     $assembly=[Data.SqlClient.SqlConnection].Assembly.Location
     if($assembly-cne'/opt/tls-client/pwsh/System.Data.SqlClient.dll'-or
         (Get-FileHash -LiteralPath $assembly).Hash.ToLowerInvariant()-cne$q.SqlClientSha256){throw 'LAB_LINUX_SQLCLIENT_CHANGED'}
-    $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new($entry.connectionString)
-    if(-not$builder.Encrypt-or$builder.TrustServerCertificate-or$builder.DataSource-cne'tcp:localhost,1433'-or
-        $builder.UserID-cne'sa'-or$builder.Password-cne$entry.password){throw 'LAB_LINUX_CONNECTION_INVALID'}
-    $builder.Pooling=$false;$builder.ConnectRetryCount=0;$builder.ConnectTimeout=10
-    $connection=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString);$builder.Clear()
+    $builder=$null;$failureCode=$null
     try{
+        $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new($entry.connectionString)
+        if(-not$builder.Encrypt-or$builder.TrustServerCertificate-or$builder.DataSource-cne'tcp:localhost,1433'-or
+            $builder.UserID-cne'sa'-or$builder.Password-cne$entry.password){throw 'LAB_LINUX_CONNECTION_INVALID'}
+        $builder.Pooling=$false;$builder.ConnectRetryCount=0;$builder.ConnectTimeout=10
         Assert-LabQualifiedConnectWindow $snapshot
-        try{$connection.Open()}catch{
-            $failureCode=Get-LabLinuxSqlClientTimeoutFailureCode $_ OPEN
-            if($failureCode){throw $failureCode}
-            throw
+        $failureCode=Invoke-LabLinuxSqlClientQualification -Builder $builder -Snapshot $snapshot -ExpectedSqlBuild $q.SqlBuild -ConnectionFactory {
+            param([string]$ConnectionString)
+            [Data.SqlClient.SqlConnection]::new($ConnectionString)
         }
-        $command=$connection.CreateCommand();$command.CommandTimeout=10
-        $command.CommandText="SET NOCOUNT ON; SELECT CONVERT(varchar(32),SERVERPROPERTY('ProductVersion')),encrypt_option FROM sys.dm_exec_connections WHERE session_id=@@SPID"
-        try{
-            try{
-                $reader=$command.ExecuteReader()
-                try{if(-not$reader.Read()-or$reader.GetString(0)-cne$q.SqlBuild-or$reader.GetString(1)-cne'TRUE'-or$reader.Read()){throw 'LAB_LINUX_SQLCLIENT_RESULT'}}finally{$reader.Dispose()}
-            }catch{
-                $failureCode=Get-LabLinuxSqlClientTimeoutFailureCode $_ QUERY
-                if($failureCode){throw $failureCode}
-                throw
-            }
-        }finally{$command.Dispose()}
-    }finally{$connection.Dispose()}
+    }catch{
+        if($_.Exception.Message-cin@('LAB_LINUX_CONNECTION_INVALID','LAB_QUALIFIED_CONNECT_WINDOW_EXPIRED')){$failureCode=$_.Exception.Message}
+        else{$failureCode=Get-LabLinuxSqlClientFailureCode $_ CONSTRUCT}
+    }finally{if($builder){try{$builder.Clear()}catch{if(-not$failureCode){$failureCode=Get-LabLinuxSqlClientFailureCode $_ CLEANUP}}}}
+    if($failureCode){throw $failureCode}
     $snapshot=Read-LabQualifiedSnapshot $copy $TlsContext ODBC_SQLCMD
     $q=$snapshot.Qualification
     $sqlcmd='/opt/mssql-tools18/bin/sqlcmd'
