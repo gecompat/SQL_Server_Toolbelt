@@ -17,6 +17,7 @@ $script:runset = $null
 $failure = $null
 $stage = 'PREPARE'
 $control = $null
+$cellApi = $false
 
 # Importiert ausschließlich die bestehenden begrenzten Pin-, SQL- und
 # Ownership-Helfer; kein Helper wird in diesem Skript angepasst.
@@ -115,8 +116,15 @@ function Assert-XlsxFullSizeNeutral($Connection) {
 try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
+    if ($script:runset.PSObject.Properties['qualification_scope']) {
+        if ($script:runset.qualification_scope -cne 'cell-api-rest') { throw 'XLSX_CELL_SCOPE_INVALID' }
+        $cellApi = $true
+        . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
+        Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
+    }
+    $expectedWorkbooks = if ($cellApi) { 4 } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
-        $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne 8 -or $script:runset.artifacts.Count -ne 2 -or
+        $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
         @($script:runset.artifacts | Where-Object { $_.module_id -notin @('toolbelt.archive.zip-memory','toolbelt.file.xlsx-memory') }).Count) {
         throw 'XLSX_FULL_SIZE_RUNSET_INVALID'
@@ -187,7 +195,7 @@ try {
         if($prior.state -ceq 'COMPLETE'){
             $expectedResults=@(foreach($mode in @('local','central')){foreach($book in $script:runset.workbooks){$mode+'/'+$book.name+'/'+$book.expected_error}})
             $actualResults=@($prior.results|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_STATUS'};$_.mode+'/'+$_.name+'/'+$_.expected_error})
-            if($actualResults.Count -ne 16 -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
+            if($actualResults.Count -ne (2*$expectedWorkbooks) -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
             $expectedLifecycle=@(foreach($mode in @('local','central')){foreach($action in @('InstallAndRepeat','Uninstall','UninstallAbsent')){$mode+'/'+$action}})
             $actualLifecycle=@($prior.lifecycle|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_STATUS'};$_.mode+'/'+$_.action})
             if($actualLifecycle.Count -ne 6 -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
@@ -211,6 +219,7 @@ try {
         if (Test-Path -LiteralPath $script:journal) { throw 'XLSX_FULL_SIZE_CASE_ALREADY_ATTEMPTED' }
         $script:ledger = [ordered]@{
             owner=[guid]::NewGuid().ToString('N'); state='RUNNING'; databases=@(); trust=@();
+            qualificationScope=$(if($cellApi){'cell-api-rest'}else{'full-size'});
             case=[ordered]@{index=$CaseIndex;platform=$case.Platform;version=$case.Version;cl=$case.CL;patch=$case.Patch};
             completedModes=@(); results=@(); lifecycle=@(); configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()}; failure=$null
         }
@@ -295,7 +304,11 @@ try {
             foreach ($workbook in $script:runset.workbooks) {
                 $bytes=[IO.File]::ReadAllBytes($workbook.path)
                 if ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant() -cne $workbook.sha256) { throw 'XLSX_FULL_SIZE_FIXTURE_DRIFT' }
-                if ($workbook.expected_error -ceq 'NONE') { Assert-XlsxFullSizePositive $db $bytes }
+                if ($cellApi) {
+                    Invoke-ReleaseBatches $db ([Text.Encoding]::UTF8.GetString($bytes))
+                    Assert-XlsxFullSizeNeutral $db
+                }
+                elseif ($workbook.expected_error -ceq 'NONE') { Assert-XlsxFullSizePositive $db $bytes }
                 else { Assert-XlsxFullSizeFailureWithoutRows $db $bytes $workbook.expected_error }
                 $script:ledger.results += @(@{mode=$mode;name=$workbook.name;status='PASS';expected_error=$workbook.expected_error}); Save-ReleaseJournal
             }
@@ -363,4 +376,5 @@ try {
 
 if ($failure) { Write-Output 'FAIL XLSX_FULL_SIZE; inspect private journal; do not replay without reconciliation'; exit 1 }
 if ($AuditOnly) { 'PASS XLSX_FULL_SIZE independent database/trust/configuration audit' }
+elseif ($cellApi) { 'PASS XLSX_CELL_API four original fixtures local/direct-central; separate audit required' }
 else { 'PASS XLSX_FULL_SIZE eight cases and package lifecycle local/direct-central; separate audit required' }
