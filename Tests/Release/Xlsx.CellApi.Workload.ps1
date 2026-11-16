@@ -7,6 +7,9 @@ function Assert-XlsxCellApiWorkload($Runset, [int]$Index, [string]$Repository) {
     } elseif ($Runset.qualification_scope -ceq 'cell-display-rest') {
         if ($Index -notin @(9,10,11)) { throw 'XLSX_CELL_ALREADY_QUALIFIED_CONTEXT' }
         $names = @('Display.Contract.sql','Display.Safety.sql')
+    } elseif ($Runset.qualification_scope -ceq 'cell-client-rest') {
+        if ($Index -notin @(1,2,3,4,5,6,7,8,9,10,11)) { throw 'XLSX_CELL_ALREADY_QUALIFIED_CONTEXT' }
+        $names = @('Types.Metadata.ps1','Display.Metadata.ps1')
     } else { throw 'XLSX_CELL_SCOPE_INVALID' }
     if ($Runset.workbooks.Count -ne $names.Count -or ($Runset.workbooks.name -join '|') -cne ($names -join '|')) {
         throw 'XLSX_CELL_FIXTURE_SET'

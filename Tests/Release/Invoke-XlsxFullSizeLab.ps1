@@ -117,12 +117,12 @@ try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
     if ($script:runset.PSObject.Properties['qualification_scope']) {
-        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
+        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
         $cellApi = $true
         . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
         Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
     }
-    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -ceq 'cell-display-rest'){2}else{4} } else { 8 }
+    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest')){2}else{4} } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
         $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
@@ -141,7 +141,10 @@ try {
         throw 'XLSX_FULL_SIZE_MATRIX_INVALID'
     }
     $case = $script:runset.cases[$CaseIndex]
-    $modes = @(if($cellApi -and $script:runset.qualification_scope -ceq 'cell-display-rest' -and $CaseIndex -eq 11){'central'}else{'local';'central'})
+    $modes = @(if($cellApi -and $script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest') -and $CaseIndex -eq 11){'central'}else{'local';'central'})
+    $caseWorkbooks = @($script:runset.workbooks | Where-Object {
+        -not ($cellApi -and $script:runset.qualification_scope -ceq 'cell-client-rest' -and $CaseIndex -ge 9 -and $_.name -ceq 'Types.Metadata.ps1')
+    })
     $expectedPatch = if ($case.Platform -ceq 'linux') { 'latest' } else { @{'2019'='cu32';'2022'='cu26';'2025'='cu8'}[[string]$case.Version] }
     if ($case.Patch -cne $expectedPatch -or
         $case.CL -notin @{ '2019'=@(150); '2022'=@(150,160); '2025'=@(150,160,170) }[[string]$case.Version]) {
@@ -195,9 +198,9 @@ try {
             throw 'XLSX_FULL_SIZE_AUDIT_COMPLETION_DRIFT'
         }
         if($prior.state -ceq 'COMPLETE'){
-            $expectedResults=@(foreach($mode in $modes){foreach($book in $script:runset.workbooks){$mode+'/'+$book.name+'/'+$book.expected_error}})
+            $expectedResults=@(foreach($mode in $modes){foreach($book in $caseWorkbooks){$mode+'/'+$book.name+'/'+$book.expected_error}})
             $actualResults=@($prior.results|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_STATUS'};$_.mode+'/'+$_.name+'/'+$_.expected_error})
-            if($actualResults.Count -ne ($modes.Count*$expectedWorkbooks) -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
+            if($actualResults.Count -ne ($modes.Count*$caseWorkbooks.Count) -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
             $expectedLifecycle=@(foreach($mode in $modes){foreach($action in @('InstallAndRepeat','Uninstall','UninstallAbsent')){$mode+'/'+$action}})
             $actualLifecycle=@($prior.lifecycle|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_STATUS'};$_.mode+'/'+$_.action})
             if($actualLifecycle.Count -ne (3*$modes.Count) -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
@@ -303,11 +306,18 @@ try {
             $definitions = "SELECT o.object_id,o.type,CONVERT(varchar(64),HASHBYTES('SHA2_256',m.definition),2) Hash,a.assembly_id,a.assembly_class,a.assembly_method FROM sys.objects o LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id LEFT JOIN sys.assembly_modules a ON a.object_id=o.object_id WHERE o.is_ms_shipped=0 ORDER BY o.object_id;"
             $beforeDefinitions = @(Invoke-ReleaseSql $db $definitions -Rows) | ConvertTo-Json -Depth 4 -Compress
             $db.Dispose(); $stage = 'CONTRACT_' + $mode; $db = Open-ReleaseConnection $name
-            foreach ($workbook in $script:runset.workbooks) {
+            foreach ($workbook in $caseWorkbooks) {
                 $bytes=[IO.File]::ReadAllBytes($workbook.path)
                 if ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant() -cne $workbook.sha256) { throw 'XLSX_FULL_SIZE_FIXTURE_DRIFT' }
                 if ($cellApi) {
-                    Invoke-ReleaseBatches $db ([Text.Encoding]::UTF8.GetString($bytes))
+                    if($script:runset.qualification_scope -ceq 'cell-client-rest'){
+                        & $workbook.path -Connection $db -CommandTimeoutProvider { Get-ReleaseTimeout } -ReadBudgetProvider {
+                            param($command)
+                            try{[void](Get-ReleaseTimeout)}catch{try{$command.Cancel()}catch{};throw}
+                        }
+                    }else{
+                        Invoke-ReleaseBatches $db ([Text.Encoding]::UTF8.GetString($bytes))
+                    }
                     Assert-XlsxFullSizeNeutral $db
                 }
                 elseif ($workbook.expected_error -ceq 'NONE') { Assert-XlsxFullSizePositive $db $bytes }
@@ -378,5 +388,6 @@ try {
 
 if ($failure) { Write-Output 'FAIL XLSX_FULL_SIZE; inspect private journal; do not replay without reconciliation'; exit 1 }
 if ($AuditOnly) { 'PASS XLSX_FULL_SIZE independent database/trust/configuration audit' }
-elseif ($cellApi) { 'PASS XLSX_CELL_API four original fixtures local/direct-central; separate audit required' }
+elseif ($cellApi -and $script:runset.qualification_scope -ceq 'cell-client-rest') { 'PASS XLSX_CELL_CLIENT selected original metadata helpers; separate audit required' }
+elseif ($cellApi) { 'PASS XLSX_CELL_API selected original fixtures; separate audit required' }
 else { 'PASS XLSX_FULL_SIZE eight cases and package lifecycle local/direct-central; separate audit required' }
