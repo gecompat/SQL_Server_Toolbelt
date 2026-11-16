@@ -29,7 +29,13 @@ $started=if($script:ledger.native_started -is [DateTime]){$script:ledger.native_
          elseif($script:ledger.native_started -is [DateTimeOffset]){$script:ledger.native_started.UtcDateTime}
          else{[DateTimeOffset]::Parse([string]$script:ledger.native_started,[Globalization.CultureInfo]::InvariantCulture).UtcDateTime}
 $deadline=$started.AddMinutes(60)
-if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','AUDIT_PASS')}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
+foreach($rejected in @($script:ledger.dispatches|Where-Object state -CEQ 'PRE_SQL_REJECTED')){
+    $audits=@($script:ledger.dispatches|Where-Object {$_.key -ceq $rejected.key -and $_.phase -ceq 'AUDIT' -and $_.state -ceq 'AUDIT_PASS' -and $_.runset_sha256 -ceq $rejected.runset_sha256})
+    if($audits.Count -ne 1 -or (Get-FileHash -LiteralPath $rejected.rejection_receipt_path -Algorithm SHA256).Hash -cne $rejected.rejection_receipt_sha256){throw 'MATRIX_REJECTION_AUDIT_BINDING'}
+    $receipt=Get-Content -LiteralPath $rejected.rejection_receipt_path -Raw|ConvertFrom-Json
+    if($receipt.status -cne 'PASS_PRE_SQL_REJECTION_AUDIT' -or $receipt.own_mutating_stage_reached -or $receipt.own_resource_ids_allocated -or $receipt.runset_sha256 -cne $rejected.runset_sha256){throw 'MATRIX_REJECTION_SCOPE'}
+}
+if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','PRE_SQL_REJECTED','AUDIT_PASS')}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
 $out=Split-Path -Parent $BudgetPath
 foreach($index in $CaseIndex){
     $case=$runset.cases[$index];$key=$case.Platform+'/'+$case.Version+'/'+$case.CL

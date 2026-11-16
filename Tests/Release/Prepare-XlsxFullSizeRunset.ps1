@@ -74,6 +74,7 @@ $repoPaths = @(
     'Scripts/Release/prepare_release.py',
     'Scripts/Release/Install-ClrPackage.ps1',
     'Tests/Release/Invoke-XlsxFullSizeMatrix.ps1',
+    'Tests/Release/Invoke-XlsxFullSizePreSqlAudit.ps1',
     'Tests/Release/Test-XlsxFullSizeAdapter.ps1',
     'Tests/Release/test_xlsx_native_package.py'
 )
@@ -212,7 +213,8 @@ foreach($item in $frame.cases){
     $destination=Join-Path $fixtureOutput ($item.name+'.xlsx');[IO.File]::WriteAllBytes($destination,[IO.File]::ReadAllBytes($source))
     $workbooks+=@{name=$item.name;path=$destination;sha256=$item.sha256;expected_error=$item.expected_error}
 }
-$fixturePath=Join-Path $repo 'Tests/Release/Runtime/Xlsx.FullSize.sql'
+$fixturePath=Join-Path $fixtureOutput 'Xlsx.FullSize.sql'
+[IO.File]::WriteAllBytes($fixturePath,[IO.File]::ReadAllBytes((Join-Path $repo 'Tests/Release/Runtime/Xlsx.FullSize.sql')))
 $matrix = @(foreach ($platform in @('linux','windows')) {
     foreach ($version in @('2019','2022','2025')) {
         $levels = switch ($version) { '2019' { @(150) } '2022' { @(150,160) } '2025' { @(150,160,170) } }

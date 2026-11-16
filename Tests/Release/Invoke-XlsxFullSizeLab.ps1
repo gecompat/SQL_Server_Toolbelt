@@ -307,6 +307,13 @@ try {
         $script:ledger.failure = @{stage=$stage;privateDiagnostic=$failure.Message;privatePosition=$_.ScriptStackTrace}
         Save-ReleaseJournal
     }
+    elseif($script:runset -and -not $AuditOnly){
+        # Auch ein vor der Journalanlage abgewiesener Aufruf bleibt diagnostizierbar.
+        $receipt=Assert-ReleasePrivatePath (Join-Path (Split-Path -Parent $RunsetPath) ('preflight-rejected-'+$CaseIndex+'.json'))
+        $bytes=[Text.UTF8Encoding]::new($false).GetBytes((@{state='REJECTED_BEFORE_JOURNAL';stage=$stage;connection_count=$script:connections.Count;privateDiagnostic=$failure.Message;privatePosition=$_.ScriptStackTrace}|ConvertTo-Json -Depth 5))
+        $stream=[IO.File]::Open($receipt,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+        try{$stream.Write($bytes,0,$bytes.Length);$stream.Flush($true)}finally{$stream.Dispose()}
+    }
 } finally {
     foreach ($connection in $script:connections) { try { $connection.Dispose() } catch {} }
     [Data.SqlClient.SqlConnection]::ClearAllPools()
