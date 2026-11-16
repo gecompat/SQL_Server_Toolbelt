@@ -1,6 +1,8 @@
 # XLSX-Vertragsqualifizierung
 
-Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; genuine 1.1 und übrige Lifecycle-/Consumerpflichten sind separat.
+Der [aktuelle genuine 1.1→1.2-Upgradeumfang](../../../Releases/1.0.0/XLSX-GENUINE11-REST-QUALIFICATION.md) ist separat auf allen 24 lokalen/direkt zentralen Routen mit zwölf frischen Audits belegt. Keine Aufwertung zu vollständiger Lifecycle- oder Modulqualifikation.
+
+Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; übrige Lifecycle-/Consumerpflichten bleiben separat.
 
 Die [disjunkte native Zell-Clientergänzung](../../../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
 
