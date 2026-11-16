@@ -17,7 +17,7 @@ Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 | Aggregate: vier große Entrygrenzen und Linux SQL2025/CL170 blockiert | [Aktuelle Timeoutkorrektur: 96 native Profile auf 24 Kontexten](JSON-AGGREGATE-NATIVE-TIMEOUT-FIX-QUALIFICATION.md). Alte fehlgeschlagene Koordinatoren bleiben fehlgeschlagen. Keine vollständige neue ZIP-Matrix daraus ableiten. |
 | Table Clone: W1/W2, Planner-/Executor-Grundrechte, SQLCMD-Abbruch und bekannte Vorgänger fehlen allgemein | [W1/W2](TABLE-CLONE-W1-W2-QUALIFICATION.md), [Planner](TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md), [Executor-Grundprofil](TABLE-CLONE-EXECUTOR-RIGHTS-QUALIFICATION.md), [SQLCMD](TABLE-CLONE-SQLCMD-CALLER-QUALIFICATION.md), [V1](TABLE-CLONE-GENUINE-V1-LIFECYCLE-QUALIFICATION.md) und [fünf bekannte Zwischenversionen](TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md). Erweiterte Rechte und andere Fehlerstellen bleiben getrennt. |
 | SSIS: frische aktuelle ZIP-/SSMS-Abnahme fehlt allgemein | [Aktueller ZIP-/SSMS-Gesamtfall](SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md) mit getrennt gebundenen strikten TLS-/Sicherheitsnachweisen. SQL-Anmeldung bei TLS wird nicht zu kombinierter Windows-/TLS-Identität. |
-| Regex: Capture-Gate und physische R2b-Ziele pauschal offen | [Datierter aktueller Abgleich](RELEASE-GATES.md#regex-aktueller-nachweisabgleich-vom-2026-11-06). Die ausdrücklich angenommene Restrisikogrenze bleibt erhalten; keine erfundene Ursachenklärung oder Timeoutgarantie. |
+| Regex: Capture-Gate, physische R2b-Ziele und große Capture-Ausgabe pauschal offen | [Datierter aktueller Abgleich](RELEASE-GATES.md#regex-aktueller-nachweisabgleich-vom-2026-11-06). Die [originale 16-MiB-Capture-Ausgabegrenze](REGEX-CAPTURE-BOUNDARY-STATUS.md) ist auf allen 24 Routen einschließlich großem Opt-in belegt. Die ausdrücklich angenommene Restrisikogrenze bleibt erhalten; keine erfundene Ursachenklärung oder Timeoutgarantie. |
 
 ## Noch eigenständig zu qualifizieren
 
@@ -31,8 +31,8 @@ Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
   FK-/ResultTable-Kontexten, unbelegte Consumer-/Namespace-/Sicherheitsfälle,
   zusätzliche Recoverystellen und Linux-Clienthost.
 - **Regex und weitere Datenpfadmodule:** konkret zugesagte, noch unbelegte
-  CrossDB-Identitäten, Ressourcen-/Parallelitäts-/Recoveryfälle; große
-  SQL-Capture-Ausgabe und optionale Durchsatzmessung getrennt behandeln.
+  CrossDB-Identitäten, Ressourcen-/Parallelitäts-/Recoveryfälle; bereits belegte
+  große SQL-Capture-Ausgabe nicht wiederholen; optionale Durchsatzmessung separat.
 - **Datei-/ZIP-Module:** Windows-Caller-/NTFS-ACL-/I/O-Profile, File-Content-
   Schema-/Owner-/ACLdrift und aktive Mutationsabbrüche sowie noch deklarierte
   ZIP-Ziel-/Lifecycle-/Identitätsprofile. Bereits belegte Grenzfälle bleiben zu.
