@@ -1,5 +1,7 @@
 # Tests – SQL Server Toolbelt
 
+Die [disjunkte native Zell-Clientergänzung](../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
+
 Aktueller Nachweisabgleich 2026-11-16: [geschlossene Teilumfaenge und echte Restqualifikation](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md). Die spaeteren gebundenen XLSX-, Aggregate-, Table-Clone- und SSIS-Nachweise haben Vorrang vor pauschalen historischen Offen-Zeilen; kein Gesamtmodulstatus wird dadurch angehoben.
 
 Die [aktuelle direkte Vorgängermatrix](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)

@@ -12,6 +12,7 @@ Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 |---|---|
 | XLSX: reale Archiv-/Part-/Summen-/Partanzahl-Grenzen und aktuelles Paket fehlen | [192 native Grenzaufrufe auf 24 Routen, zwölf frische Audits und fokussiertes Paket](XLSX-NATIVE-PACKAGE-QUALIFICATION.md). Blattanzahl und SST haben ihre eigenen unveränderten Nachweise. Keine Heapmessung daraus ableiten. |
 | XLSX: die benannten übrigen Typ-/Anzeige-Fixtures fehlen | [74 neue vollständige Fixture-Ausführungen, elf frische Audits](XLSX-CELL-API-REST-QUALIFICATION.md); nur die dort ausdrücklich benannten disjunkten Ziel-/Modusprofile. |
+| XLSX: die benannten übrigen Typ-/Anzeige-Clientmetadaten fehlen | [37 neue Originalhelfer-Ausführungen mit 95 Readerfällen und elf frischen Fallaudits](XLSX-CELL-CLIENT-REST-QUALIFICATION.md). Der ursprüngliche Callback-Fehler und sein eigener Audit bleiben erhalten; Katalognullability und andere Client-/Consumerprofile bleiben separat. |
 | XLSX: direkte Zell-/Raw-Callerrechte sind pauschal ungetestet | [Zellrechte](XLSX-CELL-CALLER-QUALIFICATION.md), [Raw-Rechte](XLSX-RAW-CALLER-PROFILE.md) und [Metadatenpflege](XLSX-METADATA-UPDATE.md). Andere Owner und echte gemappte CrossDB-Identitäten bleiben getrennt. |
 | Aggregate: vier große Entrygrenzen und Linux SQL2025/CL170 blockiert | [Aktuelle Timeoutkorrektur: 96 native Profile auf 24 Kontexten](JSON-AGGREGATE-NATIVE-TIMEOUT-FIX-QUALIFICATION.md). Alte fehlgeschlagene Koordinatoren bleiben fehlgeschlagen. Keine vollständige neue ZIP-Matrix daraus ableiten. |
 | Table Clone: W1/W2, Planner-/Executor-Grundrechte, SQLCMD-Abbruch und bekannte Vorgänger fehlen allgemein | [W1/W2](TABLE-CLONE-W1-W2-QUALIFICATION.md), [Planner](TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md), [Executor-Grundprofil](TABLE-CLONE-EXECUTOR-RIGHTS-QUALIFICATION.md), [SQLCMD](TABLE-CLONE-SQLCMD-CALLER-QUALIFICATION.md), [V1](TABLE-CLONE-GENUINE-V1-LIFECYCLE-QUALIFICATION.md) und [fünf bekannte Zwischenversionen](TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md). Erweiterte Rechte und andere Fehlerstellen bleiben getrennt. |
@@ -21,7 +22,7 @@ Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 ## Noch eigenständig zu qualifizieren
 
 - **XLSX:** noch nicht belegte genuine Upgrade-/Consumer-, Kollisions-/Owner-/
-  Visibility- und Clientmetadatenprofile; Heap-/Parallelitätsmessungen nur für
+  Visibility- und übrige Client-/Consumerprofile; Heap-/Parallelitätsmessungen nur für
   tatsächlich zugesagte Aussagen. Keine erneute pauschale Vollgrößenmatrix.
 - **JSON:** übrige direkte CLR-/Assembly-ACL-/Owner-, echte Netzwerk-/CrossDB-,
   Linux-Clienthost-, Ressourcen-/Parallelitäts-/Recoveryfälle. Die aktuelle

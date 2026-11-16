@@ -1,4 +1,4 @@
-# Acht reale Größenfälle plus Lebenszyklus des aktuellen XLSX-Installationspakets.
+# Gemeinsamer Paket-/Ownershipkern für originale Größen-, Zell- und Clientfälle.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$RunsetPath,
