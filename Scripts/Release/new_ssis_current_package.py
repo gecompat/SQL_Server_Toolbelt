@@ -29,7 +29,10 @@ QUALIFIED_PROFILE = "ssis-debug-qualified"
 QUALIFIED_NAME = "SSIS-Debug-Qualified-Install-Windows"
 COPY_COLUMN_PROFILE = "ssis-debug-copy-column-v1"
 COPY_COLUMN_NAME = "SSIS-Debug-CopyColumnV1-Install-Windows"
+SECURITY_PROFILE = "ssis-debug-security-corrected"
+SECURITY_NAME = "SSIS-Debug-SecurityCorrected-Install-Windows"
 PROFILES = {
+    SECURITY_PROFILE: (SECURITY_NAME, (2026, 11, 16), "ssis_security_corrected_bound_build"),
     COPY_COLUMN_PROFILE: (COPY_COLUMN_NAME, (2026, 11, 14), "ssis_copy_column_v1_native_qualification"),
     CURRENT_PROFILE: (NAME, (2026, 10, 29), "ssis_current_native_qualification"),
     PROCEDURE_PROFILE: (PROCEDURE_NAME, (2026, 11, 4), "ssis_procedure_v1_native_qualification"),
@@ -51,6 +54,25 @@ def encoded(value):
 
 
 def validate_native_record(record, profile):
+    if profile == SECURITY_PROFILE:
+        require(record.get("kind") == "ssis_security_corrected_bound_build" and
+                record.get("result") == "PASS_FOR_BOUND_BUILD" and
+                record.get("publication_authorized") is False, "security build binding")
+        require(record["qualified_assembly_sha256"] == record["provider"]["sha256"] and
+                record["qualified_assembly_sha512"] == record["provider"]["sha512"], "security provider identity")
+        for path, expected in record["evidence"].items():
+            require(path.startswith(MODULE + "Tests/Qualification/") and ".." not in PurePosixPath(path).parts and
+                    sha((ROOT / path).read_bytes()).lower() == expected, "security evidence binding")
+        expected = {MODULE + "Tests/Qualification/" + name for name in (
+            "CopyColumn.SecurityCorrection.20261115.json", "Tls.CopyColumn.SecurityCorrection.20261115.json",
+            "Security.CopyColumn.20261115.json")}
+        require(set(record["evidence"]) == expected, "complete security evidence set")
+        security = json.loads((ROOT / MODULE / "Tests/Qualification/CopyColumn.SecurityCorrection.20261115.json").read_bytes())
+        from validate_ssis_copy_column_security import validate
+        validate(security, check_files=False)
+        require(record["provider"] == security["provider"] and record["source_sha256"] == security["source_sha256"],
+                "native security source/provider binding")
+        return
     if profile == COPY_COLUMN_PROFILE:
         from validate_ssis_copy_column import validate
         validate(record, check_files=False)
@@ -152,7 +174,7 @@ def build(args):
     manifest_file = "Toolbelt.Tsql.SsisDebug.trust-manifest.json"
     manifest_bytes = (args.ssis_release / manifest_file).read_bytes()
     manifest = json.loads(manifest_bytes)
-    require(sha(manifest_bytes) == record["qualified_trust_manifest_sha256"],
+    require(sha(manifest_bytes).lower() == record["qualified_trust_manifest_sha256"].lower(),
             "native-qualified original trust manifest")
     require(manifest["moduleId"] == "toolbelt.tsql.ssis-debug" and
             manifest["moduleVersion"] == "1.0.0" and

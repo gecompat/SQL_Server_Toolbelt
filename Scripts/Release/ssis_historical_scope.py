@@ -50,3 +50,21 @@ def pre_copy_column_scope(root):
         yield snapshot
     finally:
         for module,original in zip(modules,previous): module.ROOT=original
+
+
+SECURITY_TLS_BASELINE='47b446598880d33e67581740c02a8acd0e68ee88'
+
+@contextmanager
+def security_corrected_tls_scope(root):
+    """Originale TLS-Closure prüfen; aktuelle Anwendbarkeit bleibt separat erforderlich."""
+    root=Path(root).resolve()
+    sys.path.insert(0,str(root/'Tests/Release'))
+    from ssis_historical_context import historical_root
+    snapshot=historical_root(root,SECURITY_TLS_BASELINE)
+    module=import_module('validate_ssis_copy_column_tls_security')
+    previous=module.ROOT
+    try:
+        module.ROOT=snapshot
+        yield snapshot
+    finally:
+        module.ROOT=previous

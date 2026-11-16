@@ -62,4 +62,21 @@ class CurrentTlsSecurityTests(unittest.TestCase):
         r=copy.deepcopy(evidence.validate());r['lab_method']['sha256']='0'*64
         with self.assertRaises(ValueError):evidence.validate(r)
 
+
+
+# Der Original-TLS-Record bleibt am ursprünglichen 103-Dateien-Snapshot.
+# Seine Wiederverwendung am aktuellen Build prüft der neue Gesamtprüfer separat.
+from ssis_historical_scope import security_corrected_tls_scope
+
+def setUpModule():
+    global _tls_scope, _tls_original_root, ROOT
+    _tls_original_root=ROOT
+    _tls_scope=security_corrected_tls_scope(ROOT)
+    ROOT=_tls_scope.__enter__()
+
+def tearDownModule():
+    global ROOT
+    ROOT=_tls_original_root
+    _tls_scope.__exit__(None,None,None)
+
 if __name__=='__main__':unittest.main()

@@ -42,3 +42,11 @@ Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-int.dtsx -text
 Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-6-text.dtsx -text
 Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-int.dtsx -text
 Modules/toolbelt.tsql.ssis-debug/Tests/Fixtures/copy-column-8-text.dtsx -text
+# Diese fünf aktuellen Abnahmeeingaben behalten ihre tatsächlich nativ
+# gebundenen CRLF-Bytes auf jedem Checkout. Das ZIP führt den Buildrecord
+# ausdrücklich als kanonische Git-LF-Projektion seines Erzeugungscommits.
+Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/CopyColumn.Build.20261116.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/CopyColumn.Package.20261116.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-SecurityCorrectedFunctionalLab.ps1 -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/Invoke-SecurityCorrectedSsms.ps1 -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/SecurityCorrectedArtifacts.ps1 -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

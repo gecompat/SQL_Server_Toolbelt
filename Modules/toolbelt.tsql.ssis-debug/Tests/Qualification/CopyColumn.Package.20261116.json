@@ -1,0 +1,14 @@
+{
+  "kind": "ssis_security_corrected_package_inputs",
+  "result": "BOUND_INPUTS_ONLY",
+  "source_sha256": {},
+  "package": {
+    "path": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-SecurityCorrected-Install-Windows.zip",
+    "sha256": "87c1054609a847f2deecd2aba4dddd35e267ce938ed66eac2cbbdcebcac15f77",
+    "manifest_sha256": "cd2d42ddb84d465e909abd8f1f4d40f83f2af5ce99193fff98c22ef78138f55b",
+    "source_commit": "a365ba735925dfa1904b168a3b2d0e26265a0bfb",
+    "provider_sha512": "b10c498e58a2fc1dddb2d7e7cab3a823523c870cdc3f8378f030d59182664d7cf2e017193e52b5cb24ff50f21973162daf037784ec3ea9a409bbb9f56b04b40b",
+    "provider_sha256": "04f2e29becfa551a985537fbc74447984cde416eb8ffde17afbd8e2453a7360f",
+    "qualified_source_record_sha256": "3fc390057c9a22916bd1e04d3abb25f1e876c755b78a76991d5e0f782d5408f4"
+  }
+}

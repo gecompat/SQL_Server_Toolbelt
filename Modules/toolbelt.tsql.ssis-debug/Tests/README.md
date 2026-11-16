@@ -21,9 +21,28 @@ belegt zusätzlich den korrigierten Provider auf Windows SQL2025 RTM, CL170,
 lokal/zentral mit 416 Assertions und frischen SQL-, Lab- und Hostscope-Audits.
 Die Prüfer `validate_ssis_copy_column_security.py` und
 `validate_ssis_copy_column_tls_security.py` binden Quellen, Provider und
-deklarierte Grenzen. Neue Gegenproben verhindern eine Aufwertung alter
+deklarierte Grenzen. Der TLS-Originalrecord wird an seinem ursprünglichen
+103-Dateien-Snapshot geprüft; die aktuelle Wiederverwendung verlangt zusätzlich
+bytegleiche konsumierte Eingaben und den separat geprüften neuen ZIP-Adapter.
+Diese Anwendbarkeit prüft `validate_ssis_security_corrected_zip_ssms.py`. Neue Gegenproben verhindern eine Aufwertung alter
 ZIP-/SSMS-Belege, ausgelassener Audits oder reiner Quellreviews zum Gesamt-PASS.
 Das Modul bleibt teilweise validiert und unveröffentlicht.
+
+## Frische ZIP- und SSMS-Abnahme des sicherheitskorrigierten Builds
+
+Der [aktuelle Record](Qualification/Current.ZipSsms.20261116.json) bindet das
+neue SecurityCorrected-ZIP und dieselbe DLL wie die aktuelle ANSI-/TLS-/
+Sicherheitsabnahme. Zwölf Windows-Kontexte bestehen mit 15.204 Assertions und
+zwölf frischen Audits; der eigenständige Windows-/SSMS-Gesamtfall besteht mit
+17 Prüfungen, vollständiger Unicode-Kopie, nativer SQLCMD-Stopprobe und
+Phase-2-Receipt. Der zusätzliche Windows-Audit bindet das finale Journal.
+Alle 25 eigenen Datenbanken und zwölf synthetischen Logins sind entfernt.
+
+[Abnahmebericht und Grenzen](../../../Releases/1.0.0/SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md)
+erklären Scope, Wiederverwendung und Bereinigung. Der Prüfer
+`validate_ssis_security_corrected_zip_ssms.py` sperrt unter anderem fehlende
+Matrixkontexte, Audits, aktuelle Artefaktbindung und Receiptabschluss.
+Historische Records werden weiterhin ausschließlich an ihren alten Artefakten geprüft.
 
 ## Copy Column V1 Deltaabnahme
 
@@ -1317,9 +1336,9 @@ Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-15`
-- Nachweis: `local: frischer strikter TLS-Gesamtfall am korrigierten Provider`
-- Scope: PASS_FOR_DECLARED_SCOPE: oeffentlicher ununterbrochener eigener Windows-/HyperV-/SQL2025-RTM-Neuaufbau, CL170 lokal/zentral,416 Assertions. Beide strikten Labclientstacks, signierterV2-Export und dieselben frisch geprueften Bytes vor jedem Consumer-Open. Worker6/Supervisor8, SQL-/Lab-/HostabschlussauditsPASS. Vier eigene DBs und eineVM entfernt, SQL-Konfiguration/Hosttrust wiederhergestellt, eigener verschluesselter CA-Schluessel entfernt; versiegelterRoot nur als privateEvidenz behalten. Eine vom Benutzer bestaetigteUAC, keine automatisierte Anmeldung. Rahmen1VM/2SQLaufrufe/4DBs/45Minuten ohneRetry geschlossen. SQL-Anmeldung, keine Windows-/TLS-Identitaetsunion, kein beobachteterWire-Fingerprint; ZIP/SSMS bleibenC7, Gesamtmodul teilweisevalidiert/unveroeffentlicht.
+- Datum: `2026-11-16`
+- Nachweis: `local: frische SecurityCorrected-ZIP-Matrix und sichtbarer Windows-/SSMS-Gesamtfall`
+- Scope: PASS_FOR_DECLARED_SCOPE: zwoelf Windows2019CU32/2022CU26/2025CU8-CL-/Moduskontexte mit15204Assertions und zwoelf frischen finaljournalgebundenen Audits. Derselbe korrigierte Provider besteht den eigenstaendigen sichtbaren Windows-/SSMS-Gesamtfall mit17Checks, echter184441-Zeichen-Unicodekopie, nativer51001SQLCMD-Stopprobe und Phase2-Receipt; separaterWindowsauditPASS. Insgesamt26Lauf-/Auditaufrufe,25DBs und12synthetischeLogins entfernt, kein nativerFehler/Retry. Gueltige Framework-/ANSI-/TLS-/Sicherheitsbelege wiederverwendet, historischeArchive/Records unveraendert. Kein Windows-/TLS-Identitaetsunion-, Linux-Host- oder Modulgesamt-PASS, keineVeroeffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

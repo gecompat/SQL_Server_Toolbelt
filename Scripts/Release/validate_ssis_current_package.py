@@ -10,7 +10,7 @@ import stat
 import zipfile
 
 from new_ssis_current_package import (
-    ROOT, MODULE, LEGACY, PREDECESSOR_SHA256, PROFILES, CURRENT_PROFILE, PROCEDURE_PROFILE, PROCEDURE_NAME, COPY_COLUMN_PROFILE,
+    ROOT, MODULE, LEGACY, PREDECESSOR_SHA256, PROFILES, CURRENT_PROFILE, PROCEDURE_PROFILE, PROCEDURE_NAME, COPY_COLUMN_PROFILE, SECURITY_PROFILE,
     load_legacy_guard, require, sha, validate_native_record,
 )
 from new_ssis_standalone_tsql import read_regular_bounded, MAX_PACKAGE_BYTES, MAX_UNCOMPRESSED_BYTES
@@ -58,6 +58,9 @@ def validate(path, *, profile=CURRENT_PROFILE):
     require(qualification.startswith(MODULE + "Tests/Qualification/") and
             ".." not in PurePosixPath(qualification).parts, "qualification boundary")
     canonical = read_regular_bounded(ROOT / qualification, 1024 * 1024)
+    if profile == SECURITY_PROFILE:
+        # Das neue Paket verwendet die kanonischen Git-LF-Bytes; Windows kann den JSON-Checkout mit CR/LF halten.
+        canonical = canonical.replace(b"\r\n", b"\n")
     require(payload[qualification] == canonical and sha(canonical) == manifest["nativeQualificationSha256"],
             "canonical native qualification")
     record = json.loads(canonical)
@@ -67,7 +70,7 @@ def validate(path, *, profile=CURRENT_PROFILE):
             require(name in payload and sha(payload[name]).lower() == digest,
                     'Copy Column qualification source payload: ' + name)
     release_bytes = payload[MODULE + "Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json"]
-    require(sha(release_bytes) == record["qualified_trust_manifest_sha256"],
+    require(sha(release_bytes).lower() == record["qualified_trust_manifest_sha256"].lower(),
             "native-qualified original trust manifest")
     release = json.loads(release_bytes)
     binary = payload[MODULE + "Artifacts/Toolbelt.Tsql.SsisDebug.dll"]
