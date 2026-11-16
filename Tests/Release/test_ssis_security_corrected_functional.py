@@ -178,6 +178,3 @@ if($env:TB_DELIVERY_DESCRIBE -eq '1'){$call.DescribeOnly=$true}else{$call.Valida
                 self.reject(lambda r:r.update(startedUtc=(end-timedelta(minutes=180)).isoformat(),
                                               deadlineUtc=end.isoformat()),
                             'SSIS_COPY_FUNCTIONAL_ADMISSION_CLOSED')
-
-
-

@@ -106,6 +106,3 @@ catch{if($_.Exception.Message -cne '@EXPECTED@'){throw};'EXPECTED_REJECTION'}
 
     def test_stale_deployment_rejected(self):
         self.probe("$Path.EndsWith('Deploy.WithAssembly.sql')", 'SSIS_COPY_SSMS_ARTIFACT_CHANGED')
-
-
-

@@ -5,24 +5,25 @@ Komponentenumfang ohne Versionsschalter. Historische V1-/V2-Dateien sind keine
 Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
-## Aktueller Entwicklungsstand mit Copy Column
+## Aktueller Entwicklungsstand mit ANSI-Sicherheitskorrektur
 
-Der Quellsatz enthält zusätzlich eine ANSI-Lineage-Sicherheitskorrektur.
-Die folgenden ZIP-Nachweise gelten für den unveränderten Vorgängerbuild C7.
-Die Korrektur ist darin nicht enthalten; ihr eigener
-[Abnahmestand](../../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
-führt neue Prüfungen und offene Gates getrennt.
+Verwende das [aktuelle Installationspaket](../InstallPackages/README.md#aktuelles-paket-mit-ansi-sicherheitskorrektur).
+Es enthält die drei benötigten Module und den sicherheitskorrigierten Provider.
+ZIP-Prüfsumme kontrollieren, vollständig entpacken und anschließend der
+[lokalen Installation](../Examples/Installation/README.md) folgen. Die
+[Objektreferenz](USP_ExplainSsisDataFlow.md) erklärt Bindings, DebugScript und
+Prozedurdefinition desselben aktuellen Builds.
 
-Für die historische C7-Lieferung des Copy-Column-Explain-Slices verwende das
-[Copy-Column-V1-ZIP](../InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1).
-Delta, Windows-/Linux-Modellhost, tatsächliche Archivinstallation und
-Lebenszyklus sowie ein frischer sichtbarer Windows-/SSMS-Gesamtfall besitzen
-[getrennte C7-Nachweise](../Tests/README.md#copy-column-v1-deltaabnahme).
-Die [vollständige funktionale ZIP-/Prozedur-/Rechtematrix](../Tests/README.md#vollständige-funktionale-aktuelle-zip-abnahme)
-dieses C7-Builds besteht separat auf zwölf Windows-Kontexten mit
-15.204 Assertions und zwölf frischen Audits. Eine neue strikte TLS-Gesamtabnahme
-ist damit nicht belegt. Das Modul bleibt teilweise
-validiert und unveröffentlicht; Installationsmechanismen bleiben gleich.
+Die [frische Abnahme](../../../Releases/1.0.0/SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md)
+deckt zwölf Windows-/Engine-/CL-/Moduskontexte sowie einen sichtbaren
+Windows-/SSMS-Gesamtfall ab. Strikte TLS-Verbindung und unabhängige
+Sicherheitsabnahme sind separat an dieselbe DLL gebunden. Windows-Anmeldung mit
+Trust-Override wird daraus nicht zu Windows-Anmeldung mit authentifiziertem TLS.
+Das Modul bleibt teilweise validiert und unveröffentlicht.
+
+Die nachfolgenden Qualified-/Prozedur-V1-Beschreibungen und ihre früheren
+Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden. Für neue
+Installationen einschließlich `procedure-definition` verwende das aktuelle Paket oben.
 
 ## Prozedurdefinition V1 installieren
 

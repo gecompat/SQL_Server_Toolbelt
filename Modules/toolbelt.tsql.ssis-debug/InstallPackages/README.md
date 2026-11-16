@@ -1,5 +1,19 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+## Aktuelles Paket mit ANSI-Sicherheitskorrektur
+
+Verwende für den aktuellen Entwicklungsbuild [SSIS-Debug-SecurityCorrected-Install-Windows.zip](SSIS-Debug-SecurityCorrected-Install-Windows.zip)
+und seine [Prüfsumme](SSIS-Debug-SecurityCorrected-Install-Windows.zip.sha256). Es enthält die kataloggeprüfte
+ANSI-Lineage-Korrektur und dieselbe DLL wie die getrennte strikte TLS- und
+Sicherheitsabnahme. Entpacke das Archiv, prüfe die Prüfsumme und folge der
+[Installationsanleitung](../Documentation/CurrentInstallation.md).
+
+Die [frische ZIP-/SSMS-Abnahme](../../../Releases/1.0.0/SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md)
+belegt die vollständige funktionale Windows-Matrix und den sichtbaren
+Windows-Anmelde-/Scripttransport. Das ist ein unveröffentlichter Debugbuild;
+Teilqualifikationen und verbleibende Grenzen stehen im Abnahmebericht.
+Die folgenden Copy-Column-V1- und Qualified-Archive bleiben historische Lieferungen.
+
 ## Aktueller Entwicklungsstand mit Copy Column V1
 
 Das folgende Archiv bleibt unverändert an den früheren C7-Build gebunden.

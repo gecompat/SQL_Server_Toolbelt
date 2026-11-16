@@ -89,6 +89,7 @@ documentation:
     - "Tests/InstallerTrust/README.md"
     - "Tests/WindowsClientRecovery/README.md"
   historical_evidence:
+    - "../../Releases/1.0.0/SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-HOST-QUALIFICATION.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-ZIP-DELIVERY-QUALIFICATION.md"
     - "../../Releases/1.0.0/SSIS-COPY-COLUMN-SSMS-QUALIFICATION.md"
@@ -108,6 +109,8 @@ tests:
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/Invoke-Contract.ps1"
   copy_column: "Tests/Runtime/Invoke-CopyColumnLab.ps1"
+  current_zip_functional: "Tests/Runtime/Invoke-SecurityCorrectedFunctionalLab.ps1"
+  current_visible_ssms: "Tests/WindowsClientRecovery/Invoke-SecurityCorrectedSsms.ps1"
   copy_column_ansi_security: "Tests/Runtime/Invoke-CopyColumnAnsiLab.ps1"
   current_authenticated_tls: "Tests/Runtime/Invoke-CurrentAuthenticatedTlsLab.ps1"
   runtime: "Tests/Runtime/Invoke-LabContract.ps1"
@@ -311,4 +314,9 @@ validation_evidence:
   - date: "2026-11-15"
     workflow: "local: frischer strikter TLS-Gesamtfall am korrigierten Provider"
     scope: "PASS_FOR_DECLARED_SCOPE: oeffentlicher ununterbrochener eigener Windows-/HyperV-/SQL2025-RTM-Neuaufbau, CL170 lokal/zentral,416 Assertions. Beide strikten Labclientstacks, signierterV2-Export und dieselben frisch geprueften Bytes vor jedem Consumer-Open. Worker6/Supervisor8, SQL-/Lab-/HostabschlussauditsPASS. Vier eigene DBs und eineVM entfernt, SQL-Konfiguration/Hosttrust wiederhergestellt, eigener verschluesselter CA-Schluessel entfernt; versiegelterRoot nur als privateEvidenz behalten. Eine vom Benutzer bestaetigteUAC, keine automatisierte Anmeldung. Rahmen1VM/2SQLaufrufe/4DBs/45Minuten ohneRetry geschlossen. SQL-Anmeldung, keine Windows-/TLS-Identitaetsunion, kein beobachteterWire-Fingerprint; ZIP/SSMS bleibenC7, Gesamtmodul teilweisevalidiert/unveroeffentlicht."
+    result: "success"
+
+  - date: "2026-11-16"
+    workflow: "local: frische SecurityCorrected-ZIP-Matrix und sichtbarer Windows-/SSMS-Gesamtfall"
+    scope: "PASS_FOR_DECLARED_SCOPE: zwoelf Windows2019CU32/2022CU26/2025CU8-CL-/Moduskontexte mit15204Assertions und zwoelf frischen finaljournalgebundenen Audits. Derselbe korrigierte Provider besteht den eigenstaendigen sichtbaren Windows-/SSMS-Gesamtfall mit17Checks, echter184441-Zeichen-Unicodekopie, nativer51001SQLCMD-Stopprobe und Phase2-Receipt; separaterWindowsauditPASS. Insgesamt26Lauf-/Auditaufrufe,25DBs und12synthetischeLogins entfernt, kein nativerFehler/Retry. Gueltige Framework-/ANSI-/TLS-/Sicherheitsbelege wiederverwendet, historischeArchive/Records unveraendert. Kein Windows-/TLS-Identitaetsunion-, Linux-Host- oder Modulgesamt-PASS, keineVeroeffentlichung."
     result: "success"

@@ -1,9 +1,10 @@
 # SSIS Data Flow Debug SELECT
 
-Der Entwicklungsquellsatz enthält eine ANSI-Lineage-Sicherheitskorrektur für
-Copy Column. Die folgenden archivgebundenen Copy-Column-Nachweise gehören zum
-Vorgängerbuild C7. Der [aktuelle Korrekturstand](../../Releases/1.0.0/SSIS-COPY-COLUMN-SECURITY-CORRECTION.md)
-trennt die neuen Prüfungen davon; eine vollständige neue Modulabnahme ist offen.
+Der aktuelle unveröffentlichte Entwicklungsstand ist als
+[Installationspaket mit ANSI-Sicherheitskorrektur](InstallPackages/README.md#aktuelles-paket-mit-ansi-sicherheitskorrektur)
+verfügbar. Die [Prüfübersicht](Tests/README.md#frische-zip-und-ssms-abnahme-des-sicherheitskorrigierten-builds)
+trennt seine aktuellen Nachweise von historischen Lieferungen und nennt die
+verbleibenden Grenzen. Gesamtmodulstatus: teilweise validiert, unveröffentlicht.
 
 Der aktuelle Entwicklungsvertrag erzeugt aus DTSX-Bytes eine bearbeitbare
 JSON-Vorlage und lesende Debug-Scripts für SQL-Server-Datenflüsse. Für ein
@@ -140,9 +141,9 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-11-15`
-- Nachweis: `local: frischer strikter TLS-Gesamtfall am korrigierten Provider`
-- Scope: PASS_FOR_DECLARED_SCOPE: oeffentlicher ununterbrochener eigener Windows-/HyperV-/SQL2025-RTM-Neuaufbau, CL170 lokal/zentral,416 Assertions. Beide strikten Labclientstacks, signierterV2-Export und dieselben frisch geprueften Bytes vor jedem Consumer-Open. Worker6/Supervisor8, SQL-/Lab-/HostabschlussauditsPASS. Vier eigene DBs und eineVM entfernt, SQL-Konfiguration/Hosttrust wiederhergestellt, eigener verschluesselter CA-Schluessel entfernt; versiegelterRoot nur als privateEvidenz behalten. Eine vom Benutzer bestaetigteUAC, keine automatisierte Anmeldung. Rahmen1VM/2SQLaufrufe/4DBs/45Minuten ohneRetry geschlossen. SQL-Anmeldung, keine Windows-/TLS-Identitaetsunion, kein beobachteterWire-Fingerprint; ZIP/SSMS bleibenC7, Gesamtmodul teilweisevalidiert/unveroeffentlicht.
+- Datum: `2026-11-16`
+- Nachweis: `local: frische SecurityCorrected-ZIP-Matrix und sichtbarer Windows-/SSMS-Gesamtfall`
+- Scope: PASS_FOR_DECLARED_SCOPE: zwoelf Windows2019CU32/2022CU26/2025CU8-CL-/Moduskontexte mit15204Assertions und zwoelf frischen finaljournalgebundenen Audits. Derselbe korrigierte Provider besteht den eigenstaendigen sichtbaren Windows-/SSMS-Gesamtfall mit17Checks, echter184441-Zeichen-Unicodekopie, nativer51001SQLCMD-Stopprobe und Phase2-Receipt; separaterWindowsauditPASS. Insgesamt26Lauf-/Auditaufrufe,25DBs und12synthetischeLogins entfernt, kein nativerFehler/Retry. Gueltige Framework-/ANSI-/TLS-/Sicherheitsbelege wiederverwendet, historischeArchive/Records unveraendert. Kein Windows-/TLS-Identitaetsunion-, Linux-Host- oder Modulgesamt-PASS, keineVeroeffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

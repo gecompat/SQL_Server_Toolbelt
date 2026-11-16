@@ -1446,3 +1446,13 @@ Audits. Alle 24 eigenen DBs entfernt; 24/24 Aufrufe und Reservierungen innerhalb
 45 Minuten, kein Fehler und keine Wiederholung. Originale der früheren
 Repeat-/Lifecyclewellen bleiben unverändert; nur der erklärte AppLockscope
 ist ergänzt, keine allgemeine Race-/Recovery- oder Modulgesamtabnahme.
+
+### Aktuelle SecurityCorrected-ZIP-/SSMS-Nachweise
+
+`python Scripts/Release/validate_ssis_security_corrected_zip_ssms.py` prüft den
+[aktuellen Record](../../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.ZipSsms.20261116.json),
+seine vollständige Matrix, frische Audits, aktuellen Artefakte und den
+SSMS-Gesamtabschluss. Die [Gegenproben](test_ssis_security_corrected_zip_ssms.py)
+sperren insbesondere FAILED_CLEANED-Promotion, fehlendes Receipt, alte DLL,
+fehlende Kontexte/Audits und eine unzulässige TLS-Umdeutung. Die vorhandene
+Qualifikationsübersicht verwendet denselben Prüfer; kein nativer Test wird dadurch erneut gestartet.
