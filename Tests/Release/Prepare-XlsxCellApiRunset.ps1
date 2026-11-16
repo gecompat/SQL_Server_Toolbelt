@@ -4,18 +4,22 @@ param([Parameter(Mandatory)][string]$RunRoot,
       [Parameter(Mandatory)][string]$FixtureOutput,
       [Parameter(Mandatory)][string]$PythonPath,
       [Parameter(Mandatory)][string]$PackagePath,
-      [Parameter(Mandatory)][string]$QualifiedFixtureDirectory)
+      [Parameter(Mandatory)][string]$QualifiedFixtureDirectory,
+      [ValidateSet('cell-api-rest','cell-display-rest')][string]$QualificationScope='cell-api-rest')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-& (Join-Path $PSScriptRoot 'Prepare-XlsxFullSizeRunset.ps1') @PSBoundParameters
+$baseParameters=@{}+ $PSBoundParameters
+[void]$baseParameters.Remove('QualificationScope')
+& (Join-Path $PSScriptRoot 'Prepare-XlsxFullSizeRunset.ps1') @baseParameters
 if(-not $?){throw 'XLSX_CELL_PREPARATION_FAILED'}
 $runsetPath=Join-Path $RunRoot 'runset.json'
 $runset=Get-Content -LiteralPath $runsetPath -Raw|ConvertFrom-Json
-$runset|Add-Member -NotePropertyName qualification_scope -NotePropertyValue 'cell-api-rest'
+$runset|Add-Member -NotePropertyName qualification_scope -NotePropertyValue $QualificationScope
 $workloads=@()
 $paths=@('Tests/Release/Xlsx.CellApi.Workload.ps1','Tests/Release/Prepare-XlsxCellApiRunset.ps1')
-foreach($name in @('Types.Contract.sql','Types.Safety.sql','Display.Contract.sql','Display.Safety.sql')){
+$names=if($QualificationScope -ceq 'cell-api-rest'){@('Types.Contract.sql','Types.Safety.sql','Display.Contract.sql','Display.Safety.sql')}else{@('Display.Contract.sql','Display.Safety.sql')}
+foreach($name in $names){
     $relative='Modules/toolbelt.file.xlsx-memory/Tests/Runtime/'+$name
     $source=Join-Path $repo $relative
     $destination=Join-Path $FixtureOutput $name
@@ -32,6 +36,7 @@ foreach($path in $paths){
     $runset.pins+=@([pscustomobject]@{path=$full;sha256=(Get-FileHash -LiteralPath $full -Algorithm SHA256).Hash})
 }
 . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
-Assert-XlsxCellApiWorkload $runset 1 $repo
+$firstIndex=if($QualificationScope -ceq 'cell-api-rest'){1}else{9}
+Assert-XlsxCellApiWorkload $runset $firstIndex $repo
 [IO.File]::WriteAllText($runsetPath,($runset|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
 'PASS XLSX_CELL_API private runset prepared; no SQL connection opened'

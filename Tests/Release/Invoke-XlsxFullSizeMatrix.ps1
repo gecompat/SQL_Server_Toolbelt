@@ -9,10 +9,12 @@ $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
 $cellApi=($null -ne $runset.PSObject.Properties['qualification_scope'])
-$maximum=if($cellApi){20}else{30}
-if($cellApi -and ($runset.qualification_scope -cne 'cell-api-rest' -or $DiagnosticOnly -or
-   @($CaseIndex|Where-Object {$_ -notin @(1,2,3,4,5,6,7,8)}).Count)){throw 'XLSX_CELL_MATRIX_SCOPE'}
+$maximum=if($cellApi){if($runset.qualification_scope -ceq 'cell-display-rest'){6}else{20}}else{30}
+$allowed=if($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}else{@(1,2,3,4,5,6,7,8)}
+if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest') -or $DiagnosticOnly -or
+   @($CaseIndex|Where-Object {$_ -notin $allowed}).Count)){throw 'XLSX_CELL_MATRIX_SCOPE'}
 $script:ledger=Get-Content -LiteralPath $BudgetPath -Raw|ConvertFrom-Json
+if($script:ledger.PSObject.Properties['native_closed'] -and $script:ledger.native_closed){throw 'MATRIX_CLOSED_BUDGET'}
 $script:journal=[IO.Path]::GetFullPath($BudgetPath)
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'),[ref]$null,[ref]$null)
 $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Save-ReleaseJournal'},$true))

@@ -5,7 +5,7 @@ $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
 $temporary=Join-Path $repo ('.runtime/xlsx-cell-counter-'+[guid]::NewGuid().ToString('N'))
 [void][IO.Directory]::CreateDirectory($temporary)
-$runset=[pscustomobject]@{workbooks=@();pins=@()}
+$runset=[pscustomobject]@{qualification_scope='cell-api-rest';workbooks=@();pins=@()}
 foreach($name in @('Types.Contract.sql','Types.Safety.sql','Display.Contract.sql','Display.Safety.sql')){
     $source=Join-Path $repo ('Modules/toolbelt.file.xlsx-memory/Tests/Runtime/'+$name)
     $copy=Join-Path $temporary $name
@@ -17,6 +17,13 @@ foreach($path in @((Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1'),(Join-P
     $runset.pins+=@([pscustomobject]@{path=$path;sha256=(Get-FileHash $path -Algorithm SHA256).Hash})
 }
 Assert-XlsxCellApiWorkload $runset 1 $repo
+$display=$runset|ConvertTo-Json -Depth 8|ConvertFrom-Json
+$display.qualification_scope='cell-display-rest'
+$display.workbooks=@($display.workbooks[2],$display.workbooks[3])
+Assert-XlsxCellApiWorkload $display 11 $repo
+$caught=$false
+try{Assert-XlsxCellApiWorkload $display 1 $repo}catch{$caught=$true}
+if(-not $caught){throw 'XLSX_CELL_DISPLAY_REPLAY_ACCEPTED'}
 $original=$runset|ConvertTo-Json -Depth 8
 $count=0
 foreach($mode in @('old-context','missing-fixture','reordered','forged-hash','missing-source-pin','missing-helper-pin','wrong-error')){

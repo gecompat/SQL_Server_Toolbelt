@@ -117,12 +117,12 @@ try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
     if ($script:runset.PSObject.Properties['qualification_scope']) {
-        if ($script:runset.qualification_scope -cne 'cell-api-rest') { throw 'XLSX_CELL_SCOPE_INVALID' }
+        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
         $cellApi = $true
         . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
         Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
     }
-    $expectedWorkbooks = if ($cellApi) { 4 } else { 8 }
+    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -ceq 'cell-display-rest'){2}else{4} } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
         $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
@@ -141,6 +141,7 @@ try {
         throw 'XLSX_FULL_SIZE_MATRIX_INVALID'
     }
     $case = $script:runset.cases[$CaseIndex]
+    $modes = @(if($cellApi -and $script:runset.qualification_scope -ceq 'cell-display-rest' -and $CaseIndex -eq 11){'central'}else{'local';'central'})
     $expectedPatch = if ($case.Platform -ceq 'linux') { 'latest' } else { @{'2019'='cu32';'2022'='cu26';'2025'='cu8'}[[string]$case.Version] }
     if ($case.Patch -cne $expectedPatch -or
         $case.CL -notin @{ '2019'=@(150); '2022'=@(150,160); '2025'=@(150,160,170) }[[string]$case.Version]) {
@@ -189,16 +190,17 @@ try {
             $prior.case.version -cne $case.Version -or $prior.case.cl -ne $case.CL -or $prior.case.patch -cne $case.Patch) {
             throw 'XLSX_FULL_SIZE_AUDIT_CASE_DRIFT'
         }
-        if ($prior.state -ceq 'COMPLETE' -and (($prior.completedModes -join '|') -cne 'local|central')) {
+        if ($cellApi -and $prior.qualificationScope -cne $script:runset.qualification_scope){throw 'XLSX_CELL_AUDIT_SCOPE'}
+        if ($prior.state -ceq 'COMPLETE' -and (($prior.completedModes -join '|') -cne ($modes -join '|'))) {
             throw 'XLSX_FULL_SIZE_AUDIT_COMPLETION_DRIFT'
         }
         if($prior.state -ceq 'COMPLETE'){
-            $expectedResults=@(foreach($mode in @('local','central')){foreach($book in $script:runset.workbooks){$mode+'/'+$book.name+'/'+$book.expected_error}})
+            $expectedResults=@(foreach($mode in $modes){foreach($book in $script:runset.workbooks){$mode+'/'+$book.name+'/'+$book.expected_error}})
             $actualResults=@($prior.results|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_STATUS'};$_.mode+'/'+$_.name+'/'+$_.expected_error})
-            if($actualResults.Count -ne (2*$expectedWorkbooks) -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
-            $expectedLifecycle=@(foreach($mode in @('local','central')){foreach($action in @('InstallAndRepeat','Uninstall','UninstallAbsent')){$mode+'/'+$action}})
+            if($actualResults.Count -ne ($modes.Count*$expectedWorkbooks) -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
+            $expectedLifecycle=@(foreach($mode in $modes){foreach($action in @('InstallAndRepeat','Uninstall','UninstallAbsent')){$mode+'/'+$action}})
             $actualLifecycle=@($prior.lifecycle|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_STATUS'};$_.mode+'/'+$_.action})
-            if($actualLifecycle.Count -ne 6 -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
+            if($actualLifecycle.Count -ne (3*$modes.Count) -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
         }
         $control = Open-ReleaseConnection 'master'
         foreach ($entry in $prior.databases) {
@@ -219,7 +221,7 @@ try {
         if (Test-Path -LiteralPath $script:journal) { throw 'XLSX_FULL_SIZE_CASE_ALREADY_ATTEMPTED' }
         $script:ledger = [ordered]@{
             owner=[guid]::NewGuid().ToString('N'); state='RUNNING'; databases=@(); trust=@();
-            qualificationScope=$(if($cellApi){'cell-api-rest'}else{'full-size'});
+            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'});
             case=[ordered]@{index=$CaseIndex;platform=$case.Platform;version=$case.Version;cl=$case.CL;patch=$case.Patch};
             completedModes=@(); results=@(); lifecycle=@(); configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()}; failure=$null
         }
@@ -258,7 +260,7 @@ try {
                 $entry.fingerprint = $added.Fingerprint; $entry.state = 'OWNED'; Save-ReleaseJournal
             }
         }
-        foreach ($mode in @('local','central')) {
+        foreach ($mode in $modes) {
             $stage = 'CREATE_' + $mode
             $suffix = if ($mode -ceq 'local') { 'l' } else { 'c' }
             $name = 'Toolbelt_Release_' + $script:ledger.owner + '_' + $suffix
