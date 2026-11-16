@@ -22,7 +22,8 @@ foreach($kind in @('wrong-version-hash','current-binary','missing-source-pin','m
 $errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Invoke-XlsxFullSizeLab.ps1'),[ref]$null,[ref]$errors)
 if($errors.Count){throw 'XLSX_GENUINE10_DRIVER_PARSE'}
-foreach($index in @(0,1,11)){
+$indices=if($runset.qualification_scope -ceq 'genuine10-central-rest'){@(0)}else{@(0,1,11)}
+foreach($index in $indices){
     $cellApi=$true;$CaseIndex=$index;$script:runset=$runset
     foreach($variable in @('modes','caseWorkbooks')){
         $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and
@@ -30,7 +31,7 @@ foreach($index in @(0,1,11)){
         if($nodes.Count -ne 1){throw 'XLSX_GENUINE10_SELECTOR'}
         . ([scriptblock]::Create($nodes[0].Extent.Text))
     }
-    $expected=if($index -eq 0){'local'}else{'local|central'}
+    $expected=if($runset.qualification_scope -ceq 'genuine10-central-rest'){'central'}elseif($index -eq 0){'local'}else{'local|central'}
     if(($modes -join '|') -cne $expected -or ($caseWorkbooks.name -join '|') -cne 'Types.Metadata.ps1|Display.Metadata.ps1'){throw 'XLSX_GENUINE10_GREEN_REPLAY'}
 }
 'PASS XLSX_GENUINE10 original-source admission; 4 negative provenance/pin cases and 3 actual mode selectors; no SQL'

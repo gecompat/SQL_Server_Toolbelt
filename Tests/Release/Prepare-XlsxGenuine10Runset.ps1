@@ -3,12 +3,13 @@
 param([Parameter(Mandatory)][string]$RunRoot,[Parameter(Mandatory)][string]$FixtureOutput,
       [Parameter(Mandatory)][string]$PythonPath,[Parameter(Mandatory)][string]$PackagePath,
       [Parameter(Mandatory)][string]$QualifiedFixtureDirectory,[Parameter(Mandatory)][string]$LegacyDirectory,
-      [Parameter(Mandatory)][string]$ReproDirectory)
+      [Parameter(Mandatory)][string]$ReproDirectory,
+      [ValidateSet('genuine10-rest','genuine10-central-rest')][string]$QualificationScope='genuine10-rest')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $legacy=[IO.Path]::GetFullPath($LegacyDirectory)
-$baseParameters=@{}+$PSBoundParameters;[void]$baseParameters.Remove('LegacyDirectory');[void]$baseParameters.Remove('ReproDirectory')
+$baseParameters=@{}+$PSBoundParameters;[void]$baseParameters.Remove('LegacyDirectory');[void]$baseParameters.Remove('ReproDirectory');[void]$baseParameters.Remove('QualificationScope')
 & (Join-Path $PSScriptRoot 'Prepare-XlsxCellApiRunset.ps1') @baseParameters -QualificationScope cell-client-rest
 if(-not $?){throw 'XLSX_GENUINE10_BASE_PREPARATION'}
 $path=Join-Path $RunRoot 'runset.json';$runset=Get-Content $path -Raw|ConvertFrom-Json
@@ -38,7 +39,7 @@ $text=[IO.File]::ReadAllText((Join-Path $repo 'Modules/toolbelt.file.xlsx-memory
 $text=[regex]::Replace($text,'(?im)^\s*:On\s+Error\s+exit\s*$','')
 if($text -match '\$\(' -or $text -match '(?m)^\s*:'){throw 'XLSX_GENUINE10_REMOVE_TEMPLATE'}
 [IO.File]::WriteAllText($remove,$text,[Text.UTF8Encoding]::new($false))
-$runset.qualification_scope='genuine10-rest'
+$runset.qualification_scope=$QualificationScope
 $runset|Add-Member -NotePropertyName legacy -NotePropertyValue ([pscustomobject]@{module=$module;provenance=$provenance;artifact=$artifact;repro=$repro;install=$install;remove_current=$remove})
 $extra=@($provenance,$binary,$repro,$remove,$install.local,$install.central,
  (Join-Path $repo 'Tests/Release/Xlsx.Genuine10.Workload.ps1'),$PSCommandPath,

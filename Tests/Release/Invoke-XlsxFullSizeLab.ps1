@@ -117,12 +117,12 @@ try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
     if ($script:runset.PSObject.Properties['qualification_scope']) {
-        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
+        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
         $cellApi = $true
         . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
         Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
     }
-    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest')){2}else{4} } else { 8 }
+    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest')){2}else{4} } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
         $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
@@ -141,8 +141,8 @@ try {
         throw 'XLSX_FULL_SIZE_MATRIX_INVALID'
     }
     $case = $script:runset.cases[$CaseIndex]
-    $modes = @(if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-rest' -and $CaseIndex -eq 0){'local'}elseif($cellApi -and $script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest') -and $CaseIndex -eq 11){'central'}else{'local';'central'})
-    if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-rest'){
+    $modes = @(if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-central-rest'){'central'}elseif($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest') -and $CaseIndex -eq 0){'local'}elseif($cellApi -and $script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest') -and $CaseIndex -eq 11){'central'}else{'local';'central'})
+    if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest')){
         . (Join-Path $PSScriptRoot 'Xlsx.Genuine10.Workload.ps1')
         Assert-XlsxGenuine10Inputs $script:runset $repo
     }
@@ -209,7 +209,7 @@ try {
             $actualLifecycle=@($prior.lifecycle|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_STATUS'};$_.mode+'/'+$_.action})
             if($actualLifecycle.Count -ne (3*$modes.Count) -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
         }
-        if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-rest' -and $prior.state -ceq 'COMPLETE'){
+        if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest') -and $prior.state -ceq 'COMPLETE'){
             if(($prior.genuine.mode -join '|') -cne ($modes -join '|') -or @($prior.genuine|Where-Object status -CNE 'PASS_GENUINE_1_0').Count){throw 'XLSX_GENUINE10_AUDIT_BASELINE'}
         }
         $control = Open-ReleaseConnection 'master'
@@ -247,7 +247,7 @@ try {
             throw 'XLSX_FULL_SIZE_DATABASE_INVENTORY_UNSAFE'
         }
         $trustArtifacts=@($script:runset.artifacts)
-        if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-rest'){$trustArtifacts+=@($script:runset.legacy.artifact)}
+        if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest')){$trustArtifacts+=@($script:runset.legacy.artifact)}
         foreach ($artifact in $trustArtifacts) {
             $artifactPath = Assert-ReleasePrivatePath ([string]$artifact.path)
             if ((Get-FileHash -LiteralPath $artifactPath -Algorithm SHA256).Hash -cne $artifact.sha256 -or
@@ -286,7 +286,7 @@ try {
             Invoke-ReleaseSql $db 'DECLARE @O nvarchar(32)=@Owner; EXEC sys.sp_addextendedproperty @name=N''Test.Release.Owner'',@value=@O;' @{'@Owner'=$script:ledger.owner}
             $entry.state = 'OWNED'; Save-ReleaseJournal
             Invoke-ReleaseSql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=$($case.CL);"
-            if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-rest'){
+            if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest')){
                 $stage='GENUINE10_'+$mode
                 Invoke-XlsxGenuine10Setup $db $mode
                 $db.Dispose();$db=Open-ReleaseConnection $name
@@ -324,7 +324,7 @@ try {
                 $bytes=[IO.File]::ReadAllBytes($workbook.path)
                 if ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant() -cne $workbook.sha256) { throw 'XLSX_FULL_SIZE_FIXTURE_DRIFT' }
                 if ($cellApi) {
-                    if($script:runset.qualification_scope -cin @('cell-client-rest','genuine10-rest')){
+                    if($script:runset.qualification_scope -cin @('cell-client-rest','genuine10-rest','genuine10-central-rest')){
                         $providers=New-XlsxClientBudgetProviders $script:clock (Get-ReleaseTimeout)
                         & $workbook.path -Connection $db -CommandTimeoutProvider $providers.Timeout -ReadBudgetProvider $providers.Read
                     }else{

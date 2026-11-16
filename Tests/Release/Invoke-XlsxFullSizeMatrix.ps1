@@ -9,10 +9,10 @@ $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
 $cellApi=($null -ne $runset.PSObject.Properties['qualification_scope'])
-$maximum=if($cellApi){switch($runset.qualification_scope){'cell-display-rest'{6};'cell-client-rest'{24};'genuine10-rest'{28};default{20}}}else{30}
-$allowed=if($cellApi -and $runset.qualification_scope -ceq 'genuine10-rest'){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){@(1,2,3,4,5,6,7,8,9,10,11)}else{@(1,2,3,4,5,6,7,8)}
+$maximum=if($cellApi){switch($runset.qualification_scope){'cell-display-rest'{6};'cell-client-rest'{24};'genuine10-rest'{28};'genuine10-central-rest'{28};default{20}}}else{30}
+$allowed=if($cellApi -and $runset.qualification_scope -ceq 'genuine10-central-rest'){@(0)}elseif($cellApi -and $runset.qualification_scope -ceq 'genuine10-rest'){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){@(1,2,3,4,5,6,7,8,9,10,11)}else{@(1,2,3,4,5,6,7,8)}
 $correctionMax=if($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){1}else{2}
-if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest') -or $DiagnosticOnly -or
+if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest') -or $DiagnosticOnly -or
    @($CaseIndex|Where-Object {$_ -notin $allowed}).Count)){throw 'XLSX_CELL_MATRIX_SCOPE'}
 $script:ledger=Get-Content -LiteralPath $BudgetPath -Raw|ConvertFrom-Json
 if($script:ledger.PSObject.Properties['native_closed'] -and $script:ledger.native_closed){throw 'MATRIX_CLOSED_BUDGET'}
@@ -47,6 +47,7 @@ if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin
 $out=Split-Path -Parent $BudgetPath
 foreach($index in $CaseIndex){
     $case=$runset.cases[$index];$key=$case.Platform+'/'+$case.Version+'/'+$case.CL
+    if($cellApi -and $runset.qualification_scope -ceq 'genuine10-central-rest'){$key='genuine-central/'+$key}
     if($DiagnosticOnly){
         if($CaseIndex.Count -ne 1 -or $index -ne 0 -or @($script:ledger.dispatches|Where-Object {$_.key -like 'diagnostic/*'}).Count){throw 'MATRIX_DIAGNOSTIC_BOUND'}
         $key='diagnostic/'+$key
