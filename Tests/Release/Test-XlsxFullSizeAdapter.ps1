@@ -43,3 +43,19 @@ foreach($mode in @('good','wrong-value','duplicate-row','wrong-schema','missing-
     if(-not $script:reader.Disposed -or -not $script:command.Disposed){throw 'ORACLE_READER_NOT_DISPOSED'}
 }
 'PASS XLSX_FULL_SIZE 5 SQL-free oracle/disposal counterexamples'
+$neutral=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Assert-XlsxFullSizeNeutral'},$true))
+if($neutral.Count -ne 1){throw 'SESSION_ORACLE_AMBIGUOUS'}
+. ([scriptblock]::Create($neutral[0].Extent.Text))
+$script:badSession=$false;$script:ledger=[ordered]@{}
+function Save-ReleaseJournal {}
+function Invoke-ReleaseSql {
+    param($Connection,[string]$Sql,[switch]$Rows)
+    if($Sql -cne 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;'){return [pscustomobject]@{TranCount=0;XactState=1}}
+    if($script:badSession){return [pscustomobject]@{TranCount=1;XactState=1}}
+    return [pscustomobject]@{TranCount=0;XactState=0}
+}
+Assert-XlsxFullSizeNeutral $null
+$script:badSession=$true;$caught=$null
+try{Assert-XlsxFullSizeNeutral $null}catch{$caught=$_.Exception.Message}
+if($caught -cne 'XLSX_FULL_SIZE_SESSION_NOT_NEUTRAL'){throw 'SESSION_ORACLE_ACCEPTED_CALLER_TRANSACTION'}
+'PASS XLSX_FULL_SIZE scalar session oracle; metadata AutoCommit and real caller transaction remain distinct'

@@ -102,6 +102,16 @@ function Assert-XlsxFullSizeFailureWithoutRows($Connection, [byte[]]$Workbook, [
        $caught.Message -cne $ExpectedError) { throw 'XLSX_FULL_SIZE_FAILURE_ATOMICITY_OR_ORACLE' }
 }
 
+function Assert-XlsxFullSizeNeutral($Connection) {
+    # Das bereits qualifizierte skalare Sitzungsorakel bleibt von Metadatenreads
+    # getrennt: deren eigener AutoCommit kann XACT_STATE()=1 bei TranCount=0 zeigen.
+    $session=@(Invoke-ReleaseSql $Connection 'SELECT @@TRANCOUNT TranCount,XACT_STATE() XactState;' -Rows)
+    if($session.Count -ne 1 -or $session[0].TranCount -ne 0 -or $session[0].XactState -ne 0){
+        $script:ledger['sessionDiagnostic']=$session;Save-ReleaseJournal
+        throw 'XLSX_FULL_SIZE_SESSION_NOT_NEUTRAL'
+    }
+}
+
 try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
@@ -275,8 +285,9 @@ try {
             foreach($artifact in $script:runset.artifacts){
                 if(@($repeated|Where-Object {$_.name -ceq $artifact.sql_name -and $_.Hash -ceq $artifact.sha512 -and $_.Permission -ceq 'SAFE_ACCESS'}).Count -ne 1){throw 'XLSX_FULL_SIZE_REPEAT_ASSEMBLY_DRIFT'}
             }
-            $neutral=@(Invoke-ReleaseSql $db 'SELECT @@TRANCOUNT T,XACT_STATE() X,compatibility_level CL FROM sys.databases WHERE database_id=DB_ID();' -Rows)
-            if($neutral.Count -ne 1 -or $neutral[0].T -ne 0 -or $neutral[0].X -ne 0 -or $neutral[0].CL -ne $case.CL){throw 'XLSX_FULL_SIZE_REPEAT_STATE'}
+            Assert-XlsxFullSizeNeutral $db
+            $compatibility=@(Invoke-ReleaseSql $db 'SELECT compatibility_level CL FROM sys.databases WHERE database_id=DB_ID();' -Rows)
+            if($compatibility.Count -ne 1 -or $compatibility[0].CL -ne $case.CL){throw 'XLSX_FULL_SIZE_COMPATIBILITY_STATE'}
             $script:ledger.lifecycle += @(@{mode=$mode;action='InstallAndRepeat';status='PASS'}); Save-ReleaseJournal
             $definitions = "SELECT o.object_id,o.type,CONVERT(varchar(64),HASHBYTES('SHA2_256',m.definition),2) Hash,a.assembly_id,a.assembly_class,a.assembly_method FROM sys.objects o LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id LEFT JOIN sys.assembly_modules a ON a.object_id=o.object_id WHERE o.is_ms_shipped=0 ORDER BY o.object_id;"
             $beforeDefinitions = @(Invoke-ReleaseSql $db $definitions -Rows) | ConvertTo-Json -Depth 4 -Compress
@@ -293,8 +304,9 @@ try {
             foreach ($action in @('Uninstall','UninstallAbsent')) {
                 $stage=$action+'_'+$mode
                 Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.exports.$mode.$action,[Text.Encoding]::UTF8))
-                $empty=@(Invoke-ReleaseSql $db 'SELECT (SELECT COUNT(*) FROM sys.objects WHERE is_ms_shipped=0) Objects,(SELECT COUNT(*) FROM sys.assemblies WHERE is_user_defined=1) Assemblies,@@TRANCOUNT T,XACT_STATE() X;' -Rows)
-                if ($empty.Count -ne 1 -or $empty[0].Objects -ne 0 -or $empty[0].Assemblies -ne 0 -or $empty[0].T -ne 0 -or $empty[0].X -ne 0) { throw 'XLSX_FULL_SIZE_UNINSTALL_REMAINS' }
+                $empty=@(Invoke-ReleaseSql $db 'SELECT (SELECT COUNT(*) FROM sys.objects WHERE is_ms_shipped=0) Objects,(SELECT COUNT(*) FROM sys.assemblies WHERE is_user_defined=1) Assemblies;' -Rows)
+                if ($empty.Count -ne 1 -or $empty[0].Objects -ne 0 -or $empty[0].Assemblies -ne 0) { throw 'XLSX_FULL_SIZE_UNINSTALL_REMAINS' }
+                Assert-XlsxFullSizeNeutral $db
                 $script:ledger.lifecycle += @(@{mode=$mode;action=$action;status='PASS'}); Save-ReleaseJournal
             }
             $db.Dispose(); $script:ledger.completedModes += @($mode); Save-ReleaseJournal
