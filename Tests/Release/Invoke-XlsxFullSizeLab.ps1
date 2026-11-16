@@ -117,12 +117,12 @@ try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
     if ($script:runset.PSObject.Properties['qualification_scope']) {
-        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
+        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
         $cellApi = $true
         . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
         Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
     }
-    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')){2}else{4} } else { 8 }
+    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -ceq 'lifecycle-negative-rest'){1}elseif($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')){2}else{4} } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
         $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
@@ -150,6 +150,10 @@ try {
             . (Join-Path $PSScriptRoot 'Xlsx.Genuine10.Workload.ps1')
             Assert-XlsxGenuine10Inputs $script:runset $repo
         }
+    }
+    if($cellApi -and $script:runset.qualification_scope -ceq 'lifecycle-negative-rest'){
+        . (Join-Path $PSScriptRoot 'Xlsx.LifecycleNegative.Workload.ps1')
+        Assert-XlsxLifecycleNegativeInputs $script:runset $repo
     }
     $caseWorkbooks = @($script:runset.workbooks | Where-Object {
         -not ($cellApi -and $script:runset.qualification_scope -ceq 'cell-client-rest' -and $CaseIndex -ge 9 -and $_.name -ceq 'Types.Metadata.ps1')
@@ -217,6 +221,10 @@ try {
         if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest') -and $prior.state -ceq 'COMPLETE'){
             if(($prior.genuine.mode -join '|') -cne ($modes -join '|') -or @($prior.genuine|Where-Object status -CNE $(if($script:runset.qualification_scope -ceq 'genuine11-rest'){'PASS_GENUINE_1_1'}else{'PASS_GENUINE_1_0'})).Count){throw 'XLSX_GENUINE10_AUDIT_BASELINE'}
         }
+        if($cellApi -and $script:runset.qualification_scope -ceq 'lifecycle-negative-rest' -and $prior.state -ceq 'COMPLETE'){
+            if(($prior.lifecycleNegatives.mode -join '|') -cne ($modes -join '|') -or
+               @($prior.lifecycleNegatives|Where-Object {$_.status -cne 'PASS' -or $_.rollback -ne 4 -or $_.locks -ne 2 -or $_.visibility -ne 16}).Count){throw 'XLSX_LIFECYCLE_AUDIT_NEGATIVE_GROUPS'}
+        }
         $control = Open-ReleaseConnection 'master'
         foreach ($entry in $prior.databases) {
             if ($entry.name -cne ('Toolbelt_Release_' + $prior.owner + '_' + $entry.suffix) -or $entry.state -cne 'DROPPED') {
@@ -236,7 +244,7 @@ try {
         if (Test-Path -LiteralPath $script:journal) { throw 'XLSX_FULL_SIZE_CASE_ALREADY_ATTEMPTED' }
         $script:ledger = [ordered]@{
             owner=[guid]::NewGuid().ToString('N'); state='RUNNING'; databases=@(); trust=@();
-            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'}); genuine=@();
+            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'}); genuine=@(); lifecycleNegatives=@();
             case=[ordered]@{index=$CaseIndex;platform=$case.Platform;version=$case.Version;cl=$case.CL;patch=$case.Patch};
             completedModes=@(); results=@(); lifecycle=@(); configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()}; failure=$null
         }
@@ -341,6 +349,7 @@ try {
                 else { Assert-XlsxFullSizeFailureWithoutRows $db $bytes $workbook.expected_error }
                 $script:ledger.results += @(@{mode=$mode;name=$workbook.name;status='PASS';expected_error=$workbook.expected_error}); Save-ReleaseJournal
             }
+            if($cellApi -and $script:runset.qualification_scope -ceq 'lifecycle-negative-rest'){Invoke-XlsxLifecycleNegative $db $mode}
             $afterDefinitions = @(Invoke-ReleaseSql $db $definitions -Rows) | ConvertTo-Json -Depth 4 -Compress
             if ($beforeDefinitions -cne $afterDefinitions) { throw 'XLSX_FULL_SIZE_PRODUCT_OBJECT_DRIFT' }
             foreach ($action in @('Uninstall','UninstallAbsent')) {
