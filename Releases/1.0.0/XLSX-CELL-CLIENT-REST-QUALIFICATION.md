@@ -30,9 +30,10 @@ Originalquellen, Fehler und zwei verbrauchte Aufrufe bleiben erhalten.
 
 Der korrigierte Adapter bestimmt die kanonische Restzeit vor dem Kindskript und
 bindet sie mit der vorhandenen monotonen Stopwatch in abgeschlossenen Callbacks.
-Das auf höchstens45Sekunden begrenzte Helferfenster darf weder pro Command noch
+Das kooperative, auf höchstens45Sekunden begrenzte Helferbudget darf weder pro Command noch
 pro Read neu starten; das gemeinsame ursprüngliche Arbeitsbudget bleibt zusätzlich
-wirksam. Bei Ablauf wird der Readercommand abgebrochen. Eine echte SQL-freie
+wirksam. Bei Ablauf wird best-effort Command.Cancel angefordert; eine harte
+Unterbrechungs- oder Wallclockgarantie folgt daraus nicht. Eine echte SQL-freie
 Gegenprobe startet den Callback in einem frischen Kind-Skriptscope mit absichtlich
 fehlenden Scriptvariablen. Eine zweite prüft Ablauf und Cancel; echte aus dem
 Adapter gelesene Selektorausdrücke prüfen drei disjunkte Kontextprofile.
