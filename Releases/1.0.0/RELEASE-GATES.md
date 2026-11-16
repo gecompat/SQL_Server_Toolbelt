@@ -1,5 +1,7 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
+Aktueller Abgleich 2026-11-16: [geschlossene Teilumfaenge und echte Restqualifikation](CURRENT-QUALIFICATION-REST.md). Spaetere gebundene Nachweise schliessen die dort benannten historischen Offen-Eintraege; die folgenden datierten Originalumfaenge werden nicht rueckwirkend erweitert.
+
 [XLSX-/ZIP-Writer-Paketnachweis](XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.md):
 19 bestehende XLSX-Candidate-Frameworkphasen und sieben ZIP-Entry-Security-Fälle
 mit dem bestehenden Writer-Body bestanden. Paket-/Modulstatus blieb unverändert;

@@ -1,5 +1,7 @@
 # XLSX-Vertragsqualifizierung
 
+Aktueller Nachweisabgleich 2026-11-16: Die [acht nativen Vollgroessenfaelle und Paketpflege](../../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) sowie die [fehlenden Typ-/Anzeige-Fixtures](../../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) sind in ihrem genauen Scope geschlossen. Die direkten Zell-/Raw-Callerrechte sind separat belegt. Die folgenden datierten Berichte und die unveraenderte historische Testmatrix sind keine aktuelle pauschale Offenliste; genuine Upgrade-/Consumer-, Kollisions-/Owner-/Client- und Heapgrenzen bleiben getrennt.
+
 ## Raw-Reader-Callerrechte – 2026-10-26
 
 Der [gebundene Raw-Callerbericht](../../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) beschreibt die getrennten `USP_ListXlsxWorksheets`- und `USP_ReadXlsxWorksheetCells`-Profile. Zwölf Ziel-/CL-Fälle liefen lokal und direkt zentral; 14 Rechtemasken je Kontext wurden gegen direkte und caller-lokale `ResultTable`-Ausgabe geprüft. Die festen Orakel verwenden neun synthetische Zellen und die dazugehörige Blattliste. Die Abweisungskontrollen und der erhaltene ursprüngliche Probe-Arityfehler sind getrennt ausgewiesen. Type-/Anzeige-, Lifecycle-, Client-, vollständige Workbook- und Heapabnahmen bleiben separat.

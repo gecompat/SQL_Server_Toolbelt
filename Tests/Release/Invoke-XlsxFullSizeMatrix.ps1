@@ -8,15 +8,21 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
+$cellApi=($null -ne $runset.PSObject.Properties['qualification_scope'])
+$maximum=if($cellApi){if($runset.qualification_scope -ceq 'cell-display-rest'){6}else{20}}else{30}
+$allowed=if($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}else{@(1,2,3,4,5,6,7,8)}
+if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest') -or $DiagnosticOnly -or
+   @($CaseIndex|Where-Object {$_ -notin $allowed}).Count)){throw 'XLSX_CELL_MATRIX_SCOPE'}
 $script:ledger=Get-Content -LiteralPath $BudgetPath -Raw|ConvertFrom-Json
+if($script:ledger.PSObject.Properties['native_closed'] -and $script:ledger.native_closed){throw 'MATRIX_CLOSED_BUDGET'}
 $script:journal=[IO.Path]::GetFullPath($BudgetPath)
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'),[ref]$null,[ref]$null)
 $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Save-ReleaseJournal'},$true))
 if($nodes.Count -ne 1){throw 'MATRIX_JOURNAL_HELPER'}
 . ([scriptblock]::Create($nodes[0].Extent.Text))
 . (Join-Path $repo 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1')
-if($script:ledger.native_ceiling_minutes -ne 60 -or $script:ledger.native_dispatch_max -ne 30 -or
-   $script:ledger.database_max -ne 30 -or $script:ledger.changed_adapter_cases_max -ne 2 -or
+if($script:ledger.native_ceiling_minutes -ne 60 -or $script:ledger.native_dispatch_max -ne $maximum -or
+   $script:ledger.database_max -ne $maximum -or $script:ledger.changed_adapter_cases_max -ne 2 -or
    $runset.schema_version -cne 'xlsx-full-size-package/v1' -or $runset.cases.Count -ne 12){throw 'MATRIX_SCOPE_DRIFT'}
 if(@($CaseIndex|Sort-Object -Unique).Count -ne $CaseIndex.Count){throw 'MATRIX_DUPLICATE_CASE'}
 if(-not $script:ledger.native_started){
@@ -45,7 +51,7 @@ foreach($index in $CaseIndex){
         $key='diagnostic/'+$key
     }
     if($key -cin $script:ledger.completed_keys -or @($script:ledger.dispatches|Where-Object {$_.key -ceq $key -and $_.phase -ceq 'RUN' -and ($_.state -ceq 'COMPLETE' -or $_.completed_modes.Count -gt 0)}).Count){throw 'MATRIX_GREEN_REPLAY_REJECTED'}
-    if($script:ledger.dispatches.Count+2 -gt 30 -or $script:ledger.database_reserved+2 -gt 30 -or
+    if($script:ledger.dispatches.Count+2 -gt $maximum -or $script:ledger.database_reserved+2 -gt $maximum -or
        ($deadline-[DateTime]::UtcNow).TotalSeconds -lt 780){throw 'MATRIX_NEXT_PAIR_NOT_WITHIN_SHARED_BOUND'}
     foreach($pin in $runset.pins){if((Get-FileHash -LiteralPath $pin.path -Algorithm SHA256).Hash -cne $pin.sha256){throw 'MATRIX_INPUT_DRIFT'}}
     $run=@{id=[guid]::NewGuid().ToString('N');key=$key;phase='RUN';index=$index;state='RESERVED';dispatched=$false;runset_sha256=(Get-FileHash -LiteralPath $RunsetPath -Algorithm SHA256).Hash;exit_code=$null;stderr_empty=$null;completed_modes=@();diagnostic=$null}
