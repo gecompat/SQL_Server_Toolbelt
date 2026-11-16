@@ -6,6 +6,7 @@ import io
 import json
 from pathlib import Path
 import subprocess
+import tarfile
 import zipfile
 
 import prepare_clr_package as clr
@@ -36,6 +37,25 @@ def source_files():
         paths.update(p for p in (root / 'Clr').rglob('*')
                      if p.suffix in ('.cs', '.csproj') and not {'bin', 'obj'} & set(p.parts))
     return {p.relative_to(ROOT).as_posix(): p.read_bytes() for p in sorted(paths)}
+
+
+def source_files_at(commit):
+    """Originalquellen prüfen, ohne historische Pakete an künftigen Code zu binden."""
+    require(len(commit) == 40 and all(c in '0123456789abcdef' for c in commit), 'source commit')
+    raw = subprocess.check_output(['git', 'archive', '--format=tar', commit, 'Deployment',
+                                   *('Modules/' + module for module in MODULES)], cwd=ROOT)
+    result = {}
+    with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
+        for item in archive:
+            parts = Path(item.name).parts
+            selected = (len(parts) == 2 and parts[0] == 'Deployment' and item.name.endswith('.ps1'))
+            if len(parts) >= 3 and parts[0] == 'Modules' and parts[1] in MODULES:
+                selected |= (len(parts) == 3 and parts[2] == 'module.yaml')
+                selected |= (parts[2] in ('Source', 'Deployment') and item.name.endswith('.sql'))
+                selected |= (parts[2] == 'Clr' and Path(item.name).suffix in ('.cs', '.csproj') and not {'bin', 'obj'} & set(parts))
+            if selected and item.isfile():
+                result[item.name] = archive.extractfile(item).read()
+    return result
 
 
 def payload():
@@ -122,8 +142,8 @@ def verify(path):
     require(metadata['profiles'] == {p: list(MODULES[1:]) for p in ('Windows-local', 'Windows-central', 'Portable-local', 'Portable-central')}, 'package profiles')
     for profile in metadata['profiles']:
         require(data['SQL/Trust-' + profile + '.sql'] == clr.trust_sql(metadata['artifacts']), 'trust script drift')
-    expected_sources = {'Sources/' + name: binary for name, binary in source_files().items()}
-    require({name: value for name, value in data.items() if name.startswith('Sources/')} == expected_sources, 'package current source closure drift')
+    expected_sources = {'Sources/' + name: binary for name, binary in source_files_at(metadata['source_commit']).items()}
+    require({name: value for name, value in data.items() if name.startswith('Sources/')} == expected_sources, 'package original source closure drift')
     return metadata
 
 
