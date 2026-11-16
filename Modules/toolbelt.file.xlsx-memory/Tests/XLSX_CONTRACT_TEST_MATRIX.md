@@ -37,9 +37,7 @@ Fixnachweis 2026-10-02: vollständiger identischer Adapter auf Linux 2019/latest
 | Tatsächliche Grenzfixtures | 100000/100001 Zellen; 8 MiB/+1 UTF-16-Einheit SST | Framework PASS |
 | Outputexpansion | exakte reduzierte Chargegrenze/+1; wiederholte große SST; THROW 51520, Ziel unverändert | Framework und Windows PASS |
 | Parametergrenzen | alle Ressourcenparameter NULL und Ceiling+1 | Windows SQL PASS |
-| Vollgröße Archiv / Part / Summe / Partanzahl | 16 MiB/+1 Archiv, selektierter 16-MiB/+1-Worksheet-Part, 64 MiB/+1 deklarierte Archivsumme, 256/257 Parts | [Framework PASS am unveränderten SST-Kandidaten](../../../Releases/1.0.0/XLSX-FULL-SIZE-FRAMEWORK.md); native SQL-Ausführung dieser acht Fälle not executed, kein Peak-/Kapazitätsnachweis |
-| Vollgröße Blattanzahl | 32/33 Arbeitsblätter | [native zwölf Engine-/CL-Paare, lokal/zentral PASS](../../../Releases/1.0.0/XLSX-BOUNDARY-QUALIFICATION.md); ursprüngliche Paketbytes |
-| Vollgröße SST-Anzahl | 50000/50001 Shared Strings | [native zwölf Engine-/CL-Paare, lokal/zentral PASS am korrigierten Quellkandidaten](../../../Releases/1.0.0/XLSX-SST-BUDGET-CORRECTION.md); ursprünglicher Paket-Budgetfehler bleibt erhalten, Paketpflege offen |
+| Vollgröße übriger Caps | reale 16-MiB-Archiv-/Part-, 64-MiB-Summen-, 256-Part-, 32-Sheet- und 50000-SST-Grenzworkbooks | not executed; Konfigurationsprüfung ist kein Kapazitätsnachweis |
 | Öffentliche Metadaten | SELECT, NULL-SELECT, Help, Defaultaufruf, keine Zusatzresultsets | Windows SQLClient PASS |
 | Routing | local, central und fremde Caller-Datenbank ohne lokale Provider | Windows PASS |
 | ResultTable | Ersetzen/Anhängen, NULL-Noop, Schemafehler 51025, Ziel bei Parserfehler unverändert | Windows PASS |

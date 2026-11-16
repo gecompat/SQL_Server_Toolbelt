@@ -66,3 +66,8 @@ für ihren separaten Kandidaten, nicht für die ältere DLL im Installationspake
 Historische Nachweise bleiben unverändert. Paketpflege und erforderliche
 Nachweise für neue Paketbytes bleiben eigene Releasegates. Modulstatus bleibt
 `partially validated`, Releasezustand `unreleased`; keine Veröffentlichung oder Tags.
+
+Die quellengebundene historische Testmatrix bleibt ebenfalls bytegleich.
+Ihre alte Sammelzeile „Vollgröße übriger Caps: not executed“ ist durch diesen
+Bericht und die beiden nativen Blatt-/SST-Berichte differenziert ersetzt;
+der aktuelle Einstieg steht im [Modul-README](../../Modules/toolbelt.file.xlsx-memory/README.md#vertrag-und-grenzen).
