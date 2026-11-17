@@ -74,7 +74,7 @@ $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot
 foreach($scope in @('wrongtype-rest','marker-collision-rest')){
     $cellApi=$true;$CaseIndex=0;$script:runset=$sourceRunset|ConvertTo-Json -Depth 12|ConvertFrom-Json
     $script:runset.qualification_scope=$scope
-    foreach($variable in @('modes','caseWorkbooks','expectedWorkbooks','uninstallActions')){
+    foreach($variable in @('modes','caseWorkbooks','expectedWorkbooks','uninstallActions','auditLifecycleActions')){
         $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and
           $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -ceq $variable},$true))
         if($nodes.Count -ne 1){throw 'XLSX_WRONGTYPE_SELECTOR'}
@@ -82,7 +82,17 @@ foreach($scope in @('wrongtype-rest','marker-collision-rest')){
     }
     if(($modes -join '|') -cne 'local|central' -or $expectedWorkbooks -ne 1 -or
        ($caseWorkbooks.name -join '|') -cne 'Display.Lifecycle.sql' -or
-       @($uninstallActions).Count -ne $(if($scope -ceq 'wrongtype-rest'){0}else{2})){throw 'XLSX_WRONGTYPE_SELECTOR_SCOPE'}
+       @($uninstallActions).Count -ne $(if($scope -ceq 'wrongtype-rest'){0}else{2}) -or
+       @($auditLifecycleActions).Count -ne $(if($scope -ceq 'wrongtype-rest'){1}else{3})){throw 'XLSX_WRONGTYPE_SELECTOR_SCOPE'}
+    $prior=[pscustomobject]@{state='COMPLETE';results=@([pscustomobject]@{mode='local';name='Display.Lifecycle.sql';expected_error='NONE';status='PASS'},[pscustomobject]@{mode='central';name='Display.Lifecycle.sql';expected_error='NONE';status='PASS'});lifecycle=@()}
+    foreach($mode in $modes){foreach($action in $auditLifecycleActions){$prior.lifecycle+=@([pscustomobject]@{mode=$mode;action=$action;status='PASS'})}}
+    $guard=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and $n.Extent.Text.Contains('XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET') -and $n.Extent.Text.StartsWith("if(`$prior.state -ceq 'COMPLETE')")},$true))
+    if($guard.Count -ne 1){throw 'XLSX_WRONGTYPE_REAL_AUDIT_GUARD'}
+    $block=[scriptblock]::Create(($guard[0].Clauses[0].Item2.Statements.Extent.Text -join "`n"))
+    . $block
+    $prior.lifecycle=$prior.lifecycle[0..($prior.lifecycle.Count-2)];$caught=$false
+    try{. $block}catch{$caught=$true}
+    if(-not $caught){throw 'XLSX_WRONGTYPE_INCOMPLETE_REAL_AUDIT_ACCEPTED'}
     $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and
       $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -ceq 'definitions'},$true))
     if($nodes.Count -ne 2){throw 'XLSX_WRONGTYPE_DEFINITION_ORACLE'}

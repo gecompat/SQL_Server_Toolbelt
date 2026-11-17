@@ -45,7 +45,13 @@ foreach($rejected in @($script:ledger.dispatches|Where-Object state -CEQ 'PRE_SQ
     $receipt=Get-Content -LiteralPath $rejected.rejection_receipt_path -Raw|ConvertFrom-Json
     if($receipt.status -cne 'PASS_PRE_SQL_REJECTION_AUDIT' -or $receipt.own_mutating_stage_reached -or $receipt.own_resource_ids_allocated -or $receipt.runset_sha256 -cne $rejected.runset_sha256){throw 'MATRIX_REJECTION_SCOPE'}
 }
-if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','PRE_SQL_REJECTED','AUDIT_PASS')}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
+$reconciledAuditIds=@()
+if($cellApi -and $runset.qualification_scope -ceq 'wrongtype-rest' -and $script:ledger.PSObject.Properties['audit_recoveries']){
+    . (Join-Path $PSScriptRoot 'Xlsx.WrongType.Workload.ps1')
+    $reconciledAuditIds=@(Assert-XlsxWrongTypeAuditRecovery $script:ledger $RunsetPath)
+}
+if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','PRE_SQL_REJECTED','AUDIT_PASS') -and
+    -not ($_.state -ceq 'AUDIT_FAILED' -and $_.id -cin $reconciledAuditIds)}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
 $out=Split-Path -Parent $BudgetPath
 foreach($index in $CaseIndex){
     $case=$runset.cases[$index];$key=$case.Platform+'/'+$case.Version+'/'+$case.CL

@@ -240,9 +240,10 @@ try {
             $expectedResults=@(foreach($mode in $modes){foreach($book in $caseWorkbooks){$mode+'/'+$book.name+'/'+$book.expected_error}})
             $actualResults=@($prior.results|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_STATUS'};$_.mode+'/'+$_.name+'/'+$_.expected_error})
             if($actualResults.Count -ne ($modes.Count*$caseWorkbooks.Count) -or (($actualResults|Sort-Object)-join '|') -cne (($expectedResults|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_RESULT_SET'}
-            $expectedLifecycle=@(foreach($mode in $modes){foreach($action in @('InstallAndRepeat','Uninstall','UninstallAbsent')){$mode+'/'+$action}})
+            $auditLifecycleActions=@(if($cellApi -and $script:runset.qualification_scope -ceq 'wrongtype-rest'){'InstallAndRepeat'}else{'InstallAndRepeat';'Uninstall';'UninstallAbsent'})
+            $expectedLifecycle=@(foreach($mode in $modes){foreach($action in $auditLifecycleActions){$mode+'/'+$action}})
             $actualLifecycle=@($prior.lifecycle|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_STATUS'};$_.mode+'/'+$_.action})
-            if($actualLifecycle.Count -ne (3*$modes.Count) -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
+            if($actualLifecycle.Count -ne ($auditLifecycleActions.Count*$modes.Count) -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
         }
         if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest','type-future-collision-rest') -and $prior.state -ceq 'COMPLETE'){
             if(($prior.genuine.mode -join '|') -cne ($modes -join '|') -or @($prior.genuine|Where-Object status -CNE $(if($script:runset.qualification_scope -cin @('genuine11-rest','future-collision-rest')){'PASS_GENUINE_1_1'}else{'PASS_GENUINE_1_0'})).Count){throw 'XLSX_GENUINE10_AUDIT_BASELINE'}
