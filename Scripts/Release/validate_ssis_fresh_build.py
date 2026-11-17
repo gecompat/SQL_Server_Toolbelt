@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import zipfile
+from ssis_parser_binding_history import historical_dependency_source
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = 'Modules/toolbelt.tsql.ssis-debug/'
@@ -107,7 +108,7 @@ def validate(report=None, *, check_files=True):
                     'ZIP current DLL')
         for path, digest in sources.items():
             resolved = (ROOT / path).resolve()
-            require(resolved.is_relative_to(ROOT) and sha(resolved.read_bytes()) == digest, 'fresh execution source drift')
+            require(resolved.is_relative_to(ROOT) and sha(historical_dependency_source(ROOT, path)) == digest, 'fresh execution source drift')
     return report
 
 
