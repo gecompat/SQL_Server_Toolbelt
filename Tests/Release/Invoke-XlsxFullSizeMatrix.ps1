@@ -9,12 +9,12 @@ $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
 $cellApi=($null -ne $runset.PSObject.Properties['qualification_scope'])
-$maximum=if($cellApi){switch($runset.qualification_scope){'cell-display-rest'{6};'cell-client-rest'{24};'genuine10-rest'{28};'genuine10-central-rest'{28};'genuine11-rest'{24};'lifecycle-negative-rest'{28};'future-collision-rest'{28};'type-future-collision-rest'{28};'caller-catalog-rest'{28};'marker-collision-rest'{28};'composition-consumer-rest'{28};default{20}}}else{30}
+$maximum=if($cellApi){switch($runset.qualification_scope){'cell-display-rest'{6};'cell-client-rest'{24};'genuine10-rest'{28};'genuine10-central-rest'{28};'genuine11-rest'{24};'lifecycle-negative-rest'{28};'future-collision-rest'{28};'type-future-collision-rest'{28};'caller-catalog-rest'{28};'marker-collision-rest'{28};'composition-consumer-rest'{28};'wrongtype-rest'{28};default{20}}}else{30}
 $databaseMaximum=if($cellApi -and $runset.qualification_scope -ceq 'composition-consumer-rest'){42}else{$maximum}
 $perCaseDatabases=if($cellApi -and $runset.qualification_scope -ceq 'composition-consumer-rest'){3}else{2}
-$allowed=if($cellApi -and $runset.qualification_scope -ceq 'genuine11-rest'){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -cin @('lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest')){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'genuine10-central-rest'){@(0)}elseif($cellApi -and $runset.qualification_scope -ceq 'genuine10-rest'){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){@(1,2,3,4,5,6,7,8,9,10,11)}else{@(1,2,3,4,5,6,7,8)}
+$allowed=if($cellApi -and $runset.qualification_scope -ceq 'genuine11-rest'){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -cin @('lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest','wrongtype-rest')){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'genuine10-central-rest'){@(0)}elseif($cellApi -and $runset.qualification_scope -ceq 'genuine10-rest'){@(0,1,2,3,4,5,6,7,8,9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-display-rest'){@(9,10,11)}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){@(1,2,3,4,5,6,7,8,9,10,11)}else{@(1,2,3,4,5,6,7,8)}
 $correctionMax=if($cellApi -and $runset.qualification_scope -ceq 'genuine11-rest'){0}elseif($cellApi -and $runset.qualification_scope -ceq 'cell-client-rest'){1}else{2}
-if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest') -or $DiagnosticOnly -or
+if($cellApi -and ($runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest','wrongtype-rest') -or $DiagnosticOnly -or
    @($CaseIndex|Where-Object {$_ -notin $allowed}).Count)){throw 'XLSX_CELL_MATRIX_SCOPE'}
 $script:ledger=Get-Content -LiteralPath $BudgetPath -Raw|ConvertFrom-Json
 if($script:ledger.PSObject.Properties['native_closed'] -and $script:ledger.native_closed){throw 'MATRIX_CLOSED_BUDGET'}
@@ -45,7 +45,18 @@ foreach($rejected in @($script:ledger.dispatches|Where-Object state -CEQ 'PRE_SQ
     $receipt=Get-Content -LiteralPath $rejected.rejection_receipt_path -Raw|ConvertFrom-Json
     if($receipt.status -cne 'PASS_PRE_SQL_REJECTION_AUDIT' -or $receipt.own_mutating_stage_reached -or $receipt.own_resource_ids_allocated -or $receipt.runset_sha256 -cne $rejected.runset_sha256){throw 'MATRIX_REJECTION_SCOPE'}
 }
-if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','PRE_SQL_REJECTED','AUDIT_PASS')}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
+$reconciledAuditIds=@();$reconciledRunIds=@()
+if($cellApi -and $runset.qualification_scope -ceq 'wrongtype-rest' -and $script:ledger.PSObject.Properties['audit_recoveries']){
+    . (Join-Path $PSScriptRoot 'Xlsx.WrongType.Workload.ps1')
+    $reconciledAuditIds=@(Assert-XlsxWrongTypeAuditRecovery $script:ledger $RunsetPath)
+}
+if($cellApi -and $runset.qualification_scope -ceq 'wrongtype-rest' -and $script:ledger.PSObject.Properties['controller_recoveries']){
+    . (Join-Path $PSScriptRoot 'Xlsx.WrongType.Workload.ps1')
+    $reconciledRunIds=@(Assert-XlsxWrongTypeControllerContinuation $script:ledger $RunsetPath)
+}
+if(@($script:ledger.dispatches|Where-Object {$_.dispatched -and $_.state -cnotin @('COMPLETE','FAILED_CLEANED','PRE_SQL_REJECTED','AUDIT_PASS') -and
+    -not ($_.state -ceq 'AUDIT_FAILED' -and $_.id -cin $reconciledAuditIds) -and
+    -not ($_.state -ceq 'DISPATCHED' -and $_.id -cin $reconciledRunIds)}).Count){throw 'MATRIX_UNRECONCILED_DISPATCH'}
 $out=Split-Path -Parent $BudgetPath
 foreach($index in $CaseIndex){
     $case=$runset.cases[$index];$key=$case.Platform+'/'+$case.Version+'/'+$case.CL
