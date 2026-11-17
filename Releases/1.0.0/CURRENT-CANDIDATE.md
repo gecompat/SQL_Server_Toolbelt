@@ -114,3 +114,8 @@ Für die Veröffentlichung bleiben vollständige Pflichtnachweise im konkret
 zugesagten Umfang, erfolgreiche CI des finalen Kandidaten und ein gesonderter
 ausdrücklicher Veröffentlichungsauftrag erforderlich. Es werden kein Tag,
 GitHub-Release oder veröffentlichter Modulstatus erzeugt.
+
+Die aktuelle Manifestprojektion enthält 20 Stable- und 25 Preview-Vorschläge.
+Die historische Supportfreigabe mit 19/26 bleibt unverändert und wird nicht
+auf diese Projektion übertragen; der Installer erteilt keine neue Kanal- oder
+Veröffentlichungsfreigabe.

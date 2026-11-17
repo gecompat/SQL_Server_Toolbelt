@@ -24,6 +24,14 @@ class CurrentInstallQualificationTests(unittest.TestCase):
         self.assertEqual(result['path'],q.PACKAGE)
         self.assertEqual(len(result['profiles']),4)
 
+    def test_current_plan_keeps_historical_channel_approval_separate(self):
+        original=self.files['Releases/1.0.0/support-scope.json']
+        plan=candidate.current_plan(self.files,'0'*40)
+        self.assertEqual(sum(plan['channels'].values()),45)
+        self.assertIn('proposals only',plan['channel_semantics'])
+        self.assertIs(plan['publication_authorized'],False)
+        self.assertEqual(self.files['Releases/1.0.0/support-scope.json'],original)
+
     def test_missing_current_record_cannot_fall_back_to_historical_help(self):
         files=dict(self.files);files.pop(q.RECORD)
         with self.assertRaises(ValueError):candidate.installer_inputs(files)

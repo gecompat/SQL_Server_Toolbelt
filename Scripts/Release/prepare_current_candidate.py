@@ -2,7 +2,7 @@
 """Bindet einen aktuellen Quellkandidaten; historische Qualifikation bleibt getrennt.
 
 Git liefert ausschließlich versionierte Bytes. Der bereits separat geprüfte
-Parameter-Help-Installer bleibt bytegleich; Compiler, SQL und Lab werden nicht
+Installer bleibt bytegleich; Compiler, SQL und Lab werden nicht
 aufgerufen. Die Prüfung benötigt den Quellcommit im lokalen Repository.
 """
 from __future__ import annotations
@@ -122,12 +122,20 @@ def installer_inputs(files: dict[str, bytes]) -> dict:
 def current_plan(files: dict[str, bytes], commit: str) -> dict:
     # product-source.json und release-plan.json gehören zur historischen
     # Lieferung. Ihr Produktcommit wird nicht auf heutige Quellen übertragen.
+    from current_install_qualification import PACKAGE as CURRENT_PACKAGE
+    # Die freigegebene alte Kanalverteilung bleibt historisch. Aktuelle
+    # Manifestvorschläge sind keine neue Support- oder Veröffentlichungsfreigabe.
+    excluded = {release.PRODUCT_SOURCE}
+    if CURRENT_PACKAGE in files:
+        excluded.add("Releases/1.0.0/support-scope.json")
     projection = release.make_plan({p: b for p, b in files.items()
-                                    if p != release.PRODUCT_SOURCE}, commit)
+                                    if p not in excluded}, commit)
     return {"schema_version": "toolbelt-current-candidate/v1", "project_version": release.VERSION,
             "source_commit": commit, "state": "candidate_not_published",
             "publication_authorized": False, "full_module_qualification": "not established",
             "channels": dict(Counter(m["proposed_channel"] for m in projection["modules"])),
+            "channel_semantics": "current manifest proposals only; historical support approval unchanged",
+            "historical_support_scope": "Releases/1.0.0/support-scope.json",
             "modules": projection["modules"], "installer": installer_inputs(files),
             "release_gates": "Releases/1.0.0/RELEASE-GATES.md"}
 
@@ -158,7 +166,7 @@ def payload(commit: str) -> dict[str, bytes]:
         "schema_version": "toolbelt-current-candidate-manifest/v1",
         "source_commit": resolved, "state": "candidate_not_published",
         "publication_authorized": False,
-        "verification_scope": "source_integrity_and_bound_help_installer_only",
+        "verification_scope": "source_integrity_and_bound_installer_only",
         "files": {p: {"bytes": len(b), "sha256": release.sha(b)}
                   for p, b in sorted(result.items())}})
     result[SUMS] = "".join(release.sha(b) + "  " + p + "\n"
