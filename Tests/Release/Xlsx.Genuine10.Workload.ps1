@@ -29,12 +29,7 @@ function Assert-XlsxGenuine10Inputs($Runset,[string]$Repository) {
     }
 }
 
-function Invoke-XlsxGenuine10Setup($Connection,[string]$Mode) {
-    # Gemeinsames aktuelles Paket liefert die qualifizierten Dependencies.
-    # Nur XLSX wird anschließend öffentlich deinstalliert; ZIP/Core bleiben.
-    Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.exports.$Mode.Install,[Text.Encoding]::UTF8))
-    Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.legacy.remove_current,[Text.Encoding]::UTF8))
-    Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.legacy.install.$Mode,[Text.Encoding]::UTF8))
+function Assert-XlsxGenuine10Baseline($Connection,[string]$Mode) {
     $old=@(Invoke-ReleaseSql $Connection @'
 SELECT CONVERT(nvarchar(64),e.value) Version,
  (SELECT CONVERT(nvarchar(16),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode') Mode,
@@ -49,6 +44,15 @@ WHERE e.class=0 AND e.name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.Version'
     if($old.Count -ne 1 -or $old[0].Version -cne '1.0.0' -or $old[0].Mode -cne $Mode -or $old[0].Slots -ne 5 -or
        $old[0].Bindings -ne 2 -or $old[0].Hash -cne $script:runset.legacy.artifact.sha512 -or
        $old[0].Permission -cne 'SAFE_ACCESS'){throw 'XLSX_GENUINE10_NATIVE_BASELINE'}
+}
+
+function Invoke-XlsxGenuine10Setup($Connection,[string]$Mode) {
+    # Gemeinsames aktuelles Paket liefert die qualifizierten Dependencies.
+    # Nur XLSX wird anschließend öffentlich deinstalliert; ZIP/Core bleiben.
+    Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.exports.$Mode.Install,[Text.Encoding]::UTF8))
+    Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.legacy.remove_current,[Text.Encoding]::UTF8))
+    Invoke-ReleaseBatches $Connection ([IO.File]::ReadAllText($script:runset.legacy.install.$Mode,[Text.Encoding]::UTF8))
+    Assert-XlsxGenuine10Baseline $Connection $Mode
     $script:ledger.genuine+=@(@{mode=$Mode;status='PASS_GENUINE_1_0'})
     Save-ReleaseJournal
 }

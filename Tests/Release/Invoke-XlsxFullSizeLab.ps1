@@ -117,12 +117,12 @@ try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
     if ($script:runset.PSObject.Properties['qualification_scope']) {
-        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest','future-collision-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
+        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest','future-collision-rest','type-future-collision-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
         $cellApi = $true
         . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
         Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
     }
-    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('lifecycle-negative-rest','future-collision-rest')){1}elseif($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')){2}else{4} } else { 8 }
+    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('lifecycle-negative-rest','future-collision-rest','type-future-collision-rest')){1}elseif($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')){2}else{4} } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
         $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
@@ -142,7 +142,7 @@ try {
     }
     $case = $script:runset.cases[$CaseIndex]
     $modes = @(if($cellApi -and $script:runset.qualification_scope -ceq 'genuine10-central-rest'){'central'}elseif($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest') -and $CaseIndex -eq 0){'local'}elseif($cellApi -and $script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest') -and $CaseIndex -eq 11){'central'}else{'local';'central'})
-    if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest')){
+    if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest','type-future-collision-rest')){
         if($script:runset.qualification_scope -cin @('genuine11-rest','future-collision-rest')){
             . (Join-Path $PSScriptRoot 'Xlsx.Genuine11.Workload.ps1')
             Assert-XlsxGenuine11Inputs $script:runset $repo
@@ -158,6 +158,10 @@ try {
     if($cellApi -and $script:runset.qualification_scope -ceq 'future-collision-rest'){
         . (Join-Path $PSScriptRoot 'Xlsx.FutureCollision.Workload.ps1')
         Assert-XlsxFutureCollisionInputs $script:runset $repo
+    }
+    if($cellApi -and $script:runset.qualification_scope -ceq 'type-future-collision-rest'){
+        . (Join-Path $PSScriptRoot 'Xlsx.TypeFutureCollision.Workload.ps1')
+        Assert-XlsxTypeFutureCollisionInputs $script:runset $repo
     }
     $caseWorkbooks = @($script:runset.workbooks | Where-Object {
         -not ($cellApi -and $script:runset.qualification_scope -ceq 'cell-client-rest' -and $CaseIndex -ge 9 -and $_.name -ceq 'Types.Metadata.ps1')
@@ -222,7 +226,7 @@ try {
             $actualLifecycle=@($prior.lifecycle|ForEach-Object{if($_.status -cne 'PASS'){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_STATUS'};$_.mode+'/'+$_.action})
             if($actualLifecycle.Count -ne (3*$modes.Count) -or (($actualLifecycle|Sort-Object)-join '|') -cne (($expectedLifecycle|Sort-Object)-join '|')){throw 'XLSX_FULL_SIZE_AUDIT_LIFECYCLE_SET'}
         }
-        if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest') -and $prior.state -ceq 'COMPLETE'){
+        if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest','type-future-collision-rest') -and $prior.state -ceq 'COMPLETE'){
             if(($prior.genuine.mode -join '|') -cne ($modes -join '|') -or @($prior.genuine|Where-Object status -CNE $(if($script:runset.qualification_scope -cin @('genuine11-rest','future-collision-rest')){'PASS_GENUINE_1_1'}else{'PASS_GENUINE_1_0'})).Count){throw 'XLSX_GENUINE10_AUDIT_BASELINE'}
         }
         if($cellApi -and $script:runset.qualification_scope -ceq 'lifecycle-negative-rest' -and $prior.state -ceq 'COMPLETE'){
@@ -232,6 +236,10 @@ try {
         if($cellApi -and $script:runset.qualification_scope -ceq 'future-collision-rest' -and $prior.state -ceq 'COMPLETE'){
             if(($prior.futureCollisions.mode -join '|') -cne ($modes -join '|') -or
                @($prior.futureCollisions|Where-Object {$_.status -cne 'PASS' -or $_.legacyWitnesses -ne 5 -or ($_.completedFaults -join '|') -cne 'FuturePublic|ImitatedFuturePublic|FutureInternal|ImitatedFutureInternal'}).Count){throw 'XLSX_FUTURE_AUDIT_ORIGINAL_CASES'}
+        }
+        if($cellApi -and $script:runset.qualification_scope -ceq 'type-future-collision-rest' -and $prior.state -ceq 'COMPLETE'){
+            if(($prior.typeFutureCollisions.mode -join '|') -cne ($modes -join '|') -or
+               @($prior.typeFutureCollisions|Where-Object {$_.status -cne 'PASS' -or $_.legacyWitnesses -ne 5 -or ($_.completedFaults -join '|') -cne 'FuturePublic|ImitatedFuturePublic|FutureInternal|ImitatedFutureInternal'}).Count){throw 'XLSX_TYPE_FUTURE_AUDIT_ORIGINAL_CASES'}
         }
         $control = Open-ReleaseConnection 'master'
         foreach ($entry in $prior.databases) {
@@ -252,7 +260,7 @@ try {
         if (Test-Path -LiteralPath $script:journal) { throw 'XLSX_FULL_SIZE_CASE_ALREADY_ATTEMPTED' }
         $script:ledger = [ordered]@{
             owner=[guid]::NewGuid().ToString('N'); state='RUNNING'; databases=@(); trust=@();
-            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'}); genuine=@(); lifecycleNegatives=@(); futureCollisions=@();
+            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'}); genuine=@(); lifecycleNegatives=@(); futureCollisions=@(); typeFutureCollisions=@();
             case=[ordered]@{index=$CaseIndex;platform=$case.Platform;version=$case.Version;cl=$case.CL;patch=$case.Patch};
             completedModes=@(); results=@(); lifecycle=@(); configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()}; failure=$null
         }
@@ -268,7 +276,7 @@ try {
             throw 'XLSX_FULL_SIZE_DATABASE_INVENTORY_UNSAFE'
         }
         $trustArtifacts=@($script:runset.artifacts)
-        if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest')){$trustArtifacts+=@($script:runset.legacy.artifact)}
+        if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest','type-future-collision-rest')){$trustArtifacts+=@($script:runset.legacy.artifact)}
         foreach ($artifact in $trustArtifacts) {
             $artifactPath = Assert-ReleasePrivatePath ([string]$artifact.path)
             if ((Get-FileHash -LiteralPath $artifactPath -Algorithm SHA256).Hash -cne $artifact.sha256 -or
@@ -307,11 +315,12 @@ try {
             Invoke-ReleaseSql $db 'DECLARE @O nvarchar(32)=@Owner; EXEC sys.sp_addextendedproperty @name=N''Test.Release.Owner'',@value=@O;' @{'@Owner'=$script:ledger.owner}
             $entry.state = 'OWNED'; Save-ReleaseJournal
             Invoke-ReleaseSql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=$($case.CL);"
-            if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest')){
+            if($cellApi -and $script:runset.qualification_scope -cin @('genuine10-rest','genuine10-central-rest','genuine11-rest','future-collision-rest','type-future-collision-rest')){
                 $stage=$(if($script:runset.qualification_scope -cin @('genuine11-rest','future-collision-rest')){'GENUINE11_'}else{'GENUINE10_'})+$mode
                 if($script:runset.qualification_scope -cin @('genuine11-rest','future-collision-rest')){Invoke-XlsxGenuine11Setup $db $mode}else{Invoke-XlsxGenuine10Setup $db $mode}
                 $db.Dispose();$db=Open-ReleaseConnection $name
                 if($script:runset.qualification_scope -ceq 'future-collision-rest'){$stage='FUTURE_COLLISION_'+$mode;$db=Invoke-XlsxFutureCollision $db $mode}
+                if($script:runset.qualification_scope -ceq 'type-future-collision-rest'){$stage='TYPE_FUTURE_COLLISION_'+$mode;$db=Invoke-XlsxTypeFutureCollision $db $mode}
             }
             $stage = 'INSTALL_' + $mode
             Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.exports.$mode.Install, [Text.Encoding]::UTF8))
