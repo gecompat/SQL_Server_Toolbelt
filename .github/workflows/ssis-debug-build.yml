@@ -126,6 +126,7 @@ jobs:
           git fetch --no-tags --depth=1 origin 6e1985aee3e0ded746d1a32c6d494b370049872b
           git fetch --no-tags --depth=1 origin 985d1a424c6900d30a95ee5e1ef591f77d3ce971
           git fetch --no-tags --depth=1 origin 47b446598880d33e67581740c02a8acd0e68ee88
+          git fetch --no-tags --depth=1 origin a299c7f20f994aeff2d0ed12edda6620e431142d
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'

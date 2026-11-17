@@ -1,4 +1,4 @@
-"""Current archive admission; real bytes, no SQL, credentials or GUI."""
+"""Frozen archive admission at its original product revision; no SQL or GUI."""
 from pathlib import Path
 import base64
 import json
@@ -9,7 +9,8 @@ import tempfile
 import unittest
 import zipfile
 
-ROOT = Path(__file__).resolve().parents[2]
+from ssis_historical_context import historical_root
+ROOT = historical_root(Path(__file__).resolve().parents[2], 'a299c7f20f994aeff2d0ed12edda6620e431142d')
 AREA = 'Modules/toolbelt.tsql.ssis-debug/'
 METHOD = AREA + 'Tests/WindowsClientRecovery/'
 PWSH = shutil.which('pwsh')
