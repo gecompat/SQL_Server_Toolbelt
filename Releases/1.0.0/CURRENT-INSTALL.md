@@ -28,11 +28,16 @@ Testziele verwenden; bestehende Installationen nicht mit diesem Fresh-Install-Sa
 
 ## Herkunft und Abnahme
 
-Der gemeinsame Exporter verarbeitet aktuelle Modulquellen. Die bestehenden
+Der gemeinsame Exporter verarbeitet aktuelle Modulquellen. Die übrigen bestehenden
 geprüften DLLs werden unverändert wiederverwendet: unveränderte CLR-Komponenten
 aus dem gebundenen Wartungspaket, aktuelle JSON-Constructors aus ihrer bekannten
-Closure, aktueller Parser aus seinem quellgebundenen nativen Stand und SSIS
-aus dem sicherheitskorrigierten, separat qualifizierten Paket.
+Closure, aktueller Parser aus seinem quellgebundenen nativen Stand und die SSIS-Modelllogik
+aus dem sicherheitskorrigierten Stand. Für den gemeinsamen Installer wird nur
+die exakte Parserhashbindung aktualisiert und der SSIS-Provider reproduzierbar
+neu gebaut; 29 begrenzte Frameworkfälle prüfen diesen neuen Provider. Die drei
+geänderten Bindungsquellen erlauben genau den Hashwechsel, keine weitere
+Produktänderung. Die bisherigen SSMS-, TLS- und Sicherheitsrecords behalten
+ihre ursprünglichen Providerbytes und werden nicht zum neuen Binärnachweis erklärt.
 BINARY-PROVENANCE.json bindet Compilerquellen und ersetzte Binaries;
 PACKAGE.json bindet Deploymentquellen, Profile und alle Nutzdaten.
 Historische Installer und Nachweise bleiben unverändert. Die neue gemeinsame

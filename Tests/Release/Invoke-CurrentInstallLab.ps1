@@ -115,8 +115,10 @@ try {
             $profile=@($metadata.profiles|Where-Object name -ceq ($profilePlatform+'-'+$mode))
             if($profile.Count -ne 1){throw 'CURRENT_INSTALL_PROFILE'}
             foreach($module in $profile[0].modules){
-                $rows=@(Invoke-ReleaseSql $db 'SELECT CONVERT(nvarchar(128),value) Mode FROM sys.extended_properties WHERE class=0 AND name=@Name;' @{'@Name'=('Toolbelt.Module.'+$module+'.DeploymentMode')} -Rows)
-                if($rows.Count -ne 1 -or $rows[0].Mode -cne $mode){throw 'CURRENT_INSTALL_MODULE_INVENTORY'}
+                $property=if($module -cin @('toolbelt.filesystem.windows','toolbelt.tsql.ssis-debug')){'Version'}else{'DeploymentMode'}
+                $expected=if($property -ceq 'Version'){'1.0.0'}else{$mode}
+                $rows=@(Invoke-ReleaseSql $db 'SELECT CONVERT(nvarchar(128),value) Value FROM sys.extended_properties WHERE class=0 AND name=@Name;' @{'@Name'=('Toolbelt.Module.'+$module+'.'+$property)} -Rows)
+                if($rows.Count -ne 1 -or $rows[0].Value -cne $expected){throw ('CURRENT_INSTALL_MODULE_INVENTORY '+$module)}
             }
             $stage='HELP_'+$mode
             $result=& (Join-Path $PSScriptRoot 'Runtime/Invoke-ParameterHelpCases.ps1') -Connection $db -Fixture $runset.fixture -Platform $profilePlatform -Mode $mode -Deadline ([datetime]::UtcNow.AddMilliseconds(900000-$clock.ElapsedMilliseconds))

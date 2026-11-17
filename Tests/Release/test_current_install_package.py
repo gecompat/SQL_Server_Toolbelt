@@ -33,6 +33,18 @@ class CurrentInstallTests(unittest.TestCase):
         self.assertEqual(len(metadata['binary_sha512']),13)
         self.assertEqual(len(next(p for p in metadata['profiles'] if p['name']=='Windows-local')['modules']),45)
 
+    def test_inventory_respects_the_two_existing_version_only_contracts(self):
+        modules=sorted(p.parent.name for p in (ROOT/'Modules').glob('*/module.yaml'))
+        no_mode=[]
+        for module in modules:
+            closure={}
+            base.source_closure(ROOT/'Modules'/module/'Deployment/Deploy.sql',closure)
+            text='\n'.join((ROOT/p).read_text(encoding='utf-8-sig') for p in closure)
+            if 'Toolbelt.Module.'+module+'.DeploymentMode' not in text:
+                no_mode.append(module)
+                self.assertIn('Toolbelt.Module.'+module+'.Version',text)
+        self.assertEqual(no_mode,['toolbelt.filesystem.windows','toolbelt.tsql.ssis-debug'])
+
     def test_missing_or_relabelled_profile_is_rejected(self):
         for change in (lambda p,m:m['profiles'].pop(),lambda p,m:m['profiles'][0].update(platform='Portable')):
             with self.subTest(change=change),self.assertRaises(ValueError):
