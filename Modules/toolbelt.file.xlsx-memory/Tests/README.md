@@ -14,6 +14,7 @@ Aktueller [Abgleich geschlossener Teilumfänge und echter Restqualifikation](../
 | Vier Typ-Zukunftsslots auf genuine1.0 | [96 Ablehnungs-/Fremderhaltprofile, 120 Vorgängerzeugen, zwölf Audits](../../../Releases/1.0.0/XLSX-TYPE-FUTURE-REST-QUALIFICATION.md) |
 | Caller-TX und Katalog-/Clientnullability | [192 Ablehnungen, 24 Nullabilityprüfungen, zwölf Audits](../../../Releases/1.0.0/XLSX-CALLER-CATALOG-REST-QUALIFICATION.md) |
 | Sechs Marker-/Versions-/Modus-/Dependencyprofile | [144 Ablehnungen samt Originalrestores auf 24 Routen, zwölf Audits](../../../Releases/1.0.0/XLSX-MARKER-COLLISION-REST-QUALIFICATION.md) |
+| Raw→Type→Display und providerfreier zentraler Consumer | [72 Kompositionen, 24 Consumer-Metadatenhelfer, zwölf frische Audits](../../../Releases/1.0.0/XLSX-COMPOSITION-CONSUMER-REST-QUALIFICATION.md) |
 
 Diese Werte werden nicht zu einer vollständigen Modulqualifikation addiert.
 Synthetische 0/NULL-Sichtbarkeitsfehler sind keine echten Minimalrechteprüfungen;
