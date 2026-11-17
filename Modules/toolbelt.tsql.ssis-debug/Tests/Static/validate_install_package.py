@@ -6,9 +6,13 @@ import posixpath
 from pathlib import Path, PurePosixPath
 import stat
 import struct
+import sys
 import zipfile
 
 MODULE = Path(__file__).resolve().parents[2]
+ROOT = MODULE.parents[1]
+sys.path.insert(0, str(ROOT / "Scripts/Release"))
+from ssis_parser_binding_history import historical_dependency_source
 NAME = "SSIS-Debug-1.0.0-Install-Windows"
 ARCHIVE = MODULE / "InstallPackages" / (NAME + ".zip")
 
@@ -82,7 +86,7 @@ def main(archive_path=None):
     ssis = "Modules/toolbelt.tsql.ssis-debug/"
     parser = "Modules/toolbelt.tsql.script-parser/"
     pins = json.loads(payload[ssis + "Contracts/DependencyPins.json"])
-    require(pins == json.loads((MODULE / "Contracts/DependencyPins.json").read_text(encoding="utf-8-sig")), "current dependency pins")
+    require(pins == json.loads(historical_dependency_source(ROOT, ssis + "Contracts/DependencyPins.json")), "current dependency pins")
     parser_manifest = json.loads(payload[parser + "Artifacts/Toolbelt.Tsql.ScriptParser.trust-manifest.json"])
     ssis_manifest = json.loads(payload[ssis + "Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json"])
     release_pins = json.loads((MODULE / 'Contracts/InstallPackageInputs.json').read_bytes())
