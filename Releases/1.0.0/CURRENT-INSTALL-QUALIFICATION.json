@@ -1,0 +1,332 @@
+{
+  "kind": "current_combined_fresh_install_qualification",
+  "date": "2026-11-17",
+  "result": "PASS_FOR_DECLARED_SCOPE",
+  "publication_authorized": false,
+  "full_business_requalification": false,
+  "new_tls_execution": false,
+  "new_gui_execution": false,
+  "scope": "Fresh combined installation, source/binary closure, module inventory and installed parameter Help; no full business requalification",
+  "native_method_commit": "2881aef3afd8ece5515c48ca8ef10b3dd593fba5",
+  "package": {
+    "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Install.zip",
+    "sha256": "5a425e740cc9a4b3af6b6a4df74b66a7c5deb6fe13af39e889b282f784a29823",
+    "payload_sha256": {
+      "BINARY-PROVENANCE.json": "736e9db4433ca7caa500bcc0205ad3cf9b05bdf980fb9137e9c4436fd4cae92b",
+      "Install-Portable-central.sql": "e772928d4e1aa9597806fe7e621e8b54db16c33e66f969ae9d3ecb35e24f4cec",
+      "Install-Portable-local.sql": "843557ba8911b9fce6f686b6a6d7d7fac0516c8688f55aa3ee97fcd75b2e20d6",
+      "Install-Windows-central.sql": "0cdb544c909e937db768cc9c6b64480ceba7552ebbb68107f78e71c561f101fb",
+      "Install-Windows-local.sql": "15eec12f63d3ffcc9ed8f45bc20a7e14fd24e6759fe535db397cb00d4894e66d",
+      "LICENSE.md": "b513a23d5ca4484aa6f1ce78179da5a90edc3bf7929eb5cd5c726c8c08ca6ecd",
+      "PACKAGE.json": "fde384babee457abe5b787e429b3aacb4e599018d12f71059a73c4dcaefda86d",
+      "SHA256SUMS": "7dde4f9c1ddcb630308c2688c08bfe5284197ec4671d3178ce992b2e722414b3",
+      "SSIS-BUILD.json": "bdddd1a612ab8d350a984d404bb68c244a7c1e1e4451ba58d664483f7107a1ce",
+      "START-HERE.md": "8533bbcf1e923f69154b552e900bafdbf6fe3effc67456c943050bb50d18795e",
+      "ThirdParty/ApacheCommonsCodec/LICENSE.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "ThirdParty/ApacheCommonsCodec/NOTICE.txt": "b64933ee1d36d14659156223a2604edadb60bffdd465d5368ff422d7689db5fb",
+      "ThirdParty/ApacheCommonsCodec/README.md": "336fa534c858a17b2e89a0367ad4dd32c473ac105a0d07661b8f5b8bc30bb745",
+      "ThirdParty/ScriptDom-180.117.0/LICENSE": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "ThirdParty/ScriptDom-180.117.0/NOTICE.txt": "3a32319c0c925fe296ff71d09ad18d381cbfbd5402ee28ce64ce93e67202974a",
+      "ThirdParty/ScriptDom-180.117.0/ORIGIN.txt": "10a4d749579538daa5a91997e8cd55b75ca838165062b024d7a9c0010bfa146e",
+      "ThirdParty/ScriptDom-180.117.0/README.md": "6147ab5b352066376b3305ce6fe7f701cd947f4df442e4625acb802cd58fe752",
+      "ThirdParty/ScriptDom-180.117.0/package.nuspec": "5f23cf8b9289efac0cb90fef6ce1ac5e78d6e0215fa855ab7d6fe8567aa10970",
+      "Trust-Portable.sql": "985b2d2e076a363816f77c02f4e61a72c518b771584ba106a5218567dee8aab0",
+      "Trust-Windows.sql": "30cf6cf83f2d80e2b6f428cb169287984a8eeb413472e5fecba2237d5c838684"
+    }
+  },
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "patch": "CU32",
+      "compatibility_level": 150,
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "audit_binds_final_journal": true,
+      "body_exit_code": 0,
+      "audit_exit_code": 0,
+      "capture_complete": true,
+      "stderr_empty": true,
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Windows",
+          "module_count": 45,
+          "procedures": 74,
+          "parameters": 674,
+          "internalProcedures": 1,
+          "internalParameters": 38,
+          "calls": 150,
+          "assertions": 12668
+        },
+        {
+          "mode": "central",
+          "profile": "Windows",
+          "module_count": 43,
+          "procedures": 63,
+          "parameters": 559,
+          "internalProcedures": 1,
+          "internalParameters": 38,
+          "calls": 128,
+          "assertions": 10662
+        }
+      ]
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "patch": "CU26",
+      "compatibility_level": 160,
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "audit_binds_final_journal": true,
+      "body_exit_code": 0,
+      "audit_exit_code": 0,
+      "capture_complete": true,
+      "stderr_empty": true,
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Windows",
+          "module_count": 45,
+          "procedures": 74,
+          "parameters": 674,
+          "internalProcedures": 1,
+          "internalParameters": 38,
+          "calls": 150,
+          "assertions": 12668
+        },
+        {
+          "mode": "central",
+          "profile": "Windows",
+          "module_count": 43,
+          "procedures": 63,
+          "parameters": 559,
+          "internalProcedures": 1,
+          "internalParameters": 38,
+          "calls": 128,
+          "assertions": 10662
+        }
+      ]
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "patch": "CU8",
+      "compatibility_level": 170,
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "audit_binds_final_journal": true,
+      "body_exit_code": 0,
+      "audit_exit_code": 0,
+      "capture_complete": true,
+      "stderr_empty": true,
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Windows",
+          "module_count": 45,
+          "procedures": 74,
+          "parameters": 674,
+          "internalProcedures": 1,
+          "internalParameters": 38,
+          "calls": 150,
+          "assertions": 12668
+        },
+        {
+          "mode": "central",
+          "profile": "Windows",
+          "module_count": 43,
+          "procedures": 63,
+          "parameters": 559,
+          "internalProcedures": 1,
+          "internalParameters": 38,
+          "calls": 128,
+          "assertions": 10662
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "patch": "latest",
+      "compatibility_level": 150,
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "audit_binds_final_journal": true,
+      "body_exit_code": 0,
+      "audit_exit_code": 0,
+      "capture_complete": true,
+      "stderr_empty": true,
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Portable",
+          "module_count": 41,
+          "procedures": 62,
+          "parameters": 517,
+          "internalProcedures": 0,
+          "internalParameters": 0,
+          "calls": 124,
+          "assertions": 9470
+        },
+        {
+          "mode": "central",
+          "profile": "Portable",
+          "module_count": 41,
+          "procedures": 62,
+          "parameters": 517,
+          "internalProcedures": 0,
+          "internalParameters": 0,
+          "calls": 124,
+          "assertions": 9470
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "patch": "latest",
+      "compatibility_level": 160,
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "audit_binds_final_journal": true,
+      "body_exit_code": 0,
+      "audit_exit_code": 0,
+      "capture_complete": true,
+      "stderr_empty": true,
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Portable",
+          "module_count": 41,
+          "procedures": 62,
+          "parameters": 517,
+          "internalProcedures": 0,
+          "internalParameters": 0,
+          "calls": 124,
+          "assertions": 9470
+        },
+        {
+          "mode": "central",
+          "profile": "Portable",
+          "module_count": 41,
+          "procedures": 62,
+          "parameters": 517,
+          "internalProcedures": 0,
+          "internalParameters": 0,
+          "calls": 124,
+          "assertions": 9470
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "patch": "latest",
+      "compatibility_level": 170,
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "audit_binds_final_journal": true,
+      "body_exit_code": 0,
+      "audit_exit_code": 0,
+      "capture_complete": true,
+      "stderr_empty": true,
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Portable",
+          "module_count": 41,
+          "procedures": 62,
+          "parameters": 517,
+          "internalProcedures": 0,
+          "internalParameters": 0,
+          "calls": 124,
+          "assertions": 9470
+        },
+        {
+          "mode": "central",
+          "profile": "Portable",
+          "module_count": 41,
+          "procedures": 62,
+          "parameters": 517,
+          "internalProcedures": 0,
+          "internalParameters": 0,
+          "calls": 124,
+          "assertions": 9470
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "profiles": 12,
+    "fresh_success_audits": 6,
+    "parameter_help_assertions": 126810,
+    "help_calls_including_internal": 1578,
+    "module_inventory_checks": 510
+  },
+  "method_source_sha256": {
+    "Tests/Release/Invoke-CurrentInstallLab.ps1": "6aeaa21fe9a5912a19ec4524bb3f8b82400f3791a731d22e9e6577d384f0d75c",
+    "Tests/Release/Runtime/Invoke-ParameterHelpCases.ps1": "b231f5b248d9e80b8bf3f295ad4c10e967bb7bac9da5fe0f32953f09372b1119",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "83ff8b1afc5ea6ef9c1e40b54fa64ad051f3501e866b76977d93e0e8b118d2c7",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15"
+  },
+  "fixture_sha256": "d2d37473c7476454e10ba5f3fd8c103490a790172ab3b0116f63a4403fcadc2f",
+  "history": {
+    "failed_total_cases": 2,
+    "failed_case_audits_pass": 2,
+    "blocked_before_child_dispatches": 1,
+    "controller_datetime_error_before_new_dispatch": true,
+    "original_failures_and_receipts_preserved": true,
+    "failed_case_stages": [
+      "INSTALL_local",
+      "INVENTORY_local"
+    ]
+  },
+  "accounting": {
+    "reserved_target_audit_dispatches": 17,
+    "actual_child_processes": 16,
+    "reserved_databases": 18,
+    "owned_databases_removed": 14,
+    "total_pass_audits": 8,
+    "initial_internal_dispatch_database_limits": [
+      16,
+      16
+    ],
+    "final_internal_dispatch_database_limits": [
+      18,
+      18
+    ],
+    "original_start_and_deadline_preserved": true,
+    "native_ceiling_minutes": 60,
+    "closed": true
+  },
+  "reused_evidence": [
+    "Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json",
+    "Modules/toolbelt.tsql.script-parser/Tests/Qualification/Current.Build.20261105.json",
+    "Releases/1.0.0/SSIS-PARSER-BINDING-TRANSITION.json"
+  ],
+  "historical_installers_unchanged": true
+}

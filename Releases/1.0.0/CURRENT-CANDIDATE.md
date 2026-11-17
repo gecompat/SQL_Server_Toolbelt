@@ -1,6 +1,15 @@
 # Quellrelease und gebundener Installationskandidat für v1.0.0
 
 
+## Gemeinsamer aktueller Installationssatz
+
+Der [aktuelle Installer](CURRENT-INSTALL.md) und seine
+[zwölf nativen Installationsprofile](CURRENT-INSTALL-QUALIFICATION.md) schließen
+die frühere gemeinsame Quell-/Binarybindungslücke. Der aktuelle Kandidatenbuilder
+verwendet dieses neue qualifizierte Paket. Historische Snapshots ohne dieses
+Paket behalten ihren unveränderten Help-Installer; keine unbekannte aktuelle
+Lieferung darf bei fehlendem Record darauf zurückfallen.
+
 ## Aktuelles Quellrelease
 
 Ein konsistenter aktueller Entwicklungsstand kann ohne weitere Testwelle als
@@ -42,8 +51,8 @@ an sein bereits qualifiziertes Help-Installationspaket. Seine Bezeichnung
 zu später geänderten Produktquellen passt. Der lesende Preflight am Main-Stand
 vom 2026-11-17 scheitert an der Quellbindung von
 `Modules/toolbelt.json.constructors/Deployment/KnownArtifact1_3.sql`.
-Das ist eine konkrete Liefergrenze dieses Builders; seine Ablehnung bleibt
-wirksam. Es wird keine neue native Qualifikation des gemeinsamen Installers
+Dieser historische Befund bleibt erhalten. Die alte Lieferung wird weiterhin
+abgewiesen; der neue gemeinsame aktuelle Installationssatz wird separat geprüft. Es wird keine neue native Qualifikation des gemeinsamen Installers
 behauptet. Das aktuelle Quellrelease oben bleibt davon getrennt.
 
 Dieser Kandidat bündelt die versionierten aktuellen Quellen aller 45 Module,
@@ -89,8 +98,8 @@ Quellstand und vorhandenen Nachweis abgleichen und einen neuen Kandidaten bauen.
 Nach Vergleich der separat bezogenen SHA256-Datei das ZIP in ein neues
 Verzeichnis entpacken und START-HERE.md lesen. CANDIDATE-MANIFEST.json bindet
 alle gelieferten Dateien; SHA256SUMS.txt enthält ihre Einzelprüfsummen.
-Die Installation folgt ausschließlich der [Parameter-Help-Anleitung](PARAMETER-HELP.md)
-und dem dort benannten ZIP mit vier Installationsprofilen. Sie ist für eine
+Die Installation folgt dem in CURRENT-RELEASE-PLAN.json benannten Installer
+und der [aktuellen Installationsanleitung](CURRENT-INSTALL.md) mit vier Profilen. Sie ist für eine
 leere, ausdrücklich ausgewählte Testdatenbank bestimmt. Erforderliche Rechte,
 CLR und bewusst eingerichteter Trust bleiben separate Voraussetzungen.
 

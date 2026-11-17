@@ -131,6 +131,16 @@ Die [Releaseprüfung](../../Tests/Release/README.md#aktuelle-qualifikationsüber
 vergleicht diese Darstellung mit den Records. Sie startet keine SQL-/GUI-/
 TLS-Wiederholung und erteilt keine neue Testfreigabe.
 
+## Gemeinsamer aktueller Installer vom 2026-11-17
+
+Der [aktuelle Verbundsatz](CURRENT-INSTALL-QUALIFICATION.md) ergänzt zwölf native
+Installations-/Hilfeprofile mit sechs frischen Audits und aktualisierter exakter
+SSIS-/Parserbindung. Die oben datierten SSIS-Einzelrecords behalten ihre damaligen
+Provider und Grenzen; deren ursprüngliches Wort „aktuell“ qualifiziert den neu
+gebundenen Provider nicht automatisch. Keine neue GUI-/TLS-Welle oder fachliche
+Vollqualifikation aller Module; die beiden fehlgeschlagenen Gesamtfälle bleiben
+FAILED_CLEANED mit ihren frischen bestandenen Abschlussaudits.
+
 ## Regex: aktueller Nachweisabgleich vom 2026-11-06
 
 Für den unveränderten Regex-Binarystand1.3.0 ist die physische API-Matrix

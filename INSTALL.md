@@ -1,5 +1,12 @@
 # SQL Server Toolbelt installieren und ausprobieren
 
+Der [gemeinsame aktuelle Installer](Releases/1.0.0/CURRENT-INSTALL.md) bietet
+vier eigenständige Fresh-Install-Profile und eine getrennte
+[native Installationsabnahme](Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md).
+Für eine leere ausgewählte Datenbank diesen Einstieg verwenden; historische
+Pakete behalten ihre ursprünglichen Versions- und Qualifikationsbindungen.
+
+
 Diese Anleitung führt dich vom ZIP-Download zum ersten erfolgreichen Aufruf
 in SQL Server Management Studio (SSMS). Du brauchst dafür keine eigenen
 Builds und keine Programmierwerkzeuge.

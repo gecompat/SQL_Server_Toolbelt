@@ -31,6 +31,9 @@ SUMS = "SHA256SUMS.txt"
 
 def installer_inputs(files: dict[str, bytes]) -> dict:
     """Prüft Paketbytes und Quellbindung, ohne native Aussagen zu erweitern."""
+    from current_install_qualification import PACKAGE, RECORD, installer_inputs as current_inputs
+    if PACKAGE in files or RECORD in files:
+        return current_inputs(files)
     path = help_package.OUTPUT
     checksum = files[path + ".sha256"].decode("ascii").split()
     release.require(checksum == [release.sha(files[path]), Path(path).name],
@@ -142,6 +145,12 @@ def payload(commit: str) -> dict[str, bytes]:
     release.require(GUIDE in files, "Kandidatenanleitung fehlt im Quellcommit.")
     release.require(not {PLAN, MANIFEST, SUMS, "START-HERE.md"} & files.keys(),
                     "Generierte Kandidatenpfade sind bereits versioniert.")
+    # Der kleine Originalquellnachweis gehört zur aktuellen Bindung; historische
+    # vollständige Source-ZIPs bleiben weiterhin aus dem Kandidaten ausgeschlossen.
+    from current_install_qualification import PACKAGE as CURRENT_PACKAGE
+    if CURRENT_PACKAGE in files:
+        original="Releases/1.0.0/Artifacts/SSIS-Parser-Binding-Predecessor.zip"
+        files[original]=release.git("show",resolved+":"+original)
     result = dict(files)
     result[PLAN] = release.encoded(current_plan(files, resolved))
     result["START-HERE.md"] = start_here(files)
