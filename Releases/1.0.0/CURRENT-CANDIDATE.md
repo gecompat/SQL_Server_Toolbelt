@@ -43,7 +43,7 @@ Releasebau die laufende Verarbeitungswelle. Weitere Entwicklungs-/Testwellen
 beginnen erst nach einem neuen Benutzerauftrag. Veröffentlichung und Tags
 bleiben ausgeschlossen.
 
-## Gebundener Help-Installationskandidat
+## Historischer Help-Installationskandidat
 
 Die folgenden Angaben beschreiben den bestehenden Builder mit strikter Bindung
 an sein bereits qualifiziertes Help-Installationspaket. Seine Bezeichnung
@@ -51,9 +51,9 @@ an sein bereits qualifiziertes Help-Installationspaket. Seine Bezeichnung
 zu später geänderten Produktquellen passt. Der lesende Preflight am Main-Stand
 vom 2026-11-17 scheitert an der Quellbindung von
 `Modules/toolbelt.json.constructors/Deployment/KnownArtifact1_3.sql`.
-Dieser historische Befund bleibt erhalten. Die alte Lieferung wird weiterhin
-abgewiesen; der neue gemeinsame aktuelle Installationssatz wird separat geprüft. Es wird keine neue native Qualifikation des gemeinsamen Installers
-behauptet. Das aktuelle Quellrelease oben bleibt davon getrennt.
+Dieser historische Befund bleibt erhalten. Die alte Lieferung wird bei geänderten Produktquellen weiterhin
+abgewiesen. Die damalige Prüfung belegt keinen neuen gemeinsamen Installer;
+dessen anschließend separat ausgeführte Abnahme steht im aktuellen Abschnitt oben.
 
 Dieser Kandidat bündelt die versionierten aktuellen Quellen aller 45 Module,
 Dokumentation und das bereits separat geprüfte Parameter-Help-Installationspaket.

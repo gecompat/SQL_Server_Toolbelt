@@ -32,6 +32,13 @@ class CurrentInstallQualificationTests(unittest.TestCase):
         self.assertIs(plan['publication_authorized'],False)
         self.assertEqual(self.files['Releases/1.0.0/support-scope.json'],original)
 
+    def test_archive_entry_page_preserves_installer_and_module_links(self):
+        page=candidate.start_here(self.files)
+        self.assertIn(b'](Releases/1.0.0/CURRENT-INSTALL.md)',page)
+        self.assertIn(b'](Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md)',page)
+        self.assertIn(b'](Modules/toolbelt.tsql.ssis-debug/Tests/InstallerTrust/README.md)',page)
+        self.assertNotIn(b'](../../Modules/',page)
+
     def test_missing_current_record_cannot_fall_back_to_historical_help(self):
         files=dict(self.files);files.pop(q.RECORD)
         with self.assertRaises(ValueError):candidate.installer_inputs(files)

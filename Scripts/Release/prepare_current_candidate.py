@@ -12,6 +12,7 @@ from collections import Counter
 import json
 from pathlib import Path
 import posixpath
+import re
 import subprocess
 import sys
 import zipfile
@@ -141,11 +142,16 @@ def current_plan(files: dict[str, bytes], commit: str) -> dict:
 
 
 def start_here(files: dict[str, bytes]) -> bytes:
-    data = files[GUIDE]
-    for name in ("PARAMETER-HELP.md", "RELEASE-GATES.md", "SUPPORT.md"):
-        data = data.replace(("(" + name + ")").encode(),
-                            ("(Releases/1.0.0/" + name + ")").encode())
-    return data
+    # Diese Seite wird aus Releases/1.0.0 an die Archivwurzel verschoben.
+    # Alle relativen Lesewege behalten ihr Ziel, einschließlich ../../Modules.
+    def relocate(match):
+        target = match.group(1).decode("utf-8")
+        if target.startswith(("#", "/")) or ":" in target:
+            return match.group(0)
+        path, separator, anchor = target.partition("#")
+        relocated = posixpath.normpath(posixpath.join(posixpath.dirname(GUIDE), path))
+        return (relocated + separator + anchor).encode("utf-8")
+    return re.sub(rb"(?<=\]\()([^\s)]+)(?=\))", relocate, files[GUIDE])
 
 
 def payload(commit: str) -> dict[str, bytes]:
