@@ -118,12 +118,12 @@ try {
     $RunsetPath = Assert-ReleasePrivatePath $RunsetPath
     $script:runset = Get-Content -LiteralPath $RunsetPath -Raw | ConvertFrom-Json
     if ($script:runset.PSObject.Properties['qualification_scope']) {
-        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
+        if ($script:runset.qualification_scope -cnotin @('cell-api-rest','cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest','lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest','wrongtype-rest')) { throw 'XLSX_CELL_SCOPE_INVALID' }
         $cellApi = $true
         . (Join-Path $PSScriptRoot 'Xlsx.CellApi.Workload.ps1')
         Assert-XlsxCellApiWorkload $script:runset $CaseIndex $repo
     }
-    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest')){1}elseif($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')){2}else{4} } else { 8 }
+    $expectedWorkbooks = if ($cellApi) { if($script:runset.qualification_scope -cin @('lifecycle-negative-rest','future-collision-rest','type-future-collision-rest','caller-catalog-rest','marker-collision-rest','composition-consumer-rest','wrongtype-rest')){1}elseif($script:runset.qualification_scope -cin @('cell-display-rest','cell-client-rest','genuine10-rest','genuine10-central-rest','genuine11-rest')){2}else{4} } else { 8 }
     if ($script:runset.schema_version -cne 'xlsx-full-size-package/v1' -or
         $script:runset.cases.Count -ne 12 -or $script:runset.workbooks.Count -ne $expectedWorkbooks -or $script:runset.artifacts.Count -ne 2 -or
         @($script:runset.artifacts.module_id | Sort-Object -Unique).Count -ne 2 -or
@@ -175,6 +175,10 @@ try {
     if($cellApi -and $script:runset.qualification_scope -ceq 'composition-consumer-rest'){
         . (Join-Path $PSScriptRoot 'Xlsx.CompositionConsumer.Workload.ps1')
         Assert-XlsxCompositionConsumerInputs $script:runset $repo
+    }
+    if($cellApi -and $script:runset.qualification_scope -ceq 'wrongtype-rest'){
+        . (Join-Path $PSScriptRoot 'Xlsx.WrongType.Workload.ps1')
+        Assert-XlsxWrongTypeInputs $script:runset $repo
     }
     $caseWorkbooks = @($script:runset.workbooks | Where-Object {
         -not ($cellApi -and $script:runset.qualification_scope -ceq 'cell-client-rest' -and $CaseIndex -ge 9 -and $_.name -ceq 'Types.Metadata.ps1')
@@ -251,6 +255,9 @@ try {
             if(($prior.futureCollisions.mode -join '|') -cne ($modes -join '|') -or
                @($prior.futureCollisions|Where-Object {$_.status -cne 'PASS' -or $_.legacyWitnesses -ne 5 -or ($_.completedFaults -join '|') -cne 'FuturePublic|ImitatedFuturePublic|FutureInternal|ImitatedFutureInternal'}).Count){throw 'XLSX_FUTURE_AUDIT_ORIGINAL_CASES'}
         }
+        if($cellApi -and $script:runset.qualification_scope -ceq 'wrongtype-rest' -and $prior.state -ceq 'COMPLETE'){
+            Assert-XlsxWrongTypeJournal $prior
+        }
         if($cellApi -and $script:runset.qualification_scope -ceq 'composition-consumer-rest' -and $prior.state -ceq 'COMPLETE'){
             Assert-XlsxCompositionConsumerJournal $prior
         }
@@ -285,7 +292,7 @@ try {
         if (Test-Path -LiteralPath $script:journal) { throw 'XLSX_FULL_SIZE_CASE_ALREADY_ATTEMPTED' }
         $script:ledger = [ordered]@{
             owner=[guid]::NewGuid().ToString('N'); state='RUNNING'; databases=@(); trust=@();
-            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'}); genuine=@(); lifecycleNegatives=@(); futureCollisions=@(); typeFutureCollisions=@(); callerCatalog=@(); markerCollisions=@(); compositions=@();
+            qualificationScope=$(if($cellApi){$script:runset.qualification_scope}else{'full-size'}); genuine=@(); lifecycleNegatives=@(); futureCollisions=@(); typeFutureCollisions=@(); callerCatalog=@(); markerCollisions=@(); compositions=@(); wrongTypes=@();
             case=[ordered]@{index=$CaseIndex;platform=$case.Platform;version=$case.Version;cl=$case.CL;patch=$case.Patch};
             completedModes=@(); results=@(); lifecycle=@(); configuration=[ordered]@{changed=$false;state='UNPREPARED';before=@()}; failure=$null
         }
@@ -365,6 +372,10 @@ try {
             if($compatibility.Count -ne 1 -or $compatibility[0].CL -ne $case.CL){throw 'XLSX_FULL_SIZE_COMPATIBILITY_STATE'}
             $script:ledger.lifecycle += @(@{mode=$mode;action='InstallAndRepeat';status='PASS'}); Save-ReleaseJournal
             $definitions = "SELECT o.object_id,o.type,CONVERT(varchar(64),HASHBYTES('SHA2_256',m.definition),2) Hash,a.assembly_id,a.assembly_class,a.assembly_method FROM sys.objects o LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id LEFT JOIN sys.assembly_modules a ON a.object_id=o.object_id WHERE o.is_ms_shipped=0 ORDER BY o.object_id;"
+            if($cellApi -and $script:runset.qualification_scope -ceq 'wrongtype-rest'){
+                $definitions=$definitions.Replace('WHERE o.is_ms_shipped=0 ORDER BY',
+                    "WHERE o.is_ms_shipped=0 AND NOT(o.schema_id=SCHEMA_ID(N'toolbelt_file') AND o.name=N'USP_ListXlsxWorksheets') ORDER BY")
+            }
             $beforeDefinitions = @(Invoke-ReleaseSql $db $definitions -Rows) | ConvertTo-Json -Depth 4 -Compress
             $db.Dispose(); $stage = 'CONTRACT_' + $mode; $db = Open-ReleaseConnection $name
             foreach ($workbook in $caseWorkbooks) {
@@ -387,9 +398,11 @@ try {
             if($cellApi -and $script:runset.qualification_scope -ceq 'caller-catalog-rest'){Invoke-XlsxCallerCatalog $db $mode}
             if($cellApi -and $script:runset.qualification_scope -ceq 'marker-collision-rest'){Invoke-XlsxMarkerCollision $db $mode}
             if($cellApi -and $script:runset.qualification_scope -ceq 'composition-consumer-rest'){Invoke-XlsxCompositionConsumer $db $mode $control}
+            if($cellApi -and $script:runset.qualification_scope -ceq 'wrongtype-rest'){Invoke-XlsxWrongType $db $mode}
             $afterDefinitions = @(Invoke-ReleaseSql $db $definitions -Rows) | ConvertTo-Json -Depth 4 -Compress
             if ($beforeDefinitions -cne $afterDefinitions) { throw 'XLSX_FULL_SIZE_PRODUCT_OBJECT_DRIFT' }
-            foreach ($action in @('Uninstall','UninstallAbsent')) {
+            $uninstallActions=if($cellApi -and $script:runset.qualification_scope -ceq 'wrongtype-rest'){@()}else{@('Uninstall','UninstallAbsent')}
+            foreach ($action in $uninstallActions) {
                 $stage=$action+'_'+$mode
                 Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($script:runset.exports.$mode.$action,[Text.Encoding]::UTF8))
                 $empty=@(Invoke-ReleaseSql $db 'SELECT (SELECT COUNT(*) FROM sys.objects WHERE is_ms_shipped=0) Objects,(SELECT COUNT(*) FROM sys.assemblies WHERE is_user_defined=1) Assemblies;' -Rows)
