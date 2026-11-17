@@ -200,17 +200,24 @@ class NativeSqlcmdEvidenceTests(unittest.TestCase):
     def setUpClass(cls):
         sys.path.insert(0, str(ROOT / 'Scripts/Release'))
         import validate_ssis_ssms_gui as validator
+        from ssis_historical_scope import BASELINE
+        from ssis_historical_context import historical_root
+        cls.evidence_root = historical_root(ROOT, BASELINE)
         cls.validator = validator
-        cls.report = json.loads((ROOT / validator.SQLCMD_RECORD).read_text(encoding='utf-8'))
+        cls.report = json.loads((cls.evidence_root / validator.SQLCMD_RECORD).read_text(encoding='utf-8'))
 
     def reject(self, section, key, value):
         report = copy.deepcopy(self.report)
         report[section][key] = value
         with self.assertRaises(ValueError):
-            self.validator.validate_sqlcmd_report(report, lambda p: (ROOT / p).read_bytes())
+            self.validator.validate_sqlcmd_report(report, lambda p: (self.evidence_root / p).read_bytes())
 
     def test_actual_native_record_and_sources(self):
-        self.assertEqual(self.validator.validate_sqlcmd(ROOT)['result'], 'PASS_CLEANED')
+        self.assertEqual(self.validator.validate_sqlcmd(self.evidence_root)['result'], 'PASS_CLEANED')
+
+    def test_old_sqlcmd_record_does_not_qualify_the_changed_current_binding(self):
+        with self.assertRaisesRegex(ValueError, 'SQLCMD_SOURCE_BINDING'):
+            self.validator.validate_sqlcmd(ROOT)
 
     def test_sql_error_without_native_stop_is_insufficient(self):
         for key, value in [('expected_error', 51000), ('additional_errors', 1),
@@ -238,8 +245,8 @@ class NativeSqlcmdEvidenceTests(unittest.TestCase):
     def test_native_source_changes_cannot_be_rebound(self):
         report = copy.deepcopy(self.report)
         path = next(iter(report['source_sha256']))
-        changed = (ROOT / path).read_bytes() + b'\n'
-        read = lambda p: changed if p == path else (ROOT / p).read_bytes()
+        changed = (self.evidence_root / path).read_bytes() + b'\n'
+        read = lambda p: changed if p == path else (self.evidence_root / p).read_bytes()
         with self.assertRaisesRegex(ValueError, 'SQLCMD_SOURCE_BINDING'):
             self.validator.validate_sqlcmd_report(report, read)
         report['source_sha256'][path] = self.validator.digest(changed)
