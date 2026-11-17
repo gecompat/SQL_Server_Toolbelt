@@ -1,6 +1,6 @@
 # Tests – SQL Server Toolbelt
 
-Der [aktuelle Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md) trennt geschlossene Teilumfänge von echter Restqualifikation. Die [XLSX-Testübersicht](../Modules/toolbelt.file.xlsx-memory/Tests/README.md) führt ihre aktuellen einzelnen Quellenbindungen zusammen. Spätere gültige Belege haben Vorrang vor pauschalen historischen Offen-Zeilen; daraus folgt kein Gesamtmodul-PASS.
+Der [aktuelle Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md) trennt geschlossene Teilumfänge, notwendige Vertragslücken und zusätzliche Untersuchungen ohne Ausführungsauftrag. Die [XLSX-Testübersicht](../Modules/toolbelt.file.xlsx-memory/Tests/README.md) führt ihre aktuellen einzelnen Quellenbindungen zusammen. Spätere gültige Belege haben Vorrang vor pauschalen historischen Offen-Zeilen; daraus folgt kein Gesamtmodul-PASS.
 
 Die [aktuelle direkte Vorgängermatrix](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
 belegt fünf echte öffentliche Versionen 2.0.0/3.0.0/3.1.0/4.0.0/4.1.0

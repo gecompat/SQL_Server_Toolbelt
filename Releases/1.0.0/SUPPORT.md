@@ -68,3 +68,19 @@ angeforderter Heartbeat dient nur als Stillstand-Sicherungsnetz. Diese
 Fortsetzung erteilt keine Veröffentlichungsfreigabe und hebt keine fachlichen
 Pflichtprüfungen oder Sicherheitsgrenzen auf. Die Einzelentscheidungen und
 offenen Grenzen stehen im [aktuellen Backlogauftrag](../../.ai/BACKLOG.md#autonomer-abschluss-von-v100--2026-10-24).
+
+## Präzisierung der notwendigen Restarbeit vom 2026-11-17
+
+Der Benutzer verlangt, ausschließlich notwendige und bereits konkret
+freigegebene Entwicklung und Qualifikation auszuführen. Der Zielumfang oben
+bleibt unverändert; bereits vorhandene passende Nachweise werden wiederverwendet.
+Ein fehlender Nachweis für eine nicht zugesagte Eigenschaft ist keine zusätzliche
+Pflicht. Insbesondere folgen weder weitere Clienthosts noch beliebige historische
+Upgrades, Authentifizierungskombinationen oder Leistungsmessungen automatisch
+aus der SQL-Zielmatrix. Zusätzliche Untersuchungen benötigen einen ausdrücklichen
+Wunsch. Konkrete zugesagte Funktions- und Sicherheitsprüfungen bleiben Pflicht.
+
+Der [aktuelle Nachweisabgleich](CURRENT-QUALIFICATION-REST.md#auswahl-notwendiger-restarbeit-statt-pauschaler-offenliste)
+ordnet erledigte, zusätzliche und verbleibende Vertragsumfänge ein. Historische
+Records und ihre nicht ausgeführten Teilprofile bleiben unverändert; weder ein
+Modulgesamt-PASS noch eine Veröffentlichungsfreigabe wird daraus abgeleitet.
