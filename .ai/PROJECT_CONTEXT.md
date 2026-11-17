@@ -1,5 +1,18 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+
+## Aktueller Abschlussauftrag vom 2026-11-17
+
+Nur notwendige bereits freigegebene Restarbeit ausführen; der
+[aktuelle Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md)
+trennt diese von zusätzlichen Untersuchungen ohne Auftrag. Bei konsistentem
+Entwicklungsstand die laufende Verarbeitungswelle beenden und das
+[Release bauen](../Releases/1.0.0/CURRENT-CANDIDATE.md#aktuelles-quellrelease).
+Danach keine weitere autonome Entwicklungs-/Testwelle ohne neuen Benutzerauftrag.
+Keine Veröffentlichung oder Tags; historische Nachweise, geschlossene Budgets,
+aktive fremde Arbeit und lokale Entwürfe erhalten. Ein Quellrelease qualifiziert
+keinen neuen gemeinsamen Installer und wertet keinen Modulstatus auf.
+
 ## TLS-001 / SC-2026-045: gebundener V2-Consumer
 
 Der [Consumervertrag](../Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md)

@@ -28,31 +28,60 @@ Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 | SSIS: frische aktuelle ZIP-/SSMS-Abnahme fehlt allgemein | [Aktueller ZIP-/SSMS-Gesamtfall](SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md) mit getrennt gebundenen strikten TLS-/Sicherheitsnachweisen. SQL-Anmeldung bei TLS wird nicht zu kombinierter Windows-/TLS-Identität. |
 | Regex: Capture-Gate, physische R2b-Ziele und große Capture-Ausgabe pauschal offen | [Datierter aktueller Abgleich](RELEASE-GATES.md#regex-aktueller-nachweisabgleich-vom-2026-11-06). Die [originale 16-MiB-Capture-Ausgabegrenze](REGEX-CAPTURE-BOUNDARY-STATUS.md) ist auf allen 24 Routen einschließlich großem Opt-in belegt. Die ausdrücklich angenommene Restrisikogrenze bleibt erhalten; keine erfundene Ursachenklärung oder Timeoutgarantie. |
 
-## Noch eigenständig zu qualifizieren
+## Auswahl notwendiger Restarbeit statt pauschaler Offenliste
 
-- **XLSX:** übrige Vorgänger-/Consumer-/Lifecycle-, Kollisions-/Owner-/
-  Visibility- und übrige Client-/Consumerprofile; Heap-/Parallelitätsmessungen nur für
-  tatsächlich zugesagte Aussagen. Die [benannte WrongType-Prozesslücke ist durch den gezielten neuen Nachweis geschlossen](XLSX-WRONGTYPE-PROCESS-CLOSURE.md); historische unbekannte Werte bleiben erhalten. Keine erneute pauschale Vollgrößenmatrix.
-- **JSON:** übrige direkte CLR-/Assembly-ACL-/Owner-, echte Netzwerk-/CrossDB-,
-  Linux-Clienthost-, Ressourcen-/Parallelitäts-/Recoveryfälle. Die aktuelle
-  Aggregatekorrektur hat keinen vollständigen neuen Paketmatrixnachweis erzeugt.
-- **Table Clone:** erweiterte Copy-/Trigger-/Executor-Rechte einschließlich
-  FK-/ResultTable-Kontexten, unbelegte Consumer-/Namespace-/Sicherheitsfälle,
-  zusätzliche Recoverystellen und Linux-Clienthost.
-- **Regex und weitere Datenpfadmodule:** konkret zugesagte, noch unbelegte
-  CrossDB-Identitäten, Ressourcen-/Parallelitäts-/Recoveryfälle; bereits belegte
-  große SQL-Capture-Ausgabe nicht wiederholen; optionale Durchsatzmessung separat.
-- **Datei-/ZIP-Module:** Windows-Caller-/NTFS-ACL-/I/O-Profile, File-Content-
-  Schema-/Owner-/ACLdrift und aktive Mutationsabbrüche sowie noch deklarierte
-  ZIP-Ziel-/Lifecycle-/Identitätsprofile. Bereits belegte Grenzfälle bleiben zu.
-- **Work Queue/Worker:** zugesagter vollständiger Providerlauf und noch
-  unbelegte Provider-/Identitäts-/Host-/Transportprofile. SQL-Managed- und
-  Terminalhistorienbelege werden nicht als FullProduct ausgegeben.
+Benutzerklarstellung vom 2026-11-17: Nur notwendige, bereits fachlich freigegebene
+Entwicklung und Qualifikation autonom bearbeiten. Zusätzliche Absicherung oder
+Erweiterungen werden ausschließlich auf ausdrücklichen Wunsch ausgeführt.
+Ein im Bericht genanntes „nicht ausgeführt“ beschreibt die Nachweisgrenze;
+es ist für sich weder ein Defekt noch ein weiterer Arbeitsauftrag.
 
-Vor jeder neuen Welle den einzelnen Restfall aus der kanonischen Matrix mit
-Source-/Fixture-/Rechtebindung und einem endlichen gemeinsamen Rahmen auswählen.
-Ein Kategoriename allein ordnet keine beliebigen Experimente an. Neue Rechte,
-Infrastrukturänderungen und neue Fachfunktionen behalten ihre konkreten Gates;
-geschlossene alte Laufbudgets werden nicht erneuert. Fehlende Voraussetzungen
-blockieren nur den betroffenen Fall, nicht unabhängig ausführbare Restarbeit.
+Notwendig ist ein Restfall, wenn er einen konkreten zugesagten Funktions-,
+Plattform-, Deployment- oder Sicherheitsvertrag prüft und dafür nach Abgleich
+keine gültige aktuelle Evidenz besteht. Vorhandene Sicherheitsanforderungen
+werden nicht abgeschwächt. Bestehende Nachweise werden nur bei betroffener
+Quelländerung, Befund oder tatsächlich vorgeschriebener Frische neu ausgeführt.
+Der [freigegebene Supportzielumfang](SUPPORT.md) bleibt erhalten; eine weitere
+Clientplattform folgt nicht automatisch aus einer unterstützten SQL-Plattform.
+
+### Erledigte oder zusätzlich abgegrenzte Angaben
+
+| Bisher als Rest genannte Angabe | Aktuelle Einordnung und Folge |
+|---|---|
+| SSIS: zusätzliche Kombination aus Windows-Anmeldung und strikt geprüftem TLS | Kein weiteres Pflichtgate des freigegebenen Debugvertrags. Funktionale Windows-/SSMS-Prüfung, strikter SQL-authentifizierter TLS-Test und Sicherheitsabnahme liegen getrennt vor. Keine kombinierte Abnahme behaupten und keinen neuen Lauf starten. |
+| SSIS: volle Runtime-Parität, unbegrenzte Produktionskapazität oder Verlust des gesamten OS/der VM | Außerhalb des aktuellen Debugvertrags; keine Entwicklungs- oder Testwelle. Die bisherigen Nachweisgrenzen bleiben wahr. |
+| Work Queue/Worker: lokaler Windows-Providerlauf fehlt allgemein | [Die sechs lokalen Windows-/CL-Kontexte mit je elf Providerfällen sind abgeschlossen](../../Modules/toolbelt.core.worker-control/Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md#aktueller-lokaler-windows-providerumfang). Der Record bleibt FullProduct=false; das ist kein Auftrag, beliebige weitere Providerfälle zu entwickeln. |
+| Weitere Linux-Clienthosts, Clientstacks oder Authentifizierungskombinationen | Kein automatisches Pflichtgate aus der Windows-/Linux-SQL-Zielmatrix. Nur ausführen, wenn der konkrete Clientweg selbst zugesagt und freigegeben ist. Vorhandene Linux-Modellhostbelege bleiben gültig. |
+| Beliebige historische Upgradepfade | Kein universeller Upgradevertrag. Tatsächlich zugesagte und bereits belegte Vorgängerpfade beibehalten; keine weiteren Ausgangsversionen allein wegen ihrer Existenz testen. |
+| Heap-, Durchsatz-, Kapazitäts- oder vollständige Parallelitätsmessungen | Ohne konkrete Leistungs-/Ressourcenzusage zusätzliche Untersuchung, keine aktive Restwelle. Vertraglich feste Ausgabe-/Ressourcenlimits und Sicherheitsabbrüche bleiben erforderlich; ihre gültigen Grenznachweise werden wiederverwendet. |
+| Vollständiges kartesisches Produkt aller Owner, Rechte, Identitäten, SET-Werte und Fehlerstellen | Kein eigenständiger Vertrag. Konkrete zugesagte Sicherheits- und Recoveryeigenschaften risikobezogen prüfen; keine zusätzliche Kombination ohne belegte notwendige Lücke. |
+| Direkte interne CLR-Aufrufe oder beliebige weitere Consumer | Nicht automatisch öffentliche APIs. Nur dokumentierte öffentliche Aufrufwege und zugesagte Schutzgrenzen erzeugen notwendige Fälle. Bestehende Sicherheitsprüfungen bleiben erhalten. |
+
+### Verbleibende Vertragsgrenzen
+
+Die folgenden Einträge sind konkrete Abnahmethemen, keine pauschalen
+Matrixaufträge. Ein vorhandener Teilnachweis bleibt für seinen Scope gültig.
+Nur sein tatsächlich fehlender, zugesagter Teil darf ausgewählt werden.
+
+| Bereich | Erforderlicher Vertragsbezug und verbleibende Abgrenzung |
+|---|---|
+| XLSX | [Namespace-, Lifecycle- und Sicherheitsvertrag](../../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md): der Erhalt fremder Caller-/ResultTable-Namensräume und tatsächlich zugesagte Aufrufrechte. Bereits geschlossene Größen-, Versions-, Marker-, WrongType-, Kompositions- und Callerprofile oben wiederverwenden. Weitere Owner-/Consumerprofile nur bei konkreter Zusage; keine allgemeine Heap- oder Clienthostwelle. |
+| JSON | [Core](../../Modules/toolbelt.json.core/Tests/TEST_MATRIX.md), [Schema](../../Modules/toolbelt.json.schema/Tests/TEST_MATRIX.md) und [Constructors](../../Modules/toolbelt.json.constructors/Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md): öffentliche APIs, Ownership-/Dependency-Erhalt und atomarer Lifecycle im zugesagten Zielumfang. Vor Auswahl einer ACL-/Owner-/Recoveryprüfung die konkrete Zeile gegen spätere Berichte abgleichen. Keine pauschale direkte CLR-, Netzwerk-, Linux-Client- oder Ressourcenmatrix. |
+| Table Clone | [Öffentlicher Clone-/Executorvertrag](../../Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md): zugesagte Copy-/Trigger-/FK-/ResultTable-Funktionen und deren notwendige Aufrufrechte, atomare Fehler und Caller-Namensräume. Planner-/Executor-Grundrechte, W1/W2, SQLCMD und bekannte Vorgänger sind bereits belegt; keine pauschale neue Rechte- oder Recoveryvollmatrix. |
+| Windows Filesystem | [I/O-/Caller-/Dateisicherheitsvertrag](../../Modules/toolbelt.filesystem.windows/Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md): noch unbelegte zugesagte Codepage-/Chunk-/Limit-/Atomic-Write-Fälle. Vorhandene Caller-/NTFS-/Reparse- und begrenzte Racebelege zuerst wiederverwenden. Ein weiterer TLS-Test ist kein I/O-Pflichtgate. Echte Identitäts-/Datei-/ACLänderungen benötigen weiterhin ihren konkreten Scope. |
+| File Content und ZIP-Dateifassaden | [File Content](../../Modules/toolbelt.file.content/Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md) und [ZIP Files](../../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md): zugesagte Root-/Zielerhaltung, öffentliche Ausgabe-/KeepData-Semantik und sicherer Publish-/Abbruchpfad. Bereits belegte Repeat-/Drift-/Alias-/Grenzfälle nicht wiederholen. ZIP Files bleibt Windows/local; keine Linux-/Central-Erweiterung. |
+| Regex und Worker | [Regex](../../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) und [Worker Control](../../Modules/toolbelt.core.worker-control/Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md): nur konkret zugesagte, noch unbelegte Sicherheits-/Dispositionseigenschaften. Bereits belegte SQL-Capturegrenze und lokale Windows-Providerfälle bleiben geschlossen. Eine weiterführende Host-/Committransportprüfung benötigt einen konkreten fehlenden Vertragsnachweis statt des Labels FullProduct=false. |
+
+Dieser Abgleich ändert weder Produktcode noch historische Records, Modulstatus
+oder den freigegebenen Supportzielumfang. Insbesondere ist er kein Nachweis,
+dass sämtliche genannten Vertragsgrenzen bereits vollständig geprüft wurden.
+Für SSIS wird aus den hier genannten zusätzlichen Transport-/Runtimegrenzen
+keine weitere notwendige Testwelle abgeleitet.
+
+Vor einer neuen Welle die konkrete fehlende Matrixzeile, ihre aktuelle
+Source-/Fixturebindung, den vorhandenen Gegenbeleg und den notwendigen
+endlichen Scope festhalten. Neue Rechte, Infrastrukturänderungen und neue
+Fachfunktionen behalten ihre konkreten Gates; geschlossene alte Laufbudgets
+werden nicht erneuert. Fehlende Voraussetzungen blockieren nur den betroffenen
+Fall, nicht unabhängig ausführbare notwendige Restarbeit.
 Nicht veröffentlichen oder taggen.
