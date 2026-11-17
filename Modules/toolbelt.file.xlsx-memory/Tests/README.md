@@ -10,6 +10,7 @@ Aktueller [Abgleich geschlossener Teilumfänge und echter Restqualifikation](../
 | Genuine 1.0→heutiger 1.2-Build | [24 Upgrade-Routen, 13 Audits](../../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) |
 | Genuine 1.1→heutiger 1.2-Build | [24 Upgrade-Routen, zwölf Audits](../../../Releases/1.0.0/XLSX-GENUINE11-REST-QUALIFICATION.md) |
 | Benannte negative Lifecycleprofile | [528 Negativfälle auf 24 Routen, zwölf Audits](../../../Releases/1.0.0/XLSX-LIFECYCLE-NEGATIVE-REST-QUALIFICATION.md) |
+| Vier Zukunftsslots auf genuine1.1 | [96 Ablehnungs-/Fremderhaltprofile, 120 Vorgängerzeugen, 13 Audits](../../../Releases/1.0.0/XLSX-FUTURE-COLLISION-REST-QUALIFICATION.md) |
 
 Diese Werte werden nicht zu einer vollständigen Modulqualifikation addiert.
 Synthetische 0/NULL-Sichtbarkeitsfehler sind keine echten Minimalrechteprüfungen;
