@@ -84,3 +84,8 @@ Der [aktuelle Nachweisabgleich](CURRENT-QUALIFICATION-REST.md#auswahl-notwendige
 ordnet erledigte, zusätzliche und verbleibende Vertragsumfänge ein. Historische
 Records und ihre nicht ausgeführten Teilprofile bleiben unverändert; weder ein
 Modulgesamt-PASS noch eine Veröffentlichungsfreigabe wird daraus abgeleitet.
+
+Der anschließende Abschlussauftrag beendet bei konsistentem Entwicklungsstand
+die laufende Verarbeitungswelle und beauftragt den [Releasebau](CURRENT-CANDIDATE.md#aktuelles-quellrelease).
+Danach keine weitere autonome Entwicklungs-/Testwelle ohne neuen Auftrag;
+Veröffentlichung, Tags und eine globale Qualifikationsaufwertung bleiben ausgeschlossen.

@@ -1,4 +1,50 @@
-# Aktueller Releasekandidat für v1.0.0
+# Quellrelease und gebundener Installationskandidat für v1.0.0
+
+
+## Aktuelles Quellrelease
+
+Ein konsistenter aktueller Entwicklungsstand kann ohne weitere Testwelle als
+Quellrelease aus einem exakt festgelegten grünen Main-Commit gebaut werden.
+Der Git-Export enthält dessen versionierte Quellen aller 45 Module, Dokumentation
+und die bereits versionierten Installationspakete. Lokale Änderungen, untracked
+Dateien, private Nachweise und Git-Historie werden nicht übernommen.
+Die enthaltenen Installationspakete behalten ihre jeweils eigenen Quellen-,
+Versions- und Qualifikationsbindungen; daraus entsteht kein neuer gemeinsamer
+Installer für alle aktuellen Quellen und keine vollständige Modulqualifikation.
+
+Aus dem Repository-Root, mit einem neuen Ausgabeziel in einem vorhandenen
+Ausgabeverzeichnis:
+
+```powershell
+$sourceCommit = git rev-parse origin/main
+$releaseZip = Join-Path $outputDirectory 'SQL-Server-Toolbelt-1.0.0-source.zip'
+git archive --format=zip --prefix=SQL-Server-Toolbelt-1.0.0-source/ --output=$releaseZip $sourceCommit
+Get-FileHash -LiteralPath $releaseZip -Algorithm SHA256
+```
+
+Vorher PR-/Main-CI am exakten Commit prüfen. Nach dem Export den vollständigen
+Archivinhalt gegen denselben versionierten Git-Snapshot vergleichen und die
+Prüfsumme, den Commit sowie die verbleibenden Liefergrenzen daneben festhalten.
+Der Einstieg im Archiv ist README.md; für ein enthaltenes Installationspaket
+gilt dessen eigene Anleitung. Keine alten Installer stillschweigend auf neue
+Quellen umdeuten und keine Integritätsprüfung mit neuen Hashes umgehen.
+
+Der Abschlussauftrag vom 2026-11-17 beendet nach konsistenter Integration und
+Releasebau die laufende Verarbeitungswelle. Weitere Entwicklungs-/Testwellen
+beginnen erst nach einem neuen Benutzerauftrag. Veröffentlichung und Tags
+bleiben ausgeschlossen.
+
+## Gebundener Help-Installationskandidat
+
+Die folgenden Angaben beschreiben den bestehenden Builder mit strikter Bindung
+an sein bereits qualifiziertes Help-Installationspaket. Seine Bezeichnung
+„current-candidate“ bedeutet nicht, dass dieses historische Paket automatisch
+zu später geänderten Produktquellen passt. Der lesende Preflight am Main-Stand
+vom 2026-11-17 scheitert an der Quellbindung von
+`Modules/toolbelt.json.constructors/Deployment/KnownArtifact1_3.sql`.
+Das ist eine konkrete Liefergrenze dieses Builders; seine Ablehnung bleibt
+wirksam. Es wird keine neue native Qualifikation des gemeinsamen Installers
+behauptet. Das aktuelle Quellrelease oben bleibt davon getrennt.
 
 Dieser Kandidat bündelt die versionierten aktuellen Quellen aller 45 Module,
 Dokumentation und das bereits separat geprüfte Parameter-Help-Installationspaket.
