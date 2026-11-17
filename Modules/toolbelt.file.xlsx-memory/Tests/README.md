@@ -13,9 +13,11 @@ Aktueller [Abgleich geschlossener Teilumfänge und echter Restqualifikation](../
 | Vier Zukunftsslots auf genuine1.1 | [96 Ablehnungs-/Fremderhaltprofile, 120 Vorgängerzeugen, 13 Audits](../../../Releases/1.0.0/XLSX-FUTURE-COLLISION-REST-QUALIFICATION.md) |
 | Vier Typ-Zukunftsslots auf genuine1.0 | [96 Ablehnungs-/Fremderhaltprofile, 120 Vorgängerzeugen, zwölf Audits](../../../Releases/1.0.0/XLSX-TYPE-FUTURE-REST-QUALIFICATION.md) |
 
+| Caller-TX und Katalog-/Clientnullability | [192 Ablehnungen, 24 Nullabilityprüfungen, zwölf Audits](../../../Releases/1.0.0/XLSX-CALLER-CATALOG-REST-QUALIFICATION.md) |
+
 Diese Werte werden nicht zu einer vollständigen Modulqualifikation addiert.
 Synthetische 0/NULL-Sichtbarkeitsfehler sind keine echten Minimalrechteprüfungen;
-weitere Clienthosts und Katalognullability bleiben separat. Die unten datierten
+weitere Clienthosts und tatsächliche Owner-/Sicherheitsprofile bleiben separat. Die unten datierten
 Berichte und die unveränderte historische Contract-Testmatrix behalten ihre
 Originalgrenzen und Fehler. Sie sind keine pauschale aktuelle Offenliste.
 Andere Consumer-/Kollisions-/Owner-/Recoveryprofile und tatsächliche Heap-
