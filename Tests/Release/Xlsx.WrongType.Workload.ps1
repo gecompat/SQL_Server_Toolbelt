@@ -75,6 +75,7 @@ function Assert-XlsxWrongTypeJournal($Prior){
 function Assert-XlsxWrongTypeAuditRecovery($Budget,[string]$RunsetPath){
     if($Budget.audit_recoveries.Count -ne 1){throw 'XLSX_WRONGTYPE_RECOVERY_COUNT'}
     $r=$Budget.audit_recoveries[0]
+    $recoveredPath=if($r.PSObject.Properties['recovered_runset_path']){$r.recovered_runset_path}else{$RunsetPath}
     $runtime=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../.runtime'))+[IO.Path]::DirectorySeparatorChar
     if(-not [IO.Path]::GetFullPath($r.original_budget_path).StartsWith($runtime,[StringComparison]::OrdinalIgnoreCase)){throw 'XLSX_WRONGTYPE_RECOVERY_PATH'}
     $old=Get-Content -LiteralPath $r.original_budget_path -Raw|ConvertFrom-Json
@@ -90,11 +91,11 @@ function Assert-XlsxWrongTypeAuditRecovery($Budget,[string]$RunsetPath){
     $audit=@($Budget.dispatches|Where-Object id -CEQ $r.recovery_id)
     if($audit.Count -ne 1 -or $audit[0].phase -cne 'AUDIT_RECOVERY' -or $audit[0].state -cne 'AUDIT_PASS' -or
        $audit[0].index -ne 0 -or $audit[0].exit_code -ne 0 -or -not $audit[0].stderr_empty -or
-       -not $audit[0].capture_complete -or $audit[0].runset_sha256 -cne (Get-FileHash -LiteralPath $RunsetPath).Hash){
+       -not $audit[0].capture_complete -or $audit[0].runset_sha256 -cne (Get-FileHash -LiteralPath $recoveredPath).Hash){
         throw 'XLSX_WRONGTYPE_RECOVERY_NOT_PASS'
     }
-    $copy=Join-Path (Split-Path -Parent $RunsetPath) 'case-0.json'
-    foreach($path in @($r.original_budget_path,$r.original_runset_path,$r.original_journal_path,$RunsetPath,$copy,
+    $copy=Join-Path (Split-Path -Parent $recoveredPath) 'case-0.json'
+    foreach($path in @($r.original_budget_path,$r.original_runset_path,$r.original_journal_path,$RunsetPath,$recoveredPath,$copy,
                        $audit[0].stdout_path,$audit[0].stderr_path)){
         if(-not [IO.Path]::GetFullPath($path).StartsWith($runtime,[StringComparison]::OrdinalIgnoreCase) -or
            ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){
@@ -122,4 +123,38 @@ function Assert-XlsxWrongTypeAuditRecovery($Budget,[string]$RunsetPath){
     $prior=Get-Content -LiteralPath $copy -Raw|ConvertFrom-Json
     Assert-XlsxWrongTypeJournal $prior
     return $old.dispatches[1].id
+}
+
+function Assert-XlsxWrongTypeControllerContinuation($Budget,[string]$RunsetPath){
+    if($Budget.controller_recoveries.Count -ne 1){throw 'XLSX_WRONGTYPE_CONTROLLER_RECOVERY_COUNT'}
+    $r=$Budget.controller_recoveries[0]
+    if((Get-FileHash $r.source_budget_path).Hash -cne $r.source_budget_sha256){throw 'XLSX_WRONGTYPE_CONTROLLER_SOURCE_DRIFT'}
+    $old=Get-Content $r.source_budget_path -Raw|ConvertFrom-Json
+    if($old.dispatches.Count -ne 11 -or $old.dispatches[9].index -ne 4 -or $old.dispatches[9].phase -cne 'RUN' -or
+       $old.dispatches[9].state -cne 'DISPATCHED' -or $old.dispatches[10].index -ne 4 -or
+       $old.dispatches[10].phase -cne 'AUDIT' -or $old.dispatches[10].state -cne 'RESERVED' -or
+       [string]$Budget.native_started -cne [string]$old.native_started -or
+       ($Budget.dispatches[0..9]|ConvertTo-Json -Depth 12 -Compress) -cne ($old.dispatches[0..9]|ConvertTo-Json -Depth 12 -Compress)){
+        throw 'XLSX_WRONGTYPE_CONTROLLER_HISTORY_CHANGED'
+    }
+    $audit=$Budget.dispatches[10]
+    if($audit.id -cne $old.dispatches[10].id -or $audit.state -cne 'AUDIT_PASS' -or $audit.exit_code -ne 0 -or
+       -not $audit.stderr_empty -or -not $audit.capture_complete -or
+       $audit.runset_sha256 -cne (Get-FileHash $RunsetPath).Hash){throw 'XLSX_WRONGTYPE_CONTROLLER_AUDIT_NOT_PASS'}
+    $copy=Join-Path (Split-Path -Parent $RunsetPath) 'case-4.json'
+    if((Get-FileHash $r.source_runset_path).Hash -cne $old.dispatches[9].runset_sha256 -or
+       (Get-FileHash $r.source_journal_path).Hash -cne $audit.final_journal_sha256 -or
+       (Get-FileHash $copy).Hash -cne $audit.final_journal_sha256 -or
+       (Get-FileHash $r.source_stdout_path).Hash -cne $r.source_stdout_sha256 -or
+       [IO.File]::ReadAllText($r.source_stdout_path).Trim() -cne 'PASS XLSX_CELL_API selected original fixtures; separate audit required' -or
+       (Get-Item $r.source_stderr_path).Length -ne 0 -or
+       [IO.File]::ReadAllText($audit.stdout_path).Trim() -cne 'PASS XLSX_FULL_SIZE independent database/trust/configuration audit' -or
+       (Get-Item $audit.stderr_path).Length -ne 0){throw 'XLSX_WRONGTYPE_CONTROLLER_EXACT_BINDING'}
+    $prior=Get-Content $copy -Raw|ConvertFrom-Json
+    if($prior.state -cne 'COMPLETE' -or $prior.case.index -ne 4 -or @($prior.databases|Where-Object state -CNE 'DROPPED').Count){
+        throw 'XLSX_WRONGTYPE_CONTROLLER_NATIVE_NOT_COMPLETE'
+    }
+    Assert-XlsxWrongTypeJournal $prior
+    # Der alte Rückgabestatus bleibt ausdrücklich unbekannt und wird nicht zu0.
+    return $old.dispatches[9].id
 }

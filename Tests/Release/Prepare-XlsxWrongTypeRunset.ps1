@@ -33,6 +33,8 @@ $extra=@($install.local,$install.central,$uninstall,$source,$fixture,$PSCommandP
  (Join-Path $PSScriptRoot 'Test-XlsxWrongTypeAdmission.ps1'),
  (Join-Path $PSScriptRoot 'Test-XlsxWrongTypeAuditRecovery.ps1'),
  (Join-Path $PSScriptRoot 'Resume-XlsxWrongTypeAudit.ps1'),
+ (Join-Path $PSScriptRoot 'Resume-XlsxWrongTypeJournal.ps1'),
+ (Join-Path $PSScriptRoot 'Test-XlsxWrongTypeControllerRecovery.ps1'),
  (Join-Path $repo 'Tests/CI/run-xlsx-types-lab.ps1'),
  (Join-Path $repo 'Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.CollisionFixture.sql'))
 foreach($file in $extra){
