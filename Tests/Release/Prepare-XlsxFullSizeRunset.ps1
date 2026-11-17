@@ -56,6 +56,7 @@ $repoPaths = @(
     'Tests/Release/Invoke-ApiQualificationLab.ps1',
     'Tests/Release/Invoke-StablePackageLab.ps1',
     'Tests/Release/ClrCaller.Environment.ps1',
+    'Tests/Release/Xlsx.OwnedDatabase.ps1',
     'Tests/CI/run-csv-memory-lab.ps1', 'Tests/CI/run-lab-local.ps1',
     'Tests/CI/LabQualifiedContract.ps1', 'Deployment/Deploy-All.ps1',
     'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1',
