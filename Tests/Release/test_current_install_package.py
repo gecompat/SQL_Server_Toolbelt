@@ -66,4 +66,31 @@ class CurrentInstallTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'compiler closure'):
             current.validate_payload(self.altered(change))
 
+class BindingHistoryTests(unittest.TestCase):
+    def test_three_originals_remain_exact_and_current_delta_is_only_the_pin(self):
+        from ssis_parser_binding_history import historical_dependency_source, OLD_HASHES, OLD_PARSER, NEW_PARSER
+        import hashlib
+        for path, expected in OLD_HASHES.items():
+            original=historical_dependency_source(ROOT,path)
+            self.assertEqual(hashlib.sha256(original).hexdigest(),expected)
+            self.assertEqual((ROOT/path).read_bytes(),original.replace(OLD_PARSER.encode(),NEW_PARSER.encode()))
+
+    def test_extra_source_change_and_corrupt_archive_are_rejected(self):
+        from ssis_parser_binding_history import historical_dependency_source, OLD_HASHES, ARCHIVE
+        import tempfile
+        import shutil
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            path=next(iter(OLD_HASHES))
+            (root/path).parent.mkdir(parents=True)
+            (root/path).write_bytes((ROOT/path).read_bytes()+b'\n-- unapproved extra change')
+            (root/ARCHIVE).parent.mkdir(parents=True)
+            shutil.copyfile(ROOT/ARCHIVE,root/ARCHIVE)
+            with self.assertRaisesRegex(ValueError,'Unapproved'):
+                historical_dependency_source(root,path)
+            (root/path).write_bytes((ROOT/path).read_bytes())
+            (root/ARCHIVE).write_bytes((root/ARCHIVE).read_bytes()+b'corrupt')
+            with self.assertRaisesRegex(ValueError,'archive drift'):
+                historical_dependency_source(root,path)
+
 if __name__=='__main__':unittest.main()

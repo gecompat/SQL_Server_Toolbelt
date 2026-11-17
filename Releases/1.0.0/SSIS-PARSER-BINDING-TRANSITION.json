@@ -1,0 +1,18 @@
+{
+  "kind": "ssis_exact_parser_binding_transition",
+  "result": "BUILD_AND_FRAMEWORK_PASS_NATIVE_INSTALL_PENDING",
+  "predecessor_commit": "70f4b21e8ccc1a0de0bc18690728ddcc2a9fb7ba",
+  "predecessor_package": "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-SecurityCorrected-Install-Windows.zip",
+  "provider": {
+    "sha256": "49d31c71286dcc0c1b54377bec81de9002bd56eda356d86f5806e83f35609fac",
+    "sha512": "6a1294af5535c0519e1c948de93f6ab2ea8dac3687ff25e231959fcbe2adbc576b6aa51311f7bf8751ff58f2fcb2ac830e09e39b53fedc3c5e1d6a0165acdbf6"
+  },
+  "trust_manifest_sha256": "bdddd1a612ab8d350a984d404bb68c244a7c1e1e4451ba58d664483f7107a1ce",
+  "parser_sha512": "f2213559fa9085bdac9b6a4c1954d7be18eaae9bfbf950e2a29cc0121d8b36d6838d4366327d3a6b0c9ed655179acbe898e2887d917aa0d0c2b7c243c891c16a",
+  "reproduced_build": true,
+  "framework_bounded_children": 29,
+  "historical_transport_and_security_records_unchanged": true,
+  "new_tls_execution": false,
+  "new_gui_execution": false,
+  "publication_authorized": false
+}

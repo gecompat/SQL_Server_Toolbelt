@@ -13,6 +13,7 @@ OUTPUT = "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Insta
 SSIS = "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-SecurityCorrected-Install-Windows.zip"
 REGISTRY = "Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json"
 GUIDE = "Releases/1.0.0/CURRENT-INSTALL.md"
+TRANSITION = "Releases/1.0.0/SSIS-PARSER-BINDING-TRANSITION.json"
 RECORD = "Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.json"
 PARSER_SHA512 = "f2213559fa9085bdac9b6a4c1954d7be18eaae9bfbf950e2a29cc0121d8b36d6838d4366327d3a6b0c9ed655179acbe898e2887d917aa0d0c2b7c243c891c16a"
 REPLACED = {"toolbelt.json.constructors", "toolbelt.tsql.script-parser", "toolbelt.tsql.ssis-debug"}
@@ -65,7 +66,20 @@ def checked_inputs(inputs):
     ssis = (inputs / "ssis/Toolbelt.Tsql.SsisDebug.dll").read_bytes()
     with zipfile.ZipFile(ROOT / SSIS) as archive:
         names = [n for n in archive.namelist() if n.endswith("/toolbelt.tsql.ssis-debug/Artifacts/Toolbelt.Tsql.SsisDebug.dll")]
-        require(len(names) == 1 and ssis == archive.read(names[0]), "SSIS qualified package binary drift")
+        require(len(names) == 1, "SSIS predecessor package binary missing")
+    transition = json.loads((ROOT / TRANSITION).read_bytes())
+    require(transition["provider"]["sha256"] == base.sha(ssis) and transition["provider"]["sha512"] == base.sha(ssis,"sha512") and transition["reproduced_build"] is True and transition["framework_bounded_children"] == 29 and transition["publication_authorized"] is False, "SSIS binding transition build")
+    manifest = json.loads((inputs / "ssis/Toolbelt.Tsql.SsisDebug.trust-manifest.json").read_bytes())
+    require(base.sha((inputs / "ssis/Toolbelt.Tsql.SsisDebug.trust-manifest.json").read_bytes()) == transition["trust_manifest_sha256"] and manifest["parserSha512"].lower() == PARSER_SHA512, "SSIS transition manifest")
+    from ssis_parser_binding_history import historical_dependency_source
+    with zipfile.ZipFile(ROOT / SSIS) as archive:
+        name=next(n for n in archive.namelist() if n.endswith('/toolbelt.tsql.ssis-debug/Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json'))
+        original=json.loads(archive.read(name))
+    import posixpath
+    for entry in original["sourceFiles"]:
+        relative,expected=entry.rsplit(":",1)
+        path=posixpath.normpath("Modules/toolbelt.tsql.ssis-debug/"+relative)
+        require(base.sha(historical_dependency_source(ROOT,path)).upper() == expected,"SSIS unchanged model source: "+path)
     overrides = {"Toolbelt.JsonConstructors.dll": constructor, "Toolbelt.Tsql.ScriptParser.dll": parser}
     return overrides, {"registry": REGISTRY, "registry_sha256": base.sha((ROOT / REGISTRY).read_bytes()),
                        "compiled_source_sha256": compiled_sources(),
@@ -124,7 +138,7 @@ def validate_payload(payload):
     expected_hashes = {a["file"]: a["sha512"].lower() for a in artifacts}
     ctor = next(a["Fields"] for a in json.loads((ROOT / REGISTRY).read_bytes())["artifacts"] if a["Fields"]["moduleId"] == "toolbelt.json.constructors")
     ssis_record = json.loads((ROOT / "Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.ZipSsms.20261116.json").read_bytes())
-    expected_hashes.update({"Toolbelt.JsonConstructors.dll": ctor["binarySha512"], "Toolbelt.Tsql.ScriptParser.dll": PARSER_SHA512, "Toolbelt.Tsql.SsisDebug.dll": ssis_record["package"]["provider_sha512"]})
+    expected_hashes.update({"Toolbelt.JsonConstructors.dll": ctor["binarySha512"], "Toolbelt.Tsql.ScriptParser.dll": PARSER_SHA512, "Toolbelt.Tsql.SsisDebug.dll": json.loads((ROOT / TRANSITION).read_bytes())["provider"]["sha512"]})
     require(metadata["binary_sha512"] == expected_hashes, "qualified binary set")
     modules = sorted(p.parent.name for p in (ROOT / "Modules").glob("*/module.yaml"))
     closure = {}

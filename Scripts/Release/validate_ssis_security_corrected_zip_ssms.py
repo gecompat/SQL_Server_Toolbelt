@@ -14,7 +14,10 @@ CONTEXTS={(v,p,cl,mode) for v,p,levels in [('2019','CU32',[150]),('2022','CU26',
 def require(ok,label):
     if not ok:raise ValueError('SSIS_CURRENT_ZIP_SSMS_'+label)
 
-def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def sha(path):
+    from ssis_parser_binding_history import historical_dependency_source
+    relative=Path(path).resolve().relative_to(ROOT.resolve()).as_posix()
+    return hashlib.sha256(historical_dependency_source(ROOT,relative)).hexdigest()
 
 def _validate_scope(record=None,*,check_files=True):
     r=record if record is not None else json.loads((ROOT/REPORT).read_bytes())
