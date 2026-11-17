@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import json
+from ssis_parser_binding_history import historical_dependency_source
 import subprocess
 import validate_ssis_copy_column_security as security
 
@@ -47,7 +48,7 @@ def validate(record=None):
             and len(r['source_sha256'])==103 and set(r['source_sha256'])==source_paths(),'SOURCE_CLOSURE')
     for name,digest in r['source_sha256'].items():
         p=(ROOT/name).resolve()
-        require(p.is_relative_to(ROOT.resolve()) and hashlib.sha256(p.read_bytes()).hexdigest()==digest,'SOURCE_DRIFT')
+        require(p.is_relative_to(ROOT.resolve()) and hashlib.sha256(historical_dependency_source(ROOT,name)).hexdigest()==digest,'SOURCE_DRIFT')
     return r
 
 if __name__=='__main__':

@@ -2,7 +2,7 @@
 """Bindet einen aktuellen Quellkandidaten; historische Qualifikation bleibt getrennt.
 
 Git liefert ausschließlich versionierte Bytes. Der bereits separat geprüfte
-Parameter-Help-Installer bleibt bytegleich; Compiler, SQL und Lab werden nicht
+Installer bleibt bytegleich; Compiler, SQL und Lab werden nicht
 aufgerufen. Die Prüfung benötigt den Quellcommit im lokalen Repository.
 """
 from __future__ import annotations
@@ -12,6 +12,7 @@ from collections import Counter
 import json
 from pathlib import Path
 import posixpath
+import re
 import subprocess
 import sys
 import zipfile
@@ -31,6 +32,9 @@ SUMS = "SHA256SUMS.txt"
 
 def installer_inputs(files: dict[str, bytes]) -> dict:
     """Prüft Paketbytes und Quellbindung, ohne native Aussagen zu erweitern."""
+    from current_install_qualification import PACKAGE, RECORD, installer_inputs as current_inputs
+    if PACKAGE in files or RECORD in files:
+        return current_inputs(files)
     path = help_package.OUTPUT
     checksum = files[path + ".sha256"].decode("ascii").split()
     release.require(checksum == [release.sha(files[path]), Path(path).name],
@@ -119,22 +123,35 @@ def installer_inputs(files: dict[str, bytes]) -> dict:
 def current_plan(files: dict[str, bytes], commit: str) -> dict:
     # product-source.json und release-plan.json gehören zur historischen
     # Lieferung. Ihr Produktcommit wird nicht auf heutige Quellen übertragen.
+    from current_install_qualification import PACKAGE as CURRENT_PACKAGE
+    # Die freigegebene alte Kanalverteilung bleibt historisch. Aktuelle
+    # Manifestvorschläge sind keine neue Support- oder Veröffentlichungsfreigabe.
+    excluded = {release.PRODUCT_SOURCE}
+    if CURRENT_PACKAGE in files:
+        excluded.add("Releases/1.0.0/support-scope.json")
     projection = release.make_plan({p: b for p, b in files.items()
-                                    if p != release.PRODUCT_SOURCE}, commit)
+                                    if p not in excluded}, commit)
     return {"schema_version": "toolbelt-current-candidate/v1", "project_version": release.VERSION,
             "source_commit": commit, "state": "candidate_not_published",
             "publication_authorized": False, "full_module_qualification": "not established",
             "channels": dict(Counter(m["proposed_channel"] for m in projection["modules"])),
+            "channel_semantics": "current manifest proposals only; historical support approval unchanged",
+            "historical_support_scope": "Releases/1.0.0/support-scope.json",
             "modules": projection["modules"], "installer": installer_inputs(files),
             "release_gates": "Releases/1.0.0/RELEASE-GATES.md"}
 
 
 def start_here(files: dict[str, bytes]) -> bytes:
-    data = files[GUIDE]
-    for name in ("PARAMETER-HELP.md", "RELEASE-GATES.md", "SUPPORT.md"):
-        data = data.replace(("(" + name + ")").encode(),
-                            ("(Releases/1.0.0/" + name + ")").encode())
-    return data
+    # Diese Seite wird aus Releases/1.0.0 an die Archivwurzel verschoben.
+    # Alle relativen Lesewege behalten ihr Ziel, einschließlich ../../Modules.
+    def relocate(match):
+        target = match.group(1).decode("utf-8")
+        if target.startswith(("#", "/")) or ":" in target:
+            return match.group(0)
+        path, separator, anchor = target.partition("#")
+        relocated = posixpath.normpath(posixpath.join(posixpath.dirname(GUIDE), path))
+        return (relocated + separator + anchor).encode("utf-8")
+    return re.sub(rb"(?<=\]\()([^\s)]+)(?=\))", relocate, files[GUIDE])
 
 
 def payload(commit: str) -> dict[str, bytes]:
@@ -142,6 +159,12 @@ def payload(commit: str) -> dict[str, bytes]:
     release.require(GUIDE in files, "Kandidatenanleitung fehlt im Quellcommit.")
     release.require(not {PLAN, MANIFEST, SUMS, "START-HERE.md"} & files.keys(),
                     "Generierte Kandidatenpfade sind bereits versioniert.")
+    # Der kleine Originalquellnachweis gehört zur aktuellen Bindung; historische
+    # vollständige Source-ZIPs bleiben weiterhin aus dem Kandidaten ausgeschlossen.
+    from current_install_qualification import PACKAGE as CURRENT_PACKAGE
+    if CURRENT_PACKAGE in files:
+        original="Releases/1.0.0/Artifacts/SSIS-Parser-Binding-Predecessor.zip"
+        files[original]=release.git("show",resolved+":"+original)
     result = dict(files)
     result[PLAN] = release.encoded(current_plan(files, resolved))
     result["START-HERE.md"] = start_here(files)
@@ -149,7 +172,7 @@ def payload(commit: str) -> dict[str, bytes]:
         "schema_version": "toolbelt-current-candidate-manifest/v1",
         "source_commit": resolved, "state": "candidate_not_published",
         "publication_authorized": False,
-        "verification_scope": "source_integrity_and_bound_help_installer_only",
+        "verification_scope": "source_integrity_and_bound_installer_only",
         "files": {p: {"bytes": len(b), "sha256": release.sha(b)}
                   for p, b in sorted(result.items())}})
     result[SUMS] = "".join(release.sha(b) + "  " + p + "\n"

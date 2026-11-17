@@ -77,8 +77,12 @@ def source_closure(path, result):
         source_closure(path.parent / include.strip().strip('"\''), result)
 
 
-def build(release_directory, work_directory):
-    helpgen.generate()
+def build(release_directory, work_directory, *, binary_overrides=None, output_path=None,
+          ssis_package=None, readme=None, generate_help=True):
+    # Explizite Kompositionseingaben; der historische Default bleibt bytegleich.
+    # Der aktuelle Aufrufer prüft Herkunft und Quellen jedes Binary-Overrides.
+    if generate_help:
+        helpgen.generate()
     release_directory, work = Path(release_directory).resolve(), Path(work_directory).resolve()
     if not work.is_relative_to(ROOT / ".runtime") or work.exists():
         raise ValueError("New private .runtime work directory required")
@@ -91,11 +95,15 @@ def build(release_directory, work_directory):
             data = archive.read(prefix + "Binaries/" + a["file"])
             if sha(data, "sha512") != a["sha512"].lower(): raise ValueError("Baseline binary differs")
             binaries[a["file"]] = data
-    with zipfile.ZipFile(ROOT / SSIS) as archive:
+    with zipfile.ZipFile(ROOT / (ssis_package or SSIS)) as archive:
         for name in ("Toolbelt.Tsql.ScriptParser.dll", "Microsoft.SqlServer.TransactSql.ScriptDom.dll"):
             matches = [n for n in archive.namelist() if n.endswith("/toolbelt.tsql.script-parser/Artifacts/" + name)]
             if len(matches) != 1: raise ValueError("Pinned parser input missing")
             binaries[name] = archive.read(matches[0])
+    if binary_overrides:
+        if set(binary_overrides) - set(binaries):
+            raise ValueError("Unknown binary override")
+        binaries.update(binary_overrides)
     manifest = json.loads((release_directory / "Toolbelt.Tsql.SsisDebug.trust-manifest.json").read_text(encoding="utf-8-sig"))
     binary = (release_directory / "Toolbelt.Tsql.SsisDebug.dll").read_bytes()
     if not manifest["reproducedBuild"] or sha(binary, "sha512") != manifest["sha512"].lower():
@@ -143,7 +151,7 @@ def build(release_directory, work_directory):
     payload = {Path(p["output"]).name: Path(p["output"]).read_bytes() for p in profiles}
     payload["LICENSE.md"] = (ROOT / "LICENSE.md").read_bytes()
     payload.update(notices())
-    payload["START-HERE.md"] = package_readme()
+    payload["START-HERE.md"] = readme if readme is not None else package_readme()
     payload["SSIS-BUILD.json"] = (release_directory / "Toolbelt.Tsql.SsisDebug.trust-manifest.json").read_bytes()
     payload["Trust-Windows.sql"] = ("USE [master];\nGO\n" + "\n".join(
         "IF NOT EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=0x" + sha(data, "sha512") + ") EXEC sys.sp_add_trusted_assembly @hash=0x" + sha(data, "sha512") + ",@description=N'Toolbelt Parameter Help " + name + "';"
@@ -154,14 +162,14 @@ def build(release_directory, work_directory):
         for name in sorted(portable_names)) + "\nGO\n").encode()
     record = dict(schema_version="toolbelt-parameter-help-package/v1", scope="CURRENT_FRESH_INSTALL_HELP_CONTRACT",
                   native_qualification="separate evidence; no full business requalification", publication_authorized=False,
-                  predecessor_packages={p: sha((ROOT / p).read_bytes()) for p in (BASELINE, SSIS)},
+                  predecessor_packages={p: sha((ROOT / p).read_bytes()) for p in (BASELINE, ssis_package or SSIS)},
                   profiles=[{k: p[k] for k in ("name", "platform", "mode", "modules")} for p in profiles],
                   source_sha256=sources, binary_sha512={n: sha(b, "sha512") for n, b in binaries.items()},
                   editorial_sha256={p: sha((ROOT / p).read_bytes()) for p in ("Documentation/Reference/api_examples.json",helpgen.METADATA)},
                   files={p: sha(b) for p,b in payload.items()})
     payload["PACKAGE.json"] = encoded(record)
     payload["SHA256SUMS"] = "".join(sha(b) + "  " + p + "\n" for p,b in sorted(payload.items())).encode()
-    output = ROOT / OUTPUT
+    output = ROOT / (output_path or OUTPUT)
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for name, data in sorted(payload.items()):
             info = zipfile.ZipInfo(name, (2026,10,30,0,0,0)); info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644 << 16

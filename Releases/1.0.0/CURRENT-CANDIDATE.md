@@ -1,6 +1,15 @@
 # Quellrelease und gebundener Installationskandidat für v1.0.0
 
 
+## Gemeinsamer aktueller Installationssatz
+
+Der [aktuelle Installer](CURRENT-INSTALL.md) und seine
+[zwölf nativen Installationsprofile](CURRENT-INSTALL-QUALIFICATION.md) schließen
+die frühere gemeinsame Quell-/Binarybindungslücke. Der aktuelle Kandidatenbuilder
+verwendet dieses neue qualifizierte Paket. Historische Snapshots ohne dieses
+Paket behalten ihren unveränderten Help-Installer; keine unbekannte aktuelle
+Lieferung darf bei fehlendem Record darauf zurückfallen.
+
 ## Aktuelles Quellrelease
 
 Ein konsistenter aktueller Entwicklungsstand kann ohne weitere Testwelle als
@@ -34,7 +43,7 @@ Releasebau die laufende Verarbeitungswelle. Weitere Entwicklungs-/Testwellen
 beginnen erst nach einem neuen Benutzerauftrag. Veröffentlichung und Tags
 bleiben ausgeschlossen.
 
-## Gebundener Help-Installationskandidat
+## Historischer Help-Installationskandidat
 
 Die folgenden Angaben beschreiben den bestehenden Builder mit strikter Bindung
 an sein bereits qualifiziertes Help-Installationspaket. Seine Bezeichnung
@@ -42,9 +51,9 @@ an sein bereits qualifiziertes Help-Installationspaket. Seine Bezeichnung
 zu später geänderten Produktquellen passt. Der lesende Preflight am Main-Stand
 vom 2026-11-17 scheitert an der Quellbindung von
 `Modules/toolbelt.json.constructors/Deployment/KnownArtifact1_3.sql`.
-Das ist eine konkrete Liefergrenze dieses Builders; seine Ablehnung bleibt
-wirksam. Es wird keine neue native Qualifikation des gemeinsamen Installers
-behauptet. Das aktuelle Quellrelease oben bleibt davon getrennt.
+Dieser historische Befund bleibt erhalten. Die alte Lieferung wird bei geänderten Produktquellen weiterhin
+abgewiesen. Die damalige Prüfung belegt keinen neuen gemeinsamen Installer;
+dessen anschließend separat ausgeführte Abnahme steht im aktuellen Abschnitt oben.
 
 Dieser Kandidat bündelt die versionierten aktuellen Quellen aller 45 Module,
 Dokumentation und das bereits separat geprüfte Parameter-Help-Installationspaket.
@@ -89,8 +98,8 @@ Quellstand und vorhandenen Nachweis abgleichen und einen neuen Kandidaten bauen.
 Nach Vergleich der separat bezogenen SHA256-Datei das ZIP in ein neues
 Verzeichnis entpacken und START-HERE.md lesen. CANDIDATE-MANIFEST.json bindet
 alle gelieferten Dateien; SHA256SUMS.txt enthält ihre Einzelprüfsummen.
-Die Installation folgt ausschließlich der [Parameter-Help-Anleitung](PARAMETER-HELP.md)
-und dem dort benannten ZIP mit vier Installationsprofilen. Sie ist für eine
+Die Installation folgt dem in CURRENT-RELEASE-PLAN.json benannten Installer
+und der [aktuellen Installationsanleitung](CURRENT-INSTALL.md) mit vier Profilen. Sie ist für eine
 leere, ausdrücklich ausgewählte Testdatenbank bestimmt. Erforderliche Rechte,
 CLR und bewusst eingerichteter Trust bleiben separate Voraussetzungen.
 
@@ -105,3 +114,8 @@ Für die Veröffentlichung bleiben vollständige Pflichtnachweise im konkret
 zugesagten Umfang, erfolgreiche CI des finalen Kandidaten und ein gesonderter
 ausdrücklicher Veröffentlichungsauftrag erforderlich. Es werden kein Tag,
 GitHub-Release oder veröffentlichter Modulstatus erzeugt.
+
+Die aktuelle Manifestprojektion enthält 20 Stable- und 25 Preview-Vorschläge.
+Die historische Supportfreigabe mit 19/26 bleibt unverändert und wird nicht
+auf diese Projektion übertragen; der Installer erteilt keine neue Kanal- oder
+Veröffentlichungsfreigabe.

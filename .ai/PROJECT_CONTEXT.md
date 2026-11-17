@@ -1,5 +1,16 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Gemeinsamer aktueller Installer – Anschlussauftrag 2026-11-17
+
+Der neue unmittelbare Benutzerauftrag autorisiert den gemeinsamen aktuellen
+Installer, notwendige Tests und reguläre Integration mit Head-/Main-CI sowie
+Cleanup. Der [Abnahmebericht](../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md)
+trennt die neue Installationskomposition von ursprünglichen Einzelmodul-,
+SSMS- und TLS-Nachweisen. Nach diesem begrenzten Abschluss bleibt der vorherige
+Wellenstopp bestehen. Keine Veröffentlichung oder Tags und keine weiteren
+unbeauftragten Entwicklungs-/Qualifikationswellen.
+
+
 
 ## Aktueller Abschlussauftrag vom 2026-11-17
 

@@ -6,6 +6,17 @@ keine Freigabe und ist kein Gesamtfreigaberecord. Die [45-Modul-Übersicht](../.
 und jeweilige Modulmatrix bestimmen die tatsächlich zugesagten Pflichten.
 Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 
+## Gemeinsamer aktueller Installationssatz
+
+Der [neue gemeinsame Installer](CURRENT-INSTALL.md) schließt die frühere
+Ctor-/Parser-/SSIS-Quellbindungslücke. [Zwölf native Fresh-Install-Profile](CURRENT-INSTALL-QUALIFICATION.md)
+auf sechs Windows-/Linux-Enginepaaren mit den jeweiligen Standard-CLs und sechs
+frischen Audits sind bestanden. Die aktuelle Parserbindung von SSIS ist eng
+abgegrenzt aktualisiert; die übrige Modelllogik und geprüfte Binaries werden
+wiederverwendet. Frühere Paket-, SSMS-, TLS- und Sicherheitsrecords bleiben
+an ihre ursprünglichen Providerbytes gebunden und sind keine neuen Gesamtfälle.
+Keine weitere gemeinsame Installerwelle aus alten pauschalen Offen-Zeilen ableiten.
+
 ## Geschlossene Teilumfänge nicht erneut testen
 
 | Alte pauschale Offen-Angabe | Späterer maßgeblicher Nachweis |

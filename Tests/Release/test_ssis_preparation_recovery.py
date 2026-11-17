@@ -123,14 +123,19 @@ class EvidenceTests(unittest.TestCase):
 
 class WindowsInstallerEvidenceTests(unittest.TestCase):
     def setUp(self):
-        self.report = json.loads((ROOT / validator.WINDOWS_RECORD).read_text())
-        self.recovery = json.loads((ROOT / validator.RECORD).read_text())
+        self.evidence_root = historical_root(ROOT, BASELINE)
+        self.report = json.loads((self.evidence_root / validator.WINDOWS_RECORD).read_text())
+        self.recovery = json.loads((self.evidence_root / validator.RECORD).read_text())
 
     def check(self, report=None, read=None):
-        validator.validate_windows_report(report or self.report, read or (lambda p: (ROOT / p).read_bytes()), self.recovery)
+        validator.validate_windows_report(report or self.report, read or (lambda p: (self.evidence_root / p).read_bytes()), self.recovery)
 
     def test_actual_windows_installer_scope_preserves_failed_gui(self):
         self.check()
+
+    def test_changed_current_binding_is_not_qualified_by_the_old_windows_record(self):
+        with self.assertRaisesRegex(ValueError, 'WINDOWS_SOURCE_BINDING'):
+            validator.validate_windows_report(self.report, lambda p: (ROOT / p).read_bytes(), self.recovery)
 
     def test_sql_login_and_new_privileges_cannot_become_windows_evidence(self):
         for field, value in [('client', 'SQL'), ('existing_sysadmin', False), ('new_permissions', True)]:
@@ -150,8 +155,8 @@ class WindowsInstallerEvidenceTests(unittest.TestCase):
 
     def test_changed_and_resealed_windows_method_rejected(self):
         path = validator.AREA + 'ClientGuiHook.ps1'
-        data = (ROOT / path).read_bytes() + b'\n# changed\n'
-        read = lambda p: data if p == path else (ROOT / p).read_bytes()
+        data = (self.evidence_root / path).read_bytes() + b'\n# changed\n'
+        read = lambda p: data if p == path else (self.evidence_root / p).read_bytes()
         with self.assertRaises(ValueError): self.check(read=read)
         r = copy.deepcopy(self.report); r['source_sha256'][path] = validator.digest(data)
         with self.assertRaises(ValueError): self.check(r, read)

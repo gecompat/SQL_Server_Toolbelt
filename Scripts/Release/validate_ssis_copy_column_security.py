@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import json
+from ssis_parser_binding_history import historical_dependency_source
 from ssis_historical_scope import copy_column_v1_scope, COPY_COLUMN_BASELINE
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -46,7 +47,7 @@ def validate(record=None,*,check_files=True):
             require(set(r['product_projection'])==product,'COMPLETE_PRODUCT')
             require(set(r['source_sha256'])==product|METHODS,'COMPLETE_METHODS')
             for name,digest in r['product_projection'].items():
-                old=(snapshot/name).read_bytes();data=(ROOT/name).read_bytes()
+                old=(snapshot/name).read_bytes();data=historical_dependency_source(ROOT,name)
                 require(hashlib.sha256(old).hexdigest()==digest,'BASELINE_SOURCE')
                 if name==MODULE+'Clr/Translator.cs':
                     text=data.decode('utf-8')
@@ -57,7 +58,7 @@ def validate(record=None,*,check_files=True):
                 require(data==old,'PRODUCT_PROJECTION')
         for name,digest in r['source_sha256'].items():
             p=(ROOT/name).resolve()
-            require(p.is_relative_to(ROOT.resolve()) and hashlib.sha256(p.read_bytes()).hexdigest()==digest,'SOURCE_DRIFT')
+            require(p.is_relative_to(ROOT.resolve()) and hashlib.sha256(historical_dependency_source(ROOT,name)).hexdigest()==digest,'SOURCE_DRIFT')
     return r
 
 def validate_review(record=None):
@@ -73,7 +74,7 @@ def validate_review(record=None):
     prior=json.loads(p.read_bytes())['reviewed_product_sha256']
     require(set(r['source_sha256'])==set(prior)|set(delta['source_sha256']),'REVIEW_SOURCE_CLOSURE')
     for name,digest in r['source_sha256'].items():
-        require(hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,'REVIEW_SOURCE_DRIFT')
+        require(hashlib.sha256(historical_dependency_source(ROOT,name)).hexdigest()==digest,'REVIEW_SOURCE_DRIFT')
     require(sum(r['source_sha256'][name]==digest for name,digest in prior.items())==12,'REVIEW_REUSE_PROJECTION')
     method=r['bounded_tls_method']
     require(method['repository']=='gecompat/SQL_Server_Lab' and method['path']=='Tests/Integration/Invoke-ToolbeltSsisCopyColumnTlsAcceptance.ps1' and method['sha256']=='65503e7c01ffc07bd5645fc303998bd93c23f055c34fa4a0f92f8181478c6b99' and method['private_bootstrap_originals_retained'] is True and method['review_result']=='SOURCE_ACCEPTED','TLS_METHOD_REVIEW')

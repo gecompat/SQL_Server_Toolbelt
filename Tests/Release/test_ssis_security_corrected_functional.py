@@ -1,4 +1,4 @@
-"""SQL-freie Gegenproben für die vollständige aktuelle ZIP-Abnahme."""
+"""SQL-freie Gegenproben der unveränderten historischen ZIP-/Produktbindung."""
 from pathlib import Path
 import copy
 import base64
@@ -12,7 +12,8 @@ import tempfile
 import unittest
 import zipfile
 
-ROOT=Path(__file__).resolve().parents[2]
+from ssis_historical_context import historical_root
+ROOT=historical_root(Path(__file__).resolve().parents[2], 'a299c7f20f994aeff2d0ed12edda6620e431142d')
 AREA='Modules/toolbelt.tsql.ssis-debug/'
 DRIVER=AREA+'Tests/Runtime/Invoke-SecurityCorrectedFunctionalLab.ps1'
 ARCHIVE=AREA+'InstallPackages/SSIS-Debug-SecurityCorrected-Install-Windows.zip'

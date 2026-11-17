@@ -1,5 +1,12 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+Der [gemeinsame aktuelle Installer](../../../Releases/1.0.0/CURRENT-INSTALL.md)
+verwendet die aktualisierte exakte Parserbindung und besitzt eine eigene
+[Installationsabnahme](../../../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md).
+Die folgenden separat gebundenen Standalone-Archive behalten ihre ursprünglichen
+Parser-/Providerbytes und Nachweise; sie werden nicht nachträglich verändert.
+
+
 ## Aktuelles Paket mit ANSI-Sicherheitskorrektur
 
 Verwende für den aktuellen Entwicklungsbuild [SSIS-Debug-SecurityCorrected-Install-Windows.zip](SSIS-Debug-SecurityCorrected-Install-Windows.zip)
