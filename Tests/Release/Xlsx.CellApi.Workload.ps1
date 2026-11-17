@@ -10,6 +10,9 @@ function Assert-XlsxCellApiWorkload($Runset, [int]$Index, [string]$Repository) {
     } elseif ($Runset.qualification_scope -ceq 'cell-client-rest') {
         if ($Index -notin @(1,2,3,4,5,6,7,8,9,10,11)) { throw 'XLSX_CELL_ALREADY_QUALIFIED_CONTEXT' }
         $names = @('Types.Metadata.ps1','Display.Metadata.ps1')
+    } elseif ($Runset.qualification_scope -ceq 'lifecycle-negative-rest') {
+        if($Index -notin @(0,1,2,3,4,5,6,7,8,9,10,11)){throw 'XLSX_LIFECYCLE_CONTEXT'}
+        $names=@('Display.Lifecycle.sql')
     } elseif ($Runset.qualification_scope -ceq 'genuine11-rest') {
         if($Index -notin @(0,1,2,3,4,5,6,7,8,9,10,11)){throw 'XLSX_GENUINE11_INDEX'}
         $names=@('Types.Metadata.ps1','Display.Metadata.ps1')

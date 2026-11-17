@@ -1,14 +1,8 @@
 # XLSX Binary Memory Reader
 
-Der [aktuelle genuine 1.1→1.2-Upgradeumfang](../../Releases/1.0.0/XLSX-GENUINE11-REST-QUALIFICATION.md) ist separat auf allen 24 lokalen/direkt zentralen Routen mit zwölf frischen Audits belegt. Keine Aufwertung zu vollständiger Lifecycle- oder Modulqualifikation.
-
-Der [aktuelle genuine 1.0→1.2-Upgradeumfang](../../Releases/1.0.0/XLSX-GENUINE10-REST-QUALIFICATION.md) ist auf 24 lokalen/direkt zentralen Routen mit 13 frischen Audits belegt. Historische ältere Upgradenachweise bleiben an ihre Originalbytes gebunden; übrige Lifecycle-/Consumerpflichten bleiben separat.
-
-Die [disjunkte native Zell-Clientergänzung](../../Releases/1.0.0/XLSX-CELL-CLIENT-REST-QUALIFICATION.md) schließt zusätzlich die dort benannten Typ-/Anzeige-Metadatenlücken; kein neuer Linux-Clienthost oder Katalognullability-Nachweis.
-
-Aktueller Nachweisabgleich 2026-11-16: [Typ-/Anzeige-Restfixtures](../../Releases/1.0.0/XLSX-CELL-API-REST-QUALIFICATION.md) und [native Vollgroessen-/Paketabnahme](../../Releases/1.0.0/XLSX-NATIVE-PACKAGE-QUALIFICATION.md) sind im jeweils benannten Scope bestanden. Die folgenden datierten 1.0-/1.1-/1.2-Teilstationen behalten ihre Originalgrenzen; pauschale alte Ziel-/Minimalrechte-Offenzeilen sind keine neue Testwarteschlange. [Echte Restqualifikation](../../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md).
-
 Dieses Modul verarbeitet ein vom Aufrufer übergebenes XLSX-Binary im Speicher und stellt zwei Raw-Reader-USPs bereit: eine Worksheetliste und die vorhandenen Rohzellen. Es führt keine Workbookinhalte aus und greift nicht auf Dateien oder Netzwerke zu. Die Objektverträge stehen unter [USP_ListXlsxWorksheets](Documentation/USP_ListXlsxWorksheets.md) und [USP_ReadXlsxWorksheetCells](Documentation/USP_ReadXlsxWorksheetCells.md); Type- und Anzeigeausgaben sind getrennte APIs.
+
+Aktuelle, getrennt gebundene Teilnachweise stehen im [Nachweisabgleich](../../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md) und der [XLSX-Testübersicht](Tests/README.md). Das Modul bleibt teilweise validiert und unveröffentlicht. Die nachfolgenden datierten 1.0-/1.1-/1.2-Berichte behalten ihre Originalquellen und Grenzen; alte pauschale Offen-Zeilen sind keine neue Testwarteschlange.
 
 Die [Raw-Caller-Evidenz](../../Releases/1.0.0/XLSX-RAW-CALLER-PROFILE.md) weist ein schmales Objektprofil für direkte und caller-lokale `ResultTable`-Ausgabe auf zwölf ausgewählten Ziel-/CL-Fällen nach. Der [Zell-Callerbericht](../../Releases/1.0.0/XLSX-CELL-CALLER-QUALIFICATION.md) deckt die getrennten Typ-/Anzeige-TVFs ab. Das Modul bleibt `partially validated`, `unreleased`; weitere Modul-, Client-, Lifecycle-, Ressourcen-, Identitäts- und Releasegates sind separat.
 

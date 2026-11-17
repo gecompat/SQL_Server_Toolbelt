@@ -1,6 +1,6 @@
 # Aktueller Abgleich: geschlossene Teilumfänge und echte Restqualifikation
 
-Stand 2026-11-16. Diese Übersicht ordnet spätere Nachweise vor älteren
+Stand 2026-11-17. Diese Übersicht ordnet spätere Nachweise vor älteren
 Offen-Formulierungen ein. Sie ersetzt keine Originalausführung, erweitert
 keine Freigabe und ist kein Gesamtfreigaberecord. Die [45-Modul-Übersicht](../../Tests/README.md#modulspezifische-testmatrizen)
 und jeweilige Modulmatrix bestimmen die tatsächlich zugesagten Pflichten.
@@ -15,6 +15,7 @@ Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 | XLSX: die benannten übrigen Typ-/Anzeige-Clientmetadaten fehlen | [37 neue Originalhelfer-Ausführungen mit 95 Readerfällen und elf frischen Fallaudits](XLSX-CELL-CLIENT-REST-QUALIFICATION.md). Der ursprüngliche Callback-Fehler und sein eigener Audit bleiben erhalten; Katalognullability und andere Client-/Consumerprofile bleiben separat. |
 | XLSX: genuine 1.0 auf heutigen 1.2-Build fehlt | [24 aktuelle Upgrade-Routen, 48 Metadatenhelfer und 13 frische Audits](XLSX-GENUINE10-REST-QUALIFICATION.md). Originale 1.0-Sources und zwei unabhängige bytegleiche Builds; keine Versionmarkerfälschung. Genuine 1.1 und andere Fehler-/Consumerprofile bleiben getrennt. |
 | XLSX: genuine 1.1 auf heutigen 1.2-Build fehlt | [24 aktuelle Upgrade-Routen, 48 Metadatenhelfer und zwölf frische Audits](XLSX-GENUINE11-REST-QUALIFICATION.md). Originale 1.1-Sources und zwei unabhängige bytegleiche Builds; ausgeführte CRLF-Testquellen zusätzlich exakt erhalten. Übrige Consumer-/Lifecycle-/Ownerprofile bleiben getrennt. |
+| XLSX: sämtliche Lifecycle-/Visibilityfehler pauschal offen | [528 aktuelle Negativfälle auf 24 Routen, zwölf frische Audits](XLSX-LIFECYCLE-NEGATIVE-REST-QUALIFICATION.md). Nur vier benannte Rollback-, zwei AppLock- und 16 synthetische 0/NULL-Profile je Route; echte Lowpriv-/Ownerrechte bleiben getrennt. |
 | XLSX: direkte Zell-/Raw-Callerrechte sind pauschal ungetestet | [Zellrechte](XLSX-CELL-CALLER-QUALIFICATION.md), [Raw-Rechte](XLSX-RAW-CALLER-PROFILE.md) und [Metadatenpflege](XLSX-METADATA-UPDATE.md). Andere Owner und echte gemappte CrossDB-Identitäten bleiben getrennt. |
 | Aggregate: vier große Entrygrenzen und Linux SQL2025/CL170 blockiert | [Aktuelle Timeoutkorrektur: 96 native Profile auf 24 Kontexten](JSON-AGGREGATE-NATIVE-TIMEOUT-FIX-QUALIFICATION.md). Alte fehlgeschlagene Koordinatoren bleiben fehlgeschlagen. Keine vollständige neue ZIP-Matrix daraus ableiten. |
 | Table Clone: W1/W2, Planner-/Executor-Grundrechte, SQLCMD-Abbruch und bekannte Vorgänger fehlen allgemein | [W1/W2](TABLE-CLONE-W1-W2-QUALIFICATION.md), [Planner](TABLE-CLONE-PLANNER-RIGHTS-QUALIFICATION.md), [Executor-Grundprofil](TABLE-CLONE-EXECUTOR-RIGHTS-QUALIFICATION.md), [SQLCMD](TABLE-CLONE-SQLCMD-CALLER-QUALIFICATION.md), [V1](TABLE-CLONE-GENUINE-V1-LIFECYCLE-QUALIFICATION.md) und [fünf bekannte Zwischenversionen](TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md). Erweiterte Rechte und andere Fehlerstellen bleiben getrennt. |
