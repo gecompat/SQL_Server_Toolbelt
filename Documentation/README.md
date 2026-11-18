@@ -10,14 +10,13 @@ verlinkte Fachverträge erläutern das Zusammenspiel mehrerer Objekte.
 
 ## Toolbelt zum ersten Mal installieren
 
-Die [Installationsanleitung Schritt für Schritt](../INSTALL.md) beginnt mit
-dem fertigen ZIP und führt über SSMS und eine neue Demodatenbank zu einer
-geprüften Installation samt ersten Aufrufen. Sie erklärt Voraussetzungen,
-erwartete Ergebnisse und konkrete Hilfe bei Fehlern, ohne einen eigenen Build
-für die stabilen T-SQL-Kandidaten vorauszusetzen.
-Für die zusätzlichen CLR-Module führt
-[CLR ohne eigenen Build installieren](../Releases/1.0.0/CLR-INSTALL.md)
-zu den fertigen DLLs und dem passenden SQL-Installationsprofil.
+Die [Installationsanleitung](../INSTALL.md) verwendet den gemeinsamen aktuellen
+Installer mit eingebetteten DLLs. Sie führt durch Windows-/Portable- und
+lokale/zentrale Profile, Rechte, CLR und Trust, SSMS-Ausführung und den ersten
+Hilfeaufruf. Erwartete Ergebnisse und Fehlerklärung stehen im selben Leseweg;
+ein eigener Build ist nicht erforderlich. Der Satz ist für leere ausgewählte
+Testdatenbanken bestimmt. Frühere Stable-/CLR-/Help-Pakete stehen getrennt in
+der [Releaseübersicht](../Releases/README.md#historische-pakete-und-nachweise).
 
 ## Queue und Worker verstehen und verwenden
 
@@ -36,9 +35,10 @@ belegte Plattform. Eine Zielplattform oder vorhandener Code bedeutet noch
 keine vollständige Validierung; den aktuellen Umfang bestimmen das jeweilige
 `module.yaml`, die Modulbeschreibung und ihre Testmatrix.
 
-Die [Vorbereitung des Gesamtpakets v1.0.0](../Releases/README.md) führt zur
-Freigabematrix mit stabilen und Preview-Kandidaten, zum prüfbaren Quellpaket
-und zu dessen Liefergrenzen. Es ist noch keine Version veröffentlicht.
+Die [Releaseübersicht](../Releases/README.md) trennt den aktuellen gemeinsamen
+Installer von früheren Kandidaten, Quellpaketen und ihren Nachweisgrenzen.
+Der bereits veröffentlichte Projektsnapshot ist historisch. Der heutige gemeinsame
+Installer ist unveröffentlicht; alle Modulmanifeste bleiben `unreleased`.
 
 ## Ein Modul kennenlernen und vorbereiten
 

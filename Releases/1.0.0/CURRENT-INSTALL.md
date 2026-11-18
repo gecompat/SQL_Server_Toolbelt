@@ -6,6 +6,14 @@ Portable schließt die vier Windows-only-Module aus; zentrale Installation schli
 Windows Filesystem und ZIP Files aus. Alle übrigen vorgesehenen Module und
 Abhängigkeiten sind enthalten. Keine Veröffentlichung oder pauschale Vollqualifikation.
 
+## Ausführlicher Anwenderweg
+
+Die [Schritt-für-Schritt-Anleitung](../../INSTALL.md) erklärt lokale und zentrale
+Installation, die vier Profile, Rechte, CLR, Paketprüfung, Trust, SSMS-Ausführung,
+Erfolgskontrolle und Fehlerbehandlung. Sie ist der gemeinsame Anwender-Einstieg.
+Das qualifizierte ZIP einschließlich seiner eingebetteten START-HERE.md bleibt
+bytegleich; die ausführliche Repositoryanleitung ergänzt diesen Paketstand.
+
 ## Voraussetzungen und Installation
 
 SQL Server 2019/2022/2025, vorhandene Installationsrechte und wirksames CLR.

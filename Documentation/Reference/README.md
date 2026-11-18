@@ -15,7 +15,7 @@ Statuswerte unterscheiden. Bei Prozeduren erklärt `@Hilfe=1` Parameter,
 Ergebnisse und Fehler. Für Installation, Rechte und tatsächlich ausgeführte
 Plattformtests der verlinkten Modulbeschreibung und Testmatrix folgen.
 Die vollständigen Parametertexte entsprechen den Objektseiten; dafür ist der
-[aktuelle Installationsstand der Parameterhilfe](../../Releases/1.0.0/PARAMETER-HELP.md)
+[gemeinsame aktuelle Installationsstand](../../INSTALL.md)
 erforderlich. Ein älteres installiertes Paket aktualisiert seine Hilfe nicht
 durch den Besuch dieser Referenz.
 Ein Beispiel mit registrierten Handlern, Claims oder Dateien setzt die dort
@@ -47,8 +47,12 @@ Auch Unterschiede zwischen gleich benannten Parametern werden geprüft.
 Gefundene Implementierungsgrenzen werden als solche beschrieben, nicht durch
 eine Dokumentationsänderung als behoben dargestellt.
 
-Die [HTML-Ansicht](API_CATALOG.html) lässt sich lokal im Browser durchsuchen;
-die [SQL-Beispielsammlung](API_EXAMPLES.sql) enthält einzeln auswählbare,
+Die [HTML-Ansicht](API_CATALOG.html) lässt sich nach dem Entpacken lokal im Browser
+durchsuchen. Auf GitHub wird HTML als Quelldatei angezeigt; dort den
+[Markdown-Katalog](API_CATALOG.md) verwenden. Die HTML-Seite ist eine Suchhilfe,
+kein vollständiger Markdown-Renderer: ihre Objektlinks führen zu den jeweiligen
+Markdown-Dateien, die ein geeigneter Viewer oder die GitHub-Dateiansicht darstellt.
+Die [SQL-Beispielsammlung](API_EXAMPLES.sql) enthält einzeln auswählbare,
 auskommentierte Beispiele. Sie legt keine Zieldatenbank fest. Beispiele mit
 Dateien, Handlern, Claims oder Plan-Hashes benötigen ihre beschriebenen
 Voraussetzungen und können Zustände verändern. Nicht gesammelt ausführen.
@@ -108,7 +112,7 @@ python Tests/Documentation/test_parameter_help.py
 
 Nach einer Änderung der SSIS-Hilfekonstante muss die DLL neu gebaut werden;
 eine reine SQL-Neuerzeugung genügt dort nicht. Der
-[Installationsweg](../../Releases/1.0.0/PARAMETER-HELP.md#erzeugung-und-nachweisgrenze)
+[Nachweis der ursprünglichen Help-Paketierung](../../Releases/1.0.0/PARAMETER-HELP.md#erzeugung-und-nachweisgrenze)
 erklärt Paketkopplung und Nachweisgrenzen. Der Generator castet lange Unicode-
 Texte bereits beim ersten Literal auf `nvarchar(max)`: Ein Cast erst nach der
 Verkettung würde eine vorherige 4000-Codeeinheiten-Trunkierung nicht rückgängig

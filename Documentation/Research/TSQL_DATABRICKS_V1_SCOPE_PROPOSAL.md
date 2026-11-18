@@ -24,6 +24,11 @@ der begrenzte Researchkern ist kein freigegebenes Produkt-V1.
 
 ## Vorgeschlagene erste Funktion
 
+**Lieferformentscheidung vom 2026-11-13:** Der Benutzer bestätigte ein lokales,
+eigenständiges Werkzeug für beide Richtungen (T-SQL → Databricks SQL und
+Databricks SQL → T-SQL). Dies legt keine Implementierungsfreigabe, Provider-
+Version, Databricks-Supportzusage oder native Databricks-Testabnahme fest.
+
 **Eine einzelne lesende Abfrage einschließlich nichtrekursiver CTEs und eines
 definierten APPLY-Teilumfangs in die Gegenrichtung übersetzen.** Ausgabe sind
 lesbares SQL und ein strukturierter Transformationsbericht. Keine automatische
