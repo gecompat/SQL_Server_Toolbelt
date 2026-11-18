@@ -144,4 +144,3 @@ bestand zwölf Kontexte mit 1.596 Assertions für echte Lowpriv-Cross-DB-SIDs
 und Windows-Ausführung. Die sichtbare SSMS-Prüfung verwendete eine SQL-Anmeldung;
 sie belegt keine Windows-Anmeldung in SSMS. Ursprüngliche Koordinatorfehler
 und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
-
