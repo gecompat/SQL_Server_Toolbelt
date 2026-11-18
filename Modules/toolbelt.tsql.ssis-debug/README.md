@@ -1,142 +1,51 @@
 # SSIS Data Flow Debug SELECT
 
-Der aktuelle unveröffentlichte Entwicklungsstand ist als
-[Installationspaket mit ANSI-Sicherheitskorrektur](InstallPackages/README.md#aktuelles-paket-mit-ansi-sicherheitskorrektur)
-verfügbar. Die [Prüfübersicht](Tests/README.md#frische-zip-und-ssms-abnahme-des-sicherheitskorrigierten-builds)
-trennt seine aktuellen Nachweise von historischen Lieferungen und nennt die
-verbleibenden Grenzen. Gesamtmodulstatus: teilweise validiert, unveröffentlicht.
+Dieses Modul erzeugt aus DTSX-Paketbytes eine bearbeitbare JSON-Bindungsvorlage
+und lesende Debug-Skripte fÃ¼r unterstÃ¼tzte SQL-Server-DatenflÃ¼sse. Es hilft,
+einen ausgewÃ¤hlten Datenflusspfad zu erklÃ¤ren und seine Abfrage nachvollziehbar
+zu prÃ¼fen. Es ist keine vollstÃ¤ndige SSIS-Runtime; beliebige Paketklassen oder
+Schreib-/AusfÃ¼hrungspfade werden nicht pauschal unterstÃ¼tzt.
 
-Der aktuelle Entwicklungsvertrag erzeugt aus DTSX-Bytes eine bearbeitbare
-JSON-Vorlage und lesende Debug-Scripts für SQL-Server-Datenflüsse. Für ein
-vollständig auflösbares Ziel bündelt `DebugScript` die benötigten
-Vorbereitungs-, Plan-, Ergebnis- und Bereinigungsbatches.
+## Installation und erster Datenflusspfad
 
-Für einen gebundenen SQL-Pfad über eine Derived Column erzeugt
-`procedure-definition` zusätzlich eine separat installierbare Prozedur und
-ein Manifest. Der [parametrisierte Aufruf](Documentation/USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
-verwendet typisierte Szenariowerte und liefert eine feste Zielprojektion.
+1. FÃ¼r Neuinstallation den [gemeinsamen aktuellen Installer](../../INSTALL.md)
+   mit einem Windows-Profil wÃ¤hlen. Das Modul benÃ¶tigt SQL Server unter Windows,
+   CLR, die exakte Parser-/ScriptDom-Dependency und bewusst eingerichteten Trust.
+   Das Portable-Profil enthÃ¤lt den SQL-SSIS-Provider nicht.
+2. Die [API-Anleitung](Documentation/USP_ExplainSsisDataFlow.md) erklÃ¤rt den
+   vollstÃ¤ndigen synthetischen Aufruf: DTSX-Bytes bereitstellen, mit
+   `bindings-template` die JSON-Vorlage erzeugen, Quellen/Ziele bewusst binden
+   und mit `explain` den gewÃ¤hlten Pfad prÃ¼fen. Parameter, feste Werte,
+   Ergebnisse und Fehler stehen dort; `@Hilfe=1` ergÃ¤nzt die installierte Hilfe.
+3. Das Ergebnis anhand des aufgelÃ¶sten Zielpfads und seiner Diagnosen beurteilen.
+   Nur ein unterstÃ¼tzter vollstÃ¤ndig auflÃ¶sbarer Pfad liefert den vorgesehenen
+   `DebugScript`-Umfang. SQL vor bewusster AusfÃ¼hrung prÃ¼fen; ein Modell oder
+   Scripttext ist noch keine erfolgte SSIS-PaketausfÃ¼hrung.
+4. FÃ¼r Wiederverwendung des freigegebenen Derived-Column-Pfads den
+   [typisierten Prozedurvertrag](Documentation/USP_ExplainSsisDataFlow.md#geprÃ¼ften-zielpfad-als-prozedur-wiederverwenden)
+   beachten. Copy Column hat [eigene Grenzen und Beispiele](Documentation/CopyColumnV1.md)
+   und erweitert nicht automatisch den Prozedurdefinitionsumfang.
 
-Copy Column V1 ist als zusätzlicher Debug-SQL-Stage implementiert und im
-[additiven Vertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md#additiver-einzelfunktionsvertrag-copy-column-v1--2026-11-13)
-konkret freigegeben. Die [Anleitung](Documentation/CopyColumnV1.md) zeigt Quellbindung
-und Ergebnis. Die [Deltaabnahme](Tests/README.md#copy-column-v1-deltaabnahme)
-belegt den neuen Explain-Zweig und seine getrennte Prozedurabweisung. Der
-[Windows-/Linux-Modellhost des C7-Builds](Exchange/README.md#aktueller-modellhost-nach-copy-column-v1)
-besteht separat 50 CLI-/Modellfälle mit 610 Assertions. Die
-[ZIP-Liefermatrix](InstallPackages/README.md#aktueller-entwicklungsstand-mit-copy-column-v1)
-belegt Archivinstallation und Lebenszyklus in zwölf Windows-Kontexten.
-Der [sichtbare SSMS-Gesamtfall des C7-Builds](Tests/README.md#aktuelle-ssms-abnahme-am-copy-column-archiv)
-besteht am unveränderten C7-Archiv mit Windows-Anmeldung, vollständiger Unicode-Kopie,
-nativer SQLCMD-Stopprobe, Phase-2-Receipt und frischem Windows-Abschlussaudit.
-Die [vollständige funktionale C7-ZIP-Matrix](Tests/README.md#vollständige-funktionale-aktuelle-zip-abnahme)
-besteht auf zwölf Windows-/CL-/Moduskontexten mit 15.204 Assertions und zwölf
-frischen Audits einschließlich Prozedur und konkret freigegebener Minimalrechte.
-Bisherige umfassende Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden.
+| Ich mÃ¶chte â€¦ | NÃ¤chste Seite |
+|---|---|
+| Bindungen, Parameter, Resultsets und Fehler verstehen | [Ã–ffentliche API](Documentation/USP_ExplainSsisDataFlow.md) |
+| Komponenten und Ressourcenlimits nachschlagen | [Aktueller Fachvertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md) |
+| Das neutrale Modell auÃŸerhalb SQL Servers exportieren | [Windows-/Linux-Modellhost](Exchange/README.md) â€” eigener Hostvertrag, kein Linux-SQL-CLR-Provider |
+| Eine bestehende Installation Ã¤ndern oder entfernen | [Modul-Lifecycle und Deployment](../../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md) |
+| Nachweise und nicht geprÃ¼fte UmfÃ¤nge beurteilen | [PrÃ¼fÃ¼bersicht](Tests/README.md) |
+| Ein frÃ¼heres Standalone-Paket nachvollziehen | [Gebundene Einzelpakete](InstallPackages/README.md) |
 
-Der [neutrale Modellaustausch mit Analyze](Exchange/README.md) verwendet
-denselben typisierten Kern und einen externen .NET-Host. Analyze verarbeitet
-das Modell ohne CLR- oder Toolbelt-Installation. Die bestehenden
-Debug-SQL-Ausgaben und der neutrale Export verwenden denselben Modellkern.
-Der externe Host besitzt einen getrennten, begrenzten
-[nativen Windows-/Linux-Nachweis](Exchange/README.md#gemeinsame-prüfung).
+## Nachweisgrenzen und historische Lieferungen
 
-Der aktuelle Standard verwendet `bindings-template` und `explain` ohne
-Profil-Opt-in. Die bearbeitbare Vorlage verwendet `schemaVersion: 2` und
-`profile: "ssis-debug-components-v2"`; ein `bindings-template-v2`-Alias oder
-ein öffentlicher V1-API-Pfad wird nicht angeboten. Die verbindliche
-[API-Semantik](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md)
-ergänzt den weiterhin geltenden [Komponentenvertrag](../../Documentation/Architecture/SSIS_COMPONENTS_V2_CONTRACT.md).
-Ressourcenlimits werden über 24 benannte `bigint`-Parameter gesetzt; `0` ist
-unbegrenzt und JSON-Ressourcenoptionen sind ungültig.
-
-Die [historische Komponenten-V2-Installation](Documentation/ComponentsV2Installation.md)
-beschreibt die bereits qualifizierten, unveränderten Vorgängerartefakte. Sie ist
-kein Nachweis des aktuellen SQL-Parametervertrags oder einer aktuellen Lieferung.
-Die [Anleitung für den aktuellen Entwicklungsstand](Documentation/CurrentInstallation.md)
-beschreibt das V1-ZIP und trennt es von den bisherigen Installern. Sie zeigt
-Vorlage, Parameter und `DebugScript`-Verwendung.
-Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
-SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
-ausgewiesen. Die ZIP-, Installer- und Snapshotnachweise werden nur bei
-unveränderten Artefakt- und Quellbindungen weiterverwendet. Die aktuelle
-Funktionsabnahme prüft den heutigen Defaultvertrag separat.
-Head-/Main-CI und Integration werden am jeweiligen PR-/Merge-Head separat
-nachgewiesen. Die vorhandene Windows-Funktionsqualifikation gilt für ihre
-gebundenen Buildbytes. Die parametrisierte Prozedurdefinition hat einen
-[eigenen Prüfstand](Tests/README.md#parametrisierte-prozedurdefinition-v1).
-Die [aktuelle Gesamtabnahme](Tests/README.md#gesamtabnahme-des-korrigierten-builds)
-führt die nativen Prüfungen des korrigierten Builds und die ausdrücklich
-übertragbaren älteren Nachweise zusammen. Die
-[frische Ausgabeabnahme](Tests/README.md#frische-buildgebundene-ausgabeabnahme)
-ergänzt die vollständige neue ZIP-Matrix sowie aktuelle sichtbare SSMS- und
-strikte TLS-Gesamtfälle am selben DLL. Der vereinbarte Debugvertrag ist
-`validated`. Das [aktuelle Installationspaket](InstallPackages/README.md)
-enthält den korrigierten Fehlerabbruch der erzeugten Prozeduren. Historische
-Paketbytes und ihre ursprünglichen Ausführungsergebnisse bleiben erhalten.
-Das Modul bleibt `unreleased`.
-
-Das [vollständige SSMS-Beispiel](Examples/README.md) mit
-[`SsmsDebugWalkthrough.sql`](Examples/SsmsDebugWalkthrough.sql) und synthetischer
-DTSX-Fixture zeigt Import, JSON-Vorlage, Werteänderung, Stufenauswahl und direkte
-DECLARE-Änderungen einschließlich erwarteter Ergebnisse und Cleanup.
-
-Die [Installationsanleitung](Examples/Installation/README.md) enthält die
-SQL-Server-Vorbereitung, einen PowerShell-Installer mit Offline-Artefaktprüfung
-und die anschließende Installationskontrolle für Parser, ResultTable und
-SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
-
-Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den qualifizierten SSIS-Build mit Pipeline-Identitäten und qualifizierten Lookup-Ausgangsrollen einschließlich
-passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
-Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
-Build- und Paketnachweise stehen getrennt in der Prüfmatrix.
-
-Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
-Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz
-gelesen. Connections werden explizit auf Datenbanken abgebildet; Credentials
-und Connection Strings gehören in keines der JSON-Dokumente.
-
-Quell-, Referenz- und zulässige Kataloglesezugriffe erhalten `WITH (NOLOCK)`.
-Damit können unbestätigte, fehlende oder doppelt gelesene Zeilen auftreten;
-Schemasperren bleiben möglich. Vollständige SSIS-Laufzeitgleichheit wird nicht
-behauptet. Lookup-Mehrfachtreffer werden über den vollständigen effektiven
-Schlüssel reduziert und in sitzungslokalen Temp-Tabellen für weitere
-Prüfstufen festgehalten. Eine eigene `CleanupSql`-Zeile räumt sie auf.
-
-Optionale Quellinstallation für die Entwicklung: Parser 2.0.1 und Result Table 1.0.0
-separat installieren, Release
-mit `Scripts/New-ClrReleaseArtifacts.ps1` reproduzierbar bauen, den exakten
-Assemblyhash administrativ freigeben und `Artifacts/Deploy.WithAssembly.sql`
-im SQLCMD-Modus mit `DeploymentMode=local` oder `central` ausführen. Der
-UNSAFE-/Strict-Security-Vertrag wird nicht aufgeweicht. Shared Dependencies
-und Trusteinträge werden beim Uninstall nicht entfernt.
-Der getrennte [administrative SSIS-Trustschritt](Tests/InstallerTrust/README.md)
-ist auf Windows SQL2019/2022/2025 geprüft. Die [öffentliche Servervorbereitung](Tests/README.md#aktuelle-vorbereitung-und-harte-clientabbrüche)
-ist für diese drei Versionen getrennt qualifiziert. Der sichtbare
-[Windows-/SSMS-Gesamtfall](Tests/README.md#nativer-windows-ssms-gesamtfall)
-umfasst die Windows-Erst- und Wiederholungsinstallation auf SQL2025/CU8,
-die SQLCMD-Stopprobe und die vollständige DebugScript-Ausführung mit Receipt.
-
-Die aktuelle Funktionsabnahme bindet den heutigen Source-Build an das vorhandene
-[Parameter-Help-Paket](../../Releases/1.0.0/PARAMETER-HELP.md). Sie umfasst zwölf
-Windows-/Engine-/CL-/Moduskontexte mit 12.396 Assertions und getrennten Audits.
-Die [Prüfmatrix](Tests/README.md) erklärt Komponenten-, API-, Callerrechte-,
-Lifecycle- und Ressourcenabdeckung, weiterverwendete Belege und die getrennten
-Supportgrenzen. Frühere Pipeline-/Scope-Builds und echte Upgradepfade behalten
-ihre eigenen datierten Nachweise. Das Modul bleibt unveröffentlicht.
-Die Abnahme verwendet `TestPurpose=Functional` mit dem ausdrücklich
-gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
-ist Serverzertifikatsprüfung keine fachliche Voraussetzung. Die getrennte
-authentifizierte [TLS-Abnahme](Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json)
-bestand zusätzlich auf einem eigenen Windows-/Hyper-V-SQL-2025-RTM-Run:
-412 Assertions in local/central, CL170, signierter V2-Snapshot vor jeder
-Anmeldung, Encrypt=True und TrustServerCertificate=False. Abschlussaudit und
-Entfernung des eigenen Runs sind bestanden; bestehender Hosttrust blieb erhalten.
-Die zusätzliche [Anmeldequalifikation](Tests/Qualification/Current.Access.Windows.CL.20261031.json)
-bestand zwölf Kontexte mit 1.596 Assertions für echte Lowpriv-Cross-DB-SIDs
-und Windows-Ausführung. Die sichtbare SSMS-Prüfung verwendete eine SQL-Anmeldung;
-sie belegt keine Windows-Anmeldung in SSMS. Ursprüngliche Koordinatorfehler
-und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
+Der gemeinsame Installer besitzt eine [eigene Installationsabnahme](../../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md).
+Sie qualifiziert seine Komposition und Hilfe, nicht alle ursprÃ¼nglichen
+GUI-/TLS-/SicherheitsfÃ¤lle fÃ¼r neue Providerbytes. Die frÃ¼heren Standalone-ZIPs
+und Records bleiben an ihre Originalbinaries gebunden. Der
+[historische Modulleitfaden](../../Documentation/History/SSIS_MODULE_GUIDE_2026-11-17.md)
+erhÃ¤lt die bisherigen ausfÃ¼hrlichen Build- und Abnahmenotizen. Das Modul bleibt
+teilweise validiert und unverÃ¶ffentlicht. Bei Installationsfehlern zuerst die
+[FehlerklÃ¤rung](../../INSTALL.md#wenn-etwas-nicht-funktioniert) lesen; bei
+Pfad-/Komponentenproblemen zur API-Diagnose und zum Fachvertrag zurÃ¼ckgehen.
 
 ## Aktuelle Validierungsevidenz
 
@@ -147,6 +56,6 @@ und die getrennten erfolgreichen Abschlussaudits bleiben nachvollziehbar.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
-Der optionale externe [Begleittransport für native Objektkennungen](Exchange/README.md#native-objektkennungen-als-begleittransport)
-verwendet denselben Paketkern. Er liefert GUIDs für eine separat zu belegende
-Analyze-Korrelation und enthält weder einen Logdecoder noch ein Laufzeiturteil.
+Der optionale externe [Begleittransport fÃ¼r native Objektkennungen](Exchange/README.md#native-objektkennungen-als-begleittransport)
+verwendet denselben Paketkern. Er liefert GUIDs fÃ¼r eine separat zu belegende
+Analyze-Korrelation und enthÃ¤lt weder einen Logdecoder noch ein Laufzeiturteil.

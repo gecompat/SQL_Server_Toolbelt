@@ -1,5 +1,24 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Bereinigter Planungsstand – 2026-11-18
+
+Der aktuelle Auftrag betrifft Anwenderdokumentation und lokale Bereinigung,
+keine neue Fachfunktion, SQL-/TLS-Testwelle oder Veröffentlichung. Frühere
+uncommittete Planungsentwürfe sind vollständig privat erhalten; veraltete
+Offenlisten daraus ersetzen keine späteren gültigen Nachweise.
+Der [Abgleich der erforderlichen Restpunkte](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md)
+und die [gemeinsame Installationsabnahme](../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md)
+begrenzen die aktuellen Aussagen. Historische Einträge unten bleiben erhalten.
+
+Eindeutige noch nicht implementierte Planungsrichtungen stehen im
+[bereinigten Kandidatenplan](../Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md):
+vollständige ZIP-Dateisystemextraktion und ein separates lokales bidirektionales
+SQL-Dialektwerkzeug benötigen weiterhin den konkreten Vertragsabschluss und
+eine eigene Implementierungsfreigabe. Vorhandene Caller-/ServiceAccount-
+Identitäten reichen aus; kein zusätzlicher RunAs-Modus ist beauftragt.
+Allgemeine alte „ready“- oder Qualifikationslisten sind kein neuer Arbeitsauftrag.
+
+
 ## SSIS Copy Column: vollständige aktuelle funktionale ZIP-Matrix — 2026-11-15
 
 Die [neue funktionale Abnahme](../Releases/1.0.0/SSIS-COPY-COLUMN-FUNCTIONAL-ZIP-QUALIFICATION.md)

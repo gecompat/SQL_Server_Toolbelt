@@ -1,5 +1,17 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Dokumentation und Bereinigung – Auftrag 2026-11-18
+
+Der unmittelbare Benutzerauftrag autorisiert genau eine Dokumentations- und
+Bereinigungsintegration: lokale Entwürfe mit heutigen Quellen/Nachweisen
+abgleichen, Anwenderlesewege vereinheitlichen, einzigartige Branchcommits und
+private Dateien wiederherstellbar sichern und entbehrliche Arbeitsstände
+entfernen. Keine neue Fachimplementierung, SQL-/TLS-Tests, Veröffentlichung
+oder Tags. Erforderliche Offline-/Dokumentationsprüfungen und tatsächliche
+Head-/Main-CI bleiben Integrationsgates; nach Abschluss bleibt der Wellenstopp
+bestehen. Frühere Nachweise und geschlossene Laufgrenzen bleiben erhalten.
+
+
 ## Gemeinsamer aktueller Installer – Anschlussauftrag 2026-11-17
 
 Der neue unmittelbare Benutzerauftrag autorisiert den gemeinsamen aktuellen

@@ -6,6 +6,25 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 
 Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
 
+## Statusabgleich und heutige Verwendung – 2026-11-18
+
+Die folgenden Einzelkandidaten erhalten ihre ursprünglichen Planungsstände.
+Sie sind keine aktuelle Liste fehlender Implementierungen. Maßgeblich sind
+der [bereinigte Kandidatenplan](TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md),
+die [heutigen Modulmanifeste](../Modules/README.md) und der
+[notwendige Restumfang](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md).
+Ein teilweise validiertes Modul ist nicht automatisch eine neue Entwicklungswelle.
+
+Regex-, JSON-Aggregat-, Split-, Table-Clone- und XLSX-Slices sind bereits
+implementiert; ältere Ready-/Deferred-Zeilen dürfen sie nicht erneut beauftragen.
+TC-2026-034 trennt die vorhandenen Writer-/Einzel-Entry-Funktionen von der noch
+nicht implementierten [vollständigen Dateisystemextraktion](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md).
+TC-2026-049: die am 13. November bestätigten Caller-/ServiceAccount-Profile
+reichen aus; kein zusätzlicher RunAs-Modus. Das lokale bidirektionale
+[SQL-Dialektwerkzeug](../Documentation/Research/TSQL_DATABRICKS_V1_SCOPE_PROPOSAL.md)
+bleibt ein Vorschlag ohne Implementierungsfreigabe. Weitere externe Capabilities
+und zusätzliche Formatprovider bleiben bedarfsabhängig, ohne automatische Arbeit.
+
 ## TC-2026-001: String-Split mit mehreren Trennzeichen
 
 | Feld | Wert |
@@ -819,6 +838,18 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-09-11 |
 | **Nächster Schritt** | Der [Vorschlag für ZIP-Erzeugung](../Documentation/Architecture/ZIP_CREATION_PROPOSAL.md) begrenzt den offenen Slice auf eine typisierte In-memory-Entryliste und Binaryoutput. ZIP-Erzeugung erst nach eigener Vertrags- und Implementierungsfreigabe beginnen; Datei-I/O bleibt getrennt. |
+
+> Statuskorrektur 2026-11-13 — Codex: Die vorherige Nächster-Schritt-Zeile
+> ist historisch überholt. `USP_CreateZipFromEntries` wurde nach ausdrücklicher
+> Freigabe implementiert und in `toolbelt.archive.zip-memory` 1.3.0 aufgenommen;
+> der öffentliche Vertrag und die Writer-Testevidenz stehen im Modul. Die
+> aktuelle Freigabe zur weiteren Besprechung betrifft ausschließlich die
+> vollständige ZIP-Archivextraktion ins Dateisystem. Sie ist als eigener
+> [Vertragsvorschlag](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md)
+> vorbereitet; sie besitzt noch keine Source-/Runtime-Implementierungsfreigabe.
+> Vorhandene ZIP-Files-Fassaden extrahieren einen einzelnen Entry beziehungsweise
+> erzeugen ein Archiv aus Dateieingaben und ersetzen keine vollständige
+> Archiv-zu-Verzeichnis-Extraktion.
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 

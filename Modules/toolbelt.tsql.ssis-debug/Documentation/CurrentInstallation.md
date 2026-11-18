@@ -1,5 +1,21 @@
 # Aktuellen SSIS-Debug-Stand installieren und verwenden
 
+## Heutige Neuinstallation
+
+Für eine leere ausgewählte Testdatenbank den [gemeinsamen aktuellen Installer](../../../INSTALL.md)
+mit Windows-local oder Windows-central verwenden. Die Anleitung erklärt Rechte,
+CLR/Trust, Profilauswahl, ersten Aufruf und Fehlerklärung. Für den anschließenden
+DTSX-Pfad gelten [API und Beispiele](USP_ExplainSsisDataFlow.md). Das Portable-Profil
+enthält den SSIS-SQL-Provider nicht.
+
+Die folgenden Abschnitte beschreiben **historische, separat gebundene
+Standalone-Lieferungen**. Ihre Worte „aktuell“ und ihre Abnahmen beziehen sich
+auf den jeweiligen damaligen Build. Sie sind kein alternativer aktueller
+Gesamtinstaller und aktualisieren keine vorhandene Installation automatisch.
+Der heutige Gesamtinstaller und seine Installationsabnahme sind getrennt von
+ursprünglichen Fach-/SSMS-/TLS-/Sicherheitsnachweisen zu lesen.
+
+
 Das SSIS-Modul ist nicht als unterstützte Modulversion veröffentlicht. Es verwendet den aktuellen
 Komponentenumfang ohne Versionsschalter. Historische V1-/V2-Dateien sind keine
 Lieferung dieses API-Standards. Der fachliche Vertrag steht in
@@ -22,8 +38,8 @@ Trust-Override wird daraus nicht zu Windows-Anmeldung mit authentifiziertem TLS.
 Das Modul bleibt teilweise validiert und unveröffentlicht.
 
 Die nachfolgenden Qualified-/Prozedur-V1-Beschreibungen und ihre früheren
-Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden. Für neue
-Installationen einschließlich `procedure-definition` verwende das aktuelle Paket oben.
+Gesamtabnahmen bleiben an ihre ursprünglichen Builds gebunden. Für die historische
+Standalone-Installation einschließlich `procedure-definition` gilt das jeweils gebundene Paket.
 
 ## Prozedurdefinition V1 installieren
 

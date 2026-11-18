@@ -9,7 +9,9 @@ Parser-/Providerbytes und Nachweise; sie werden nicht nachträglich verändert.
 
 ## Aktuelles Paket mit ANSI-Sicherheitskorrektur
 
-Verwende für den aktuellen Entwicklungsbuild [SSIS-Debug-SecurityCorrected-Install-Windows.zip](SSIS-Debug-SecurityCorrected-Install-Windows.zip)
+Dieser Abschnitt beschreibt das separat gebundene Standalone-Paket vom
+16. November 2026. Für eine heutige gemeinsame Neuinstallation gilt der
+[Anwenderweg](../../../INSTALL.md). Für den damaligen Standalone-Build verwende [SSIS-Debug-SecurityCorrected-Install-Windows.zip](SSIS-Debug-SecurityCorrected-Install-Windows.zip)
 und seine [Prüfsumme](SSIS-Debug-SecurityCorrected-Install-Windows.zip.sha256). Es enthält die kataloggeprüfte
 ANSI-Lineage-Korrektur und dieselbe DLL wie die getrennte strikte TLS- und
 Sicherheitsabnahme. Entpacke das Archiv, prüfe die Prüfsumme und folge der

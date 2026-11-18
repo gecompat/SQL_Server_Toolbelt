@@ -35,15 +35,17 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 ## Installation und erster Test
 
 Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
-Die Anleitung erklärt Download, SSMS-Anmeldung, neue Demodatenbank,
-Installation, erwartete Testergebnisse und Hilfe bei Fehlermeldungen.
-Für den Einstieg mit den stabilen T-SQL-Kandidaten ist kein eigener Build nötig.
-Für CLR-Module gibt es zusätzlich die
-[Installation mit fertigen DLLs](./Releases/1.0.0/CLR-INSTALL.md), ebenfalls ohne eigenen Build.
+Der gemeinsame aktuelle Installer enthält fertige SQL-Skripte und DLLs für
+Windows/Linux sowie lokale/zentrale Neuinstallation. Die Anleitung erklärt
+Profilauswahl, Rechte, CLR und Trust, SSMS, ersten Aufruf und Fehlerklärung.
+Ein eigener Build ist nicht erforderlich. Der Satz ist ein unveröffentlichter
+Entwicklungskandidat für leere ausgewählte Testdatenbanken.
 
-Die [aktuelle Neuinstallation mit vollständiger Parameterhilfe](./Releases/1.0.0/PARAMETER-HELP.md)
-liefert die ausführlichen Eingabeverträge auch über `@Hilfe=1`;
-ältere, datierte Installationspakete enthalten ihren damaligen Hilfestand.
+Für die Nutzung führen die [Modulübersicht](./Modules/README.md),
+die [Lesewege](./Documentation/README.md) und die
+[durchsuchbare API-Referenz](./Documentation/Reference/API_CATALOG.html)
+zu Beispielen und verbindlichen Objektbeschreibungen. Ältere Pakete und
+veröffentlichte Projektsnapshots stehen getrennt in der [Releaseübersicht](./Releases/README.md).
 
 ## Zweck
 

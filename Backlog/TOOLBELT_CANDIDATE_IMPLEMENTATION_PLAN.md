@@ -1,5 +1,33 @@
 # Implementierungsplan für Toolbelt-Kandidaten
 
+## Bereinigter Planungsstand – 2026-11-18
+
+Dieser Plan trennt Entwurf, tatsächliche Implementierung und notwendige
+Qualifikation. Die ursprüngliche Septemberplanung unten bleibt Historie.
+Die vollständig gesicherten lokalen Novemberentwürfe enthielten überholte
+Offenlisten; sie sind keine aktuelle Qualifikations- oder Ausführungsfreigabe.
+Aktueller Bestand und Versionen stehen in der [Modulübersicht](../Modules/README.md),
+notwendige Restarbeit und ausgeschlossene Zusatzuntersuchungen im
+[Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md).
+
+| Thema | Eindeutiger Planungsstand und Wiederaufnahmebedingung |
+|---|---|
+| ZIP-Vollarchivextraktion, TC-2026-034 | Vorhandene In-memory-Writer und Einzel-Entry-Dateifassaden bleiben implementiert. Der [neue Vorschlag](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md) erhält die Benutzerentscheidungen zu allen Entries, Directoryanlage, Stop beim ersten Fehler, Status pro Entry, steuerbaren Grenzen und Overwrite standardmäßig aus. Ergebnissechema, Signatur und technischer Bereich sind vor eigener Implementierungsfreigabe abzuschließen. |
+| Lokales SQL-Dialektwerkzeug | Die bestätigte Richtung ist eigenständig und bidirektional; [V1-Vorschlag](../Documentation/Research/TSQL_DATABRICKS_V1_SCOPE_PROPOSAL.md). Keine SQL-Ausführung und keine USP-Fassade. Provider-/Databricks-Profil und Ergebnis-/Ablehnungsvertrag bleiben vor Source zu entscheiden. |
+| SSIS-Klassenabdeckung | [Inventur und Klassenplan](SSIS_BUILTIN_CLASS_SUPPORT_PLAN.md) mit dem aktuellen Debugvertrag abgleichen. Bereits implementierte V2-/Copy-Column-Slices nicht erneut entwickeln; weitere Klassen nur bei konkretem Bedarf und ausdrücklicher Einzelvertragsfreigabe. |
+| Externe PowerShell-, Python-, REST- und KI-Capabilities | Das [gemeinsame Capability-Gate](../Documentation/Architecture/EXTERNAL_CAPABILITY_GATE_PROPOSAL.md) verlangt zuerst einen konkreten Use Case, Daten-/Secret-Grenze, Provider, Rechte, Input/Output, Limits und Fehlervertrag. Kein generischer Frameworkausbau auf Vorrat. |
+| Zusätzliche Kompressions-, Datei- oder Ausführungsprovider | Ohne konkret ungedeckten Anwendungsfall geparkt. Bestehende Module und ihre qualifizierten Grenzen zuerst verwenden. |
+| Identitäten, TC-2026-049 | Vorhandene Caller-/ServiceAccount-Profile genügen gemäß Entscheidung vom 13. November. Kein neuer RunAs-/ExecutionIdentity-Modus. |
+
+Vor Wiederaufnahme Quellen und spätere Nachweise abgleichen, bereits erfüllte
+Punkte schließen und nur eine echte notwendige Lücke planen. Eine Idee oder
+Richtungsentscheidung erteilt keine Funktions-, Rechte-, Lab-, Testlauf- oder
+Veröffentlichungsfreigabe. Der Dokumentations-/Bereinigungsauftrag vom
+18. November startet keine SQL-/TLS-Tests oder zusätzliche Fachentwicklung.
+
+## Ursprüngliche Planung und datierte Fortschritte
+
+
 Stand: 2026-09-11
 
 Fortschritt 2026-10-05: RI-2026-041 und die notwendige128er-Prioritätsänderung
