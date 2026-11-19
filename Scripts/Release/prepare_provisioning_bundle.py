@@ -35,7 +35,23 @@ def payload(commit):
     base.require(evidence['actual_clr_activations'] >= 1 and evidence['new_tls_gui_tests'] is False, 'CLR-Übergang/Scope fehlt')
     base.require(evidence['safety'] == {'result':'COMPLETE','checks':3,'audit':'PASS','new_databases':0}, 'Native Sicherheitsgrenzen fehlen')
     base.require(evidence['history']['initial_native_state'] == 'FAILED_CLEANED'
-                 and evidence['history']['initial_fresh_audit'] == 'PASS', 'Frühere Fehler/Audit fehlen')
+                 and evidence['history']['initial_fresh_audit'] == 'PASS'
+                 and evidence['history']['failed_coordinator_promoted_to_pass'] is False, 'Frühere Fehler/Audit fehlen')
+    base.require(evidence['scope']['authentication'] == 'explicit SqlCredential'
+        and evidence['scope']['native_windows_integrated_login'] == 'not executed'
+        and evidence['scope']['module_requalification'] is False
+        and evidence['module_release_status_changed'] is False, 'Qualifikationsscope aufgewertet')
+    for case in evidence['cases']:
+        profiles=case['profile_sources']
+        base.require(len(profiles)==2 and {p['mode'] for p in profiles} == {'local','central'}, 'Profilzuordnung fehlt')
+        for profile in profiles:
+            expected_count=(45 if profile['mode']=='local' else 43) if case['platform']=='windows' else 41
+            partial=case['platform']=='windows' and case['sql_version']=='2019' and profile['mode']=='local'
+            base.require(profile['receipt']=='INSTALLED' and profile['fresh_audit']=='PASS'
+                and profile['modules']==expected_count and profile['native_state']==('FAILED_CLEANED' if partial else 'COMPLETE'),
+                'Profil-/Fehlernachweis falsch zugeordnet')
+    base.require(evidence['offline']['synthetic_assertions']==122 and
+        evidence['offline']['source_sha256']==base.sha(base.git_file(commit,'Deployment/Tests/Test-InstallerProvisioning.ps1').replace(b'\r\n',b'\n')), 'Offline-Gegenprobenbindung fehlt')
     for path,digest in evidence['method_source_sha256'].items():
         base.require(base.sha(base.git_file(commit,path).replace(b'\r\n',b'\n')) == digest, 'Methodendrift: '+path)
     matrix_commit=evidence['matrix_source_commit']

@@ -52,6 +52,21 @@ class ProvisioningBundleTests(unittest.TestCase):
                     capture_output=True,text=True,encoding='utf-8',timeout=180)
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
+    def test_native_summary_cannot_promote_failed_case_or_expand_scope(self):
+        from unittest.mock import patch
+        original=base.git_file
+        for scenario in ('failed','modules','scope','promotion','safety'):
+            evidence=json.loads(self.files[bundle.EVIDENCE])
+            if scenario=='failed':evidence['cases'][0]['profile_sources'][0]['native_state']='COMPLETE'
+            elif scenario=='modules':evidence['cases'][0]['profile_sources'][0]['modules']=1
+            elif scenario=='scope':evidence['scope']['native_windows_integrated_login']='PASS'
+            elif scenario=='promotion':evidence['history']['failed_coordinator_promoted_to_pass']=True
+            else:evidence['safety']['audit']='not executed'
+            def replaced(commit,path):
+                return base.encoded(evidence) if path==bundle.EVIDENCE else original(commit,path)
+            with patch.object(base,'git_file',side_effect=replaced):
+                with self.assertRaises(ValueError,msg=scenario):bundle.payload('HEAD')
+
     def test_checksums_licenses_and_local_links(self):
         import re,posixpath
         for line in self.files[base.SUMS].decode().splitlines():
