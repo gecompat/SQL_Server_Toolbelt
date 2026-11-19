@@ -1,2 +1,4 @@
 # Eingefrorene Lieferbytes einschließlich CR/LF-Prüfsummendateien erhalten.
 * -text whitespace=cr-at-eol
+# Fertige Archive gehören zur Lieferung, nicht rekursiv in Quell-Exporte.
+*.zip export-ignore

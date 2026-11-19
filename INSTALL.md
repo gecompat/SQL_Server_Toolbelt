@@ -49,9 +49,9 @@ Handlern brauchen später ihre modulspezifische Vorbereitung.
 
 ## 3. ZIP prüfen und vollständig entpacken
 
-Lade [den gemeinsamen Installer](Releases/1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
-und [seine SHA256-Datei](Releases/1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256)
-aus demselben Repositorystand. Auf GitHub jeweils **Download raw file** verwenden.
+Lade [den gemeinsamen Installer](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.2/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
+und [seine SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.2/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256)
+aus demselben Vorabrelease. Die Links laden die Release-Assets direkt herunter.
 Prüfe die heruntergeladene ZIP, beispielsweise in PowerShell:
 
 ```powershell

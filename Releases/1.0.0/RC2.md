@@ -25,6 +25,9 @@ Beide Archive wurden aus dem geprüften Main-Quellstand
 `78fb85711bc0b4dd053ed9354399f1b34e52e875` gebaut. Der Release-Tag bezeichnet
 die spätere Integration dieser fertigen Artefakte und ihrer Downloadhinweise.
 Er behauptet keinen erneuten rekursiven Build aus dem Artefaktverzeichnis.
+Die fertigen Liefer-ZIPs bleiben in Git verfügbar, werden jedoch durch
+`export-ignore` aus späteren `git archive`-Quell-Exports ausgeschlossen.
+Die Downloadlinks führen deshalb auf die separat gelieferten Release-Assets.
 
 Der Installer ist ein Dokumentations-Repack: Alle ausführbaren Installations-
 und Trust-Skripte, eingebetteten DLLs und Herkunfts-/Lizenzdateien sind

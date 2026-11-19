@@ -2,8 +2,8 @@
 
 ## Aktueller gemeinsamer Installer
 
-Für eine Neuinstallation verwende den [gemeinsamen aktuellen Installer](1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
-mit seiner [SHA256-Datei](1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256).
+Für eine Neuinstallation verwende den [gemeinsamen aktuellen Installer](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.2/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
+mit seiner [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.2/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256).
 Die [Anwenderanleitung](../INSTALL.md) führt durch Profilwahl, Voraussetzungen,
 lokale/zentrale Installation, ersten Aufruf und Fehlerklärung. Die DLLs sind
 eingebettet; ein eigener Build ist nicht nötig.
