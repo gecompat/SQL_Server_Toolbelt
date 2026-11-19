@@ -1,0 +1,2 @@
+# Eingefrorene Lieferbytes einschließlich CR/LF-Prüfsummendateien erhalten.
+* -text whitespace=cr-at-eol

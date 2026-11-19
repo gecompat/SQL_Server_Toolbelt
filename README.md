@@ -38,8 +38,7 @@ Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
 Der gemeinsame aktuelle Installer enthält fertige SQL-Skripte und DLLs für
 Windows/Linux sowie lokale/zentrale Neuinstallation. Die Anleitung erklärt
 Profilauswahl, Rechte, CLR und Trust, SSMS, ersten Aufruf und Fehlerklärung.
-Ein eigener Build ist nicht erforderlich. Der Satz ist ein unveröffentlichter
-Entwicklungskandidat für leere ausgewählte Testdatenbanken.
+Ein eigener Build ist nicht erforderlich. Der Satz ist ein Entwicklungssnapshot für leere ausgewählte Testdatenbanken.
 
 Für die Nutzung führen die [Modulübersicht](./Modules/README.md),
 die [Lesewege](./Documentation/README.md) und die
@@ -111,8 +110,8 @@ Die betroffenen Objektseiten verlinken jeweils den passenden Abschnitt.
 
 Der aktuelle Modulbestand mit Versionsnummern und Nachweisgrenzen steht in
 der [Modulübersicht](./Modules/README.md). Der
-[Projektentwicklungssnapshot v1.0.0-rc.1](https://github.com/gecompat/SQL_Server_Toolbelt/releases/tag/v1.0.0-rc.1)
-ist für Tests veröffentlicht. Pakete, Einstieg und Nachweisgrenzen stehen in
+[Projektentwicklungssnapshot v1.0.0-rc.2](./Releases/1.0.0/RC2.md)
+bündelt den aktuellen Installer und die bereinigte Dokumentation für Tests. Pakete, Einstieg und Nachweisgrenzen stehen in
 der [Releaseübersicht](./Releases/README.md).
 
 Alle Modulversionen bleiben `unreleased`. Die Zielkanäle der

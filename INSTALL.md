@@ -1,8 +1,8 @@
 # Toolbelt installieren und zum ersten Mal verwenden
 
-Diese Anleitung verwendet den **gemeinsamen aktuellen Installer vom 17. November
-2026**. Er enthält fertige SQL-Skripte und eingebettete DLLs; ein eigener Build
-ist nicht nötig. Er ist ein unveröffentlichter Entwicklungskandidat für eine
+Diese Anleitung verwendet den **gemeinsamen aktuellen Installer mit Dokumentationsstand
+vom 18. November 2026**. Er enthält fertige SQL-Skripte und eingebettete DLLs; ein eigener Build
+ist nicht nötig. Er ist ein Entwicklungssnapshot für eine
 **leere, ausdrücklich ausgewählte Testdatenbank**, kein allgemeines Upgrade
 einer bestehenden Installation und keine Produktionsfreigabe aller Module.
 
@@ -49,8 +49,8 @@ Handlern brauchen später ihre modulspezifische Vorbereitung.
 
 ## 3. ZIP prüfen und vollständig entpacken
 
-Lade [den gemeinsamen Installer](Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
-und [seine SHA256-Datei](Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256)
+Lade [den gemeinsamen Installer](Releases/1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
+und [seine SHA256-Datei](Releases/1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256)
 aus demselben Repositorystand. Auf GitHub jeweils **Download raw file** verwenden.
 Prüfe die heruntergeladene ZIP, beispielsweise in PowerShell:
 

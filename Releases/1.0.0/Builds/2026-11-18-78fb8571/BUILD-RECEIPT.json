@@ -1,0 +1,68 @@
+{
+  "kind": "source_and_documented_install_build_set",
+  "source_commit": "78fb85711bc0b4dd053ed9354399f1b34e52e875",
+  "source_ref": "origin/main at build start",
+  "source_working_tree": "clean",
+  "reused_main_ci": [
+    44239432387,
+    44239432309
+  ],
+  "source_archive": {
+    "path": "SQL-Server-Toolbelt-1.0.0-source-78fb8571.zip",
+    "sha256": "089cfca66a8949eaa94b707c95dc7f263b9b3f1c505715ec8acf2599c614d5b9",
+    "verification": "exact Git snapshot and existing candidate guards PASS"
+  },
+  "install_archive": {
+    "path": "SQL-Server-Toolbelt-1.0.0-Current-Install.zip",
+    "sha256": "78a8a737395ee42d34d264191756d8c5d06bae5b82b368c04c35afd9f67183fb",
+    "verification": "current compiler/deployment closure, checksums, profiles, exact original executable payload PASS"
+  },
+  "reuse": {
+    "kind": "documentation_only_install_repack",
+    "source_commit": "78fb85711bc0b4dd053ed9354399f1b34e52e875",
+    "original_package": {
+      "path": "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Install.zip",
+      "sha256": "5a425e740cc9a4b3af6b6a4df74b66a7c5deb6fe13af39e889b282f784a29823"
+    },
+    "original_native_record": {
+      "path": "Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.json",
+      "sha256": "8dc825747b11269df639c012b35d8174ca5d1f961448e38ad91171a545f2f6b5"
+    },
+    "source_document": {
+      "path": "INSTALL.md",
+      "sha256": "dcddf322e2e2790181a39391ee5b0836baea3f1b92f8fa2590c2fa6428f70e8f"
+    },
+    "document_changes": [
+      "Package-local checksum/download instructions",
+      "Links pinned to exact source commit",
+      "Explicit original native evidence boundary"
+    ],
+    "unchanged_payload_sha256": {
+      "BINARY-PROVENANCE.json": "736e9db4433ca7caa500bcc0205ad3cf9b05bdf980fb9137e9c4436fd4cae92b",
+      "Install-Portable-central.sql": "e772928d4e1aa9597806fe7e621e8b54db16c33e66f969ae9d3ecb35e24f4cec",
+      "Install-Portable-local.sql": "843557ba8911b9fce6f686b6a6d7d7fac0516c8688f55aa3ee97fcd75b2e20d6",
+      "Install-Windows-central.sql": "0cdb544c909e937db768cc9c6b64480ceba7552ebbb68107f78e71c561f101fb",
+      "Install-Windows-local.sql": "15eec12f63d3ffcc9ed8f45bc20a7e14fd24e6759fe535db397cb00d4894e66d",
+      "LICENSE.md": "b513a23d5ca4484aa6f1ce78179da5a90edc3bf7929eb5cd5c726c8c08ca6ecd",
+      "SSIS-BUILD.json": "bdddd1a612ab8d350a984d404bb68c244a7c1e1e4451ba58d664483f7107a1ce",
+      "ThirdParty/ApacheCommonsCodec/LICENSE.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "ThirdParty/ApacheCommonsCodec/NOTICE.txt": "b64933ee1d36d14659156223a2604edadb60bffdd465d5368ff422d7689db5fb",
+      "ThirdParty/ApacheCommonsCodec/README.md": "336fa534c858a17b2e89a0367ad4dd32c473ac105a0d07661b8f5b8bc30bb745",
+      "ThirdParty/ScriptDom-180.117.0/LICENSE": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "ThirdParty/ScriptDom-180.117.0/NOTICE.txt": "3a32319c0c925fe296ff71d09ad18d381cbfbd5402ee28ce64ce93e67202974a",
+      "ThirdParty/ScriptDom-180.117.0/ORIGIN.txt": "10a4d749579538daa5a91997e8cd55b75ca838165062b024d7a9c0010bfa146e",
+      "ThirdParty/ScriptDom-180.117.0/README.md": "6147ab5b352066376b3305ce6fe7f701cd947f4df442e4625acb802cd58fe752",
+      "ThirdParty/ScriptDom-180.117.0/package.nuspec": "5f23cf8b9289efac0cb90fef6ce1ac5e78d6e0215fa855ab7d6fe8567aa10970",
+      "Trust-Portable.sql": "985b2d2e076a363816f77c02f4e61a72c518b771584ba106a5218567dee8aab0",
+      "Trust-Windows.sql": "30cf6cf83f2d80e2b6f428cb169287984a8eeb413472e5fecba2237d5c838684"
+    },
+    "executable_payload_identical": true,
+    "offline_verification": "PASS",
+    "new_native_sql_tls_execution": false,
+    "full_business_requalification": false,
+    "publication_authorized": false
+  },
+  "new_sql_tls_runs": 0,
+  "published": false,
+  "tagged": false
+}
