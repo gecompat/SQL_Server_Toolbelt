@@ -1,5 +1,27 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Explizite Installer-Vorbereitung und rc.4 – Auftrag 2026-11-19
+
+Nach Besprechung des konkreten Vertrags beauftragt der Benutzer ausdrücklich
+`CreateDatabase` und `EnableClr` im Ein-Aufruf-Installer einschließlich gezielter
+Tests, regulärem grünem PR-/Main-CI-Abschluss, Branchcleanup und neuem öffentlichen
+GitHub-Vorabrelease. Der [Vertrag](../Deployment/PROVISIONING.md) begrenzt die
+Vorbereitung auf fehlende benannte Datenbanken und CLR-Aktivierung, ohne
+Security-Abschwächung, fremde Pending-Aktivierung oder automatische Rücknahme.
+Ein Verantwortlicher/ein Paket/ein PR. Gemeinsamer nativer Rahmen: maximal
+20 Lauf-/Auditdispatches, 16 DB-Reservierungen, 90 Minuten; sechs bestehende
+Windows-/Linux-/SQL-Versionsziele lokal/zentral, höchstens zwei geänderte
+Adapterfälle nach konkretem Befund und frischem Cleanup, keine grünen Wiederholungen.
+Im selben Rahmen wird auf einem dieser Ziele separat die lesende Vorbereitung
+und die Ablehnung einer ausschließlich vorgemerkten eigenen Teständerung an
+`user options` geprüft und der unveränderte wirksame Zustand frisch auditiert.
+Private Logs/Journale bleiben lokal. Gezielte Offlineprüfungen hängen einmal
+am vorhandenen Deployment-Gate; native unveränderte Modulnachweise werden
+wiederverwendet, neue Vorbereitung separat gebunden. Keine weiteren Agenten,
+SQL-/TLS-/GUI-Fachmatrizen oder Labverwaltung. Head-/Main-CI bleiben Pflicht.
+Alte Releases und Nachweise bleiben unverändert; nach Veröffentlichung endet
+dieses Arbeitspaket. Diese Auswahl vermeidet doppelte Vollsuiten und Reviews.
+
 ## rc.3-Paketierung und Veröffentlichung – Auftrag 2026-11-19
 
 Der Benutzer beauftragt die Integration des geprüften Ein-Aufruf-Installers

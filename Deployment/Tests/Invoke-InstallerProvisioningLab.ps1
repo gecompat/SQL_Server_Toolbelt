@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,
       [Parameter(Mandatory)][ValidateRange(0,99)][int]$CaseIndex,
-      [switch]$AuditOnly,[switch]$PreflightOnly)
+      [switch]$AuditOnly,[switch]$PreflightOnly,[switch]$CleanupOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -60,7 +60,11 @@ try {
     $control=Open-ReleaseConnection 'master'
     # Reale Anmeldung prüfen; konkrete Runtimewerte bleiben im privaten Scope.
     Invoke-ReleaseSql $control 'SELECT @@VERSION; SELECT name,state_desc FROM sys.databases ORDER BY database_id;'
-    if($AuditOnly){
+    if($CleanupOnly){
+        $ledger=Get-Content -LiteralPath $journal -Raw|ConvertFrom-Json -AsHashtable
+        if($ledger.state -cne 'CLEANUP_BLOCKED' -or $ledger.owner -cnotmatch '^[a-f0-9]{32}$'){throw 'PROVISIONING_CLEANUP_STATE'}
+        $failure=[InvalidOperationException]::new('Original native failure retained; cleanup-only continuation.')
+    } elseif($AuditOnly){
         $prior=Get-Content -LiteralPath $journal -Raw|ConvertFrom-Json
         if($prior.state -cnotin @('COMPLETE','FAILED_CLEANED') -or $prior.owner -cnotmatch '^[a-f0-9]{32}$'){throw 'ONE_CALL_AUDIT_STATE'}
         foreach($entry in $prior.databases){
@@ -127,7 +131,7 @@ try {
                 (ConvertTo-SecureString ([string]$target.password) -AsPlainText -Force))
             try {
                 $installArgs=@{DeploymentMode=$mode;ServerInstance=('tcp:{0},{1}' -f $target.host,$target.port);Database=$name
-                    Credential=$credential;PackageZip=$runset.package;TrustServerCertificate=[bool]$target.trustServerCertificate;CommandTimeoutSeconds=120;Verbose=$true;CreateDatabase=$true;EnableClr=$true}
+                    Credential=$credential;PackageZip=$runset.package;TrustServerCertificate=[bool]$target.trustServerCertificate;CommandTimeoutSeconds=600;Verbose=$true;CreateDatabase=$true;EnableClr=$true}
                 $result=& (Join-Path $repo 'Deployment/Install-Toolbelt.ps1') @installArgs
                 if($result.Status -cne 'INSTALLED' -or $result.Profile -cne ($profilePlatform+'-'+$mode)){throw 'ONE_CALL_COMPLETION'}
             } finally {$credential=$null}
@@ -168,8 +172,9 @@ try {
         try {
             $control=Open-ReleaseConnection 'master'
             foreach($entry in $ledger.databases){
+                if($entry.state -ceq 'DROPPED'){continue}
                 if(!$entry.created){
-                    $rows=@(Invoke-ReleaseSql $control 'SELECT database_id Id,CONVERT(varchar(16),CONVERT(varbinary(8),create_date),2) Created,CONVERT(nvarchar(36),database_guid) Guid FROM sys.databases d JOIN sys.database_recovery_status r ON r.database_id=d.database_id WHERE d.name=@Name;' @{'@Name'=$entry.name} -Rows)
+                    $rows=@(Invoke-ReleaseSql $control 'SELECT d.database_id Id,CONVERT(varchar(16),CONVERT(varbinary(8),d.create_date),2) Created,CONVERT(nvarchar(36),r.database_guid) Guid FROM sys.databases d JOIN sys.database_recovery_status r ON r.database_id=d.database_id WHERE d.name=@Name;' @{'@Name'=$entry.name} -Rows)
                     if(!$rows.Count){$entry.state='DROPPED';Save-ReleaseJournal;continue}
                     # Nur ein vom Produkt selbst bestätigter CREATE-GUID erlaubt
                     # Ownership-Rekonstruktion nach einem späteren Testfehler.

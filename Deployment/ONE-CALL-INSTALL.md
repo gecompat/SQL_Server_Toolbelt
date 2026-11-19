@@ -1,22 +1,27 @@
 # Toolbelt mit einem Aufruf installieren
 
-Der [PowerShell-Einstieg](Install-Toolbelt.ps1) installiert den unveränderten
-[rc.2-Installer](https://github.com/gecompat/SQL_Server_Toolbelt/releases/tag/v1.0.0-rc.2).
+Der [PowerShell-Einstieg](Install-Toolbelt.ps1) installiert die unveränderte SQL-Basis des
+[rc.2-Installers](https://github.com/gecompat/SQL_Server_Toolbelt/releases/tag/v1.0.0-rc.2).
 Er übernimmt Paketprüfung, lesende Zielvorprüfung, Plattformauswahl,
 Assembly-Trust und Installation. Der manuelle [SSMS-Weg](../INSTALL.md) bleibt
 für Anwender ohne PowerShell-/sqlcmd-Client verfügbar. Bestehende rc.2-Assets
 und ihre ursprünglichen Nachweise werden nicht verändert.
-Der [rc.3-Installationssatz](../Releases/1.0.0/RC3-INSTALL.md) enthält die `.ps1`
+Der [rc.4-Installationssatz](../Releases/1.0.0/RC4-INSTALL.md) enthält die `.ps1`
 und ihre unveränderte Basis-ZIP bereits im richtigen Verzeichnislayout.
+
+Die neuen ausdrücklichen Schalter `CreateDatabase` und `EnableClr` sind in der
+[Vorbereitungsanleitung](PROVISIONING.md) vollständig erklärt. Ohne sie gilt
+weiterhin der nachfolgende Vertrag für bereits vorbereitete Ziele.
 
 ## Einmal vorbereiten und aufrufen
 
 Auf dem Client müssen PowerShell 7.4+ und **sqlcmd (ODBC)** mit dem zugehörigen
 Microsoft-ODBC-Treiber installiert sein. sqlcmd (Go) wird ausdrücklich
-zurückgewiesen. Den rc.3-Installationssatz samt Prüfsumme herunterladen, prüfen
+zurückgewiesen. Den rc.4-Installationssatz samt Prüfsumme herunterladen, prüfen
 und vollständig entpacken; die innere Basis-ZIP nicht zusätzlich entpacken.
-Alternativ sind Repositorycheckout oder separat heruntergeladenes `.ps1`
-möglich. Ein eigener DLL-Build ist nicht nötig. Skriptausführung muss durch
+Alternativ ist ein Repositorycheckout möglich. Der aktuelle Einstieg benötigt
+seine mitgelieferte `Toolbelt.Provisioning.ps1` im selben Verzeichnis; ein
+einzeln kopiertes Einstiegsskript genügt nicht. Ein eigener DLL-Build ist nicht nötig. Skriptausführung muss durch
 deine lokale Richtlinie erlaubt sein.
 
 Lokal, mit integrierter Anmeldung:
@@ -31,13 +36,12 @@ Zentral, in einer eigenen Datenbank derselben SQL-Server-Instanz:
 pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database Toolbelt -DeploymentMode central
 ```
 
-Die Beispiele gelten im entpackten Installationssatz und im Repositorycheckout. Bei einzeln heruntergeladenem
-Skript lautet der Pfad beispielsweise `./Install-Toolbelt.ps1`.
+Die Beispiele gelten im entpackten Installationssatz und im Repositorycheckout.
 Ohne lokalen Paketsatz lädt der Einstieg automatisch die **fest gebundene**
 Installer-ZIP aus v1.0.0-rc.2. Es gibt kein automatisches „latest“-Update.
 Im Installationssatz und Checkout verwendet er die identischen lokal
 mitgelieferten Bytes. Das Ergebnisfeld `Release=v1.0.0-rc.2` bezeichnet die
-unveränderte SQL-Basis; die neue äußere Lieferung heißt v1.0.0-rc.3.
+unveränderte SQL-Basis; die neue äußere Lieferung heißt v1.0.0-rc.4.
 
 SQL-Anmeldung innerhalb einer PowerShell-7.4+-Sitzung:
 
@@ -68,7 +72,7 @@ integrierter Anmeldung bleibt `-X1` zusätzlich aktiv.
   `CONTROL` auf der Zieldatenbank. Windows-Administratorrechte allein reichen
   nicht; der Einstieg benötigt keine automatische Windows-Erhöhung.
 - Wirksam `clr enabled=1`, `clr strict security=1`, `lightweight pooling=0`.
-  Die Administration bereitet dies vor; der Einstieg führt kein `RECONFIGURE`
+  Ohne die neuen Vorbereitungsschalter bereitet die Administration dies vor; der Einstieg führt kein `RECONFIGURE`
   aus und vergibt keine Rechte oder Logins.
 - Die Datenbank muss während der Installation exklusiv für diesen Zweck
   verfügbar sein. Die Session-AppLock koordiniert weitere Aufrufe dieses
@@ -139,6 +143,8 @@ Zielnamen enthalten und gehören nicht unverändert in öffentliche Fehlerberich
 | `PackageZip` | Optionaler Pfad zur unveränderten rc.2-Installer-ZIP. Expliziter ungültiger Pfad/Hash stoppt; kein Downloadersatz. Ohne Wert Checkout-ZIP oder fester Release-Download mit 120-s-Grenze. |
 | `SqlcmdPath` | Standard `sqlcmd`; expliziter Anwendungspfad möglich. Genau ein Tool wird gewählt; kein Providerfallback. |
 | `TrustServerCertificate` | Standard aus; ausdrücklicher Zertifikatsprüfungs-Override für entsprechend erlaubte Ziele. |
+| `CreateDatabase` | Standard aus; nur fehlende benannte Datenbank anlegen. Details und Fehlergrenzen: [Vorbereitung](PROVISIONING.md). |
+| `EnableClr` | Standard aus; ausschließlich CLR instanzweit aktivieren. Details: [Vorbereitung](PROVISIONING.md). |
 | `ValidateOnly` | Nur Paket prüfen, keine sqlcmd-/SQL-Ausführung. Modus muss trotzdem angegeben werden. |
 | `PreflightOnly` | Paket und SQL-Ziel lesend prüfen, ohne Trust/Installation. Nicht mit `ValidateOnly` kombinierbar. |
 | `LoginTimeoutSeconds` | Standard 60; ganze Zahl 1–120. |
@@ -158,9 +164,9 @@ Timeout und Exitcodes. Der bestehende Deployment-CI-Impact führt sie über
 `Test-SqlExport.ps1` aus; eine zweite vollständige Release-Suite ist dafür
 nicht nötig. Diese Prüfungen sind kein nativer SQL-Installationsnachweis.
 Der originale [Installationsnachweis](../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md)
-behält ausschließlich seinen gebundenen Scope. Neue native Ergebnisse des
-Komforteinstiegs sind im [separaten Bericht](Tests/Qualification/OneCallInstaller.20261119.json)
-an die aktuellen Client-/Harnessquellen und die unveränderte rc.2-ZIP gebunden:
+behält ausschließlich seinen gebundenen Scope. Historische native Ergebnisse des
+ursprünglichen Komforteinstiegs sind im [separaten Bericht](Tests/Qualification/OneCallInstaller.20261119.json)
+an die ursprünglichen Client-/Harnessquellen und die unveränderte rc.2-ZIP gebunden:
 zwölf Profile auf den sechs schema-validierten Labzielen für Windows/Linux,
 SQL2019/CL150, SQL2022/CL160 und SQL2025/CL170; sechs frische unabhängige
 Cleanup-Audits PASS. Der [native Adapter](Tests/Invoke-OneCallInstallLab.ps1)
@@ -191,3 +197,5 @@ Die veröffentlichten ZIPs und ihre historischen Nachweise bleiben unverändert.
 
 Technische Referenzen: [Microsoft sqlcmd](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility)
 und [Assembly-Trust/Rechte](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-add-trusted-assembly-transact-sql).
+
+Der neue Vorbereitungsweg besitzt eine [separate aktuelle Abnahme](Tests/Qualification/InstallerProvisioning.20261119.json). Alte Berichte und rc.3-Paketbytes bleiben unverändert an ihren ursprünglichen Scope gebunden.

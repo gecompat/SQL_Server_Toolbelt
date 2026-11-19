@@ -57,9 +57,9 @@ def read_zip(data):
         return result
 
 
-def relocate_doc(data, original_path, delivered_path, delivered, commit):
+def relocate_doc(data, original_path, delivered_path, delivered, commit, docs=None):
     """Lokale Lesewege erhalten, nicht mitgelieferte Vertiefung commitfest verlinken."""
-    aliases = {original: destination for destination, original in DOCS.items()}
+    aliases = {original: destination for destination, original in (docs or DOCS).items()}
 
     def replace(match):
         target = match[1].decode("utf-8")

@@ -302,3 +302,4 @@ finally {
 # Derselbe bestehende Deployment-Impact startet auch die Clientgegenproben des
 # Komforteinstiegs. Keine zusätzliche Workflow-/Release-Sammelprüfung nötig.
 & (Join-Path $PSScriptRoot 'Test-OneCallInstall.ps1')
+& (Join-Path $PSScriptRoot 'Test-InstallerProvisioning.ps1')

@@ -46,7 +46,10 @@ function Assert-OneCallNativeEvidence([hashtable]$Record) {
         'Tests/CI/run-csv-memory-lab.ps1','Tests/CI/run-lab-local.ps1','Tests/CI/LabQualifiedContract.ps1')
     if($Record.method_source_sha256.Count -ne $required.Count){throw 'ONE_CALL_NATIVE_METHOD_SET'}
     foreach($path in $required){
-        $source=[IO.File]::ReadAllText((Join-Path $repoRoot $path)).Replace("`r`n","`n")
+        # Historischer rc.3-Nachweis bleibt an seine ursprünglichen Bytes
+        # gebunden. Die neue Vorbereitung besitzt eine getrennte Abnahme.
+        $source=(@(git -C $repoRoot show ('857383be62543e9c918b518dec5c841148368897:'+$path)) -join "`n")+"`n"
+        if($LASTEXITCODE -ne 0){throw 'ONE_CALL_HISTORICAL_SOURCE_MISSING'}
         $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($source)))
         if($hash -ine $Record.method_source_sha256[$path]){throw 'ONE_CALL_NATIVE_SOURCE_DRIFT'}
     }
@@ -75,7 +78,7 @@ function Assert-OneCallNativeEvidence([hashtable]$Record) {
 }
 $nativeEvidence=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'Qualification/OneCallInstaller.20261119.json') -Raw|ConvertFrom-Json -AsHashtable
 Assert-OneCallNativeEvidence $nativeEvidence
-Assert-Test $true 'fresh native evidence bound to current source and exact package'
+Assert-Test $true 'historical native evidence bound to original source and exact package'
 foreach($mutation in @('source','audit','profile','history','scope')){
     $copy=$nativeEvidence|ConvertTo-Json -Depth 10|ConvertFrom-Json -AsHashtable
     switch($mutation){
