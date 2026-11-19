@@ -6,6 +6,18 @@ ist nicht nötig. Er ist ein Entwicklungssnapshot für eine
 **leere, ausdrücklich ausgewählte Testdatenbank**, kein allgemeines Upgrade
 einer bestehenden Installation und keine Produktionsfreigabe aller Module.
 
+Für den automatisierten Weg gibt es den [Ein-Aufruf-Installer](Deployment/ONE-CALL-INSTALL.md):
+
+```powershell
+pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database ContosoAppTest -DeploymentMode local
+```
+
+Für eine zentrale Installation `-Database Toolbelt -DeploymentMode central`
+verwenden. Dieser zusätzliche Einstieg benötigt PowerShell 7.4+, sqlcmd (ODBC)
+und vorhandene administrative SQL-Rechte; er übernimmt Vorprüfung und exakten
+Assembly-Trust. Die folgenden Schritte erklären den weiterhin verfügbaren
+manuellen SSMS-Weg ohne diese Clientwerkzeuge.
+
 ## 1. Lokal oder zentral und das passende Profil wählen
 
 **Lokal** installiert Toolbelt in der jeweiligen Anwendungs-/Testdatenbank.

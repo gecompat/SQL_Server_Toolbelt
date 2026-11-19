@@ -1,0 +1,206 @@
+{
+  "kind": "one_call_installer_client_composition",
+  "result": "PASS_FOR_DECLARED_SCOPE",
+  "executed_on": "2026-11-19",
+  "release": "v1.0.0-rc.2",
+  "package": {
+    "path": "Releases/1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip",
+    "sha256": "78a8a737395ee42d34d264191756d8c5d06bae5b82b368c04c35afd9f67183fb"
+  },
+  "method_source_sha256": {
+    "Deployment/Install-Toolbelt.ps1": "9babf52e668c7cc32c74e59068f74d8278b099bdab808b70a0d6d56441b41d3e",
+    "Deployment/Tests/Invoke-OneCallInstallLab.ps1": "1d1472bdf239d97da51164e8da0ac2fc537c313f2a2ccbb4a9fab7f211e3f9b6",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "83ff8b1afc5ea6ef9c1e40b54fa64ad051f3501e866b76977d93e0e8b118d2c7",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15"
+  },
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "selected_patch": "cu32",
+      "compatibility_level": 150,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Windows-local",
+          "modules": 45,
+          "entry_receipt": "INSTALLED"
+        },
+        {
+          "mode": "central",
+          "profile": "Windows-central",
+          "modules": 43,
+          "entry_receipt": "INSTALLED"
+        }
+      ],
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "selected_patch": "cu26",
+      "compatibility_level": 160,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Windows-local",
+          "modules": 45,
+          "entry_receipt": "INSTALLED"
+        },
+        {
+          "mode": "central",
+          "profile": "Windows-central",
+          "modules": 43,
+          "entry_receipt": "INSTALLED"
+        }
+      ],
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "selected_patch": "cu8",
+      "compatibility_level": 170,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Windows-local",
+          "modules": 45,
+          "entry_receipt": "INSTALLED"
+        },
+        {
+          "mode": "central",
+          "profile": "Windows-central",
+          "modules": 43,
+          "entry_receipt": "INSTALLED"
+        }
+      ],
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "selected_patch": "latest",
+      "compatibility_level": 150,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Portable-local",
+          "modules": 41,
+          "entry_receipt": "INSTALLED"
+        },
+        {
+          "mode": "central",
+          "profile": "Portable-central",
+          "modules": 41,
+          "entry_receipt": "INSTALLED"
+        }
+      ],
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "selected_patch": "latest",
+      "compatibility_level": 160,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Portable-local",
+          "modules": 41,
+          "entry_receipt": "INSTALLED"
+        },
+        {
+          "mode": "central",
+          "profile": "Portable-central",
+          "modules": 41,
+          "entry_receipt": "INSTALLED"
+        }
+      ],
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "selected_patch": "latest",
+      "compatibility_level": 170,
+      "profiles": [
+        {
+          "mode": "local",
+          "profile": "Portable-local",
+          "modules": 41,
+          "entry_receipt": "INSTALLED"
+        },
+        {
+          "mode": "central",
+          "profile": "Portable-central",
+          "modules": 41,
+          "entry_receipt": "INSTALLED"
+        }
+      ],
+      "result": "COMPLETE",
+      "fresh_independent_audit": "PASS",
+      "owned_databases_removed": 2,
+      "own_trust_removed_or_preexisting": true,
+      "configuration_restored_or_unchanged": true
+    }
+  ],
+  "totals": {
+    "profiles": 12,
+    "fresh_success_audits": 6,
+    "module_inventory_checks": 510,
+    "owned_databases_created_and_removed_including_failure": 13
+  },
+  "history": {
+    "preconnection_adapter_date_failure_preserved": true,
+    "preconnection_dispatches": 1,
+    "sql_auth_failure": "FAILED_CLEANED",
+    "failed_case_fresh_audit": "PASS",
+    "readonly_client_diagnosis_dispatches": 1,
+    "original_sources_journals_and_errors_retained_privately": true
+  },
+  "accounting": {
+    "closed": true,
+    "dispatched": 16,
+    "maximum_dispatches": 20,
+    "database_reservations": 16,
+    "maximum_databases": 20,
+    "changed_failure_cases": 2,
+    "maximum_changed_failure_cases": 4,
+    "original_shared_deadline_preserved": true
+  },
+  "scope": {
+    "native_client_host": "Windows PowerShell 7.6 / sqlcmd ODBC",
+    "native_authentication": "explicit SqlCredential",
+    "integrated_authentication": "offline process-argument/environment counterexamples; no fresh native Windows-login claim",
+    "trust": "unchanged original trust SQL executed with preexisting exact test-owned/preexisting entries; registration semantics reused from original installer/trust evidence",
+    "patch_binding": "schema-validated exact Lab selector; no additional build-fingerprint claim",
+    "new_business_module_qualification": false,
+    "new_tls_or_gui_qualification": false,
+    "published_assets_modified": false
+  }
+}

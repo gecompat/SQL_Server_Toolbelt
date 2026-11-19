@@ -1,5 +1,10 @@
 # Repository-weites Deployment
 
+Für die Neuinstallation des veröffentlichten gemeinsamen rc.2-Satzes genügt
+der [Ein-Aufruf-Installer](ONE-CALL-INSTALL.md), einschließlich Paket-/Zielprüfung
+und Assembly-Trust. Die folgende Anleitung beschreibt dagegen den Build- und
+modulweisen Deploymentweg aus aktuellen Repositoryquellen.
+
 `Deploy-All.ps1` führt alle aktuellen `Modules/*/Deployment/Deploy.sql`-Skripte aus. Die Reihenfolge wird deterministisch aus den `module.yaml`-Dependencies berechnet. Module außerhalb von `Modules/` (zum Beispiel Spikes) sind nicht enthalten.
 
 Mit `-ModuleId` lassen sich ein oder mehrere Module auswählen. Ihre transitiven

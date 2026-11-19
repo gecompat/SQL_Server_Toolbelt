@@ -35,6 +35,9 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 ## Installation und erster Test
 
 Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
+Mit PowerShell 7.4+ und sqlcmd (ODBC) übernimmt der
+[Ein-Aufruf-Installer](./Deployment/ONE-CALL-INSTALL.md) Vorprüfung, Trust und
+lokale oder zentrale Neuinstallation.
 Der gemeinsame aktuelle Installer enthält fertige SQL-Skripte und DLLs für
 Windows/Linux sowie lokale/zentrale Neuinstallation. Die Anleitung erklärt
 Profilauswahl, Rechte, CLR und Trust, SSMS, ersten Aufruf und Fehlerklärung.
