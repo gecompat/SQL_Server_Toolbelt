@@ -1,0 +1,41 @@
+{
+  "actual_archive_verification": "PASS exact Git payloads and source/native bindings",
+  "artifacts": [
+    {
+      "bytes": 7160056,
+      "name": "SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip",
+      "sha256": "aa22d84972c0519fa6eb1edad1b6bb443332d24638bc4ec375381d7491d6dfe9"
+    },
+    {
+      "bytes": 101420886,
+      "name": "SQL-Server-Toolbelt-v1.0.0-rc.4-source.zip",
+      "sha256": "3dd34c77631988bffd7a95374785c564ae0690777db2ea6ee3aa0ae57da53264"
+    }
+  ],
+  "base_package_sha256": "78a8a737395ee42d34d264191756d8c5d06bae5b82b368c04c35afd9f67183fb",
+  "base_release": "v1.0.0-rc.2",
+  "kind": "provisioning_prerelease_build",
+  "module_release_status_changed": false,
+  "new_native_scope": {
+    "fresh_changed_input_profiles": 1,
+    "fresh_success_audits": 9,
+    "matrix_profiles": 12,
+    "owned_databases_removed": 14,
+    "safety_checks": 3
+  },
+  "new_tls_gui_runs": 0,
+  "offline_at_build": {
+    "bundle_tests_discovered": 6,
+    "delivery_gate_skipped_until_integration": 1,
+    "executed": 5,
+    "historical_bundle_tests": 10,
+    "synthetic_assertions": 122
+  },
+  "preparation_record": {
+    "path": "Deployment/Tests/Qualification/InstallerProvisioning.20261119.json",
+    "sha256": "8d8c49f0042ebb265441d29eb518e959810b8f4432f7f0b2ae43e76d62762be7"
+  },
+  "project_prerelease": "v1.0.0-rc.4",
+  "reuse": "unchanged SQL/binaries; historical rc3 client evidence not promoted; exact matrix entry delta and fresh current guard case",
+  "source_commit": "30612902d7f4dff9451c5f5f688d58645db8db4e"
+}
