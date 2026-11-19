@@ -53,7 +53,7 @@ Windows zentral 43, Portable lokal/zentral 41. Das Feld `Release=v1.0.0-rc.2`
 bezeichnet weiterhin die unveränderte SQL-Basis; `BUNDLE.json` identifiziert
 die neue **rc.3-Lieferung** samt integriertem Einstieg.
 
-Die [vollständige Anleitung](Deployment/ONE-CALL-INSTALL.md) erklärt alle
+Die [vollständige Anleitung](https://github.com/gecompat/SQL_Server_Toolbelt/blob/db296c2aaf23dfc2676fdfb70fb17977de0c6bd0/Deployment/ONE-CALL-INSTALL.md) erklärt alle
 Parameter, Profile und Fehlerkennungen. Bei einem Fehler nach Installationsbeginn
 können bereits installierte Module und Trusteinträge bestehen bleiben. Es gibt
 keinen Gesamtrollback oder automatischen Wiederholungs-/Upgradeweg.
@@ -64,7 +64,7 @@ Vor einem neuen bewussten Aufruf den Zielzustand klären.
 `SHA256SUMS` prüft die entpackten Lieferdateien; die äußere ZIP-Prüfsumme muss
 zuvor stimmen. `BUNDLE.json` bindet Quellcommit, Einstieg, innere Basis-ZIP und
 Originalnachweis. Der Einstieg und die Basis-ZIP sind bytegleich zu den
-[zwölf nativen Installationsprofilen](Deployment/Tests/Qualification/OneCallInstaller.20261119.json)
+[zwölf nativen Installationsprofilen](https://github.com/gecompat/SQL_Server_Toolbelt/blob/db296c2aaf23dfc2676fdfb70fb17977de0c6bd0/Deployment/Tests/Qualification/OneCallInstaller.20261119.json)
 mit sechs frischen Abschlussaudits. Die neue Paketierung ergänzt ausschließlich
 Offline-Prüfungen, keine neuen SQL-/TLS-/GUI-Läufe und keine Modul-Supportfreigabe.
 

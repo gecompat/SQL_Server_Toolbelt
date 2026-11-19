@@ -115,6 +115,12 @@ class OneCallBundleTests(unittest.TestCase):
         candidate.verify(path/"SQL-Server-Toolbelt-v1.0.0-rc.3-source.zip")
         receipt=json.loads((path/"BUILD-RECEIPT.json").read_bytes())
         self.assertEqual(manifest["source_commit"],receipt["source_commit"])
+        commit=manifest["source_commit"]
+        standalone=bundle.relocate_doc(bundle.git_file(commit,bundle.GUIDE),bundle.GUIDE,"START-HERE.md",set(),commit)
+        # Das separate Asset/Repositoryblatt hat keinen entpackten Deployment-
+        # Nachbarn. Es braucht eigene commitfeste Links; die ZIP-Seite behält
+        # hingegen ihre funktionierenden lokalen Verweise.
+        self.assertEqual((path/"START-HERE.md").read_bytes(),standalone)
         for line in (path/"SHA256SUMS.txt").read_text().splitlines():
             digest,name=line.split("  ",1)
             self.assertEqual(bundle.sha((path/name).read_bytes()),digest)
