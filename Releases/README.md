@@ -2,16 +2,18 @@
 
 ## Aktueller gemeinsamer Installer
 
-Für eine Neuinstallation verwende den [gemeinsamen aktuellen Installer](1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
-mit seiner [SHA256-Datei](1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256).
+Für eine Neuinstallation verwende den [gemeinsamen aktuellen Installer](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.2/SQL-Server-Toolbelt-1.0.0-Current-Install.zip)
+mit seiner [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.2/SQL-Server-Toolbelt-1.0.0-Current-Install.zip.sha256).
 Die [Anwenderanleitung](../INSTALL.md) führt durch Profilwahl, Voraussetzungen,
 lokale/zentrale Installation, ersten Aufruf und Fehlerklärung. Die DLLs sind
 eingebettet; ein eigener Build ist nicht nötig.
 
-Dieser am 17. November 2026 gemeinsam geprüfte Satz ist ein **unveröffentlichter
-Entwicklungskandidat** für leere ausgewählte Testdatenbanken. Seine
+Dieser Satz mit bereinigter Dokumentation vom 18. November 2026 ist ein
+**Entwicklungssnapshot** für leere ausgewählte Testdatenbanken. Seine
 [Installationsabnahme](1.0.0/CURRENT-INSTALL-QUALIFICATION.md) erweitert keine
-Modul-Supportzusage. Die [Modulübersicht](../Modules/README.md) zeigt die
+Modul-Supportzusage. Die [Releasehinweise zu v1.0.0-rc.2](1.0.0/RC2.md) erklären den
+gebundenen Quellstand und die Wiederverwendung der ausführbaren Inhalte.
+Die [Modulübersicht](../Modules/README.md) zeigt die
 jeweiligen Implementierungs-, Validierungs- und Releasegrenzen.
 
 ## Quellen und Paketpflege
@@ -35,8 +37,10 @@ Pakete nicht rückwirkend.
 
 Ein veröffentlichter **Projektsnapshot** und unterstützte **Modulversionen** sind
 verschiedene Aussagen. Der bestehende RC-Snapshot bleibt veröffentlicht; alle
-Modulmanifeste bleiben `unreleased`. Der aktuelle gemeinsame Installer wurde
-nicht zusätzlich veröffentlicht oder getaggt. Die historischen 19/26-Zielkanäle
+Modulmanifeste bleiben `unreleased`. Der aktuelle gemeinsame Installer und der Quellkandidat sind im
+[Buildverzeichnis](1.0.0/Builds/2026-11-18-78fb8571/README.md) versioniert;
+Download und Veröffentlichungsstatus des Vorabreleases stehen in den
+[Releasehinweisen](1.0.0/RC2.md). Die historischen 19/26-Zielkanäle
 der [Freigabematrix](1.0.0/FREIGABEMATRIX.md) sind keine aktuelle Supportfreigabe.
 
 Für Paketpflege gelten die [Veröffentlichungsregeln](../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis).
