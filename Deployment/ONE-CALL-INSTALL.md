@@ -6,16 +6,18 @@ Er übernimmt Paketprüfung, lesende Zielvorprüfung, Plattformauswahl,
 Assembly-Trust und Installation. Der manuelle [SSMS-Weg](../INSTALL.md) bleibt
 für Anwender ohne PowerShell-/sqlcmd-Client verfügbar. Bestehende rc.2-Assets
 und ihre ursprünglichen Nachweise werden nicht verändert.
-Die zusätzliche `.ps1` wird aus diesem Repository heruntergeladen; sie ist
-kein Bestandteil des eingefrorenen rc.2-ZIP.
+Der [rc.3-Installationssatz](../Releases/1.0.0/RC3-INSTALL.md) enthält die `.ps1`
+und ihre unveränderte Basis-ZIP bereits im richtigen Verzeichnislayout.
 
 ## Einmal vorbereiten und aufrufen
 
 Auf dem Client müssen PowerShell 7.4+ und **sqlcmd (ODBC)** mit dem zugehörigen
 Microsoft-ODBC-Treiber installiert sein. sqlcmd (Go) wird ausdrücklich
-zurückgewiesen. Lade `Install-Toolbelt.ps1` über dessen GitHub-Dateiseite/Raw
-herunter oder verwende den Repositorycheckout. Ein eigener DLL-Build ist nicht
-nötig. Skriptausführung muss durch deine lokale Richtlinie erlaubt sein.
+zurückgewiesen. Den rc.3-Installationssatz samt Prüfsumme herunterladen, prüfen
+und vollständig entpacken; die innere Basis-ZIP nicht zusätzlich entpacken.
+Alternativ sind Repositorycheckout oder separat heruntergeladenes `.ps1`
+möglich. Ein eigener DLL-Build ist nicht nötig. Skriptausführung muss durch
+deine lokale Richtlinie erlaubt sein.
 
 Lokal, mit integrierter Anmeldung:
 
@@ -29,11 +31,13 @@ Zentral, in einer eigenen Datenbank derselben SQL-Server-Instanz:
 pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database Toolbelt -DeploymentMode central
 ```
 
-Die Beispiele verwenden den Repositorypfad. Bei einzeln heruntergeladenem
+Die Beispiele gelten im entpackten Installationssatz und im Repositorycheckout. Bei einzeln heruntergeladenem
 Skript lautet der Pfad beispielsweise `./Install-Toolbelt.ps1`.
 Ohne lokalen Paketsatz lädt der Einstieg automatisch die **fest gebundene**
 Installer-ZIP aus v1.0.0-rc.2. Es gibt kein automatisches „latest“-Update.
-Im Checkout verwendet er die identischen versionierten Lieferbytes.
+Im Installationssatz und Checkout verwendet er die identischen lokal
+mitgelieferten Bytes. Das Ergebnisfeld `Release=v1.0.0-rc.2` bezeichnet die
+unveränderte SQL-Basis; die neue äußere Lieferung heißt v1.0.0-rc.3.
 
 SQL-Anmeldung innerhalb einer PowerShell-7.4+-Sitzung:
 

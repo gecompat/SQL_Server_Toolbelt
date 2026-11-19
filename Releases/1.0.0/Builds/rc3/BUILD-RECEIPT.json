@@ -1,0 +1,43 @@
+{
+  "kind": "rc3_source_and_one_call_build_set",
+  "project_prerelease": "v1.0.0-rc.3",
+  "source_commit": "db296c2aaf23dfc2676fdfb70fb17977de0c6bd0",
+  "source_semantics": "preparation commit; later integration/tag commit contains these exact outputs",
+  "product_entry_unchanged_from_main": "05e4d59508615d7468c1a692e2f0021fb57ec150",
+  "entry_sha256": "9babf52e668c7cc32c74e59068f74d8278b099bdab808b70a0d6d56441b41d3e",
+  "base_package": {
+    "path": "Releases/1.0.0/Builds/2026-11-18-78fb8571/SQL-Server-Toolbelt-1.0.0-Current-Install.zip",
+    "sha256": "78a8a737395ee42d34d264191756d8c5d06bae5b82b368c04c35afd9f67183fb"
+  },
+  "native_evidence": {
+    "fresh_audits_in_original_wave": 6,
+    "path": "Deployment/Tests/Qualification/OneCallInstaller.20261119.json",
+    "reused_profiles": 12,
+    "sha256": "e0767a2132dcdeba1687f27d4ca5bfe7d432a57dab6ab6603b7bb45988393588"
+  },
+  "new_qualification_scope": "offline packaging integrity and four extracted-layout synthetic profile executions with network forbidden",
+  "offline_tests_at_build": {
+    "discovered": 10,
+    "executed": 9,
+    "skipped_not_yet_committed_delivery_gate": 1,
+    "result": "PASS"
+  },
+  "actual_archive_verification": {
+    "install_bundle": "PASS exact Git inputs and reuse",
+    "source_candidate": "PASS exact Git snapshot and bound original installer"
+  },
+  "new_sql_tls_gui_runs": 0,
+  "module_release_status_changed": false,
+  "artifacts": [
+    {
+      "name": "SQL-Server-Toolbelt-v1.0.0-rc.3-Install.zip",
+      "bytes": 7149356,
+      "sha256": "f09d8368b20601eea16b3fbf69502ce1ce390331653399b7686a978ee5daa66f"
+    },
+    {
+      "name": "SQL-Server-Toolbelt-v1.0.0-rc.3-source.zip",
+      "bytes": 101378420,
+      "sha256": "9e5d77b49ce6e14b99aed412ae5b0c71a0dbd2c2f43d4bf9c7b1321b5e2c9b0e"
+    }
+  ]
+}
