@@ -106,6 +106,33 @@ Fragestellung: was ist die gewünschte Breite? - welche Funktionalitäten fallen
 
 Änderungsvermerk 2026-07-29, Codex: Als `TC-2026-028` in den kanonischen Toolbelt-Backlog übernommen; Status `researched`. Embeddings und generative Chat-Aufrufe erhalten keinen gemeinsamen unspezifischen Vertrag.
 
+## Einfachere Installation und DTSX-Debug — 2026-11-19
+
+Benutzerinput, ergänzend festgehalten durch Codex. Der
+[ausführliche Zukunftsplan](INSTALLATION_AND_DTSX_SIMPLICITY.md) und der
+[kanonische Backlog](../.ai/BACKLOG.md#einfachere-installation-und-dtsx-debug--2026-11-19)
+halten folgende Wünsche fest, ohne eine Umsetzung oder bestehende Abnahme zu behaupten:
+
+- Alle Toolbelt-SQL-Assemblies einschließlich Drittanbieterabhängigkeiten mit
+  `tlblt` beginnen lassen. Ziel ist die parallele Verwendung mit anderen,
+  nicht zu Toolbelt gehörenden CLR-Installationen und deren Bibliotheksversionen.
+- Bei vorhandenen `TRUSTWORTHY ON` einen Weg mit und einen ohne Hashprüfung
+  anbieten; bei `OFF` bisherigen Trustweg erhalten, jedoch ohne Extended Properties.
+- Insgesamt keine Extended Properties und keine Deployment-Logtabelle;
+  normale SQL-Skripte ohne SQLCMD als Standard, Rechte nicht pauschal vorprüfen.
+- DTSX-XML als möglichst einzige Eingabe für Debug-SQL. Defaults nutzen;
+  erforderliche Startwerte einfach als JSON oder als Variablenblock im
+  erzeugten SQL bereitstellen. Startvariablen und Connection-Manager-Expressions auflösen.
+- Pflichtzugriff auf die Quell-Systemkataloge hinterfragen: einfacher
+  paketbasierter Weg, strengere Katalog-/Sicherheitsabnahme bei Bedarf wählbar.
+- Weniger Toolbelt-eigene Sicherheitsvoraussetzungen und einfachere Bedienung
+  ermöglichen; höchstmögliche Absicherung soll ebenfalls wählbar bleiben.
+
+Ergänzung Codex: Engineberechtigungen bleiben wirksam; kein Erfinden fehlender
+Paket-/Projektwerte und kein automatischer Paket-/SQL-Execute. SQL-Namenspräfix
+und CLR-Versionsisolation müssen gemeinsam geprüft werden. Bisherige
+Projektverträge werden durch diese Zukunftsnotiz nicht stillschweigend ersetzt.
+
  
  
  

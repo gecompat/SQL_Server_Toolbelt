@@ -1,5 +1,20 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Einfachere Installation und DTSX-Debug — 2026-11-19
+
+Auf Benutzerauftrag sind die [Zukunftsanforderungen für einfache Installation,
+Assembly-Koexistenz und DTSX-Debug](../Backlog/INSTALLATION_AND_DTSX_SIMPLICITY.md)
+festgehalten: `tlblt`-Präfix auch für Drittanbieterassemblies zur Koexistenz mit
+anderen CLR-Installationen, wählbare TRUSTWORTHY-/Hashwege, vollständig ohne
+Extended Properties und normale SQL-Ausführung ohne SQLCMD als Standard.
+DTSX soll möglichst allein reichen; Defaults, optionale Startwerte und
+Connection-Manager-Expressions sollen aufgelöst werden. Paketbasierte
+SQL-Erzeugung ohne verpflichtende Quellkatalogrechte und optionale strengere
+Katalogabnahme werden getrennt zu konkretisieren sein.
+Status: Benutzeranforderungen erfasst; keine aktuelle Funktionsumsetzung,
+Regeländerung oder neue Qualifikation aus dieser Planpflege. Historische
+Nachweise bleiben erhalten; der bisherige Releasevertrag bleibt unverändert.
+
 ## Bereinigter Planungsstand – 2026-11-18
 
 Der aktuelle Auftrag betrifft Anwenderdokumentation und lokale Bereinigung,
