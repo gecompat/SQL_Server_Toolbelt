@@ -17,7 +17,7 @@ import prepare_one_call_bundle as bundle
 class OneCallBundleTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.files = bundle.payload("HEAD")
+        cls.files = bundle.payload("857383be62543e9c918b518dec5c841148368897")
 
     def test_entrypoint_inner_archive_and_native_record_are_exact_git_bytes(self):
         record = bundle.verify_payload(self.files)
@@ -95,7 +95,7 @@ class OneCallBundleTests(unittest.TestCase):
     def test_new_archive_roundtrip_sidecar_and_no_overwrite(self):
         with tempfile.TemporaryDirectory(prefix="toolbelt-bundle-archive-") as directory:
             output=Path(directory)/"install.zip"
-            bundle.build("HEAD",output)
+            bundle.build("857383be62543e9c918b518dec5c841148368897",output)
             self.assertEqual(bundle.verify(output)["project_prerelease"],bundle.TAG)
             with self.assertRaises(ValueError):bundle.build("HEAD",output)
             Path(str(output)+".sha256").write_text("0"*64+"  install.zip\n")

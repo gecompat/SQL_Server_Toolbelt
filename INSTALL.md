@@ -1,20 +1,24 @@
 # Toolbelt installieren und zum ersten Mal verwenden
 
-Der aktuelle **Vorabrelease v1.0.0-rc.3** enthält den Ein-Aufruf-Installer und
-seine vollständige SQL-Basis. Lade den [Installationssatz](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.3/SQL-Server-Toolbelt-v1.0.0-rc.3-Install.zip)
-mit [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.3/SQL-Server-Toolbelt-v1.0.0-rc.3-Install.zip.sha256),
+Der aktuelle **Vorabrelease v1.0.0-rc.4** enthält den Ein-Aufruf-Installer und
+seine vollständige SQL-Basis. Lade den [Installationssatz](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip)
+mit [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip.sha256),
 prüfe ihn und entpacke vollständig. Im entpackten Verzeichnis genügt:
 
 ```powershell
-pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database ContosoAppTest -DeploymentMode local
+pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database ContosoAppTest -DeploymentMode local -CreateDatabase -EnableClr
 ```
 
 Für eine zentrale Installation `-Database Toolbelt -DeploymentMode central`
-verwenden. PowerShell 7.4+, sqlcmd (ODBC), eine vorbereitete leere Testdatenbank,
-vorhandene administrative SQL-Rechte und wirksames CLR sind erforderlich.
+verwenden. PowerShell 7.4+, sqlcmd (ODBC), vorhandene administrative SQL-Rechte
+und eine sichere SQL-Konfiguration sind erforderlich. Die ausdrücklichen
+Schalter erlauben eine fehlende benannte Datenbank und die CLR-Aktivierung;
+bestehende Ziele müssen leer und geeignet sein. Ohne die Schalter müssen
+Datenbank und CLR bereits vorbereitet sein. Die
+[Vorbereitungsanleitung](Deployment/PROVISIONING.md) erklärt die Grenzen.
 Der Einstieg übernimmt Vorprüfung und exakten Assembly-Trust; ein weiterer
 Paketdownload oder DLL-Build ist für den vollständig entpackten Satz nicht nötig.
-Die [Kurzanleitung](Releases/1.0.0/RC3-INSTALL.md) und die
+Die [Kurzanleitung](Releases/1.0.0/RC4-INSTALL.md) und die
 [vollständige Parameter-/Fehleranleitung](Deployment/ONE-CALL-INSTALL.md) erklären den Weg.
 
 Der manuelle SSMS-Weg verwendet weiterhin dieselbe unveränderte SQL-Basis aus

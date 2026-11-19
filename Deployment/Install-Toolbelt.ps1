@@ -3,8 +3,8 @@
 Installiert den gebundenen rc.2-Satz mit Vorprüfung und exaktem Assembly-Trust.
 .DESCRIPTION
 PowerShell 7.4 oder neuer und sqlcmd (ODBC) sind erforderlich. Ohne Credential wird die
-integrierte Anmeldung verwendet. Serverkonfiguration, Datenbanken und Rechte
-werden nicht angelegt/geändert. Das Ziel muss leer und exklusiv verfügbar sein.
+integrierte Anmeldung verwendet. CreateDatabase und EnableClr erlauben gezielt
+Datenbankanlage und CLR-Aktivierung. Rechte werden nicht vergeben.
 Der veröffentlichte rc.2-Satz bleibt unverändert; Details: ONE-CALL-INSTALL.md.
 #>
 [CmdletBinding()]
@@ -18,11 +18,14 @@ param(
     [switch]$TrustServerCertificate,
     [switch]$ValidateOnly,
     [switch]$PreflightOnly,
+    [switch]$CreateDatabase,
+    [switch]$EnableClr,
     [ValidateRange(1,120)][int]$LoginTimeoutSeconds = 60,
     [ValidateRange(1,1800)][int]$CommandTimeoutSeconds = 600
 )
 
 Set-StrictMode -Version Latest
+. (Join-Path $PSScriptRoot 'Toolbelt.Provisioning.ps1')
 
 function Stop-ToolbeltInstall([string]$Code, [string]$Message) {
     throw [InvalidOperationException]::new("[$Code] $Message")
@@ -235,6 +238,11 @@ function Assert-ToolbeltSqlSuccess($Result, [string]$Phase) {
         TBX_LOCK = 'Ein anderer Ein-Aufruf-Installer belegt das Ziel. Keine automatische Wiederholung.'
         TBX_TARGET_CHANGED = 'Zielidentität oder Plattform hat sich seit der Vorprüfung geändert. Abbruch vor Trust.'
         TBX_RECEIPT = 'Die abschließenden Modulversions-/Modusmarker stimmen nicht vollständig überein.'
+        TBX_DATABASE_MISSING = 'Die Zieldatenbank fehlt. Vorbereiten oder ausdrücklich CreateDatabase verwenden.'
+        TBX_PENDING_CONFIGURATION = 'Vorgemerkte Serverkonfiguration gefunden. Keine fremden Änderungen mit RECONFIGURE aktivieren; administrativ klären.'
+        TBX_PREPARATION_DRIFT = 'Ziel oder Serverkonfiguration hat sich seit dem gespeicherten Plan geändert. Keine automatische Wiederholung.'
+        TBX_PREPARATION_CONTEXT = 'Vorbereitung benötigt master ohne offene Transaktion.'
+        TBX_MODEL = 'Die model-Datenbank ist für eine leere sichere Neuinstallation ungeeignet. Administration muss die Vorlage prüfen.'
     }
     $text = $Result.Stdout + "`n" + $Result.Stderr
     Write-Verbose ($text.Substring(0,[Math]::Min($text.Length,4096)))
@@ -252,6 +260,7 @@ function Invoke-ToolbeltInstall {
         [Management.Automation.PSCredential]$Credential, [string]$PackageZip,
         [string]$SqlcmdPath = 'sqlcmd', [switch]$TrustServerCertificate,
         [switch]$ValidateOnly, [switch]$PreflightOnly,
+        [switch]$CreateDatabase, [switch]$EnableClr,
         [ValidateRange(1,120)][int]$LoginTimeoutSeconds = 60,
         [ValidateRange(1,1800)][int]$CommandTimeoutSeconds = 600
     )
@@ -292,6 +301,49 @@ function Invoke-ToolbeltInstall {
             Stop-ToolbeltInstall 'CLIENT' 'Dieser Einstieg benötigt sqlcmd (ODBC); sqlcmd (Go) wird nicht automatisch als Ersatz verwendet.'
         }
         Write-Host '[2/4] Ziel, Rechte, CLR, Sicherheitszustand und leere Datenbank prüfen.'
+        $preparationJournal=$null
+        if ($CreateDatabase -or $EnableClr) {
+            $prepareFile=Join-Path $scratch 'prepare.sql'; $ownedFiles.Add($prepareFile)
+            $prepareCall=@{Executable=$tool;Server=$ServerInstance;Catalog='master';SqlCredential=$Credential
+                CertificateOverride=[bool]$TrustServerCertificate;LoginTimeout=$LoginTimeoutSeconds;CommandTimeout=$CommandTimeoutSeconds}
+            [IO.File]::WriteAllText($prepareFile,(Get-ToolbeltPreparationSql $Database ([bool]$CreateDatabase) ([bool]$EnableClr)),[Text.UTF8Encoding]::new($false))
+            $planResult=Invoke-ToolbeltSql @prepareCall -File $prepareFile
+            Assert-ToolbeltSqlSuccess $planResult 'Lesende Vorbereitung'
+            $parts=@([regex]::Matches($planResult.Stdout,'(?m)^[ \t]*TBX_PREPARATION_PART\|(\d{4})\|([0-9A-F]+)[ \t]*\r?$'))
+            $counts=@([regex]::Matches($planResult.Stdout,'(?m)^\s*TBX_PREPARATION_PARTS\|(\d+)\s*$'))
+            if($counts.Count -ne 1 -or $parts.Count -lt 1 -or $parts.Count -ne [int]$counts[0].Groups[1].Value){Stop-ToolbeltInstall 'PROBE' 'Kein vollständiger Vorbereitungsplan. Keine Änderung ausgeführt.'}
+            $builder=[Text.StringBuilder]::new()
+            for($i=0;$i -lt $parts.Count;$i++){
+                if([int]$parts[$i].Groups[1].Value -ne $i){Stop-ToolbeltInstall 'PROBE' 'Mehrdeutige Planreihenfolge.'}
+                [void]$builder.Append($parts[$i].Groups[2].Value.TrimEnd())
+            }
+            $plan=[Text.UnicodeEncoding]::new($false,$false,$true).GetString([Convert]::FromHexString($builder.ToString()))
+            $parsed=$plan|ConvertFrom-Json
+            if($parsed.database_name -cne $Database -or $parsed.platform -cnotin @('Windows','Linux') -or @($parsed.configurations).Count -lt 1){Stop-ToolbeltInstall 'PROBE' 'Ungültiger Vorbereitungsplan.'}
+            if($PreflightOnly){return [pscustomobject]@{Status='PREPARATION_PREFLIGHT_OK';Mutations=$false;DatabaseExists=($null -ne $parsed.database_guid);Platform=$parsed.platform}}
+            $preparationJournal=New-ToolbeltPreparationJournal $Database $ServerInstance $plan
+            Write-Host ('Privates Vorbereitungsjournal: '+$preparationJournal.Path)
+            [IO.File]::WriteAllText($prepareFile,(Get-ToolbeltPreparationSql $Database ([bool]$CreateDatabase) ([bool]$EnableClr) $plan),[Text.UTF8Encoding]::new($false))
+            $preparationJournal.Record.state='DISPATCHED_OUTCOME_UNKNOWN'
+            [IO.File]::WriteAllText($preparationJournal.Path,($preparationJournal.Record|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
+            try {
+                $prepared=Invoke-ToolbeltSql @prepareCall -File $prepareFile
+                $created=@([regex]::Matches($prepared.Stdout,'(?m)^\s*TBX_PREPARATION_CREATED_GUID\|([0-9a-fA-F-]{36})\s*$'))
+                $preparationJournal.Record.outcome=@{ExitCode=$prepared.ExitCode;CreatedGuid=$(if($created.Count -eq 1){$created[0].Groups[1].Value}else{$null})}
+                Assert-ToolbeltSqlSuccess $prepared 'Datenbank-/CLR-Vorbereitung'
+                if(@([regex]::Matches($prepared.Stdout,'(?m)^\s*TBX_PREPARATION_OK\s*$')).Count -ne 1){Stop-ToolbeltInstall 'RECEIPT' 'Vorbereitungsabschluss fehlt. Privates Journal und Zielzustand prüfen.'}
+                $targets=@([regex]::Matches($prepared.Stdout,'(?m)^\s*TBX_PREPARATION_TARGET\|([0-9a-fA-F-]{36})\s*$'))
+                $preparedGuid=[guid]::Empty
+                if($targets.Count -ne 1 -or ![guid]::TryParse($targets[0].Groups[1].Value,[ref]$preparedGuid)){Stop-ToolbeltInstall 'RECEIPT' 'Vorbereitete Datenbankidentität fehlt.'}
+                if($null -ne $parsed.database_guid -and $preparedGuid -ne [guid]$parsed.database_guid){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die vorhandene Datenbank wurde während der Vorbereitung ersetzt.'}
+                if($created.Count -eq 1 -and $preparedGuid -ne [guid]$created[0].Groups[1].Value){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die angelegte Datenbank wurde während der Vorbereitung ersetzt.'}
+                $preparationJournal.Record.state='PREPARATION_COMPLETE'
+                $preparationJournal.Record.outcome=@{DatabaseCreated=($prepared.Stdout -match '(?m)^\s*TBX_PREPARATION_DATABASE_CREATED\s*$');ClrEnabled=($prepared.Stdout -match '(?m)^\s*TBX_PREPARATION_CLR_ENABLED\s*$');DatabaseGuid=$preparedGuid.ToString();CreatedGuid=$(if($created.Count -eq 1){$created[0].Groups[1].Value}else{$null})}
+            } catch {
+                Write-Warning ('Vorbereitung fehlgeschlagen; Teiländerungen möglich. Journal: '+$preparationJournal.Path+'. Keine automatische Rücknahme oder Wiederholung.')
+                throw
+            } finally { [IO.File]::WriteAllText($preparationJournal.Path,($preparationJournal.Record|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false)) }
+        }
         $preflight = Get-ToolbeltPreflightSql $Database
         $probeFile = Join-Path $scratch 'preflight.sql'; $ownedFiles.Add($probeFile)
         [IO.File]::WriteAllText($probeFile,$preflight,[Text.UTF8Encoding]::new($false))
@@ -304,6 +356,7 @@ function Invoke-ToolbeltInstall {
         $platform = $probeMatches[0].Groups[1].Value
         $guid = [guid]::Empty
         if (-not [guid]::TryParse($probeMatches[0].Groups[2].Value,[ref]$guid)) { Stop-ToolbeltInstall 'PROBE' 'Die Zielidentität ist ungültig.' }
+        if($preparationJournal -and $guid -ne $preparedGuid){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die vorbereitete Datenbank wurde vor der Installation ersetzt.'}
         $profilePlatform = if ($platform -eq 'Windows') { 'Windows' } else { 'Portable' }
         $profile = "$profilePlatform-$DeploymentMode"
         $selection = @($package.Metadata.profiles | Where-Object { $_.name -ceq $profile })
@@ -357,7 +410,7 @@ GO
             Stop-ToolbeltInstall 'RECEIPT' 'Der Client lieferte keinen vollständigen Abschlussnachweis. Vor erneutem Aufruf den Zielzustand prüfen.'
         }
         Write-Host '[4/4] Alle erwarteten Modulversions- und Modusmarker bestätigt.'
-        return [pscustomobject]@{ Status='INSTALLED'; Profile=$profile; Modules=$selection[0].modules.Count; Release='v1.0.0-rc.2' }
+        return [pscustomobject]@{ Status='INSTALLED'; Profile=$profile; Modules=$selection[0].modules.Count; Release='v1.0.0-rc.2'; PreparationJournal=$(if($preparationJournal){$preparationJournal.Path}else{$null}) }
     } finally {
         # Nur eigene, einzeln gebundene Dateien löschen; niemals fremde Reste oder
         # Testdatenbanken/Trusteinträge pauschal entfernen. Keine rekursive Löschung.
