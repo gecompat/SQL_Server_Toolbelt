@@ -1,5 +1,15 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## rc.3-Paketierung und Veröffentlichung – Auftrag 2026-11-19
+
+Der Benutzer beauftragt die Integration des geprüften Ein-Aufruf-Installers
+in einen neuen Release-/Installationssatz und die öffentliche Veröffentlichung
+als GitHub-Vorabrelease. Ein kohärentes Paket/ein PR, unveränderte Einstieg-/SQL-/
+Binarybytes und wiederverwendete Originalnachweise; notwendige Paket-/Leseweg-
+Offlineprüfungen sowie tatsächliche Head-/Main-CI. Keine neuen SQL-/TLS-/GUI-
+Läufe, keine Modulstatusaufwertung. Alte Releases bleiben erhalten. Nach
+Veröffentlichung und Branchcleanup ist dieser Scope beendet.
+
 ## Ein-Aufruf-Installer – Auftrag 2026-11-19
 
 Der unmittelbare Benutzerauftrag autorisiert den Clientadapter

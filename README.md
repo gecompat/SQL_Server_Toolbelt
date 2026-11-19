@@ -113,8 +113,9 @@ Die betroffenen Objektseiten verlinken jeweils den passenden Abschnitt.
 
 Der aktuelle Modulbestand mit Versionsnummern und Nachweisgrenzen steht in
 der [Modulübersicht](./Modules/README.md). Der
-[Projektentwicklungssnapshot v1.0.0-rc.2](./Releases/1.0.0/RC2.md)
-bündelt den aktuellen Installer und die bereinigte Dokumentation für Tests. Pakete, Einstieg und Nachweisgrenzen stehen in
+[Projektentwicklungssnapshot v1.0.0-rc.3](./Releases/1.0.0/RC3.md)
+bündelt den Ein-Aufruf-Installer, seine vollständige SQL-Basis und die
+Anwenderdokumentation für Tests. Pakete, Einstieg und Nachweisgrenzen stehen in
 der [Releaseübersicht](./Releases/README.md).
 
 Alle Modulversionen bleiben `unreleased`. Die Zielkanäle der

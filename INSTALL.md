@@ -1,22 +1,28 @@
 # Toolbelt installieren und zum ersten Mal verwenden
 
-Diese Anleitung verwendet den **gemeinsamen aktuellen Installer mit Dokumentationsstand
-vom 18. November 2026**. Er enthält fertige SQL-Skripte und eingebettete DLLs; ein eigener Build
-ist nicht nötig. Er ist ein Entwicklungssnapshot für eine
-**leere, ausdrücklich ausgewählte Testdatenbank**, kein allgemeines Upgrade
-einer bestehenden Installation und keine Produktionsfreigabe aller Module.
-
-Für den automatisierten Weg gibt es den [Ein-Aufruf-Installer](Deployment/ONE-CALL-INSTALL.md):
+Der aktuelle **Vorabrelease v1.0.0-rc.3** enthält den Ein-Aufruf-Installer und
+seine vollständige SQL-Basis. Lade den [Installationssatz](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.3/SQL-Server-Toolbelt-v1.0.0-rc.3-Install.zip)
+mit [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.3/SQL-Server-Toolbelt-v1.0.0-rc.3-Install.zip.sha256),
+prüfe ihn und entpacke vollständig. Im entpackten Verzeichnis genügt:
 
 ```powershell
 pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database ContosoAppTest -DeploymentMode local
 ```
 
 Für eine zentrale Installation `-Database Toolbelt -DeploymentMode central`
-verwenden. Dieser zusätzliche Einstieg benötigt PowerShell 7.4+, sqlcmd (ODBC)
-und vorhandene administrative SQL-Rechte; er übernimmt Vorprüfung und exakten
-Assembly-Trust. Die folgenden Schritte erklären den weiterhin verfügbaren
-manuellen SSMS-Weg ohne diese Clientwerkzeuge.
+verwenden. PowerShell 7.4+, sqlcmd (ODBC), eine vorbereitete leere Testdatenbank,
+vorhandene administrative SQL-Rechte und wirksames CLR sind erforderlich.
+Der Einstieg übernimmt Vorprüfung und exakten Assembly-Trust; ein weiterer
+Paketdownload oder DLL-Build ist für den vollständig entpackten Satz nicht nötig.
+Die [Kurzanleitung](Releases/1.0.0/RC3-INSTALL.md) und die
+[vollständige Parameter-/Fehleranleitung](Deployment/ONE-CALL-INSTALL.md) erklären den Weg.
+
+Der manuelle SSMS-Weg verwendet weiterhin dieselbe unveränderte SQL-Basis aus
+rc.2 mit Dokumentationsstand vom 18. November 2026; dessen Direktdownload folgt
+in Schritt 3. Beide Wege sind für eine **leere, ausdrücklich ausgewählte
+Testdatenbank** bestimmt, kein allgemeines Upgrade oder eine Produktionsfreigabe
+aller Module. Die folgenden Schritte erklären diesen manuellen Weg ohne
+PowerShell-/sqlcmd-Client.
 
 ## 1. Lokal oder zentral und das passende Profil wählen
 

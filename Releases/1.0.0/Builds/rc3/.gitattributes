@@ -1,0 +1,4 @@
+# Lieferbytes und ihre Prüfsummen unverändert erhalten.
+* -text whitespace=cr-at-eol
+# Ausgaben nicht rekursiv in spätere Quell-Exporte aufnehmen.
+*.zip export-ignore
