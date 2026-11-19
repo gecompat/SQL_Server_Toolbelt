@@ -1,5 +1,4 @@
 """Paketierung darf Code/Nachweis nicht ändern oder neue Erfolgsaussagen erfinden."""
-import copy
 import io
 import json
 from pathlib import Path
@@ -101,3 +100,21 @@ class OneCallBundleTests(unittest.TestCase):
             with self.assertRaises(ValueError):bundle.build("HEAD",output)
             Path(str(output)+".sha256").write_text("0"*64+"  install.zip\n")
             with self.assertRaises(ValueError):bundle.verify(output)
+
+    def test_committed_delivery_and_source_archives_are_verified(self):
+        relative="Releases/1.0.0/Builds/rc3/"
+        # Der Vorbereitungscommit enthält noch keine zukünftigen Ausgaben.
+        # Sobald sie integriert sind, prüft CI die tatsächlich gelieferten
+        # Archive zusätzlich zur Roundtrip-/Negativprüfung des Generators.
+        tracked=subprocess.run(["git","cat-file","-e","HEAD:"+relative+"BUILD-RECEIPT.json"],
+                               cwd=ROOT,capture_output=True).returncode == 0
+        if not tracked:self.skipTest("preparation commit; delivery artifacts not integrated yet")
+        path=ROOT/relative
+        manifest=bundle.verify(path/"SQL-Server-Toolbelt-v1.0.0-rc.3-Install.zip")
+        import prepare_current_candidate as candidate
+        candidate.verify(path/"SQL-Server-Toolbelt-v1.0.0-rc.3-source.zip")
+        receipt=json.loads((path/"BUILD-RECEIPT.json").read_bytes())
+        self.assertEqual(manifest["source_commit"],receipt["source_commit"])
+        for line in (path/"SHA256SUMS.txt").read_text().splitlines():
+            digest,name=line.split("  ",1)
+            self.assertEqual(bundle.sha((path/name).read_bytes()),digest)
