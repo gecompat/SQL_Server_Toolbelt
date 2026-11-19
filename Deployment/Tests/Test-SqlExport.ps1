@@ -298,3 +298,7 @@ finally {
     else { throw 'SQL_EXPORT_CLEANUP_BOUNDARY' }
 }
 [Console]::Out.WriteLine("SQL_EXPORT_TEST_PASS cases=$($script:cases) assertions=$($script:assertions)")
+
+# Derselbe bestehende Deployment-Impact startet auch die Clientgegenproben des
+# Komforteinstiegs. Keine zusätzliche Workflow-/Release-Sammelprüfung nötig.
+& (Join-Path $PSScriptRoot 'Test-OneCallInstall.ps1')

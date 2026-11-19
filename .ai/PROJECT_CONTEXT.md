@@ -1,5 +1,17 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Ein-Aufruf-Installer – Auftrag 2026-11-19
+
+Der unmittelbare Benutzerauftrag autorisiert den Clientadapter
+[Install-Toolbelt.ps1](../Deployment/Install-Toolbelt.ps1) mit Vorprüfung,
+Assembly-Trust und lokaler/zentraler Neuinstallation des unveränderten rc.2-Satzes.
+Der [Vertrag](../Deployment/ONE-CALL-INSTALL.md) beschreibt Voraussetzungen,
+Seiteneffekte und Fehlerabbruch. Keine neuen fachlichen SQL-Objekte, automatische
+Rechtevergabe, Infrastrukturverwaltung oder Veröffentlichung geänderter Assets.
+Notwendige gezielte Client-/Installationsprüfungen und reguläre PR-Integration
+mit Head-/Main-CI gehören zum Scope; frühere Nachweise und geschlossene
+Testgrenzen bleiben unverändert. Danach bleibt der Entwicklungswellenstopp bestehen.
+
 ## Dokumentation und Bereinigung – Auftrag 2026-11-18
 
 Der unmittelbare Benutzerauftrag autorisiert genau eine Dokumentations- und
