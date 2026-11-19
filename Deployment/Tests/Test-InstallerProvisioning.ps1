@@ -94,6 +94,7 @@ try{
     Check ($node.Count -eq 1) 'canonical connection helper discovered'
     $source=$node[0].Extent.Text.Replace('[Data.SqlClient.SqlConnection]::new','[ProvisioningConnectionStub]::new')
     $source=$source.Replace('[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $script:target -TestPurpose Functional))', '[Data.Common.DbConnectionStringBuilder]::new(); $builder.ConnectionString=(New-LabConnectionString)')
+    if($source -match 'SqlConnection\]\s*::new' -or !$source.Contains('[ProvisioningConnectionStub]::new')){throw 'COUNTERPROBE_REAL_CONNECTION_FORBIDDEN'}
     . ([scriptblock]::Create($source))
     function Assert-ReleaseInputs {}
     function Get-ReleaseTimeout { 10 }
