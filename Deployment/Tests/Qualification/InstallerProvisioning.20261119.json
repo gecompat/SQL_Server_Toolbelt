@@ -1,0 +1,269 @@
+{
+  "kind": "installer_provisioning",
+  "result": "PASS_FOR_DECLARED_SCOPE",
+  "executed_on": "2026-11-19",
+  "scope": {
+    "new_database_creation": true,
+    "clr_activation": true,
+    "client": "PowerShell 7 on Windows / ODBC sqlcmd",
+    "authentication": "explicit SqlCredential",
+    "compatibility": "model defaults; regular target preflight enforces >=150; no new full CL matrix",
+    "module_requalification": false,
+    "native_windows_integrated_login": "not executed",
+    "historical_rc3_entry_not_promoted": true
+  },
+  "matrix_source_commit": "7b4cef84fbdb77e79c3de4c2038589d3f8ed0878",
+  "matrix_method_source_sha256": {
+    "Deployment/Install-Toolbelt.ps1": "fcf75d24b9e7eb4c75ea643b179c3da071dabb520edf6f7b0fcb1ddb86c99e4f",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "83ff8b1afc5ea6ef9c1e40b54fa64ad051f3501e866b76977d93e0e8b118d2c7",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Deployment/Tests/Invoke-InstallerProvisioningLab.ps1": "6f1fe8cd94aab8c52909e9cc124965b676bba9a31bd26087778d4573edb2c4b7",
+    "Deployment/Toolbelt.Provisioning.ps1": "e52f14192b6ec63cb911fd73bfd99ea404cc025a53ee8c578aa9cc6d7f46a446"
+  },
+  "method_source_sha256": {
+    "Deployment/Install-Toolbelt.ps1": "203b13ac94e5d7c9c550b8d0c34a7a3167f46a9ab2f8540eac0cef4a4a29047a",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "83ff8b1afc5ea6ef9c1e40b54fa64ad051f3501e866b76977d93e0e8b118d2c7",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Deployment/Tests/Invoke-InstallerProvisioningLab.ps1": "6f1fe8cd94aab8c52909e9cc124965b676bba9a31bd26087778d4573edb2c4b7",
+    "Deployment/Toolbelt.Provisioning.ps1": "e52f14192b6ec63cb911fd73bfd99ea404cc025a53ee8c578aa9cc6d7f46a446",
+    "Deployment/Tests/Invoke-ProvisioningSafetyLab.ps1": "c6aeed94688c85e067e5b42d2e346f6b2ed522a0b48d64eed62455359a316091"
+  },
+  "entry_delta": "only two added identity guards; exact transformation checked by release generator; all other matrix methods unchanged",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS_FOR_DECLARED_SCOPE",
+      "audit": "PASS",
+      "databases_created": 2,
+      "scope": "two completed profile databases; failed additional database preserved in history",
+      "profile_sources": [
+        {
+          "mode": "local",
+          "native_case": 0,
+          "native_state": "FAILED_CLEANED",
+          "receipt": "INSTALLED",
+          "modules": 45,
+          "fresh_audit": "PASS"
+        },
+        {
+          "mode": "central",
+          "native_case": 6,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 43,
+          "fresh_audit": "PASS"
+        }
+      ]
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS_FOR_DECLARED_SCOPE",
+      "audit": "PASS",
+      "databases_created": 2,
+      "scope": "two completed profile databases; failed additional database preserved in history",
+      "profile_sources": [
+        {
+          "mode": "local",
+          "native_case": 1,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 45,
+          "fresh_audit": "PASS"
+        },
+        {
+          "mode": "central",
+          "native_case": 1,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 43,
+          "fresh_audit": "PASS"
+        }
+      ]
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS_FOR_DECLARED_SCOPE",
+      "audit": "PASS",
+      "databases_created": 2,
+      "scope": "two completed profile databases; failed additional database preserved in history",
+      "profile_sources": [
+        {
+          "mode": "local",
+          "native_case": 2,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 45,
+          "fresh_audit": "PASS"
+        },
+        {
+          "mode": "central",
+          "native_case": 2,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 43,
+          "fresh_audit": "PASS"
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS_FOR_DECLARED_SCOPE",
+      "audit": "PASS",
+      "databases_created": 2,
+      "scope": "two completed profile databases; failed additional database preserved in history",
+      "profile_sources": [
+        {
+          "mode": "local",
+          "native_case": 3,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 41,
+          "fresh_audit": "PASS"
+        },
+        {
+          "mode": "central",
+          "native_case": 3,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 41,
+          "fresh_audit": "PASS"
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS_FOR_DECLARED_SCOPE",
+      "audit": "PASS",
+      "databases_created": 2,
+      "scope": "two completed profile databases; failed additional database preserved in history",
+      "profile_sources": [
+        {
+          "mode": "local",
+          "native_case": 4,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 41,
+          "fresh_audit": "PASS"
+        },
+        {
+          "mode": "central",
+          "native_case": 4,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 41,
+          "fresh_audit": "PASS"
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "modes": [
+        "local",
+        "central"
+      ],
+      "result": "PASS_FOR_DECLARED_SCOPE",
+      "audit": "PASS",
+      "databases_created": 2,
+      "scope": "two completed profile databases; failed additional database preserved in history",
+      "profile_sources": [
+        {
+          "mode": "local",
+          "native_case": 5,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 41,
+          "fresh_audit": "PASS"
+        },
+        {
+          "mode": "central",
+          "native_case": 5,
+          "native_state": "COMPLETE",
+          "receipt": "INSTALLED",
+          "modules": 41,
+          "fresh_audit": "PASS"
+        }
+      ]
+    }
+  ],
+  "actual_clr_activations": 4,
+  "identity_guard_fresh_case": {
+    "result": "COMPLETE",
+    "audit": "PASS",
+    "modes": [
+      "local"
+    ],
+    "platform": "windows",
+    "sql_version": "2025"
+  },
+  "safety": {
+    "result": "COMPLETE",
+    "checks": 3,
+    "audit": "PASS",
+    "new_databases": 0
+  },
+  "offline": {
+    "synthetic_assertions": 122,
+    "source_sha256": "b5f817144f7e4f35d1c25ff442b7bb29f587bd159ee01314ac485cf18e6c476c",
+    "scope": "target swap rejection before trust, read-only modes, quoted inputs, pending guard, private journal, shared connection collection counterprobe"
+  },
+  "history": {
+    "initial_native_state": "FAILED_CLEANED",
+    "initial_fresh_audit": "PASS",
+    "initial_timeout": "preserved",
+    "initial_cleanup_state": "CLEANUP_BLOCKED; qualified catalog-column correction and GUID-bound cleanup continuation; fresh audit PASS",
+    "initial_adapter_commit": "31f078e743225fbae15e6e25e30b08b807e24aa8",
+    "initial_safety_failure": "preledger adapter failure before mutation; original source/log and dispatch retained",
+    "initial_safety_correction": "initialize shared connection collection; SQL-free reproducer passes; corrected native run and fresh audit PASS",
+    "initial_local_receipt_reused_only_for_completed_profile": true,
+    "failed_coordinator_promoted_to_pass": false
+  },
+  "accounting": {
+    "closed": true,
+    "native_dispatches": 20,
+    "max_native_dispatches": 20,
+    "database_reservations": 16,
+    "max_database_reservations": 16,
+    "actual_owned_databases_removed": 14,
+    "successful_independent_audits": 9,
+    "matrix_profiles": 12,
+    "fresh_changed_input_profiles": 1,
+    "shared_native_window_minutes": 90,
+    "old_errors_and_counts_preserved": true
+  },
+  "new_tls_gui_tests": false,
+  "module_release_status_changed": false
+}

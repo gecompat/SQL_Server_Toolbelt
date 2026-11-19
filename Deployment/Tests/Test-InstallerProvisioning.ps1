@@ -1,9 +1,15 @@
 # Gegenproben mit synthetischem sqlcmd; niemals eine SQL-Verbindung öffnen.
 param([string]$BundleRoot=(Join-Path $PSScriptRoot '../..'))
+class ProvisioningConnectionStub {
+    ProvisioningConnectionStub([string]$unused) {}
+    [void]Open() {}
+    [void]Dispose() {}
+}
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 . (Join-Path $BundleRoot 'Deployment/Install-Toolbelt.ps1') -DeploymentMode local
 $script:count=0;$script:calls=0;$script:failure='';$script:ambiguous=$false;$script:journalPaths=@()
+$script:createdGuid='00000000-0000-0000-0000-000000000001'
 function Check([bool]$Ok,[string]$Message){$script:count++;if(!$Ok){throw ('PROVISIONING_TEST '+$Message)}}
 function Fails([scriptblock]$Action,[string]$Code){$caught=$false;try{& $Action|Out-Null}catch{$caught=$_.Exception.Message.Contains('['+$Code+']')};Check $caught ('expected '+$Code)}
 $script:plan=@{database_name="Contoso]O'Brien ";platform='Windows';database_guid=$null;configurations=@(@{configuration_id=1;configured=0;running=0})}|ConvertTo-Json -Compress
@@ -21,7 +27,8 @@ function Invoke-ToolbeltNativeProcess($StartInfo,$TimeoutSeconds){
             Check ($script:calls -eq 2) 'plan precedes mutation'
             Check ($sql.Contains("EXEC(N'CREATE DATABASE [Contoso]]O''Brien ]')")) 'dynamic identifier/literal double escaped'
             if($script:failure){return @{ExitCode=1;Stdout='';Stderr=$script:failure}}
-            return @{ExitCode=0;Stdout="TBX_PREPARATION_DATABASE_CREATED`nTBX_PREPARATION_CLR_ENABLED`nTBX_PREPARATION_TARGET|00000000-0000-0000-0000-000000000001`nTBX_PREPARATION_OK";Stderr=''}
+            $createdLine=$(if($script:createdGuid){"TBX_PREPARATION_DATABASE_CREATED`nTBX_PREPARATION_CREATED_GUID|$script:createdGuid`n"}else{''})
+            return @{ExitCode=0;Stdout=($createdLine+"TBX_PREPARATION_CLR_ENABLED`nTBX_PREPARATION_TARGET|00000000-0000-0000-0000-000000000001`nTBX_PREPARATION_OK");Stderr=''}
         }
         Check ($sql -notmatch 'RECONFIGURE|CREATE DATABASE \[') 'plan read-only'
         $hex=[Convert]::ToHexString([Text.Encoding]::Unicode.GetBytes($script:plan));$lines=@();$i=0
@@ -59,6 +66,17 @@ try{
     $script:failure='';$script:ambiguous=$true;$script:calls=0
     Fails {Invoke-ToolbeltInstall @argsBase -EnableClr} 'PROBE'
     Check ($script:calls -eq 1) 'invalid plan blocks mutation'
+    $script:ambiguous=$false
+    $originalPlan=$script:plan
+    foreach($scenario in @('existing','created')){
+        $script:calls=0
+        if($scenario -eq 'existing'){
+            $p=$originalPlan|ConvertFrom-Json;$p.database_guid='00000000-0000-0000-0000-000000000002';$script:plan=$p|ConvertTo-Json -Compress;$script:createdGuid=''
+        }else{$script:plan=$originalPlan;$script:createdGuid='00000000-0000-0000-0000-000000000002'}
+        Fails {Invoke-ToolbeltInstall @argsBase -EnableClr -CreateDatabase} 'TBX_TARGET_CHANGED'
+        Check ($script:calls -eq 2) ('replaced '+$scenario+' target rejected before regular probe/trust')
+    }
+    $script:plan=$originalPlan;$script:createdGuid='00000000-0000-0000-0000-000000000001'
     $planSql=Get-ToolbeltPreparationSql Contoso $true $true
     $mutation=Get-ToolbeltPreparationSql Contoso $true $true '{}'
     Check ($planSql -notmatch '(?m)^\s*RECONFIGURE|EXEC\(N''CREATE DATABASE') 'read-only SQL has no DDL'
@@ -68,6 +86,26 @@ try{
     Check (([regex]::Matches($mutation,'(?m)^\s*RECONFIGURE;')).Count -eq 1) 'single bounded reconfigure site'
     Check (($mutation -split '(?m)^\s*RECONFIGURE;')[0].Contains('TBX_PENDING_CONFIGURATION')) 'reconfigure guarded'
     Check (-not $mutation.Contains("sp_configure N'show advanced options'")) 'advanced visibility untouched'
+    # Gemeinsamen Connectionhelper ohne Netzwerk ausführen: der Hostadapter
+    # muss dessen script:connections-Abhängigkeit initialisieren.
+    $stable=Join-Path $PSScriptRoot '../../Tests/Release/Invoke-StablePackageLab.ps1'
+    $ast=[Management.Automation.Language.Parser]::ParseFile($stable,[ref]$null,[ref]$null)
+    $node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Open-ReleaseConnection'},$true))
+    Check ($node.Count -eq 1) 'canonical connection helper discovered'
+    $source=$node[0].Extent.Text.Replace('[Data.SqlClient.SqlConnection]::new','[ProvisioningConnectionStub]::new')
+    $source=$source.Replace('[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $script:target -TestPurpose Functional))', '[Data.Common.DbConnectionStringBuilder]::new(); $builder.ConnectionString=(New-LabConnectionString)')
+    . ([scriptblock]::Create($source))
+    function Assert-ReleaseInputs {}
+    function Get-ReleaseTimeout { 10 }
+    function New-LabConnectionString { 'Server=localhost;Integrated Security=True;Encrypt=True;TrustServerCertificate=False' }
+    $script:target=@{}
+    Remove-Variable connections -Scope Script -ErrorAction SilentlyContinue
+    $missingCollection=$false;try{Open-ReleaseConnection master|Out-Null}catch{$missingCollection=$true}
+    Check $missingCollection 'counterprobe reproduces absent adapter collection without SQL'
+    $script:connections=[Collections.Generic.List[object]]::new()
+    $stub=Open-ReleaseConnection master
+    Check ($script:connections.Count -eq 1 -and $stub -is [ProvisioningConnectionStub]) 'initialized adapter collection accepts connection'
+    $stub.Dispose()
 }finally{
     # Auch fehlgeschlagene synthetische Journale gehören zum Test; nur unsere
     # localhost-/Contoso-Datensätze löschen, keine fremden Installationsjournale.

@@ -13,6 +13,10 @@ GUIDE = 'Releases/1.0.0/RC4-INSTALL.md'
 DOCS = {'START-HERE.md': GUIDE, 'INSTALL.md': 'INSTALL.md',
         'Deployment/ONE-CALL-INSTALL.md': 'Deployment/ONE-CALL-INSTALL.md',
         'Deployment/PROVISIONING.md': 'Deployment/PROVISIONING.md'}
+ENTRY_GUARD_ANCHOR = b"                $preparationJournal.Record.state='PREPARATION_COMPLETE'\n"
+ENTRY_GUARD_DELTA = b"""                if($null -ne $parsed.database_guid -and $preparedGuid -ne [guid]$parsed.database_guid){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die vorhandene Datenbank wurde w\xc3\xa4hrend der Vorbereitung ersetzt.'}
+                if($created.Count -eq 1 -and $preparedGuid -ne [guid]$created[0].Groups[1].Value){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die angelegte Datenbank wurde w\xc3\xa4hrend der Vorbereitung ersetzt.'}
+"""
 
 
 def payload(commit):
@@ -34,6 +38,17 @@ def payload(commit):
                  and evidence['history']['initial_fresh_audit'] == 'PASS', 'Frühere Fehler/Audit fehlen')
     for path,digest in evidence['method_source_sha256'].items():
         base.require(base.sha(base.git_file(commit,path).replace(b'\r\n',b'\n')) == digest, 'Methodendrift: '+path)
+    matrix_commit=evidence['matrix_source_commit']
+    for path,digest in evidence['matrix_method_source_sha256'].items():
+        matrix_bytes=base.git_file(matrix_commit,path).replace(b'\r\n',b'\n')
+        base.require(base.sha(matrix_bytes) == digest, 'Originale Matrixbindung abweichend: '+path)
+        current_bytes=base.git_file(commit,path).replace(b'\r\n',b'\n')
+        if path == ENTRY:
+            base.require(matrix_bytes.count(ENTRY_GUARD_ANCHOR) == 1 and
+                current_bytes == matrix_bytes.replace(ENTRY_GUARD_ANCHOR,ENTRY_GUARD_DELTA+ENTRY_GUARD_ANCHOR), 'Nicht belegte Erweiterung des Matrix-Einstiegs')
+        else:
+            base.require(matrix_bytes == current_bytes, 'Unbelegte Methodenänderung gegenüber Matrix: '+path)
+    base.require(evidence['identity_guard_fresh_case'] == {'result':'COMPLETE','audit':'PASS','modes':['local'],'platform':'windows','sql_version':'2025'}, 'Frischer Gesamtfall des Identitätsguards fehlt')
     base.require({ENTRY,HELPER,'Deployment/Tests/Invoke-InstallerProvisioningLab.ps1','Deployment/Tests/Invoke-ProvisioningSafetyLab.ps1'} <= evidence['method_source_sha256'].keys(), 'Methoden fehlen')
     files.update({p:base.git_file(commit,p) for p in (ENTRY,HELPER,EVIDENCE)})
     delivered = set(files)|DOCS.keys()

@@ -3,14 +3,18 @@
 param([Parameter(Mandatory)][string]$RunsetPath,[switch]$AuditOnly)
 $ErrorActionPreference='Stop';Set-StrictMode -Version Latest
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
-$case=$runset.cases[2];$control=$null;$ledger=$null;$failure=$null
-$journal=Join-Path (Split-Path $RunsetPath) 'safety.private.json'
+$control=$null;$ledger=$null;$failure=$null
+$connections=[Collections.Generic.List[object]]::new()
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $repo 'Tests/Release/Invoke-ApiQualificationLab.ps1'),[ref]$null,[ref]$null)
 $node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Import-ClrFunctions'},$true))
 if($node.Count -ne 1){throw 'SAFETY_IMPORT'}
 . ([scriptblock]::Create($node[0].Extent.Text))
 foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/Release/Invoke-StablePackageLab.ps1') @('Assert-ReleasePin','Assert-ReleasePrivatePath','Invoke-ReleaseSql','Open-ReleaseConnection','Assert-ReleaseInputs')){. $block}
+$RunsetPath=Assert-ReleasePrivatePath $RunsetPath
+$runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
+if($runset.schema_version -cne 'toolbelt-installer-provisioning-runset/v1' -or $runset.cases.Count -lt 3){throw 'SAFETY_RUNSET'}
+$case=$runset.cases[2]
+$journal=Assert-ReleasePrivatePath (Join-Path (Split-Path $RunsetPath) 'safety.private.json')
 function Get-ReleaseTimeout {
     $left=([DateTimeOffset]$runset.deadline_utc-[DateTimeOffset]::UtcNow).TotalSeconds
     if($left -lt 1){throw 'SAFETY_DEADLINE'}
@@ -26,11 +30,16 @@ function TrustSnapshot {
 }
 try{
     Assert-ReleaseInputs
+    foreach($required in @($PSCommandPath,(Join-Path $repo 'Deployment/Install-Toolbelt.ps1'),(Join-Path $repo 'Deployment/Toolbelt.Provisioning.ps1'))){
+        if(@($runset.pins|Where-Object path -CEQ $required).Count -ne 1){throw 'SAFETY_REQUIRED_PIN'}
+    }
     $lab=Resolve-LabContract -TestPurpose Functional
     if((Get-FileHash -LiteralPath $lab.Path -Algorithm SHA256).Hash -cne $runset.contract_sha256){throw 'SAFETY_CONTRACT_DRIFT'}
     $targets=@(Get-LabTargetsForSelector -Contract $lab.Contract -Selector $case)
     if($targets.Count -ne 1){throw 'SAFETY_EXACT_TARGET'}
     $target=$targets[0];$control=Open-ReleaseConnection 'master'
+    $actual=@(Invoke-ReleaseSql $control "SELECT CONVERT(int,SERVERPROPERTY(N'ProductMajorVersion')) Major,(SELECT host_platform FROM sys.dm_os_host_info) Platform,IS_SRVROLEMEMBER(N'sysadmin') Admin;" -Rows)
+    if($actual.Count -ne 1 -or $actual[0].Major -ne 17 -or $actual[0].Platform -cne 'Windows' -or $actual[0].Admin -ne 1){throw 'SAFETY_TARGET_IDENTITY'}
     if($AuditOnly){
         $prior=Get-Content $journal -Raw|ConvertFrom-Json
         if($prior.state -cne 'COMPLETE' -or (($prior.before|ConvertTo-Json -Depth 4 -Compress) -cne ((Snapshot)|ConvertTo-Json -Depth 4 -Compress)) -or $prior.trust -cne (TrustSnapshot)){throw 'SAFETY_AUDIT_DRIFT'}
@@ -66,7 +75,11 @@ try{
         foreach($row in $now){$prior=@($ledger.before|Where-Object Id -eq $row.Id)[0];if($row.Effective -ne $prior.Effective -or $row.Configured -ne $(if($row.Id -eq $id){$staged}else{$prior.Configured})){throw 'SAFETY_FOREIGN_PENDING_DRIFT'}}
         $ledger.checks++
     }
-}catch{$failure=$_.Exception;if($ledger){$ledger['failure']=$failure.Message}}
+}catch{
+    $failure=$_.Exception
+    if($ledger){$ledger['failure']=$failure.Message}
+    else{@{state='FAILED_BEFORE_MUTATION';errorId=$_.FullyQualifiedErrorId;type=$failure.GetType().FullName;position=$_.ScriptStackTrace}|ConvertTo-Json|Set-Content (Join-Path (Split-Path $RunsetPath) 'safety-preflight.private.json') -Encoding utf8}
+}
 finally{
     if($ledger -and $ledger.pendingOwned -and $control){
         try{

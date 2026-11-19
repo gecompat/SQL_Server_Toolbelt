@@ -20,6 +20,18 @@ deren Fehlergrenzen und das ausgelieferte Paketlayout; unveränderte Modulmatriz
 werden wiederverwendet. Es gibt keine neue TLS-/GUI- oder Modulgesamtqualifikation;
 Modulmanifeste bleiben `unreleased`.
 
+Die native Abnahme umfasst zwölf lokale/zentrale Profile auf sechs Windows-/
+Linux-Versionenzielen. Zwei anschließend ergänzte GUID-Sperren werden durch
+eine exakt geprüfte Quelldifferenz, gezielte Gegenproben und einen frischen
+aktuellen Windows-2025-Gesamtfall gebunden; die übrige Komposition bleibt
+unverändert. Drei zusätzliche native Sicherheitsproben prüfen rein lesende
+Vorbereitung, fehlendes Ziel ohne Anlagefreigabe und Ablehnung vorgemerkter
+Konfiguration. Neun frische Audits bestätigen die jeweiligen Cleanup-Scopes.
+Die native Clientanmeldung ist SQL-Anmeldung von Windows; keine neue native
+integrierte Windows-Anmeldung oder vollständige Compatibility-Level-Matrix.
+Frühere Adapterfehler bleiben samt Bereinigung/Audits erhalten; insbesondere
+wird der erste fehlgeschlagene Gesamtlauf nicht rückwirkend zu PASS erklärt.
+
 `BUILD-RECEIPT.json` benennt den exakten Vorbereitungscommit der beiden ZIPs;
 der Release-Tag zeigt auf die spätere grüne Integration der fertigen Artefakte.
 Der Benutzer hat am 19. November 2026 diese konkrete Erweiterung einschließlich

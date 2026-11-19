@@ -335,6 +335,8 @@ function Invoke-ToolbeltInstall {
                 $targets=@([regex]::Matches($prepared.Stdout,'(?m)^\s*TBX_PREPARATION_TARGET\|([0-9a-fA-F-]{36})\s*$'))
                 $preparedGuid=[guid]::Empty
                 if($targets.Count -ne 1 -or ![guid]::TryParse($targets[0].Groups[1].Value,[ref]$preparedGuid)){Stop-ToolbeltInstall 'RECEIPT' 'Vorbereitete Datenbankidentität fehlt.'}
+                if($null -ne $parsed.database_guid -and $preparedGuid -ne [guid]$parsed.database_guid){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die vorhandene Datenbank wurde während der Vorbereitung ersetzt.'}
+                if($created.Count -eq 1 -and $preparedGuid -ne [guid]$created[0].Groups[1].Value){Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die angelegte Datenbank wurde während der Vorbereitung ersetzt.'}
                 $preparationJournal.Record.state='PREPARATION_COMPLETE'
                 $preparationJournal.Record.outcome=@{DatabaseCreated=($prepared.Stdout -match '(?m)^\s*TBX_PREPARATION_DATABASE_CREATED\s*$');ClrEnabled=($prepared.Stdout -match '(?m)^\s*TBX_PREPARATION_CLR_ENABLED\s*$');DatabaseGuid=$preparedGuid.ToString();CreatedGuid=$(if($created.Count -eq 1){$created[0].Groups[1].Value}else{$null})}
             } catch {
