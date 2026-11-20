@@ -1,0 +1,123 @@
+"""CLR-Konstanten und Ablehnung ungeprüfter Daten, ohne SQL-/Dateisystem-Fachzugriff."""
+from copy import deepcopy
+import json
+from pathlib import Path
+import re
+import sys
+import tempfile
+import unittest
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "Scripts/Metadata"))
+import usage_skills
+import clr_usage_skills
+
+
+def samples():
+    return [usage_skills.read(ROOT / "Metadata/UsageSkills/toolbelt_core" / (name + ".md"))
+            for name in ("USP_PrepareResultTable", "USP_SecondSessionProbe")]
+
+
+def prepare_record_fixture(directory: Path):
+    """Neue private Eingaben für den separat kompilierten C#-Transporttest."""
+    usage_skills.require(not directory.exists(), "Neues CLR-Testverzeichnis erforderlich")
+    first, second = samples()
+    text = first.markdown + '\nÄ𐐀 O\'Brien "quoted" \\ /\n' * 2000
+    generated = clr_usage_skills.render([usage_skills.Skill(first.metadata, text), second])
+    directory.mkdir(parents=True)
+    (directory / "Generated.cs").write_text(generated, encoding="utf-8", newline="\n")
+    (directory / "Expected.md").write_text(text, encoding="utf-8", newline="\n")
+
+
+class ClrUsageSkillTests(unittest.TestCase):
+    def test_complete_synthetic_module_emits_once_and_never_overwrites_output(self):
+        original = samples()[1]
+        metadata = deepcopy(original.metadata)
+        metadata.update(module_id="toolbelt.fixture", object_type="CLR_USP", source_module_version="1.0.0")
+        _, body = usage_skills.parse_frontmatter(original.markdown)
+        sections = {key: body.split("## " + key + "\n", 1)[1].split("\n## ", 1)[0].strip()
+                    for key in usage_skills.SECTIONS}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parser = root / "Scripts/Install/markerless_manifest.py"
+            parser.parent.mkdir(parents=True)
+            parser.write_bytes((ROOT / "Scripts/Install/markerless_manifest.py").read_bytes())
+            module = root / "Modules/toolbelt.fixture"
+            module.mkdir(parents=True)
+            (module / "module.yaml").write_text(
+                'module_id: "toolbelt.fixture"\nversion: "1.0.0"\nobjects:\n'
+                '  - { type: CLR_USP, schema: toolbelt_core, name: USP_SecondSessionProbe, visibility: internal }\n'
+                '  - { type: ASSEMBLY, name: tlblt_Fixture, visibility: internal }\n'
+                'clr:\n  used: true\n  assembly_sql_name: "tlblt_Fixture"\n', encoding="utf-8")
+            fixture = usage_skills.write(usage_skills.source_file(root, "toolbelt_core", "USP_SecondSessionProbe"),
+                                         metadata, sections)
+            output = root / "new/UsageSkillsGenerated.cs"
+            self.assertEqual(clr_usage_skills.generate(root, "toolbelt.fixture", "Toolbelt.Fixture", output), 1)
+            self.assertEqual(output.read_text(encoding="utf-8"), clr_usage_skills.render([fixture], "Toolbelt.Fixture"))
+            before = output.read_bytes()
+            with self.assertRaisesRegex(ValueError, "Neue CLR-Ausgabedatei"):
+                clr_usage_skills.generate(root, "toolbelt.fixture", "Toolbelt.Fixture", output)
+            self.assertEqual(output.read_bytes(), before)
+
+    def test_module_generator_refuses_missing_or_draft_clr_skills_without_partial_output(self):
+        expected = {key for key, value in usage_skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.filesystem.windows" and value["object_type"] == "CLR_USP"}
+        self.assertTrue(expected)
+        complete = True
+        for _, schema, name in expected:
+            path = usage_skills.source_file(ROOT, schema, name)
+            if not path.is_file() or usage_skills.read(path, verified=False).metadata["review_status"] != "verified":
+                complete = False
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "not-created" / "UsageSkillsGenerated.cs"
+            if complete:
+                self.assertEqual(clr_usage_skills.generate(ROOT, "toolbelt.filesystem.windows",
+                                 "Toolbelt.Filesystem.Windows", output), len(expected))
+            else:
+                with self.assertRaises(ValueError):
+                    clr_usage_skills.generate(ROOT, "toolbelt.filesystem.windows", "Toolbelt.Filesystem.Windows", output)
+                self.assertFalse(output.parent.exists())
+
+    def test_original_markdown_is_preserved_as_csharp_escaped_data(self):
+        skill = samples()[0]
+        text = skill.markdown + '\nÄ𐐀 O\'Brien "quoted" \\ /\n' * 1000
+        source = clr_usage_skills.render([usage_skills.Skill(skill.metadata, text)])
+        literal = re.search(r'markdown = ("(?:[^"\\]|\\.)*");', source)[1]
+        self.assertEqual(json.loads(literal), text)
+        self.assertNotIn("Ä", source)
+        self.assertIn(r"\ud801\udc00", source)
+        self.assertIn("SqlMetaData.Max", source)
+
+    def test_generation_is_deterministic_and_has_exact_four_column_contract(self):
+        current = samples()
+        source = clr_usage_skills.render(current)
+        self.assertEqual(source, clr_usage_skills.render(reversed(current)))
+        self.assertEqual(source, clr_usage_skills.render(iter(current)))
+        self.assertEqual(re.findall(r'new SqlMetaData\("(\w+)"', source),
+                         ["SkillFormatVersion", "SchemaName", "ObjectName", "SkillMarkdown"])
+        self.assertNotRegex(source, r"SqlConnection|SqlCommand|File\.|WebClient|HttpClient")
+        self.assertIn('throw new ArgumentException("USAGE_SKILL_UNKNOWN_OBJECT")', source)
+
+    def test_drafts_duplicates_functions_and_invalid_code_identifiers_are_rejected(self):
+        current = samples()
+        with self.assertRaisesRegex(ValueError, "Doppelte"):
+            clr_usage_skills.render(current + current[:1])
+        skill = current[0]
+        metadata = deepcopy(skill.metadata)
+        metadata["review_status"] = "draft"
+        with self.assertRaisesRegex(ValueError, "Ungeprüfter"):
+            clr_usage_skills.render([usage_skills.Skill(metadata, skill.markdown)])
+        function = usage_skills.read(ROOT / "Metadata/UsageSkills/toolbelt_conversion/TVF_Base64Encode.md")
+        with self.assertRaisesRegex(ValueError, "Prozedur"):
+            clr_usage_skills.render([function])
+        for namespace, name in (("Injected;class Bad", "Usage"), ("Toolbelt.Metadata", "X{}")):
+            with self.assertRaises(ValueError):
+                clr_usage_skills.render(current, namespace, name)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 3 and sys.argv[1] == "--prepare-clr-record-fixture":
+        prepare_record_fixture(Path(sys.argv[2]))
+        print("CLR_RECORD_FIXTURE_READY; SQL_NOT_EXECUTED")
+    else:
+        unittest.main()

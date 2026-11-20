@@ -81,6 +81,36 @@ Helfern werden auch identische Parameterergänzungen ausschließlich innerhalb
 der jeweiligen Prozedur entfernt oder regeneriert. Die native Hilfeabnahme
 und die Hilfe der neun CLR-Einstiege stehen weiterhin aus.
 
+Für CLR-Prozeduren erzeugt
+[clr_usage_skills.py](../../Scripts/Metadata/clr_usage_skills.py) denselben
+vierkolumnigen Vertrag als konstante C#-Daten. Gewöhnliche escapte Stringliterale
+erhalten LF und Supplementary-Zeichen unabhängig von Checkout-Zeilenenden;
+`SkillMarkdown` verwendet `SqlMetaData.Max`. Die Record-Factory ist ohne
+SQL-Kontext prüfbar. Erst die getrennte Send-Methode verwendet die SQL-CLR-Pipe.
+Die Moduldatei wird nur nach vollständiger geprüfter Abdeckung aller deklarierten
+CLR-Prozeduren erzeugt und überschreibt keine bestehende Datei. Dieser Renderer
+ist noch nicht in die neun Dateisystem-Methoden integriert; ein Offline-Recordtest
+qualifiziert weder deren neue Signatur noch die Ausgabe innerhalb von SQL Server.
+
+Der gesonderte Windows-.NET-Transporttest verwendet nur zwei Prozedurprototypen
+und zusätzlichen synthetischen Unicode-Text. Neues privates Verzeichnis wählen:
+
+```powershell
+python -B Tests/Metadata/test_clr_usage_skills.py --prepare-clr-record-fixture .runtime/clr-record-check
+$probe = (Resolve-Path .runtime/clr-record-check).Path
+$compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
+$argsForCompiler = @('/nologo', '/r:System.Data.dll', ('/out:' + (Join-Path $probe 'Probe.exe')),
+    (Join-Path $probe 'Generated.cs'), (Resolve-Path Tests/Metadata/ClrUsageSkillRecordHarness.cs).Path)
+& $compiler @argsForCompiler
+if ($LASTEXITCODE -ne 0) { throw 'CLR_RECORD_COMPILE_FAILED' }
+& (Join-Path $probe 'Probe.exe') (Join-Path $probe 'Expected.md')
+if ($LASTEXITCODE -ne 0) { throw 'CLR_RECORD_TEST_FAILED' }
+```
+
+Geprüft werden Record-Metadaten, vollständiger Unicode-/LF-Inhalt und die
+Ablehnung unbekannter Objekte. Die SQL-Pipe und der Dateisystemprovider werden
+nicht aufgerufen; dieser Test ersetzt keine native SQL-CLR-Abnahme.
+
 Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine
 Ausführungsautorität. Private Pakete, Serverdaten, Zugangsdaten und echte
