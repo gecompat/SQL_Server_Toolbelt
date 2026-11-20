@@ -117,7 +117,7 @@ def interface_objects(selected):
 def binary_inputs(inputs, required_modules=None):
     """Originale Binärbytes nur bei unveränderten Compilerquellen wiederverwenden."""
     prefix='SQL-Server-Toolbelt-1.0.0-CLR-Install/'
-    replaced={'toolbelt.json.constructors','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}
+    replaced={'toolbelt.json.constructors','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug','toolbelt.filesystem.windows'}
     required_modules=set(required_modules) if required_modules is not None else {p.parent.name for p in (ROOT/'Modules').glob('*/module.yaml')}
     require(sha((ROOT/BASELINE).read_bytes())==BASELINE_SHA256,'baseline package identity')
     with zipfile.ZipFile(ROOT/BASELINE) as archive:
@@ -138,6 +138,11 @@ def binary_inputs(inputs, required_modules=None):
         expected={a['module_id'] for a in metadata['artifacts']
                   if a['module_id'] in required_modules and a['module_id'] not in replaced}
         require(expected<=compiler_modules,'baseline compiler inventory')
+    if 'toolbelt.filesystem.windows' in required_modules:
+        import filesystem_build
+        # Fresh source-bound provider required after the CLR-Hilfe extension;
+        # the retained original binary cannot satisfy the new SQL signature.
+        data['Toolbelt.Filesystem.Windows.dll']=filesystem_build.admit(ROOT,inputs/'filesystem')
     if 'toolbelt.json.constructors' in required_modules:
         registry=json.loads((ROOT/'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json').read_bytes())
         ctor=next(a['Fields'] for a in registry['artifacts'] if a['Fields']['moduleId']=='toolbelt.json.constructors')
@@ -310,6 +315,9 @@ def build_source_bindings(assembly_names=()):
         skills=usage_skill_tools()
         paths.add(ROOT/'Scripts/Metadata/usage_skills.py')
         paths.update(skills.source_file(ROOT,'',name) for name in assembly_names)
+        if 'tlblt_Filesystem_Windows' in assembly_names:
+            import filesystem_build
+            paths.update(ROOT/path for path in filesystem_build.sources(ROOT))
     return {path.relative_to(ROOT).as_posix():sha(normalize(path.read_bytes())) for path in sorted(paths)}
 
 

@@ -89,16 +89,19 @@ erhalten LF und Supplementary-Zeichen unabhängig von Checkout-Zeilenenden;
 SQL-Kontext prüfbar. Erst die getrennte Send-Methode verwendet die SQL-CLR-Pipe.
 Die Moduldatei wird nur nach vollständiger geprüfter Abdeckung aller deklarierten
 CLR-Prozeduren erzeugt und überschreibt keine bestehende Datei. Dieser Renderer
-ist noch nicht in die neun Dateisystem-Methoden integriert; ein Offline-Recordtest
-qualifiziert weder deren neue Signatur noch die Ausgabe innerhalb von SQL Server.
+ist in die neun Dateisystem-Methoden integriert. Deren abschließender optionaler
+`@Hilfe bit=0` wird als `SqlBoolean` gebunden; 1 sendet den konstanten Skill vor
+der ersten Fachprüfung, 0 oder NULL führt den bisherigen Fachpfad aus. Vorhandene
+Pflichtargumente bleiben Pflichtargumente. Ein Offline-Recordtest qualifiziert
+weder den nativen SQL-Binder noch die Ausgabe innerhalb von SQL Server.
 
 Die neun internen Dateisystem-CLR-Einstiege besitzen inzwischen eigene
 quellgeprüfte Skills und vollständige Kommentare vor ihrem jeweiligen
 `AS EXTERNAL NAME`. Der Projektor bindet jeden Kommentar an genau diese
 Prozedur; verschobene, doppelte oder geänderte Texte werden zurückgewiesen.
-Signaturen und Provider bleiben dadurch unverändert. Insbesondere ist eine
-Skillbeschreibung noch keine implementierte CLR-Hilfe. Die Rohschnittstellen
-beschreiben ausdrücklich ihre eigenen Grenzen, beispielsweise die fehlenden
+Der eigene Hilfeschalter wird separat und ausdrücklich ergänzt; der verbleibende
+Fachtext wird bytegenau mit dem ursprünglichen Stand verglichen. Die
+Rohschnittstellen beschreiben ausdrücklich ihre eigenen Grenzen, beispielsweise die fehlenden
 festen oberen Löschbudgets im Unterschied zum Listing.
 
 Auch alle neun öffentlichen Dateisystem-Prozeduren enthalten ihre geprüften
@@ -134,6 +137,14 @@ Dateisystem-Skills kann die Vorbereitung stattdessen mit
 Kompiliere dessen `Generated.cs` mit demselben Harness und rufe das Programm mit
 `--module-fixture <Verzeichnis>` auf. Es vergleicht alle neun vollständigen
 Recordtexte mit den kanonischen Quellen, ohne Provider oder SQL-Pipe aufzurufen.
+
+Der ergänzende [ClrProviderUsageSkillHarness.cs](../../Tests/Metadata/ClrProviderUsageSkillHarness.cs) prüft die tatsächlich gebaute
+Assembly: optionale Signaturen, die neun vollständigen Recordtexte und frühe
+Hilfe bei typgültigen, fachlich ungültigen Eingaben. Die 0-/NULL-Gegenpfade
+scheitern gezielt vor SQL-/Root-/Dateizugriff. Beim Hilfeweg wird außerhalb von
+SQL Server die erwartete fehlende SQL-Pipe festgestellt; dies ist ausdrücklich
+kein nativer Pipe-PASS. Diese Offlineprüfung benötigt keine Rootkonfiguration
+oder Rechtevergabe und führt keine Dateioperationen aus.
 
 Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine

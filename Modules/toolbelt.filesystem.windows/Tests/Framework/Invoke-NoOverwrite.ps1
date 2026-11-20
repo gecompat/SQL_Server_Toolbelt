@@ -4,6 +4,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-F0-9]{64}$')][string]$ExpectedRunnerSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-F0-9]{64}$')][string]$ExpectedProviderSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-F0-9]{64}$')][string]$ExpectedHarnessSHA256,
+ [ValidatePattern('^[A-F0-9]{64}$')][string]$ExpectedSkillSourceSHA256,
  [string]$CompilerPath,
  [string]$EvidenceDirectory
 )
@@ -88,6 +89,8 @@ try{
  $provider=Join-Path $PSScriptRoot '../../Clr/WindowsFilesystemProvider.cs';$harness=Join-Path $PSScriptRoot 'NoOverwriteHarness.cs'
  $runnerBytes=Add-TestPin $PSCommandPath $ExpectedRunnerSHA256
  $providerBytes=Add-TestPin $provider $ExpectedProviderSHA256;$harnessBytes=Add-TestPin $harness $ExpectedHarnessSHA256
+ $skillSource=Join-Path $PSScriptRoot '../../Clr/UsageSkillsGenerated.cs'
+ $skillBytes=Add-TestPin $skillSource $ExpectedSkillSourceSHA256
  if(-not$CompilerPath){$CompilerPath=Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'}
  $CompilerPath=[IO.Path]::GetFullPath($CompilerPath);[void](Add-TestPin $CompilerPath '')
  $referencePaths=@();foreach($name in @('mscorlib.dll','System.dll','System.Data.dll','System.Xml.dll')){
@@ -101,13 +104,14 @@ try{
  $owner=[IO.FileStream]::new((Join-Path $work 'Owner.marker'),[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
  try{$bytes=[Text.Encoding]::ASCII.GetBytes([guid]::NewGuid().ToString('N'));$owner.Write($bytes,0,$bytes.Length);$owner.Flush($true)}finally{$owner.Dispose()}
  $ownEvidenceCreated=$true
- $snapshotProvider=Join-Path $work 'WindowsFilesystemProvider.cs';$snapshotHarness=Join-Path $work 'NoOverwriteHarness.cs'
+ $snapshotProvider=Join-Path $work 'WindowsFilesystemProvider.cs';$snapshotHarness=Join-Path $work 'NoOverwriteHarness.cs';$snapshotSkill=Join-Path $work 'UsageSkillsGenerated.cs'
  [IO.File]::WriteAllBytes($snapshotProvider,$providerBytes);[IO.File]::WriteAllBytes($snapshotHarness,$harnessBytes)
  [void](Add-TestPin $snapshotProvider $ExpectedProviderSHA256);[void](Add-TestPin $snapshotHarness $ExpectedHarnessSHA256)
+ [IO.File]::WriteAllBytes($snapshotSkill,$skillBytes);[void](Add-TestPin $snapshotSkill $ExpectedSkillSourceSHA256)
  $harnessTemp=Join-Path $work 'harness-temp';[void][IO.Directory]::CreateDirectory($harnessTemp)
  $executable=Join-Path $work 'NoOverwriteHarness.exe'
  $argv=@('/nologo','/noconfig','/nostdlib+','/target:exe','/main:NoOverwriteHarness',('/out:'+$executable))
- foreach($path in $referencePaths){$argv+=,('/reference:'+$path)};$argv+=,$snapshotProvider;$argv+=,$snapshotHarness
+ foreach($path in $referencePaths){$argv+=,('/reference:'+$path)};$argv+=,$snapshotProvider;$argv+=,$snapshotHarness;$argv+=,$snapshotSkill
  Invoke-TestChild 'Compile' $CompilerPath $argv 15
  if([IO.File]::ReadAllBytes((Join-Path $work 'Compile.stdout.bin')).Length-ne0-or[IO.File]::ReadAllBytes((Join-Path $work 'Compile.stderr.bin')).Length-ne0){throw 'FS_TEST_COMPILER_NOT_QUIET'}
  [void](Add-TestPin $executable '')

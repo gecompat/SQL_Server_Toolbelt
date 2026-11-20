@@ -508,6 +508,59 @@ def project_clr_procedure_ddl(text, skill):
     return text[:line] + render_ddl_comment(skill) + text[line:]
 
 
+CLR_PARAMETER_BEGIN = "-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN"
+CLR_PARAMETER_END = "-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END"
+
+
+def render_clr_help_parameter(skill):
+    validate(skill)
+    require(skill.metadata["object_type"] == "CLR_USP", "CLR-Prozedur erforderlich")
+    p = skill.metadata["parameters"][-1]
+    require(p["name"] == "@Hilfe" and p["sql_type"] == "bit" and p["sql_default"] == "0"
+            and not p["is_output"] and not p["argument_required"], "Optionaler CLR-Hilfeschalter erforderlich")
+    return CLR_PARAMETER_BEGIN + "\n  , @Hilfe bit = 0\n" + CLR_PARAMETER_END + "\n"
+
+
+def project_clr_help_parameter(text, skill):
+    block = render_clr_help_parameter(skill)
+    ts, words, i, limit = _procedure_declaration(text, skill)
+    regions = []
+    for j, word in enumerate(words):
+        if word in ("procedure", "proc") and j and words[j - 1] in ("create", "alter"):
+            last = _procedure_batch_limit(text, ts, words, j)
+            if any(words[k:k + 3] == ["as", "external", "name"] for k in range(j + 4, last - 2)):
+                regions.append((ts[j][1], ts[last][1] if last < len(ts) else len(text)))
+    quoted = [(a, b) for value, a, b in ts if value.startswith(("'", "N'", "["))]
+    for marker in re.finditer(r"(?m)^" + re.escape(CLR_PARAMETER_BEGIN) + "$", text):
+        if not any(a <= marker.start() < b for a, b in quoted):
+            require(any(a <= marker.start() < b for a, b in regions), "CLR-Hilfeschalter außerhalb einer CLR-Prozedur")
+    a, b = _procedure_region(text, skill)
+    start, _ = _clr_procedure_anchor(text, skill)
+    line = text.rfind("\n", 0, start - 1) + 1
+    if CLR_PARAMETER_BEGIN in text[a:b]:
+        require(text[a:b].count(block) == 1 and text[:line].endswith(block),
+                "Nicht kanonischer CLR-SQL-Hilfeschalter")
+        return text
+    require(not any(w == "@hilfe" for w in words[i:limit]), "Vorhandener CLR-SQL-Hilfeschalter")
+    require(not text[line:start - 1].strip(), "CLR-Klammer muss eigene Zeile beginnen")
+    return text[:line] + block + text[line:]
+
+
+def strip_clr_sql_help(root, path, text):
+    if CLR_PARAMETER_BEGIN not in text:
+        return text
+    strip_ddl_projection(root, path, text)
+    for skill in read_ddl_comments(text):
+        if skill.metadata["object_type"] != "CLR_USP":
+            continue
+        require(project_clr_help_parameter(text, skill) == text, "Nicht kanonischer CLR-SQL-Hilfeschalter")
+        a, b = _procedure_region(text, skill)
+        block = render_clr_help_parameter(skill)
+        text = text[:a] + text[a:b].replace(block, "", 1) + text[b:]
+    require(CLR_PARAMETER_BEGIN not in text, "CLR-Hilfeschalter ohne kanonischen Skill")
+    return text
+
+
 def _existing_procedure_skill(text, skill):
     matches = [s for s in read_ddl_comments(text) if s.identity == skill.identity]
     require(len(matches) <= 1, "Doppelte Prozedur-Skillidentität")

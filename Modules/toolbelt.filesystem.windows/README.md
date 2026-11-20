@@ -34,9 +34,11 @@ EXEC toolbelt_filesystem.USP_ReadTextFileChunk @Hilfe=1;
 
 Die [kanonischen Skillquellen](../../Metadata/UsageSkills/README.md) beschreiben
 auch interne Einstiege und die Root-Konfiguration. Die vollständige neue
-SQL-Katalogview ist noch nicht integriert; die internen CLR-Einstiege erhalten
-ihren eigenen Hilfeschalter erst im nächsten Implementierungsschritt. Die neue
-zusätzliche Hilfeausgabe ist offline geprüft, ihre native Abnahme bleibt offen.
+SQL-Katalogview ist noch nicht integriert. Die internen CLR-Einstiege haben
+einen eigenen optionalen `@Hilfe bit=0`; dort liefert 1 ausschließlich den
+vierkolumnigen Skill. Bisherige Pflichtargumente wie `@Content` bleiben auch für
+diese interne Hilfe syntaktisch erforderlich und können dabei NULL sein.
+Die neue Hilfeausgabe ist offline geprüft, ihre native Abnahme bleibt offen.
 Historische Funktionsnachweise werden dadurch nicht zu aktuellen Gesamtnachweisen.
 
 ## Build-Voraussetzung
@@ -54,6 +56,21 @@ Für den Build der SQL-CLR-Assembly wird das **.NET Framework 4.8 Developer Pack
 Microsoft stellt das benötigte Paket auf der offiziellen [Downloadseite für .NET Framework 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48) bereit. Die Installation ist nur auf Build- oder Testarbeitsplätzen erforderlich; für ein Deployment aus verifizierten Release-Artefakten wird kein Developer Pack auf dem SQL-Server benötigt.
 
 Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dokumenten beschriebenen Voraussetzungen: `clr enabled`, weiterhin aktiviertes `clr strict security` und den bewusst gewählten gültigen Trustpfad für die konkrete Assembly. Beim Hashweg ist der exakte SHA2-512-Hash freizugeben; bestehender Datenbank-Trust wird nicht automatisch eingerichtet.
+
+Für aktuelle Maintainer-Builds erzeugt der Quellenbuilder die neue Assembly und
+deren Integritätsmanifest. Ein neues privates Ausgabeverzeichnis wählen:
+
+```powershell
+python -B Scripts/Install/filesystem_build.py --output .runtime/build-inputs/filesystem --msbuild '<Pfad zu MSBuild.exe>'
+```
+
+Vom Repositoryroot aus ausführen. Der gemeinsame Installerbuilder erwartet die
+Dateien unter `filesystem` seines Binary-Eingabeverzeichnisses. Er prüft den
+aktuellen vollständigen Compiler-/Skillquellbestand, das generierte C# und die
+Binarybindung. Die frühere Assembly ohne CLR-Hilfeschalter ist dafür ungeeignet.
+Das Manifest ist ein Integritätsvertrag für vertrauenswürdige lokale Buildinputs,
+keine Signatur oder native Abnahme. Anwender fertiger Installationssätze brauchen
+weder diesen Buildschritt noch Python oder MSBuild auf dem SQL-Server.
 
 ## Aktuelle Validierungsevidenz
 

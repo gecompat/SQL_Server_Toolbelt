@@ -30,9 +30,20 @@ class ComponentReuseTests(unittest.TestCase):
             with self.subTest(old=old),self.assertRaises(ValueError):
                 module.compare(old,old.replace(b'Toolbelt_String_Regex',b'tlblt_String_Regex'),'Modules/Contoso/Source/Contoso.sql')
 
-    def test_clr_changes_are_never_normalized(self):
+    def test_arbitrary_clr_changes_are_never_normalized(self):
         with self.assertRaises(ValueError):
             module.compare(b'Toolbelt_String_Regex',b'tlblt_String_Regex','Modules/Contoso/Clr/Provider.cs')
+
+    def test_exact_new_clr_help_does_not_hide_changed_business_validation(self):
+        import clr_usage_skills
+        records=clr_usage_skills.module_records(ROOT,'toolbelt.filesystem.windows')
+        path='Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs'
+        current=(ROOT/path).read_text(encoding='utf-8')
+        original=clr_usage_skills.strip_provider_help(current,records)
+        changed=current.replace('if (byteOffset < 0 ||','if (byteOffset < 1 ||',1)
+        self.assertNotEqual(changed,current)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(original.encode(),clr_usage_skills.strip_provider_help(changed,records).encode(),path)
 
     def test_canonical_skill_comment_does_not_hide_changed_function_logic(self):
         source=usage_skills.read(ROOT/'Metadata/UsageSkills/toolbelt_binary/TVF_GetBitBigInt.md')

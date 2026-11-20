@@ -11,6 +11,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
   , @ByteOffset bigint = 0
   , @MaxBytes int = 1048576
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -23,7 +26,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Byteposition ab Dateianfang, einschließlich bei Textdateien. Bereich 0 bis Dateilänge; größer als Dateilänge oder negativ wird zurückgewiesen. NULL ist für den primitiven CLR-long-Parameter nicht unterstützt."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Maximale angeforderte Bytes pro Chunk: binär 1..16777216, Text 4..16777216. Default 1048576. Kein Zeichenlimit. NULL ist für CLR-int nicht unterstützt."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Byteposition ab Dateianfang, einschließlich bei Textdateien. Bereich 0 bis Dateilänge; größer als Dateilänge oder negativ wird zurückgewiesen. NULL ist für den primitiven CLR-long-Parameter nicht unterstützt."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Maximale angeforderte Bytes pro Chunk: binär 1..16777216, Text 4..16777216. Default 1048576. Kein Zeichenlimit. NULL ist für CLR-int nicht unterstützt."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -38,7 +41,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -49,19 +52,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 -- | `@ByteOffset` | `bigint` | `0` | Byteposition ab Dateianfang, einschließlich bei Textdateien. Bereich 0 bis Dateilänge; größer als Dateilänge oder negativ wird zurückgewiesen. NULL ist für den primitiven CLR-long-Parameter nicht unterstützt. |
 -- | `@MaxBytes` | `int` | `1048576` | Maximale angeforderte Bytes pro Chunk: binär 1..16777216, Text 4..16777216. Default 1048576. Kein Zeichenlimit. NULL ist für CLR-int nicht unterstützt. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Zeile: Content varbinary(max), BytesRead int, NextByteOffset bigint, EndOfFile bit. BytesRead ist tatsächlich gelesen; NextByteOffset=ByteOffset+BytesRead. Am Dateiende sind leerer Inhalt und EndOfFile=1 möglich. Keine OUTPUT-Parameter, kein ResultTable-Routing. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Zeile: Content varbinary(max), BytesRead int, NextByteOffset bigint, EndOfFile bit. BytesRead ist tatsächlich gelesen; NextByteOffset=ByteOffset+BytesRead. Am Dateiende sind leerer Inhalt und EndOfFile=1 möglich. Keine OUTPUT-Parameter, kein ResultTable-Routing. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_ReadBinaryFileChunk @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_ReadBinaryFileChunk @RootAlias=N'ContosoRead',@RelativePath=N'sample.bin',@ByteOffset=0,@MaxBytes=1024;
 -- ```
 --
 -- ## Rechte
@@ -74,7 +79,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 --
 -- ## Nebenwirkungen
 --
--- Liest Dateidaten und Metadaten, erzeugt oder verändert keine Datei. Dateiinhalte können vertraulich sein; nicht als öffentliche Evidenz speichern.
+-- Liest Dateidaten und Metadaten, erzeugt oder verändert keine Datei. Dateiinhalte können vertraulich sein; nicht als öffentliche Evidenz speichern. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -82,7 +87,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadBinaryFileChunk];
 GO
@@ -95,6 +100,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
   , @MaxBytes int = 1048576
   , @EncodingName nvarchar(128) = NULL
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -107,7 +115,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Byteposition ab Dateianfang, einschließlich bei Textdateien. Bereich 0 bis Dateilänge; größer als Dateilänge oder negativ wird zurückgewiesen. NULL ist für den primitiven CLR-long-Parameter nicht unterstützt."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Maximale angeforderte Bytes pro Chunk: binär 1..16777216, Text 4..16777216. Default 1048576. Kein Zeichenlimit. NULL ist für CLR-int nicht unterstützt."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter von .NET Framework unterstützter Encodingname, zum Beispiel utf-8. NULL/leer/Whitespace oder unbekannter Name wird zurückgewiesen. Strikte Encoder-/Decoder-Fallbacks; keine stillschweigende Ersetzung ungültiger Zeichen."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Byteposition ab Dateianfang, einschließlich bei Textdateien. Bereich 0 bis Dateilänge; größer als Dateilänge oder negativ wird zurückgewiesen. NULL ist für den primitiven CLR-long-Parameter nicht unterstützt."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Maximale angeforderte Bytes pro Chunk: binär 1..16777216, Text 4..16777216. Default 1048576. Kein Zeichenlimit. NULL ist für CLR-int nicht unterstützt."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter von .NET Framework unterstützter Encodingname, zum Beispiel utf-8. NULL/leer/Whitespace oder unbekannter Name wird zurückgewiesen. Strikte Encoder-/Decoder-Fallbacks; keine stillschweigende Ersetzung ungültiger Zeichen."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -122,7 +130,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -134,19 +142,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 -- | `@MaxBytes` | `int` | `1048576` | Maximale angeforderte Bytes pro Chunk: binär 1..16777216, Text 4..16777216. Default 1048576. Kein Zeichenlimit. NULL ist für CLR-int nicht unterstützt. |
 -- | `@EncodingName` | `nvarchar(128)` | `NULL` | Expliziter von .NET Framework unterstützter Encodingname, zum Beispiel utf-8. NULL/leer/Whitespace oder unbekannter Name wird zurückgewiesen. Strikte Encoder-/Decoder-Fallbacks; keine stillschweigende Ersetzung ungültiger Zeichen. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Zeile: Content nvarchar(max), BytesRead int, NextByteOffset bigint, EndOfFile bit, EncodingName nvarchar(128) als .NET-WebName. Nur erfolgreich dekodierte Bytes zählen. Am Chunkende werden bis zur Decodergrenze Bytes zurückgenommen; der Aufrufer setzt bei NextByteOffset fort. Keine OUTPUT-Parameter. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Zeile: Content nvarchar(max), BytesRead int, NextByteOffset bigint, EndOfFile bit, EncodingName nvarchar(128) als .NET-WebName. Nur erfolgreich dekodierte Bytes zählen. Am Chunkende werden bis zur Decodergrenze Bytes zurückgenommen; der Aufrufer setzt bei NextByteOffset fort. Keine OUTPUT-Parameter. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_ReadTextFileChunk @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_ReadTextFileChunk @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_ReadTextFileChunk @RootAlias=N'ContosoRead',@RelativePath=N'sample.txt',@EncodingName=N'utf-8';
 -- ```
 --
 -- ## Rechte
@@ -159,7 +169,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 --
 -- ## Nebenwirkungen
 --
--- Liest Text und Metadaten ohne Dateischreiben. Kein zugesichertes Entfernen einer Eingangs-BOM, keine Encoding-Autodetektion.
+-- Liest Text und Metadaten ohne Dateischreiben. Kein zugesichertes Entfernen einer Eingangs-BOM, keine Encoding-Autodetektion. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -167,7 +177,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadTextFileChunk];
 GO
@@ -179,6 +189,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
   , @Content varbinary(max)
   , @Overwrite bit = 0
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -191,7 +204,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Content", "sql_type": "varbinary(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Binärinhalt als varbinary(max), kein SQL-Default; syntaktisch erforderlich. SQL-NULL wird als ContentRequired abgewiesen, 0x ist ein zulässiger leerer Inhalt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Content", "sql_type": "varbinary(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Binärinhalt als varbinary(max), kein SQL-Default; syntaktisch erforderlich. SQL-NULL wird als ContentRequired abgewiesen, 0x ist ein zulässiger leerer Inhalt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -206,7 +219,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -217,19 +230,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 -- | `@Content` | `varbinary(max)` | `kein Default` | Binärinhalt als varbinary(max), kein SQL-Default; syntaktisch erforderlich. SQL-NULL wird als ContentRequired abgewiesen, 0x ist ein zulässiger leerer Inhalt. |
 -- | `@Overwrite` | `bit` | `0` | bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Nach erfolgreichem Publish eine Zeile: BytesWritten bigint, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter oder ResultTable-Verarbeitung. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Nach erfolgreichem Publish eine Zeile: BytesWritten bigint, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter oder ResultTable-Verarbeitung. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_WriteBinaryFile @Content=NULL,@Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_WriteBinaryFile @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_WriteBinaryFile @RootAlias=N'ContosoWrite',@RelativePath=N'sample.bin',@Content=0x0102;
 -- ```
 --
 -- ## Rechte
@@ -242,7 +257,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 --
 -- ## Nebenwirkungen
 --
--- Erzeugt eine eigene .part-Stagingdatei im konfigurierten WorkPath relativ zum Root oder im Zielverzeichnis, flusht und publiziert über einen gebundenen Handle. Overwrite=0 ersetzt kein bestehendes Ziel. Dateisystemänderungen werden nicht durch SQL-ROLLBACK rückgängig gemacht. Cleanupfehler können Stagingreste hinterlassen.
+-- Erzeugt eine eigene .part-Stagingdatei im konfigurierten WorkPath relativ zum Root oder im Zielverzeichnis, flusht und publiziert über einen gebundenen Handle. Overwrite=0 ersetzt kein bestehendes Ziel. Dateisystemänderungen werden nicht durch SQL-ROLLBACK rückgängig gemacht. Cleanupfehler können Stagingreste hinterlassen. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -250,7 +265,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteBinaryFile];
 GO
@@ -264,6 +279,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
   , @WriteBom bit = 0
   , @Overwrite bit = 0
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -276,7 +294,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Content", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Textinhalt als nvarchar(max), kein SQL-Default; syntaktisch erforderlich. SQL-NULL wird als ContentRequired abgewiesen, leerer Text ist zulässig. Explizites Encoding erforderlich."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter von .NET Framework unterstützter Encodingname, zum Beispiel utf-8. NULL/leer/Whitespace oder unbekannter Name wird zurückgewiesen. Strikte Encoder-/Decoder-Fallbacks; keine stillschweigende Ersetzung ungültiger Zeichen."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: keine zusätzliche Präambel schreiben. 1 schreibt GetPreamble() des gewählten Ausgabeencodings, falls dieses eine besitzt. Keine Garantie einer BOM für jedes Encoding. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Content", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Textinhalt als nvarchar(max), kein SQL-Default; syntaktisch erforderlich. SQL-NULL wird als ContentRequired abgewiesen, leerer Text ist zulässig. Explizites Encoding erforderlich."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter von .NET Framework unterstützter Encodingname, zum Beispiel utf-8. NULL/leer/Whitespace oder unbekannter Name wird zurückgewiesen. Strikte Encoder-/Decoder-Fallbacks; keine stillschweigende Ersetzung ungültiger Zeichen."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: keine zusätzliche Präambel schreiben. 1 schreibt GetPreamble() des gewählten Ausgabeencodings, falls dieses eine besitzt. Keine Garantie einer BOM für jedes Encoding. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -291,7 +309,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -304,19 +322,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 -- | `@WriteBom` | `bit` | `0` | bit, Default 0: keine zusätzliche Präambel schreiben. 1 schreibt GetPreamble() des gewählten Ausgabeencodings, falls dieses eine besitzt. Keine Garantie einer BOM für jedes Encoding. NULL ist für CLR-bool nicht unterstützt. |
 -- | `@Overwrite` | `bit` | `0` | bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Erfolgszeile: BytesWritten bigint einschließlich einer tatsächlich geschriebenen Präambel, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Erfolgszeile: BytesWritten bigint einschließlich einer tatsächlich geschriebenen Präambel, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_WriteTextFile @Content=NULL,@Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_WriteTextFile @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_WriteTextFile @RootAlias=N'ContosoWrite',@RelativePath=N'sample.txt',@Content=N'Example',@EncodingName=N'utf-8';
 -- ```
 --
 -- ## Rechte
@@ -329,7 +349,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 --
 -- ## Nebenwirkungen
 --
--- Staging und nativer Publish wie WriteBinaryFile. WriteBom fügt gegebenenfalls die Encodingpräambel hinzu; keine automatische Entfernung einer bereits im Content enthaltenen Präambel. Dateiänderungen sind nicht SQL-transaktional.
+-- Staging und nativer Publish wie WriteBinaryFile. WriteBom fügt gegebenenfalls die Encodingpräambel hinzu; keine automatische Entfernung einer bereits im Content enthaltenen Präambel. Dateiänderungen sind nicht SQL-transaktional. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -337,7 +357,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteTextFile];
 GO
@@ -353,6 +373,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
   , @WriteBom bit = 0
   , @Overwrite bit = 0
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -365,7 +388,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@SourceRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Aktiver Quell-Rootalias mit AllowRead; NULL/leer unzulässig. Kein physischer Pfad."}, {"name": "@SourceRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Nichtleerer relativer Quelldateipfad innerhalb des Quellroots; NULL, absolute Pfade, Doppelpunkt und Rootausbruch unzulässig."}, {"name": "@SourceEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter unterstützter .NET-Quellencodingname. NULL/leer/unbekannt unzulässig. StreamReader verwendet detectEncodingFromByteOrderMarks=false; kein automatischer Encodingwechsel anhand der BOM."}, {"name": "@TargetRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Aktiver Ziel-Rootalias mit AllowWrite; NULL/leer unzulässig. Kein physischer Pfad."}, {"name": "@TargetRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Nichtleerer relativer Zieldateipfad innerhalb des Zielroots; NULL, absolute Pfade, Doppelpunkt und Rootausbruch unzulässig."}, {"name": "@TargetEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter unterstützter .NET-Zielencodingname. NULL/leer/unbekannt unzulässig. Strikte Encoderfehler statt Ersatzzeichen; WriteBom steuert die zusätzliche Präambel."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: keine zusätzliche Präambel schreiben. 1 schreibt GetPreamble() des gewählten Ausgabeencodings, falls dieses eine besitzt. Keine Garantie einer BOM für jedes Encoding. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@SourceRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Aktiver Quell-Rootalias mit AllowRead; NULL/leer unzulässig. Kein physischer Pfad."}, {"name": "@SourceRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Nichtleerer relativer Quelldateipfad innerhalb des Quellroots; NULL, absolute Pfade, Doppelpunkt und Rootausbruch unzulässig."}, {"name": "@SourceEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter unterstützter .NET-Quellencodingname. NULL/leer/unbekannt unzulässig. StreamReader verwendet detectEncodingFromByteOrderMarks=false; kein automatischer Encodingwechsel anhand der BOM."}, {"name": "@TargetRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Aktiver Ziel-Rootalias mit AllowWrite; NULL/leer unzulässig. Kein physischer Pfad."}, {"name": "@TargetRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Nichtleerer relativer Zieldateipfad innerhalb des Zielroots; NULL, absolute Pfade, Doppelpunkt und Rootausbruch unzulässig."}, {"name": "@TargetEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Expliziter unterstützter .NET-Zielencodingname. NULL/leer/unbekannt unzulässig. Strikte Encoderfehler statt Ersatzzeichen; WriteBom steuert die zusätzliche Präambel."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: keine zusätzliche Präambel schreiben. 1 schreibt GetPreamble() des gewählten Ausgabeencodings, falls dieses eine besitzt. Keine Garantie einer BOM für jedes Encoding. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -380,7 +403,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -395,19 +418,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 -- | `@WriteBom` | `bit` | `0` | bit, Default 0: keine zusätzliche Präambel schreiben. 1 schreibt GetPreamble() des gewählten Ausgabeencodings, falls dieses eine besitzt. Keine Garantie einer BOM für jedes Encoding. NULL ist für CLR-bool nicht unterstützt. |
 -- | `@Overwrite` | `bit` | `0` | bit, Default 0: bestehendes Ziel nicht ersetzen. 1 erlaubt das Ersetzen durch den nativen Publishpfad; vorhandene Ziel-DACL wird übernommen. NULL ist für CLR-bool nicht unterstützt. Keine automatische Verzeichnisanlage. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Erfolgszeile: BytesWritten bigint, RootAlias nvarchar(128) und RelativePath nvarchar(4000) des Ziels, State varchar(16)=completed. BytesWritten zählt Ausgabepräambel und encodierte Daten. Keine OUTPUT-Parameter. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Erfolgszeile: BytesWritten bigint, RootAlias nvarchar(128) und RelativePath nvarchar(4000) des Ziels, State varchar(16)=completed. BytesWritten zählt Ausgabepräambel und encodierte Daten. Keine OUTPUT-Parameter. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_TranscodeTextFile @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_TranscodeTextFile @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_TranscodeTextFile @SourceRootAlias=N'ContosoRead',@SourceRelativePath=N'input.txt',@SourceEncodingName=N'utf-8',@TargetRootAlias=N'ContosoWrite',@TargetRelativePath=N'output.txt',@TargetEncodingName=N'utf-16';
 -- ```
 --
 -- ## Rechte
@@ -420,7 +445,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 --
 -- ## Nebenwirkungen
 --
--- Liest Quellfile und publiziert Ziel über Staging. Keine automatische Verzeichnisanlage oder SQL-Rollback-Garantie. Eingangs-BOM bewirkt keinen automatischen Encodingwechsel; WriteBom steuert nur die zusätzliche Ausgabepräambel.
+-- Liest Quellfile und publiziert Ziel über Staging. Keine automatische Verzeichnisanlage oder SQL-Rollback-Garantie. Eingangs-BOM bewirkt keinen automatischen Encodingwechsel; WriteBom steuert nur die zusätzliche Ausgabepräambel. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -428,7 +453,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[TranscodeTextFile];
 GO
@@ -441,6 +466,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
   , @MaxDepth int = 32
   , @MaxEntries int = 10000
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -453,7 +481,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "N''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: nur direktes Verzeichnis. 1 traversiert Unterverzeichnisse innerhalb der expliziten Grenzen. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Startverzeichnis hat Tiefe 0. Listing akzeptiert 0..64, Entfernung nur die Untergrenze 0 ohne eigene feste Obergrenze. Rekursiv nötiger Abstieg jenseits der Grenze ist ein Fehler, keine stille Kürzung. Default 32; NULL ist für CLR-int nicht unterstützt."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Default 10000. Listing akzeptiert 1..10000; Entfernung prüft nur >=1 ohne eigene feste Obergrenze. Überschreitung ist ein Fehler, keine gekürzte Erfolgsmenge. NULL ist für CLR-int nicht unterstützt."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "N''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: nur direktes Verzeichnis. 1 traversiert Unterverzeichnisse innerhalb der expliziten Grenzen. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Startverzeichnis hat Tiefe 0. Listing akzeptiert 0..64, Entfernung nur die Untergrenze 0 ohne eigene feste Obergrenze. Rekursiv nötiger Abstieg jenseits der Grenze ist ein Fehler, keine stille Kürzung. Default 32; NULL ist für CLR-int nicht unterstützt."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Default 10000. Listing akzeptiert 1..10000; Entfernung prüft nur >=1 ohne eigene feste Obergrenze. Überschreitung ist ein Fehler, keine gekürzte Erfolgsmenge. NULL ist für CLR-int nicht unterstützt."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -468,7 +496,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowList erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowList erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -480,19 +508,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 -- | `@MaxDepth` | `int` | `32` | Startverzeichnis hat Tiefe 0. Listing akzeptiert 0..64, Entfernung nur die Untergrenze 0 ohne eigene feste Obergrenze. Rekursiv nötiger Abstieg jenseits der Grenze ist ein Fehler, keine stille Kürzung. Default 32; NULL ist für CLR-int nicht unterstützt. |
 -- | `@MaxEntries` | `int` | `10000` | Default 10000. Listing akzeptiert 1..10000; Entfernung prüft nur >=1 ohne eigene feste Obergrenze. Überschreitung ist ein Fehler, keine gekürzte Erfolgsmenge. NULL ist für CLR-int nicht unterstützt. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Null bis MaxEntries Zeilen: EntryOrdinal bigint ab 1, RelativePath nvarchar(4000) relativ zum Root, EntryType varchar(16) file oder directory, SizeBytes bigint (Verzeichnis 0), LastWriteTimeUtc datetime2, IsReparsePoint bit. Keine zugesicherte alphabetische Sortierung oder stabile Reihenfolge zwischen Aufrufen. Keine OUTPUT-Parameter. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Null bis MaxEntries Zeilen: EntryOrdinal bigint ab 1, RelativePath nvarchar(4000) relativ zum Root, EntryType varchar(16) file oder directory, SizeBytes bigint (Verzeichnis 0), LastWriteTimeUtc datetime2, IsReparsePoint bit. Keine zugesicherte alphabetische Sortierung oder stabile Reihenfolge zwischen Aufrufen. Keine OUTPUT-Parameter. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_ListDirectory @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_ListDirectory @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_ListDirectory @RootAlias=N'ContosoRead',@RelativePath=N'',@Recursive=0,@MaxEntries=100;
 -- ```
 --
 -- ## Rechte
@@ -505,7 +535,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 --
 -- ## Nebenwirkungen
 --
--- Nur lesende Verzeichnis-/Dateimetadatenabfragen. Kein Snapshot; parallele Dateisystemänderungen können Fehler oder abweichende Metadaten verursachen. Ausgabefehler nach SendResultsStart können bereits gesendete Zeilen nicht zurücknehmen.
+-- Nur lesende Verzeichnis-/Dateimetadatenabfragen. Kein Snapshot; parallele Dateisystemänderungen können Fehler oder abweichende Metadaten verursachen. Ausgabefehler nach SendResultsStart können bereits gesendete Zeilen nicht zurücknehmen. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -513,7 +543,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ListDirectory];
 GO
@@ -523,6 +553,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -535,7 +568,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -550,7 +583,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowCreateDirectory erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowCreateDirectory erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -559,19 +592,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 -- | `@RootAlias` | `sysname` | `NULL` | Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein. |
 -- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=created. created unterscheidet nicht zwischen bereits vorhandenem und neu angelegtem Verzeichnis. Keine OUTPUT-Parameter. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=created. created unterscheidet nicht zwischen bereits vorhandenem und neu angelegtem Verzeichnis. Keine OUTPUT-Parameter. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_CreateDirectory @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_CreateDirectory @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_CreateDirectory @RootAlias=N'ContosoWrite',@RelativePath=N'output';
 -- ```
 --
 -- ## Rechte
@@ -584,7 +619,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 --
 -- ## Nebenwirkungen
 --
--- Legt fehlende Komponenten des konfigurierten Zielpfads an. Die physische Rootkonfiguration muss deshalb von einer autorisierten Verwaltung stammen; sie wird hier nicht angelegt oder geändert. Leerer relativer Pfad wählt den Root; auch NativeParents(create=true) muss im vorgesehenen autorisierten Kontext laufen. Bei späterem Fehler können bereits angelegte Komponenten bestehen bleiben. Kein SQL-ROLLBACK für Dateioperationen.
+-- Legt fehlende Komponenten des konfigurierten Zielpfads an. Die physische Rootkonfiguration muss deshalb von einer autorisierten Verwaltung stammen; sie wird hier nicht angelegt oder geändert. Leerer relativer Pfad wählt den Root; auch NativeParents(create=true) muss im vorgesehenen autorisierten Kontext laufen. Bei späterem Fehler können bereits angelegte Komponenten bestehen bleiben. Kein SQL-ROLLBACK für Dateioperationen. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -592,7 +627,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[CreateDirectory];
 GO
@@ -602,6 +637,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -614,7 +652,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -629,7 +667,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -638,19 +676,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 -- | `@RootAlias` | `sysname` | `NULL` | Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein. |
 -- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Fehlendes Ziel wird nicht als erfolgreicher No-op behandelt. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Fehlendes Ziel wird nicht als erfolgreicher No-op behandelt. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_RemoveFile @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_RemoveFile @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_RemoveFile @RootAlias=N'ContosoWrite',@RelativePath=N'obsolete.bin';
 -- ```
 --
 -- ## Rechte
@@ -663,7 +703,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 --
 -- ## Nebenwirkungen
 --
--- Markiert das exakt gebundene Dateiobjekt über einen nativen Handle zum Löschen. Kein Papierkorb und keine SQL-ROLLBACK-Wiederherstellung. Fehlende Datei oder ungeeigneter Dateityp führt zum Fehler.
+-- Markiert das exakt gebundene Dateiobjekt über einen nativen Handle zum Löschen. Kein Papierkorb und keine SQL-ROLLBACK-Wiederherstellung. Fehlende Datei oder ungeeigneter Dateityp führt zum Fehler. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -671,7 +711,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveFile];
 GO
@@ -684,6 +724,9 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
   , @MaxDepth int = 32
   , @MaxEntries int = 10000
   , @ExecutionIdentity nvarchar(16) = N'Caller'
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:BEGIN
+  , @Hilfe bit = 0
+-- OBJECT_USAGE_SKILL_CLR_PARAMETER:END
 )
 -- OBJECT_USAGE_SKILL:BEGIN
 -- ---
@@ -696,7 +739,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
 -- object_type: "CLR_USP"
 -- database_role: "toolbelt"
 -- is_internal: true
--- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: nur direktes Verzeichnis. 1 traversiert Unterverzeichnisse innerhalb der expliziten Grenzen. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Startverzeichnis hat Tiefe 0. Listing akzeptiert 0..64, Entfernung nur die Untergrenze 0 ohne eigene feste Obergrenze. Rekursiv nötiger Abstieg jenseits der Grenze ist ein Fehler, keine stille Kürzung. Default 32; NULL ist für CLR-int nicht unterstützt."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Default 10000. Listing akzeptiert 1..10000; Entfernung prüft nur >=1 ohne eigene feste Obergrenze. Überschreitung ist ein Fehler, keine gekürzte Erfolgsmenge. NULL ist für CLR-int nicht unterstützt."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}]
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Konfigurierter aktiver Rootalias, kein physischer Pfad. NULL/leer ist fachlich unzulässig; die benötigte Operationsfreigabe muss in FileSystemRoot gesetzt sein."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad innerhalb des ausgewählten Roots, kein absoluter Pfad, Doppelpunkt oder Rootausbruch. NULL ist unzulässig. Leerer String ist nur bei ListDirectory und CreateDirectory als Rootauswahl zulässig; RemoveDirectory verbietet die Rootlöschung zusätzlich."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "bit, Default 0: nur direktes Verzeichnis. 1 traversiert Unterverzeichnisse innerhalb der expliziten Grenzen. NULL ist für CLR-bool nicht unterstützt."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Startverzeichnis hat Tiefe 0. Listing akzeptiert 0..64, Entfernung nur die Untergrenze 0 ohne eigene feste Obergrenze. Rekursiv nötiger Abstieg jenseits der Grenze ist ein Fehler, keine stille Kürzung. Default 32; NULL ist für CLR-int nicht unterstützt."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Default 10000. Listing akzeptiert 1..10000; Entfernung prüft nur >=1 ohne eigene feste Obergrenze. Überschreitung ist ein Fehler, keine gekürzte Erfolgsmenge. NULL ist für CLR-int nicht unterstützt."}, {"name": "@ExecutionIdentity", "sql_type": "nvarchar(16)", "sql_default": "N'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf."}]
 -- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -711,7 +754,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
 --
 -- ## Voraussetzungen
 --
--- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt.
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die frühe Hilfe benötigt weder konfigurierte Roots noch Windowsidentität oder NTFS-Zugriff; vorhandenes SQL-EXECUTE und eine geladene passende CLR-Binary bleiben erforderlich.
 --
 -- ## Parameter und Zugriff
 --
@@ -723,19 +766,21 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
 -- | `@MaxDepth` | `int` | `32` | Startverzeichnis hat Tiefe 0. Listing akzeptiert 0..64, Entfernung nur die Untergrenze 0 ohne eigene feste Obergrenze. Rekursiv nötiger Abstieg jenseits der Grenze ist ein Fehler, keine stille Kürzung. Default 32; NULL ist für CLR-int nicht unterstützt. |
 -- | `@MaxEntries` | `int` | `10000` | Default 10000. Listing akzeptiert 1..10000; Entfernung prüft nur >=1 ohne eigene feste Obergrenze. Überschreitung ist ein Fehler, keine gekürzte Erfolgsmenge. NULL ist für CLR-int nicht unterstützt. |
 -- | `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Exakt ordinal 'Caller' (Default) oder 'ServiceAccount'. Caller benötigt Windows-Anmeldung und erfasste Windowsidentität; ServiceAccount benötigt die explizite Datenbankrolle und AllowServiceAccount am Root. NULL, leer und andere Schreibweisen sind unzulässig. Kein automatischer Identitätsfallback. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler abschließender bit, Default 0. 1 liefert genau eine konstante vierkolumnige Skillzeile und kehrt vor Bereichs-, Inhalts-, Identitäts-, Root- und Dateiprüfung zurück. 0 oder NULL führt den unveränderten Fachpfad aus. Vorhandene Pflichtargumente wie Content bleiben syntaktisch erforderlich; SQL-Typbindung insbesondere der primitiven CLR-int/long/bool-Parameter erfolgt weiterhin vor dem Methodenaufruf. |
+--
+-- Die fachlichen Regeln der übrigen Parameter gelten bei Hilfe=0. Bei Hilfe=1 sind NULL für String-/LOB-Argumente und fachlich ungültige, aber SQL-typgültige Bereichswerte möglich; primitive CLR-Wertargumente bleiben typgerecht zu binden.
 --
 -- ## Ergebnisse
 --
--- Eine Zeile nach erfolgreicher Entfernung: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Keine Ausgabe einer Löschliste. Aktueller raw CLR-Einstieg besitzt noch keinen @Hilfe-Parameter; seine Erweiterung ist eine getrennte offene Implementierung. Er bietet weder den zwölfspaltigen Facade-Hilfetext noch ResultTable/KeepData/Debug.
+-- Eine Zeile nach erfolgreicher Entfernung: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Keine Ausgabe einer Löschliste. Bei @Hilfe=1 stattdessen genau eine Zeile: SkillFormatVersion varchar(16), SchemaName nvarchar(128), ObjectName nvarchar(128), SkillMarkdown nvarchar(max). Keine vorherige zwölfspaltige Standardhilfe am internen CLR-Einstieg. Keine ResultTable-/KeepData-/Debug-Steuerung.
 --
 -- ## Aufrufbeispiele
 --
 -- ```sql
--- -- Synthetisches Beispiel: nur mit eigener passender Rootkonfiguration ausführen.
--- -- Regulärer öffentlicher Einstieg für diese Operation:
+-- -- Reine interne Skillhilfe, Pflichtargumente weiterhin angeben:
+-- EXEC toolbelt_filesystem.CLR_RemoveDirectory @Hilfe=1;
+-- -- Für Facharbeit den öffentlichen Einstieg verwenden:
 -- EXEC toolbelt_filesystem.USP_RemoveDirectory @Hilfe=1;
--- -- Direkter interner Fachaufruf, nicht auf fremde Pfade anwenden:
--- EXEC toolbelt_filesystem.CLR_RemoveDirectory @RootAlias=N'ContosoWrite',@RelativePath=N'obsolete',@Recursive=0;
 -- ```
 --
 -- ## Rechte
@@ -748,7 +793,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
 --
 -- ## Nebenwirkungen
 --
--- Recursive=0 verlangt ein leeres Verzeichnis; Recursive=1 entfernt geplante Kinder rückwärts und danach den Start. Rootlöschung ist verboten. Preflightfehler führen vor Mutation zum Abbruch; Fehler während nativer Löschung können eine Teilentfernung hinterlassen. Kein SQL-Rollback und keine pauschale Garantie gegen alle konkurrierenden Dateisystemänderungen.
+-- Recursive=0 verlangt ein leeres Verzeichnis; Recursive=1 entfernt geplante Kinder rückwärts und danach den Start. Rootlöschung ist verboten. Preflightfehler führen vor Mutation zum Abbruch; Fehler während nativer Löschung können eine Teilentfernung hinterlassen. Kein SQL-Rollback und keine pauschale Garantie gegen alle konkurrierenden Dateisystemänderungen. Bei Hilfe=1 ausschließlich konstante Skill-Ausgabe über die SQL-CLR-Pipe; keine Datei-, Identitäts-, Konfigurations- oder Fachoperation.
 --
 -- ## Fehlerbehandlung
 --
@@ -756,7 +801,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
 --
 -- ## Aussagegrenzen
 --
--- Quellgeprüfter Vertrag der aktuellen SQL-/C#-Implementierung, kein neuer nativer Funktions-, Rechte-, Race- oder Hilfe-Gesamtnachweis. Raw CLR hat keine vollständige Facadevalidierung und noch keine eigene Skillhilfe. Aus einer vorhandenen Skillzeile folgen weder Installation noch ausreichende Rechte. Dateiaktionen sind außerhalb SQL-Transaktionsrollback; keine automatische Infrastruktur-/Root-/Trustreparatur.
+-- Neue Signatur und früher CLR-Hilfezweig sind separat von alten Fachartefakten zu qualifizieren. Die vollständige konstante Recordausgabe ist offline prüfbar; SQL-Pipe, native Binder-/Minimalrechte-/Callerzustands- und Nebenwirkungsabnahme sind dadurch nicht belegt. Bei Hilfe=0 bleibt der Fachpfad erhalten. Dateiaktionen unterliegen nicht SQL-ROLLBACK; keine automatische Root-, Trust-, Rechte- oder Infrastrukturänderung. Ein Skill attestiert weder Installation noch Aufruferrechte.
 -- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveDirectory];
 GO

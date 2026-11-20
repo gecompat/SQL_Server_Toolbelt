@@ -1,5 +1,17 @@
 # Gemeinsamer create-only-Installer: begrenzte Abnahme
 
+## Aktuelle Skill-Erweiterung: native Abnahme offen
+
+Die aktuelle Entwicklung erweitert Prozeduren um konstante Skillausgabe und die
+Dateisystem-CLR-Einstiege um einen optionalen Hilfeschalter. Deren neu gebaute
+Assembly ist nicht die Binary des folgenden nativen Consumer-Nachweises.
+Der aktuelle gemeinsame Builder verlangt dafür einen frischen, vollständig
+quellgebundenen lokalen Buildinput; eine frühere Assembly ohne Hilfeschalter
+wird nicht als Ersatz übernommen. Der aktuelle begrenzte Modulinstaller ist
+offline gebaut und syntaktisch geprüft. Neue Hilfe-/Binder-/Minimalrechte- und
+Gesamtinstallationsabnahme stehen aus. Die folgenden datierten Nachweise bleiben
+unverändert und gelten ausschließlich für ihre ursprünglichen Artefakte.
+
 ## Bestandener begrenzter Gesamtfall vom 2026-11-20
 
 Nach ausdrücklicher separater Freigabe bestand der abschließende Einmallauf

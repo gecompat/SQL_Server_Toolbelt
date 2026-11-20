@@ -3061,7 +3061,7 @@ Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md).
 
-<!-- Source/Vertrag SHA256: d56ff95f512f3c4ed002fe36ad9971e0ed0e178869ed945d191c4b583e8de70e -->
+<!-- Source/Vertrag SHA256: 18925e6b53fc3fda58a1a9f317bde37665922110682c16cd2ce292803bf2f699 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3101,7 +3101,7 @@ Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächs
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md).
 
-<!-- Source/Vertrag SHA256: 5faf7a0d8a29959b8a82c7c0e5d31617614e406edb634228b1d8aaa7c43295af -->
+<!-- Source/Vertrag SHA256: 93d0fd800fa9cd9c7c29f1b9e088467c95b7166bddf5e546fedc6b49dfa5b055 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3142,7 +3142,7 @@ Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: af78f44c37d091f2453d1baf261d0af3923c8e9404a6e3ebc2e9ac00b946c028 -->
+<!-- Source/Vertrag SHA256: f7f3abdfbc91751eefb304c71c7a9006056569d1a0793351d03450f1e5bb3e75 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3182,7 +3182,7 @@ Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md).
 
-<!-- Source/Vertrag SHA256: 75f1560617d5a2c0edb224fa169084681dfd10e3e5262b1fff9d44b58d4512d9 -->
+<!-- Source/Vertrag SHA256: 565707d4c322d70055329f4e04f0e1f45f4510868af015ed54208c76a0fcc320 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3224,7 +3224,7 @@ Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md).
 
-<!-- Source/Vertrag SHA256: 8eceadcbe144495975f5060f61c461bd5bf79173bd0e49651375263608e36dd7 -->
+<!-- Source/Vertrag SHA256: e33be88b0bf71907dce92155f645c0476f7aa3e31ddef8abce601f930e30882d -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3268,7 +3268,7 @@ Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md).
 
-<!-- Source/Vertrag SHA256: 25de56e950c5c819c396803b15caf74f8dc2a8828fd373c8420343dcb0f7fff6 -->
+<!-- Source/Vertrag SHA256: 41cf9ef22cdc161e98a64041776e71b4a84ea4a550e070ab82cf5030e2bfb717 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3309,7 +3309,7 @@ Erstellt ein Verzeichnis unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md).
 
-<!-- Source/Vertrag SHA256: 9fcfa959a5dfa6205ccb0fae5141276c98f6f4ca6e3efc3d39640d26f9464cf5 -->
+<!-- Source/Vertrag SHA256: ac2f83d411f8053d40aae6e8f076e5ba64612d0f663ff63b17faf9f5830e6901 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3347,7 +3347,7 @@ Entfernt eine Datei unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md).
 
-<!-- Source/Vertrag SHA256: 869b11b57f6a71d5faf9329b1a0f919d4346e203fb8fb92c1538841a92a020b5 -->
+<!-- Source/Vertrag SHA256: 26a4ddc3aa4efa875bc18ce117e04b0aeabcad8f57344beb7447e3fd5575f37f -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3385,7 +3385,7 @@ Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md).
 
-<!-- Source/Vertrag SHA256: cf166ba5975a2e05a7d33f00f7c8def25c54a65c99135641cd5efe6c8169ba7b -->
+<!-- Source/Vertrag SHA256: 9f90fc5dfacf63b80e038533ace96a670ed692a1caade67188a72df3ac182906 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 

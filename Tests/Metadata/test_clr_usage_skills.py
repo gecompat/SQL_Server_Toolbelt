@@ -18,6 +18,18 @@ def samples():
             for name in ("USP_PrepareResultTable", "USP_SecondSessionProbe")]
 
 
+def with_help(skill):
+    metadata = deepcopy(skill.metadata)
+    if not any(p["name"] == "@Hilfe" for p in metadata["parameters"]):
+        metadata["parameters"].append(dict(name="@Hilfe", sql_type="bit", sql_default="0", is_output=False,
+            argument_required=False, business_required=False, nullable=True, description="Frühe konstante Skillhilfe."))
+    _, body = usage_skills.parse_frontmatter(skill.markdown)
+    sections = {key: body.split("## " + key + "\n", 1)[1].split("\n## ", 1)[0].strip()
+                for key in usage_skills.SECTIONS}
+    with tempfile.TemporaryDirectory() as directory:
+        return usage_skills.write(Path(directory) / "Skill.md", metadata, sections)
+
+
 def prepare_record_fixture(directory: Path):
     """Neue private Eingaben für den separat kompilierten C#-Transporttest."""
     usage_skills.require(not directory.exists(), "Neues CLR-Testverzeichnis erforderlich")
@@ -43,6 +55,33 @@ def prepare_module_fixture(directory: Path):
 
 
 class ClrUsageSkillTests(unittest.TestCase):
+    def test_provider_help_preserves_original_body_and_rejects_guard_drift(self):
+        records = [with_help(usage_skills.read(p)) for p in sorted(
+            (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]
+        text = (ROOT / "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs").read_text(encoding="utf-8-sig")
+        original = clr_usage_skills.strip_provider_help(text, records) if clr_usage_skills.PROVIDER_PARAMETER in text else text
+        output = clr_usage_skills.project_provider_help(original, records)
+        self.assertEqual(clr_usage_skills.project_provider_help(output, records), output)
+        self.assertEqual(clr_usage_skills.strip_provider_help(output, records), original)
+        self.assertEqual(output.count(clr_usage_skills.PROVIDER_PARAMETER), 9)
+        for changed in (output.replace("hilfe.IsTrue", "hilfe.IsFalse", 1),
+                        output.replace("UsageSkillsGenerated.Send", "Different.Send", 1),
+                        output.replace("default(SqlBoolean)", "SqlBoolean.True", 1)):
+            with self.assertRaises(ValueError):
+                clr_usage_skills.strip_provider_help(changed, records)
+
+    def test_sql_clr_optional_help_parameter_keeps_original_arguments_and_body(self):
+        skill = with_help(usage_skills.read(ROOT / "Metadata/UsageSkills/toolbelt_filesystem/CLR_ReadBinaryFileChunk.md"))
+        text = "CREATE PROCEDURE toolbelt_filesystem.CLR_ReadBinaryFileChunk\n(\n @RootAlias sysname=NULL\n)\nAS EXTERNAL NAME [tlblt_Filesystem_Windows].[Provider].[ReadBinaryFileChunk];\nGO\n"
+        projected = usage_skills.project_clr_help_parameter(text, skill)
+        block = usage_skills.render_clr_help_parameter(skill)
+        self.assertEqual(projected.replace(block, "", 1), text)
+        self.assertEqual(usage_skills.project_clr_help_parameter(projected, skill), projected)
+        for broken in (projected.replace("@Hilfe bit = 0", "@Hilfe bit = 1"),
+                       projected.replace(block, "", 1) + block):
+            with self.assertRaises(ValueError):
+                usage_skills.project_clr_help_parameter(broken, skill)
+
     def test_filesystem_module_has_complete_source_contracts_including_configuration(self):
         expected = {key: value for key, value in usage_skills.inventory(ROOT).items()
                     if value["module_id"] == "toolbelt.filesystem.windows"}

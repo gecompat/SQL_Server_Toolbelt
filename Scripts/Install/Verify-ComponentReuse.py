@@ -59,6 +59,15 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
                   if p.is_file() and p.suffix in ('.cs','.csproj') and not {'bin','obj'} & set(p.parts))
     actual.update(p.relative_to(root).as_posix() for p in (root/'Modules').glob('*/Exchange/Core/*.cs'))
     if module_ids: actual={p for p in actual if p.split('/')[1] in module_ids}
+    generated='Modules/toolbelt.filesystem.windows/Clr/UsageSkillsGenerated.cs'
+    fs_records=None
+    if generated in actual:
+        import sys
+        sys.path.insert(0,str(root/'Scripts/Metadata'))
+        import clr_usage_skills
+        fs_records=clr_usage_skills.module_records(root,'toolbelt.filesystem.windows')
+        clr_usage_skills.generate(root,'toolbelt.filesystem.windows','Toolbelt.Filesystem.Windows',root/generated,check=True)
+        actual.remove(generated)
     projection='Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql'
     if projection in actual:
         # The known-object inventory is a current generated metadata surface,
@@ -82,8 +91,18 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
     import usage_skills
     for path,data in originals.items():
         current=(root/path).read_bytes()
+        if fs_records is not None and path=='Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs':
+            # Only exact new optional parameter/first help instruction pairs
+            # are removed. Fresh binaries/new help still need current proof.
+            current=clr_usage_skills.strip_provider_help(current.decode('utf-8').replace('\r\n','\n'),fs_records).encode('utf-8')
+        if fs_records is not None and path=='Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj':
+            text=current.decode('utf-8').replace('\r\n','\n')
+            item='    <Compile Include="UsageSkillsGenerated.cs" />\n'
+            if text.count(item)!=1: raise ValueError('CURRENT_CLR_SKILL_COMPILE_ITEM_NOT_CANONICAL')
+            current=text.replace(item,'',1).encode('utf-8')
         if '/Source/' in path and usage_skills.DDL_BEGIN.encode() in current:
             text=current.decode('utf-8')
+            text=usage_skills.strip_clr_sql_help(root,path,text)
             text=usage_skills.strip_missing_help_projection(root,path,text)
             text=usage_skills.strip_help_projection(root,path,text)
             current=usage_skills.strip_ddl_projection(root,path,text).encode('utf-8')
