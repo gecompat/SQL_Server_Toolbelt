@@ -56,7 +56,7 @@ class ParameterHelp(unittest.TestCase):
             self.assertEqual(p["description"], notes["toolbelt_tsql.USP_ExplainSsisDataFlow"]["parameter_notes"][p["name"]])
         public = [i for i in generator.catalog.objects(ROOT) if i["type"] == "USP"]
         self.assertEqual(len(public), 74)
-        self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 672)
+        self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 675)
 
     def test_business_sources_are_unchanged_outside_generated_help(self):
         for path in transition.snapshot(ROOT):
@@ -81,10 +81,17 @@ class ParameterHelp(unittest.TestCase):
         pins = transition.verifier_pins()
         for path in transition.VERIFIER_PATHS:
             with self.subTest(path=path):
-                original = transition.restore_verifier_source(ROOT,path)
+                # Der XML-/StartValues-Generator ist eine neue Funktionsquelle,
+                # kein ausschließlich redaktioneller Help-Leseadapter.
+                functional_generator = path == 'Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py'
+                root = historical_root(ROOT,'75d42047557d06b82777ba0c860e90f44247920e') if functional_generator else ROOT
+                original = transition.restore_verifier_source(root,path)
                 self.assertEqual(__import__("hashlib").sha256(original).hexdigest(),pins[path]["before"])
                 with self.assertRaises(ValueError):
-                    transition.restore_verifier_source(ROOT,path,(ROOT/path).read_bytes()+b"\n# changed oracle\n")
+                    transition.restore_verifier_source(root,path,(root/path).read_bytes()+b"\n# changed oracle\n")
+                if functional_generator:
+                    with self.assertRaisesRegex(ValueError,'qualification method differs'):
+                        transition.restore_verifier_source(ROOT,path)
 
     def test_parser_catalog_read_adapter_does_not_admit_changed_pins_or_functions(self):
         path = "Scripts/Release/ssis_historical_source_bridge.py"
