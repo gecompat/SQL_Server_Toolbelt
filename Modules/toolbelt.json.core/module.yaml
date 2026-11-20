@@ -30,7 +30,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_JsonCore"
+  assembly_sql_name: "tlblt_JsonCore"
   assembly_file_name: "Toolbelt.JsonCore.dll"
   permission_set: "SAFE"
   trust_method: "Separates exaktes SHA2-512-Opt-in; keine automatische Truständerung"

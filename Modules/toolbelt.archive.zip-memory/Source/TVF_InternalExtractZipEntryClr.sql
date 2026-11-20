@@ -32,7 +32,7 @@ RETURNS TABLE
     , EntryPayload         varbinary(max)
 )
 AS EXTERNAL NAME
-    [Toolbelt_Archive_ZipMemory]
+    [tlblt_Archive_ZipMemory]
     .[Toolbelt.Archive.ZipMemory.ZipEntryProvider]
     .[ExtractZipEntry];
 GO

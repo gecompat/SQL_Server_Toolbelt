@@ -67,6 +67,20 @@ erklärt den kleineren SSIS-Funktionssatz, wenn die übrigen Module nicht benöt
 werden. Table Clone ist portabel ohne Triggerübernahme verfügbar; die optionale
 Triggerübernahme benötigt auf Windows zusätzlich den strikten Parservertrag.
 
+Für ein einzelnes Modul beim gemeinsamen Builder beispielsweise
+`--module toolbelt.tsql.ssis-debug` ergänzen. Die Option ist wiederholbar;
+transitive Pflichtabhängigkeiten werden automatisch in Installationsreihenfolge
+ergänzt. Unbekannte Module oder eine für Plattform beziehungsweise zentralen
+Modus unzulässige Auswahl führen zum Abbruch, statt stillschweigend wegzufallen.
+Ohne `--module` entsteht weiterhin das vollständige gewählte Profil.
+
+Die fachlichen SQL-Quellen stammen aus dem expliziten
+[Source-Inventar](module_sources.json) und den kanonischen Objektdateien der
+Modulmanifeste. Ihre Ermittlung hängt nicht von den alten markerbasierten
+Deploy-/Uninstall-Skripten ab. Bereits die aktuellen Manifeste und SQL-Quellen
+verwenden `tlblt`-Assemblynamen; der Build muss sie nicht erst nachträglich
+für die aktuelle Funktionalität übersetzen.
+
 ## Installieren
 
 Die Zieldatenbank muss existieren. SQL Server 2019 oder neuer und mindestens

@@ -27,7 +27,7 @@ objects:
   - {type: CLR_TVF, schema: "toolbelt_json", name: "FT_ValidateJsonSchemaInternal", visibility: internal}
 permissions_required:
   - "Datenpfad: EXECUTE auf toolbelt_json.USP_ValidateJsonSchema und toolbelt_core.USP_PrepareResultTable sowie SELECT auf toolbelt_json.FT_ValidateJsonSchemaInternal; gemeinsam auch bei direkter Ausgabe erforderlich"
-  - "Lifecycle: vollständige Metadatensicht und passende CREATE-/Schema-DDL-Rechte; bekannter1.0.0→1.0.1-Upgrade zusätzlich vorhandenes ALTER-Recht auf ASSEMBLY::Toolbelt_JsonSchema. Keine Rechtevergabe."
+  - "Lifecycle: vollständige Metadatensicht und passende CREATE-/Schema-DDL-Rechte; bekannter1.0.0→1.0.1-Upgrade zusätzlich vorhandenes ALTER-Recht auf ASSEMBLY::tlblt_JsonSchema. Keine Rechtevergabe."
 collation_contract: "BIN2-Ausgabe, exakte ordinale und längensensitive Managed-Vergleiche ohne Normalisierung."
 data_type_contract: "Json/Schema nvarchar(max), Profile varchar(32); zehn Ergebnisfelder gemäß JSON_SCHEMA_CONTRACT."
 help_contract_version: "1.0"
@@ -39,7 +39,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_JsonSchema"
+  assembly_sql_name: "tlblt_JsonSchema"
   assembly_file_name: "Toolbelt.JsonSchema.dll"
   permission_set: "SAFE"
   trust_method: "Separates exaktes SHA2-512-Opt-in; keine automatische Truständerung"

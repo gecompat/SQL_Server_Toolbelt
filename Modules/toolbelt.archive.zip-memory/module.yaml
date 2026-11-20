@@ -60,7 +60,7 @@ objects:
     name: "TVF_InternalListZipEntriesClr"
     visibility: internal
   - type: ASSEMBLY
-    name: "Toolbelt_Archive_ZipMemory"
+    name: "tlblt_Archive_ZipMemory"
     visibility: internal
 permissions_required:
   - "Liste: EXECUTE auf toolbelt_archive.USP_ListZipEntriesFromBinary und SELECT auf toolbelt_archive.TVF_InternalListZipEntriesClr; bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable"
@@ -94,7 +94,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_Archive_ZipMemory"
+  assembly_sql_name: "tlblt_Archive_ZipMemory"
   assembly_file_name: "Toolbelt.Archive.ZipMemory.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"

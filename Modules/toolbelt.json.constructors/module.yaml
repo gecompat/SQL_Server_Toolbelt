@@ -57,7 +57,7 @@ objects:
   - {type: CLR_TVF, schema: "toolbelt_json", name: "FT_JsonEntryEvaluateInternal", visibility: internal}
   - {type: CLR_AGGREGATE, schema: "toolbelt_json", name: "AGF_JsonArray", visibility: public}
   - {type: CLR_AGGREGATE, schema: "toolbelt_json", name: "AGF_JsonObject", visibility: public}
-  - {type: ASSEMBLY, name: "Toolbelt_JsonConstructors", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_JsonConstructors", visibility: internal}
 permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "Deployment: vorhandene CREATE ASSEMBLY-/CREATE FUNCTION-/DDL-Rechte und vollständige Assemblymetadatensicht", "Lifecycle: VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies", "Uninstall: ALTER auf toolbelt_json und der eigenen Assembly"]
 collation_contract: "Exakte UTF-16-/BIN2-ValueKinds und längensensitive Keys; Ergebnis Latin1_General_100_BIN2."
 data_type_contract: "Ordinal int; ValueKind/Value/Key nvarchar(max); JsonValue nvarchar(max) NOT NULL."
@@ -72,7 +72,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_JsonConstructors"
+  assembly_sql_name: "tlblt_JsonConstructors"
   assembly_file_name: "Toolbelt.JsonConstructors.dll"
   permission_set: "SAFE"
   trust_method: "Separates SHA2-512-Opt-in; keine automatische Truständerung"

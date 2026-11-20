@@ -32,7 +32,7 @@ schemas:
   - "toolbelt_filesystem"
 objects:
   - { type: TABLE, schema: "toolbelt_filesystem", name: "FileSystemRoot", visibility: configuration }
-  - { type: ASSEMBLY, name: "Toolbelt_Filesystem_Windows", visibility: internal }
+  - { type: ASSEMBLY, name: "tlblt_Filesystem_Windows", visibility: internal }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_ReadBinaryFileChunk", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_ReadTextFileChunk", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_WriteBinaryFile", visibility: public }
@@ -52,7 +52,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_Filesystem_Windows"
+  assembly_sql_name: "tlblt_Filesystem_Windows"
   assembly_file_name: "Toolbelt.Filesystem.Windows.dll"
   permission_set: "UNSAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"

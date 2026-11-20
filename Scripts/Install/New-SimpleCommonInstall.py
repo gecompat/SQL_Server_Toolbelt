@@ -55,7 +55,7 @@ def load_script(name, path):
 caps=load_script('markerless_capabilities',ROOT/'Scripts/Install/New-MarkerlessCapabilities.py')
 
 
-def modules(platform, mode):
+def modules(platform, mode, module_ids=None):
     available={}
     for path in sorted((ROOT/'Modules').glob('*/module.yaml')):
         text=path.read_text(encoding='utf-8-sig');module=scalar(text,'module_id')
@@ -71,6 +71,19 @@ def modules(platform, mode):
         # Nur diese dokumentierte Windows-Laufzeitoption ist beim portablen
         # Deployment keine Pflichtabhängigkeit. Keine allgemeine Textheuristik.
         clone['dependencies']=[d for d in clone['dependencies'] if d!='toolbelt.tsql.script-parser']
+    if module_ids is not None:
+        require(isinstance(module_ids,(list,tuple)) and module_ids
+                and all(isinstance(m,str) for m in module_ids)
+                and len(module_ids)==len(set(module_ids)),'explicit module selection')
+        require(set(module_ids)<=set(selected),'unknown or unsupported module profile')
+        closure=set(module_ids);pending=list(module_ids)
+        while pending:
+            current=pending.pop()
+            require(current in selected,'unsupported module dependency')
+            for dependency in selected[current]['dependencies']:
+                if dependency not in closure:
+                    closure.add(dependency);pending.append(dependency)
+        selected={key:value for key,value in selected.items() if key in closure}
     ordered=[];pending=set(selected)
     while pending:
         ready=sorted(m for m in pending if set(selected[m]['dependencies'])<=set(ordered))
@@ -155,6 +168,12 @@ def binary_inputs(inputs):
 
 def source_files(selected):
     files=[];seen=set();hashes={}
+    inventory_path=ROOT/'Scripts/Install/module_sources.json'
+    inventory_bytes=inventory_path.read_bytes()
+    inventory=json.loads(inventory_bytes)
+    require(inventory.get('schema')=='toolbelt-install-sources/v1'
+            and isinstance(inventory.get('modules'),dict),'functional source inventory')
+    hashes[inventory_path.relative_to(ROOT).as_posix()]=sha(normalize(inventory_bytes))
     def visit(path,stack):
         path=path.resolve(strict=True)
         require(path.is_relative_to(ROOT) and not path.is_symlink(),'source boundary')
@@ -168,12 +187,15 @@ def source_files(selected):
             files.append((relative,path));seen.add(relative)
     for module in selected:
         directory=ROOT/'Modules'/module['id']
-        visit(directory/'Deployment/Deploy.sql',[])
-        # Generierte klassische Deployments können CREATE-Payloads einbetten
-        # oder als Template erst im Releasebuild erhalten. Deshalb sämtliche
-        # deklarierten kanonischen Einzelobjekte ergänzen, nicht nur :r folgen.
-        # Bereits besuchte Dateien bleiben dedupliziert; Tabellen-/CLR-Gruppen
-        # ohne namensgleiche Einzeldatei behalten ihre vorhandene Includekette.
+        registered=inventory['modules'].get(module['id'])
+        require(isinstance(registered,list) and len(registered)==len(set(registered)),
+                'functional source module inventory: '+module['id'])
+        for relative in registered:
+            require(isinstance(relative,str) and relative.startswith('Modules/'+module['id']+'/Source/')
+                    and Path(relative).suffix=='.sql','functional source path')
+            visit(ROOT/relative,[])
+        # Sources are independent of the old marker-based lifecycle. Canonical
+        # single-object files complement registered grouped/helper sources.
         for obj in objects(module['text']):
             if obj['type']=='ASSEMBLY': continue
             require(re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*',obj['name']),
@@ -237,10 +259,10 @@ def emit_sources(parsed, alias):
     return ''.join(output)
 
 
-def build(inputs,work,output,platform,mode,trust):
+def build(inputs,work,output,platform,mode,trust,module_ids=None):
     require(not output.exists() and not Path(str(output)+'.manifest.json').exists(),'new output required')
     require(work.is_relative_to(ROOT/'.runtime') and not work.exists(),'new private work directory required')
-    selected=modules(platform,mode)
+    selected=modules(platform,mode,module_ids)
     artifacts,binaries=binary_inputs(inputs)
     sources,hashes=source_files(selected)
     require((ROOT/caps.TARGET).read_text(encoding='utf-8-sig')==caps.render(),'capability projection drift')
@@ -346,5 +368,7 @@ if __name__=='__main__':
     parser.add_argument('--platform',choices=('Windows','Portable'),default='Windows')
     parser.add_argument('--mode',choices=('local','central'),default='local')
     parser.add_argument('--trust-mode',choices=('auto','hash','trustworthy-checked','trustworthy'),default='auto')
+    parser.add_argument('--module',action='append',dest='module_ids',
+                        help='Einzelnes Modul mit transitiven Abhängigkeiten; wiederholbar.')
     args=parser.parse_args()
-    build(args.inputs.resolve(),args.work.resolve(),args.output.resolve(),args.platform,args.mode,args.trust_mode)
+    build(args.inputs.resolve(),args.work.resolve(),args.output.resolve(),args.platform,args.mode,args.trust_mode,args.module_ids)

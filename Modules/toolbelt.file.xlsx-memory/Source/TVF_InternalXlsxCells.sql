@@ -1,6 +1,6 @@
 /*
 Interner Statusrow-Provider für USP_ReadXlsxWorksheetCells; keine öffentliche Neben-API.
-Dependency Toolbelt_File_XlsxMemory 1.0.0 und Toolbelt_Archive_ZipMemory 1.4.0.
+Dependency tlblt_File_XlsxMemory 1.0.0 und tlblt_Archive_ZipMemory 1.4.0.
 SAFE, DataAccess/SystemDataAccess None. Vollständige Materialisierung vor Rows.
 Erwartete Inputfehler: eine ErrorNumber/ErrorMessage-Zeile; unerwartete CLR-Fehler
 bleiben Originalfehler. Keine Dateisystem- oder Netzwerkzugriffe.
@@ -41,5 +41,5 @@ RETURNS TABLE
     CachePresent bit NULL,
     CacheValue nvarchar(max) NULL
 )
-AS EXTERNAL NAME [Toolbelt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxEntryPoints].[ReadCells];
+AS EXTERNAL NAME [tlblt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxEntryPoints].[ReadCells];
 GO

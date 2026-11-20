@@ -17,5 +17,5 @@ CREATE FUNCTION toolbelt_file.TVF_InternalFormatXlsxCell
  @Date1904 bit, @CultureName nvarchar(max)
 )
 RETURNS TABLE(DisplayText nvarchar(max) NULL, StatusCode int NULL)
-AS EXTERNAL NAME [Toolbelt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxCellDisplayBridge].[Evaluate];
+AS EXTERNAL NAME [tlblt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxCellDisplayBridge].[Evaluate];
 GO

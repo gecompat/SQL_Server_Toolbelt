@@ -7,5 +7,5 @@ GO
 CREATE FUNCTION toolbelt_file.SVF_InternalQuoteCsvCell
 (@Value nvarchar(max),@Separator nvarchar(2),@NullToken nvarchar(128),@IsHeader bit,@MaxOutputBytes bigint)
 RETURNS nvarchar(max)
-AS EXTERNAL NAME [Toolbelt_File_CsvMemory].[Toolbelt.Csv.CsvEntryPoints].[QuoteCell];
+AS EXTERNAL NAME [tlblt_File_CsvMemory].[Toolbelt.Csv.CsvEntryPoints].[QuoteCell];
 GO

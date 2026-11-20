@@ -55,7 +55,7 @@ objects:
     name: TVF_InternalXlsxCells
     visibility: internal
   - type: ASSEMBLY
-    name: Toolbelt_File_XlsxMemory
+    name: tlblt_File_XlsxMemory
     visibility: internal
   - type: CLR_TVF
     schema: toolbelt_file
@@ -94,7 +94,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: Toolbelt_File_XlsxMemory
+  assembly_sql_name: tlblt_File_XlsxMemory
   assembly_file_name: Toolbelt.File.XlsxMemory.dll
   permission_set: SAFE
   trust_method: "SHA2-512 via separates sys.sp_add_trusted_assembly Opt-in"

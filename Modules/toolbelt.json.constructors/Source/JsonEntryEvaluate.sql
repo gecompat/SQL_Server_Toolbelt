@@ -5,5 +5,5 @@ IF OBJECT_ID(N'toolbelt_json.FT_JsonEntryEvaluateInternal') IS NULL
 RETURNS TABLE
 (Fragment nvarchar(max) NULL,ErrorNumber int NULL,ErrorState int NULL,FaultPhase tinyint NULL,
  RawValueBytes bigint NULL,KeyBytes bigint NULL,StrongMinimumBytes bigint NULL,FragmentBytes bigint NULL)
-AS EXTERNAL NAME [Toolbelt_JsonConstructors].[Toolbelt.JsonConstructors.JsonEntryEvaluateBridge].[Evaluate];';
+AS EXTERNAL NAME [tlblt_JsonConstructors].[Toolbelt.JsonConstructors.JsonEntryEvaluateBridge].[Evaluate];';
 GO

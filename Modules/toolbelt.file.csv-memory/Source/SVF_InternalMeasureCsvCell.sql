@@ -7,5 +7,5 @@ GO
 CREATE FUNCTION toolbelt_file.SVF_InternalMeasureCsvCell
 (@Value nvarchar(max),@Separator nvarchar(2),@NullToken nvarchar(128),@IsHeader bit)
 RETURNS bigint
-AS EXTERNAL NAME [Toolbelt_File_CsvMemory].[Toolbelt.Csv.CsvEntryPoints].[MeasureCell];
+AS EXTERNAL NAME [tlblt_File_CsvMemory].[Toolbelt.Csv.CsvEntryPoints].[MeasureCell];
 GO

@@ -47,7 +47,7 @@ $marker='$(AssemblyBits)'
 if([regex]::Matches($deploy,[regex]::Escape($marker)).Count-ne1){throw 'CSV_RELEASE_ASSEMBLY_MARKER'}
 $deploy=$deploy.Replace($marker,'0x'+[Convert]::ToHexString($bytes))
 $description='SQL Server Toolbelt toolbelt.file.csv-memory SAFE provider 1.0.0'
-$manifest=[ordered]@{schemaVersion='1.0';moduleId='toolbelt.file.csv-memory';moduleVersion='1.0.0';assemblySqlName='Toolbelt_File_CsvMemory';assemblyFileName='Toolbelt.File.CsvMemory.dll';permissionSet='SAFE';directFrameworkReferences=@('System','System.Data');directModuleReferences=@();sha256=$sha256;sha512=$sha512;sqlServerHexLiteral='0x'+$sha512;description=$description;sourceFingerprints=$fingerprints}
+$manifest=[ordered]@{schemaVersion='1.0';moduleId='toolbelt.file.csv-memory';moduleVersion='1.0.0';assemblySqlName='tlblt_File_CsvMemory';assemblyFileName='Toolbelt.File.CsvMemory.dll';permissionSet='SAFE';directFrameworkReferences=@('System','System.Data');directModuleReferences=@();sha256=$sha256;sha512=$sha512;sqlServerHexLiteral='0x'+$sha512;description=$description;sourceFingerprints=$fingerprints}
 Assert-CsvSourcePins
 $binaryOutput=Join-Path $output 'Toolbelt.File.CsvMemory.dll'
 if([IO.Path]::GetFullPath($binaryOutput) -ieq [IO.Path]::GetFullPath($assembly)){throw 'CSV_RELEASE_INPUT_OUTPUT_ALIAS'}

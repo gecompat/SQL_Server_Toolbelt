@@ -7,5 +7,5 @@ RETURNS TABLE
 (RowKind nvarchar(8) NULL,ErrorOrdinal int NULL,Status nvarchar(24) NULL,Profile nvarchar(32) NULL,
  IsValid bit NULL,DocumentPointer nvarchar(max) NULL,SchemaPointer nvarchar(max) NULL,
  Keyword nvarchar(128) NULL,ErrorCode nvarchar(32) NULL,ErrorsTruncated bit NULL)
-AS EXTERNAL NAME [Toolbelt_JsonSchema].[Toolbelt.JsonSchema.JsonSchemaBridge].[Validate];';
+AS EXTERNAL NAME [tlblt_JsonSchema].[Toolbelt.JsonSchema.JsonSchemaBridge].[Validate];';
 GO

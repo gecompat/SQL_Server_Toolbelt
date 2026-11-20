@@ -32,7 +32,7 @@ objects:
   - {type: TVF, schema: "toolbelt_string", name: "TVF_DoubleMetaphone", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_ColognePhoneticCore", visibility: internal}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_DoubleMetaphoneCore", visibility: internal}
-  - {type: ASSEMBLY, name: "Toolbelt_String_Phonetic", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_String_Phonetic", visibility: internal}
 permissions_required:
   - "SELECT auf den öffentlichen TVFs"
   - "Lifecycle: VIEW DEFINITION auf Datenbank und SELECT auf sys.sql_expression_dependencies"
@@ -56,7 +56,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_String_Phonetic"
+  assembly_sql_name: "tlblt_String_Phonetic"
   assembly_file_name: "Toolbelt.String.Phonetic.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly; getrenntes Opt-in"

@@ -46,7 +46,7 @@ objects:
   - {type: SVF, schema: "toolbelt_string", name: "SVF_RegexSubstring", visibility: public}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexReplaceCore", visibility: internal}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexSubstringCore", visibility: internal}
-  - {type: ASSEMBLY, name: "Toolbelt_String_Regex", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_String_Regex", visibility: internal}
 permissions_required:
   - "SELECT auf den öffentlichen Regex-TVFs"
   - "EXECUTE auf den öffentlichen Regex-Skalarfunktionen; keine direkten Fachcallergrants auf interne CLR-Kerne"
@@ -73,7 +73,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_String_Regex"
+  assembly_sql_name: "tlblt_String_Regex"
   assembly_file_name: "Toolbelt.String.Regex.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"

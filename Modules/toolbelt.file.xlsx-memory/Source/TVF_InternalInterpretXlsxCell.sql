@@ -22,5 +22,5 @@ RETURNS TABLE
  DateTimeValue datetime2(7) NULL, TimeValue time(7) NULL, DurationTicks bigint NULL,
  TypedTextValue nvarchar(max) NULL, StatusCode int NULL
 )
-AS EXTERNAL NAME [Toolbelt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxCellType].[Interpret];
+AS EXTERNAL NAME [tlblt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxCellType].[Interpret];
 GO

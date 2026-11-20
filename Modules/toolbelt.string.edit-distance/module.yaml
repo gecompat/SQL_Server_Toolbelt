@@ -37,7 +37,7 @@ objects:
   - {type: TVF, schema: "toolbelt_string", name: "TVF_OsaDistance", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_LevenshteinDistanceCore", visibility: internal}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_OsaDistanceCore", visibility: internal}
-  - {type: ASSEMBLY, name: "Toolbelt_String_EditDistance", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_String_EditDistance", visibility: internal}
 permissions_required:
   - "SELECT auf den öffentlichen TVFs"
   - "CREATE FUNCTION, CREATE ASSEMBLY und Schema-ALTER für Deployment"
@@ -64,7 +64,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_String_EditDistance"
+  assembly_sql_name: "tlblt_String_EditDistance"
   assembly_file_name: "Toolbelt.String.EditDistance.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"

@@ -4,6 +4,8 @@ import importlib.util
 import re
 import sys
 import unittest
+import tempfile
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'Scripts/Install'))
@@ -21,6 +23,34 @@ capabilities=load('New-MarkerlessCapabilities.py')
 
 
 class MarkerlessContractTests(unittest.TestCase):
+    def test_canonical_manifests_already_use_prefixed_assembly_names(self):
+        names=set()
+        for path in (ROOT/'Modules').glob('*/module.yaml'):
+            text=path.read_text(encoding='utf-8-sig')
+            own={obj['name'] for obj in manifest.objects(text) if obj['type']=='ASSEMBLY'}
+            clr=manifest.section(text,'clr')
+            if clr and manifest.scalar(clr,'  used')=='true':
+                own.add(manifest.scalar(clr,'  assembly_sql_name'))
+            for name in own:
+                self.assertTrue(name.startswith('tlblt'),path)
+                self.assertNotIn(name,names)
+                names.add(name)
+        self.assertEqual(len(names),12)
+
+    def test_canonical_sources_need_no_legacy_name_translation(self):
+        selected=installer.modules('Windows','local')
+        sources,_=installer.source_files(selected)
+        names={obj['name'] for module in selected for obj in manifest.objects(module['text'])
+               if obj['type']=='ASSEMBLY'}
+        names.update(manifest.scalar(manifest.section(module['text'],'clr'),'  assembly_sql_name')
+                     for module in selected if manifest.section(module['text'],'clr')
+                     and manifest.scalar(manifest.section(module['text'],'clr'),'  used')=='true')
+        references={name for source in sources for name in re.findall(
+            r'(?i)\bEXTERNAL\s+NAME\s+\[([^\]]+)\]',source['sql'])}
+        self.assertTrue(references)
+        self.assertTrue(references<=names,references-names)
+        self.assertTrue(all(name.startswith('tlblt') for name in references))
+
     def test_inline_and_multiline_objects_and_lists_have_same_contract(self):
         expected=[{'type':'USP','schema':'toolbelt_core','name':'Contoso','visibility':'public'}]
         inline='objects:\n  - { type: USP, schema: "toolbelt_core", name: Contoso, visibility: public }\nnext: 1\n'
@@ -51,6 +81,31 @@ class MarkerlessContractTests(unittest.TestCase):
                         self.assertLess(positions[dependency],positions[module['id']])
                 if profile[0]=='Portable': self.assertTrue(installer.WINDOWS_ONLY.isdisjoint(ids))
                 if profile[1]=='central': self.assertTrue(installer.LOCAL_ONLY.isdisjoint(ids))
+
+    def test_module_selection_adds_only_transitive_dependencies(self):
+        selected=installer.modules('Windows','local',['toolbelt.tsql.ssis-debug'])
+        ids=[m['id'] for m in selected]
+        self.assertIn('toolbelt.tsql.ssis-debug',ids)
+        self.assertIn('toolbelt.tsql.script-parser',ids)
+        self.assertNotIn('toolbelt.file.xlsx-memory',ids)
+        for index,module in enumerate(selected):
+            for dependency in module['dependencies']:
+                self.assertIn(dependency,ids[:index])
+
+    def test_module_selection_does_not_silently_drop_unsupported_requests(self):
+        for platform,mode,ids in (
+            ('Portable','local',['toolbelt.tsql.ssis-debug']),
+            ('Windows','central',['toolbelt.filesystem.windows']),
+            ('Windows','local',['toolbelt.not-present']),
+            ('Windows','local',[]),
+            ('Windows','local',['toolbelt.json.core','toolbelt.json.core'])):
+            with self.subTest(platform=platform,mode=mode,ids=ids):
+                with self.assertRaises(ValueError): installer.modules(platform,mode,ids)
+
+    def test_portable_clone_subset_preserves_conditional_parser_boundary(self):
+        ids=[m['id'] for m in installer.modules('Portable','central',['toolbelt.metadata.table-clone'])]
+        self.assertIn('toolbelt.metadata.table-clone',ids)
+        self.assertNotIn('toolbelt.tsql.script-parser',ids)
 
     def test_actual_source_closure_expands_fragments_without_running_deployment(self):
         sources,pins=installer.source_files(installer.modules('Windows','local'))
@@ -90,8 +145,32 @@ class MarkerlessContractTests(unittest.TestCase):
 
     def test_module_without_source_or_clr_is_rejected(self):
         module={'id':'toolbelt.conversion.safe-cast','text':'objects: []\nclr:\n  used: false\n'}
-        with self.assertRaisesRegex(ValueError,'module without executable source'):
-            installer.source_files([module])
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            inventory=root/'Scripts/Install/module_sources.json'
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text('{"schema":"toolbelt-install-sources/v1","modules":{"toolbelt.conversion.safe-cast":[]}}',encoding='utf-8')
+            with patch.object(installer,'ROOT',root):
+                with self.assertRaisesRegex(ValueError,'module without executable source'):
+                    installer.source_files([module])
+
+    def test_functional_inventory_is_independent_of_legacy_deployments(self):
+        selected=installer.modules('Windows','local')
+        sources,pins=installer.source_files(selected)
+        self.assertEqual(len(sources),193)
+        self.assertIn('Scripts/Install/module_sources.json',pins)
+        self.assertFalse(any('/Deployment/' in path for path in pins))
+
+    def test_source_inventory_rejects_cross_module_paths(self):
+        module={'id':'toolbelt.conversion.safe-cast','text':'objects: []\nclr:\n  used: false\n'}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            inventory=root/'Scripts/Install/module_sources.json'
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text('{"schema":"toolbelt-install-sources/v1","modules":{"toolbelt.conversion.safe-cast":["Modules/other/Source/Other.sql"]}}',encoding='utf-8')
+            with patch.object(installer,'ROOT',root):
+                with self.assertRaisesRegex(ValueError,'functional source path'):
+                    installer.source_files([module])
 
     def test_every_profile_has_create_text_for_all_declared_sql_objects(self):
         # Unabhängiger Sollbestand aus den öffentlichen Objektdeklarationen.

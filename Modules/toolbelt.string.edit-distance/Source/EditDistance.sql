@@ -5,7 +5,7 @@ GO
 CREATE FUNCTION toolbelt_string.TVF_LevenshteinDistanceCore
 (@LeftText nvarchar(max), @RightText nvarchar(max), @MaxDistance int, @Profile nvarchar(max))
 RETURNS TABLE (Distance int, ExceedsMaxDistance bit, ErrorCode int)
-AS EXTERNAL NAME [Toolbelt_String_EditDistance].[Toolbelt.String.EditDistance.DistanceProvider].[Levenshtein];
+AS EXTERNAL NAME [tlblt_String_EditDistance].[Toolbelt.String.EditDistance.DistanceProvider].[Levenshtein];
 GO
 -- ============================================================================
 -- Objekt: toolbelt_string.TVF_LevenshteinDistance; Typ: inline TVF.
@@ -35,7 +35,7 @@ GO
 CREATE FUNCTION toolbelt_string.TVF_OsaDistanceCore
 (@LeftText nvarchar(max), @RightText nvarchar(max), @MaxDistance int, @Profile nvarchar(max))
 RETURNS TABLE (Distance int, ExceedsMaxDistance bit, ErrorCode int)
-AS EXTERNAL NAME [Toolbelt_String_EditDistance].[Toolbelt.String.EditDistance.DistanceProvider].[Osa];
+AS EXTERNAL NAME [tlblt_String_EditDistance].[Toolbelt.String.EditDistance.DistanceProvider].[Osa];
 GO
 -- ============================================================================
 -- Objekt: toolbelt_string.TVF_OsaDistance; Typ: inline TVF.

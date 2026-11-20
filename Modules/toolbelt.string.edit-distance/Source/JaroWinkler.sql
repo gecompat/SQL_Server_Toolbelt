@@ -5,7 +5,7 @@ GO
 CREATE FUNCTION toolbelt_string.TVF_JaroWinklerSimilarityCore
 (@LeftText nvarchar(max),@RightText nvarchar(max),@Profile nvarchar(max))
 RETURNS TABLE (Similarity float(53),ErrorCode int)
-AS EXTERNAL NAME [Toolbelt_String_EditDistance].[Toolbelt.String.EditDistance.JaroProvider].[Evaluate];
+AS EXTERNAL NAME [tlblt_String_EditDistance].[Toolbelt.String.EditDistance.JaroProvider].[Evaluate];
 GO
 -- ============================================================================
 -- Objekt: toolbelt_string.TVF_JaroWinklerSimilarity; Typ: inline TVF.

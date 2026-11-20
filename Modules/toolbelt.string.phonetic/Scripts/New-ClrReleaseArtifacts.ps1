@@ -37,7 +37,7 @@ Save-New 'Toolbelt.String.Phonetic.dll' $bytes
 Save-New 'Build.stdout.txt' ($utf8.GetBytes($result.Stdout))
 Save-New 'Build.stderr.txt' ($utf8.GetBytes($result.Stderr))
 # Kein qualifiziertes Binary wird aus einem Build-Ergebnis allein abgeleitet.
-$manifest=[ordered]@{schemaVersion='1.0';moduleId='toolbelt.string.phonetic';moduleVersion='1.0.0';assemblySqlName='Toolbelt_String_Phonetic';assemblyFileName='Toolbelt.String.Phonetic.dll';permissionSet='SAFE';directFrameworkReferences=@('System','System.Data');sha256=$sha256;sha512=$sha512;sqlServerHexLiteral=('0x'+$sha512);managedIdentity=$identity.FullName;sourceFingerprints=$pins;buildOnly=$true;offlineQualified=$false;sqlQualified=$false}
+$manifest=[ordered]@{schemaVersion='1.0';moduleId='toolbelt.string.phonetic';moduleVersion='1.0.0';assemblySqlName='tlblt_String_Phonetic';assemblyFileName='Toolbelt.String.Phonetic.dll';permissionSet='SAFE';directFrameworkReferences=@('System','System.Data');sha256=$sha256;sha512=$sha512;sqlServerHexLiteral=('0x'+$sha512);managedIdentity=$identity.FullName;sourceFingerprints=$pins;buildOnly=$true;offlineQualified=$false;sqlQualified=$false}
 Save-New 'Toolbelt.String.Phonetic.trust-manifest.json' ($utf8.GetBytes((ConvertTo-Json -InputObject $manifest -Depth 8)))
 $deploy=[IO.File]::ReadAllText((Join-Path $moduleRoot 'Deployment/Deploy.sql'),$utf8)
 if([regex]::Matches($deploy,[regex]::Escape('$(AssemblyBits)')).Count -ne 1){throw 'PHONETIC_BUILD_BITS_PLACEHOLDER'}

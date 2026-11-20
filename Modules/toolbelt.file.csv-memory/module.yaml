@@ -36,7 +36,7 @@ objects:
   - {type: CLR_TVF, schema: "toolbelt_file", name: "TVF_InternalParseCsv", visibility: internal}
   - {type: CLR_SVF, schema: "toolbelt_file", name: "SVF_InternalMeasureCsvCell", visibility: internal}
   - {type: CLR_SVF, schema: "toolbelt_file", name: "SVF_InternalQuoteCsvCell", visibility: internal}
-  - {type: ASSEMBLY, name: "Toolbelt_File_CsvMemory", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_File_CsvMemory", visibility: internal}
 permissions_required:
   - "Datenpfad Parser: EXECUTE auf toolbelt_file.USP_ParseCsv und SELECT auf toolbelt_file.TVF_InternalParseCsv."
   - "Datenpfad Writer: EXECUTE auf toolbelt_file.USP_WriteCsv sowie auf toolbelt_file.SVF_InternalMeasureCsvCell und toolbelt_file.SVF_InternalQuoteCsvCell."
@@ -59,7 +59,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_File_CsvMemory"
+  assembly_sql_name: "tlblt_File_CsvMemory"
   assembly_file_name: "Toolbelt.File.CsvMemory.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via separates sys.sp_add_trusted_assembly Opt-in"

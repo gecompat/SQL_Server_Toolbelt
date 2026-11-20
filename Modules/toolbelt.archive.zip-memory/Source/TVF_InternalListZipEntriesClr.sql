@@ -27,7 +27,7 @@ RETURNS TABLE
     , LastModifiedAt       datetime2(0)   NULL
 )
 AS EXTERNAL NAME
-    [Toolbelt_Archive_ZipMemory]
+    [tlblt_Archive_ZipMemory]
     .[Toolbelt.Archive.ZipMemory.ZipEntryProvider]
     .[ListZipEntriesFromBinary];
 GO

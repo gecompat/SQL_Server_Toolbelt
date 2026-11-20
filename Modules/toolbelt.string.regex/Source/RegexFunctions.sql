@@ -6,7 +6,7 @@ GO
 -- Typ: CLR SVF; Zweck: SAFE-CLR-Kern der öffentlichen Replace-Fassade.
 -- Vertrag: Documentation/SVF_RegexReplace.md; Parameter: max-Texte, Start=1,
 -- Occurrence=0, Flags=c, Profile=standard; Resultset: nvarchar(max).
--- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.
+-- Dependencies: SAFE tlblt_String_Regex; keine direkten Fachcallergrants.
 -- Versionen: SQL Server 2019/2022/2025; Plattformen: Windows/Linux.
 -- Fehlerverhalten: SQL 6522 / TBX_REGEX_*; keine Teilresultate/Seiteneffekte.
 -- Performance: vollständige Materialisierung, kooperatives Gesamtbudget.
@@ -26,7 +26,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexReplaceCore]
 )
 RETURNS nvarchar(max)
 WITH CALLED ON NULL INPUT
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexReplaceBounded];
+AS EXTERNAL NAME [tlblt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexReplaceBounded];
 GO
 
 -- ============================================================================
@@ -61,7 +61,7 @@ GO
 -- Typ: CLR SVF; Zweck: SAFE-CLR-Kern der öffentlichen Substring-Fassade.
 -- Vertrag: Documentation/SVF_RegexSubstring.md; Parameter: max-Texte,
 -- Start=1, Occurrence=1, Flags=c, Profile=standard; Resultset: nvarchar(max).
--- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.
+-- Dependencies: SAFE tlblt_String_Regex; keine direkten Fachcallergrants.
 -- Versionen: SQL Server 2019/2022/2025; Plattformen: Windows/Linux.
 -- Fehlerverhalten: SQL 6522 / TBX_REGEX_*; ohne Treffer NULL, leerer Treffer N''.
 -- Performance: vollständige Materialisierung, kooperatives Gesamtbudget.
@@ -78,7 +78,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexSubstringCore]
 )
 RETURNS nvarchar(max)
 WITH CALLED ON NULL INPUT
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexSubstringBounded];
+AS EXTERNAL NAME [tlblt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexSubstringBounded];
 GO
 
 -- ============================================================================
@@ -117,7 +117,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexIsMatch]
 RETURNS bit
 WITH CALLED ON NULL INPUT
 AS EXTERNAL NAME
-    [Toolbelt_String_Regex]
+    [tlblt_String_Regex]
     .[Toolbelt.String.Regex.RegexProvider]
     .[RegexIsMatchBounded];
 GO
@@ -134,7 +134,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexInstr]
 RETURNS int
 WITH CALLED ON NULL INPUT
 AS EXTERNAL NAME
-    [Toolbelt_String_Regex]
+    [tlblt_String_Regex]
     .[Toolbelt.String.Regex.RegexProvider]
     .[RegexInstrBounded];
 GO
@@ -149,7 +149,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexCount]
 RETURNS int
 WITH CALLED ON NULL INPUT
 AS EXTERNAL NAME
-    [Toolbelt_String_Regex]
+    [tlblt_String_Regex]
     .[Toolbelt.String.Regex.RegexProvider]
     .[RegexCountBounded];
 GO

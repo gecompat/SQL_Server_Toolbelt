@@ -12,7 +12,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
   , @MaxBytes int = 1048576
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadBinaryFileChunk];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadBinaryFileChunk];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
@@ -24,7 +24,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
   , @EncodingName nvarchar(128) = NULL
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadTextFileChunk];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadTextFileChunk];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
@@ -35,7 +35,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
   , @Overwrite bit = 0
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteBinaryFile];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteBinaryFile];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
@@ -48,7 +48,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
   , @Overwrite bit = 0
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteTextFile];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteTextFile];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
@@ -63,7 +63,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
   , @Overwrite bit = 0
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[TranscodeTextFile];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[TranscodeTextFile];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
@@ -75,7 +75,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
   , @MaxEntries int = 10000
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ListDirectory];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ListDirectory];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
@@ -84,7 +84,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
   , @RelativePath nvarchar(4000) = NULL
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[CreateDirectory];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[CreateDirectory];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
@@ -93,7 +93,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
   , @RelativePath nvarchar(4000) = NULL
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveFile];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveFile];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
@@ -105,7 +105,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
   , @MaxEntries int = 10000
   , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
-AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveDirectory];
+AS EXTERNAL NAME [tlblt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveDirectory];
 GO
 
 CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]
