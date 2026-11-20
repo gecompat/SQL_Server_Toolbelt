@@ -8,9 +8,9 @@ object_name: "TVF_DateBucketDate"
 object_type: "TVF"
 database_role: "toolbelt"
 is_internal: false
-parameters: [{"name": "@DatePart", "sql_type": "varchar(16)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern."}, {"name": "@Width", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet."}, {"name": "@Value", "sql_type": "date", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder."}, {"name": "@Origin", "sql_type": "date", "sql_default": "'19000101'", "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder."}]
+parameters: [{"name": "@DatePart", "sql_type": "varchar(16)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern."}, {"name": "@Width", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode."}, {"name": "@Value", "sql_type": "date", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder."}, {"name": "@Origin", "sql_type": "date", "sql_default": "'19000101'", "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder."}]
 source_paths: ["Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql"]
-review_status: "draft"
+review_status: "verified"
 source_module_version: "1.0.0"
 ---
 
@@ -18,54 +18,50 @@ source_module_version: "1.0.0"
 
 ## Zweck und Einsatzfälle
 
-Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu.
-
-Reviewentwurf: vorhandene Beschreibung mit der Implementierung abgleichen.
+Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu. Für originbezogene Zeit-/Kalendergruppierungen; keine Rundung auf die nächste Grenze.
 
 ## Voraussetzungen
 
-Noch gegen den Code zu prüfen.
+SQL Server 2019/2022/2025, Windows/Linux, unterstützte CL150/160/170. Modul installiert; kein CLR oder externer Datenzugriff. Alle vier Funktionsargumentpositionen angeben. DEFAULT für Origin wählt den deklarierten Bezugspunkt; explizites NULL wählt ihn nicht.
 
 ## Parameter und Zugriff
 
-| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
-|---|---|---|---|---|
-| `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
-| `@Value` | `date` | `kein Default` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
-| `@Origin` | `date` | `'19000101'` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@DatePart` | `varchar(16)` | `kein Default` | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
+| `@Width` | `int` | `kein Default` | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
+| `@Value` | `date` | `kein Default` | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
+| `@Origin` | `date` | `'19000101'` | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
 ## Ergebnisse
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Genau eine Zeile mit Value date, IsValid bit und ValidationCode tinyint. NULL in irgendeiner Eingabe: drei NULL-Werte. Erfolg: Value als berechneter Bucketanfang, IsValid=1, Code=0. Unbekannter Datepart: Value=NULL, IsValid=0, Code=10. Breite <=0: Value=NULL, IsValid=0, Code=11. Für date sind hour/minute/second/millisecond einschließlich ihrer oben genannten Aliase ungültig: Value=NULL, IsValid=0, Code=12; diese Erkennung hat Vorrang vor ungültiger Width. microsecond ist auch hier unbekannt und ergibt Code=10.
 
 ## Aufrufbeispiele
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateBucketDate('day', 7, CONVERT(date,'2024-07-19'), CONVERT(date,'2024-01-01'));
+SELECT * FROM toolbelt_datetime.TVF_DateBucketDate
+ ('day',2,CONVERT(date,'2026-01-04T12:00:00'),
+ CONVERT(date,'2026-01-01T00:00:00'));
+-- Bucketanfang 2026-01-03 00:00:00 (bei date ohne Uhrzeit); gültig, Code=0.
 ```
 
 ## Rechte
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Vorhandenes SELECT für SELECT-Aufrufe; REFERENCES für entsprechende Referenzverwendungen. Interne Aufrufrechte und Cross-Database-Zuordnung bleiben projektgemäß erforderlich. Kein Rechtegrant oder Identitätswechsel.
 
 ## Ressourcenbedarf
 
-Noch gegen tatsächliche Grenzen/Algorithmen zu prüfen; keine Kapazitäts- oder Laufzeitwerte erfinden.
+Inline-TVF mit festen CTE-Ausdrucksstufen, ohne Iteration oder Serienexpansion. Konstante Kalender-/Zeitberechnung je Eingabezeile. Plan und Gesamtkosten hängen von aufrufender Abfrage und Eingabemenge ab.
 
 ## Nebenwirkungen
 
-Noch am tatsächlichen Ausführungspfad zu prüfen; dieser Entwurf erteilt keine Ausführungsautorität.
+Rein lesend ohne persistente DML-, Datei-, Netzwerk-, Konfigurations- oder Truständerungen. Der interne Multistatement-Kern befüllt ausschließlich seine lokale Rückgabetabelle.
 
 ## Fehlerbehandlung
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+NULL und fachlich ungültige Dateparts/Breiten liefern die oben beschriebenen Ergebniszustände. Typbindung sowie DATEADD-/CONVERT-Bereichsüberläufe bleiben Enginefehler; keine pauschale Umdeutung in ValidationCode und kein Retry.
 
 ## Aussagegrenzen
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
-
-Ursprüngliche Objektverträge:
-- `Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDate.md`
-
-Keine Installations-, Definitions- oder Rechteattestation.
+Der Algorithmus bildet DATEDIFF_BIG vom Origin, teilt mit Abrundung bei negativen Abständen durch Width, addiert ganze Bucketbreiten zum Origin und korrigiert einen zu großen Kandidaten um eine Breite. Kalenderaddition folgt SQL-Monatsendklammerung; Zeitanteil des Origins bleibt Bezug. week benutzt die DATEDIFF-Wochengrenzen, nicht die DATEFIRST-abhängige Truncate-Wochenlogik. datetimeoffset-Ausgabe behält den Origin-Offset; keine Zeitzonen-/Sommerzeitdatenbank und keine Garantie eines Value-Offsets im Ergebnis. datetime2 wird intern mit +00:00 gebunden. Extreme Breiten nahe Datumsgrenzen können vor oder bei der abschließenden Korrektur außerhalb des SQL-Wertebereichs liegen. Keine iso_week-, microsecond- oder nanosecond-Unterstützung.

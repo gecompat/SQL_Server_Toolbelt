@@ -28,6 +28,24 @@ def literal_value(expression):
 
 
 class UsageSkillTests(unittest.TestCase):
+    def test_full_generator_never_creates_partial_output_from_review_drafts(self):
+        spec = importlib.util.spec_from_file_location("generate_usage_skills", ROOT / "Scripts/Metadata/generate_usage_skills.py")
+        generator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(generator)
+        sources = [skills.read(p, verified=False) for p in (ROOT / "Metadata/UsageSkills").glob("*/*.md")]
+        expected = skills.inventory(ROOT)
+        incomplete = (any(s.metadata["review_status"] == "draft" for s in sources)
+                      or {s.identity for s in sources} != set(expected))
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "not-created" / "Skills.sql"
+            if incomplete:
+                with self.assertRaises(ValueError):
+                    generator.generate(ROOT, output)
+                self.assertFalse(output.parent.exists())
+            else:
+                self.assertEqual(generator.generate(ROOT, output), len(expected))
+                self.assertEqual(output.read_text(encoding="utf-8"), skills.render_view(sources))
+
     def test_every_source_is_structurally_valid_and_unreviewed_sources_reject_shipping(self):
         for path in sorted((ROOT / "Metadata/UsageSkills").glob("*/*.md")):
             source = skills.read(path, verified=False)
@@ -166,7 +184,7 @@ class UsageSkillTests(unittest.TestCase):
         self.assertEqual(projected.replace(skills.render_ddl_comment(source), "", 1), sql)
         for broken in (sql.replace("TVF_GetBitBigInt", "TVF_Wrong", 1),
                        sql.replace("RETURNS TABLE", "RETURNS @Result TABLE", 1),
-                       sql + "CREATE VIEW y AS SELECT 1;\n", "/* missing end"):
+                       sql + sql, "/* missing end"):
             with self.subTest(broken=broken[:45]), self.assertRaises(ValueError):
                 skills.project_inline_function(broken, source)
 
@@ -211,6 +229,43 @@ class UsageSkillTests(unittest.TestCase):
                        projected.replace(block, block + block, 1)):
             with self.subTest(broken=broken[-50:]), self.assertRaises(ValueError):
                 skills.project_procedure_help(broken, source)
+
+    def test_multiple_functions_keep_separate_skills_and_generation_order(self):
+        current = [s for s in prototypes() if s.metadata["object_name"] in
+                   ("TVF_GenerateSeriesBigInt", "TVF_GenerateSeriesBigIntStatus")]
+        self.assertEqual(len(current), 2)
+        path = current[0].metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        self.assertEqual({s.identity for s in skills.read_ddl_comments(text)}, {s.identity for s in current})
+        original = skills.strip_ddl_projection(ROOT, path, text)
+        outputs = []
+        for order in (current, list(reversed(current))):
+            result = original
+            for skill in order:
+                result = skills.project_function_ddl(result, skill)
+                ts, _, i, end = skills._function_declaration(result, skill)
+                position = result.index(skills.render_ddl_comment(skill))
+                self.assertGreater(position, ts[i][1])
+                self.assertLess(position, ts[end][1] if end < len(ts) else len(result))
+            outputs.append(result)
+        self.assertEqual(outputs, [text, text])
+        with self.assertRaisesRegex(ValueError, "Genau ein"):
+            skills.read_ddl_comment(text)
+        with self.assertRaisesRegex(ValueError, "Doppelte|nicht eindeutig"):
+            skills.strip_ddl_projection(ROOT, path, text + skills.render_ddl_comment(current[0]))
+        block = skills.render_ddl_comment(current[0])
+        relocated = text.replace(block, "", 1) + block
+        with self.assertRaisesRegex(ValueError, "außerhalb"):
+            skills.strip_ddl_projection(ROOT, path, relocated)
+
+    def test_marker_lines_inside_sql_literals_are_not_ddl_comments(self):
+        sample = prototypes()[0]
+        literal = "SELECT N'\n" + skills.DDL_BEGIN + "\nnot frontmatter\n" + skills.DDL_END + "\n';\n"
+        self.assertEqual(skills.read_ddl_comments(literal), [])
+        text = skills.render_ddl_comment(sample) + literal
+        self.assertEqual([s.markdown for s in skills.read_ddl_comments(text)], [sample.markdown])
+        with self.assertRaisesRegex(ValueError, "markierungen"):
+            skills.read_ddl_comments(skills.DDL_END + "\n")
 
     def test_view_contract_is_exactly_eight_columns_and_constant_data(self):
         sql = skills.render_view(prototypes())

@@ -33,8 +33,12 @@ Der Adapter `project_inline_function` in
 passive Zeilenkommentare nach `AS` ein. Das schützt auch SQL-Beispiele mit `GO`,
 Anführungszeichen oder Blockkommentarzeichen vor einer Ausführung. Die Prüfungen
 lesen den Originaltext verlustfrei zurück und vergleichen den verbleibenden
-Fachtext weiterhin mit seiner historischen Quelle. Dies qualifiziert keine
-neue Hilfeausgabe oder Installation.
+Fachtext weiterhin mit seiner historischen Quelle. Dateien mit mehreren
+Funktionen erhalten getrennte Kommentare innerhalb der jeweiligen Definition;
+Einfügereihenfolge und Rücklesen bleiben deterministisch. Marker innerhalb von
+SQL-Stringliteralen gelten als Daten und werden nicht als DDL-Kommentare entfernt.
+Für Multistatement- und skalare Funktionen verwendet `project_function_ddl`
+denselben Skilltransport. Dies qualifiziert keine neue Hilfeausgabe oder Installation.
 
 `render_help_resultset` erzeugt das zusätzliche konstante Resultset mit genau
 vier Spalten. Die ersten beiden T-SQL-Prozeduren `USP_PrepareResultTable` und

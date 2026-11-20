@@ -206,7 +206,7 @@ Verschiebt die Bits eines bigint-Werts nach links.
 
 Vertrag und Quelle: [TVF_LeftShiftBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_LeftShiftBigInt.sql), [TVF_LeftShiftBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_LeftShiftBigInt.md).
 
-<!-- Source/Vertrag SHA256: 62ce6693db46d0a5daf129aa6da1f2a2a0d292b9bfebee152af3762151d57a0f -->
+<!-- Source/Vertrag SHA256: 34561fb30c1554f6a79ec64c75d0f9e000d09f6006432bed39b2fbff93513754 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -227,7 +227,7 @@ Verschiebt die Bits eines bigint-Werts logisch nach rechts.
 
 Vertrag und Quelle: [TVF_RightShiftBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_RightShiftBigInt.sql), [TVF_RightShiftBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_RightShiftBigInt.md).
 
-<!-- Source/Vertrag SHA256: 9ac66c42260bddb6abdc91601432f6aecb7963135cead596c1c5774f61351b35 -->
+<!-- Source/Vertrag SHA256: 31f32a3fe665056adf13a768df7cb905faf223ea6d9b18dcaf4202ad0e04c61a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -248,7 +248,7 @@ Zählt gesetzte Bits im bigint-Wert.
 
 Vertrag und Quelle: [TVF_BitCountBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_BitCountBigInt.sql), [TVF_BitCountBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_BitCountBigInt.md).
 
-<!-- Source/Vertrag SHA256: 3adc33f927c95c20e3c331de0ac707c52754e5bb20bb9d358519e6fcefabafcb -->
+<!-- Source/Vertrag SHA256: 911d46bb5ac48c7960729072ab77c83b23407d01777debbdccca760de0a127d1 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -268,7 +268,7 @@ Liest das Bit an einer nullbasierten Position.
 
 Vertrag und Quelle: [TVF_GetBitBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_GetBitBigInt.sql), [TVF_GetBitBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_GetBitBigInt.md).
 
-<!-- Source/Vertrag SHA256: 119e23aa08356d23f87f25fc4ff70f5888c0bca562306c7972966e5c039e998c -->
+<!-- Source/Vertrag SHA256: 8e1009a11997c84e1f870aa5f59e59169a7ee5d57290ae68dfdd826ced2e2aff -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -289,7 +289,7 @@ Setzt oder löscht ein Bit an einer nullbasierten Position.
 
 Vertrag und Quelle: [TVF_SetBitBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_SetBitBigInt.sql), [TVF_SetBitBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_SetBitBigInt.md).
 
-<!-- Source/Vertrag SHA256: cb5498c210db35d5e47813591ed13839ed1357db3149b7dc8e49e62416c1c2cd -->
+<!-- Source/Vertrag SHA256: 9b8796f42c2884983a45aec93741b9693be731f17d4a2004a8eb78f316f3c82c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -311,7 +311,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: a890c30e8dfc49df5120a42efc40a18592bddb088bcbe085758ba57ad27648d7 -->
+<!-- Source/Vertrag SHA256: 0e6ea0ac811a9fe5d100389f589fa73dcf24554b0c39db144824676a6ad8a24a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -332,7 +332,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 87922e9c2c879ba721c3275dc776f7ee0eb0e60e3ac05fd95721378545da564f -->
+<!-- Source/Vertrag SHA256: c7225108a083592a704f83bab845b2608af57c9964e2aa4babc32747e571ca0e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -352,7 +352,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: eef4c3b664d6c8e51da04b79d172bda03764c3948a1ea172d6360c4470ec0c0b -->
+<!-- Source/Vertrag SHA256: 8e01263e3ee56b67cd4d4b4a05e40d24ec5bf9f3c48171d43a308c644bfa389e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -373,7 +373,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 1ca8e89c95dd7db865f5eca0c1005fa40f9b98bff79fc3954215b772261604f5 -->
+<!-- Source/Vertrag SHA256: 19363785d25ac6e0e498018dd6207e1eba5df5fd6508fe959e3912fd02d14538 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -393,7 +393,7 @@ Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der k
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64EncodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 9261cc035f98b5bd06149ac603f4e8806afa1320294336c46f91f2588f8419a1 -->
+<!-- Source/Vertrag SHA256: 34201dfcad857acbf7c24ba1efddb7523f2c151b2564d8e381747fa7d0ba5997 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -416,7 +416,7 @@ Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE,
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64DecodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: f0446c2730e2603ad050ceef7ec05d3b3293e7ff9d931d96b38d8674c243c1e7 -->
+<!-- Source/Vertrag SHA256: eb1feda78942deb6c7c38529417ddb9da4474017a846808825956e9c208c3222 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -1211,7 +1211,7 @@ Erzeugt eine Folge von bigint-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md).
 
-<!-- Source/Vertrag SHA256: 8e3b50ad972c924028d43172b2164058e0c8028786477a8cb9f80ea3b717b245 -->
+<!-- Source/Vertrag SHA256: b45e3bc131b45241154fc2b59d0e5b485bcce031766ca63687077185acccf54e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1233,7 +1233,7 @@ Erzeugt eine Folge von int-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql), [TVF_GenerateSeriesInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesInt.md).
 
-<!-- Source/Vertrag SHA256: 1fd59911c5eb647fc997fd40e96a7168a7d901faf72174ee3ed057d94eebd73c -->
+<!-- Source/Vertrag SHA256: b472c6ba324fb3cad253ec63b25dbe06940804cf99a8cbd12e2fbff30a0f34a3 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1255,7 +1255,7 @@ Vor Expansion exakte Anzahl mit decimal(38,0) und Restrechnung bestimmen. Höchs
 
 Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigIntStatus.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigIntStatus.md).
 
-<!-- Source/Vertrag SHA256: 5430377ddf160b130a11f8ff05bd92fe3b397eba9dd6e14784909e43280b81a3 -->
+<!-- Source/Vertrag SHA256: 1745584215db77958b4e89828718cd2860074f187fe2941da28dc73e5b19b213 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -1279,7 +1279,7 @@ Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vor
 
 Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md).
 
-<!-- Source/Vertrag SHA256: 7a5f23ff7145a0f217f89cc6359d1ab2220d57d3a1c0186a490324424ffe7e6b -->
+<!-- Source/Vertrag SHA256: be4a523a39daa620311d47ae94a3c3a7d7790eab3b73602b6485ba82104caf9f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2556,12 +2556,12 @@ Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu.
 
 Vertrag und Quelle: [TVF_DateBucketDate.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql), [TVF_DateBucketDate.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDate.md).
 
-<!-- Source/Vertrag SHA256: 1cff430eb4a81b96d2f5b60af266befff96f906c082e099697086e92dcf67781 -->
+<!-- Source/Vertrag SHA256: 13201051a47a381e3ab13939f9c4f1e5d1315c6ec4a5233771aa5908fd9a4a68 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
+| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
 | `@Value` | `date` | `kein Default` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
 | `@Origin` | `date` | `'19000101'` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
@@ -2579,12 +2579,12 @@ Ordnet einen datetime2-Wert einem originbezogenen Zeit-Bucket zu.
 
 Vertrag und Quelle: [TVF_DateBucketDateTime2.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql), [TVF_DateBucketDateTime2.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTime2.md).
 
-<!-- Source/Vertrag SHA256: 3834b1e99c0c4e99169111bb1201ce3ea28d26d2a07ad2c505f798eadfe2df9d -->
+<!-- Source/Vertrag SHA256: 78d9268b996890b2731bccee8f9e6a625d1aa792112d7ff087fe1987a23c5e91 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag; hour/hh = Stunde; minute/mi/n = Minute; second/ss/s = Sekunde; millisecond/ms = Millisekunde. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
+| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
 | `@Value` | `datetime2(7)` | `kein Default` | Input | SQL-datetime2(7) (0001-01-01..9999-12-31, bis sieben Nachkommastellen), etwa CONVERT(datetime2(7),'2026-10-30T12:34:56.1234567',126); keine Zeitzone. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
 | `@Origin` | `datetime2(7)` | `'19000101'` | Input | SQL-datetime2(7) (0001-01-01..9999-12-31, bis sieben Nachkommastellen), etwa CONVERT(datetime2(7),'2026-10-30T12:34:56.1234567',126); keine Zeitzone. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
@@ -2602,12 +2602,12 @@ Ordnet einen datetimeoffset-Wert einem originbezogenen Zeit-Bucket zu.
 
 Vertrag und Quelle: [TVF_DateBucketDateTimeOffset.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql), [TVF_DateBucketDateTimeOffset.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTimeOffset.md).
 
-<!-- Source/Vertrag SHA256: 9c355cb98fa9d3c3040c88b8943d085e64a3954b827e0a8874b40abfd0244002 -->
+<!-- Source/Vertrag SHA256: fa2bcd16af3c5180cf567150fb99e08c0a102406cf2d715770820501e4b8a7ed -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag; hour/hh = Stunde; minute/mi/n = Minute; second/ss/s = Sekunde; millisecond/ms = Millisekunde. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
+| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
 | `@Value` | `datetimeoffset(7)` | `kein Default` | Input | SQL-datetimeoffset(7), etwa CONVERT(datetimeoffset(7),'2026-10-30T12:34:56.1234567+02:00',127); Offset -14:00..+14:00 und gültiger lokaler/UTC-SQL-Wertebereich, keine Zeitzonen-/Sommerzeitdatenbank. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
 | `@Origin` | `datetimeoffset(7)` | `'1900-01-01 00:00:00 +00:00'` | Input | SQL-datetimeoffset(7), etwa CONVERT(datetimeoffset(7),'2026-10-30T12:34:56.1234567+02:00',127); Offset -14:00..+14:00 und gültiger lokaler/UTC-SQL-Wertebereich, keine Zeitzonen-/Sommerzeitdatenbank. Referenz für die Bucketgrenzen. Default ist 1900-01-01 00:00:00+00:00; das Ergebnis verwendet den Offset des Origins. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
@@ -2625,7 +2625,7 @@ Zerlegt ein Datumsintervall nach der Anniversary-Regel in Kalenderjahre, Monate 
 
 Vertrag und Quelle: [TVF_CalendarDifference.sql](../../Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql), [TVF_CalendarDifference.md](../../Modules/toolbelt.datetime.calendar-difference/Documentation/TVF_CalendarDifference.md).
 
-<!-- Source/Vertrag SHA256: 836f0647c6d134537c3cd37086a404ea208fea24673a1183f46c8ccb0ead3da7 -->
+<!-- Source/Vertrag SHA256: a69af248ee10e31f47cf213ca151339ed53e031909fc5378bbf0c0618bd1e42f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2646,7 +2646,7 @@ Liefert alle Tage, die einen halboffenen Zeitraum schneiden.
 
 Vertrag und Quelle: [TVF_DateSpineDay.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql), [TVF_DateSpineDay.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineDay.md).
 
-<!-- Source/Vertrag SHA256: bd9a3026bbb1bc956e218e994107c6331b0e59da0d152aea12a7434a5b958a72 -->
+<!-- Source/Vertrag SHA256: 53afb5cc5ecae0b3c6b118be7d3e1a7a4a9aade561efeff8c28c4e3e879fe600 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2667,7 +2667,7 @@ Liefert alle ISO-Wochen, die einen halboffenen Zeitraum schneiden.
 
 Vertrag und Quelle: [TVF_DateSpineIsoWeek.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql), [TVF_DateSpineIsoWeek.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineIsoWeek.md).
 
-<!-- Source/Vertrag SHA256: 8c451f13ce1aea58f43dc82e8c3053fef78439ca6f2862a3fbd14714e6cd883d -->
+<!-- Source/Vertrag SHA256: 6968ce039ba6ca3de66ed4b98cec9781e6ef0a558aa371d9476753c1537fc30c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2688,7 +2688,7 @@ Liefert alle Monate, die einen halboffenen Zeitraum schneiden.
 
 Vertrag und Quelle: [TVF_DateSpineMonth.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql), [TVF_DateSpineMonth.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineMonth.md).
 
-<!-- Source/Vertrag SHA256: 1600d874bd182a4849a3758f87e418471c05bd4c9f4c44c266874ba37027bbe1 -->
+<!-- Source/Vertrag SHA256: a13926f532ec143a79139035853e8f52428c680a940a78fcc2b7191b5389f699 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2709,7 +2709,7 @@ Kürzt einen date-Wert auf den Beginn der ausgewählten Kalenderperiode.
 
 Vertrag und Quelle: [TVF_TruncateDate.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql), [TVF_TruncateDate.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDate.md).
 
-<!-- Source/Vertrag SHA256: 5b5115711fea2761d2fd3d4092204f54257df6c79eb32c9648585be1244f17e9 -->
+<!-- Source/Vertrag SHA256: 2fb7441d70d3fdb6fc144ea46ba887b201de4efd81bef906c0b44469b1dd6112 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2730,7 +2730,7 @@ Kürzt einen datetime2-Wert auf den Beginn der gewählten Zeiteinheit.
 
 Vertrag und Quelle: [TVF_TruncateDateTime2.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql), [TVF_TruncateDateTime2.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTime2.md).
 
-<!-- Source/Vertrag SHA256: bfdbef348174eef14b7707240ba4f8f13e16948f02ed9746a349fe3324691f3c -->
+<!-- Source/Vertrag SHA256: de81011f973617290c3e331a3ca4be446b20880b72818b007cbd260951d8fcfa -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2751,7 +2751,7 @@ Kürzt einen datetimeoffset-Wert auf die gewählte Zeiteinheit und erhält den O
 
 Vertrag und Quelle: [TVF_TruncateDateTimeOffset.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql), [TVF_TruncateDateTimeOffset.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTimeOffset.md).
 
-<!-- Source/Vertrag SHA256: 79a823cc272bc4f2d4d38d3966c435b73ab17dd553dba7cdb8a6e0c9c7918ac7 -->
+<!-- Source/Vertrag SHA256: 57643ddfa4ee02e308ddafcf172160313089e66c9dee4336f40e1b61dea796d3 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
