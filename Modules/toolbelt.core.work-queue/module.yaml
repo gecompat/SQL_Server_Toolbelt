@@ -109,13 +109,13 @@ lifecycle_error_range: "51940-51949"
 clr:
   used: false
 lifecycle:
-  deploy: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "embedded"
-  source_hash_role: "diagnostic_only"
-  repeat_control_preflight: "Deployment/RepeatInstalledControl.Preflight.sql"
-  repeat_control_cleanup: "Deployment/RepeatInstalledControl.Cleanup.sql"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.core.work-queue"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -130,7 +130,7 @@ documentation:
     - "Tests/README.md"
 contracts:
   usp: "1.0"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 supported_upgrades:
   - from: "1.0.0"

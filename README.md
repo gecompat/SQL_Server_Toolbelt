@@ -38,10 +38,12 @@ Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
 Mit PowerShell 7.4+ und sqlcmd (ODBC) übernimmt der
 [Ein-Aufruf-Installer](./Deployment/ONE-CALL-INSTALL.md) Vorprüfung, Trust und
 lokale oder zentrale Neuinstallation.
-Der gemeinsame aktuelle Installer enthält fertige SQL-Skripte und DLLs für
-Windows/Linux sowie lokale/zentrale Neuinstallation. Die Anleitung erklärt
-Profilauswahl, Rechte, CLR und Trust, SSMS, ersten Aufruf und Fehlerklärung.
-Ein eigener Build ist nicht erforderlich. Der Satz ist ein Entwicklungssnapshot für leere ausgewählte Testdatenbanken.
+Der aktuelle Quellstand verwendet einen gemeinsamen markerfreien SQL-Kern für
+Windows/Portable sowie lokale/zentrale Installation. Die normale SQL-Datei
+benötigt keinen SQLCMD-Modus; alternativ übernimmt der Client die Ausführung.
+[Quellbuild](./Scripts/Install/README.md), fertigen gebauten Satz und
+historische Vorabreleases bitte unterscheiden. Der aktuelle Lebenszyklus ist
+create-only, kein automatisches Upgrade oder Uninstall.
 
 Für die Nutzung führen die [Modulübersicht](./Modules/README.md),
 die [Lesewege](./Documentation/README.md) und die

@@ -54,8 +54,8 @@ Reparatur fremder Datenbanken, Neustarts oder `RECONFIGURE WITH OVERRIDE`.
    Unmittelbar vor `RECONFIGURE` dürfen nur die eigenen CLR-Werte vorgemerkt sein.
    `show advanced options` bleibt unverändert.
 4. Zielidentität und übrige Konfigurationswerte prüfen; anschließend durchlaufen
-   die unveränderten SQL-Paketbytes den regulären Trust-/Installationsweg mit
-   erneuter Ziel-/Leerheitsprüfung und Abschlussprüfung aller Modulmarker.
+   die gebundenen SQL-Paketbytes den gewählten Trust-/Installationsweg mit
+   erneuter Zielidentitätsprüfung und markerfreier Schnittstellenprüfung.
 
 Beliebige gleichzeitige Administratoraktionen werden durch die kooperative
 Sperre nicht ausgeschlossen. Das Ziel und die Instanz müssen während des

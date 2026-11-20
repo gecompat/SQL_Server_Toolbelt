@@ -101,10 +101,24 @@ def assembly_permission(text):
     return value
 
 
-def binary_inputs(inputs):
+def interface_objects(selected):
+    result={}
+    for module in selected:
+        for obj in objects(module['text']):
+            if obj['type']=='ASSEMBLY': continue
+            require(obj['type'] in caps.TYPES,'declared interface type')
+            value={'schema':obj['schema'],'name':obj['name'],'types':caps.TYPES[obj['type']]}
+            key=value['schema']+'.'+value['name']
+            require(key not in result or result[key]==value,'conflicting interface declaration')
+            result[key]=value
+    return [result[key] for key in sorted(result)]
+
+
+def binary_inputs(inputs, required_modules=None):
     """Originale Binärbytes nur bei unveränderten Compilerquellen wiederverwenden."""
     prefix='SQL-Server-Toolbelt-1.0.0-CLR-Install/'
     replaced={'toolbelt.json.constructors','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}
+    required_modules=set(required_modules) if required_modules is not None else {p.parent.name for p in (ROOT/'Modules').glob('*/module.yaml')}
     require(sha((ROOT/BASELINE).read_bytes())==BASELINE_SHA256,'baseline package identity')
     with zipfile.ZipFile(ROOT/BASELINE) as archive:
         metadata=json.loads(archive.read(prefix+'CLR-PACKAGE.json'))
@@ -113,56 +127,61 @@ def binary_inputs(inputs):
             payload=archive.read(prefix+'Binaries/'+item['file'])
             require(sha(payload,'sha512')==item['sha512'].lower(),'baseline binary drift')
             data[item['file']]=payload
-        compiler_count=0
+        compiler_modules=set()
         for name in archive.namelist():
             if not name.startswith(prefix+'Sources/'): continue
             relative=name[len(prefix+'Sources/'):]
             parts=Path(relative).parts
-            if '/Clr/' in relative and relative.endswith(('.cs','.csproj')) and parts[1] not in replaced:
+            if '/Clr/' in relative and relative.endswith(('.cs','.csproj')) and parts[1] not in replaced and parts[1] in required_modules:
                 require(normalize(archive.read(name))==normalize((ROOT/relative).read_bytes()),'compiler drift: '+relative)
-                compiler_count+=1
-        require(compiler_count>0,'baseline compiler inventory')
-    registry=json.loads((ROOT/'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json').read_bytes())
-    ctor=next(a['Fields'] for a in registry['artifacts'] if a['Fields']['moduleId']=='toolbelt.json.constructors')
-    if (inputs/'Toolbelt.JsonConstructors.dll').exists():
-        payload=(inputs/'Toolbelt.JsonConstructors.dll').read_bytes()
-    else:
-        # Bekannte unveränderte Compilerbytes aus der erhaltenen Lieferung
-        # wiederverwenden; kein Download, Umbau oder neuer Qualifikationsanspruch.
-        delivery=ROOT/CONSTRUCTOR_DELIVERY
-        require(sha(delivery.read_bytes())==CONSTRUCTOR_DELIVERY_SHA256,'constructor delivery identity')
-        with zipfile.ZipFile(delivery) as archive:
-            sql=archive.read('Install-Portable-local.sql')
-        candidates=(bytes.fromhex(m[1].decode()) for m in re.finditer(rb'0x(4[dD]5[aA][0-9a-fA-F]{512,})',sql))
-        matching=[b for b in candidates if sha(b,'sha512')==ctor['binarySha512']]
-        require(len(matching)==1,'constructor delivery binary')
-        payload=matching[0]
-    require(sha(payload)==ctor['binarySha256'] and sha(payload,'sha512')==ctor['binarySha512'],'constructor binary')
-    require(sha((ROOT/'Modules/toolbelt.json.constructors/Clr/Toolbelt.JsonConstructors.csproj').read_bytes())==ctor['projectSha256'],'constructor project')
-    for name,expected in ctor.items():
-        if name.startswith('source/'):
-            require(sha((ROOT/'Modules/toolbelt.json.constructors/Clr'/name[7:]).read_bytes())==expected,'constructor source')
-    data['Toolbelt.JsonConstructors.dll']=payload
-    parser=json.loads((inputs/'parser/Toolbelt.Tsql.ScriptParser.trust-manifest.json').read_bytes())
-    parser_payload=(inputs/'parser/Toolbelt.Tsql.ScriptParser.dll').read_bytes()
-    dom=(inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll').read_bytes()
-    require(sha(parser_payload,'sha512').upper()==parser['sha512']=='F849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123','current reproduced parser binary')
-    require(sha(dom,'sha512').upper()=='634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813','private dependency')
-    inventory={p.resolve() for p in (ROOT/'Modules/toolbelt.tsql.script-parser/Clr').rglob('*')
-               if p.suffix in ('.cs','.csproj') and not {'bin','obj'}&set(p.parts)}
-    declared=set()
-    for entry in parser['sourceFiles']:
-        name,expected=entry.rsplit(':',1);path=(ROOT/'Modules/toolbelt.tsql.script-parser'/name).resolve()
-        require(path.is_relative_to(ROOT) and sha(path.read_bytes()).upper()==expected,'parser source')
-        declared.add(path)
-    require(declared==inventory,'parser compiler inventory')
-    ssis=load_script('simple_ssis_install',ROOT/'Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py')
-    # Dessen strikte Zulassung bindet sämtliche SSIS-Compiler-/Facadequellen,
-    # reproduzierten Build und die private ScriptDom-Abhängigkeit.
-    ssis.render(inputs/'ssis',inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll','hash')
-    data['Toolbelt.Tsql.ScriptParser.dll']=parser_payload
-    data['Toolbelt.Tsql.SsisDebug.dll']=(inputs/'ssis/Toolbelt.Tsql.SsisDebug.dll').read_bytes()
-    data['Microsoft.SqlServer.TransactSql.ScriptDom.dll']=dom
+                compiler_modules.add(parts[1])
+        expected={a['module_id'] for a in metadata['artifacts']
+                  if a['module_id'] in required_modules and a['module_id'] not in replaced}
+        require(expected<=compiler_modules,'baseline compiler inventory')
+    if 'toolbelt.json.constructors' in required_modules:
+        registry=json.loads((ROOT/'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json').read_bytes())
+        ctor=next(a['Fields'] for a in registry['artifacts'] if a['Fields']['moduleId']=='toolbelt.json.constructors')
+        if (inputs/'Toolbelt.JsonConstructors.dll').exists():
+            payload=(inputs/'Toolbelt.JsonConstructors.dll').read_bytes()
+        else:
+            # Bekannte unveränderte Compilerbytes aus der erhaltenen Lieferung
+            # wiederverwenden; kein Download, Umbau oder neuer Qualifikationsanspruch.
+            delivery=ROOT/CONSTRUCTOR_DELIVERY
+            require(sha(delivery.read_bytes())==CONSTRUCTOR_DELIVERY_SHA256,'constructor delivery identity')
+            with zipfile.ZipFile(delivery) as archive:
+                sql=archive.read('Install-Portable-local.sql')
+            candidates=(bytes.fromhex(m[1].decode()) for m in re.finditer(rb'0x(4[dD]5[aA][0-9a-fA-F]{512,})',sql))
+            matching=[b for b in candidates if sha(b,'sha512')==ctor['binarySha512']]
+            require(len(matching)==1,'constructor delivery binary')
+            payload=matching[0]
+        require(sha(payload)==ctor['binarySha256'] and sha(payload,'sha512')==ctor['binarySha512'],'constructor binary')
+        require(sha((ROOT/'Modules/toolbelt.json.constructors/Clr/Toolbelt.JsonConstructors.csproj').read_bytes())==ctor['projectSha256'],'constructor project')
+        for name,expected in ctor.items():
+            if name.startswith('source/'):
+                require(sha((ROOT/'Modules/toolbelt.json.constructors/Clr'/name[7:]).read_bytes())==expected,'constructor source')
+        data['Toolbelt.JsonConstructors.dll']=payload
+    if required_modules & {'toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}:
+        parser=json.loads((inputs/'parser/Toolbelt.Tsql.ScriptParser.trust-manifest.json').read_bytes())
+        parser_payload=(inputs/'parser/Toolbelt.Tsql.ScriptParser.dll').read_bytes()
+        dom=(inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll').read_bytes()
+        require(sha(parser_payload,'sha512').upper()==parser['sha512']=='F849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123','current reproduced parser binary')
+        require(sha(dom,'sha512').upper()=='634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813','private dependency')
+        inventory={p.resolve() for p in (ROOT/'Modules/toolbelt.tsql.script-parser/Clr').rglob('*')
+                   if p.suffix in ('.cs','.csproj') and not {'bin','obj'}&set(p.parts)}
+        declared=set()
+        for entry in parser['sourceFiles']:
+            name,expected=entry.rsplit(':',1);path=(ROOT/'Modules/toolbelt.tsql.script-parser'/name).resolve()
+            require(path.is_relative_to(ROOT) and sha(path.read_bytes()).upper()==expected,'parser source')
+            declared.add(path)
+        require(declared==inventory,'parser compiler inventory')
+        data['Toolbelt.Tsql.ScriptParser.dll']=parser_payload
+        data['Microsoft.SqlServer.TransactSql.ScriptDom.dll']=dom
+    if 'toolbelt.tsql.ssis-debug' in required_modules:
+        ssis=load_script('simple_ssis_install',ROOT/'Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py')
+        # Dessen strikte Zulassung bindet sämtliche SSIS-Compiler-/Facadequellen,
+        # reproduzierten Build und die private ScriptDom-Abhängigkeit.
+        ssis.render(inputs/'ssis',inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll','hash')
+        data['Toolbelt.Tsql.SsisDebug.dll']=(inputs/'ssis/Toolbelt.Tsql.SsisDebug.dll').read_bytes()
     return metadata['artifacts'],data
 
 
@@ -263,7 +282,7 @@ def build(inputs,work,output,platform,mode,trust,module_ids=None):
     require(not output.exists() and not Path(str(output)+'.manifest.json').exists(),'new output required')
     require(work.is_relative_to(ROOT/'.runtime') and not work.exists(),'new private work directory required')
     selected=modules(platform,mode,module_ids)
-    artifacts,binaries=binary_inputs(inputs)
+    artifacts,binaries=binary_inputs(inputs,{m['id'] for m in selected})
     sources,hashes=source_files(selected)
     require((ROOT/caps.TARGET).read_text(encoding='utf-8-sig')==caps.render(),'capability projection drift')
     alias={a['sql_name']:caps.assembly_name(a['sql_name']) for a in artifacts}
@@ -313,7 +332,8 @@ BEGIN TRY
     for schema in sorted({s for module in selected for s in module['schemas']}):
         prefix+='IF SCHEMA_ID('+literal(schema)+') IS NULL EXEC sys.sp_executesql '+literal('CREATE SCHEMA ['+schema+'];')+';\n'
     selected_ids={m['id'] for m in selected}
-    chosen=[a for a in artifacts if a['module_id'] in selected_ids or (a['module_id'] is None and platform=='Windows')]
+    needs_dom=bool(selected_ids & {'toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'})
+    chosen=[a for a in artifacts if a['module_id'] in selected_ids or (a['module_id'] is None and needs_dom)]
     chosen.sort(key=lambda a:(0 if a['module_id'] is None else 1 if a['module_id']=='toolbelt.json.core' else 2,a['sql_name']))
     for index,item in enumerate(chosen):
         data=binaries[item['file']];digest=sha(data,'sha512').upper();name=alias[item['sql_name']]
@@ -353,7 +373,8 @@ END;
         hashes[path.relative_to(ROOT).as_posix()]=sha(normalize(path.read_bytes()))
     output.parent.mkdir(parents=True,exist_ok=True);output.write_text(content,encoding='utf-8',newline='\n')
     record={'schema':'toolbelt-markerless-install/v1','platform':platform,'mode':mode,'trust':trust,
-            'modules':[m['id'] for m in selected],'source_sha256':hashes,'sql_sha256':sha(output.read_bytes()),
+            'modules':[m['id'] for m in selected],'objects':interface_objects(selected),
+            'source_sha256':hashes,'sql_sha256':sha(output.read_bytes()),
             'binary_sha512':{alias[a['sql_name']]:sha(binaries[a['file']],'sha512') for a in chosen},
             'native_qualification':'not executed','publication_authorized':False}
     Path(str(output)+'.manifest.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
@@ -362,13 +383,21 @@ END;
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--inputs',type=Path,required=True)
-    parser.add_argument('--work',type=Path,required=True)
-    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--inputs',type=Path)
+    parser.add_argument('--work',type=Path)
+    parser.add_argument('--output',type=Path)
+    parser.add_argument('--plan',action='store_true',help='Nur Modulauswahl planen; keine Binaries, Ausgabe oder Verbindung.')
     parser.add_argument('--platform',choices=('Windows','Portable'),default='Windows')
     parser.add_argument('--mode',choices=('local','central'),default='local')
     parser.add_argument('--trust-mode',choices=('auto','hash','trustworthy-checked','trustworthy'),default='auto')
     parser.add_argument('--module',action='append',dest='module_ids',
                         help='Einzelnes Modul mit transitiven Abhängigkeiten; wiederholbar.')
     args=parser.parse_args()
-    build(args.inputs.resolve(),args.work.resolve(),args.output.resolve(),args.platform,args.mode,args.trust_mode,args.module_ids)
+    if args.plan:
+        require(not any((args.inputs,args.work,args.output)),'plan must not include build paths')
+        selected=modules(args.platform,args.mode,args.module_ids)
+        print(json.dumps({'platform':args.platform,'mode':args.mode,'modules':[m['id'] for m in selected],
+                          'sql_executed':False}))
+    else:
+        if not all((args.inputs,args.work,args.output)): parser.error('--inputs, --work und --output sind beim Build erforderlich')
+        build(args.inputs.resolve(),args.work.resolve(),args.output.resolve(),args.platform,args.mode,args.trust_mode,args.module_ids)

@@ -41,7 +41,11 @@ assert 'new SqlConnection("context connection=true")' in code
 assert "SqlParameters.Mappings" in code and "ROW_NUMBER() OVER (PARTITION BY" in code
 assert "TBX_SSISDBG_cache_ownership" in code and "TBX_SSISDBG_cache_context_changed" in code
 for name in ["Deploy.sql", "Uninstall.sql"]:
-    ddl = (ROOT / "Deployment" / name).read_text()
+    # Original lifecycle checks remain scoped to the retired implementation.
+    # Current markerless lifecycle is covered by Scripts/Install/Tests.
+    relative = (ROOT / "Deployment" / name).relative_to(ROOT.parents[1]).as_posix()
+    ddl = subprocess.check_output(["git", "-C", str(ROOT.parents[1]), "show",
+        "2fbe8e3e86f370b22ad2ce9f9716d971072a052b:" + relative], text=True)
     assert ddl.index("IF @@TRANCOUNT<>") < ddl.index("SET XACT_ABORT ON")
     assert ddl.count("sp_getapplock") == 2
     assert "sp_add_trusted_assembly" not in ddl and "TRUSTWORTHY ON" not in ddl
@@ -52,4 +56,4 @@ assert not any(token in projection for token in ("System.Xml", "XElement", "XDoc
 assert 'Exchange\\Core\\*.cs' in (ROOT / "Clr/Toolbelt.Tsql.SsisDebug.csproj").read_text(), "CLR must compile the canonical core"
 objects = json.loads((ROOT / "Contracts/ReleaseObjects.1.0.0.json").read_text())
 assert "USP_ExplainSsisDataFlowInternal" in json.dumps(objects)
-print("SSIS_STATIC_PASS signature/generation/dependencies/lifecycle; no SQL executed")
+print("SSIS_STATIC_PASS current signature/generation/dependencies; historical lifecycle; no SQL executed")

@@ -1,201 +1,113 @@
 # Toolbelt mit einem Aufruf installieren
 
-Der [PowerShell-Einstieg](Install-Toolbelt.ps1) installiert die unveränderte SQL-Basis des
-[rc.2-Installers](https://github.com/gecompat/SQL_Server_Toolbelt/releases/tag/v1.0.0-rc.2).
-Er übernimmt Paketprüfung, lesende Zielvorprüfung, Plattformauswahl,
-Assembly-Trust und Installation. Der manuelle [SSMS-Weg](../INSTALL.md) bleibt
-für Anwender ohne PowerShell-/sqlcmd-Client verfügbar. Bestehende rc.2-Assets
-und ihre ursprünglichen Nachweise werden nicht verändert.
-Der [rc.4-Installationssatz](../Releases/1.0.0/RC4-INSTALL.md) enthält die `.ps1`
-und ihre unveränderte Basis-ZIP bereits im richtigen Verzeichnislayout.
+Der aktuelle Client verwendet den gemeinsamen markerfreien Installationskern.
+Er installiert lokal oder zentral, wählt ausdrücklich den gewünschten Trustweg
+und kann auf Wunsch eine fehlende Datenbank anlegen sowie CLR aktivieren.
+Die erzeugten SQL-Dateien können alternativ unmittelbar in SSMS ausgeführt
+werden: ohne SQLCMD-Modus, nur die erste USE-Zeile ändern.
 
-Die neuen ausdrücklichen Schalter `CreateDatabase` und `EnableClr` sind in der
-[Vorbereitungsanleitung](PROVISIONING.md) vollständig erklärt. Ohne sie gilt
-weiterhin der nachfolgende Vertrag für bereits vorbereitete Ziele.
+Die veröffentlichten Vorabreleases bis rc.4 enthalten ihre eigenen historischen
+Clients und Nachweise. Sie werden nicht durch den aktuellen Client aktualisiert
+oder stillschweigend als aktueller Satz verwendet.
 
-## Einmal vorbereiten und aufrufen
+## Fertigen Installationssatz verwenden
 
-Auf dem Client müssen PowerShell 7.4+ und **sqlcmd (ODBC)** mit dem zugehörigen
-Microsoft-ODBC-Treiber installiert sein. sqlcmd (Go) wird ausdrücklich
-zurückgewiesen. Den rc.4-Installationssatz samt Prüfsumme herunterladen, prüfen
-und vollständig entpacken; die innere Basis-ZIP nicht zusätzlich entpacken.
-Alternativ ist ein Repositorycheckout möglich. Der aktuelle Einstieg benötigt
-seine mitgelieferte `Toolbelt.Provisioning.ps1` im selben Verzeichnis; ein
-einzeln kopiertes Einstiegsskript genügt nicht. Ein eigener DLL-Build ist nicht nötig. Skriptausführung muss durch
-deine lokale Richtlinie erlaubt sein.
-
-Lokal, mit integrierter Anmeldung:
+Den neu gebauten Installationssatz vollständig entpacken. PowerShell 7.4 oder
+neuer und sqlcmd **ODBC** sind für diesen Clientweg erforderlich. Im entpackten
+Verzeichnis genügt beispielsweise:
 
 ```powershell
-pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database ContosoAppTest -DeploymentMode local
+pwsh -File .\Deployment\Install-Toolbelt.ps1 `
+  -ServerInstance localhost -Database ContosoApp -DeploymentMode local
+
+pwsh -File .\Deployment\Install-Toolbelt.ps1 `
+  -ServerInstance localhost -Database ContosoToolbelt -DeploymentMode central `
+  -CreateDatabase -EnableClr -TrustMethod hash
 ```
 
-Zentral, in einer eigenen Datenbank derselben SQL-Server-Instanz:
+Ohne Credential wird die aktuelle Windows-Anmeldung verwendet. SQL-Anmeldung:
 
 ```powershell
-pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database Toolbelt -DeploymentMode central
+& .\Deployment\Install-Toolbelt.ps1 `
+  -ServerInstance localhost -Database ContosoToolbelt -DeploymentMode central `
+  -Credential (Get-Credential) -TrustMethod trustworthy
 ```
 
-Die Beispiele gelten im entpackten Installationssatz und im Repositorycheckout.
-Ohne lokalen Paketsatz lädt der Einstieg automatisch die **fest gebundene**
-Installer-ZIP aus v1.0.0-rc.2. Es gibt kein automatisches „latest“-Update.
-Im Installationssatz und Checkout verwendet er die identischen lokal
-mitgelieferten Bytes. Das Ergebnisfeld `Release=v1.0.0-rc.2` bezeichnet die
-unveränderte SQL-Basis; die neue äußere Lieferung heißt v1.0.0-rc.4.
+Der Client liest die enthaltene Datei `Package/Toolbelt-Install-Payload.zip`.
+`-PackageZip` bezeichnet ausdrücklich eine solche **Payload-ZIP**, nicht die
+äußere ZIP mit Client und Dokumentation. Es gibt keinen automatischen Download
+oder Rückfall auf einen älteren Release. `-ExpectedSha256` kann den Payload
+zusätzlich an einen unabhängig bezogenen erwarteten Hash binden. Die internen
+Dateihashes belegen Konsistenz, keine Herausgebersignatur.
 
-SQL-Anmeldung innerhalb einer PowerShell-7.4+-Sitzung:
+## Plattform, Rechte und Trust
 
-```powershell
-& .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database Toolbelt -DeploymentMode central -Credential (Get-Credential)
-```
+Ohne `-Platform` wird das Windows-Profil auf Windows beziehungsweise das
+Portable-Profil auf Linux ausgewählt. `-Platform Portable` ist auch auf Windows
+möglich. Windows-Funktionen werden auf Linux nicht installiert. Lokal und zentral
+bezeichnen den Installationsort in der Datenbank, nicht den Rechner des Clients.
 
-Das Kennwort wird verdeckt abgefragt und ausschließlich im Environment des
-jeweiligen sqlcmd-Kindprozesses übergeben. Es erscheint weder in Prozessargumenten
-noch SQL-Dateien. Ohne `Credential` gilt ausschließlich die integrierte Anmeldung
-des aktuellen Prozesses; eine geerbte `SQLCMDPASSWORD`-Variable wählt keine
-andere Identität. Die Elternumgebung bleibt unverändert.
-
-Bei SQL-Anmeldung wird `-X1` bewusst nicht verwendet: Diese sqlcmd-Option
-unterdrückt auch die Kennwort-Umgebungsvariable. Stattdessen werden
-`SQLCMDINI` und andere geerbte sqlcmd-Einstellungen im Kindprozess entfernt,
-SQLCMD-Variablensubstitution wird durch `-x` gesperrt und ausschließlich die
-gebundenen Skripte samt korrekt gequoteten Zieleingaben ausgeführt. Bei
-integrierter Anmeldung bleibt `-X1` zusätzlich aktiv.
-
-## Was auf dem Server vorhanden sein muss
-
-- Eine reguläre SQL-Server-Instanz 2019, 2022 oder 2025 unter Windows/Linux.
-- Eine ausdrücklich ausgewählte, **bereits angelegte leere Datenbank**, online
-  und beschreibbar, Compatibility Level mindestens 150, `TRUSTWORTHY OFF`.
-  Systemdatenbanken sowie bestehende Toolbelt-/Fachobjekte sind ausgeschlossen.
-- Vorhandenes `CONTROL SERVER` oder `sysadmin` für den Trustschritt sowie
-  `CONTROL` auf der Zieldatenbank. Windows-Administratorrechte allein reichen
-  nicht; der Einstieg benötigt keine automatische Windows-Erhöhung.
-- Wirksam `clr enabled=1`, `clr strict security=1`, `lightweight pooling=0`.
-  Ohne die neuen Vorbereitungsschalter bereitet die Administration dies vor; der Einstieg führt kein `RECONFIGURE`
-  aus und vergibt keine Rechte oder Logins.
-- Die Datenbank muss während der Installation exklusiv für diesen Zweck
-  verfügbar sein. Die Session-AppLock koordiniert weitere Aufrufe dieses
-  Einstiegs, ersetzt aber keine Sperre gegen beliebige Administratoraktionen.
-
-Der SQL Server bestimmt das Profil, nicht das Betriebssystem des Clients:
-
-| Server | lokal | zentral |
-|---|---|---|
-| Windows | Windows-local, 45 Module | Windows-central, 43 Module |
-| Linux | Portable-local, 41 Module | Portable-central, 41 Module |
-
-Die [Profilgrenzen](../INSTALL.md#1-lokal-oder-zentral-und-das-passende-profil-wählen)
-gelten unverändert. Die Installation erzeugt keine Cross-DB-Benutzerzuordnung,
-Anwendungsrechte, Dateirechte, Roots oder Workerregistrierung.
-
-## Ablauf und Fehlerverhalten
-
-1. Die genaue äußere rc.2-SHA256-Prüfsumme wird geprüft, anschließend sämtliche
-   Manifestdateien. Das Paket wird nicht beliebig in das Dateisystem entpackt.
-   Es gibt weder Paketwechsel noch Netzwerkfallback nach einem Hashfehler.
-2. Ein lesender SQL-Aufruf prüft Ziel, Version, Plattform, vorhandene Rechte,
-   Datenbankzustand, CLR und Sicherheitszustand. Er verändert noch keinen Trust.
-3. Eine zweite frische sqlcmd-Sitzung nimmt die Session-AppLock, prüft
-   Datenbank-GUID/Plattform und alle Voraussetzungen erneut. Erst danach laufen
-   das originale plattformpassende `Trust-*.sql` und `Install-*.sql`. Nach dem
-   Trustschritt in `master` wird ausdrücklich zur ausgewählten Datenbank gewechselt.
-4. Der Abschluss prüft für jedes ausgewählte Modul dessen Versionsmarker und
-   soweit im bestehenden Modulvertrag vorhanden den Deployment-Modus.
-   `INSTALLED` erscheint nur bei Exitcode 0 und eindeutigem Abschlussnachweis.
-
-Die Verbindung bleibt verschlüsselt. Zertifikatsprüfung wird nur durch den
-ausdrücklichen Schalter `TrustServerCertificate` übergangen, niemals nach einem
-Fehler automatisch. Das Paket benötigt kein eigenes TLS-Zertifikat.
-
-Der Trustschritt registriert ausschließlich die gebundenen Assemblyhashes,
-soweit sie fehlen. Vorhandene Einträge werden nicht überschrieben. Die Module
-behalten ihre eigenen Transaktionen: Es gibt **keinen Gesamtrollback**.
-Bei späterem Fehler oder Abbruch können frühere Module und Trusteinträge
-bestehen bleiben. Der Einstieg entfernt sie nicht pauschal und wiederholt
-nichts automatisch. Zielzustand vor einem weiteren bewussten Aufruf prüfen.
-Mit dem üblichen PowerShell-Schalter `-Verbose` werden zusätzlich begrenzte
-SQL-Clientfehlerdetails angezeigt. Ein ausdrücklich übergebenes SQL-Kennwort
-wird zuvor aus Fehlerausgaben entfernt. Solche lokalen Diagnosen können
-Zielnamen enthalten und gehören nicht unverändert in öffentliche Fehlerberichte.
-
-| Kennung | Bedeutung und nächster Schritt |
+| TrustMethod | Verhalten |
 |---|---|
-| `PACKAGE`, `DOWNLOAD` | Originale rc.2-ZIP bereitstellen; Paketquelle und Prüfsumme prüfen. |
-| `CLIENT`, `CLIENT_START` | PowerShell 7.4+, sqlcmd (ODBC), Treiber, Toolpfad und Client-Ausführungsrechte prüfen. |
-| `TARGET`, `TBX_TARGET` | Ausdrückliche eigene Zieldatenbank wählen. |
-| `TBX_SERVER_RIGHTS`, `TBX_DATABASE_RIGHTS` | Bereits berechtigte Installationsanmeldung verwenden. |
-| `TBX_VERSION`, `TBX_PLATFORM` | Unterstützte Engine/Plattform auswählen. |
-| `TBX_DATABASE_STATE`, `TBX_NOT_EMPTY` | Leeres, geeignetes Fresh-Install-Ziel bereitstellen; kein pauschaler Upgradeweg. |
-| `TBX_CLR`, `TBX_SECURITY` | Administration bereitet CLR/Sicherheitszustand vor. |
-| `TBX_LOCK`, `TBX_TARGET_CHANGED`, `PROBE` | Parallelität oder Zieländerung klären; keine automatische Wiederholung. |
-| `TBX_RECEIPT`, `RECEIPT` | Installation nicht als vollständig behandeln; Marker/Clientabschluss prüfen. |
-| `SQL_FAILED`, `TIMEOUT` | Angegebene Phase, Anmeldung, Netzwerk, Zertifikatsprüfung bzw. SQL-Fehler im Ziel prüfen. Vor Wiederholung möglichen Teilzustand klären. |
+| `auto`, Standard | Bereits TRUSTWORTHY ON: vorhandenen Datenbank-Trust nutzen; andernfalls exakte Hashfreigabe |
+| `hash` | Eingebettete Assemblyhashes vergleichen und exakt diese Hashes registrieren |
+| `trustworthy-checked` | Bereits TRUSTWORTHY ON und passende Ownerautorisierung voraussetzen; Hashvergleich ohne Registrierung |
+| `trustworthy` | Vorhandenen Datenbank-Trust ohne Toolbelt-Hashvergleich verwenden |
 
-## Alle Eingaben
+Kein Fehler schaltet auf einen anderen Weg um. Der Client aktiviert TRUSTWORTHY
+nicht, ändert keinen Owner, vergibt keine Rechte und deaktiviert Strict Security
+nicht. Die Engine prüft CREATE-, Schema-, Assembly- und Hashfreigaberechte.
+Eine pauschale sysadmin-Mitgliedschaft ist für reine Objekterstellung kein Gate.
+Die Clientvorprüfung benötigt zusätzlich sichtbare Plattform-/Datenbankidentität
+über die Systemmetadaten; der direkte SQL-Weg benötigt diese Clientprüfung nicht.
 
-| Parameter | Vertrag |
-|---|---|
-| `DeploymentMode` | Pflicht; genau die kleingeschriebenen Werte `local` oder `central`. Kein Standardmodus. |
-| `ServerInstance` | Pflicht außer bei `ValidateOnly`; Ziel im sqlcmd-Serverformat, z. B. `localhost`. Keine Steuerzeichen. |
-| `Database` | Pflicht außer bei `ValidateOnly`; 1–128 Zeichen, nicht leer, keine Steuerzeichen. Genaue Schreibweise des vorhandenen Datenbanknamens verwenden; die Zielbindung vergleicht binär. Bezeichner und SQL-Literal werden getrennt gequotet. |
-| `Credential` | Optionales `PSCredential` für SQL-Anmeldung; ohne Wert integrierte Anmeldung. Kein Klartextkennwortparameter. |
-| `PackageZip` | Optionaler Pfad zur unveränderten rc.2-Installer-ZIP. Expliziter ungültiger Pfad/Hash stoppt; kein Downloadersatz. Ohne Wert Checkout-ZIP oder fester Release-Download mit 120-s-Grenze. |
-| `SqlcmdPath` | Standard `sqlcmd`; expliziter Anwendungspfad möglich. Genau ein Tool wird gewählt; kein Providerfallback. |
-| `TrustServerCertificate` | Standard aus; ausdrücklicher Zertifikatsprüfungs-Override für entsprechend erlaubte Ziele. |
-| `CreateDatabase` | Standard aus; nur fehlende benannte Datenbank anlegen. Details und Fehlergrenzen: [Vorbereitung](PROVISIONING.md). |
-| `EnableClr` | Standard aus; ausschließlich CLR instanzweit aktivieren. Details: [Vorbereitung](PROVISIONING.md). |
-| `ValidateOnly` | Nur Paket prüfen, keine sqlcmd-/SQL-Ausführung. Modus muss trotzdem angegeben werden. |
-| `PreflightOnly` | Paket und SQL-Ziel lesend prüfen, ohne Trust/Installation. Nicht mit `ValidateOnly` kombinierbar. |
-| `LoginTimeoutSeconds` | Standard 60; ganze Zahl 1–120. |
-| `CommandTimeoutSeconds` | Standard 600; ganze Zahl 1–1800. Begrenzung pro sqlcmd-Abfrage, zusätzlich harte Kindprozessgrenze aus Login- plus Commandtimeout plus 10 Sekunden. |
+`-CreateDatabase` und `-EnableClr` sind separate administrative Opt-ins mit
+[Vorzustandsvergleich, Pending-Prüfung und privatem Journal](PROVISIONING.md).
+Ihre bestehenden stärkeren Rechte- und Sicherheitsgrenzen bleiben erhalten.
+Ohne diese Schalter müssen Datenbank und benötigte CLR-Konfiguration vorhanden
+sein. SQL-only-Teilsätze benötigen keine CLR-Aktivierung.
 
-Ein reiner Vorcheck lautet beispielsweise:
+## Aktuelle Quellen und einzelne Module
+
+Auf einem Buildhost aus den gebundenen Binaryinputs eine normale SQL-Datei bauen:
 
 ```powershell
-pwsh -File .\Deployment\Install-Toolbelt.ps1 -ServerInstance localhost -Database Toolbelt -DeploymentMode central -PreflightOnly
+& .\Deployment\Build-Install.ps1 `
+  -Inputs .runtime\build-inputs -OutputSqlFile .runtime\Install-Regex.sql `
+  -Platform Portable -DeploymentMode central -ModuleId toolbelt.string.regex
+
+& .\Deployment\Install-Toolbelt.ps1 `
+  -InstallSql .runtime\Install-Regex.sql -ServerInstance localhost `
+  -Database ContosoToolbelt -DeploymentMode central
 ```
 
-## Nachweis und Pflege
+Die danebenliegende `.manifest.json` gehört zur SQL-Datei. Der Client überprüft
+Hash und deklarierte Schnittstellen. Bei einem festen Trustweg im Buildmanifest
+wird dieser verwendet, sofern der Aufruf ihn nicht ausdrücklich überschreibt.
+Details zu Inputs und vier Profilen: [gemeinsamer SQL-Build](../Scripts/Install/README.md).
+`Deploy-All.ps1` führt Planung, Quellbuild und Installation über denselben Kern.
 
-Die [SQL-freien Gegenproben](Tests/Test-OneCallInstall.ps1) testen den gesamten
-Clientablauf mit synthetischen Antworten sowie echte Kindprozess-Startfehler,
-Timeout und Exitcodes. Der bestehende Deployment-CI-Impact führt sie über
-`Test-SqlExport.ps1` aus; eine zweite vollständige Release-Suite ist dafür
-nicht nötig. Diese Prüfungen sind kein nativer SQL-Installationsnachweis.
-Der originale [Installationsnachweis](../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md)
-behält ausschließlich seinen gebundenen Scope. Historische native Ergebnisse des
-ursprünglichen Komforteinstiegs sind im [separaten Bericht](Tests/Qualification/OneCallInstaller.20261119.json)
-an die ursprünglichen Client-/Harnessquellen und die unveränderte rc.2-ZIP gebunden:
-zwölf Profile auf den sechs schema-validierten Labzielen für Windows/Linux,
-SQL2019/CL150, SQL2022/CL160 und SQL2025/CL170; sechs frische unabhängige
-Cleanup-Audits PASS. Der [native Adapter](Tests/Invoke-OneCallInstallLab.ps1)
-verwendet die bestehenden Identitäts-, Verbraucher- und Wiederherstellungsprüfungen.
+## Prüfen, Fehler und Abschluss
 
-Die native Matrix verwendete ausdrücklich SQL-Anmeldung mit `Credential` von
-einem Windows-Client. Integrierte Anmeldung ist durch die SQL-freien
-Argument-/Environment-Gegenproben abgedeckt, nicht durch einen neuen nativen
-Windows-Anmeldenachweis. Für eindeutige Cleanup-Ownership bereitete das
-Testsetup seine exakten Trusteinträge mit eigenen Markern vor; der Produktlauf
-führte das unveränderte Trustskript gegen diese vorhandenen Einträge aus.
-Dessen Neueintragungssemantik wird aus den ursprünglichen Trust-/Installations-
-nachweisen wiederverwendet. Keine neue TLS-, GUI- oder Modulgesamtqualifikation.
+- `-ValidateOnly`: Paket-/Dateikontrolle ohne Verbindung und ohne SQL-Ausführung.
+- `-PreflightOnly`: lesende Zielprüfung; mit Vorbereitungsflags ausschließlich
+  deren lesende Planung, keine Datenbankanlage oder Konfigurationsänderung.
+- `-TrustServerCertificate`: nur ausdrücklich auf Wunsch; die Prüfung von
+  Zertifikatskette und Servername entfällt. Kein automatischer TLS-Fallback.
+- `-LoginTimeoutSeconds` und `-CommandTimeoutSeconds`: endliche Clientgrenzen;
+  nach Fehler oder Timeout kein automatischer Wiederanlauf.
 
-Zwei frühere Fehler bleiben erhalten: ein Adapterdatumfehler vor SQL sowie
-ein SQL-Anmeldefehler durch `-X1`, anschließend FAILED_CLEANED und frischer
-Audit PASS. Der gemeinsame Rahmen endete mit 16/20 Dispatches und 16/20
-DB-Reservierungen; tatsächlich wurden einschließlich Fehllauf 13 eigene
-Datenbanken angelegt und frisch auditiert entfernt. Die ursprüngliche Frist
-wurde nicht erneuert. Restplätze eröffnen keine weitere Testwelle.
+Der Installationsdispatch bindet die zuvor gelesene Datenbank-GUID erneut und
+verwendet eine sitzungsgebundene Anwendungssperre. Der Abschluss prüft erwartete
+Objektnamen/-typen und Assemblynamen, keine Extended Properties. Das Ergebnis
+`INSTALLED_OR_PRESENT` behauptet keine installierte Versionsnummer oder geprüfte
+Definition bereits vorhandener Objekte. Hashgeprüfte Wege weisen abweichende
+vorhandene Assemblybytes ab. Der ungeprüfte Weg ist keine Integritätsabnahme.
 
-Der Auftrag vom 19. November 2026 umfasst diesen Clientadapter einschließlich
-Vorprüfung und Trust-Vorbereitung, keine neuen fachlichen SQL-Objekte.
-Die Alternative, den manuellen Ablauf nur zu dokumentieren, würde weiterhin
-mehrere Ausführungsschritte verlangen. Der vorhandene CLR-Maintenance-Runner
-verwendet einen anderen Paket-/Lifecyclevertrag und wird nicht auf rc.2 umgedeutet.
-Die veröffentlichten ZIPs und ihre historischen Nachweise bleiben unverändert.
-
-Technische Referenzen: [Microsoft sqlcmd](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility)
-und [Assembly-Trust/Rechte](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-add-trusted-assembly-transact-sql).
-
-Der neue Vorbereitungsweg besitzt eine [separate aktuelle Abnahme](Tests/Qualification/InstallerProvisioning.20261119.json). Alte Berichte und rc.3-Paketbytes bleiben unverändert an ihren ursprünglichen Scope gebunden.
+Der Lebenszyklus ist **create-only**: fehlende Objekte ergänzen, vorhandene nicht
+ersetzen. Dies ist kein In-place-Upgrade oder automatisches Uninstall.
+Historische Lifecycle-Skripte sind dafür ungeeignet. Bei Fehlern können bereits
+angelegte Objekte, eigene Hashfreigaben und ausdrücklich vorbereitete Zustände
+bestehen bleiben. Das private Vorbereitungsjournal erhalten und den Zielzustand
+vor einem bewussten weiteren Aufruf prüfen. Keine pauschale Rücknahme fremder
+Zustände oder automatische Löschung von Datenbanken.

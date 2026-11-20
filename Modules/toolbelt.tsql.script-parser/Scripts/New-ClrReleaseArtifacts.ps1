@@ -15,7 +15,6 @@ $ScriptDomDllPath=Resolve-ToolbeltScriptDom -Path $ScriptDomDllPath
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.Tsql.ScriptParser.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.Tsql.ScriptParser.dll"
 $scriptDomPath = Join-Path $moduleRoot "Clr/bin/$Configuration/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll"
-$deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
 $expectedScriptDomHash = '634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813'
 $expectedScriptDomIdentity = 'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null'
@@ -77,7 +76,7 @@ $sourceEntries = @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Rec
 $sourceHasher = [Security.Cryptography.SHA256]::Create()
 try { $sourceFingerprint = [BitConverter]::ToString($sourceHasher.ComputeHash([Text.Encoding]::UTF8.GetBytes(($sourceEntries -join "`n")))).Replace('-', '') }
 finally { $sourceHasher.Dispose() }
-$deploymentEntries = @('Deployment/Deploy.sql', 'Source/TVF_ParseScriptNodes.sql', 'Source/TVF_ParseScriptNodeProperties.sql', 'Source/TVF_TokenizeScript.sql', 'Source/TVF_ParseScriptErrors.sql') |
+$deploymentEntries = @('Source/TVF_ParseScriptNodes.sql', 'Source/TVF_ParseScriptNodeProperties.sql', 'Source/TVF_TokenizeScript.sql', 'Source/TVF_ParseScriptErrors.sql') |
     ForEach-Object { $_ + ':' + (Get-FileHash -LiteralPath (Join-Path $moduleRoot $_) -Algorithm SHA256).Hash }
 $deploymentHasher = [Security.Cryptography.SHA256]::Create()
 try { $deploymentFingerprint = [BitConverter]::ToString($deploymentHasher.ComputeHash([Text.Encoding]::UTF8.GetBytes(($deploymentEntries -join "`n")))).Replace('-', '') }
@@ -110,47 +109,16 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.Tsql.ScriptParser.trust-manifest.json'
-$deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.Tsql.ScriptParser.dll'
 $scriptDomOutputPath = Join-Path $OutputDirectory 'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll'
-$deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
-if (([regex]::Matches($deployTemplate, '\$\(AssemblyBits\)')).Count -ne 1 -or
-    ([regex]::Matches($deployTemplate, '\$\(ScriptDomAssemblyBits\)')).Count -ne 1) {
-    throw 'Deployment/Deploy.sql muss je einen AssemblyBits- und ScriptDomAssemblyBits-Platzhalter enthalten.'
-}
-$scriptDomHex = [BitConverter]::ToString($scriptDomBytes).Replace('-', '')
-$deployScript = $deployTemplate.Replace('$(AssemblyBits)', '0x' + $assemblyHex).Replace('$(ScriptDomAssemblyBits)', '0x' + $scriptDomHex)
-
-foreach ($sourceFileName in @(
-    'TVF_ParseScriptNodes.sql',
-    'TVF_ParseScriptNodeProperties.sql',
-    'TVF_TokenizeScript.sql',
-    'TVF_ParseScriptErrors.sql'
-)) {
-    $includeDirective = ':r ../Source/' + $sourceFileName
-    $sourcePath = Join-Path $moduleRoot ('Source/' + $sourceFileName)
-    $sourceText = Get-Content -LiteralPath $sourcePath -Raw
-    if (-not $deployScript.Contains($includeDirective)) {
-        throw "Deployment/Deploy.sql enthält den erwarteten Include nicht: $includeDirective"
-    }
-    $deployScript = $deployScript.Replace($includeDirective, $sourceText.TrimEnd())
-}
-
-if ($deployScript -match '(?m)^:r\s+') {
-    throw 'Deploy.WithAssembly.sql darf keine externen SQLCMD-Includes enthalten.'
-}
-
 [IO.File]::Copy($assemblyPath, $assemblyOutputPath, $true)
 [IO.File]::Copy($scriptDomPath, $scriptDomOutputPath, $true)
-$manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
-$deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8
-$manifest['deploymentArtifactSha256'] = (Get-FileHash -LiteralPath $deployPath -Algorithm SHA256).Hash
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
 
 [pscustomobject]@{
     AssemblyPath = $assemblyOutputPath
     TrustManifestPath = $manifestPath
-    DeployScriptPath = $deployPath
+    InstallBuilder = "Deployment/Build-Install.ps1"
     AssemblyHash = '0x' + $sha512
     AssemblyDescription = $description
     ScriptDomAssemblyHash = '0x' + $scriptDomSha512

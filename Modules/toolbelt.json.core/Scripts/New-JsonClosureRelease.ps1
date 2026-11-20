@@ -4,7 +4,7 @@ param([Parameter(Mandatory)][ValidateSet('toolbelt.json.core','toolbelt.json.con
  [Parameter(Mandatory)][string]$OutputDirectory)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
-. (Join-Path $PSScriptRoot 'Expand-JsonClosureSql.ps1')
+$script:JsonClosureRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $registryPath=Join-Path $script:JsonClosureRoot 'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json'
 $registry=Get-Content -LiteralPath $registryPath -Raw -Encoding UTF8|ConvertFrom-Json
 if($registry.status -cne 'OFFLINE_QUALIFIED_KNOWN_ARTIFACTS' -or $registry.framing -cne 'toolbelt.json.shared-closure/v1' -or
@@ -19,7 +19,6 @@ function Pin-File([string]$Path){
 }
 Pin-File $registryPath
 Pin-File $PSCommandPath
-Pin-File (Join-Path $PSScriptRoot 'Expand-JsonClosureSql.ps1')
 $rows=@{}
 foreach($row in $registry.artifacts){
  $fields=$row.Fields;$module=$fields.moduleId
@@ -80,11 +79,6 @@ if($ModuleId -cne 'toolbelt.json.core'){
  if([string]::IsNullOrEmpty($CoreAssemblyPath)){throw 'JSON_CLOSURE_CORE_REQUIRED'}
  [void](Read-KnownBinary $CoreAssemblyPath $rows['toolbelt.json.core'])
 }
-foreach($path in $script:JsonClosureSqlPaths){Pin-File (Join-Path $script:JsonClosureRoot ('Modules/'+$path))}
-$deploy=Expand-JsonClosureSql -RelativePath ($ModuleId+'/Deployment/Deploy.sql')
-$uninstall=Expand-JsonClosureSql -RelativePath ($ModuleId+'/Deployment/Uninstall.sql')
-if([regex]::Matches($deploy,[regex]::Escape('$(AssemblyBits)')).Count -ne 1){throw 'JSON_CLOSURE_PLACEHOLDER'}
-$deploy=$deploy.Replace('$(AssemblyBits)','0x'+[BitConverter]::ToString($binary).Replace('-',''))
 function Assert-Pins {foreach($entry in $pins.GetEnumerator()){if((Get-FileHash -LiteralPath $entry.Key -Algorithm SHA256).Hash -cne $entry.Value){throw 'JSON_CLOSURE_FINAL_DRIFT'}}}
 Assert-Pins
 $output=[IO.Path]::GetFullPath($OutputDirectory)
@@ -95,12 +89,10 @@ function Write-New([string]$Name,[byte[]]$Bytes){
  try{$stream.Write($Bytes,0,$Bytes.Length);$stream.Flush()}finally{$stream.Dispose()}
 }
 Write-New ($selected.Fields.managedAssembly+'.dll') $binary
-Write-New 'Deploy.WithAssembly.sql' ($utf8.GetBytes($deploy))
-Write-New 'Uninstall.Expanded.sql' ($utf8.GetBytes($uninstall))
-$manifest=[ordered]@{moduleId=$ModuleId;moduleVersion=$selected.Fields.moduleVersion;artifactId=$selected.ArtifactId;
+$manifest=[ordered]@{moduleId=$ModuleId;moduleVersion=$selected.Fields.moduleVersion;provenanceArtifactId=$selected.ArtifactId;
  sha256=$selected.Fields.binarySha256;sha512=$selected.Fields.binarySha512;permissionSet='SAFE';
  coreArtifactId=if($ModuleId -ceq 'toolbelt.json.core'){$null}else{$rows['toolbelt.json.core'].ArtifactId};
- scope='OFFLINE_KNOWN_CLOSURE_PACKAGING_ONLY';trustAuthorization='NOT_GRANTED';nativeQualification='NOT_EXECUTED'}
+ scope='OFFLINE_KNOWN_BINARY_PACKAGING_ONLY';installBuilder='Deployment/Build-Install.ps1';trustAuthorization='NOT_GRANTED';nativeQualification='NOT_EXECUTED'}
 Write-New ($selected.Fields.managedAssembly+'.trust-manifest.json') ($utf8.GetBytes(($manifest|ConvertTo-Json -Depth 4)))
 Assert-Pins
 'PASS JSON_KNOWN_CLOSURE_PACKAGING_ONLY'

@@ -11,7 +11,6 @@ $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.String.EditDistance.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.String.EditDistance.dll"
-$deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
 # Releaseartefakte benötigen ein leeres Ziel und exakt denselben Quellstand
 # vor/nach Build. Pfade im Manifest sind ausschließlich modulrelativ.
@@ -24,7 +23,7 @@ if (Test-Path -LiteralPath $OutputDirectory) {
 $sourcePaths = @('Clr/Toolbelt.String.EditDistance.csproj', 'Clr/Properties/AssemblyInfo.cs',
  'Clr/UnicodeScalar.cs', 'Clr/DistanceKernel.cs', 'Clr/DistanceProvider.cs',
  'Clr/JaroKernel.cs', 'Clr/JaroProvider.cs', 'Source/EditDistance.sql', 'Source/JaroWinkler.sql',
- 'Deployment/Deploy.sql', 'Deployment/Uninstall.sql', 'Scripts/New-ClrReleaseArtifacts.ps1')
+   'Scripts/New-ClrReleaseArtifacts.ps1')
 function Get-ReleaseSourceFingerprints {
     foreach ($relativePath in $sourcePaths) {
         [ordered]@{ path = $relativePath; sha256 =
@@ -86,27 +85,17 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.String.EditDistance.trust-manifest.json'
-$deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.String.EditDistance.dll'
-$deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
-if ([regex]::Matches($deployTemplate,[regex]::Escape('$(AssemblyBits)')).Count -ne 1) {
-    throw 'Deployment/Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.'
-}
-$deployScript = $deployTemplate.Replace('$(AssemblyBits)', '0x' + $assemblyHex)
-
-# Unmittelbar vor dem Schreiben erneut prüfen; ein anderer Agent darf den
-# gekoppelten Source-/Lifecycle-Stand nicht unbemerkt austauschen.
 if ((ConvertTo-Json -InputObject @(Get-ReleaseSourceFingerprints) -Compress) -cne $sourceSnapshot) {
     throw 'Releasequellen wurden vor dem Artefaktschreiben verändert.'
 }
 [IO.File]::WriteAllBytes($assemblyOutputPath, $assemblyBytes)
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
-$deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8
 
 [pscustomobject]@{
     AssemblyPath = $assemblyOutputPath
     TrustManifestPath = $manifestPath
-    DeployScriptPath = $deployPath
+    InstallBuilder = "Deployment/Build-Install.ps1"
     AssemblyHash = '0x' + $sha512
     AssemblyDescription = $description
 }

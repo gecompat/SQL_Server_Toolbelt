@@ -12,7 +12,6 @@ $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.Archive.ZipMemory.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.Archive.ZipMemory.dll"
-$deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
 $msbuild = Get-Command msbuild -ErrorAction SilentlyContinue
 if ($null -eq $msbuild) {
@@ -67,25 +66,15 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.Archive.ZipMemory.trust-manifest.json'
-$deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.Archive.ZipMemory.dll'
-
-$deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
-$marker = '$(AssemblyBits)'
-if ([regex]::Matches($deployTemplate, [regex]::Escape($marker)).Count -ne 1) {
-    throw 'Deployment/Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.'
-}
-
-$deployScript = $deployTemplate.Replace($marker, '0x' + $assemblyHex)
 
 [IO.File]::Copy($assemblyPath, $assemblyOutputPath, $true)
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
-$deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8
 
 [pscustomobject]@{
     AssemblyPath = $assemblyOutputPath
     TrustManifestPath = $manifestPath
-    DeployScriptPath = $deployPath
+    InstallBuilder = "Deployment/Build-Install.ps1"
     AssemblyHash = '0x' + $sha512
     AssemblyDescription = $description
 }

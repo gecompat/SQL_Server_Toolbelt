@@ -50,42 +50,20 @@ $sources=@(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -Fi
 $shared=Join-Path (Split-Path -Parent $moduleRoot) 'toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs'
 $sources += @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Exchange/Core') -File -Filter '*.cs' | Sort-Object Name | ForEach-Object {'Exchange/Core/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
 $sources += '../toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs:'+(Get-FileHash -LiteralPath $shared -Algorithm SHA256).Hash
-$deployment=@(foreach($folder in @('Contracts','Source','Deployment','Scripts')){
+$deployment=@(foreach($folder in @('Contracts','Source','Scripts')){
  # Paketpins binden dieses Manifest erst nach der nativen Qualifikation.
  # Sie und der reine ZIP-Packer sind keine CLR-/SQL-Deploymentinputs; ihre Aufnahme wäre zyklisch.
  Get-ChildItem -LiteralPath (Join-Path $moduleRoot $folder) -File | Where-Object {($folder+'/'+$_.Name) -cnotin @('Contracts/InstallPackageInputs.json','Scripts/New-InstallPackage.py')} | Sort-Object Name | ForEach-Object {$folder+'/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
 })
-function Expand-Includes([string]$Path){
- $text=Get-Content -LiteralPath $Path -Raw
- [regex]::Replace($text,'(?m)^:r\s+([^\r\n]+)\s*$',{param($m)
-  $target=[IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $Path) $m.Groups[1].Value.Trim()))
-  if(-not $target.StartsWith([IO.Path]::GetFullPath($moduleRoot)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'SSIS_INCLUDE_OUTSIDE_MODULE'}
-  Expand-Includes $target
- })
-}
-function Procedure-Definition([string]$Name){
- $source=Get-Content -LiteralPath (Join-Path $moduleRoot ('Source/'+$Name+'.sql')) -Raw
- $start=$source.IndexOf('CREATE OR ALTER PROCEDURE',[StringComparison]::Ordinal)
- if($start -lt 0){throw 'SSIS_CANONICAL_PROCEDURE_MISSING'}
- $definition=[regex]::Replace($source.Substring($start),'(?i)\r?\nGO\s*\z','')
- "N'"+$definition.Replace("'","''")+"'"
-}
-$bits='0x'+[BitConverter]::ToString([IO.File]::ReadAllBytes($assembly)).Replace('-','')
-$deploy=Expand-Includes (Join-Path $moduleRoot 'Deployment/Deploy.sql')
-$deploy=$deploy.Replace('$(AssemblyBits)',$bits).Replace('$(ExpectedAssemblySha512)','0x'+$first).Replace('$(PublicProcedureSql)',(Procedure-Definition 'USP_ExplainSsisDataFlow')).Replace('$(InternalProcedureSql)',(Procedure-Definition 'USP_ExplainSsisDataFlowInternal'))
-if($deploy -match '(?m)^:r\s' -or $deploy.Replace('$(DeploymentMode)','') -match '\$\('){throw 'SSIS_UNRESOLVED_RELEASE_INPUT'}
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
-$deployPath=Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $encoding=[Text.UTF8Encoding]::new($false)
-[IO.File]::WriteAllText($deployPath,$deploy,$encoding)
-[IO.File]::WriteAllText((Join-Path $OutputDirectory 'Uninstall.Expanded.sql'),(Expand-Includes (Join-Path $moduleRoot 'Deployment/Uninstall.sql')),$encoding)
 Copy-Item -LiteralPath $assembly -Destination (Join-Path $OutputDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Force
 $manifest=[ordered]@{
  schemaVersion=1;moduleId='toolbelt.tsql.ssis-debug';moduleVersion='1.0.0';buildProfile='net48-anycpu-release-deterministic'
  sha512=$first;scriptDomSha512=$pin.scriptDomSha512;parserVersion=$pin.parserVersion;parserSha512=$pin.parserSha512
  sourceFingerprintSha256=(Fingerprint $sources);sourceFiles=$sources
  deploymentFingerprintSha256=(Fingerprint $deployment);deploymentFiles=$deployment
- deploymentArtifactSha256=(Get-FileHash -LiteralPath $deployPath -Algorithm SHA256).Hash
+ artifactKind='binary-input';installBuilder='Deployment/Build-Install.ps1'
  reproducedBuild=$true;permissionSet='UNSAFE';directFrameworkReferences=@('System','System.Core','System.Data','System.Xml','System.Xml.Linq')
  guardProfile=[ordered]@{atoms=4096;rawUnits=65536;structure=32;comments=16;operators=256;queryOperators=64;tokens=65536;astDepth=100;nodes=65536;properties=262144}
 }
