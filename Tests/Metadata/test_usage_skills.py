@@ -483,6 +483,33 @@ class UsageSkillTests(unittest.TestCase):
                             if words[i:i + 3] == ["if", parameter, "is"])
             self.assertLess(ret, business)
 
+    def test_distance_and_pair_modules_have_complete_source_bound_contracts(self):
+        inventory = skills.inventory(ROOT)
+        for module, count in (("toolbelt.string.edit-distance", 7), ("toolbelt.string.text-pairs", 1)):
+            expected = {key: value for key, value in inventory.items() if value["module_id"] == module}
+            records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+            self.assertEqual(skills.validate_coverage(records, expected), count)
+            for skill in records:
+                if skill.metadata["object_type"] == "ASSEMBLY":
+                    continue
+                path = skill.metadata["source_paths"][0]
+                text = (ROOT / path).read_text(encoding="utf-8-sig")
+                if skill.metadata["object_type"] == "USP":
+                    self.assertEqual(skills.project_procedure_help(text, skill), text)
+                    ret, _ = skills._procedure_help_return(text, skill)
+                    tokens = skills._ddl_tokens(text)
+                    words = [t[0].casefold() for t in tokens]
+                    state_guard = next(tokens[i][1] for i in range(len(words) - 3)
+                                       if words[i:i + 3] == ["if", "xact_state", "("])
+                    self.assertLess(ret, state_guard)
+                else:
+                    self.assertEqual(skills.project_function_ddl(text, skill), text)
+                    self.assertTrue(all(p["argument_required"] for p in skill.metadata["parameters"]))
+                    self.assertIn("ErrorCode", skill.markdown)
+                    profile = next(p for p in skill.metadata["parameters"] if p["name"] == "@Profile")
+                    for limit in ("2048", "1024", "65536", "32768", "1048576", "16777216"):
+                        self.assertIn(limit, profile["description"])
+
 
 if __name__ == "__main__":
     unittest.main()

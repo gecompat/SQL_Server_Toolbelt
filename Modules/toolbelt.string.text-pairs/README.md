@@ -18,9 +18,25 @@ Die [aktuelle Callerqualifikation](../../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIF
 
 Die einzige öffentliche USP [USP_CompareTextPairs](Documentation/USP_CompareTextPairs.md) vergleicht eine caller-lokale #Temp mit drei global auswählbaren Algorithmen. Bestehende TVFs bleiben der einzige Vergleichskern. Row-, Textbyte- und konservative Workadmission gehen allen TVF-Aufrufen voraus; ResultTable-Vorbereitung und Insert werden gemeinsam atomar veröffentlicht.
 
-Voraussetzungen: `toolbelt.string.edit-distance` exakt bekannter Release 1.1.0 und `toolbelt.core.result-table` 1.0.0 in derselben Datenbank und im gleichen local/central-Modus. Keine neue Assembly oder Trustinstallation. Central-Aufruf dreiteilig, keine Synonyme.
+Voraussetzungen: passende `toolbelt.string.edit-distance`- und
+`toolbelt.core.result-table`-Objekte aus demselben aktuellen Funktionssatz in
+derselben Toolbelt-Datenbank. Der gemeinsame Installer bündelt die ausgewählten
+Abhängigkeiten. Der Wrapper installiert zur Laufzeit weder Assembly noch Trust.
+Zentraler Aufruf dreiteilig mit sessionlokalen Temps; keine Synonyme.
 
-Deploy aus `Deployment/` im SQLCMD-Modus mit `DeploymentMode` und `ExpectedComparisonAssemblyHash` (0x+128 Hexzeichen des freigegebenen tatsächlichen SHA2-512-Binary). Uninstall mit `ConfirmNoExternalConsumers`; central verlangt 1. Lifecycle verlangt vorhandene vollständige Metadatensicht, gewährt keine Rechte und erhält fremde/unkannte Zustände. Das bereits von der Dependency benötigte Schema wird weder adoptiert noch entfernt.
+Aktuelle Installation über den oben verlinkten gemeinsamen create-only-Weg
+ohne SQLCMD-Modus. Frühere `DeploymentMode`-/Assemblyhash-/Uninstallparameter
+gehören zum historischen markerbasierten Lifecycle und sind keine aktuellen
+Kommandos. Seine Nachweise bleiben an die ursprünglichen Artefakte gebunden.
+
+## Vollständiger Skill und Hilfe
+
+Der [kanonische Skill](../../Metadata/UsageSkills/toolbelt_string/USP_CompareTextPairs.md)
+beschreibt alle elf Parameter, globale Budgetfehler, die Paarcodes und die
+OwnTX-/Savepoint-Veröffentlichung. Er steht identisch in der DDL. `@Hilfe=1`
+liefert die bisherige Standardhilfe und anschließend genau eine zusätzliche
+vierkolumnige Skillzeile vor fachlichen Transaktions-/Temp-/Providerprüfungen.
+Die neue zusätzliche Hilfe ist offline geprüft; ihre native Abnahme ist separat.
 
 [Freigabe und Vertrag](../../Documentation/Architecture/TEXT_PAIRS_CONTRACT.md), [Beispiel](Examples/CompareTextPairs.sql), [Testmatrix](Tests/TEXT_PAIRS_TEST_MATRIX.md), [Nachweisstand](Tests/README.md).
 

@@ -31,7 +31,7 @@ Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/
 
 ## Aufruf
 
-Der Lifecycle erlaubt einen exakt hashgebundenen 1.1.0-Repeat mit dem bekannten
+Der frühere markerbasierte Lifecycle erlaubte einen exakt hashgebundenen 1.1.0-Repeat mit dem bekannten
 Text-Pairs-Consumer 1.0.0, wenn Modul-/Objektmarker und Deploymentmodus
 übereinstimmen. Der Consumer wird dabei nicht entfernt. Unbekannte Consumer,
 abweichende Marker, ein Binarywechsel oder ein Moduswechsel bleiben gesperrt.
@@ -48,29 +48,42 @@ ErrorCode ist logisch nicht NULL; SQL-Metadaten dürfen nullable sein.
 Oberhalb MaxDistance: NULL/1/0. NULL-Eingabetext: NULL/NULL/0.
 Profile standard/large sind ordinal und vollständig zu schreiben; keine Kürzung.
 
-## Build und Lifecycle
+## Maschinenlesbare Objektverträge
+
+Die drei öffentlichen Funktionen und ihre internen CLR-Einstiege besitzen je
+einen vollständigen kanonischen Skill, identisch in der jeweiligen DDL:
+
+- [Levenshtein](../../Metadata/UsageSkills/toolbelt_string/TVF_LevenshteinDistance.md)
+- [OSA](../../Metadata/UsageSkills/toolbelt_string/TVF_OsaDistance.md)
+- [Jaro-Winkler](../../Metadata/UsageSkills/toolbelt_string/TVF_JaroWinklerSimilarity.md)
+
+Die Skills unterscheiden NULL-Eingaben, Fachfehler und einen bewiesenen
+Schwellenüberschritt. Ein fehlender Distanzwert bedeutet nicht Distanz 0.
+Verglichen werden Unicode-Skalare, keine Graphemcluster; bestehende Spaces und
+NUL bleiben Daten. Funktionsparameter mit SQL-Default werden beim SQL-Aufruf
+ausdrücklich mit `DEFAULT` belegt. Interne Core-Skills sind als intern markiert
+und verweisen auf diese öffentlichen Einstiegspunkte. Zur noch offenen
+vollständigen SQL-Katalogintegration siehe [Usage-Skills](../../Metadata/UsageSkills/README.md).
+
+## Aktueller Build und Installation
 
 `Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory <neues-leeres-Ziel>`
-erzeugt mit vorhandenen Framework-4.8-Werkzeugen Releasebinary, SHA2-512-Manifest
-und Deploy.WithAssembly.sql. Keine Downloads. Die Releasequellen werden vor/nach
+erzeugt mit vorhandenen Framework-4.8-Werkzeugen Binary- und Hashartefakte.
+Keine Downloads. Die Releasequellen werden vor/nach
 Build und vor Ausgabe bytegenau gebunden; alte Artefakte werden nicht übernommen.
 
-SQLCMD-Deploy benötigt DeploymentMode=local oder central und
-ExpectedInstalledAssemblyHash=0x ausschließlich bei vollständig frischer Installation.
-Reinstall benötigt den offline belegten tatsächlichen bisherigen SHA2-512-Hash.
-AssemblyBits kommt ausschließlich aus dem geprüften Releasegenerator.
-Das separate administrative `Deployment/Add-TrustedAssembly.sql` ist ein
-expliziter exakter Hash-Opt-in. Es aktiviert keine Serveroption und erteilt keine Rechte.
-Regulärer Deploy/Uninstall verändert keine Trustliste.
-
-Uninstall benötigt denselben erwarteten installierten Hash; central zusätzlich
-ConfirmNoExternalConsumers=1. Unbekannte Versionen, fremde Slots/Assembly,
-Dependencies oder fehlende Rechte blockieren vor Mutation und erneut unter AppLock.
-Caller-Transaktionen werden vor SET abgewiesen. Das gemeinsame Kategorie-Schema
-wird nur bei vollständiger Leerheit entfernt; andere Module bleiben erhalten.
+Der [gemeinsame Installer](../../Deployment/ONE-CALL-INSTALL.md) übernimmt den
+aktuellen create-only-Funktionssatz, lokal oder zentral und ohne SQLCMD-Modus.
+Er bietet den Hashweg und ausdrücklich gewählte Wege mit bereits vorhandenem
+Datenbank-Trust. Bestehende Objekte werden erhalten, es gibt hier keinen
+automatischen Upgrade-/Uninstallpfad. Alte SQLCMD-/Marker-/AppLock-Verträge und
+ihre Prüfungen bleiben ausschließlich an ihre ursprünglichen Lieferungen
+gebunden; sie sind keine aktuellen Installationskommandos.
 
 SELECT auf den öffentlichen TVFs ist das Aufrufrecht. Administrative Build-,
-Deploy- und Trustrechte sind davon getrennt; Minimalrechte noch nicht nativ qualifiziert.
+Installations- und Trustrechte sind davon getrennt. Die oben verlinkte aktuelle
+Callerqualifikation ergänzt den datierten ursprünglichen Minimalrechte-Scope;
+andere Rechte-/Ownerkontexte bleiben separat.
 Siehe [Tests](Tests/README.md) und [synthetische Beispiele](Examples/EditDistance.sql).
 
 ## Aktuelle Validierungsevidenz
@@ -82,7 +95,11 @@ Siehe [Tests](Tests/README.md) und [synthetische Beispiele](Examples/EditDistanc
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
-Deployment/Uninstall setzt vorhandenes VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies voraus. Fehlende oder unbekannte Metadatensicht blockiert vor Mutation; der Lifecycle erteilt diese Rechte nicht. FT-Bindung und releaseabhängige Parameter-/Resultspalten werden bei vorhandenem Release erneut unter AppLock geprüft; versionsgleiche öffentliche SQL-Source bleibt reparierbar.
+Der historische markerbasierte Deployment-/Uninstallvertrag setzte vorhandenes
+VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies
+voraus. Seine datierten Sichtbarkeits-/AppLock-/Reparaturprüfungen qualifizieren
+den damaligen Lifecycle. Der aktuelle gemeinsame create-only-Installer besitzt
+einen eigenen Vertrag und erteilt ebenfalls keine Rechte.
 
 ## Erweiterung 1.1
 
