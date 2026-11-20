@@ -7,6 +7,7 @@ Beschreibungsdaten führen keine Objekt-/Installations-/Rechteprüfung aus.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -266,6 +267,8 @@ def strip_ddl_projection(root: Path, path: str, text: str):
             _existing_function_skill(text, canonical)
         elif m["object_type"] in ("VIEW", "VW", "TABLE"):
             _existing_relation_skill(text, canonical)
+        elif m["object_type"] == "USP":
+            _existing_procedure_skill(text, canonical)
         comment = render_ddl_comment(canonical)
         require(text.count(comment) == 1, "DDL-Skillkommentar nicht eindeutig/bytegleich")
         text = text.replace(comment, "", 1)
@@ -280,6 +283,7 @@ def source_file(root: Path, schema: str, name: str):
     return path
 
 
+@lru_cache(maxsize=8)
 def _ddl_tokens(text):
     """Positionslexer für die begrenzte Inline-TVF-Projektion, kein SQL-Parser."""
     result, pos = [], 0
@@ -307,32 +311,62 @@ def _ddl_tokens(text):
             require(value not in ("'", "[", '"'), "Unvollständiger/nicht unterstützter DDL-Token")
             pos += len(value)
             result.append((value, start, pos))
-    return result
+    return tuple(result)
+
+
+def _procedure_declaration(text, skill):
+    """Eine benannte Prozedur im Mehrfachskript an ihren eigenen GO-Batch binden."""
+    require(skill.metadata["object_type"] == "USP", "T-SQL-Prozedur erforderlich")
+    ts = _ddl_tokens(text)
+    words = [t[0].casefold() for t in ts]
+    matches = []
+    m = skill.metadata
+    for create, word in enumerate(words):
+        if word != "create":
+            continue
+        i = create + 1
+        if words[i:i + 2] == ["or", "alter"]:
+            i += 2
+        if words[i:i + 1] in (["procedure"], ["proc"]) and [
+                w.strip("[]") for w in words[i + 1:i + 4]] == [
+                m["schema_name"].casefold(), ".", m["object_name"].casefold()]:
+            matches.append(i)
+    require(len(matches) == 1, "Genau eine passende Prozedur-/Skillidentität erforderlich")
+    i = matches[0]
+    return ts, words, i, _procedure_batch_limit(text, ts, words, i)
+
+
+def _procedure_batch_limit(text, ts, words, i):
+    limit = len(ts)
+    for j in range(i + 4, len(ts)):
+        if words[j] == "go":
+            start = text.rfind("\n", 0, ts[j][1]) + 1
+            end = text.find("\n", ts[j][2])
+            line = text[start:len(text) if end < 0 else end]
+            if line.strip().casefold() == "go":
+                limit = j
+                break
+        require(words[j] != "create" or words[j + 1:j + 2] not in (["procedure"], ["proc"], ["or"]),
+                "Prozeduren benötigen getrennte GO-Batches")
+    return limit
+
+
+def _procedure_region(text, skill):
+    ts, _, i, limit = _procedure_declaration(text, skill)
+    return ts[i][1], ts[limit][1] if limit < len(ts) else len(text)
 
 
 def _procedure_help_return(text: str, skill: Skill):
     """Bestehenden positiven Hilfezweig mit genau einem finalen RETURN binden."""
-    require(skill.metadata["object_type"] == "USP", "T-SQL-Prozedur erforderlich")
-    ts = _ddl_tokens(text)
-    words = [t[0].casefold() for t in ts]
-    creates = [i for i, word in enumerate(words) if word == "create"]
-    require(len(creates) == 1, "Genau eine Prozedurdeklaration erforderlich")
-    i = creates[0] + 1
-    if words[i:i + 2] == ["or", "alter"]:
-        i += 2
-    m = skill.metadata
-    require(words[i] in ("procedure", "proc")
-            and [w.strip("[]") for w in words[i + 1:i + 4]]
-            == [m["schema_name"].casefold(), ".", m["object_name"].casefold()],
-            "Prozedur-/Skillidentität")
+    ts, words, i, limit = _procedure_declaration(text, skill)
     patterns = (["if", "@hilfe", "=", "1", "begin"],
                 ["if", "isnull", "(", "@hilfe", ",", "0", ")", "=", "1", "begin"])
-    branches = [j + len(p) - 1 for j in range(i + 4, len(words)) for p in patterns
+    branches = [j + len(p) - 1 for j in range(i + 4, limit) for p in patterns
                 if words[j:j + len(p)] == p]
     require(len(branches) == 1, "Genau ein unterstützter positiver Hilfezweig erforderlich")
     start = branches[0]
     level, returns, j = 1, [], start + 1
-    while j < len(words) and level:
+    while j < limit and level:
         word = words[j]
         if word in ("begin", "case"):
             level += 1
@@ -361,14 +395,32 @@ def render_help_projection(skill: Skill, indent=8):
 def project_procedure_help(text: str, skill: Skill):
     """Zusätzlichen konstanten SELECT unmittelbar vor frühem RETURN einfügen."""
     validate(skill)
-    marked = re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text)
+    start, end = _procedure_region(text, skill)
+    # Other canonical procedures may already contain their own help projection.
+    # Markers after a GO/outside every procedure must never trigger insertion of
+    # a second copy into the selected branch.
+    ts = _ddl_tokens(text)
+    words = [t[0].casefold() for t in ts]
+    regions = []
+    for j, word in enumerate(words):
+        if word != "create":
+            continue
+        i = j + 1
+        if words[i:i + 2] == ["or", "alter"]:
+            i += 2
+        if words[i:i + 1] in (["procedure"], ["proc"]):
+            limit = _procedure_batch_limit(text, ts, words, i)
+            regions.append((ts[i][1], ts[limit][1] if limit < len(ts) else len(text)))
+    for marker in re.finditer(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text):
+        require(any(a <= marker.start() < b for a, b in regions), "Skillhilfe außerhalb einer Prozedur")
+    marked = re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text[start:end])
     if marked:
         line, indent = _procedure_help_return(text, skill)
         block = render_help_projection(skill, indent)
         require(text.count(block) == 1 and text[:line].endswith(block),
                 "Vorhandene Skillhilfe ist nicht kanonisch oder steht vor falschem RETURN")
         return text
-    require(not re.search(r"(?m)^[ \t]*" + re.escape(HELP_END) + r"$", text),
+    require(not re.search(r"(?m)^[ \t]*" + re.escape(HELP_END) + r"$", text[start:end]),
             "Unvollständige Skillhilfe-Markierungen")
     line, indent = _procedure_help_return(text, skill)
     return text[:line] + render_help_projection(skill, indent) + text[line:]
@@ -378,28 +430,54 @@ def strip_help_projection(root: Path, path: str, text: str):
     """Nur die kanonische zusätzliche Hilfe entfernen, nie den alten Hilfezweig."""
     if not re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text):
         return text
-    projected = read_ddl_comment(text)
-    # Bind exact editorial bytes, primary source and existing positive help guard.
+    # Bind exact editorial bytes, primary sources and positive help guards.
     strip_ddl_projection(root, path, text)
-    require(project_procedure_help(text, projected) == text, "Nicht kanonische Hilfeprojektion")
-    _, indent = _procedure_help_return(text, projected)
-    return text.replace(render_help_projection(projected, indent), "", 1)
+    for projected in read_ddl_comments(text):
+        if projected.metadata["object_type"] != "USP":
+            continue
+        start, end = _procedure_region(text, projected)
+        if not re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text[start:end]):
+            continue
+        require(project_procedure_help(text, projected) == text, "Nicht kanonische Hilfeprojektion")
+        _, indent = _procedure_help_return(text, projected)
+        text = text.replace(render_help_projection(projected, indent), "", 1)
+    require(not re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text),
+            "Skillhilfe ohne zugehörigen kanonischen Prozedurskill")
+    return text
 
 
 def project_procedure_ddl(text: str, skill: Skill):
     """Passiven Skillkommentar vor dem äußeren BEGIN eines T-SQL-USP einfügen."""
     validate(skill)
     _procedure_help_return(text, skill)
-    if re.search(r"(?m)^" + re.escape(DDL_BEGIN) + r"$", text):
-        require(read_ddl_comment(text).markdown == skill.markdown, "Vorhandener DDL-Skill weicht ab")
+    if _existing_procedure_skill(text, skill):
         return text
-    ts = _ddl_tokens(text)
-    anchors = [j for j in range(len(ts) - 1)
+    ts, _, i, limit = _procedure_declaration(text, skill)
+    anchors = [j for j in range(i + 4, limit - 1)
                if ts[j][0].casefold() == "as" and ts[j + 1][0].casefold() == "begin"]
     require(len(anchors) == 1, "Eindeutiges AS BEGIN für Prozedur erforderlich")
     end = ts[anchors[0]][2]
     require(text[end:end + 1] == "\n", "AS muss mit LF abschließen")
     return text[:end + 1] + render_ddl_comment(skill) + text[end + 1:]
+
+
+def _existing_procedure_skill(text, skill):
+    matches = [s for s in read_ddl_comments(text) if s.identity == skill.identity]
+    require(len(matches) <= 1, "Doppelte Prozedur-Skillidentität")
+    if not matches:
+        return False
+    comment = render_ddl_comment(skill)
+    require(matches[0].markdown == skill.markdown and text.count(comment) == 1,
+            "Vorhandener Prozedur-Skill ist nicht kanonisch")
+    ts, _, i, limit = _procedure_declaration(text, skill)
+    anchors = [j for j in range(i + 4, limit - 1)
+               if ts[j][0].casefold() == "as" and ts[j + 1][0].casefold() == "begin"]
+    require(len(anchors) == 1, "Eindeutiger Prozedur-AS-BEGIN-Header erforderlich")
+    anchor = anchors[0]
+    position = text.index(comment)
+    require(ts[anchor][2] < position and position + len(comment) <= ts[anchor + 1][1],
+            "Prozedur-Skill steht außerhalb seines eigenen Headers")
+    return True
 
 
 def _existing_function_skill(text, skill):

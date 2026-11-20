@@ -230,6 +230,49 @@ class UsageSkillTests(unittest.TestCase):
             with self.subTest(broken=broken[-50:]), self.assertRaises(ValueError):
                 skills.project_procedure_help(broken, source)
 
+    def test_grouped_procedures_preserve_their_own_help_and_definition(self):
+        sources = [next(s for s in prototypes() if s.metadata["object_name"] == name)
+                   for name in ("USP_PrepareResultTable", "USP_SecondSessionProbe")]
+        parts = [(ROOT / s.metadata["source_paths"][0]).read_text(encoding="utf-8-sig") for s in sources]
+        combined = "\n".join(parts)
+        for skill in sources:
+            self.assertEqual(skills.project_procedure_help(combined, skill), combined)
+            self.assertEqual(skills.project_procedure_ddl(combined, skill), combined)
+            a, b = skills._procedure_region(combined, skill)
+            self.assertIn(skills.render_help_projection(skill), combined[a:b])
+            for other in sources:
+                if other.identity != skill.identity:
+                    self.assertNotIn(skills.render_help_projection(other), combined[a:b])
+        original = combined
+        for skill in sources:
+            original = original.replace(skills.render_ddl_comment(skill), "", 1)
+            original = original.replace(skills.render_help_projection(skill), "", 1)
+        for order in (sources, list(reversed(sources))):
+            output = original
+            for skill in order:
+                output = skills.project_procedure_ddl(skills.project_procedure_help(output, skill), skill)
+            self.assertEqual(output, combined)
+        orphan = combined + skills.render_help_projection(sources[0])
+        with self.assertRaisesRegex(ValueError, "außerhalb"):
+            skills.project_procedure_help(orphan, sources[1])
+        block = skills.render_ddl_comment(sources[0])
+        swapped = combined.replace(block, "", 1).replace(skills.render_ddl_comment(sources[1]),
+                   block + skills.render_ddl_comment(sources[1]), 1)
+        with self.assertRaisesRegex(ValueError, "außerhalb"):
+            skills.project_procedure_ddl(swapped, sources[0])
+
+    def test_real_grouped_filesystem_help_binding_ignores_neighbor_procs_and_temp_ddl(self):
+        # Parsing an existing draft proves declaration binding only, never its
+        # editorial review, help acceptance or execution of filesystem actions.
+        source = skills.read(ROOT / "Metadata/UsageSkills/toolbelt_filesystem/USP_ReadBinaryFileChunk.md", verified=False)
+        text = (ROOT / source.metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
+        a, b = skills._procedure_region(text, source)
+        self.assertIn("CREATE TABLE #tbx_fs_result", text[a:b])
+        self.assertNotIn("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_ReadTextFileChunk]", text[a:b])
+        line, _ = skills._procedure_help_return(text, source)
+        self.assertTrue(a < line < b)
+        self.assertLess(line, text.index("CREATE TABLE #tbx_fs_result", a))
+
     def test_multiple_functions_keep_separate_skills_and_generation_order(self):
         current = [s for s in prototypes() if s.metadata["object_name"] in
                    ("TVF_GenerateSeriesBigInt", "TVF_GenerateSeriesBigIntStatus")]

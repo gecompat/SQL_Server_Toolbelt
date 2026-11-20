@@ -62,6 +62,14 @@ Syntaxtest ist kein nativer Hilfe- oder Gesamtinstallationsnachweis. Historische
 Fachbelege werden ausschließlich für den exakt verglichenen verbleibenden
 Fachpfad genutzt, niemals zur Abnahme der neuen Hilfeausgabe.
 
+Bei gruppierten Prozeduren bindet der Hilfeadapter die ausgewählte Identität
+an ihren eigenen `GO`-Batch. Benachbarte Hilfezweige und lokale CREATE-TABLE-
+Anweisungen im Fachpfad werden nicht als neue Prozedurdeklaration behandelt.
+Kommentar und Hilfe müssen zur gleichen Prozedur gehören; verwaiste Marker
+außerhalb einer Prozedur oder ein zum Nachbarn verschobener Skill werden
+zurückgewiesen. Die Prüfung einer bisherigen Dateisystem-Deklaration ist
+ausschließlich ein Parsernachweis und keine Freigabe von Dateioperationen.
+
 Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine
 Ausführungsautorität. Private Pakete, Serverdaten, Zugangsdaten und echte
