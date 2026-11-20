@@ -47,7 +47,7 @@ def generate(write=True):
     for i, c in enumerate(api["columns"], 1): rows.append(("RESULT_COLUMN", i, c["name"], c["type"], True, c["nullable"], None, c["description"], None))
     for entry in v2["help"]: rows.append((entry["section"], entry["ordinal"], None, None, None, None, None, entry["description"], entry.get("exampleSql")))
     rows += [("EXAMPLE", 1, None, None, None, None, None, "Reine Hilfe ohne Paket oder Katalogprüfung.", "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;"),
-             ("PERMISSION", 1, None, None, None, None, None, "CALLER; EXECUTE und vollständige Katalogsicht der ausdrücklich erlaubten Datenbanken. Keine Rechtevergabe.", None),
+             ("PERMISSION", 1, None, None, None, None, None, "CALLER; EXECUTE auf die API. CatalogMode=package benötigt keine Quellkatalogsicht; catalog verlangt vollständige Metadatensicht der ausgewählten Datenbanken. ResultTable und spätere SQL-Ausführung benötigen eigene Rechte. Keine Rechtevergabe.", None),
              ("LIMITATION", 1, None, None, None, None, None, "Windows SQL Server 2019/2022/2025; UNSAFE/ScriptDom. NOLOCK erlaubt Dirty Reads und garantiert keine Sperrfreiheit. Keine Ausführung von Paket-SQL.", None)]
     values = ",\n".join("(" + ",".join(help_literal(value, i in (7, 8)) for i, value in enumerate(row)) + ")" for row in rows)
     help_sql = """SELECT CONVERT(varchar(16),'1.0') AS HelpContractVersion,
@@ -67,8 +67,8 @@ FROM (VALUES
 -- Vertrag: SSIS_CURRENT_API_CONTRACT.md; USP_CONTRACT1.0; Version1.0.0.
 -- Parameter/Resultset: vollständig in Contracts/Api.json und @Hilfe=1.
 -- Aktuelle Ergänzungen: schema-validiertes Contracts/ComponentsV2.json Help-Overlay.
--- Dependencies: Parser exakt2.0.1 mit gepinntem ScriptDom; ResultTable>=1.0.0.
--- Rechte: CALLER, EXECUTE; explizite Same-instance-Katalogvollsicht.
+-- Dependencies: private Toolbelt-ScriptDom-Assembly; ResultTable-Helper nur bei ResultTable.
+-- Rechte: CALLER, EXECUTE; Katalogvollsicht nur bei CatalogMode=catalog.
 -- Plattform: Windows SQL Server2019/2022/2025 CL150/160/170; UNSAFE.
 -- Fehler:50000/TBX_SSISDBG_; keine fachliche Teilresultatausgabe bei globalem Fehler.
 -- Performance: endliches Import-/AST-/Katalog-/Ausgabebudget; kein harter Watchdog.
@@ -87,7 +87,7 @@ GO
     # SQL CLR erlaubt bei LOB-Parametern auch kein DEFAULT NULL. Die Fassade
     # übergibt stets alle Argumente einschließlich expliziter NULLs.
     internal_signature = ",\n".join("    " + p["name"] + " " + ("n" + p["type"] if p["type"].startswith("varchar(") else p["type"]) + ("" if "(max)" in p["type"] else " = " + ("NULL" if p["default"] == "NULL" else literal(p["default"]) if p["type"].startswith("varchar") else p["default"])) for p in api["parameters"])
-    internal = header.format(suffix="Internal", kind="interne CLR-USP mit Unicodebindung und gleichem Standardtail") + "CREATE OR ALTER PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlowInternal\n" + internal_signature + "\nAS EXTERNAL NAME [Toolbelt_Tsql_SsisDebug].[Toolbelt.Tsql.SsisDebug.SsisDebugProvider].[ExplainSsisDataFlow];\nGO\n"
+    internal = header.format(suffix="Internal", kind="interne CLR-USP mit Unicodebindung und gleichem Standardtail") + "CREATE OR ALTER PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlowInternal\n" + internal_signature + "\nAS EXTERNAL NAME [tlblt_Tsql_SsisDebug].[Toolbelt.Tsql.SsisDebug.SsisDebugProvider].[ExplainSsisDataFlow];\nGO\n"
     internal_help_sql = help_sql.replace("CONVERT(varchar(256),v.SqlDataType) AS SqlDataType", "CONVERT(varchar(256),CASE WHEN v.Section='PARAMETER' AND v.SqlDataType LIKE 'varchar(%' THEN 'n'+v.SqlDataType ELSE v.SqlDataType END) AS SqlDataType")
     internal_help_sql = internal_help_sql.replace("CONVERT(bit,v.IsRequired)", "CONVERT(bit,CASE WHEN v.Section='PARAMETER' AND v.SqlDataType IN('nvarchar(max)','varbinary(max)') THEN 1 ELSE v.IsRequired END)").replace("CONVERT(nvarchar(4000),v.DefaultValue)", "CONVERT(nvarchar(4000),CASE WHEN v.Section='PARAMETER' AND v.SqlDataType IN('nvarchar(max)','varbinary(max)') THEN NULL ELSE v.DefaultValue END)")
     internal_help_sql = internal_help_sql.replace("CONVERT(nvarchar(max),v.Description) AS Description",

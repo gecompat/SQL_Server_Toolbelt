@@ -9,7 +9,9 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$pin = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
+. (Join-Path $PSScriptRoot '../../../../Scripts/Clr/Resolve-ToolbeltScriptDom.ps1')
+$ScriptDomDllPath=Resolve-ToolbeltScriptDom -Path $ScriptDomDllPath
+$pin = '634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813'
 $manifest = Get-Content -LiteralPath $TrustManifestPath -Raw | ConvertFrom-Json
 if ($manifest.moduleVersion -cne '2.0.1' -or $manifest.buildProfile -cne 'net48-anycpu-release-deterministic') { throw 'RELEASE_PROFILE_MISMATCH' }
 $sourceEntries = @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File |
@@ -37,7 +39,7 @@ $harnessEntries = @(Get-ChildItem -LiteralPath $PSScriptRoot -File | Sort-Object
 $harnessFingerprint = Get-Fingerprint $harnessEntries
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltParserFramework-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tempRoot | Out-Null
-[IO.File]::Copy($ScriptDomDllPath, (Join-Path $tempRoot 'Microsoft.SqlServer.TransactSql.ScriptDom.dll'))
+[IO.File]::Copy($ScriptDomDllPath, (Join-Path $tempRoot 'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll'))
 [IO.File]::Copy($ProviderAssemblyPath, (Join-Path $tempRoot 'Toolbelt.Tsql.ScriptParser.dll'))
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 $guardExe = Join-Path $tempRoot 'GuardTests.exe'

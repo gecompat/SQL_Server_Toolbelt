@@ -1239,11 +1239,17 @@ SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;'
 */
 
 -- toolbelt_tsql.USP_ExplainSsisDataFlow
--- Aktuelle DTSX-Debuganalyse ohne Profil-Opt-in; editierbare typisierte JSON-Vorlage mit Entwurfswerten und Herkunft, vollständiger Strukturpfad und geordnete DebugScript-Batches für auflösbare Ziele. Ressourcen über benannte SQL-Parameter; keine SSIS-/Quell-SQL-Ausführung während der Analyse. Teilweise validiert und unveröffentlicht.
+-- Debug-SQL aus DTSX-XML, Paketdefaults und optionalen JSON-Startwerten. Standardmäßig paketbasierter Entwurf ohne Quellkatalogzugriff; CatalogMode=catalog wählt strengere Prüfung. Keine automatische Paket-/SQL-Ausführung.
 -- Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.
 -- Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON. Nur values der vollständigen Bindings-Vorlage bearbeiten.
 /* Separat auswählen und ausführen:
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
+*/
+
+/* Separat auswählen und ausführen:
+-- Vollständiges DTSX-XML als Clientparameter übergeben.
+DECLARE @DtsxXml nvarchar(max)=NULL;
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageXml=@DtsxXml;
 */
 
 /* Separat auswählen und ausführen:

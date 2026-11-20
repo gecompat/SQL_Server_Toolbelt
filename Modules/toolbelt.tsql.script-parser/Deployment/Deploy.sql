@@ -71,14 +71,14 @@ FROM sys.assemblies AS a
 INNER JOIN sys.assembly_files AS af
     ON af.assembly_id = a.assembly_id
    AND af.file_id = 1
-WHERE a.name = N'Toolbelt_Tsql_ScriptParser';
+WHERE a.name = N'tlblt_Tsql_ScriptParser';
 
 SELECT @InstalledScriptDomAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
 FROM sys.assemblies AS a
 INNER JOIN sys.assembly_files AS af
     ON af.assembly_id = a.assembly_id
    AND af.file_id = 1
-WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
+WHERE a.name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom';
 
 IF @InstalledScriptDomAssemblyHash IS NOT NULL
    AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
@@ -94,7 +94,7 @@ IF @InstalledScriptDomAssemblyHash IS NOT NULL
               INNER JOIN sys.extended_properties AS moduleId
                 ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0
                AND moduleId.name = N'Toolbelt.ModuleId'
-              WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+              WHERE a.name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom'
                 AND TRY_CONVERT(nvarchar(128), moduleId.value) = N'toolbelt.tsql.script-parser'
           )
        OR EXISTS
@@ -102,30 +102,30 @@ IF @InstalledScriptDomAssemblyHash IS NOT NULL
               SELECT 1
               FROM sys.assembly_references AS r
               WHERE r.referenced_assembly_id =
-                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom')
                 AND r.assembly_id <>
-                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
           )
        OR EXISTS
           (
               SELECT 1
               FROM sys.assembly_modules
               WHERE assembly_id =
-                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom')
           )
        OR EXISTS
           (
               SELECT 1
               FROM sys.assembly_references AS r
               WHERE r.referenced_assembly_id =
-                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
           )
        OR EXISTS
           (
               SELECT 1
               FROM sys.assembly_modules AS m
               WHERE m.assembly_id =
-                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
                 AND m.object_id NOT IN
                     (SELECT o.object_id
                      FROM sys.objects AS o
@@ -173,14 +173,14 @@ IF @InstalledScriptDomAssemblyHash IS NOT NULL
           ON managed.class = 5 AND managed.major_id = a.assembly_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
         LEFT JOIN sys.extended_properties AS moduleId
           ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
-        WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+        WHERE a.name = N'tlblt_Tsql_ScriptParser'
           AND (@InstalledVersion IS NULL OR TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
                OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL
                OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'))
         THROW 53118, N'Die Provider-Assembly besitzt keine kohärente ScriptParser-Ownership.', 2;
 
     IF @InstalledVersion IS NOT NULL
-       AND (NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+       AND (NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
             OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id = SCHEMA_ID(N'toolbelt_tsql')
                 AND name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')) <> 4)
         THROW 53118, N'Der markierte ScriptParser-Modulbestand ist unvollständig.', 3;
@@ -239,14 +239,14 @@ BEGIN TRY
           ON managed.class = 5 AND managed.major_id = a.assembly_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
         LEFT JOIN sys.extended_properties AS moduleId
           ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
-        WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+        WHERE a.name = N'tlblt_Tsql_ScriptParser'
           AND (@InstalledVersion IS NULL OR TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
                OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL
                OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'))
         THROW 53118, N'Die Provider-Assembly besitzt keine kohärente ScriptParser-Ownership.', 2;
 
     IF @InstalledVersion IS NOT NULL
-       AND (NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+       AND (NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
             OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id = SCHEMA_ID(N'toolbelt_tsql')
                 AND name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')) <> 4)
         THROW 53118, N'Der markierte ScriptParser-Modulbestand ist unvollständig.', 3;
@@ -260,10 +260,10 @@ BEGIN TRY
     SET @InstalledScriptDomAssemblyHash = NULL;
     SELECT @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
     FROM sys.assemblies AS a INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
-    WHERE a.name = N'Toolbelt_Tsql_ScriptParser';
+    WHERE a.name = N'tlblt_Tsql_ScriptParser';
     SELECT @InstalledScriptDomAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
     FROM sys.assemblies AS a INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
-    WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
+    WHERE a.name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom';
     IF @InstalledScriptDomAssemblyHash IS NOT NULL
        AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
        AND
@@ -278,7 +278,7 @@ BEGIN TRY
                   INNER JOIN sys.extended_properties AS moduleId
                     ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0
                    AND moduleId.name = N'Toolbelt.ModuleId'
-                  WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+                  WHERE a.name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom'
                     AND TRY_CONVERT(nvarchar(128), moduleId.value) = N'toolbelt.tsql.script-parser'
               )
            OR EXISTS
@@ -286,30 +286,30 @@ BEGIN TRY
                   SELECT 1
                   FROM sys.assembly_references AS r
                   WHERE r.referenced_assembly_id =
-                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom')
                     AND r.assembly_id <>
-                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
               )
            OR EXISTS
               (
                   SELECT 1
                   FROM sys.assembly_modules
                   WHERE assembly_id =
-                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom')
               )
            OR EXISTS
               (
                   SELECT 1
                   FROM sys.assembly_references AS r
                   WHERE r.referenced_assembly_id =
-                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
               )
            OR EXISTS
               (
                   SELECT 1
                   FROM sys.assembly_modules AS m
                   WHERE m.assembly_id =
-                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'tlblt_Tsql_ScriptParser')
                     AND m.object_id NOT IN
                         (SELECT o.object_id
                          FROM sys.objects AS o
@@ -344,9 +344,9 @@ BEGIN TRY
     IF @InstalledScriptDomAssemblyHash IS NOT NULL
        AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
     BEGIN
-        DROP ASSEMBLY [Toolbelt_Tsql_ScriptParser];
+        DROP ASSEMBLY [tlblt_Tsql_ScriptParser];
         DECLARE @AlterScriptDomDdl nvarchar(max) =
-            N'ALTER ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom] FROM '
+            N'ALTER ASSEMBLY [tlblt.Microsoft.SqlServer.TransactSql.ScriptDom] FROM '
             + CONVERT(nvarchar(max), @ScriptDomAssemblyBits, 1)
             + N' WITH PERMISSION_SET = UNSAFE;';
         EXEC sys.sp_executesql @AlterScriptDomDdl;
@@ -355,19 +355,19 @@ BEGIN TRY
 
     IF @InstalledAssemblyHash IS NULL
     BEGIN
-        IF NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+        IF NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom')
         BEGIN
             DECLARE @CreateScriptDomDdl nvarchar(max) =
-                N'CREATE ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom] FROM '
+                N'CREATE ASSEMBLY [tlblt.Microsoft.SqlServer.TransactSql.ScriptDom] FROM '
                 + CONVERT(nvarchar(max), @ScriptDomAssemblyBits, 1)
                 + N' WITH PERMISSION_SET = UNSAFE;';
             EXEC sys.sp_executesql @CreateScriptDomDdl;
             EXEC sys.sp_addextendedproperty
                   @name = N'Toolbelt.ModuleId', @value = N'toolbelt.tsql.script-parser'
-                , @level0type = N'ASSEMBLY', @level0name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
+                , @level0type = N'ASSEMBLY', @level0name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom';
         END
         DECLARE @CreateAssemblyDdl nvarchar(max) =
-            N'CREATE ASSEMBLY [Toolbelt_Tsql_ScriptParser] FROM '
+            N'CREATE ASSEMBLY [tlblt_Tsql_ScriptParser] FROM '
             + CONVERT(nvarchar(max), @AssemblyBits, 1)
             + N' WITH PERMISSION_SET = UNSAFE;';
         EXEC sys.sp_executesql @CreateAssemblyDdl;
@@ -375,7 +375,7 @@ BEGIN TRY
     ELSE IF @InstalledAssemblyHash <> @AssemblyHash
     BEGIN
         DECLARE @AlterAssemblyDdl nvarchar(max) =
-            N'ALTER ASSEMBLY [Toolbelt_Tsql_ScriptParser] FROM '
+            N'ALTER ASSEMBLY [tlblt_Tsql_ScriptParser] FROM '
             + CONVERT(nvarchar(max), @AssemblyBits, 1) + N';';
         EXEC sys.sp_executesql @AlterAssemblyDdl;
     END;
@@ -434,30 +434,30 @@ BEGIN TRY
            SELECT 1 FROM sys.extended_properties AS ep
            INNER JOIN sys.assemblies AS a ON a.assembly_id = ep.major_id
            WHERE ep.class = 5 AND ep.name = N'Toolbelt.Managed'
-             AND a.name = N'Toolbelt_Tsql_ScriptParser'
+             AND a.name = N'tlblt_Tsql_ScriptParser'
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.Managed', @value = 1
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_Tsql_ScriptParser';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_Tsql_ScriptParser';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Managed', @value = 1
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_Tsql_ScriptParser';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_Tsql_ScriptParser';
 
     IF EXISTS
        (
            SELECT 1 FROM sys.extended_properties AS ep
            INNER JOIN sys.assemblies AS a ON a.assembly_id = ep.major_id
            WHERE ep.class = 5 AND ep.name = N'Toolbelt.ModuleId'
-             AND a.name = N'Toolbelt_Tsql_ScriptParser'
+             AND a.name = N'tlblt_Tsql_ScriptParser'
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.ModuleId', @value = N'toolbelt.tsql.script-parser'
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_Tsql_ScriptParser';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_Tsql_ScriptParser';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.ModuleId', @value = N'toolbelt.tsql.script-parser'
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_Tsql_ScriptParser';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_Tsql_ScriptParser';
 
     DECLARE @FunctionName sysname;
     DECLARE FunctionCursor CURSOR LOCAL FAST_FORWARD FOR

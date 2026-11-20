@@ -1,51 +1,41 @@
 # SSIS Data Flow Debug SELECT
 
-Dieses Modul erzeugt aus DTSX-Paketbytes eine bearbeitbare JSON-Bindungsvorlage
-und lesende Debug-Skripte fÃ¼r unterstÃ¼tzte SQL-Server-DatenflÃ¼sse. Es hilft,
-einen ausgewÃ¤hlten Datenflusspfad zu erklÃ¤ren und seine Abfrage nachvollziehbar
-zu prÃ¼fen. Es ist keine vollstÃ¤ndige SSIS-Runtime; beliebige Paketklassen oder
-Schreib-/AusfÃ¼hrungspfade werden nicht pauschal unterstÃ¼tzt.
+Dieses Modul erzeugt aus DTSX-XML lesende Debug-Skripte für unterstützte
+SQL-Server-Datenflüsse. Ein XML-Aufruf verwendet Paketdefaults und löst
+Connection-Expressions auf. Es ist keine vollständige SSIS-Runtime und führt
+weder Pakete noch erzeugte Abfragen automatisch aus.
 
 ## Installation und erster Datenflusspfad
 
-1. FÃ¼r Neuinstallation den [gemeinsamen aktuellen Installer](../../INSTALL.md)
-   mit einem Windows-Profil wÃ¤hlen. Das Modul benÃ¶tigt SQL Server unter Windows,
-   CLR, die exakte Parser-/ScriptDom-Dependency und bewusst eingerichteten Trust.
-   Das Portable-Profil enthÃ¤lt den SQL-SSIS-Provider nicht.
-2. Die [API-Anleitung](Documentation/USP_ExplainSsisDataFlow.md) erklÃ¤rt den
-   vollstÃ¤ndigen synthetischen Aufruf: DTSX-Bytes bereitstellen, mit
-   `bindings-template` die JSON-Vorlage erzeugen, Quellen/Ziele bewusst binden
-   und mit `explain` den gewÃ¤hlten Pfad prÃ¼fen. Parameter, feste Werte,
-   Ergebnisse und Fehler stehen dort; `@Hilfe=1` ergÃ¤nzt die installierte Hilfe.
-3. Das Ergebnis anhand des aufgelÃ¶sten Zielpfads und seiner Diagnosen beurteilen.
-   Nur ein unterstÃ¼tzter vollstÃ¤ndig auflÃ¶sbarer Pfad liefert den vorgesehenen
-   `DebugScript`-Umfang. SQL vor bewusster AusfÃ¼hrung prÃ¼fen; ein Modell oder
-   Scripttext ist noch keine erfolgte SSIS-PaketausfÃ¼hrung.
-4. FÃ¼r Wiederverwendung des freigegebenen Derived-Column-Pfads den
-   [typisierten Prozedurvertrag](Documentation/USP_ExplainSsisDataFlow.md#geprÃ¼ften-zielpfad-als-prozedur-wiederverwenden)
-   beachten. Copy Column hat [eigene Grenzen und Beispiele](Documentation/CopyColumnV1.md)
-   und erweitert nicht automatisch den Prozedurdefinitionsumfang.
+Der aktuelle Quellstand nimmt vollständiges DTSX als `@PackageXml` entgegen.
+Paketdefaults, Startwerte und Connection-Expressions werden lokal aufgelöst.
+Die [Kurzanleitung](Documentation/SimpleInstallation.md) führt vom normalen
+SQL-Installer ohne SQLCMD bis zum XML-Aufruf, lokal oder zentral. Sie erklärt
+auch die drei Trustwege und Wiederholung ohne Extended Properties.
 
-| Ich mÃ¶chte â€¦ | NÃ¤chste Seite |
+```sql
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageXml=@DtsxXml;
+```
+
+Standard ist `CatalogMode=package`: ein Debugentwurf ohne Quellkatalogzugriff,
+mit `SafetyStatus=not_checked` und `IsExecutable=0`. Vor manueller Ausführung
+prüfen. `CatalogMode=catalog` ergänzt reale Metadatenprüfung; die ausführliche
+[API-Referenz](Documentation/USP_ExplainSsisDataFlow.md) beschreibt deren Rechte
+und die weiterhin verfügbare Binding-Vorlage. Paket und SQL werden während der
+Analyse niemals ausgeführt.
+
+Die veröffentlichten Vorabreleases bis rc.4 und deren gemeinsame Installer
+bleiben unverändert. Sie enthalten diesen neuen Vertrag noch nicht. Die
+markerbasierten Lifecycle-Skripte sind kein Upgrade-/Uninstallweg für die neue
+markerlose Installation. Details dazu stehen in der Kurzanleitung.
+
+| Ich möchte … | Nächste Seite |
 |---|---|
-| Bindungen, Parameter, Resultsets und Fehler verstehen | [Ã–ffentliche API](Documentation/USP_ExplainSsisDataFlow.md) |
-| Komponenten und Ressourcenlimits nachschlagen | [Aktueller Fachvertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md) |
-| Das neutrale Modell auÃŸerhalb SQL Servers exportieren | [Windows-/Linux-Modellhost](Exchange/README.md) â€” eigener Hostvertrag, kein Linux-SQL-CLR-Provider |
-| Eine bestehende Installation Ã¤ndern oder entfernen | [Modul-Lifecycle und Deployment](../../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md) |
-| Nachweise und nicht geprÃ¼fte UmfÃ¤nge beurteilen | [PrÃ¼fÃ¼bersicht](Tests/README.md) |
-| Ein frÃ¼heres Standalone-Paket nachvollziehen | [Gebundene Einzelpakete](InstallPackages/README.md) |
-
-## Nachweisgrenzen und historische Lieferungen
-
-Der gemeinsame Installer besitzt eine [eigene Installationsabnahme](../../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md).
-Sie qualifiziert seine Komposition und Hilfe, nicht alle ursprÃ¼nglichen
-GUI-/TLS-/SicherheitsfÃ¤lle fÃ¼r neue Providerbytes. Die frÃ¼heren Standalone-ZIPs
-und Records bleiben an ihre Originalbinaries gebunden. Der
-[historische Modulleitfaden](../../Documentation/History/SSIS_MODULE_GUIDE_2026-11-17.md)
-erhÃ¤lt die bisherigen ausfÃ¼hrlichen Build- und Abnahmenotizen. Das Modul bleibt
-teilweise validiert und unverÃ¶ffentlicht. Bei Installationsfehlern zuerst die
-[FehlerklÃ¤rung](../../INSTALL.md#wenn-etwas-nicht-funktioniert) lesen; bei
-Pfad-/Komponentenproblemen zur API-Diagnose und zum Fachvertrag zurÃ¼ckgehen.
+| Installieren, XML übergeben und Debug-SQL lesen | [Kurzanleitung](Documentation/SimpleInstallation.md) |
+| Parameter, Resultsets und Fehler verstehen | [API-Referenz](Documentation/USP_ExplainSsisDataFlow.md) |
+| Komponenten und Grenzen nachschlagen | [Fachvertrag](../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md) |
+| Neutrales Modell außerhalb SQL Servers exportieren | [Modellhost](Exchange/README.md) |
+| Historische und neue Nachweise unterscheiden | [Prüfübersicht](Tests/README.md) |
 
 ## Aktuelle Validierungsevidenz
 

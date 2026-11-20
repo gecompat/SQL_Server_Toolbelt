@@ -1,5 +1,11 @@
 # Toolbelt installieren und zum ersten Mal verwenden
 
+Für den neuen, noch nicht veröffentlichten SSIS-Quellstand gibt es eine
+[vereinfachte SQL-Installation und den XML-Komfortaufruf](Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
+Die folgenden gemeinsamen veröffentlichten Installer bis rc.4 bleiben an ihre
+Originalartefakte gebunden; sie enthalten diese neue Funktion noch nicht.
+
+
 Der aktuelle **Vorabrelease v1.0.0-rc.4** enthält den Ein-Aufruf-Installer und
 seine vollständige SQL-Basis. Lade den [Installationssatz](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip)
 mit [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip.sha256),

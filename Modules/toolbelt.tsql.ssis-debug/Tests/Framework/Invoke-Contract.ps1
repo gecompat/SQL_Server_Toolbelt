@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
-    [ValidateSet('Focused','Full','CopyColumn','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation','ProcedureDefinition')][string]$Profile = 'Full',
+    [ValidateSet('Focused','Full','CopyColumn','ComponentsV2','ComponentsV2Import','ComponentsV2Translate','ComponentsV2Remainder','ComponentsV2Branch','ComponentsV2Utf8Collation','ProcedureDefinition','Simplicity')][string]$Profile = 'Full',
     [string]$EvidencePath,
     [string]$ResourceProbePath,
     [ValidateSet('V1','V2')][string]$ResourceProbeProfile = 'V1',
@@ -15,8 +15,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $workspaceRoot = (Resolve-Path (Join-Path $moduleRoot '../..')).Path
+. (Join-Path $workspaceRoot 'Scripts/Clr/Resolve-ToolbeltScriptDom.ps1')
+$ScriptDomDllPath=Resolve-ToolbeltScriptDom -Path $ScriptDomDllPath
 . (Join-Path $workspaceRoot 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1')
-$expectedDom = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
+$expectedDom = '634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813'
 if ((Get-FileHash -LiteralPath $ScriptDomDllPath -Algorithm SHA512).Hash -cne $expectedDom) { throw 'SSIS_SCRIPT_DOM_PIN_MISMATCH' }
 $providerHash = (Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA512).Hash
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltSsisFramework-' + [guid]::NewGuid().ToString('N'))
@@ -26,7 +28,7 @@ Copy-Item -LiteralPath $ScriptDomDllPath -Destination $tempRoot
 Copy-Item -LiteralPath $ProviderAssemblyPath -Destination $tempRoot
 $executable = Join-Path $tempRoot 'Toolbelt.Tsql.SsisDebug.Tests.exe'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$compilerArguments = @('/nologo','/optimize+','/target:exe',"/out:$executable",'/reference:System.Data.dll','/reference:System.Core.dll','/reference:System.Xml.dll','/reference:System.Xml.Linq.dll',"/reference:$ScriptDomDllPath","/reference:$ProviderAssemblyPath",(Join-Path $PSScriptRoot 'ContractTests.cs'),(Join-Path $PSScriptRoot 'CopyColumnTests.cs'))
+$compilerArguments = @('/nologo','/optimize+','/target:exe',"/out:$executable",'/reference:System.Data.dll','/reference:System.Core.dll','/reference:System.Xml.dll','/reference:System.Xml.Linq.dll',"/reference:$ScriptDomDllPath","/reference:$ProviderAssemblyPath",(Join-Path $PSScriptRoot 'ContractTests.cs'),(Join-Path $PSScriptRoot 'CopyColumnTests.cs'),(Join-Path $PSScriptRoot 'SimplicityTests.cs'))
 $compilerResult = Invoke-OwnedProcess -FileName $compiler -Arguments $compilerArguments -TimeoutMilliseconds 120000
 if ($compilerResult.ExitCode -ne 0) { throw ('SSIS_HARNESS_BUILD_FAILED: ' + $compilerResult.Stderr + $compilerResult.Stdout) }
 $cases = 0
@@ -44,6 +46,11 @@ function Invoke-Case([string[]]$Arguments,[string]$ExpectedPattern = '\ASSIS_FRA
         if (-not $child.WaitForExit($TimeoutMilliseconds)) { $child.Kill(); throw ('SSIS_FRAMEWORK_CHILD_TIMEOUT ordinal={0} name={1}' -f $caseOrdinal,$caseName) }
         $output = $stdout.GetAwaiter().GetResult(); $errorOutput = $stderr.GetAwaiter().GetResult()
         if ($child.ExitCode -ne 0 -or $output.Length -gt 4096 -or $errorOutput.Length -gt 16384 -or $output -notmatch $ExpectedPattern -or $errorOutput.Length -ne 0) {
+            if ($Profile -eq 'Simplicity') {
+                $privateRoot = Join-Path $workspaceRoot '.runtime/simplified-installation-dtsx'
+                [IO.Directory]::CreateDirectory($privateRoot) | Out-Null
+                [IO.File]::WriteAllText((Join-Path $privateRoot 'framework-failure.private.log'),$output+"`n"+$errorOutput,[Text.UTF8Encoding]::new($false))
+            }
             if (($Profile -eq 'ComponentsV2Remainder' -or $Profile -eq 'ComponentsV2Translate' -or $Profile -eq 'CopyColumn') -and $errorOutput -match '(?m)(?:System\.)?Exception: ([A-Z][A-Z0-9_]+)') {
                 throw ('SSIS_FRAMEWORK_CHILD_FAILED ordinal={0} name={1} assertion={2}' -f $caseOrdinal,$caseName,$Matches[1])
             }
@@ -60,6 +67,13 @@ function Remove-FrameworkTemp {
     if (-not $resolved.StartsWith($tempBase,[StringComparison]::OrdinalIgnoreCase) -or $item.Name -notmatch '\AToolbeltSsisFramework-[0-9a-f]{32}\z' -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'SSIS_FRAMEWORK_TEMP_SCOPE' }
     if (Get-ChildItem -LiteralPath $resolved -Force -Recurse | Where-Object { ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 }) { throw 'SSIS_FRAMEWORK_TEMP_REPARSE' }
     Remove-Item -LiteralPath $resolved -Recurse -Force
+}
+if ($Profile -eq 'Simplicity') {
+    try {
+        Invoke-Case @('simplicity',(Join-Path $moduleRoot 'Tests/Fixtures/procedure-8.dtsx'))
+        "SSIS_FRAMEWORK_PASS $cases bounded children"
+        return
+    } finally { Remove-FrameworkTemp }
 }
 if ($ResourceProbePath) {
     $probeFile = Get-Item -LiteralPath $ResourceProbePath -Force -ErrorAction Stop

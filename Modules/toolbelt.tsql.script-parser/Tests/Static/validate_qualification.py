@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -68,9 +69,24 @@ def validate(record: dict) -> None:
         require(record["methodSources"][path] == actual, "METHOD_DRIFT")
 
 
+def validate_historical(record):
+    """The private-identity build is new; never accept the old native record for it."""
+    global ROOT, REPOSITORY
+    previous = ROOT, REPOSITORY
+    sys.path.insert(0, str(REPOSITORY / "Tests/Release"))
+    from ssis_historical_context import historical_root
+    snapshot = historical_root(REPOSITORY, "75d42047557d06b82777ba0c860e90f44247920e")
+    try:
+        ROOT = snapshot / "Modules/toolbelt.tsql.script-parser"
+        REPOSITORY = snapshot
+        validate(record)
+    finally:
+        ROOT, REPOSITORY = previous
+
+
 def main() -> None:
     record = json.loads(RECORD.read_text(encoding="utf-8"))
-    validate(record)
+    validate_historical(record)
     mutations = [
         lambda r: r.update(publicationAuthorized=True),
         lambda r: r.update(historicalFailuresPreserved=False),
@@ -89,11 +105,11 @@ def main() -> None:
         bad = copy.deepcopy(record)
         mutate(bad)
         try:
-            validate(bad)
+            validate_historical(bad)
         except (ValueError, KeyError):
             continue
         raise AssertionError("PARSER_QUALIFICATION_MUTANT_ACCEPTED")
-    print("PARSER_QUALIFICATION_PASS 12 rejected false-claim/drift mutants")
+    print("PARSER_HISTORICAL_QUALIFICATION_PASS 12 rejected mutants; no private-identity build acceptance")
 
 
 if __name__ == "__main__":

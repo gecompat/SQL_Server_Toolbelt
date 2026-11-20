@@ -1,5 +1,7 @@
 # Lokale Installation für das SSMS-Beispiel
 
+Für den aktuellen Quellstand gilt die [vereinfachte Installation](../../Documentation/SimpleInstallation.md) ohne SQLCMD und Extended Properties. Die folgenden Paket-/Lifecycleabläufe beziehen sich auf ihre gebundenen bisherigen Artefakte. Für streng kataloggebundene Beispielaufrufe im neuen Build `@CatalogMode='catalog'` angeben.
+
 Diese Anleitung installiert den aktuellen Entwicklungsstand in einer eigenen
 Demodatenbank. Sie verwendet die kanonischen Lifecycle-/Trustskripte und
 ändert weder öffentliche SQL-Verträge noch Versions-/Dependencypins. Die

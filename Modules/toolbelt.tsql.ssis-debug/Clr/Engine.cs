@@ -21,6 +21,10 @@ namespace Toolbelt.Tsql.SsisDebug
         private static Artifacts AnalyzeCore(byte[] bytes, Options options, ICatalog catalog, Budget budget)
         {
             if (bytes == null) throw new DebugFault("unresolved_binding", "PackageBytes erforderlich.");
+            if (options.CatalogMode != "package" && options.CatalogMode != "catalog")
+                throw new DebugFault("invalid_template", "CatalogMode muss package oder catalog sein.");
+            if (options.CatalogMode == "package" && options.ProcedureDefinition)
+                throw new DebugFault("missing_context", "ProcedureDefinition benötigt die optionale Katalogabnahme.");
             if (options.Operation != "bindings-template" && options.Operation != "explain" && !options.ProcedureDefinition)
                 throw new DebugFault("unresolved_binding", "Operation muss bindings-template, explain oder procedure-definition sein.");
             ProcedureDefinition.ValidateOptions(options);
@@ -40,7 +44,7 @@ namespace Toolbelt.Tsql.SsisDebug
             if (options.BindingProfile != null && options.BindingProfile != "ssis-debug-components-v2") throw new DebugFault("invalid_template", "Bindingprofil muss ssis-debug-components-v2 sein.");
             budget.Limits = options.Limits;
             long jsonBytes = 0;
-            foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies })
+            foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies, options.StartValues })
             {
                 if (json == null) continue;
                 options.Limits.Check("jsonDocumentBytes", (long)json.Length * 2);
@@ -49,9 +53,12 @@ namespace Toolbelt.Tsql.SsisDebug
             options.Limits.Check("allJsonBytes", jsonBytes);
             var output = new Artifacts(options.Limits); Package package = PackageReader.Read(bytes, budget, componentsV2, options.Limits);
             if (package.Profile == "unsupported") { output.Diagnostic("unsupported_package_format", null, "Wohlgeformtes Paket ohne unterstütztes DTSX2-Formatprofil 6/8."); return output; }
+            PackageCatalog packageCatalog = null;
+            if (options.CatalogMode == "package") catalog = packageCatalog = new PackageCatalog(package, options, budget);
             var bindings = new Bindings(package, options, catalog, output);
             if (options.Operation == "bindings-template")
             { output.Add(new Artifact { Kind = "BindingsTemplate", Content = Json.Write(bindings.Template(), options.Limits) }); return output; }
+            if (packageCatalog != null) packageCatalog.Bind(bindings);
             var workflow = Json.Obj("formatProfile", package.Profile, "tasks", package.Workflow, "dataFlows", package.Flows.Select(f => (object)Json.Obj("id", f.Id, "name", f.Name, "paths", f.Paths.Select(p => (object)Json.Obj("from", p.Value, "to", p.Key)).ToList())).ToList());
             if (componentsV2)
             {
@@ -67,7 +74,9 @@ namespace Toolbelt.Tsql.SsisDebug
             foreach (Input input in package.Inputs) if (input.SqlType != null) safety.VariableTypes.Add(input.SqlName, input.SqlType);
             safety.ExecutionDatabase = bindings.DefaultDatabase;
             new Translator(package, bindings, options, safety, catalog, output).Run();
-            safety.VerifyCatalog(); output.BindCatalog(safety.CatalogBinding()); budget.Check(); return output;
+            if (packageCatalog == null) { safety.VerifyCatalog(); output.BindCatalog(safety.CatalogBinding()); }
+            else PackageCatalog.MarkUnverified(output);
+            budget.Check(); return output;
         }
     }
 }

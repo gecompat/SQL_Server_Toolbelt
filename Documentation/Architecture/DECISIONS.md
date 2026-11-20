@@ -904,3 +904,30 @@ kein Foundation-Upgrade und keine Aktivierung optionaler Runtimes.
 | Auswirkungen | Die Ergebnisspalten bleiben je Definition fest. Der Betreiber prüft und verwaltet die Installation im eigenen Schema. Das Toolbelt-Modul deployt und entfernt diese Objekte nicht. Bestehende Paket- und Laufnachweise bleiben an ihre ursprünglichen Artefakte gebunden. |
 | Alternativen | Die Textkapselung des Mehrbatch-DebugScripts verletzt Batch- und Temp-Lebensdauer. Ein statischer Lese-Body kann bei gleicher Ownership die Prüfung von Quellrechten auslassen. |
 | Betroffene Verträge | [SSIS-Debug-Vertrag](SSIS_CURRENT_API_CONTRACT.md#parametrisierte-ablaufdefinition), [freigegebener V1-Vertrag](../../Backlog/TOOLBELT_CANDIDATES.md#vertrag-für-die-erste-umsetzung). |
+
+
+## Vereinfachte Installation und DTSX-Komfortaufruf — 2026-11-20
+
+Der Benutzer hat nach dem [dokumentierten Anforderungsabgleich](../../Backlog/INSTALLATION_AND_DTSX_SIMPLICITY.md)
+die Umsetzung ausdrücklich freigegeben. Erste kohärente Implementierung ist
+SSIS mit separater privater ScriptDom-Identität, normalem T-SQL-Installer ohne
+Extended Properties, optionalen Hash-/DB-Trustwegen und XML-only-Erzeugung.
+Die normale Erzeugung verwendet Paketmetadaten und behauptet keine geprüften
+Zielobjekte. Katalogabnahme und Prozedurdefinition bleiben explizite strengere
+Wege. Hashvergleich und Hashregistrierung sind getrennte Schritte; DB-Trust
+wird nie automatisch aktiviert. Vorhandene fremde Assemblies bleiben erhalten.
+SQL-Namenspräfixe allein reichen nicht für CLR-Versionsisolation: die native
+Gegenprobe mit originalen ScriptDom17/18 wurde von der Engine abgewiesen.
+Die reproduzierbare private Kopie verwendet Mono.Cecil nur beim Build; Lizenz,
+Originalbinary und Transformation sind gebunden. Kein Herausgebersigning der
+privaten Kopie behauptet. Das selektive Hashverfahren bleibt verfügbar.
+
+Verarbeitungsaufwand: Ein Verantwortlicher/ein Implementierungs-PR für diese
+Teilstufe, keine zusätzliche Reviewkette oder dauerhafte Runtimeverwaltung.
+Ein gemeinsamer endlicher nativer Rahmen umfasst auch Fehlversuche und frische
+Audits. Offlineprüfungen decken Expressions, Quellbindung, Ausgabeetiketten und
+Installerkontrolle ab; native Fälle die tatsächlich geänderten Trust-/Enginewege.
+Kein TLS-/GUI-/Paketgesamtumlauf ohne funktionale Notwendigkeit. Historische
+Releasebelege bleiben unverändert und qualifizieren keine geänderten Binaries.
+Die gemeinsame markerlose Installation weiterer Module ist ein Folgeumfang
+unter demselben Auftrag, keine bereits bestandene Gesamtumstellung.

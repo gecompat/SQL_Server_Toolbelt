@@ -31,7 +31,7 @@ RETURNS TABLE
     , HopsCount            int            NULL
 )
 AS EXTERNAL NAME
-    [Toolbelt_Tsql_ScriptParser]
+    [tlblt_Tsql_ScriptParser]
     .[Toolbelt.Tsql.ScriptParser.ScriptParserProvider]
     .[ResolveSynonyms];
 GO

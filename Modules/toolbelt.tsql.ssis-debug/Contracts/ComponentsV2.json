@@ -33,7 +33,7 @@
     {
       "section": "LIMITATION",
       "ordinal": 4,
-      "description": "DebugScript ist nur bei vollständigem Pfad und gebundenem SQL-Text ausführbar. Bei fehlendem Kontext nennt Workflow/StageIndex die Erstursache und verfügbare vollständige Teilpläne; SSIS-Aufgaben werden nicht ausgeführt."
+      "description": "IsComplete bezeichnet einen vollständig erzeugten Pfad. CatalogMode=package setzt SafetyStatus=not_checked und IsExecutable=false; der Anwender prüft den Entwurf vor Ausführung. CatalogMode=catalog prüft zusätzlich reale Metadaten. Keine Paket-/SQL-Ausführung während der Analyse."
     },
     {
       "section": "EXAMPLE",
@@ -51,7 +51,13 @@
       "section": "EXAMPLE",
       "ordinal": 4,
       "description": "Gebundene Parameterwerte verwenden und bei vollständigem Kontext das gesamte DebugScript ausgeben lassen.",
-      "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='explain',@Bindings=@Bindings,@CatalogBindings=@CatalogBindings;"
+      "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='explain',@Bindings=@Bindings,@CatalogBindings=@CatalogBindings,@CatalogMode='catalog';"
+    },
+    {
+      "section": "EXAMPLE",
+      "ordinal": 5,
+      "description": "Komfortaufruf mit vollständigem Unicode-DTSX und optionalen Startwerten.",
+      "exampleSql": "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageXml=@DtsxXml,@StartValues=N'{\"User::SourceFloor\":5}';"
     }
   ]
 }

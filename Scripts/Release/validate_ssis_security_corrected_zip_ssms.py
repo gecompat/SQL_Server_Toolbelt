@@ -83,5 +83,28 @@ def qualification_records(record=None,*,check_files=True):
 def validate(record=None,*,check_files=True):
     return qualification_records(record,check_files=check_files)[0]
 
+
+def historical_qualification_records(record=None, *, check_files=True):
+    """Validate the original 20261116 delivery, explicitly outside the new API build."""
+    global ROOT
+    import sys
+    sys.path.insert(0, str(ROOT / 'Tests/Release'))
+    from ssis_historical_context import historical_root
+    previous=ROOT
+    import validate_ssis_copy_column_tls_security as tls
+    previous_tls=tls.ROOT
+    snapshot=historical_root(ROOT,'75d42047557d06b82777ba0c860e90f44247920e')
+    try:
+        ROOT=snapshot
+        tls.ROOT=snapshot
+        return qualification_records(record,check_files=check_files)
+    finally:
+        ROOT=previous
+        tls.ROOT=previous_tls
+
+
+def validate_historical(record=None, *, check_files=True):
+    return historical_qualification_records(record,check_files=check_files)[0]
+
 if __name__=='__main__':
     validate();print('SSIS_CURRENT_ZIP_SSMS_QUALIFICATION_PASS; private originals retained; no SQL or GUI repetition')

@@ -1,5 +1,7 @@
 # Aktuellen SSIS-Debug-Stand installieren und verwenden
 
+Für den aktuellen Quellstand gilt die [vereinfachte Installation](SimpleInstallation.md) ohne SQLCMD und Extended Properties. Die folgenden Paket-/Lifecycleabläufe beziehen sich auf ihre gebundenen bisherigen Artefakte. Für streng kataloggebundene Beispielaufrufe im neuen Build `@CatalogMode='catalog'` angeben.
+
 ## Heutige Neuinstallation
 
 Für eine leere ausgewählte Testdatenbank den [gemeinsamen aktuellen Installer](../../../INSTALL.md)

@@ -1,11 +1,11 @@
 # Einfachere Assembly-Installation und DTSX-Debug-Erzeugung
 
-Status: Zukunftsanforderungen des Benutzers, erfasst am 2026-11-19 durch Codex.
-Dieser Plan ist keine Beschreibung des aktuellen Releases und kein Auftrag,
-jetzt Produktcode oder Sicherheitsstandards umzuschreiben. Konkrete API-,
-Migrations- und Implementierungsverträge werden anschließend einzeln festgelegt.
-Die vorherige Frage nach einem XML-Komfortaufruf ist hier aufgenommen; eine
-Umsetzung oder vollständige Runtimequalifikation wird nicht behauptet.
+Status: Umsetzung am 2026-11-20 durch ausdrücklichen Benutzerauftrag freigegeben.
+Die erste kohärente Teilstufe implementiert den SSIS-Komfortaufruf und dessen
+markerlosen SQL-Installer; [Vertrag und Anleitung](../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
+Die nachfolgenden Anforderungen bleiben als ursprünglicher Anforderungsabgleich
+erhalten. Die gemeinsame Umstellung aller Module ist noch nicht abgeschlossen.
+Historische Releaseartefakte werden weder ersetzt noch neu qualifiziert.
 
 ## Gewünschte Anwendererfahrung
 

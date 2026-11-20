@@ -46,7 +46,7 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 ## Plattform- und Providerbesonderheiten
 
 - **Plattform:** Windows (SQL Server 2019, 2022, 2025). SQL Server auf Linux unterstützt keine `UNSAFE`-Assemblies und ist nicht anwendbar.
-- **Assembly:** `Toolbelt_Tsql_ScriptParser` / `Toolbelt.Tsql.ScriptParser.dll`.
+- **Assembly:** `tlblt_Tsql_ScriptParser` / `Toolbelt.Tsql.ScriptParser.dll`.
 - **Trust:** Die Freigabe erfolgt über den exakten SHA2-512-Hash via `sys.sp_add_trusted_assembly` unter Beibehaltung von `clr strict security = 1`.
 
 ## Aktuelle Validierungsevidenz

@@ -4,7 +4,7 @@
   "moduleVersion": "1.0.0",
   "supportedPredecessors": [],
   "objects": [
-    {"type":"ASSEMBLY","name":"Toolbelt_Tsql_SsisDebug","visibility":"internal"},
+    {"type":"ASSEMBLY","name":"tlblt_Tsql_SsisDebug","visibility":"internal"},
     {"type":"P","schema":"toolbelt_tsql","name":"USP_ExplainSsisDataFlow","visibility":"public"},
     {"type":"PC","schema":"toolbelt_tsql","name":"USP_ExplainSsisDataFlowInternal","visibility":"internal"}
   ]

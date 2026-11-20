@@ -29,29 +29,27 @@ dependencies:
     minimum_version: "1.0.0"
     location: same_database
     reason: "Kanonischer ResultTable-Vertrag."
+build_dependencies:
   - module_id: "toolbelt.tsql.script-parser"
-    minimum_version: "2.0.1"
-    exact_version: "2.0.1"
-    location: same_database
-    reason: "Gemeinsamer Vorfilter als Buildquelle; exakte Parser-/ScriptDom-Binarypins."
+    reason: "Gemeinsamer PreparseGuardCore als Compilerquelle; keine SQL-Parser-TVFs zur Laufzeit erforderlich. Der historische Lifecycle besitzt einen separaten Parser-Preflight."
 schemas:
   - "toolbelt_tsql"
 objects:
-  - { type: ASSEMBLY, name: "Toolbelt_Tsql_SsisDebug", visibility: internal }
+  - { type: ASSEMBLY, name: "tlblt_Tsql_SsisDebug", visibility: internal }
   - { type: USP, schema: "toolbelt_tsql", name: "USP_ExplainSsisDataFlow", visibility: public }
   - { type: CLR_USP, schema: "toolbelt_tsql", name: "USP_ExplainSsisDataFlowInternal", visibility: internal }
 permissions_required:
-  - "EXECUTE auf die öffentliche Prozedur; expliziter Metadatenzugriff in den freigegebenen Datenbanken."
+  - "EXECUTE auf die öffentliche Prozedur; Metadatenzugriff nur bei CatalogMode=catalog."
   - "SELECT auf die Quellen erst beim manuellen Ausführen des generierten SQL."
-  - "Administrativer Opt-in des exakten SHA2-512-Releasehashs; keine automatische Rechtevergabe."
+  - "Bei Installation exakte Hashfreigabe oder vorhandener berechtigter DB-Trust; keine automatische Rechtevergabe."
 clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_Tsql_SsisDebug"
+  assembly_sql_name: "tlblt_Tsql_SsisDebug"
   assembly_file_name: "Toolbelt.Tsql.SsisDebug.dll"
   permission_set: "UNSAFE"
-  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
+  trust_method: "selective SHA2-512 or existing database trust with optional binary verification"
   build_project: "Clr/Toolbelt.Tsql.SsisDebug.csproj"
   release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
   trust_removed_by_uninstall: false
@@ -59,7 +57,8 @@ lifecycle:
   trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
   deploy_template: "Deployment/Deploy.sql"
   uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
+  execution_mode: "T-SQL (default); historical lifecycle SQLCMD"
+  simple_install_generator: "Scripts/New-SimpleInstall.py"
 documentation:
   module: "README.md"
   public_objects:
@@ -67,6 +66,7 @@ documentation:
   examples:
     - "Documentation/CopyColumnV1.md"
     - "Documentation/CurrentInstallation.md"
+    - "Documentation/SimpleInstallation.md"
     - "Documentation/ComponentsV2Installation.md"
     - "Examples/README.md"
     - "Examples/SsmsDebugWalkthrough.sql"
@@ -114,6 +114,7 @@ tests:
   copy_column_ansi_security: "Tests/Runtime/Invoke-CopyColumnAnsiLab.ps1"
   current_authenticated_tls: "Tests/Runtime/Invoke-CurrentAuthenticatedTlsLab.ps1"
   runtime: "Tests/Runtime/Invoke-LabContract.ps1"
+  simple_installation: "Tests/Runtime/Invoke-SimpleInstallationLab.ps1"
 validation_evidence:
   - date: "2026-10-16"
     workflow: "local: Tests/Framework/Invoke-Contract.ps1 -Profile Full"

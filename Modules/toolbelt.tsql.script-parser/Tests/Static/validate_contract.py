@@ -11,7 +11,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 NS = {"m": "http://schemas.microsoft.com/developer/msbuild/2003"}
-SCRIPT_DOM_SHA512 = "459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7"
+ORIGINAL_SCRIPT_DOM_SHA512 = "459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7"
+SCRIPT_DOM_SHA512 = "634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813"
 PREVIOUS_SCRIPT_DOM_SHA512 = "24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0"
 SCRIPT_DOM_FILE_VERSION = "18.0.117.0"
 
@@ -49,7 +50,7 @@ def validate_project() -> None:
         item.attrib.get("Include", "").split(",", 1)[0]
         for item in project.findall(".//m:Reference", NS)
     }
-    expected = {"System", "System.Core", "System.Data", "System.Xml", "Microsoft.SqlServer.TransactSql.ScriptDom"}
+    expected = {"System", "System.Core", "System.Data", "System.Xml", "tlblt.Microsoft.SqlServer.TransactSql.ScriptDom"}
     if references != expected:
         raise ContractError(f"Unerwartete direkte Referenzen: {sorted(references)}")
     content = read("Clr/Toolbelt.Tsql.ScriptParser.csproj")
@@ -180,7 +181,7 @@ def main() -> int:
         deploy,
         "Deploy-Skript",
         PREVIOUS_SCRIPT_DOM_SHA512,
-        "ALTER ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom]",
+        "ALTER ASSEMBLY [tlblt.Microsoft.SqlServer.TransactSql.ScriptDom]",
         "sys.assembly_references",
         "sys.assembly_modules",
         "HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'VIEW DEFINITION')",
@@ -204,8 +205,8 @@ def main() -> int:
         "Uninstall-Skript",
         ":On Error exit",
         "$(ConfirmNoExternalConsumers)",
-        "DROP ASSEMBLY [Toolbelt_Tsql_ScriptParser];",
-        "DROP ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom];",
+        "DROP ASSEMBLY [tlblt_Tsql_ScriptParser];",
+        "DROP ASSEMBLY [tlblt.Microsoft.SqlServer.TransactSql.ScriptDom];",
         "sys.sql_expression_dependencies",
     )
     forbid(
@@ -257,11 +258,11 @@ def main() -> int:
         SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION,
     )
     require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", SCRIPT_DOM_SHA512)
-    require(read("../../Tests/CI/run-script-parser-lab.ps1"), "Lab-Gate", SCRIPT_DOM_SHA512, PREVIOUS_SCRIPT_DOM_SHA512, "18.0.56.2")
+    require(read("../../Tests/CI/run-script-parser-lab.ps1"), "Lab-Gate", ORIGINAL_SCRIPT_DOM_SHA512, PREVIOUS_SCRIPT_DOM_SHA512, "18.0.56.2")
     require(read("../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql"),
-            "TableClone Trigger-Consumer", SCRIPT_DOM_SHA512)
+            "TableClone Trigger-Consumer", ORIGINAL_SCRIPT_DOM_SHA512)
     require(read("../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md"),
-            "Hardening-Vertrag", SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION)
+            "Hardening-Vertrag", ORIGINAL_SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION)
     require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.1.0")', 'AssemblyFileVersion("2.0.1.0")')
     require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", "FRAMEWORK_CHILD_TIMEOUT", "RELEASE_FINGERPRINT_MISMATCH", "TrustManifestPath", "sqlExecuted = $false", "Reconstructed82", "RECONSTRUCTED82_COUNT_MISMATCH_", "historicalPreSourceEvidence = 'not reproduced or replaced'")
 

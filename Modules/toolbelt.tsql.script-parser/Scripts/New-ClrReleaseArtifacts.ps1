@@ -10,13 +10,15 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $moduleRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $moduleRoot '../../Scripts/Clr/Resolve-ToolbeltScriptDom.ps1')
+$ScriptDomDllPath=Resolve-ToolbeltScriptDom -Path $ScriptDomDllPath
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.Tsql.ScriptParser.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.Tsql.ScriptParser.dll"
-$scriptDomPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Microsoft.SqlServer.TransactSql.ScriptDom.dll"
+$scriptDomPath = Join-Path $moduleRoot "Clr/bin/$Configuration/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll"
 $deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
-$expectedScriptDomHash = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
-$expectedScriptDomIdentity = 'Microsoft.SqlServer.TransactSql.ScriptDom, Version=18.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91'
+$expectedScriptDomHash = '634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813'
+$expectedScriptDomIdentity = 'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null'
 function Assert-ScriptDomPin([string]$Path) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw 'SCRIPT_DOM_PIN_MISSING' }
     if ((Get-FileHash -LiteralPath $Path -Algorithm SHA512).Hash -cne $expectedScriptDomHash -or
@@ -92,11 +94,11 @@ $manifest = [ordered]@{
     sourceFiles = $sourceEntries
     buildProfile = 'net48-anycpu-release-deterministic'
     guardProfile = [ordered]@{ significantAtoms = 512; rawUnits = 8192; structuralDepth = 32; nestedComments = 16; tokens = 8192; inputBytes = 2097152; nodes = 32768; properties = 131072; errors = 256; outputBytes = 16777216 }
-    assemblySqlName = 'Toolbelt_Tsql_ScriptParser'
+    assemblySqlName = 'tlblt_Tsql_ScriptParser'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'UNSAFE'
     directFrameworkReferences = @('System', 'System.Core', 'System.Data', 'System.Xml')
-    scriptDomAssemblySqlName = 'Microsoft.SqlServer.TransactSql.ScriptDom'
+    scriptDomAssemblySqlName = 'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom'
     scriptDomAssemblyFileName = [IO.Path]::GetFileName($scriptDomPath)
     scriptDomSha512 = $scriptDomSha512
     scriptDomAssemblyIdentity = $expectedScriptDomIdentity
@@ -110,7 +112,7 @@ $manifest = [ordered]@{
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.Tsql.ScriptParser.trust-manifest.json'
 $deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.Tsql.ScriptParser.dll'
-$scriptDomOutputPath = Join-Path $OutputDirectory 'Microsoft.SqlServer.TransactSql.ScriptDom.dll'
+$scriptDomOutputPath = Join-Path $OutputDirectory 'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll'
 $deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
 if (([regex]::Matches($deployTemplate, '\$\(AssemblyBits\)')).Count -ne 1 -or
     ([regex]::Matches($deployTemplate, '\$\(ScriptDomAssemblyBits\)')).Count -ne 1) {

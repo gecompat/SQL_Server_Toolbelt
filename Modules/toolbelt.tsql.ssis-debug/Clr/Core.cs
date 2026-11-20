@@ -266,6 +266,12 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         internal void Diagnostic(string code, string component, string text, string target = null)
         { Add(new Artifact { Kind = "Diagnostic", Code = code, Component = component, Target = target, Severity = "warning", Evidence = "pragmatic", Content = text, Complete = false, Safety = "not_checked" }); }
+        internal void ReplaceContent(Artifact row, string content)
+        {
+            limits.Check("sqlArtifactBytes", (long)content.Length * 2);
+            long next = bytes + 2L * (content.Length - row.Content.Length);
+            limits.Check("totalOutputBytes", next); bytes = next; row.Content = content;
+        }
         internal void BindCatalog(object binding)
         {
             foreach (var row in Rows.Where(a => a.Kind.EndsWith("Sql", StringComparison.Ordinal) || a.Kind == "StageIndex"))

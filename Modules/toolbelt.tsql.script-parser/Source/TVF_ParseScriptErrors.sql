@@ -6,7 +6,7 @@
 -- Parameter:       @SqlText nvarchar(max), @TSqlVersion int, @QuotedIdentifiers bit,
 --                  @MaxInputBytes int, @MaxNestingDepth int
 -- Resultset:       ErrorOrdinal, Number, Message, StartOffset, StartLine, StartColumn
--- Dependencies:    Assembly Toolbelt_Tsql_ScriptParser
+-- Dependencies:    Assembly tlblt_Tsql_ScriptParser
 -- Rechte:          SELECT auf die Funktion
 -- Versionen:       SQL Server 2019, 2022, 2025
 -- Plattformen:     Windows
@@ -39,7 +39,7 @@ RETURNS TABLE
     , StartColumn         int            NULL
 )
 AS EXTERNAL NAME
-    [Toolbelt_Tsql_ScriptParser]
+    [tlblt_Tsql_ScriptParser]
     .[Toolbelt.Tsql.ScriptParser.ScriptParserProvider]
     .[ParseScriptErrors];
 GO

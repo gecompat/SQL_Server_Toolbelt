@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "description": "Erklärt unterstützte SSIS-Datenflüsse standardmäßig mit typisierter JSON-Eingabevorlage und vollständigen, einzeln prüfbaren Debug-SQL-Batches. Paket und enthaltenes SQL werden beim Analysieren niemals ausgeführt.",
+  "description": "Erzeugt Debug-SQL aus DTSX-XML mit Paketdefaults und optionalen JSON-Startwerten. Standardmäßig ohne Quellkatalogzugriff; CatalogMode=catalog wählt die strengere Metadatenprüfung. Paket und SQL werden niemals automatisch ausgeführt.",
   "parameters": [
     {
       "name": "@PackageBytes",
       "type": "varbinary(max)",
       "default": "NULL",
-      "required": true,
-      "nullable": false,
-      "description": "Genau ein vollständiges DTSX-XML-Paket als UTF-8-/UTF-16-Bytepuffer varbinary(max), kein Pfad/Base64-/XML-Stringparameter. DTSX-Formatprofile PackageFormatVersion 6 oder 8 werden unterstützt; kein verschlüsselter Container, DTD, externer Resolver oder XInclude. Leer/NULL ungültig, NULL ist nur technischer Help-Default. MaxPackageBytes begrenzt die Rohbytes; XML-Tiefe bleibt absolut 128. Paket/enthaltenes SQL werden beim Analysieren nicht ausgeführt."
+      "required": false,
+      "nullable": true,
+      "description": "Vollständiges DTSX-XML als UTF8-/UTF16-Bytepuffer; alternativ PackageXml verwenden, niemals beide gleichzeitig. Kein Pfad oder Base64-Text. NULL ist bei PackageXml oder Hilfe zulässig; sonst erforderlich. PackageFormatVersion 6/8, kein verschlüsselter Container, DTD, externer Resolver oder XInclude. MaxPackageBytes begrenzt die Rohbytes; XML-Tiefe bleibt absolut 128. Paket und enthaltenes SQL werden nicht ausgeführt."
     },
     {
       "name": "@Operation",
@@ -40,7 +40,7 @@
       "default": "NULL",
       "required": false,
       "nullable": true,
-      "description": "NULL (Default) liefert keine explizite Katalogzuordnung; fehlende erforderliche Bindungen bleiben missing_context. Sonst JSON-Objekt mit schemaVersion 1 oder 2, defaultDatabase als Name, databases als Array eindeutiger erlaubter Same-instance-Datenbanknamen und connections als Objekt {importierteConnectionId:Datenbankname}. Default und jede Zuordnung müssen in databases stehen; Connection-IDs müssen im Paket/Projektkontext vorhanden sein. Version 1 erlaubt nur diese Felder; Version 2 ergänzt flatFileInputs als Objekt (auch {}). Je Flatfileentry: database, schema, object, columns als Mapping importierter Spalten-IDs zu SQL-Spaltennamen; optional rowOrdinalColumn und errorRows als entsprechender Quellobjekt-/Spaltenbeschreiber gemäß Komponentenvertrag. Keine freien SQL-Fragmente, Server-/Credential-/Dateipfade oder automatische Rechte. Template-Modus verlangt NULL; leer/andere Shapes ungültig."
+      "description": "NULL (Default) leitet die benötigte Datenbankzuordnung aus Connectionstrings bzw. unterstützten Connectionexpressions im Paket ab. Mehrdeutige/fehlende Projektverbindungen und unterschiedliche Server werden diagnostiziert; keine externe Verbindung. Eine explizite Zuordnung überschreibt die automatische Ableitung. Sonst JSON-Objekt mit schemaVersion 1 oder 2, defaultDatabase als Name, databases als Array eindeutiger erlaubter Same-instance-Datenbanknamen und connections als Objekt {importierteConnectionId:Datenbankname}. Default und jede Zuordnung müssen in databases stehen; Connection-IDs müssen im Paket/Projektkontext vorhanden sein. Version 1 erlaubt nur diese Felder; Version 2 ergänzt flatFileInputs als Objekt (auch {}). Je Flatfileentry: database, schema, object, columns als Mapping importierter Spalten-IDs zu SQL-Spaltennamen; optional rowOrdinalColumn und errorRows als entsprechender Quellobjekt-/Spaltenbeschreiber gemäß Komponentenvertrag. Keine freien SQL-Fragmente, Server-/Credential-/Dateipfade oder automatische Rechte. Template-Modus verlangt NULL; leer/andere Shapes ungültig."
     },
     {
       "name": "@TargetFlow",
@@ -168,7 +168,7 @@
       "default": "8388608",
       "required": false,
       "nullable": false,
-      "description": "bigint 0..9223372036854775807, Default 8388608: Summe der UTF-16-Bytes von Bindings, CatalogBindings und LookupPolicies, ohne ProjectContext. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
+      "description": "bigint 0..9223372036854775807, Default 8388608: Summe der UTF-16-Bytes von Bindings, CatalogBindings, LookupPolicies und StartValues, ohne ProjectContext. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben."
     },
     {
       "name": "@MaxJsonNodes",
@@ -291,6 +291,30 @@
       "description": "Bei procedure-definition Objektname mit exakt großem Präfix USP_ und mindestens einem Folgezeichen. Bis zu 128 ASCII-Zeichen insgesamt, zulässig sind Buchstaben, Ziffern und Unterstriche. Unquotierter Einzelname ohne Trim oder Normalisierung. NULL (Default) ist bei explain und bindings-template erforderlich und bei procedure-definition ungültig."
     },
     {
+      "name": "@PackageXml",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "Vollständiges DTSX-XML als Unicode-Text. Genau PackageXml oder PackageBytes übergeben; beide NULL nur für Hilfe. Die XML-Kodierungsdeklaration wird an die intern erzeugten UTF8-Bytes angepasst. Kein Pfad, keine externe XML-Auflösung; MaxPackageBytes gilt für die erzeugten Bytes. Unterstützte Paketprofile und Komponenten bleiben unverändert."
+    },
+    {
+      "name": "@StartValues",
+      "type": "nvarchar(max)",
+      "default": "NULL",
+      "required": false,
+      "nullable": true,
+      "description": "Optionales JSON-Objekt mit einfachen typisierten Startwerten, z.B. {\"User::SourceFloor\":5}. Schlüssel ist ein eindeutiger Variablen-/Parametername oder der vollständige Scope mit Backslash und Name. Unbekannte oder mehrdeutige Namen, sensitive Werte und unpassende Typen werden abgewiesen. Werte überschreiben Designdefaults und Expressions; nicht zusammen mit Bindings verwenden. NULL nutzt verfügbare nicht-sensitive Paketdefaults. Fehlende strukturrelevante Werte werden diagnostiziert. JSON unterliegt MaxJsonDocumentBytes, MaxAllJsonBytes und MaxJsonNodes."
+    },
+    {
+      "name": "@CatalogMode",
+      "type": "varchar(16)",
+      "default": "package",
+      "required": false,
+      "nullable": false,
+      "description": "Taxativ package (Default) oder catalog. package erzeugt Debugentwürfe anhand der DTSX-Spaltenmetadaten ohne Zugriff auf Quell-Systemkataloge. Keine Prüfung realer Objektarten, Typen, RLS, Serveridentität oder Collation; IsExecutable=false und SafetyStatus=not_checked. Ordinale Namensbindung und BIN2/1252 bzw. explizite UTF8-Codepage sind gekennzeichnete Entwurfsannahmen. Mehrtabellenquellen und fehlende Metadaten benötigen Katalogabnahme. catalog verwendet die vorhandene explizite Katalogprüfung mit deren Metadatenrechten. procedure-definition verlangt catalog. Keine automatische Ausführung von Paket oder SQL und kein Fallback nach Katalogfehlern."
+    },
+    {
       "name": "@ResultTable",
       "type": "sysname",
       "default": "NULL",
@@ -340,7 +364,7 @@
       "name": "StageId",
       "type": "varchar(64)",
       "nullable": true,
-      "description": "Modellinterne Prüfpunkt-ID, innerhalb derselben Paketbindung stabil."
+      "description": "Modellinterne PrÃ¼fpunkt-ID, innerhalb derselben Paketbindung stabil."
     },
     {
       "name": "Ordinal",
@@ -352,7 +376,7 @@
       "name": "ComponentId",
       "type": "nvarchar(4000)",
       "nullable": true,
-      "description": "Ursprüngliche gebundene Komponenten-ID."
+      "description": "UrsprÃ¼ngliche gebundene Komponenten-ID."
     },
     {
       "name": "EvidenceClass",
@@ -364,7 +388,7 @@
       "name": "Severity",
       "type": "varchar(16)",
       "nullable": true,
-      "description": "info, warning oder error für Diagnosen."
+      "description": "info, warning oder error fÃ¼r Diagnosen."
     },
     {
       "name": "DiagnosticCode",
@@ -376,7 +400,7 @@
       "name": "IsComplete",
       "type": "bit",
       "nullable": false,
-      "description": "Benötigter Pfad und Kontext vollständig im aktuellen Profil vorhanden."
+      "description": "BenÃ¶tigter Pfad und Kontext vollstÃ¤ndig im aktuellen Profil vorhanden."
     },
     {
       "name": "SafetyStatus",
@@ -388,19 +412,19 @@
       "name": "IsExecutable",
       "type": "bit",
       "nullable": false,
-      "description": "Vollständiger, im gebundenen Profil geprüfter Batch; kein bereits ausgeführter Runtime-Nachweis."
+      "description": "VollstÃ¤ndiger, im gebundenen Profil geprÃ¼fter Batch; kein bereits ausgefÃ¼hrter Runtime-Nachweis."
     },
     {
       "name": "Content",
       "type": "nvarchar(max)",
       "nullable": false,
-      "description": "Artefaktinhalt, insbesondere vollständiger SQL-Prüfblock oder JSON-Vorlage."
+      "description": "Artefaktinhalt, insbesondere vollstÃ¤ndiger SQL-PrÃ¼fblock oder JSON-Vorlage."
     },
     {
       "name": "DetailsJson",
       "type": "nvarchar(max)",
       "nullable": true,
-      "description": "Zusätzliche gültige JSON-Metadaten."
+      "description": "ZusÃ¤tzliche gÃ¼ltige JSON-Metadaten."
     }
   ]
 }

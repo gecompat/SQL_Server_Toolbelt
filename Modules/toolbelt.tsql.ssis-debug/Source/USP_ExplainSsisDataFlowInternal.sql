@@ -5,8 +5,8 @@
 -- Vertrag: SSIS_CURRENT_API_CONTRACT.md; USP_CONTRACT1.0; Version1.0.0.
 -- Parameter/Resultset: vollständig in Contracts/Api.json und @Hilfe=1.
 -- Aktuelle Ergänzungen: schema-validiertes Contracts/ComponentsV2.json Help-Overlay.
--- Dependencies: Parser exakt2.0.1 mit gepinntem ScriptDom; ResultTable>=1.0.0.
--- Rechte: CALLER, EXECUTE; explizite Same-instance-Katalogvollsicht.
+-- Dependencies: private Toolbelt-ScriptDom-Assembly; ResultTable-Helper nur bei ResultTable.
+-- Rechte: CALLER, EXECUTE; Katalogvollsicht nur bei CatalogMode=catalog.
 -- Plattform: Windows SQL Server2019/2022/2025 CL150/160/170; UNSAFE.
 -- Fehler:50000/TBX_SSISDBG_; keine fachliche Teilresultatausgabe bei globalem Fehler.
 -- Performance: endliches Import-/AST-/Katalog-/Ausgabebudget; kein harter Watchdog.
@@ -54,9 +54,12 @@ CREATE OR ALTER PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlowInternal
     @MaxAnalysisMilliseconds bigint = 0,
     @ProcedureSchema nvarchar(max),
     @ProcedureName nvarchar(max),
+    @PackageXml nvarchar(max),
+    @StartValues nvarchar(max),
+    @CatalogMode nvarchar(16) = N'package',
     @ResultTable sysname = NULL,
     @KeepData bit = 0,
     @Debug tinyint = 0,
     @Hilfe bit = 0
-AS EXTERNAL NAME [Toolbelt_Tsql_SsisDebug].[Toolbelt.Tsql.SsisDebug.SsisDebugProvider].[ExplainSsisDataFlow];
+AS EXTERNAL NAME [tlblt_Tsql_SsisDebug].[Toolbelt.Tsql.SsisDebug.SsisDebugProvider].[ExplainSsisDataFlow];
 GO

@@ -9,7 +9,7 @@ WHERE ep.class=0 AND ep.major_id=0 AND ep.minor_id=0
 IF EXISTS(SELECT 1 FROM sys.extended_properties AS ep WITH (NOLOCK) WHERE ep.class=0 AND ep.major_id=0 AND ep.minor_id=0 AND ep.name=N'Toolbelt.Module.toolbelt.tsql.ssis-debug.Version')
  AND NOT EXISTS(SELECT 1 FROM sys.extended_properties AS ep WITH (NOLOCK) WHERE ep.class=0 AND ep.major_id=0 AND ep.minor_id=0 AND ep.name=N'Toolbelt.Module.toolbelt.tsql.ssis-debug.Version' AND SQL_VARIANT_PROPERTY(ep.value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),ep.value))=CONVERT(varbinary(max),N'1.0.0'))
  THROW 50000,N'TBX_SSISDBG_lifecycle_version: Unbekannter installierter Modulstand.',1;
-SET @AssemblyId=(SELECT assembly_id FROM sys.assemblies AS a WITH (NOLOCK) WHERE a.name=N'Toolbelt_Tsql_SsisDebug');
+SET @AssemblyId=(SELECT assembly_id FROM sys.assemblies AS a WITH (NOLOCK) WHERE a.name=N'tlblt_Tsql_SsisDebug');
 IF @InstalledVersion IS NULL AND (@AssemblyId IS NOT NULL OR OBJECT_ID(N'toolbelt_tsql.USP_ExplainSsisDataFlow') IS NOT NULL OR OBJECT_ID(N'toolbelt_tsql.USP_ExplainSsisDataFlowInternal') IS NOT NULL)
  THROW 50000,N'TBX_SSISDBG_lifecycle_collision: Namen ohne vollständige Modulownership belegt.',1;
 IF @InstalledVersion IS NOT NULL

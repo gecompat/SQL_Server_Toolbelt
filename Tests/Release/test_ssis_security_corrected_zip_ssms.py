@@ -3,7 +3,7 @@ from pathlib import Path
 import copy,json,sys,unittest,tempfile
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'Scripts/Release'))
-from validate_ssis_security_corrected_zip_ssms import validate,qualification_records,REPORT
+from validate_ssis_security_corrected_zip_ssms import validate_historical as validate,historical_qualification_records as qualification_records,REPORT,validate as validate_current
 class QualificationTests(unittest.TestCase):
     def setUp(self):self.record=json.loads((ROOT/REPORT).read_bytes())
     def reject(self,change,label):
@@ -40,5 +40,5 @@ class QualificationTests(unittest.TestCase):
         with tempfile.NamedTemporaryFile(prefix='ContosoCurrentInput_',suffix='.ps1',dir=ROOT/'Modules/toolbelt.tsql.ssis-debug/Tests/Runtime',delete=False) as f:
             p=Path(f.name);f.write(b'# Synthetic new method\n')
         try:
-            with self.assertRaisesRegex(ValueError,'SOURCE_CLOSURE'):validate(self.record)
+            with self.assertRaisesRegex(ValueError,'SOURCE_CLOSURE'):validate_current(self.record)
         finally:p.unlink()

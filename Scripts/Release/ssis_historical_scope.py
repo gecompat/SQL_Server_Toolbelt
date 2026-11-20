@@ -61,10 +61,10 @@ def security_corrected_tls_scope(root):
     sys.path.insert(0,str(root/'Tests/Release'))
     from ssis_historical_context import historical_root
     snapshot=historical_root(root,SECURITY_TLS_BASELINE)
-    module=import_module('validate_ssis_copy_column_tls_security')
-    previous=module.ROOT
+    modules=[import_module(name) for name in ('validate_ssis_copy_column_tls_security','validate_ssis_copy_column_security')]
+    previous=[module.ROOT for module in modules]
     try:
-        module.ROOT=snapshot
+        for module in modules: module.ROOT=snapshot
         yield snapshot
     finally:
-        module.ROOT=previous
+        for module,original in zip(modules,previous): module.ROOT=original

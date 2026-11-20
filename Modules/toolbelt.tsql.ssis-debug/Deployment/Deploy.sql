@@ -43,16 +43,16 @@ BEGIN TRY
  -- vollständig hashgleiche Binaries beim Repeat nicht erneut registrieren.
  IF @AssemblyId IS NULL OR NOT EXISTS(SELECT 1 FROM sys.assembly_files AS af WITH (NOLOCK) WHERE af.assembly_id=@AssemblyId AND af.file_id=1 AND HASHBYTES('SHA2_512',af.content)=@AssemblyHash)
  BEGIN
-  DECLARE @AssemblySql nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END+N' ASSEMBLY [Toolbelt_Tsql_SsisDebug] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=UNSAFE;';
+  DECLARE @AssemblySql nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END+N' ASSEMBLY [tlblt_Tsql_SsisDebug] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=UNSAFE;';
   EXEC sys.sp_executesql @AssemblySql;
  END;
  EXEC sys.sp_executesql @InternalSql;
  EXEC sys.sp_executesql @PublicSql;
  DECLARE @Level0 sysname,@Level0Name sysname,@Level1 sysname,@Level1Name sysname,@Property sysname,@Value sql_variant;
  DECLARE markers CURSOR LOCAL FAST_FORWARD FOR
- SELECT N'ASSEMBLY',N'Toolbelt_Tsql_SsisDebug',CAST(NULL AS sysname),CAST(NULL AS sysname),N'Toolbelt.Managed',CONVERT(sql_variant,1) UNION ALL
- SELECT N'ASSEMBLY',N'Toolbelt_Tsql_SsisDebug',NULL,NULL,N'Toolbelt.ModuleId',CONVERT(sql_variant,N'toolbelt.tsql.ssis-debug') UNION ALL
- SELECT N'ASSEMBLY',N'Toolbelt_Tsql_SsisDebug',NULL,NULL,N'Toolbelt.ModuleVersion',CONVERT(sql_variant,N'1.0.0') UNION ALL
+ SELECT N'ASSEMBLY',N'tlblt_Tsql_SsisDebug',CAST(NULL AS sysname),CAST(NULL AS sysname),N'Toolbelt.Managed',CONVERT(sql_variant,1) UNION ALL
+ SELECT N'ASSEMBLY',N'tlblt_Tsql_SsisDebug',NULL,NULL,N'Toolbelt.ModuleId',CONVERT(sql_variant,N'toolbelt.tsql.ssis-debug') UNION ALL
+ SELECT N'ASSEMBLY',N'tlblt_Tsql_SsisDebug',NULL,NULL,N'Toolbelt.ModuleVersion',CONVERT(sql_variant,N'1.0.0') UNION ALL
  SELECT N'SCHEMA',N'toolbelt_tsql',N'PROCEDURE',o.name,p.name,p.value
  FROM (VALUES(N'USP_ExplainSsisDataFlow'),(N'USP_ExplainSsisDataFlowInternal')) AS o(name)
  CROSS APPLY (VALUES(N'Toolbelt.Managed',CONVERT(sql_variant,1)),(N'Toolbelt.ModuleId',CONVERT(sql_variant,N'toolbelt.tsql.ssis-debug')),(N'Toolbelt.ModuleVersion',CONVERT(sql_variant,N'1.0.0')),(N'Toolbelt.Visibility',CONVERT(sql_variant,CASE WHEN o.name=N'USP_ExplainSsisDataFlow' THEN N'public' ELSE N'internal' END))) AS p(name,value);
