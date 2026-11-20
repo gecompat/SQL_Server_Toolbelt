@@ -784,7 +784,7 @@ Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Au
 
 Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md).
 
-<!-- Source/Vertrag SHA256: 015b7ee72d30f809266af0693c5daa86b0f85e75e81e13c8181bb0980ade3786 -->
+<!-- Source/Vertrag SHA256: 409a46aec4f5b6967404b51878136f21b1128272383ee65de33d6257b0096b8f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -827,7 +827,7 @@ Erzeugt aus explizit im aufrufenden CATCH gelesenen ERROR_*-Werten genau eine st
 
 Vertrag und Quelle: [USP_CaptureErrorEnvelope.sql](../../Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql), [USP_CaptureErrorEnvelope.md](../../Modules/toolbelt.core.error-envelope/Documentation/USP_CaptureErrorEnvelope.md).
 
-<!-- Source/Vertrag SHA256: aba157ba3445d320ca5a5984532e4afc85b77587db9ff571b517bc579dcde4e0 -->
+<!-- Source/Vertrag SHA256: 1288e5e6105034fecc55357b6e444d06fea6fb2d039ee9f132e6a6d20a0cfc96 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

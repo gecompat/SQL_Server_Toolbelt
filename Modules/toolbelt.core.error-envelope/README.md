@@ -29,13 +29,20 @@ Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` 
 
 Die Procedure führt bewusst keinen Rethrow aus. Nur `THROW;` im ursprünglichen `CATCH` erhält Enginefehler unverändert. Zusatzkontext muss synthetisch oder bereits bereinigt sein.
 
+Mit `@Hilfe=1` werden die bisherige Standardhilfe und anschließend genau eine
+zusätzliche Skillzeile ausgegeben. Der vollständige
+[kanonische Skill](../../Metadata/UsageSkills/toolbelt_core/USP_CaptureErrorEnvelope.md)
+ist identisch in der DDL enthalten. Hilfe kehrt vor Fachvalidierung, Kontextlesen
+und ResultTable-Verarbeitung zurück. Die neue Hilfeausgabe ist offline geprüft;
+ihre native Abnahme steht separat aus.
+
 ## Artefakte
 
-- `Source/USP_CaptureErrorEnvelope.sql`
-- `Documentation/USP_CaptureErrorEnvelope.md`
-- `Examples/ErrorEnvelope.sql`
-- `Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md`
-- `Deployment/Deploy.sql` und `Deployment/Uninstall.sql`
+- [SQL-Definition](Source/USP_CaptureErrorEnvelope.sql)
+- [Objektvertrag](Documentation/USP_CaptureErrorEnvelope.md)
+- [Beispiele](Examples/ErrorEnvelope.sql)
+- [Testmatrix](Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md)
+- [Aktueller Buildplan](Deployment/README.md)
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948
 sowie der erfolgreiche physische Linux-Lauf 2019/2022/2025 vom 2026-08-29.

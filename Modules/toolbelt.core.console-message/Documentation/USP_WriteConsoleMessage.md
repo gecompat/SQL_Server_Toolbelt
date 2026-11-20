@@ -27,10 +27,16 @@ zurück. Fehler `52801` weist mehr als 1 MiB UTF-16 zurück; `52802` mehr als
 512 Frames. Beide Grenzen werden vor erster Ausgabe geprüft, ohne Teiltext
 oder Kürzung. Tatsächliche Engine- oder Clientfehler werden nicht umklassifiziert.
 
-`@Hilfe = 1` liefert das Help-Resultset gemäß
+`@Hilfe = 1` liefert das bisherige Help-Resultset gemäß
 [`USP_CONTRACT.md`](../../../Documentation/Standards/USP_CONTRACT.md). Der
 deklarative `RESULT_COLUMN`-Eintrag beschreibt ausdrücklich, dass kein
 fachliches Resultset existiert.
+
+Danach folgt genau ein zusätzliches vierkolumniges Skill-Resultset mit
+`SkillFormatVersion`, `SchemaName`, `ObjectName` und vollständigem
+`SkillMarkdown nvarchar(max)` aus der
+[kanonischen Quelle](../../../Metadata/UsageSkills/toolbelt_core/USP_WriteConsoleMessage.md).
+Beide Hilfeausgaben erfolgen vor der fachlichen Message- und Grenzprüfung.
 
 ## Chunking
 

@@ -467,6 +467,22 @@ class UsageSkillTests(unittest.TestCase):
         documented = set(re.findall(r"\b([A-Z]+(?:_[A-Z]+)+|VALID)\s*\(", parser.markdown))
         self.assertEqual(statuses, documented)
 
+    def test_core_message_skills_return_before_business_validation_and_output(self):
+        for name, parameter in (("USP_WriteConsoleMessage", "@message"),
+                                ("USP_CaptureErrorEnvelope", "@errornumber")):
+            skill = skills.read(ROOT / "Metadata/UsageSkills/toolbelt_core" / (name + ".md"))
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.project_procedure_help(text, skill), text)
+            self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+            ret, indent = skills._procedure_help_return(text, skill)
+            self.assertTrue(text[:ret].endswith(skills.render_help_projection(skill, indent)))
+            tokens = skills._ddl_tokens(text)
+            words = [t[0].casefold() for t in tokens]
+            business = next(tokens[i][1] for i in range(len(words) - 2)
+                            if words[i:i + 3] == ["if", parameter, "is"])
+            self.assertLess(ret, business)
+
 
 if __name__ == "__main__":
     unittest.main()

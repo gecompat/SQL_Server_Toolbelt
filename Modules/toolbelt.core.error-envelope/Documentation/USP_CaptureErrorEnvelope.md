@@ -56,7 +56,11 @@ END CATCH;
 EXEC toolbelt_core.USP_CaptureErrorEnvelope @Hilfe=1;
 ```
 
-Die Hilfe beschreibt Parameter, Ergebnis und Fehlervertrag. Bei Abweichungen zuerst die Voraussetzungen und den verlinkten Fachvertrag prüfen.
+Die Hilfe beschreibt Parameter, Ergebnis und Fehlervertrag. Anschließend folgt
+genau ein zusätzliches vierkolumniges Skill-Resultset mit vollständigem
+`SkillMarkdown nvarchar(max)` aus der
+[kanonischen Quelle](../../../Metadata/UsageSkills/toolbelt_core/USP_CaptureErrorEnvelope.md).
+Bei Abweichungen zuerst die Voraussetzungen und den verlinkten Fachvertrag prüfen.
 
 ## Weiterführende Referenzen
 

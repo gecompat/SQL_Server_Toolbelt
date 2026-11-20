@@ -46,12 +46,11 @@ Keine Runtime-Modulabhängigkeit.
 
 ## Deployment
 
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
-
-`Deployment/Deploy.sql` benötigt die SQLCMD-Variable
-`DeploymentMode=local|central`. Lokales und zentrales Deployment verwenden
-dieselbe Implementierung. Zentral installierte Procedures werden mit
-dreiteiligem Namen ausgeführt.
+Den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden.
+Lokale und zentrale Installation verwenden dieselbe Implementierung, ohne
+SQLCMD-Modus. Zentral installierte Procedures werden mit dreiteiligem Namen
+ausgeführt. Frühere markerbasierte Lifecyclebefehle bleiben ausschließlich
+Teil ihrer ursprünglichen Lieferungen.
 
 ## Vertrag
 
@@ -61,7 +60,14 @@ dreiteiligem Namen ausgeführt.
   UTF-16-Codeunits;
 - Supplementary Characters werden nicht zwischen Chunks getrennt;
 - `NULL` und Leertext erzeugen keine Ausgabe;
-- keine Präfixe, Zeitstempel, Severity-Optionen oder Resultsets.
+- keine Präfixe, Zeitstempel, frei wählbaren Severity-Werte oder fachlichen Resultsets.
+
+`@Hilfe=1` liefert die bisherige Standardhilfe und anschließend eine zusätzliche
+Skillzeile mit `SkillFormatVersion`, `SchemaName`, `ObjectName` und vollständigem
+`SkillMarkdown nvarchar(max)`. Der
+[kanonische Objektvertrag](../../Metadata/UsageSkills/toolbelt_core/USP_WriteConsoleMessage.md)
+steht identisch in der DDL und beschreibt auch Grenzen und Client-Framing.
+Die neue zusätzliche Hilfe ist offline geprüft; ihre native Abnahme ist separat.
 
 Der Client kann Message-Frame-Grenzen optisch als zusätzliche Zeilen
 darstellen. Die Procedure ist nicht für zeilenweise Hot-Path-Ausgabe gedacht.
