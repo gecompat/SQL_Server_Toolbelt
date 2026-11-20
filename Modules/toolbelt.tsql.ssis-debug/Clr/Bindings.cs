@@ -23,6 +23,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal readonly Package Package;
         internal readonly Dictionary<string, object> Values = Json.Obj();
         internal readonly Dictionary<string, string> Connections = new Dictionary<string, string>(StringComparer.Ordinal);
+        internal readonly HashSet<string> LocalConnections = new HashSet<string>(StringComparer.Ordinal);
         internal readonly List<string> Databases = new List<string>();
         internal sealed class FlatFileInputBinding
         {
@@ -142,7 +143,7 @@ namespace Toolbelt.Tsql.SsisDebug
             AutomaticBindings.ApplyStarts(package, options.StartValues, Values, Limits);
             AutomaticBindings.ResolveStructureValues(package, Values, Limits);
             if (options.CatalogBindings == null && options.Operation != "bindings-template")
-                options.CatalogBindings = AutomaticBindings.Catalog(package, Values, Limits, output);
+                options.CatalogBindings = AutomaticBindings.Catalog(package, Values, Limits, output, packageOnly ? LocalConnections : null);
             if (options.CatalogBindings != null)
             {
                 var root = Json.Object(Json.Parse(options.CatalogBindings, Limits));
@@ -289,7 +290,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string Declarations(IEnumerable<string> keys)
         {
             var set = new HashSet<string>(keys, StringComparer.Ordinal);
-            return String.Join("\n", DeclarationOrder.Where(i => set.Contains(i.Key)).Select(i => "DECLARE " + i.SqlName + " " + i.SqlType + " = " + Initializers[i.Key] + ";" + (missingInitializers.Contains(i.Key) ? " -- TODO: Startwert einsetzen." : "")));
+            return String.Join("\n", DeclarationOrder.Where(i => set.Contains(i.Key)).Select(i => "DECLARE " + i.SqlName + " " + i.SqlType + " = " + Initializers[i.Key] + "; -- " + i.Name.Replace("\r", " ").Replace("\n", " ") + (missingInitializers.Contains(i.Key) ? "; TODO: Startwert einsetzen." : "")));
         }
     }
 }

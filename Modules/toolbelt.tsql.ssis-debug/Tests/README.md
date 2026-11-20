@@ -1435,3 +1435,17 @@ Abschlussaudits bestätigen Ergebnisse, Cleanup, Pins und Konfiguration.
 Das ZIP enthält seinen unveränderlichen Paketcommit; die spätere Paketprojektion
 im Repository ändert keine enthaltenen SQL-/DLL-Bytes. Windows-Anmeldung,
 SSMS-GUI und authentifizierte TLS-Abnahme bleiben gesondert offen.
+
+
+## Lokale DTSX-CTE-Erzeugung
+
+Die aktuelle [CTE-Anleitung](../Documentation/LocalCteDebug.md) trennt
+Paketmetadaten, deklarierte Annahmen und tatsächliche SQL-Ausführung.
+`Invoke-Contract.ps1 -Profile Simplicity` prüft synthetische Quellen,
+Lookup-Resultsetmetadaten, lokale Prozedurmaterialisierung, INSERT-EXEC-Optionen,
+Flatfile-Dummys, UNION-Reserveeingänge, Expressions und getrennte Quell-/Kompositionsgrenzen.
+`-Profile Full` erhält den optionalen strikten Katalog-/Planvertrag.
+Private Pakete werden ausschließlich außerhalb von Git geprüft. Offline-
+Erzeugung und Syntaxprüfung qualifizieren keine Prozedurinneren, Quelldaten,
+Zielrechte oder SSIS-Runtime-Parität. Frühere native Nachweise behalten ihre
+ursprünglichen Quell- und Binärbindungen.

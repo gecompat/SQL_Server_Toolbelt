@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Toolbelt.Tsql.SsisDebug
@@ -53,12 +54,20 @@ namespace Toolbelt.Tsql.SsisDebug
             options.Limits.Check("allJsonBytes", jsonBytes);
             var output = new Artifacts(options.Limits); Package package = PackageReader.Read(bytes, budget, componentsV2, options.Limits);
             if (package.Profile == "unsupported") { output.Diagnostic("unsupported_package_format", null, "Wohlgeformtes Paket ohne unterstütztes DTSX2-Formatprofil 6/8."); return output; }
+            if (options.Operation == "explain" && package.Flows.Count == 0)
+            {
+                output.Add(new Artifact { Kind = "Workflow", Content = Json.Write(Json.Obj("tasks", package.Workflow, "dataFlows", new List<object>()), options.Limits) });
+                output.Diagnostic("no_dataflow", null, "Dieses Paket enthält keinen Datenfluss. Control-Flow-Aufgabentypen sind inventarisiert; daraus wird keine erfundene Datenfluss-CTE ausgegeben.");
+                return output;
+            }
             PackageCatalog packageCatalog = null;
             if (options.CatalogMode == "package") catalog = packageCatalog = new PackageCatalog(package, options, budget);
             var bindings = new Bindings(package, options, catalog, output);
             if (options.Operation == "bindings-template")
             { output.Add(new Artifact { Kind = "BindingsTemplate", Content = Json.Write(bindings.Template(), options.Limits) }); return output; }
-            if (packageCatalog != null) packageCatalog.Bind(bindings);
+            // Paketbasierte Analyse bindet deklarierte Abfrageausgaben pro
+            // Komponente. Sie erfindet keine Basistabellenkataloge und bricht
+            // unabhängige Flüsse nicht wegen eines globalen Scheinschemas ab.
             var workflow = Json.Obj("formatProfile", package.Profile, "tasks", package.Workflow, "dataFlows", package.Flows.Select(f => (object)Json.Obj("id", f.Id, "name", f.Name, "paths", f.Paths.Select(p => (object)Json.Obj("from", p.Value, "to", p.Key)).ToList())).ToList());
             if (componentsV2)
             {

@@ -48,6 +48,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string Type;
         internal string RootAnsiType, RootAnsiCollation;
         internal decimal? ConstantNumber;
+        internal decimal? MinimumNumber, MaximumNumber;
         internal string ConstantText;
         internal bool Nullable;
         internal bool Total;
@@ -77,7 +78,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal ExpressionValue Parse()
         {
             ExpressionValue value = Conditional(); if (token != "") throw Bad();
-            if (v2)
+            if (v2 && !(value.BooleanTerms != null && value.BooleanTerms.Count > 16) && value.DeferredBooleanCondition == null)
             {
                 long renderedLength = value.SqlValue.Length;
                 if (value.RootAnsiType != null) renderedLength = checked(renderedLength + value.RootAnsiType.Length + value.RootAnsiCollation.Length + 16);
@@ -100,10 +101,32 @@ namespace Toolbelt.Tsql.SsisDebug
         private ExpressionValue Conditional()
         {
             Enter(); ExpressionValue left = Binary(0);
+            if (left.BooleanTerms != null && left.BooleanTerms.Count > 16)
+            {
+                // Flatten once at the group boundary, not for every prefix.
+                var pieces = new List<object> { "(" };
+                for (int i = 0; i < left.BooleanTerms.Count; i++)
+                {
+                    if (i != 0) pieces.Add(left.BooleanOperator == "&&" ? " AND " : " OR ");
+                    pieces.Add(left.BooleanTerms[i].ConditionValue);
+                }
+                pieces.Add(")");
+                left.PredicateValue = SqlText.Join(pieces.ToArray());
+                left.SqlValue = SqlText.Join("CAST(CASE WHEN ", left.PredicateValue, " THEN 1 WHEN NOT ", left.PredicateValue, " THEN 0 ELSE NULL END AS bit)");
+            }
             if (Take("?"))
             {
                 if (left.Type != "bit") throw Bad();
                 ExpressionValue yes = Conditional(); Need(":"); ExpressionValue no = Conditional();
+                string conditionalAnsiType = null, conditionalAnsiCollation = null;
+                if (yes.AnsiTypedNull || no.AnsiTypedNull)
+                {
+                    var typedNull = yes.AnsiTypedNull ? yes : no; var other = yes.AnsiTypedNull ? no : yes;
+                    if (!v2 || !Text(other.Type) || other.RootAnsiType != null && (other.RootAnsiType != typedNull.Type || other.RootAnsiCollation != typedNull.RootAnsiCollation)) throw Bad();
+                    if (other.RootAnsiType != null) { conditionalAnsiType = typedNull.Type; conditionalAnsiCollation = other.RootAnsiCollation; }
+                    var wideNull = new ExpressionValue { Sql = "CAST(NULL AS nvarchar(max))", Type = "nvarchar(max)", Nullable = true, Total = true };
+                    if (yes.AnsiTypedNull) yes = wideNull; else no = wideNull;
+                }
                 string resultType = Common(yes, no);
                 ExpressionValue conditionValue = left;
                 string condition = left.Condition;
@@ -114,6 +137,11 @@ namespace Toolbelt.Tsql.SsisDebug
                 // ausschließlich das typisierte NULL für den UNKNOWN-Fall.
                 left = Combine("CASE WHEN " + condition + " THEN " + yes.Sql + " WHEN NOT (" + condition + ") THEN " + no.Sql + " ELSE CAST(NULL AS " + resultType + ") END", resultType, left.Nullable || yes.Nullable || no.Nullable, left, yes, no);
                 left.Total = v2 && conditionTotal && yes.Total && no.Total;
+                left.RootAnsiType = conditionalAnsiType; left.RootAnsiCollation = conditionalAnsiCollation;
+                decimal? yesMin = yes.ConstantNumber ?? yes.MinimumNumber, yesMax = yes.ConstantNumber ?? yes.MaximumNumber;
+                decimal? noMin = no.ConstantNumber ?? no.MinimumNumber, noMax = no.ConstantNumber ?? no.MaximumNumber;
+                if (yesMin.HasValue && yesMax.HasValue && noMin.HasValue && noMax.HasValue)
+                { left.MinimumNumber = Math.Min(yesMin.Value, noMin.Value); left.MaximumNumber = Math.Max(yesMax.Value, noMax.Value); }
                 if (v2 && conditionValue.BooleanTerms != null && conditionValue.BooleanTerms.Count > 16)
                 {
                     left.DeferredBooleanCondition = conditionValue;
@@ -142,13 +170,9 @@ namespace Toolbelt.Tsql.SsisDebug
                         if (value.BooleanOperator == op && value.BooleanTerms != null) terms = value.BooleanTerms; else terms.Add(value);
                         if (right.BooleanOperator == op && right.BooleanTerms != null) terms.AddRange(right.BooleanTerms); else terms.Add(right);
                     }
-                    ExpressionValue combined;
-                    if (splittable && terms.Count > 16)
-                    {
-                        combined = new ExpressionValue { Sql = "CAST(1 AS bit)", Predicate = "CAST(1 AS bit)", Type = "bit", Nullable = value.Nullable || right.Nullable };
-                        combined.Inputs.UnionWith(value.Inputs); combined.Inputs.UnionWith(right.Inputs);
-                    }
-                    else combined = Boolean(SqlText.Join("(", value.ConditionValue, op == "&&" ? " AND " : " OR ", right.ConditionValue, ")"), value.Nullable || right.Nullable, value, right);
+                    // Keep the predicate as a shared rope: rebuilding every prefix
+                    // of a long Boolean list would make parsing quadratic.
+                    ExpressionValue combined = Boolean(SqlText.Join("(", value.ConditionValue, op == "&&" ? " AND " : " OR ", right.ConditionValue, ")"), value.Nullable || right.Nullable, value, right);
                     combined.Total = splittable && total; if (splittable) { combined.BooleanOperator = op; combined.BooleanTerms = terms; }
                     value = combined;
                 }
@@ -189,8 +213,13 @@ namespace Toolbelt.Tsql.SsisDebug
                     {
                         if (args.Count != 2 || args[0] <= 0 || args[0] > 8000 || args[1] <= 0 || resolveCodepage == null) throw Bad();
                         string collation = resolveCodepage(args[1]); if (collation == null) throw new DebugFault("unresolved_binding", "DT_STR-Codepage stimmt nicht mit der gebundenen Datenbankcollation überein.");
-                        ExpressionValue ansi = Unary(); if (ansi.AnsiTypedNull) throw Bad();
+                        ExpressionValue ansi = Unary();
                         string ansiType = "varchar(" + args[0].ToString(CultureInfo.InvariantCulture) + ")";
+                        if (ansi.AnsiTypedNull)
+                        {
+                            if (ansi.Type != ansiType || ansi.RootAnsiCollation != collation) throw Bad();
+                            return ansi;
+                        }
                         // Interne DT_STR-Casts werden vom SSIS-Ausdrucksauswerter
                         // zu DT_WSTR koerziert. Die ANSI-Bytekonvertierung gilt
                         // ausschließlich für einen DT_STR-Ausdruck am Wurzelknoten.
@@ -199,7 +228,19 @@ namespace Toolbelt.Tsql.SsisDebug
                         internalAnsi.Inputs.UnionWith(ansi.Inputs); return internalAnsi;
                     }
                     if (sql == null || type == "str" || v2 && !new[] { "i1", "ui1", "i2", "i4", "i8", "numeric", "wstr", "dbdate", "dbtimestamp", "bool" }.Contains(type)) throw Bad(); ExpressionValue v = Unary(); if (v2 && v.AnsiTypedNull) throw Bad();
-                    if (v2 && type == "i1" && v.Type != "bit" && (!v.ConstantNumber.HasValue || v.ConstantNumber.Value < -128 || v.ConstantNumber.Value > 127)) throw Bad();
+                    if (v2 && type == "i1" && v.Type != "bit")
+                    {
+                        decimal? minimum = v.ConstantNumber ?? v.MinimumNumber, maximum = v.ConstantNumber ?? v.MaximumNumber;
+                        if (!minimum.HasValue || !maximum.HasValue || minimum.Value < -128 || maximum.Value > 127)
+                        {
+                            if (v.ConstantNumber.HasValue) throw Bad();
+                            if (!IntegerTextType(v.Type)) throw Bad();
+                            // SQL besitzt keinen signed-byte-Typ. Die Verschiebung
+                            // in tinyint erzwingt genau -128..127, statt größere
+                            // Werte stillschweigend als smallint zu akzeptieren.
+                            return Combine("CAST((CONVERT(smallint, CONVERT(tinyint, CONVERT(bigint, " + v.Sql + ") + 128)) - 128) AS smallint)", "smallint", v.Nullable, v);
+                        }
+                    }
                     if (v2 && type == "ui1" && v.Type == "bit") throw Bad();
                     if (v2 && v.Type == "bit" && new[] { "i1", "i2", "i4", "i8", "numeric" }.Contains(type))
                     { string boolValue = "CASE WHEN " + v.Condition + " THEN -1 WHEN NOT " + v.Condition + " THEN 0 ELSE NULL END"; return Combine("CAST(" + boolValue + " AS " + sql + ")", sql, v.Nullable, v); }
@@ -220,7 +261,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 if (String.Equals(cast, "DT_STR", StringComparison.OrdinalIgnoreCase) && args.Count == 2 && args[0] <= 8000 && resolveCodepage != null)
                 { nullCollation = resolveCodepage(args[1]); if (nullCollation == null) throw new DebugFault("unresolved_binding", "DT_STR-Codepage stimmt nicht mit der gebundenen Datenbankcollation überein."); nullType = "varchar(" + args[0].ToString(CultureInfo.InvariantCulture) + ")"; }
                 if (nullType == null) throw Bad();
-                return new ExpressionValue { Sql = "CAST(NULL AS " + nullType + ")" + (nullCollation == null ? "" : " COLLATE " + Util.CollationToken(nullCollation)), Type = nullType, Nullable = true, AnsiTypedNull = nullCollation != null };
+                return new ExpressionValue { Sql = "CAST(NULL AS " + nullType + ")" + (nullCollation == null ? "" : " COLLATE " + Util.CollationToken(nullCollation)), Type = nullType, Nullable = true, AnsiTypedNull = nullCollation != null, RootAnsiCollation = nullCollation };
             }
             if (name.Length > 0 && name[0] >= '0' && name[0] <= '9')
             {
@@ -229,11 +270,27 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             if (Take("("))
             {
+                if (v2 && String.Equals(name, "GETDATE", StringComparison.OrdinalIgnoreCase))
+                { Need(")"); return new ExpressionValue { Sql = "GETDATE()", Type = "datetime2(7)", Nullable = false, Total = true }; }
                 ExpressionValue one = Conditional();
                 string function = v2 ? name.ToUpperInvariant() : name;
                 if (v2 && one.AnsiTypedNull) throw Bad();
                 if (function == "ISNULL") { Need(")"); return Boolean("(" + one.Sql + " IS NULL)", false, one); }
                 if (function == "REPLACENULL") { Need(","); ExpressionValue two = Conditional(); Need(")"); return Combine("ISNULL(" + one.Sql + ", " + two.Sql + ")", Common(one, two), one.Nullable && two.Nullable, one, two); }
+                if (v2 && function == "UPPER") { Need(")"); if (!Text(one.Type)) throw Bad(); one = Wide(one); return Combine("UPPER(" + one.Sql + ")", one.Type, one.Nullable, one); }
+                if (v2 && function == "ROUND")
+                {
+                    Need(","); var digits = Conditional(); Need(")");
+                    if (Text(one.Type) || one.Type == "bit" || !digits.ConstantNumber.HasValue || digits.ConstantNumber.Value < -38 || digits.ConstantNumber.Value > 38 || Decimal.Truncate(digits.ConstantNumber.Value) != digits.ConstantNumber.Value) throw Bad();
+                    return Combine("ROUND(" + one.Sql + ", " + digits.Sql + ")", one.Type, one.Nullable, one, digits);
+                }
+                if (v2 && function == "DATEPART")
+                {
+                    Need(","); var date = Conditional(); Need(")");
+                    var parts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "yyyy", "year" }, { "yy", "year" }, { "year", "year" }, { "q", "quarter" }, { "qq", "quarter" }, { "quarter", "quarter" }, { "m", "month" }, { "mm", "month" }, { "month", "month" }, { "dy", "dayofyear" }, { "y", "dayofyear" }, { "dayofyear", "dayofyear" }, { "d", "day" }, { "dd", "day" }, { "day", "day" }, { "hh", "hour" }, { "hour", "hour" }, { "mi", "minute" }, { "n", "minute" }, { "minute", "minute" }, { "ss", "second" }, { "s", "second" }, { "second", "second" }, { "ms", "millisecond" }, { "millisecond", "millisecond" } };
+                    string part; if (one.ConstantText == null || !parts.TryGetValue(one.ConstantText, out part) || !(date.Type == "date" || date.Type.StartsWith("datetime", StringComparison.Ordinal) || date.Type.StartsWith("time", StringComparison.Ordinal))) throw Bad();
+                    return Combine("DATEPART(" + part + ", " + date.Sql + ")", "int", date.Nullable, date);
+                }
                 if (v2 && new[] { "TRIM", "LTRIM", "RTRIM", "LEN" }.Contains(function))
                 {
                     Need(")"); if (!Text(one.Type)) throw Bad(); one = Wide(one);

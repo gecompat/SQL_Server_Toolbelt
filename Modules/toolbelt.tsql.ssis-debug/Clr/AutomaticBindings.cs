@@ -49,7 +49,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (input.Expression != null)
                         value = new ConnectionExpression(input.Expression, name => Resolve(name, input.Scope), limits).Evaluate();
                     else if (input.HasDefault && !input.RuntimeAssigned) value = input.Default;
-                    else throw new DebugFault("missing_context", "Ein zur Connectionauflösung erforderlicher Startwert fehlt.");
+                    else throw new DebugFault("missing_context", "Ein zur Connection-/SQL-Strukturauflösung erforderlicher Startwert fehlt: " + input.Name + ". Über @StartValues explizit als Debug-Szenario übergeben.");
                     value = Typed(input, value); cache.Add(input, value); return value;
                 }
                 finally { resolving.Remove(input); }
@@ -99,7 +99,7 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             return found;
         }
-        internal static string Catalog(Package package, Dictionary<string, object> starts, Toolbelt.Ssis.Exchange.ResourceLimits limits, Artifacts artifacts)
+        internal static string Catalog(Package package, Dictionary<string, object> starts, Toolbelt.Ssis.Exchange.ResourceLimits limits, Artifacts artifacts, HashSet<string> localConnections = null)
         {
             var needed = new HashSet<string>(package.Flows.SelectMany(f => f.Components).Where(c => c.Connection != null).Select(c => c.Connection), StringComparer.Ordinal);
             var mapping = Json.Obj(); var databases = new List<object>(); var servers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -108,11 +108,15 @@ namespace Toolbelt.Tsql.SsisDebug
             {
                 string id = connection.Get("refId"), provider;
                 if (!needed.Contains(id) || !package.Connections.TryGetValue(id, out provider) || provider == "unsupported") continue;
+                try
+                {
                 var element = connection.Element;
-                if (element.Elements(Toolbelt.Ssis.Exchange.PackageDocument.Dts + "PropertyExpression")
-                    .Any(e => Toolbelt.Ssis.Exchange.PackageDocument.Attribute(e, "Name") != "ConnectionString"))
-                    throw new DebugFault("missing_context", "Weitere Connectionproperty-Ausdrücke benötigen eine explizite Zuordnung; statische Verbindungswerte werden nicht stillschweigend übernommen.");
-                var expressions = element.Elements(Toolbelt.Ssis.Exchange.PackageDocument.Dts + "PropertyExpression")
+                var propertyExpressions = element.Elements(Toolbelt.Ssis.Exchange.PackageDocument.Dts + "PropertyExpression").ToList();
+                if (propertyExpressions.Any(e => !new[] { "ConnectionString", "InitialCatalog", "ServerName" }.Contains(Toolbelt.Ssis.Exchange.PackageDocument.Attribute(e, "Name"))))
+                    throw new DebugFault("missing_context", "Nicht unterstützte Connectionproperty benötigt eine explizite Zuordnung.");
+                if (propertyExpressions.GroupBy(e => Toolbelt.Ssis.Exchange.PackageDocument.Attribute(e, "Name"), StringComparer.Ordinal).Any(g => g.Count() != 1))
+                    throw new DebugFault("unresolved_binding", "Mehrdeutige Connectionproperty.");
+                var expressions = propertyExpressions
                     .Where(e => Toolbelt.Ssis.Exchange.PackageDocument.Attribute(e, "Name") == "ConnectionString").ToList();
                 if (expressions.Count > 1) throw new DebugFault("unresolved_binding", "Mehrdeutige Connectionexpression.");
                 string connectionString;
@@ -133,13 +137,38 @@ namespace Toolbelt.Tsql.SsisDebug
                 catch (ArgumentException) { throw new DebugFault("unresolved_binding", "Connectionstring kann nicht sicher gelesen werden."); }
                 string database = Setting(builder, "Initial Catalog", "Database");
                 string server = Setting(builder, "Data Source", "Server", "Address", "Addr", "Network Address");
+                foreach (var property in propertyExpressions.Where(e => Toolbelt.Ssis.Exchange.PackageDocument.Attribute(e, "Name") != "ConnectionString"))
+                {
+                    var resolved = new ConnectionExpression(property.Value, name => values.Resolve(name, connection.LegacyScope), limits).Evaluate() as string;
+                    if (String.IsNullOrWhiteSpace(resolved)) throw new DebugFault("missing_context", "Connectionproperty liefert keinen eindeutigen Textwert.");
+                    bool initialCatalog = Toolbelt.Ssis.Exchange.PackageDocument.Attribute(property, "Name") == "InitialCatalog";
+                    string previous = initialCatalog ? database : server;
+                    // Zwei dynamische Festlegungen müssen übereinstimmen; ein
+                    // Propertyausdruck darf dagegen den gespeicherten Designwert ersetzen.
+                    if (expressions.Count != 0 && previous != null && !String.Equals(previous, resolved, StringComparison.OrdinalIgnoreCase))
+                        throw new DebugFault("unresolved_binding", "Dynamische Connectionproperties widersprechen einander.");
+                    if (initialCatalog) database = resolved; else server = resolved;
+                }
                 if (database == null) throw new DebugFault("missing_context", "Die Paketverbindung enthält keinen Datenbanknamen.");
                 Util.Q(database); mapping.Add(id, database);
                 if (!databases.Contains(database)) databases.Add(database);
                 if (server != null) servers.Add(server);
+                }
+                catch (DebugFault error)
+                {
+                    if (localConnections == null || error.Code != "missing_context") throw;
+                    localConnections.Add(id); mapping.Add(id, "tempdb");
+                    if (!databases.Contains("tempdb")) databases.Add("tempdb");
+                    artifacts.Diagnostic("connection_local_context", id, "Connection benötigt Laufzeitwerte. Der lokale Paketentwurf erhält die SQL-Objektnamen unverändert und verwendet beim manuellen Ausführen den Caller-Kontext; keine Server-/Datenbankidentität behauptet.");
+                }
             }
             if (servers.Count > 1) throw new DebugFault("missing_context", "Mehrere unterschiedliche Server benötigen eine explizite Zuordnung; es werden keine externen Verbindungen geöffnet.");
-            if (mapping.Count == 0) throw new DebugFault("missing_context", "Keine benötigte SQL-Server-Verbindung aus dem Paket auflösbar.");
+            if (mapping.Count == 0)
+            {
+                if (localConnections == null || package.Flows.SelectMany(f => f.Components).Any(c => c.Kind == "source" || c.Kind == "lookup"))
+                    throw new DebugFault("missing_context", "Keine benötigte SQL-Server-Verbindung aus dem Paket auflösbar.");
+                databases.Add("tempdb");
+            }
             string primary = package.Flows.SelectMany(f => f.Components).Where(c => c.Kind == "source" && c.Connection != null && mapping.ContainsKey(c.Connection)).Select(c => (string)mapping[c.Connection]).FirstOrDefault() ?? (string)databases[0];
             artifacts.Diagnostic("automatic_connection_binding", null, "Datenbankzuordnung aus dem Paket abgeleitet. Serveridentität und Datenbankzustand sind damit nicht geprüft; SQL nur im vorgesehenen Zielkontext ausführen.");
             return Json.Write(Json.Obj("schemaVersion", new JsonNumber("2"), "defaultDatabase", primary, "databases", databases, "connections", mapping, "flatFileInputs", Json.Obj()), limits);

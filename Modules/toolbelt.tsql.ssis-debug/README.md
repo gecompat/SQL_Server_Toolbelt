@@ -1,6 +1,6 @@
 # SSIS Data Flow Debug SELECT
 
-Dieses Modul erzeugt aus DTSX-XML lesende Debug-Skripte für unterstützte
+Dieses Modul erzeugt aus DTSX-XML SQL-Debugentwürfe für unterstützte
 SQL-Server-Datenflüsse. Ein XML-Aufruf verwendet Paketdefaults und löst
 Connection-Expressions auf. Es ist keine vollständige SSIS-Runtime und führt
 weder Pakete noch erzeugte Abfragen automatisch aus.

@@ -67,6 +67,8 @@ namespace Toolbelt.Ssis.Exchange
                 case "Microsoft.DerivedColumn": case "{49928E82-9C4E-49F0-AABE-3812B82707EC}": return version == 0 ? "derived" : "unsupported";
                 case "Microsoft.ConditionalSplit": case "{7F88F654-4E20-4D14-84F4-AF9C925D3087}": return version == 0 ? "split" : "unsupported";
                 case "Microsoft.RowCount": return version == 0 ? "rowcount" : "unsupported";
+                case "Microsoft.Multicast": return version == 0 ? "multicast" : "unsupported";
+                case "Microsoft.UnPivot": return version == 0 ? "unpivot" : "unsupported";
                 case "Microsoft.FlatFileSource": return version == 1 ? "flatfile-source" : "unsupported";
                 case "Microsoft.FlatFileDestination": return version == 0 ? "flatfile-destination" : "unsupported";
                 default: return "unsupported";
@@ -85,6 +87,8 @@ namespace Toolbelt.Ssis.Exchange
                 case "copy-column": return inputs == 1 && normal == 1 && errors == 0 && allSynchronous;
                 case "split": return inputs == 1 && normal >= 2 && errors <= 1 && allSynchronous;
                 case "rowcount": return inputs == 1 && normal == 1 && errors == 0 && allSynchronous;
+                case "multicast": return inputs == 1 && normal >= 1 && errors == 0 && allSynchronous;
+                case "unpivot": return inputs == 1 && normal == 1 && errors == 0 && outputs.All(p => String.IsNullOrEmpty(p.SynchronousInputId) || p.SynchronousInputId == "0");
                 case "flatfile-source": return inputs == 0 && normal == 1 && errors <= 1 && sourceSynchronous;
                 case "flatfile-destination": return inputs == 1 && outputs.Count == 0;
                 default: return true;
