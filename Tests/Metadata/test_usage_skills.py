@@ -448,6 +448,25 @@ class UsageSkillTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "schemafrei"):
             skills.validate(skills.Skill(metadata, sample.markdown))
 
+    def test_semantic_version_module_has_complete_reviewed_skills_and_status_contract(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.validation.semantic-version"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 5)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.project_function_ddl(text, skill), text)
+            self.assertIn("8000", skill.markdown)
+            self.assertTrue(all(p["argument_required"] and p["nullable"]
+                                and p["sql_default"] is None for p in skill.metadata["parameters"]))
+        parser = next(s for s in records if s.metadata["object_name"] == "TVF_ParseSemanticVersion")
+        path = parser.metadata["source_paths"][0]
+        code = skills.strip_ddl_projection(ROOT, path, (ROOT / path).read_text(encoding="utf-8-sig"))
+        statuses = set(re.findall(r"SET @Code = '([A-Z_]+)'", code)) | {"VALID"}
+        documented = set(re.findall(r"\b([A-Z]+(?:_[A-Z]+)+|VALID)\s*\(", parser.markdown))
+        self.assertEqual(statuses, documented)
+
 
 if __name__ == "__main__":
     unittest.main()

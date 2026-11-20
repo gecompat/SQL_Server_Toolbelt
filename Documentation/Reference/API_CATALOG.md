@@ -4816,7 +4816,7 @@ Prüft und zerlegt eine Version nach SemVer 2.0.0.
 
 Vertrag und Quelle: [TVF_ParseSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql), [TVF_ParseSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_ParseSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: 9818a3812285df7291e50a2664aa770c4cb928fdb49d2b1e5804d9ad9cabb3ba -->
+<!-- Source/Vertrag SHA256: b29d10ddfe489ca88672a94ecc9639dcb4e01fc9aac621c02108a2772409ca85 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4836,7 +4836,7 @@ Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolg
 
 Vertrag und Quelle: [TVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql), [TVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: f98f27b8cc1b1e46d2e8bcccac98d35cc0d3dc69ad6864e6430698b4b6201926 -->
+<!-- Source/Vertrag SHA256: c066d1ca01c8c20b2e019626039470e832bef74205123651bb8609a6bc17e433 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4857,7 +4857,7 @@ Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.
 
 Vertrag und Quelle: [TVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql), [TVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: 25a0d144057821f7b60ab2c5a625d3ccbab3bbad59b7aa66535a458429d2d9ac -->
+<!-- Source/Vertrag SHA256: acfdfecf1bec09a26b9fdae47047e1b64788cbfea8f7f3e48526c6c5374ac98d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4877,7 +4877,7 @@ Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolg
 
 Vertrag und Quelle: [SVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql), [SVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: 70f72271a5cca9e04091eb7e692c92e532d2f313887e44f1acf789da1eeab3e9 -->
+<!-- Source/Vertrag SHA256: 7c029862271bd27ff6527ac870afa4ec75d1c179c70a9e7c5dfb8f2a21e97e46 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4898,7 +4898,7 @@ Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.
 
 Vertrag und Quelle: [SVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql), [SVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: 294f518d0fc4e9dc0b79ceced99fcdf245eb30d3158f730b90ec19022d208f32 -->
+<!-- Source/Vertrag SHA256: fdd496b3a738d4876ebeb98e526201bd4a3cdcf6c9d5703255d34a64152b6f15 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
