@@ -23,6 +23,8 @@ enthalten die genauen Alphabete, Transformationen und Prioritäten.
 
 ## Installation und Abhängigkeiten
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 Ausgewählte Laufzeitnachweise liegen für Linux2019/latest CL150 und
 Windows2025/exakt CU8 CL170 vor; die übrige Zielmatrix bleibt offen.
 Keine Abhängigkeit von der Distanz-/Jaro-Assembly.

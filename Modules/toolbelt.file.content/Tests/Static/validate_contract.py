@@ -32,8 +32,6 @@ binary_source = (root / "Source/USP_LoadBinaryFile.sql").read_text("utf-8")
 allowlist_source = (root / "Source/FileContentRootAllowlist.sql").read_text("utf-8")
 for marker in (
     "IF OBJECT_ID(N'toolbelt_file.FileContentRootAllowlist', N'U') IS NULL",
-    "sys.sp_updateextendedproperty",
-    "sys.sp_addextendedproperty",
 ):
     if marker not in allowlist_source:
         raise SystemExit(f"Allowlist-Lifecycle-Marker fehlt: {marker}")
@@ -154,3 +152,5 @@ if text_source.count("FROM OPENROWSET(BULK") != 1 or "SINGLE_CLOB" in text_sourc
     raise SystemExit("Textloader muss ausschließlich einen SINGLE_BLOB-Snapshot dekodieren.")
 for token in ("@Snapshot", "@Payload", "Latin1_General_100_BIN2_UTF8"):
     if token not in text_source: raise SystemExit("Snapshotdecoder fehlt: " + token)
+
+assert "extended_properties" not in allowlist_source and "sp_addextendedproperty" not in allowlist_source

@@ -23,19 +23,13 @@ if missing:
 
 source = (root / "Source/VW_ModuleCapabilities.sql").read_text("utf-8")
 for marker in (
-    "CREATE OR ALTER VIEW [toolbelt_metadata].[VW_ModuleCapabilities]",
-    "FROM sys.extended_properties AS ep",
-    "ep.class = 0",
-    "N'Toolbelt.Module.'",
-    "ModuleVersion",
-    "DeploymentMode",
-    "MetadataStatus",
-    "'incomplete'",
-    "'invalid'",
-    "'valid'",
+    "CREATE OR ALTER VIEW toolbelt_metadata.VW_ModuleCapabilities",
+    "FROM sys.assemblies", "FROM sys.objects", "ModuleVersion", "DeploymentMode",
+    "MetadataStatus", "'incomplete'", "CONVERT(nvarchar(4000),NULL)",
 ):
-    if marker not in source:
-        raise SystemExit(f"Capability-Catalog-Vertragsmarker fehlt: {marker}")
+    if marker not in source: raise SystemExit(f"Capability-Vertrag fehlt: {marker}")
+for marker in ("extended_properties", "Toolbelt.Module", "'valid'", "'invalid'"):
+    if marker in source: raise SystemExit(f"Unbelegte Marker-/Versionsprojektion: {marker}")
 
 for forbidden in ("CREATE TABLE", "INSERT INTO", "UPDATE ", "DELETE FROM"):
     if forbidden in source:

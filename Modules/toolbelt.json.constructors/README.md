@@ -1,5 +1,9 @@
 # JSON Constructors
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Security-Korrektur 2026-10-14
 
 SC-012: Der gemeinsame USP-Kern prüft exakte UTF-16-Escapingkosten über begrenzte Spans des vorhandenen CLR-Kerns vor vollständigen expandierten Stringfragmenten. Keine neue CLR-ABI oder zusätzliche fachliche Escapeimplementierung.

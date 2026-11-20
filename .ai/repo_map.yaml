@@ -445,6 +445,14 @@ change_impact:
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
   packages:
+    markerless_installation:
+      paths:
+        - Scripts/Install/**
+        - Modules/*/module.yaml
+        - Modules/toolbelt.metadata.capability-catalog/Source/**
+      checks:
+        - markerless_installation
+        - markdown_links
     release_preparation:
       paths:
         - Tests/Documentation/run_release_validation.py

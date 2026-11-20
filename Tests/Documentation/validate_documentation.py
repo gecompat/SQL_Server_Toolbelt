@@ -1836,6 +1836,14 @@ def main() -> int:
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "markerless_installation" in checks:
+        result = run_hidden(
+            [sys.executable,"-B","-m","unittest","discover","-s","Scripts/Install/Tests"],
+            cwd=REPOSITORY_ROOT,capture_output=True,text=True,encoding="utf-8",timeout=120,
+        )
+        if result.returncode:
+            raise ValidationError("Markerfreie Installation: "+result.stdout+result.stderr)
+        print(result.stderr.strip())
     if "release_preparation" in checks:
         # Preserve every unique check; the documentation runner collapses only
         # the known duplicate CSV-class registration in the historical evidence suite.

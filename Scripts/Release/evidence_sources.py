@@ -248,6 +248,13 @@ def report_sources(root, report_path, *, field='source_sha256', bindings=None, o
     recorded = {}
     def collect(node):
         if isinstance(node, dict):
+            # Ältere Paketberichte besitzen dieselben exakten Quellpins auch
+            # als Liste von path/sha256-Paaren statt als Dictionaryschlüssel.
+            if set(node)=={'path','sha256'}:
+                name=_path(node['path'])
+                value=node['sha256']
+                _require(isinstance(value,str) and re.fullmatch('[0-9a-fA-F]{64}',value), 'invalid recorded source digest')
+                recorded.setdefault(name,set()).add(value.lower())
             for name, value in node.items():
                 if isinstance(value, str) and re.fullmatch('[0-9a-fA-F]{64}', value):
                     recorded.setdefault(name, set()).add(value.lower())

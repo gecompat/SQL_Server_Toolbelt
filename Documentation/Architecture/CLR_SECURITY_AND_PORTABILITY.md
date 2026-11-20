@@ -50,7 +50,7 @@ Nicht in das Repository aufnehmen:
 
 ## `TRUSTWORTHY ON`
 
-Für den vereinfachten SSIS-Installer ist seit Benutzerauftrag vom 2026-11-19
+Für die vereinfachten SSIS- und gemeinsamen Funktionsinstaller ist seit Benutzerauftrag vom 2026-11-19
 und anschließender Implementierungsfreigabe vorhandener Datenbank-Trust eine
 bewusst wählbare Installationsroute: mit reinem Binaryhashvergleich oder ohne
 Toolbelt-Hashprüfung/-registrierung. Die Engineberechtigungen und der berechtigte

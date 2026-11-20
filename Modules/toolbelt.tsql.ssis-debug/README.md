@@ -7,6 +7,8 @@ weder Pakete noch erzeugte Abfragen automatisch aus.
 
 ## Installation und erster Datenflusspfad
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 Der aktuelle Quellstand nimmt vollständiges DTSX als `@PackageXml` entgegen.
 Paketdefaults, Startwerte und Connection-Expressions werden lokal aufgelöst.
 Die [Kurzanleitung](Documentation/SimpleInstallation.md) führt vom normalen

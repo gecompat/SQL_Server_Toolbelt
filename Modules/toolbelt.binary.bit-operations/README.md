@@ -31,6 +31,8 @@ Offset `0` ist das Least Significant Bit. V1 verarbeitet ausschließlich
 
 ## Deployment
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 Aus `Deployment/`:
 
 ```text

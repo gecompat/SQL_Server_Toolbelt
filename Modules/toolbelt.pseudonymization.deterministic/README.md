@@ -47,6 +47,8 @@ Keine Anonymisierung oder Kryptografie-/Eindeutigkeitsgarantie.
 
 ## Deployment und Grenzen
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 SQLCMD aus Deployment: Deploy.sql mit DeploymentMode=local|central;
 Uninstall.sql mit ConfirmNoExternalConsumers=0|1. DDL-Rechte separat vom
 Caller. Deploy und Uninstall verweigern eine bereits offene Callertransaktion

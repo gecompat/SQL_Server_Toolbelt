@@ -79,6 +79,8 @@ Das Zeitbudget ist kooperativ über ZIP-Index, Dekompression, CRC, XML und eigen
 
 ## Installation und Lifecycle
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 Deploy und Uninstall benötigen einen eigenen Transaktionsscope. Ein vorhandener Caller-Scope wird vor jeder SET- oder DDL-Anweisung mit RAISERROR 50000 und dem Präfix `TBX_XLSX_LIFECYCLE_CALLER_TRANSACTION:` abgelehnt. Der Guard verändert weder Caller-Arbeit noch XACT_ABORT und lässt die Transaktion auch bei XACT_ABORT ON committable. SQLCMD beendet den Lauf über `:On Error exit` mit einem Fehlerstatus.
 
 Dependencies sind die kompatible Major-1-Linie von `toolbelt.archive.zip-memory` ab 1.4.0 und `toolbelt.core.result-table` ab 1.0.0, in derselben Installationsdatenbank. Eine zukünftige Majorversion wird nicht automatisch als kompatibel akzeptiert. Die XLSX-Assembly referenziert die kanonische ZIP-Assembly; ZIP kann bei vorhandenem XLSX-Consumer nicht deinstalliert werden.

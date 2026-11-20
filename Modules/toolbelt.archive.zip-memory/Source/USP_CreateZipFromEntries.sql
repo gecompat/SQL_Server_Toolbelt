@@ -83,22 +83,18 @@ BEGIN
        OR @MaxEnvelopeBytes IS NULL OR @MaxEnvelopeBytes NOT BETWEEN 1 AND 142606336
        OR @WriterBudgetMilliseconds IS NULL OR @WriterBudgetMilliseconds NOT BETWEEN 1 AND 60000
         THROW 51350,N'TBX_ZIP_WRITE_INVALID_ARGUMENT: Parameter oder Ressourcenlimit ungültig.',1;
-    DECLARE @DependencyVersion nvarchar(64)=(SELECT TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version');
     IF OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterName',N'FT') IS NULL
        OR OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterArchive',N'FT') IS NULL
-       OR OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P') IS NULL
-       OR @DependencyVersion IS NULL
-       OR PARSENAME(@DependencyVersion,4) IS NOT NULL
-       OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)) IS NULL
-       OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)) IS NULL
-       OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,1)) IS NULL
-       OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)) < 1
-       OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)) < 0
-       OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,1)) < 0
-       OR CONVERT(varbinary(128),@DependencyVersion) <> CONVERT(varbinary(128),CONCAT(TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)),N'.',TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)),N'.',TRY_CONVERT(int,PARSENAME(@DependencyVersion,1))))
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),value))=CONVERT(varbinary(max),N'toolbelt.core.result-table'))
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable') AND minor_id=0 AND name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@DependencyVersion))
-        THROW 51357,N'TBX_ZIP_WRITE_DEPENDENCY: ZIP-Writer oder ResultTable >=1.0.0 fehlt.',1;
+        THROW 51357,N'TBX_ZIP_WRITE_DEPENDENCY: ZIP-Writer-Schnittstelle fehlt.',1;
+DECLARE @CoreDependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @CoreDependencyId IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@CoreDependencyId)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@CoreDependencyId
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 51357,N'TBX_ZIP_WRITE_DEPENDENCY: ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
     IF @EntryTable IS NULL OR LEFT(@EntryTable,1)<>N'#' OR LEFT(@EntryTable,2)=N'##'
        OR LEN(@EntryTable)>116 OR CHARINDEX(N'.',@EntryTable)>0
        OR (@ResultTable IS NOT NULL AND (LEFT(@ResultTable,1)<>N'#' OR LEFT(@ResultTable,2)=N'##' OR LEN(@ResultTable)>116 OR CHARINDEX(N'.',@ResultTable)>0))

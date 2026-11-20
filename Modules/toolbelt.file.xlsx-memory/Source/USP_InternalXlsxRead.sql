@@ -147,20 +147,16 @@ BEGIN
         SELECT [SheetOrdinal],[SheetName],[Visibility],[Date1904] FROM #tbx_ListXlsxWorksheets_ResultSource ORDER BY SheetOrdinal;
         RETURN 0;
     END;
-    DECLARE @SheetsDependencyVersion nvarchar(64),@SheetsDependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
-    SELECT @SheetsDependencyVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
-    WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version';
-    DECLARE @SheetsMajor int=TRY_CONVERT(int,PARSENAME(@SheetsDependencyVersion,3)),
-            @SheetsMinor int=TRY_CONVERT(int,PARSENAME(@SheetsDependencyVersion,2)),
-            @SheetsPatch int=TRY_CONVERT(int,PARSENAME(@SheetsDependencyVersion,1));
-    IF @SheetsDependencyId IS NULL OR @SheetsMajor IS NULL OR @SheetsMajor<1 OR @SheetsMinor IS NULL OR @SheetsMinor<0 OR @SheetsPatch IS NULL OR @SheetsPatch<0
-       OR CONVERT(varbinary(max),@SheetsDependencyVersion)<>CONVERT(varbinary(max),CONCAT(@SheetsMajor,N'.',@SheetsMinor,N'.',@SheetsPatch))
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@SheetsDependencyId AND minor_id=0
-           AND name=N'Toolbelt.ModuleId' AND TRY_CONVERT(nvarchar(128),value)=N'toolbelt.core.result-table')
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@SheetsDependencyId AND minor_id=0
-           AND name=N'Toolbelt.ModuleVersion'
-           AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@SheetsDependencyVersion))
-        THROW 51529,N'ResultTable-Dependency >= 1.0.0 fehlt oder ist ungeeignet.',1;
+
+ DECLARE @SheetsDependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @SheetsDependencyId IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@SheetsDependencyId)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@SheetsDependencyId
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 51529,N'ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
     DECLARE @SheetsOwnTransaction bit=CASE WHEN @@TRANCOUNT=0 THEN 1 ELSE 0 END,
             @SheetsSavepoint varchar(32)=REPLACE(CONVERT(varchar(36),NEWID()),'-',''),@SheetsSavepointSet bit=0;
     BEGIN TRY
@@ -242,20 +238,16 @@ BEGIN
         SELECT [RowOrdinal],[ColumnOrdinal],[StoredType],[ValuePresent],[RawValue],[TextValue],[FormulaPresent],[FormulaText],[FormulaKind],[SharedFormulaIndex],[CachePresent],[CacheValue] FROM #tbx_ReadXlsxWorksheetCells_ResultSource ORDER BY RowOrdinal,ColumnOrdinal;
         RETURN 0;
     END;
-    DECLARE @CellsDependencyVersion nvarchar(64),@CellsDependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
-    SELECT @CellsDependencyVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
-    WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version';
-    DECLARE @CellsMajor int=TRY_CONVERT(int,PARSENAME(@CellsDependencyVersion,3)),
-            @CellsMinor int=TRY_CONVERT(int,PARSENAME(@CellsDependencyVersion,2)),
-            @CellsPatch int=TRY_CONVERT(int,PARSENAME(@CellsDependencyVersion,1));
-    IF @CellsDependencyId IS NULL OR @CellsMajor IS NULL OR @CellsMajor<1 OR @CellsMinor IS NULL OR @CellsMinor<0 OR @CellsPatch IS NULL OR @CellsPatch<0
-       OR CONVERT(varbinary(max),@CellsDependencyVersion)<>CONVERT(varbinary(max),CONCAT(@CellsMajor,N'.',@CellsMinor,N'.',@CellsPatch))
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@CellsDependencyId AND minor_id=0
-           AND name=N'Toolbelt.ModuleId' AND TRY_CONVERT(nvarchar(128),value)=N'toolbelt.core.result-table')
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@CellsDependencyId AND minor_id=0
-           AND name=N'Toolbelt.ModuleVersion'
-           AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@CellsDependencyVersion))
-        THROW 51529,N'ResultTable-Dependency >= 1.0.0 fehlt oder ist ungeeignet.',1;
+
+ DECLARE @CellsDependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @CellsDependencyId IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@CellsDependencyId)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@CellsDependencyId
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 51529,N'ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
     DECLARE @CellsOwnTransaction bit=CASE WHEN @@TRANCOUNT=0 THEN 1 ELSE 0 END,
             @CellsSavepoint varchar(32)=REPLACE(CONVERT(varchar(36),NEWID()),'-',''),@CellsSavepointSet bit=0;
     BEGIN TRY

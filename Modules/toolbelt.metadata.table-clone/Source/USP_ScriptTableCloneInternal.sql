@@ -615,22 +615,14 @@ BEGIN
         IF @TrProviderId IS NULL OR @TrDomId IS NULL
           OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrProviderId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0xF849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123)
           OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrDomId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813)
-          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'int' AND TRY_CONVERT(int,value)=1)
-          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.tsql.script-parser'))
-          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'2.0.1'))
-          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=N'Toolbelt.Module.toolbelt.tsql.script-parser.DeploymentMode' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)) IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))
-            THROW 53907,N'TableClone: registriertes Parser-2.0-Binary oder Modulmarker stimmt nicht.',4;
+            THROW 53907,N'TableClone: Parserbinary fehlt oder stimmt nicht.',4;
         DECLARE @TrFunctions TABLE(RoleId int NOT NULL PRIMARY KEY,Name sysname COLLATE DATABASE_DEFAULT NOT NULL,Method sysname NOT NULL,ObjectId int NULL);
         INSERT @TrFunctions VALUES(1,N'TVF_ParseScriptNodes',N'ParseScriptNodes',NULL),(2,N'TVF_ParseScriptNodeProperties',N'ParseScriptNodeProperties',NULL),
             (3,N'TVF_TokenizeScript',N'TokenizeScript',NULL),(4,N'TVF_ParseScriptErrors',N'ParseScriptErrors',NULL);
         UPDATE f SET ObjectId=o.object_id FROM @TrFunctions f JOIN sys.objects o ON o.name=f.Name COLLATE DATABASE_DEFAULT AND o.schema_id=SCHEMA_ID(N'toolbelt_tsql') AND CONVERT(varbinary(2),o.type)=CONVERT(varbinary(2),'FT');
         IF EXISTS(SELECT 1 FROM @TrFunctions f WHERE f.ObjectId IS NULL OR COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_tsql.'+QUOTENAME(f.Name),N'OBJECT',N'SELECT'),0)<>1
             OR NOT EXISTS(SELECT 1 FROM sys.assembly_modules a WHERE a.object_id=f.ObjectId AND a.assembly_id=@TrProviderId
-                AND CONVERT(varbinary(max),a.assembly_class)=CONVERT(varbinary(max),N'Toolbelt.Tsql.ScriptParser.ScriptParserProvider') AND CONVERT(varbinary(max),a.assembly_method)=CONVERT(varbinary(max),f.Method))
-            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'int' AND TRY_CONVERT(int,value)=1)
-            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.tsql.script-parser'))
-            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.ModuleVersion' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'2.0.1'))
-            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.Visibility' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'public')))
+                AND CONVERT(varbinary(max),a.assembly_class)=CONVERT(varbinary(max),N'Toolbelt.Tsql.ScriptParser.ScriptParserProvider') AND CONVERT(varbinary(max),a.assembly_method)=CONVERT(varbinary(max),f.Method)))
             THROW 53907,N'TableClone: vier öffentliche Parser-FTs, SELECT oder CLR-Binding fehlt.',5;
         DECLARE @TrShape TABLE(RoleId int NOT NULL,Ordinal int NOT NULL,Name sysname NOT NULL,TypeId int NOT NULL,Length smallint NOT NULL,PRIMARY KEY(RoleId,Ordinal));
         INSERT @TrShape VALUES
@@ -963,15 +955,15 @@ BEGIN
         SELECT Ordinal,ObjectKind,TargetName,ScriptText FROM #tbx_TableClone_Plan ORDER BY Ordinal;
         RETURN;
     END;
-    DECLARE @DependencyVersion nvarchar(64),@DependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
-    SELECT @DependencyVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
-        WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version';
-    DECLARE @Major int=TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)),@Minor int=TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)),@Patch int=TRY_CONVERT(int,PARSENAME(@DependencyVersion,1));
-    IF @DependencyId IS NULL OR @Major IS NULL OR @Major<1 OR @Minor IS NULL OR @Minor<0 OR @Patch IS NULL OR @Patch<0
-       OR CONVERT(varbinary(max),@DependencyVersion)<>CONVERT(varbinary(max),CONCAT(@Major,N'.',@Minor,N'.',@Patch))
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.core.result-table'))
-       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@DependencyVersion))
-        THROW 53907,N'TableClone: registrierte ResultTable-Dependency >=1.0.0 fehlt.',1;
+    DECLARE @DependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @DependencyId IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@DependencyId)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@DependencyId
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 53907,N'TableClone: ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
     DECLARE @Own bit=CASE WHEN @@TRANCOUNT=0 THEN 1 ELSE 0 END,@Savepoint varchar(32)=REPLACE(CONVERT(varchar(36),NEWID()),'-',''),@Saved bit=0;
     BEGIN TRY
         IF @Own=1 BEGIN TRANSACTION;

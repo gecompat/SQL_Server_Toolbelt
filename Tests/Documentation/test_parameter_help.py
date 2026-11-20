@@ -28,7 +28,7 @@ class ParameterHelp(unittest.TestCase):
 
     def test_schema_upgrade_keeps_rollback_and_current_definitions_separate(self):
         original = (ROOT / schema_upgrade.ORIGINAL).read_text(encoding="utf-8")
-        current = schema_upgrade.current_fixture()
+        current = schema_upgrade.current_fixture(historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428'))
         self.assertEqual((ROOT / schema_upgrade.TARGET).read_text(encoding="utf-8"), current)
         # Only the definition predicate can change; identities, rights, markers,
         # genuine binary witness and complete rollback metadata remain exact.
@@ -39,7 +39,7 @@ class ParameterHelp(unittest.TestCase):
         self.assertIn("@ExpectedVersion=N'1.0.0'", changed)
         self.assertIn(schema_upgrade.ANCHOR.strip(), changed)
         self.assertIn("@ExpectedVersion=N'1.0.1'", changed)
-        self.assertIn("=0x" + schema_upgrade.current_definition_hash(), changed)
+        self.assertIn("=0x" + schema_upgrade.current_definition_hash(historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')), changed)
         adapter = (ROOT / "Tests/CI/run-json-constructors-linux.sh").read_text(encoding="utf-8")
         self.assertEqual(adapter.count('UpgradeVerify.sql -v SchemaExpectedVersion=1.0.0'), 2)
         self.assertEqual(adapter.count('UpgradeHelpVerify.sql -v SchemaExpectedVersion=1.0.1'), 2)
@@ -58,10 +58,12 @@ class ParameterHelp(unittest.TestCase):
         self.assertEqual(len(public), 74)
         self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 675)
 
-    def test_business_sources_are_unchanged_outside_generated_help(self):
+    def test_original_help_transition_at_recorded_source_scope(self):
         for path in transition.snapshot(ROOT):
             with self.subTest(path=path):
-                root = historical_root(ROOT) if path.startswith("Modules/toolbelt.tsql.ssis-debug/") else ROOT
+                root = historical_root(ROOT, "47e759b683805d9c79b59fb9e541618fc9cfb428")
+                if path.startswith("Modules/toolbelt.tsql.ssis-debug/"):
+                    root = historical_root(ROOT)
                 transition.predecessor_source(root, path)
 
     def test_changed_business_body_and_noncanonical_help_are_rejected(self):
@@ -84,7 +86,7 @@ class ParameterHelp(unittest.TestCase):
                 # Der XML-/StartValues-Generator ist eine neue Funktionsquelle,
                 # kein ausschließlich redaktioneller Help-Leseadapter.
                 functional_generator = path == 'Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py'
-                root = historical_root(ROOT,'75d42047557d06b82777ba0c860e90f44247920e') if functional_generator else ROOT
+                root = historical_root(ROOT,'75d42047557d06b82777ba0c860e90f44247920e') if functional_generator else historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
                 original = transition.restore_verifier_source(root,path)
                 self.assertEqual(__import__("hashlib").sha256(original).hexdigest(),pins[path]["before"])
                 with self.assertRaises(ValueError):

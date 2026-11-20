@@ -128,7 +128,7 @@ assert 'GROUP BY TargetSchemaId,TargetTable HAVING COUNT_BIG(*)>1' in core
 assert '(f.is_disabled=1 AND f.is_not_trusted=0)' in core
 assert 'f.key_index_id' in core and 'k.key_ordinal>0' in core
 assert 'c.constraint_column_id' in core and 'FOREIGN_KEY_STATE' in core
-assert core.index('CLOSE RenderCursor;') < core.index('DECLARE PropertyCursor') < core.index('DECLARE ForeignKeyCursor') < core.index('DECLARE @DependencyVersion')
+assert core.index('CLOSE RenderCursor;') < core.index('DECLARE PropertyCursor') < core.index('DECLARE ForeignKeyCursor') < core.index('DECLARE @DependencyId')
 assert core.count('DECLARE @ColumnDdl')==1 and core.count('DECLARE PropertyCursor')==1
 assert core.count('CREATE TABLE #tbx_TableClone_Plan')==1
 # Countvertrag an die zwei Katalogmengen gekoppelt; keine Python-SQL-Nachbildung als Runtime-Nachweis.
@@ -230,3 +230,5 @@ assert re.findall(r"PRINT 'PASS TABLE_CLONE_COPY_GROUP([1-5])';",groups)==list('
 assert 'COPY_FK' in core and "@CopyFk=0" in core
 assert "THROW 53943" in copy and 'DATALENGTH' in copy and 'COUNT_BIG' in copy
 print('Copy9 / summary5 / lifecycle4Slots / five fixture groups gekoppelt; Runtime nicht ausgeführt.')
+
+assert "Toolbelt.Module" not in core and "sys.parameters" in core

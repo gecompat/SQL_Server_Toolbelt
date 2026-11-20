@@ -12,6 +12,10 @@ auf .NET Framework 4.8 benötigt ausschließlich System und System.Data. Ein
 vollständiger Syntax-/Budgetpreflight und private Ergebnisse gehen jedem
 öffentlichen Resultset beziehungsweise jeder ResultTable-Mutation voraus.
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Grenzen und Verwendung
 
 Defaults sind 100000 DATA-Records, 1024 Spalten, 1000000 HEADER+DATA-Zellen und

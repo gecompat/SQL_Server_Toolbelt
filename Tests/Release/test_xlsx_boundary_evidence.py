@@ -115,7 +115,9 @@ class XlsxBoundaryEvidenceMixin:
                                                     revisions=revisions)[relative].original
                 else:
                     import parameter_help_transition
-                    data = (parameter_help_transition.bound_source(ROOT, relative, expected)
+                    # Historischer Ausführungsbericht, keine Anwendbarkeit der
+                    # später geänderten markerfreien Runtime behaupten.
+                    data = (evidence_sources.original_for(ROOT, report, relative, expected)
                             if relative in parameter_help_transition.PATHS | parameter_help_transition.VERIFIER_PATHS
                             else evidence_sources.original_for(ROOT, report, relative, expected))
                 if relative == report['source_eol_projection']['path']:

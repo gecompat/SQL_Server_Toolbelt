@@ -143,7 +143,7 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
             result = self.scope(fixture, from_file=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_option_zero_reuse_requires_exact_historical_and_current_binding_delta(self):
+    def test_option_zero_historical_reuse_requires_exact_isolated_binding_delta(self):
         # Vollständige normalisierte Quelle des vorherigen Main; kein abgeleiteter Runtime-PASS.
         relative = 'Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql'
         snapshot = historical_root(ROOT, '75d42047557d06b82777ba0c860e90f44247920e')
@@ -167,7 +167,10 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
         for old, new in replacements:
             self.assertEqual(expected.count(old), 1)
             expected = expected.replace(old, new)
-        self.assertEqual((ROOT / relative).read_bytes().replace(b'\r\n', b'\n'), expected)
+        isolated = historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
+        self.assertEqual((isolated / relative).read_bytes().replace(b'\r\n', b'\n'), expected)
+        # Der markerfreie gemeinsame Guard ist ein anderer, noch separat zu qualifizierender Vertrag.
+        self.assertNotEqual((ROOT / relative).read_bytes().replace(b'\r\n', b'\n'), expected)
 
 
 if __name__ == '__main__':

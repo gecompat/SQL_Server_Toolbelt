@@ -69,9 +69,6 @@ for marker in (
     "TYPE_NAME(p.user_type_id) COLLATE Latin1_General_100_BIN2 = N'bit'",
     "p.max_length = 1",
     "p.is_output = 0",
-    "N'Toolbelt.ModuleId'",
-    "N'Toolbelt.ModuleVersion'",
-    "N'Toolbelt.Module.toolbelt.core.event-log.Version'",
     "AND @IsCanonicalEventLogHandler = 0",
     "@PayloadJson = @PayloadJson, @Hilfe = 0 WITH RESULT SETS NONE",
 ):
@@ -158,3 +155,5 @@ for forbidden in ("EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback",
         raise SystemExit("Der Tabellenrepeat darf keine Providerverwaltung oder RPC ausführen: " + forbidden)
 
 print("Second Session statische Vertragsprüfung: erfolgreich")
+
+assert "extended_properties" not in dispatch, "Keine Markerabhängigkeit im Dispatcher"

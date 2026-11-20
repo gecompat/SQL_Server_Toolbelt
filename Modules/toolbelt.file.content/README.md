@@ -37,6 +37,8 @@ wird. Ohne diesen Parameter bleibt das direkte Resultset unverändert.
 
 ## Deployment
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 `Deployment/Deploy.sql` benötigt die SQLCMD-Variable
 `DeploymentMode=local|central`. Zusätzlich muss `OPENROWSET(BULK...)` auf
 SQL Server aktiviert sein (`ad hoc distributed queries`) oder der Aufrufer

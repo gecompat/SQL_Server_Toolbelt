@@ -141,36 +141,6 @@ BEGIN
              AND p.max_length = 1
              AND p.is_output = 0
        )
-       AND EXISTS
-       (
-           SELECT 1
-           FROM sys.extended_properties AS ep
-           WHERE ep.class = 1
-             AND ep.major_id = @HandlerObjectId
-             AND ep.minor_id = 0
-             AND ep.name COLLATE Latin1_General_100_BIN2 = N'Toolbelt.ModuleId'
-             AND CONVERT(nvarchar(256), ep.value) COLLATE Latin1_General_100_BIN2 = N'toolbelt.core.event-log'
-       )
-       AND EXISTS
-       (
-           SELECT 1
-           FROM sys.extended_properties AS ep
-           WHERE ep.class = 1
-             AND ep.major_id = @HandlerObjectId
-             AND ep.minor_id = 0
-             AND ep.name COLLATE Latin1_General_100_BIN2 = N'Toolbelt.ModuleVersion'
-             AND CONVERT(nvarchar(32), ep.value) COLLATE Latin1_General_100_BIN2 = N'1.0.0'
-       )
-       AND EXISTS
-       (
-           SELECT 1
-           FROM sys.extended_properties AS ep
-           WHERE ep.class = 0
-             AND ep.major_id = 0
-             AND ep.minor_id = 0
-             AND ep.name COLLATE Latin1_General_100_BIN2 = N'Toolbelt.Module.toolbelt.core.event-log.Version'
-             AND CONVERT(nvarchar(32), ep.value) COLLATE Latin1_General_100_BIN2 = N'1.0.0'
-       )
         SET @IsCanonicalEventLogHandler = 1;
 
     IF @ParameterMode = 'NONE' AND @InputParameterCount <> 0

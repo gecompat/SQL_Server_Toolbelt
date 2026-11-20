@@ -12,6 +12,10 @@ Deploy aus `Deployment/` im SQLCMD-Modus mit `DeploymentMode` und `ExpectedCompa
 
 [Freigabe und Vertrag](../../Documentation/Architecture/TEXT_PAIRS_CONTRACT.md), [Beispiel](Examples/CompareTextPairs.sql), [Testmatrix](Tests/TEXT_PAIRS_TEST_MATRIX.md), [Nachweisstand](Tests/README.md).
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

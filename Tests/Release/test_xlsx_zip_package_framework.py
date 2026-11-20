@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import xlsx_sst_budget
 import help_contract_source
+import evidence_sources
 REPORT = "Releases/1.0.0/XLSX-ZIP-PACKAGE-FRAMEWORK-QUALIFICATION.json"
 PACKAGE = "Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip"
 PACKAGE_SHA256 = "896989d546ae7396b4b698e3228ec4c55fd49857f4d2408e125904faf6471287"
@@ -41,7 +42,7 @@ def _xlsx_zip_source_map_digest(pins: list[dict[str, str]]) -> str:
     return _xlsx_zip_digest(value.encode("utf-8"))
 
 
-def validate_xlsx_zip_package_report(report: dict, root: Path = ROOT) -> None:
+def validate_xlsx_zip_package_report(report: dict, root: Path = ROOT, *, historical=False) -> None:
     required = {
         "schema_version", "date", "status", "scope", "publication_authorized", "native_sql",
         "product_build_executed", "product_sql_changed", "module_status_changed", "package_payload_changed",
@@ -123,7 +124,9 @@ def validate_xlsx_zip_package_report(report: dict, root: Path = ROOT) -> None:
         path = item["path"]
         if not isinstance(path, str) or path.startswith(("/", "\\")) or ".." in Path(path).parts:
             raise ValueError("XLSX_ZIP_REPORT_PIN_PATH")
-        if path in xlsx_sst_budget.HISTORICAL:
+        if historical:
+            source = evidence_sources.original_for(root, report, path, item['sha256'])
+        elif path in xlsx_sst_budget.HISTORICAL:
             source = xlsx_sst_budget.validate_historical_source(root, path, item['sha256'])
         elif path in help_contract_source.source_paths(root):
             source = help_contract_source.validate_historical_source(root, path, item['sha256'])
@@ -168,7 +171,10 @@ class XlsxZipPackageFrameworkMixin:
         return json.loads((ROOT / REPORT).read_bytes())
 
     def test_xlsx_zip_package_report_is_exactly_bound(self):
-        validate_xlsx_zip_package_report(self._xlsx_zip_load_report())
+        report = self._xlsx_zip_load_report()
+        validate_xlsx_zip_package_report(report, historical=True)
+        with self.assertRaisesRegex(ValueError, 'XLSX_ZIP_CURRENT_SOURCE_PIN'):
+            validate_xlsx_zip_package_report(report)
 
     def test_xlsx_zip_package_report_drift_is_rejected(self):
         report = self._xlsx_zip_load_report()
@@ -199,7 +205,7 @@ class XlsxZipPackageFrameworkMixin:
         for altered in mutations:
             with self.subTest(mutation=altered.get("scope", altered.get("input_pins", {}))):
                 with self.assertRaises(ValueError):
-                    validate_xlsx_zip_package_report(altered)
+                    validate_xlsx_zip_package_report(altered, historical=True)
 
     @unittest.skipUnless(shutil.which("pwsh"), "PowerShell 7 ist für die lokalen Guard-Proben nicht verfügbar.")
     def test_xlsx_zip_package_native_preparers_reject_invalid_scopes(self):

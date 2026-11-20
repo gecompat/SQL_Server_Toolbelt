@@ -1,5 +1,27 @@
 # toolbelt_metadata.VW_ModuleCapabilities
 
+Die View zeigt sichtbare bekannte Toolbelt-Schnittstellenkandidaten der aktuellen Datenbank. Sie verwendet weder Extended Properties noch eine Registry. Ein namensgleiches Objekt beweist keine vollständige Installation, Herkunft oder Version.
+
+| Spalte | Typ | Bedeutung |
+|---|---|---|
+| `ModuleId` | `sysname` | Kandidat mit mindestens einer sichtbaren bekannten Schnittstelle beziehungsweise Assembly. |
+| `ModuleVersion` | `nvarchar(4000)` | Immer NULL; aus Namen nicht zuverlässig ableitbar. |
+| `DeploymentMode` | `nvarchar(4000)` | Immer NULL; kein Installationsmodus wird erfunden. |
+| `MetadataStatus` | `varchar(16)` | Immer `incomplete`; kein Gesundheits- oder Qualifikationsnachweis. |
+
+```sql
+SELECT ModuleId,ModuleVersion,DeploymentMode,MetadataStatus
+FROM toolbelt_metadata.VW_ModuleCapabilities ORDER BY ModuleId;
+```
+
+`SELECT` auf der View und die normale Metadata Visibility gelten unverändert. Unsichtbare Objekte können Kandidaten ausblenden; es werden keine Rechte vergeben. Die View mutiert nichts und garantiert ohne ORDER BY keine Reihenfolge. Sie darf weder als Ownership- noch als Upgrade-/Autorisierungsgate dienen. Die feste Kandidatenprojektion wird aus den Modulmanifesten erzeugt; zur Laufzeit werden nur `sys.objects` und `sys.assemblies` gelesen.
+
+Der aktuelle markerfreie Vertrag ist noch nicht nativ vollständig qualifiziert. Frühere Markerläufe qualifizieren ausschließlich die nachfolgend erhaltene alte Definition.
+
+## Historischer Marker-Vertrag bis 2026-11-19
+
+# toolbelt_metadata.VW_ModuleCapabilities
+
 **Typ:** View
 **Status:** `implemented`; Runtime `validated`
 

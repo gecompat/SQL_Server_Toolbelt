@@ -36,30 +36,3 @@ BEGIN
     );
 END;
 GO
-
-IF EXISTS
-(
-    SELECT 1
-    FROM sys.extended_properties AS ep
-    INNER JOIN sys.tables AS tables
-        ON tables.object_id = ep.major_id
-    INNER JOIN sys.schemas AS schemas
-        ON schemas.schema_id = tables.schema_id
-    WHERE ep.class = 1
-      AND ep.minor_id = 0
-      AND ep.name = N'MS_Description'
-      AND schemas.name = N'toolbelt_file'
-      AND tables.name = N'FileContentRootAllowlist'
-)
-    EXEC sys.sp_updateextendedproperty
-          @name = N'MS_Description'
-        , @value = N'Allowlist der Root-Pfade für toolbelt.file.content. Pfade müssen absolut sein; UNC-Pfade sind erlaubt.'
-        , @level0type = N'SCHEMA', @level0name = N'toolbelt_file'
-        , @level1type = N'TABLE',  @level1name = N'FileContentRootAllowlist';
-ELSE
-    EXEC sys.sp_addextendedproperty
-          @name = N'MS_Description'
-        , @value = N'Allowlist der Root-Pfade für toolbelt.file.content. Pfade müssen absolut sein; UNC-Pfade sind erlaubt.'
-        , @level0type = N'SCHEMA', @level0name = N'toolbelt_file'
-        , @level1type = N'TABLE',  @level1name = N'FileContentRootAllowlist';
-GO

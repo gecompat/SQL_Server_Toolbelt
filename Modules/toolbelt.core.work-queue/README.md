@@ -8,6 +8,10 @@ Dort stehen Installation, Rechte, Retry/Dead Letter, Prioritäten, Barriers,
 Statusdeutung und Fehlerklärung. Weiter zum
 [externen und verwalteten Workerbetrieb](../../Workers/ExternalQueue/USAGE.md).
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Security-Korrektur 2026-10-14
 
 SC-029/SC-032: Die Legacyclaim-Prüfung erfolgt erneut unter einer bis Transaktionsende gehaltenen Tabellensperre. Der Barrier-Contract weist vorzeitige Barrierclaims vor Blockerabschluss ausdrücklich ab.

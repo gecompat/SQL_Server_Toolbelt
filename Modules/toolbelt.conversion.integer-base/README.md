@@ -53,6 +53,10 @@ bleiben offen.
 Siehe [Design](../../Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md)
 und [Testmatrix](./Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md).
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

@@ -1,231 +1,281 @@
 -- ============================================================================
--- Objekt:          toolbelt_metadata.VW_ModuleCapabilities
--- Typ:             View
--- Zweck:           Projiziert installierte Toolbelt-Module und den Zustand
---                  ihrer Database-level Extended-Property-Marker.
--- Vertrag:         Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
--- Parameter:       Keine.
--- Resultset:       ModuleId, ModuleVersion, DeploymentMode, MetadataStatus.
--- Dependencies:    sys.extended_properties der aktuellen Datenbank.
--- Rechte:          SELECT auf der View; Metadata Visibility gilt unverändert.
--- Versionen:       SQL Server 2019, 2022 und 2025.
--- Plattformen:     Windows und Linux.
--- Fehlerverhalten: Read-only; Konvertierungsfehler werden als invalid sichtbar.
--- Performance:     Ein Scan der Database-level Extended Properties.
--- Einschränkungen: Keine Objektinventur, keine module.yaml-Projektion und keine
---                  persistente Registry. Nur stabile Release-Versionen.
+-- Objekt: toolbelt_metadata.VW_ModuleCapabilities; Typ: View
+-- Zweck: Sichtbare bekannte Toolbelt-Schnittstellenkandidaten anzeigen.
+-- Vertrag: Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
+-- Resultset: ModuleId sysname, ModuleVersion/DeploymentMode nvarchar(4000),
+-- MetadataStatus varchar(16). Keine Parameter oder Seiteneffekte.
+-- Dependencies: sys.objects und sys.assemblies; keine Registry oder Marker.
+-- Rechte: SELECT auf der View; unveränderte Metadata Visibility.
+-- Versionen: SQL Server 2019/2022/2025; Windows und Linux.
+-- Fehlerverhalten: Read-only; nicht sichtbare Kandidaten erscheinen nicht.
+-- Performance: Feste Manifestprojektion mit Katalog-Existenzprüfungen.
+-- Einschränkungen: Namen beweisen weder Herkunft noch vollständige Installation,
+-- Version, Deploymentmodus oder Qualifikation. Daher beide Werte NULL und
+-- MetadataStatus=incomplete. Nicht als Autorisierungs-/Deploymentgate verwenden.
+-- Generiert: Scripts/Install/New-MarkerlessCapabilities.py --check
 -- ============================================================================
-
 SET ANSI_NULLS ON;
 GO
 SET QUOTED_IDENTIFIER ON;
 GO
-
-CREATE OR ALTER VIEW [toolbelt_metadata].[VW_ModuleCapabilities]
-AS
-WITH MarkerRows AS
+CREATE OR ALTER VIEW toolbelt_metadata.VW_ModuleCapabilities AS
+WITH Candidates AS
 (
-    SELECT
-          ModuleId = CONVERT
-          (
-              sysname,
-              SUBSTRING
-              (
-                    ep.name
-                  , LEN(N'Toolbelt.Module.') + 1
-                  , LEN(ep.name)
-                    - LEN(N'Toolbelt.Module.')
-                    - CASE marker.MarkerKind
-                          WHEN N'Version' THEN LEN(N'.Version')
-                          ELSE LEN(N'.DeploymentMode')
-                      END
-              )
-          )
-        , marker.MarkerKind
-        , MarkerValue = TRY_CONVERT(nvarchar(4000), ep.value)
-        , MarkerBaseType =
-              TRY_CONVERT(sysname, SQL_VARIANT_PROPERTY(ep.value, 'BaseType'))
-        , MarkerNameIsCanonical = CONVERT
-          (
-              bit,
-              CASE
-                  WHEN LEFT(ep.name, LEN(N'Toolbelt.Module.'))
-                           COLLATE Latin1_General_100_BIN2
-                           = N'Toolbelt.Module.'
-                   AND
-                   (
-                       (marker.MarkerKind = N'Version'
-                        AND RIGHT(ep.name, LEN(N'.Version'))
-                                COLLATE Latin1_General_100_BIN2 = N'.Version')
-                       OR
-                       (marker.MarkerKind = N'DeploymentMode'
-                        AND RIGHT(ep.name, LEN(N'.DeploymentMode'))
-                                COLLATE Latin1_General_100_BIN2
-                                = N'.DeploymentMode')
-                   )
-                  THEN 1
-                  ELSE 0
-              END
-          )
-    FROM sys.extended_properties AS ep
-    CROSS APPLY
-    (
-        VALUES
-        (
-            CASE
-                WHEN RIGHT(ep.name, LEN(N'.Version'))
-                         COLLATE Latin1_General_100_CI_AS = N'.Version'
-                THEN N'Version'
-                WHEN RIGHT(ep.name, LEN(N'.DeploymentMode'))
-                         COLLATE Latin1_General_100_CI_AS
-                         = N'.DeploymentMode'
-                THEN N'DeploymentMode'
-            END
-        )
-    ) AS marker (MarkerKind)
-    WHERE ep.class = 0
-      AND ep.major_id = 0
-      AND ep.minor_id = 0
-      AND LEFT(ep.name, LEN(N'Toolbelt.Module.'))
-              COLLATE Latin1_General_100_CI_AS = N'Toolbelt.Module.'
-      AND marker.MarkerKind IS NOT NULL
-),
-AggregatedMarkers AS
+    SELECT v.ModuleId,v.ObjectName,v.ObjectTypes FROM (VALUES
+    (N'toolbelt.archive.zip-files',N'toolbelt_archive.USP_CreateZipFileFromEntries',N'P,PC'),
+    (N'toolbelt.archive.zip-files',N'toolbelt_archive.USP_ExtractZipEntryToFile',N'P,PC'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.USP_CreateZipFromEntries',N'P,PC'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.TVF_InternalZipWriterName',N'FT'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.TVF_InternalZipWriterArchive',N'FT'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.USP_ExtractZipEntryFromBinary',N'P,PC'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.USP_ListZipEntriesFromBinary',N'P,PC'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.TVF_InternalExtractZipEntryClr',N'FT'),
+    (N'toolbelt.archive.zip-memory',N'toolbelt_archive.TVF_InternalListZipEntriesClr',N'FT'),
+    (N'toolbelt.archive.zip-memory',N'tlblt_Archive_ZipMemory',N'ASSEMBLY'),
+    (N'toolbelt.binary.bit-operations',N'toolbelt_binary.TVF_LeftShiftBigInt',N'IF,TF,FT'),
+    (N'toolbelt.binary.bit-operations',N'toolbelt_binary.TVF_RightShiftBigInt',N'IF,TF,FT'),
+    (N'toolbelt.binary.bit-operations',N'toolbelt_binary.TVF_BitCountBigInt',N'IF,TF,FT'),
+    (N'toolbelt.binary.bit-operations',N'toolbelt_binary.TVF_GetBitBigInt',N'IF,TF,FT'),
+    (N'toolbelt.binary.bit-operations',N'toolbelt_binary.TVF_SetBitBigInt',N'IF,TF,FT'),
+    (N'toolbelt.conversion.base64',N'toolbelt_conversion.TVF_Base64Encode',N'IF,TF,FT'),
+    (N'toolbelt.conversion.base64',N'toolbelt_conversion.TVF_Base64Decode',N'IF,TF,FT'),
+    (N'toolbelt.conversion.base64',N'toolbelt_conversion.SVF_Base64Encode',N'FN,FS'),
+    (N'toolbelt.conversion.base64',N'toolbelt_conversion.SVF_Base64Decode',N'FN,FS'),
+    (N'toolbelt.conversion.base64',N'toolbelt_conversion.TVF_Base64EncodeStatus',N'IF,TF,FT'),
+    (N'toolbelt.conversion.base64',N'toolbelt_conversion.TVF_Base64DecodeStatus',N'IF,TF,FT'),
+    (N'toolbelt.conversion.integer-base',N'toolbelt_conversion.TVF_IntegerToBase',N'IF,TF,FT'),
+    (N'toolbelt.conversion.integer-base',N'toolbelt_conversion.TVF_TryBaseToInteger',N'IF,TF,FT'),
+    (N'toolbelt.conversion.integer-base',N'toolbelt_conversion.SVF_IntegerToBase',N'FN,FS'),
+    (N'toolbelt.conversion.integer-base',N'toolbelt_conversion.SVF_TryBaseToInteger',N'FN,FS'),
+    (N'toolbelt.conversion.safe-cast',N'toolbelt_conversion.TVF_TryCastBigInt',N'IF,TF,FT'),
+    (N'toolbelt.conversion.safe-cast',N'toolbelt_conversion.TVF_TryCastDecimal',N'IF,TF,FT'),
+    (N'toolbelt.conversion.safe-cast',N'toolbelt_conversion.TVF_TryCastDate',N'IF,TF,FT'),
+    (N'toolbelt.conversion.safe-cast',N'toolbelt_conversion.TVF_TryCastDateTime2',N'IF,TF,FT'),
+    (N'toolbelt.conversion.safe-cast',N'toolbelt_conversion.TVF_TryCastBit',N'IF,TF,FT'),
+    (N'toolbelt.conversion.safe-cast',N'toolbelt_conversion.TVF_TryCastUniqueIdentifier',N'IF,TF,FT'),
+    (N'toolbelt.conversion.uri-component',N'toolbelt_conversion.TVF_UriComponentEncode',N'IF,TF,FT'),
+    (N'toolbelt.conversion.uri-component',N'toolbelt_conversion.TVF_UriComponentDecode',N'IF,TF,FT'),
+    (N'toolbelt.conversion.uri-component',N'toolbelt_conversion.SVF_UriComponentEncode',N'FN,FS'),
+    (N'toolbelt.conversion.uri-component',N'toolbelt_conversion.SVF_UriComponentDecode',N'FN,FS'),
+    (N'toolbelt.conversion.uri-component',N'toolbelt_conversion.TVF_UriComponentEncodeStatus',N'IF,TF,FT'),
+    (N'toolbelt.conversion.uri-component',N'toolbelt_conversion.TVF_UriComponentDecodeStatus',N'IF,TF,FT'),
+    (N'toolbelt.core.console-message',N'toolbelt_core.USP_WriteConsoleMessage',N'P,PC'),
+    (N'toolbelt.core.error-envelope',N'toolbelt_core.USP_CaptureErrorEnvelope',N'P,PC'),
+    (N'toolbelt.core.event-log',N'toolbelt_core.EventLog',N'U'),
+    (N'toolbelt.core.event-log',N'toolbelt_core.VW_Events',N'V'),
+    (N'toolbelt.core.event-log',N'toolbelt_core.USP_WriteEvent',N'P,PC'),
+    (N'toolbelt.core.event-log',N'toolbelt_core.USP_DeleteEventsBefore',N'P,PC'),
+    (N'toolbelt.core.event-log',N'toolbelt_core.USP_WriteEventInternal',N'P,PC'),
+    (N'toolbelt.core.event-log',N'toolbelt_core.USP_DeleteRecordedEventsBefore',N'P,PC'),
+    (N'toolbelt.core.execution-cancel',N'toolbelt_core.ExecutionCancellation',N'U'),
+    (N'toolbelt.core.execution-cancel',N'toolbelt_core.TVF_ExecutionCancellationStatus',N'IF,TF,FT'),
+    (N'toolbelt.core.execution-cancel',N'toolbelt_core.SVF_IsCancellationRequested',N'FN,FS'),
+    (N'toolbelt.core.execution-cancel',N'toolbelt_core.USP_RequestExecutionCancellation',N'P,PC'),
+    (N'toolbelt.core.execution-context',N'toolbelt_core.TVF_CurrentExecutionContext',N'IF,TF,FT'),
+    (N'toolbelt.core.execution-context',N'toolbelt_core.SVF_CurrentExecutionId',N'FN,FS'),
+    (N'toolbelt.core.execution-context',N'toolbelt_core.USP_BeginExecution',N'P,PC'),
+    (N'toolbelt.core.execution-context',N'toolbelt_core.USP_SetExecutionContext',N'P,PC'),
+    (N'toolbelt.core.execution-context',N'toolbelt_core.USP_EndExecution',N'P,PC'),
+    (N'toolbelt.core.generate-series',N'toolbelt_core.TVF_GenerateSeriesBigInt',N'IF,TF,FT'),
+    (N'toolbelt.core.generate-series',N'toolbelt_core.TVF_GenerateSeriesInt',N'IF,TF,FT'),
+    (N'toolbelt.core.generate-series',N'toolbelt_core.TVF_GenerateSeriesBigIntStatus',N'IF,TF,FT'),
+    (N'toolbelt.core.result-table',N'toolbelt_core.USP_PrepareResultTable',N'P,PC'),
+    (N'toolbelt.core.second-session',N'toolbelt_core.SecondSessionProvider',N'U'),
+    (N'toolbelt.core.second-session',N'toolbelt_core.VW_SecondSessionProviders',N'V'),
+    (N'toolbelt.core.second-session',N'toolbelt_core.USP_ConfigureSecondSessionLoopback',N'P,PC'),
+    (N'toolbelt.core.second-session',N'toolbelt_core.USP_ExecuteWorkTypeInNewSession',N'P,PC'),
+    (N'toolbelt.core.second-session',N'toolbelt_core.USP_SecondSessionProbe',N'P,PC'),
+    (N'toolbelt.core.second-session',N'toolbelt_core.USP_DispatchWorkType',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_FailWorkCore',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_ScheduleWorkRetryCore',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.WorkQueueManagedGate',N'U'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_ClaimWorkCore',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.WorkItem',N'U'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.WorkQueueScheduler',N'U'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.WorkQueueBarrierBlocker',N'U'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.VW_WorkQueue',N'V'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.VW_WorkQueueBarrierBlockers',N'V'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_EnqueueWork',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_EnqueueWorkWithPolicy',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_EnqueueBarrierWork',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_ClaimWork',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_RenewWorkLease',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_RecoverExpiredWork',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_CompleteWork',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_FailWork',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_ScheduleWorkRetry',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_RequeueDeadLetter',N'P,PC'),
+    (N'toolbelt.core.work-queue',N'toolbelt_core.USP_GetWorkStatus',N'P,PC'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.WorkTypePermission',N'U'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.TVF_WorkTypeAuthorization',N'IF,TF,FT'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.USP_SetWorkTypePermission',N'P,PC'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.WorkType',N'U'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.VW_WorkTypes',N'V'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.USP_RegisterWorkType',N'P,PC'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.USP_DisableWorkType',N'P,PC'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.USP_RemoveWorkType',N'P,PC'),
+    (N'toolbelt.core.work-type',N'toolbelt_core.USP_ResolveWorkType',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.WorkerControlConfiguration',N'U'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.WorkerRegistration',N'U'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.WorkerSlotReservation',N'U'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.WorkerExecutionDisposition',N'U'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.WorkerExecutionCommitWitness',N'U'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.VW_WorkerStatus',N'V'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.VW_WorkerExecutionStatus',N'V'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_BeginWorkerCompletion',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_BeginWorkerTransactionWitness',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_BindWorkerExecution',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_ClaimWorkerWork',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_CloseWorker',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_DisableManagedWorkers',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_EnableManagedWorkers',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_FinalizeWorkerFailure',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_HeartbeatWorker',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_ReconcileWorkerExecution',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_RecordWorkerCommit',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_RecordWorkerRollback',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_RecordWorkerUnknown',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_RegisterWorker',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_ReleaseHeldWork',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_ReserveWorkerExecution',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_SetWorkerCapacity',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_SetWorkerConcurrency',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_SetWorkerIntervals',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_SetWorkerState',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_StopWorkerExecution',N'P,PC'),
+    (N'toolbelt.core.worker-control',N'toolbelt_core.USP_StopWorkers',N'P,PC'),
+    (N'toolbelt.datetime.bucket',N'toolbelt_datetime.TVF_DateBucketDate',N'IF,TF,FT'),
+    (N'toolbelt.datetime.bucket',N'toolbelt_datetime.TVF_DateBucketDateTime2',N'IF,TF,FT'),
+    (N'toolbelt.datetime.bucket',N'toolbelt_datetime.TVF_DateBucketDateTimeOffset',N'IF,TF,FT'),
+    (N'toolbelt.datetime.bucket',N'toolbelt_datetime.TVF_DateBucketCore',N'IF,TF,FT'),
+    (N'toolbelt.datetime.calendar-difference',N'toolbelt_datetime.TVF_CalendarDifference',N'IF,TF,FT'),
+    (N'toolbelt.datetime.date-spine',N'toolbelt_datetime.TVF_DateSpineDay',N'IF,TF,FT'),
+    (N'toolbelt.datetime.date-spine',N'toolbelt_datetime.TVF_DateSpineIsoWeek',N'IF,TF,FT'),
+    (N'toolbelt.datetime.date-spine',N'toolbelt_datetime.TVF_DateSpineMonth',N'IF,TF,FT'),
+    (N'toolbelt.datetime.date-spine',N'toolbelt_datetime.TVF_DateSpineCore',N'IF,TF,FT'),
+    (N'toolbelt.datetime.truncate',N'toolbelt_datetime.TVF_TruncateDate',N'IF,TF,FT'),
+    (N'toolbelt.datetime.truncate',N'toolbelt_datetime.TVF_TruncateDateTime2',N'IF,TF,FT'),
+    (N'toolbelt.datetime.truncate',N'toolbelt_datetime.TVF_TruncateDateTimeOffset',N'IF,TF,FT'),
+    (N'toolbelt.file.content',N'toolbelt_file.FileContentRootAllowlist',N'U'),
+    (N'toolbelt.file.content',N'toolbelt_file.USP_LoadBinaryFile',N'P,PC'),
+    (N'toolbelt.file.content',N'toolbelt_file.USP_LoadTextFile',N'P,PC'),
+    (N'toolbelt.file.csv-memory',N'toolbelt_file.USP_ParseCsv',N'P,PC'),
+    (N'toolbelt.file.csv-memory',N'toolbelt_file.USP_WriteCsv',N'P,PC'),
+    (N'toolbelt.file.csv-memory',N'toolbelt_file.TVF_InternalParseCsv',N'FT'),
+    (N'toolbelt.file.csv-memory',N'toolbelt_file.SVF_InternalMeasureCsvCell',N'FS'),
+    (N'toolbelt.file.csv-memory',N'toolbelt_file.SVF_InternalQuoteCsvCell',N'FS'),
+    (N'toolbelt.file.csv-memory',N'tlblt_File_CsvMemory',N'ASSEMBLY'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.USP_ListXlsxWorksheets',N'P,PC'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.USP_ReadXlsxWorksheetCells',N'P,PC'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.USP_InternalXlsxRead',N'P,PC'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.TVF_InternalXlsxSheets',N'FT'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.TVF_InternalXlsxCells',N'FT'),
+    (N'toolbelt.file.xlsx-memory',N'tlblt_File_XlsxMemory',N'ASSEMBLY'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.TVF_InternalInterpretXlsxCell',N'FT'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.TVF_InterpretXlsxCell',N'IF,TF,FT'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.TVF_InternalFormatXlsxCell',N'FT'),
+    (N'toolbelt.file.xlsx-memory',N'toolbelt_file.TVF_FormatXlsxCell',N'IF,TF,FT'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.FileSystemRoot',N'U'),
+    (N'toolbelt.filesystem.windows',N'tlblt_Filesystem_Windows',N'ASSEMBLY'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_ReadBinaryFileChunk',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_ReadTextFileChunk',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_WriteBinaryFile',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_WriteTextFile',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_TranscodeTextFile',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_ListDirectory',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_CreateDirectory',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_RemoveFile',N'P,PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_RemoveDirectory',N'P,PC'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.USP_JsonArray',N'P,PC'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.USP_JsonObject',N'P,PC'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.USP_JsonArraysByGroup',N'P,PC'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.USP_JsonObjectsByGroup',N'P,PC'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.USP_JsonConstructInternal',N'P,PC'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.FT_JsonEntryEvaluateInternal',N'FT'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.AGF_JsonArray',N'AF'),
+    (N'toolbelt.json.constructors',N'toolbelt_json.AGF_JsonObject',N'AF'),
+    (N'toolbelt.json.constructors',N'tlblt_JsonConstructors',N'ASSEMBLY'),
+    (N'toolbelt.json.core',N'tlblt_JsonCore',N'ASSEMBLY'),
+    (N'toolbelt.json.path-exists',N'toolbelt_json.TVF_JsonPathExists',N'IF,TF,FT'),
+    (N'toolbelt.json.path-exists',N'toolbelt_json.TVF_JsonPathExistsStatus',N'IF,TF,FT'),
+    (N'toolbelt.json.pointer',N'toolbelt_json.TVF_ResolveJsonPointer',N'IF,TF,FT'),
+    (N'toolbelt.json.schema',N'toolbelt_json.USP_ValidateJsonSchema',N'P,PC'),
+    (N'toolbelt.json.schema',N'toolbelt_json.FT_ValidateJsonSchemaInternal',N'FT'),
+    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ModuleCapabilities',N'V'),
+    (N'toolbelt.metadata.identifier',N'toolbelt_metadata.TVF_ParseMultipartName',N'IF,TF,FT'),
+    (N'toolbelt.metadata.identifier',N'toolbelt_metadata.SVF_QuoteMultipartName',N'FN,FS'),
+    (N'toolbelt.metadata.table-clone',N'toolbelt_metadata.USP_ScriptTableClone',N'P,PC'),
+    (N'toolbelt.metadata.table-clone',N'toolbelt_metadata.USP_ScriptTableCloneInternal',N'P,PC'),
+    (N'toolbelt.metadata.table-clone',N'toolbelt_metadata.USP_ExecuteTableClone',N'P,PC'),
+    (N'toolbelt.metadata.table-clone',N'toolbelt_metadata.USP_CopyTableCloneData',N'P,PC'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.TVF_DeterministicGeoJitter',N'IF,TF,FT'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.TVF_DeterministicTranslate',N'IF,TF,FT'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.TVF_DeterministicIntegerBytes',N'IF,TF,FT'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.TVF_DeterministicRangeCore',N'IF,TF,FT'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.TVF_DeterministicRange',N'IF,TF,FT'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.TVF_DeterministicDateShift',N'IF,TF,FT'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.USP_DeterministicLookupCore',N'P,PC'),
+    (N'toolbelt.pseudonymization.deterministic',N'toolbelt_pseudonymization.USP_DeterministicLookup',N'P,PC'),
+    (N'toolbelt.string.directional-trim',N'toolbelt_string.TVF_TrimDirectionalNvarchar',N'IF,TF,FT'),
+    (N'toolbelt.string.directional-trim',N'toolbelt_string.TVF_TrimDirectionalVarchar',N'IF,TF,FT'),
+    (N'toolbelt.string.edit-distance',N'toolbelt_string.TVF_JaroWinklerSimilarity',N'IF,TF,FT'),
+    (N'toolbelt.string.edit-distance',N'toolbelt_string.TVF_JaroWinklerSimilarityCore',N'FT'),
+    (N'toolbelt.string.edit-distance',N'toolbelt_string.TVF_LevenshteinDistance',N'IF,TF,FT'),
+    (N'toolbelt.string.edit-distance',N'toolbelt_string.TVF_OsaDistance',N'IF,TF,FT'),
+    (N'toolbelt.string.edit-distance',N'toolbelt_string.TVF_LevenshteinDistanceCore',N'FT'),
+    (N'toolbelt.string.edit-distance',N'toolbelt_string.TVF_OsaDistanceCore',N'FT'),
+    (N'toolbelt.string.edit-distance',N'tlblt_String_EditDistance',N'ASSEMBLY'),
+    (N'toolbelt.string.phonetic',N'toolbelt_string.TVF_ColognePhonetic',N'IF,TF,FT'),
+    (N'toolbelt.string.phonetic',N'toolbelt_string.TVF_DoubleMetaphone',N'IF,TF,FT'),
+    (N'toolbelt.string.phonetic',N'toolbelt_string.TVF_ColognePhoneticCore',N'FT'),
+    (N'toolbelt.string.phonetic',N'toolbelt_string.TVF_DoubleMetaphoneCore',N'FT'),
+    (N'toolbelt.string.phonetic',N'tlblt_String_Phonetic',N'ASSEMBLY'),
+    (N'toolbelt.string.regex',N'toolbelt_string.TVF_RegexCaptures',N'IF,TF,FT'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexReplaceGroups',N'FN,FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.TVF_RegexCapturesCore',N'FT'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexReplaceGroupsCore',N'FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.TVF_RegexMatches',N'IF,TF,FT'),
+    (N'toolbelt.string.regex',N'toolbelt_string.TVF_RegexSplit',N'IF,TF,FT'),
+    (N'toolbelt.string.regex',N'toolbelt_string.TVF_RegexMatchesCore',N'FT'),
+    (N'toolbelt.string.regex',N'toolbelt_string.TVF_RegexSplitCore',N'FT'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexIsMatch',N'FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexInstr',N'FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexCount',N'FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexReplace',N'FN,FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexSubstring',N'FN,FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexReplaceCore',N'FS'),
+    (N'toolbelt.string.regex',N'toolbelt_string.SVF_RegexSubstringCore',N'FS'),
+    (N'toolbelt.string.regex',N'tlblt_String_Regex',N'ASSEMBLY'),
+    (N'toolbelt.string.split-advanced',N'toolbelt_string.TVF_SplitAdvanced',N'IF,TF,FT'),
+    (N'toolbelt.string.split-advanced',N'toolbelt_string.TVF_UnquoteToken',N'IF,TF,FT'),
+    (N'toolbelt.string.split-advanced',N'toolbelt_string.USP_SplitAdvanced',N'P,PC'),
+    (N'toolbelt.string.split-characters',N'toolbelt_string.TVF_SplitByCharacters',N'IF,TF,FT'),
+    (N'toolbelt.string.split-characters',N'toolbelt_string.TVF_SplitByCharactersStatus',N'IF,TF,FT'),
+    (N'toolbelt.string.text-pairs',N'toolbelt_string.USP_CompareTextPairs',N'P,PC'),
+    (N'toolbelt.tsql.script-parser',N'tlblt_Tsql_ScriptParser',N'ASSEMBLY'),
+    (N'toolbelt.tsql.script-parser',N'toolbelt_tsql.TVF_ParseScriptNodes',N'FT'),
+    (N'toolbelt.tsql.script-parser',N'toolbelt_tsql.TVF_ParseScriptNodeProperties',N'FT'),
+    (N'toolbelt.tsql.script-parser',N'toolbelt_tsql.TVF_TokenizeScript',N'FT'),
+    (N'toolbelt.tsql.script-parser',N'toolbelt_tsql.TVF_ParseScriptErrors',N'FT'),
+    (N'toolbelt.tsql.ssis-debug',N'tlblt_Tsql_SsisDebug',N'ASSEMBLY'),
+    (N'toolbelt.tsql.ssis-debug',N'toolbelt_tsql.USP_ExplainSsisDataFlow',N'P,PC'),
+    (N'toolbelt.tsql.ssis-debug',N'toolbelt_tsql.USP_ExplainSsisDataFlowInternal',N'PC'),
+    (N'toolbelt.validation.semantic-version',N'toolbelt_validation.TVF_ParseSemanticVersion',N'IF,TF,FT'),
+    (N'toolbelt.validation.semantic-version',N'toolbelt_validation.TVF_CompareSemanticVersion',N'IF,TF,FT'),
+    (N'toolbelt.validation.semantic-version',N'toolbelt_validation.TVF_SemanticVersionSortKey',N'IF,TF,FT'),
+    (N'toolbelt.validation.semantic-version',N'toolbelt_validation.SVF_CompareSemanticVersion',N'FN,FS'),
+    (N'toolbelt.validation.semantic-version',N'toolbelt_validation.SVF_SemanticVersionSortKey',N'FN,FS')
+    ) v(ModuleId,ObjectName,ObjectTypes)
+), Visible AS
 (
-    SELECT
-          marker_rows.ModuleId
-        , ModuleVersion = MAX
-          (
-              CASE marker_rows.MarkerKind
-                  WHEN N'Version' THEN marker_rows.MarkerValue
-              END
-          )
-        , DeploymentMode = MAX
-          (
-              CASE marker_rows.MarkerKind
-                  WHEN N'DeploymentMode' THEN marker_rows.MarkerValue
-              END
-          )
-        , VersionMarkerCount = SUM
-          (
-              CASE marker_rows.MarkerKind WHEN N'Version' THEN 1 ELSE 0 END
-          )
-        , ModeMarkerCount = SUM
-          (
-              CASE marker_rows.MarkerKind
-                  WHEN N'DeploymentMode' THEN 1
-                  ELSE 0
-              END
-          )
-        , MarkerNamesAreCanonical =
-              MIN(CONVERT(tinyint, marker_rows.MarkerNameIsCanonical))
-        , VersionTypeIsText = MIN
-          (
-              CASE
-                  WHEN marker_rows.MarkerKind <> N'Version' THEN 1
-                  WHEN marker_rows.MarkerBaseType IN
-                       (N'char', N'nchar', N'varchar', N'nvarchar') THEN 1
-                  ELSE 0
-              END
-          )
-        , ModeTypeIsText = MIN
-          (
-              CASE
-                  WHEN marker_rows.MarkerKind <> N'DeploymentMode' THEN 1
-                  WHEN marker_rows.MarkerBaseType IN
-                       (N'char', N'nchar', N'varchar', N'nvarchar') THEN 1
-                  ELSE 0
-              END
-          )
-    FROM MarkerRows AS marker_rows
-    GROUP BY marker_rows.ModuleId
-),
-ParsedVersions AS
-(
-    SELECT
-          aggregated.ModuleId
-        , aggregated.ModuleVersion
-        , aggregated.DeploymentMode
-        , aggregated.VersionMarkerCount
-        , aggregated.ModeMarkerCount
-        , aggregated.MarkerNamesAreCanonical
-        , aggregated.VersionTypeIsText
-        , aggregated.ModeTypeIsText
-        , VersionMajor = PARSENAME(aggregated.ModuleVersion, 3)
-        , VersionMinor = PARSENAME(aggregated.ModuleVersion, 2)
-        , VersionPatch = PARSENAME(aggregated.ModuleVersion, 1)
-        , VersionDotCount =
-              LEN(aggregated.ModuleVersion)
-              - LEN(REPLACE(aggregated.ModuleVersion, N'.', N''))
-    FROM AggregatedMarkers AS aggregated
+    SELECT DISTINCT ModuleId FROM Candidates c
+    WHERE (ObjectTypes=N'ASSEMBLY' AND EXISTS(SELECT 1 FROM sys.assemblies a
+        WHERE CONVERT(varbinary(256),a.name)=CONVERT(varbinary(256),c.ObjectName)))
+    OR (ObjectTypes<>N'ASSEMBLY' AND EXISTS(SELECT 1 FROM sys.objects o
+        WHERE o.object_id=OBJECT_ID(c.ObjectName)
+        AND CHARINDEX(N','+RTRIM(o.type)+N',',N','+c.ObjectTypes+N',')>0))
 )
-SELECT
-      parsed.ModuleId
-    , parsed.ModuleVersion
-    , parsed.DeploymentMode
-    , MetadataStatus = CONVERT
-      (
-          varchar(16),
-          CASE
-              WHEN parsed.VersionMarkerCount > 1
-                OR parsed.ModeMarkerCount > 1
-                OR parsed.MarkerNamesAreCanonical <> 1
-                OR parsed.VersionTypeIsText <> 1
-                OR parsed.ModeTypeIsText <> 1
-                OR parsed.ModuleId IS NULL
-                OR parsed.ModuleId COLLATE Latin1_General_100_BIN2
-                       NOT LIKE N'toolbelt.%'
-                OR REPLACE(parsed.ModuleId, N'-', N'')
-                       COLLATE Latin1_General_100_BIN2
-                       LIKE N'%[^a-z0-9.]%'
-                OR parsed.ModuleId LIKE N'%..%'
-                OR RIGHT(parsed.ModuleId, 1) IN (N'.', N'-')
-                OR
-                   (
-                       parsed.VersionMarkerCount = 1
-                       AND
-                       (
-                           parsed.ModuleVersion IS NULL
-                           OR DATALENGTH(parsed.ModuleVersion) = 0
-                           OR DATALENGTH(parsed.ModuleVersion) > 128
-                           OR parsed.VersionDotCount <> 2
-                           OR parsed.VersionMajor IS NULL
-                           OR parsed.VersionMinor IS NULL
-                           OR parsed.VersionPatch IS NULL
-                           OR parsed.VersionMajor
-                                  COLLATE Latin1_General_100_BIN2
-                                  LIKE N'%[^0-9]%'
-                           OR parsed.VersionMinor
-                                  COLLATE Latin1_General_100_BIN2
-                                  LIKE N'%[^0-9]%'
-                           OR parsed.VersionPatch
-                                  COLLATE Latin1_General_100_BIN2
-                                  LIKE N'%[^0-9]%'
-                           OR (LEN(parsed.VersionMajor) > 1
-                               AND LEFT(parsed.VersionMajor, 1) = N'0')
-                           OR (LEN(parsed.VersionMinor) > 1
-                               AND LEFT(parsed.VersionMinor, 1) = N'0')
-                           OR (LEN(parsed.VersionPatch) > 1
-                               AND LEFT(parsed.VersionPatch, 1) = N'0')
-                       )
-                   )
-                OR
-                   (
-                       parsed.ModeMarkerCount = 1
-                       AND
-                       (
-                           parsed.DeploymentMode IS NULL
-                           OR parsed.DeploymentMode
-                                  COLLATE Latin1_General_100_BIN2
-                                  NOT IN (N'local', N'central')
-                       )
-                   )
-              THEN 'invalid'
-              WHEN parsed.VersionMarkerCount = 0
-                OR parsed.ModeMarkerCount = 0
-              THEN 'incomplete'
-              ELSE 'valid'
-          END
-      )
-FROM ParsedVersions AS parsed;
+SELECT CONVERT(sysname,ModuleId) ModuleId,CONVERT(nvarchar(4000),NULL) ModuleVersion,
+    CONVERT(nvarchar(4000),NULL) DeploymentMode,CONVERT(varchar(16),'incomplete') MetadataStatus
+FROM Visible;
 GO

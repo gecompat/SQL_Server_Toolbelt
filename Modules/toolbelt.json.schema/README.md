@@ -70,6 +70,10 @@ Weitere Lifecycle-, Identitäts- und Ressourcenprofile bleiben getrennt offen.
 Aktuell teilweise validiert,
 unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Früher Caller-Guard mit XACT_ABORT ON — 2026-11-09
 
 Die [neue Sessionqualifikation](../../Releases/1.0.0/JSON-SCHEMA-XACT-ABORT-QUALIFICATION.md)
