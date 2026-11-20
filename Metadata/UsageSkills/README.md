@@ -101,6 +101,14 @@ Skillbeschreibung noch keine implementierte CLR-Hilfe. Die Rohschnittstellen
 beschreiben ausdrücklich ihre eigenen Grenzen, beispielsweise die fehlenden
 festen oberen Löschbudgets im Unterschied zum Listing.
 
+Auch alle neun öffentlichen Dateisystem-Prozeduren enthalten ihre geprüften
+Skillkommentare und liefern den unveränderten Skill als zusätzliches Resultset
+nach ihrer bisherigen Standardhilfe. Die Hilfe kehrt vor Provider und
+ResultTable-Routing zurück. Parameter, Defaults, Normalpfad und bisherige
+Hilfe bleiben erhalten. Die Beschreibungen unterscheiden ausdrücklich zwischen
+SQL-/TempDB-Ergebnissen und nicht durch SQL-ROLLBACK rücknehmbaren Dateieffekten.
+Eine native Abnahme der neuen zusätzlichen Ausgabe steht weiterhin aus.
+
 Der gesonderte Windows-.NET-Transporttest verwendet nur zwei Prozedurprototypen
 und zusätzlichen synthetischen Unicode-Text. Neues privates Verzeichnis wählen:
 

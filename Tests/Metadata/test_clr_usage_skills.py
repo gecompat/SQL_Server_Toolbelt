@@ -43,6 +43,29 @@ def prepare_module_fixture(directory: Path):
 
 
 class ClrUsageSkillTests(unittest.TestCase):
+    def test_public_filesystem_skills_match_signatures_and_early_help_projection(self):
+        sources = [usage_skills.read(p) for p in sorted(
+            (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("USP_*.md"))
+            if "Internal" not in p.name]
+        self.assertEqual(len(sources), 9)
+        sql = (ROOT / sources[0].metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
+        for skill in sources:
+            ts, words, i, limit = usage_skills._procedure_declaration(sql, skill)
+            end = next(j for j in range(i + 4, limit) if words[j] == "as")
+            actual = re.findall(r"(@\w+)\s+(sysname|nvarchar\(\d+\)|nvarchar\(max\)|varbinary\(max\)|varchar\(\d+\)|bigint|tinyint|int|bit)(?:\s*=\s*(N?'[^']*'|NULL|\d+))?",
+                                sql[ts[i + 3][2]:ts[end][1]])
+            self.assertEqual(actual, [(p["name"], p["sql_type"], p["sql_default"] or "")
+                                      for p in skill.metadata["parameters"]], skill.identity)
+            self.assertFalse(skill.metadata["is_internal"])
+            self.assertEqual(usage_skills.project_procedure_help(sql, skill), sql)
+            self.assertEqual(usage_skills.project_procedure_ddl(sql, skill), sql)
+            a, b = usage_skills._procedure_region(sql, skill)
+            ret, indent = usage_skills._procedure_help_return(sql, skill)
+            block = usage_skills.render_help_projection(skill, indent)
+            self.assertTrue(sql[:ret].endswith(block))
+            self.assertLess(ret, sql.index("CREATE TABLE #tbx_fs_result", a, b))
+            self.assertNotIn("kein ResultTable-Routing", skill.markdown)
+
     def test_raw_filesystem_contracts_match_actual_sql_parameters_and_defaults(self):
         sources = [usage_skills.read(p) for p in sorted(
             (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]

@@ -1110,6 +1110,80 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_ReadBinaryFileChunk]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-read-binary-file-chunk"
+-- description: "Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_ReadBinaryFileChunk"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 1..16777216 Rohbytes pro Chunk, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF kürzer sein; kein Gesamtdateilimit."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_ReadBinaryFileChunk
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig. |
+-- | `@ByteOffset` | `bigint` | `0` | Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen. |
+-- | `@MaxBytes` | `int` | `1048576` | Ganzzahl 1..16777216 Rohbytes pro Chunk, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF kürzer sein; kein Gesamtdateilimit. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Zeile: Content varbinary(max), BytesRead int, NextByteOffset bigint, EndOfFile bit. BytesRead ist tatsächlich gelesen; NextByteOffset=ByteOffset+BytesRead. Am Dateiende sind leerer Inhalt und EndOfFile=1 möglich. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @Hilfe=1;
+-- -- Fachaufruf nur mit eigener passender Rootkonfiguration:
+-- EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @RootAlias=N'ContosoRead',@RelativePath=N'sample.bin',@MaxBytes=1024;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und NTFS-Leserechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- Ein Bytearray bis MaxBytes; begrenztes Lesen unter nativen Datei-/Parenthandles. Keine komplette Datei zwingend im Speicher. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Liest Dateidaten und Metadaten, erzeugt oder verändert keine Datei. Dateiinhalte können vertraulich sein; nicht als öffentliche Evidenz speichern. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1148,6 +1222,84 @@ EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_ReadBinaryFileChunk' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-read-binary-file-chunk"
+description: "Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_ReadBinaryFileChunk"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist u' AS nvarchar(max)) + N'ngültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 1..16777216 Rohbytes pro Chunk, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF kürzer sein; kein Gesamtdateilimit."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nu' + N'llable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_ReadBinaryFileChunk
+
+## Zweck und Einsatzfälle
+
+Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handle' + N'pfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig. |
+| `@ByteOffset` | `bigint` | `0` | Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen. |
+| `@MaxBytes` | `int` | `1048576` | Ganzzahl 1..16777216 Rohbytes pro Chunk, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF kürzer sein; kein Gesamtdateilimit. |
+| `@ExecutionI' + N'dentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Zeile: Content varbinary(max),' + N' BytesRead int, NextByteOffset bigint, EndOfFile bit. BytesRead ist tatsächlich gelesen; NextByteOffset=ByteOffset+BytesRead. Am Dateiende sind leerer Inhalt und EndOfFile=1 möglich. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @Hilfe=1;
+-- Fachaufruf nur mit eigener passender Rootkonfiguration:
+EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @RootAlias=N''ContosoRead'',@RelativePath=N''sample.bin'',@MaxBytes=1024;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und NTFS-Leserechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+Ein Bytearray bis MaxBytes; begrenztes Lesen unter nativen Datei-/Parenthandles. Keine komplette Datei zwingend im Speiche' + N'r. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Liest Dateidaten und Metadaten, erzeugt oder verändert keine Datei. Dateiinhalte können vertraulich sein; nicht als öffentliche Evidenz speichern. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die' + N' neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1186,6 +1338,81 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_ReadTextFileChunk]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-read-text-file-chunk"
+-- description: "Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächste Byte-Position."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_ReadTextFileChunk"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 4..16777216 Rohbytes pro Leseversuch, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF oder zum Erhalt einer vollständigen Decodergrenze kürzer sein; kein Gesamtdateilimit."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. BOM wird als Datenzeichen behandelt; Offset/NextByteOffset zählen weiterhin Bytes."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_ReadTextFileChunk
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächste Byte-Position. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig. |
+-- | `@ByteOffset` | `bigint` | `0` | Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen. |
+-- | `@MaxBytes` | `int` | `1048576` | Ganzzahl 4..16777216 Rohbytes pro Leseversuch, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF oder zum Erhalt einer vollständigen Decodergrenze kürzer sein; kein Gesamtdateilimit. |
+-- | `@EncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. BOM wird als Datenzeichen behandelt; Offset/NextByteOffset zählen weiterhin Bytes. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Zeile: Content nvarchar(max), BytesRead int, NextByteOffset bigint, EndOfFile bit, EncodingName nvarchar(128) als .NET-WebName. Nur erfolgreich dekodierte Bytes zählen. Am Chunkende werden bis zur Decodergrenze Bytes zurückgenommen; der Aufrufer setzt bei NextByteOffset fort. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_ReadTextFileChunk @Hilfe=1;
+-- -- Fachaufruf nur mit eigener passender Rootkonfiguration:
+-- EXEC toolbelt_filesystem.USP_ReadTextFileChunk @RootAlias=N'ContosoRead',@RelativePath=N'sample.txt',@EncodingName=N'utf-8';
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und NTFS-Leserechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- Bytearray bis MaxBytes und dekodierter Text; begrenzte Dekodier-Versuche am Ende. ByteOffset muss sinnvoll zu einer Zeichengrenze gewählt werden. Ein unpassender Offset kann Fehler oder einen leeren Chunk ohne Fortschritt ergeben; Caller muss Fortschritt prüfen. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Liest Text und Metadaten ohne Dateischreiben. Kein zugesichertes Entfernen einer Eingangs-BOM, keine Encoding-Autodetektion. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1226,6 +1453,85 @@ EXEC toolbelt_filesystem.USP_ReadTextFileChunk
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_ReadTextFileChunk' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-read-text-file-chunk"
+description: "Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächste Byte-Position."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_ReadTextFileChunk"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig."}, {"name": "@ByteOffset", "sql_type": "bigint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder ' AS nvarchar(max)) + N'negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen."}, {"name": "@MaxBytes", "sql_type": "int", "sql_default": "1048576", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 4..16777216 Rohbytes pro Leseversuch, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF oder zum Erhalt einer vollständigen Decodergrenze kürzer sein; kein Gesamtdateilimit."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. BOM wird als Datenzeichen behandelt; Offset/NextByteOffset zählen weiterhin Bytes."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein auto' + N'matischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden ' + N'bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_ReadTextFileChunk
+
+## Zweck und Einsatzfälle
+
+Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächste Byte-Position. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.t' + N'xt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ist für eine Quelldatei ungültig. |
+| `@ByteOffset` | `bigint` | `0` | Ganzzahl bigint 0..Dateilänge in Rohbytes, Default 0; kein Zeichenindex. Genau EOF liefert leeren Chunk/EndOfFile=1, größer EOF oder negativ ist ungültig. NULL wird nicht zu 0 normalisiert und ist für CLR-Int64 ungültig. Bei Text an einer Decodergrenze beginnen und für Folgeaufrufe NextByteOffset unverändert übernehmen. |
+| `@MaxBytes` | `int` | `1048576` | Ganzzahl 4..16777216 Rohbytes pro Leseversuch, Default 1048576. NULL/außerhalb ungültig. Tatsächlicher Chunk kann an EOF oder zum Erhalt einer vollständigen Decodergrenze kürzer sein; kein Gesamtdateilimit. |
+| `@EncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. BOM wird als Datenzeichen behandelt; Offset/NextByteOffset zählen weiterhin Bytes. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesyst' + N'em_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Zeile: Content nvarchar(max), BytesRead int, NextByteOffset bigint, EndOfFile bit, EncodingName nvarchar(128) als .NET-WebName. Nur erfolgreich dekodierte Bytes zählen. Am Chunkende werden bis zur Decodergrenze Bytes zurückgenommen; der Aufrufer setzt bei NextByteOffset fort. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ' + N'ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_ReadTextFileChunk @Hilfe=1;
+-- Fachaufruf nur mit eigener passender Rootkonfiguration:
+EXEC toolbelt_filesystem.USP_ReadTextFileChunk @RootAlias=N''ContosoRead'',@RelativePath=N''sample.txt'',@EncodingName=N''utf-8'';
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und NTFS-Leserechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+Bytearray bis MaxBytes und dekodierter Text; begrenzte Dekodier-Versuche am Ende. ByteOffset muss sinnvoll zu einer Zeichengrenze gewählt werden. Ein unpassender Offset kann Fehler oder einen leeren Chunk ohne Fortschritt ergeben; Caller muss Fortschritt prüfen. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötige' + N'n. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Liest Text und Metadaten ohne Dateischreiben. Kein zugesichertes Entfernen einer Eingangs-BOM, keine Encoding-Autodetektion. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachwei' + N'se qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1264,6 +1570,78 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_WriteBinaryFile]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-write-binary-file"
+-- description: "Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_WriteBinaryFile"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen."}, {"name": "@Content", "sql_type": "varbinary(max)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Binärer Bytepuffer varbinary(max), etwa 0x0102; keine Text-/Base64-Dekodierung. Leer 0x schreibt eine leere Datei. NULL (technischer Help-Default) ungültig. SQL-LOB wird in begrenzten Blöcken gelesen, kein zusätzliches öffentliches Gesamtbytebudget."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_WriteBinaryFile
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen. |
+-- | `@Content` | `varbinary(max)` | `NULL` | Binärer Bytepuffer varbinary(max), etwa 0x0102; keine Text-/Base64-Dekodierung. Leer 0x schreibt eine leere Datei. NULL (technischer Help-Default) ungültig. SQL-LOB wird in begrenzten Blöcken gelesen, kein zusätzliches öffentliches Gesamtbytebudget. |
+-- | `@Overwrite` | `bit` | `0` | Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Nach erfolgreichem Publish eine Zeile: BytesWritten bigint, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_WriteBinaryFile @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- 1-MiB-Kopierpuffer; LOB wird abschnittsweise aus SqlBytes gelesen. Keine zusätzliche kleine Gesamtdateiquote im Provider; SQL-LOB-, Datenträger- und Betriebssystemgrenzen gelten. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Erzeugt eine eigene .part-Stagingdatei im konfigurierten WorkPath relativ zum Root oder im Zielverzeichnis, flusht und publiziert über einen gebundenen Handle. Overwrite=0 ersetzt kein bestehendes Ziel. Dateisystemänderungen werden nicht durch SQL-ROLLBACK rückgängig gemacht. Cleanupfehler können Stagingreste hinterlassen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1302,6 +1680,82 @@ EXEC toolbelt_filesystem.USP_WriteBinaryFile
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_WriteBinaryFile' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-write-binary-file"
+description: "Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_WriteBinaryFile"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen."}, {"name": "@Content", "sql_type": "varbinary(max)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Binärer Bytepuffer varbinary(max), etwa 0x0102; keine Text-/Base64-Dekodierung. Leer 0x schreibt eine leere Datei. NULL (technischer Help-Default) un' AS nvarchar(max)) + N'gültig. SQL-LOB wird in begrenzten Blöcken gelesen, kein zusätzliches öffentliches Gesamtbytebudget."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "b' + N'it", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_WriteBinaryFile
+
+## Zweck und Einsatzfälle
+
+Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und A' + N'llowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen. |
+| `@Content` | `varbinary(max)` | `NULL` | Binärer Bytepuffer varbinary(max), etwa 0x0102; keine Text-/Base64-Dekodierung. Leer 0x schreibt eine leere Datei. NULL (technischer Help-Default) ungültig. SQL-LOB wird in begrenzten Blöcken gelesen, kein zusätzliches öffentliches Gesamtbytebudget. |
+| `@Overwrite` | `bit` | `0` | Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschrieb' + N'enen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL f' + N'ührt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Nach erfolgreichem Publish eine Zeile: BytesWritten bigint, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_WriteBinaryFile @Hilfe=1;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+1-MiB-Kopierpuffer; LOB wird abschnittsweise aus SqlBytes gelesen. Keine zusätzliche kleine Gesamtdateiquote im Provider; SQL-LOB-, Datenträger- und ' + N'Betriebssystemgrenzen gelten. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Erzeugt eine eigene .part-Stagingdatei im konfigurierten WorkPath relativ zum Root oder im Zielverzeichnis, flusht und publiziert über einen gebundenen Handle. Overwrite=0 ersetzt kein bestehendes Ziel. Dateisystemänderungen werden nicht durch SQL-ROLLBACK rückgängig gemacht. Cleanupfehler können Stagingreste hinterlassen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Enc' + N'odingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1341,6 +1795,80 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_WriteTextFile]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-write-text-file"
+-- description: "Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_WriteTextFile"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen."}, {"name": "@Content", "sql_type": "nvarchar(max)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Unicode-Text nvarchar(max), leer schreibt nur eine gegebenenfalls gewählte BOM. NULL (technischer Help-Default) ungültig. Zeichen werden mit explizitem Encoding strikt kodiert; unvertretbare Zeichen/ungültige Surrogate sind Fehler, kein stiller Ersatz. Kein Append oder zusätzliches Gesamttextbudget."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_WriteTextFile
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen. |
+-- | `@Content` | `nvarchar(max)` | `NULL` | Unicode-Text nvarchar(max), leer schreibt nur eine gegebenenfalls gewählte BOM. NULL (technischer Help-Default) ungültig. Zeichen werden mit explizitem Encoding strikt kodiert; unvertretbare Zeichen/ungültige Surrogate sind Fehler, kein stiller Ersatz. Kein Append oder zusätzliches Gesamttextbudget. |
+-- | `@EncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. |
+-- | `@WriteBom` | `bit` | `0` | Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt. |
+-- | `@Overwrite` | `bit` | `0` | Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Erfolgszeile: BytesWritten bigint einschließlich einer tatsächlich geschriebenen Präambel, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_WriteTextFile @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- 32768-Zeichen-Puffer und Encoding-Ausgabepuffer; abschnittsweises SqlChars-Lesen, kein verpflichtendes vollständiges LOB-Materialisieren. Keine eigene kleine Gesamtdateiquote. Encoding.GetBytes wird je Chunk separat aufgerufen; keine Zusage beliebiger über Puffergrenzen verteilter Surrogatpaare oder zustandsbehafteter Encodings. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Staging und nativer Publish wie WriteBinaryFile. WriteBom fügt gegebenenfalls die Encodingpräambel hinzu; keine automatische Entfernung einer bereits im Content enthaltenen Präambel. Dateiänderungen sind nicht SQL-transaktional. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1381,6 +1909,84 @@ EXEC toolbelt_filesystem.USP_WriteTextFile
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_WriteTextFile' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-write-text-file"
+description: "Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_WriteTextFile"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen."}, {"name": "@Content", "sql_type": "nvarchar(max)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Unicode-Text nvarchar(max), leer schreibt nur eine gegebenenfalls gewählte BOM. NULL (technischer Help-Default) ungültig. Zeichen werden mit explizitem Encodi' AS nvarchar(max)) + N'ng strikt kodiert; unvertretbare Zeichen/ungültige Surrogate sind Fehler, kein stiller Ersatz. Kein Append oder zusätzliches Gesamttextbudget."}, {"name": "@EncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argu' + N'ment_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen ' + N'Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_WriteTextFile
+
+## Zweck und Einsatzfälle
+
+Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. De' + N'r Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leerer Pfad ungültig; Zielverzeichnis muss bestehen. |
+| `@Content` | `nvarchar(max)` | `NULL` | Unicode-Text nvarchar(max), leer schreibt nur eine gegebenenfalls gewählte BOM. NULL (technischer Help-Default) ungültig. Zeichen werden mit explizitem Encoding strikt kodiert; unvertretbare Zeichen/ungültige Surrogate sind Fehler, kein stiller Ersatz. Kein Append oder zusätzliches Gesamttextbudget. |
+| `@EncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. |
+| `@WriteBom` | `bit` | `0` | Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. N' + N'ULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt. |
+| `@Overwrite` | `bit` | `0` | Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zus' + N'ätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Erfolgszeile: BytesWritten bigint einschließlich einer tatsächlich geschriebenen Präambel, RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=completed. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_WriteTextFile @Hilfe=1;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowSe' + N'rviceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+32768-Zeichen-Puffer und Encoding-Ausgabepuffer; abschnittsweises SqlChars-Lesen, kein verpflichtendes vollständiges LOB-Materialisieren. Keine eigene kleine Gesamtdateiquote. Encoding.GetBytes wird je Chunk separat aufgerufen; keine Zusage beliebiger über Puffergrenzen verteilter Surrogatpaare oder zustandsbehafteter Encodings. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Staging und nativer Publish wie WriteBinaryFile. WriteBom fügt gegebenenfalls die Encodingpräambel hinzu; keine automatische Entfernung einer bereits im Content enthaltenen Präambel. Dateiänderungen sind nicht SQL-transaktional. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized' + N', InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1424,6 +2030,82 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_TranscodeTextFile]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-transcode-text-file"
+-- description: "Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_TranscodeTextFile"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@SourceRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Quelle benötigt AllowRead."}, {"name": "@SourceRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; vorhandene Quelldatei."}, {"name": "@SourceEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Explizites Sourceencoding; keine BOM-Autoerkennung. StreamReader entfernt gegebenenfalls eine zu diesem Encoding passende Präambel."}, {"name": "@TargetRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Ziel benötigt AllowWrite."}, {"name": "@TargetRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; Zielverzeichnis muss bestehen. Ausgabe erfolgt über Staging/Publish."}, {"name": "@TargetEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Bestimmt ausschließlich die Ausgabeencoding."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_TranscodeTextFile
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@SourceRootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Quelle benötigt AllowRead. |
+-- | `@SourceRelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; vorhandene Quelldatei. |
+-- | `@SourceEncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Explizites Sourceencoding; keine BOM-Autoerkennung. StreamReader entfernt gegebenenfalls eine zu diesem Encoding passende Präambel. |
+-- | `@TargetRootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Ziel benötigt AllowWrite. |
+-- | `@TargetRelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; Zielverzeichnis muss bestehen. Ausgabe erfolgt über Staging/Publish. |
+-- | `@TargetEncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Bestimmt ausschließlich die Ausgabeencoding. |
+-- | `@WriteBom` | `bit` | `0` | Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt. |
+-- | `@Overwrite` | `bit` | `0` | Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Erfolgszeile: BytesWritten bigint, RootAlias nvarchar(128) und RelativePath nvarchar(4000) des Ziels, State varchar(16)=completed. BytesWritten zählt Ausgabepräambel und encodierte Daten. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_TranscodeTextFile @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- StreamReader und 32768-Zeichen-Blöcke mit Encoding-Ausgabepuffer; keine feste kleine Gesamtdateiquote. Je Block getrennte GetBytes-Aufrufe, daher keine pauschale Zusage über zustandsbehaftete Encodings oder Surrogatpaare an Blockgrenzen. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Liest Quellfile und publiziert Ziel über Staging. Keine automatische Verzeichnisanlage oder SQL-Rollback-Garantie. Eingangs-BOM bewirkt keinen automatischen Encodingwechsel; WriteBom steuert nur die zusätzliche Ausgabepräambel. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1466,6 +2148,86 @@ EXEC toolbelt_filesystem.USP_TranscodeTextFile
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_TranscodeTextFile' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-transcode-text-file"
+description: "Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_TranscodeTextFile"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@SourceRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Quelle benötigt AllowRead."}, {"name": "@SourceRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; vorhandene Quelldatei."}, {"name": "@SourceEncodingName", "sql_type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. u' AS nvarchar(max)) + N'tf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Explizites Sourceencoding; keine BOM-Autoerkennung. StreamReader entfernt gegebenenfalls eine zu diesem Encoding passende Präambel."}, {"name": "@TargetRootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Ziel benötigt AllowWrite."}, {"name": "@TargetRelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; Zielverzeichnis muss bestehen. Ausgabe erfolgt über Staging/Publish."}, {"name": "@TargetEncodingName", "sql_' + N'type": "nvarchar(128)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Bestimmt ausschließlich die Ausgabeencoding."}, {"name": "@WriteBom", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt."}, {"name": "@Overwrite", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv' + N': Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_req' + N'uired": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_TranscodeTextFile
+
+## Zweck und Einsatzfälle
+
+Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@SourceRootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erl' + N'auben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. Quelle benötigt AllowRead. |
+| `@SourceRelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; vorhandene Quelldatei. |
+| `@SourceEncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Explizites Sourceencoding; keine BOM-Autoerkennung. StreamReader entfernt gegebenenfalls eine zu diesem Encoding passende Präambel. |
+| `@TargetRootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Ro' + N'otanlage. Ziel benötigt AllowWrite. |
+| `@TargetRelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer; Zielverzeichnis muss bestehen. Ausgabe erfolgt über Staging/Publish. |
+| `@TargetEncodingName` | `nvarchar(128)` | `NULL` | Fachlich erforderlicher Encodingname nvarchar(128) für striktes .NET-Framework-Encoding.GetEncoding(name), z.B. utf-8, utf-16, utf-16BE oder windows-1252. Die Menge ist provider-/plattformabhängig und keine geschlossene Toolbelt-Enum; verfügbare Namen mit System.Text.Encoding.GetEncodings() in der passenden Frameworkumgebung ermitteln (Name/WebName), nicht aus einer anderen .NET-Laufzeit ableiten. NULL/leer/Whitespace-only/unbekannt ungültig. Decoder-/Encoderfehler werden nicht durch Ersatzzeichen verborgen; keine automatische BOM-/Codepageerkennung. Bestimmt ausschließlich die Ausgabeencoding. |
+| `@WriteBom` | `bit` | `0` | Taxativ im gebundenen bit: 0 schreibt keine zusätzliche Encodingpräambel (Default); 1 schreibt Encoding.GetPreamble() vor den Daten. Bei einer Codepage ohne Präambel bleiben auch bei 1 keine zusätzlichen Bytes. NULL ist für CLR-bool ungültig. Bereits im Content vorhandenes U+FEFF wird dadurch nicht entfernt. |
+| `@Overwrite` | `bit` | `0` | Taxativ im gebundenen bit: 0 lehnt ein vorhandenes Ziel ab (Default); 1 erlaubt dessen atomare Ersetzung durch den vollständig geschriebenen Staginginhalt. Kein Append. NULL ist für den nativen CLR-bool ungültig und wird nicht zu 0 normalisiert. Dateipublikation ist kein gemeinsam mit späterer SQL-Resultausgabe rückrollbarer Effekt. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/' + N'case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Erfolgszeile: BytesWritten bigint, RootAlias nvarchar(128) und RelativePath nvarchar(40' + N'00) des Ziels, State varchar(16)=completed. BytesWritten zählt Ausgabepräambel und encodierte Daten. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_TranscodeTextFile @Hilfe=1;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+StreamReader und 32768-Zeichen-Blöcke mit Encoding-Ausgabepuffer; keine feste kleine Gesamtdateiquote. Je Block getrennte GetBytes-Aufrufe, daher keine pauschale Zusage über zustandsbehaftete Encodings oder Surrogatpaare an Blockgrenzen. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötige' + N'n. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Liest Quellfile und publiziert Ziel über Staging. Keine automatische Verzeichnisanlage oder SQL-Rollback-Garantie. Eingangs-BOM bewirkt keinen automatischen Encodingwechsel; WriteBom steuert nur die zusätzliche Ausgabepräambel. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene ' + N'native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1508,6 +2270,81 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_ListDirectory]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-list-directory"
+-- description: "Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_ListDirectory"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "N''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer (Default) wählt den Root selbst; NULL bleibt ungültig. Kein Suchmuster."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 bearbeitet nur das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 0..64, Default 32; Startdirectory hat Tiefe 0. Bei Recursive=1 führt ein nötiger Abstieg über die Grenze zum Fehler, nicht zu einer still gekürzten Ausgabe; bei 0 ist bereits Abstieg in ein Unterverzeichnis verboten. Auch ohne Rekursion muss das Budget gültig sein. NULL/negativ/>64 ungültig."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 1..10000 Verzeichniseinträge (Dateien und Unterverzeichnisse), Default 10000. NULL/außerhalb ungültig; Überschreitung verwirft die vollständig gepufferte Ausgabe, kein TOP-Teilresultat. Zusätzlich gilt ein internes Pfadbytebudget."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_ListDirectory
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowList erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `N''` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer (Default) wählt den Root selbst; NULL bleibt ungültig. Kein Suchmuster. |
+-- | `@Recursive` | `bit` | `0` | Taxativ im gebundenen bit: 0 bearbeitet nur das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default. |
+-- | `@MaxDepth` | `int` | `32` | Ganzzahl 0..64, Default 32; Startdirectory hat Tiefe 0. Bei Recursive=1 führt ein nötiger Abstieg über die Grenze zum Fehler, nicht zu einer still gekürzten Ausgabe; bei 0 ist bereits Abstieg in ein Unterverzeichnis verboten. Auch ohne Rekursion muss das Budget gültig sein. NULL/negativ/>64 ungültig. |
+-- | `@MaxEntries` | `int` | `10000` | Ganzzahl 1..10000 Verzeichniseinträge (Dateien und Unterverzeichnisse), Default 10000. NULL/außerhalb ungültig; Überschreitung verwirft die vollständig gepufferte Ausgabe, kein TOP-Teilresultat. Zusätzlich gilt ein internes Pfadbytebudget. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Null bis MaxEntries Zeilen: EntryOrdinal bigint ab 1, RelativePath nvarchar(4000) relativ zum Root, EntryType varchar(16) file oder directory, SizeBytes bigint (Verzeichnis 0), LastWriteTimeUtc datetime2, IsReparsePoint bit. Keine zugesicherte alphabetische Sortierung oder stabile Reihenfolge zwischen Aufrufen. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_ListDirectory @Hilfe=1;
+-- -- Fachaufruf nur mit eigener passender Rootkonfiguration:
+-- EXEC toolbelt_filesystem.USP_ListDirectory @RootAlias=N'ContosoRead',@RelativePath=N'',@MaxEntries=100;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und NTFS-Leserechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- Sammelt die vollständige begrenzte Liste vor SendResultsStart. Höchstens 10000 Einträge und 16 MiB aufsummierter relativer UTF-16-Pfadtext. Rekursionsgrenze 64; Verzeichnisqueue und native Handles zusätzlich. Limitüberschreitung liefert keinen gekürzten Erfolg. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Nur lesende Verzeichnis-/Dateimetadatenabfragen. Kein Snapshot; parallele Dateisystemänderungen können Fehler oder abweichende Metadaten verursachen. Ausgabefehler nach SendResultsStart können bereits gesendete Zeilen nicht zurücknehmen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1549,6 +2386,85 @@ EXEC toolbelt_filesystem.USP_ListDirectory
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_ListDirectory' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-list-directory"
+description: "Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_ListDirectory"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "N''''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer (Default) wählt den Root selbst; NULL bleibt ungültig. Kein Suchmuster."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 bearbeitet nur das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg g' AS nvarchar(max)) + N'emäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 0..64, Default 32; Startdirectory hat Tiefe 0. Bei Recursive=1 führt ein nötiger Abstieg über die Grenze zum Fehler, nicht zu einer still gekürzten Ausgabe; bei 0 ist bereits Abstieg in ein Unterverzeichnis verboten. Auch ohne Rekursion muss das Budget gültig sein. NULL/negativ/>64 ungültig."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 1..10000 Verzeichniseinträge (Dateien und Unterverzeichnisse), Default 10000. NULL/außerhalb ungültig; Überschreitung verwirft die vollständig gepufferte Ausgabe, kein TOP-Teilresultat. Zusätzlich gilt ein internes Pfadbytebudget."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabell' + N'e, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_ListDirectory
+
+## Zweck und Einsatzfälle
+
+Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen. Öffentlicher ' + N'Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowList erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `N''''` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer (Default) wählt den Root selbst; NULL bleibt ungültig. Kein Suchmuster. |
+| `@Recursive` | `bit` | `0` | Taxativ im gebundenen bit: 0 bearbeitet nur' + N' das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default. |
+| `@MaxDepth` | `int` | `32` | Ganzzahl 0..64, Default 32; Startdirectory hat Tiefe 0. Bei Recursive=1 führt ein nötiger Abstieg über die Grenze zum Fehler, nicht zu einer still gekürzten Ausgabe; bei 0 ist bereits Abstieg in ein Unterverzeichnis verboten. Auch ohne Rekursion muss das Budget gültig sein. NULL/negativ/>64 ungültig. |
+| `@MaxEntries` | `int` | `10000` | Ganzzahl 1..10000 Verzeichniseinträge (Dateien und Unterverzeichnisse), Default 10000. NULL/außerhalb ungültig; Überschreitung verwirft die vollständig gepufferte Ausgabe, kein TOP-Teilresultat. Zusätzlich gilt ein internes Pfadbytebudget. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht' + N'-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Null bis MaxEntries Zeilen: EntryOrdinal bigint ab 1, RelativePath nvarchar(4000) relativ zum Root, EntryType varchar(16) file oder directory, SizeBytes bigint (Verzeichnis 0), LastWriteTimeUtc datetime2, IsReparsePoint bit. Keine zugesicherte alphabetische Sortierung oder stabile Reihenfolge zwischen Aufrufen. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_ListDirectory @Hilfe=1;
+-- Fachaufruf nur mit eigener passender Rootkonfiguration:
+EXEC toolbelt_filesystem.USP_ListDirectory @RootAlias=N''ContosoRead'',@RelativePath=N'''',@MaxEn' + N'tries=100;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und NTFS-Leserechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+Sammelt die vollständige begrenzte Liste vor SendResultsStart. Höchstens 10000 Einträge und 16 MiB aufsummierter relativer UTF-16-Pfadtext. Rekursionsgrenze 64; Verzeichnisqueue und native Handles zusätzlich. Limitüberschreitung liefert keinen gekürzten Erfolg. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Nur lesende Verzeichnis-/Dateimetadatenabfragen. Kein Snapshot; parallele Dateisystemänderungen können Fehler oder abweichende Metadaten verursachen. Ausgabefehler nach SendResultsStart können bereits gesendete Zeilen nicht zurücknehmen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werd' + N'en im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1592,6 +2508,76 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_CreateDirectory]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-create-directory"
+-- description: "Erstellt ein Verzeichnis unter einem freigegebenen Root."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_CreateDirectory"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer ist erlaubt und bezeichnet den Root; fehlende Komponenten des konfigurierten Zielpfads werden durch NativeParents angelegt; physische Rootkonfiguration muss deshalb von autorisierter Verwaltung stammen. NULL ungültig."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_CreateDirectory
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Erstellt ein Verzeichnis unter einem freigegebenen Root. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowCreateDirectory erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer ist erlaubt und bezeichnet den Root; fehlende Komponenten des konfigurierten Zielpfads werden durch NativeParents angelegt; physische Rootkonfiguration muss deshalb von autorisierter Verwaltung stammen. NULL ungültig. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=created. created unterscheidet nicht zwischen bereits vorhandenem und neu angelegtem Verzeichnis. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_CreateDirectory @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- Parenthandles proportional zur Anzahl der Pfadkomponenten. Keine eigene feste Komponentenquote; Pfad-/Betriebssystemgrenzen gelten. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Legt fehlende Komponenten des konfigurierten Zielpfads an. Die physische Rootkonfiguration muss deshalb von einer autorisierten Verwaltung stammen; sie wird hier nicht angelegt oder geändert. Leerer relativer Pfad wählt den Root; auch NativeParents(create=true) muss im vorgesehenen autorisierten Kontext laufen. Bei späterem Fehler können bereits angelegte Komponenten bestehen bleiben. Kein SQL-ROLLBACK für Dateioperationen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1627,6 +2613,80 @@ EXEC toolbelt_filesystem.USP_CreateDirectory
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_CreateDirectory' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-create-directory"
+description: "Erstellt ein Verzeichnis unter einem freigegebenen Root."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_CreateDirectory"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer ist erlaubt und bezeichnet den Root; fehlende Komponenten des konfigurierten Zielpfads werden durch NativeParents angelegt; physische Rootkonfiguration muss deshalb von autorisierter Verwaltung stammen. NULL ungültig."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false,' AS nvarchar(max)) + N' "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0"' + N', "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_CreateDirectory
+
+## Zweck und Einsatzfälle
+
+Erstellt ein Verzeichnis unter einem freigegebenen Root. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowCreateDirectory erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/A' + N'llowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer ist erlaubt und bezeichnet den Root; fehlende Komponenten des konfigurierten Zielpfads werden durch NativeParents angelegt; physische Rootkonfiguration muss deshalb von autorisierter Verwaltung stammen. NULL ungültig. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0`' + N' | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=created. created unterscheidet nicht zwischen bereits vorhandenem und neu angelegtem Verzeichnis. Keine OUTPUT-Parameter. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_CreateDirectory @Hilfe=1;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und Re' + N'sultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+Parenthandles proportional zur Anzahl der Pfadkomponenten. Keine eigene feste Komponentenquote; Pfad-/Betriebssystemgrenzen gelten. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Legt fehlende Komponenten des konfigurierten Zielpfads an. Die physische Rootkonfiguration muss deshalb von einer autorisierten Verwaltung stammen; sie wird hier nicht angelegt oder geändert. Leerer relativer Pfad wählt den Root; auch NativeParents(create=true) muss im vorgesehenen autorisierten Kontext laufen. Bei späterem Fehler können bereits angelegte Komponenten bestehen bleiben. Kein SQL-ROLLBACK für Dateioperationen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formulie' + N'rt EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1660,6 +2720,76 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_RemoveFile]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-remove-file"
+-- description: "Entfernt eine Datei unter einem freigegebenen Root."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_RemoveFile"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer, muss eine vorhandene reguläre Datei adressieren, keine Verzeichnisse/Mehrfachauswahl. Löscht genau die handlegebundene Datei; kein Recycle-Bin-Vertrag."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_RemoveFile
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Entfernt eine Datei unter einem freigegebenen Root. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer, muss eine vorhandene reguläre Datei adressieren, keine Verzeichnisse/Mehrfachauswahl. Löscht genau die handlegebundene Datei; kein Recycle-Bin-Vertrag. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Fehlendes Ziel wird nicht als erfolgreicher No-op behandelt. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_RemoveFile @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- Native Parent-/Dateihandles; keine vollständige Dateiinhaltsmaterialisierung. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Markiert das exakt gebundene Dateiobjekt über einen nativen Handle zum Löschen. Kein Papierkorb und keine SQL-ROLLBACK-Wiederherstellung. Fehlende Datei oder ungeeigneter Dateityp führt zum Fehler. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1695,6 +2825,80 @@ EXEC toolbelt_filesystem.USP_RemoveFile
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_RemoveFile' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-remove-file"
+description: "Entfernt eine Datei unter einem freigegebenen Root."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_RemoveFile"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer, muss eine vorhandene reguläre Datei adressieren, keine Verzeichnisse/Mehrfachauswahl. Löscht genau die handlegebundene Datei; kein Recycle-Bin-Vertrag."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (D' AS nvarchar(max)) + N'efault) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": fal' + N'se, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+source_module_version: "1.0.0"
+---
+
+# USP_RemoveFile
+
+## Zweck und Einsatzfälle
+
+Entfernt eine Datei unter einem freigegebenen Root. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccoun' + N't=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Nicht leer, muss eine vorhandene reguläre Datei adressieren, keine Verzeichnisse/Mehrfachauswahl. Löscht genau die handlegebundene Datei; kein Recycle-Bin-Vertrag. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevan' + N't; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Zeile: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Fehlendes Ziel wird nicht als erfolgreicher No-op behandelt. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_RemoveFile @Hilfe=1;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/' + N'Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+Native Parent-/Dateihandles; keine vollständige Dateiinhaltsmaterialisierung. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Markiert das exakt gebundene Dateiobjekt über einen nativen Handle zum Löschen. Kein Papierkorb und keine SQL-ROLLBACK-Wiederherstellung. Fehlende Datei oder ungeeigneter Dateityp führt zum Fehler. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsi' + N'deRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
@@ -1731,6 +2935,79 @@ CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_RemoveDirectory]
   , @Hilfe bit = 0
 )
 AS
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-fs-usp-remove-directory"
+-- description: "Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.filesystem.windows"
+-- schema_name: "toolbelt_filesystem"
+-- object_name: "USP_RemoveDirectory"
+-- object_type: "USP"
+-- database_role: "toolbelt"
+-- is_internal: false
+-- parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer kann syntaktisch aufgelöst werden, aber der Root selbst darf niemals gelöscht werden. Muss ein vorhandenes Verzeichnis sein; keine Wildcard-/Mehrfachauswahl."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 bearbeitet nur das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default. Bei 0 muss das Verzeichnis leer sein."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 0..2147483647, Default 32; der Remove-Pfad besitzt anders als List keine zusätzliche 64er-Obergrenze. Startdirectory hat Tiefe 0. Bei Recursive=1 wird jeder nötige Abstieg über das Budget vor der ersten Löschmutation abgewiesen. NULL/negativ ungültig; nicht still trunciert."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 1..2147483647, Default 10000; der Remove-Pfad besitzt anders als List keine zusätzliche 10000er-Obergrenze. Zählt sämtliche Kinder im vollständigen Vorab-Löschplan, ohne das Startdirectory selbst. NULL/0/negativ ungültig; Überschreitung vor erster Mutation. Keine automatische unbegrenzte Löschung."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "'Caller'", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+-- source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.0.0"
+-- ---
+--
+-- # USP_RemoveDirectory
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+--
+-- ## Voraussetzungen
+--
+-- Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Vertrag |
+-- |---|---|---|---|
+-- | `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+-- | `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer kann syntaktisch aufgelöst werden, aber der Root selbst darf niemals gelöscht werden. Muss ein vorhandenes Verzeichnis sein; keine Wildcard-/Mehrfachauswahl. |
+-- | `@Recursive` | `bit` | `0` | Taxativ im gebundenen bit: 0 bearbeitet nur das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default. Bei 0 muss das Verzeichnis leer sein. |
+-- | `@MaxDepth` | `int` | `32` | Ganzzahl 0..2147483647, Default 32; der Remove-Pfad besitzt anders als List keine zusätzliche 64er-Obergrenze. Startdirectory hat Tiefe 0. Bei Recursive=1 wird jeder nötige Abstieg über das Budget vor der ersten Löschmutation abgewiesen. NULL/negativ ungültig; nicht still trunciert. |
+-- | `@MaxEntries` | `int` | `10000` | Ganzzahl 1..2147483647, Default 10000; der Remove-Pfad besitzt anders als List keine zusätzliche 10000er-Obergrenze. Zählt sämtliche Kinder im vollständigen Vorab-Löschplan, ohne das Startdirectory selbst. NULL/0/negativ ungültig; Überschreitung vor erster Mutation. Keine automatische unbegrenzte Löschung. |
+-- | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+-- | `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+-- | `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+-- | `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+-- | `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+--
+-- ## Ergebnisse
+--
+-- Eine Zeile nach erfolgreicher Entfernung: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Keine Ausgabe einer Löschliste. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+-- EXEC toolbelt_filesystem.USP_RemoveDirectory @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+--
+-- ## Ressourcenbedarf
+--
+-- Vollständiger Löschplan mit offenen nativen Handles vor erster Löschung, proportional zur akzeptierten Eintragszahl. Der raw CLR-Einstieg prüft für MaxEntries nur >=1 und MaxDepth nur >=0; die Obergrenzen des Listingpfads gelten nicht für die Entfernung. Anzahlgrenze zählt Kinder, nicht das Startverzeichnis. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+--
+-- ## Nebenwirkungen
+--
+-- Recursive=0 verlangt ein leeres Verzeichnis; Recursive=1 entfernt geplante Kinder rückwärts und danach den Start. Rootlöschung ist verboten. Preflightfehler führen vor Mutation zum Abbruch; Fehler während nativer Löschung können eine Teilentfernung hinterlassen. Kein SQL-Rollback und keine pauschale Garantie gegen alle konkurrierenden Dateisystemänderungen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort machen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+--
+-- ## Fehlerbehandlung
+--
+-- Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+-- OBJECT_USAGE_SKILL:END
 BEGIN
     SET NOCOUNT ON;
     IF ISNULL(@Hilfe, 0) = 1
@@ -1769,6 +3046,83 @@ EXEC toolbelt_filesystem.USP_RemoveDirectory
         ) AS v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 0 WHEN 'PARAMETER' THEN 1
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
+        -- OBJECT_USAGE_SKILL_HELP:BEGIN
+SELECT CONVERT(varchar(16),CAST(N'1.0' AS nvarchar(max))) AS SkillFormatVersion,
+ CONVERT(sysname,CAST(N'toolbelt_filesystem' AS nvarchar(max))) AS SchemaName,
+ CONVERT(sysname,CAST(N'USP_RemoveDirectory' AS nvarchar(max))) AS ObjectName,
+ CAST(N'---
+name: "toolbelt-fs-usp-remove-directory"
+description: "Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt."
+skill_format_version: "1.0"
+module_id: "toolbelt.filesystem.windows"
+schema_name: "toolbelt_filesystem"
+object_name: "USP_RemoveDirectory"
+object_type: "USP"
+database_role: "toolbelt"
+is_internal: false
+parameters: [{"name": "@RootAlias", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage."}, {"name": "@RelativePath", "sql_type": "nvarchar(4000)", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": true, "nullable": false, "description": "Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer kann syntaktisch aufgelöst werden, aber der Root selbst darf niemals gelöscht werden. Muss ein vorhandenes Verzeichnis sein; keine Wildcard-/Mehrfachauswahl."}, {"name": "@Recursive", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ im gebundenen bit: 0 bearbeitet nur das e' AS nvarchar(max)) + N'xplizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default. Bei 0 muss das Verzeichnis leer sein."}, {"name": "@MaxDepth", "sql_type": "int", "sql_default": "32", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 0..2147483647, Default 32; der Remove-Pfad besitzt anders als List keine zusätzliche 64er-Obergrenze. Startdirectory hat Tiefe 0. Bei Recursive=1 wird jeder nötige Abstieg über das Budget vor der ersten Löschmutation abgewiesen. NULL/negativ ungültig; nicht still trunciert."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": "10000", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Ganzzahl 1..2147483647, Default 10000; der Remove-Pfad besitzt anders als List keine zusätzliche 10000er-Obergrenze. Zählt sämtliche Kinder im vollständigen Vorab-Löschplan, ohne das Startdirectory selbst. NULL/0/negativ ungültig; Überschreitung vor erster Mutation. Keine automatische unbegrenzte Löschung."}, {"name": "@ExecutionIdentity", "sql_type": "varchar(16)", "sql_default": "''Caller''", "is_output": false, "argument_required": false, "business_required": false, "nullable": false, "description": "Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung."}, {"name": "@ResultTable", "sql_type": "sysname", "sql_default": "NULL", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "NULL (Default) liefert den fachlich' + N'en SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück."}, {"name": "@KeepData", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag."}, {"name": "@Debug", "sql_type": "tinyint", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages."}, {"name": "@Hilfe", "sql_type": "bit", "sql_default": "0", "is_output": false, "argument_required": false, "business_required": false, "nullable": true, "description": "Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg."}]
+source_paths: ["Modules/toolbelt.filesystem.windows/Source/Procedures.sql", "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs"]
+review_status: "verified"
+s' + N'ource_module_version: "1.0.0"
+---
+
+# USP_RemoveDirectory
+
+## Zweck und Einsatzfälle
+
+Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt. Öffentlicher Windows-Dateisystemeinstieg mit früher Hilfe und optionalem ResultTable-Routing. Keine automatische Root-/Rechte-/Trusteinrichtung.
+
+## Voraussetzungen
+
+Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
+
+## Parameter und Zugriff
+
+| Parameter | SQL-Typ | SQL-Default | Vertrag |
+|---|---|---|---|
+| `@RootAlias` | `sysname` | `NULL` | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N''inbox\sample.txt''; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein' + N' SQL-/Glob-/URL-Text. Leer kann syntaktisch aufgelöst werden, aber der Root selbst darf niemals gelöscht werden. Muss ein vorhandenes Verzeichnis sein; keine Wildcard-/Mehrfachauswahl. |
+| `@Recursive` | `bit` | `0` | Taxativ im gebundenen bit: 0 bearbeitet nur das explizite Verzeichnis ohne rekursiven Abstieg (Default); 1 erlaubt begrenzten Abstieg gemäß MaxDepth/MaxEntries. NULL ist für CLR-bool ungültig und kein Default. Bei 0 muss das Verzeichnis leer sein. |
+| `@MaxDepth` | `int` | `32` | Ganzzahl 0..2147483647, Default 32; der Remove-Pfad besitzt anders als List keine zusätzliche 64er-Obergrenze. Startdirectory hat Tiefe 0. Bei Recursive=1 wird jeder nötige Abstieg über das Budget vor der ersten Löschmutation abgewiesen. NULL/negativ ungültig; nicht still trunciert. |
+| `@MaxEntries` | `int` | `10000` | Ganzzahl 1..2147483647, Default 10000; der Remove-Pfad besitzt anders als List keine zusätzliche 10000er-Obergrenze. Zählt sämtliche Kinder im vollständigen Vorab-Löschplan, ohne das Startdirectory selbst. NULL/0/negativ ungültig; Überschreitung vor erster Mutation. Keine automatische unbegrenzte Löschung. |
+| `@ExecutionIdentity` | `varchar(16)` | `''Caller''` | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
+| `@ResultTable` | `sysname` | `NULL` | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N''#Result''; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Au' + N'sgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
+| `@KeepData` | `bit` | `0` | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
+| `@Hilfe` | `bit` | `0` | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
+
+## Ergebnisse
+
+Eine Zeile nach erfolgreicher Entfernung: RootAlias nvarchar(128), RelativePath nvarchar(4000), State varchar(16)=removed. Keine OUTPUT-Parameter. Keine Ausgabe einer Löschliste. Der Wrapper sammelt die Providerzeilen zuerst in #tbx_fs_result. Bei ResultTable=NULL folgt ein fachliches Resultset; sonst erfolgt Routing in die bereits caller-lokale Zieltable nach dem ResultTable-Vertrag. Im fachlichen Resultset ist Content bei Leseoperationen als nullable deklariert; die übrigen Wrapper-Ausgabespalten sind NOT NULL. Bei @Hilfe=1 werden stattdessen die unveränderte zwölfspaltige Standardhilfe und ein zweites Resultset mit genau einer Zeile SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname, SkillMarkdown nvarchar(max) geliefert; RETURN 0. Keine OUTPUT-Parameter.
+
+## Aufrufbeispiele
+
+```sql
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_' + N'filesystem.USP_RemoveDirectory @Hilfe=1;
+```
+
+## Rechte
+
+Vorhandenes EXECUTE auf diese öffentliche Prozedur sowie die im vorhandenen Modul-/Ownership-Kontext benötigten Rechte für Provider und ResultTable-Helfer; keine pauschale Aufforderung zur direkten Freigabe aller internen Objekte. Für Fachoperationen SELECT auf FileSystemRoot im tatsächlichen SQL-Kontext, bestehende CLR-/Trustvoraussetzungen und operationsgerechte NTFS-Rechte. Caller benötigt Windows-Authentifizierung und die erfasste Windowsidentität. ServiceAccount nur bei expliziter Wahl, Mitgliedschaft in der dbo-eigenen Rolle toolbelt_filesystem_service_account und AllowServiceAccount am Root. SQL-Login allein genügt nicht für Caller. Hilfe vergibt keine Rechte und führt keine Identitätsprüfung aus.
+
+## Ressourcenbedarf
+
+Vollständiger Löschplan mit offenen nativen Handles vor erster Löschung, proportional zur akzeptierten Eintragszahl. Der raw CLR-Einstieg prüft für MaxEntries nur >=1 und MaxDepth nur >=0; die Obergrenzen des Listingpfads gelten nicht für die Entfernung. Anzahlgrenze zählt Kinder, nicht das Startverzeichnis. Zusätzlich materialisiert INSERT EXEC die Providerresultate in der lokalen #tbx_fs_result; LOB-/Listenmengen können TempDB benötigen. ResultTable-Routing kann eine Shape-Temp-Tabelle und dynamisches INSERT verwenden. Debug ist in diesem Wrapper unbenutzt. Skillhilfe besteht aus konstantem Text, ohne Laufzeitkatalog-/Netzwerkzugriff.
+
+## Nebenwirkungen
+
+Recursive=0 verlangt ein leeres Verzeichnis; Recursive=1 entfernt geplante Kinder rückwärts und danach den Start. Rootlöschung ist verboten. Preflightfehler führen vor Mutation zum Abbruch; Fehler während nativer Löschung können eine Teilentfernung hinterlassen. Kein SQL-Rollback und keine pauschale Garantie gegen alle konkurrierenden Dateisystemänderungen. Der Fachwrapper erzeugt eine eigene lokale Ergebnis-Temp-Tabelle und kann anschließend die ausdrücklich gewählte caller-lokale ResultTable vorbereiten/leeren/befüllen. Fehler dort ma' + N'chen vorherige Dateieffekte nicht rückgängig. @Hilfe=1 führt weder diese Fachoperation noch Routing aus; SET NOCOUNT ON entspricht dem vorhandenen Wrapperpfad.
+
+## Fehlerbehandlung
+
+Provider-/INSERT-EXEC-Fehler werden im Wrapper als THROW 51540 mit gekürzter Ursachennachricht ausgegeben. Listing formuliert EntryLimitExceeded gesondert mit dem gewählten MaxEntries-Wert. Fehler des anschließenden ResultTable-Routings liegen außerhalb dieses Provider-CATCH und behalten ihren eigenen Fehlervertrag. Providerfehler werden als .NET-Ausnahmen mit TBXFS:-Codes beziehungsweise als SQL-CLR-Enginefehler sichtbar; unter anderem RootAliasRequired, RootNotAuthorized, InvalidExecutionIdentity, CallerWindowsAuthenticationRequired, ServiceAccountNotAuthorized, InvalidPath/PathOutsideRoot und native Handlefehler. Operationabhängig zusätzlich InvalidChunkRange, OffsetBeyondEnd, InvalidListLimit, EntryLimitExceeded, DepthLimitExceeded, EncodingRequired/UnsupportedEncoding, ContentRequired. Reparse Points und Hardlinks werden im nativen Prüfpfad abgewiesen; keine Fallbackoperation nach Fehler. Betriebssystem-/Encodingausnahmen können zusätzlich auftreten. Fehlertexte und Dateiresultate können vertrauliche Informationen enthalten und gehören nicht in öffentliche Logs.
+
+## Aussagegrenzen
+
+Quellgeprüfter Vertrag; die neue konstante Skillhilfe benötigt noch ihre eigene native Unicode-/Minimalrechte-/Callerzustands-/Nebenwirkungsabnahme. Historische Dateioperationsnachweise qualifizieren ausschließlich ihre ursprünglichen Fachpfade. Der Skill attestiert weder vorhandene Installation noch Rechte. Dateioperationen sind nicht SQL-transaktional; keine allgemeine Race-, Netzwerkdateisystem- oder unbegrenzte Kapazitätszusage.
+' AS SkillMarkdown;
+        -- OBJECT_USAGE_SKILL_HELP:END
         RETURN 0;
         -- API_PARAMETER_HELP:END
     END;
