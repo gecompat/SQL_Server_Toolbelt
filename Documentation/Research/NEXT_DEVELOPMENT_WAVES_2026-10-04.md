@@ -929,7 +929,7 @@ Grammatikautorität wird durch diesen Vorschlag nicht ersetzt.
 
 ### Nachvollziehbarer Repositorybefund
 
-Der [Constructor-CLR-Preflight](../../Modules/toolbelt.json.constructors/Deployment/ClrPreflight.sql)
+Der [Constructor-CLR-Preflight](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.json.constructors/Deployment/ClrPreflight.sql)
 prüft nicht nur fremde SQL-/CLR-Bindings. Sobald irgendeine andere Assembly
 `Toolbelt_JsonConstructors` referenziert, weist er den Lifecycle mit53626 ab.
 Eine Schemaassembly könnte deshalb auch bei unveränderten Constructorbytes

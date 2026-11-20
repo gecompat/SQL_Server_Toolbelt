@@ -1,0 +1,63 @@
+"""Prove unchanged component sources apart from declared SQL assembly aliases.
+
+This transition check permits reuse of component evidence, never acceptance of
+new deployment code or an exact new install package. A future business change
+needs its own qualification and an explicitly revised reuse scope.
+"""
+from pathlib import Path
+import io
+import re
+import subprocess
+import tarfile
+
+ROOT=Path(__file__).resolve().parents[2]
+BASELINE='2fbe8e3e86f370b22ad2ce9f9716d971072a052b'
+ALIASES={
+    'Toolbelt_Archive_ZipMemory':'tlblt_Archive_ZipMemory',
+    'Toolbelt_File_CsvMemory':'tlblt_File_CsvMemory',
+    'Toolbelt_File_XlsxMemory':'tlblt_File_XlsxMemory',
+    'Toolbelt_Filesystem_Windows':'tlblt_Filesystem_Windows',
+    'Toolbelt_JsonConstructors':'tlblt_JsonConstructors',
+    'Toolbelt_JsonCore':'tlblt_JsonCore',
+    'Toolbelt_JsonSchema':'tlblt_JsonSchema',
+    'Toolbelt_String_EditDistance':'tlblt_String_EditDistance',
+    'Toolbelt_String_Phonetic':'tlblt_String_Phonetic',
+    'Toolbelt_String_Regex':'tlblt_String_Regex',
+}
+
+
+def selected(path):
+    return path.startswith('Modules/') and ('/Source/' in path or '/Clr/' in path) and path.endswith(('.sql','.cs','.csproj'))
+
+
+def compare(original,current,path):
+    original=original.replace(b'\r\n',b'\n');current=current.replace(b'\r\n',b'\n')
+    if '/Source/' in path:
+        for old,new in ALIASES.items():
+            # Only the SQL assembly token may change; never a CLR class name,
+            # dynamic SQL body or general string value with similar spelling.
+            pattern=rb'(\bEXTERNAL\s+NAME\s+\[)'+re.escape(old.encode())+rb'(\])'
+            original=re.sub(pattern,lambda m:m[1]+new.encode()+m[2],original,flags=re.I)
+            original=re.sub(rb'(?m)^[ \t]*--[^\n]*',lambda m:m[0].replace(old.encode(),new.encode()),original)
+            original=re.sub(rb'/\*.*?\*/',lambda m:m[0].replace(old.encode(),new.encode()),original,flags=re.S)
+    if original!=current: raise ValueError('COMPONENT_REUSE_NOT_PROVEN: '+path)
+
+
+def verify(root=ROOT,baseline=BASELINE,module_ids=None):
+    scopes=['Modules/'+name for name in module_ids] if module_ids else ['Modules']
+    raw=subprocess.check_output(['git','archive','--format=tar',baseline,*scopes],cwd=root,timeout=120)
+    originals={}
+    with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
+        for member in archive:
+            if member.isfile() and selected(member.name): originals[member.name]=archive.extractfile(member).read()
+    actual={p.relative_to(root).as_posix() for p in (root/'Modules').glob('*/Source/**/*.sql')}
+    actual.update(p.relative_to(root).as_posix() for p in (root/'Modules').glob('*/Clr/**/*')
+                  if p.is_file() and p.suffix in ('.cs','.csproj') and not {'bin','obj'} & set(p.parts))
+    if module_ids: actual={p for p in actual if p.split('/')[1] in module_ids}
+    if actual!=set(originals):raise ValueError('COMPONENT_REUSE_SOURCE_INVENTORY_CHANGED')
+    for path,data in originals.items():compare(data,(root/path).read_bytes(),path)
+    return len(originals)
+
+
+if __name__=='__main__':
+    print('COMPONENT_SOURCE_REUSE_PROVEN files='+str(verify())+'; deployment/package qualification separate; no SQL executed')

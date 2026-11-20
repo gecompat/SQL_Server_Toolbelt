@@ -155,3 +155,34 @@ Bei einer teilweise vorhandenen Tabellengruppe eine neue eigene Datenbank
 verwenden. Fehlende Berechtigungen oder nicht eingerichteten Datenbank-Trust
 mit dem zuständigen Administrator klären; der Installer lockert diese Grenzen
 nicht selbst.
+
+## Installationssatz aus festgeschriebenen Quellen bauen
+
+Nach Commit der aktuellen Quellen die vier vollständigen Profile mit Trustmodus
+auto in einen gemeinsamen neuen Ordner bauen. Die Dateinamen lauten
+`Install-Windows-local.sql`, `Install-Windows-central.sql`,
+`Install-Portable-local.sql` und `Install-Portable-central.sql`; jede Datei
+behält ihre danebenliegende Manifestdatei. Danach:
+
+```powershell
+python Scripts/Install/New-InstallPayload.py --profiles .runtime/release-profiles `
+  --source-commit HEAD --release v1.0.0-rc.5 `
+  --output .runtime/release-output/Toolbelt-Install-Payload.zip
+python Scripts/Install/New-InstallSet.py `
+  --payload .runtime/release-output/Toolbelt-Install-Payload.zip `
+  --source-commit HEAD --output .runtime/release-output/Toolbelt-Install.zip
+```
+
+Der innere Payload bindet alle SQL-Profile und Quellen an denselben Commit.
+Der äußere Installationssatz enthält Client, Payload, direkt ausführbare
+SQL-Dateien, Lizenz und Anleitungen. Weiterführende Dokumentationslinks zeigen
+auf den festgeschriebenen Quellstand. Beide ZIPs erhalten SHA256-Dateien und
+werden nicht überschrieben. Die Erzeugung veröffentlicht weder Release noch Tag.
+Interne Dateihashes sind Konsistenzprüfungen, keine Herausgebersignatur.
+Ein gebauter neuer Satz erbt keine native Gesamtqualifikation älterer Pakete.
+
+Die Übergangsprüfung `Verify-ComponentReuse.py` vergleicht alle fachlichen
+SQL-/CLR-Quellen mit dem ursprünglichen Quellstand. Sie lässt ausschließlich die
+benannten SQL-Assemblyreferenzen und deren Kommentare zu; andere Fachänderungen
+weisen die Wiederverwendung zurück. Dies unterstützt die komponentenbezogene
+Nachweiszuordnung und qualifiziert weder den neuen Client noch das neue Paket.

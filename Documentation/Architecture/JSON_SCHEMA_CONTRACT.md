@@ -1,5 +1,11 @@
 # JSON Schema und gemeinsamer JSON-Core – freigegebener Vor-Source-Vertrag
 
+Für den aktuellen Installationsstand gilt das [markerfreie Deploymentmodell](DEPLOYMENT_MODEL.md).
+Die folgenden datierten Lifecycle-/Migrationsbeschreibungen dokumentieren ihre
+ursprünglichen markerbasierten Releases. Sie sind kein aktueller Upgrade- oder
+Uninstall-Vertrag. Der JSON-Fachvertrag bleibt davon getrennt.
+
+
 RelatedReference: RI-2026-048. Stand2026-10-05, Codex.
 Status: accepted; implementiert, begrenzte Offline- und native Teilqualifikation vorhanden, unveröffentlicht. Aktuelle Head-CI und übrige Matrix offen.
 
@@ -154,7 +160,7 @@ Grammatikautorität wird durch diesen Vorschlag nicht ersetzt.
 
 ### Nachvollziehbarer Repositorybefund
 
-Der [Constructor-CLR-Preflight](../../Modules/toolbelt.json.constructors/Deployment/ClrPreflight.sql)
+Der [Constructor-CLR-Preflight](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.json.constructors/Deployment/ClrPreflight.sql)
 prüft nicht nur fremde SQL-/CLR-Bindings. Sobald irgendeine andere Assembly
 `Toolbelt_JsonConstructors` referenziert, weist er den Lifecycle mit53626 ab.
 Eine Schemaassembly könnte deshalb auch bei unveränderten Constructorbytes

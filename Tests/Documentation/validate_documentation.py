@@ -1845,13 +1845,13 @@ def main() -> int:
             raise ValidationError("Markerfreie Installation: "+result.stdout+result.stderr)
         print(result.stderr.strip())
     if "release_preparation" in checks:
-        # Preserve every unique check; the documentation runner collapses only
-        # the known duplicate CSV-class registration in the historical evidence suite.
+        # Preserve the original complete suite at its immutable lifecycle source.
+        # Current installation/component checks above remain separate gates.
         # Die gewachsene Suite überschreitet auf CI zwanzig Minuten.
         # Dreißig Minuten bleiben endlich; Fortschritt bleibt bei Timeout sichtbar.
         # Keep the hidden process boundary so no console window steals focus.
         result = run_hidden(
-            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/run_release_validation.py")],
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/run_archived_release_validation.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=1800,
         )
         if result.returncode:

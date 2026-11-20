@@ -1,41 +1,12 @@
-#!/usr/bin/env python3
+"""Current component equivalence and explicitly frozen original lifecycle checks."""
 from pathlib import Path
+import importlib.util
+import sys
 
-root = Path(__file__).resolve().parents[2]
-required = (
-    "Source/VW_ModuleCapabilities.sql",
-    "Deployment/Deploy.sql",
-    "Deployment/Uninstall.sql",
-    "Examples/ModuleCapabilities.sql",
-    "README.md",
-    "Documentation/VW_ModuleCapabilities.md",
-    "Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md",
-    "Tests/README.md",
-    "Tests/Runtime/ModuleCapabilities.Contract.sql",
-    "Tests/Runtime/MetadataVisibility.Contract.sql",
-    "Tests/Runtime/Lifecycle.Contract.sql",
-    "Tests/Runtime/Central.Contract.sql",
-    "module.yaml",
-)
-missing = [path for path in required if not (root / path).is_file()]
-if missing:
-    raise SystemExit("Fehlende Artefakte: " + ", ".join(missing))
+ROOT=Path(__file__).resolve().parents[4]
+sys.path.insert(0,str(ROOT/'Scripts/Install'))
+spec=importlib.util.spec_from_file_location('legacy_static_scope',ROOT/'Scripts/Install/Legacy-StaticScope.py')
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
-source = (root / "Source/VW_ModuleCapabilities.sql").read_text("utf-8")
-for marker in (
-    "CREATE OR ALTER VIEW toolbelt_metadata.VW_ModuleCapabilities",
-    "FROM sys.assemblies", "FROM sys.objects", "ModuleVersion", "DeploymentMode",
-    "MetadataStatus", "'incomplete'", "CONVERT(nvarchar(4000),NULL)",
-):
-    if marker not in source: raise SystemExit(f"Capability-Vertrag fehlt: {marker}")
-for marker in ("extended_properties", "Toolbelt.Module", "'valid'", "'invalid'"):
-    if marker in source: raise SystemExit(f"Unbelegte Marker-/Versionsprojektion: {marker}")
-
-for forbidden in ("CREATE TABLE", "INSERT INTO", "UPDATE ", "DELETE FROM"):
-    if forbidden in source:
-        raise SystemExit(
-            "Die Capability-View darf keine persistente Registry oder Mutation "
-            f"enthalten: {forbidden}"
-        )
-
-print("Module Capability Catalog statische Vertragsprüfung: erfolgreich")
+if __name__=='__main__':
+    raise SystemExit(module.run('toolbelt.metadata.capability-catalog'))

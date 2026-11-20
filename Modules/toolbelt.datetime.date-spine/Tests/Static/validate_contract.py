@@ -1,74 +1,12 @@
-#!/usr/bin/env python3
+"""Current component equivalence and explicitly frozen original lifecycle checks."""
 from pathlib import Path
+import importlib.util
+import sys
 
-root = Path(__file__).resolve().parents[2]
-public_objects = (
-    "TVF_DateSpineDay",
-    "TVF_DateSpineIsoWeek",
-    "TVF_DateSpineMonth",
-)
-all_objects = ("TVF_DateSpineCore",) + public_objects
-required = [
-    "Deployment/Deploy.sql",
-    "Deployment/Uninstall.sql",
-    "Examples/DateSpine.sql",
-    "README.md",
-    "Tests/DATE_SPINE_CONTRACT_TEST_MATRIX.md",
-    "Tests/README.md",
-    "Tests/Runtime/DateSpine.Contract.sql",
-    "Tests/Runtime/Lifecycle.Contract.sql",
-    "Tests/Runtime/Central.Contract.sql",
-    "module.yaml",
-]
-required += [f"Source/{name}.sql" for name in all_objects]
-required += [f"Documentation/{name}.md" for name in all_objects]
+ROOT=Path(__file__).resolve().parents[4]
+sys.path.insert(0,str(ROOT/'Scripts/Install'))
+spec=importlib.util.spec_from_file_location('legacy_static_scope',ROOT/'Scripts/Install/Legacy-StaticScope.py')
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
-missing = [path for path in required if not (root / path).is_file()]
-if missing:
-    raise SystemExit("Fehlende Artefakte: " + ", ".join(missing))
-
-source = "\n".join(
-    (root / f"Source/{name}.sql").read_text("utf-8")
-    for name in all_objects
-)
-if source.count("RETURNS TABLE") != 4:
-    raise SystemExit("Alle vier Date-Spine-Objekte müssen Inline TVFs sein.")
-for marker in (
-    "TVF_GenerateSeriesInt",
-    "TVF_TruncateDate",
-    "Latin1_General_100_BIN2",
-    "@RangeEndExclusive",
-    "Ordinal",
-    "PeriodStart",
-):
-    if marker not in source:
-        raise SystemExit(f"Date-Spine-Vertragsmarker fehlt: {marker}")
-if "TVF_DateBucket" in source:
-    raise SystemExit("Date Spine darf keine künstliche Bucket-Dependency besitzen.")
-for object_name in public_objects:
-    wrapper = (root / f"Source/{object_name}.sql").read_text("utf-8")
-    if "TVF_DateSpineCore" not in wrapper:
-        raise SystemExit(f"Öffentlicher Wrapper umgeht den Kern: {object_name}")
-    for marker in (
-        "DDL-Hilfe:",
-        "@RangeStart date und @RangeEndExclusive date",
-        "beide ohne Default",
-        "NULL, gleiche oder umgekehrte",
-        "keine Zeilen",
-        "Ordinal int",
-        "nullfrei, ab 0",
-        "PeriodStart date",
-        "ORDER BY Ordinal",
-        "SELECT auf der Funktion benötigt",
-        "Erwartet:",
-    ):
-        if marker not in wrapper:
-            raise SystemExit(f"Gespeicherte DDL-Hilfe unvollständig: {object_name}: {marker}")
-if "DATEFIRST hat\n     * keinen Einfluss" not in (root / "Source/TVF_DateSpineIsoWeek.sql").read_text("utf-8"):
-    raise SystemExit("Die gespeicherte ISO-Wochen-Hilfe muss DATEFIRST-Unabhängigkeit nennen.")
-if "kann vor @RangeStart liegen" not in (root / "Source/TVF_DateSpineIsoWeek.sql").read_text("utf-8"):
-    raise SystemExit("Die ISO-Wochen-Hilfe muss den früheren Periodenanfang erklären.")
-if "kann vor @RangeStart liegen" not in (root / "Source/TVF_DateSpineMonth.sql").read_text("utf-8"):
-    raise SystemExit("Die Monats-Hilfe muss den früheren Periodenanfang erklären.")
-
-print("Date-Spine statische Vertragsprüfung: erfolgreich")
+if __name__=='__main__':
+    raise SystemExit(module.run('toolbelt.datetime.date-spine'))

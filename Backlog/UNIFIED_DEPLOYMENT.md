@@ -61,3 +61,27 @@ und innerhalb konkret gültiger Autorität, nie als pauschaler Vollumlauf.
 Die Abschlussprüfung muss jeden obigen Punkt einzeln an tatsächlichen Sources,
 Builderausgaben, Paketinhalt und CI-/PR-Zustand nachweisen. Ein grüner Teilsatz
 ist keine Erledigung dieses Gesamtauftrags.
+
+## Trennung der Regressionen beim Lifecyclewechsel
+
+Die bisherigen modulspezifischen Staticprüfungen enthalten zahlreiche konkrete
+Marker-, Deploy-/Uninstall- und Upgradeassertions. Diese bleiben unverändert im
+festen Vorgänger `2fbe8e3e` ausführbar. Die aktuellen Einstiegsskripte prüfen
+zuerst die Source-Äquivalenz ihrer ausgewählten Komponenten und Abhängigkeiten:
+keine CLR-/Fachänderung außer den ausdrücklich benannten SQL-Assemblyreferenzen
+und ihren Kommentaren. Ein anderer Fachquellstand verwirft diese Wiederverwendung.
+Anschließend laufen die ursprünglichen Lifecycleassertions am festen Original.
+
+Der gemeinsame aktuelle Installationskern, Paketinhalt, Trustauswahl,
+Clientprotokoll und Vorbereitungsübergang haben eigene aktuelle Prüfungen.
+Historische Releasesuite und früherer SQLCMD-Export laufen ebenfalls explizit
+am Original. Kein solcher historischer PASS qualifiziert neue Deploymentbytes.
+Die sourcegebundene Zuordnung vermeidet das Umschreiben alter Nachweise und
+erhält alle ursprünglichen Assertions. Zukünftige Fachänderungen benötigen eine
+neue aktuelle Abnahme; sie dürfen diesen Äquivalenzguard nicht still umgehen.
+
+Zusätzlicher Aufwand: Die kleinen Komponentenvergleiche ersetzen keine Gates;
+die vorhandene Releasesuite behält ihr endliches 30-Minutenlimit. Es entstehen
+keine SQL-/TLS-/GUI-Dispatches. Gemeinsame Paket-/Clienttests laufen einmal im
+aktuellen zentralen Gate; die noch offenen Workflowadapter müssen vor Integration
+auf dieselbe Trennung geprüft werden. Keine vollständige CI-Abnahme behaupten.
