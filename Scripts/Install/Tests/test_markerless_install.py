@@ -1,6 +1,7 @@
 """Markerfreier Buildvertrag; keine SQL-Verbindung oder Infrastrukturaktion."""
 from pathlib import Path
 import importlib.util
+import re
 import sys
 import unittest
 
@@ -70,6 +71,44 @@ class MarkerlessContractTests(unittest.TestCase):
         source['statements'][0]['kind']='DropProcedureStatement'
         source['statements'][0]['name']=None
         with self.assertRaisesRegex(ValueError,'unhandled source statement'): installer.emit_sources([source],{})
+
+    def test_embedded_and_template_deployments_include_canonical_entries(self):
+        sources,pins=installer.source_files(installer.modules('Windows','local'))
+        by_path={source['path']:source['sql'] for source in sources}
+        for module,names in {
+            'toolbelt.conversion.safe-cast':('TVF_TryCastBigInt','TVF_TryCastDecimal',
+                'TVF_TryCastDate','TVF_TryCastDateTime2','TVF_TryCastBit','TVF_TryCastUniqueIdentifier'),
+            'toolbelt.json.pointer':('TVF_ResolveJsonPointer',),
+            'toolbelt.tsql.ssis-debug':('USP_ExplainSsisDataFlow','USP_ExplainSsisDataFlowInternal'),
+        }.items():
+            for name in names:
+                path='Modules/'+module+'/Source/'+name+'.sql'
+                self.assertIn(path,by_path)
+                self.assertIn(path,pins)
+                self.assertEqual(by_path[path],(ROOT/path).read_text(encoding='utf-8-sig'))
+        self.assertEqual(len(by_path),len(sources))
+
+    def test_module_without_source_or_clr_is_rejected(self):
+        module={'id':'toolbelt.conversion.safe-cast','text':'objects: []\nclr:\n  used: false\n'}
+        with self.assertRaisesRegex(ValueError,'module without executable source'):
+            installer.source_files([module])
+
+    def test_every_profile_has_create_text_for_all_declared_sql_objects(self):
+        # Unabhängiger Sollbestand aus den öffentlichen Objektdeklarationen.
+        # Dies ist statische Vollständigkeit, kein Beweis nativer Ausführbarkeit.
+        for platform,mode in (('Windows','local'),('Windows','central'),
+                              ('Portable','local'),('Portable','central')):
+            selected=installer.modules(platform,mode)
+            sources,_=installer.source_files(selected)
+            text='\n'.join(source['sql'] for source in sources)
+            names={schema+'.'+name for schema,name in re.findall(
+                r'(?i)\bCREATE\s+(?:OR\s+ALTER\s+)?(?:FUNCTION|PROCEDURE|VIEW|TABLE|AGGREGATE)'
+                r'\s+\[?(toolbelt_[A-Za-z]+)\]?\s*\.\s*\[?([A-Za-z][A-Za-z0-9_]*)\]?',text)}
+            for module in selected:
+                for obj in manifest.objects(module['text']):
+                    if obj['type']!='ASSEMBLY':
+                        self.assertIn(obj['schema']+'.'+obj['name'],names,
+                                      (platform,mode,module['id']))
 
     def test_table_migrations_have_fresh_group_guard_and_partial_group_stop(self):
         source={'path':'Modules/toolbelt.core.work-queue/Source/WorkItem.sql','statements':[

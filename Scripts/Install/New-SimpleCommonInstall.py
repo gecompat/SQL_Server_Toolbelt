@@ -166,7 +166,23 @@ def source_files(selected):
             visit(path.parent/match[1].strip().strip('\"\''),[*stack,path])
         if '/Source/' in relative and relative not in seen and relative not in SKIP:
             files.append((relative,path));seen.add(relative)
-    for module in selected: visit(ROOT/'Modules'/module['id']/'Deployment/Deploy.sql',[])
+    for module in selected:
+        directory=ROOT/'Modules'/module['id']
+        visit(directory/'Deployment/Deploy.sql',[])
+        # Generierte klassische Deployments können CREATE-Payloads einbetten
+        # oder als Template erst im Releasebuild erhalten. Deshalb sämtliche
+        # deklarierten kanonischen Einzelobjekte ergänzen, nicht nur :r folgen.
+        # Bereits besuchte Dateien bleiben dedupliziert; Tabellen-/CLR-Gruppen
+        # ohne namensgleiche Einzeldatei behalten ihre vorhandene Includekette.
+        for obj in objects(module['text']):
+            if obj['type']=='ASSEMBLY': continue
+            require(re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*',obj['name']),
+                    'canonical source object name')
+            canonical=directory/'Source'/(obj['name']+'.sql')
+            if canonical.is_file(): visit(canonical,[])
+        require(any(path.startswith('Modules/'+module['id']+'/') for path,_ in files)
+                or scalar(section(module['text'],'clr'),'  used')=='true',
+                'module without executable source: '+module['id'])
     def expand(path,stack=()):
         require(path not in stack and len(stack)<32,'source include cycle')
         text=path.read_text(encoding='utf-8-sig')

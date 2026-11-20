@@ -7,6 +7,25 @@ Die nachfolgenden Anforderungen bleiben als ursprünglicher Anforderungsabgleich
 erhalten. Der [gemeinsame create-only-Quellinstaller](../Scripts/Install/README.md) ist ebenfalls implementiert. Seine vier Profile sind offline geprüft; native Paketabnahme und tatsächliche Abschluss-CI werden als getrennte Abnahmegates geführt. Ein früherer Modulnachweis ist keine neue Gesamtqualifikation dieses Installationswegs.
 Historische Releaseartefakte werden weder ersetzt noch neu qualifiziert.
 
+Abnahmefortschritt 2026-11-20: Der begrenzte gemeinsame native Paketlauf
+bestand Installation/Wiederholung und acht Prüfungen, scheiterte danach an
+der Capability-Projektion und wurde vollständig bereinigt; der separate
+Abschlussaudit ist PASS. Der separat freigegebene korrigierte Lauf bestand
+neun Prüfungen einschließlich 45 Capability-Kandidaten, scheiterte aber vor
+der API-Ausführung an der ebenfalls ausgelassenen SSIS-Prozedur; auch sein
+frischer Audit ist PASS. Der Builder ergänzt deshalb jetzt alle namensgleichen
+kanonischen Objektdateien, einschließlich sieben Safe-Cast-/JSON-Pointer-TVFs
+und beider SSIS-Prozeduren. Ausgewählte Module ohne ausführbare Quelle oder CLR
+führen zum Buildabbruch. Zwölf Offlineprüfungen und vier neu gebaute, geparste
+Profile bestehen; die statische Objektabdeckung wird je Profil geprüft.
+Die anschließend separat freigegebene abschließende Welle bestand auf Windows
+SQL2025/CU8 CL170 im lokalen Windows-/Hashprofil alle 13 Prüfungen einschließlich
+XML-only-Erzeugung, zentralem Startwerteaufruf und tatsächlicher vollständiger
+DebugScript-Ausführung mit erwartetem Zwei-Zeilen-Ergebnis. Der separate frische
+Windows-Audit ist PASS. Damit ist dieser begrenzte Consumer-Gesamtfall geschlossen;
+keine vollständige native Profil-/Trust-/Produktqualifikation daraus ableiten.
+[Nachweisabgrenzung](../Scripts/Install/Tests/QUALIFICATION.md).
+
 ## Gewünschte Anwendererfahrung
 
 Toolbelt soll mit wenigen Eingaben installierbar und verwendbar sein. Zusätzliche

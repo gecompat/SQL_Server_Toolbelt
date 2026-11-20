@@ -11,6 +11,15 @@ qualifiziertes Gesamtpaket. Die bisherigen markerbasierten Deploy-/Uninstall-
 Skripte verwalten einen anderen Installationsweg und dürfen nicht zum Upgrade
 oder Entfernen dieser markerfreien Installation verwendet werden.
 
+Der begrenzte native Gesamtfall vom 2026-11-20 ist für Windows SQL2025/CU8,
+CL170, das lokale Windows-Profil und den Hashweg bestanden: Installation und
+Wiederholung, XML-Aufruf, zentraler Aufruf mit Startwerten und tatsächliche
+DebugScript-Ausführung. 13 Prüfungen und der separate frische Windows-Audit
+mit zwei Prüfungen sind PASS. Zwei vorherige, bereinigte Fehlläufe deckten
+ausgelassene kanonische Objektdateien auf; ihre Fehlernachweise bleiben erhalten.
+Das ist keine vollständige native Abnahme aller Profile oder Trustwege.
+Die [Prüfübersicht](Tests/QUALIFICATION.md) grenzt Teilnachweise und Restpunkt ab.
+
 ## Datei bauen
 
 Auf einem Windows-Buildhost werden die .NET-Framework-4.8-Entwicklungswerkzeuge,
