@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 2026-11-20 – Vereinfachter SSIS-Quellstand und private Parser-Abhängigkeit
+
+DTSX kann direkt als Unicode-XML mit optionalen JSON-Startwerten übergeben
+werden. Paketdefaults und unterstützte Connection-Expressions werden lokal
+aufgelöst; der Standard erzeugt einen ungeprüften Debugentwurf ohne
+Quellkatalogzugriff. Der optionale Katalogmodus bleibt verfügbar. Der neue
+normale T-SQL-Installer erstellt SSIS ohne SQLCMD, Extended Properties oder
+Logtabellen und bietet selektiven Hashtrust sowie vorhandenen DB-Trust mit
+oder ohne Binaryvergleich. Die private ScriptDom-Identität erhält fremde
+Versionen; der Trigger-Consumer bindet deren neue Namen und Pins.
+
+Gezielte Installations-/Erzeugungsfälle und Offlinekonformität sind separat
+belegt. Der zusätzliche native Consumerlauf blieb nach einem Batchadapterfehler
+FAILED_CLEANED mit frischem Audit PASS. Keine neue Gesamtqualifikation; der
+Parserstatus ist deshalb teilweise validiert. Historische Records und
+veröffentlichte Pakete bleiben unverändert. Die gemeinsame markerlose
+Umstellung der übrigen Module bleibt offen. Keine Veröffentlichung.
+[Anwendung und Grenzen](Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
+
+
 ## 2026-11-05 – Aktuellen Parserbuild nach vereinbartem Quotenvertrag qualifiziert
 
 Die native API- und datenbanklokale Minimalrechtematrix von Parser2.0.1
@@ -2311,7 +2331,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 
