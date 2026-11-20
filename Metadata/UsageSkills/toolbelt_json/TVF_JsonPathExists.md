@@ -67,3 +67,5 @@ Ursprüngliche Objektverträge:
 - `Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md`
 
 Keine Installations-, Definitions- oder Rechteattestation.
+
+Quellbefund 2026-11-21: Der Propertyvergleich in TVF_JsonPathExistsStatus verwendet ausschließlich BIN2-Gleichheit und keine zusätzliche DATALENGTH-Prüfung. SQL-Zeichenkettengleichheit besitzt Padding-Semantik für abschließende Leerzeichen; daraus folgt der konkrete Verdacht einer falschen Zuordnung etwa zwischen JSON-Key a und a mit abschließendem Leerzeichen. Die Quelle enthält keinen erkennbaren Ausgleich. Native Gegenprobe und gegebenenfalls Korrektur stehen aus; kein nativ beobachtetes FAIL behaupten und nicht als geprüften Skill ausliefern. [Microsoft-Vertrag zur Zeichenkettengleichheit](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/string-comparison-assignment?view=sql-server-ver17).

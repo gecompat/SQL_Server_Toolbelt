@@ -13,7 +13,9 @@ versioniertem YAML-Frontmatter unter `Metadata/UsageSkills`. Alle öffentlichen,
 internen und technischen Objekte sowie die neue View einschließen. Tabellen
 beschreiben den vorgesehenen Lese-/Schreibweg; interne Helfer nennen passende
 öffentliche Einstiege. Fehlende persistente Source-Objekte vor der Abnahme
-inventarisieren; aktuell sind elf Filesystem-Helfer nicht im Modulobjektinventar.
+inventarisieren. Die zunächst fehlenden elf Filesystem-Helfer sind inzwischen
+im Modulobjektinventar erfasst; alle 22 Objekte dieses Moduls besitzen geprüfte
+Skillquellen. Neue Skill-/Hilfefunktionalität benötigt weiterhin eigene Abnahme.
 Assemblies und schemafreie Objekte erhalten eine eindeutige dokumentierte
 Identität statt eines erfundenen Schemas.
 
@@ -73,6 +75,24 @@ erst nach vollständiger Quellenabdeckung; bis dahin keine Teilfreigabe der
 Produktview und kein Versand von Entwürfen.
 
 ## Abnahme und Integration
+
+### Quellbefund JSON-Path-Keyvergleich, 2026-11-21
+
+Der Propertyzweig von `TVF_JsonPathExistsStatus` vergleicht den OPENJSON-Key
+mit dem Pfadtoken ausschließlich über BIN2-Gleichheit. Eine zusätzliche
+Längengleichheit ist nicht vorhanden. Der
+[Microsoft-Vertrag](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/string-comparison-assignment?view=sql-server-ver17)
+beschreibt die Leerzeichenauffüllung bei SQL-Zeichenkettengleichheit. Daraus
+ergibt sich ein konkreter Quellverdacht für die Verwechslung eines JSON-Keys
+mit derselben Zeichenfolge und abschließendem Leerzeichen. Eine native
+Gegenprobe wurde nicht ausgeführt; kein beobachtetes API-FAIL behaupten.
+
+Beide JSON-Path-Skills bleiben Entwürfe. Vor ihrer Abnahme sind der gepaddete
+Vergleich, eine notwendige Längenabsicherung und passende positive/negative
+API-Gegenfälle zu klären. Ein fachlicher Fix darf weder als passiver Kommentar
+normalisiert noch mit alten unveränderten Runtime-Nachweisen qualifiziert
+werden. Bestehende Grenzen und Native-Freigaben bleiben erhalten; unabhängige
+Skillverträge weiter bearbeiten.
 
 ### Quellbefund URI-Decoder, 2026-11-20
 
