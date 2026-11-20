@@ -16,6 +16,10 @@ CONSTRUCTOR_DELIVERY='Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-C
 CONSTRUCTOR_DELIVERY_SHA256='5a425e740cc9a4b3af6b6a4df74b66a7c5deb6fe13af39e889b282f784a29823'
 WINDOWS_ONLY={'toolbelt.archive.zip-files','toolbelt.filesystem.windows','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}
 LOCAL_ONLY={'toolbelt.archive.zip-files','toolbelt.filesystem.windows'}
+# Diese klassischen Deployments betten generierte CREATE-Payloads ein statt
+# Source-Dateien per :r zu laden. Im gemeinsamen Weg die kanonischen TVFs
+# direkt aufnehmen; Preflight/Release-Marker bleiben außerhalb dieses Wegs.
+INLINE_SOURCE_MODULES={'toolbelt.conversion.safe-cast','toolbelt.json.pointer'}
 SKIP={'Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql',
       'Modules/toolbelt.file.content/Source/FileContentRootPredicate.sql'}
 TABLE_GROUPS={
@@ -166,7 +170,17 @@ def source_files(selected):
             visit(path.parent/match[1].strip().strip('\"\''),[*stack,path])
         if '/Source/' in relative and relative not in seen and relative not in SKIP:
             files.append((relative,path));seen.add(relative)
-    for module in selected: visit(ROOT/'Modules'/module['id']/'Deployment/Deploy.sql',[])
+    for module in selected:
+        directory=ROOT/'Modules'/module['id']
+        visit(directory/'Deployment/Deploy.sql',[])
+        if module['id'] in INLINE_SOURCE_MODULES:
+            for obj in objects(module['text']):
+                require(obj['type']=='TVF' and re.fullmatch(r'TVF_[A-Za-z0-9_]+',obj['name']),
+                        'inline source contract')
+                visit(directory/'Source'/(obj['name']+'.sql'),[])
+        require(any(path.startswith('Modules/'+module['id']+'/') for path,_ in files)
+                or scalar(section(module['text'],'clr'),'  used')=='true',
+                'module without executable source: '+module['id'])
     def expand(path,stack=()):
         require(path not in stack and len(stack)<32,'source include cycle')
         text=path.read_text(encoding='utf-8-sig')

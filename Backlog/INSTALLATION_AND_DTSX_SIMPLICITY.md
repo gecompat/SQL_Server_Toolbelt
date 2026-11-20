@@ -7,6 +7,16 @@ Die nachfolgenden Anforderungen bleiben als ursprünglicher Anforderungsabgleich
 erhalten. Der [gemeinsame create-only-Quellinstaller](../Scripts/Install/README.md) ist ebenfalls implementiert. Seine vier Profile sind offline geprüft; native Paketabnahme und tatsächliche Abschluss-CI werden als getrennte Abnahmegates geführt. Ein früherer Modulnachweis ist keine neue Gesamtqualifikation dieses Installationswegs.
 Historische Releaseartefakte werden weder ersetzt noch neu qualifiziert.
 
+Abnahmefortschritt 2026-11-20: Der begrenzte gemeinsame native Paketlauf
+bestand Installation/Wiederholung und acht Prüfungen, scheiterte danach an
+der Capability-Projektion und wurde vollständig bereinigt; der separate
+Abschlussaudit ist PASS. Die Ursache sind sieben beim Source-Discovery
+ausgelassene Safe-Cast-/JSON-Pointer-TVFs. Die Korrektur nimmt deren kanonische
+Quellen auf und sperrt künftig ausgewählte Module ohne ausführbare Quelle
+oder CLR. Elf Offlineprüfungen und vier neu gebaute, geparste Profile bestehen.
+Die native Bestätigung der Korrektur samt vollständiger DebugScript-Ausführung
+bleibt offen; [Nachweisabgrenzung](../Scripts/Install/Tests/QUALIFICATION.md).
+
 ## Gewünschte Anwendererfahrung
 
 Toolbelt soll mit wenigen Eingaben installierbar und verwendbar sein. Zusätzliche

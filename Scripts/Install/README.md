@@ -11,6 +11,13 @@ qualifiziertes Gesamtpaket. Die bisherigen markerbasierten Deploy-/Uninstall-
 Skripte verwalten einen anderen Installationsweg und dürfen nicht zum Upgrade
 oder Entfernen dieser markerfreien Installation verwendet werden.
 
+Der begrenzte native Paketlauf vom 2026-11-20 bestand Installation und
+Wiederholung, endete aber vor der DTSX-Consumer-Ausführung an einer fehlenden
+Capability-Anzeige. Sieben dabei als ausgelassen erkannte TVFs werden jetzt
+aus ihren kanonischen Source-Dateien aufgenommen. Die Korrektur ist offline
+geprüft, nativ noch nicht bestätigt; der frische Bereinigungsaudit ist PASS.
+Die [Prüfübersicht](Tests/QUALIFICATION.md) grenzt Teilnachweise und Restpunkt ab.
+
 ## Datei bauen
 
 Auf einem Windows-Buildhost werden die .NET-Framework-4.8-Entwicklungswerkzeuge,
