@@ -69,7 +69,18 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
         actual.remove(projection)
         originals.pop(projection)
     if actual!=set(originals):raise ValueError('COMPONENT_REUSE_SOURCE_INVENTORY_CHANGED')
-    for path,data in originals.items():compare(data,(root/path).read_bytes(),path)
+    # New passive Skill comments are a separate current projection. Admit only
+    # exact, reviewed source-mapped Markdown; retain strict comparison of every
+    # other byte. Never normalize arbitrary comments, help SQL or CLR changes.
+    import sys
+    sys.path.insert(0,str(root/'Scripts/Metadata'))
+    import usage_skills
+    for path,data in originals.items():
+        current=(root/path).read_bytes()
+        if '/Source/' in path and usage_skills.DDL_BEGIN.encode() in current:
+            text=current.decode('utf-8')
+            current=usage_skills.strip_ddl_projection(root,path,text).encode('utf-8')
+        compare(data,current,path)
     return len(originals)
 
 

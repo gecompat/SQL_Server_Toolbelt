@@ -8,9 +8,9 @@ object_name: "TVF_TruncateDate"
 object_type: "TVF"
 database_role: "toolbelt"
 is_internal: false
-parameters: [{"name": "@DatePart", "sql_type": "varchar(16)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche (abhängig von SET DATEFIRST); iso_week/isowk/isoww = ISO-Woche ab Montag. Keine weiteren Dateparts, insbesondere kein weekday, tzoffset oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern."}, {"name": "@Value", "sql_type": "date", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Zu kürzender Wert; NULL ergibt NULL-Resultfelder. Ein Wochenanfang außerhalb des SQL-Datumsbereichs ist ein Validierungsfehler."}]
-source_paths: ["Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql"]
-review_status: "draft"
+parameters: [{"name": "@DatePart", "sql_type": "varchar(16)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche (abhängig von SET DATEFIRST); iso_week/isowk/isoww = ISO-Woche ab Montag. Keine weiteren Dateparts, insbesondere kein weekday, tzoffset oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern."}, {"name": "@Value", "sql_type": "date", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Zu kürzender Wert; NULL ergibt NULL-Resultfelder. Ein Wochenanfang außerhalb des SQL-Datumsbereichs ist ein Validierungsfehler."}]
+source_paths: ["Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql", "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql", "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql"]
+review_status: "verified"
 source_module_version: "1.0.0"
 ---
 
@@ -20,50 +20,44 @@ source_module_version: "1.0.0"
 
 Kürzt einen date-Wert auf den Beginn der ausgewählten Kalenderperiode.
 
-Reviewentwurf: vorhandene Beschreibung mit der Implementierung abgleichen.
-
 ## Voraussetzungen
 
-Noch gegen den Code zu prüfen.
+SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 ## Parameter und Zugriff
 
-| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
-|---|---|---|---|---|
-| `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche (abhängig von SET DATEFIRST); iso_week/isowk/isoww = ISO-Woche ab Montag. Keine weiteren Dateparts, insbesondere kein weekday, tzoffset oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Value` | `date` | `kein Default` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Zu kürzender Wert; NULL ergibt NULL-Resultfelder. Ein Wochenanfang außerhalb des SQL-Datumsbereichs ist ein Validierungsfehler. |
+| Parameter | SQL-Typ | SQL-Default | Eingabevertrag |
+|---|---|---|---|
+| `@DatePart` | `varchar(16)` | `kein Default` | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche (abhängig von SET DATEFIRST); iso_week/isowk/isoww = ISO-Woche ab Montag. Keine weiteren Dateparts, insbesondere kein weekday, tzoffset oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
+| `@Value` | `date` | `kein Default` | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Zu kürzender Wert; NULL ergibt NULL-Resultfelder. Ein Wochenanfang außerhalb des SQL-Datumsbereichs ist ein Validierungsfehler. |
 
 ## Ergebnisse
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Genau eine Zeile: Value date, IsValid bit, ValidationCode tinyint. NULL in einer Eingabe ergibt drei NULL-Felder. Erfolg: gekürzter Wert, IsValid=1, Code=0. Ungültiger Datepart: Value=NULL, IsValid=0, Code=10. Zeit-Dateparts hour/minute/second/millisecond/microsecond einschließlich ihrer Aliase sind für date nicht erlaubt: Code=11. Wochenunterlauf unter 0001-01-01 beim DATEFIRST-abhängigen week: Value=NULL, IsValid=0, Code=12.
 
 ## Aufrufbeispiele
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_TruncateDate('day', CONVERT(date,'2024-07-19'));
+SELECT * FROM toolbelt_datetime.TVF_TruncateDate('month', CONVERT(date,'2026-11-20T12:34:56.1234567'));
+-- Beginn November 2026, IsValid=1, ValidationCode=0.
 ```
 
 ## Rechte
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Für SELECT-Aufrufe vorhandenes SELECT auf der Funktion; REFERENCES gilt für entsprechende Referenzverwendungen. Die Funktion vergibt keine Rechte. Cross-Database-Identitätszuordnung und Rechte der aufgerufenen Objekte bleiben erforderlich.
 
 ## Ressourcenbedarf
 
-Noch gegen tatsächliche Grenzen/Algorithmen zu prüfen; keine Kapazitäts- oder Laufzeitwerte erfinden.
+Inline-TVF mit fester Datepart-Normalisierung und Kalender-/Zeitkomponenten, ohne Schleifen oder Serienexpansion. Die date- und datetime2-Wrapper delegieren an den gemeinsamen datetimeoffset-Kern. Aufwand je Eingabezeile ist begrenzt; äußere Abfragen bestimmen Gesamtvolumen und Plan.
 
 ## Nebenwirkungen
 
-Noch am tatsächlichen Ausführungspfad zu prüfen; dieser Entwurf erteilt keine Ausführungsautorität.
+Rein relational lesend: keine Tabellen-, Datei-, Netzwerk-, Trust- oder Konfigurationsänderung und keine Änderung des Caller-Transaktionszustands.
 
 ## Fehlerbehandlung
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Fachliche NULL-/Ungültigfälle werden im jeweiligen Ergebnisvertrag beschrieben. Typbindung, Konvertierung und unerwartete SQL-Enginefehler bleiben Enginefehler; kein automatischer Retry.
 
 ## Aussagegrenzen
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
-
-Ursprüngliche Objektverträge:
-- `Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDate.md`
-
-Keine Installations-, Definitions- oder Rechteattestation.
+week richtet sich nach SET DATEFIRST; iso_week beginnt immer montags. Kein nanosecond/weekday/tzoffset. Kleinere Einheiten werden abgeschnitten, nicht gerundet. Bei datetimeoffset wird die lokale Uhrzeit gekürzt und der feste Offset erhalten, keine UTC-Normalisierung oder Zeitzonen-/Sommerzeitauflösung. datetime2 wird intern mit Offset +00:00 gebunden. Liegt ein konstruierter datetimeoffset trotz gültiger lokaler Komponenten außerhalb des UTC-Darstellungsbereichs, bleibt dies ein Enginefehler und wird nicht in einen Validierungscode umgedeutet.

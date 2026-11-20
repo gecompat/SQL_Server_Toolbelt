@@ -141,7 +141,9 @@ function Get-ToolbeltReceiptSql($Profile, [string]$Database) {
     $sql += @'
 IF EXISTS(SELECT 1 FROM @expected e WHERE NOT EXISTS(
  SELECT 1 FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
- WHERE s.name=e.s AND o.name=e.n AND CHARINDEX(','+RTRIM(o.type)+',',','+e.t+',')>0))
+ WHERE s.name=e.s AND o.name=e.n
+   AND CHARINDEX((','+RTRIM(o.type)+',') COLLATE Latin1_General_100_BIN2,
+                 (','+e.t+',') COLLATE Latin1_General_100_BIN2)>0))
  THROW 51000,N'TBX_RECEIPT: Erwartete Schnittstelle fehlt oder hat einen anderen Objekttyp.',1;
 '@
     foreach ($assembly in $Profile.assemblies.PSObject.Properties) {

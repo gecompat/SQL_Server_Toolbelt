@@ -49,6 +49,7 @@ try {
     Assert-Test ($sql.Contains("DECLARE @TrustMethod varchar(24)=N'trustworthy-checked';")) 'EXPLICIT_TRUST_SELECTION'
     $receipt=Get-ToolbeltReceiptSql $profile 'ContosoApp'
     Assert-Test ($receipt.Contains('sys.objects') -and $receipt.Contains('USP_PrepareResultTable')) 'DECLARED_INTERFACE_RECEIPT'
+    Assert-Test ([regex]::Matches($receipt,'COLLATE Latin1_General_100_BIN2').Count -eq 2) 'TYPE_RECEIPT_COLLATION_SAFE'
     Assert-Test ($receipt -notmatch 'extended_properties|ModuleVersion|DeploymentMode') 'NO_MARKER_RECEIPT'
     foreach($variant in 'tampered','extra','traversal','duplicate-file','duplicate-profile','object-injection') {
         $bad=New-Fixture $variant $variant

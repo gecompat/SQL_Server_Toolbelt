@@ -129,7 +129,8 @@ def validate(skill: Skill, *, verified=True):
     for section in SECTIONS:
         found = re.search(r"(?m)^## " + re.escape(section) + r"\n([\s\S]*?)(?=^## |\Z)", body)
         require(found is not None and found[1].strip(), "Abschnitt fehlt: " + section)
-    require("```sql\n" in body and "\x00" not in skill.markdown, "SQL-Beispiel/Unicode-Inhalt")
+    require("```sql\n" in body and "\x00" not in skill.markdown
+            and skill.markdown.endswith("\n"), "SQL-Beispiel/Unicode-Inhalt/abschließendes LF")
     require(parsed == m, "Frontmatter und projizierte Metadaten unterscheiden sich")
     return skill
 
@@ -167,6 +168,137 @@ def sql_literal(text: str):
     values = ["N'" + chunk.replace("'", "''") + "'" for chunk in chunks]
     values[0] = "CAST(" + values[0] + " AS nvarchar(max))"
     return " + ".join(values)
+
+
+DDL_BEGIN = "-- OBJECT_USAGE_SKILL:BEGIN"
+DDL_END = "-- OBJECT_USAGE_SKILL:END"
+
+
+def render_ddl_comment(skill: Skill):
+    """Vollständigen Originaltext als passive Zeilenkommentare transportieren.
+
+    Markdown darf SQL-Beispiele, Blockkommentar-Enden und GO enthalten. Ein
+    Blockkommentar wäre deshalb keine sichere, verlustfreie Einbettung.
+    """
+    validate(skill)
+    return (DDL_BEGIN + "\n"
+            + "".join(("-- " + line if line else "--") + "\n"
+                      for line in skill.markdown.split("\n")[:-1])
+            + DDL_END + "\n")
+
+
+def read_ddl_comment(text: str):
+    """Genau einen markierten Kommentar zurücklesen; keine SQL-Auswertung."""
+    lines = text.split("\n")
+    starts = [i for i, line in enumerate(lines) if line == DDL_BEGIN]
+    ends = [i for i, line in enumerate(lines) if line == DDL_END]
+    require(len(starts) == len(ends) == 1 and starts[0] < ends[0],
+            "DDL-Skillmarkierungen fehlen, sind doppelt oder vertauscht")
+    body = lines[starts[0] + 1:ends[0]]
+    require(body and all(line == "--" or line.startswith("-- ") for line in body),
+            "DDL-Skillkommentar ist nicht kanonisch")
+    markdown = "".join(("" if line == "--" else line[3:]) + "\n" for line in body)
+    metadata, _ = parse_frontmatter(markdown)
+    return validate(Skill(metadata, markdown))
+
+
+def render_help_resultset(skill: Skill):
+    """Zusätzliches konstantes Resultset; Caller setzt frühen RETURN selbst.
+
+    Der Renderer ersetzt keine vorhandene Hilfe und initialisiert weder
+    OUTPUT-Parameter noch Caller-Zustand. Die Einbindung liegt im Hilfezweig.
+    """
+    validate(skill)
+    m = skill.metadata
+    require(m["object_type"] in ("USP", "CLR_USP"), "Skillhilfe benötigt eine Prozedur")
+    return ("SELECT CONVERT(varchar(16)," + sql_literal(m["skill_format_version"])
+            + ") AS SkillFormatVersion,\n"
+            + " CONVERT(sysname," + sql_literal(m["schema_name"]) + ") AS SchemaName,\n"
+            + " CONVERT(sysname," + sql_literal(m["object_name"]) + ") AS ObjectName,\n"
+            + " " + sql_literal(skill.markdown) + " AS SkillMarkdown;\n")
+
+
+def strip_ddl_projection(root: Path, path: str, text: str):
+    """Nur exakt kanonische, quellzugeordnete Skillkommentare ausblenden.
+
+    Dies beweist allein die Gleichheit des verbleibenden Fachtexts. Neue
+    Metadaten-/Hilfefunktionalität erhält dadurch keinen historischen PASS.
+    """
+    if DDL_BEGIN not in text and DDL_END not in text:
+        return text
+    projected = read_ddl_comment(text)
+    m = projected.metadata
+    folder = (root / "Metadata/UsageSkills").resolve()
+    source = folder / m["schema_name"] / (m["object_name"] + ".md")
+    require(source.resolve().is_relative_to(folder), "Skillquelle außerhalb des Katalogs")
+    canonical = read(source)
+    require(canonical.markdown == projected.markdown
+            and m["source_paths"][0] == path, "DDL-Skill ist nicht kanonisch/quellzugeordnet")
+    comment = render_ddl_comment(canonical)
+    require(text.count(comment) == 1, "DDL-Skillkommentar nicht eindeutig/bytegleich")
+    return text.replace(comment, "", 1)
+
+
+def _ddl_tokens(text):
+    """Positionslexer für die begrenzte Inline-TVF-Projektion, kein SQL-Parser."""
+    result, pos = [], 0
+    while pos < len(text):
+        if text[pos].isspace():
+            pos += 1
+        elif text.startswith("--", pos):
+            end = text.find("\n", pos)
+            pos = len(text) if end < 0 else end + 1
+        elif text.startswith("/*", pos):
+            depth, pos = 1, pos + 2
+            while depth and pos < len(text):
+                if text.startswith("/*", pos):
+                    depth, pos = depth + 1, pos + 2
+                elif text.startswith("*/", pos):
+                    depth, pos = depth - 1, pos + 2
+                else:
+                    pos += 1
+            require(depth == 0, "Unvollständiger DDL-Kommentar")
+        else:
+            start = pos
+            token = re.match(r"N?'(?:[^']|'')*'|\[(?:[^\]]|\]\])*\]|[A-Za-z_@][A-Za-z_0-9@]*|.", text[pos:], re.S)
+            require(token is not None, "DDL-Token")
+            value = token[0]
+            require(value not in ("'", "[", '"'), "Unvollständiger/nicht unterstützter DDL-Token")
+            pos += len(value)
+            result.append((value, start, pos))
+    return result
+
+
+def project_inline_function(text: str, skill: Skill):
+    """Skill nach AS einer einzelnen Inline-TVF einfügen, Fachbytes erhalten.
+
+    Andere Objektarten/Definitionen brauchen eigene explizite Adapter. Vorhandene
+    Projektionen werden nur erkannt, niemals still in neue Texte umgeschrieben.
+    """
+    validate(skill)
+    require(skill.metadata["object_type"] == "TVF", "Inline-TVF-Skill erforderlich")
+    comment = render_ddl_comment(skill)
+    if DDL_BEGIN in text or DDL_END in text:
+        current = read_ddl_comment(text)
+        require(current.markdown == skill.markdown and text.count(comment) == 1,
+                "Vorhandener DDL-Skill weicht ab; explizite Regeneration erforderlich")
+        return text
+    tokens = _ddl_tokens(text)
+    words = [t[0].strip("[]").casefold() for t in tokens]
+    creates = [i for i, word in enumerate(words) if word == "create"]
+    require(len(creates) == 1, "Genau eine CREATE-Deklaration erforderlich")
+    i = creates[0] + 1
+    if words[i:i + 2] == ["or", "alter"]:
+        i += 2
+    m = skill.metadata
+    require(words[i:i + 5] == ["function", m["schema_name"].casefold(), ".",
+                               m["object_name"].casefold(), "("], "DDL-/Skillidentität")
+    anchors = [j for j in range(i + 5, len(words) - 4)
+               if words[j:j + 5] == ["returns", "table", "as", "return", "("]]
+    require(len(anchors) == 1, "Nur explizite RETURNS TABLE AS RETURN Inline-TVF unterstützt")
+    end = tokens[anchors[0] + 2][2]
+    require(text[end:end + 1] == "\n", "AS muss für die Projektion mit LF abschließen")
+    return text[:end + 1] + comment + text[end + 1:]
 
 
 def inventory(root: Path):

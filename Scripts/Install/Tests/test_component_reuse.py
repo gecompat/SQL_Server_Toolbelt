@@ -2,8 +2,12 @@
 from pathlib import Path
 import importlib.util
 import unittest
+import sys
 
 ROOT=Path(__file__).resolve().parents[3]
+sys.path.insert(0,str(ROOT/'Scripts/Metadata'))
+import usage_skills
+
 spec=importlib.util.spec_from_file_location('component_reuse',ROOT/'Scripts/Install/Verify-ComponentReuse.py')
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
@@ -29,6 +33,22 @@ class ComponentReuseTests(unittest.TestCase):
     def test_clr_changes_are_never_normalized(self):
         with self.assertRaises(ValueError):
             module.compare(b'Toolbelt_String_Regex',b'tlblt_String_Regex','Modules/Contoso/Clr/Provider.cs')
+
+    def test_canonical_skill_comment_does_not_hide_changed_function_logic(self):
+        source=usage_skills.read(ROOT/'Metadata/UsageSkills/toolbelt_binary/TVF_GetBitBigInt.md')
+        path=source.metadata['source_paths'][0]
+        current=(ROOT/path).read_text(encoding='utf-8-sig')
+        original=usage_skills.strip_ddl_projection(ROOT,path,current)
+        self.assertIn(usage_skills.DDL_BEGIN,current)
+        # A real statement change outside the admitted comment remains visible.
+        changed=current.replace('RETURN\n(', 'RETURN\n(SELECT 2 AS Changed UNION ALL ',1)
+        self.assertNotEqual(changed,current)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(original.encode(),usage_skills.strip_ddl_projection(ROOT,path,changed).encode(),path)
+
+    def test_arbitrary_comment_addition_does_not_gain_reuse_authority(self):
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(b'SELECT 1;',b'-- undocumented exception\nSELECT 1;','Modules/Contoso/Source/Contoso.sql')
 
 
 if __name__=='__main__':unittest.main()

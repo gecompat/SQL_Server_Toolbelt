@@ -107,6 +107,66 @@ class UsageSkillTests(unittest.TestCase):
         for value in re.findall(r"N'((?:[^']|'')*)'", expression):
             self.assertLessEqual(skills.units(value.replace("''", "'")), 2000)
 
+    def test_ddl_comment_transports_exact_skill_without_executable_markdown(self):
+        source = prototypes()[0]
+        # GO, nested block delimiters and Unicode line separators remain data.
+        markdown = source.markdown + "\n/* */\nGO\n-- OBJECT_USAGE_SKILL:END\nÄ𐐀\u2028O'Brien\n"
+        changed = skills.Skill(source.metadata, markdown)
+        comment = skills.render_ddl_comment(changed)
+        self.assertEqual(skills.read_ddl_comment(comment).markdown, markdown)
+        self.assertTrue(all(line == "--" or line.startswith("-- ") for line in comment.split("\n")[:-1]))
+        self.assertNotIn("-- \n", comment)
+        self.assertEqual(skills.read_ddl_comment("CREATE VIEW x AS\n" + comment + "SELECT 1;\n").markdown,
+                         markdown)
+
+    def test_ddl_comment_rejects_ambiguous_or_active_payload(self):
+        comment = skills.render_ddl_comment(prototypes()[0])
+        for broken in (comment + comment, comment.replace("-- name:", "name:", 1),
+                       comment.replace(skills.DDL_END, "-- missing", 1)):
+            with self.subTest(broken=broken[:50]), self.assertRaises(ValueError):
+                skills.read_ddl_comment(broken)
+
+    def test_help_is_one_additional_four_column_constant_resultset(self):
+        source = next(s for s in prototypes() if s.metadata["object_type"] == "USP")
+        sql = skills.render_help_resultset(source)
+        aliases = re.findall(r" AS (\w+)[,;]\n", re.sub(r"N'(?:[^']|'')*'", "''", sql))
+        self.assertEqual(aliases, ["SkillFormatVersion", "SchemaName", "ObjectName", "SkillMarkdown"])
+        self.assertEqual(literal_value(sql), "".join((source.metadata["skill_format_version"],
+                         source.metadata["schema_name"], source.metadata["object_name"], source.markdown)))
+        outside_strings = re.sub(r"N'(?:[^']|'')*'", "''", sql)
+        self.assertEqual(len(re.findall(r"\bSELECT\b", outside_strings)), 1)
+        self.assertNotRegex(outside_strings, r"(?i)\b(?:FROM|EXEC|RETURN|SET|INSERT|UPDATE|DELETE)\b")
+        with self.assertRaisesRegex(ValueError, "Prozedur"):
+            skills.render_help_resultset(next(s for s in prototypes() if s.metadata["object_type"] == "TVF"))
+
+    def test_inline_ddl_projection_keeps_all_executable_bytes_and_is_idempotent(self):
+        source = next(s for s in prototypes() if s.metadata["object_name"] == "TVF_GetBitBigInt")
+        path = source.metadata["source_paths"][0]
+        current = (ROOT / path).read_text(encoding="utf-8-sig")
+        original = skills.strip_ddl_projection(ROOT, path, current)
+        projected = skills.project_inline_function(original, source)
+        self.assertEqual(skills.strip_ddl_projection(ROOT, path, projected), original)
+        self.assertEqual(skills.project_inline_function(projected, source), projected)
+        self.assertEqual(skills.read_ddl_comment(projected).markdown, source.markdown)
+        with self.assertRaisesRegex(ValueError, "quellzugeordnet"):
+            skills.strip_ddl_projection(ROOT, path + ".other", projected)
+        tampered = projected.replace("Liest das Bit", "Andere Funktion", 1)
+        with self.assertRaisesRegex(ValueError, "kanonisch"):
+            skills.strip_ddl_projection(ROOT, path, tampered)
+
+    def test_inline_projection_does_not_parse_quoted_or_nested_comment_ddl_as_code(self):
+        source = next(s for s in prototypes() if s.metadata["object_name"] == "TVF_GetBitBigInt")
+        sql = "/* outer /* CREATE FUNCTION fake AS */ RETURN */\n"
+        sql += "CREATE FUNCTION toolbelt_binary.TVF_GetBitBigInt(@Value bigint,@BitOffset bigint)\n"
+        sql += "RETURNS TABLE\nAS\nRETURN (SELECT N'CREATE FUNCTION fake AS' AS Value);\n"
+        projected = skills.project_inline_function(sql, source)
+        self.assertEqual(projected.replace(skills.render_ddl_comment(source), "", 1), sql)
+        for broken in (sql.replace("TVF_GetBitBigInt", "TVF_Wrong", 1),
+                       sql.replace("RETURNS TABLE", "RETURNS @Result TABLE", 1),
+                       sql + "CREATE VIEW y AS SELECT 1;\n", "/* missing end"):
+            with self.subTest(broken=broken[:45]), self.assertRaises(ValueError):
+                skills.project_inline_function(broken, source)
+
     def test_view_contract_is_exactly_eight_columns_and_constant_data(self):
         sql = skills.render_view(prototypes())
         header = sql.split("FROM (VALUES", 1)[0]
