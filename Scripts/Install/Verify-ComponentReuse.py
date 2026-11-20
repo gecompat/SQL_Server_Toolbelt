@@ -1,8 +1,10 @@
-"""Prove unchanged component sources apart from declared SQL assembly aliases.
+"""Prove unchanged business paths apart from declared SQL assembly aliases.
 
 This transition check permits reuse of component evidence, never acceptance of
-new deployment code or an exact new install package. A future business change
-needs its own qualification and an explicitly revised reuse scope.
+new deployment code, exact install packages or new Skill/help outputs. Exact
+reviewed passive Skill comments and the constant SELECT immediately before the
+existing positive help return are checked separately and removed for comparison.
+Every remaining byte stays bound; future business changes need new qualification.
 """
 from pathlib import Path
 import io
@@ -70,8 +72,9 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
         originals.pop(projection)
     if actual!=set(originals):raise ValueError('COMPONENT_REUSE_SOURCE_INVENTORY_CHANGED')
     # New passive Skill comments are a separate current projection. Admit only
-    # exact, reviewed source-mapped Markdown; retain strict comparison of every
-    # other byte. Never normalize arbitrary comments, help SQL or CLR changes.
+    # exact, reviewed source-mapped Markdown and its guarded constant help SELECT;
+    # retain strict comparison of every other byte. Never normalize arbitrary
+    # comments, arbitrary help SQL or CLR changes.
     import sys
     sys.path.insert(0,str(root/'Scripts/Metadata'))
     import usage_skills
@@ -79,10 +82,11 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
         current=(root/path).read_bytes()
         if '/Source/' in path and usage_skills.DDL_BEGIN.encode() in current:
             text=current.decode('utf-8')
+            text=usage_skills.strip_help_projection(root,path,text)
             current=usage_skills.strip_ddl_projection(root,path,text).encode('utf-8')
         compare(data,current,path)
     return len(originals)
 
 
 if __name__=='__main__':
-    print('COMPONENT_SOURCE_REUSE_PROVEN files='+str(verify())+'; deployment/package qualification separate; no SQL executed')
+    print('COMPONENT_SOURCE_REUSE_PROVEN files='+str(verify())+'; new skill/help/deployment/package qualification separate; no SQL executed')

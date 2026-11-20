@@ -50,5 +50,16 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
             module.compare(b'SELECT 1;',b'-- undocumented exception\nSELECT 1;','Modules/Contoso/Source/Contoso.sql')
 
+    def test_added_skill_help_cannot_hide_changed_output_assignments(self):
+        source=usage_skills.read(ROOT/'Metadata/UsageSkills/toolbelt_core/USP_SecondSessionProbe.md')
+        path=source.metadata['source_paths'][0]
+        current=(ROOT/path).read_text(encoding='utf-8-sig')
+        original=usage_skills.strip_ddl_projection(ROOT,path,usage_skills.strip_help_projection(ROOT,path,current))
+        changed=current.replace('SET @RemoteSessionId = @@SPID;', 'SET @RemoteSessionId = @@SPID + 1;',1)
+        self.assertNotEqual(changed,current)
+        remainder=usage_skills.strip_ddl_projection(ROOT,path,usage_skills.strip_help_projection(ROOT,path,changed))
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(original.encode(),remainder.encode(),path)
+
 
 if __name__=='__main__':unittest.main()

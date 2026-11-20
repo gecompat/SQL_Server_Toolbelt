@@ -120,9 +120,9 @@ def help_rows(item, params, metadata, registry):
     return rows
 
 
-def render(item, rows):
+def render(item, rows, skill=None):
     values = ",\n".join("        (" + ", ".join(literal(v, i in (7, 8)) for i, v in enumerate(row)) + ")" for row in rows)
-    return "\n        " + BEGIN + "\n" + """        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+    body = "\n        " + BEGIN + "\n" + """        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
             CAST(""" + literal(item["schema"]) + """ AS sysname) AS SchemaName,
             CAST(""" + literal(item["name"]) + """ AS sysname) AS ObjectName,
             CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
@@ -138,6 +138,31 @@ def render(item, rows):
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
         """ + END + "\n    "
+    if skill is not None:
+        sys.path.insert(0, str(ROOT / "Scripts/Metadata"))
+        import usage_skills
+        usage_skills.require(skill.metadata["schema_name"] == item["schema"]
+                             and skill.metadata["object_name"] == item["name"],
+                             "Hilfe-/Skillidentität")
+        body = body.replace("        RETURN 0;", usage_skills.render_help_projection(skill) + "        RETURN 0;", 1)
+    return body
+
+
+def reviewed_skill(root, item):
+    """Vorhandene geprüfte Migration nutzen; Entwürfe bleiben nicht auslieferbar.
+
+    Die vollständige Skillabnahme ist ein separates Inventargate. Während der
+    Migration erhalten nur tatsächlich geprüfte Quellen die neue Projektion.
+    """
+    path = Path(root) / "Metadata/UsageSkills" / item["schema"] / (item["name"] + ".md")
+    if not path.is_file():
+        return None
+    sys.path.insert(0, str(ROOT / "Scripts/Metadata"))
+    import usage_skills
+    source = usage_skills.read(path, verified=False)
+    if source.metadata["review_status"] == "draft":
+        return None
+    return usage_skills.validate(source)
 
 
 def generate(root=ROOT, write=False):
@@ -153,7 +178,7 @@ def generate(root=ROOT, write=False):
         path, params = catalog.signature(item)
         text = changes.get(path, path.read_text(encoding="utf-8-sig"))
         a, b = help_span(text, item)
-        body = render(item, help_rows(item, params, metadata[key], registry))
+        body = render(item, help_rows(item, params, metadata[key], registry), reviewed_skill(root, item))
         if not write and text[a:b] != body:
             raise ValueError("Generated parameter help is stale: " + key)
         changes[path] = text[:a] + body + text[b:]

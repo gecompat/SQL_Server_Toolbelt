@@ -172,6 +172,8 @@ def sql_literal(text: str):
 
 DDL_BEGIN = "-- OBJECT_USAGE_SKILL:BEGIN"
 DDL_END = "-- OBJECT_USAGE_SKILL:END"
+HELP_BEGIN = "-- OBJECT_USAGE_SKILL_HELP:BEGIN"
+HELP_END = "-- OBJECT_USAGE_SKILL_HELP:END"
 
 
 def render_ddl_comment(skill: Skill):
@@ -267,6 +269,98 @@ def _ddl_tokens(text):
             pos += len(value)
             result.append((value, start, pos))
     return result
+
+
+def _procedure_help_return(text: str, skill: Skill):
+    """Bestehenden positiven Hilfezweig mit genau einem finalen RETURN binden."""
+    require(skill.metadata["object_type"] == "USP", "T-SQL-Prozedur erforderlich")
+    ts = _ddl_tokens(text)
+    words = [t[0].casefold() for t in ts]
+    creates = [i for i, word in enumerate(words) if word == "create"]
+    require(len(creates) == 1, "Genau eine Prozedurdeklaration erforderlich")
+    i = creates[0] + 1
+    if words[i:i + 2] == ["or", "alter"]:
+        i += 2
+    m = skill.metadata
+    require(words[i] in ("procedure", "proc")
+            and [w.strip("[]") for w in words[i + 1:i + 4]]
+            == [m["schema_name"].casefold(), ".", m["object_name"].casefold()],
+            "Prozedur-/Skillidentität")
+    patterns = (["if", "@hilfe", "=", "1", "begin"],
+                ["if", "isnull", "(", "@hilfe", ",", "0", ")", "=", "1", "begin"])
+    branches = [j + len(p) - 1 for j in range(i + 4, len(words)) for p in patterns
+                if words[j:j + len(p)] == p]
+    require(len(branches) == 1, "Genau ein unterstützter positiver Hilfezweig erforderlich")
+    start = branches[0]
+    level, returns, j = 1, [], start + 1
+    while j < len(words) and level:
+        word = words[j]
+        if word in ("begin", "case"):
+            level += 1
+        elif word == "end":
+            level -= 1
+        elif word == "return":
+            returns.append((j, level))
+        j += 1
+    require(level == 0 and len(returns) == 1 and returns[0][1] == 1,
+            "Hilfezweig benötigt genau einen direkten RETURN")
+    ret = returns[0][0]
+    require(words[ret:j - 1] == ["return", "0", ";"], "Hilfe-RETURN muss abschließend RETURN 0; sein")
+    line = text.rfind("\n", 0, ts[ret][1]) + 1
+    require(not text[line:ts[ret][1]].strip(), "Hilfe-RETURN muss eigene Zeile besitzen")
+    return line, ts[ret][1] - line
+
+
+def render_help_projection(skill: Skill, indent=8):
+    require(type(indent) is int and 0 <= indent <= 64, "Hilfe-Einrückung")
+    # SQL literals contain the original multi-line Markdown. Indenting every
+    # physical line would silently modify its values, not merely SQL layout.
+    return (" " * indent + HELP_BEGIN + "\n" + render_help_resultset(skill)
+            + " " * indent + HELP_END + "\n")
+
+
+def project_procedure_help(text: str, skill: Skill):
+    """Zusätzlichen konstanten SELECT unmittelbar vor frühem RETURN einfügen."""
+    validate(skill)
+    marked = re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text)
+    if marked:
+        line, indent = _procedure_help_return(text, skill)
+        block = render_help_projection(skill, indent)
+        require(text.count(block) == 1 and text[:line].endswith(block),
+                "Vorhandene Skillhilfe ist nicht kanonisch oder steht vor falschem RETURN")
+        return text
+    require(not re.search(r"(?m)^[ \t]*" + re.escape(HELP_END) + r"$", text),
+            "Unvollständige Skillhilfe-Markierungen")
+    line, indent = _procedure_help_return(text, skill)
+    return text[:line] + render_help_projection(skill, indent) + text[line:]
+
+
+def strip_help_projection(root: Path, path: str, text: str):
+    """Nur die kanonische zusätzliche Hilfe entfernen, nie den alten Hilfezweig."""
+    if not re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text):
+        return text
+    projected = read_ddl_comment(text)
+    # Bind exact editorial bytes, primary source and existing positive help guard.
+    strip_ddl_projection(root, path, text)
+    require(project_procedure_help(text, projected) == text, "Nicht kanonische Hilfeprojektion")
+    _, indent = _procedure_help_return(text, projected)
+    return text.replace(render_help_projection(projected, indent), "", 1)
+
+
+def project_procedure_ddl(text: str, skill: Skill):
+    """Passiven Skillkommentar vor dem äußeren BEGIN eines T-SQL-USP einfügen."""
+    validate(skill)
+    _procedure_help_return(text, skill)
+    if re.search(r"(?m)^" + re.escape(DDL_BEGIN) + r"$", text):
+        require(read_ddl_comment(text).markdown == skill.markdown, "Vorhandener DDL-Skill weicht ab")
+        return text
+    ts = _ddl_tokens(text)
+    anchors = [j for j in range(len(ts) - 1)
+               if ts[j][0].casefold() == "as" and ts[j + 1][0].casefold() == "begin"]
+    require(len(anchors) == 1, "Eindeutiges AS BEGIN für Prozedur erforderlich")
+    end = ts[anchors[0]][2]
+    require(text[end:end + 1] == "\n", "AS muss mit LF abschließen")
+    return text[:end + 1] + render_ddl_comment(skill) + text[end + 1:]
 
 
 def project_inline_function(text: str, skill: Skill):

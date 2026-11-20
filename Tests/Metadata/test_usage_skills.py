@@ -136,6 +136,9 @@ class UsageSkillTests(unittest.TestCase):
         outside_strings = re.sub(r"N'(?:[^']|'')*'", "''", sql)
         self.assertEqual(len(re.findall(r"\bSELECT\b", outside_strings)), 1)
         self.assertNotRegex(outside_strings, r"(?i)\b(?:FROM|EXEC|RETURN|SET|INSERT|UPDATE|DELETE)\b")
+        for indent in (0, 4, 8, 64):
+            self.assertEqual(literal_value(skills.render_help_projection(source, indent)), literal_value(sql))
+            self.assertFalse(any(line and not line.strip() for line in skills.render_help_projection(source, indent).split("\n")))
         with self.assertRaisesRegex(ValueError, "Prozedur"):
             skills.render_help_resultset(next(s for s in prototypes() if s.metadata["object_type"] == "TVF"))
 
@@ -166,6 +169,48 @@ class UsageSkillTests(unittest.TestCase):
                        sql + "CREATE VIEW y AS SELECT 1;\n", "/* missing end"):
             with self.subTest(broken=broken[:45]), self.assertRaises(ValueError):
                 skills.project_inline_function(broken, source)
+
+    def test_internal_procedure_projection_preserves_original_help_and_outputs(self):
+        source = next(s for s in prototypes() if s.metadata["object_name"] == "USP_SecondSessionProbe")
+        path = source.metadata["source_paths"][0]
+        current = (ROOT / path).read_text(encoding="utf-8-sig")
+        original = skills.strip_ddl_projection(ROOT, path, skills.strip_help_projection(ROOT, path, current))
+        projected = skills.project_procedure_ddl(skills.project_procedure_help(original, source), source)
+        self.assertEqual(skills.project_procedure_help(projected, source), projected)
+        self.assertEqual(skills.project_procedure_ddl(projected, source), projected)
+        self.assertEqual(skills.strip_ddl_projection(ROOT, path,
+                         skills.strip_help_projection(ROOT, path, projected)), original)
+        # The admitted new SELECT precedes return; existing OUTPUT assignments
+        # and original help bytes are protected by the exact roundtrip above.
+        _, indent = skills._procedure_help_return(projected, source)
+        self.assertIn(skills.render_help_projection(source, indent) + "        RETURN 0;", projected)
+        self.assertLess(projected.index(skills.HELP_BEGIN), projected.index("SET @RemoteSessionId = @@SPID"))
+
+    def test_procedure_projection_rejects_nonpositive_guards_and_unreachable_help(self):
+        source = next(s for s in prototypes() if s.metadata["object_name"] == "USP_SecondSessionProbe")
+        name = "CREATE PROCEDURE toolbelt_core.USP_SecondSessionProbe @Hilfe bit=0 AS\nBEGIN\n"
+        valid = name + "IF @Hilfe=1 BEGIN\n SELECT N'RETURN END',CASE WHEN 1=1 THEN 2 END;\n RETURN 0;\nEND;\nEND;\n"
+        self.assertIn(skills.HELP_BEGIN, skills.project_procedure_help(valid, source))
+        for broken in (valid.replace("@Hilfe=1", "@Hilfe=0"),
+                       valid.replace("RETURN 0;", "RETURN 0; SELECT 42;"),
+                       valid.replace("SELECT N'", "RETURN 0; SELECT N'", 1),
+                       valid.replace("USP_SecondSessionProbe", "USP_Another")):
+            with self.subTest(broken=broken[:70]), self.assertRaises(ValueError):
+                skills.project_procedure_help(broken, source)
+
+    def test_existing_skill_help_cannot_be_relocated_or_changed(self):
+        source = next(s for s in prototypes() if s.metadata["object_name"] == "USP_SecondSessionProbe")
+        path = source.metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        text = skills.strip_ddl_projection(ROOT, path, skills.strip_help_projection(ROOT, path, text))
+        projected = skills.project_procedure_help(text, source)
+        block = skills.render_help_projection(source)
+        self.assertIn(block, projected)
+        for broken in (projected.replace(block, "", 1) + block,
+                       projected.replace(" AS SkillMarkdown;", " AS WrongColumn;", 1),
+                       projected.replace(block, block + block, 1)):
+            with self.subTest(broken=broken[-50:]), self.assertRaises(ValueError):
+                skills.project_procedure_help(broken, source)
 
     def test_view_contract_is_exactly_eight_columns_and_constant_data(self):
         sql = skills.render_view(prototypes())

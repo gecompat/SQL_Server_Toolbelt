@@ -37,9 +37,17 @@ Fachtext weiterhin mit seiner historischen Quelle. Dies qualifiziert keine
 neue Hilfeausgabe oder Installation.
 
 `render_help_resultset` erzeugt das zusätzliche konstante Resultset mit genau
-vier Spalten. Seine Einbindung in sämtliche frühen Hilfezweige und die vollständige
-View-/Installerintegration sind noch offen; ein bestandener Renderertest ist
-kein nativer Hilfe- oder Gesamtinstallationsnachweis.
+vier Spalten. Die ersten beiden T-SQL-Prozeduren `USP_PrepareResultTable` und
+`USP_SecondSessionProbe` liefern es im vorhandenen positiven Hilfezweig direkt
+vor `RETURN 0`. Die bisherige Hilfe bleibt erhalten. SQL-Layout darf mehrzeilige
+Markdown-Literale nicht durch zusätzliche Einrückung verändern. Diese Eigenschaft
+wird unabhängig vom DDL-Kommentar durch Rücklesen der SQL-Literale geprüft.
+
+Die Einbindung in alle weiteren frühen Hilfezweige und die vollständige
+View-/Installerintegration sind noch offen. Ein bestandener Offline- oder
+Syntaxtest ist kein nativer Hilfe- oder Gesamtinstallationsnachweis. Historische
+Fachbelege werden ausschließlich für den exakt verglichenen verbleibenden
+Fachpfad genutzt, niemals zur Abnahme der neuen Hilfeausgabe.
 
 Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine

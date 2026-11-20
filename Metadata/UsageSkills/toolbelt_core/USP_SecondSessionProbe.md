@@ -35,7 +35,7 @@ Nur im bereits autorisierten Kontext des Second-Session-Moduls verwenden. Der He
 
 ## Ergebnisse
 
-Kein fachliches Resultset; RemoteSessionId und RemoteDatabaseName werden im Normalpfad per OUTPUT gesetzt, RETURN 0. Hilfe kehrt vor diesen Zuweisungen zurück; bestehende OUTPUT-Werte bleiben dabei erhalten. Das zusätzliche Skill-Resultset wird durch den neuen Skillvertrag ergänzt.
+Kein fachliches Resultset; RemoteSessionId und RemoteDatabaseName werden im Normalpfad per OUTPUT gesetzt, RETURN 0. Hilfe kehrt vor diesen Zuweisungen zurück; bestehende OUTPUT-Werte bleiben dabei erhalten. Nach dem bisherigen Help-Resultset folgt genau ein zusätzliches Skill-Resultset mit SkillFormatVersion varchar(16), SchemaName sysname, ObjectName sysname und SkillMarkdown nvarchar(max); eine Zeile mit dem vollständigen kanonischen Skill.
 
 ## Aufrufbeispiele
 
