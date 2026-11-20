@@ -981,7 +981,7 @@ EXEC toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
 */
 
 -- toolbelt_metadata.VW_ModuleCapabilities
--- Zeigt installierte Modulversionen und Deployment-Modi und kennzeichnet unvollständige oder ungültige Modulmarker.
+-- Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete.
 /* Separat auswählen und ausführen:
 SELECT ModuleId, ModuleVersion, DeploymentMode, MetadataStatus
 FROM toolbelt_metadata.VW_ModuleCapabilities

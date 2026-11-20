@@ -1546,7 +1546,7 @@
     }
   },
   "toolbelt_metadata.VW_ModuleCapabilities": {
-    "summary": "Zeigt installierte Modulversionen und Deployment-Modi und kennzeichnet unvollständige oder ungültige Modulmarker.",
+    "summary": "Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete.",
     "examples": [
       "SELECT ModuleId, ModuleVersion, DeploymentMode, MetadataStatus\nFROM toolbelt_metadata.VW_ModuleCapabilities\nORDER BY ModuleId;"
     ],
