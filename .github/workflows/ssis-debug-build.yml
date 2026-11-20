@@ -182,7 +182,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Fresh SSMS adapter checks failed' }
           python -m unittest discover -s Tests/Release -p test_ssis_fresh_build.py
           if ($LASTEXITCODE -ne 0) { throw 'Fresh evidence counterexamples failed' }
-          python Scripts/Release/validate_ssis_fresh_build.py
+          python Scripts/Release/validate_ssis_fresh_build.py --historical
           if ($LASTEXITCODE -ne 0) { throw 'Fresh current-build evidence failed' }
       - name: Current package full 12-context matrix provenance without SQL
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_matrix.py
