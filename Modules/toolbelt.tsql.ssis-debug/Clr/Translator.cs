@@ -386,7 +386,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     output.Diagnostic("procedure_result_materialized", c.Id, "Prozedurergebnis wird beim manuellen Ausführen in einer lokalen #-Tabelle materialisiert. Resultsetschema stammt aus DTSX; Prozedurinneres und Seiteneffekte sind nicht geprüft.");
                 }
                 if (!stage.Procedures.Contains(dataset)) stage.Procedures.Add(dataset);
-                sql = "SELECT " + String.Join(",", columns.Select(col => Util.Q(col.Name))) + " FROM " + Util.Q(dataset.Name);
+                sql = "SELECT * FROM " + Util.Q(dataset.Name);
             }
             var query = safety.Read(sql, database);
             if (columns != null) query.PackageColumns = columns;

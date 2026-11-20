@@ -78,7 +78,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal ExpressionValue Parse()
         {
             ExpressionValue value = Conditional(); if (token != "") throw Bad();
-            if (v2)
+            if (v2 && !(value.BooleanTerms != null && value.BooleanTerms.Count > 16) && value.DeferredBooleanCondition == null)
             {
                 long renderedLength = value.SqlValue.Length;
                 if (value.RootAnsiType != null) renderedLength = checked(renderedLength + value.RootAnsiType.Length + value.RootAnsiCollation.Length + 16);
@@ -101,6 +101,19 @@ namespace Toolbelt.Tsql.SsisDebug
         private ExpressionValue Conditional()
         {
             Enter(); ExpressionValue left = Binary(0);
+            if (left.BooleanTerms != null && left.BooleanTerms.Count > 16)
+            {
+                // Flatten once at the group boundary, not for every prefix.
+                var pieces = new List<object> { "(" };
+                for (int i = 0; i < left.BooleanTerms.Count; i++)
+                {
+                    if (i != 0) pieces.Add(left.BooleanOperator == "&&" ? " AND " : " OR ");
+                    pieces.Add(left.BooleanTerms[i].ConditionValue);
+                }
+                pieces.Add(")");
+                left.PredicateValue = SqlText.Join(pieces.ToArray());
+                left.SqlValue = SqlText.Join("CAST(CASE WHEN ", left.PredicateValue, " THEN 1 WHEN NOT ", left.PredicateValue, " THEN 0 ELSE NULL END AS bit)");
+            }
             if (Take("?"))
             {
                 if (left.Type != "bit") throw Bad();
@@ -157,18 +170,9 @@ namespace Toolbelt.Tsql.SsisDebug
                         if (value.BooleanOperator == op && value.BooleanTerms != null) terms = value.BooleanTerms; else terms.Add(value);
                         if (right.BooleanOperator == op && right.BooleanTerms != null) terms.AddRange(right.BooleanTerms); else terms.Add(right);
                     }
-                    ExpressionValue combined;
-                    if (splittable && terms.Count > 16)
-                    {
-                        // Auch verschachtelte Gruppen benötigen ihren echten
-                        // Ausdruck. Ein Platzhalter-TRUE würde in NOT/CASE oder
-                        // einer äußeren Gruppe Syntax und Ergebnis verfälschen.
-                        var pieces = new List<object> { "(" };
-                        for (int i = 0; i < terms.Count; i++) { if (i != 0) pieces.Add(op == "&&" ? " AND " : " OR "); pieces.Add(terms[i].ConditionValue); }
-                        pieces.Add(")");
-                        combined = Boolean(SqlText.Join(pieces.ToArray()), value.Nullable || right.Nullable, value, right);
-                    }
-                    else combined = Boolean(SqlText.Join("(", value.ConditionValue, op == "&&" ? " AND " : " OR ", right.ConditionValue, ")"), value.Nullable || right.Nullable, value, right);
+                    // Keep the predicate as a shared rope: rebuilding every prefix
+                    // of a long Boolean list would make parsing quadratic.
+                    ExpressionValue combined = Boolean(SqlText.Join("(", value.ConditionValue, op == "&&" ? " AND " : " OR ", right.ConditionValue, ")"), value.Nullable || right.Nullable, value, right);
                     combined.Total = splittable && total; if (splittable) { combined.BooleanOperator = op; combined.BooleanTerms = terms; }
                     value = combined;
                 }

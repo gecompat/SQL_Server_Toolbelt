@@ -49,7 +49,7 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (input.Expression != null)
                         value = new ConnectionExpression(input.Expression, name => Resolve(name, input.Scope), limits).Evaluate();
                     else if (input.HasDefault && !input.RuntimeAssigned) value = input.Default;
-                    else throw new DebugFault("missing_context", "Ein zur Connectionauflösung erforderlicher Startwert fehlt.");
+                    else throw new DebugFault("missing_context", "Ein zur Connection-/SQL-Strukturauflösung erforderlicher Startwert fehlt: " + input.Name + ". Über @StartValues explizit als Debug-Szenario übergeben.");
                     value = Typed(input, value); cache.Add(input, value); return value;
                 }
                 finally { resolving.Remove(input); }

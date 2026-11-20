@@ -104,12 +104,12 @@ internal static partial class ContractTests
         Assert(result.Rows.Any(r => r.Kind == "DebugScript" && r.Complete), "AUTO_CONNECTION_EXPRESSION_DEFAULT");
         variable.SetAttributeValue(dts + "Expression", "@[User::Database]");
         Reject(() => Engine.Analyze(Encoding.UTF8.GetBytes(doc.ToString()), new Options { Operation = "explain", Version = 150, CatalogMode = "package" }, new NullCatalog(), new Budget()), "unresolved_binding");
-        CompletionCases(bytes, limits);
+        CompletionCases(bytes, limits, Path.Combine(Path.GetDirectoryName(fixture), "synthetic-8.dtsx"));
         Console.WriteLine("SSIS_FRAMEWORK_PASS " + checks);
         return 0;
     }
 
-    private static void CompletionCases(byte[] packageBytes, ResourceLimits limits)
+    private static void CompletionCases(byte[] packageBytes, ResourceLimits limits, string lookupFixture)
     {
         var options = new Options { Operation = "explain", Version = 150, CatalogMode = "package", Limits = limits };
         var package = PackageReader.Read(packageBytes, new Budget(), true, limits);
@@ -169,6 +169,8 @@ internal static partial class ContractTests
         Reject(() => safety.CheckPackageComposition(tooMany), "resource_limit");
         string procedureCall;
         Assert(safety.TryPackageProcedure("EXEC dbo.SyntheticProcedure @Id=7", "AdventureWorks", out procedureCall) && procedureCall.Contains("[AdventureWorks].[dbo].[SyntheticProcedure]"), "PROCEDURE_CALL_STATIC_CAPTURE");
+        Assert(safety.TryPackageProcedure("EXEC dbo.SyntheticProcedure WITH RESULT SETS ((Id int))", "AdventureWorks", out procedureCall) && !procedureCall.Contains("RESULT SETS"), "INSERT_EXEC_OMITS_INCOMPATIBLE_RESULT_SETS_OPTION");
+        Reject(() => safety.TryPackageProcedure("EXEC dbo.SyntheticProcedure WITH RESULT SETS NONE", "AdventureWorks", out procedureCall), "unsupported_component");
         Reject(() => safety.TryPackageProcedure("EXEC ContosoServer.AdventureWorks.dbo.SyntheticProcedure", "AdventureWorks", out procedureCall), "unresolved_dependency");
         Reject(() => safety.TryPackageProcedure("EXEC dbo.SyntheticProcedure @Id=@Output OUTPUT", "AdventureWorks", out procedureCall), "unsupported_component");
 
@@ -180,6 +182,17 @@ internal static partial class ContractTests
         string script = captured.Rows.Single(a => a.Kind == "DebugScript").Content;
         Assert(script.Contains("INSERT INTO [#tbx_SsisDebug_P_") && script.Contains("EXECUTE [AdventureWorks].[dbo].[SyntheticProcedure]"), "PROCEDURE_RESULT_LOCAL_TEMP_INSERT_EXEC");
         Assert(script.Contains("BEGIN CATCH") && script.Contains("DROP TABLE [#tbx_SsisDebug_P_") && !script.Contains("CREATE TABLE [##"), "PROCEDURE_TEMP_OWNED_CLEANUP");
+
+        var lookupDocument = XDocument.Load(lookupFixture);
+        foreach (var component in lookupDocument.Descendants("component").Where(c => new[] { "Microsoft.DerivedColumn", "Microsoft.ConditionalSplit" }.Contains((string)c.Attribute("componentClassID"))))
+        {
+            component.SetAttributeValue("version", "0");
+            foreach (var output in component.Element("outputs").Elements("output")) output.SetAttributeValue("synchronousInputId", (string)component.Element("inputs").Element("input").Attribute("refId"));
+        }
+        var lookupComponent = lookupDocument.Descendants("component").Single(c => (string)c.Attribute("componentClassID") == "Microsoft.Lookup");
+        lookupComponent.Element("properties").Elements("property").Single(p => (string)p.Attribute("name") == "SqlCommand").Value = "EXEC dbo.SyntheticLookupProcedure";
+        var lookupCapture = Engine.Analyze(Encoding.UTF8.GetBytes(lookupDocument.ToString()), new Options { Operation = "explain", Version = 150, CatalogMode = "package" }, new NullCatalog(), new Budget());
+        Assert(lookupCapture.Rows.Any(a => a.Kind == "DebugScript" && a.Complete && a.Content.Contains("_input]") && a.Content.Contains("EXECUTE [dbo].[SyntheticLookupProcedure]")), "LOOKUP_PROCEDURE_FREEZES_INPUT_BEFORE_RESULT_CAPTURE:" + String.Join(",", lookupCapture.Rows.Where(a => a.Kind == "Diagnostic").Select(a => a.Code + "/" + a.Content)));
 
         document = XDocument.Parse(Encoding.UTF8.GetString(packageBytes));
         document.Root.Element(dts + "ConnectionManagers").Add(new XElement(dts + "ConnectionManager", new XAttribute(dts + "refId", "Package.ConnectionManagers[SyntheticFile]"), new XAttribute(dts + "CreationName", "FLATFILE"), new XAttribute(dts + "ObjectName", "SyntheticFile")));
@@ -193,5 +206,6 @@ internal static partial class ContractTests
         Assert(controlOnly.Rows.Any(a => a.Code == "no_dataflow") && !controlOnly.Rows.Any(a => a.Kind == "DebugScript"), "CONTROL_ONLY_NOT_FAKE_DATAFLOW");
         Assert(expression("UPPER(\"abc\")").Sql.Contains("UPPER(") && expression("ROUND(1.25,1)").Sql.Contains("ROUND("), "ADDITIONAL_PACKAGE_SCALAR_FUNCTIONS");
         Assert(expression("[GETDATE]()").Type == "datetime2(7)", "BRACKETED_ZERO_ARGUMENT_GETDATE");
+        Assert(expression("DATEPART(\"m\",[GETDATE]())").Sql.Contains("DATEPART(month,"), "DATEPART_MONTH_ALIAS");
     }
 }

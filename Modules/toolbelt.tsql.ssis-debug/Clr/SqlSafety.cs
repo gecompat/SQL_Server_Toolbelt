@@ -129,7 +129,7 @@ namespace Toolbelt.Tsql.SsisDebug
             // Iterativer, begrenzter Walk statt rekursiver Reflectionvisitor.
             foreach (TSqlFragment node in WalkCore(ast, composition))
             {
-                var q = node as QuerySpecification; if (q != null) Budget.Limit(q.SelectElements.Count, 256);
+                var q = node as QuerySpecification; if (q != null) Budget.Limit(q.SelectElements.Count, composition ? 1024 : 256);
                 var values = node as RowValue; if (values != null) Budget.Limit(values.ColumnValues.Count, 256);
                 var w = node as WithCtesAndXmlNamespaces; if (w != null) Budget.Limit(w.CommonTableExpressions.Count, composition ? 512 : 32);
             }
@@ -243,6 +243,13 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (variable != null && !variables.Contains(variable.Name)) throw new DebugFault("unresolved_binding", "Prozedurparameter ist nicht gebunden.");
                 }
             }
+            // INSERT EXEC cannot use WITH RESULT SETS. The destination shape is
+            // already taken from DTSX; other EXEC options are not silently lost.
+            if (statement.Options.Any(option => !(option is ResultSetsExecuteOption)))
+                throw new DebugFault("unsupported_component", "Prozedurquelle enthält eine nicht unterstützte EXEC-Option.");
+            if (statement.Options.OfType<ResultSetsExecuteOption>().Any(option => option.Definitions.Count != 1))
+                throw new DebugFault("unsupported_component", "Prozedurquelle benötigt genau ein beschriebenes Resultset.");
+            statement.Options.Clear();
             command = Generate(statement) + ";";
             return true;
         }

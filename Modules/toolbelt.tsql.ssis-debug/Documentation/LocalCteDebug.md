@@ -27,6 +27,19 @@ der Paketentwurf die ursprünglichen SQL-Objektnamen bei und weist ausdrücklich
 auf den lokalen Caller-Kontext hin. Alternativ die gewünschten Werte oder
 `@CatalogBindings` vorgeben; eine fehlende Identität wird nicht als geprüft behauptet.
 
+Wird dagegen der eigentliche SQL-Text aus einem Laufzeitwert zusammengesetzt,
+muss dieser beim Erzeugen feststehen. Eine fehlende Ausführungs-GUID wird nicht
+erfunden. Für ein ausdrücklich gewähltes lokales Debug-Szenario beispielsweise:
+
+```sql
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow
+    @PackageXml=@DtsxXml,
+    @StartValues=N'{"System::ExecutionInstanceGUID":"00000000-0000-0000-0000-000000000001","User::TagID":20260101}';
+```
+
+Die Namen müssen im konkreten Paket vorhanden sein. Mehrdeutige Namen benötigen
+den vollständigen Scope. Sensitive Werte bleiben ausgeschlossen.
+
 ## Quellen und Prozeduren
 
 SQL-Quellen verwenden den im DTSX enthaltenen SELECT. Joins und TVFs benötigen
@@ -36,7 +49,10 @@ konstantem Text bestehendes `EXEC('SELECT ...')` wird statisch ausgepackt und
 erneut als SELECT geprüft; beliebige SQL-Batches werden dadurch nicht zugelassen.
 
 Ist die Quelle eine Prozedur, beschreibt das Paket deren Resultset, aber nicht
-den Prozedurcode. Das erzeugte Skript legt eine lokale `#tbx_SsisDebug_P_...`-
+den Prozedurcode. Ein vorhandenes `WITH RESULT SETS` wird für `INSERT EXEC`
+entfernt, weil SQL Server diese Kombination nicht zulässt; das DTSX-Schema
+bestimmt die lokale Zieltabelle. Andere EXEC-Optionen bleiben ausgeschlossen.
+Das erzeugte Skript legt eine lokale `#tbx_SsisDebug_P_...`-
 Tabelle mit diesem Schema an und befüllt sie durch `INSERT ... EXEC`. Erst wenn
 der Benutzer dieses Skript manuell ausführt, wird die ursprüngliche Prozedur
 aufgerufen. Deren Berechnungen werden nicht erfunden oder als CTE ausgegeben.
@@ -100,7 +116,7 @@ bleiben mit Erstursache in Diagnostic/StageIndex sichtbar.
 Einzelquellen behalten die bisherigen Parsergrenzen. Für die Komposition
 bereits übersetzter Fragmente gelten getrennte endliche Grenzen: höchstens
 512 CTEs, 131072 Atome, 262144 Tokens, 32768 Operatoren, AST-Tiefe 256,
-1048576 Walkknoten und 4194304 Walkproperties; die bestehende Größen- und
+1048576 Walkknoten, 4194304 Walkproperties und 1024 SELECT-Projektionen; die bestehende Größen- und
 übrige Ressourcenbegrenzung bleibt bestehen. Beide Parserprofile haben
 getrennte Cachekeys; eine akzeptierte Komposition umgeht keine Quellprüfung.
 
