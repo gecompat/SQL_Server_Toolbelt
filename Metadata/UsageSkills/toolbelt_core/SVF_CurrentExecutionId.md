@@ -1,6 +1,6 @@
 ---
-name: "toolbelt-toolbelt-toolbelt-core-svf-currentexecutionid"
-description: "Liest die Execution-ID der aktuellen Session."
+name: "toolbelt-core-svf-currentexecutionid"
+description: "Skalarer Komfortzugriff auf die ID des aktuellen Ausführungskontexts; relationaler Kern ist TVF_CurrentExecutionContext."
 skill_format_version: "1.0"
 module_id: "toolbelt.core.execution-context"
 schema_name: "toolbelt_core"
@@ -9,8 +9,8 @@ object_type: "SVF"
 database_role: "toolbelt"
 is_internal: false
 parameters: []
-source_paths: ["Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql"]
-review_status: "draft"
+source_paths: ["Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql", "Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql"]
+review_status: "verified"
 source_module_version: "1.0.0"
 ---
 
@@ -18,49 +18,42 @@ source_module_version: "1.0.0"
 
 ## Zweck und Einsatzfälle
 
-Liest die Execution-ID der aktuellen Session.
-
-Reviewentwurf: vorhandene Beschreibung mit der Implementierung abgleichen.
+Skalarer Komfortzugriff auf die ID des aktuellen Ausführungskontexts; relationaler Kern ist TVF_CurrentExecutionContext.
 
 ## Voraussetzungen
 
-Noch gegen den Code zu prüfen.
+Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
 ## Parameter und Zugriff
 
-Keine SQL-Aufrufparameter laut aktueller Source-Deklaration.
+Keine Aufrufparameter; die aktuelle Verbindung ist der Datenkontext.
 
 ## Ergebnisse
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Ein uniqueidentifier-Rückgabewert oder SQL NULL. Der Wrapper liest ExecutionId aus der TVF; wenn diese keine Zeile liefert, bleibt die lokale Variable NULL. Kein eigener Resultset und keine OUTPUT-Parameter.
 
 ## Aufrufbeispiele
 
 ```sql
-SELECT toolbelt_core.SVF_CurrentExecutionId() AS ResultValue;
+SELECT toolbelt_core.SVF_CurrentExecutionId() AS ExecutionId;
 ```
 
 ## Rechte
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Vorhandenes EXECUTE auf dieser Prozedur/Funktion im tatsächlichen Datenbankkontext und vorhandene Rechte der internen Abhängigkeitskette. Keine Rechteerteilung, kein Serverstatus-/fremder-Session-Zugriff und kein EXECUTE-AS-Wechsel. Bestehende Enginegrenzen für SESSION_CONTEXT bleiben wirksam; Kontextlabels verleihen keine Berechtigung.
 
 ## Ressourcenbedarf
 
-Noch gegen tatsächliche Grenzen/Algorithmen zu prüfen; keine Kapazitäts- oder Laufzeitwerte erfinden.
+Skalarer T-SQL-Wrapper über eine null-/einzeilige TVF, keine eigene zusätzliche Datenquelle oder Cache. Keine pauschale Zusage skalaren Inlinings oder bestimmter Plankosten.
 
 ## Nebenwirkungen
 
-Noch am tatsächlichen Ausführungspfad zu prüfen; dieser Entwurf erteilt keine Ausführungsautorität.
+Rein lesend über den relationalen Sessionkontextkern, kein Session-/Datenbankzustand wird geschrieben.
 
 ## Fehlerbehandlung
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Kein eigener Validierungs- oder THROW-Code; fehlender Kontext ergibt NULL. Konvertierungs-/Enginefehler des relationalen Kerns bleiben sichtbar.
 
 ## Aussagegrenzen
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
-
-Ursprüngliche Objektverträge:
-- `Modules/toolbelt.core.execution-context/Documentation/SVF_CurrentExecutionId.md`
-
-Keine Installations-, Definitions- oder Rechteattestation.
+Quellgeprüfter Vertrag. Keine neue native Skill-/Callerzustandsabnahme aus passiven Beschreibungen ableiten; historische Fachbelege nur bei passender Bindung verwenden. Actor/Tenant und sämtliche SESSION_CONTEXT-Werte sind callerbeeinflussbare Metadaten, keine Authentifizierung, Mandantentrennung oder Sicherheitsgrenze. Kein automatischer Kontexttransport in andere Verbindungen und keine Garantie gegen fremde direkte Keyänderungen oder Pooling-/MARS-Effekte.

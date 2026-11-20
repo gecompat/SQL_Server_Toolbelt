@@ -510,6 +510,36 @@ class UsageSkillTests(unittest.TestCase):
                     for limit in ("2048", "1024", "65536", "32768", "1048576", "16777216"):
                         self.assertIn(limit, profile["description"])
 
+    def test_execution_context_help_preserves_output_and_required_arguments(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.execution-context"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 5)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            if skill.metadata["object_type"] != "USP":
+                self.assertEqual(skill.metadata["parameters"], [])
+                self.assertEqual(skills.project_function_ddl(text, skill), text)
+                continue
+            self.assertEqual(skills.project_procedure_help(text, skill), text)
+            ret, _ = skills._procedure_help_return(text, skill)
+            tokens = skills._ddl_tokens(text)
+            first_context = next(a for token, a, b in tokens if token.casefold() == "session_context")
+            self.assertLess(ret, first_context)
+            if skill.metadata["object_name"] == "USP_BeginExecution":
+                parameter = skill.metadata["parameters"][0]
+                self.assertTrue(parameter["is_output"])
+                self.assertEqual(parameter["sql_default"], "NULL")
+                before_help_return = [token.casefold() for token, a, b in tokens if a < ret]
+                self.assertFalse(any(before_help_return[i:i + 2] == ["set", "@executionid"]
+                                     for i in range(len(before_help_return) - 1)))
+            else:
+                parameter = skill.metadata["parameters"][0]
+                self.assertEqual(parameter["name"], "@ExpectedExecutionId")
+                self.assertTrue(parameter["argument_required"])
+                self.assertIsNone(parameter["sql_default"])
+
 
 if __name__ == "__main__":
     unittest.main()
