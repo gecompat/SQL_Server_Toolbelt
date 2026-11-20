@@ -29,7 +29,75 @@ def prepare_record_fixture(directory: Path):
     (directory / "Expected.md").write_text(text, encoding="utf-8", newline="\n")
 
 
+def prepare_module_fixture(directory: Path):
+    """Exakte neun aktuelle Quellen zur separaten In-memory-.NET-Prüfung."""
+    usage_skills.require(not directory.exists(), "Neues CLR-Testverzeichnis erforderlich")
+    clr_usage_skills.generate(ROOT, "toolbelt.filesystem.windows", "Toolbelt.Metadata", directory / "Generated.cs")
+    entries = []
+    for path in sorted((ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md")):
+        skill = usage_skills.read(path)
+        name = path.name
+        (directory / name).write_bytes(path.read_bytes())
+        entries.append("\t".join((skill.metadata["schema_name"], skill.metadata["object_name"], name)))
+    (directory / "Expected.tsv").write_text("\n".join(entries) + "\n", encoding="utf-8", newline="\n")
+
+
 class ClrUsageSkillTests(unittest.TestCase):
+    def test_raw_filesystem_contracts_match_actual_sql_parameters_and_defaults(self):
+        sources = [usage_skills.read(p) for p in sorted(
+            (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]
+        self.assertEqual(len(sources), 9)
+        sql = (ROOT / sources[0].metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
+        for skill in sources:
+            ts, _, i, limit = usage_skills._procedure_declaration(sql, skill)
+            a, b = usage_skills._clr_procedure_anchor(sql, skill)
+            parameters = sql[ts[i + 3][2]:a]
+            # Comments contain Markdown parameter examples; remove them before
+            # independently inspecting the actual declaration's simple syntax.
+            actual = re.findall(r"(@\w+)\s+(sysname|nvarchar\(\d+\)|nvarchar\(max\)|varbinary\(max\)|bigint|int|bit)(?:\s*=\s*(N?'[^']*'|NULL|\d+))?", parameters)
+            expected = [(p["name"], p["sql_type"], p["sql_default"] or "")
+                        for p in skill.metadata["parameters"]]
+            self.assertEqual(actual, expected, skill.identity)
+            self.assertTrue(skill.metadata["is_internal"])
+            self.assertEqual(skill.metadata["public_entrypoints"],
+                             ["toolbelt_filesystem.USP_" + skill.metadata["object_name"][4:]])
+            for parameter in skill.metadata["parameters"]:
+                self.assertEqual(parameter["argument_required"], parameter["sql_default"] is None)
+        remove = next(s for s in sources if s.metadata["object_name"] == "CLR_RemoveDirectory")
+        self.assertIn("nur >=1", remove.markdown)
+        self.assertIn("Teilentfernung", remove.markdown)
+
+    def test_real_clr_ddl_comments_bind_each_own_external_header_and_preserve_code(self):
+        sources = [usage_skills.read(p) for p in sorted(
+            (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]
+        self.assertEqual(len(sources), 9)
+        path = sources[0].metadata["source_paths"][0]
+        current = (ROOT / path).read_text(encoding="utf-8-sig")
+        base = current
+        for skill in sources:
+            base = base.replace(usage_skills.render_ddl_comment(skill), "", 1)
+        projected = base
+        for skill in sources:
+            projected = usage_skills.project_clr_procedure_ddl(projected, skill)
+            self.assertEqual(usage_skills.project_clr_procedure_ddl(projected, skill), projected)
+        for skill in sources:
+            self.assertTrue(usage_skills._existing_clr_procedure_skill(projected, skill))
+        without = projected
+        for skill in sources:
+            without = without.replace(usage_skills.render_ddl_comment(skill), "", 1)
+        self.assertEqual(without, base)
+        first, second = sources[:2]
+        comment = usage_skills.render_ddl_comment(first)
+        other = usage_skills.render_ddl_comment(second)
+        swapped = projected.replace(comment, "", 1).replace(other, comment + other, 1)
+        for broken in (swapped, projected.replace(comment, comment + comment, 1),
+                       projected.replace(comment, comment.replace("## Rechte", "## Wrong"), 1)):
+            with self.assertRaises(ValueError):
+                usage_skills.project_clr_procedure_ddl(broken, first)
+        # A raw CLR object must not pass the T-SQL-help guard adapter.
+        with self.assertRaisesRegex(ValueError, "T-SQL"):
+            usage_skills.project_procedure_help(projected, first)
+
     def test_complete_synthetic_module_emits_once_and_never_overwrites_output(self):
         original = samples()[1]
         metadata = deepcopy(original.metadata)
@@ -119,5 +187,8 @@ if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--prepare-clr-record-fixture":
         prepare_record_fixture(Path(sys.argv[2]))
         print("CLR_RECORD_FIXTURE_READY; SQL_NOT_EXECUTED")
+    elif len(sys.argv) == 3 and sys.argv[1] == "--prepare-clr-module-fixture":
+        prepare_module_fixture(Path(sys.argv[2]))
+        print("CLR_MODULE_FIXTURE_READY; SQL_NOT_EXECUTED; PROVIDER_NOT_INVOKED")
     else:
         unittest.main()

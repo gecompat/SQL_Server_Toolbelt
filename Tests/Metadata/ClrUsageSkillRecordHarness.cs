@@ -17,6 +17,28 @@ internal static class ClrUsageSkillRecordHarness
 
     private static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--module-fixture")
+        {
+            string[] entries = File.ReadAllLines(Path.Combine(args[1], "Expected.tsv"), new UTF8Encoding(false, true));
+            Check(entries.Length == 9);
+            foreach (string entry in entries)
+            {
+                string[] parts = entry.Split('\t');
+                Check(parts.Length == 3);
+                string markdown = File.ReadAllText(Path.Combine(args[1], parts[2]), new UTF8Encoding(false, true));
+                SqlDataRecord actual = Toolbelt.Metadata.UsageSkillsGenerated.CreateRecord(parts[0], parts[1]);
+                Check(actual.FieldCount == 4);
+                Check(actual.GetString(0) == "1.0");
+                Check(actual.GetString(1) == parts[0]);
+                Check(actual.GetString(2) == parts[1]);
+                Check(actual.GetSqlMetaData(3).MaxLength == SqlMetaData.Max);
+                Check(String.Equals(actual.GetString(3), markdown, StringComparison.Ordinal));
+                Check(actual.GetSqlChars(3).Length == markdown.Length);
+            }
+            Console.WriteLine("CLR_MODULE_SKILL_RECORD_PASS objects=9 assertions=" + assertions
+                + "; SQL_NOT_EXECUTED; PIPE_NOT_INVOKED; PROVIDER_NOT_INVOKED");
+            return 0;
+        }
         if (args.Length != 1) throw new ArgumentException("CLR_RECORD_EXPECTED_FIXTURE_REQUIRED");
         string expected = File.ReadAllText(args[0], new UTF8Encoding(false, true));
         SqlDataRecord row = Toolbelt.Metadata.UsageSkillsGenerated.CreateRecord(

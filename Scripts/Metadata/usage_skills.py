@@ -273,6 +273,8 @@ def strip_ddl_projection(root: Path, path: str, text: str):
             _existing_relation_skill(text, canonical)
         elif m["object_type"] == "USP":
             _existing_procedure_skill(text, canonical)
+        elif m["object_type"] == "CLR_USP":
+            _existing_clr_procedure_skill(text, canonical)
         comment = render_ddl_comment(canonical)
         require(text.count(comment) == 1, "DDL-Skillkommentar nicht eindeutig/bytegleich")
         text = text.replace(comment, "", 1)
@@ -320,7 +322,7 @@ def _ddl_tokens(text):
 
 def _procedure_declaration(text, skill):
     """Eine benannte Prozedur im Mehrfachskript an ihren eigenen GO-Batch binden."""
-    require(skill.metadata["object_type"] == "USP", "T-SQL-Prozedur erforderlich")
+    require(skill.metadata["object_type"] in ("USP", "CLR_USP"), "Prozedur erforderlich")
     ts = _ddl_tokens(text)
     words = [t[0].casefold() for t in ts]
     matches = []
@@ -362,6 +364,7 @@ def _procedure_region(text, skill):
 
 def _procedure_help_return(text: str, skill: Skill):
     """Bestehenden positiven Hilfezweig mit genau einem finalen RETURN binden."""
+    require(skill.metadata["object_type"] == "USP", "T-SQL-Prozedur erforderlich")
     ts, words, i, limit = _procedure_declaration(text, skill)
     patterns = (["if", "@hilfe", "=", "1", "begin"],
                 ["if", "isnull", "(", "@hilfe", ",", "0", ")", "=", "1", "begin"])
@@ -463,6 +466,46 @@ def project_procedure_ddl(text: str, skill: Skill):
     end = ts[anchors[0]][2]
     require(text[end:end + 1] == "\n", "AS muss mit LF abschließen")
     return text[:end + 1] + render_ddl_comment(skill) + text[end + 1:]
+
+
+def _clr_procedure_anchor(text, skill):
+    require(skill.metadata["object_type"] == "CLR_USP", "CLR-Prozedur erforderlich")
+    ts, words, i, limit = _procedure_declaration(text, skill)
+    anchors = [j for j in range(i + 4, limit - 2)
+               if words[j:j + 3] == ["as", "external", "name"]]
+    require(len(anchors) == 1, "Eindeutiges AS EXTERNAL NAME erforderlich")
+    anchor = anchors[0]
+    require(words[anchor - 1] == ")", "Geklammerte CLR-Parameterdeklaration erforderlich")
+    start = ts[anchor - 1][2]
+    require(text[start:ts[anchor][1]].strip() == ""
+            or DDL_BEGIN in text[start:ts[anchor][1]], "CLR-Headerlayout")
+    return start, ts[anchor][1]
+
+
+def _existing_clr_procedure_skill(text, skill):
+    matches = [s for s in read_ddl_comments(text) if s.identity == skill.identity]
+    require(len(matches) <= 1, "Doppelte CLR-Prozedur-Skillidentität")
+    if not matches:
+        return False
+    comment = render_ddl_comment(skill)
+    require(matches[0].markdown == skill.markdown and text.count(comment) == 1,
+            "Vorhandener CLR-Prozedur-Skill ist nicht kanonisch")
+    a, b = _clr_procedure_anchor(text, skill)
+    position = text.index(comment)
+    require(a <= position and position + len(comment) <= b,
+            "CLR-Prozedur-Skill steht außerhalb seines eigenen Headers")
+    return True
+
+
+def project_clr_procedure_ddl(text, skill):
+    """Vollständigen passiven Skill vor dem eigenen EXTERNAL-NAME-Header binden."""
+    validate(skill)
+    if _existing_clr_procedure_skill(text, skill):
+        return text
+    _, position = _clr_procedure_anchor(text, skill)
+    line = text.rfind("\n", 0, position) + 1
+    require(not text[line:position].strip(), "CLR-AS muss eigene Zeile beginnen")
+    return text[:line] + render_ddl_comment(skill) + text[line:]
 
 
 def _existing_procedure_skill(text, skill):

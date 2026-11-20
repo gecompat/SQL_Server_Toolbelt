@@ -280,7 +280,11 @@ class UsageSkillTests(unittest.TestCase):
         current = (ROOT / path).read_text(encoding="utf-8-sig")
         # Both identical parameter fragments coexist; removal must be scoped by
         # declaration, never replace the first matching neighbor's parameter.
-        original = skills.strip_ddl_projection(ROOT, path, skills.strip_missing_help_projection(ROOT, path, current))
+        original = skills.strip_missing_help_projection(ROOT, path, current)
+        # Regenerate only these two helpers. Other grouped definitions retain
+        # their own independently projected comments throughout this test.
+        for skill in selected:
+            original = original.replace(skills.render_ddl_comment(skill), "", 1)
         for order in (selected, list(reversed(selected))):
             result = original
             for skill in order:

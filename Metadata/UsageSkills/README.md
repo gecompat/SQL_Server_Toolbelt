@@ -92,6 +92,15 @@ CLR-Prozeduren erzeugt und überschreibt keine bestehende Datei. Dieser Renderer
 ist noch nicht in die neun Dateisystem-Methoden integriert; ein Offline-Recordtest
 qualifiziert weder deren neue Signatur noch die Ausgabe innerhalb von SQL Server.
 
+Die neun internen Dateisystem-CLR-Einstiege besitzen inzwischen eigene
+quellgeprüfte Skills und vollständige Kommentare vor ihrem jeweiligen
+`AS EXTERNAL NAME`. Der Projektor bindet jeden Kommentar an genau diese
+Prozedur; verschobene, doppelte oder geänderte Texte werden zurückgewiesen.
+Signaturen und Provider bleiben dadurch unverändert. Insbesondere ist eine
+Skillbeschreibung noch keine implementierte CLR-Hilfe. Die Rohschnittstellen
+beschreiben ausdrücklich ihre eigenen Grenzen, beispielsweise die fehlenden
+festen oberen Löschbudgets im Unterschied zum Listing.
+
 Der gesonderte Windows-.NET-Transporttest verwendet nur zwei Prozedurprototypen
 und zusätzlichen synthetischen Unicode-Text. Neues privates Verzeichnis wählen:
 
@@ -110,6 +119,13 @@ if ($LASTEXITCODE -ne 0) { throw 'CLR_RECORD_TEST_FAILED' }
 Geprüft werden Record-Metadaten, vollständiger Unicode-/LF-Inhalt und die
 Ablehnung unbekannter Objekte. Die SQL-Pipe und der Dateisystemprovider werden
 nicht aufgerufen; dieser Test ersetzt keine native SQL-CLR-Abnahme.
+
+Für einen zusätzlichen In-memory-Vergleich aller neun tatsächlichen internen
+Dateisystem-Skills kann die Vorbereitung stattdessen mit
+`--prepare-clr-module-fixture` und einem neuen privaten Verzeichnis erfolgen.
+Kompiliere dessen `Generated.cs` mit demselben Harness und rufe das Programm mit
+`--module-fixture <Verzeichnis>` auf. Es vergleicht alle neun vollständigen
+Recordtexte mit den kanonischen Quellen, ohne Provider oder SQL-Pipe aufzurufen.
 
 Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine
