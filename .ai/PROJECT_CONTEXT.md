@@ -1,5 +1,23 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Einheitlicher markerfreier Installer – aktueller Auftrag 2026-11-20
+
+Der Benutzer beauftragt die vollständige Umsetzung der offenen Deploymentpunkte
+bis origin/main und zu einem gebauten Release, einschließlich Dokumentation.
+Der [verbindliche Gesamtumfang](../Backlog/UNIFIED_DEPLOYMENT.md) umfasst alle
+Module, tlblt-SQL-Assemblynamen, normalen SQL- und Ein-Aufruf-Weg, Trustvarianten,
+create-only und die getrennte Bewahrung historischer Nachweise. Keine neue
+Veröffentlichung oder Tags. Die früheren rc.4-/Testfenster sind geschlossen;
+dieser Auftrag erneuert keine nativen SQL-/TLS-/GUI-Grenzen. Aktuelle Arbeit
+nutzt notwendige Offlineprüfungen und tatsächlich gebundene Komponentenbelege.
+Endliche Codeabschnitte und private Checkpoints erhalten den Gesamtauftrag.
+Zusätzlich hat der Benutzer [Objekt-Skills](../Backlog/OBJECT_USAGE_SKILLS.md)
+über Hilfe/DDL und die neue rein lesende SQL-Sicht ausdrücklich beauftragt.
+Historische native Lifecycle-CI bleibt ausdrücklich auf ihren Originalstand
+begrenzt; neue Deploymentbytes erhalten dadurch kein natives Gesamt-PASS.
+
+
+
 ## Explizite Installer-Vorbereitung und rc.4 – Auftrag 2026-11-19
 
 Nach Besprechung des konkreten Vertrags beauftragt der Benutzer ausdrücklich

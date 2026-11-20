@@ -59,8 +59,9 @@ objects:
 permissions_required:
   - "SELECT auf toolbelt_validation.TVF_ParseSemanticVersion, TVF_CompareSemanticVersion und TVF_SemanticVersionSortKey"
   - "EXECUTE auf toolbelt_validation.SVF_SemanticVersionSortKey und SVF_CompareSemanticVersion"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "Grammatik und Präzedenz verwenden Latin1_General_100_BIN2 und sind von der Datenbank-Collation unabhängig."
 data_type_contract: "ASCII varchar(8000); numerische Komponenten bleiben Dezimalstrings; Sort Key ist varbinary(max)."
 help_contract_version: "not applicable"

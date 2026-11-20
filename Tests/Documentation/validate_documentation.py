@@ -22,7 +22,11 @@ def run_hidden(*args, **kwargs):
     """Preserve subprocess results while suppressing Windows console creation."""
     if sys.platform == "win32":
         kwargs["creationflags"] = kwargs.get("creationflags", 0) | subprocess.CREATE_NO_WINDOW
+    tree_timeout=kwargs.pop('tree_timeout',False)
     try:
+        if tree_timeout:
+            from run_archived_release_validation import run_owned
+            return run_owned(*args,**kwargs)
         return subprocess.run(*args, **kwargs)
     except subprocess.TimeoutExpired as error:
         def tail(value):
@@ -1850,8 +1854,9 @@ def main() -> int:
         # Die gewachsene Suite überschreitet auf CI zwanzig Minuten.
         # Dreißig Minuten bleiben endlich; Fortschritt bleibt bei Timeout sichtbar.
         # Keep the hidden process boundary so no console window steals focus.
+        from run_archived_release_validation import command as historical_release_command
         result = run_hidden(
-            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/run_archived_release_validation.py")],
+            historical_release_command(), tree_timeout=True,
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=1800,
         )
         if result.returncode:

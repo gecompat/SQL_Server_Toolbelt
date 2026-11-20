@@ -1,5 +1,17 @@
 # Shared SAFE JSON Core
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_JsonCore`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 `toolbelt.json.core`1.0.0 stellt die technische SAFE-Assembly
 `Toolbelt_JsonCore` bereit. Sie exportiert keine SQL-Funktion. Der gemeinsame
 iterative Scanner dient Constructors1.3 und JSON Schema1.0; die Legacy-/AGF-
@@ -26,10 +38,6 @@ Linux2019/latest CL150 und Windows2025/CU8 CL170 local/central. Genuine
 Constructor1.2→1.3 bestand auf Linux local/central. Weitere Ziel-/Lifecycle-
 matrix offen, unreleased. Die eigene
 IL-Prüfung zertifiziert keine transitive Framework-SAFE-Kompatibilität.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

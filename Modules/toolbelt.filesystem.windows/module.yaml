@@ -42,12 +42,27 @@ objects:
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_CreateDirectory", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveFile", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveDirectory", visibility: public }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_CreateDirectory, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ListDirectory, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ReadBinaryFileChunk, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ReadTextFileChunk, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_RemoveDirectory, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_RemoveFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_TranscodeTextFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_WriteBinaryFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_WriteTextFile, visibility: internal }
+  - { type: USP, schema: toolbelt_filesystem, name: USP_InternalEmitHelp, visibility: internal }
+  - { type: USP, schema: toolbelt_filesystem, name: USP_InternalRouteResult, visibility: internal }
+
 permissions_required:
   - "EXECUTE on the required public procedure"
   - "SELECT on toolbelt_filesystem.FileSystemRoot; this exposes configured physical root and work paths."
-  - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
   - "Windows Authentication and NTFS rights for Caller; Caller is the default."
   - "NTFS rights for the SQL Server service account only when ServiceAccount is explicitly selected."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
+  - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
 clr:
   used: true
   language: "C#"

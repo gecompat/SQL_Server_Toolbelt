@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: Regex CLR Runtime
 
 on:
@@ -47,6 +48,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - run: python3 Modules/toolbelt.string.regex/Tests/Static/validate_contract.py
 
   build-net-framework:
@@ -57,6 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
           fetch-depth: 0
       - name: Build assembly and exact release input
         shell: pwsh
@@ -99,6 +103,8 @@ jobs:
           path: .runtime/regex-release/**
 
   sql-server-linux:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.sql_version }} Linux / compatibility ${{ matrix.compatibility_level }}
     needs: build-net-framework
     runs-on: ubuntu-latest
@@ -114,6 +120,8 @@ jobs:
           - {sql_version: "2025", image: "mcr.microsoft.com/mssql/server:2025-latest", compatibility_level: 170}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - uses: actions/download-artifact@v4
         with:
           name: regex-clr-release-input

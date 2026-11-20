@@ -1,5 +1,17 @@
 # SSIS Data Flow Debug SELECT
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_Tsql_SsisDebug`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Dieses Modul erzeugt aus DTSX-XML SQL-Debugentwürfe für unterstützte
 SQL-Server-Datenflüsse. Ein XML-Aufruf verwendet Paketdefaults und löst
 Connection-Expressions auf. Es ist keine vollständige SSIS-Runtime und führt

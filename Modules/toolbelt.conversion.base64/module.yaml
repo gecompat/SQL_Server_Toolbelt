@@ -62,8 +62,9 @@ objects:
 permissions_required:
   - "SELECT auf toolbelt_conversion.TVF_Base64Encode, TVF_Base64Decode, TVF_Base64EncodeStatus und TVF_Base64DecodeStatus"
   - "EXECUTE auf toolbelt_conversion.SVF_Base64Encode und SVF_Base64Decode"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "Base64 ist ein ASCII-Vertrag; der Encode-Rückgabewert verwendet die Datenbank-Default-Collation."
 data_type_contract: "Encode akzeptiert ausschließlich varbinary(max); Decode ausschließlich varchar(max); NULL bleibt NULL; keine implizite Zeichenkodierung."
 help_contract_version: "not applicable"

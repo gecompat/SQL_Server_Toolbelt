@@ -49,6 +49,8 @@ objects:
 permissions_required:
   - "SELECT auf den TVFs"
   - "EXECUTE auf USP und ResultTable-Helper; keine Rechteausweitung"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Latin1_General_100_BIN2; UTF-16-Codeeinheiten; Spaces bleiben signifikant."
 data_type_contract: "Text/JSON/Quote/Escape/Qualifier/ClosingQualifier und Value nvarchar(max); Ordinal/ErrorPosition bigint; IsValid/BackslashEscape bit; ErrorCode varchar(64); USP-Erfolg Value/Ordinal NOT NULL."

@@ -63,7 +63,12 @@ objects:
     schema: toolbelt_pseudonymization
     name: USP_DeterministicLookup
     visibility: public
-permissions_required: ["SELECT auf öffentlichen Inline-TVFs", "EXECUTE auf Lookup, ResultTable zusätzlich Helper-EXECUTE", "DDL-Rechte für Lifecycle"]
+permissions_required:
+  - "SELECT auf öffentlichen Inline-TVFs"
+  - "EXECUTE auf Lookup, ResultTable zusätzlich Helper-EXECUTE"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "DDL-Rechte für Lifecycle"
 collation_contract: "Key binär, keine Normalisierung; technisches Hex und Translateoperanden BIN2; Pooltext unverändert, Result NVARCHAR Latin1_General_100_BIN2."
 data_type_contract: "Key varbinary(max) bis 8000 Byte, volle bigint-Grenzen, datetime2(7), Pool Unicode; Translate nvarchar(max), feste ASCII-Alphabete, 33 Separatoren, 2/16MiB UTF-16; GeoJitter geography 2D-Point/SRID4326, 128 serialisierte Bytes, Radius 1..10000 Meter."
 help_contract_version: "1.0"

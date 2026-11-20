@@ -63,6 +63,7 @@ permissions_required:
   - "EXECUTE auf den jeweils benötigten Work-Queue-USPs"
   - "SELECT auf toolbelt_core.VW_WorkQueue für Statusleser"
   - "Claim-Worker benötigen Metadatensichtbarkeit auf registrierte Handler, regulär über EXECUTE auf diese Procedures"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Status, WorkTypeName und FailureCode verwenden Latin1_General_100_BIN2; Meldung und Payload bleiben nvarchar."
 data_type_contract: "WorkItemId und ClaimGeneration sind bigint; ClaimToken uniqueidentifier; Lease-Dauer 5 bis 86400 Sekunden; PayloadJson ist ein JSON-Objekt mit höchstens 65536 Bytes; FailureMessage umfasst höchstens 1000 Unicode-Codeeinheiten."
 help_contract_version: "1.0"

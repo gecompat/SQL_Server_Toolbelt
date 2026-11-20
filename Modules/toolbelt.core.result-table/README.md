@@ -1,5 +1,17 @@
 # Result Table Infrastructure
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 `USP_PrepareResultTable` bereitet eine vorhandene lokale Temp-Tabelle für
 Resultsets anderer Toolbelt-Procedures vor. Die Procedure prüft Referenzschema,
 Collation und Datenerhalt, erzeugt selbst aber keine fachlichen Ergebniszeilen.

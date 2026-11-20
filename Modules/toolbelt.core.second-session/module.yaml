@@ -51,6 +51,7 @@ permissions_required:
   - "Explizites Linked-Server-Login-Mapping ohne im Modul gespeicherte Credentials"
   - "EXECUTE auf die öffentlichen Modul-USPs entsprechend Betriebsrolle"
   - "Remote-Principal benötigt EXECUTE auf Dispatcher und registrierte Zielprocedure"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Provider- und Work-Type-Identifier verwenden binäre ASCII-Collation; Actor, Tenant und JSON-Payload bleiben nvarchar."
 data_type_contract: "Version 1 unterstützt nur Work-Type-ParameterMode NONE und JSON_PAYLOAD mit exakt @PayloadJson nvarchar(max)."
 help_contract_version: "1.0"

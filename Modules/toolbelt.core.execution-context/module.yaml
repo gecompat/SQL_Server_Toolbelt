@@ -38,6 +38,7 @@ objects:
   - {type: USP, schema: "toolbelt_core", name: "USP_EndExecution", visibility: public}
 permissions_required:
   - "EXECUTE beziehungsweise SELECT auf die öffentlichen Modulobjekte"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Actor und Tenant bleiben nvarchar; Execution- und Correlation-ID sind uniqueidentifier."
 data_type_contract: "Sessionwerte sind begrenzte sql_variant-kompatible Skalare; kein JSON- oder LOB-Zustand."
 help_contract_version: "1.0"

@@ -48,7 +48,11 @@ objects:
     schema: "toolbelt_binary"
     name: "TVF_SetBitBigInt"
     visibility: public
-permissions_required: ["SELECT oder REFERENCES auf den Inline Table-valued Functions", "DDL-Rechte für Deploy und Uninstall"]
+permissions_required:
+  - "SELECT oder REFERENCES auf den Inline Table-valued Functions"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "not applicable"
 data_type_contract: "V1 verarbeitet ausschließlich das vollständige 64-Bit-Zweierkomplementmuster von bigint; binary(n) und varbinary(n) bleiben ein separater Slice."
 help_contract_version: "not applicable"

@@ -1,5 +1,17 @@
 # Quote/Escape Multi-Separator Split
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Modul `toolbelt.string.split-advanced`, Version 1.1.0, unreleased. S2 wurde am
 2026-10-01 freigegeben. Die spätere ausdrückliche Einzel-Freigabe
 „Unquoting, Split-USP und ZIP-Writer implementieren“ ergänzt
@@ -24,10 +36,6 @@ sechs physischen Zielen bei höchstem CL. Der
 [ergänzende CL-Abschluss](../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
 fügt die sechs niedrigeren CL-Fälle hinzu, ohne unveränderte grüne Fälle zu
 wiederholen. Lifecycle- und echte CrossDB-Kontexte bleiben separat.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

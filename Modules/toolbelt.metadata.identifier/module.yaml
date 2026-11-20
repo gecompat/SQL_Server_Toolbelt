@@ -51,8 +51,9 @@ objects:
 permissions_required:
   - "SELECT auf toolbelt_metadata.TVF_ParseMultipartName"
   - "EXECUTE auf toolbelt_metadata.SVF_QuoteMultipartName"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "Delimiter-, Escape- und Metazeichenprüfungen verwenden Latin1_General_100_BIN2; Identifierinhalte werden nicht nach Groß-/Kleinschreibung normalisiert."
 data_type_contract: "Eingabe nvarchar(1035); maximal vier decodierte sysname-Teile; QuotedName nvarchar(1035)."
 help_contract_version: "not applicable"

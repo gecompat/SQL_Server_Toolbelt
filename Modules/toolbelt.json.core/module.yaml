@@ -19,8 +19,13 @@ deployment_capabilities:
   central_with_synonyms: false
 dependencies: []
 schemas: []
-objects: []
-permissions_required: ["Bestehende vollständige Metadatensicht und CREATE ASSEMBLY; Uninstall: ALTER auf der eigenen Assembly. Keine Rechtevergabe."]
+objects:
+  - { type: ASSEMBLY, name: tlblt_JsonCore, visibility: internal }
+permissions_required:
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
+  - "Bestehende vollständige Metadatensicht und CREATE ASSEMBLY; Uninstall: ALTER auf der eigenen Assembly. Keine Rechtevergabe."
 collation_contract: "Ordinale UTF16-Identität ohne Normalisierung."
 data_type_contract: "Technische Managed-Tokens; kein SQL-Resultset."
 help_contract_version: "not applicable"

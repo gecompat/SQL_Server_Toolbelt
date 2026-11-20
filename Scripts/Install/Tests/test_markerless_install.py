@@ -68,7 +68,7 @@ class MarkerlessContractTests(unittest.TestCase):
                 self.assertTrue(name.startswith('tlblt'),path)
                 self.assertNotIn(name,names)
                 names.add(name)
-        self.assertEqual(len(names),12)
+        self.assertEqual(len(names),13)
 
     def test_canonical_sources_need_no_legacy_name_translation(self):
         selected=installer.modules('Windows','local')

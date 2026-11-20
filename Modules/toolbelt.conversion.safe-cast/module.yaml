@@ -36,6 +36,8 @@ objects:
   - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastUniqueIdentifier", visibility: public}
 permissions_required:
   - "Aufruf: vorhandenes SELECT auf den TVFs; CrossDB benötigt bestehende passende Rechte."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "Lifecycle: VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies, CREATE FUNCTION und passende Schema-DDL-Rechte; keine Rechtevergabe."
   - "Lifecycle: Schreiben/Entfernen der datenbankweiten Release-Marker benötigt zusätzlich dafür wirksame Datenbankrechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
 collation_contract: "Strikte ASCII-Codeeinheitenprüfung und Status/ErrorCode verwenden Latin1_General_100_BIN2 ohne SC; Eingabebytes via DATALENGTH."

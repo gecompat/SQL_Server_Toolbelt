@@ -1,5 +1,17 @@
 # CSV im Speicher
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_File_CsvMemory`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 `toolbelt.file.csv-memory` 1.0.0 stellt genau zwei öffentliche USPs bereit:
 [`USP_ParseCsv`](Documentation/USP_ParseCsv.md) liest Unicode-CSV als rechteckige
 Zellen; [`USP_WriteCsv`](Documentation/USP_WriteCsv.md) schreibt einen typgenauen
@@ -11,10 +23,6 @@ definiert Dialekt, NULL-Token, Header, Grenzen und Fehler. Der eigene SAFE-Kern
 auf .NET Framework 4.8 benötigt ausschließlich System und System.Data. Ein
 vollständiger Syntax-/Budgetpreflight und private Ergebnisse gehen jedem
 öffentlichen Resultset beziehungsweise jeder ResultTable-Mutation voraus.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Grenzen und Verwendung
 

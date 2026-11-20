@@ -52,6 +52,7 @@ permissions_required:
   - "SELECT auf toolbelt_core.VW_Events für lesende Consumer"
   - "EXECUTE auf toolbelt_core.USP_DeleteEventsBefore nur für Retention-Administratoren"
   - "Der administrierte Linked-Server-Principal benötigt EXECUTE auf den internen Work-Type-Handler"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "EventName, EventLevel und Category verwenden eine feste binäre ASCII-Collation; Message und Context bleiben nvarchar."
 data_type_contract: "DataJson ist ein begrenztes JSON-Objekt; Message ist auf nvarchar(4000) begrenzt; Event- und Fehlerwerte sind typisiert."
 help_contract_version: "1.0"

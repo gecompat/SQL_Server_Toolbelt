@@ -32,7 +32,11 @@ objects:
     schema: "toolbelt_datetime"
     name: "TVF_CalendarDifference"
     visibility: public
-permissions_required: ["SELECT oder REFERENCES auf der Inline Table-valued Function", "DDL-Rechte für Deploy und Uninstall"]
+permissions_required:
+  - "SELECT oder REFERENCES auf der Inline Table-valued Function"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "not applicable"
 data_type_contract: "Akzeptiert ausschließlich date; Sign ist smallint, Years, Months und Days sind int."
 help_contract_version: "not applicable"

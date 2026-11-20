@@ -31,6 +31,8 @@ objects:
   - {type: TVF, schema: "toolbelt_json", name: "TVF_ResolveJsonPointer", visibility: public}
 permissions_required:
   - "Aufruf: vorhandenes SELECT auf der TVF; CrossDB benötigt bestehende passende Rechte."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "Lifecycle: VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies, CREATE FUNCTION und passende Schema-DDL-Rechte; keine Rechtevergabe."
   - "Lifecycle: Schreiben/Entfernen der datenbankweiten Release-Marker benötigt zusätzlich dafür wirksame Datenbankrechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
 collation_contract: "Alle vier Textausgabespalten Latin1_General_100_BIN2; exakte Keys über BIN2 plus DATALENGTH, UTF16-Policy ohne SC."

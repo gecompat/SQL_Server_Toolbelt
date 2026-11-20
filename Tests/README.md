@@ -1,5 +1,25 @@
 # Tests – SQL Server Toolbelt
 
+## Aktueller markerfreier Installationsstand
+
+Aktuelle Installation und Paketierung werden durch `Scripts/Install/Tests`,
+`Deployment/Tests/Test-MarkerlessPackage.ps1` und
+`Deployment/Tests/Test-CurrentInstall.ps1` geprüft. Komponenten-Staticprüfungen
+vergleichen zuerst die aktuellen Fachquellen mit dem ursprünglichen Stand;
+anschließend bleiben die originalen Lifecycleassertions am festen Vorgänger
+`2fbe8e3e` erhalten. Ein Fachunterschied verwirft die Wiederverwendung.
+
+Die nativen CI-Jobs für Deploy/Upgrade/Uninstall des abgelösten SQLCMD-/Marker-
+Lifecycle laufen ausschließlich bei ausdrücklichem workflow_dispatch am festen
+Originalcommit. Automatische PR-/Main-Prüfungen behalten Komponenten-Gates;
+passende reine Framework-/Buildprüfungen laufen weiter an aktuellen Quellen.
+Die neuen Installer-/Paketprüfungen bleiben separate aktuelle Gates. Es wird
+keine historische native Matrix als Abnahme der neuen Deploymentbytes ausgegeben.
+Ein neuer Fachvertrag benötigt neue passende Runtimeadapter und Nachweise;
+der Äquivalenzguard blockiert ein stilles Weiterverwenden alter Belege.
+
+
+
 Der [aktuelle Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md) trennt geschlossene Teilumfänge, notwendige Vertragslücken und zusätzliche Untersuchungen ohne Ausführungsauftrag. Die [XLSX-Testübersicht](../Modules/toolbelt.file.xlsx-memory/Tests/README.md) führt ihre aktuellen einzelnen Quellenbindungen zusammen. Spätere gültige Belege haben Vorrang vor pauschalen historischen Offen-Zeilen; daraus folgt kein Gesamtmodul-PASS.
 
 Die [aktuelle direkte Vorgängermatrix](../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)

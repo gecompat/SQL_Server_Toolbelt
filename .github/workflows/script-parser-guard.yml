@@ -38,7 +38,15 @@ jobs:
           [void][Management.Automation.Language.Parser]::ParseFile(
             (Join-Path $PWD 'Tests/CI/run-script-parser-lab.ps1'), [ref]$tokens, [ref]$errors)
           if ($errors.Count) { throw 'LAB_ADAPTER_SYNTAX_INVALID' }
-      - name: Bounded current-build adapter counterexamples without SQL
+      - name: Select original adapter rejection context
+        shell: pwsh
+        run: |
+          $code="import sys;from pathlib import Path;sys.path.insert(0,'Tests/Release');from ssis_historical_context import historical_root;print(historical_root(Path.cwd(),'2fbe8e3e86f370b22ad2ce9f9716d971072a052b'))"
+          $frozen=python -B -c $code
+          if ($LASTEXITCODE -ne 0) { throw 'Historical parser adapter source unavailable' }
+          "TBX_HISTORICAL_ROOT=$frozen" >> $env:GITHUB_ENV
+      - name: Historical adapter counterexamples without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         shell: pwsh
         run: ./Tests/Release/Test-ParserCurrentLab.ps1
 # This finite guard check does not qualify the pinned ScriptDom binary or SQL CLR hosts.

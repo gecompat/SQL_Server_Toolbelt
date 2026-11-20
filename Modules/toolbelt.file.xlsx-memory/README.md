@@ -1,5 +1,17 @@
 # XLSX Binary Memory Reader
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_File_XlsxMemory`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Dieses Modul verarbeitet ein vom Aufrufer übergebenes XLSX-Binary im Speicher und stellt zwei Raw-Reader-USPs bereit: eine Worksheetliste und die vorhandenen Rohzellen. Es führt keine Workbookinhalte aus und greift nicht auf Dateien oder Netzwerke zu. Die Objektverträge stehen unter [USP_ListXlsxWorksheets](Documentation/USP_ListXlsxWorksheets.md) und [USP_ReadXlsxWorksheetCells](Documentation/USP_ReadXlsxWorksheetCells.md); Type- und Anzeigeausgaben sind getrennte APIs.
 
 Aktuelle, getrennt gebundene Teilnachweise stehen im [Nachweisabgleich](../../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md) und der [XLSX-Testübersicht](Tests/README.md). Das Modul bleibt teilweise validiert und unveröffentlicht. Die nachfolgenden datierten 1.0-/1.1-/1.2-Berichte behalten ihre Originalquellen und Grenzen; alte pauschale Offen-Zeilen sind keine neue Testwarteschlange.

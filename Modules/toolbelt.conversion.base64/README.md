@@ -1,5 +1,17 @@
 # Base64 and Base64URL Conversion
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktuelle [Callerrechte-Qualifikation](../../Releases/1.0.0/CONVERSION-CALLER-QUALIFICATION.md): einzelne SELECT-Grants für TVFs und EXECUTE-Grants für Scalarwrapper, lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Das [korrigierte Manifest samt Paketbindung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md) nennt die Rechte je Funktion. Frühere Scalarheader sind historische Kommentare; maßgeblich sind diese Einzelrechte. Andere Fach-/Lifecycle-/CrossDB-Gates und Modulstatus werden dadurch nicht erweitert.
 
 Lastqualifikation 2026-10-19: Der vollständige Moduladapter einschließlich Pflicht-Lastfall (exakter 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsorakeln) bestand auf SQL Server 2025 Linux/latest CL170. Zusammen mit der unveränderten Windows-/Linux-Fachmatrix gilt `validated`; Release bleibt `unreleased`. Optionale Laufzeitmessungen: `not executed`. [Aktuelle Abnahme](../../Tests/V0C_RELEASE_GATE_STATUS.md).

@@ -1,5 +1,17 @@
 # Cooperative Execution Cancellation
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 `toolbelt.core.execution-cancel` stellt einen persistenten, kooperativen
 Abbruchindikator für eine `ExecutionId` bereit. Die Anforderung ist
 idempotent und irreversibel. Sie beendet keine SQL-Session, verändert keine
@@ -23,10 +35,6 @@ belegen den befüllten Repeat aller acht Spalten einschließlich isolierter
 Principalgegenproben auf Windows2019/2022/2025 über alle unterstützten CLs
 lokal und direkt zentral. Frühere Teilnachweise bleiben getrennt erhalten.
 Das Modul bleibt teilweise validiert und unveröffentlicht.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

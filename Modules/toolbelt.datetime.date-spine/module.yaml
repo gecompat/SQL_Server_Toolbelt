@@ -64,8 +64,9 @@ objects:
 
 permissions_required:
   - "SELECT oder REFERENCES auf den öffentlichen Inline Table-valued Functions"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "Nur der interne Grain-Schlüssel verwendet Latin1_General_100_BIN2; Ergebnisse sind collation-unabhängig."
 data_type_contract: "Beide Grenzen und PeriodStart sind date; Ordinal ist nullfreies int und beginnt bei 0."
 help_contract_version: "not applicable"

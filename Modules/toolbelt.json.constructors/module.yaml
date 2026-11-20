@@ -58,7 +58,15 @@ objects:
   - {type: CLR_AGGREGATE, schema: "toolbelt_json", name: "AGF_JsonArray", visibility: public}
   - {type: CLR_AGGREGATE, schema: "toolbelt_json", name: "AGF_JsonObject", visibility: public}
   - {type: ASSEMBLY, name: "tlblt_JsonConstructors", visibility: internal}
-permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "Deployment: vorhandene CREATE ASSEMBLY-/CREATE FUNCTION-/DDL-Rechte und vollständige Assemblymetadatensicht", "Lifecycle: VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies", "Uninstall: ALTER auf toolbelt_json und der eigenen Assembly"]
+permissions_required:
+  - "EXECUTE auf der öffentlichen USP"
+  - "Helper-EXECUTE für ResultTable"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
+  - "Deployment: vorhandene CREATE ASSEMBLY-/CREATE FUNCTION-/DDL-Rechte und vollständige Assemblymetadatensicht"
+  - "Lifecycle: VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies"
+  - "Uninstall: ALTER auf toolbelt_json und der eigenen Assembly"
 collation_contract: "Exakte UTF-16-/BIN2-ValueKinds und längensensitive Keys; Ergebnis Latin1_General_100_BIN2."
 data_type_contract: "Ordinal int; ValueKind/Value/Key nvarchar(max); JsonValue nvarchar(max) NOT NULL."
 help_contract_version: "1.0"

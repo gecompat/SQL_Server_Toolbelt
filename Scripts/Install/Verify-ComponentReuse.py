@@ -27,7 +27,7 @@ ALIASES={
 
 
 def selected(path):
-    return path.startswith('Modules/') and ('/Source/' in path or '/Clr/' in path) and path.endswith(('.sql','.cs','.csproj'))
+    return path.startswith('Modules/') and ('/Source/' in path or '/Clr/' in path or '/Exchange/Core/' in path) and path.endswith(('.sql','.cs','.csproj'))
 
 
 def compare(original,current,path):
@@ -53,7 +53,21 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
     actual={p.relative_to(root).as_posix() for p in (root/'Modules').glob('*/Source/**/*.sql')}
     actual.update(p.relative_to(root).as_posix() for p in (root/'Modules').glob('*/Clr/**/*')
                   if p.is_file() and p.suffix in ('.cs','.csproj') and not {'bin','obj'} & set(p.parts))
+    actual.update(p.relative_to(root).as_posix() for p in (root/'Modules').glob('*/Exchange/Core/*.cs'))
     if module_ids: actual={p for p in actual if p.split('/')[1] in module_ids}
+    projection='Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql'
+    if projection in actual:
+        # The known-object inventory is a current generated metadata surface,
+        # not an unchanged component qualified by the original native receipts.
+        import importlib.util
+        import sys
+        sys.path.insert(0,str(root/'Scripts/Install'))
+        spec=importlib.util.spec_from_file_location('capability_projection',root/'Scripts/Install/New-MarkerlessCapabilities.py')
+        generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+        if (root/projection).read_text(encoding='utf-8-sig')!=generator.render(root):
+            raise ValueError('CURRENT_CAPABILITY_PROJECTION_NOT_CANONICAL')
+        actual.remove(projection)
+        originals.pop(projection)
     if actual!=set(originals):raise ValueError('COMPONENT_REUSE_SOURCE_INVENTORY_CHANGED')
     for path,data in originals.items():compare(data,(root/path).read_bytes(),path)
     return len(originals)

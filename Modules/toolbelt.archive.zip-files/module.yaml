@@ -44,8 +44,10 @@ objects:
   - {type: USP, schema: toolbelt_archive, name: USP_ExtractZipEntryToFile, visibility: public}
 permissions_required:
   - "Vorhandene EXECUTE-/Ownershipchain-/Root-/NTFS-Rechte, Caller Windows Authentication"
-  - "Lifecycle: vorhandenes DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies, Sicht sys.dm_os_host_info, DDL"
   - "Kein GRANT, EXECUTE AS, Owner-/Config-/Assembly-/Trustwechsel"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "Lifecycle: vorhandenes DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies, Sicht sys.dm_os_host_info, DDL"
 collation_contract: "ZIPnamen ordinal unverändert; technische Marker bytegenau."
 data_type_contract: "Vier typgenaue Filesystemmetadaten; vollständige varbinary(max)-Stages."
 help_contract_version: "1.0"

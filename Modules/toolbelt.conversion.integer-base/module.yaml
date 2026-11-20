@@ -55,8 +55,9 @@ objects:
 permissions_required:
   - "SELECT auf toolbelt_conversion.TVF_IntegerToBase und TVF_TryBaseToInteger"
   - "EXECUTE auf toolbelt_conversion.SVF_IntegerToBase und SVF_TryBaseToInteger"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "Alphabet-Eindeutigkeit und Ziffernzuordnung verwenden Latin1_General_100_BIN2; Groß- und Kleinschreibung bleiben verschieden."
 data_type_contract: "bigint und varchar; Alphabet varchar(93), codierter Wert varchar(65); NULL und ungültige Werte liefern NULL."
 help_contract_version: "not applicable"

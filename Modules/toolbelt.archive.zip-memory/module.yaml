@@ -66,6 +66,9 @@ permissions_required:
   - "Liste: EXECUTE auf toolbelt_archive.USP_ListZipEntriesFromBinary und SELECT auf toolbelt_archive.TVF_InternalListZipEntriesClr; bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable"
   - "Extraktion: EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary und SELECT auf toolbelt_archive.TVF_InternalExtractZipEntryClr; bei @ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable"
   - "Writer: EXECUTE auf toolbelt_archive.USP_CreateZipFromEntries, SELECT auf toolbelt_archive.TVF_InternalZipWriterName und TVF_InternalZipWriterArchive sowie EXECUTE auf toolbelt_core.USP_PrepareResultTable für beide Ausgaberouten"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
   - "CREATE ASSEMBLY beziehungsweise ALTER ANY ASSEMBLY für Deploy"
   - "CREATE FUNCTION, CREATE PROCEDURE und Schema-ALTER für Deploy"
   - "sysadmin ausschließlich für das separate Trust-Opt-in"

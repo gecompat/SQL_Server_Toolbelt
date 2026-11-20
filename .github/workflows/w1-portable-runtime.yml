@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: W1 Portable Runtime
 
 on:
@@ -54,7 +55,24 @@ permissions:
   contents: read
 
 jobs:
+  current-component-contract:
+    name: Current component equivalence and original lifecycle assertions
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject business drift before reusing original assertions
+        run: |
+          python -B Modules/toolbelt.conversion.uri-component/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.generate-series/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.datetime.calendar-difference/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.string.directional-trim/Tests/Static/validate_contract.py
   runtime:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.sql-version }} Linux
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -64,6 +82,8 @@ jobs:
         sql-version: ["2019", "2022", "2025"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - run: python3 Modules/toolbelt.datetime.calendar-difference/Tests/Static/validate_contract.py
       - run: python3 Modules/toolbelt.string.directional-trim/Tests/Static/validate_contract.py
       - run: python3 Modules/toolbelt.conversion.uri-component/Tests/Static/validate_contract.py

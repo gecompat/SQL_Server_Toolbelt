@@ -52,8 +52,9 @@ objects:
 
 permissions_required:
   - "SELECT oder REFERENCES auf den Inline Table-valued Functions"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "not applicable"
 data_type_contract: "Getrennte int- und bigint-Funktionen; Value entspricht dem jeweiligen Parametertyp; decimal(38,0) wird nur intern für sichere Arithmetik verwendet."
 help_contract_version: "not applicable"

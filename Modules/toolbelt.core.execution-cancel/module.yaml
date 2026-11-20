@@ -41,6 +41,7 @@ objects:
 permissions_required:
   - "EXECUTE auf USP_RequestExecutionCancellation für anfordernde Principals"
   - "SELECT auf TVF_ExecutionCancellationStatus oder EXECUTE auf SVF_IsCancellationRequested für kooperative Worker"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "CancellationReason bleibt nvarchar; ExecutionId ist uniqueidentifier."
 data_type_contract: "Der öffentliche Status enthält nur ExecutionId, Flag und UTC-Zeit; anfordernde Identität und Grund bleiben intern."
 help_contract_version: "1.0"

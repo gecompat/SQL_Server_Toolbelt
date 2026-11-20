@@ -41,6 +41,7 @@ objects:
 permissions_required:
   - "EXECUTE auf toolbelt_core.USP_CaptureErrorEnvelope"
   - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Fehlermeldungen und Kontext bleiben nvarchar; Klassifikation ist ASCII-varchar."
 data_type_contract: "ERROR_*-Werte werden explizit übergeben; SESSION_CONTEXT liefert optional eine uniqueidentifier Execution-ID."
 help_contract_version: "1.0"

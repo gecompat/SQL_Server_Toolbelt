@@ -36,6 +36,8 @@ objects:
 
 permissions_required:
   - "SELECT oder REFERENCES auf der Table-valued Function"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "JSON-Schlüssel werden case-sensitive und collation-unabhängig mit Latin1_General_100_BIN2 verglichen."
 data_type_contract: "Json und Path sind nvarchar(max); Path ist auf 4.000 UTF-16-Codeunits begrenzt; PathExists ist int und liefert 1, 0 oder NULL."

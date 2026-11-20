@@ -41,11 +41,13 @@
 
 ## Deployment
 
-```sql
-:r .\Deployment\Deploy.sql
-```
+Über den gemeinsamen `Deployment/Build-Install.ps1` mit `-ModuleId {{ModuleId}}`
+eine normale SQL-Datei bauen. Neue freigegebene Source-Dateien im kanonischen
+`Scripts/Install/module_sources.json` registrieren. Kein SQLCMD-Modus, keine
+Deploymentmarker und kein eigener paralleler Modulinstaller. Die aktuelle
+Installation ist create-only; Upgrade/Uninstall werden nicht angeboten.
 
-{{DeploymentMode, Installationshinweise, unterstützte Vorgängerreleases und erforderliche Rechte.}}
+{{Plattform, DeploymentMode, konkrete Source-/Binaryeingaben und vorhandene Rechte.}}
 
 ## Collation- und Datentypvertrag
 

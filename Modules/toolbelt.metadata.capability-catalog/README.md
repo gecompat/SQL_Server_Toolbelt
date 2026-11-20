@@ -1,5 +1,17 @@
 # Module Capability Catalog
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Das Modul zeigt sichtbare bekannte Schnittstellenkandidaten ohne Installationsmarker oder Verwaltungstabelle. Version und Deploymentmodus bleiben NULL; `MetadataStatus=incomplete` kennzeichnet die fehlende beweisbare Zuordnung. Namensgleichheit wird nicht als Herkunft oder vollständige Installation ausgegeben.
 
 Die [Objektreferenz](Documentation/VW_ModuleCapabilities.md) erklärt die vier Spalten und Metadata Visibility. Der [gemeinsame SQL-Installer](../../Scripts/Install/README.md) ist der neue Standard ohne SQLCMD. Er benötigt keine Marker für diese View. Die Kandidatenliste wird mit `python Scripts/Install/New-MarkerlessCapabilities.py` aus den Modulmanifesten erzeugt und mit `--check` geprüft.

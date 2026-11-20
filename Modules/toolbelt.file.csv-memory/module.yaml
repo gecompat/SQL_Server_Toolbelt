@@ -41,6 +41,9 @@ permissions_required:
   - "Datenpfad Parser: EXECUTE auf toolbelt_file.USP_ParseCsv und SELECT auf toolbelt_file.TVF_InternalParseCsv."
   - "Datenpfad Writer: EXECUTE auf toolbelt_file.USP_WriteCsv sowie auf toolbelt_file.SVF_InternalMeasureCsvCell und toolbelt_file.SVF_InternalQuoteCsvCell."
   - "Nur bei ResultTable zusätzlich EXECUTE auf toolbelt_core.USP_PrepareResultTable in derselben Datenbank; keine automatische Rechtevergabe."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
   - "Lifecycle: Datenbank-VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies und passende Schema-/Assembly-DDL-Rechte."
   - "Lifecycle: Datenbankweite Release-Marker benötigen zusätzlich dafür wirksame Rechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
   - "Getrennter exakter SHA2-512-Trust-Opt-in benötigt vorhandene administrative Rechte."

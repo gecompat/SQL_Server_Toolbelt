@@ -56,15 +56,17 @@ objects:
     visibility: public
 permissions_required:
   - "EXECUTE; datenbankweite VIEW DEFINITION für vollständige FK-/Kollisionssicht"
-  - "Lifecycle: vorhandenes DB-VIEW DEFINITION und SELECT sys.sql_expression_dependencies; failclosed53926/2, keine Rechteerteilung"
   - "Computed: vorhandenes SELECT sys.sql_expression_dependencies; fehlend/NULL blockiert53901/3"
   - "ResultTable-Helper EXECUTE und caller-lokale Tempmetadatensicht"
-  - "DDL-Rechte für Deploy und Uninstall; keine Rechteausweitung"
   - "Executor: vorhandenes SERVER VIEW ANY DEFINITION und lesbare DB-/Server-Trigger-/Eventnotification-Kataloge; relevante DDL-Seiteneffekte blockieren"
   - "Executor: vorhandene CREATE TABLE-, Schema-ALTER- und REFERENCES-Rechte; keine Rechteerteilung"
   - "Trigger-Opt-in: vorhandenes SELECT auf vier Parser-TVFs und lesbare Assembly-/Modul-/Dependency-Kataloge; bestehender Parser-UNSAFE-/Trustvertrag unverändert"
   - "Copy: vorhandene DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies/sys.security_predicates/sys.security_policies, Source-SELECT und Target-SELECT/INSERT; KEEP zusätzlich Identity-ALTER"
   - "Copy nur bei fehlenden FKs: vorhandene Server-DDL-Vollsicht/lesbare Trigger-/Eventnotification-Kataloge und ALTER/REFERENCES; keine Rechteerteilung"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "Lifecycle: vorhandenes DB-VIEW DEFINITION und SELECT sys.sql_expression_dependencies; failclosed53926/2, keine Rechteerteilung"
+  - "DDL-Rechte für Deploy und Uninstall; keine Rechteausweitung"
 collation_contract: "Identifierlookup DATABASE_DEFAULT; Scripttext und Resultshape Latin1_General_100_BIN2; Quellcollations explizit erhalten."
 data_type_contract: "Identifier nvarchar(max) ungekuerzt validieren; ScriptText nvarchar(max); Ordinal int; ObjectKind varchar(32); TargetName nvarchar(776); Resultspalten NOT NULL."
 help_contract_version: "1.0"

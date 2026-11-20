@@ -29,8 +29,8 @@ Runtime-Tests verwenden ausschließlich deterministische synthetische Daten.
 | API- und Resultset-Contract | `not executed` |
 | USP Help/Debug/ResultTable/KeepData | `not executed` |
 | Install und Wiederholung | `not executed` |
-| Upgrade | `not executed` |
-| Uninstall | `not executed` |
+| Upgrade | `not applicable` – create-only |
+| Uninstall | `not applicable` – keine automatische Entfernung |
 | Collation | `not executed` |
 | synthetische Rand- und Fehlerwerte | `not executed` |
 | Recovery und Cleanup | `not executed` |

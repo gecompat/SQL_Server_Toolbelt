@@ -47,6 +47,7 @@ permissions_required:
   - "EXECUTE auf die Verwaltungs- beziehungsweise Auflösungs-USPs entsprechend Betriebsrolle"
   - "SELECT auf toolbelt_core.VW_WorkTypes für lesende Katalognutzung"
   - "Registrierende Principals benötigen EXECUTE auf die Zielprocedure"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "WorkTypeName und ParameterMode verwenden feste binäre ASCII-Collation; fachliche Beschreibungen bleiben nvarchar."
 data_type_contract: "Work-Type-Namen sind kanonische ASCII-Identifier; PayloadContractJson ist deklaratives JSON und niemals ausführbarer SQL-Text."
 help_contract_version: "1.0"

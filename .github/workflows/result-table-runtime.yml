@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: ResultTable Runtime
 
 on:
@@ -39,11 +40,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
 
       - name: Validate static contract
         run: python3 Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py
 
   sql-server-linux:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.version }} Linux
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -64,6 +69,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
 
       - name: Execute synthetic SQL Server tests
         env:

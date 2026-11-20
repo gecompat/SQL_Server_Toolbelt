@@ -39,7 +39,11 @@ objects:
     schema: "toolbelt_string"
     name: "TVF_TrimDirectionalVarchar"
     visibility: public
-permissions_required: ["SELECT oder REFERENCES auf den Inline Table-valued Functions", "DDL-Rechte für Deploy und Uninstall"]
+permissions_required:
+  - "SELECT oder REFERENCES auf den Inline Table-valued Functions"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Zeichenvergleich verwendet die Collation der Funktionsparameter; bei zentraler Installation ist die Collation der Toolbelt-Datenbank maßgeblich."
 data_type_contract: "Getrennte varchar(max)- und nvarchar(max)-Objekte erhalten den Rückgabetyp; Characters ist varchar(8000) beziehungsweise nvarchar(4000)."
 help_contract_version: "not applicable"

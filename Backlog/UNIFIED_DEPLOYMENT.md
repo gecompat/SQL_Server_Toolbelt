@@ -85,3 +85,26 @@ die vorhandene Releasesuite behält ihr endliches 30-Minutenlimit. Es entstehen
 keine SQL-/TLS-/GUI-Dispatches. Gemeinsame Paket-/Clienttests laufen einmal im
 aktuellen zentralen Gate; die noch offenen Workflowadapter müssen vor Integration
 auf dieselbe Trennung geprüft werden. Keine vollständige CI-Abnahme behaupten.
+
+
+Native CI des retired SQLCMD-/Marker-Lifecycle wird nicht automatisch gegen
+den neuen Installer ausgeführt: deren Upgrade-/Marker-/Uninstall-Orakel prüfen
+einen anderen, ausdrücklich abgelösten Vertrag. Die vollständigen Jobs und
+Cleanupkörper bleiben als manuell auslösbare historische Prüfung am festen
+Originalcommit erhalten. Automatische Komponenten-Gates prüfen Äquivalenz und
+Originalassertions; reine aktuelle Framework-/Compilerprüfungen bleiben aktiv.
+Aktuelle gemeinsame Paket-/Clientgates decken den neuen Deploymentvertrag ab.
+Dies spart unpassende wiederholte native Altmatrizen und behauptet keine neue
+native Gesamtqualifikation. Änderungen an Fachquellen blockieren den Reuseguard
+und benötigen einen neuen aktuellen Nachweis-/Adapterscope vor Integration.
+
+
+## Ergänzter Benutzerumfang: Objekt-Skills
+
+Am 2026-11-20 verlangt der Benutzer zusätzlich maschinenlesbare Skillanweisungen
+für alle katalogisierten SQL-Objekte einschließlich interner Helfer und Tabellen: Prozeduren über Hilfe, Funktionen
+in ihrer DDL. Die nach Erklärung der CLR-Grenze ausdrücklich genehmigte zusätzliche
+SQL-Sicht und der vollständige Abnahmevertrag stehen in
+[OBJECT_USAGE_SKILLS.md](OBJECT_USAGE_SKILLS.md). Dieser Punkt gehört vor dem
+Gesamtabschluss in denselben aktuellen Release-/Installationsstand. Eine reine
+Deploymentfertigstellung ohne diesen Zusatz erfüllt den Gesamtauftrag nicht.

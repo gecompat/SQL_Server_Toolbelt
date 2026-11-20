@@ -3061,7 +3061,7 @@ Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md).
 
-<!-- Source/Vertrag SHA256: d700c4c4f8a180d7f832ca25c3da32faa85db71f0da460474c2c1727b34f3622 -->
+<!-- Source/Vertrag SHA256: bbd60ddc489b544112b93f09b0486a1091bfc16f7811b3f4c9e2b95f2e9299e3 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3101,7 +3101,7 @@ Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächs
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md).
 
-<!-- Source/Vertrag SHA256: a14c6039114ba23ec880d94d9aaa82fa0561c5d8a76fc8000959cdc038f674ef -->
+<!-- Source/Vertrag SHA256: c8f1047b2cc3a6031850c850ce44929e30daf31ba6df1a061da0e159c64a0755 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3142,7 +3142,7 @@ Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 068d626645b92582007d675b73a6cee5e32b0d26aed4b85f4c5016b4d84fbf72 -->
+<!-- Source/Vertrag SHA256: e65fbf657c9c1267c28ca0332669f335d4267a797df5b6b79377c86474bf6060 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3182,7 +3182,7 @@ Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md).
 
-<!-- Source/Vertrag SHA256: 378d753055aa123254a33988a0f4b11c94fec46d679d37f8e52cdfe234514431 -->
+<!-- Source/Vertrag SHA256: b72d808f89bc708a683304af7542b1557acd6662ae917db5fe5cb9d7c7cacb31 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3224,7 +3224,7 @@ Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md).
 
-<!-- Source/Vertrag SHA256: 46446b91185b0b3e707eec63240f1fcdf85cb3be4e81cc73330c98697c749c7e -->
+<!-- Source/Vertrag SHA256: 4d6e2d5c95bf4624e9693bb85a24fc448db20a1d2c7430bbe2b768a81314c361 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3268,7 +3268,7 @@ Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md).
 
-<!-- Source/Vertrag SHA256: ea4804ccb24635ec613deae578a763a15ed96eb69efe6035d3d8f26e1895f584 -->
+<!-- Source/Vertrag SHA256: 177b80b2f3388736d9f3c73ea85041858a1c991006faf5f01f32b717e4bbfd0f -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3309,7 +3309,7 @@ Erstellt ein Verzeichnis unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md).
 
-<!-- Source/Vertrag SHA256: 0e62e7ed3f632fc53491571369321e967a8c0f4591587545f8db35e0bd61baa3 -->
+<!-- Source/Vertrag SHA256: 200e8ef46a3d5bb3e26de7fa4a2ae74d0cc3e699e4dc26c5886b6984c77d197a -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3347,7 +3347,7 @@ Entfernt eine Datei unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md).
 
-<!-- Source/Vertrag SHA256: 46b2b2ac598ad1fc6d75628496abf15a2fb857eb5d627e884cd5a3074ddf08d8 -->
+<!-- Source/Vertrag SHA256: 06b5f1f71bae836373dfaeeac615abe0438edab5871aec11888b378adfb2f956 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3385,7 +3385,7 @@ Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md).
 
-<!-- Source/Vertrag SHA256: 62d9b272167c7ef9191682253d32e40e50ea5d2e0ea82e3dec2512727c1cf96f -->
+<!-- Source/Vertrag SHA256: 0ee79b3608bc2cd5da3e6e5261b9f67845a8766155b60db5df444196df694f60 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3590,7 +3590,7 @@ Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.
 
 Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: 88ca6e935ca2150ba5d1bd24f8e0eae27fb28ff213cc2ddf3b617789caa26f31 -->
+<!-- Source/Vertrag SHA256: fddf961c9c131d082fba70aa5f0977cdee72c9f1bb8f7873a3e48a1472480ecf -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3615,7 +3615,7 @@ Aggregiert typisierte Einträge mit eindeutigen Schlüsseln zu einem JSON-Objekt
 
 Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: 09615e1bc2f4c7e035b7468f5e8f404e4ec99918a1f91668437ff92b08c44fe0 -->
+<!-- Source/Vertrag SHA256: ce980b766aec5f3c9371d9d18a7bbff7faf31e92096cc1cee0bbf39992616e06 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3753,7 +3753,7 @@ Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-M
 
 Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: 8e5af29ac8d0cd3f2c2202fe0b229774598418d8b41e8461da80e9012a28a081 -->
+<!-- Source/Vertrag SHA256: c4ca5a8486f36f8e9c453988c1375c372129326ea8acb27f83dd6dfc7e0afc44 -->
 
 Keine Eingabeparameter.
 
@@ -4132,7 +4132,7 @@ Berechnet einen Jaro-Winkler-Ähnlichkeitsscore zwischen 0 und 1 über Unicode S
 
 Vertrag und Quelle: [JaroWinkler.sql](../../Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql), [TVF_JaroWinklerSimilarity.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_JaroWinklerSimilarity.md).
 
-<!-- Source/Vertrag SHA256: cb1a4ac564354c0cb98f577f761052290628edbec07075e12908ead4c7a4fbc7 -->
+<!-- Source/Vertrag SHA256: c26091cda26e041c4df096e5113ae3ca4dffa3374ed69830c66cf004c322f21d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4154,7 +4154,7 @@ Berechnet die begrenzte Levenshtein-Editierdistanz zweier Unicode-Texte.
 
 Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_LevenshteinDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_LevenshteinDistance.md).
 
-<!-- Source/Vertrag SHA256: 3600d43c72c948835d212ecb76322606a24ce9b56d39b9863244f5abf8893bb6 -->
+<!-- Source/Vertrag SHA256: 0a06c0825efd8cffda47c2576aeaecd25a1727458a6888a9122f5d41858a5dca -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4177,7 +4177,7 @@ Berechnet die begrenzte Optimal-String-Alignment-Distanz mit benachbarten Transp
 
 Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_OsaDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_OsaDistance.md).
 
-<!-- Source/Vertrag SHA256: 11cbc2a534a3f7579cb8633beabf946159510181a7cab0f67753194742a8b370 -->
+<!-- Source/Vertrag SHA256: 5da978ba1e00d17fa2f238274da39c41c82db0ed12ee5460ff0ac81c4a95e042 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4240,7 +4240,7 @@ Liefert Gruppen-Captures einschließlich wiederholter Captures.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [TVF_RegexCaptures.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexCaptures.md).
 
-<!-- Source/Vertrag SHA256: 8a0e9acefe89166a3c52a3414b86c7e6e8407190f46c0fd82156ce74841b772c -->
+<!-- Source/Vertrag SHA256: 7ccaef3c7cb4ac74db1c94e00205599167f7b828d0ee760d247fa412fa771178 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4265,7 +4265,7 @@ Ersetzt Regex-Treffer mit dem getrennten Gruppen-Ersatzvertrag.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [SVF_RegexReplaceGroups.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplaceGroups.md).
 
-<!-- Source/Vertrag SHA256: 8863ad619fa8672845c9713ab74fd648e9a1fdf4934f079f102726b1305bfdc8 -->
+<!-- Source/Vertrag SHA256: b8a5e2fc27b1d4393293f392dcc4592fe573436a1038632ab3ad155043ed9652 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4291,7 +4291,7 @@ Liefert vollständige Regex-Treffer mit Ordinals und Positionen.
 
 Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexMatches.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexMatches.md).
 
-<!-- Source/Vertrag SHA256: 20d7b09daf31112168b5fb863561ef44ffc9b014ac96ba677ebd04d67c160735 -->
+<!-- Source/Vertrag SHA256: b003a92661484c3ab516d76f00bc9069d4b503eaae17b4faa70e69e7cb9f6d79 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4316,7 +4316,7 @@ Zerlegt einen Text an Regex-Treffern.
 
 Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexSplit.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexSplit.md).
 
-<!-- Source/Vertrag SHA256: 957d286bdbb61ea6c96782b6cf59fb22e6e2a8dd9d6a798f3f17483bb3dc48dc -->
+<!-- Source/Vertrag SHA256: 6e195fc057f415d586ec17e1ab35fa6a6b4e18296dda22eb08cf2501de84fb95 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4340,7 +4340,7 @@ Prüft, ob ein regulärer Ausdruck im Text trifft.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexIsMatch.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexIsMatch.md).
 
-<!-- Source/Vertrag SHA256: 59dab0304c5a97006b945aee2e921ea11d3d13cea27f401da296e5eef2568c08 -->
+<!-- Source/Vertrag SHA256: 54cf015542cdeeeba9054247e409037177a32bd471a16e9df293cdc7ac651664 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4362,7 +4362,7 @@ Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexInstr.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexInstr.md).
 
-<!-- Source/Vertrag SHA256: 1f2a39824e62480f88f853635342fdb969a13fc37ee1e55ffc372f8f33cca501 -->
+<!-- Source/Vertrag SHA256: 46d7535ce325350a70924768be28df510ab9288e542d1a6660315caa2d78d72f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4387,7 +4387,7 @@ Zählt Regex-Treffer ab der angegebenen Startposition.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexCount.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexCount.md).
 
-<!-- Source/Vertrag SHA256: d32555c8a1446bc429d243da00f80e205a32ee8229451a12154c9857cf25a9f0 -->
+<!-- Source/Vertrag SHA256: 7ff8523c5e2e2ae238b3ca2c5ecf37ede7c279d3c4686fac93ca5840efc7cf81 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4410,7 +4410,7 @@ Ersetzt ganze Regex-Treffer durch einen literalen Ersatztext.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexReplace.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplace.md).
 
-<!-- Source/Vertrag SHA256: 854a67b2cab63768ba647f8f4b7de9b34e89a5bcd741a4c6b2a494eecd63a443 -->
+<!-- Source/Vertrag SHA256: 6fa8976d68a166f1020ec05cf09a449d3e6bd330e5e5d34b2e658ea2ec25082f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4436,7 +4436,7 @@ Liefert den ausgewählten vollständigen Regex-Treffer.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexSubstring.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexSubstring.md).
 
-<!-- Source/Vertrag SHA256: bd2c8bc12dd37d0c103de8b870390d9ec7e8c2d72155994fead7f617fd54d265 -->
+<!-- Source/Vertrag SHA256: d998678c872a9b33ea7a61a22a22758ac8ffc6f3c1171f0c216ddf9402073d22 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

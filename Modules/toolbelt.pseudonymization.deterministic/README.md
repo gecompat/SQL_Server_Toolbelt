@@ -1,5 +1,17 @@
 # Deterministische synthetische Zuordnung
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Modul `toolbelt.pseudonymization.deterministic`, erster Release `1.0.0`,
 additiver Translate-Slice `1.1.0` implementiert.
 Die additive GeoJitter-Welle `1.2.0` ergänzt genau eine Inline-TVF.

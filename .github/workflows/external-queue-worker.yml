@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: External Queue Worker
 
 on:
@@ -97,6 +98,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  current-component-contract:
+    name: Current component equivalence and original lifecycle assertions
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject business drift before reusing original assertions
+        run: |
+          python -B Modules/toolbelt.core.event-log/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.execution-cancel/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.second-session/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.work-queue/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.work-type/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.core.worker-control/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.file.content/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.json.constructors/Tests/Static/validate_contract.py
   fault-contract:
     name: Worker fault contract (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -108,6 +130,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - name: Execute deterministic worker faults
         shell: pwsh
         run: ./Workers/ExternalQueue/Tests/Worker.Contract.ps1
@@ -121,6 +145,8 @@ jobs:
         run: ./Workers/ExternalQueue/Tests/ManagedWorker.Contract.ps1
 
   linux-runtime:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: Linux worker / SQL Server 2019
     # Der Verzeichnisvertrag benötigt ein reguläres GNU-stat-Programm;
     # kein automatischer Imagewechsel und kein Aufweichen des NoReparse-Gates.
@@ -130,6 +156,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
           fetch-depth: 0
       - name: Start disposable synthetic SQL target
         shell: bash

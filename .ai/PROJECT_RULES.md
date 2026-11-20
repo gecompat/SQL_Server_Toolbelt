@@ -5,7 +5,7 @@
 - Ein Modul ist Lifecycle-, Deployment- und Dokumentationseinheit.
 - Module deklarieren versionierte Abhängigkeiten; der Preflight erfolgt vor der ersten Mutation.
 - Fehlende oder ungeeignete Abhängigkeiten führen zu verständlicher Meldung und vollständigem Abbruch.
-- Abhängigkeiten werden nicht automatisch installiert; Zyklen sind unzulässig.
+- Zur Laufzeit werden keine Abhängigkeiten nachinstalliert oder heruntergeladen; Zyklen sind unzulässig. Der aktuelle Offlinebuilder bündelt die ausdrücklich ausgewählte transitive Modulclosure in einer SQL-Datei.
 - Wiederverwendete Fachlogik existiert genau einmal; Wrapper und Provider verwenden den kanonischen Kern.
 - Lokale und zentrale Installation sind gleichwertige Deployment-Modi, soweit technisch möglich.
 - Cross-database-Verwendung ist Designziel, keine pauschale Garantie.

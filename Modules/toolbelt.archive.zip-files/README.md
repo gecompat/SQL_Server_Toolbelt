@@ -1,5 +1,17 @@
 # ZIP-Dateifassaden
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 toolbelt.archive.zip-files 1.0.0 verbindet genau zwei öffentliche T-SQL-USPs
 mit bestehenden ZIP-Memory-/Windows-Filesystem-/ResultTableverträgen.
 Source implementiert; begrenzte native Windows-local-Teilnachweise vorhanden,

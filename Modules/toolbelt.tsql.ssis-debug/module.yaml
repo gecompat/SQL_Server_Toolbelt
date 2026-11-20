@@ -42,6 +42,8 @@ permissions_required:
   - "EXECUTE auf die öffentliche Prozedur; Metadatenzugriff nur bei CatalogMode=catalog."
   - "SELECT auf die Quellen erst beim manuellen Ausführen des generierten SQL."
   - "Bei Installation exakte Hashfreigabe oder vorhandener berechtigter DB-Trust; keine automatische Rechtevergabe."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
 clr:
   used: true
   language: "C#"

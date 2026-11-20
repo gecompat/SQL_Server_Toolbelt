@@ -80,6 +80,7 @@ objects:
 permissions_required:
   - "Vorhandene EXECUTE-Rechte für Steuer-/Dispatch-USPs; getrennte Autorität."
   - "Vorhandene SELECT-Rechte auf Statussichten; keine Grants durch das Modul."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Technische Zustände verwenden Latin1_General_100_BIN2; IDs und Tokens uniqueidentifier."
 data_type_contract: "Globale/lokale Budgetzahlen int; Generationen bigint; Konfigurations-/Holdversion binary(8)."
 help_contract_version: "1.0"

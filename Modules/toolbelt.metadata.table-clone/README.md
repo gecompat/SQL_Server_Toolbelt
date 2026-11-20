@@ -1,5 +1,17 @@
 # Table Clone Planner, Executor und Datenkopie
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Der Entwicklungsstand bindet den optionalen Triggerpfad an die neue private
 [Parser-Identität](../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md#private-parser-identität--2026-11-20).
 Deren bisherige native Triggerbelege bleiben historisch; kein neuer nativer
@@ -126,10 +138,6 @@ in die Caller-Datenbank. Kein Wrapper über fremde Metadaten/Permissions.
 
 Status und Evidenz sind ausschließlich im [Manifest](module.yaml) kanonisch.
 Historische V1-Nachweise bleiben getrennt; Welle1/2.0.0 ist teilweise validiert und unveröffentlicht.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

@@ -1,13 +1,21 @@
 # Relational Date Spine
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktuelle [Series-/Datums-Callerrechte](../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md): neun öffentliche TVFs einschließlich Series-Status und Truncate mit je einem SELECT lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Interner Core und Helper sowie andere öffentliche Objekte bleiben direkt unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren eigenen Scope; keine Modulstatusänderung.
 
 `toolbelt.datetime.date-spine` erzeugt Tages-, ISO-Wochen- und Monatsperioden,
 die einen halboffenen `date`-Bereich schneiden.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Status
 

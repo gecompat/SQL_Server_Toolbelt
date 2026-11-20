@@ -58,10 +58,16 @@ Datenbankowner bleiben erforderlich. `auto` wählt bei bereits ON diesen Weg,
 sonst exakte Hashregistrierung; kein Fehlerfallback. Der Installer aktiviert
 TRUSTWORTHY nicht und ändert keine Sicherheitsoptionen. Details und Grenzen:
 [vereinfachte SSIS-Installation](../../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
-Andere bestehende Modullifecycles werden dadurch nicht stillschweigend geändert.
+Alle aktuellen Module verwenden denselben markerfreien Installationskern.
+Historische Modullifecycles bleiben ausschließlich an ihre ursprünglichen
+Releases gebunden. SQL-Assemblynamen beginnen mit tlblt; CLR-Identitäten und
+Dateinamen bleiben davon getrennt. Fremde ScriptDom-Installationen werden durch
+die private Toolbelt-Identität der Abhängigkeit getrennt.
 Für zusätzliche automatische Truständerungen gilt weiterhin:
 
-`TRUSTWORTHY ON` ist kein regulärer, automatischer oder bevorzugter Installationsweg.
+Ein neues Einschalten von `TRUSTWORTHY ON` erfolgt nicht automatisch durch
+den Installer. Die bewusste Nutzung bereits vorhandenen DB-Trusts ist davon
+zu unterscheiden.
 
 Eine Last-Resort-Ausnahme ist nur zulässig, wenn:
 

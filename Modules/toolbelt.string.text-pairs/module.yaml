@@ -42,8 +42,10 @@ objects:
     visibility: public
 permissions_required:
   - "EXECUTE sowie bestehende SELECT-/Ownershipchain und caller-lokale Tempmetadaten; keine Runtime-Assemblyhashsicht"
-  - "Lifecycle: vorhandenes DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies, vollständige Assemblycontent-Metadatensicht und DDL-Rechte"
   - "Keine GRANTs, EXECUTE AS, Owner-, Config-, Assembly- oder Truständerungen"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
+  - "Lifecycle: vorhandenes DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies, vollständige Assemblycontent-Metadatensicht und DDL-Rechte"
 collation_contract: "Textbytes unverändert; Algorithmus/Profile/Marker bytegenau; keine Culture- oder Unicode-Normalisierung."
 data_type_contract: "Input PairOrdinal bigint, LeftText/RightText nvarchar(max); Result fünf typgenaue Felder; signed Ordinals einschließlich 0."
 help_contract_version: "1.0"

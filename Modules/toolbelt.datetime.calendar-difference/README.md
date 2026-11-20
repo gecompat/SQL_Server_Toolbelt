@@ -1,5 +1,17 @@
 # Calendar Difference
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktuelle [vollständige Date-Math-Callerrechte](../../Releases/1.0.0/DATE-MATH-CL-COMPLETION.md): vier TVFs mit je einem SELECT auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Sechs fehlende niedrigere CL-Fälle ergänzen die exakt gebundenen höchsten CL-Fälle; weitere Fach-/Client-/Lifecycle-Gates und Modulstatus bleiben separat.
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
@@ -17,10 +29,6 @@ CROSS APPLY toolbelt_datetime.TVF_CalendarDifference(source.StartDate, source.En
 Weitere Details: [Objektvertrag](./Documentation/TVF_CalendarDifference.md), [Moduldesign](../../Documentation/Architecture/CALENDAR_DIFFERENCE_MODULE_DESIGN.md) und [Testmatrix](./Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md).
 
 Aktuelle Evidenz: [Run 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399) sowie der lokale Lauf vom 2026-08-29 – vollständiger Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Modulstatus `partially validated`.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

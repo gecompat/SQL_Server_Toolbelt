@@ -52,8 +52,9 @@ objects:
 
 permissions_required:
   - "SELECT oder REFERENCES auf den Inline Table-valued Functions"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-
 collation_contract: "Separatoren werden als einzelne UTF-16-Codeeinheiten mit Latin1_General_100_BIN2 verglichen; Groß-/Kleinschreibung und Akzente werden nicht gleichgesetzt."
 data_type_contract: "Input und Value sind nvarchar(max); Separators ist nvarchar(4000); Ordinal ist bigint und beginnt bei 1."
 help_contract_version: "not applicable"

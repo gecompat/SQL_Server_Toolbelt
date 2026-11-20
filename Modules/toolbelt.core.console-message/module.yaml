@@ -38,6 +38,8 @@ objects:
     visibility: public
 permissions_required:
   - "EXECUTE auf toolbelt_core.USP_WriteConsoleMessage"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Chunkgrenzen werden mit Latin1_General_100_BIN2 als UTF-16-Codeunits bestimmt; ein erkanntes Surrogatpaar wird nicht getrennt."
 data_type_contract: "Message ist nvarchar(max); PRINT verwendet höchstens 4.000, RAISERROR/NOWAIT höchstens 2.000 UTF-16-Codeunits je Chunk."

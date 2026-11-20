@@ -33,8 +33,13 @@ objects:
   - { type: CLR_TVF, schema: "toolbelt_tsql", name: "TVF_ParseScriptNodeProperties", visibility: public }
   - { type: CLR_TVF, schema: "toolbelt_tsql", name: "TVF_TokenizeScript", visibility: public }
   - { type: CLR_TVF, schema: "toolbelt_tsql", name: "TVF_ParseScriptErrors", visibility: public }
+  - { type: ASSEMBLY, name: tlblt.Microsoft.SqlServer.TransactSql.ScriptDom, visibility: internal }
+
 permissions_required:
   - "SELECT on the required public function"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
   - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
   - "Upgrade from the previous ScriptDom pin additionally requires existing database VIEW DEFINITION; no grants are issued."
 clr:
