@@ -33,7 +33,19 @@ Ein Modulmanifest kennzeichnet explizit:
 
 Nicht unterstützte Modi werden begründet; sie werden nicht stillschweigend als `not applicable` gesetzt.
 
-## Dependencies
+## Aktueller Funktionsinstaller
+
+Der [gemeinsame Quellinstaller](../../Scripts/Install/README.md) ist der normale
+SQLCMD-freie Weg. Er verwendet Manifestabhängigkeiten beim Build und die
+benötigten Objektsignaturen zur Laufzeit. Es gibt keine installierte Versions-,
+Ownership- oder Modusregistry. Die Engine prüft die ausgeführten CREATE-Rechte;
+der Installer verändert weder bestehende Objekte noch Rechte oder Konfiguration.
+Bei Teilfehlern können zuvor erstellte Objekte bestehen bleiben. Dieser
+create-only-Weg bietet kein Upgrade oder Uninstall; die nachfolgenden
+Lifecycle-Regeln gelten ausschließlich für den klassischen markerbasierten Weg.
+Historische Releaseartefakte behalten ihren ursprünglichen Vertrag.
+
+## Klassischer Lifecycle: Dependencies
 
 Abhängigkeiten liegen standardmäßig in derselben Installationsdatenbank. Cross-database-Dependencies müssen im Manifest ausdrücklich Ort, Datenbankparameter und Mindestversion deklarieren.
 
@@ -49,7 +61,7 @@ Vor der ersten Mutation prüft der Installer:
 
 Ein gescheiterter Preflight führt zu verständlicher Meldung und vollständigem Abbruch ohne Teilinstallation.
 
-## Lifecycle-Artefakte
+## Klassischer Lifecycle: Artefakte
 
 | Artefakt | Zweck |
 |---|---|
@@ -73,7 +85,7 @@ Preflight, Manifestvergleich und Deployment-Plan entstehen vor der ersten Mutati
 
 Uninstall entfernt keine fremden Objekte oder Nutzerdaten.
 
-## Repository-weites Deployment und SQL-Export
+## Klassischer Lifecycle: Repository-Deployment und SQLCMD-Export
 
 Der [Repository-Runner](../../Deployment/README.md) bestimmt die aktuelle
 Modulmenge und Reihenfolge aus `Deploy.sql` und Manifest-Abhängigkeiten. Sein
