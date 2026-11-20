@@ -273,6 +273,48 @@ class UsageSkillTests(unittest.TestCase):
         self.assertTrue(a < line < b)
         self.assertLess(line, text.index("CREATE TABLE #tbx_fs_result", a))
 
+    def test_missing_help_parameters_and_guards_preserve_both_original_helpers(self):
+        selected = [next(s for s in prototypes() if s.metadata["object_name"] == name)
+                    for name in ("USP_InternalEmitHelp", "USP_InternalRouteResult")]
+        path = selected[0].metadata["source_paths"][0]
+        current = (ROOT / path).read_text(encoding="utf-8-sig")
+        # Both identical parameter fragments coexist; removal must be scoped by
+        # declaration, never replace the first matching neighbor's parameter.
+        original = skills.strip_ddl_projection(ROOT, path, skills.strip_missing_help_projection(ROOT, path, current))
+        for order in (selected, list(reversed(selected))):
+            result = original
+            for skill in order:
+                result = skills.project_procedure_ddl(skills.project_missing_procedure_help(result, skill), skill)
+                self.assertEqual(skills.project_missing_procedure_help(result, skill), result)
+            self.assertEqual(result, current)
+        for skill in selected:
+            a, b = skills._procedure_region(current, skill)
+            parameter, branch = skills.render_missing_help_parts(skill)
+            self.assertEqual(current[a:b].count(parameter), 1)
+            self.assertEqual(current[a:b].count(branch), 1)
+            self.assertIn("IF @Hilfe = 1", branch)
+            self.assertIn("RETURN 0;", branch)
+            self.assertNotRegex(re.sub(r"N'(?:[^']|'')*'", "''", branch), r"(?i)\bFROM\b|\bEXEC\b|\bINSERT\b")
+        self.assertIn("@ObjectName sysname\n", original)
+        self.assertNotIn(skills.EARLY_BEGIN, original)
+
+    def test_missing_help_adapter_rejects_changed_guard_or_unsupported_output_initialization(self):
+        skill = next(s for s in prototypes() if s.metadata["object_name"] == "USP_InternalRouteResult")
+        path = skill.metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        a, b = skills._procedure_region(text, skill)
+        changed = text[:a] + text[a:b].replace("IF @Hilfe = 1", "IF @Hilfe = 0", 1) + text[b:]
+        with self.assertRaisesRegex(ValueError, "kanonisch"):
+            skills.strip_missing_help_projection(ROOT, path, changed)
+        original = skills.strip_ddl_projection(ROOT, path, skills.strip_missing_help_projection(ROOT, path, text))
+        with self.assertRaisesRegex(ValueError, "ungeklammerte"):
+            skills.project_missing_procedure_help(original.replace("@ResultTable sysname = NULL", "(@ResultTable sysname = NULL", 1), skill)
+        metadata = deepcopy(skill.metadata)
+        metadata["parameters"][0]["is_output"] = True
+        altered_markdown = skill.markdown.replace('"is_output": false', '"is_output": true', 1)
+        with self.assertRaisesRegex(ValueError, "OUTPUT"):
+            skills.render_missing_help_parts(skills.Skill(metadata, altered_markdown))
+
     def test_multiple_functions_keep_separate_skills_and_generation_order(self):
         current = [s for s in prototypes() if s.metadata["object_name"] in
                    ("TVF_GenerateSeriesBigInt", "TVF_GenerateSeriesBigIntStatus")]

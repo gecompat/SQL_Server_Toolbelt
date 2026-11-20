@@ -177,6 +177,10 @@ DDL_BEGIN = "-- OBJECT_USAGE_SKILL:BEGIN"
 DDL_END = "-- OBJECT_USAGE_SKILL:END"
 HELP_BEGIN = "-- OBJECT_USAGE_SKILL_HELP:BEGIN"
 HELP_END = "-- OBJECT_USAGE_SKILL_HELP:END"
+PARAM_BEGIN = "-- OBJECT_USAGE_SKILL_PARAMETER:BEGIN"
+PARAM_END = "-- OBJECT_USAGE_SKILL_PARAMETER:END"
+EARLY_BEGIN = "-- OBJECT_USAGE_SKILL_EARLY_HELP:BEGIN"
+EARLY_END = "-- OBJECT_USAGE_SKILL_EARLY_HELP:END"
 
 
 def render_ddl_comment(skill: Skill):
@@ -478,6 +482,80 @@ def _existing_procedure_skill(text, skill):
     require(ts[anchor][2] < position and position + len(comment) <= ts[anchor + 1][1],
             "Prozedur-Skill steht außerhalb seines eigenen Headers")
     return True
+
+
+def render_missing_help_parts(skill):
+    """Deklaration und früher konstanter Zweig für bisher hilfelose Helfer."""
+    validate(skill)
+    require(skill.metadata["object_type"] == "USP", "T-SQL-Prozedur erforderlich")
+    params = skill.metadata["parameters"]
+    require(params and params[-1]["name"].casefold() == "@hilfe"
+            and params[-1]["sql_type"].casefold() == "bit"
+            and params[-1]["sql_default"] == "0"
+            and not params[-1]["is_output"] and not params[-1]["argument_required"],
+            "Abschließender optionaler @Hilfe bit=0 erforderlich")
+    # OUTPUT initialization needs its own reviewed adapter, not an inferred
+    # blanket early return before caller-supplied outputs have been handled.
+    require(not any(p["is_output"] for p in params), "OUTPUT-Helfer brauchen eigenen Initialisierungsvertrag")
+    parameter = PARAM_BEGIN + "\n    , @Hilfe bit = 0\n" + PARAM_END + "\n"
+    branch = (EARLY_BEGIN + "\n    IF @Hilfe = 1\n    BEGIN\n        SET NOCOUNT ON;\n"
+              + render_help_projection(skill) + "        RETURN 0;\n    END;\n" + EARLY_END + "\n")
+    return parameter, branch
+
+
+def project_missing_procedure_help(text, skill):
+    """Eigenen optionalen Parameter/frühen Hilfezweig explizit ergänzen.
+
+    Dieser Adapter verändert keine bestehenden Parameter. Er unterstützt nur
+    die geprüfte Form ohne äußere Parameterklammern und ohne OUTPUT-Parameter.
+    """
+    parameter, branch = render_missing_help_parts(skill)
+    start, end = _procedure_region(text, skill)
+    region = text[start:end]
+    if any(marker in region for marker in (PARAM_BEGIN, PARAM_END, EARLY_BEGIN, EARLY_END)):
+        original = _remove_missing_help_parts(text, skill)
+        require(project_missing_procedure_help(original, skill) == text,
+                "Fehlende-Hilfe-Projektion steht außerhalb ihres Einfügepunkts")
+        return text
+    ts, words, i, limit = _procedure_declaration(text, skill)
+    anchors = [j for j in range(i + 4, limit - 1) if words[j:j + 2] == ["as", "begin"]]
+    require(len(anchors) == 1, "Eindeutiger AS-BEGIN-Header erforderlich")
+    anchor = anchors[0]
+    require(words[i + 4].startswith("@") and "@hilfe" not in words[i + 4:anchor],
+            "Nur ungeklammerte Signatur ohne bisherigen Hilfeschalter unterstützt")
+    as_line = text.rfind("\n", 0, ts[anchor][1]) + 1
+    require(not text[as_line:ts[anchor][1]].strip(), "AS muss eigene Zeile beginnen")
+    body = ts[anchor + 1][2]
+    require(text[body:body + 1] == "\n", "BEGIN muss mit LF abschließen")
+    text = text[:body + 1] + branch + text[body + 1:]
+    return text[:as_line] + parameter + text[as_line:]
+
+
+def _remove_missing_help_parts(text, skill):
+    parameter, branch = render_missing_help_parts(skill)
+    start, end = _procedure_region(text, skill)
+    region = text[start:end]
+    require(region.count(parameter) == region.count(branch) == 1,
+            "Fehlende-Hilfe-Projektion ist nicht kanonisch/eindeutig")
+    return text[:start] + region.replace(parameter, "", 1).replace(branch, "", 1) + text[end:]
+
+
+def strip_missing_help_projection(root, path, text):
+    """Nur exakt generierten neuen Schalter/Zweig für den Fachvergleich entfernen."""
+    if not re.search(r"(?m)^" + re.escape(EARLY_BEGIN) + r"$", text):
+        return text
+    # Validate all editorial identities/locations before removing any guard.
+    strip_ddl_projection(root, path, text)
+    for skill in read_ddl_comments(text):
+        if skill.metadata["object_type"] != "USP":
+            continue
+        start, end = _procedure_region(text, skill)
+        if not re.search(r"(?m)^" + re.escape(EARLY_BEGIN) + r"$", text[start:end]):
+            continue
+        require(project_missing_procedure_help(text, skill) == text, "Nicht kanonischer neuer Hilfeschalter")
+        text = _remove_missing_help_parts(text, skill)
+    require(not re.search(r"(?m)^" + re.escape(EARLY_BEGIN) + r"$", text), "Neuer Hilfezweig ohne Skill")
+    return text
 
 
 def _existing_function_skill(text, skill):

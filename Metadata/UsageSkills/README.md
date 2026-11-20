@@ -70,6 +70,17 @@ außerhalb einer Prozedur oder ein zum Nachbarn verschobener Skill werden
 zurückgewiesen. Die Prüfung einer bisherigen Dateisystem-Deklaration ist
 ausschließlich ein Parsernachweis und keine Freigabe von Dateioperationen.
 
+Die beiden internen Dateisystem-Helfer `USP_InternalEmitHelp` und
+`USP_InternalRouteResult` besitzen jetzt einen abschließenden optionalen
+`@Hilfe bit=0`. Ihr neuer früher Hilfezweig liefert nur den eigenen Skill und
+kehrt vor dem bisherigen Helferpfad zurück. Bestehende Pflichtargumente bleiben
+Pflichtargumente. Vorhandene Parameter und Normalpfad werden exakt erhalten;
+die Erweiterung wird separat von unveränderter Fachlogik geprüft. Der Adapter
+lehnt OUTPUT-Parameter ohne eigenen Initialisierungsvertrag ab. Bei mehreren
+Helfern werden auch identische Parameterergänzungen ausschließlich innerhalb
+der jeweiligen Prozedur entfernt oder regeneriert. Die native Hilfeabnahme
+und die Hilfe der neun CLR-Einstiege stehen weiterhin aus.
+
 Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine
 Ausführungsautorität. Private Pakete, Serverdaten, Zugangsdaten und echte
