@@ -74,7 +74,12 @@ def main():
         if name == "USP_DeterministicLookupCore.sql":
             current_text = without_lookup_core_help(current_bytes.decode("utf-8"))
             old_text = without_lookup_core_help(old_bytes.decode("utf-8"))
-            assert current_text == old_text, name
+            assert 'sys.parameters' in current_text and 'extended_properties' not in current_text
+            def without_dependency(text):
+                text,count=re.subn(r"(?ms)\n\s*DECLARE @DependencyId int.*?THROW 54008\s*,.*?;",'\n-- Schnittstellenprüfung separat geprüft.\n',text)
+                assert count==1
+                return text
+            assert without_dependency(current_text)==without_dependency(old_text),name
         else:
             assert current_bytes == old_bytes, name
     source = (MODULE / "Source/DeterministicGeoJitter.sql").read_text(encoding="utf-8")

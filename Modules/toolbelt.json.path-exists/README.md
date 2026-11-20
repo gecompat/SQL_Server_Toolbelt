@@ -48,6 +48,10 @@ der vollständige Adapter ist seit 2026-08-29 zusätzlich auf physischen
 SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Die Windows-Matrix ist seit der Nachqualifikation
 vom 2026-10-19 erfolgreich belegt. Modulstatus nach Nachqualifikation 2026-10-19: `validated`.
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

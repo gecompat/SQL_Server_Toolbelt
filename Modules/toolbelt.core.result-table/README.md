@@ -49,6 +49,8 @@ Die kanonische Spezifikation bleibt [RESULT_TABLE_MODULE_DESIGN.md](../../Docume
 
 ## Deployment
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 Die Lifecycle-Skripte verwenden SQLCMD-Kommandos. `Deploy.sql` bindet die kanonische Source mit `:r` ein; dadurch existiert die Procedure-Implementierung im Repository nur einmal. Das eingebettete Release-Manifest steuert Herkunft, Kollisionen und spätere Objektentfernungen. Lokale Änderungen an nachweislich aus dem installierten Release stammenden Framework-Objekten werden beim Deployment überschrieben. SQLCMD-Variablen sind beim Aufruf explizit mit `-v` anzugeben; eingebaute `:setvar`-Werte würden Kommandozeilenwerte überschreiben und sind deshalb nicht vorhanden.
 
 Aus dem Verzeichnis `Modules/toolbelt.core.result-table/Deployment`:

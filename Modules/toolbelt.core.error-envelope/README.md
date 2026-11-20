@@ -1,5 +1,9 @@
 # Error Envelope
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Security-Korrektur 2026-10-14
 
 SC-039: Direkte Ausgabe bleibt auch bei XACT_STATE()=-1 lesend möglich. ResultTable wird dann vor jeder Mutation mit 51406 abgewiesen; Rollback und Original-Rethrow bleiben beim Caller.

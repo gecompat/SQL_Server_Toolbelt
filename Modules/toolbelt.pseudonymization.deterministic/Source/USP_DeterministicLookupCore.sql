@@ -133,19 +133,16 @@ BEGIN
 
         IF @ResultTable IS NOT NULL
         BEGIN
-            DECLARE @DependencyId int = OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P'), @DependencyVersion nvarchar(64);
-            SELECT @DependencyVersion = TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
-            WHERE class = 0 AND name = N'Toolbelt.Module.toolbelt.core.result-table.Version';
-            DECLARE @Major int = TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)), @Minor int = TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)), @Patch int = TRY_CONVERT(int,PARSENAME(@DependencyVersion,1));
-            IF @DependencyId IS NULL OR @Major IS NULL OR @Major < 1 OR @Minor IS NULL OR @Minor < 0 OR @Patch IS NULL OR @Patch < 0
-                OR CONVERT(varbinary(max),@DependencyVersion) <> CONVERT(varbinary(max),CONCAT(@Major,N'.',@Minor,N'.',@Patch))
-                OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND minor_id=0 AND name=N'Toolbelt.ModuleId'
-                    AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),value))=CONVERT(varbinary(max),N'toolbelt.core.result-table'))
-                OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND minor_id=0 AND name=N'Toolbelt.ModuleVersion'
-                    AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@DependencyVersion))
-                OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND minor_id=0 AND name=N'Toolbelt.ContractVersion'
-                    AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),N'1.0'))
-                THROW 54008, N'DeterministicLookup: registrierte same-database ResultTable-Dependency >=1.0.0 fehlt oder ist ungeeignet.', 1;
+
+ DECLARE @DependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @DependencyId IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@DependencyId)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@DependencyId
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 54008,N'ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
             EXEC toolbelt_core.USP_PrepareResultTable @ResultTableToAlter=@ResultTable,@LikeTable=N'#tbx_DeterministicLookup_ResultSource',@KeepData=@KeepData,@Debug=@Debug;
             SET @Sql = N'INSERT ' + QUOTENAME(@ResultTable) + N' (InputOrdinal,LookupOrdinal,[Value]) SELECT InputOrdinal,LookupOrdinal,[Value] FROM #tbx_DeterministicLookup_ResultSource;';
             EXEC sys.sp_executesql @Sql;

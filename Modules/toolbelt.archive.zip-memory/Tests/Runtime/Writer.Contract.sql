@@ -187,15 +187,19 @@ BEGIN
  IF @Payload IS NULL OR DATALENGTH(@Payload)<>16777216 OR HASHBYTES('SHA2_256',@Payload)<>@ExpectedDigest THROW 51389,N'Large payload marshalling/hash failed.',44;
  SET @MethodIndex+=1;
 END;
--- Nichtkanonische Dependencyversion plus übereinstimmendem Objektmarker.
-DECLARE @Malformed TABLE(Id int IDENTITY,Value nvarchar(64)); INSERT @Malformed VALUES(N'1.bad.xxx'),(N'1.01.0'),(N'+1.0.0');
+-- Drei abweichende tatsächliche Helferschnittstellen; Marker sind kein Runtimevertrag.
+-- DDL bleibt in der eigenen Testdatenbank und wird nach jedem Fall zurückgerollt.
+DECLARE @Malformed TABLE(Id int IDENTITY,Definition nvarchar(max));
+INSERT @Malformed VALUES
+(N'ALTER PROCEDURE toolbelt_core.USP_PrepareResultTable @Wrong nvarchar(128),@LikeTable nvarchar(776),@KeepData bit=0,@Debug tinyint=0,@Hilfe bit=0 AS THROW 51389,N''Wrong helper executed.'',1;'),
+(N'ALTER PROCEDURE toolbelt_core.USP_PrepareResultTable @ResultTableToAlter nvarchar(128),@LikeTable nvarchar(1),@KeepData bit=0,@Debug tinyint=0,@Hilfe bit=0 AS THROW 51389,N''Wrong helper executed.'',1;'),
+(N'ALTER PROCEDURE toolbelt_core.USP_PrepareResultTable @ResultTableToAlter nvarchar(128),@LikeTable nvarchar(776),@KeepData bit=0 OUTPUT,@Debug tinyint=0,@Hilfe bit=0 AS THROW 51389,N''Wrong helper executed.'',1;');
 SET @Id=1;
 WHILE @Id<=3
 BEGIN
- DECLARE @BadVersion nvarchar(64)=(SELECT Value FROM @Malformed WHERE Id=@Id);
+ SET @Sql=(SELECT Definition FROM @Malformed WHERE Id=@Id);
  BEGIN TRANSACTION;
- SET @Sql=N'EXEC sys.sp_updateextendedproperty @name=N''Toolbelt.Module.toolbelt.core.result-table.Version'',@value=@v; EXEC sys.sp_updateextendedproperty @name=N''Toolbelt.ModuleVersion'',@value=@v,@level0type=N''SCHEMA'',@level0name=N''toolbelt_core'',@level1type=N''PROCEDURE'',@level1name=N''USP_PrepareResultTable'';';
- EXEC [$(ToolbeltDatabase)].sys.sp_executesql @Sql,N'@v nvarchar(64)',@BadVersion;
+ EXEC [$(ToolbeltDatabase)].sys.sp_executesql @Sql;
  DELETE @Help;
  INSERT @Help EXEC [$(ToolbeltDatabase)].toolbelt_archive.USP_CreateZipFromEntries @Hilfe=1;
  IF (SELECT COUNT(*) FROM @Help WHERE Section='PARAMETER')<>13 THROW 51389,N'Help depends on valid helper.',45;

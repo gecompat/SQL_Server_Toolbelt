@@ -1,3 +1,11 @@
+# Markerfreier Capability-Katalog
+
+Die Benutzerfreigabe vom 2026-11-20 zur vereinfachten Installation ersetzt für den aktuellen Quellstand die Markerprojektion. Der Resultset bleibt vierstellig, wird aber bewusst enger interpretiert: sichtbarer Schnittstellenkandidat als ModuleId, NULL für ModuleVersion und DeploymentMode, `incomplete` als MetadataStatus. Eine feste, aus Manifesten generierte Liste wird gegen sys.objects/sys.assemblies geprüft. Kein Laufzeitlesen von Manifestdateien, keine persistente Registry, keine zusätzliche Funktion und keine Rechtevergabe.
+
+Dies verhindert, dass ein unbekanntes namensgleiches Objekt eine vorgetäuschte Version oder Ownership erhält. Der Katalog ist weder Dependency-/Upgradegate noch vollständige Objekt-/Plattforminventur. Die normale Metadata Visibility gilt. Der frühere Marker-Vertrag und seine ursprünglichen Nachweise bleiben unten unverändert historisch erhalten; sie qualifizieren die neue Definition nicht.
+
+## Ursprüngliches Moduldesign
+
 # Moduldesign: Module Capability Catalog
 
 ## Status und Freigabe

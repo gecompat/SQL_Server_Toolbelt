@@ -13,6 +13,8 @@ Der genaue getrennte Laufumfang steht in [Tests](Tests/README.md).
 
 ## Installation
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 Windows SQL Server 2019/2022/2025, local. Zuerst ZIP Memory >=1.4.0,
 Windows Filesystem/ResultTable >=1.0.0 in derselben DB nach deren eigenen
 Binary-/Trustverträgen installieren. Keine Assembly-, Trust-, Root-, Rechte-,

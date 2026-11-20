@@ -57,6 +57,8 @@ er ersetzt keine übrige Modul- oder Releasequalifikation.
 
 ## Build-, Trust- und Deploymentmodell
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 `Scripts/New-ClrReleaseArtifacts.ps1` erzeugt aus dem C#-Quellcode:
 
 - `Toolbelt.Archive.ZipMemory.dll`;

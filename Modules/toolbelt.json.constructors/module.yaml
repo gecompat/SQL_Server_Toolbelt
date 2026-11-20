@@ -2,7 +2,7 @@ module_id: "toolbelt.json.constructors"
 module_name: "JSON Constructors"
 version: "1.3.0"
 implementation_status: implemented
-validation_status: partially validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Begrenzte JSON-Konstruktoren und CLR-Aggregate mit gemeinsamem SAFE-Kern; native Teilnachweise, weitergehende Qualifikation offen."
 sql_server_versions:

@@ -1,5 +1,15 @@
 # Module Capability Catalog
 
+Das Modul zeigt sichtbare bekannte Schnittstellenkandidaten ohne Installationsmarker oder Verwaltungstabelle. Version und Deploymentmodus bleiben NULL; `MetadataStatus=incomplete` kennzeichnet die fehlende beweisbare Zuordnung. Namensgleichheit wird nicht als Herkunft oder vollständige Installation ausgegeben.
+
+Die [Objektreferenz](Documentation/VW_ModuleCapabilities.md) erklärt die vier Spalten und Metadata Visibility. Der [gemeinsame SQL-Installer](../../Scripts/Install/README.md) ist der neue Standard ohne SQLCMD. Er benötigt keine Marker für diese View. Die Kandidatenliste wird mit `python Scripts/Install/New-MarkerlessCapabilities.py` aus den Modulmanifesten erzeugt und mit `--check` geprüft.
+
+Die Quellumstellung ist implementiert; aktuelle native Gesamtqualifikation steht aus. Die folgenden datierten Nachweise und Lifecycle-Beschreibungen gehören zum ursprünglichen Marker-Vertrag.
+
+## Historische Modulbeschreibung und Nachweise
+
+# Module Capability Catalog
+
 Aktuelle [Callerrechte](../../Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md): getrennte Objektrechte auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Weitere Funktions-, Client-, Lifecycle- und Ressourcengates sowie Modulstatus bleiben separat.
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.

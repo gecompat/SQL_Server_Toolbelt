@@ -1,9 +1,11 @@
 # Toolbelt installieren und zum ersten Mal verwenden
 
-Für den neuen, noch nicht veröffentlichten SSIS-Quellstand gibt es eine
-[vereinfachte SQL-Installation und den XML-Komfortaufruf](Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
-Die folgenden gemeinsamen veröffentlichten Installer bis rc.4 bleiben an ihre
-Originalartefakte gebunden; sie enthalten diese neue Funktion noch nicht.
+Für den neuen, noch nicht veröffentlichten Quellstand ist der
+[gemeinsame create-only-SQL-Installer](Scripts/Install/README.md) der Weg ohne
+SQLCMD, Installationsmarker oder Deploymenttabellen. Für DTSX allein gibt es den
+[kleineren SSIS-Funktionssatz mit XML-Aufruf](Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
+Die folgenden veröffentlichten Installer bis rc.4 bleiben unverändert an ihre
+Originalartefakte gebunden und enthalten diese neue Funktion noch nicht.
 
 
 Der aktuelle **Vorabrelease v1.0.0-rc.4** enthält den Ein-Aufruf-Installer und

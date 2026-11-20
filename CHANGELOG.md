@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Gemeinsamer markerfreier Quellinstaller — 2026-11-20
+
+- Gemeinsame Windows-/Portable-Profile lokal/zentral als normale create-only-T-SQL-Datei; alle SQL-Assemblynamen beginnen mit tlblt. Historische Releaseartefakte bleiben unverändert.
+- Laufzeitabhängigkeiten verwenden benötigte Schnittstellen statt Installationsproperties. Kein automatisches Upgrade, Uninstall, Rechte-, Owner- oder Konfigurationswechsel.
+- Capability-Kandidaten ohne erfundene Version/Installationsart; Originalmarker-Nachweise bleiben historisch. Neue globale Qualifikation und Veröffentlichung werden daraus nicht abgeleitet.
+
 ## 2026-11-20 – Vereinfachter SSIS-Quellstand und private Parser-Abhängigkeit
 
 DTSX kann direkt als Unicode-XML mit optionalen JSON-Startwerten übergeben
@@ -2331,7 +2337,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 19 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

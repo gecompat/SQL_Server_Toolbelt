@@ -16,7 +16,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_CreateZipFileFromEntries.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql), [USP_CreateZipFileFromEntries.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_CreateZipFileFromEntries.md).
 
-<!-- Source/Vertrag SHA256: fae45bb6f4df83cdbaec155189256859e69120dc3e95c32747759c7d2ab3822a -->
+<!-- Source/Vertrag SHA256: 644f70cef4a901e6031802fe73d64f88b4c68d6e3e0b9c0d199f61bd4ef10e76 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -60,7 +60,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md).
 
-<!-- Source/Vertrag SHA256: 95d0df931521760e1fd5b45fa69925c86db3949d7a84d83946750fa6b76abc90 -->
+<!-- Source/Vertrag SHA256: 7a036d320cbdf497d2c503a228fa6f275b99d31f8f052d75c33dd454aef30686 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -99,7 +99,7 @@ Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload var
 
 Vertrag und Quelle: [USP_CreateZipFromEntries.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql), [USP_CreateZipFromEntries.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 42a13cfc0a511d591b4ff1f71b24d677fdb81997ad1c9c7d94226744bf325fd1 -->
+<!-- Source/Vertrag SHA256: 674e8a19cc5531e1636fba87917ca23bcc7f79b8f5ddd2a466be9a34a38e6512 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2841,7 +2841,7 @@ Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zell
 
 Vertrag und Quelle: [USP_ParseCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql), [USP_ParseCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md).
 
-<!-- Source/Vertrag SHA256: 24767056999f5a109c376af7afc8aca1885b6b6da79376e61072737cd72a068c -->
+<!-- Source/Vertrag SHA256: a1f967f941ad2a15a49c6080f057edbfc7dae2b42b6c6d9854f693476b40b631 -->
 
 Voraussetzung: Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Helper.
 
@@ -2880,7 +2880,7 @@ Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten al
 
 Vertrag und Quelle: [USP_WriteCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql), [USP_WriteCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md).
 
-<!-- Source/Vertrag SHA256: 266cbcf5962e6e331130e52f54ac8f340a3b8fec4a60cf258bfd75e1c4988f89 -->
+<!-- Source/Vertrag SHA256: 244cca9cc379b893a965d789f512ce096feb852df8875346d755f61cd6b4298a -->
 
 Voraussetzung: Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleibt unverändert.
 
@@ -3710,7 +3710,7 @@ Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode
 
 Vertrag und Quelle: [USP_ValidateJsonSchema.sql](../../Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql), [USP_ValidateJsonSchema.md](../../Modules/toolbelt.json.schema/Documentation/USP_ValidateJsonSchema.md).
 
-<!-- Source/Vertrag SHA256: f6f4f2fec3bf442f4789fe30be7130bdb172a990732e3a1a41a26a1633a28092 -->
+<!-- Source/Vertrag SHA256: 3814ab5472aa6337ca5bfaff41a3be25d4988df6af94feef1283a418f31d502f -->
 
 Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies in derselben Datenbank, ResultTable >=1.0.0, vorhandene Aufrufrechte. Nur Teilqualifikation, unreleased.
 
@@ -3749,11 +3749,11 @@ EXEC toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
 
 Modul `toolbelt.metadata.capability-catalog` · Version `1.0.0` · `VW`
 
-Zeigt installierte Modulversionen und Deployment-Modi und kennzeichnet unvollständige oder ungültige Modulmarker.
+Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete.
 
 Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: e29c304c4acc89189ba924ca6e562853aa568642aa6d696df59df0a12a9937a4 -->
+<!-- Source/Vertrag SHA256: 8e5af29ac8d0cd3f2c2202fe0b229774598418d8b41e8461da80e9012a28a081 -->
 
 Keine Eingabeparameter.
 
@@ -4508,7 +4508,7 @@ Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unqu
 
 Vertrag und Quelle: [USP_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql), [USP_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/USP_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: c367f1b553ff2d11af53c611188bbdc50124022ef477cb40c948b057ae2ca693 -->
+<!-- Source/Vertrag SHA256: d329e41af61d65cdefa1e69956e49bf4b700e7822daa5e3c2fe0e0a4687f845f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

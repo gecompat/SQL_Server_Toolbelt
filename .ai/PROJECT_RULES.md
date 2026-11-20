@@ -91,7 +91,7 @@ Der vollständige Vertrag für `@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData
 - `SAFE` bevorzugen; `EXTERNAL_ACCESS` und `UNSAFE` nur bei dokumentierter Notwendigkeit und nur auf unterstützten Plattformen.
 - `clr strict security` nicht regulär deaktivieren.
 - Offizielle Release-Binaries bevorzugt über exakten SHA2-512-Hash autorisieren; Strong Name oder asymmetrischer Schlüssel sind Alternativen.
-- Für den ausdrücklich freigegebenen vereinfachten SSIS-Installer kann bereits vorhandener Datenbank-Trust mit oder ohne Toolbelt-Hashvergleich gewählt werden; er aktiviert `TRUSTWORTHY` nicht. Der Hashweg bleibt die selektive Alternative. Andere Module behalten bis zu ihrer ausdrücklichen Umstellung den bisherigen Vertrag. Siehe Entscheidung zur vereinfachten Installation in `DECISIONS.md`.
+- Für die ausdrücklich freigegebenen vereinfachten SSIS- und gemeinsamen Funktionsinstaller kann bereits vorhandener Datenbank-Trust mit oder ohne Toolbelt-Hashvergleich gewählt werden; sie aktivieren `TRUSTWORTHY` nicht. Der Hashweg bleibt die selektive Alternative. Historische Lieferungen und ihre Lifecycle-Verträge bleiben an ihre Originalartefakte gebunden. Siehe Entscheidung zur vereinfachten Installation in `DECISIONS.md`.
 - Für Windows-only-Funktionalität eine portable Alternative prüfen.
 
 Details: [CLR_SECURITY_AND_PORTABILITY.md](../Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md)

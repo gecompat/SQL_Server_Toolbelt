@@ -2,22 +2,22 @@ module_id: "toolbelt.metadata.capability-catalog"
 module_name: "Module Capability Catalog"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
-description: "Projiziert Toolbelt-Modulversionen und Deployment-Modi aus Database-level Extended Properties."
+description: "Zeigt sichtbare bekannte Modulschnittstellenkandidaten ohne Installationsregistry; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete."
 sql_server_versions:
   - "2019"
   - "2022"
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: tsql-catalog-view
-    technology: T-SQL View over sys.extended_properties
+    technology: T-SQL View over sys.objects/sys.assemblies
     platforms: [Windows, Linux]
-    status: validated
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -34,7 +34,7 @@ objects:
     visibility: public
 permissions_required:
   - "SELECT auf toolbelt_metadata.VW_ModuleCapabilities"
-  - "Metadata Visibility auf die Extended Properties der aktuellen Datenbank"
+  - "Normale Metadata Visibility der aktuellen Datenbank"
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Markernamen, Modul-IDs und erlaubte Werte werden mit expliziten Latin1_General_100_BIN2-/CI_AS-Collations ausgewertet."
 data_type_contract: "ModuleId ist sysname; Markerwerte werden verlustvermeidend als nvarchar(4000) projiziert; MetadataStatus ist varchar(16)."

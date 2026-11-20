@@ -5,6 +5,10 @@ Aktuelle [Series-/Datums-Callerrechte](../../Releases/1.0.0/SERIES-DATE-CALLER-Q
 `toolbelt.datetime.date-spine` erzeugt Tages-, ISO-Wochen- und Monatsperioden,
 die einen halboffenen `date`-Bereich schneiden.
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Status
 
 - Version: `1.0.0`

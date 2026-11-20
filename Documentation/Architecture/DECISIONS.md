@@ -931,3 +931,13 @@ Kein TLS-/GUI-/Paketgesamtumlauf ohne funktionale Notwendigkeit. Historische
 Releasebelege bleiben unverändert und qualifizieren keine geänderten Binaries.
 Die gemeinsame markerlose Installation weiterer Module ist ein Folgeumfang
 unter demselben Auftrag, keine bereits bestandene Gesamtumstellung.
+
+## Gemeinsamer markerfreier Funktionsinstaller — 2026-11-20
+
+Die ausdrücklich freigegebene gemeinsame Umstellung verwendet dieselben drei Trustwege und normale T-SQL-Ausführung wie der SSIS-Funktionssatz. Alle registrierten SQL-Assemblynamen erhalten das tlblt-Präfix; die private ScriptDom-Identität bleibt unverändert. Unveränderte Binaries werden nur bei geprüfter Compilerbindung wiederverwendet. Keine Rechtevergabe, automatische Trustworthy-/CLR-/Owneränderung oder Ersatzregistry.
+
+Der Lebenszyklus ist create-only: bestehende Objekte werden nicht aktualisiert. Historische Tabellenmigrationen laufen ausschließlich in gerade neu angelegten eigenen Tabellengruppen. Fachliche WorkType-Initialisierung darf nur eigene gerade erstellte Tabellen und Routinen verwenden, keine fremden bestehenden Prozeduren ausführen. Teilzustände führen zum verständlichen Abbruch; es gibt kein implizites Upgrade oder Uninstall.
+
+Versions-/Ownership-Properties entfallen auch bei Runtimeabhängigkeiten. Aufrufer prüfen tatsächlich benötigte Schnittstellen. Die Capability-View stellt ohne beweisbare Registry keine Version oder Installationsart dar: beide Werte bleiben NULL, Status incomplete. Benutzerdefinierte Tabellen-Properties als ausdrücklich angeforderter Table-Clone-Fachinhalt bleiben davon getrennt.
+
+Verarbeitungsaufwand: ein Folge-PR und ein Verantwortlicher ohne neue Agenten-/Reviewkette. Vier Profile werden mit wiederverwendeten gebundenen CLR-Bytes und offline geparsten Originalquellen erzeugt. Neue Gegenproben laufen im bestehenden Dokumentationsworkflow; keine zusätzliche CI-Sammelkette und keine TLS-/GUI-Wiederholung. Frühere Nachweise werden bei geänderter Source ausdrücklich historisch geprüft, nicht als aktuelle Gesamtqualifikation ausgegeben. Neue native Aufrufe bleiben an eine konkrete endliche Freigabe gebunden; die geschlossene erste Grenze wird nicht erneuert.

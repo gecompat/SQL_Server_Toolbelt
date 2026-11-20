@@ -21,6 +21,13 @@ Jedes Modul enthält mindestens:
 
 ## Abhängigkeiten
 
+Beim aktuellen [Funktionsinstaller](../../Scripts/Install/README.md) sind
+Versionen und Abhängigkeiten Buildmetadaten. Der Installer erzeugt fehlende
+Objekte aus dem gewählten vollständigen Quellprofil; er schreibt keine
+Installationsregistry und aktualisiert keine vorhandenen Objekte. Laufzeitguards
+prüfen benötigte Schnittstellen. Die folgende vollständige Preflight- und
+Lifecycle-Semantik beschreibt den klassischen markerbasierten Modulweg.
+
 - Abhängigkeiten deklarieren Modul-ID, Mindestversion und Installationsort.
 - Der vollständige Preflight erfolgt vor der ersten Mutation.
 - Fehlende oder ungeeignete Abhängigkeit führt zu klarer Meldung und vollständigem Abbruch.

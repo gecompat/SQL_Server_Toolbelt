@@ -27,6 +27,10 @@ Constructor1.2→1.3 bestand auf Linux local/central. Weitere Ziel-/Lifecycle-
 matrix offen, unreleased. Die eigene
 IL-Prüfung zertifiziert keine transitive Framework-SAFE-Kompatibilität.
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

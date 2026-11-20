@@ -271,9 +271,9 @@ run_schema_upgrade() {
     run_file "${database_name}" "${runtime_directory}" Lifecycle.Contract.sql
     run_file "${database_name}" "${schema_tests}" UpgradeCapture.sql
     run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
-    run_file "${database_name}" "${schema_tests}" UpgradeHelpVerify.sql -v SchemaExpectedVersion=1.0.1
+    run_file "${database_name}" "${schema_tests}" UpgradeCurrentVerify.sql -v SchemaExpectedVersion=1.0.1
     run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
-    run_file "${database_name}" "${schema_tests}" UpgradeHelpVerify.sql -v SchemaExpectedVersion=1.0.1
+    run_file "${database_name}" "${schema_tests}" UpgradeCurrentVerify.sql -v SchemaExpectedVersion=1.0.1
 }
 local_database="tbx_json_constructor_local"
 central_database="tbx_json_constructor_central"

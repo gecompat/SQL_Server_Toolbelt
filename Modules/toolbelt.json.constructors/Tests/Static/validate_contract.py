@@ -48,7 +48,13 @@ import subprocess, json, hashlib, struct
 base = 'f64ee9eb8f6a7f66fd441821c7c40fcf2d92ee1e'
 relative = 'Modules/toolbelt.json.constructors/Source/USP_JsonConstructInternal.sql'
 old = subprocess.check_output(['git','show',f'{base}:{relative}'],cwd=root.parents[1]).decode('utf-8').replace('\r\n','\n')
-assert core.split(' CREATE TABLE #tbx_JsonConstructor_Fragments',1)[0] == old.split(' CREATE TABLE #tbx_JsonConstructor_Fragments',1)[0]
+def without_dependency_guard(text):
+    import re
+    text,count=re.subn(r"(?ms)\n\s*DECLARE @DependencyId int.*?THROW 53610,.*?;",'\n-- Schnittstellenprüfung separat geprüft.\n',text)
+    assert count==1
+    return text
+assert 'sys.parameters' in core and 'extended_properties' not in core
+assert without_dependency_guard(core.split(' CREATE TABLE #tbx_JsonConstructor_Fragments',1)[0]) == without_dependency_guard(old.split(' CREATE TABLE #tbx_JsonConstructor_Fragments',1)[0])
 assert core.split(' DECLARE @Count bigint=',1)[1] == old.split(' DECLARE @Count bigint=',1)[1]
 assert 'STRING_ESCAPE' not in core and '-- UTF-16-Codeeinheiten' not in core
 assert core.count('FROM toolbelt_json.FT_JsonEntryEvaluateInternal(')==2  # Entry und begrenzte Kostenstrings teilen denselben Kern.

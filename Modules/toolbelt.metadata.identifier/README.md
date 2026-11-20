@@ -38,6 +38,8 @@ SQL-Code, kein Autorisierungsmechanismus.
 
 ## Deployment
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ```bash
 sqlcmd -S localhost -d ZielDb -i Deployment/Deploy.sql -v DeploymentMode=local
 ```

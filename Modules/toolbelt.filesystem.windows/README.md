@@ -8,6 +8,10 @@ Die öffentliche API umfasst begrenztes Lesen von Binary/Text, gestreamtes Schre
 
 Die Windows-Validierung ist teilweise ausgeführt. Die Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 war für Build, SHA2-512-Trust, lokales Deployment, alle Help-Verträge und die SQL-Authentication-Ablehnung im `Caller`-Modus erfolgreich. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte das kontrollierte Erstellen eines Verzeichnisses und Schreiben einer Textdatei im `ServiceAccount`-Modus. Für diesen historischen Stand blieben Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests offen; den aktuellen begrenzten Nachweis beschreibt der folgende Evidenzabschnitt. Vor produktiver Verwendung sind die [Contract-Testmatrix](./Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md) und der [manuelle Windows-Runtime-Testplan](./Tests/Manual_Windows_Runtime_Testplan.md) verpflichtend.
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Build-Voraussetzung
 
 Die Wartung vom 2026-10-07 korrigiert die vorhandene Delete-Tiefengrenze:

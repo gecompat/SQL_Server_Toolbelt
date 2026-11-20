@@ -52,12 +52,15 @@ class CsvMetadataTests(unittest.TestCase):
         metadata.validate_manifest(original, (ROOT / metadata.MANIFEST).read_bytes())
         self.assertEqual((ROOT / metadata.REPORT).read_bytes(), self.baseline[metadata.REPORT])
         metadata.validate_source(ROOT, metadata.MANIFEST, metadata.digest(original))
+        from ssis_historical_context import historical_root
+        scope = historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
+        # Nur die ursprüngliche redaktionelle Projektion, keine neue Laufzeitabnahme.
         for p in metadata.DOCS:
             corrected = metadata.corrected_documentation(p, self.baseline[p])
-            actual = (ROOT / p).read_bytes()
+            actual = (scope / p).read_bytes()
             if p in current_documentation_transition.PATHS:
                 self.assertEqual(current_documentation_transition.validate_current(
-                    ROOT, p, metadata.digest(corrected)), actual)
+                    scope, p, metadata.digest(corrected)), actual)
             else:
                 self.assertEqual(actual, corrected)
 

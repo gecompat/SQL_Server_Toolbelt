@@ -85,14 +85,16 @@ BEGIN
  IF OBJECT_ID(N'tempdb..#tbx_JsonSchema_Result',N'U') IS NOT NULL
  OR LEFT(LOWER(@ResultTable COLLATE Latin1_General_100_BIN2),5) COLLATE Latin1_General_100_BIN2=N'#tbx_'
  THROW 55601,N'JSON Schema: reservierter interner Temp-Namespace ist belegt.',1;
- DECLARE @Dependency int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P'),@Version nvarchar(64),@Major int,@Minor int,@Patch int;
- SELECT @Version=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version';
- SELECT @Major=TRY_CONVERT(int,PARSENAME(@Version,3)),@Minor=TRY_CONVERT(int,PARSENAME(@Version,2)),@Patch=TRY_CONVERT(int,PARSENAME(@Version,1));
- IF @Dependency IS NULL OR @Major IS NULL OR @Major<1 OR @Minor IS NULL OR @Minor<0 OR @Patch IS NULL OR @Patch<0
- OR CONVERT(varbinary(max),@Version)<>CONVERT(varbinary(max),CONCAT(@Major,N'.',@Minor,N'.',@Patch))
- OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@Dependency AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),value))=CONVERT(varbinary(max),N'toolbelt.core.result-table'))
- OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@Dependency AND minor_id=0 AND name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@Version))
- THROW 55601,N'JSON Schema: registrierte ResultTable-Dependency >=1.0.0 fehlt oder ist ungeeignet.',1;
+
+ DECLARE @Dependency int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @Dependency IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@Dependency)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@Dependency
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 55601,N'ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
  DECLARE @Sql nvarchar(max)=N'
  SET NOCOUNT ON;
  DECLARE @Bridge TABLE(RowKind varchar(8) COLLATE Latin1_General_100_BIN2,ErrorOrdinal int,

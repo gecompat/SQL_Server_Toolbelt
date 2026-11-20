@@ -30,8 +30,9 @@ for name,params in expected.items():
     require("IF @ResultTable IS NULL SELECT BytesWritten,RootAlias,RelativePath,State" in source,name+": one resultshape")
     require("TBX_ZIP_FILE_SECONDARY_SQL_ROLLBACK_FAILED" in source and "THROW;" in source,name+": primary error preserved")
     require("ISNULL(@Overwrite" not in source and "ISNULL(@ExecutionIdentity" not in source,name+": identity/overwrite unchanged")
-    require("d.ModuleId<>N'toolbelt.filesystem.windows' AND NOT EXISTS" in source,name+": bestehende FS-Markerform")
-    require("d.ModuleId=N'toolbelt.core.result-table' AND NOT EXISTS" in source,name+": Objektmodus nur Core")
+    require('extended_properties' not in source,name+": keine Laufzeitmarker")
+    for item in ('sys.parameters','p.parameter_id=d.Ordinal','p.precision=d.Precision','p.scale=d.Scale','p.is_output=0'):
+        require(item in source,name+": tatsächliche Schnittstellenform "+item)
     if "Extract" in name:
         require("@FailIfEncrypted=1" in source and "IsEncrypted<>0" in source and "EntryPayload IS NULL" in source,name+": encrypted/null fail closed")
         require("UncompressedBytes<>CONVERT(bigint,DATALENGTH(EntryPayload))" in source,name+": payload length")
@@ -60,8 +61,8 @@ def bridge_allowed(name): return name.lower() not in {x.lower() for x in bridges
 require(not bridge_allowed("#ZIPFILES_WRITESTAGE") and not bridge_allowed("#ZipFiles_CreateStage") and bridge_allowed("#Result"),"bridge vectors")
 print("PASS ZIP_FILES_SOURCE_CONTRACT (source-only; no native execution)")
 
-# Die feste Dependencyrolle verlangt nur vorhandene Writer-/Core-Objektmarker.
-for file in ['Source/USP_CreateZipFileFromEntries.sql','Source/USP_ExtractZipEntryToFile.sql','Deployment/Deploy.sql']:
+# Der erhaltene klassische Lifecycle besitzt weiterhin seine ursprünglichen Markerrollen; die Runtime nicht.
+for file in ['Deployment/Deploy.sql']:
     text=(MODULE/file).read_text(encoding='utf-8')
     require('RequireObjectMarkers bit NOT NULL' in text,file+': explizite feste Markerrolle')
     for name,version,flag in [('USP_CreateZipFromEntries','1,4,0',1),('USP_ExtractZipEntryFromBinary','1,4,0',0),('USP_WriteBinaryFile','1,0,0',0),('USP_PrepareResultTable','1,0,0',1)]:

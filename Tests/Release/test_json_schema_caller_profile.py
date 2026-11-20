@@ -8,6 +8,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import caller_metadata
+import evidence_sources
 REPORT = ROOT / 'Releases/1.0.0/json-schema-caller-profile.json'
 
 
@@ -38,7 +39,7 @@ class JsonSchemaCallerProfileTests(unittest.TestCase):
             self.assertEqual(r[field], total)
             self.assertEqual(sum(c[field] for c in cases), total)
 
-    def test_current_execution_inputs(self):
+    def test_original_execution_inputs(self):
         pins = self.report['source_sha256']
         self.assertIn('Tests/Release/Invoke-JsonSchemaCallerLab.ps1', pins)
         self.assertIn(self.report['fixture'], pins)
@@ -47,7 +48,8 @@ class JsonSchemaCallerProfileTests(unittest.TestCase):
             self.assertFalse(Path(relative).is_absolute())
             self.assertNotIn('..', Path(relative).parts)
             self.assertNotIn('.runtime', Path(relative).parts)
-            caller_metadata.validate_source(ROOT, relative, digest)
+            original = evidence_sources.original_for(ROOT,self.report,relative,digest)
+            self.assertEqual(hashlib.sha256(original).hexdigest(),digest)
 
     def test_controls_and_terminal_cleanup(self):
         r = self.report

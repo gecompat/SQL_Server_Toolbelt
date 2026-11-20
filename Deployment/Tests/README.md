@@ -990,3 +990,24 @@ normalisiert. BEFORE behält seine festen historischen Volltexthashes.
 Helper-/Fixturedateien und die acht aktuellen Deklarationspins ohne SQLzugriff.
 Damit werden veraltete Hashes und abweichende Zeilenenden vor der Runtimewelle
 erkannt; die Zahl oder der Scope der SQL-Ziele wird nicht erweitert.
+
+### Aktuelle Queue1.1-Diagnose — 2026-11-20
+
+Bei unveränderten Schutzbedingungen unterscheidet der aktuelle Adapter die
+abgewiesene Application-Auswahl (`QUEUE11_DIRECTORY_TOOL_SELECTION`), den
+nichtkanonischen Pfad (`QUEUE11_DIRECTORY_TOOL_PATH`) und die fehlende reguläre
+NoReparse-Datei (`QUEUE11_DIRECTORY_TOOL_REGULAR`). Es werden nur feste Codes,
+keine konkreten Runnerpfade oder Inventarwerte publiziert. Der frühere gemeinsame
+Code bleibt als historische Diagnose erhalten. Diese Aufteilung ist kein
+Ursachenbeweis und keine neue Queue1.1-Qualifikation; Auswahl, Hashbindung und
+sämtliche Verzeichnis-/Prozess-/SQL-/Cleanupgrenzen bleiben unverändert.
+
+Der Linux-Worker-Runtimejob wählt jetzt ausdrücklich `ubuntu-24.04`, statt über
+`ubuntu-latest` einen wechselnden Betriebssystem-/Werkzeugvertrag zu erhalten.
+Die [öffentliche Imagedefinition](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)
+führt GNU coreutils. Dies ist eine feste CI-Konfiguration, kein automatischer
+Fallback nach einer Toolabweisung. Der ausgewählte `stat`-Pfad muss weiterhin
+regulär, NoReparse und hashgebunden sein; Installation, Aliasersetzung und
+Ausweichen auf einen zweiten Treffer bleiben ausgeschlossen. Die engere
+Imagewahl begründet noch keinen nativen PASS. Sie erzeugt keinen weiteren Job
+oder Reviewer und erhält die bestehenden SQL-/Cleanup-/Zeitgrenzen.

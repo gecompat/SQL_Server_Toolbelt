@@ -36,14 +36,16 @@ BEGIN
  OR @MaxTotalValueBytes IS NULL OR @MaxTotalValueBytes NOT BETWEEN 1 AND 16777216
  OR @MaxResultBytes IS NULL OR @MaxResultBytes NOT BETWEEN 1 AND 16777216
  THROW 53600,N'JSON: ungültiger Ressourcenparameter.',1;
- DECLARE @DependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P'),@Version nvarchar(64),@Major int,@Minor int,@Patch int;
- SELECT @Version=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version';
- SELECT @Major=TRY_CONVERT(int,PARSENAME(@Version,3)),@Minor=TRY_CONVERT(int,PARSENAME(@Version,2)),@Patch=TRY_CONVERT(int,PARSENAME(@Version,1));
- IF @DependencyId IS NULL OR @Major IS NULL OR @Major<1 OR @Minor IS NULL OR @Minor<0 OR @Patch IS NULL OR @Patch<0
- OR CONVERT(varbinary(max),@Version)<>CONVERT(varbinary(max),CONCAT(@Major,N'.',@Minor,N'.',@Patch))
- OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND TRY_CONVERT(nvarchar(128),value)=N'toolbelt.core.result-table')
- OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@DependencyId AND minor_id=0 AND name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@Version))
- THROW 53610,N'JSON: registrierte ResultTable-Dependency >=1.0.0 fehlt oder ist ungeeignet.',1;
+
+ DECLARE @DependencyId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P');
+ IF @DependencyId IS NULL
+ OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@DependencyId)<>5
+ OR EXISTS(SELECT 1 FROM (VALUES (1,N'@ResultTableToAlter',231,256),(2,N'@LikeTable',231,1552),
+(3,N'@KeepData',104,1),(4,N'@Debug',48,1),(5,N'@Hilfe',104,1)) expected(id,name,typeid,bytes)
+     WHERE NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=@DependencyId
+       AND p.parameter_id=expected.id AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),expected.name)
+       AND p.system_type_id=expected.typeid AND p.max_length=expected.bytes AND p.is_output=0))
+ THROW 53610,N'ResultTable-Schnittstelle fehlt oder ist abweichend.',1;
  IF @EntriesTable IS NULL OR LEFT(@EntriesTable,1) COLLATE Latin1_General_100_BIN2<>N'#'
  OR LEFT(@EntriesTable,2) COLLATE Latin1_General_100_BIN2=N'##'
  OR LEFT(LOWER(@EntriesTable COLLATE Latin1_General_100_BIN2),5) COLLATE Latin1_General_100_BIN2=N'#tbx_'

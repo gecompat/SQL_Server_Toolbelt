@@ -2,7 +2,7 @@ module_id: "toolbelt.core.second-session"
 module_name: "Second Session"
 version: "1.1.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Führt registrierte Stored-Procedure-Work-Types synchron über einen administrativ vorbereiteten Loopback-Linked-Server in einer getrennten SQL-Server-Session aus."
 sql_server_versions:
@@ -14,13 +14,13 @@ compatibility_levels:
   - 160
   - 170
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: loopback-linked-server-rpc
     technology: "T-SQL four-part RPC over MSOLEDBSQL linked server"
     platforms: [Windows, Linux]
-    status: validated
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true

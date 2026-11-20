@@ -89,6 +89,8 @@ class XlsxBoundaryEvidenceMixin:
         self.assertIs(totals['trust_hashes_unique_counted'], False)
 
     def test_xlsx_boundary_public_source_pins_bind_exact_executed_sources(self):
+        from ssis_historical_context import historical_root
+        source_root = historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
         report = self._xlsx_boundary_report()
         expected_counts = report['source_pin_counts']
         self.assertEqual(expected_counts, {'sheet_count': 129, 'shared_strings': 132})
@@ -100,11 +102,11 @@ class XlsxBoundaryEvidenceMixin:
                 self.assertNotIn('.runtime', relative.lower())
                 self.assertEqual(len(expected), 64)
                 if relative == xlsx_sst_budget.WORKBOOK:
-                    data = xlsx_sst_budget.validate_historical_source(ROOT, relative, expected)
+                    data = xlsx_sst_budget.validate_historical_source(source_root, relative, expected)
                 elif relative in help_contract_source.source_paths(ROOT):
-                    data = help_contract_source.validate_historical_source(ROOT, relative, expected)
+                    data = help_contract_source.validate_historical_source(source_root, relative, expected)
                 elif relative in ssis_historical_source_bridge.source_paths():
-                    data = ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected)
+                    data = ssis_historical_source_bridge.validate_historical_source(source_root, relative, expected)
                 elif relative == report['source_eol_projection']['path']:
                     # This record explicitly binds both the canonical LF bytes and
                     # the executed CRLF projection; keep that closed exception.
@@ -115,7 +117,9 @@ class XlsxBoundaryEvidenceMixin:
                                                     revisions=revisions)[relative].original
                 else:
                     import parameter_help_transition
-                    data = (parameter_help_transition.bound_source(ROOT, relative, expected)
+                    # Historischer Ausführungsbericht, keine Anwendbarkeit der
+                    # später geänderten markerfreien Runtime behaupten.
+                    data = (evidence_sources.original_for(ROOT, report, relative, expected)
                             if relative in parameter_help_transition.PATHS | parameter_help_transition.VERIFIER_PATHS
                             else evidence_sources.original_for(ROOT, report, relative, expected))
                 if relative == report['source_eol_projection']['path']:
@@ -158,8 +162,12 @@ class XlsxBoundaryEvidenceMixin:
         self.assertNotEqual(hashlib.sha256(modified).hexdigest(),
                             projection['canonical_lf_sha256'])
 
-    def test_sst_correction_binds_current_candidate_and_immutable_prior_evidence(self):
-        record = xlsx_sst_budget.validate_current(ROOT)
+    def test_sst_correction_binds_original_candidate_and_immutable_prior_evidence(self):
+        from ssis_historical_context import historical_root
+        record = xlsx_sst_budget.validate_current(historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428'))
+        # Ein historischer PASS darf den neuen Runtime-/Leservertrag nicht zulassen.
+        with self.assertRaises(ValueError):
+            xlsx_sst_budget.validate_current(ROOT)
         self.assertEqual(record['candidate_dll_sha256'],
                          'f1f604492bc69d9787b0582493f4045ae7363c61723d9e166717442253bb5abd')
         self.assertEqual(record['budget'], {

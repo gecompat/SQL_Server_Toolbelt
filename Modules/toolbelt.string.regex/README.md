@@ -1,5 +1,9 @@
 # toolbelt.string.regex
 
+## Installation des neuen Quellstands
+
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 ## Security-Korrektur 2026-10-14
 
 SC-014: Alle neun SQL-CLR-Einstiege prüfen SqlChars-Längen vor begrenzter Stringaufnahme. Öffentliche SQL-Signaturen und Limits bleiben erhalten; R2 teilt eine Deadline über Intake und Auswertung.

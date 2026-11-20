@@ -34,6 +34,8 @@ Keine Runtime-Modulabhängigkeit.
 
 ## Deployment
 
+Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+
 `Deployment/Deploy.sql` benötigt die SQLCMD-Variable
 `DeploymentMode=local|central`. Lokales und zentrales Deployment verwenden
 dieselbe Implementierung. Zentral installierte Procedures werden mit

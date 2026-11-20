@@ -24,7 +24,9 @@ import ssis_historical_source_bridge
 
 
 class ZipEntryCountComposerMixin:
-    def test_zip_entry_count_evidence_is_bound_to_current_sources_and_package(self):
+    def test_zip_entry_count_evidence_is_bound_to_original_sources_and_package(self):
+        from ssis_historical_context import historical_root
+        scope = historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
         report_path = ROOT / 'Releases/1.0.0/zip-entry-count-qualification.json'
         report = json.loads(report_path.read_bytes())
         self.assertEqual(report['schema_version'], 'toolbelt-zip-entry-count-boundary/v1')
@@ -73,9 +75,9 @@ class ZipEntryCountComposerMixin:
             self.assertNotIn('..', path.parts)
             self.assertNotIn('.runtime', path.parts)
             if relative in help_contract_source.source_paths(ROOT):
-                help_contract_source.validate_historical_source(ROOT, relative, expected_sha256)
+                help_contract_source.validate_historical_source(scope, relative, expected_sha256)
             elif relative in ssis_historical_source_bridge.source_paths():
-                ssis_historical_source_bridge.validate_historical_source(ROOT, relative, expected_sha256)
+                ssis_historical_source_bridge.validate_historical_source(scope, relative, expected_sha256)
             else:
                 data = evidence_sources.original_for(ROOT, report, relative, expected_sha256)
                 self.assertEqual(hashlib.sha256(data).hexdigest(), expected_sha256)

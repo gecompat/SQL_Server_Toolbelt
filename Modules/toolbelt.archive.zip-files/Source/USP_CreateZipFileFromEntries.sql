@@ -104,39 +104,55 @@ BEGIN
        OR (@ResultTable IS NOT NULL AND OBJECT_ID(N'tempdb..'+QUOTENAME(@EntryTable),N'U')=OBJECT_ID(N'tempdb..'+QUOTENAME(@ResultTable),N'U'))
         THROW 54620,N'TBX_ZIP_FILE_INVALID_FACADE_ARGUMENT: Input und Output dürfen keine eigenen Temps oder dasselbe Objekt sein.',1;
     -- Keine zusätzliche DB-weite Metadatensicht für normale Aufrufer.
-    DECLARE @Dependencies TABLE(ModuleId nvarchar(128),SchemaName sysname,ObjectName sysname,MinimumMajor int,MinimumMinor int,MinimumPatch int,RequireObjectMarkers bit NOT NULL);
+    -- Lokal gebundene Installation ist ein Paketprofil, kein Laufzeitmarker.
+    -- Tatsächlich aufgerufene Schnittstellen prüfen; Engine-Rechte bleiben erhalten.
+    DECLARE @Dependencies TABLE(ObjectName nvarchar(257),ParameterCount int,Ordinal int,
+      ParameterName sysname,TypeId int,Bytes smallint,Precision tinyint,Scale tinyint);
     INSERT @Dependencies VALUES
-      (N'toolbelt.archive.zip-memory',N'toolbelt_archive',N'USP_CreateZipFromEntries',1,4,0,1),
-      (N'toolbelt.archive.zip-memory',N'toolbelt_archive',N'USP_ExtractZipEntryFromBinary',1,4,0,0),
-      (N'toolbelt.filesystem.windows',N'toolbelt_filesystem',N'USP_WriteBinaryFile',1,0,0,0),
-      (N'toolbelt.core.result-table',N'toolbelt_core',N'USP_PrepareResultTable',1,0,0,1);
-    IF EXISTS
-    (
-        SELECT 1 FROM @Dependencies d
-        LEFT JOIN sys.extended_properties v ON v.class=0 AND v.major_id=0 AND v.minor_id=0
-            AND v.name=N'Toolbelt.Module.'+d.ModuleId+N'.Version'
-        CROSS APPLY (SELECT TRY_CONVERT(nvarchar(128),v.value) AS Version) t
-        CROSS APPLY (SELECT TRY_CONVERT(int,PARSENAME(t.Version,3)) AS Major,
-                            TRY_CONVERT(int,PARSENAME(t.Version,2)) AS Minor,
-                            TRY_CONVERT(int,PARSENAME(t.Version,1)) AS Patch) n
-        WHERE OBJECT_ID(QUOTENAME(d.SchemaName)+N'.'+QUOTENAME(d.ObjectName),N'P') IS NULL
-           OR t.Version IS NULL OR PARSENAME(t.Version,4) IS NOT NULL
-           OR n.Major IS NULL OR n.Minor IS NULL OR n.Patch IS NULL
-           OR n.Major<0 OR n.Minor<0 OR n.Patch<0
-           OR CONVERT(varbinary(max),t.Version)<>CONVERT(varbinary(max),CONCAT(n.Major,N'.',n.Minor,N'.',n.Patch))
-           OR n.Major<d.MinimumMajor
-           OR (n.Major=d.MinimumMajor AND n.Minor<d.MinimumMinor)
-           OR (n.Major=d.MinimumMajor AND n.Minor=d.MinimumMinor AND n.Patch<d.MinimumPatch)
-           OR (d.ModuleId<>N'toolbelt.filesystem.windows' AND NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=0 AND e.major_id=0 AND e.minor_id=0
-               AND e.name=N'Toolbelt.Module.'+d.ModuleId+N'.DeploymentMode'
-               AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'local')))
-           OR (d.RequireObjectMarkers=1 AND NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=OBJECT_ID(QUOTENAME(d.SchemaName)+N'.'+QUOTENAME(d.ObjectName)) AND e.minor_id=0 AND e.name=N'Toolbelt.ModuleId'
-               AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),d.ModuleId)))
-           OR (d.RequireObjectMarkers=1 AND NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=OBJECT_ID(QUOTENAME(d.SchemaName)+N'.'+QUOTENAME(d.ObjectName)) AND e.minor_id=0 AND e.name=N'Toolbelt.ModuleVersion'
-               AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),t.Version)))
-           OR (d.ModuleId=N'toolbelt.core.result-table' AND NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=OBJECT_ID(QUOTENAME(d.SchemaName)+N'.'+QUOTENAME(d.ObjectName)) AND e.minor_id=0 AND e.name=N'Toolbelt.DeploymentMode'
-               AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'local')))
-    ) THROW 54622,N'TBX_ZIP_FILE_DEPENDENCY: Lokale Dependencies mit kohärenten P-Slots und Versionsmarkern fehlen.',1;
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,1,N'@EntryTable',231,256,0,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,2,N'@CompressionMethod',167,-1,0,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,3,N'@MaxEntries',56,4,10,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,4,N'@MaxEntryNameCodeUnits',56,4,10,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,5,N'@MaxEntryBytes',127,8,19,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,6,N'@MaxTotalPayloadBytes',127,8,19,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,7,N'@MaxArchiveBytes',127,8,19,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,8,N'@MaxEnvelopeBytes',127,8,19,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,9,N'@WriterBudgetMilliseconds',56,4,10,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,10,N'@ResultTable',231,256,0,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,11,N'@KeepData',104,1,1,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,12,N'@Debug',48,1,3,0),
+      (N'toolbelt_archive.USP_CreateZipFromEntries',13,13,N'@Hilfe',104,1,1,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,1,N'@ZipArchive',165,-1,0,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,2,N'@EntryName',231,2048,0,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,3,N'@MaxEntryBytes',127,8,19,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,4,N'@MaxCompressionRatio',106,5,9,2),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,5,N'@FailIfEncrypted',104,1,1,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,6,N'@ResultTable',231,256,0,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,7,N'@KeepData',104,1,1,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,8,N'@Debug',48,1,3,0),
+      (N'toolbelt_archive.USP_ExtractZipEntryFromBinary',9,9,N'@Hilfe',104,1,1,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,1,N'@RootAlias',231,256,0,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,2,N'@RelativePath',231,8000,0,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,3,N'@Content',165,-1,0,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,4,N'@Overwrite',104,1,1,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,5,N'@ExecutionIdentity',167,16,0,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,6,N'@ResultTable',231,256,0,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,7,N'@KeepData',104,1,1,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,8,N'@Debug',48,1,3,0),
+      (N'toolbelt_filesystem.USP_WriteBinaryFile',9,9,N'@Hilfe',104,1,1,0),
+      (N'toolbelt_core.USP_PrepareResultTable',5,1,N'@ResultTableToAlter',231,256,0,0),
+      (N'toolbelt_core.USP_PrepareResultTable',5,2,N'@LikeTable',231,1552,0,0),
+      (N'toolbelt_core.USP_PrepareResultTable',5,3,N'@KeepData',104,1,1,0),
+      (N'toolbelt_core.USP_PrepareResultTable',5,4,N'@Debug',48,1,3,0),
+      (N'toolbelt_core.USP_PrepareResultTable',5,5,N'@Hilfe',104,1,1,0);
+    IF EXISTS(SELECT 1 FROM @Dependencies d
+        WHERE OBJECT_ID(d.ObjectName,N'P') IS NULL
+        OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=OBJECT_ID(d.ObjectName,N'P'))<>d.ParameterCount
+        OR NOT EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=OBJECT_ID(d.ObjectName,N'P')
+            AND p.parameter_id=d.Ordinal AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),d.ParameterName)
+            AND p.system_type_id=d.TypeId AND p.max_length=d.Bytes AND p.precision=d.Precision
+            AND p.scale=d.Scale AND p.is_output=0))
+      THROW 54622,N'TBX_ZIP_FILE_DEPENDENCY: Dependency-Schnittstellen fehlen oder sind abweichend.',1;
     DECLARE @Payload varbinary(max),@Sql nvarchar(max);
     BEGIN TRY
         CREATE TABLE #ZipFiles_CreateStage(ArchivePayload varbinary(max) NOT NULL,ArchiveBytes bigint NOT NULL,EntryCount int NOT NULL,TotalPayloadBytes bigint NOT NULL,CompressionMethod int NOT NULL);

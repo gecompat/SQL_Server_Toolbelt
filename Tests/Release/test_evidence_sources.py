@@ -74,6 +74,20 @@ class EvidenceSourceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not recorded by this report'):
             sources.report_sources(self.root, self.path, bindings={'Modules/Contoso.sql': '0' * 64})
 
+    def test_path_digest_pair_records_preserve_original_without_current_acceptance(self):
+        report={'source_commit':self.revision,'input_pins':{'pins':[
+            {'path':'Modules/Contoso.sql','sha256':self.digest}]}}
+        self.report_file.write_text(json.dumps(report),encoding='utf-8')
+        self.git('add','.')
+        self.git('-c','user.name=Contoso','-c','user.email=test@example.invalid','commit','-qm','Synthetic pair record')
+        self.file.write_bytes(b'changed\n')
+        bound=sources.report_sources(self.root,self.path,bindings={'Modules/Contoso.sql':self.digest})
+        self.assertEqual(bound['Modules/Contoso.sql'].original,b'original\r\n')
+        with self.assertRaisesRegex(ValueError,'current source qualification missing'):
+            sources.require_current(bound)
+        with self.assertRaisesRegex(ValueError,'not recorded by this report'):
+            sources.report_sources(self.root,self.path,bindings={'Modules/Contoso.sql':'0'*64})
+
     def test_no_arbitrary_history_search(self):
         self.file.write_bytes(b'changed\n')
         with self.assertRaisesRegex(ValueError, 'exact original source unavailable'):
@@ -179,11 +193,13 @@ class EvidenceSourceTests(unittest.TestCase):
     def test_reviewed_reader_catalog_restores_original_but_rejects_mutation(self):
         import parameter_help_transition as transition
         root = Path(__file__).resolve().parents[2]
+        from ssis_historical_context import historical_root
+        original_root = historical_root(root, '47e759b683805d9c79b59fb9e541618fc9cfb428')
         pins = json.loads((root / transition.VERIFIER_PINS).read_bytes())
         for name in transition.ADDITIONAL_REVIEWED_READ_ADAPTERS:
             with self.subTest(path=name):
-                current = (root / name).read_bytes()
-                original = transition.restore_verifier_source(root, name, current)
+                current = (original_root / name).read_bytes()
+                original = transition.restore_verifier_source(original_root, name, current)
                 self.assertEqual(hashlib.sha256(original).hexdigest(), pins[name]['before'])
                 with self.assertRaises(ValueError):
                     transition.restore_verifier_source(root, name, current + b'\n# unexpected drift\n')
@@ -228,7 +244,9 @@ class FileContentRepeatMetadataTests(unittest.TestCase):
     def test_exact_status_navigation_transition_preserves_original_not_current_claim(self):
         for path in self.paths:
             expected = self.record['baseline_source_sha256'][path]
-            original = self.help.validate_historical_source(self.repository, path, expected)
+            from ssis_historical_context import historical_root
+            recorded_root = historical_root(self.repository, '47e759b683805d9c79b59fb9e541618fc9cfb428')
+            original = self.help.validate_historical_source(recorded_root, path, expected)
             self.assertEqual(hashlib.sha256(original).hexdigest(), expected)
             bound = sources.resolve(self.repository, {path: expected}, originals={path: original})
             self.assertFalse(bound[path].current_matches)
