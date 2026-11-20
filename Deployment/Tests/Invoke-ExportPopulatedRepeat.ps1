@@ -67,7 +67,8 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'QUEUE11_ROOT_ATTRIBUTES','QUEUE11_ROOT_INITIAL_ABSENT','QUEUE11_ROOT_INITIAL_PARENT_DIRECTORY',
   'QUEUE11_ROOT_INITIAL_PARENT_REPARSE',
   'QUEUE11_DIRECTORY_CI_SCOPE','QUEUE11_DIRECTORY_PROCESS_HELPER','QUEUE11_DIRECTORY_TOOL',
-  'QUEUE11_DIRECTORY_TOOL_DRIFT','QUEUE11_DIRECTORY_PATHS','QUEUE11_DIRECTORY_BUDGET',
+  'QUEUE11_DIRECTORY_TOOL_DRIFT','QUEUE11_DIRECTORY_TOOL_SELECTION',
+  'QUEUE11_DIRECTORY_TOOL_PATH','QUEUE11_DIRECTORY_TOOL_REGULAR','QUEUE11_DIRECTORY_PATHS','QUEUE11_DIRECTORY_BUDGET',
   'QUEUE11_DIRECTORY_PROCESS','QUEUE11_DIRECTORY_CAPTURE','QUEUE11_DIRECTORY_RECORDS',
   'QUEUE11_DIRECTORY_TYPE','QUEUE11_ROOT_PARENT_IDENTITY','QUEUE11_ROOT_IDENTITY',
   'QUEUE11_ROOT_BOUNDARY','QUEUE11_FILE_BOUNDARY','QUEUE11_FILE_REGISTRATION','QUEUE11_FILE_IDENTITY',
@@ -648,11 +649,11 @@ try{
   . $processPath
   # Genau die tatsächlich ausgewählte Application binden, ohne PATH-Inventar oder Neuauflösung.
   $commands=@(Get-Command -Name stat -CommandType Application -TotalCount 1 -ErrorAction Stop)
-  Assert-ExportRepeat ($commands.Count-eq1-and$commands[0].CommandType-eq[Management.Automation.CommandTypes]::Application-and-not[string]::IsNullOrWhiteSpace($commands[0].Path)) 'QUEUE11_DIRECTORY_TOOL'
+  Assert-ExportRepeat ($commands.Count-eq1-and$commands[0].CommandType-eq[Management.Automation.CommandTypes]::Application-and-not[string]::IsNullOrWhiteSpace($commands[0].Path)) 'QUEUE11_DIRECTORY_TOOL_SELECTION'
   $statPath=[IO.Path]::GetFullPath($commands[0].Path)
-  Assert-ExportRepeat ($statPath-ceq$commands[0].Path) 'QUEUE11_DIRECTORY_TOOL'
+  Assert-ExportRepeat ($statPath-ceq$commands[0].Path) 'QUEUE11_DIRECTORY_TOOL_PATH'
   $statItem=Get-Item -LiteralPath $statPath -ErrorAction Stop
-  Assert-ExportRepeat ([IO.File]::Exists($statPath)-and-not$statItem.PSIsContainer-and($statItem.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_DIRECTORY_TOOL'
+  Assert-ExportRepeat ([IO.File]::Exists($statPath)-and-not$statItem.PSIsContainer-and($statItem.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_DIRECTORY_TOOL_REGULAR'
   $queue11DirectoryTool=[pscustomobject]@{Path=$statPath;Hash=(Get-FileHash -LiteralPath $statPath -Algorithm SHA256).Hash}
   $queue11DirectoryBudget=[pscustomobject]@{ElapsedMilliseconds=0L;ProcessCount=0}
   $parentDirectoryIdentity=Get-Queue11DirectoryIdentities @($temporaryParent)
