@@ -29,14 +29,9 @@ dependencies:
     minimum_version: "1.0.0"
     location: same_database
     reason: "Kanonischer ResultTable-Vertrag."
-  - module_id: "toolbelt.tsql.script-parser"
-    minimum_version: "2.0.1"
-    location: same_database
-    required_when: "Nur der bisherige SQLCMD-Lifecycle: Träger der privaten ScriptDom-Assembly und seines separaten Parser-Preflights. Der markerfreie Funktionsinstaller benötigt das Parsermodul nicht."
-    reason: "Der klassische Export muss seine tatsächlichen Lifecycle-Voraussetzungen vollständig auswählen; keine SQL-Parser-TVF-Abhängigkeit des neuen CLR-Runtimepfads."
 build_dependencies:
   - module_id: "toolbelt.tsql.script-parser"
-    reason: "Gemeinsamer PreparseGuardCore als Compilerquelle; keine SQL-Parser-TVFs zur Laufzeit erforderlich. Der historische Lifecycle besitzt einen separaten Parser-Preflight."
+    reason: "Gemeinsamer PreparseGuardCore als Compilerquelle; keine SQL-Parser-TVFs zur Laufzeit erforderlich. Keine SQL-Parser-TVFs und kein Parsermodul als Runtimeabhängigkeit."
 schemas:
   - "toolbelt_tsql"
 objects:

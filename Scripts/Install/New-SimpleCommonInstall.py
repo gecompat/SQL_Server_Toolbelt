@@ -160,7 +160,7 @@ def binary_inputs(inputs, required_modules=None):
             if name.startswith('source/'):
                 require(sha((ROOT/'Modules/toolbelt.json.constructors/Clr'/name[7:]).read_bytes())==expected,'constructor source')
         data['Toolbelt.JsonConstructors.dll']=payload
-    if required_modules & {'toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}:
+    if 'toolbelt.tsql.script-parser' in required_modules:
         parser=json.loads((inputs/'parser/Toolbelt.Tsql.ScriptParser.trust-manifest.json').read_bytes())
         parser_payload=(inputs/'parser/Toolbelt.Tsql.ScriptParser.dll').read_bytes()
         dom=(inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll').read_bytes()
@@ -177,10 +177,11 @@ def binary_inputs(inputs, required_modules=None):
         data['Toolbelt.Tsql.ScriptParser.dll']=parser_payload
         data['Microsoft.SqlServer.TransactSql.ScriptDom.dll']=dom
     if 'toolbelt.tsql.ssis-debug' in required_modules:
+        data['Microsoft.SqlServer.TransactSql.ScriptDom.dll']=(inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll').read_bytes()
         ssis=load_script('simple_ssis_install',ROOT/'Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py')
         # Dessen strikte Zulassung bindet sämtliche SSIS-Compiler-/Facadequellen,
         # reproduzierten Build und die private ScriptDom-Abhängigkeit.
-        ssis.render(inputs/'ssis',inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll','hash')
+        ssis.validate_inputs(inputs/'ssis',inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll','hash')
         data['Toolbelt.Tsql.SsisDebug.dll']=(inputs/'ssis/Toolbelt.Tsql.SsisDebug.dll').read_bytes()
     return metadata['artifacts'],data
 
@@ -278,6 +279,19 @@ def emit_sources(parsed, alias):
     return ''.join(output)
 
 
+def build_source_bindings():
+    # Include transitive source consumers, not only the public builder file.
+    paths=set()
+    for pattern in ('Modules/*/Clr/**/*.cs','Modules/*/Clr/**/*.csproj',
+                    'Modules/*/Exchange/Core/*.cs','Scripts/Install/*.py','Scripts/Install/*.ps1'):
+        paths.update(p for p in ROOT.glob(pattern) if not {'bin','obj'} & set(p.parts))
+    for name in ('Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py',
+                 'Modules/toolbelt.json.constructors/Documentation/KNOWN_CLR_ARTIFACTS.json',
+                 'Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json'):
+        paths.add(ROOT/name)
+    return {path.relative_to(ROOT).as_posix():sha(normalize(path.read_bytes())) for path in sorted(paths)}
+
+
 def build(inputs,work,output,platform,mode,trust,module_ids=None):
     require(not output.exists() and not Path(str(output)+'.manifest.json').exists(),'new output required')
     require(work.is_relative_to(ROOT/'.runtime') and not work.exists(),'new private work directory required')
@@ -326,6 +340,7 @@ IF @TrustMethod IN('trustworthy','trustworthy-checked') AND NOT EXISTS(SELECT 1 
 BEGIN TRY
 '''
     for license_file in ('LICENSE.md','Modules/toolbelt.tsql.ssis-debug/InstallPackages/ThirdParty/ScriptDom-180.117.0/LICENSE','Modules/toolbelt.string.phonetic/ThirdParty/ApacheCommonsCodec/LICENSE.txt','Modules/toolbelt.string.phonetic/ThirdParty/ApacheCommonsCodec/NOTICE.txt'):
+        hashes[license_file]=sha(normalize((ROOT/license_file).read_bytes()))
         text=(ROOT/license_file).read_text(encoding='utf-8-sig')
         require('*/' not in text,'license comment boundary')
         prefix+='/* '+license_file+'\n'+text+'\n*/\n'
@@ -364,11 +379,7 @@ END;
         tail='EXEC sys.sp_executesql '+literal(tail)+','+literal('@NewWorkType bit,@NewRegistrar bit,@NewEventHandler bit')+',@NewWorkType=@NewWorkType,@NewRegistrar=@NewRegistrar,@NewEventHandler=@NewEventHandler;\n'
     content=prefix+body+tail+'END TRY\nBEGIN CATCH THROW; END CATCH;\n'
     require(not re.search(r'^\s*(?:GO\s*$|:\w|GRANT\b|REVOKE\b|DENY\b|RECONFIGURE\b)',content,re.M|re.I),'forbidden installer control')
-    for path in (ROOT/'Modules').glob('*/Clr/**/*'):
-        if path.suffix in ('.cs','.csproj') and not {'bin','obj'}&set(path.parts):
-            hashes[path.relative_to(ROOT).as_posix()]=sha(normalize(path.read_bytes()))
-    for path in (ROOT/'Scripts/Install').glob('*'):
-        if path.suffix in ('.py','.ps1'): hashes[path.relative_to(ROOT).as_posix()]=sha(normalize(path.read_bytes()))
+    hashes.update(build_source_bindings())
     for path in (ROOT/'Modules').glob('*/module.yaml'):
         hashes[path.relative_to(ROOT).as_posix()]=sha(normalize(path.read_bytes()))
     output.parent.mkdir(parents=True,exist_ok=True);output.write_text(content,encoding='utf-8',newline='\n')

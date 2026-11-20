@@ -24,6 +24,13 @@ capabilities=load('New-MarkerlessCapabilities.py')
 
 
 class MarkerlessContractTests(unittest.TestCase):
+    def test_source_binding_includes_transitive_admission_and_shared_compiler_sources(self):
+        pins=installer.build_source_bindings()
+        self.assertIn('Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py',pins)
+        self.assertIn('Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json',pins)
+        for path in (ROOT/'Modules/toolbelt.tsql.ssis-debug/Exchange/Core').glob('*.cs'):
+            self.assertEqual(pins[path.relative_to(ROOT).as_posix()],installer.sha(installer.normalize(path.read_bytes())))
+
     def test_current_module_lifecycle_has_one_markerless_builder(self):
         paths=list((ROOT/'Modules').glob('*/module.yaml'))
         self.assertEqual(len(paths),45)
@@ -112,7 +119,7 @@ class MarkerlessContractTests(unittest.TestCase):
         selected=installer.modules('Windows','local',['toolbelt.tsql.ssis-debug'])
         ids=[m['id'] for m in selected]
         self.assertIn('toolbelt.tsql.ssis-debug',ids)
-        self.assertIn('toolbelt.tsql.script-parser',ids)
+        self.assertNotIn('toolbelt.tsql.script-parser',ids)
         self.assertNotIn('toolbelt.file.xlsx-memory',ids)
         for index,module in enumerate(selected):
             for dependency in module['dependencies']:

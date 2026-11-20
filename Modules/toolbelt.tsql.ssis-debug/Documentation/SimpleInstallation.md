@@ -32,6 +32,10 @@ python Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py `
   --output .runtime/simple/Install-SsisDebug.sql
 ```
 
+Mit `--mode central` denselben Funktionssatz für eine zentrale Installation
+bauen; Standard ist local. Neben der SQL-Datei entsteht das zum Clientweg
+gehörende Buildmanifest.
+
 Die fertige Datei enthält Binaries, Schemas und alle drei notwendigen
 Prozeduren. Sie benötigt beim Ausführen weder einen Dateipfad auf dem Server
 noch SQLCMD, Deploymenttabellen oder Extended Properties. Die vier Parser-TVFs
@@ -39,11 +43,12 @@ müssen für diesen SSIS-Aufruf nicht installiert werden.
 
 ## Lokal oder zentral installieren
 
-In `Install-SsisDebug.sql` nur die erste Zeile `USE [ContosoSsisDebug];` auf die
+In `Install-SsisDebug.sql` nur die erste Zeile `USE [ContosoToolbelt];` auf die
 gewünschte vorhandene Datenbank ändern. Die gesamte Datei in einer normalen
 SSMS-Abfrage ausführen. Lokal ist dies die Arbeitsdatenbank, zentral die
 gemeinsame Toolbelt-Datenbank. SQL Server 2019/2022/2025 unter Windows und
-aktiviertes CLR sind erforderlich. Der Installer aktiviert CLR oder
+aktiviertes CLR sind erforderlich. Die SQL-Datei stammt aus demselben Installationskern wie der gemeinsame Satz.
+Der Installer aktiviert CLR oder
 TRUSTWORTHY nicht und ändert `clr strict security` nicht. Die Engine prüft die
 tatsächlich nötigen CREATE-/Schema-/Assemblyrechte; Rechte werden nicht erteilt.
 

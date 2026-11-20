@@ -1,38 +1,18 @@
-"""Erzeugt den eigentlichen DTSX-Funktionssatz ohne SQLCMD oder Installationsmarker."""
+"""DTSX-Funktionssatz über denselben markerfreien Kern wie alle Module bauen."""
 import argparse
 import hashlib
 import json
 from pathlib import Path
-import re
 
-MODULE = Path(__file__).resolve().parents[1]
-REPO = MODULE.parents[1]
-NAMES = {
-    "Microsoft.SqlServer.TransactSql.ScriptDom": "tlblt.Microsoft.SqlServer.TransactSql.ScriptDom",
-    "tlblt_Tsql_SsisDebug": "tlblt_Tsql_SsisDebug",
-}
+MODULE=Path(__file__).resolve().parents[1]
+REPO=MODULE.parents[1]
 
 
-def sha(data, algorithm="sha256"):
-    return hashlib.new(algorithm, data).hexdigest().upper()
+def sha(data,algorithm='sha256'):
+    return hashlib.new(algorithm,data).hexdigest().upper()
 
 
-def literal(text):
-    return "N'" + text.replace("'", "''") + "'"
-
-
-def definition(source):
-    text = source.read_text(encoding="utf-8-sig")
-    match = re.search(r"(?m)^CREATE OR ALTER PROCEDURE\b", text)
-    if not match:
-        raise ValueError("SIMPLE_INSTALL_PROCEDURE_SOURCE_REQUIRED")
-    text = re.sub(r"(?im)\nGO\s*\Z", "", text[match.start():]).strip()
-    if re.search(r"(?im)^\s*(?:GO\s*$|:\w)", text):
-        raise ValueError("SIMPLE_INSTALL_SINGLE_DEFINITION_REQUIRED")
-    return text.replace("CREATE OR ALTER PROCEDURE", "CREATE PROCEDURE", 1)
-
-
-def render(ssis_release, scriptdom, mode="auto"):
+def validate_inputs(ssis_release, scriptdom, mode="auto"):
     if mode not in {"auto", "hash", "trustworthy-checked", "trustworthy"}:
         raise ValueError("SIMPLE_INSTALL_TRUST_MODE")
     manifest = json.loads((ssis_release / "Toolbelt.Tsql.SsisDebug.trust-manifest.json").read_text(encoding="utf-8-sig"))
@@ -58,92 +38,40 @@ def render(ssis_release, scriptdom, mode="auto"):
         if deployment.get("Source/" + name) != sha((MODULE / "Source" / name).read_bytes()):
             raise ValueError("SIMPLE_INSTALL_FACADE_SOURCE_DRIFT")
 
-    header = """USE [ContosoSsisDebug];
-/*
-DTSX-Debug: schlanker Funktionsinstaller aus dem aktuellen Quellbuild.
-Nur USE anpassen und die gesamte Datei in normalem SSMS ausfuehren.
-Keine SQLCMD-Direktiven, Extended Properties, Log-/Versionstabellen,
-pauschale Rechtepruefung, Rechtevergabe oder automatische Konfigurationsaenderung.
-Die Datenbank muss existieren; CLR/Strict Security und benoetigte Engine-
-Berechtigungen sind vorhanden. Fehlende Rechte meldet das eigentliche CREATE.
+    return {'provider':provider,'scriptdom':dom,'manifest':manifest}
 
-@TrustMethod: auto waehlt bei bereits TRUSTWORTHY ON den Weg trustworthy,
-sonst hash. hash prueft Binaries und registriert nur die exakten Hashes;
-die Engine verlangt dafuer entsprechende Serverrechte. trustworthy-checked
-prueft Hashes ohne Registryeintrag; trustworthy verwendet vorhandenen DB-Trust
-ohne Toolbelt-Hashpruefung. Beide trustworthy-Wege setzen bereits ON und
-einen entsprechend berechtigten DB-Owner voraus; dieses Skript aktiviert ON
-nicht selbst. Kein automatischer Fallback nach einem Fehler.
 
-Vorhandene Objekte werden nicht geloescht/ersetzt. Die geprueften Wege weisen
-abweichende vorhandene Assemblybytes ab. trustworthy ist keine Upgradepruefung.
-Bei einem Fehler stoppt die Folgeinstallation; zuvor erstellte Objekte und
-Hashfreigaben bleiben gegebenenfalls bestehen. Keine Gesamttransaktion.
-Enthalten: zwei Assemblies und drei Prozeduren; keine SQL-Parser-TVFs notwendig.
-
-Aufruf danach:
-EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageXml=N'<vollstaendiges DTSX>';
-Optional @StartValues=N'{"User::SourceFloor":5}'. CatalogMode=package erzeugt
-einen als ungeprueft markierten Debugentwurf ohne Quellkatalogzugriff.
-CatalogMode=catalog waehlt die strengere Abnahme mit deren Metadatenrechten.
-Keine automatische Paket-/SQL-Ausfuehrung. Keine erhoehte Sicherheit aus dem
-SQL-Assemblynamenspraefix ableiten; CLR-Koexistenz ist separat nachzuweisen.
-*/
-SET NOCOUNT ON;
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-DECLARE @TrustMethod varchar(24)='@MODE@';
-IF @TrustMethod='auto'
-    SET @TrustMethod=CASE WHEN (SELECT is_trustworthy_on FROM sys.databases WHERE database_id=DB_ID())=1 THEN 'trustworthy' ELSE 'hash' END;
-BEGIN TRY
-IF @TrustMethod IN('trustworthy','trustworthy-checked') AND NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=DB_ID() AND is_trustworthy_on=1)
- THROW 51000,N'Der gewaehlte Trustweg verlangt bereits TRUSTWORTHY ON; es wird nicht aktiviert.',1;
-""".replace("@MODE@", mode)
-    parts = [header]
-    for name in [REPO / "LICENSE.md", MODULE / "InstallPackages/ThirdParty/ScriptDom-180.117.0/LICENSE"]:
-        license_text = name.read_text(encoding="utf-8-sig")
-        if "*/" in license_text:
-            raise ValueError("SIMPLE_INSTALL_LICENSE_COMMENT")
-        parts.append("/* Original-Lizenz: " + name.name + "\n" + license_text + "\n*/\n")
-    parts.append("IF SCHEMA_ID(N'toolbelt_core') IS NULL EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_core];';\nIF SCHEMA_ID(N'toolbelt_tsql') IS NULL EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_tsql];';\n")
-    for sql_name, data in [(NAMES["Microsoft.SqlServer.TransactSql.ScriptDom"], dom), (NAMES["tlblt_Tsql_SsisDebug"], provider)]:
-        digest = sha(data, "sha512")
-        variable = "@bits" + ("Dom" if data is dom else "Ssis")
-        parts.append("DECLARE " + variable + " varbinary(max)=0x" + data.hex().upper() + ";\n")
-        # Absence/NULL of visible binary metadata must not pass a checked route.
-        parts.append("IF @TrustMethod IN('hash','trustworthy-checked')\nBEGIN\n IF HASHBYTES('SHA2_512'," + variable + ")<>0x" + digest + " THROW 51000,N'Assemblybinary ist abweichend.',1;\n IF EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'" + sql_name + "') AND NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'" + sql_name + "' AND HASHBYTES('SHA2_512',f.content)=0x" + digest + ") THROW 51000,N'Vorhandene Assembly ist abweichend oder nicht pruefbar; kein automatisches Upgrade.',1;\nEND;\n")
-        trust_sql = "IF NOT EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=0x" + digest + ") EXEC master.sys.sp_add_trusted_assembly @hash=0x" + digest + ",@description=N'Toolbelt " + sql_name + "';"
-        parts.append("IF @TrustMethod='hash'\n EXEC sys.sp_executesql " + literal(trust_sql) + ";\n")
-        parts.append("IF NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'" + sql_name + "')\nBEGIN\n DECLARE @ddl" + variable[1:] + " nvarchar(max)=N'CREATE ASSEMBLY [" + sql_name + "] FROM '+CONVERT(nvarchar(max)," + variable + ",1)+N' WITH PERMISSION_SET=UNSAFE;';\n EXEC sys.sp_executesql @ddl" + variable[1:] + ";\nEND;\n")
-    for schema, name, source in [
-        ("toolbelt_core", "USP_PrepareResultTable", REPO / "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql"),
-        ("toolbelt_tsql", "USP_ExplainSsisDataFlowInternal", MODULE / "Source/USP_ExplainSsisDataFlowInternal.sql"),
-        ("toolbelt_tsql", "USP_ExplainSsisDataFlow", MODULE / "Source/USP_ExplainSsisDataFlow.sql"),
-    ]:
-        sql = definition(source)
-        for old, new in NAMES.items():
-            sql = sql.replace("[" + old + "]", "[" + new + "]")
-        parts.append("IF OBJECT_ID(N'" + schema + "." + name + "') IS NULL\n EXEC sys.sp_executesql " + literal(sql) + ";\n")
-    parts.append("END TRY\nBEGIN CATCH\n THROW;\nEND CATCH;\n")
-    result = "\n".join(parts)
-    if re.search(r"(?im)^\s*(?:GO\s*$|:\w|GRANT\b|REVOKE\b|DENY\b|RECONFIGURE\b|ALTER DATABASE\b)", result) or "extended_properties" in result:
-        raise ValueError("SIMPLE_INSTALL_FORBIDDEN_CONTROL")
-    return result
+def build(ssis_release,scriptdom,output,mode='auto',deployment_mode='local'):
+    # Same current kernel as the common and other module installers.
+    import importlib.util
+    import shutil
+    import sys
+    import uuid
+    validated=validate_inputs(ssis_release,scriptdom,mode)
+    sys.path.insert(0,str(REPO/'Scripts/Install'))
+    spec=importlib.util.spec_from_file_location('common_install',REPO/'Scripts/Install/New-SimpleCommonInstall.py')
+    common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
+    work=REPO/'.runtime'/('ssis-simple-'+uuid.uuid4().hex)
+    inputs=work/'inputs'
+    (inputs/'ssis').mkdir(parents=True)
+    (inputs/'parser').mkdir()
+    for name in ('Toolbelt.Tsql.SsisDebug.dll','Toolbelt.Tsql.SsisDebug.trust-manifest.json'):
+        shutil.copyfile(ssis_release/name,inputs/'ssis'/name)
+    (inputs/'parser/tlblt.Microsoft.SqlServer.TransactSql.ScriptDom.dll').write_bytes(validated['scriptdom'])
+    return common.build(inputs,work/'parse',output.resolve(),'Windows',deployment_mode,mode,
+                        ['toolbelt.tsql.ssis-debug'])
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--ssis-release", type=Path, required=True)
-    parser.add_argument("--scriptdom", type=Path, required=True)
-    parser.add_argument("--trust-mode", choices=["auto", "hash", "trustworthy-checked", "trustworthy"], default="auto")
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
-    text = render(args.ssis_release, args.scriptdom, args.trust_mode)
-    if args.output.exists():
-        raise ValueError("SIMPLE_INSTALL_OUTPUT_EXISTS")
-    args.output.write_text(text, encoding="utf-8-sig", newline="\n")
-    print("SSIS_SIMPLE_INSTALL_CREATED no SQL executed")
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--ssis-release',type=Path,required=True)
+    parser.add_argument('--scriptdom',type=Path,required=True)
+    parser.add_argument('--trust-mode',choices=['auto','hash','trustworthy-checked','trustworthy'],default='auto')
+    parser.add_argument('--mode',choices=['local','central'],default='local')
+    parser.add_argument('--output',type=Path,required=True)
+    args=parser.parse_args()
+    build(args.ssis_release,args.scriptdom,args.output,args.trust_mode,args.mode)
+    print('SSIS_SIMPLE_INSTALL_CREATED common kernel; no SQL executed')
 
 
-if __name__ == "__main__":
-    main()
+if __name__=='__main__':main()
