@@ -28,10 +28,19 @@ namespace Toolbelt.Tsql.SsisDebug
         internal readonly HashSet<string> ReferenceInputs = new HashSet<string>(StringComparer.Ordinal);
         internal readonly List<LookupCache> Caches = new List<LookupCache>();
         internal readonly List<string> StructureGuards = new List<string>();
+        internal readonly List<ProcedureDataset> Procedures = new List<ProcedureDataset>();
+    }
+    internal sealed class ProcedureDataset
+    {
+        internal string Name, Call;
+        internal Stage Input;
+        internal List<BoundColumn> Columns;
     }
     internal sealed class LookupCache
     {
         internal string Name, StateName, Insert, Definition, Owner;
+        internal string PreviewQuery;
+        internal readonly List<KeyValuePair<string, string>> PreviewCtes = new List<KeyValuePair<string, string>>();
         internal string PlanSaltState, PlanSaltOwner, PlanHash;
         internal bool FreshPerExecution;
         internal readonly List<StageColumn> Columns = new List<StageColumn>();
@@ -49,6 +58,7 @@ namespace Toolbelt.Tsql.SsisDebug
         private readonly Dictionary<string, Component> outputOwners = new Dictionary<string, Component>(StringComparer.Ordinal);
         private readonly Dictionary<string, Port> outputPorts = new Dictionary<string, Port>(StringComparer.Ordinal);
         private readonly Dictionary<string, LookupCache> lookupCaches = new Dictionary<string, LookupCache>(StringComparer.Ordinal);
+        private readonly Dictionary<string, ProcedureDataset> procedureDatasets = new Dictionary<string, ProcedureDataset>(StringComparer.Ordinal);
         private int nextStage, nextColumn, nextSyntheticStage; private readonly string runToken, runHash;
         private readonly HashSet<string> emittedV2Plans = new HashSet<string>(StringComparer.Ordinal);
         internal Translator(Package p, Bindings b, Options o, SqlSafety sql, ICatalog cat, Artifacts result)
@@ -104,6 +114,20 @@ namespace Toolbelt.Tsql.SsisDebug
                     continue;
                 }
                 if (options.Stage != null && options.Stage != "all" && !ancestors.Any(s => s.Id == options.Stage)) throw new DebugFault("unresolved_binding", "Stufe gehört nicht zum ausgewählten Zielfluss.");
+                if (options.CatalogMode == "package")
+                {
+                    if (end.Error != null)
+                    {
+                        output.Diagnostic(end.RootCauseCode ?? end.Error, end.RootCauseComponent ?? end.Component, end.RootCauseText ?? end.ErrorText, target.Key);
+                        output.Add(new Artifact { Kind = "DebugScript", Target = target.Key, Stage = end.Id, Component = end.Component, Content = "-- Unvollständiger Paketpfad; konkrete Erstursache in Diagnostic/StageIndex.\n", Complete = false, Safety = "blocked", Executable = false });
+                        continue;
+                    }
+                    if (options.Stage == "all") foreach (var stage in ancestors) EmitPackagePreview(stage, "StageSql", target.Key);
+                    else if (options.Stage != null) EmitPackagePreview(ancestors.Single(s => s.Id == options.Stage), "StageSql", target.Key);
+                    string preview = EmitPackagePreview(end, "TargetSql", target.Key);
+                    output.Add(new Artifact { Kind = "DebugScript", Target = target.Key, Stage = end.Id, Component = end.Component, Content = preview, Complete = true, Safety = "not_checked", Executable = false, Evidence = "pragmatic" });
+                    continue;
+                }
                 if (options.Stage == "all") foreach (Stage stage in ancestors.Where(s => s.Error == null)) Emit(stage, "StageSql", target.Key);
                 else if (options.Stage != null) { Stage stage = ancestors.Single(s => s.Id == options.Stage); if (stage.Error == null) Emit(stage, "StageSql", target.Key); }
                 if (end.Error == null && destination.Kind == "flatfile-destination")
@@ -156,6 +180,11 @@ namespace Toolbelt.Tsql.SsisDebug
                 foreach (Column input in c.Inputs[0].Columns)
                 {
                     StageColumn source = Find(parent, input.Lineage); Column external = c.Inputs[0].External.SingleOrDefault(x => x.Id == input.External);
+                    if ((external == null || external.SqlType == null) && options.CatalogMode == "package")
+                    {
+                        external = new Column { Name = external == null ? input.Name : external.Name, SqlType = source.Type };
+                        output.Diagnostic("destination_projection_only", c.Id, "Ziel-DML wird nicht erzeugt; fehlendes Zielmapping verwendet den deklarierten Namen des Datenflusseingangs.");
+                    }
                     if (external == null || external.SqlType == null) throw new DebugFault("invalid_lineage", "Explizites Zielspaltenmapping fehlt.");
                     var col = NewColumn(input.Id, external.Name, external.SqlType, source.Nullable); result.Columns.Add(col);
                     list.Add("CAST(m." + Util.Q(source.Alias) + " AS " + col.Type + ") AS " + Util.Q(col.Alias));
@@ -169,6 +198,12 @@ namespace Toolbelt.Tsql.SsisDebug
         {
             string output; if (!flow.Paths.TryGetValue(input.Id, out output)) throw new DebugFault("invalid_lineage", "Benötigter Eingang nicht verbunden.");
             return Build(flow, output);
+        }
+        private static IEnumerable<Port> RequiredPorts(Flow flow, Component component)
+        {
+            // SSIS lässt beim Union All einen leeren Reserveeingang stehen.
+            // Nur dieser unverbundene Port ohne Mapping ist bedeutungslos.
+            return component.Inputs.Where(p => component.Kind != "union" || p.Columns.Count != 0 || flow.Paths.ContainsKey(p.Id));
         }
         private Stage Build(Flow flow, string outputId)
         {
@@ -184,17 +219,19 @@ namespace Toolbelt.Tsql.SsisDebug
             Port port = owner.Outputs.Single(p => p.Id == outputId); Stage result = New(owner.Id, owner.Kind, outputId); stages.Add(outputId, result); building.Add(outputId);
             try
             {
-                foreach (Port input in owner.Inputs) { Stage parent = Input(flow, input); Inherit(result, parent); }
+                foreach (Port input in RequiredPorts(flow, owner)) { Stage parent = Input(flow, input); Inherit(result, parent); }
                 foreach (Stage parent in result.Parents) Need(result, parent);
                 if (port.Error && owner.Kind != "flatfile-source" || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
                 switch (owner.Kind)
                 {
                     case "source": Source(owner, port, result); break;
                     case "flatfile-source": FlatFileSource(owner, port, result); break;
-                    case "union": Union(owner, port, result); break;
+                    case "union": Union(flow, owner, port, result); break;
                     case "copy-column": CopyColumn(owner, port, result); break;
                     case "derived": case "convert": Derived(owner, port, result); break;
                     case "rowcount": RowCount(owner, port, result); break;
+                    case "multicast": Multicast(owner, port, result); break;
+                    case "unpivot": Unpivot(owner, port, result); break;
                     case "split": Split(owner, port, result); break;
                     case "lookup": Lookup(owner, port, result); break;
                     default: throw new DebugFault("unsupported_component", "Komponente nicht im V1-Profil.");
@@ -241,17 +278,19 @@ namespace Toolbelt.Tsql.SsisDebug
             Stage result = New(owner.Id, owner.Kind, outputId); stages.Add(outputId, result);
             try
             {
-                foreach (Port input in owner.Inputs) { Stage parent = Input(flow, input); Inherit(result, parent); }
+                foreach (Port input in RequiredPorts(flow, owner)) { Stage parent = Input(flow, input); Inherit(result, parent); }
                 foreach (Stage parent in result.Parents) Need(result, parent);
                 if (port.Error && owner.Kind != "flatfile-source" || owner.HasPropertyExpressions) throw new DebugFault("unsupported_component", "Errorport oder nicht aufgelöster Eigenschaftsausdruck.");
                 switch (owner.Kind)
                 {
                     case "source": Source(owner, port, result); break;
                     case "flatfile-source": FlatFileSource(owner, port, result); break;
-                    case "union": Union(owner, port, result); break;
+                    case "union": Union(flow, owner, port, result); break;
                     case "copy-column": CopyColumn(owner, port, result); break;
                     case "derived": case "convert": Derived(owner, port, result); break;
                     case "rowcount": RowCount(owner, port, result); break;
+                    case "multicast": Multicast(owner, port, result); break;
+                    case "unpivot": Unpivot(owner, port, result); break;
                     case "split": Split(owner, port, result); break;
                     case "lookup": Lookup(owner, port, result); break;
                     default: throw new DebugFault("unsupported_component", "Komponente nicht im V1-Profil.");
@@ -272,7 +311,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 parent.RootCauseCode ?? parent.Error, parent.RootCauseStage ?? parent.Id, parent.RootCauseComponent ?? parent.Component, parent.RootCauseText ?? parent.ErrorText);
         }
         private static void Inherit(Stage stage, Stage parent)
-        { if (!stage.Parents.Contains(parent)) stage.Parents.Add(parent); stage.Inputs.UnionWith(parent.Inputs); foreach (var cache in parent.Caches) if (!stage.Caches.Contains(cache)) stage.Caches.Add(cache); }
+        { if (!stage.Parents.Contains(parent)) stage.Parents.Add(parent); stage.Inputs.UnionWith(parent.Inputs); foreach (var cache in parent.Caches) if (!stage.Caches.Contains(cache)) stage.Caches.Add(cache); foreach (var procedure in parent.Procedures) if (!stage.Procedures.Contains(procedure)) stage.Procedures.Add(procedure); }
         private static StageColumn Find(Stage stage, string lineage)
         {
             var cols = stage.Columns.Where(c => c.Id == lineage).ToList();
@@ -333,7 +372,26 @@ namespace Toolbelt.Tsql.SsisDebug
             return sql;
         }
         private SqlQuery Query(Component c, Stage stage)
-        { return safety.Read(SqlCommand(c, stage), bindings.Database(c)); }
+        {
+            string sql = SqlCommand(c, stage), call;
+            List<BoundColumn> columns = options.CatalogMode == "package" ? PackageProjection.Columns(c, bindings.Limits) : null;
+            string database = options.CatalogMode == "package" && bindings.LocalConnections.Contains(c.Connection) ? null : bindings.Database(c);
+            if (options.CatalogMode == "package" && safety.TryPackageProcedure(sql, database, out call))
+            {
+                ProcedureDataset dataset;
+                if (!procedureDatasets.TryGetValue(c.Id, out dataset))
+                {
+                    dataset = new ProcedureDataset { Name = "#tbx_SsisDebug_P_" + runToken + "_" + procedureDatasets.Count, Call = call, Columns = columns, Input = c.Kind == "lookup" ? stage.Parents.Single() : null };
+                    procedureDatasets.Add(c.Id, dataset);
+                    output.Diagnostic("procedure_result_materialized", c.Id, "Prozedurergebnis wird beim manuellen Ausführen in einer lokalen #-Tabelle materialisiert. Resultsetschema stammt aus DTSX; Prozedurinneres und Seiteneffekte sind nicht geprüft.");
+                }
+                if (!stage.Procedures.Contains(dataset)) stage.Procedures.Add(dataset);
+                sql = "SELECT " + String.Join(",", columns.Select(col => Util.Q(col.Name))) + " FROM " + Util.Q(dataset.Name);
+            }
+            var query = safety.Read(sql, database);
+            if (columns != null) query.PackageColumns = columns;
+            return query;
+        }
         private string Attach(SqlQuery q, Stage stage, string prefix)
         {
             var with = q.Statement.WithCtesAndXmlNamespaces;
@@ -405,7 +463,25 @@ namespace Toolbelt.Tsql.SsisDebug
         private void FlatFileSource(Component c, Port port, Stage stage)
         {
             Bindings.FlatFileInputBinding binding;
-            if (c.Connection == null || !bindings.FlatFileInputs.TryGetValue(c.Connection, out binding)) throw new DebugFault("missing_context", "Expliziter relationaler Flatfile-Zeilenbestand fehlt.");
+            if (c.Connection == null || !bindings.FlatFileInputs.TryGetValue(c.Connection, out binding))
+            {
+                if (options.CatalogMode != "package" || port.Error) throw new DebugFault("missing_context", "Expliziter relationaler Flatfile-Zeilenbestand fehlt.");
+                // Ausdrücklich gewünschte lokale Annahme: eine Dummyzeile mit
+                // den deklarierten DTSX-Typen, kein Datei-/Serverzugriff.
+                var fields = new List<string>();
+                foreach (var column in port.Columns)
+                {
+                    if (column.SqlType == null) throw new DebugFault("missing_context", "Flatfile-Dummyspalte besitzt keinen unterstützten DTSX-Typ.");
+                    var value = NewColumn(column.Lineage == "" ? column.Id : column.Lineage, column.Name, column.SqlType, true);
+                    value.SourceCodePage = column.Type == "str" ? (int?)column.CodePage : null;
+                    stage.Columns.Add(value);
+                    fields.Add("CAST(NULL AS " + value.Type + ") AS " + Util.Q(value.Alias));
+                }
+                if (fields.Count == 0) throw new DebugFault("missing_context", "Flatfile-Dummyquelle hat keine Spalten.");
+                stage.Query = "-- Angenommene Flatfile-Quelle: Dummywerte durch lokale Beispielwerte ersetzen.\nSELECT " + String.Join(", ", fields);
+                output.Diagnostic("flatfile_source_assumed", c.Id, "Flatfile als eine lokale Dummyzeile mit typisierten NULL-Spalten angenommen; keine Datei gelesen und keine Datenparität behauptet.");
+                return;
+            }
             string sourceConnectionKind;
             if (!package.ConnectionKinds.TryGetValue(c.Connection, out sourceConnectionKind) || sourceConnectionKind != "FLATFILE") throw new DebugFault("missing_context", "Flatfile-Quelle muss an einen Flatfile-Connectionmanager gebunden sein.");
             if (port.Error)
@@ -456,17 +532,72 @@ namespace Toolbelt.Tsql.SsisDebug
             return result;
         }
         private void ValidateCodePage(Column column, string collation)
-        { if (column.Type == "str" && (column.CodePage <= 0 || collation == null || catalog.CodePage(collation) != column.CodePage)) throw new DebugFault("unresolved_binding", "ANSI-Codepage nicht exakt belegt."); }
-        private void Union(Component c, Port port, Stage stage)
+        { if (options.CatalogMode != "package" && column.Type == "str" && (column.CodePage <= 0 || collation == null || catalog.CodePage(collation) != column.CodePage)) throw new DebugFault("unresolved_binding", "ANSI-Codepage nicht exakt belegt."); }
+        private void Multicast(Component component, Port port, Stage stage)
+        {
+            if (stage.Parents.Count != 1 || component.Inputs.Count != 1 || port.Error || port.Sync != component.Inputs[0].Id || port.Columns.Count != 0)
+                throw new DebugFault("unsupported_component", "Multicast benötigt synchrone unveränderte Ausgänge.");
+            var parent = stage.Parents[0]; stage.Columns.AddRange(parent.Columns);
+            stage.Query = "SELECT " + Fields(parent, "m") + " FROM " + Util.Q(parent.Cte) + " AS m";
+        }
+        private void Unpivot(Component component, Port port, Stage stage)
+        {
+            if (options.CatalogMode != "package" || component.Inputs.Count != 1 || stage.Parents.Count != 1 || component.Outputs.Count != 1 || port.Error)
+                throw new DebugFault("unsupported_component", "Unpivot ist als lokaler Paketentwurf mit einem Eingang/Ausgang verfügbar.");
+            var parent = stage.Parents[0]; var pivot = port.Columns.Where(c => Util.Flag(PackageReader.P(c.Properties, "PivotKey"))).ToList();
+            if (pivot.Count != 1) throw new DebugFault("invalid_lineage", "Unpivot benötigt genau eine PivotKey-Spalte.");
+            Func<string, string> reference = s => s.StartsWith("#{", StringComparison.Ordinal) && s.EndsWith("}", StringComparison.Ordinal) ? s.Substring(2, s.Length - 3) : s;
+            var pass = new Dictionary<Column, Column>(); var groups = new Dictionary<string, Dictionary<Column, Column>>(StringComparer.Ordinal);
+            foreach (var input in component.Inputs[0].Columns)
+            {
+                string target = reference(PackageReader.P(input.Properties, "DestinationColumn"));
+                var outputColumn = port.Columns.SingleOrDefault(c => c.Id == target || c.Lineage == target);
+                if (outputColumn == null || outputColumn == pivot[0]) throw new DebugFault("invalid_lineage", "Unpivot-Zielspalte ist nicht eindeutig gebunden.");
+                string key = PackageReader.P(input.Properties, "PivotKeyValue");
+                if (key == "") { if (pass.ContainsKey(outputColumn)) throw new DebugFault("invalid_lineage", "Unpivot-Passthrough ist doppelt."); pass.Add(outputColumn, input); }
+                else
+                {
+                    Dictionary<Column, Column> group;
+                    if (!groups.TryGetValue(key, out group)) groups.Add(key, group = new Dictionary<Column, Column>());
+                    if (group.ContainsKey(outputColumn)) throw new DebugFault("invalid_lineage", "Unpivot-Mapping ist doppelt.");
+                    group.Add(outputColumn, input);
+                }
+            }
+            var values = port.Columns.Where(c => c != pivot[0] && !pass.ContainsKey(c)).ToList();
+            if (groups.Count == 0 || values.Count == 0 || groups.Values.Any(g => g.Count != values.Count || values.Any(c => !g.ContainsKey(c))))
+                throw new DebugFault("invalid_lineage", "Unpivot-Schlüsselgruppen sind unvollständig.");
+            var rows = new List<string>(); int ordinal = 0;
+            foreach (var group in groups)
+            {
+                var fields = new List<string> { (ordinal++).ToString(CultureInfo.InvariantCulture), "CAST(" + Util.L(group.Key) + " AS " + pivot[0].SqlType + ")" };
+                fields.AddRange(values.Select(c => "CAST(m." + Util.Q(Find(parent, group.Value[c].Lineage).Alias) + " AS " + c.SqlType + ")"));
+                rows.Add("(" + String.Join(",", fields) + ")");
+            }
+            var select = new List<string>();
+            foreach (var outputColumn in port.Columns)
+            {
+                var col = NewColumn(outputColumn.Lineage == "" ? outputColumn.Id : outputColumn.Lineage, outputColumn.Name, outputColumn.SqlType, true); stage.Columns.Add(col);
+                string expression = outputColumn == pivot[0] ? "u.[PivotKey]" : pass.ContainsKey(outputColumn) ? "CAST(m." + Util.Q(Find(parent, pass[outputColumn].Lineage).Alias) + " AS " + col.Type + ")" : "u." + Util.Q("Value" + values.IndexOf(outputColumn));
+                select.Add(expression + " AS " + Util.Q(col.Alias));
+            }
+            var aliases = new[] { "[Ordinal]", "[PivotKey]" }.Concat(values.Select((c, i) => Util.Q("Value" + i)));
+            var present = values.Select((c, i) => "u." + Util.Q("Value" + i) + " IS NOT NULL");
+            var inputs = groups.Values.SelectMany(g => g.Values).Select(c => "CONVERT(nvarchar(max), m." + Util.Q(Find(parent, c.Lineage).Alias) + ")").Distinct().ToList();
+            string allNull = inputs.Count == 1 ? inputs[0] : "COALESCE(" + String.Join(",", inputs) + ")";
+            stage.Query = "SELECT " + String.Join(",", select) + " FROM " + Util.Q(parent.Cte) + " AS m CROSS APPLY (VALUES " + String.Join(",", rows) + ") AS u(" + String.Join(",", aliases) + ") WHERE (" + String.Join(" OR ", present) + ") OR (u.[Ordinal]=0 AND " + allNull + " IS NULL)";
+            output.Diagnostic("unpivot_preview", component.Id, "Unpivot-Schlüssel und Werte aus dem Paket rekonstruiert; reine NULL-Gruppen entfallen, bei vollständig NULL-Eingaben bleibt eine Vorschauzeile. Keine SSIS-Runtime-Parität behauptet.");
+        }
+        private void Union(Flow flow, Component c, Port port, Stage stage)
         {
             foreach (Column outputColumn in port.Columns) stage.Columns.Add(NewColumn(outputColumn.Lineage == "" ? outputColumn.Id : outputColumn.Lineage, outputColumn.Name, outputColumn.SqlType, false));
             var branches = new List<string>();
-            for (int i = 0; i < c.Inputs.Count; i++)
+            var inputs = RequiredPorts(flow, c).ToList();
+            for (int i = 0; i < inputs.Count; i++)
             {
-                Stage parent = stage.Parents[i]; var fields = new List<string>();
+                Stage parent = Input(flow, inputs[i]); var fields = new List<string>();
                 foreach (StageColumn target in stage.Columns)
                 {
-                    var matches = c.Inputs[i].Columns.Where(x => PackageReader.P(x.Properties, "OutputColumnLineageID") == target.Id).ToList();
+                    var matches = inputs[i].Columns.Where(x => PackageReader.P(x.Properties, "OutputColumnLineageID") == target.Id).ToList();
                     if (matches.Count > 1) throw new DebugFault("invalid_lineage", "Union-Spalte mehrfach gemappt.");
                     string value = matches.Count == 0 ? "NULL" : "m." + Util.Q(Find(parent, matches[0].Lineage).Alias);
                     target.Nullable |= matches.Count == 0 || Find(parent, matches[0].Lineage).Nullable;
@@ -477,7 +608,7 @@ namespace Toolbelt.Tsql.SsisDebug
             if (branches.Count < 1 || stage.Columns.Count == 0) throw new DebugFault("invalid_lineage", "Union benötigt verbundenen Eingang und explizite Ausgänge.");
             stage.Query = String.Join("\nUNION ALL\n", branches);
         }
-        private Dictionary<string, ExpressionValue> ExpressionColumns(Stage parent)
+        private Dictionary<string, ExpressionValue> ExpressionColumns(Stage parent, Component component)
         {
             var cols = new Dictionary<string, ExpressionValue>(StringComparer.Ordinal); var duplicateNames = new HashSet<string>(StringComparer.Ordinal);
             foreach (StageColumn c in parent.Columns)
@@ -486,10 +617,20 @@ namespace Toolbelt.Tsql.SsisDebug
                 cols[c.Id] = value; if (!c.Id.StartsWith("#", StringComparison.Ordinal)) cols["#" + c.Id] = value;
                 if (cols.ContainsKey(c.Name)) duplicateNames.Add(c.Name); else cols.Add(c.Name, value);
             }
-            foreach (string name in duplicateNames) cols.Remove(name); return cols;
+            foreach (string name in duplicateNames) cols.Remove(name);
+            // Der Komponenten-Eingang bindet Namen an konkrete Lineage-IDs.
+            // Andere gleichnamige Spalten des Upstream-Flusses machen diesen
+            // ausdrücklich ausgewählten Eingang nicht mehrdeutig.
+            foreach (var group in component.Inputs.SelectMany(p => p.Columns).GroupBy(c => c.Name, StringComparer.Ordinal))
+            {
+                if (group.Select(c => c.Lineage).Distinct(StringComparer.Ordinal).Count() != 1) { cols.Remove(group.Key); continue; }
+                var selected = Find(parent, group.First().Lineage);
+                cols[group.Key] = new ExpressionValue { Sql = "m." + Util.Q(selected.Alias), Type = selected.Type, Nullable = selected.Nullable, Total = bindings.ComponentsV2 };
+            }
+            return cols;
         }
         private ExpressionValue Expression(string expression, Component c, Stage parent, Stage stage)
-        { var result = new ExpressionParser(expression, package, c.Scope, ExpressionColumns(parent), bindings.Resolve, bindings.ComponentsV2, bindings.CollationForCodePage, bindings.Limits).Parse(); stage.Inputs.UnionWith(result.Inputs); return result; }
+        { var result = new ExpressionParser(expression, package, c.Scope, ExpressionColumns(parent, c), bindings.Resolve, bindings.ComponentsV2, bindings.CollationForCodePage, bindings.Limits).Parse(); stage.Inputs.UnionWith(result.Inputs); return result; }
         private void Derived(Component c, Port port, Stage stage)
         {
             if (stage.Parents.Count != 1 || c.Inputs.Count != 1) throw new DebugFault("unsupported_component", "Transformation benötigt einen Eingang.");
@@ -524,7 +665,11 @@ namespace Toolbelt.Tsql.SsisDebug
                 if (existing.ContainsKey(target.Id)) throw new DebugFault("invalid_lineage", "Neue Spaltenversion kollidiert.");
                 stage.Columns.Add(target); projections.Add(target.Id, "CAST(" + value.Sql + " AS " + target.Type + ")");
             }
-            stage.Query = "SELECT " + String.Join(", ", stage.Columns.Select(x => projections[x.Id] + " AS " + Util.Q(x.Alias))) + " FROM " + Util.Q(parent.Cte) + " AS m";
+            var projectedColumns = options.CatalogMode == "package"
+                ? stage.Columns.Where(x => !originalParent.Columns.Any(old => old.Alias == x.Alias)) : stage.Columns;
+            var fields = projectedColumns.Select(x => projections[x.Id] + " AS " + Util.Q(x.Alias)).ToList();
+            if (options.CatalogMode == "package") fields.Insert(0, "m.*");
+            stage.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m";
         }
         private void CopyColumn(Component c, Port port, Stage stage)
         {
@@ -614,7 +759,7 @@ namespace Toolbelt.Tsql.SsisDebug
                 var column = new StageColumn { Id = "v2-boolean-" + component.Id + "-" + nextSyntheticStage.ToString(CultureInfo.InvariantCulture), Name = "V2BooleanUnit_" + nextSyntheticStage.ToString(CultureInfo.InvariantCulture), Alias = alias, Type = "bit", Nullable = terms.Any(t => t.Nullable) || accumulator != null && accumulator.Nullable };
                 var next = new Stage { Id = "v" + nextSyntheticStage.ToString("D6", CultureInfo.InvariantCulture), Cte = "v2_" + nextSyntheticStage.ToString("D6", CultureInfo.InvariantCulture), Component = component.Id };
                 next.Parents.Add(current); next.Inputs.UnionWith(current.Inputs); next.Columns.AddRange(baseColumns); next.Columns.Add(column);
-                next.Query = "SELECT " + FieldsBy(baseColumns, "m") + ", " + predicate + " AS " + Util.Q(column.Alias) + " FROM " + Util.Q(current.Cte) + " AS m";
+                next.Query = "SELECT " + (options.CatalogMode == "package" ? "m.*" : FieldsBy(baseColumns, "m")) + ", " + predicate + " AS " + Util.Q(column.Alias) + " FROM " + Util.Q(current.Cte) + " AS m";
                 current = next; accumulator = column;
             }
             parent = current;
@@ -645,9 +790,12 @@ namespace Toolbelt.Tsql.SsisDebug
             foreach (Port p in c.Outputs.Where(x => !x.Error))
             {
                 int order;
-                if (!Int32.TryParse(PackageReader.P(p.Properties, "EvaluationOrder"), NumberStyles.None, CultureInfo.InvariantCulture, out order) || order < 0) throw new DebugFault("ambiguous_path", "Splitpriorität fehlt.");
+                bool isDefault = Util.Flag(PackageReader.P(p.Properties, "IsDefaultOut"));
+                string rawOrder = PackageReader.P(p.Properties, "EvaluationOrder");
+                if (isDefault && rawOrder == "") order = Int32.MaxValue;
+                else if (!Int32.TryParse(rawOrder, NumberStyles.None, CultureInfo.InvariantCulture, out order) || order < 0) throw new DebugFault("ambiguous_path", "Splitpriorität fehlt.");
                 if (p.Id == selected.Id) selectedOrder = order;
-                if (Util.Flag(PackageReader.P(p.Properties, "IsDefaultOut"))) { if (defaultOrder >= 0) throw new DebugFault("ambiguous_path", "Mehrere Defaultausgänge."); defaultOrder = order; continue; }
+                if (isDefault) { if (defaultOrder >= 0) throw new DebugFault("ambiguous_path", "Mehrere Defaultausgänge."); defaultOrder = order; continue; }
                 var value = Expression(PackageReader.P(p.Properties, "Expression"), c, parent, stage);
                 if (value.Type != "bit") throw new DebugFault("unsupported_expression", "Splitbedingung ist nicht Boolean.");
                 nullFailure |= value.Nullable && p.ErrorDisposition != "IgnoreFailure";
@@ -663,7 +811,8 @@ namespace Toolbelt.Tsql.SsisDebug
                 conditions.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m"; stages.Add(conditionKey, conditions);
             }
             Inherit(stage, conditions);
-            if (nullFailure) throw new DebugFault("split_null_disposition", "Möglicher NULL-Fehler blockiert Routing; Bedingungsansicht " + conditions.Id + " bleibt prüfbar.");
+            if (nullFailure && options.CatalogMode != "package") throw new DebugFault("split_null_disposition", "Möglicher NULL-Fehler blockiert Routing; Bedingungsansicht " + conditions.Id + " bleibt prüfbar.");
+            if (nullFailure && options.CatalogMode == "package") output.Diagnostic("split_null_preview", c.Id, "NULL-Bedingungen sind in der Bedingungs-CTE sichtbar; die lokale Vorschau verwendet den Defaultzweig statt einen SSIS-Paketabbruch zu simulieren.");
             string route = "CASE " + String.Join(" ", branches.OrderBy(x => x.Key).Select(x => "WHEN " + x.Value.Condition + " THEN " + x.Key)) + " ELSE " + defaultOrder + " END";
             string routeKey = "split-route:" + c.Id; Stage routed;
             if (!stages.TryGetValue(routeKey, out routed))
@@ -685,10 +834,16 @@ namespace Toolbelt.Tsql.SsisDebug
             bool noMatch = Toolbelt.Ssis.Exchange.ComponentProfiles.IsLookupNoMatchOutput(c.Outputs.Where(p => !p.Error).ToList().IndexOf(port));
             if (mode != "0" && mode != "1" && mode != "2") throw new DebugFault("unsupported_component", "Lookup-NoMatch-Disposition unbekannt.");
             LookupCache savedCache;
-            if (lookupCaches.TryGetValue(c.Id, out savedCache)) { stage.Caches.Add(savedCache); stage.Inputs.UnionWith(savedCache.Inputs); RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); if (mode == "0") LookupMatchView(c, stage, parent); return; }
+            if (lookupCaches.TryGetValue(c.Id, out savedCache))
+            {
+                stage.Caches.Add(savedCache); stage.Inputs.UnionWith(savedCache.Inputs);
+                ProcedureDataset dataset; if (procedureDatasets.TryGetValue(c.Id, out dataset) && !stage.Procedures.Contains(dataset)) stage.Procedures.Add(dataset);
+                RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); if (mode == "0") LookupMatchView(c, stage, parent); return;
+            }
             SqlQuery query = Query(c, stage); List<BoundColumn> reference = Projection.Columns(query, safety);
             string suffix = runToken + "_" + lookupIds[c.Id];
             var cache = new LookupCache { Name = "#tbx_SsisDebug_L_" + suffix, StateName = "#tbx_SsisDebug_S_" + suffix };
+            if (options.CatalogMode == "package") cache.Name = "lookup_reference_" + lookupIds[c.Id];
             cache.Inputs.UnionWith(stage.ReferenceInputs);
             var projections = new List<string>(); var partitions = new List<string>(); var joins = new List<string>(); int ordinal = 0;
             foreach (Column key in keys)
@@ -721,6 +876,8 @@ namespace Toolbelt.Tsql.SsisDebug
             var ctes = stage.ExtraCtes.ToList(); stage.ExtraCtes.Clear();
             string ranked = "SELECT " + String.Join(", ", projections) + ", ROW_NUMBER() OVER (PARTITION BY " + String.Join(", ", partitions) + " ORDER BY " + ordering + ") AS [tbx_rn] FROM (" + refSql + ") AS ref";
             string columns = String.Join(", ", cache.Columns.Select(x => Util.Q(x.Alias)));
+            cache.PreviewCtes.AddRange(ctes);
+            cache.PreviewQuery = "SELECT " + columns + " FROM (" + ranked + ") AS ranked WHERE [tbx_rn] = 1";
             cache.Insert = (ctes.Count == 0 ? "" : ";WITH " + String.Join(",\n", ctes.Select(x => x.Key + " AS (" + x.Value + ")")) + "\n") + "INSERT INTO " + Util.Q(cache.Name) + " (" + columns + ") SELECT " + columns + " FROM (" + ranked + ") AS ranked WHERE [tbx_rn] = 1;";
             cache.Definition = String.Join(", ", cache.Columns.Select(x => Util.Q(x.Alias) + " " + x.Type + (TextType(x.Type) ? " COLLATE " + Util.CollationToken(x.Collation ?? bindings.Collation) : "") + (x.Nullable ? " NULL" : " NOT NULL")));
             cache.Owner = Util.Hash("ssis-debug-v1|" + runHash + "|" + c.Id + "|" + cache.Definition);
@@ -731,6 +888,11 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         private void LookupMatchView(Component c, Stage stage, Stage parent)
         {
+            if (options.CatalogMode == "package")
+            {
+                output.Diagnostic("lookup_failure_condition", c.Id, "Lookup ist im Paket auf Fehler bei fehlendem Treffer eingestellt. Die lokale CTE-Vorschau zeigt den Matchpfad; keine Simulation des Paketabbruchs.");
+                return;
+            }
             string key = "lookup-match:" + c.Id; Stage matches;
             if (!stages.TryGetValue(key, out matches))
             { matches = New(c.Id, "lookup_matches", key); Inherit(matches, parent); matches.Query = stage.Query; matches.Columns.AddRange(stage.Columns); matches.Inputs.UnionWith(stage.Inputs); matches.Caches.AddRange(stage.Caches.Where(x => !matches.Caches.Contains(x))); stages.Add(key, matches); }
@@ -741,12 +903,15 @@ namespace Toolbelt.Tsql.SsisDebug
             var joins = keys.Select(k => { StageColumn left = Find(parent, k.Lineage); StageColumn right = cache.Columns.Single(x => x.Id == k.Id && x.Alias.StartsWith("k", StringComparison.Ordinal)); return Normalize("m." + Util.Q(left.Alias), left.Type) + " = lk." + Util.Q(right.Alias); }).ToList();
             stage.Columns.AddRange(parent.Columns); var fields = parent.Columns.Select(x => "m." + Util.Q(x.Alias) + " AS " + Util.Q(x.Alias)).ToList();
             var refAliases = cache.Columns.Where(x => x.Name != null && x.Alias.StartsWith("r", StringComparison.Ordinal)).ToDictionary(x => x.Name, x => x, StringComparer.Ordinal);
+            if (options.CatalogMode == "package")
+                fields = new List<string> { "m.*" };
             foreach (Column col in c.Inputs.SelectMany(p => p.Columns).Where(x => PackageReader.P(x.Properties, "CopyFromReferenceColumn") != ""))
             {
                 StageColumn previous = Find(parent, col.Lineage), replacement;
                 if (!refAliases.TryGetValue(ReferenceName(c, PackageReader.P(col.Properties, "CopyFromReferenceColumn")), out replacement)) throw new DebugFault("invalid_lineage", "Lookup-Ersetzung nicht gebunden.");
                 var changed = NewColumn(previous.Id, previous.Name, previous.Type, true); int index = stage.Columns.IndexOf(previous); stage.Columns[index] = changed;
-                fields[index] = "CAST(lk." + Util.Q(replacement.Alias) + " AS " + changed.Type + ") AS " + Util.Q(changed.Alias);
+                string field = "CAST(lk." + Util.Q(replacement.Alias) + " AS " + changed.Type + ") AS " + Util.Q(changed.Alias);
+                if (options.CatalogMode == "package") fields.Add(field); else fields[index] = field;
             }
             foreach (Column col in port.Columns)
             {
@@ -755,7 +920,61 @@ namespace Toolbelt.Tsql.SsisDebug
                 var outputCol = NewColumn(col.Lineage == "" ? col.Id : col.Lineage, col.Name, col.SqlType, true); stage.Columns.Add(outputCol);
                 fields.Add("CAST(lk." + Util.Q(refCol.Alias) + " AS " + outputCol.Type + ") AS " + Util.Q(outputCol.Alias));
             }
-            stage.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m " + (mode == "1" || noMatch ? "LEFT JOIN " : "INNER JOIN ") + Util.Q(cache.Name) + " AS lk WITH (NOLOCK) ON " + String.Join(" AND ", joins) + (noMatch ? " WHERE lk.[tbx_match] IS NULL" : "");
+            stage.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m " + (mode == "1" || noMatch ? "LEFT JOIN " : "INNER JOIN ") + Util.Q(cache.Name) + " AS lk" + (options.CatalogMode == "package" ? "" : " WITH (NOLOCK)") + " ON " + String.Join(" AND ", joins) + (noMatch ? " WHERE lk.[tbx_match] IS NULL" : "");
+        }
+        private string EmitPackagePreview(Stage end, string kind, string target)
+        {
+            var ancestors = Ancestors(end);
+            var keys = new HashSet<string>(ancestors.SelectMany(s => s.Inputs), StringComparer.Ordinal);
+            var snapshots = new Dictionary<Stage, string>(); var preparation = new StringBuilder();
+            var temps = new List<string>();
+            foreach (var procedure in ancestors.SelectMany(s => s.Procedures).Distinct())
+            {
+                if (procedure.Input != null && !snapshots.ContainsKey(procedure.Input))
+                {
+                    string inputName = procedure.Name + "_input";
+                    preparation.Append(CreatePreviewTemp(inputName, procedure.Input.Columns.Select(c => new BoundColumn { Name = c.Alias, SqlType = c.Type }).ToList(), temps));
+                    preparation.Append(";WITH " + PreviewCtes(procedure.Input, snapshots) + "\nINSERT INTO " + Util.Q(inputName) + " SELECT " + String.Join(",", procedure.Input.Columns.Select(c => "d." + Util.Q(c.Alias))) + " FROM " + Util.Q(procedure.Input.Cte) + " AS d;\n");
+                    snapshots.Add(procedure.Input, inputName);
+                }
+                preparation.Append(CreatePreviewTemp(procedure.Name, procedure.Columns, temps));
+                preparation.Append("INSERT INTO " + Util.Q(procedure.Name) + " (" + String.Join(",", procedure.Columns.Select(c => Util.Q(c.Name))) + ") " + procedure.Call + "\n");
+            }
+            string sql = "-- Lokaler Paketentwurf; Variablen anpassen, letzten SELECT auf die gewünschte CTE setzen.\n" + bindings.Declarations(keys) + "\n" +
+                String.Join("\n", ancestors.SelectMany(s => s.StructureGuards).Distinct()) + "\n";
+            for (int i = 0; i < temps.Count; i++) sql += "DECLARE @tbx_preview_own" + i + " bit=0;\n";
+            if (temps.Count != 0) sql += "-- Die folgenden Original-Prozeduraufrufe werden erst beim manuellen Ausführen ausgeführt.\nBEGIN TRY\n" + preparation;
+            sql += ";WITH " + PreviewCtes(end, snapshots) + "\nSELECT " + String.Join(", ", end.Columns.Select(c => "d." + Util.Q(c.Alias) + " AS " + Util.Q(c.Name))) + " FROM " + Util.Q(end.Cte) + " AS d;";
+            if (temps.Count != 0)
+            {
+                string cleanup = String.Join("\n", temps.Select((name, i) => "IF @tbx_preview_own" + i + "=1 AND OBJECT_ID(" + Util.L("tempdb.." + name) + ",N'U') IS NOT NULL DROP TABLE " + Util.Q(name) + ";").Reverse());
+                sql += "\n" + cleanup + "\nEND TRY\nBEGIN CATCH\n" + cleanup + "\nTHROW;\nEND CATCH;";
+            }
+            safety.CheckPackageComposition(sql);
+            output.Add(new Artifact { Kind = kind, Target = target, Stage = end.Id, Component = end.Component, Content = sql, Complete = true, Safety = "not_checked", Executable = false, Evidence = "pragmatic" });
+            return sql;
+        }
+        private static string CreatePreviewTemp(string name, List<BoundColumn> columns, List<string> temps)
+        {
+            int id = temps.Count; temps.Add(name);
+            return "IF OBJECT_ID(" + Util.L("tempdb.." + name) + ",N'U') IS NOT NULL THROW 50000,'TBX_SSISDBG_preview_temp_exists',1;\nCREATE TABLE " + Util.Q(name) + " (" + String.Join(",", columns.Select(c => Util.Q(c.Name) + " " + c.SqlType + " NULL")) + ");\nSET @tbx_preview_own" + id + "=1;\n";
+        }
+        private string PreviewCtes(Stage end, Dictionary<Stage, string> snapshots)
+        {
+            var ancestors = Ancestors(end);
+            var ctes = new List<KeyValuePair<string, string>>();
+            foreach (var cache in ancestors.SelectMany(s => s.Caches).Distinct())
+            { ctes.AddRange(cache.PreviewCtes); ctes.Add(new KeyValuePair<string, string>(Util.Q(cache.Name), cache.PreviewQuery)); }
+            foreach (var stage in ancestors)
+            {
+                ctes.AddRange(stage.ExtraCtes);
+                string label = stage.Component.Replace("\r", " ").Replace("\n", " ");
+                string snapshot;
+                string query = snapshots.TryGetValue(stage, out snapshot) ? "SELECT * FROM " + Util.Q(snapshot) : stage.Query;
+                ctes.Add(new KeyValuePair<string, string>(Util.Q(stage.Cte), "-- " + stage.Id + ": " + label + "\n" + query));
+            }
+            if (ctes.Select(c => c.Key).Distinct(StringComparer.Ordinal).Count() != ctes.Count) throw new DebugFault("invalid_lineage", "CTE-Name ist nicht eindeutig.");
+            return String.Join(",\n", ctes.Select(c => c.Key + " AS (\n" + c.Value + "\n)"));
         }
         private static string ReferenceName(Component c, string id)
         {
@@ -764,7 +983,7 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         private static bool TextType(string type) { return type.StartsWith("nvarchar", StringComparison.Ordinal) || type.StartsWith("varchar", StringComparison.Ordinal) || type.StartsWith("nchar", StringComparison.Ordinal) || type.StartsWith("char", StringComparison.Ordinal); }
         private string Normalize(string expression, string type) { return "CAST(" + expression + " AS " + type + ")" + (TextType(type) ? " COLLATE " + Util.CollationToken(bindings.Collation) : ""); }
-        private static string Fields(Stage stage, string alias) { return String.Join(", ", stage.Columns.Select(c => alias + "." + Util.Q(c.Alias))); }
+        private string Fields(Stage stage, string alias) { return options.CatalogMode == "package" ? alias + ".*" : String.Join(", ", stage.Columns.Select(c => alias + "." + Util.Q(c.Alias))); }
         private static List<Stage> Ancestors(Stage stage)
         {
             var result = new List<Stage>(); var seen = new HashSet<Stage>(); var pending = new Stack<KeyValuePair<Stage, bool>>(); pending.Push(new KeyValuePair<Stage, bool>(stage, false));
@@ -852,6 +1071,7 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         private void Emit(Stage stage, string kind, string target)
         {
+            if (options.CatalogMode == "package") { EmitPackagePreview(stage, kind, target); return; }
             if (bindings.ComponentsV2) { EmitV2Plan(stage, kind, target); return; }
             var chain = Ancestors(stage); var caches = chain.SelectMany(x => x.Caches).Distinct().ToList(); var inputKeys = new HashSet<string>(chain.SelectMany(x => x.Inputs), StringComparer.Ordinal);
             string declarations = "-- Bearbeitbare Szenariowerte; zusammen mit WITH/SELECT ausführen.\n" + bindings.Declarations(inputKeys) + "\n";

@@ -4,6 +4,11 @@ Dieser Quellstand bietet einen normalen T-SQL-Installer und einen XML-Aufruf.
 Die veröffentlichten Vorabreleases bis rc.4 bleiben unverändert; sie besitzen
 diesen neuen Vertrag noch nicht. Es wird kein neues Release veröffentlicht.
 
+Für den normalen Debug-Ablauf gilt die Anleitung zur
+[lokalen CTE-Kette](LocalCteDebug.md): Variablen am Anfang, Source-/Lookup-SQL
+aus dem Paket, angenommene Flatfile-Spalten und lokale #-Tabellen für
+Prozedurresultsets. Die Erzeugung öffnet keine Verbindung zum Quellsystem.
+
 ## Installationsdatei bauen
 
 Auf einem Windows-Buildhost mit .NET-Framework-4.8-Entwicklungswerkzeugen,

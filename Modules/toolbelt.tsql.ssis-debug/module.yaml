@@ -72,6 +72,7 @@ documentation:
     - "Documentation/CopyColumnV1.md"
     - "Documentation/CurrentInstallation.md"
     - "Documentation/SimpleInstallation.md"
+    - "Documentation/LocalCteDebug.md"
     - "Documentation/ComponentsV2Installation.md"
     - "Examples/README.md"
     - "Examples/SsmsDebugWalkthrough.sql"

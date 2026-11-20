@@ -39,6 +39,7 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class SqlQuery
     {
         internal string Sql, Database;
+        internal List<BoundColumn> PackageColumns;
         internal SelectStatement Statement;
         internal readonly List<BoundObject> Objects = new List<BoundObject>();
     }
@@ -90,18 +91,34 @@ namespace Toolbelt.Tsql.SsisDebug
         private static readonly HashSet<string> Functions = new HashSet<string>((
             "ISNULL COALESCE NULLIF ABS CEILING FLOOR ROUND UPPER LOWER LTRIM RTRIM SUBSTRING LEN DATALENGTH DATEADD DATEDIFF DATEFROMPARTS " +
             "COUNT COUNT_BIG SUM AVG MIN MAX ROW_NUMBER").Split(' '), StringComparer.OrdinalIgnoreCase);
-        private static readonly HashSet<string> V2ExpressionFunctions = new HashSet<string>(new[] { "TRIM", "REPLACE" }, StringComparer.OrdinalIgnoreCase);
+        private static readonly HashSet<string> V2ExpressionFunctions = new HashSet<string>(new[] { "TRIM", "REPLACE", "GETDATE", "DATEPART" }, StringComparer.OrdinalIgnoreCase);
         private static readonly HashSet<string> GuardFunctions = new HashSet<string>(("OBJECT_ID HASHBYTES SQL_VARIANT_PROPERTY COL_LENGTH DB_NAME NEWID STRING_AGG CONCAT").Split(' '), StringComparer.OrdinalIgnoreCase);
         internal TSqlFragment Parse(string sql)
+        { return ParseCore(sql, false); }
+        internal void CheckPackageComposition(string sql)
+        {
+            if (!(catalog is PackageCatalog)) throw new DebugFault("unsafe_statement", "Paketkomposition gehört nicht zur Katalogabnahme.");
+            ParseCore(sql, true);
+        }
+        private TSqlFragment ParseCore(string sql, bool composition)
         {
             budget.Check(); Budget.Limit((long)sql.Length * 2, 2097152);
-            TSqlFragment previous; if (parsed.TryGetValue(sql, out previous)) return previous;
+            string cacheKey = (composition ? "composed:" : "source:") + sql;
+            TSqlFragment previous; if (parsed.TryGetValue(cacheKey, out previous)) return previous;
             budget.CheckLimit("parserCalls", ++budget.SqlCalls);
-            Guard(sql);
+            if (!composition) Guard(sql);
+            else
+            {
+                // Endlich begrenzte Komposition bereits geprüfter Fragmente;
+                // das unveränderte Einzelquellenprofil ist kein Workflowlimit.
+                int atoms, structure, comments;
+                string status = PreparseGuardCore.Guard(sql, 32, new GuardProfile(131072, 524288, 32, 16, 32768, 4096), out atoms, out structure, out comments);
+                if (status != "ACCEPT") throw new DebugFault("resource_limit", "Paket-CTE-Kompositionsgrenze: " + status);
+            }
             TSqlParser parser = version == 150 ? (TSqlParser)new TSql150Parser(true) : version == 160 ? (TSqlParser)new TSql160Parser(true) : new TSql170Parser(true);
             IList<ParseError> errors; IList<TSqlParserToken> tokens;
             using (var reader = new StringReader(sql)) tokens = parser.GetTokenStream(reader, out errors);
-            Budget.Limit(tokens.Count, 65536);
+            Budget.Limit(tokens.Count, composition ? 262144 : 65536);
             if (errors.Count != 0) throw new DebugFault("unsafe_statement", "SQL-Lexing fehlgeschlagen.");
             TSqlFragment ast = parser.Parse(tokens, out errors);
             if (errors.Count != 0 || ast == null)
@@ -110,13 +127,13 @@ namespace Toolbelt.Tsql.SsisDebug
                 throw new DebugFault("unsafe_statement", "SQL-Syntax ungültig; errors=" + errors.Count.ToString(CultureInfo.InvariantCulture) + (first == null ? "" : "; line=" + first.Line.ToString(CultureInfo.InvariantCulture) + "; column=" + first.Column.ToString(CultureInfo.InvariantCulture) + "; number=" + first.Number.ToString(CultureInfo.InvariantCulture)) + ".");
             }
             // Iterativer, begrenzter Walk statt rekursiver Reflectionvisitor.
-            foreach (TSqlFragment node in Walk(ast))
+            foreach (TSqlFragment node in WalkCore(ast, composition))
             {
                 var q = node as QuerySpecification; if (q != null) Budget.Limit(q.SelectElements.Count, 256);
                 var values = node as RowValue; if (values != null) Budget.Limit(values.ColumnValues.Count, 256);
-                var w = node as WithCtesAndXmlNamespaces; if (w != null) Budget.Limit(w.CommonTableExpressions.Count, 32);
+                var w = node as WithCtesAndXmlNamespaces; if (w != null) Budget.Limit(w.CommonTableExpressions.Count, composition ? 512 : 32);
             }
-            parsed.Add(sql, ast); return ast;
+            parsed.Add(cacheKey, ast); return ast;
         }
         internal static void Guard(string sql, List<int> parameterOffsets = null)
         {
@@ -125,16 +142,18 @@ namespace Toolbelt.Tsql.SsisDebug
             if (status != "ACCEPT") throw new DebugFault("resource_limit", "SQL-Vorfiltergrenze erreicht; counter=" + status + "; atoms=" + atoms.ToString(CultureInfo.InvariantCulture) + "; structure=" + structure.ToString(CultureInfo.InvariantCulture) + ".");
         }
         internal IEnumerable<TSqlFragment> Walk(TSqlFragment root)
+        { return WalkCore(root, false); }
+        private IEnumerable<TSqlFragment> WalkCore(TSqlFragment root, bool composition)
         {
             var todo = new Stack<KeyValuePair<TSqlFragment, int>>(); todo.Push(new KeyValuePair<TSqlFragment, int>(root, 1));
             int count = 0, properties = 0;
             while (todo.Count != 0)
             {
-                budget.Check(); var work = todo.Pop(); Budget.Limit(work.Value, 100); Budget.Limit(++count, 65536);
+                budget.Check(); var work = todo.Pop(); Budget.Limit(work.Value, composition ? 256 : 100); Budget.Limit(++count, composition ? 1048576 : 65536);
                 TSqlFragment node = work.Key; yield return node;
                 foreach (PropertyInfo p in Properties(node.GetType()))
                 {
-                    Budget.Limit(++properties, 262144);
+                    Budget.Limit(++properties, composition ? 4194304 : 262144);
                     if (p.GetIndexParameters().Length != 0 || p.Name == "ScriptTokenStream" || ScalarProperty(p.PropertyType)) continue;
                     object value = p.GetValue(node, null); var child = value as TSqlFragment;
                     if (child != null) todo.Push(new KeyValuePair<TSqlFragment, int>(child, work.Value + 1));
@@ -183,10 +202,49 @@ namespace Toolbelt.Tsql.SsisDebug
         internal SqlQuery Read(string sql, string database)
         {
             var script = Clone(Parse(sql)) as TSqlScript;
+            // Ein konstanter EXEC('SELECT ...')-Transport wird lediglich
+            // ausgepackt und erneut geprüft, niemals ausgeführt. Dynamische
+            // Variablen, Prozeduraufrufe und nicht lesende Batches bleiben gesperrt.
+            for (int depth = 0; catalog is PackageCatalog && depth < 8 && script != null && script.Batches.Count == 1 && script.Batches[0].Statements.Count == 1; depth++)
+            {
+                var execute = script.Batches[0].Statements[0] as ExecuteStatement;
+                var strings = execute == null ? null : execute.ExecuteSpecification.ExecutableEntity as ExecutableStringList;
+                if (strings == null) break;
+                if (strings.Strings.Count == 0 || strings.Strings.Any(s => !(s is StringLiteral))) throw new DebugFault("unsafe_statement", "Dynamischer SQL-Transport benötigt ausschließlich konstante SELECT-Texte.");
+                script = Clone(Parse(String.Join("", strings.Strings.Cast<StringLiteral>().Select(s => s.Value)))) as TSqlScript;
+            }
             if (script == null || script.Batches.Count != 1 || script.Batches[0].Statements.Count != 1 || !(script.Batches[0].Statements[0] is SelectStatement)) throw new DebugFault("unsafe_statement", "Genau ein SELECT erforderlich.");
             var statement = (SelectStatement)script.Batches[0].Statements[0]; var q = new SqlQuery { Statement = statement, Database = database };
             Validate(statement, database, null, q);
             q.Sql = Generate(statement); return q;
+        }
+        internal bool TryPackageProcedure(string sql, string database, out string command)
+        {
+            command = null;
+            if (!(catalog is PackageCatalog)) return false;
+            var script = Clone(Parse(sql)) as TSqlScript;
+            if (script == null || script.Batches.Count != 1 || script.Batches[0].Statements.Count != 1) return false;
+            var statement = script.Batches[0].Statements[0] as ExecuteStatement;
+            var execute = statement == null ? null : statement.ExecuteSpecification;
+            var procedure = execute == null ? null : execute.ExecutableEntity as ExecutableProcedureReference;
+            if (procedure == null) return false;
+            if (execute.Variable != null || execute.LinkedServer != null || execute.ExecuteContext != null || procedure.AdHocDataSource != null || procedure.ProcedureReference.ProcedureReference == null)
+                throw new DebugFault("unsupported_component", "Prozedurquelle benötigt einen statischen lokalen Aufruf ohne Kontextwechsel.");
+            var name = procedure.ProcedureReference.ProcedureReference.Name;
+            var qualified = PackageName(name.Identifiers.Select(i => i.Value).ToList(), database);
+            name.Identifiers.Clear(); foreach (string part in qualified) name.Identifiers.Add(new Identifier { Value = part, QuoteType = QuoteType.SquareBracket });
+            foreach (var parameter in procedure.Parameters)
+            {
+                if (parameter.IsOutput) throw new DebugFault("unsupported_component", "OUTPUT-Parameter einer Prozedurquelle sind nicht als Resultset beschrieben.");
+                foreach (var node in Walk(parameter.ParameterValue))
+                {
+                    if (!(node is Literal || node is VariableReference || node is UnaryExpression)) throw new DebugFault("unsafe_statement", "Prozedurparameter benötigen Literal oder gebundenen Paketwert.");
+                    var variable = node as VariableReference;
+                    if (variable != null && !variables.Contains(variable.Name)) throw new DebugFault("unresolved_binding", "Prozedurparameter ist nicht gebunden.");
+                }
+            }
+            command = Generate(statement) + ";";
+            return true;
         }
         private void Validate(TSqlFragment ast, string database, HashSet<string> ownTemps, SqlQuery query, bool v2Expressions = false)
         {
@@ -198,7 +256,7 @@ namespace Toolbelt.Tsql.SsisDebug
             foreach (TSqlFragment node in nodes)
             {
                 string kind = node.GetType().Name;
-                if (!ReadNodes.Contains(kind) && (ownTemps == null || !GeneratedNodes.Contains(kind) && !(v2Expressions && V2ExpressionNodes.Contains(kind)))) throw new DebugFault("unsafe_statement", "AST-Knoten nicht im V1-Profil: " + kind + ".");
+                if (!ReadNodes.Contains(kind) && !(catalog is PackageCatalog && kind == "IIfCall") && (ownTemps == null || !GeneratedNodes.Contains(kind) && !(v2Expressions && V2ExpressionNodes.Contains(kind)))) throw new DebugFault("unsafe_statement", "AST-Knoten nicht im V1-Profil: " + kind + ".");
                 var select = node as SelectStatement;
                 if (select != null && (select.Into != null || select.OptimizerHints.Count != 0 || select.ComputeClauses.Count != 0)) throw new DebugFault("unsafe_statement", "SELECT-Erweiterung nicht freigegeben.");
                 var variable = node as VariableReference;
@@ -208,13 +266,21 @@ namespace Toolbelt.Tsql.SsisDebug
                 {
                     if (function.CallTarget == null)
                     {
-                        if (!Functions.Contains(function.FunctionName.Value) && !(v2Expressions && V2ExpressionFunctions.Contains(function.FunctionName.Value)) && !(ownTemps != null && GuardFunctions.Contains(function.FunctionName.Value))) throw new DebugFault("unsafe_statement", "Funktion nicht im gebundenen Profil.");
+                        if (!(catalog is PackageCatalog) && !Functions.Contains(function.FunctionName.Value) && !(v2Expressions && V2ExpressionFunctions.Contains(function.FunctionName.Value)) && !(ownTemps != null && GuardFunctions.Contains(function.FunctionName.Value))) throw new DebugFault("unsafe_statement", "Funktion nicht im gebundenen Profil.");
                     }
                     else
                     {
                         var target = function.CallTarget as MultiPartIdentifierCallTarget;
                         if (target == null) throw new DebugFault("unsafe_statement", "Unbekanntes Funktionsziel.");
                         var identifiers = target.MultiPartIdentifier.Identifiers.Select(x => x.Value).Concat(new[] { function.FunctionName.Value }).ToList();
+                        if (catalog is PackageCatalog)
+                        {
+                            var qualified = PackageName(identifiers, database);
+                            target.MultiPartIdentifier.Identifiers.Clear();
+                            foreach (string x in qualified.Take(qualified.Count - 1)) target.MultiPartIdentifier.Identifiers.Add(new Identifier { Value = x, QuoteType = QuoteType.SquareBracket });
+                            function.FunctionName.Value = qualified.Last(); function.FunctionName.QuoteType = QuoteType.SquareBracket;
+                            continue;
+                        }
                         var boundFunction = Resolve(identifiers, database);
                         if (boundFunction.Kind != "FN") throw new DebugFault("unresolved_dependency", "Skalaraufruf ist keine reine T-SQL-Skalarfunktion.");
                         CheckObject(boundFunction, 0);
@@ -233,6 +299,13 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (cteName != null) { table.SchemaObject.BaseIdentifier.Value = cteName; if (table.TableHints.Count != 0) throw new DebugFault("unsafe_statement", "CTE-Hints nicht freigegeben."); continue; }
                     if (ownTemps != null && ownTemps.Contains(name) && table.SchemaObject.Identifiers.Count == 1) { NoLock(table, IsWriteTarget(node, nodes)); continue; }
                     if (ownTemps != null && table.SchemaObject.Identifiers.Count == 3 && table.SchemaObject.Identifiers[0].Value == "tempdb" && table.SchemaObject.Identifiers[1].Value == "sys" && new[] { "objects", "columns", "types", "extended_properties", "indexes", "check_constraints" }.Contains(name)) { NoLock(table, false); continue; }
+                    if (catalog is PackageCatalog)
+                    {
+                        var qualified = PackageName(table.SchemaObject.Identifiers.Select(x => x.Value).ToList(), database);
+                        table.SchemaObject.Identifiers.Clear();
+                        foreach (string x in qualified) table.SchemaObject.Identifiers.Add(new Identifier { Value = x, QuoteType = QuoteType.SquareBracket });
+                        NoLock(table, false); continue;
+                    }
                     var bound = Resolve(table.SchemaObject.Identifiers.Select(x => x.Value).ToList(), database);
                     if (bound.Kind != "U" && bound.Kind != "V" && bound.Kind != "SN") throw new DebugFault("unresolved_dependency", "Benannte Tabellenreferenz hat falschen Objekttyp.");
                     CheckObject(bound, 0); ReadNames.Add(bound.Qualified);
@@ -243,6 +316,13 @@ namespace Toolbelt.Tsql.SsisDebug
                 var tvf = node as SchemaObjectFunctionTableReference;
                 if (tvf != null)
                 {
+                    if (catalog is PackageCatalog)
+                    {
+                        var qualified = PackageName(tvf.SchemaObject.Identifiers.Select(x => x.Value).ToList(), database);
+                        tvf.SchemaObject.Identifiers.Clear();
+                        foreach (string x in qualified) tvf.SchemaObject.Identifiers.Add(new Identifier { Value = x, QuoteType = QuoteType.SquareBracket });
+                        diagnostic("package_metadata_only"); continue;
+                    }
                     var bound = Resolve(tvf.SchemaObject.Identifiers.Select(x => x.Value).ToList(), database);
                     if (bound.Kind != "IF") throw new DebugFault("unresolved_dependency", "Nur gebundene Inline-TVF erlaubt.");
                     CheckObject(bound, 0); if (query != null && !query.Objects.Any(x => x.Key == bound.Key)) query.Objects.Add(bound);
@@ -260,6 +340,19 @@ namespace Toolbelt.Tsql.SsisDebug
                     if (update != null) { var t = update.Target as NamedTableReference; if (t == null || update.FromClause != null || update.OutputClause != null) throw new DebugFault("unsafe_statement", "Nur einfaches UPDATE des eigenen Planstates erlaubt."); Own(t.SchemaObject, ownTemps); }
                 }
             }
+        }
+        private List<string> PackageName(List<string> names, string database)
+        {
+            // Nur Namen qualifizieren, keine Objektart oder Funktionsreinheit
+            // behaupten. Dieser Pfad erzeugt ausschließlich ungeprüfte Entwürfe;
+            // strikte Kataloganalyse verwendet unverändert Resolve/CheckObject.
+            if (names.Count < 1 || names.Count > 3 || names.Any(String.IsNullOrEmpty))
+                throw new DebugFault("unresolved_dependency", "Paketabfrage benötigt einen eindeutigen lokalen Objektnamen.");
+            if (database == null) return names;
+            string db = names.Count == 3 ? names[0] : database;
+            if (!databases.Contains(db)) throw new DebugFault("unresolved_dependency", "Datenbank außerhalb der Paketzuordnung.");
+            if (names.Count == 1 && names[0].StartsWith("#", StringComparison.Ordinal)) return names;
+            return new List<string> { db, names.Count >= 2 ? names[names.Count - 2] : "dbo", names[names.Count - 1] };
         }
         private static bool IsWriteTarget(TSqlFragment node, List<TSqlFragment> nodes) { return nodes.OfType<InsertSpecification>().Any(i => Object.ReferenceEquals(i.Target, node)) || nodes.OfType<UpdateSpecification>().Any(i => Object.ReferenceEquals(i.Target, node)); }
         private static void Own(SchemaObjectName name, HashSet<string> own)

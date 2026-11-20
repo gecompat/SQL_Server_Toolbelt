@@ -664,7 +664,8 @@ internal static partial class ContractTests
             Assert(!nonTextAnsiCast.Total, "V2_INNER_DT_STR_NON_TEXT_COERCION_NOT_ASSUMED_TOTAL");
             Assert(new ExpressionParser("(DT_I1)127", null, null, new Dictionary<string, ExpressionValue>(), null, true).Parse().Type == "smallint", "V2_I1_LITERAL_IN_RANGE");
             Reject(() => new ExpressionParser("(DT_I1)128", null, null, new Dictionary<string, ExpressionValue>(), null, true).Parse(), "unsupported_expression");
-            Reject(() => new ExpressionParser("(DT_I1)[Value]", null, null, new Dictionary<string, ExpressionValue> { { "Value", new ExpressionValue { Sql = "[Value]", Type = "int" } } }, null, true).Parse(), "unsupported_expression");
+            var boundedI1 = new ExpressionParser("(DT_I1)[Value]", null, null, new Dictionary<string, ExpressionValue> { { "Value", new ExpressionValue { Sql = "[Value]", Type = "int" } } }, null, true).Parse();
+            Assert(boundedI1.Sql.Contains("CONVERT(tinyint, CONVERT(bigint, [Value]) + 128)") && boundedI1.Sql.Contains("- 128"), "V2_I1_RUNTIME_RANGE_ENFORCED");
             Reject(() => new ExpressionParser("(DT_UI1)TRUE", null, null, new Dictionary<string, ExpressionValue>(), null, true).Parse(), "unsupported_expression");
             var len = new ExpressionParser("LEN(\"x  \" )", null, null, new Dictionary<string, ExpressionValue>(), null, true).Parse();
             Assert(len.Type == "int" && len.Sql.Contains("LEN(") && len.Sql.Contains("N'.') - 1"), "V2_LEN_TRAILING_SPACES");

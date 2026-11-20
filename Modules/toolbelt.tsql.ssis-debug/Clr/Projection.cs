@@ -10,6 +10,7 @@ namespace Toolbelt.Tsql.SsisDebug
     {
         internal static List<BoundColumn> Columns(SqlQuery query, SqlSafety safety)
         {
+            if (query.PackageColumns != null) return query.PackageColumns;
             var ctes = new Dictionary<string, CommonTableExpression>(StringComparer.Ordinal);
             if (query.Statement.WithCtesAndXmlNamespaces != null) foreach (var c in query.Statement.WithCtesAndXmlNamespaces.CommonTableExpressions) ctes.Add(c.ExpressionName.Value, c);
             return new Binder(query, safety, ctes).Query(query.Statement.QueryExpression, new Dictionary<string, List<BoundColumn>>(StringComparer.Ordinal));
