@@ -10,10 +10,14 @@ Historische Releaseartefakte werden weder ersetzt noch neu qualifiziert.
 Abnahmefortschritt 2026-11-20: Der begrenzte gemeinsame native Paketlauf
 bestand Installation/Wiederholung und acht Prüfungen, scheiterte danach an
 der Capability-Projektion und wurde vollständig bereinigt; der separate
-Abschlussaudit ist PASS. Die Ursache sind sieben beim Source-Discovery
-ausgelassene Safe-Cast-/JSON-Pointer-TVFs. Die Korrektur nimmt deren kanonische
-Quellen auf und sperrt künftig ausgewählte Module ohne ausführbare Quelle
-oder CLR. Elf Offlineprüfungen und vier neu gebaute, geparste Profile bestehen.
+Abschlussaudit ist PASS. Der separat freigegebene korrigierte Lauf bestand
+neun Prüfungen einschließlich 45 Capability-Kandidaten, scheiterte aber vor
+der API-Ausführung an der ebenfalls ausgelassenen SSIS-Prozedur; auch sein
+frischer Audit ist PASS. Der Builder ergänzt deshalb jetzt alle namensgleichen
+kanonischen Objektdateien, einschließlich sieben Safe-Cast-/JSON-Pointer-TVFs
+und beider SSIS-Prozeduren. Ausgewählte Module ohne ausführbare Quelle oder CLR
+führen zum Buildabbruch. Zwölf Offlineprüfungen und vier neu gebaute, geparste
+Profile bestehen; die statische Objektabdeckung wird je Profil geprüft.
 Die native Bestätigung der Korrektur samt vollständiger DebugScript-Ausführung
 bleibt offen; [Nachweisabgrenzung](../Scripts/Install/Tests/QUALIFICATION.md).
 
