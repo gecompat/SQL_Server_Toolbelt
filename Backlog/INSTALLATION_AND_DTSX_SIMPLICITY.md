@@ -4,7 +4,7 @@ Status: Umsetzung am 2026-11-20 durch ausdrücklichen Benutzerauftrag freigegebe
 Die erste kohärente Teilstufe implementiert den SSIS-Komfortaufruf und dessen
 markerlosen SQL-Installer; [Vertrag und Anleitung](../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
 Die nachfolgenden Anforderungen bleiben als ursprünglicher Anforderungsabgleich
-erhalten. Der [gemeinsame create-only-Quellinstaller](../Scripts/Install/README.md) ist ebenfalls implementiert. Seine vier Profile sind offline geprüft; native Paketabnahme und Abschluss-CI bleiben separat offen. Ein früherer Modulnachweis ist keine neue Gesamtqualifikation dieses Installationswegs.
+erhalten. Der [gemeinsame create-only-Quellinstaller](../Scripts/Install/README.md) ist ebenfalls implementiert. Seine vier Profile sind offline geprüft; native Paketabnahme und tatsächliche Abschluss-CI werden als getrennte Abnahmegates geführt. Ein früherer Modulnachweis ist keine neue Gesamtqualifikation dieses Installationswegs.
 Historische Releaseartefakte werden weder ersetzt noch neu qualifiziert.
 
 ## Gewünschte Anwendererfahrung
