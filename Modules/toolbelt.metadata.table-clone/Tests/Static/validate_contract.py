@@ -9,8 +9,8 @@ core = (MOD / 'Source/USP_ScriptTableCloneInternal.sql').read_text(encoding='utf
 deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 trigger_contract = (ROOT / 'Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md').read_text(encoding='utf-8')
-parser_hash = 'F2213559FA9085BDAC9B6A4C1954D7BE18EAAE9BFBF950E2A29CC0121D8B36D6838D4366327D3A6B0C9ED655179ACBE898E2887D917AA0D0C2B7C243C891C16A'
-scriptdom_hash = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
+parser_hash = 'F849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123'
+scriptdom_hash = '634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813'
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),
           ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'"),('IncludeTriggers','bit','0'),('ResultTable','sysname','NULL'),('KeepData','bit','0'),

@@ -1,5 +1,11 @@
 # Table Clone Planner, Executor und Datenkopie
 
+Der Entwicklungsstand bindet den optionalen Triggerpfad an die neue private
+[Parser-Identität](../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md#private-parser-identität--2026-11-20).
+Deren bisherige native Triggerbelege bleiben historisch; kein neuer nativer
+Trigger-PASS. Der Standardpfad ohne Trigger ist von dieser Bindung unberührt.
+
+
 Die [aktuelle direkte Vorgängermatrix](../../Releases/1.0.0/TABLE-CLONE-KNOWN-PREDECESSORS-QUALIFICATION.md)
 belegt fünf echte öffentliche Versionen 2.0.0/3.0.0/3.1.0/4.0.0/4.1.0
 gegen 4.1.1 auf 24 lokalen/direkt zentralen Windows-/Linux-SQL-Kontexten:

@@ -260,7 +260,7 @@ def main() -> int:
     require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", SCRIPT_DOM_SHA512)
     require(read("../../Tests/CI/run-script-parser-lab.ps1"), "Lab-Gate", ORIGINAL_SCRIPT_DOM_SHA512, PREVIOUS_SCRIPT_DOM_SHA512, "18.0.56.2")
     require(read("../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql"),
-            "TableClone Trigger-Consumer", ORIGINAL_SCRIPT_DOM_SHA512)
+            "TableClone Trigger-Consumer", SCRIPT_DOM_SHA512)
     require(read("../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md"),
             "Hardening-Vertrag", ORIGINAL_SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION)
     require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.1.0")', 'AssemblyFileVersion("2.0.1.0")')

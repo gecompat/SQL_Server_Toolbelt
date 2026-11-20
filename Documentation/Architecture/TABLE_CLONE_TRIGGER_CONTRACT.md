@@ -1,5 +1,22 @@
 # Table Clone Trigger-Scriptklon / 4.1.1
 
+## Private Parser-Identität — 2026-11-20
+
+Der aktuelle Quellstand bindet für `IncludeTriggers=1` die SQL-Assemblies
+`tlblt_Tsql_ScriptParser` und `tlblt.Microsoft.SqlServer.TransactSql.ScriptDom`.
+Die geprüfte private ScriptDom-Kopie und der darauf gebaute Parser haben die
+SHA-512-Pins `634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813` beziehungsweise `F849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123`.
+Die bestehende Interface-, Rechte- und Binaryprüfung bleibt erhalten.
+`IncludeTriggers=0` erreicht diesen Prüfpfad weiterhin nicht.
+
+Der private Parser besteht 248 Offlinefälle; die SSIS-Erzeugung verwendet
+seine private ScriptDom-Abhängigkeit nativ. Ein neuer nativer Trigger-Klonfall
+mit diesen geänderten Binaries ist nicht ausgeführt. Die folgenden datierten
+Trigger-/Parsernachweise bleiben an den Originalstand gebunden. Der neue
+markerlose SSIS-Installer allein installiert keine Parser-TVFs und ist kein
+Upgradeweg für die bisherigen markerbasierten Modulinstallationen.
+
+
 
 ## Aktuelle Quellenbindung — 2026-11-07
 
