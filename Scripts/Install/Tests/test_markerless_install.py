@@ -89,6 +89,17 @@ class MarkerlessContractTests(unittest.TestCase):
         for path in (ROOT/'Modules').glob('*/module.yaml'):
             self.assertIn("N'"+path.parent.name+"'",sql)
 
+    def test_permission_contract_is_preserved_and_unknown_declarations_fail(self):
+        text=(ROOT/'Modules/toolbelt.filesystem.windows/module.yaml').read_text(encoding='utf-8')
+        self.assertEqual(installer.assembly_permission(text),'UNSAFE')
+        legacy=(ROOT/'Modules/toolbelt.filesystem.windows/Deployment/Deploy.sql').read_text(encoding='utf-8')
+        self.assertIn('WITH PERMISSION_SET = '+installer.assembly_permission(text),legacy)
+        for value in ('SAFE','EXTERNAL_ACCESS','UNSAFE'):
+            self.assertEqual(installer.assembly_permission('clr:\n  permission_set: "'+value+'"\n'),value)
+        for declaration in ('','  permission_set: null\n','  permission_set: unknown\n',
+                            '  permission_set: SAFE\n  permission_set: UNSAFE\n'):
+            with self.assertRaises(ValueError): installer.assembly_permission('clr:\n'+declaration)
+
     def test_sql_alias_does_not_rewrite_clr_class_identity(self):
         source={'path':'Modules/toolbelt.file.csv-memory/Source/Contoso.sql','statements':[
             {'kind':'CreateFunctionStatement','name':'toolbelt_file.Contoso',

@@ -7,7 +7,7 @@ import json
 import re
 import subprocess
 import zipfile
-from markerless_manifest import scalar, section, objects, dependencies, list_values
+from markerless_manifest import scalar, section, objects, dependencies, list_values, unquote
 
 ROOT=Path(__file__).resolve().parents[2]
 BASELINE='Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Maintenance.zip'
@@ -77,6 +77,15 @@ def modules(platform, mode):
         require(ready,'missing dependency or cycle')
         ordered.extend(ready);pending.difference_update(ready)
     return [selected[m] for m in ordered]
+
+
+def assembly_permission(text):
+    """Den vorhandenen Modulvertrag verwenden; keinen PermissionSet raten."""
+    values=re.findall(r'^  permission_set:[ \t]*([^\r\n]+)',section(text,'clr'),re.M)
+    require(len(values)==1,'assembly permission declaration')
+    value=unquote(values[0])
+    require(value in ('SAFE','EXTERNAL_ACCESS','UNSAFE'),'assembly permission value')
+    return value
 
 
 def binary_inputs(inputs):
@@ -270,7 +279,7 @@ BEGIN TRY
     chosen.sort(key=lambda a:(0 if a['module_id'] is None else 1 if a['module_id']=='toolbelt.json.core' else 2,a['sql_name']))
     for index,item in enumerate(chosen):
         data=binaries[item['file']];digest=sha(data,'sha512').upper();name=alias[item['sql_name']]
-        permission='UNSAFE' if item['module_id'] in (None,'toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug') else 'EXTERNAL_ACCESS' if item['module_id']=='toolbelt.filesystem.windows' else 'SAFE'
+        permission='UNSAFE' if item['module_id'] is None else assembly_permission((ROOT/'Modules'/item['module_id']/'module.yaml').read_text(encoding='utf-8-sig'))
         variable='@bits'+str(index)
         prefix+='DECLARE '+variable+' varbinary(max)=0x'+data.hex().upper()+';\n'
         prefix+="IF @TrustMethod IN('hash','trustworthy-checked') BEGIN\n IF HASHBYTES('SHA2_512',"+variable+')<>0x'+digest+" THROW 51000,N'Assemblybinary abweichend.',1;\n"
