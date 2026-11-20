@@ -122,7 +122,9 @@ jobs:
 
   linux-runtime:
     name: Linux worker / SQL Server 2019
-    runs-on: ubuntu-latest
+    # Der Verzeichnisvertrag benötigt ein reguläres GNU-stat-Programm;
+    # kein automatischer Imagewechsel und kein Aufweichen des NoReparse-Gates.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout
