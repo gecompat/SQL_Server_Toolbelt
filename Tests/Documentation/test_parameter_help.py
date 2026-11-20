@@ -18,13 +18,14 @@ from ssis_historical_context import historical_root
 
 class ParameterHelp(unittest.TestCase):
     def test_schema_upgrade_rejects_changed_historical_oracle_or_business_code(self):
+        scope = historical_root(ROOT, "47e759b683805d9c79b59fb9e541618fc9cfb428")
         original = Path.read_bytes
         for relative in (schema_upgrade.ORIGINAL, schema_upgrade.SOURCE):
             def read(path):
                 data = original(path)
-                return data + b"\n-- changed oracle or business bytes\n" if path == ROOT / relative else data
+                return data + b"\n-- changed oracle or business bytes\n" if path == scope / relative else data
             with self.subTest(path=relative), mock.patch.object(Path, "read_bytes", read), self.assertRaises(ValueError):
-                schema_upgrade.current_fixture()
+                schema_upgrade.current_fixture(scope)
 
     def test_schema_upgrade_keeps_rollback_and_current_definitions_separate(self):
         original = (ROOT / schema_upgrade.ORIGINAL).read_text(encoding="utf-8")
@@ -42,7 +43,19 @@ class ParameterHelp(unittest.TestCase):
         self.assertIn("=0x" + schema_upgrade.current_definition_hash(historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')), changed)
         adapter = (ROOT / "Tests/CI/run-json-constructors-linux.sh").read_text(encoding="utf-8")
         self.assertEqual(adapter.count('UpgradeVerify.sql -v SchemaExpectedVersion=1.0.0'), 2)
-        self.assertEqual(adapter.count('UpgradeHelpVerify.sql -v SchemaExpectedVersion=1.0.1'), 2)
+        self.assertEqual(adapter.count('UpgradeCurrentVerify.sql -v SchemaExpectedVersion=1.0.1'), 2)
+
+    def test_current_schema_oracle_changes_only_the_exact_definition_predicate(self):
+        source=(ROOT/schema_upgrade.ORIGINAL).read_text(encoding="utf-8")
+        fixture=schema_upgrade.current_fixture(canonical=True)
+        self.assertEqual((ROOT/schema_upgrade.CURRENT_TARGET).read_text(encoding="utf-8"),fixture)
+        prefix,suffix=source.split(schema_upgrade.ANCHOR)
+        self.assertTrue(fixture.startswith(prefix))
+        self.assertTrue(fixture.endswith(suffix))
+        self.assertIn("=0x"+schema_upgrade.canonical_definition_hash(),fixture)
+        with self.assertRaises(ValueError): schema_upgrade.current_definition_hash()
+        old=historical_root(ROOT,"47e759b683805d9c79b59fb9e541618fc9cfb428")
+        self.assertNotEqual(schema_upgrade.canonical_definition_hash(),schema_upgrade.current_definition_hash(old))
 
     def test_all_public_usps_have_every_exact_parameter_description(self):
         self.assertEqual(generator.generate(), 73)

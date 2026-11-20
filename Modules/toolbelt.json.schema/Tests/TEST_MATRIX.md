@@ -478,3 +478,15 @@ zurückgenommen; ursprünglicher 32/32/60-Minuten-Rahmen mit 24 Aufrufen und
 DB-Reservierungen geschlossen. Private Originale und unabhängige aktive Arbeit
 bleiben erhalten. Keine Produkt-/Rechteänderung, Modulgesamtaufwertung oder
 Veröffentlichung; andere Modulpflichten separat.
+
+
+### Aktueller klassischer Upgrade-Oracle — 2026-11-20
+
+Die CI prüft die aktuelle kanonische Definition mit `Runtime/UpgradeCurrentVerify.sql`.
+Erzeugung/Abgleich: `python Scripts/Documentation/generate_schema_help_upgrade.py --current-contract`
+(`--write` regeneriert ausschließlich diese aktuelle Fixture). Owner-, ID-,
+Rechte-, Annotations- und Rollbackvergleiche bleiben unverändert. Nur der genaue
+Definitionshash für den aktualisierten Source wird abgeleitet. Das ist ein neuer
+CI-Oracle, kein umgeschriebener historischer Nachweis. `UpgradeVerify.sql` und die
+Help-only-Fixture `UpgradeHelpVerify.sql` bleiben erhalten; der strikte historische
+Generator weist die neue Runtime-Guardänderung weiterhin zurück.
