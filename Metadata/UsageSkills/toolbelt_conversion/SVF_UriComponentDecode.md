@@ -66,3 +66,5 @@ Ursprüngliche Objektverträge:
 - `Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentDecode.md`
 
 Keine Installations-, Definitions- oder Rechteattestation.
+
+Offener Quellbefund aus der Skillprüfung: Die Hexkonstruktion bildet rohe Nicht-ASCII-Zeichen über zwei SUBSTRING-Nibbles ab, ohne vorab den Wertebereich zu schützen. Bei Codepunkten über 255 kann daraus ungerader Hextext entstehen; CONVERT(varbinary,...,1) besitzt hier keinen TRY-/Guardpfad. Ob die aktuelle Engineauswertung vor dem beabsichtigten INVALID/Code10 abbricht, ist noch nicht nativ geprüft. Bis zur Klärung kein allgemeines Nicht-ASCII-Fehlersicherheitsversprechen und keine Freigabe dieses Entwurfs.

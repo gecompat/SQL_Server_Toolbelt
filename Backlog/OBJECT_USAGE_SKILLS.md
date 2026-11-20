@@ -74,6 +74,23 @@ Produktview und kein Versand von Entwürfen.
 
 ## Abnahme und Integration
 
+### Quellbefund URI-Decoder, 2026-11-20
+
+Die Skillprüfung hat einen offenen Auswertungspfad in
+`TVF_UriComponentDecodeStatus` gefunden: Die Hexkonstruktion verwendet rohe
+Nicht-ASCII-Codepunkte ohne vorherige Nibble-Begrenzung. Beispielsweise führt
+Codepunkt 256 rechnerisch zu einem fehlenden ersten Hexzeichen und einem
+einzelnen zweiten Zeichen. Der anschließende normale Binary-CONVERT besitzt
+keinen eigenen TRY-/Guardpfad. Die vorhandene Nicht-ASCII-Validierung soll
+Code 10 liefern, ist aber keine ausdrücklich vorangestellte prozedurale
+Rückkehr vor dieser Konstruktion.
+
+Eine tatsächliche API-Ausnahme wird ohne native Auswertung nicht behauptet.
+Die drei Decoder-Skills bleiben Entwürfe, bis Auswertbarkeit und notwendige
+Absicherung geklärt sind. Ein späterer Fix darf nicht als unveränderter
+Fachpfad normalisiert oder durch historische Nachweise qualifiziert werden.
+Unabhängige Skills und unveränderte Fachpfade werden weiter bearbeitet.
+
 Zuerst öffentlicher USP, interner Helfer, Funktion, View und Tabelle als geprüfte
 Prototypen; anschließend vollständige Inventarabdeckung. Identitäten, Frontmatter,
 Parameterverträge, Links, Gleichheit Skill/DDL/Hilfe/View, SQL-Quoting und lange

@@ -438,7 +438,7 @@ Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
 Vertrag und Quelle: [TVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_IntegerToBase.sql), [TVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 4a578593ac1617d0ce8e89b189457a69e9c1906ae496d7afa53e611c3c99355b -->
+<!-- Source/Vertrag SHA256: 355770774f243d1e3c9317771f4901b2e7ac9df7163442a1c5705d5eff8fbb95 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -459,7 +459,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [TVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql), [TVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 73c709fc5af9a9505bb3bec290657590dacbfff179dcd5e3736b01173c2b2775 -->
+<!-- Source/Vertrag SHA256: d81f1dec91859908bd362fae0b0662fec411e7738aedecb48536a3f94c62fecf -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -480,7 +480,7 @@ Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
 Vertrag und Quelle: [SVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql), [SVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 48a155da27c84a6a56b43436c6c2fb7e5a78650e3e95ee63ffde31e15dfd1e25 -->
+<!-- Source/Vertrag SHA256: a146a12291ed41c3647767a7ef256c3060966056ae5e2581b3748d6704cccea9 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -501,7 +501,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [SVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 0b015c4938d3d5b95a657ce6b0fc76fdcbae32688f270c62ff8851547df3ad38 -->
+<!-- Source/Vertrag SHA256: e23e235b7851092be9e2882484580d17c3e97a0201506c6d81b5f3d87b3e6999 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -522,7 +522,7 @@ Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status 
 
 Vertrag und Quelle: [TVF_TryCastBigInt.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBigInt.sql), [TVF_TryCastBigInt.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBigInt.md).
 
-<!-- Source/Vertrag SHA256: 7d333cec80ae234520bc677d2f800beab6956f72de79685ba41635741a0f2848 -->
+<!-- Source/Vertrag SHA256: 40a200051a17c390d473f6017a29266419f3194f654c1a9576785e3116b2ac35 -->
 
 Voraussetzung: Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte.
 
@@ -545,7 +545,7 @@ Prüft exakten decimal(38,18)-Bereich vor Skalenverlust; rundet niemals still.
 
 Vertrag und Quelle: [TVF_TryCastDecimal.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDecimal.sql), [TVF_TryCastDecimal.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDecimal.md).
 
-<!-- Source/Vertrag SHA256: d7ba9fa5f82c7aa34163a6d26140a7548e3a8a38cc7671a2c749be5098da5443 -->
+<!-- Source/Vertrag SHA256: 27136e156043190a33ccb4f0dd0a539e94e55b04701f758caecf013601cf6d43 -->
 
 Voraussetzung: Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY.
 
@@ -568,7 +568,7 @@ Prüft exakt YYYY-MM-DD und den date-Kalenderbereich unabhängig von Sprache und
 
 Vertrag und Quelle: [TVF_TryCastDate.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDate.sql), [TVF_TryCastDate.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDate.md).
 
-<!-- Source/Vertrag SHA256: 59b28516fd3f6e0dd7fa094632cbd2e42c699e965da34c8a3c1b321e5281189e -->
+<!-- Source/Vertrag SHA256: e086749672e63aad25472860859befec49a5b748f2775ce4b454bb0f72cc38c0 -->
 
 Voraussetzung: Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
 
@@ -591,7 +591,7 @@ Prüft ISO-Datetime mit großem T und höchstens sieben Fractionziffern ohne Run
 
 Vertrag und Quelle: [TVF_TryCastDateTime2.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDateTime2.sql), [TVF_TryCastDateTime2.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDateTime2.md).
 
-<!-- Source/Vertrag SHA256: e112747514e3764b7b4cf6cdfbc39a07ff7d2bbf54da749a549d1d4a60504aec -->
+<!-- Source/Vertrag SHA256: 5559ab7aa831dc2e115a24c6a62f493c26dda314445f1433100b70128ded0bce -->
 
 Voraussetzung: Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpretation.
 
@@ -614,7 +614,7 @@ Akzeptiert ausschließlich den Text0 oder1; native permissive Bitkonversion blei
 
 Vertrag und Quelle: [TVF_TryCastBit.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBit.sql), [TVF_TryCastBit.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBit.md).
 
-<!-- Source/Vertrag SHA256: ef1b3e4d812473be5e830286f5e113f357088407647bb88cd1081400925053be -->
+<!-- Source/Vertrag SHA256: e7c46e355e70998fa98c52d8680079caae547aa0030cf665c6469fa96258fea6 -->
 
 Voraussetzung: Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
 
@@ -637,7 +637,7 @@ Prüft vollständige GUID-Lexik im8-4-4-4-12-Muster vor Konversion; keine Suffix
 
 Vertrag und Quelle: [TVF_TryCastUniqueIdentifier.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastUniqueIdentifier.sql), [TVF_TryCastUniqueIdentifier.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastUniqueIdentifier.md).
 
-<!-- Source/Vertrag SHA256: 51c0d85a79af4745220012d3df99289d3a505ff40af71bf82379d02e4c71f859 -->
+<!-- Source/Vertrag SHA256: bdbfd024b7c8f963c27dd7e991d3e529bc6daabdab56aa5b38e939a3c160343d -->
 
 Voraussetzung: Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Braces.
 
@@ -660,7 +660,7 @@ Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
 
 Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: 17b0f4c57c7d231bb1d0b4c79e89901077bc5990346b050d4bd3dba58b034ba5 -->
+<!-- Source/Vertrag SHA256: d0e495278777122e734e06638b9a03ea1d25d02311f6e792f8db81e3e74f0ee1 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -700,7 +700,7 @@ Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
 
 Vertrag und Quelle: [SVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentEncode.sql), [SVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: 583ab2fd0edb9fa3c7d621d2622a4f6a337934476bc1b1d10daceacd08158133 -->
+<!-- Source/Vertrag SHA256: 4de2edfab84bf0f0a630af0f6db196cfb4fbb373af5d5e0a3361e49d5d6a079b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -740,7 +740,7 @@ Genau eine Zeile: OK, SQL_NULL oder LIMIT. Eingang vor UTF-8-Konvertierung/Serie
 
 Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 0f1d7184f20ce09416cf26e50a487b94157a3c53d131109d1c1ee1d8e8fe7798 -->
+<!-- Source/Vertrag SHA256: 4c3e934660d3984cc08e5532e9a5976c66c78951259f89427e8e15c7de5b6835 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
