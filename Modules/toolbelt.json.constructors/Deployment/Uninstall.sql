@@ -40,7 +40,7 @@ BEGIN TRY
   IF @Registered=0 AND @ModeRegistered=0
   BEGIN
    IF EXISTS(SELECT 1 FROM @Slots WHERE OBJECT_ID(N'toolbelt_json.'+QUOTENAME(Name)) IS NOT NULL)
-    OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonConstructors')
+    OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'tlblt_JsonConstructors')
     THROW 53623,N'JSON lifecycle: unregistrierter Zielzustand ist nicht absent.',1;
    RETURN;
   END;
@@ -83,7 +83,7 @@ BEGIN TRY
    LEFT JOIN sys.schemas sc ON sc.schema_id=o.schema_id ORDER BY s.Id FOR XML RAW,BINARY BASE64));
   IF @Pass=0 SET @InitialClrTuple=@CurrentClrTuple;
   ELSE IF @CurrentClrTuple<>@InitialClrTuple THROW 53627,N'JSON lifecycle: Objekt-/Assemblyidentität hat sich unter Lock verändert.',1;
-  IF @AssemblyId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonConstructors',N'ASSEMBLY',N'ALTER'),0)<>1
+  IF @AssemblyId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'tlblt_JsonConstructors',N'ASSEMBLY',N'ALTER'),0)<>1
    THROW 53622,N'JSON lifecycle: vorhandenes Assembly-ALTER-Recht fehlt.',1;
   IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d JOIN @Slots target ON target.ObjectId=d.referenced_id
    WHERE target.Id<=@Count AND NOT EXISTS(SELECT 1 FROM @Slots source WHERE source.Id<=@Count AND source.ObjectId=d.referencing_id))
@@ -111,7 +111,7 @@ BEGIN TRY
   EXEC sys.sp_executesql @Sql;
   SET @Id-=1;
  END;
- IF @Count=8 DROP ASSEMBLY [Toolbelt_JsonConstructors] WITH NO DEPENDENTS;
+ IF @Count=8 DROP ASSEMBLY [tlblt_JsonConstructors] WITH NO DEPENDENTS;
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode';
  -- Unmarkiertes oder nichtleeres fremdes Schema niemals entfernen.

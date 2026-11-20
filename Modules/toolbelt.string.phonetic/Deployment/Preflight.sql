@@ -54,7 +54,7 @@ BEGIN TRY
     SET @Release=CASE WHEN CONVERT(varbinary(max),@InstalledVersion)=CONVERT(varbinary(max),N'1.0.0') THEN 1 ELSE 0 END;
     SELECT @AssemblyId=a.assembly_id,@InstalledHash=HASHBYTES(N'SHA2_512',f.content)
     FROM sys.assemblies a LEFT JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
-    WHERE a.name=N'Toolbelt_String_Phonetic';
+    WHERE a.name=N'tlblt_String_Phonetic';
     SET @SchemaId=SCHEMA_ID(N'toolbelt_string');
     SET @SchemaOwner=NULL;
     SELECT @SchemaOwner=principal_id FROM sys.schemas WHERE schema_id=@SchemaId;
@@ -75,7 +75,7 @@ BEGIN TRY
     IF @Release=1 AND (@InstalledHash IS NULL OR @InstalledHash<>@ExpectedHash)
         THROW 55265,N'Der installierte Hash stimmt nicht mit der Offline-Erwartung überein.',1;
     IF @Release=1 AND
-      (NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_String_Phonetic') AND permission_set=1 AND is_user_defined=1 AND principal_id=@SchemaOwner)
+      (NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_String_Phonetic') AND permission_set=1 AND is_user_defined=1 AND principal_id=@SchemaOwner)
        OR (SELECT COUNT(*) FROM sys.assembly_files WHERE assembly_id=@AssemblyId)<>1
        OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'bit' AND TRY_CONVERT(bit,value)=1)
        OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@ModuleId))
@@ -153,7 +153,7 @@ BEGIN TRY
  BEGIN
     IF @AssemblyId IS NULL OR @InstalledHash<>@TargetHash
     BEGIN
-       DECLARE @Ddl nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END+N' ASSEMBLY [Toolbelt_String_Phonetic] FROM '+CONVERT(nvarchar(max),@AssemblyBits,1)+N' WITH PERMISSION_SET=SAFE;';
+       DECLARE @Ddl nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END+N' ASSEMBLY [tlblt_String_Phonetic] FROM '+CONVERT(nvarchar(max),@AssemblyBits,1)+N' WITH PERMISSION_SET=SAFE;';
        EXEC sys.sp_executesql @Ddl;
     END;
  END
@@ -161,7 +161,7 @@ BEGIN TRY
  BEGIN
     IF @Release=1
     BEGIN
-       DROP ASSEMBLY Toolbelt_String_Phonetic;
+       DROP ASSEMBLY tlblt_String_Phonetic;
        EXEC sys.sp_dropextendedproperty @name=@VersionProperty;
        EXEC sys.sp_dropextendedproperty @name=@ModeProperty;
        IF NOT EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=@SchemaId) AND NOT EXISTS(SELECT 1 FROM sys.types WHERE schema_id=@SchemaId AND is_user_defined=1) AND NOT EXISTS(SELECT 1 FROM sys.xml_schema_collections WHERE schema_id=@SchemaId) DROP SCHEMA toolbelt_string;

@@ -26,7 +26,7 @@ DROP PROCEDURE IF EXISTS [toolbelt_filesystem].[CLR_CreateDirectory];
 DROP PROCEDURE IF EXISTS [toolbelt_filesystem].[CLR_RemoveFile];
 DROP PROCEDURE IF EXISTS [toolbelt_filesystem].[CLR_RemoveDirectory];
 DROP TABLE IF EXISTS [toolbelt_filesystem].[FileSystemRoot];
-DROP ASSEMBLY IF EXISTS [Toolbelt_Filesystem_Windows];
+DROP ASSEMBLY IF EXISTS [tlblt_Filesystem_Windows];
 EXEC sys.sp_dropextendedproperty @name = N'Toolbelt.Module.toolbelt.filesystem.windows.Version';
 COMMIT TRANSACTION;
 GO

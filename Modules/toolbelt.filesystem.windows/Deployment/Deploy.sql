@@ -20,7 +20,7 @@ FROM sys.assemblies AS a
 INNER JOIN sys.assembly_files AS af
     ON af.assembly_id = a.assembly_id
    AND af.file_id = 1
-WHERE a.name = N'Toolbelt_Filesystem_Windows';
+WHERE a.name = N'tlblt_Filesystem_Windows';
 
 BEGIN TRY
     BEGIN TRANSACTION;
@@ -29,9 +29,9 @@ BEGIN TRY
     IF @LockResult < 0 THROW 51535, N'Ein paralleles Deployment dieses Moduls ist bereits aktiv.', 1;
     IF SCHEMA_ID(N'toolbelt_filesystem') IS NULL EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_filesystem];';
     IF @InstalledAssemblyHash IS NULL
-        SET @AssemblyDdl = N'CREATE ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = UNSAFE;';
+        SET @AssemblyDdl = N'CREATE ASSEMBLY [tlblt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = UNSAFE;';
     ELSE IF @InstalledAssemblyHash <> @AssemblyHash
-        SET @AssemblyDdl = N'ALTER ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = UNSAFE;';
+        SET @AssemblyDdl = N'ALTER ASSEMBLY [tlblt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = UNSAFE;';
     IF @AssemblyDdl IS NOT NULL
         EXEC sys.sp_executesql @AssemblyDdl;
 END TRY

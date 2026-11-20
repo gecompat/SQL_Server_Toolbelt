@@ -109,7 +109,7 @@ BEGIN TRY
    OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE ASSEMBLY'),0)<>1
    OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE FUNCTION'),0)<>1
    THROW 53622,N'JSON lifecycle: CLR-Konfiguration oder vorhandene Installationsrechte fehlen.',1;
-  IF @AssemblyId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonConstructors',N'ASSEMBLY',N'ALTER'),0)<>1
+  IF @AssemblyId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'tlblt_JsonConstructors',N'ASSEMBLY',N'ALTER'),0)<>1
    THROW 53622,N'JSON lifecycle: vorhandenes Assembly-ALTER-Recht fehlt.',1;
   IF (@SchemaId IS NULL AND COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE SCHEMA'),0)<>1)
    OR(@SchemaId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1)
@@ -151,7 +151,7 @@ BEGIN TRY
   DROP AGGREGATE toolbelt_json.AGF_JsonArray;
   DROP AGGREGATE toolbelt_json.AGF_JsonObject;
   DROP FUNCTION toolbelt_json.FT_JsonEntryEvaluateInternal;
-  DROP ASSEMBLY [Toolbelt_JsonConstructors] WITH NO DEPENDENTS;
+  DROP ASSEMBLY [tlblt_JsonConstructors] WITH NO DEPENDENTS;
   SET @AssemblyId=NULL;
  END;
  IF @SchemaId IS NULL
@@ -166,7 +166,7 @@ BEGIN TRY
   SELECT @EffectiveOwner=principal_id FROM sys.schemas WHERE name=N'toolbelt_json';
   DECLARE @AssemblyOwnerName sysname=USER_NAME(@EffectiveOwner),@AssemblySql nvarchar(max);
   IF @AssemblyOwnerName IS NULL THROW 53622,N'JSON lifecycle: vorhandener Schemaowner ist nicht sichtbar.',1;
-  SET @AssemblySql=N'CREATE ASSEMBLY [Toolbelt_JsonConstructors] AUTHORIZATION '+QUOTENAME(@AssemblyOwnerName)
+  SET @AssemblySql=N'CREATE ASSEMBLY [tlblt_JsonConstructors] AUTHORIZATION '+QUOTENAME(@AssemblyOwnerName)
    +N' FROM '+CONVERT(nvarchar(max),@TargetBits,1)+N' WITH PERMISSION_SET=SAFE;';
   EXEC sys.sp_executesql @AssemblySql;
  END;
@@ -245,9 +245,9 @@ BEGIN TRY
  WHILE @MarkerId<=6
  BEGIN
   SELECT @MarkerName=Name,@MarkerValue=Value FROM @AssemblyMarkers WHERE Id=@MarkerId;
-  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonConstructors') AND minor_id=0 AND name=@MarkerName)
-   EXEC sys.sp_updateextendedproperty @name=@MarkerName,@value=@MarkerValue,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_JsonConstructors';
-  ELSE EXEC sys.sp_addextendedproperty @name=@MarkerName,@value=@MarkerValue,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_JsonConstructors';
+  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'tlblt_JsonConstructors') AND minor_id=0 AND name=@MarkerName)
+   EXEC sys.sp_updateextendedproperty @name=@MarkerName,@value=@MarkerValue,@level0type=N'ASSEMBLY',@level0name=N'tlblt_JsonConstructors';
+  ELSE EXEC sys.sp_addextendedproperty @name=@MarkerName,@value=@MarkerValue,@level0type=N'ASSEMBLY',@level0name=N'tlblt_JsonConstructors';
   SET @MarkerId+=1;
  END;
 :r ./ClrPreflight.sql

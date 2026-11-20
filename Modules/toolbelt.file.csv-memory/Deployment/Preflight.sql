@@ -58,7 +58,7 @@ BEGIN TRY
   SELECT @Version=NULL,@InstalledMode=NULL,@AssemblyId=NULL,@Installed=0,@SchemaOwner=NULL;
   SELECT @Version=TRY_CONVERT(nvarchar(max),value),@Installed=1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.csv-memory.Version';
   SELECT @InstalledMode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.csv-memory.DeploymentMode';
-  SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_CsvMemory';
+  SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'tlblt_File_CsvMemory';
   SET @SchemaId=SCHEMA_ID(N'toolbelt_file');
   SELECT @SchemaOwner=principal_id FROM sys.schemas WHERE schema_id=@SchemaId;
   IF @SchemaId IS NOT NULL AND (NOT EXISTS(SELECT 1 FROM sys.schemas WHERE schema_id=@SchemaId AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'toolbelt_file'))
@@ -69,7 +69,7 @@ BEGIN TRY
    THROW 55324,N'Unbekannter CSV-Release oder inkohärenter Modus.',2;
   IF @Installed=0 AND (EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.csv-memory.DeploymentMode') OR @AssemblyId IS NOT NULL OR EXISTS(SELECT 1 FROM @Slots WHERE OBJECT_ID(N'toolbelt_file.'+QUOTENAME(Name)) IS NOT NULL))
    THROW 55324,N'Fremde Zielslotbelegung oder unvollständiger Modulzustand.',3;
-  IF @Installed=1 AND (@AssemblyId IS NULL OR NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_File_CsvMemory') AND permission_set=1 AND is_user_defined=1 AND principal_id=@SchemaOwner)
+  IF @Installed=1 AND (@AssemblyId IS NULL OR NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_File_CsvMemory') AND permission_set=1 AND is_user_defined=1 AND principal_id=@SchemaOwner)
    OR (SELECT COUNT(*) FROM sys.assembly_files WHERE assembly_id=@AssemblyId)<>1
    OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'bit' AND TRY_CONVERT(bit,value)=1)
    OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@Module))
@@ -140,13 +140,13 @@ BEGIN TRY
   DECLARE @InstalledHash varbinary(64)=(SELECT HASHBYTES('SHA2_512',content) FROM sys.assembly_files WHERE assembly_id=@AssemblyId AND file_id=1);
   IF @InstalledHash IS NULL OR @InstalledHash<>@Hash
   BEGIN
-   DECLARE @Ddl nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END+N' ASSEMBLY [Toolbelt_File_CsvMemory] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
+   DECLARE @Ddl nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END+N' ASSEMBLY [tlblt_File_CsvMemory] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
    EXEC sys.sp_executesql @Ddl;
   END;
  END
  ELSE
  BEGIN
-  DROP ASSEMBLY Toolbelt_File_CsvMemory;
+  DROP ASSEMBLY tlblt_File_CsvMemory;
   EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.file.csv-memory.Version';
   EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.file.csv-memory.DeploymentMode';
   -- Geteiltes Schema/Dependencies und instanzweiter Trust bleiben erhalten.

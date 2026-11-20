@@ -76,7 +76,7 @@ BEGIN TRY
                @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', f.content)
         FROM sys.assemblies a LEFT JOIN sys.assembly_files f
           ON f.assembly_id = a.assembly_id AND f.file_id = 1
-        WHERE a.name = N'Toolbelt_String_Regex';
+        WHERE a.name = N'tlblt_String_Regex';
         UPDATE s SET ObjectId = o.object_id FROM @Slots s
         LEFT JOIN sys.objects o ON o.schema_id = SCHEMA_ID(N'toolbelt_string') AND o.name COLLATE DATABASE_DEFAULT = s.Name COLLATE DATABASE_DEFAULT;
 
@@ -176,7 +176,7 @@ BEGIN TRY
     IF @Release >= 13 DROP FUNCTION [toolbelt_string].[TVF_RegexCapturesCore];
     IF @Release >= 12 DROP FUNCTION [toolbelt_string].[TVF_RegexMatchesCore];
     IF @Release >= 12 DROP FUNCTION [toolbelt_string].[TVF_RegexSplitCore];
-    DROP ASSEMBLY [Toolbelt_String_Regex];
+    DROP ASSEMBLY [tlblt_String_Regex];
     EXEC sys.sp_dropextendedproperty @name = @VersionProperty;
     EXEC sys.sp_dropextendedproperty @name = @ModeProperty;
     -- Unbekannte zukünftige Slots und fremde Objekte bleiben erhalten.

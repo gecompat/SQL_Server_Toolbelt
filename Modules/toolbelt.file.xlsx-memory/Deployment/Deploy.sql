@@ -60,7 +60,7 @@ IF (SELECT COUNT(*) FROM @Dependency)<>2 OR EXISTS
              AND e.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),e.value))=CONVERT(varbinary(max),d.Version)))))
  THROW 51532,N'Die registrierten ResultTable- und ZIP-Dependencies sind ungeeignet.',1;
 IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.extended_properties e ON e.class=5 AND e.major_id=a.assembly_id
- WHERE a.name=N'Toolbelt_Archive_ZipMemory' AND a.permission_set=1 AND e.name=N'Toolbelt.ModuleId'
+ WHERE a.name=N'tlblt_Archive_ZipMemory' AND a.permission_set=1 AND e.name=N'Toolbelt.ModuleId'
  AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'toolbelt.archive.zip-memory'))
  THROW 51532,N'Die kanonische SAFE-ZIP-Assembly fehlt.',1;
 
@@ -78,10 +78,10 @@ IF (@Installed=1 AND (@InstalledMode IS NULL OR CONVERT(varbinary(max),@Installe
  OR (@Installed=0 AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode'))
  THROW 51534,N'Unbekannter oder inkohärenter XLSX-Modus.',1;
 SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 WHEN CONVERT(varbinary(max),N'1.2.0') THEN 12 ELSE 0 END;
-SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory';
+SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'tlblt_File_XlsxMemory';
 IF (@Installed=1 AND @AssemblyId IS NULL) OR (@Installed=0 AND @AssemblyId IS NOT NULL)
  OR (@AssemblyId IS NOT NULL AND (NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND permission_set=1
-  AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_File_XlsxMemory'))
+  AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_File_XlsxMemory'))
  OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND name=N'Toolbelt.ModuleId'
  AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.file.xlsx-memory'))))
  THROW 51534,N'Fremde oder inkohärente XLSX-Assembly.',1;
@@ -133,7 +133,7 @@ IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referenced_id 
  IF @InstalledHash IS NULL OR @InstalledHash<>@Hash
  BEGIN
    DECLARE @Ddl nvarchar(max)=CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END
-      +N' ASSEMBLY [Toolbelt_File_XlsxMemory] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
+      +N' ASSEMBLY [tlblt_File_XlsxMemory] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
    EXEC sys.sp_executesql @Ddl;
  END;
 END TRY
@@ -183,9 +183,9 @@ BEGIN TRY
   FETCH NEXT FROM ObjectMarkers INTO @Object,@Type,@Property,@Value;
  END;
  CLOSE ObjectMarkers; DEALLOCATE ObjectMarkers;
- IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory') AND name=N'Toolbelt.ModuleId')
-  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.file.xlsx-memory',@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_File_XlsxMemory';
- ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.file.xlsx-memory',@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_File_XlsxMemory';
+ IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'tlblt_File_XlsxMemory') AND name=N'Toolbelt.ModuleId')
+  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.file.xlsx-memory',@level0type=N'ASSEMBLY',@level0name=N'tlblt_File_XlsxMemory';
+ ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.file.xlsx-memory',@level0type=N'ASSEMBLY',@level0name=N'tlblt_File_XlsxMemory';
  COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH

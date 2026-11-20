@@ -28,7 +28,7 @@ DECLARE
           (
               SELECT assembly_id
               FROM sys.assemblies
-              WHERE name = N'Toolbelt_Archive_ZipMemory'
+              WHERE name = N'tlblt_Archive_ZipMemory'
           );
 
 IF @ConfirmNoExternalConsumers IS NULL
@@ -137,9 +137,9 @@ BEGIN TRY
        (
            SELECT 1
            FROM sys.assemblies
-           WHERE name = N'Toolbelt_Archive_ZipMemory'
+           WHERE name = N'tlblt_Archive_ZipMemory'
        )
-        DROP ASSEMBLY [Toolbelt_Archive_ZipMemory];
+        DROP ASSEMBLY [tlblt_Archive_ZipMemory];
 
     IF EXISTS
        (

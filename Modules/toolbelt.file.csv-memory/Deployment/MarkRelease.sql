@@ -26,7 +26,7 @@ BEGIN TRY
   FETCH NEXT FROM ObjectMarkers INTO @Object,@Type,@Property,@Value;
  END;
  CLOSE ObjectMarkers;DEALLOCATE ObjectMarkers;
- DECLARE @AssemblyId int=(SELECT assembly_id FROM sys.assemblies WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_File_CsvMemory'));
+ DECLARE @AssemblyId int=(SELECT assembly_id FROM sys.assemblies WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_File_CsvMemory'));
  IF @AssemblyId IS NULL THROW 55329,N'Die CSV-Zielassembly fehlt.',3;
  DELETE FROM @Properties;INSERT @Properties VALUES(N'Toolbelt.Managed',@Managed),(N'Toolbelt.ModuleId',@Module),(N'Toolbelt.ModuleVersion',@Version);
  DECLARE AssemblyMarkers CURSOR LOCAL FAST_FORWARD FOR SELECT Name,Value FROM @Properties;
@@ -34,8 +34,8 @@ BEGIN TRY
  WHILE @@FETCH_STATUS=0
  BEGIN
   IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND name=@Property)
-   EXEC sys.sp_updateextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_File_CsvMemory';
-  ELSE EXEC sys.sp_addextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_File_CsvMemory';
+   EXEC sys.sp_updateextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'tlblt_File_CsvMemory';
+  ELSE EXEC sys.sp_addextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'tlblt_File_CsvMemory';
   FETCH NEXT FROM AssemblyMarkers INTO @Property,@Value;
  END;
  CLOSE AssemblyMarkers;DEALLOCATE AssemblyMarkers;

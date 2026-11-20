@@ -12,7 +12,7 @@ SELECT @JsonCoreStoredMode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_pr
  WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.core.DeploymentMode';
 SELECT @JsonCoreId=a.assembly_id,@JsonCoreOwner=a.principal_id,@JsonCoreHash=HASHBYTES(N'SHA2_512',f.content)
  FROM sys.assemblies a LEFT JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
- WHERE a.name=N'Toolbelt_JsonCore';
+ WHERE a.name=N'tlblt_JsonCore';
 IF @JsonCoreId IS NULL
 BEGIN
  IF @JsonCoreRequired=1 OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0
@@ -25,7 +25,7 @@ BEGIN
   OR @JsonCoreStoredMode IS NULL OR CONVERT(varbinary(max),@JsonCoreStoredMode)<>CONVERT(varbinary(max),@JsonCoreExpectedMode)
   OR @JsonCoreHash IS NULL OR @JsonCoreHash<>@JsonCoreKnownHash
   OR NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@JsonCoreId AND is_user_defined=1 AND permission_set=1 AND is_visible=0
-   AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_JsonCore'))
+   AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_JsonCore'))
   OR (SELECT COUNT(*) FROM sys.assembly_files WHERE assembly_id=@JsonCoreId)<>1
   THROW 55623,N'JSON Core: keine kohärente bekannte technische SAFE-Assembly.',1;
  DELETE FROM @JsonCoreMarkers;

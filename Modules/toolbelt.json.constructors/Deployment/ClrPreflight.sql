@@ -14,7 +14,7 @@ END;
 SELECT @AssemblyId=NULL,@AssemblyOwner=NULL,@InstalledHash=NULL;
 SELECT @AssemblyId=a.assembly_id,@AssemblyOwner=a.principal_id,@InstalledHash=HASHBYTES(N'SHA2_512',f.content)
  FROM sys.assemblies a LEFT JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
- WHERE a.name=N'Toolbelt_JsonConstructors';
+ WHERE a.name=N'tlblt_JsonConstructors';
 DECLARE @ExpectedInstalledHash varbinary(64)=CASE WHEN CONVERT(varbinary(max),@Version)=CONVERT(varbinary(max),N'1.3.0') THEN @TargetKnownHash ELSE @KnownHash END,
  @ExpectedInstalledArtifact varchar(64)=CASE WHEN CONVERT(varbinary(max),@Version)=CONVERT(varbinary(max),N'1.3.0') THEN @TargetArtifactId ELSE @KnownArtifactId END;
 IF @Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN(CONVERT(varbinary(max),N'1.2.0'),CONVERT(varbinary(max),N'1.3.0'))
@@ -25,7 +25,7 @@ ELSE
 BEGIN
  IF @AssemblyId IS NULL OR @InstalledHash IS NULL OR @InstalledHash<>@ExpectedInstalledHash
   OR NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND permission_set=1 AND is_user_defined=1
-   AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_JsonConstructors'))
+   AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_JsonConstructors'))
   THROW 53623,N'JSON lifecycle: installierte Assembly ist kein bekanntes SAFE-Artefakt.',1;
  -- Die geschlossene Offlinezeile ist eigenständig, nicht der Targethash oder clr_name.
  IF NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE class=5 AND major_id=@AssemblyId AND minor_id=0

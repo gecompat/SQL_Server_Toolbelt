@@ -29,7 +29,7 @@ BEGIN TRY
   IF @Pass=1 AND (COALESCE(@JsonCoreId,-1)<>@InitialId OR COALESCE(@JsonCoreOwner,-1)<>@InitialOwner
    OR COALESCE(CONVERT(varbinary(max),@JsonCoreExpectedMode),0x)<>@InitialMode)
    THROW 55627,N'JSON Core: Assemblyidentität hat sich unter Lock verändert.',1;
-  IF COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonCore',N'ASSEMBLY',N'ALTER'),0)<>1
+  IF COALESCE(HAS_PERMS_BY_NAME(N'tlblt_JsonCore',N'ASSEMBLY',N'ALTER'),0)<>1
    THROW 55622,N'JSON Core: vorhandenes Assembly-ALTER-Recht fehlt.',1;
   IF @Pass=0
   BEGIN
@@ -40,7 +40,7 @@ BEGIN TRY
   END;
   SET @Pass+=1;
  END;
- DROP ASSEMBLY [Toolbelt_JsonCore] WITH NO DEPENDENTS;
+ DROP ASSEMBLY [tlblt_JsonCore] WITH NO DEPENDENTS;
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.core.Version';
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.core.DeploymentMode';
  COMMIT;

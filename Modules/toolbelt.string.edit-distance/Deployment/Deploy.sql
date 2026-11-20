@@ -75,7 +75,7 @@ BEGIN TRY
                @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', f.content)
         FROM sys.assemblies a LEFT JOIN sys.assembly_files f
           ON f.assembly_id = a.assembly_id AND f.file_id = 1
-        WHERE a.name = N'Toolbelt_String_EditDistance';
+        WHERE a.name = N'tlblt_String_EditDistance';
         UPDATE s SET ObjectId = o.object_id FROM @Slots s
         LEFT JOIN sys.objects o ON o.schema_id = SCHEMA_ID(N'toolbelt_string') AND o.name COLLATE DATABASE_DEFAULT = s.Name COLLATE DATABASE_DEFAULT;
 
@@ -259,7 +259,7 @@ BEGIN TRY
     BEGIN
         DECLARE @AssemblyDdl nvarchar(max) =
             CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END
-            + N' ASSEMBLY [Toolbelt_String_EditDistance] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1)
+            + N' ASSEMBLY [tlblt_String_EditDistance] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1)
             + N' WITH PERMISSION_SET = SAFE;';
         EXEC sys.sp_executesql @AssemblyDdl;
     END;
@@ -300,38 +300,38 @@ BEGIN TRY
            SELECT 1 FROM sys.extended_properties AS ep
            INNER JOIN sys.assemblies AS a ON a.assembly_id = ep.major_id
            WHERE ep.class = 5 AND ep.name = N'Toolbelt.Managed'
-             AND a.name = N'Toolbelt_String_EditDistance'
+             AND a.name = N'tlblt_String_EditDistance'
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.Managed', @value = 1
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_String_EditDistance';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Managed', @value = 1
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_String_EditDistance';
 
     IF EXISTS
        (
            SELECT 1 FROM sys.extended_properties AS ep
            INNER JOIN sys.assemblies AS a ON a.assembly_id = ep.major_id
            WHERE ep.class = 5 AND ep.name = N'Toolbelt.ModuleId'
-             AND a.name = N'Toolbelt_String_EditDistance'
+             AND a.name = N'tlblt_String_EditDistance'
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.ModuleId', @value = N'toolbelt.string.edit-distance'
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_String_EditDistance';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.ModuleId', @value = N'toolbelt.string.edit-distance'
-            , @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
+            , @level0type = N'ASSEMBLY', @level0name = N'tlblt_String_EditDistance';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties e JOIN sys.assemblies a ON a.assembly_id = e.major_id
-               WHERE e.class = 5 AND e.name = N'Toolbelt.ModuleVersion' AND a.name = N'Toolbelt_String_EditDistance')
+               WHERE e.class = 5 AND e.name = N'Toolbelt.ModuleVersion' AND a.name = N'tlblt_String_EditDistance')
         EXEC sys.sp_updateextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0',
-             @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
+             @level0type = N'ASSEMBLY', @level0name = N'tlblt_String_EditDistance';
     ELSE
         EXEC sys.sp_addextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0',
-             @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
+             @level0type = N'ASSEMBLY', @level0name = N'tlblt_String_EditDistance';
 
     DECLARE @FunctionName sysname;
     DECLARE FunctionCursor CURSOR LOCAL FAST_FORWARD FOR

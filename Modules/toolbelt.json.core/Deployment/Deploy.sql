@@ -48,9 +48,9 @@ BEGIN TRY
  BEGIN
   SET @OwnerName=USER_NAME(@Owner);
   IF @OwnerName IS NULL THROW 55622,N'JSON Core: vorhandener Zielowner ist nicht sichtbar.',1;
-  SET @Sql=N'CREATE ASSEMBLY [Toolbelt_JsonCore] AUTHORIZATION '+QUOTENAME(@OwnerName)+N' FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
+  SET @Sql=N'CREATE ASSEMBLY [tlblt_JsonCore] AUTHORIZATION '+QUOTENAME(@OwnerName)+N' FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
   EXEC sys.sp_executesql @Sql;
-  ALTER ASSEMBLY [Toolbelt_JsonCore] WITH VISIBILITY=OFF;
+  ALTER ASSEMBLY [tlblt_JsonCore] WITH VISIBILITY=OFF;
   EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.core.Version',@value=N'1.0.0';
   EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.core.DeploymentMode',@value=@ModeValue;
   INSERT @JsonCoreMarkers VALUES
@@ -63,7 +63,7 @@ BEGIN TRY
   WHILE EXISTS(SELECT 1 FROM @JsonCoreMarkers)
   BEGIN
    SELECT TOP(1) @Marker=Name,@Value=Value FROM @JsonCoreMarkers ORDER BY Name;
-   EXEC sys.sp_addextendedproperty @name=@Marker,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_JsonCore';
+   EXEC sys.sp_addextendedproperty @name=@Marker,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'tlblt_JsonCore';
    DELETE FROM @JsonCoreMarkers WHERE Name=@Marker;
   END;
  END;

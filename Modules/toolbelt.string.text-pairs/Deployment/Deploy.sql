@@ -95,7 +95,7 @@ BEGIN TRY
         ) THROW 55123,N'Dependency-Parameter oder Resulttypen weichen vom bekannten Vertrag ab.',2;
         DECLARE @AssemblyId int;
         SET @AssemblyId=NULL;
-        SELECT @AssemblyId=a.assembly_id FROM sys.assemblies a WHERE CONVERT(varbinary(max),a.name)=CONVERT(varbinary(max),N'Toolbelt_String_EditDistance') AND a.permission_set=1 AND a.is_user_defined=1;
+        SELECT @AssemblyId=a.assembly_id FROM sys.assemblies a WHERE CONVERT(varbinary(max),a.name)=CONVERT(varbinary(max),N'tlblt_String_EditDistance') AND a.permission_set=1 AND a.is_user_defined=1;
         IF @AssemblyId IS NULL
            OR NOT EXISTS(SELECT 1 FROM sys.assembly_files f WHERE f.assembly_id=@AssemblyId AND f.file_id=1 AND HASHBYTES(N'SHA2_512',f.content)=@ExpectedHash)
            OR (SELECT COUNT(*) FROM sys.assembly_modules m JOIN @Slots s ON s.Kind='FT' AND m.object_id=OBJECT_ID(N'toolbelt_string.'+QUOTENAME(s.Name)) WHERE m.assembly_id=@AssemblyId

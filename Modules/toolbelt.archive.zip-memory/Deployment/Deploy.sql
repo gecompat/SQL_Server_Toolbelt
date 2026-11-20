@@ -16,7 +16,7 @@ DECLARE
     , @DependencyVersionProperty sysname =
           N'Toolbelt.Module.toolbelt.core.result-table.Version'
     , @AssemblyName sysname =
-          N'Toolbelt_Archive_ZipMemory'
+          N'tlblt_Archive_ZipMemory'
     , @DeploymentMode nvarchar(16) =
           LOWER(N'$(DeploymentMode)')
     , @InstalledVersion nvarchar(64)
@@ -211,8 +211,8 @@ BEGIN TRY
                          FROM sys.assemblies
                          WHERE name = @AssemblyName
                      )
-                    THEN N'ALTER ASSEMBLY [Toolbelt_Archive_ZipMemory]'
-                ELSE N'CREATE ASSEMBLY [Toolbelt_Archive_ZipMemory]'
+                    THEN N'ALTER ASSEMBLY [tlblt_Archive_ZipMemory]'
+                ELSE N'CREATE ASSEMBLY [tlblt_Archive_ZipMemory]'
             END
             + N' FROM '
             + CONVERT(nvarchar(max), @AssemblyBits, 1)
@@ -289,19 +289,19 @@ BEGIN TRY
              ON a.assembly_id = ep.major_id
            WHERE ep.class = 5
              AND ep.name = N'Toolbelt.Managed'
-             AND a.name = N'Toolbelt_Archive_ZipMemory'
+             AND a.name = N'tlblt_Archive_ZipMemory'
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.Managed'
             , @value = 1
             , @level0type = N'ASSEMBLY'
-            , @level0name = N'Toolbelt_Archive_ZipMemory';
+            , @level0name = N'tlblt_Archive_ZipMemory';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Managed'
             , @value = 1
             , @level0type = N'ASSEMBLY'
-            , @level0name = N'Toolbelt_Archive_ZipMemory';
+            , @level0name = N'tlblt_Archive_ZipMemory';
 
     IF EXISTS
        (
@@ -311,19 +311,19 @@ BEGIN TRY
              ON a.assembly_id = ep.major_id
            WHERE ep.class = 5
              AND ep.name = N'Toolbelt.ModuleId'
-             AND a.name = N'Toolbelt_Archive_ZipMemory'
+             AND a.name = N'tlblt_Archive_ZipMemory'
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.ModuleId'
             , @value = N'toolbelt.archive.zip-memory'
             , @level0type = N'ASSEMBLY'
-            , @level0name = N'Toolbelt_Archive_ZipMemory';
+            , @level0name = N'tlblt_Archive_ZipMemory';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.ModuleId'
             , @value = N'toolbelt.archive.zip-memory'
             , @level0type = N'ASSEMBLY'
-            , @level0name = N'Toolbelt_Archive_ZipMemory';
+            , @level0name = N'tlblt_Archive_ZipMemory';
 
     DECLARE @ObjectName sysname,@ObjectType varchar(16),@Property sysname,@PropertyValue nvarchar(128);
     DECLARE WriterMarkers CURSOR LOCAL FAST_FORWARD FOR

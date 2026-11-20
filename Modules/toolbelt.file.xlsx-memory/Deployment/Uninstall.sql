@@ -43,10 +43,10 @@ IF (@Installed=1 AND (@InstalledMode IS NULL OR CONVERT(varbinary(max),@Installe
  OR (@Installed=0 AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode'))
  THROW 51534,N'Unbekannter oder inkohärenter XLSX-Modus.',1;
 SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 WHEN CONVERT(varbinary(max),N'1.2.0') THEN 12 ELSE 0 END;
-SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory';
+SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'tlblt_File_XlsxMemory';
 IF (@Installed=1 AND @AssemblyId IS NULL) OR (@Installed=0 AND @AssemblyId IS NOT NULL)
  OR (@AssemblyId IS NOT NULL AND (NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND permission_set=1
-  AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_File_XlsxMemory'))
+  AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_File_XlsxMemory'))
  OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND name=N'Toolbelt.ModuleId'
  AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.file.xlsx-memory'))))
  THROW 51534,N'Fremde oder inkohärente XLSX-Assembly.',1;
@@ -103,7 +103,7 @@ IF EXISTS(SELECT 1 FROM sys.assembly_modules WHERE assembly_id=@AssemblyId AND o
  DROP PROCEDURE toolbelt_file.USP_InternalXlsxRead;
  DROP FUNCTION toolbelt_file.TVF_InternalXlsxSheets;
  DROP FUNCTION toolbelt_file.TVF_InternalXlsxCells;
- DROP ASSEMBLY Toolbelt_File_XlsxMemory;
+ DROP ASSEMBLY tlblt_File_XlsxMemory;
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.Version';
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode';
  IF SCHEMA_ID(N'toolbelt_file') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_file'))

@@ -9,7 +9,7 @@ SELECT @SchemaVersion=NULL,@SchemaMode=NULL,@SchemaAssemblyId=NULL,@SchemaAssemb
 SELECT @SchemaVersion=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.Version';
 SELECT @SchemaMode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode';
 SELECT @SchemaAssemblyId=a.assembly_id,@SchemaAssemblyOwner=a.principal_id,@SchemaInstalledHash=HASHBYTES(N'SHA2_512',f.content)
- FROM sys.assemblies a LEFT JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_JsonSchema';
+ FROM sys.assemblies a LEFT JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'tlblt_JsonSchema';
 IF @SchemaVersion IS NULL
 BEGIN
  IF @SchemaAssemblyId IS NOT NULL OR @SchemaMode IS NOT NULL
@@ -26,7 +26,7 @@ BEGIN
   OR @SchemaMode IS NULL OR CONVERT(varbinary(max),@SchemaMode)<>CONVERT(varbinary(max),@Mode)
   OR @SchemaAssemblyId IS NULL OR @SchemaInstalledHash IS NULL
   OR NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@SchemaAssemblyId AND is_user_defined=1 AND permission_set=1 AND is_visible=1
-   AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_JsonSchema'))
+   AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_JsonSchema'))
   OR (SELECT COUNT(*) FROM sys.assembly_files WHERE assembly_id=@SchemaAssemblyId)<>1
   THROW 55633,N'JSON Schema lifecycle: unbekannter oder inkohärenter Releasezustand.',1;
  DELETE FROM @SchemaAssemblyMarkers;
@@ -109,13 +109,13 @@ BEGIN
 END;
 -- Eine vorliegende Legacy1.2-Assembly würde einen zweiten aktuellen Scanner
 -- aktiv lassen. Diese Read-only-Dependencyprüfung verändert Constructors nicht.
-IF @SchemaInstalling=1 AND (EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonConstructors')
+IF @SchemaInstalling=1 AND (EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'tlblt_JsonConstructors')
  OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version'))
 BEGIN
  SELECT @SchemaConstructorId=NULL,@SchemaConstructorVersion=NULL;
  SELECT @SchemaConstructorVersion=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
  SELECT @SchemaConstructorId=a.assembly_id FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
-  WHERE a.name=N'Toolbelt_JsonConstructors' AND a.permission_set=1 AND a.is_user_defined=1 AND a.principal_id=@JsonCoreOwner
+  WHERE a.name=N'tlblt_JsonConstructors' AND a.permission_set=1 AND a.is_user_defined=1 AND a.principal_id=@JsonCoreOwner
    AND HASHBYTES(N'SHA2_512',f.content)=@TargetKnownHash;
  IF @SchemaConstructorVersion IS NULL OR CONVERT(varbinary(max),@SchemaConstructorVersion)<>CONVERT(varbinary(max),N'1.3.0')
   OR @SchemaConstructorId IS NULL

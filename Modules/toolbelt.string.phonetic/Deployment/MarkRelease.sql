@@ -2,7 +2,7 @@
 IF @@TRANCOUNT<>1 OR XACT_STATE()<>1
     THROW 55270,N'Der eigene Lifecycle-Transaktionszustand fehlt.',2;
 BEGIN TRY
- DECLARE @AssemblyMarkerId int=(SELECT assembly_id FROM sys.assemblies WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_String_Phonetic'));
+ DECLARE @AssemblyMarkerId int=(SELECT assembly_id FROM sys.assemblies WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'tlblt_String_Phonetic'));
  DECLARE @Version sql_variant=CONVERT(nvarchar(16),N'1.0.0'),
          @Module sql_variant=CONVERT(nvarchar(128),N'toolbelt.string.phonetic'),
          @Managed sql_variant=CONVERT(bit,1),
@@ -43,15 +43,15 @@ BEGIN TRY
  -- Marker werden aktualisiert, die Funktionen wurden atomar neu angelegt.
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyMarkerId AND name=N'Toolbelt.Managed')
  BEGIN
-  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Managed',@value=@Managed,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_String_Phonetic';
-  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleId',@value=@Module,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_String_Phonetic';
-  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=@Version,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_String_Phonetic';
+  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Managed',@value=@Managed,@level0type=N'ASSEMBLY',@level0name=N'tlblt_String_Phonetic';
+  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleId',@value=@Module,@level0type=N'ASSEMBLY',@level0name=N'tlblt_String_Phonetic';
+  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=@Version,@level0type=N'ASSEMBLY',@level0name=N'tlblt_String_Phonetic';
  END
  ELSE
  BEGIN
-  EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Managed',@value=@Managed,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_String_Phonetic';
-  EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=@Module,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_String_Phonetic';
-  EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=@Version,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_String_Phonetic';
+  EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Managed',@value=@Managed,@level0type=N'ASSEMBLY',@level0name=N'tlblt_String_Phonetic';
+  EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=@Module,@level0type=N'ASSEMBLY',@level0name=N'tlblt_String_Phonetic';
+  EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=@Version,@level0type=N'ASSEMBLY',@level0name=N'tlblt_String_Phonetic';
  END;
  COMMIT TRANSACTION;
 END TRY

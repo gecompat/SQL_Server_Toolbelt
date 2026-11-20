@@ -36,7 +36,7 @@ BEGIN TRY
    OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') BridgeId FOR XML RAW,BINARY BASE64));
   IF @Pass=1 AND @Current<>@Initial THROW 55637,N'JSON Schema lifecycle: Zustand hat sich unter Lock verändert.',1;
   IF COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1
-   OR COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonSchema',N'ASSEMBLY',N'ALTER'),0)<>1
+   OR COALESCE(HAS_PERMS_BY_NAME(N'tlblt_JsonSchema',N'ASSEMBLY',N'ALTER'),0)<>1
    THROW 55632,N'JSON Schema lifecycle: vorhandene Uninstallrechte fehlen.',1;
   IF @Pass=0
   BEGIN
@@ -51,7 +51,7 @@ BEGIN TRY
  END;
  DROP PROCEDURE [toolbelt_json].[USP_ValidateJsonSchema];
  DROP FUNCTION [toolbelt_json].[FT_ValidateJsonSchemaInternal];
- DROP ASSEMBLY [Toolbelt_JsonSchema] WITH NO DEPENDENTS;
+ DROP ASSEMBLY [tlblt_JsonSchema] WITH NO DEPENDENTS;
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.Version';
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode';
  COMMIT;

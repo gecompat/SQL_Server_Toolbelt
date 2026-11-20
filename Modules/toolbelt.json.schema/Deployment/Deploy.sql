@@ -41,7 +41,7 @@ BEGIN TRY
    OR (SCHEMA_ID(N'toolbelt_json') IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1)
    OR (@SchemaAssemblyId IS NULL AND COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE ASSEMBLY'),0)<>1)
    OR (@SchemaAssemblyId IS NOT NULL AND @SchemaInstalledHash<>@SchemaKnownHash
-    AND COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonSchema',N'ASSEMBLY',N'ALTER'),0)<>1)
+    AND COALESCE(HAS_PERMS_BY_NAME(N'tlblt_JsonSchema',N'ASSEMBLY',N'ALTER'),0)<>1)
    THROW 55632,N'JSON Schema lifecycle: CLR-Konfiguration oder vorhandene Installationsrechte fehlen.',1;
   IF @Pass=0
   BEGIN
@@ -64,14 +64,14 @@ BEGIN TRY
  BEGIN
   SET @OwnerName=USER_NAME(@SchemaOwner);
   IF @OwnerName IS NULL THROW 55632,N'JSON Schema lifecycle: vorhandener Owner nicht sichtbar.',1;
-  SET @Sql=N'CREATE ASSEMBLY [Toolbelt_JsonSchema] AUTHORIZATION '+QUOTENAME(@OwnerName)+N' FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
+  SET @Sql=N'CREATE ASSEMBLY [tlblt_JsonSchema] AUTHORIZATION '+QUOTENAME(@OwnerName)+N' FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
   EXEC sys.sp_executesql @Sql;
  END;
  ELSE IF @SchemaInstalledHash<>@SchemaKnownHash
  BEGIN
   -- Nur die exakt bekannte Vorgängerversion; unveränderte CLR-Signatur/Core-
   -- Referenz. Eigene Slots, Rechte und ObjectIds bleiben im atomaren ALTER erhalten.
-  SET @Sql=N'ALTER ASSEMBLY [Toolbelt_JsonSchema] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
+  SET @Sql=N'ALTER ASSEMBLY [tlblt_JsonSchema] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
   EXEC sys.sp_executesql @Sql;
  END;
  CREATE TABLE #tbx_JsonSchema_DeployState(DeploymentMode nvarchar(16) NOT NULL);
@@ -129,9 +129,9 @@ BEGIN TRY
  WHILE EXISTS(SELECT 1 FROM @SchemaAssemblyMarkers)
  BEGIN
   SELECT TOP(1) @Property=Name,@Value=Value FROM @SchemaAssemblyMarkers ORDER BY Name;
-  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') AND minor_id=0 AND name=@Property)
-   EXEC sys.sp_updateextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_JsonSchema';
-  ELSE EXEC sys.sp_addextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_JsonSchema';
+  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'tlblt_JsonSchema') AND minor_id=0 AND name=@Property)
+   EXEC sys.sp_updateextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'tlblt_JsonSchema';
+  ELSE EXEC sys.sp_addextendedproperty @name=@Property,@value=@Value,@level0type=N'ASSEMBLY',@level0name=N'tlblt_JsonSchema';
   DELETE FROM @SchemaAssemblyMarkers WHERE Name=@Property;
  END;
  SET @SchemaInstalling=1;
