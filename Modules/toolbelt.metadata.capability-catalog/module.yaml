@@ -4,7 +4,7 @@ version: "1.0.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Zeigt sichtbare bekannte Schnittstellenkandidaten ohne Registry; Version und Modus bleiben unbelegt."
+description: "Zeigt sichtbare bekannte Modulschnittstellenkandidaten ohne Installationsregistry; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete."
 sql_server_versions:
   - "2019"
   - "2022"
