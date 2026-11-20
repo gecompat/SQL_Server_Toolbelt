@@ -75,7 +75,8 @@
     "Package-only output labels including PlanManifest; preserve per-unit content hashes",
     "Batch-aware native consumer adapter",
     "Reject non-ConnectionString property expressions instead of silently using static values",
-    "Explicit existing-TRUSTWORTHY requirement for the selected database-trust routes"
+    "Explicit existing-TRUSTWORTHY requirement for the selected database-trust routes",
+    "Reject duplicate aliases for the same StartValues input"
   ],
   "native_requalification_after_these_changes": "not executed",
   "offline": {

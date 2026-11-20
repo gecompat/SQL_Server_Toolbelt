@@ -16,11 +16,13 @@ namespace Toolbelt.Tsql.SsisDebug
             if (json == null) return;
             var starts = Json.Object(Json.Parse(json, limits));
             limits.Check("inputs", starts.Count);
+            var assigned = new HashSet<string>(StringComparer.Ordinal);
             foreach (var entry in starts)
             {
                 var inputs = package.Inputs.Where(i => i.Name == entry.Key || i.Scope + "\\" + i.Name == entry.Key).ToList();
                 if (inputs.Count != 1) throw new DebugFault("unresolved_binding", "Startwertname ist unbekannt oder im Paket mehrdeutig; bei Bedarf den vollständigen Scope angeben.");
                 Input input = inputs[0];
+                if (!assigned.Add(input.Key)) throw new DebugFault("unresolved_binding", "Derselbe Startwert wurde unter mehreren Namen übergeben.");
                 if (input.Sensitive || input.SqlType == null) throw new DebugFault("unresolved_binding", "Dieser Startwert darf nicht in Debug-SQL übernommen werden.");
                 Types.Literal(input, entry.Value);
                 values[input.Key] = entry.Value;

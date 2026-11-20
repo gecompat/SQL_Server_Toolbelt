@@ -5,12 +5,21 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
+import sys
 
 import validate_install_package as guard
 
 
 class PackageIntegrity(unittest.TestCase):
+    def setUp(self):
+        sys.path.insert(0, str(guard.ROOT / "Tests/Release"))
+        from ssis_historical_context import historical_root
+        snapshot=historical_root(guard.ROOT,"75d42047557d06b82777ba0c860e90f44247920e")
+        self.enterContext(mock.patch.object(guard,"ROOT",snapshot))
+        self.enterContext(mock.patch.object(guard,"MODULE",snapshot/"Modules/toolbelt.tsql.ssis-debug"))
+
     def altered(self, mutation, reason):
         with zipfile.ZipFile(guard.ARCHIVE) as z:
             payload = {n.split('/', 1)[1]: z.read(n) for n in z.namelist()}

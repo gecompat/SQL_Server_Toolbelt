@@ -42,6 +42,9 @@ internal static partial class ContractTests
         Assert(values.Count == 1 && values.Values.Single() is JsonNumber, "AUTO_TYPED_START_VALUES");
         Reject(() => AutomaticBindings.ApplyStarts(package, "{\"User::NotDeclared\":7}", values, limits), "unresolved_binding");
         Reject(() => AutomaticBindings.ApplyStarts(package, "{\"User::SourceFloor\":\"not-an-integer\"}", values, limits), "invalid_template");
+        var floor = package.Inputs.Single(i => i.Name == "User::SourceFloor");
+        string duplicate = Json.Write(Json.Obj(floor.Name, new JsonNumber("7"), floor.Scope + "\\" + floor.Name, new JsonNumber("8")), limits);
+        Reject(() => AutomaticBindings.ApplyStarts(package, duplicate, new Dictionary<string, object>(), limits), "unresolved_binding");
         string catalog = AutomaticBindings.Catalog(package, values, limits, new Artifacts(limits));
         Assert(catalog.Contains("AdventureWorks") && !catalog.Contains("SYNTHETIC_ONLY") && !catalog.Contains("ContosoServer"), "AUTO_CONNECTION_REDACTION");
         manager.Add(new XElement(dts + "PropertyExpression", new XAttribute(dts + "Name", "InitialCatalog"), "\"OtherDatabase\""));
