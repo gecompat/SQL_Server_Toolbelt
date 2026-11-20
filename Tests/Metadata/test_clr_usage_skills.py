@@ -43,6 +43,21 @@ def prepare_module_fixture(directory: Path):
 
 
 class ClrUsageSkillTests(unittest.TestCase):
+    def test_filesystem_module_has_complete_source_contracts_including_configuration(self):
+        expected = {key: value for key, value in usage_skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.filesystem.windows"}
+        sources = [usage_skills.read(usage_skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(usage_skills.validate_coverage(sources, expected), len(expected))
+        self.assertEqual({s.metadata["object_type"] for s in sources}, {"USP", "CLR_USP", "TABLE", "ASSEMBLY"})
+        table = next(s for s in sources if s.metadata["object_name"] == "FileSystemRoot")
+        path = table.metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        self.assertEqual(usage_skills.project_relation_ddl(text, table), text)
+        stripped = usage_skills.strip_ddl_projection(ROOT, path, text)
+        self.assertIn("IF OBJECT_ID(N'toolbelt_filesystem.FileSystemRoot', N'U') IS NULL", stripped)
+        self.assertIn("CREATE ROLE toolbelt_filesystem_service_account AUTHORIZATION dbo;", stripped)
+        self.assertIn("DEFAULT(0) WITH VALUES;", stripped)
+
     def test_public_filesystem_skills_match_signatures_and_early_help_projection(self):
         sources = [usage_skills.read(p) for p in sorted(
             (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("USP_*.md"))

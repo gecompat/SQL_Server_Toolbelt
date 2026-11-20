@@ -14,11 +14,30 @@ aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 
 `toolbelt.filesystem.windows` stellt kontrollierte Dateisystemoperationen für SQL Server unter Windows bereit.
 
-Der Provider ist bewusst Windows-only und benötigt eine per SHA2-512 autorisierte `UNSAFE`-Assembly. Er akzeptiert nur Root-Aliasse und relative Pfade. Konkrete Pfade werden ausschließlich vom Betreiber in `toolbelt_filesystem.FileSystemRoot` konfiguriert und gehören nicht in Deployment-Skripte, Beispiele oder Test-Evidence. Caller benötigen neben `EXECUTE` auf der jeweiligen öffentlichen Procedure auch `SELECT` auf dieser Konfiguration; dadurch können sie die freigegebenen physischen Root- und Work-Pfade einsehen.
+Der Provider ist bewusst Windows-only und benötigt eine im gewählten Installationsvertrag autorisierte `UNSAFE`-Assembly. Der gemeinsame Installer bietet den exakten Hashweg und ausdrücklich gewählte Wege mit bereits vorhandenem Datenbank-Trust; er aktiviert `TRUSTWORTHY` nicht. Der Provider akzeptiert nur Root-Aliasse und relative Pfade. Konkrete Pfade werden ausschließlich vom Betreiber in `toolbelt_filesystem.FileSystemRoot` konfiguriert und gehören nicht in öffentliche Deployment-Beispiele oder Test-Evidence. Caller benötigen neben `EXECUTE` auf der jeweiligen öffentlichen Procedure auch `SELECT` auf dieser Konfiguration; dadurch können sie die freigegebenen physischen Root- und Work-Pfade einsehen.
 
 Die öffentliche API umfasst begrenztes Lesen von Binary/Text, gestreamtes Schreiben, Transcoding, Directory-Listing, Directory-Erzeugung sowie File-/Directory-Delete. Standardmodus ist `Caller`: Der per Windows Authentication angemeldete SQL-Caller wird ausschließlich während des Dateisystemzugriffs impersoniert. `ServiceAccount` ist eine explizite Alternative für kontrollierte Server-Jobs. SQL Authentication mit `Caller` wird abgelehnt.
 
 Die Windows-Validierung ist teilweise ausgeführt. Die Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 war für Build, SHA2-512-Trust, lokales Deployment, alle Help-Verträge und die SQL-Authentication-Ablehnung im `Caller`-Modus erfolgreich. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte das kontrollierte Erstellen eines Verzeichnisses und Schreiben einer Textdatei im `ServiceAccount`-Modus. Für diesen historischen Stand blieben Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests offen; den aktuellen begrenzten Nachweis beschreibt der folgende Evidenzabschnitt. Vor produktiver Verwendung sind die [Contract-Testmatrix](./Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md) und der [manuelle Windows-Runtime-Testplan](./Tests/Manual_Windows_Runtime_Testplan.md) verpflichtend.
+
+## Hilfe und maschinenlesbarer Vertrag
+
+Jede öffentliche Dateisystem-Prozedur liefert mit `@Hilfe=1` zunächst die
+bisherige Standardhilfe und anschließend genau eine zusätzliche Skillzeile:
+`SkillFormatVersion`, `SchemaName`, `ObjectName`, `SkillMarkdown nvarchar(max)`.
+Die Hilfe kehrt vor Rootprüfung, Identitätswechsel, Dateioperation und
+ResultTable-Routing zurück. Beispiel:
+
+```sql
+EXEC toolbelt_filesystem.USP_ReadTextFileChunk @Hilfe=1;
+```
+
+Die [kanonischen Skillquellen](../../Metadata/UsageSkills/README.md) beschreiben
+auch interne Einstiege und die Root-Konfiguration. Die vollständige neue
+SQL-Katalogview ist noch nicht integriert; die internen CLR-Einstiege erhalten
+ihren eigenen Hilfeschalter erst im nächsten Implementierungsschritt. Die neue
+zusätzliche Hilfeausgabe ist offline geprüft, ihre native Abnahme bleibt offen.
+Historische Funktionsnachweise werden dadurch nicht zu aktuellen Gesamtnachweisen.
 
 ## Build-Voraussetzung
 
@@ -34,7 +53,7 @@ Für den Build der SQL-CLR-Assembly wird das **.NET Framework 4.8 Developer Pack
 
 Microsoft stellt das benötigte Paket auf der offiziellen [Downloadseite für .NET Framework 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48) bereit. Die Installation ist nur auf Build- oder Testarbeitsplätzen erforderlich; für ein Deployment aus verifizierten Release-Artefakten wird kein Developer Pack auf dem SQL-Server benötigt.
 
-Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dokumenten beschriebenen Voraussetzungen: `clr enabled`, weiterhin aktiviertes `clr strict security` und die explizite Freigabe des SHA2-512-Hashes der Release-Assembly.
+Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dokumenten beschriebenen Voraussetzungen: `clr enabled`, weiterhin aktiviertes `clr strict security` und den bewusst gewählten gültigen Trustpfad für die konkrete Assembly. Beim Hashweg ist der exakte SHA2-512-Hash freizugeben; bestehender Datenbank-Trust wird nicht automatisch eingerichtet.
 
 ## Aktuelle Validierungsevidenz
 
@@ -47,7 +66,7 @@ Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dok
 
 ## NoOverwrite-Regression
 
-Bei `@Overwrite = 0` veröffentlicht der Provider ausschließlich per nicht überschreibendem `File.Move`. Auch ein erst während des Staging-Schreibens erzeugtes Ziel wird nicht ersetzt; der frühere Existenzcheck allein ist keine Veröffentlichungsbarriere. `@Overwrite = 1` behält den bisherigen Move-/Replace-Pfad. Bei Fehlern versucht der Provider, seine eigene Staging-Datei unter derselben gewählten Identität zu bereinigen; der erste Fehler bleibt erhalten. Scheitern Identitätswiederherstellung oder Bereinigung, können Reste bleiben. Ein vorhandenes Ziel bleibt bei NoOverwrite unverändert. Dies ist keine allgemeine NTFS-, Power-Loss- oder Caller-Impersonation-Garantie.
+Bei `@Overwrite = 0` publiziert der aktuelle Provider über den gebundenen nativen Handle mit ausgeschaltetem Replace-Flag. Ein vorheriger Existenzcheck ist keine Veröffentlichungsbarriere; ein inzwischen vorhandenes Ziel darf nicht ersetzt werden. `@Overwrite = 1` erlaubt das Ersetzen und übernimmt die DACL eines vorhandenen zulässigen Ziels vor der Publikation. Bei Fehlern versucht der Provider, seine eigene Staging-Datei unter derselben gewählten Identität zu bereinigen; der erste Fehler bleibt erhalten. Scheitern Identitätswiederherstellung oder Bereinigung, können Reste bleiben. Dies ist keine allgemeine NTFS-, Power-Loss- oder Caller-Impersonation-Garantie. Die folgenden historischen Frameworknachweise bleiben an ihre damaligen Providerbytes gebunden.
 
 Der Providerstand vor der Streaming-Identitätskorrektur hat am 2026-10-03 den .NET-Framework-4.8-Projektbuild und die Releaseartefakt-Erzeugung bestanden. Die historische private Helperqualifikation umfasste neun synthetische Fälle und 254 Assertions; sie ersetzt keinen Nachweis des neuen öffentlichen Test-Runners. Der sourcegebundene [Offline-Regressionstest](./Tests/Framework/README.md) bestand tatsächlich neun Fälle/254 Assertions einschließlich eigener Bereinigung und abschließender Pins. Vier zusätzliche private Prozesskontrollen bestanden Nonzero, Timeout, Capturegrenze und Postpin-Drift. Aktuelle CI wird separat am exakten PR-Head nachgewiesen. Für den damaligen Stand war ausschließlich der getrennt beschriebene Zwei-Fall-Auth-Probe-Scope belegt. Der aktuelle ausgewählte Caller-/NTFS-Lauf ist im Evidenzblock und in der Testdokumentation beschrieben; die vollständige Matrix bleibt offen. Modulversion1.0.0, `partially validated` und `unreleased` bleiben erhalten.
 
@@ -80,6 +99,6 @@ weiter ausschließlich für ihre datierten Quellen.
 
 ## Freigegebene Security-Härtung 2026-10-15
 
-SC-009/023/005: Native UNSAFE-Handlebindung auf lokalen Windows-Laufwerken für alle neun APIs. Alle Eltern werden ohne Write-/Delete-Sharing gehalten, Reparse Points und Dateihardlinks verworfen. Lesen nutzt den geprüften Handle; Publikation/Löschen erfolgen am exakten Handle. Bestehende Ziel-DACL wird handlegebunden übernommen; Fehler verhindern Publikation. Kein UNC-/Pfadfallback. ServiceAccount benötigt Mitgliedschaft in toolbelt_filesystem_service_account UND AllowServiceAccount=1 am aktiven Root. Listing: höchstens 10000 Einträge, Tiefe64 und 16 MiB gespeicherter UTF-16-Pfadtext, atomar vor Ausgabe. Caller, strict security und exakter Releasehash-Trust bleiben erforderlich. Keine Rechtevergabe durch Deployment.
+SC-009/023/005: Native UNSAFE-Handlebindung auf lokalen Windows-Laufwerken für alle neun APIs. Alle Eltern werden ohne Write-/Delete-Sharing gehalten, Reparse Points und Dateihardlinks verworfen. Lesen nutzt den geprüften Handle; Publikation/Löschen erfolgen am exakten Handle. Bestehende Ziel-DACL wird handlegebunden übernommen; Fehler verhindern Publikation. Kein UNC-/Pfadfallback. ServiceAccount benötigt Mitgliedschaft in toolbelt_filesystem_service_account UND AllowServiceAccount=1 am aktiven Root. Listing: höchstens 10000 Einträge, Tiefe64 und 16 MiB gespeicherter UTF-16-Pfadtext, vollständig gesammelt vor Ausgabe. Die ausdrücklich gewählte Identität, strict security und ein gültiger freigegebener Assembly-Trustpfad bleiben erforderlich. Keine Rechtevergabe durch Deployment.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
