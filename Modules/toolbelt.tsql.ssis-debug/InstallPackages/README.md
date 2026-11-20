@@ -1,5 +1,7 @@
 # SSIS-Debug ohne eigenen Build installieren
 
+Für den aktuellen Quellstand gilt die [vereinfachte Installation](../Documentation/SimpleInstallation.md) ohne SQLCMD und Extended Properties. Die folgenden Paket-/Lifecycleabläufe beziehen sich auf ihre gebundenen bisherigen Artefakte. Für streng kataloggebundene Beispielaufrufe im neuen Build `@CatalogMode='catalog'` angeben.
+
 Der [gemeinsame aktuelle Installer](../../../Releases/1.0.0/CURRENT-INSTALL.md)
 verwendet die aktualisierte exakte Parserbindung und besitzt eine eigene
 [Installationsabnahme](../../../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md).

@@ -1012,6 +1012,7 @@ internal static partial class ContractTests
     }
     internal static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "simplicity") return Simplicity(args[1]);
         if (args.Length == 3 && (args[0] == "v1-resource-probe" || args[0] == "v2-resource-probe"))
         {
             bool v2 = args[0] == "v2-resource-probe";

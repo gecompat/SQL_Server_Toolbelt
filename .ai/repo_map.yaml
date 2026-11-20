@@ -151,6 +151,10 @@ sources_of_truth:
   tsql_script_parser_module: Modules/toolbelt.tsql.script-parser/module.yaml
   ssis_debug_contract: Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md
   ssis_debug_module: Modules/toolbelt.tsql.ssis-debug/module.yaml
+  ssis_simple_installation: Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md
+  private_scriptdom_transform: Scripts/Clr/PrivateScriptDom.cs
+  private_scriptdom_resolver: Scripts/Clr/Resolve-ToolbeltScriptDom.ps1
+  private_scriptdom_build_dependency_license: ThirdParty/Mono.Cecil-0.11.6/README.md
   ssis_current_access_evidence: Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Access.Windows.CL.20261031.json
   ssis_current_access_validator: Scripts/Release/validate_ssis_current_access.py
   ssis_current_access_checks: Tests/Release/test_ssis_current_access.py
@@ -1064,6 +1068,8 @@ change_impact:
         - markdown_links
     tsql_script_parser_contract:
       paths:
+        - Scripts/Clr/**
+        - ThirdParty/Mono.Cecil-0.11.6/**
         - Modules/toolbelt.tsql.script-parser/**
         - Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql
         - Modules/toolbelt.metadata.table-clone/Tests/Static/validate_contract.py

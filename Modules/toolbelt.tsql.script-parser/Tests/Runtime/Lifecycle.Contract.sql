@@ -14,7 +14,7 @@ IF NOT EXISTS
 IF NOT EXISTS
    (
        SELECT 1 FROM sys.assemblies
-       WHERE name = N'Toolbelt_Tsql_ScriptParser'
+       WHERE name = N'tlblt_Tsql_ScriptParser'
          AND permission_set_desc = N'UNSAFE_ACCESS'
    )
     THROW 53122, N'Die ScriptParser-Assembly fehlt oder besitzt nicht UNSAFE_ACCESS.', 1;
@@ -51,7 +51,7 @@ IF NOT EXISTS
       ON managed.class = 5 AND managed.major_id = a.assembly_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
     INNER JOIN sys.extended_properties AS moduleId
       ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
-    WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+    WHERE a.name = N'tlblt_Tsql_ScriptParser'
       AND TRY_CONVERT(int, managed.value) = 1 AND TRY_CONVERT(nvarchar(128), moduleId.value) = N'toolbelt.tsql.script-parser')
     THROW 53123, N'Die Provider-Ownership ist nicht kohärent.', 3;
 
@@ -60,7 +60,7 @@ IF NOT EXISTS
        SELECT 1
        FROM sys.assemblies AS a
        INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
-       WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+       WHERE a.name = N'tlblt_Tsql_ScriptParser'
          AND HASHBYTES(N'SHA2_512', af.content) =
              $(ExpectedProviderHash)
    )
@@ -69,7 +69,7 @@ IF NOT EXISTS
        SELECT 1
        FROM sys.assemblies AS a
        INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
-       WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+       WHERE a.name = N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom'
          AND HASHBYTES(N'SHA2_512', af.content) =
              $(ExpectedScriptDomHash)
    )

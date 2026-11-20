@@ -1,5 +1,7 @@
 # Historische Komponenten-V2-Lieferung
 
+Für den aktuellen Quellstand gilt die [vereinfachte Installation](SimpleInstallation.md) ohne SQLCMD und Extended Properties. Die folgenden Paket-/Lifecycleabläufe beziehen sich auf ihre gebundenen bisherigen Artefakte. Für streng kataloggebundene Beispielaufrufe im neuen Build `@CatalogMode='catalog'` angeben.
+
 Diese Seite dokumentiert ausschließlich das unveränderte historische
 Komponenten-V2-Paket und seine damalige Qualifikation. Das Paket implementiert
 den früheren Opt-in-Vertrag; es ist keine installierbare Lieferung des aktuellen

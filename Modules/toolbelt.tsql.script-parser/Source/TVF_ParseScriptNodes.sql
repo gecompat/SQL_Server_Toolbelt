@@ -8,7 +8,7 @@
 -- Resultset:       NodeId, ParentNodeId, Depth, SiblingOrdinal, PropertyName, PropertyIndex,
 --                  NodeType, StartOffset, StartLine, StartColumn, FragmentLength,
 --                  FirstTokenIndex, LastTokenIndex
--- Dependencies:    Assembly Toolbelt_Tsql_ScriptParser
+-- Dependencies:    Assembly tlblt_Tsql_ScriptParser
 -- Rechte:          SELECT auf die Funktion
 -- Versionen:       SQL Server 2019, 2022, 2025
 -- Plattformen:     Windows
@@ -48,7 +48,7 @@ RETURNS TABLE
     , LastTokenIndex      int            NULL
 )
 AS EXTERNAL NAME
-    [Toolbelt_Tsql_ScriptParser]
+    [tlblt_Tsql_ScriptParser]
     .[Toolbelt.Tsql.ScriptParser.ScriptParserProvider]
     .[ParseScriptNodes];
 GO

@@ -10,7 +10,9 @@ import current_install_qualification as q
 class CurrentInstallQualificationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        _,cls.files=release.snapshot('HEAD')
+        # Original common installer receipt; the new private-identity compiler
+        # closure is not silently qualified by this released archive.
+        _,cls.files=release.snapshot('75d42047557d06b82777ba0c860e90f44247920e')
         for p in (q.PACKAGE,q.PACKAGE+'.sha256',q.RECORD):
             cls.files[p]=(ROOT/p).read_bytes()
 

@@ -8,6 +8,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $moduleRoot=Split-Path -Parent $PSScriptRoot
 $repoRoot=Split-Path -Parent (Split-Path -Parent $moduleRoot)
+. (Join-Path $repoRoot 'Scripts/Clr/Resolve-ToolbeltScriptDom.ps1')
+$ScriptDomDllPath=Resolve-ToolbeltScriptDom -Path $ScriptDomDllPath
 . (Join-Path $repoRoot 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1')
 $pin=Get-Content -LiteralPath (Join-Path $moduleRoot 'Contracts/DependencyPins.json') -Raw | ConvertFrom-Json
 $parserManifest=Get-Content -LiteralPath (Join-Path $ParserReleaseDirectory 'Toolbelt.Tsql.ScriptParser.trust-manifest.json') -Raw | ConvertFrom-Json

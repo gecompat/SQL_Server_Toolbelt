@@ -610,11 +610,11 @@ BEGIN
             WHERE COALESCE(HAS_PERMS_BY_NAME(v.n,N'OBJECT',N'SELECT'),0)<>1)
             THROW 53907,N'TableClone: vollständige Parser-/Dependency-Katalogsicht fehlt.',3;
         DECLARE @TrProviderId int,@TrDomId int;
-        SELECT @TrProviderId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_Tsql_ScriptParser' COLLATE DATABASE_DEFAULT AND permission_set=3;
-        SELECT @TrDomId=assembly_id FROM sys.assemblies WHERE name=N'Microsoft.SqlServer.TransactSql.ScriptDom' COLLATE DATABASE_DEFAULT;
+        SELECT @TrProviderId=assembly_id FROM sys.assemblies WHERE name=N'tlblt_Tsql_ScriptParser' COLLATE DATABASE_DEFAULT AND permission_set=3;
+        SELECT @TrDomId=assembly_id FROM sys.assemblies WHERE name=N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom' COLLATE DATABASE_DEFAULT;
         IF @TrProviderId IS NULL OR @TrDomId IS NULL
-          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrProviderId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0xF2213559FA9085BDAC9B6A4C1954D7BE18EAAE9BFBF950E2A29CC0121D8B36D6838D4366327D3A6B0C9ED655179ACBE898E2887D917AA0D0C2B7C243C891C16A)
-          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrDomId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7)
+          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrProviderId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0xF849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123)
+          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrDomId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813)
           OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'int' AND TRY_CONVERT(int,value)=1)
           OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.tsql.script-parser'))
           OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'2.0.1'))

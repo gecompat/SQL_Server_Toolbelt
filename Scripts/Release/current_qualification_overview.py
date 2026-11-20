@@ -46,8 +46,8 @@ def render(ssis, parser):
         fresh.validate(ssis)
     if current['qualified_assembly_sha256'] != ssis.get('qualified_assembly_sha256'):
         raise ValueError('Fresh and current build identities differ')
-    _parser_validator.validate(parser)
-    current_package, current_tls_security = current_zip_ssms.qualification_records()
+    _parser_validator.validate_historical(parser)
+    current_package, current_tls_security = current_zip_ssms.historical_qualification_records()
     # Keine vollständige native Parserquotenabnahme aus dem kombinierten Vertrag ableiten.
     if (parser.get('result') != 'PASS_FOR_APPROVED_COMBINED_SCOPE'
             or parser.get('publicationAuthorized') is not False

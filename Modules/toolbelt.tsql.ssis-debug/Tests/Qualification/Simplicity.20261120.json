@@ -1,0 +1,106 @@
+{
+  "schema": "ssis-simplicity-partial/v1",
+  "date": "2026-11-20",
+  "result": "PASS_FOR_DECLARED_COMPONENT_SCOPES",
+  "full_module_qualification": false,
+  "publication_authorized": false,
+  "native_cases": [
+    {
+      "id": "coexist-2019-enabled",
+      "result": "PASS_CLEANED",
+      "checks": 12,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "coexist-2022",
+      "result": "PASS_CLEANED",
+      "checks": 12,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "coexist-2025-v5",
+      "result": "PASS_CLEANED",
+      "checks": 12,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "checked-2019",
+      "result": "PASS_CLEANED",
+      "checks": 9,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "checked-2022",
+      "result": "PASS_CLEANED",
+      "checks": 9,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "checked-2025",
+      "result": "PASS_CLEANED",
+      "checks": 9,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "hash-2019",
+      "result": "PASS_CLEANED",
+      "checks": 9,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "hash-2022",
+      "result": "PASS_CLEANED",
+      "checks": 9,
+      "fresh_audit": "PASS"
+    },
+    {
+      "id": "hash-2025-fixed",
+      "result": "PASS_CLEANED",
+      "checks": 9,
+      "fresh_audit": "PASS"
+    }
+  ],
+  "native_source_candidate": "private-v0",
+  "native_final_candidate": "final1",
+  "candidate_meaning": "Private local reproducible source-build receipts, not a released package",
+  "final_case": {
+    "result": "FAILED_CLEANED",
+    "checks": 13,
+    "fresh_audit": "PASS",
+    "reason": "Consumer adapter sent GO batch separators directly to SQL Server; installation, repetition and XML generation completed first",
+    "generated_sql_native_execution": "not completed"
+  },
+  "final_source_changes_after_native": [
+    "Public help text encoding normalization",
+    "Package-only output labels including PlanManifest; preserve per-unit content hashes",
+    "Batch-aware native consumer adapter",
+    "Reject non-ConnectionString property expressions instead of silently using static values",
+    "Explicit existing-TRUSTWORTHY requirement for the selected database-trust routes",
+    "Reject duplicate aliases for the same StartValues input",
+    "Checked installation rejects absent/NULL binary metadata instead of accepting an indeterminate inequality"
+  ],
+  "native_requalification_after_these_changes": "not executed",
+  "offline": {
+    "reproducible_final_build": true,
+    "simplicity": "PASS",
+    "installer_control_tests": 7,
+    "full_strict_framework_before_label_only_delta": 29,
+    "batch_parser_control": "PASS",
+    "private_parser_framework_children": 248
+  },
+  "accounting": {
+    "calls": 32,
+    "max_calls": 32,
+    "databases": 16,
+    "max_databases": 32,
+    "reserved_audits": 0,
+    "closed": true
+  },
+  "historical_failed_cases_preserved": true,
+  "coexistence": "Original ScriptDom17 consumer passes before and after private Toolbelt ScriptDom18-derived dependency installation",
+  "limits": [
+    "Current native tests use an administrative lab connection; no new low-privilege total claim",
+    "No GUI, TLS, full package matrix or module-total acceptance",
+    "No common all-module markerless installer acceptance"
+  ]
+}

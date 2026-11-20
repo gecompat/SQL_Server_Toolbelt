@@ -50,6 +50,17 @@ Nicht in das Repository aufnehmen:
 
 ## `TRUSTWORTHY ON`
 
+Für den vereinfachten SSIS-Installer ist seit Benutzerauftrag vom 2026-11-19
+und anschließender Implementierungsfreigabe vorhandener Datenbank-Trust eine
+bewusst wählbare Installationsroute: mit reinem Binaryhashvergleich oder ohne
+Toolbelt-Hashprüfung/-registrierung. Die Engineberechtigungen und der berechtigte
+Datenbankowner bleiben erforderlich. `auto` wählt bei bereits ON diesen Weg,
+sonst exakte Hashregistrierung; kein Fehlerfallback. Der Installer aktiviert
+TRUSTWORTHY nicht und ändert keine Sicherheitsoptionen. Details und Grenzen:
+[vereinfachte SSIS-Installation](../../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
+Andere bestehende Modullifecycles werden dadurch nicht stillschweigend geändert.
+Für zusätzliche automatische Truständerungen gilt weiterhin:
+
 `TRUSTWORTHY ON` ist kein regulärer, automatischer oder bevorzugter Installationsweg.
 
 Eine Last-Resort-Ausnahme ist nur zulässig, wenn:

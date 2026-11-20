@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'Modules/toolbelt.tsql.script-parser/**'
+      - 'Scripts/Clr/**'
       - 'Tests/CI/run-script-parser-lab.ps1'
       - 'Tests/CI/Invoke-ScriptParserCurrentLab.ps1'
       - 'Tests/CI/ParserCurrentSnapshot.ps1'
@@ -23,6 +24,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch original native evidence context
+        run: git fetch --no-tags --depth=1 origin 75d42047557d06b82777ba0c860e90f44247920e
       - name: Static contract
         run: python Modules/toolbelt.tsql.script-parser/Tests/Static/validate_contract.py
       - name: Shared guard without ScriptDom dependency

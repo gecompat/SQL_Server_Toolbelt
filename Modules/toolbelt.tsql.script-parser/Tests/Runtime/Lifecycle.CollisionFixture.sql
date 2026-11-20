@@ -11,7 +11,7 @@ ELSE IF @FaultCase = N'ForeignFunctionMarker'
          @level0type = N'SCHEMA', @level0name = N'toolbelt_tsql', @level1type = N'FUNCTION', @level1name = N'TVF_ParseScriptNodes';
 ELSE IF @FaultCase = N'ForeignProviderMarker'
     EXEC sys.sp_updateextendedproperty @name = N'Toolbelt.ModuleId', @value = N'Contoso.Foreign',
-         @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_Tsql_ScriptParser';
+         @level0type = N'ASSEMBLY', @level0name = N'tlblt_Tsql_ScriptParser';
 ELSE IF @FaultCase = N'InconsistentFunctionVersion'
     EXEC sys.sp_updateextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0',
          @level0type = N'SCHEMA', @level0name = N'toolbelt_tsql', @level1type = N'FUNCTION', @level1name = N'TVF_ParseScriptNodes';

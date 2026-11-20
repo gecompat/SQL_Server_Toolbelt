@@ -7,9 +7,12 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'Scripts/Release'))
 import validate_ssis_copy_column_security as evidence
 import validate_ssis_copy_column as prior
-from ssis_historical_scope import copy_column_v1_scope
+from ssis_historical_scope import copy_column_v1_scope, security_corrected_tls_scope
 
 class SecurityCorrectionTests(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(security_corrected_tls_scope(ROOT))
+
     def test_independent_review_accepts_sources_only(self):
         evidence.validate_review()
 

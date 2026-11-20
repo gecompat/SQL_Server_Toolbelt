@@ -29,8 +29,10 @@ assert re.search(r"@TargetFlow\s+nvarchar\(64\)", internal)
 assert re.search(r"@InspectStage\s+nvarchar\(64\)", internal)
 pins = json.loads((ROOT / "Contracts/DependencyPins.json").read_text())
 assert pins["parserVersion"] == "2.0.1" and len(pins["parserSha512"]) == 128
-for token in [pins["parserSha512"], pins["scriptDomSha512"], "WITH (NOLOCK)", "USP_PrepareResultTable"]:
+for token in ["sys.parameters", "sys.assembly_modules", "p.system_type_id", "p.max_length", "USP_PrepareResultTable"]:
     assert token in (ROOT / "Deployment/DependencyPreflight.sql").read_text()
+dependencies = (ROOT / "Deployment/DependencyPreflight.sql").read_text()
+assert not any(token in dependencies for token in ("extended_properties", "Toolbelt.Module", "trusted_assemblies", "HASHBYTES")), "runtime must not require installation markers or a selected hash trust mode"
 code = "\n".join(p.read_text(encoding="utf-8") for folder in ("Clr", "Exchange/Core") for p in (ROOT / folder).glob("*.cs"))
 for forbidden in ["File.ReadAll", "WebClient", "HttpClient", "Process.Start", "new Thread", "Assembly.Load", "Package.Execute", "Microsoft.SqlServer.Dts.Runtime"]:
     assert forbidden not in code, forbidden

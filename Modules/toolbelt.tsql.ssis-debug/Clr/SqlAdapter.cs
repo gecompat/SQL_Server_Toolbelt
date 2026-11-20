@@ -183,7 +183,7 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
             SqlInt64 maxPackageBytes, SqlInt64 maxXmlCharacters, SqlInt64 maxXmlNodes, SqlInt64 maxModelNodes, SqlInt64 maxModelEdges, SqlInt64 maxComponents, SqlInt64 maxPaths, SqlInt64 maxColumns, SqlInt64 maxInputs,
             SqlInt64 maxJsonDocumentBytes, SqlInt64 maxAllJsonBytes, SqlInt64 maxJsonNodes, SqlInt64 maxExpressionBytes, SqlInt64 maxExpressionTokens, SqlInt64 maxExpressionNodes, SqlInt64 maxPlanUnits,
             SqlInt64 maxCatalogObjects, SqlInt64 maxCatalogQueries, SqlInt64 maxParserCalls, SqlInt64 maxArtifacts, SqlInt64 maxDiagnostics, SqlInt64 maxSqlArtifactBytes, SqlInt64 maxTotalOutputBytes, SqlInt64 maxAnalysisMilliseconds,
-            SqlString procedureSchema, SqlString procedureName, SqlString resultTable, SqlBoolean keepData, SqlByte debug, SqlBoolean hilfe)
+            SqlString procedureSchema, SqlString procedureName, SqlString packageXml, SqlString startValues, SqlString catalogMode, SqlString resultTable, SqlBoolean keepData, SqlByte debug, SqlBoolean hilfe)
         {
             using (var connection = new SqlConnection("context connection=true"))
             {
@@ -197,21 +197,22 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
                 var options = new Options { Operation = Value(operation), ProjectContext = Value(projectContext), Bindings = Value(bindings), CatalogBindings = Value(catalogBindings), Target = Value(targetFlow), Stage = Value(inspectStage), LookupPolicies = Value(lookupPolicies), ComparisonCollation = Value(comparisonCollation), Version = tSqlVersion.IsNull ? -1 : tSqlVersion.Value };
                 options.ProcedureSchema = Value(procedureSchema);
                 options.ProcedureName = Value(procedureName);
+                options.StartValues = Value(startValues);
+                options.CatalogMode = Value(catalogMode);
                 options.Limits = ResourceOptions.FromSqlParameters(maxPackageBytes,maxXmlCharacters,maxXmlNodes,maxModelNodes,maxModelEdges,maxComponents,maxPaths,maxColumns,maxInputs,
                     maxJsonDocumentBytes,maxAllJsonBytes,maxJsonNodes,maxExpressionBytes,maxExpressionTokens,maxExpressionNodes,maxPlanUnits,maxCatalogObjects,maxCatalogQueries,maxParserCalls,
                     maxArtifacts,maxDiagnostics,maxSqlArtifactBytes,maxTotalOutputBytes,maxAnalysisMilliseconds);
                 ResourceOptions.Resolve(options.ProjectContext, options.Operation, options.Bindings, options.Limits, out options.ResourceContextV2, out options.BindingProfile, out options.ProjectContextValue);
                 var budget = new Budget();
                 using (var state = new SqlCommand("SELECT XACT_STATE();", connection)) if (Convert.ToInt32(state.ExecuteScalar(), CultureInfo.InvariantCulture) == -1) throw new DebugFault("unresolved_binding", "Callertransaktion ist nicht schreibfähig.");
-                using (var dependencies = new SqlCommand(DependencyPins.Sql, connection)) { budget.CatalogCalls++; dependencies.ExecuteNonQuery(); }
                 budget.Limits = options.Limits;
                 long allJsonBytes = 0;
-                foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies })
+                foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies, options.StartValues })
                 {
                     if (json == null) continue; budget.CheckLimit("jsonDocumentBytes", (long)json.Length * 2); allJsonBytes += (long)json.Length * 2;
                 }
                 budget.CheckLimit("allJsonBytes", allJsonBytes);
-                foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies })
+                foreach (string json in new[] { options.Bindings, options.CatalogBindings, options.LookupPolicies, options.StartValues })
                 {
                     if (json == null) continue; Json.Parse(json, options.Limits);
                     using (var validate = new SqlCommand("IF ISJSON(@j)<>1 THROW 50000,N'TBX_SSISDBG_invalid_template: Ungültiges JSON.',1; SELECT COUNT_BIG(*) FROM OPENJSON(@j);", connection))
@@ -222,8 +223,9 @@ ORDER BY d.referenced_server_name,d.referenced_database_name,COALESCE(s.name,d.r
                     using (var validate = new SqlCommand("IF ISJSON(@j)<>1 THROW 50000,N'TBX_SSISDBG_invalid_template: Ungültiges JSON.',1; SELECT COUNT_BIG(*) FROM OPENJSON(@j);", connection))
                     { validate.Parameters.Add("@j", SqlDbType.NVarChar, -1).Value = options.ProjectContext; validate.ExecuteScalar(); }
                 }
-                if (packageBytes.IsNull) throw new DebugFault("unresolved_binding", "PackageBytes erforderlich."); budget.CheckLimit("packageBytes", packageBytes.Length);
-                Artifacts result = Engine.Analyze(packageBytes.Value, options, new SqlCatalog(connection, budget), budget);
+                byte[] input = XmlInput.Read(packageBytes, packageXml, options.Limits);
+                budget.CheckLimit("packageBytes", input.LongLength);
+                Artifacts result = Engine.Analyze(input, options, new SqlCatalog(connection, budget), budget);
                 if (!debug.IsNull && debug.Value > 0) SqlContext.Pipe.Send("SSIS Debug: Analyse abgeschlossen; Artefakte=" + result.Rows.Count.ToString(CultureInfo.InvariantCulture) + "; SQL-Prüfeinheiten=" + budget.SqlCalls.ToString(CultureInfo.InvariantCulture) + ".");
                 Send(connection, result, Value(resultTable), !keepData.IsNull && keepData.Value);
             }

@@ -1,11 +1,24 @@
 # T-SQL Script Parser
 
-Die aktuelle native API- und datenbanklokale Rechtematrix auf Windows
-SQL Server 2019, 2022 und 2025 ist bestanden. Das Modul ist für den aktuellen
-Build und den ausdrücklich freigegebenen kombinierten Quoten-Nachweisvertrag
-validiert und bleibt unveröffentlicht. Der
-[aktuelle Qualifikationsstand](Tests/README.md#aktueller-stand-vom-2026-11-05)
-trennt öffentliche Nativeaufrufe, Binary-/Invariantenprüfungen und offene Fälle.
+Der aktuelle Quellstand verwendet eine private Toolbelt-ScriptDom-Identität,
+um andere ScriptDom-Versionen in derselben Datenbank zu erhalten. Der neue
+Provider besteht 248 Offlinefälle; eine native Gesamtqualifikation des neuen
+Binary-Paars wird nicht behauptet. Das Modul ist teilweise validiert und
+unveröffentlicht. Der [Hardening-Vertrag](../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md)
+führt die neuen Buildnamen und die ursprünglichen Pins getrennt.
+
+Der Releasebuilder `Scripts/New-ClrReleaseArtifacts.ps1` nimmt weiterhin das
+unveränderte offizielle ScriptDom-180.117.0/net472-Binary entgegen und erzeugt
+über den gemeinsamen Buildresolver die private Kopie. Bei direktem MSBuild
+muss bereits die private DLL übergeben werden; der Originalpin ist nur der
+Eingang des Resolvers. Die SQL-Assemblynamen beginnen mit `tlblt`, die eigene
+Parser-DLL heißt weiterhin `Toolbelt.Tsql.ScriptParser.dll`.
+
+Die [native API-/Minimalrechtematrix vom 2026-11-05](Tests/README.md#aktueller-stand-vom-2026-11-05)
+und der kombinierte Quotenvertrag bleiben historische Nachweise ihrer
+Originalbinaries. Die nachfolgenden datierten Build-/Upgradenotizen erneuern
+keine Qualifikation. Der markerbasierte Lifecycle ist kein Upgradeweg für eine
+markerlose SSIS-Installation in derselben Datenbank.
 
 Buildnachtrag 2026-10-18: Für das ausdrücklich gewünschte
 [SSIS-Debug-Installationspaket](../toolbelt.tsql.ssis-debug/InstallPackages/README.md)
@@ -46,7 +59,7 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 ## Plattform- und Providerbesonderheiten
 
 - **Plattform:** Windows (SQL Server 2019, 2022, 2025). SQL Server auf Linux unterstützt keine `UNSAFE`-Assemblies und ist nicht anwendbar.
-- **Assembly:** `Toolbelt_Tsql_ScriptParser` / `Toolbelt.Tsql.ScriptParser.dll`.
+- **Assembly:** `tlblt_Tsql_ScriptParser` / `Toolbelt.Tsql.ScriptParser.dll`.
 - **Trust:** Die Freigabe erfolgt über den exakten SHA2-512-Hash via `sys.sp_add_trusted_assembly` unter Beibehaltung von `clr strict security = 1`.
 
 ## Aktuelle Validierungsevidenz

@@ -18,7 +18,7 @@ BEGIN TRY
 :r OwnershipPreflight.sql
  DROP PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlow;
  DROP PROCEDURE toolbelt_tsql.USP_ExplainSsisDataFlowInternal;
- DROP ASSEMBLY [Toolbelt_Tsql_SsisDebug];
+ DROP ASSEMBLY [tlblt_Tsql_SsisDebug];
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.tsql.ssis-debug.Version';
  COMMIT TRANSACTION;
 END TRY

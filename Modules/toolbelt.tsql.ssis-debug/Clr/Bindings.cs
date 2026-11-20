@@ -10,6 +10,7 @@ namespace Toolbelt.Tsql.SsisDebug
     {
         internal string Operation, ProjectContext, Bindings, CatalogBindings, Target, Stage, LookupPolicies, ComparisonCollation, BindingProfile;
         internal string ProcedureSchema, ProcedureName;
+        internal string StartValues, CatalogMode = "catalog";
         internal bool ProcedureDefinition { get { return Operation == "procedure-definition"; } }
         internal Dictionary<string, object> ProjectContextValue;
         internal int Version;
@@ -40,9 +41,12 @@ namespace Toolbelt.Tsql.SsisDebug
         internal readonly List<Input> DeclarationOrder = new List<Input>();
         private readonly Artifacts artifacts;
         private readonly ICatalog catalog;
+        private readonly bool packageOnly;
+        private readonly HashSet<string> missingInitializers = new HashSet<string>(StringComparer.Ordinal);
         internal Bindings(Package package, Options options, ICatalog catalog, Artifacts output)
         {
             Package = package; artifacts = output; this.catalog = catalog; Limits = options.Limits ?? Toolbelt.Ssis.Exchange.ResourceLimits.Legacy;
+            packageOnly = options.CatalogMode == "package";
             ComponentsV2 = true;
             Dictionary<string, object> suppliedBindings = null;
             if (options.Bindings != null)
@@ -130,9 +134,15 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             if (options.Operation == "bindings-template")
             {
-                if (options.Bindings != null || options.CatalogBindings != null) throw new DebugFault("invalid_template", "Template-Modus verlangt Bindings und CatalogBindings NULL.");
+                if (options.Bindings != null || options.CatalogBindings != null || options.StartValues != null) throw new DebugFault("invalid_template", "Template-Modus verlangt Bindings, CatalogBindings und StartValues NULL.");
                 return;
             }
+            if (options.Bindings != null && options.StartValues != null)
+                throw new DebugFault("invalid_template", "Bindings und einfache StartValues nicht gleichzeitig übergeben.");
+            AutomaticBindings.ApplyStarts(package, options.StartValues, Values, Limits);
+            AutomaticBindings.ResolveStructureValues(package, Values, Limits);
+            if (options.CatalogBindings == null && options.Operation != "bindings-template")
+                options.CatalogBindings = AutomaticBindings.Catalog(package, Values, Limits, output);
             if (options.CatalogBindings != null)
             {
                 var root = Json.Object(Json.Parse(options.CatalogBindings, Limits));
@@ -259,6 +269,11 @@ namespace Toolbelt.Tsql.SsisDebug
                 else if (input.Expression != null)
                 { var expr = new ExpressionParser(input.Expression, Package, input.Scope, new Dictionary<string, ExpressionValue>(StringComparer.Ordinal), Resolve, ComponentsV2, CollationForCodePage, Limits).Parse(); sql = expr.Sql; nullable = expr.Nullable; total = expr.Total; dependencies.UnionWith(expr.Inputs); }
                 else if (input.HasDefault && !input.RuntimeAssigned) { sql = Types.Literal(input, input.Default); nullable = input.Default == null; total = true; }
+                else if (packageOnly && input.SqlType != null && !input.Sensitive)
+                {
+                    sql = "NULL"; nullable = true; total = true; missingInitializers.Add(input.Key);
+                    artifacts.Diagnostic("start_value_required", null, "Startwert für " + input.Key + " im DECLARE-Block einsetzen oder über StartValues übergeben.");
+                }
                 else throw new DebugFault("unresolved_binding", "Wert für " + input.Key + " fehlt.");
                 if (input.SqlType == null || input.Sensitive) throw new DebugFault("unresolved_binding", "Benötigte Eingabe nicht exportierbar.");
                 var result = new ExpressionValue { Sql = input.SqlName, Type = input.SqlType, Nullable = nullable, Total = total }; result.Inputs.UnionWith(dependencies); result.Inputs.Add(input.Key);
@@ -274,7 +289,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string Declarations(IEnumerable<string> keys)
         {
             var set = new HashSet<string>(keys, StringComparer.Ordinal);
-            return String.Join("\n", DeclarationOrder.Where(i => set.Contains(i.Key)).Select(i => "DECLARE " + i.SqlName + " " + i.SqlType + " = " + Initializers[i.Key] + ";"));
+            return String.Join("\n", DeclarationOrder.Where(i => set.Contains(i.Key)).Select(i => "DECLARE " + i.SqlName + " " + i.SqlType + " = " + Initializers[i.Key] + ";" + (missingInitializers.Contains(i.Key) ? " -- TODO: Startwert einsetzen." : "")));
         }
     }
 }

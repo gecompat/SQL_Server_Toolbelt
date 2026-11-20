@@ -1,5 +1,26 @@
 # Aktueller SSIS-Debug-Vertrag
 
+## Aktueller Komfortvertrag — 2026-11-20
+
+`@PackageXml nvarchar(max)` ist die normale Eingabe; `@PackageBytes` bleibt
+als alternative Originalbyteeingabe verfügbar. Genau eine Eingabe ist nötig.
+`@StartValues` ist eine optionale typisierte JSON-Namens-/Wertzuordnung.
+`@CatalogMode='package'` ist der öffentliche Default. Er verwendet Paketspalten,
+Paketdefaults und lokal ausgewertete Start-/Connection-Expressions, ohne
+Quellkatalogzugriff. Die [Kurzanleitung](../../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md)
+definiert Auflösungsumfang, Entwurfsannahmen, Diagnose und Trustwahl.
+
+Alle Ergebnisse des Paketmodus bleiben ohne Katalog-PASS; SQL-Artefakte haben
+`IsExecutable=0`, vollständige Entwürfe können bewusst manuell ausgeführt
+werden. Ein Planmanifest erbt keinen Safety-PASS aus der strukturellen
+Übersetzung. Fehlende oder mehrdeutige strukturelle Angaben werden abgewiesen.
+Keine Connectionstrings exportieren und keine externen Verbindungen öffnen.
+
+Die folgenden tieferen Katalog-, Sicherheits- und Prozedurdefinitionsverträge
+gelten für die optionale Auswahl `@CatalogMode='catalog'`. Historische
+Qualifikationen gelten weiterhin nur für ihre ursprünglichen Artefakte.
+
+
 Stand: 2026-10-29. Vom Benutzer direkt beauftragt und umgesetzt. Die getrennten
 aktuellen Binary-, Paket- und Installer-Nachweise stehen in der
 [Prüfmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md).

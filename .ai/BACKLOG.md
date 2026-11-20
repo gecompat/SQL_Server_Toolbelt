@@ -1879,7 +1879,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 22 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
@@ -7099,3 +7099,18 @@ Lücken innerhalb derselben unveränderten 28-Aufrufe-/28-DB-/45-Minuten-Grenze,
 keine neue Freigabe, Frist oder Welle. Die fünf Punkte sind abgeschlossen;
 keine Modulgesamtaufwertung. Alte Sperr-/Consumerbelege nicht wiederholt.
 Private Originale erhalten, keine Veröffentlichung.
+
+
+## Vereinfachte Installation / DTSX — freigegebene Umsetzung 2026-11-20
+
+Nach Anforderungsabgleich im [Plan](../Backlog/INSTALLATION_AND_DTSX_SIMPLICITY.md)
+hat der Benutzer ausdrücklich autonomes Implementieren und reguläre grüne
+PR-/Mainintegration beauftragt, ohne Veröffentlichung. Erste Teilstufe:
+[SSIS-Komfortvertrag](../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md),
+private koexistierende ScriptDom-Identität und markerloser SQL-Installer.
+Der [Teilnachweis](../Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Simplicity.20261120.json)
+wertet historische Binaries nicht auf. Der native Consumeranschluss bleibt nach
+Adapterfehler und ausgeschöpften 32 Aufrufen offen; Offlinekorrektur vorhanden.
+Gemeinsame markerlose Installation aller übrigen Module und deren Runtime-
+Dependencies ist weiterhin freigegebene Restarbeit. Keine neue Fachfunktion,
+keine automatische Abschwächung bestehender Sicherheitsoptionen.

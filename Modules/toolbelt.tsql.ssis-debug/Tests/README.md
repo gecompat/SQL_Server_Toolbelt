@@ -1,5 +1,26 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
+## Vereinfachter Installer und XML-Aufruf — 2026-11-20
+
+Der [neue Teilrecord](Qualification/Simplicity.20261120.json) trennt die gezielten
+nativen Installations-/Erzeugungsnachweise von der noch fehlenden nativen
+Consumer-Ausführung. Drei Trustwege wurden auf Windows SQL2019/2022/2025 geprüft,
+Original-ScriptDom17 bleibt neben der privaten Toolbelt-Kopie verwendbar.
+Alle sechzehn frischen Audits sind PASS; alle eigenen Datenbanken entfernt.
+Die letzte aktuelle Installation/Erzeugung und Wiederholung bestand 13 Checks,
+danach scheiterte der Testadapter an ungetrennten GO-Batches: FAILED_CLEANED,
+frischer Audit PASS. Der korrigierte Batchparser ist ausschließlich offline
+geprüft. 32/32 Aufrufe sind geschlossen; keine native Wiederholung behauptet.
+
+Der reproduzierbare finale Build und das neue Simplicity-Profil prüfen unter
+anderem Unicode-XML, einfache Startwerte, lokale Connection-Expressions,
+NullCatalog, konservative Ausgabelabels und unveränderte Planunit-Hashes.
+Sieben synthetische Generatorgegenproben prüfen die Installationssteuerung;
+die strikte Frameworkregression bestand 29 begrenzte Kindprozesse vor der
+abschließenden reinen Paketlabelkorrektur. Die historischen Gesamtbelege unten
+qualifizieren diese neuen Binaries nicht. [Anwendung](../Documentation/SimpleInstallation.md).
+
+
 Der aktuelle Entwicklungsvertrag steht im
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 

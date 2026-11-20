@@ -113,5 +113,20 @@ def validate(report=None, *, check_files=True):
 
 
 if __name__ == '__main__':
-    validate()
-    print('SSIS_FRESH_BUILD_QUALIFICATION_PASS; fresh ZIP12, SSMS total receipt, strict TLS total case')
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--historical',action='store_true',help='Check the original declared build; never qualify changed current sources.')
+    args=parser.parse_args()
+    if args.historical:
+        from ssis_historical_scope import pre_copy_column_scope
+        original_root=ROOT
+        try:
+            with pre_copy_column_scope(ROOT) as snapshot:
+                ROOT=snapshot
+                validate()
+        finally:
+            ROOT=original_root
+        print('SSIS_HISTORICAL_FRESH_BUILD_QUALIFICATION_PASS; no new build acceptance')
+    else:
+        validate()
+        print('SSIS_FRESH_BUILD_QUALIFICATION_PASS; fresh ZIP12, SSMS total receipt, strict TLS total case')
