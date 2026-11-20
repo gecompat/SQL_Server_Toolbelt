@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from ssis_historical_context import historical_root
 
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = ROOT / 'Tests/Release/Invoke-TableCloneTriggerLab.ps1'
@@ -142,9 +143,11 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
             result = self.scope(fixture, from_file=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_option_zero_reuse_requires_exact_single_pin_change(self):
+    def test_option_zero_reuse_requires_exact_historical_and_current_binding_delta(self):
         # Vollständige normalisierte Quelle des vorherigen Main; kein abgeleiteter Runtime-PASS.
-        source = (ROOT / 'Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql').read_bytes().replace(b'\r\n', b'\n')
+        relative = 'Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql'
+        snapshot = historical_root(ROOT, '75d42047557d06b82777ba0c860e90f44247920e')
+        source = (snapshot / relative).read_bytes().replace(b'\r\n', b'\n')
         current = b'F2213559FA9085BDAC9B6A4C1954D7BE18EAAE9BFBF950E2A29CC0121D8B36D6838D4366327D3A6B0C9ED655179ACBE898E2887D917AA0D0C2B7C243C891C16A'
         previous = b'7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506'
         self.assertEqual(source.count(current), 1)
@@ -153,6 +156,18 @@ class CloneTriggerAdmissionTests(unittest.TestCase):
         reconstructed = source.replace(current, previous)
         self.assertEqual(hashlib.sha256(reconstructed).hexdigest().upper(),
                          '94A2F00F8E0DCB07C9E2E1FA5FBEC287CF0D89FC578C53315A96AB033C9C079C')
+        replacements = (
+            (b"name=N'Toolbelt_Tsql_ScriptParser'", b"name=N'tlblt_Tsql_ScriptParser'"),
+            (b"name=N'Microsoft.SqlServer.TransactSql.ScriptDom'", b"name=N'tlblt.Microsoft.SqlServer.TransactSql.ScriptDom'"),
+            (current, b'F849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123'),
+            (b'459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7',
+             b'634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813'),
+        )
+        expected = source
+        for old, new in replacements:
+            self.assertEqual(expected.count(old), 1)
+            expected = expected.replace(old, new)
+        self.assertEqual((ROOT / relative).read_bytes().replace(b'\r\n', b'\n'), expected)
 
 
 if __name__ == '__main__':

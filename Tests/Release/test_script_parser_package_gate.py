@@ -69,7 +69,7 @@ def validate_parser_corpus_fixture(fixture):
         raise ValueError("SCRIPT_PARSER_CORPUS_DRIFT")
 
 
-def validate_parser_report(report):
+def validate_parser_report(report, *, source_root=ROOT):
     required = {"schema_version", "date", "status", "scope", "publication_authorized",
                 "native_sql", "package", "module", "qualification", "input_sha256",
                 "setup_history", "limits"}
@@ -83,8 +83,8 @@ def validate_parser_report(report):
     if report["package"] != {"path": gate.PACKAGE, "sha256": gate.PACKAGE_SHA256}:
         raise ValueError("SCRIPT_PARSER_REPORT_PACKAGE")
     binding, provider, scriptdom = gate.inspect(
-        (ROOT / gate.PACKAGE).read_bytes(), (ROOT / gate.SIDECAR).read_bytes(),
-        (ROOT / gate.QUALIFICATION).read_bytes())
+        (source_root / gate.PACKAGE).read_bytes(), (source_root / gate.SIDECAR).read_bytes(),
+        (source_root / gate.QUALIFICATION).read_bytes())
     module = report["module"]
     if module != {
         "id": "toolbelt.tsql.script-parser", "version": "2.0.1", "assembly": "Toolbelt.Tsql.ScriptParser.dll",
@@ -133,9 +133,9 @@ def validate_parser_report(report):
         raise ValueError("SCRIPT_PARSER_REPORT_INPUTS")
     for relative, expected in EXPECTED_INPUTS.items():
         if relative in ssis_history.source_paths():
-            ssis_history.validate_historical_source(ROOT, relative, expected)
+            ssis_history.validate_historical_source(source_root, relative, expected)
             continue
-        if gate.sha((ROOT / relative).read_bytes()) != expected:
+        if gate.sha((source_root / relative).read_bytes()) != expected:
             raise ValueError("SCRIPT_PARSER_REPORT_PIN_DRIFT")
     if report["setup_history"] != [
         {"status": "REJECTED_BEFORE_PROVIDER_START", "diagnostic": "SCRIPT_PARSER_RUNSET_SCHEMA",
@@ -150,6 +150,13 @@ def validate_parser_report(report):
         raise ValueError("SCRIPT_PARSER_REPORT_HISTORY")
     if report["limits"] != EXPECTED_LIMITS:
         raise ValueError("SCRIPT_PARSER_REPORT_LIMITS")
+
+
+def validate_historical_parser_report(report):
+    """Originalbericht am ursprünglichen Quellkontext, keine aktuelle Abnahme."""
+    from ssis_historical_context import historical_root
+    snapshot = historical_root(ROOT, '75d42047557d06b82777ba0c860e90f44247920e')
+    validate_parser_report(report, source_root=snapshot)
 
 
 class ScriptParserPackageGateMixin:
@@ -198,35 +205,37 @@ class ScriptParserPackageGateMixin:
     def test_script_parser_report_pins_package_sources_and_scope(self):
         self.assertEqual(sum(name.startswith("test_script_parser_") for name in dir(type(self))), 3)
         report = json.loads((ROOT / REPORT).read_bytes())
-        validate_parser_report(report)
+        validate_historical_parser_report(report)
+        with self.assertRaisesRegex(ValueError, 'SCRIPT_PARSER_REPORT_PIN_DRIFT'):
+            validate_parser_report(report)
 
     def test_script_parser_report_and_corpus_drift_are_rejected(self):
         report = json.loads((ROOT / REPORT).read_bytes())
-        validate_parser_report(report)
+        validate_historical_parser_report(report)
         altered = dict(report, unexpected=True)
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_FIELDS"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         altered = json.loads(json.dumps(report))
         altered["qualification"]["provider_children"] = 64
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_QUALIFICATION"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         altered = json.loads(json.dumps(report))
         altered["scope"] = "FULL_MODULE_QUALIFICATION"
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_SCOPE"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         altered = dict(report, publication_authorized=0)
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_STATUS"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         altered = dict(report, limits=[])
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_LIMITS"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         altered = json.loads(json.dumps(report))
         altered["qualification"]["separate_source_guard"]["package_bound"] = True
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_SOURCE_GUARD"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         altered = dict(report, setup_history=report["setup_history"][:-1])
         with self.assertRaisesRegex(ValueError, "SCRIPT_PARSER_REPORT_HISTORY"):
-            validate_parser_report(altered)
+            validate_historical_parser_report(altered)
         fixture = json.loads((ROOT / FIXTURE).read_bytes())
         validate_parser_corpus_fixture(fixture)
         fixture["corpus"][2] += " "
