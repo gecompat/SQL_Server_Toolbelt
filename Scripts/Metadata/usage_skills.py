@@ -97,6 +97,8 @@ def validate(skill: Skill, *, verified=True):
                 and not any(ord(c) < 32 for c in value), "Feldlänge/Inhalt: " + field)
     require(type(m["is_internal"]) is bool, "IsInternal ist boolesch")
     require(re.fullmatch(r"[A-Z][A-Z0-9_]*", m["object_type"]), "Objekttyp ist ein technischer Code")
+    require((m["object_type"] == "ASSEMBLY") == (m["schema_name"] == ""),
+            "Nur Assemblies sind schemafrei; kein erfundenes SQL-Schema")
     require(m["review_status"] in ("draft", "verified"), "Reviewstatus")
     require(not verified or m["review_status"] == "verified", "Ungeprüfter Skill")
     require(isinstance(m["module_id"], str)
@@ -255,17 +257,27 @@ def strip_ddl_projection(root: Path, path: str, text: str):
         m = projected.metadata
         require(projected.identity not in seen, "Doppelte DDL-Skillidentität")
         seen.add(projected.identity)
-        source = folder / m["schema_name"] / (m["object_name"] + ".md")
+        source = source_file(root, m["schema_name"], m["object_name"])
         require(source.resolve().is_relative_to(folder), "Skillquelle außerhalb des Katalogs")
         canonical = read(source)
         require(canonical.markdown == projected.markdown
                 and m["source_paths"][0] == path, "DDL-Skill ist nicht kanonisch/quellzugeordnet")
         if m["object_type"] in ("TVF", "SVF", "CLR_TVF", "CLR_SVF"):
             _existing_function_skill(text, canonical)
+        elif m["object_type"] in ("VIEW", "VW", "TABLE"):
+            _existing_relation_skill(text, canonical)
         comment = render_ddl_comment(canonical)
         require(text.count(comment) == 1, "DDL-Skillkommentar nicht eindeutig/bytegleich")
         text = text.replace(comment, "", 1)
     return text
+
+
+def source_file(root: Path, schema: str, name: str):
+    """Schemafreie Assemblyquellen getrennt ablegen, ohne SQL-Schema zu erfinden."""
+    folder = (root / "Metadata/UsageSkills").resolve()
+    path = folder / (schema or "_assemblies") / (name + ".md")
+    require(path.resolve().is_relative_to(folder), "Skillquelle außerhalb des Katalogs")
+    return path
 
 
 def _ddl_tokens(text):
@@ -467,6 +479,62 @@ def project_function_ddl(text: str, skill: Skill):
     line = text.rfind("\n", 0, position) + 1
     require(line > ts[i + 4][1], "Kommentarposition muss innerhalb der Funktionsdefinition liegen")
     return text[:line] + render_ddl_comment(skill) + text[line:]
+
+
+def _relation_anchor(text, skill):
+    """Ein konkretes CREATE VIEW/TABLE, keine Laufzeit-Katalogabfrage binden."""
+    m = skill.metadata
+    kind = "table" if m["object_type"] == "TABLE" else "view"
+    require(m["object_type"] in ("TABLE", "VIEW", "VW"), "Tabellen-/View-Skill erforderlich")
+    ts = _ddl_tokens(text)
+    words = [t[0].casefold() for t in ts]
+    creates = [j for j, word in enumerate(words) if word == "create"]
+    matches = []
+    for create in creates:
+        i = create + 1
+        alter = words[i:i + 2] == ["or", "alter"]
+        if alter:
+            i += 2
+        if [w.strip("[]") for w in words[i:i + 4]] == [
+                kind, m["schema_name"].casefold(), ".", m["object_name"].casefold()]:
+            require(not alter or kind != "table", "CREATE OR ALTER TABLE wird nicht unterstützt")
+            matches.append((create, i))
+    require(len(matches) == 1, "Genau eine passende Tabellen-/View-Deklaration erforderlich")
+    create, i = matches[0]
+    limit = next((j for j in creates if j > create), len(words))
+    if kind == "table":
+        require(words[i + 4:i + 5] == ["("], "Explizite Tabellenspalten erforderlich")
+        return ts, i + 4
+    anchors = [j for j in range(i + 4, limit - 1)
+               if words[j] == "as" and words[j + 1] in ("select", "with")]
+    require(len(anchors) == 1, "Eindeutiges View-AS SELECT/WITH erforderlich")
+    return ts, anchors[0]
+
+
+def _existing_relation_skill(text, skill):
+    matches = [s for s in read_ddl_comments(text) if s.identity == skill.identity]
+    require(len(matches) <= 1, "Doppelte DDL-Skillidentität")
+    if not matches:
+        return False
+    comment = render_ddl_comment(skill)
+    require(matches[0].markdown == skill.markdown and text.count(comment) == 1,
+            "Vorhandener Tabellen-/View-Skill ist nicht kanonisch")
+    ts, anchor = _relation_anchor(text, skill)
+    position = text.index(comment)
+    require(ts[anchor][2] < position and position + len(comment) <= ts[anchor + 1][1],
+            "Tabellen-/View-Skill steht außerhalb des Definitionsanfangs")
+    return True
+
+
+def project_relation_ddl(text: str, skill: Skill):
+    """Skill innerhalb einer View- oder Tabellen-DDL einbetten, alle Fachbytes erhalten."""
+    validate(skill)
+    if _existing_relation_skill(text, skill):
+        return text
+    ts, anchor = _relation_anchor(text, skill)
+    end = ts[anchor][2]
+    require(text[end:end + 1] == "\n", "View-AS/Tabellenklammer muss mit LF abschließen")
+    return text[:end + 1] + render_ddl_comment(skill) + text[end + 1:]
 
 
 def inventory(root: Path):

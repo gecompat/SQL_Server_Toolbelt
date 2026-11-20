@@ -267,6 +267,38 @@ class UsageSkillTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "markierungen"):
             skills.read_ddl_comments(skills.DDL_END + "\n")
 
+    def test_view_and_table_comments_preserve_definitions_and_creation_guards(self):
+        for name in ("WorkType", "VW_WorkTypes"):
+            source = next(s for s in prototypes() if s.metadata["object_name"] == name)
+            path = source.metadata["source_paths"][0]
+            current = (ROOT / path).read_text(encoding="utf-8-sig")
+            original = skills.strip_ddl_projection(ROOT, path, current)
+            self.assertEqual(skills.project_relation_ddl(original, source), current)
+            self.assertEqual(skills.project_relation_ddl(current, source), current)
+            self.assertEqual(skills.read_ddl_comment(current).markdown, source.markdown)
+            block = skills.render_ddl_comment(source)
+            relocated = current.replace(block, "", 1) + block
+            with self.assertRaisesRegex(ValueError, "außerhalb"):
+                skills.strip_ddl_projection(ROOT, path, relocated)
+            if name == "WorkType":
+                self.assertTrue(original.startswith("SET ANSI_NULLS ON;"))
+                self.assertIn("IF OBJECT_ID(N'toolbelt_core.WorkType', N'U') IS NULL", original)
+                self.assertIn("CREATE NONCLUSTERED INDEX", original)
+
+    def test_table_and_view_adapter_handles_a_shared_file_without_wrong_identity(self):
+        table = next(s for s in prototypes() if s.metadata["object_name"] == "WorkType")
+        view = next(s for s in prototypes() if s.metadata["object_name"] == "VW_WorkTypes")
+        text = "CREATE TABLE toolbelt_core.WorkType\n(\n WorkTypeId bigint NOT NULL\n);\nGO\n"
+        text += "CREATE OR ALTER VIEW toolbelt_core.VW_WorkTypes\nAS\nSELECT WorkTypeId FROM toolbelt_core.WorkType;\nGO\n"
+        expected = skills.project_relation_ddl(skills.project_relation_ddl(text, table), view)
+        self.assertEqual(skills.project_relation_ddl(skills.project_relation_ddl(text, view), table), expected)
+        self.assertEqual(len(skills.read_ddl_comments(expected)), 2)
+        for s in (table, view):
+            expected = expected.replace(skills.render_ddl_comment(s), "", 1)
+        self.assertEqual(expected, text)
+        with self.assertRaisesRegex(ValueError, "Deklaration"):
+            skills.project_relation_ddl(text.replace("CREATE TABLE toolbelt_core.WorkType", "CREATE TABLE toolbelt_core.Another"), table)
+
     def test_view_contract_is_exactly_eight_columns_and_constant_data(self):
         sql = skills.render_view(prototypes())
         header = sql.split("FROM (VALUES", 1)[0]
@@ -295,7 +327,8 @@ class UsageSkillTests(unittest.TestCase):
         import generate_api_catalog as catalog
         for skill in prototypes():
             m = skill.metadata
-            if m["object_type"] == "TABLE":
+            if m["object_type"] in ("TABLE", "ASSEMBLY"):
+                self.assertEqual(m["parameters"], [])
                 continue
             if m["object_name"] == "VW_ObjectUsageSkills":
                 # New view is a prototype, not yet registered/installed.
@@ -307,6 +340,24 @@ class UsageSkillTests(unittest.TestCase):
             expected = m["parameters"]
             self.assertEqual([(p["name"], p["type"], p["default"], p["output"]) for p in actual],
                              [(p["name"], p["sql_type"], p["sql_default"] or "kein Default", p["is_output"]) for p in expected])
+
+    def test_all_declared_assemblies_have_schemafree_reviewed_contracts(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["object_type"] == "ASSEMBLY"}
+        current = {s.identity: s for s in prototypes() if s.metadata["object_type"] == "ASSEMBLY"}
+        self.assertTrue(expected)
+        self.assertEqual(set(current), set(expected))
+        for key, skill in current.items():
+            self.assertEqual(key[1], "")
+            self.assertTrue(skill.metadata["is_internal"])
+            self.assertEqual(skills.source_file(ROOT, key[1], key[2]), skill.source)
+            for field, value in expected[key].items():
+                self.assertEqual(skill.metadata[field], value)
+        sample = next(iter(current.values()))
+        metadata = deepcopy(sample.metadata)
+        metadata["schema_name"] = "invented_schema"
+        with self.assertRaisesRegex(ValueError, "schemafrei"):
+            skills.validate(skills.Skill(metadata, sample.markdown))
 
 
 if __name__ == "__main__":

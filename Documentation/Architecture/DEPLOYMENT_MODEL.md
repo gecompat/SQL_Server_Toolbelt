@@ -74,6 +74,23 @@ markerbasierte Lifecycle-Verträge bleiben ausschließlich für ihre ursprüngli
 Releases gültig; die [ursprüngliche Architektur](https://github.com/gecompat/SQL_Server_Toolbelt/tree/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Documentation/Architecture/DEPLOYMENT_MODEL.md)
 und ihre Originalquellen bleiben unverändert im Vorgängercommit erhalten.
 
+### Beauftragter Skillkatalog
+
+Die [Skill-Integration](../../Backlog/OBJECT_USAGE_SKILLS.md) befindet sich noch
+in Umsetzung. Ihr Vertrag sieht für alle Gesamt-/Teilprofile eines Quellstands
+denselben vollständigen bekannten Objektkatalog vor. Eine spätere Teilinstallation
+desselben Builds braucht den Katalog deshalb nicht zu erweitern. Einträge können
+nicht installierte oder für das gewählte Profil ungeeignete Objekte beschreiben;
+Voraussetzungen und Plattformgrenzen stehen im jeweiligen Skill. Die Sicht ist
+keine Installations- oder Berechtigungsprüfung.
+
+Auch diese Sicht folgt create-only. Eine Teilinstallation eines anderen Builds
+ersetzt keinen bestehenden Katalog. Für dessen Aktualisierung braucht es eine
+frische Installation oder eine getrennt kontrollierte manuelle Änderung; der
+Installer entfernt oder überschreibt keine vorhandene Definition. Der vollständige
+Katalog wird erst nach abgeschlossener Quellenabdeckung integriert, nicht als
+Teilmenge ungeprüfter Beschreibungen.
+
 ## Grundmatrix
 
 | Plattform | Grundstatus |

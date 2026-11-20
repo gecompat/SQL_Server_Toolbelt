@@ -1866,7 +1866,7 @@ Zeigt registrierte Work Types und deren Konfiguration.
 
 Vertrag und Quelle: [VW_WorkTypes.sql](../../Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql), [VW_WorkTypes.md](../../Modules/toolbelt.core.work-type/Documentation/VW_WorkTypes.md).
 
-<!-- Source/Vertrag SHA256: e8836468eb2ce2565c1e3861168680b87128b0aa4b23e80cb3e795da6090da51 -->
+<!-- Source/Vertrag SHA256: d6161e9a887ffaf39731cf83180bef18b5703c677d6e86a0a76ba4640242a08d -->
 
 Keine Eingabeparameter.
 

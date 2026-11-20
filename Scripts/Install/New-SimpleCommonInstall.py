@@ -279,7 +279,24 @@ def emit_sources(parsed, alias):
     return ''.join(output)
 
 
-def build_source_bindings():
+def usage_skill_tools():
+    import sys
+    sys.path.insert(0,str(ROOT/'Scripts/Metadata'))
+    import usage_skills
+    return usage_skills
+
+
+def assembly_ddl_prefix(name):
+    """Geprüften technischen Skill innerhalb der CREATE-ASSEMBLY-DDL liefern."""
+    require(re.fullmatch(r'tlblt[A-Za-z0-9_.]*',name),'assembly skill SQL name')
+    skills=usage_skill_tools()
+    skill=skills.read(skills.source_file(ROOT,'',name))
+    require(skill.metadata['object_type']=='ASSEMBLY' and skill.metadata['schema_name']==''
+            and skill.metadata['object_name']==name,'assembly skill identity')
+    return 'CREATE ASSEMBLY ['+name+']\n'+skills.render_ddl_comment(skill)+'FROM '
+
+
+def build_source_bindings(assembly_names=()):
     # Include transitive source consumers, not only the public builder file.
     paths=set()
     for pattern in ('Modules/*/Clr/**/*.cs','Modules/*/Clr/**/*.csproj',
@@ -289,6 +306,10 @@ def build_source_bindings():
                  'Modules/toolbelt.json.constructors/Documentation/KNOWN_CLR_ARTIFACTS.json',
                  'Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json'):
         paths.add(ROOT/name)
+    if assembly_names:
+        skills=usage_skill_tools()
+        paths.add(ROOT/'Scripts/Metadata/usage_skills.py')
+        paths.update(skills.source_file(ROOT,'',name) for name in assembly_names)
     return {path.relative_to(ROOT).as_posix():sha(normalize(path.read_bytes())) for path in sorted(paths)}
 
 
@@ -359,7 +380,7 @@ BEGIN TRY
         prefix+=' IF EXISTS(SELECT 1 FROM sys.assemblies WHERE name='+literal(name)+') AND NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name='+literal(name)+" AND HASHBYTES('SHA2_512',f.content)=0x"+digest+") THROW 51000,N'Vorhandene Assembly abweichend oder nicht prüfbar; kein Upgrade.',1; END;\n"
         trust_sql='IF NOT EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=0x'+digest+') EXEC master.sys.sp_add_trusted_assembly @hash=0x'+digest+',@description='+literal('Toolbelt '+name)+';'
         prefix+="IF @TrustMethod='hash' EXEC sys.sp_executesql "+literal(trust_sql)+';\n'
-        prefix+='IF NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE name='+literal(name)+') BEGIN DECLARE @ddl'+str(index)+' nvarchar(max)='+literal('CREATE ASSEMBLY ['+name+'] FROM ')+"+CONVERT(nvarchar(max),"+variable+",1)+"+literal(' WITH PERMISSION_SET='+permission+';')+'; EXEC sys.sp_executesql @ddl'+str(index)+'; END;\n'
+        prefix+='IF NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE name='+literal(name)+') BEGIN DECLARE @ddl'+str(index)+' nvarchar(max)='+usage_skill_tools().sql_literal(assembly_ddl_prefix(name))+"+CONVERT(nvarchar(max),"+variable+",1)+"+literal(' WITH PERMISSION_SET='+permission+';')+'; EXEC sys.sp_executesql @ddl'+str(index)+'; END;\n'
     tail=''
     if 'toolbelt.core.event-log' in selected_ids:
         # Nur fehlenden fachlichen WorkType registrieren; keinen bestehenden
@@ -379,7 +400,7 @@ END;
         tail='EXEC sys.sp_executesql '+literal(tail)+','+literal('@NewWorkType bit,@NewRegistrar bit,@NewEventHandler bit')+',@NewWorkType=@NewWorkType,@NewRegistrar=@NewRegistrar,@NewEventHandler=@NewEventHandler;\n'
     content=prefix+body+tail+'END TRY\nBEGIN CATCH THROW; END CATCH;\n'
     require(not re.search(r'^\s*(?:GO\s*$|:\w|GRANT\b|REVOKE\b|DENY\b|RECONFIGURE\b)',content,re.M|re.I),'forbidden installer control')
-    hashes.update(build_source_bindings())
+    hashes.update(build_source_bindings([alias[a['sql_name']] for a in chosen]))
     for path in (ROOT/'Modules').glob('*/module.yaml'):
         hashes[path.relative_to(ROOT).as_posix()]=sha(normalize(path.read_bytes()))
     output.parent.mkdir(parents=True,exist_ok=True);output.write_text(content,encoding='utf-8',newline='\n')

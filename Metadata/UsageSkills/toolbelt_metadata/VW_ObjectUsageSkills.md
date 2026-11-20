@@ -22,7 +22,7 @@ Zuerst anhand von Kurzbeschreibungen ein passendes bekanntes Objekt auswählen, 
 
 ## Voraussetzungen
 
-Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen.
+Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Der beauftragte vollständige Katalog soll für Gesamt- und Teilprofile desselben Quellstands identisch sein, einschließlich nicht ausgewählter Module. Diese vollständige Installerintegration ist noch offen.
 
 ## Parameter und Zugriff
 
@@ -64,4 +64,4 @@ Fehlende Sicht oder SELECT-Rechte bleiben Enginefehler. Bei unbekannter Identit�
 
 ## Aussagegrenzen
 
-Keine Aussage über installierte Version, Definition, Metadatensichtbarkeit anderer Objekte oder vorhandene Ausführungsrechte. Interne Objekte nicht als öffentliche API verwenden. Die aktuelle Implementierung befindet sich in der Prototypabnahme; vollständige Inventarabdeckung und native Integration sind separat nachzuweisen.
+Keine Aussage über installierte Version, Definition, Metadatensichtbarkeit anderer Objekte oder vorhandene Ausführungsrechte. Interne Objekte nicht als öffentliche API verwenden. Die aktuelle Implementierung befindet sich in der Prototypabnahme; vollständige Inventarabdeckung und native Integration sind separat nachzuweisen. Create-only ersetzt keinen älteren oder fremden Katalog bei einer weiteren Teilinstallation. Ein aktueller Gesamtkatalog benötigt eine frische Installation oder separat kontrollierte manuelle Aktualisierung; keine automatische DROP-/ALTER-Operation.

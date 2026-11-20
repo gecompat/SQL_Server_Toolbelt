@@ -24,6 +24,30 @@ capabilities=load('New-MarkerlessCapabilities.py')
 
 
 class MarkerlessContractTests(unittest.TestCase):
+    def test_assembly_create_prefix_carries_exact_reviewed_skill_and_no_runtime_metadata_query(self):
+        skills=installer.usage_skill_tools()
+        expected={key[2] for key,value in skills.inventory(ROOT).items() if value['object_type']=='ASSEMBLY'}
+        self.assertTrue(expected)
+        for name in sorted(expected):
+            header=installer.assembly_ddl_prefix(name)
+            self.assertTrue(header.startswith('CREATE ASSEMBLY ['+name+']\n'))
+            self.assertTrue(header.endswith('FROM '))
+            self.assertEqual(skills.read_ddl_comment(header).markdown,
+                             skills.read(skills.source_file(ROOT,'',name)).markdown)
+            remaining=header.replace(skills.render_ddl_comment(skills.read_ddl_comment(header)),'',1)
+            self.assertEqual(remaining,'CREATE ASSEMBLY ['+name+']\nFROM ')
+        for name in ('ForeignAssembly','tlblt_bad]; DROP TABLE x;--'):
+            with self.assertRaises(ValueError):installer.assembly_ddl_prefix(name)
+
+    def test_assembly_skill_source_binding_covers_only_selected_editorial_inputs(self):
+        name='tlblt_Tsql_SsisDebug'
+        bindings=installer.build_source_bindings([name])
+        path='Metadata/UsageSkills/_assemblies/'+name+'.md'
+        self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
+        self.assertIn('Scripts/Metadata/usage_skills.py',bindings)
+        self.assertNotIn('Metadata/UsageSkills/_assemblies/tlblt_String_Regex.md',bindings)
+        self.assertNotIn('Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDate.md',bindings)
+
     def test_source_binding_includes_transitive_admission_and_shared_compiler_sources(self):
         pins=installer.build_source_bindings()
         self.assertIn('Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py',pins)

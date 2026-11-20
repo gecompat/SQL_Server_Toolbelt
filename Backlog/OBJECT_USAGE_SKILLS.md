@@ -53,6 +53,25 @@ Teilinstallationen ausdrücklich mit create-only vereinbaren; bestehende oder
 fremde Objekte nicht still überschreiben. Datenbankrollen projektrichtig
 festlegen; Analyze-Snapshotrollen nicht ungeprüft übernehmen.
 
+### Festlegung für Gesamt- und Teilinstallationen
+
+Der freigegebene Skillkatalog wird für einen Quellstand einmal vollständig
+erzeugt. Alle Gesamt-/Teilprofile desselben Quellstands erhalten denselben
+bekannten Objektkatalog, einschließlich der Skills nicht ausgewählter Module.
+Plattform, Voraussetzungen und öffentliche/interne Verwendung stehen im Skill;
+ein Katalogeintrag bleibt ausdrücklich keine Installationsbehauptung. Damit
+entsteht bei nacheinander installierten Teilmodulen desselben Builds keine
+unvollständige erste Teilmenge und keine nachträgliche Merge-/Registrylogik.
+
+Der Katalog folgt ebenfalls create-only: eine vorhandene Sicht wird weder
+überschrieben noch erweitert. Bei unterschiedlichen Quellständen aktualisiert
+eine weitere Teilinstallation keinen älteren Katalog. Für einen aktuellen
+Gesamtkatalog sind eine frische Installation oder eine separat kontrollierte
+manuelle Aktualisierung erforderlich; kein automatisches DROP/ALTER und keine
+Übernahme fremder Definitionen. Neue Builder-/Inventar-/Installerintegration
+erst nach vollständiger Quellenabdeckung; bis dahin keine Teilfreigabe der
+Produktview und kein Versand von Entwürfen.
+
 ## Abnahme und Integration
 
 Zuerst öffentlicher USP, interner Helfer, Funktion, View und Tabelle als geprüfte

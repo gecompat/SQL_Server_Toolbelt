@@ -1,7 +1,9 @@
 # Maßgebliche Usage-Skillquellen
 
 Je katalogisiertem Toolbelt-Objekt steht hier eine redaktionelle Markdown-Datei
-unter seinem Schema. Das Frontmatter enthält JSON-kompatible YAML-Werte, damit
+unter seinem Schema. Schemafreie Assemblies liegen im Verzeichnis `_assemblies`;
+dies ist kein SQL-Schema, ihr Frontmatter enthält `schema_name: ""`.
+Das Frontmatter enthält JSON-kompatible YAML-Werte, damit
 Unicode, Defaults, boolesche Angaben und Parameterlisten ohne zusätzliche
 Runtimebibliothek eindeutig gelesen werden. Die Abschnitte sind im
 [Vertrag](../../Backlog/OBJECT_USAGE_SKILLS.md) festgelegt.
@@ -39,6 +41,13 @@ Einfügereihenfolge und Rücklesen bleiben deterministisch. Marker innerhalb von
 SQL-Stringliteralen gelten als Daten und werden nicht als DDL-Kommentare entfernt.
 Für Multistatement- und skalare Funktionen verwendet `project_function_ddl`
 denselben Skilltransport. Dies qualifiziert keine neue Hilfeausgabe oder Installation.
+
+`project_relation_ddl` bettet die geprüften View-/Tabellenskills ebenfalls
+innerhalb ihrer Definition ein. Der gemeinsame Builder übernimmt technische
+Assembly-Skills in die erzeugte CREATE-ASSEMBLY-DDL. Sein Quellenmanifest bindet
+den verwendeten Renderer und genau die konsumierten Assembly-Skilldateien;
+andere redaktionelle Entwürfe werden dadurch nicht zu Buildinputs oder zu
+qualifizierten Produktbeschreibungen.
 
 `render_help_resultset` erzeugt das zusätzliche konstante Resultset mit genau
 vier Spalten. Die ersten beiden T-SQL-Prozeduren `USP_PrepareResultTable` und
