@@ -58,4 +58,13 @@ materialisieren, keine globalen ##-Tabellen. Der Generator führt diese
 Aufrufe nicht selbst aus. Der [Anwendervertrag](../Modules/toolbelt.tsql.ssis-debug/Documentation/LocalCteDebug.md)
 erklärt Annahmen, Grenzen und tatsächlichen Ausführungszeitpunkt.
 
-Status: in Bearbeitung; Offline-Abnahme und tatsächliche PR-/Main-CI folgen.
+Status 2026-11-20: implementiert in [PR #629](https://github.com/gecompat/SQL_Server_Toolbelt/pull/629).
+Reproduzierbarer CLR-Build, synthetische Quellen-/Prozedur-/Lookup-/Flatfile-
+Gegenproben und lokale Paket-Erzeugung sind ausgeführt. Der vollständige
+Frameworkvertrag und die tatsächliche Head-/Main-CI sind Abschlussgates des PR.
+Kein nativer SQL-Zielaufruf und keine Veröffentlichung in dieser Welle.
+Private Ausgangspakete, erzeugte Skripte, Fehlversuche und Originalnachweise
+bleiben lokal erhalten; historische Qualifikationen werden nicht aufgewertet.
+Die Anleitung erklärt erforderliche Startwerte, Ausführungsabhängigkeiten und
+Grenzen der angenommenen Daten. Dieser Paketentwurf ist keine Gesamtqualifikation
+der realen Quellsysteme oder der SSIS-Runtime.
