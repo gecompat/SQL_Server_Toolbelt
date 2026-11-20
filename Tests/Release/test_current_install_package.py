@@ -5,14 +5,25 @@ import json
 import re
 import sys
 import unittest
+from unittest import mock
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'Scripts/Release'))
 import current_install_package as current
 import new_parameter_help_package as base
+from ssis_historical_context import historical_root
+
+
+def original_install_context(test):
+    snapshot=historical_root(ROOT,'75d42047557d06b82777ba0c860e90f44247920e')
+    test.enterContext(mock.patch.object(current,'ROOT',snapshot))
+    test.enterContext(mock.patch.object(base,'ROOT',snapshot))
+    test.enterContext(mock.patch(__name__+'.ROOT',snapshot))
 
 class CurrentInstallTests(unittest.TestCase):
+    def setUp(self):
+        original_install_context(self)
     @classmethod
     def setUpClass(cls):
         with zipfile.ZipFile(ROOT/current.OUTPUT) as archive:
@@ -79,6 +90,8 @@ class CurrentInstallTests(unittest.TestCase):
             current.validate_payload(self.altered(change))
 
 class BindingHistoryTests(unittest.TestCase):
+    def setUp(self):
+        original_install_context(self)
     def test_three_originals_remain_exact_and_current_delta_is_only_the_pin(self):
         from ssis_parser_binding_history import historical_dependency_source, OLD_HASHES, OLD_PARSER, NEW_PARSER
         import hashlib
