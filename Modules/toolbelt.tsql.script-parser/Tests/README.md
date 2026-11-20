@@ -1,5 +1,12 @@
 # Tests für `toolbelt.tsql.script-parser`
 
+Der private Dependency-Build vom 2026-11-20 besteht 248 aktuelle begrenzte
+Frameworkfälle. Die nativen Records unten bleiben unverändert am Originalstand;
+`validate_qualification.py` prüft sie ausdrücklich als historische Evidenz.
+Die Quellen-/Methodenprüfung gegen geänderte aktuelle Dateien bleibt strikt.
+Keine neue native API-, Upgrade- oder Trigger-Consumer-Gesamtabnahme.
+
+
 ## Prüfartefakte
 
 - `Static/validate_contract.py` — statischer Code- und Artefakt-Validator.

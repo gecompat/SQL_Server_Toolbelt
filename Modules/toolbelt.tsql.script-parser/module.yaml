@@ -2,7 +2,7 @@ module_id: "toolbelt.tsql.script-parser"
 module_name: "T-SQL Script Parser"
 version: "2.0.1"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "SQL-CLR-Provider auf Basis von Microsoft ScriptDom zur syntaktischen Zerlegung von T-SQL-Code in AST-Knoten, Knoteneigenschaften, Tokenstrom und Fehlerlisten."
 sql_server_versions:
@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "validated für aktuellen Build und ausdrücklich freigegebenen kombinierten Quotenvertrag: native API-/datenbanklokale Minimalrechtematrix2019/2022/2025 über unterstützte CLs lokal/zentral,72 Suites und frische Abschlussaudits PASS; Framework248 sowie Originalbudget-/Invarianten-/Dominanznachweise PASS. Nicht ausgeführte öffentliche Quotenaufrufe bleiben ausdrücklich nicht ausgeführt. Frühere Upgrade-/Consumerbelege behalten ihren Scope."
+  windows: "partially validated: private ScriptDom-Identität und Parserprovider bestehen 248 Offlinefälle. Die native API-/Minimalrechte-/Quotenmatrix vom 2026-11-05 bleibt am ursprünglichen Binary-Paar gebunden; keine native Gesamtaufwertung des neuen Builds."
   linux: "not applicable: SQL Server on Linux does not support UNSAFE SQL CLR assemblies."
 providers:
   - id: clr-tsql-scriptdom

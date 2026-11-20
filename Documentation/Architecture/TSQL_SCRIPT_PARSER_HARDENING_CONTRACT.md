@@ -1,5 +1,26 @@
 # T-SQL Script Parser: Vertrag zur begrenzten Härtung
 
+## Aktueller privater Dependency-Build — 2026-11-20
+
+Die Engine-Verträge und Vorfiltergrenzen bleiben bestehen. Der aktuelle
+Releasebuilder verwendet aus dem unten gepinnten Original eine reproduzierbare
+private Kopie: `tlblt.Microsoft.SqlServer.TransactSql.ScriptDom, Version=0.0.0.0,
+Culture=neutral, PublicKeyToken=null`, SHA-512
+`634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D02A91DAB4CA23065854C1624E93A2B4C2216AB6AA7DF9CA191541BF0F795813`.
+Der darauf gebaute Parserprovider hat SHA-512
+`F849CE8E6018EB7B7F547E3C8FF7FEF45DEE85E57E45D90D197CA07E3A997B184BFF437EB0295D378EB1996DB158283ADD057A5C04F3F23C4DC0BD82C98DB123`.
+SQL-Namen sind `tlblt_Tsql_ScriptParser` und
+`tlblt.Microsoft.SqlServer.TransactSql.ScriptDom`; die öffentlichen TVFs bleiben
+unverändert. [Herkunft und Buildwerkzeug](../../ThirdParty/Mono.Cecil-0.11.6/README.md).
+Die private Kopie trägt keine Microsoft-Herausgebersignatur.
+
+248 aktuelle Offlinefälle sind bestanden. Die folgenden ursprünglichen
+Native-/Upgrade-/Consumerbelege qualifizieren dieses neue Binary-Paar nicht.
+Der [Trigger-Consumer](TABLE_CLONE_TRIGGER_CONTRACT.md) bindet die neuen Pins;
+ein neuer nativer Triggerlauf ist nicht ausgeführt. Aus dem SQL-Namenspräfix
+allein wird keine CLR-Versionsisolation abgeleitet.
+
+
 ## Status, Freigabe und Scope
 
 Dieser Vertrag konkretisiert die einzeln freigegebene Parser-Härtung und Syntaxqualifikation aus [.ai/BACKLOG.md](../../.ai/BACKLOG.md). Der begrenzte Vertrag und das Kandidaten-Gate wurden vor Source-Änderung dokumentiert und unabhängig geprüft. Das bisherige Moduldesign bleibt die Basis; für Major-Version **2.0.0** ersetzt dieser Vertrag dessen Aussagen zu unbeschränkten Eingaben, Default-Tiefe, partiellem AST und garantiertem Schutz vor Prozessabstürzen. Ausgeführte und offene Qualifikation stehen getrennt in der [Testmatrix](../../Modules/toolbelt.tsql.script-parser/Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md); der Status bleibt teilweise validiert und unveröffentlicht. Historische 1.0.0-Evidenz qualifiziert 2.0.0 nicht.
