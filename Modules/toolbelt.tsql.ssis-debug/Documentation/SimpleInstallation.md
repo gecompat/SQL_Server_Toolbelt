@@ -121,16 +121,21 @@ erscheint als typisierte NULL-Deklaration mit TODO im SQL-Variablenblock.
 
 ## Ergebnis prüfen und bewusst ausführen
 
-`DebugScript` enthält das zusammenhängende lesende SQL, `TargetSql` eine
+`DebugScript` enthält den zusammenhängenden SQL-Entwurf, `TargetSql` eine
 Zielprojektion. `IsComplete=1` bedeutet vollständig erzeugt. Im Standardmodus
 `@CatalogMode='package'` bleiben `SafetyStatus='not_checked'` und
 `IsExecutable=0`: Reale Objekte, RLS, Typen und Collation sind nicht geprüft.
-Spalten stammen aus DTSX-Metadaten direkter Einzeltabellenquellen. Komplexe
-Quellen brauchen zusätzliche Metadaten beziehungsweise den Katalogmodus.
+Spalten stammen aus den im DTSX deklarierten Source-/Lookup-Resultsets.
+Auch Joins, TVFs und Prozedurresultsets werden ohne erfundene Basistabellen-
+Metadaten verarbeitet. Flatfiles liefern angenommene Dummyzeilen. Der
+[CTE-Ablauf](LocalCteDebug.md) erklärt lokale Prozedurmaterialisierung,
+erforderliche SQL-Strukturwerte und Grenzen.
 Ordinale Namen, BIN2 und Codepage 1252 beziehungsweise explizite UTF8-Codepage
 sind Entwurfsannahmen. Den vollständigen Inhalt vor manueller Ausführung
 prüfen, richtige Datenbank und benötigte Datenrechte wählen. Die Analyse selbst
-führt weder Paket noch erzeugtes SQL aus. NOLOCK kann unbestätigte, fehlende
+führt weder Paket noch erzeugtes SQL aus. Der manuell ausgeführte Entwurf
+kann Originalprozeduren aufrufen; deren unbekannte Seiteneffekte werden nicht
+als lesend garantiert. NOLOCK kann unbestätigte, fehlende
 oder doppelte Zeilen liefern.
 
 ```sql
