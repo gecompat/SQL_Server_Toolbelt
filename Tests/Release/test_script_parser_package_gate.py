@@ -169,15 +169,22 @@ class ScriptParserPackageGateMixin:
         with self.assertRaisesRegex(ValueError, 'SSIS_HISTORICAL_SOURCE_PATH'):
             ssis_history.validate_historical_source(ROOT, 'Modules/unrelated/module.yaml', '0' * 64)
 
-        boundary_current = (ROOT / ssis_history.BOUNDARY_TEST).read_bytes()
+        from ssis_historical_context import historical_root
+        scope = historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
+        boundary_current = (scope / ssis_history.BOUNDARY_TEST).read_bytes()
         restored = ssis_history.restore_boundary_test_transition(
-            ROOT, boundary_current, help_contract_source.BOUNDARY_BASELINE_SHA256)
+            scope, boundary_current, help_contract_source.BOUNDARY_BASELINE_SHA256)
         self.assertEqual(gate.sha(restored), help_contract_source.BOUNDARY_CURRENT_SHA256)
         with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_BASELINE_PIN'):
-            ssis_history.restore_boundary_test_transition(ROOT, boundary_current, '0' * 64)
+            ssis_history.restore_boundary_test_transition(scope, boundary_current, '0' * 64)
         with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_CURRENT_BYTES'):
             ssis_history.restore_boundary_test_transition(
-                ROOT, boundary_current.replace(b'from unittest.mock import patch', b'from unittest.mock import ANY'),
+                scope, boundary_current.replace(b'from unittest.mock import patch', b'from unittest.mock import ANY'),
+                help_contract_source.BOUNDARY_BASELINE_SHA256)
+
+        with self.assertRaisesRegex(ValueError, 'SSIS_BOUNDARY_TEST_CURRENT_BYTES'):
+            ssis_history.restore_boundary_test_transition(
+                ROOT, (ROOT / ssis_history.BOUNDARY_TEST).read_bytes(),
                 help_contract_source.BOUNDARY_BASELINE_SHA256)
 
         binding = ssis_history.SOURCES['Modules/toolbelt.tsql.ssis-debug/module.yaml']

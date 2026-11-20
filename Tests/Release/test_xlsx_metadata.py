@@ -293,17 +293,23 @@ class XlsxMetadataMixin:
             metadata.restore_help_documentation_transition(ROOT, changed)
 
     def test_boundary_checker_help_transition_keeps_the_old_sst_pin(self):
+        from ssis_historical_context import historical_root
+        scope = historical_root(ROOT, '47e759b683805d9c79b59fb9e541618fc9cfb428')
         path = help_contract_source.BOUNDARY_TEST
         record = xlsx_sst_budget.read_record(ROOT)
-        current = (ROOT / path).read_bytes()
+        current = (scope / path).read_bytes()
         restored = help_contract_source.restore_boundary_checker(
-            ROOT, current, record['current_source_sha256'][path])
+            scope, current, record['current_source_sha256'][path])
         self.assertEqual(hashlib.sha256(restored).hexdigest(),
                          help_contract_source.BOUNDARY_BASELINE_SHA256)
         with self.assertRaisesRegex(ValueError, 'exact Help projection'):
             help_contract_source.restore_boundary_checker(
-                ROOT, current + b'\n# unrelated checker change\n',
+                scope, current + b'\n# unrelated checker change\n',
                 record['current_source_sha256'][path])
+
+        with self.assertRaisesRegex(ValueError, 'exact Help projection'):
+            help_contract_source.restore_boundary_checker(
+                ROOT, (ROOT / path).read_bytes(), record['current_source_sha256'][path])
 
     def test_clr_package_overlay_preserves_sql_dll_and_csv_provenance(self):
         previous_package, previous, current, sources, record = build_candidate()
