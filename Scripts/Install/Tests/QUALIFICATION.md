@@ -1,6 +1,37 @@
 # Gemeinsamer create-only-Installer: begrenzte Abnahme
 
-## Native Ausführung vom 2026-11-20
+## Bestandener begrenzter Gesamtfall vom 2026-11-20
+
+Nach ausdrücklicher separater Freigabe bestand der abschließende Einmallauf
+auf Windows SQL2025/CU8 CL170, lokales Windows-Profil, Hashweg. Der korrigierte
+Produktquellstand ist `03c0d343`; die späteren Nachweis-/Dokumentationsänderungen
+ändern die dabei gebundenen Produktquellen und Binärbytes nicht. Derselbe
+private Adapter wie im zweiten Lauf verwendete die neu gebaute vollständige
+SQL-Datei, eine eigene Datenbank und vorhandene administrative Testrechte.
+
+Der tatsächliche Prozess-Exit ist 0, Status `PASS_CLEANED`, 13 Prüfungen:
+die unten genannten ersten acht Prüfungen, 45 sichtbare Capability-Kandidaten
+mit NULL-Version/Modus und `incomplete`, vollständige DebugScript-Erzeugung
+allein aus DTSX-XML, unveränderte Kennzeichnung als ungeprüfter Entwurf,
+zentraler Aufruf aus master mit typisiertem Startwert sowie bewusste
+Ausführung des unveränderten vollständigen generierten SQL in der eigenen
+synthetischen Quelldatenbank. Die Ausgabe enthielt die erwarteten zwei Zeilen.
+Die Quelltabelle wurde erst nach der katalogfreien Erzeugung angelegt.
+
+Der eigene separate Windows-Abschlussaudit ist PASS, Exit 0, zwei Prüfungen.
+Sein Receipt bindet den exakten finalen Journalhash, bestätigt die Abwesenheit
+der eigenen Datenbank und unveränderte finale Konfigurations-/Trustzustände.
+Beide Aufrufe und die eine DB-Reservierung sind geschlossen; keine weitere
+Wiederholung wurde gestartet. Methode, ursprüngliche Installerdateien,
+Manifeste, Journale und Logs bleiben privat erhalten.
+
+Dies belegt den beschriebenen gemeinsamen Consumer-Gesamtfall. Andere
+Engine-/Plattformprofile, native TRUSTWORTHY-Wege dieses gemeinsamen Pakets,
+Minimalrechte, GUI, produktive Installation und authentifiziertes TLS sind
+damit nicht qualifiziert. Gültige frühere Modul-/SSIS-Nachweise behalten ihren
+eigenen Scope; keine neue vollständige Produktqualifikation oder Veröffentlichung.
+
+## Vorherige native Fehlläufe vom 2026-11-20
 
 Der ausdrücklich freigegebene private Adapter `Invoke-CommonConsumer.private.ps1`
 wurde mit `-Mode Run -SqlVersion 2025 -Patch CU8 -TrustMethod hash -WithoutForeign`
@@ -63,9 +94,8 @@ Am 2026-11-20 bestanden:
   alle vier vollständigen korrigierten SQL-Dateien sind syntaktisch gültig
   und bestehen aus jeweils einem normalen T-SQL-Batch.
 
-Diese Offlineergebnisse belegen keine native Ausführung der Korrektur.
-Der noch offene gemeinsame Consumer-Gesamtfall benötigt einen separat
-autorisierten endlichen Lauf mit frischem Abschlussaudit. Historische
-Modul-/SSIS-Nachweise bleiben unverändert auf ihren ursprünglichen Scope
-beschränkt. Keine vollständige Produkt-, Rechte- oder Plattformqualifikation,
-keine Veröffentlichung und keine Installation auf einem Produktivziel.
+Die Offlineergebnisse bleiben von der oben separat ausgewiesenen nativen
+Ausführung getrennt. Historische Modul-/SSIS-Nachweise bleiben unverändert
+auf ihren ursprünglichen Scope beschränkt. Keine vollständige Produkt-,
+Rechte- oder Plattformqualifikation, keine Veröffentlichung und keine
+Installation auf einem Produktivziel.

@@ -18,8 +18,13 @@ kanonischen Objektdateien, einschließlich sieben Safe-Cast-/JSON-Pointer-TVFs
 und beider SSIS-Prozeduren. Ausgewählte Module ohne ausführbare Quelle oder CLR
 führen zum Buildabbruch. Zwölf Offlineprüfungen und vier neu gebaute, geparste
 Profile bestehen; die statische Objektabdeckung wird je Profil geprüft.
-Die native Bestätigung der Korrektur samt vollständiger DebugScript-Ausführung
-bleibt offen; [Nachweisabgrenzung](../Scripts/Install/Tests/QUALIFICATION.md).
+Die anschließend separat freigegebene abschließende Welle bestand auf Windows
+SQL2025/CU8 CL170 im lokalen Windows-/Hashprofil alle 13 Prüfungen einschließlich
+XML-only-Erzeugung, zentralem Startwerteaufruf und tatsächlicher vollständiger
+DebugScript-Ausführung mit erwartetem Zwei-Zeilen-Ergebnis. Der separate frische
+Windows-Audit ist PASS. Damit ist dieser begrenzte Consumer-Gesamtfall geschlossen;
+keine vollständige native Profil-/Trust-/Produktqualifikation daraus ableiten.
+[Nachweisabgrenzung](../Scripts/Install/Tests/QUALIFICATION.md).
 
 ## Gewünschte Anwendererfahrung
 

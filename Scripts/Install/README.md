@@ -11,13 +11,13 @@ qualifiziertes Gesamtpaket. Die bisherigen markerbasierten Deploy-/Uninstall-
 Skripte verwalten einen anderen Installationsweg und dürfen nicht zum Upgrade
 oder Entfernen dieser markerfreien Installation verwendet werden.
 
-Die begrenzten nativen Paketläufe vom 2026-11-20 bestanden Installation und
-Wiederholung, endeten aber vor der DTSX-Consumer-Ausführung: zuerst an einer
-fehlenden Capability-Anzeige, danach an der fehlenden SSIS-Prozedur. Sieben
-TVFs und zwei SSIS-Prozeduren wurden bei der Source-Ermittlung ausgelassen.
-Der Builder ergänzt jetzt alle namensgleichen kanonischen Objektdateien.
-Diese letzte Korrektur ist offline geprüft, nativ noch nicht bestätigt;
-beide frischen Bereinigungsaudits sind PASS.
+Der begrenzte native Gesamtfall vom 2026-11-20 ist für Windows SQL2025/CU8,
+CL170, das lokale Windows-Profil und den Hashweg bestanden: Installation und
+Wiederholung, XML-Aufruf, zentraler Aufruf mit Startwerten und tatsächliche
+DebugScript-Ausführung. 13 Prüfungen und der separate frische Windows-Audit
+mit zwei Prüfungen sind PASS. Zwei vorherige, bereinigte Fehlläufe deckten
+ausgelassene kanonische Objektdateien auf; ihre Fehlernachweise bleiben erhalten.
+Das ist keine vollständige native Abnahme aller Profile oder Trustwege.
 Die [Prüfübersicht](Tests/QUALIFICATION.md) grenzt Teilnachweise und Restpunkt ab.
 
 ## Datei bauen
