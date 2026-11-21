@@ -161,6 +161,77 @@ ausgeben und benötigt dafür Eingabebits, sodass der SQL-Maximalfaktor
 9.999.999,99 außer Reichweite liegt. Für diese beiden Werte gilt der
 Parametergrenznachweis oben. [DEFLATE-Spezifikation](https://www.rfc-editor.org/rfc/rfc1951#section-3.2.5)
 
+## Aktuelle Windows-/CL-Abnahme für Einzel-Entry, Writer und V1
+
+Die [native Windows-Matrix](Runtime/ZipFiles.WindowsMatrix.sql) nutzte den
+quellgebundenen V1-Installationssatz und Windows-Anmeldung. Beide älteren
+Fassaden lieferten ihr direktes Resultset mit der erwarteten Spaltenfolge,
+dem korrekten Ziel und der korrekten Bytezahl. Je Fassade wurden sechs
+`KeepData`-Konstellationen geprüft. Der Fall mit inkompatibler, befüllter
+ResultTable und `KeepData=1` erhielt die vorbestehende SQL-Zeile. Der
+Gastcheck bestätigte, dass die Datei bei diesem späteren SQL-Fehler bereits
+publiziert war. Fünf Kontexte erhielten zusätzlich den bisher fehlenden
+V1-Grundnachweis für Extraktion über die öffentliche Fassade. Die bereits
+qualifizierten V1-Fälle auf CL170 wurden wiederverwendet.
+
+| Windows SQL Server | CL | Prüfungen | Frischer Audit |
+|---|---:|---:|---|
+| 2019/CU32 | 150 | 17 | PASS |
+| 2022/CU26 | 150 | 17 | PASS |
+| 2022/CU26 | 160 | 17 | PASS |
+| 2025/CU8 | 150 | 17 | PASS |
+| 2025/CU8 | 160 | 17 | PASS |
+| 2025/CU8 | 170 | 16 | PASS |
+
+Alle sechs Gastprüfungen bestätigten die erwarteten Dateien. Die frischen
+Audits bestätigten die Entfernung der eigenen Datenbanken und Roots sowie
+den Trust-Vorzustand. Der konfigurierte CLR-Vorzustand wurde bei 2019 und
+2022 wiederhergestellt. Der erste SQL-2019-Versuch bleibt mit blockiertem
+CLR-Preflight als `FAILED_CLEANED` erhalten. Der separate Audit bestätigte,
+dass dieser Versuch keine Datenbank, Dateien oder Trust-Einträge hinterließ.
+
+Auf Windows SQL Server 2025/CU8 CL170 bestand die
+[Erhaltungsprüfung des Create-only-Installers](Runtime/ZipFiles.CreateOnlySnapshot.sql).
+Nach erneutem Ausführen blieben die Objekt- und Assembly-Snapshots sowie
+die Root-Konfiguration identisch. Upgrade-, Uninstall- und zugehörige
+Consumer-Blockaden gehören zum historischen Lifecycle und sind im aktuellen
+Create-only-Profil nicht vorgesehen.
+
+Die [14 Negativprüfungen](Runtime/ZipFiles.LegacyNegatives.sql) auf
+demselben Ziel decken CRC, Verschlüsselungsflag, doppelten und fehlenden
+Eintragsnamen, Einzelgröße und Ratio ab. Dazu kommen für beide Fassaden
+`NoOverwrite`, fehlende Root-Registrierung, fehlendes Zielverzeichnis
+und der Erhalt einer nicht mehr committierbaren Caller-Transaktion. Der
+Gastcheck bestätigte den exakten unveränderten Dateiinhalt und die
+Abwesenheit weiterer Dateien. Beide separaten Audits bestanden. Der
+erste Negativlauf bleibt wegen des zu engen Orakels für den vom Wrapper
+gemeldeten SQL-Fehler 51540 als `FAILED_CLEANED` dokumentiert.
+
+Im [ServiceAccount-Gesamtfall](Runtime/ZipFiles.LegacyServiceAccount.sql)
+auf Windows SQL Server 2025/CU8 CL170 bestanden fünf native Prüfungen,
+einschließlich Archiv-Readback und bytegenauer Einzel-Entry-Extraktion.
+Der Gastcheck bestätigte die geschützte Root-DACL für die SQL-Dienstidentität
+und Administratoren sowie die zwei publizierten Dateien. Der frische
+Audit bestätigte die Entfernung von Datenbank samt temporärem Benutzer und
+Rechten, Testroot und eigenen Trust-Einträgen.
+
+Der erste Test mit der kanonischen Rolle, den freigegebenen
+`EXECUTE`-Rechten und `SELECT` auf `FileSystemRoot` endete bei der
+Signaturprüfung mit Fehler 54622, `FAILED_CLEANED`, Audit PASS. Der
+erfolgreiche Lauf verwendete zusätzlich objektspezifisches `VIEW DEFINITION`
+auf diesen Abhängigkeiten:
+
+- `toolbelt_archive.USP_CreateZipFromEntries`
+- `toolbelt_archive.USP_ExtractZipEntryFromBinary`
+- `toolbelt_filesystem.USP_WriteBinaryFile`
+- `toolbelt_archive.TVF_InternalZipWriterName`
+- `toolbelt_archive.TVF_InternalZipWriterArchive`
+- `toolbelt_archive.TVF_InternalExtractZipEntryClr`
+
+Diese Sicht war auf den temporären Benutzer und die eigene Testdatenbank
+beschränkt. Die konkrete Rechtekombination ist für den nachgewiesenen
+Aufrufweg ausreichend. Die Windows-/CL-Matrix nutzt den Caller-Modus.
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise

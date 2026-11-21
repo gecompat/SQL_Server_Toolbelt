@@ -72,7 +72,9 @@ EXEC toolbelt_archive.USP_CreateZipFileFromEntries @Hilfe=1;
 ```
 
 Fachliche synthetische Beispiele im Help setzen einen zugelassenen Root-Alias
-und vorhandenes Zielverzeichnis voraus. [Runtime offen](../Tests/README.md).
+und ein vorhandenes Zielverzeichnis voraus. Die native Testmatrix beschreibt
+auch die für den geprüften ServiceAccount-Aufruf benötigte Sicht auf die
+Abhängigkeiten. [Windows-Testmatrix](../Tests/ZIP_FILES_TEST_MATRIX.md#aktuelle-windows-cl-abnahme-für-einzel-entry-writer-und-v1)
 
 ## Technischer Lösungsweg
 
