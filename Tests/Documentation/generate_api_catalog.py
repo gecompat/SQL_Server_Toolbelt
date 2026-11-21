@@ -215,6 +215,18 @@ def documentation(item: dict) -> list[Path]:
     return candidates or [item["root"] / "README.md"]
 
 
+def validate_skill_signature(skill, params: list[dict]) -> None:
+    declared = skill.metadata["parameters"]
+    identity = ".".join(skill.identity[1:])
+    if [p["name"] for p in declared] != [p["name"] for p in params]:
+        raise ValueError(f"Parametererklärungen fehlen oder sind veraltet: {identity}")
+    for field, sql in zip(declared, params):
+        default = None if sql["default"] == "kein Default" else sql["default"]
+        if (re.sub(r"\s+", "", field["sql_type"]).casefold() != sql["type"].casefold()
+                or field["sql_default"] != default or field["is_output"] != sql["output"]):
+            raise ValueError(f"Usage-Skill weicht von der SQL-Parameterbindung ab: {identity} {sql['name']}")
+
+
 def public_skill_entries(root: Path, entries: list[dict]) -> dict:
     result = {}
     for item in entries:
@@ -229,6 +241,8 @@ def public_skill_entries(root: Path, entries: list[dict]) -> dict:
             schema, name, item["module"], item["type"], False
         ):
             raise ValueError(f"Usage-Skill gehört nicht zur öffentlichen Schnittstelle: {key}")
+        source, params = signature(item)
+        validate_skill_signature(skill, params)
         _, body = usage_skills.parse_frontmatter(skill.markdown)
         sections = dict(re.findall(r"^## ([^\n]+)\n([\s\S]*?)(?=^## |\Z)", body, re.M))
         examples = [sql.strip() for sql in re.findall(
@@ -239,7 +253,7 @@ def public_skill_entries(root: Path, entries: list[dict]) -> dict:
         result[key] = dict(summary=m["description"], examples=examples,
                            requirements=[" ".join(sections["Voraussetzungen"].split())],
                            parameter_notes={p["name"]: p["description"] for p in m["parameters"]},
-                           skill_path=path)
+                           skill_path=path, source=source, params=params)
     return result
 
 
@@ -269,9 +283,7 @@ def render(root: Path = ROOT) -> dict[str, str]:
                 or any(not isinstance(s, str) or not s.strip() for s in
                        entry["examples"] + entry["requirements"] + list(entry["parameter_notes"].values()))):
             raise ValueError(f"Ungültige redaktionelle Inhalte: {key}")
-        source, params = signature(item)
-        if set(entry["parameter_notes"]) != {p["name"] for p in params}:
-            raise ValueError(f"Parametererklärungen fehlen oder sind veraltet: {key}")
+        source, params = entry["source"], entry["params"]
         docs = documentation(item)
         sources = [source] + docs + [entry["skill_path"]]
         fingerprint = hashlib.sha256("\n".join(

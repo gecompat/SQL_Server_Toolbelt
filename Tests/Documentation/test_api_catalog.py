@@ -100,6 +100,19 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Parametererklärungen"):
             catalog.render(self.root)
 
+    def test_existing_parameter_binding_cannot_drift_from_skill(self):
+        original = self.source.read_text(encoding="utf-8")
+        for before, after in (
+            ("decimal(10,2)", "decimal(11,2)"),
+            ("NULL OUTPUT", "NULL"),
+            (" = NULL OUTPUT", " OUTPUT"),
+            ("N'AS,(--)'", "N'as,(--)'"),
+        ):
+            with self.subTest(after=after):
+                self.source.write_text(original.replace(before, after), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "SQL-Parameterbindung"):
+                    catalog.render(self.root)
+
     def test_drift_for_source_contract_example_and_artifact(self):
         for path in [self.source, self.module / "README.md", self.skill,
                      self.root / "Documentation/Reference/API_CATALOG.html"]:
