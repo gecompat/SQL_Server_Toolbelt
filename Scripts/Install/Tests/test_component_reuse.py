@@ -78,6 +78,23 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NONCANONICAL_RETRY_HELP_STATUS'):
             module.compare(outside,outside.replace(module.RETRY_HELP_STATUS_OLD,module.RETRY_HELP_STATUS_NEW),path)
 
+    def test_lookup_help_and_header_repairs_do_not_admit_business_changes(self):
+        start=b'    IF @Hilfe = 1\n    BEGIN\n'
+        old=start+b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nSELECT 7;"
+        current=old.replace(module.SCHEMA_HELP_OLD,module.QUEUE_HELP_NEW)
+        module.compare(old,current,module.PSEUDONYM_HELP_PATH)
+        with self.assertRaisesRegex(ValueError,'NONCANONICAL_LOOKUP_HELP_DESCRIPTION'):
+            module.compare(old.replace(b'@Hilfe',b'@Other'),current,module.PSEUDONYM_HELP_PATH)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current.replace(b'SELECT 7;',b'SELECT 8;'),module.PSEUDONYM_HELP_PATH)
+        old=module.PSEUDONYM_CORE_HEADER_OLD+b'\nSELECT 7;'
+        current=module.PSEUDONYM_CORE_HEADER_NEW+b'\nSELECT 7;'
+        module.compare(old,current,module.PSEUDONYM_CORE_PATH)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current.replace(b'SELECT 7;',b'SELECT 8;'),module.PSEUDONYM_CORE_PATH)
+        with self.assertRaises(ValueError):
+            module.compare(old,current,'Modules/Contoso/Source/Other.sql')
+
     def test_get_status_seven_state_help_repair_is_not_business_normalization(self):
         path='Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql';start=module.QUEUE_HELP_STARTS[path]
         old=start+b'SELECT '+module.RETRY_HELP_STATUS_OLD+b",N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nSELECT 7;"

@@ -905,6 +905,45 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_pseudonymization_module_skills_cover_null_priority_hash_domains_and_lookup_boundary(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.pseudonymization.deterministic'}
+        self.assertEqual(len(expected),8)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        originals={}
+        for name,s in records.items():
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_ddl(text,s) if name.startswith('USP_') else skills.project_function_ddl(text,s),text)
+            if name.startswith('USP_'):
+                self.assertEqual(skills.project_procedure_help(text,s),text)
+                clean=skills.strip_help_projection(ROOT,path,text)
+            else:clean=text
+            originals[name]=skills.strip_ddl_projection(ROOT,path,clean)
+            result=s.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            count=3 if name.startswith('USP_') else 1 if name.endswith('IntegerBytes') else 2
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),count)
+            self.assertIn('keine neue native',s.markdown)
+            if s.metadata['is_internal']:self.assertTrue(s.metadata['public_entrypoints'])
+        core=originals['TVF_DeterministicRangeCore']
+        self.assertIn('18446744073709551616',core)
+        self.assertIn('ORDER BY counter.Attempt',core)
+        self.assertLess(core.index('WHEN @Key IS NULL THEN 0'),core.index('WHEN @MappingVersion IS NULL'))
+        self.assertIn('0x54425844524E4731, 0',originals['TVF_DeterministicRange'])
+        self.assertIn('DATEADD(day',originals['TVF_DeterministicDateShift'])
+        translate=originals['TVF_DeterministicTranslate']
+        self.assertIn('DATALENGTH(@Profile) = 16',translate)
+        self.assertIn('validation.CharacterCount <> validation.DistinctCount',translate)
+        geo=originals['TVF_DeterministicGeoJitter']
+        self.assertIn('raw.PointBytes <= 128',geo)
+        self.assertIn('measured.DistanceMeters <= measured.SafeRadius',geo)
+        lookup=originals['USP_DeterministicLookup'];private=originals['USP_DeterministicLookupCore']
+        self.assertLess(lookup.index('tempdb.sys.columns'),lookup.index('EXEC toolbelt_pseudonymization.USP_DeterministicLookupCore'))
+        self.assertIn('SAVE TRANSACTION @Savepoint',private)
+        self.assertIn('WITH(TABLOCK,HOLDLOCK)',private)
+        self.assertLess(private.index('IF @PoolBytes > @MaxLookupTextBytes'),private.index('CREATE TABLE #tbx_DeterministicLookup_Pool'))
+        self.assertLess(private.index('IF @ResultBytes > @MaxResultBytes'),private.index('CREATE TABLE #tbx_DeterministicLookup_ResultSource'))
+        self.assertIn('0x544258444C4B5031,@LookupVersion',private)
+        self.assertIn('keiner erneuten Autorisierung',records['USP_DeterministicLookupCore'].markdown)
+
     def test_regex_module_skills_cover_all_limits_intake_and_private_cores(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.string.regex'}
         self.assertEqual(len(expected),16)

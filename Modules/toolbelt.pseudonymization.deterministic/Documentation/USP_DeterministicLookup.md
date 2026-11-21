@@ -183,10 +183,16 @@ administrative Baseline, kein CrossDB-Minimalrechtenachweis.
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf keine der beiden Eingabetabellen sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0, NULL wirkt wie 0: 0 still; 1 Phasenmessages; 2 zusätzlich Zeilen-/Bytezahlen; 3..255 zusätzlich Temp-Objektmetadaten. Keine Keys, Werte, Seeds oder Hashes; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 <!-- API_PARAMETERS:END -->
 
 
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_pseudonymization/USP_DeterministicLookup.md) beschreibt sämtliche Parameter, NULL-/Fehlerprioritäten, Ergebnisse, Rechte, Ressourcen und Grenzen. Der identische Skill ist Bestandteil der kanonischen DDL. Wiederholbarkeit ist keine Anonymisierungs-, Eindeutigkeits- oder Kryptografiezusage. Neue native Qualifikation bleibt von historischen Nachweisen getrennt.
+
+Öffentliche Fassade und interner Core liefern über ihre jeweils eigene frühe Hilfe zusätzlich zur bisherigen Standardhilfe genau eine vollständige Skillzeile. Die Fassade prüft Caller-Temps und reservierte Namen vor der Compilergrenze. Die an den Core übergebenen Objekt-IDs dienen Diagnose und sind kein Ersatz für diese Vorprüfung. Ein gesunder Caller-TX wird über einen eigenen Savepoint unterstützt; Lesesperren bleiben darin bis zum Callerabschluss bestehen.

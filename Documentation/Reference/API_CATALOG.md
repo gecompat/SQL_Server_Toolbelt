@@ -3953,7 +3953,7 @@ Verschiebt einen synthetischen 2D-Geography-Point im SRID 4326 deterministisch i
 
 Vertrag und Quelle: [DeterministicGeoJitter.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql), [TVF_DeterministicGeoJitter.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicGeoJitter.md).
 
-<!-- Source/Vertrag SHA256: 5ada64a0b7c7410fafbbf92cdca4e40b799e778cebdc4170fd3a5a4ba0732f91 -->
+<!-- Source/Vertrag SHA256: 154b7a43e132f1e725aa5195a584cc02a79582e4ee7fb17256f4ea45e20c2101 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3977,7 +3977,7 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Vertrag und Quelle: [DeterministicTranslate.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql), [TVF_DeterministicTranslate.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicTranslate.md).
 
-<!-- Source/Vertrag SHA256: 59780ed3dc898cb77cfdf31b4d369b06469272650335b796bb6d0c8689beee98 -->
+<!-- Source/Vertrag SHA256: 679ea45ded5e6ab6c48bbee6d90529ddce33d452cbccd441e9a06c50c74162c2 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4001,7 +4001,7 @@ Ordnet einen Schlüssel deterministisch einem ganzzahligen Zielbereich zu.
 
 Vertrag und Quelle: [TVF_DeterministicRange.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql), [TVF_DeterministicRange.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicRange.md).
 
-<!-- Source/Vertrag SHA256: 77a9f4ae0bcd992826a8d987c78902d4e1380fafd1edf395d242b545e8bd682b -->
+<!-- Source/Vertrag SHA256: e08ae46847ad02a5c399782b5da2bfa309ca81129e24634fda59ef541d597125 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4025,7 +4025,7 @@ Verschiebt ein Datum deterministisch um eine begrenzte Anzahl Tage.
 
 Vertrag und Quelle: [TVF_DeterministicDateShift.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql), [TVF_DeterministicDateShift.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicDateShift.md).
 
-<!-- Source/Vertrag SHA256: fcfc30ff5e1c0ca67efb95554cbdb29c62962f6d5309e471e1887b1fc618d198 -->
+<!-- Source/Vertrag SHA256: f6c72b3c421b08a83587a5518bebda7d0dcc6704cfc429cd33deed55ac76e124 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4049,7 +4049,7 @@ Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisieru
 
 Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql), [USP_DeterministicLookup.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/USP_DeterministicLookup.md).
 
-<!-- Source/Vertrag SHA256: 3716c2d1f013173213b4497f8d194421f2f99bb35beac1c0952a2568f26c6e95 -->
+<!-- Source/Vertrag SHA256: 7175392b1cc1a4b51457351d4a76defb97d4d941259f0171ef9044192da696f6 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4065,7 +4065,7 @@ Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudon
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf keine der beiden Eingabetabellen sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0, NULL wirkt wie 0: 0 still; 1 Phasenmessages; 2 zusätzlich Zeilen-/Bytezahlen; 3..255 zusätzlich Temp-Objektmetadaten. Keine Keys, Werte, Seeds oder Hashes; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 

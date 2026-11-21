@@ -59,9 +59,25 @@ QUEUE_HELP_NEW=("1: bisherige Standardhilfe plus genau eine vollständige Skillz
 RETRY_HELP_STATUS_OLD=b"N'QUEUED, CLAIMED, COMPLETED oder FAILED.'"
 RETRY_HELP_STATUS_NEW=("N'Aktueller Status aus VW_WorkQueue; reguläre Retryentscheidung: RETRY_WAIT oder DEAD_LETTER.'").encode('utf-8')
 GET_HELP_STATUS_NEW=b"N'QUEUED, BARRIER_WAIT, CLAIMED, RETRY_WAIT, COMPLETED, FAILED oder DEAD_LETTER.'"
+PSEUDONYM_HELP_PATH='Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql'
+PSEUDONYM_CORE_PATH='Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookupCore.sql'
+PSEUDONYM_CORE_HEADER_OLD=('-- existieren genau einmal hier; Hilfe wird an die öffentliche Fassade geroutet.').encode('utf-8')
+PSEUDONYM_CORE_HEADER_NEW=b'-- existieren genau einmal hier; der eigene Hilfezweig liegt vor dem Fachpfad.'
 
 
 def corrected_historical_help(original,path):
+    if path==PSEUDONYM_CORE_PATH and PSEUDONYM_CORE_HEADER_OLD in original:
+        if original.count(PSEUDONYM_CORE_HEADER_OLD)!=1:
+            raise ValueError('NONCANONICAL_LOOKUP_CORE_HEADER')
+        original=original.replace(PSEUDONYM_CORE_HEADER_OLD,PSEUDONYM_CORE_HEADER_NEW)
+    if path==PSEUDONYM_HELP_PATH and SCHEMA_HELP_OLD in original:
+        start=b'    IF @Hilfe = 1\n    BEGIN\n';end=b'        RETURN 0;'
+        if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_LOOKUP_HELP_DESCRIPTION')
+        a=original.index(start)+len(start);b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_LOOKUP_HELP_DESCRIPTION')
+        original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,QUEUE_HELP_NEW)+original[b:]
     if path in QUEUE_HELP_STARTS and SCHEMA_HELP_OLD in original:
         start=QUEUE_HELP_STARTS[path];end=b'        RETURN 0;'
         if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:

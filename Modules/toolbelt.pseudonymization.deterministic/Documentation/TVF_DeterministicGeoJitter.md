@@ -88,3 +88,9 @@ Der gültige Mappingzweig enthält zwei bestehende RangeCore-Ausdrücke. Der kom
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicGeoJitter.md) beschreibt sämtliche Parameter, NULL-/Fehlerprioritäten, Ergebnisse, Rechte, Ressourcen und Grenzen. Der identische Skill ist Bestandteil der kanonischen DDL. Wiederholbarkeit ist keine Anonymisierungs-, Eindeutigkeits- oder Kryptografiezusage. Neue native Qualifikation bleibt von historischen Nachweisen getrennt.
+
+Die Größenprüfung setzt die Serialisierung des Geographywerts voraus. Die 128-Byte-Grenze ist deshalb kein vorgelagertes LOB-Intakelimit. Sichere Ersatzoperanden verhindern gefährdete Konstruktoraufrufe; ein Ersatzpunkt wird nicht als erfolgreiches fachliches Ergebnis ausgegeben.

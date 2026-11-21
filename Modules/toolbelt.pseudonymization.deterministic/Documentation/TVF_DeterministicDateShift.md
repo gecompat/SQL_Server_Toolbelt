@@ -59,3 +59,7 @@ Primärquelle: [Microsoft DATEADD](https://learn.microsoft.com/en-us/sql/t-sql/f
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#deterministische-zuordnung).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicDateShift.md) beschreibt sämtliche Parameter, NULL-/Fehlerprioritäten, Ergebnisse, Rechte, Ressourcen und Grenzen. Der identische Skill ist Bestandteil der kanonischen DDL. Wiederholbarkeit ist keine Anonymisierungs-, Eindeutigkeits- oder Kryptografiezusage. Neue native Qualifikation bleibt von historischen Nachweisen getrennt.
