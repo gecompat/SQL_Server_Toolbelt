@@ -17,7 +17,7 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 <!-- API_PARAMETERS:BEGIN -->
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@ExecutionId` | `uniqueidentifier` | `kein Default` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Gesuchte ID, ohne Default und ohne Kontextfallback. Rückgabe 1 bei vorhandener Anforderung, sonst 0, ausdrücklich auch bei NULL. |
+| `@ExecutionId` | `uniqueidentifier` | `kein Default` | Input | Explizites Argument ohne SQL-Default. NULL findet keine Anforderung und ergibt 0. Auch Null-GUID ist kein Parameterfehler; sie findet regulär keinen über die öffentliche Request-USP angelegten Eintrag. |
 <!-- API_PARAMETERS:END -->
 
 ## Beispielaufruf

@@ -1840,6 +1840,18 @@ def main() -> int:
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "object_usage_skills" in checks:
+        for args in (
+            ["Scripts/Metadata/generate_usage_skills.py", "--check"],
+            ["-m", "unittest", "discover", "-s", "Tests/Metadata"],
+        ):
+            result = run_hidden(
+                [sys.executable, "-B", *args], cwd=REPOSITORY_ROOT,
+                capture_output=True, text=True, encoding="utf-8", timeout=120,
+            )
+            if result.returncode:
+                raise ValidationError("Usage-Skills: " + result.stdout + result.stderr)
+            print((result.stdout + result.stderr).strip())
     if "markerless_installation" in checks:
         result = run_hidden(
             [sys.executable,"-B","-m","unittest","discover","-s","Scripts/Install/Tests"],
