@@ -722,5 +722,39 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertNotIn("@EventName=''Contoso.HelpExample''", text)
 
 
+    def test_worktype_policy_contracts_distinguish_token_policy_and_sql_permissions(self):
+        names = {"WorkTypePermission", "TVF_WorkTypeAuthorization", "USP_SetWorkTypePermission"}
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.work-type" and key[2] in names}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 3)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            kind = skill.metadata["object_type"]
+            if kind == "TABLE":
+                self.assertEqual(skills.project_relation_ddl(text, skill), text)
+                self.assertIn("ON DELETE CASCADE", skill.markdown)
+                self.assertIn("kein eigener rowversion-Datentyp", skill.markdown)
+            elif kind == "USP":
+                self.assertEqual(skills.project_procedure_help(text, skill), text)
+                self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+                ret, _ = skills._procedure_help_return(text, skill)
+                first_control = next(t[1] for t in skills._ddl_tokens(text)
+                                     if t[0].casefold() == "has_perms_by_name")
+                self.assertLess(ret, first_control)
+                for code in range(51590, 51595):
+                    self.assertIn(str(code), skill.markdown)
+            else:
+                self.assertEqual(skills.project_function_ddl(text, skill), text)
+                self.assertTrue(skill.metadata["is_internal"])
+                self.assertTrue(all(p["argument_required"] and p["nullable"]
+                                    and p["sql_default"] is None for p in skill.metadata["parameters"]))
+                self.assertIn("weder WorkType.IsEnabled", skill.markdown)
+                self.assertIn("Auch dbo erhält keinen impliziten Bypass", skill.markdown)
+            for identity in ("DBprincipal-ID/SID/create_date", "RowVersion", "sys.user_token"):
+                self.assertIn(identity, skill.markdown)
+
+
 if __name__ == "__main__":
     unittest.main()

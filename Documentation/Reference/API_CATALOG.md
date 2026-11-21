@@ -1831,7 +1831,7 @@ Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Daten
 
 Vertrag und Quelle: [USP_SetWorkTypePermission.sql](../../Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql), [USP_SetWorkTypePermission.md](../../Modules/toolbelt.core.work-type/Documentation/USP_SetWorkTypePermission.md).
 
-<!-- Source/Vertrag SHA256: 68352dbf42e87c31f49ac3be7d282073fff3d6c738abc7fc87199d5eaeba0731 -->
+<!-- Source/Vertrag SHA256: 6b6db59f8dee6ff6c944a0b3923e47e4471b4c6355c5fe7bcde92b0065e87736 -->
 
 Voraussetzung: Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.
 

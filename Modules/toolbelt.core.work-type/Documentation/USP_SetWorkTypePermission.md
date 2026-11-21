@@ -4,6 +4,12 @@ Verwaltet ausschließlich die ausdrückliche Delegation eines vorhandenen Work
 Types an einen vorhandenen Datenbankbenutzer oder eine Datenbankrolle.
 Kein SQL-GRANT, keine Rollenzuweisung, kein Handleraufruf und kein Datenresultset.
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkTypePermission.md)
+steht in der ausgelieferten DDL. `@Hilfe=1` liefert ihn nach der bisherigen
+Standardhilfe als zusätzliche Zeile mit `SkillFormatVersion`, `SchemaName`,
+`ObjectName` und `SkillMarkdown nvarchar(max)`, vor der CONTROL-Prüfung und
+Policyänderung. Die Projektion ist offline geprüft, nicht neu nativ abgenommen.
+
 <!-- API_PARAMETERS:BEGIN -->
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -31,6 +37,10 @@ Die interne inline TVF `TVF_WorkTypeAuthorization` liefert genau eine bit-Spalte
 IsAllowed; wirksame DBtoken einschließlich Rollen werden ausgewertet. Ein
 gültiges DENY überstimmt ALLOW. Ohne gültiges ALLOW wird abgewiesen, auch dbo.
 Actor, Tenant, ORIGINAL_LOGIN-Text und Clientangaben verleihen keine Autorität.
+
+Die interne Entscheidung prüft weder `WorkType.IsEnabled` noch Handler-EXECUTE
+oder Providerverfügbarkeit. Öffentliche Consumer müssen diese zusätzlichen
+Verträge weiterhin erfüllen. Sie ist kein vollständiger Ausführungs-Preflight.
 
 ```sql
 EXEC toolbelt_core.USP_SetWorkTypePermission
