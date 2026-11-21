@@ -54,6 +54,14 @@ bezeichnen den Installationsort in der Datenbank, nicht den Rechner des Clients.
 | `trustworthy-checked` | Bereits TRUSTWORTHY ON und passende Ownerautorisierung voraussetzen; Hashvergleich ohne Registrierung |
 | `trustworthy` | Vorhandenen Datenbank-Trust ohne Toolbelt-Hashvergleich verwenden |
 
+Bei bereits deaktivierter CLR Strict Security ist eine vorhandene Zieldatenbank
+mit `TRUSTWORTHY ON` und ein fest gewählter DB-Trustweg nötig. Verwende
+`-TrustMethod trustworthy-checked` für den Hashvergleich oder
+`-TrustMethod trustworthy` ohne Hashvergleich. Bei `-InstallSql` kann auch
+das Manifest einen dieser Wege festlegen. `auto`, `hash`, `-CreateDatabase`
+und `-EnableClr` erfordern weiterhin aktivierte Strict Security. Lightweight
+Pooling muss für CLR-Installationen deaktiviert sein.
+
 Kein Fehler schaltet auf einen anderen Weg um. Der Client aktiviert TRUSTWORTHY
 nicht, ändert keinen Owner, vergibt keine Rechte und deaktiviert Strict Security
 nicht. Die Engine prüft CREATE-, Schema-, Assembly- und Hashfreigaberechte.

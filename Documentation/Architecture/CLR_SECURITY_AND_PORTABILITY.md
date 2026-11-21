@@ -25,7 +25,7 @@ Eine Signatur oder Hash-Autorisierung hebt eine Plattformgrenze nicht auf. Ein M
 
 ## `clr strict security`
 
-`clr strict security` bleibt im regulären Installationspfad aktiviert. Die Option wird weder stillschweigend noch als Standardvoraussetzung deaktiviert.
+Der PowerShell-Installer verändert `clr strict security` nicht. Bei bereits deaktivierter Strict Security akzeptiert er eine vorhandene Datenbank mit `TRUSTWORTHY ON` und dem fest gewählten Trustweg `trustworthy-checked` oder `trustworthy`. Die automatische Trustauswahl, der Hashweg und die administrative Vorbereitung setzen weiterhin aktivierte Strict Security voraus.
 
 ## Trust-Modell
 

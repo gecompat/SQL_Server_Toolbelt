@@ -3,18 +3,24 @@
 . (Join-Path $PSScriptRoot 'Toolbelt.Package.ps1')
 . (Join-Path $PSScriptRoot 'Toolbelt.Provisioning.ps1')
 
-function Get-ToolbeltPreflightSql([string]$TargetDatabase,[bool]$NeedClr=$true) {
+function Get-ToolbeltPreflightSql([string]$TargetDatabase,[bool]$NeedClr=$true,[string]$TrustMethod='auto') {
     if([string]::IsNullOrWhiteSpace($TargetDatabase) -or $TargetDatabase.Length -gt 128 -or
         $TargetDatabase.Contains('$(') -or @($TargetDatabase.ToCharArray()|Where-Object {[char]::IsControl($_)}).Count) {
         Stop-ToolbeltInstall 'TARGET' 'Ungültiger Datenbankname oder Client-Steuerzeichen.'
     }
     $literal=$TargetDatabase.Replace("'","''")
     $clrCheck=if($NeedClr){"IF NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enabled' AND value_in_use=1) THROW 51000,N'TBX_CLR',1;"}else{''}
-    $securityCheck=if($NeedClr){@'
-IF NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value=1 AND value_in_use=1)
- OR EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'lightweight pooling' AND (value<>0 OR value_in_use<>0))
+    # Nur ein fest gewählter DB-Trustweg darf bei bereits deaktivierter Strict Security installieren.
+    # Auto könnte auf die Hashregistrierung ausweichen und behält daher die bisherige Grenze.
+    $allowNonStrict=[int]($TrustMethod -in 'trustworthy-checked','trustworthy')
+    $securityCheck=if($NeedClr){@"
+IF NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'lightweight pooling' AND value=0 AND value_in_use=0)
+ OR (NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value=1 AND value_in_use=1)
+     AND NOT ($allowNonStrict=1
+         AND EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value=0 AND value_in_use=0)
+         AND EXISTS(SELECT 1 FROM sys.databases WHERE database_id=DB_ID() AND is_trustworthy_on=1)))
  THROW 51000,N'TBX_SECURITY',1;
-'@}else{''}
+"@}else{''}
     @"
 SET NOCOUNT ON;
 IF DB_ID()<=4 OR DB_NAME() COLLATE Latin1_General_100_BIN2<>N'$literal' COLLATE Latin1_General_100_BIN2
@@ -148,7 +154,7 @@ function Invoke-ToolbeltInstall {
             } finally { [IO.File]::WriteAllText($preparationJournal.Path,($preparationJournal.Record|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false)) }
         }
         $needClr=@($package.Manifest.profiles | ForEach-Object {$_.assemblies.PSObject.Properties}).Count -gt 0
-        $preflight=Get-ToolbeltPreflightSql $Database $needClr
+        $preflight=Get-ToolbeltPreflightSql $Database $needClr $TrustMethod
         $probeFile=Join-Path $scratch 'preflight.sql';$ownedFiles.Add($probeFile)
         [IO.File]::WriteAllText($probeFile,$preflight,[Text.UTF8Encoding]::new($false))
         $probe=Invoke-ToolbeltSql @call -File $probeFile;Assert-ToolbeltSqlSuccess $probe 'Zielvorprüfung'

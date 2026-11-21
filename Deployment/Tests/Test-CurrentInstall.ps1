@@ -41,7 +41,7 @@ try{
     $sql="USE [ContosoToolbelt];`nDECLARE @TrustMethod varchar(24)=N'auto';`nSELECT 1;`n"
     [IO.File]::WriteAllText($path,$sql,[Text.UTF8Encoding]::new($false))
     $record=@{schema='toolbelt-markerless-install/v1';platform='Windows';mode='local';trust='auto';
-        modules=@('toolbelt.core.result-table');binary_sha512=@{};sql_sha256=(Get-ToolbeltSha256 ([IO.File]::ReadAllBytes($path)));
+        modules=@('toolbelt.core.result-table');binary_sha512=@{tlblt_Example=('0'*128)};sql_sha256=(Get-ToolbeltSha256 ([IO.File]::ReadAllBytes($path)));
         objects=@(@{schema='toolbelt_core';name='USP_PrepareResultTable';types='P,PC'})}
     [IO.File]::WriteAllText(($path+'.manifest.json'),(ConvertTo-Json -InputObject $record -Depth 16),[Text.UTF8Encoding]::new($false))
     $base=@{DeploymentMode='local';InstallSql=$path;ServerInstance='localhost';Database='ContosoApp';SqlcmdPath=(Get-Command pwsh).Source}
@@ -58,7 +58,16 @@ try{
     Assert-Test ($script:captured.Contains("host_platform=N'Windows'")) 'PLATFORM_REBOUND_BEFORE_DDL'
     Assert-Test ($script:captured -notmatch 'extended_properties|Toolbelt\.Module|ModuleVersion') 'NO_VERSION_MARKER_DEPENDENCY'
     $preflightText=Get-ToolbeltPreflightSql 'ContosoApp'
-    Assert-Test ($preflightText -notmatch 'CONTROL SERVER|sysadmin|TBX_NOT_EMPTY|is_trustworthy_on=1') 'NO_BLANKET_ADMIN_OR_OFF_ONLY_GATE'
+    Assert-Test ($preflightText -notmatch 'CONTROL SERVER|sysadmin|TBX_NOT_EMPTY') 'NO_BLANKET_ADMIN_OR_EMPTY_GATE'
+    Assert-Test ($preflightText.Contains('AND NOT (0=1')) 'AUTO_REQUIRES_STRICT_SECURITY'
+    Assert-Test ((Get-ToolbeltPreflightSql 'ContosoApp' $true 'hash').Contains('AND NOT (0=1')) 'HASH_REQUIRES_STRICT_SECURITY'
+    foreach($method in 'trustworthy-checked','trustworthy'){
+        $explicit=Get-ToolbeltPreflightSql 'ContosoApp' $true $method
+        Assert-Test ($explicit.Contains('AND NOT (1=1') -and
+            $explicit.Contains("name=N'clr strict security' AND value=0 AND value_in_use=0") -and
+            $explicit.Contains('database_id=DB_ID() AND is_trustworthy_on=1')) ('PREPARED_DB_TRUST_'+$method)
+    }
+    Assert-Test ($script:captured.Contains((Get-ToolbeltPreflightSql 'ContosoApp' $true 'trustworthy'))) 'RECHECK_TRUST_IN_GUARDED_INSTALL'
     Assert-Test ($preflightText.Contains("name=N'clr strict security' AND value=1 AND value_in_use=1")) 'STRICT_SECURITY_RETAINED'
     Assert-Test ((Get-ToolbeltPreflightSql 'ContosoApp' $false) -notmatch 'sys.configurations') 'SQL_ONLY_REQUIRES_NO_CLR_CONFIGURATION'
     $script:scenario='linux';$script:sqlCalls=0
