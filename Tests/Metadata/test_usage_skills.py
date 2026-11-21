@@ -756,5 +756,36 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertIn(identity, skill.markdown)
 
 
+    def test_worktype_lifecycle_contracts_keep_actual_routing_commit_order(self):
+        for name in ("USP_DisableWorkType", "USP_RemoveWorkType", "USP_ResolveWorkType"):
+            skill = skills.read(skills.source_file(ROOT, "toolbelt_core", name))
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.project_procedure_help(text, skill), text)
+            self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+            ret, _ = skills._procedure_help_return(text, skill)
+            tokens = skills._ddl_tokens(text)
+            first_throw = next(t[1] for t in tokens if t[0].casefold() == "throw")
+            self.assertLess(ret, first_throw)
+            fields = re.findall(r"^\| `\w+` \| `.+(?:NOT NULL|NULL)` \|$", skill.markdown, re.M)
+            self.assertEqual(len(fields), 20)
+            helper = next(t[1] for t in tokens if t[0].casefold() == "usp_prepareresulttable")
+            if name == "USP_DisableWorkType":
+                commit = next(t[1] for t in tokens if t[0].casefold() == "commit")
+                self.assertLess(commit, helper)
+                self.assertIn("VOR ResultTable-Helperprüfung", skill.markdown)
+            elif name == "USP_RemoveWorkType":
+                delete = next(t[1] for t in tokens if t[0].casefold() == "delete")
+                commit = next(t[1] for t in tokens if t[0].casefold() == "commit")
+                self.assertLess(helper, delete)
+                self.assertLess(delete, commit)
+                self.assertIn("kaskadiert WorkTypePermission", skill.markdown)
+            else:
+                self.assertIn("51595", skill.markdown)
+                self.assertIn("51596", skill.markdown)
+                self.assertIn("51597", skill.markdown)
+                self.assertIn("kein Handleraufruf", skill.markdown)
+
+
 if __name__ == "__main__":
     unittest.main()

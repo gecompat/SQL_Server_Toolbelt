@@ -1,5 +1,16 @@
 # toolbelt_core.USP_DisableWorkType
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_DisableWorkType.md)
+steht in der ausgelieferten DDL und folgt bei `@Hilfe=1` als zusätzliche
+vier-spaltige Skillzeile auf die bisherige Standardhilfe. Die Projektion ist
+quell-/offlinegeprüft, nicht neu nativ abgenommen.
+
+Wichtig beim ResultTable-Routing: Ohne Callertransaktion liegt der eigene
+Katalog-Commit vor Helperprüfung und Ausgabe. Ein Routingfehler bedeutet daher
+nicht, dass die Deaktivierung zurückgenommen wurde. Jede tatsächliche
+Katalogänderung erzeugt eine neue RowVersion und macht ältere gebundene
+Work-Type-Policies unwirksam, bis sie ausdrücklich neu konfiguriert werden.
+
 ## Zweck
 
 Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfiguration.

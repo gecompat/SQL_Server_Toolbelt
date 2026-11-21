@@ -1,5 +1,15 @@
 # toolbelt_core.USP_RemoveWorkType
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_RemoveWorkType.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Das ist keine neue native Hilfeabnahme.
+
+ResultTable-Routing liegt hier vor dem DELETE im selben Transaktionsscope.
+Die Ergebniszeile beschreibt den Stand vor Entfernung. Die Handlerprozedur
+bleibt bestehen; gebundene Policyeinträge werden über ihren FK kaskadierend
+entfernt. Andere Referenzen können den DELETE mit einem Enginefehler verhindern.
+Bei Callertransaktion wird die Änderung erst mit deren Commit dauerhaft.
+
 ## Zweck
 
 Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Datenverlustfreigabe und optionale RowVersion-Prüfung verhindern versehentliche oder konkurrierende Löschungen.

@@ -1,5 +1,12 @@
 # toolbelt_core.USP_ResolveWorkType
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_ResolveWorkType.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Er beschreibt die tatsächliche Prüfpriorität: Eine
+gewählte, aber fehlende App-Policy kann bereits vor der Namensprüfung 51596
+auslösen. `SuppressResult=1` unterdrückt die Fachausgabe nach den Prüfungen,
+führt aber keinen Handler aus. Die neue Projektion ist keine native Abnahme.
+
 ## Zweck
 
 Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-EXECUTE-Vertrag erzwingen.

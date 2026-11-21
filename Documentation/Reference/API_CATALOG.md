@@ -1924,7 +1924,7 @@ Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfigura
 
 Vertrag und Quelle: [USP_DisableWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql), [USP_DisableWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_DisableWorkType.md).
 
-<!-- Source/Vertrag SHA256: 1792956b51482c527a18d51aad276b8047b83d2624877f700818865bb1912796 -->
+<!-- Source/Vertrag SHA256: 58369ce26325b60cf97ccb0064d605fbe44900d114d5a745a2d60e14ed3671ce -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1958,7 +1958,7 @@ Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Da
 
 Vertrag und Quelle: [USP_RemoveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql), [USP_RemoveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RemoveWorkType.md).
 
-<!-- Source/Vertrag SHA256: e76f53fa47f4452b1e4235609086ef6d29c37ca931dc4f8126cdaf06ae778ab7 -->
+<!-- Source/Vertrag SHA256: d492d54aa4ed20f0a58ecab97c0a3182aa9b79a3bbca050c263e0aff565ebd4e -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1992,7 +1992,7 @@ Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-
 
 Vertrag und Quelle: [USP_ResolveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql), [USP_ResolveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_ResolveWorkType.md).
 
-<!-- Source/Vertrag SHA256: 8d67d48b37bca8c311c253794186a0d329afc446060bab0835989e06695ec5b1 -->
+<!-- Source/Vertrag SHA256: 5a2376eba0ebe6ae3d13d7f616c520bdad6baa1d09eb95ff612430c3954d1e9d -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
