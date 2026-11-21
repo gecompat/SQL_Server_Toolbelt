@@ -11555,5 +11555,159 @@
         null
       ]
     ]
+  },
+  "toolbelt_archive.USP_ExtractZipArchiveToDirectory": {
+    "parameters": {
+      "@ZipArchive": [
+        true,
+        false
+      ],
+      "@RootAlias": [
+        true,
+        false
+      ],
+      "@RelativeDirectory": [
+        false,
+        false
+      ],
+      "@OverwriteExistingFiles": [
+        false,
+        false
+      ],
+      "@MaxArchiveBytes": [
+        false,
+        false
+      ],
+      "@MaxEntries": [
+        false,
+        false
+      ],
+      "@MaxEntryBytes": [
+        false,
+        false
+      ],
+      "@MaxTotalExpandedBytes": [
+        false,
+        false
+      ],
+      "@MaxCompressionRatio": [
+        false,
+        false
+      ],
+      "@MaxPathLength": [
+        false,
+        false
+      ],
+      "@ExecutionIdentity": [
+        false,
+        false
+      ],
+      "@ResultTable": [
+        false,
+        true
+      ],
+      "@KeepData": [
+        false,
+        true
+      ],
+      "@Debug": [
+        false,
+        true
+      ],
+      "@Hilfe": [
+        false,
+        true
+      ]
+    },
+    "rows": [
+      [
+        "DESCRIPTION",
+        1,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "Extrahiert ein ZIP gestreamt in einen konfigurierten lokalen NTFS-Ordner und meldet jeden Eintrag.",
+        null
+      ],
+      [
+        "RESULT_COLUMN",
+        1,
+        "Ordinal",
+        "bigint",
+        null,
+        false,
+        null,
+        "Einsbasierter Ordinal aus dem Central Directory.",
+        null
+      ],
+      [
+        "RESULT_COLUMN",
+        2,
+        "EntryName",
+        "nvarchar(max)",
+        null,
+        false,
+        null,
+        "Dekodierter ursprünglicher ZIP-Eintragsname.",
+        null
+      ],
+      [
+        "RESULT_COLUMN",
+        3,
+        "EntryKind",
+        "varchar(9)",
+        null,
+        false,
+        null,
+        "file oder directory.",
+        null
+      ],
+      [
+        "RESULT_COLUMN",
+        4,
+        "Status",
+        "varchar(16)",
+        null,
+        false,
+        null,
+        "completed, failed oder not_attempted.",
+        null
+      ],
+      [
+        "RESULT_COLUMN",
+        5,
+        "BytesWritten",
+        "bigint",
+        null,
+        true,
+        null,
+        "Veröffentlichte Bytes; 0 bei abgeschlossenem Verzeichnis.",
+        null
+      ],
+      [
+        "RESULT_COLUMN",
+        6,
+        "ErrorCode",
+        "varchar(64)",
+        null,
+        true,
+        null,
+        "Kontrollierter Code zum Abbruch oder NULL.",
+        null
+      ],
+      [
+        "EXAMPLE",
+        1,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "Gültiges leeres ZIP ohne Dateimutationen.",
+        "DECLARE @Zip varbinary(max) = 0x504B0506000000000000000000000000000000000000;\nEXEC toolbelt_archive.USP_ExtractZipArchiveToDirectory @ZipArchive=@Zip, @RootAlias=N'ContosoExports';"
+      ]
+    ]
   }
 }

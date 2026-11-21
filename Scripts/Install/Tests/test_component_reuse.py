@@ -216,6 +216,7 @@ class ComponentReuseTests(unittest.TestCase):
         import clr_usage_skills
         records=clr_usage_skills.module_records(ROOT,'toolbelt.filesystem.windows')
         path='Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs'
+        records=[record for record in records if record.metadata['source_paths'][1]==path]
         current=(ROOT/path).read_text(encoding='utf-8')
         original=clr_usage_skills.strip_provider_help(current,records)
         changed=current.replace('if (byteOffset < 0 ||','if (byteOffset < 1 ||',1)

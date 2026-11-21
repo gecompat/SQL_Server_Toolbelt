@@ -16,7 +16,7 @@ namespace Toolbelt.Filesystem.Windows
 {
     // This provider never accepts an absolute caller path. The only configured
     // physical paths are server-side root aliases and optional staging folders.
-    public static class WindowsFilesystemProvider
+    public static partial class WindowsFilesystemProvider
     {
         private const int MaxChunkBytes = 16 * 1024 * 1024;
         private const int BufferBytes = 1024 * 1024;
@@ -461,7 +461,7 @@ namespace Toolbelt.Filesystem.Windows
             public void Dispose() { for (int i = handles.Count - 1; i >= 0; i--) handles[i].Dispose(); handles.Clear(); }
         }
         private sealed class NativeRemoval { public SafeFileHandle Handle; }
-        private sealed class FilesystemExecution
+        private sealed partial class FilesystemExecution
         {
             private readonly WindowsIdentity identity;
             private readonly bool serviceAccount;

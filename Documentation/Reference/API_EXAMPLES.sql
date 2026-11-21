@@ -23,6 +23,13 @@ DECLARE @Archive varbinary(max)=NULL;
 EXEC toolbelt_archive.USP_ExtractZipEntryToFile @ZipArchive=@Archive,@EntryName=N'contoso.txt',@RootAlias=N'ContosoRoot',@RelativePath=N'out\contoso.txt';
 */
 
+-- toolbelt_archive.USP_ExtractZipArchiveToDirectory
+-- Extrahiert ein ZIP gestreamt in einen konfigurierten lokalen NTFS-Ordner und meldet jeden Eintrag.
+-- Voraussetzung: Lokale Installation auf Windows SQL Server, festes NTFS-Laufwerk und vorhandene Root-Konfiguration. Für fehlende Verzeichnisse ist AllowCreateDirectory erforderlich. Die Sitzung darf keine aktive oder implizite SQL-Transaktion haben.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_archive.USP_ExtractZipArchiveToDirectory @Hilfe = 1;
+*/
+
 -- toolbelt_archive.USP_CreateZipFromEntries
 -- Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload varbinary(max) einer vorhandenen caller-lokalen Temp-Tabelle.
 -- Voraussetzung: ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.

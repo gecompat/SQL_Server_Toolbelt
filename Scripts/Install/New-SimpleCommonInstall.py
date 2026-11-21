@@ -127,7 +127,7 @@ def interface_objects(selected):
 def binary_inputs(inputs, required_modules=None):
     """Originale Binärbytes nur bei unveränderten Compilerquellen wiederverwenden."""
     prefix='SQL-Server-Toolbelt-1.0.0-CLR-Install/'
-    replaced={'toolbelt.json.constructors','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug','toolbelt.filesystem.windows'}
+    replaced={'toolbelt.json.constructors','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug','toolbelt.filesystem.windows','toolbelt.archive.zip-memory'}
     required_modules=set(required_modules) if required_modules is not None else {p.parent.name for p in (ROOT/'Modules').glob('*/module.yaml')}
     require(sha((ROOT/BASELINE).read_bytes())==BASELINE_SHA256,'baseline package identity')
     with zipfile.ZipFile(ROOT/BASELINE) as archive:
@@ -153,6 +153,9 @@ def binary_inputs(inputs, required_modules=None):
         # Fresh source-bound provider required after the CLR-Hilfe extension;
         # the retained original binary cannot satisfy the new SQL signature.
         data['Toolbelt.Filesystem.Windows.dll']=filesystem_build.admit(ROOT,inputs/'filesystem')
+    if 'toolbelt.archive.zip-memory' in required_modules:
+        import filesystem_build
+        data['Toolbelt.Archive.ZipMemory.dll']=filesystem_build.admit(ROOT,inputs/'zip-memory',filesystem_build.ZIP_MODULE)
     if 'toolbelt.json.constructors' in required_modules:
         registry=json.loads((ROOT/'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json').read_bytes())
         ctor=next(a['Fields'] for a in registry['artifacts'] if a['Fields']['moduleId']=='toolbelt.json.constructors')
@@ -340,6 +343,9 @@ def build_source_bindings(assembly_names=()):
         if 'tlblt_Filesystem_Windows' in assembly_names:
             import filesystem_build
             paths.update(ROOT/path for path in filesystem_build.sources(ROOT))
+        if 'tlblt_Archive_ZipMemory' in assembly_names:
+            import filesystem_build
+            paths.update(ROOT/path for path in filesystem_build.sources(ROOT,filesystem_build.ZIP_MODULE))
     return {path.relative_to(ROOT).as_posix():sha(normalize(path.read_bytes())) for path in sorted(paths)}
 
 

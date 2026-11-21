@@ -12,7 +12,7 @@ Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
 aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 
 
-toolbelt.archive.zip-files 1.0.0 verbindet genau zwei öffentliche T-SQL-USPs
+toolbelt.archive.zip-files 1.0.0 verbindet drei öffentliche T-SQL-USPs
 mit bestehenden ZIP-Memory-/Windows-Filesystem-/ResultTableverträgen.
 Source implementiert; begrenzte native Windows-local-Teilnachweise vorhanden,
 vollständige Qualifikation offen; unveröffentlicht. Keine Assembly.
@@ -20,6 +20,7 @@ Der genaue getrennte Laufumfang steht in [Tests](Tests/README.md).
 
 - [CreateZipFileFromEntries](Documentation/USP_CreateZipFileFromEntries.md)
 - [ExtractZipEntryToFile](Documentation/USP_ExtractZipEntryToFile.md)
+- [ExtractZipArchiveToDirectory](Documentation/USP_ExtractZipArchiveToDirectory.md)
 - [Öffentlicher Vertrag](../../Documentation/Architecture/ZIP_FILES_CONTRACT.md)
 - [Tests](Tests/README.md)
 
@@ -66,4 +67,6 @@ Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Archi
 
 ## Maschinenlesbare Usage-Skills
 
-Alle katalogisierten Objekte dieses Moduls besitzen quellgeprüfte Skills. Die öffentlichen Objektseiten verlinken die vollständigen Verträge; interne CLR-Helfer und ihre benötigten gezielten Providerrechte sind ausdrücklich abgegrenzt. DDL und zusätzliche frühe Prozedurhilfe verwenden dieselben Texte. Die gemeinsame Usage-Skill-View folgt erst bei vollständiger Katalogabdeckung. Neue native Hilfe-/Unicode-/Callerzustands- und Gesamtinstallerabnahme bleiben separat.
+Alle katalogisierten Objekte dieses Moduls besitzen quellgeprüfte Skills.
+DDL, frühe Prozedurhilfe und die gemeinsame Usage-Skill-View verwenden
+dieselben Texte.

@@ -55,7 +55,9 @@ class FilesystemBuildTests(unittest.TestCase):
         self.assertIn('Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj',inputs)
         self.assertIn('Scripts/Install/filesystem_build.py',inputs)
         self.assertIn('Modules/toolbelt.filesystem.windows/module.yaml',inputs)
-        self.assertEqual(sum(p.startswith('Metadata/UsageSkills/') for p in inputs),9)
+        self.assertIn('Metadata/UsageSkills/toolbelt_filesystem/CLR_ExtractZipArchiveToDirectory.md', inputs)
+        self.assertIn('Modules/toolbelt.archive.zip-memory/Clr/ArchiveExtraction.cs', inputs)
+        self.assertIn('Modules/toolbelt.filesystem.windows/Clr/ArchiveDirectoryExtraction.cs', inputs)
         self.assertNotIn('Metadata/UsageSkills/toolbelt_filesystem/USP_ListDirectory.md',inputs)
 
 

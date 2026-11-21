@@ -42,7 +42,7 @@ def prepare_record_fixture(directory: Path):
 
 
 def prepare_module_fixture(directory: Path):
-    """Exakte neun aktuelle Quellen zur separaten In-memory-.NET-Prüfung."""
+    """Aktuelle Quellen zur separaten In-memory-.NET-Prüfung."""
     usage_skills.require(not directory.exists(), "Neues CLR-Testverzeichnis erforderlich")
     clr_usage_skills.generate(ROOT, "toolbelt.filesystem.windows", "Toolbelt.Metadata", directory / "Generated.cs")
     entries = []
@@ -58,12 +58,13 @@ class ClrUsageSkillTests(unittest.TestCase):
     def test_provider_help_preserves_original_body_and_rejects_guard_drift(self):
         records = [with_help(usage_skills.read(p)) for p in sorted(
             (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]
-        text = (ROOT / "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs").read_text(encoding="utf-8-sig")
+        providers = {path for record in records for path in record.metadata["source_paths"][:2] if path.endswith(".cs")}
+        text = "\n".join((ROOT / path).read_text(encoding="utf-8-sig") for path in sorted(providers))
         original = clr_usage_skills.strip_provider_help(text, records) if clr_usage_skills.PROVIDER_PARAMETER in text else text
         output = clr_usage_skills.project_provider_help(original, records)
         self.assertEqual(clr_usage_skills.project_provider_help(output, records), output)
         self.assertEqual(clr_usage_skills.strip_provider_help(output, records), original)
-        self.assertEqual(output.count(clr_usage_skills.PROVIDER_PARAMETER), 9)
+        self.assertEqual(output.count(clr_usage_skills.PROVIDER_PARAMETER), len(records))
         for changed in (output.replace("hilfe.IsTrue", "hilfe.IsFalse", 1),
                         output.replace("UsageSkillsGenerated.Send", "Different.Send", 1),
                         output.replace("default(SqlBoolean)", "SqlBoolean.True", 1)):
@@ -102,8 +103,8 @@ class ClrUsageSkillTests(unittest.TestCase):
             (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("USP_*.md"))
             if "Internal" not in p.name]
         self.assertEqual(len(sources), 9)
-        sql = (ROOT / sources[0].metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
         for skill in sources:
+            sql = (ROOT / skill.metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
             ts, words, i, limit = usage_skills._procedure_declaration(sql, skill)
             end = next(j for j in range(i + 4, limit) if words[j] == "as")
             actual = re.findall(r"(@\w+)\s+(sysname|nvarchar\(\d+\)|nvarchar\(max\)|varbinary\(max\)|varchar\(\d+\)|bigint|tinyint|int|bit)(?:\s*=\s*(N?'[^']*'|NULL|\d+))?",
@@ -123,21 +124,21 @@ class ClrUsageSkillTests(unittest.TestCase):
     def test_raw_filesystem_contracts_match_actual_sql_parameters_and_defaults(self):
         sources = [usage_skills.read(p) for p in sorted(
             (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]
-        self.assertEqual(len(sources), 9)
-        sql = (ROOT / sources[0].metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
         for skill in sources:
+            sql = (ROOT / skill.metadata["source_paths"][0]).read_text(encoding="utf-8-sig")
             ts, _, i, limit = usage_skills._procedure_declaration(sql, skill)
             a, b = usage_skills._clr_procedure_anchor(sql, skill)
             parameters = sql[ts[i + 3][2]:a]
             # Comments contain Markdown parameter examples; remove them before
             # independently inspecting the actual declaration's simple syntax.
-            actual = re.findall(r"(@\w+)\s+(sysname|nvarchar\(\d+\)|nvarchar\(max\)|varbinary\(max\)|bigint|int|bit)(?:\s*=\s*(N?'[^']*'|NULL|\d+))?", parameters)
+            actual = re.findall(r"(@\w+)\s+(sysname|nvarchar\(\d+\)|nvarchar\(max\)|varbinary\(max\)|decimal\(\d+,\d+\)|bigint|int|bit)(?:\s*=\s*(N?'[^']*'|NULL|\d+(?:\.\d+)?))?", parameters)
             expected = [(p["name"], p["sql_type"], p["sql_default"] or "")
                         for p in skill.metadata["parameters"]]
             self.assertEqual(actual, expected, skill.identity)
             self.assertTrue(skill.metadata["is_internal"])
             self.assertEqual(skill.metadata["public_entrypoints"],
-                             ["toolbelt_filesystem.USP_" + skill.metadata["object_name"][4:]])
+                             [("toolbelt_archive" if skill.metadata["object_name"] == "CLR_ExtractZipArchiveToDirectory"
+                               else "toolbelt_filesystem") + ".USP_" + skill.metadata["object_name"][4:]])
             for parameter in skill.metadata["parameters"]:
                 self.assertEqual(parameter["argument_required"], parameter["sql_default"] is None)
         remove = next(s for s in sources if s.metadata["object_name"] == "CLR_RemoveDirectory")
@@ -147,9 +148,8 @@ class ClrUsageSkillTests(unittest.TestCase):
     def test_real_clr_ddl_comments_bind_each_own_external_header_and_preserve_code(self):
         sources = [usage_skills.read(p) for p in sorted(
             (ROOT / "Metadata/UsageSkills/toolbelt_filesystem").glob("CLR_*.md"))]
-        self.assertEqual(len(sources), 9)
-        path = sources[0].metadata["source_paths"][0]
-        current = (ROOT / path).read_text(encoding="utf-8-sig")
+        paths = sorted({s.metadata["source_paths"][0] for s in sources})
+        current = "\n".join((ROOT / path).read_text(encoding="utf-8-sig") for path in paths)
         base = current
         for skill in sources:
             base = base.replace(usage_skills.render_ddl_comment(skill), "", 1)

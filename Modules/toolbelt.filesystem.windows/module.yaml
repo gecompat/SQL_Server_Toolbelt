@@ -28,6 +28,9 @@ dependencies:
   - module_id: "toolbelt.core.result-table"
     minimum_version: "1.0.0"
     reason: "Public procedures implement the ResultTable contract."
+  - module_id: "toolbelt.archive.zip-memory"
+    minimum_version: "1.4.0"
+    reason: "Streaming ZIP parsing, validation and outcome orchestration for the internal archive extractor."
 schemas:
   - "toolbelt_filesystem"
 objects:
@@ -50,6 +53,7 @@ objects:
   - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_RemoveFile, visibility: internal }
   - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_TranscodeTextFile, visibility: internal }
   - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_WriteBinaryFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ExtractZipArchiveToDirectory, visibility: internal }
   - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_WriteTextFile, visibility: internal }
   - { type: USP, schema: toolbelt_filesystem, name: USP_InternalEmitHelp, visibility: internal }
   - { type: USP, schema: toolbelt_filesystem, name: USP_InternalRouteResult, visibility: internal }
