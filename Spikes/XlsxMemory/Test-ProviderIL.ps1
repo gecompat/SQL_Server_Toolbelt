@@ -11,6 +11,17 @@ function Test-AllowedTickCountMember([Reflection.MemberInfo]$Member) {
         $method.ReturnType -eq [int] -and
         $method.GetParameters().Count -eq 0
 }
+function Test-AllowedZipIteratorThreadMember([Reflection.MemberInfo]$Member,[Reflection.MethodBase]$Caller) {
+    if ($Member -isnot [Reflection.MethodInfo] -or
+        $Member.DeclaringType -ne [Environment] -or
+        $Member.Name -cne 'get_CurrentManagedThreadId' -or
+        -not $Member.IsStatic -or $Member.ReturnType -ne [int] -or $Member.GetParameters().Count -ne 0) { return $false }
+    $callerType = $Caller.DeclaringType
+    if ($null -eq $callerType -or $callerType.Assembly.GetName().Name -cne 'Toolbelt.Archive.ZipMemory' -or
+        -not $callerType.IsDefined([Runtime.CompilerServices.CompilerGeneratedAttribute],$false)) { return $false }
+    return $callerType.FullName -cmatch '^Toolbelt\.Archive\.ZipMemory\.ZipEntryProvider\+(?:<ReadPayloadChunks>|ExtractionArchive\+<ReadVerified>)d__\d+$' -and
+        ($Caller.IsConstructor -or $Caller.Name -ceq 'System.Collections.Generic.IEnumerable<System.ArraySegment<System.Byte>>.GetEnumerator')
+}
 $environment = [Environment]
 $tickCount = $environment.GetMethod('get_TickCount', [Reflection.BindingFlags]'Public,Static')
 if (-not (Test-AllowedTickCountMember $tickCount)) { throw 'TickCount-Ausnahme ist nicht exakt gebunden.' }
@@ -62,7 +73,8 @@ foreach ($file in @('Toolbelt.Archive.ZipMemory.dll','Toolbelt.File.XlsxMemory.d
                         $namespace = $declaring.Namespace
                         $simpleSystem = @('Object','String','StringComparer','StringComparison','Array','Buffer','BitConverter','Convert','DateTime','TimeSpan','Math','Decimal','Boolean','Byte','Char','Int16','Int32','Int64','UInt16','UInt32','UInt64','Double','Single','Exception','ArgumentException','ArgumentNullException','InvalidOperationException','NotSupportedException','OverflowException','IDisposable','Nullable`1','Action','Action`1','Func`1','Comparison`1','Delegate','Type','Enum')
                         $allowedNamespaces = @('Toolbelt.Archive.ZipMemory','Toolbelt.Xlsx.Qualification','System.Collections','System.Collections.Generic','System.Text','System.Globalization','System.Data.SqlTypes','Microsoft.SqlServer.Server')
-                        $special = (Test-AllowedTickCountMember $member) -or
+                        $special = (Test-AllowedTickCountMember $member) -or (Test-AllowedZipIteratorThreadMember $member $method) -or
+                            $declaring -eq [ArraySegment[byte]] -or
                             $name -eq 'System.Diagnostics.Stopwatch' -or $name -eq 'System.Runtime.CompilerServices.RuntimeHelpers' -or
                             $name -in @('System.Xml.XmlReader','System.Xml.XmlReaderSettings','System.Xml.XmlNodeType','System.Xml.DtdProcessing','System.Xml.XmlException')
                         if ($namespace -notin $allowedNamespaces -and -not ($namespace -eq 'System' -and $declaring.Name -in $simpleSystem) -and

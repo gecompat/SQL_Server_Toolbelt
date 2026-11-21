@@ -272,7 +272,15 @@ public static class ArchiveDestinationFramework
                 if (error.Message != "OVERWRITE_EXCLUSIVITY_REQUIRED") throw;
             }
             PrivateAcl(root);
-            File.WriteAllBytes(Path.Combine(root, "replace"), new byte[] { 4 });
+            regular = Bind(root, false, false);
+            using ((IDisposable)regular)
+            {
+                if (regular.Inspect("replace", false) != null)
+                    throw new InvalidOperationException("REPLACE_FIXTURE_EXISTS");
+                bool published;
+                string error = regular.Publish("replace", false, write => write(new byte[] { 4 }, 1), out published);
+                if (!published || error != null) throw new InvalidOperationException("REPLACE_FIXTURE_FAILED " + error);
+            }
             var replace = Bind(root, true, true);
             using ((IDisposable)replace)
             {
