@@ -29,6 +29,13 @@ Der technische `NULL`-Default für `@FilePath` ermöglicht `@Hilfe = 1`; im
 normalen Aufruf bleibt der Pfad fachlich erforderlich. Hilfe wird vor
 Pfadnormalisierung und Dateizugriff zurückgegeben.
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_file/USP_LoadBinaryFile.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Diese Integration ist offline geprüft, nicht neu nativ
+abgenommen. `MaxBytes` ist ein Nachleselimit. Bei normaler `IsValid=0`-Ausgabe
+wird eine ResultTable trotzdem regulär befüllt; bei KeepData=0 können ihre
+vorherigen Daten bereits ersetzt sein. RETURN0 allein ist kein Erfolg des Lesens.
+
 Die Standardparameter stehen jetzt in der vereinbarten Reihenfolge
 `@ResultTable, @KeepData, @Debug, @Hilfe`. Bisherige positionsgebundene
 Aufrufe mit Debug-/Hilfe-Werten müssen auf benannte Parameter umgestellt
@@ -88,7 +95,9 @@ EXEC toolbelt_file.USP_LoadBinaryFile
 - `EXECUTE` auf `toolbelt_file.USP_LoadBinaryFile`
 - Bei `@ResultTable`: zusätzlich `EXECUTE` auf `toolbelt_core.USP_PrepareResultTable`
 - Lesezugriff auf den Dateipfad
-- `ADMINISTER BULK OPERATIONS` oder `ad hoc distributed queries`
+- Für Engine/Plattform ausreichende bestehende Bulkberechtigung; eine
+  Ad-hoc-Konfigurationsoption ersetzt keine Rechte. Siehe den
+  [Microsoft-Bulkvertrag](https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-bulk-transact-sql?view=sql-server-ver17).
 
 ## Technischer Lösungsweg
 

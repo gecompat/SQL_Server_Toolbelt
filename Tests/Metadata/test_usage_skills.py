@@ -849,5 +849,39 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertEqual(len(fields), 9)
 
 
+    def test_file_content_contracts_cover_postread_quotas_and_failure_row_effects(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.file.content"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 3)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            if skill.metadata["object_type"] == "TABLE":
+                self.assertEqual(skills.project_relation_ddl(text, skill), text)
+                self.assertFalse(skill.metadata["is_internal"])
+                self.assertEqual(skill.metadata["parameters"], [])
+                self.assertIn("Keine eigene CHECK-Constraint", skill.markdown)
+                continue
+            self.assertEqual(skills.project_procedure_help(text, skill), text)
+            self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+            ret, _ = skills._procedure_help_return(text, skill)
+            body = skills.strip_ddl_projection(ROOT, path, skills.strip_help_projection(ROOT, path, text))
+            tokens = skills._ddl_tokens(text)
+            words = [t[0].casefold() for t in tokens]
+            first_temp = next(tokens[i][1] for i in range(len(words) - 1)
+                              if words[i:i + 2] == ["create", "table"])
+            self.assertLess(ret, first_temp)
+            self.assertEqual(body.count("FROM OPENROWSET(BULK "), 1)
+            self.assertIn("SINGLE_BLOB", skill.markdown)
+            self.assertIn("128", skill.markdown)
+            self.assertIn("IsValid=0-Statuszeile", skill.markdown)
+            self.assertIn("keine handlegebundene", skill.markdown.lower())
+            if skill.metadata["object_name"] == "USP_LoadTextFile":
+                for value in ("UTF-8", "UTF-16-LE", "UTF-16-BE", "UTF-32", "Windows-1252"):
+                    self.assertIn(value, skill.markdown)
+                self.assertIn("keine vollständige Surrogatvalidierung", skill.markdown)
+
+
 if __name__ == "__main__":
     unittest.main()

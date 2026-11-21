@@ -31,6 +31,14 @@ Der technische `NULL`-Default für `@FilePath` ermöglicht `@Hilfe = 1`; im
 normalen Aufruf bleibt der Pfad fachlich erforderlich. Hilfe wird vor
 Pfadnormalisierung und Dateizugriff zurückgegeben.
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_file/USP_LoadTextFile.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Diese Integration ist offline geprüft, nicht neu nativ
+abgenommen. Ein ungültiger Fallback wird auch bei später vorhandener BOM vor
+Datei-I/O abgewiesen. Normale `IsValid=0`-Zeilen werden im ResultTable-Pfad
+regulär eingefügt und können bei KeepData=0 alte Zieldaten ersetzen. Das ist
+vom technischen Provider-/Decoder-THROW mit SQL-Rollback zu unterscheiden.
+
 Die Standardparameter stehen jetzt in der vereinbarten Reihenfolge
 `@ResultTable, @KeepData, @Debug, @Hilfe`. Bisherige positionsgebundene
 Aufrufe mit Debug-/Hilfe-Werten müssen auf benannte Parameter umgestellt
@@ -108,7 +116,9 @@ EXEC toolbelt_file.USP_LoadTextFile
 - `EXECUTE` auf `toolbelt_file.USP_LoadTextFile`
 - Bei `@ResultTable`: zusätzlich `EXECUTE` auf `toolbelt_core.USP_PrepareResultTable`
 - Lesezugriff auf den Dateipfad
-- `ADMINISTER BULK OPERATIONS` oder `ad hoc distributed queries`
+- Für Engine/Plattform ausreichende bestehende Bulkberechtigung; eine
+  Ad-hoc-Konfigurationsoption ersetzt keine Rechte. Siehe den
+  [Microsoft-Bulkvertrag](https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-bulk-transact-sql?view=sql-server-ver17).
 
 ## Byte-Snapshot ab 2026-10-15
 
