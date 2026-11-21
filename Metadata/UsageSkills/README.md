@@ -42,6 +42,16 @@ SQL-Stringliteralen gelten als Daten und werden nicht als DDL-Kommentare entfern
 Für Multistatement- und skalare Funktionen verwendet `project_function_ddl`
 denselben Skilltransport. Dies qualifiziert keine neue Hilfeausgabe oder Installation.
 
+Für vorhandene CLR-Bridges mit `IF OBJECT_ID(...) IS NULL` und einem konstanten
+`EXEC sys.sp_executesql N'CREATE FUNCTION ... AS EXTERNAL NAME ...;'` wird der
+Skill innerhalb der tatsächlich ausgeführten DDL eingebettet. Guardname und
+Funktionsidentität müssen übereinstimmen; Verkettungen, gemischte direkte/
+dynamische Definitionen und unpassende Bindungen werden nicht als Projektion
+akzeptiert. SQL-Quoting und vollständiger Unicode bleiben beim Einbetten und
+Rücklesen erhalten. Andere SQL-Literale mit Beispielmarkierungen bleiben Daten.
+Die Vergleichsprüfung entfernt ausschließlich den eigenen bytegleichen
+kanonischen Kommentar; Methoden-/Guard-/Fachänderungen bleiben sichtbar.
+
 `project_relation_ddl` bettet die geprüften View-/Tabellenskills ebenfalls
 innerhalb ihrer Definition ein. Der gemeinsame Builder übernimmt technische
 Assembly-Skills in die erzeugte CREATE-ASSEMBLY-DDL. Sein Quellenmanifest bindet

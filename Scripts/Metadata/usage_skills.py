@@ -222,6 +222,10 @@ def read_ddl_comments(text: str):
             start = None
         offset += len(line) + 1
     require(start is None, "Unvollständige DDL-Skillmarkierungen")
+    # Only guarded, constant CREATE FUNCTION executions are executable DDL.
+    # Other SQL literals (including examples of these markers) remain data.
+    for _, _, _, payload in _dynamic_clr_slots(text):
+        result.extend(read_ddl_comments(payload))
     return result
 
 
@@ -267,6 +271,16 @@ def strip_ddl_projection(root: Path, path: str, text: str):
         canonical = read(source)
         require(canonical.markdown == projected.markdown
                 and m["source_paths"][0] == path, "DDL-Skill ist nicht kanonisch/quellzugeordnet")
+        dynamic = [slot for slot in _dynamic_clr_slots(text)
+                   if slot[0] == (m["schema_name"].casefold(), m["object_name"].casefold())]
+        if dynamic:
+            require(len(dynamic) == 1 and m["object_type"] in ("CLR_TVF", "CLR_SVF"),
+                    "Eindeutiger dynamischer CLR-Slot erforderlich")
+            _, a, b, payload = dynamic[0]
+            _existing_function_skill(payload, canonical)
+            clean = strip_ddl_projection(root, path, payload)
+            text = text[:a] + "N'" + clean.replace("'", "''") + "'" + text[b:]
+            continue
         if m["object_type"] in ("TVF", "SVF", "CLR_TVF", "CLR_SVF"):
             _existing_function_skill(text, canonical)
         elif m["object_type"] in ("VIEW", "VW", "TABLE"):
@@ -318,6 +332,51 @@ def _ddl_tokens(text):
             pos += len(value)
             result.append((value, start, pos))
     return tuple(result)
+
+
+def _dynamic_clr_slots(text):
+    """Known IF OBJECT_ID/constant EXEC shape, never general SQL evaluation.
+
+    The guard must name the created function; no concatenation, parameters or
+    arbitrary quoted data is admitted. The decoded CLR DDL remains byte-bound
+    after removal of its separately verified canonical passive comment.
+    """
+    if "sp_executesql" not in text.casefold():
+        return ()
+    ts = _ddl_tokens(text)
+    words = [v.casefold().strip("[]") for v, _, _ in ts]
+    slots = []
+    for i in range(11, len(ts) - 1):
+        literal, a, b = ts[i]
+        if (not literal.startswith("N'") or words[i - 4:i] not in
+                (["exec", "sys", ".", "sp_executesql"],
+                 ["execute", "sys", ".", "sp_executesql"]) or words[i + 1] != ";"):
+            continue
+        guard = words[i - 11:i - 4]
+        if guard[:3] != ["if", "object_id", "("] or guard[4:] != [")", "is", "null"]:
+            continue
+        value = ts[i - 8][0]
+        if not value.startswith(("N'", "'")):
+            continue
+        guard_name = value[2:-1] if value.startswith("N'") else value[1:-1]
+        guard_name = guard_name.replace("''", "'").casefold()
+        payload = literal[2:-1].replace("''", "'")
+        inner = _ddl_tokens(payload)
+        iw = [v.casefold().strip("[]") for v, _, _ in inner]
+        p = 3 if iw[:3] == ["create", "or", "alter"] else 1
+        if (not iw or iw[0] != "create" or iw[p:p + 1] != ["function"]
+                or len(iw) < p + 6 or iw[p + 2] != "." or iw[p + 4] != "("):
+            continue
+        identity = (iw[p + 1], iw[p + 3])
+        if guard_name != ".".join(identity):
+            continue
+        # Exactly one final CLR binding; another SQL statement cannot become
+        # a recognized passive metadata container.
+        if (len(iw) < 9 or iw[-9:-6] != ["as", "external", "name"]
+                or iw[-5] != "." or iw[-3] != "." or iw[-1] != ";"):
+            continue
+        slots.append((identity, a, b, payload))
+    return tuple(slots)
 
 
 def _procedure_declaration(text, skill):
@@ -721,6 +780,22 @@ def project_function_ddl(text: str, skill: Skill):
     validate(skill)
     require(skill.metadata["object_type"] in ("TVF", "SVF", "CLR_TVF", "CLR_SVF"),
             "Funktions-Skill erforderlich")
+    dynamic = [slot for slot in _dynamic_clr_slots(text)
+               if slot[0] == (skill.metadata["schema_name"].casefold(),
+                              skill.metadata["object_name"].casefold())]
+    if dynamic:
+        require(len(dynamic) == 1 and skill.metadata["object_type"] in ("CLR_TVF", "CLR_SVF"),
+                "Eindeutiger dynamischer CLR-Slot erforderlich")
+        # Mixed direct/dynamic definitions of the same object are ambiguous.
+        try:
+            _function_declaration(text, skill)
+        except ValueError:
+            pass
+        else:
+            raise ValueError("USAGE_SKILL: Direkte/dynamische Funktionsidentität mehrdeutig")
+        _, a, b, payload = dynamic[0]
+        projected = project_function_ddl(payload, skill)
+        return text[:a] + "N'" + projected.replace("'", "''") + "'" + text[b:]
     if _existing_function_skill(text, skill):
         return text
     ts, words, i, limit = _function_declaration(text, skill)

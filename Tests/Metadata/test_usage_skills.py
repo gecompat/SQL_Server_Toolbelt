@@ -905,5 +905,48 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_guarded_dynamic_clr_ddl_roundtrips_without_general_literal_interpretation(self):
+        skill = skills.read(skills.source_file(ROOT, "toolbelt_string", "TVF_ColognePhoneticCore"))
+        path = skill.metadata["source_paths"][0]
+        payload = ("CREATE FUNCTION toolbelt_string.TVF_ColognePhoneticCore(@Text nvarchar(max))\n"
+                   "RETURNS TABLE(PhoneticCode nvarchar(max),ErrorCode int)\n"
+                   "AS EXTERNAL NAME [tlblt_String_Phonetic].[Contoso.Bridge].[Invoke];")
+        def wrap(sql):
+            return ("IF OBJECT_ID(N'toolbelt_string.TVF_ColognePhoneticCore') IS NULL\n"
+                    " EXEC sys.sp_executesql N'" + sql.replace("'", "''") + "';\nGO\n")
+        original = wrap(payload)
+        projected = skills.project_function_ddl(original, skill)
+        self.assertEqual(skills.project_function_ddl(projected, skill), projected)
+        self.assertEqual(skills.read_ddl_comment(projected).markdown, skill.markdown)
+        self.assertEqual(skills.strip_ddl_projection(ROOT, path, projected), original)
+        slots = skills._dynamic_clr_slots(projected)
+        self.assertEqual(len(slots), 1)
+        self.assertEqual(slots[0][3], skills.project_function_ddl(payload, skill))
+        # Quoting in comments is restored, not a blanket SQL-literal rewrite.
+        data = "SELECT N'" + slots[0][3].replace("'", "''") + "';"
+        self.assertEqual(skills.read_ddl_comments(data), [])
+        self.assertEqual(skills.strip_ddl_projection(ROOT, path, data), data)
+        with self.assertRaises(ValueError):
+            skills.project_function_ddl(original.replace("OBJECT_ID(N'toolbelt_string.",
+                                                        "OBJECT_ID(N'Contoso."), skill)
+        with self.assertRaises(ValueError):
+            skills.project_function_ddl(original.replace("';\nGO", "' + N'';\nGO"), skill)
+        with self.assertRaises(ValueError):
+            skills.project_function_ddl(original + "\n" + payload, skill)
+        with self.assertRaises(ValueError):
+            skills.project_function_ddl(original + original, skill)
+        unconditional = original.split("\n", 1)[1]
+        self.assertEqual(skills.read_ddl_comments(unconditional), [])
+        self.assertEqual(skills.strip_ddl_projection(ROOT, path, unconditional), unconditional)
+        with self.assertRaises(ValueError):
+            skills.project_function_ddl(projected.replace("4096", "4097", 1), skill)
+        changed = projected.replace("[Invoke]", "[Changed]", 1)
+        self.assertNotEqual(skills.strip_ddl_projection(ROOT, path, changed), original)
+        # Moving the comment behind the function still fails its own-header check.
+        moved = wrap(payload + "\n" + skills.render_ddl_comment(skill))
+        with self.assertRaises(ValueError):
+            skills.project_function_ddl(moved, skill)
+
+
 if __name__ == "__main__":
     unittest.main()
