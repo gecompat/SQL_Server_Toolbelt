@@ -79,7 +79,20 @@ oder Definition bereits bestehender Objekte. Nach Fehlern können Teilobjekte
 bestehen bleiben; Ziel prüfen, bevor bewusst erneut ausgeführt wird.
 
 Objektaufrufe und Rechte stehen im [Funktionskatalog](Documentation/README.md)
-und in den jeweiligen Modulanleitungen. Der [Deploymentvertrag](Documentation/Architecture/DEPLOYMENT_MODEL.md)
+und in den jeweiligen Modulanleitungen. In der Toolbelt-Datenbank kann eine
+Anwendung die Kurzbeschreibungen auch direkt per SQL lesen.
+
+```sql
+SELECT SchemaName, ObjectName, ObjectType, Description
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+WHERE IsInternal = 0
+ORDER BY SchemaName, ObjectName;
+```
+
+Vollständige Usage-Skills, zentraler Zugriff und die benötigten Leserechte
+stehen im [Vertrag der Skill-View](Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md).
+Der Katalog beschreibt die im Build bekannten Objekte, einschließlich
+Objekten aus nicht ausgewählten Modulen. Der [Deploymentvertrag](Documentation/Architecture/DEPLOYMENT_MODEL.md)
 erklärt Cross-Database-Grenzen. Historische Release-/Installationsanleitungen
 bleiben im [Vorgängerstand](https://github.com/gecompat/SQL_Server_Toolbelt/tree/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/INSTALL.md) erhalten und qualifizieren den
 aktuellen Satz nicht automatisch. Ein gebauter Satz ist noch keine Veröffentlichung.

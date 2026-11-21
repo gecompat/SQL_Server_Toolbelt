@@ -104,6 +104,10 @@ Objektnamen/-typen und Assemblynamen, keine Extended Properties. Das Ergebnis
 Definition bereits vorhandener Objekte. Hashgeprüfte Wege weisen abweichende
 vorhandene Assemblybytes ab. Der ungeprüfte Weg ist keine Integritätsabnahme.
 
+Nach der Installation führt die [Anleitung zur Skill-View](../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md)
+von der Suche nach einer Funktion zu ihrem vollständigen Markdown-Vertrag.
+Für zentrale Installation kann der Datenbankname der View vorangestellt werden.
+
 Der Lebenszyklus ist **create-only**: fehlende Objekte ergänzen, vorhandene nicht
 ersetzen. Dies ist kein In-place-Upgrade oder automatisches Uninstall.
 Historische Lifecycle-Skripte sind dafür ungeeignet. Bei Fehlern können bereits
