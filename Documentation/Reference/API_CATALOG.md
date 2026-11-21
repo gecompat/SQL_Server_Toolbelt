@@ -1404,7 +1404,7 @@ Zeigt Queue-Status und Auditmetadaten ohne Payload und ClaimToken.
 
 Vertrag und Quelle: [VW_WorkQueue.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql), [VW_WorkQueue.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueue.md).
 
-<!-- Source/Vertrag SHA256: 463753d307452b80f4bbb29519aa54e859a5d53837561c026529ef76e68326b8 -->
+<!-- Source/Vertrag SHA256: abf990ede746349fdbdc4078dec20c4751b064386e77d89c0b1e1f5d46158109 -->
 
 Keine Eingabeparameter.
 
@@ -1420,7 +1420,7 @@ Zeigt aktive Claim-Generationen, die eine Gruppenbarriere blockieren.
 
 Vertrag und Quelle: [VW_WorkQueueBarrierBlockers.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql), [VW_WorkQueueBarrierBlockers.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueueBarrierBlockers.md).
 
-<!-- Source/Vertrag SHA256: c54caf0ba6f2b8d171b7beb85f59fb6d7fae22b7c05ff0f6cde541905a507454 -->
+<!-- Source/Vertrag SHA256: 06e2bcf72dff743c1545e98b52cf3023423c5bd0e1dc6b037b0b4406bceae0d7 -->
 
 Keine Eingabeparameter.
 

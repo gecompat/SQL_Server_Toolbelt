@@ -848,7 +848,13 @@ def _existing_relation_skill(text, skill):
             "Vorhandener Tabellen-/View-Skill ist nicht kanonisch")
     ts, anchor = _relation_anchor(text, skill)
     position = text.index(comment)
-    require(ts[anchor][2] < position and position + len(comment) <= ts[anchor + 1][1],
+    after = ts[anchor][2] < position and position + len(comment) <= ts[anchor + 1][1]
+    before = (skill.metadata['object_type'] == 'TABLE'
+              and ts[anchor - 1][2] < position
+              and position + len(comment) <= ts[anchor][1]
+              and text[ts[anchor - 1][2]:position].isspace()
+              and not text[position + len(comment):ts[anchor][1]].strip())
+    require(after or before,
             "Tabellen-/View-Skill steht außerhalb des Definitionsanfangs")
     return True
 
@@ -860,8 +866,15 @@ def project_relation_ddl(text: str, skill: Skill):
         return text
     ts, anchor = _relation_anchor(text, skill)
     end = ts[anchor][2]
-    require(text[end:end + 1] == "\n", "View-AS/Tabellenklammer muss mit LF abschließen")
-    return text[:end + 1] + render_ddl_comment(skill) + text[end + 1:]
+    if text[end:end + 1] == "\n":
+        return text[:end + 1] + render_ddl_comment(skill) + text[end + 1:]
+    # Compact column declarations can keep all original bytes: use the existing
+    # newline before their opening parenthesis, inside the same CREATE TABLE.
+    line = text.rfind('\n', 0, ts[anchor][1]) + 1
+    require(skill.metadata['object_type'] == 'TABLE'
+            and line > ts[anchor - 1][2] and not text[line:ts[anchor][1]].strip(),
+            "View-AS/Tabellenklammer benötigt eigene LF-Grenze")
+    return text[:line] + render_ddl_comment(skill) + text[line:]
 
 
 def inventory(root: Path):

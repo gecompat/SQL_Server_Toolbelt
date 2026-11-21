@@ -2,6 +2,21 @@
 
 ## Einzelreferenzen
 
+Die sechs persistenten Relationen besitzen vollständige quellgeprüfte
+Usage-Skills, jeweils auch als Kommentar in ihrer kanonischen DDL:
+
+- [WorkItem](../../../Metadata/UsageSkills/toolbelt_core/WorkItem.md): vollständige 46-Spalten-Speicherung;
+- [WorkQueueScheduler](../../../Metadata/UsageSkills/toolbelt_core/WorkQueueScheduler.md): interner Koordinationsanker;
+- [WorkQueueBarrierBlocker](../../../Metadata/UsageSkills/toolbelt_core/WorkQueueBarrierBlocker.md): gespeicherte Blockergenerationen;
+- [WorkQueueManagedGate](../../../Metadata/UsageSkills/toolbelt_core/WorkQueueManagedGate.md): interne Admissionmetadaten;
+- [VW_WorkQueue](../../../Metadata/UsageSkills/toolbelt_core/VW_WorkQueue.md): öffentliche Statusprojektion;
+- [VW_WorkQueueBarrierBlockers](../../../Metadata/UsageSkills/toolbelt_core/VW_WorkQueueBarrierBlockers.md): Snapshot mit aktuellem Generationsvergleich.
+
+Interne Tabellen sind kein direkter fachlicher Schreibweg. Die Skills trennen
+Spaltendefaults, Installations-Seeds und die tatsächlichen Tabellenconstraints
+von den stärkeren Übergangsprüfungen der öffentlichen Prozeduren. Diese
+Quellabnahme ist keine neue native Gesamtqualifikation des Moduls.
+
 Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
 Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
 

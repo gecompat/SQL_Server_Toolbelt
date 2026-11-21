@@ -88,6 +88,13 @@ Kandidaten zu zeigen. Ihre Version und ihr Modus bleiben NULL. Der konstante
 Skillkatalog liefert Nutzungsverträge unabhängig von der Installation. Keine
 der beiden Views attestiert vorhandene Aufruferrechte.
 
+Kompakte Tabellen mit Spalten auf derselben Zeile wie die öffnende Klammer
+nutzen für ihren Skill die bereits vorhandene Zeilengrenze zwischen Tabellenname
+und Spaltenliste. Der Adapter ergänzt keine Formatierungsbytes: Nach Entfernen
+des exakt quellgebundenen Kommentars muss die ursprüngliche Definition
+bytegleich vorliegen. Der Skill bleibt im eigenen CREATE-TABLE-Kopf; ein zum
+Nachbarn oder hinter die Definition verschobener Kommentar wird abgewiesen.
+
 Bei gruppierten Prozeduren bindet der Hilfeadapter die ausgewählte Identität
 an ihren eigenen `GO`-Batch. Benachbarte Hilfezweige und lokale CREATE-TABLE-
 Anweisungen im Fachpfad werden nicht als neue Prozedurdeklaration behandelt.

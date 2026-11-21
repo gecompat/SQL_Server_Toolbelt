@@ -905,6 +905,55 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_queue_relation_skills_cover_all_six_relations_and_actual_status_limits(self):
+        expected = {k: v for k, v in skills.inventory(ROOT).items()
+                    if v['module_id'] == 'toolbelt.core.work-queue' and v['object_type'] in ('TABLE','VIEW')}
+        records = [skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected]
+        self.assertEqual(skills.validate_coverage(records,expected),6)
+        for s in records:
+            text=(ROOT/s.metadata['source_paths'][0]).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_relation_ddl(text,s),text)
+            self.assertEqual(s.metadata['parameters'],[])
+            self.assertIn('keine neue native',s.markdown.casefold())
+            if s.metadata['object_type']=='TABLE':self.assertTrue(s.metadata['is_internal'])
+        by_name={s.metadata['object_name']:s for s in records}
+        item=by_name['WorkItem']
+        fields=re.findall(r'^\| `([^`]+)` \| `([^`]+)` \|',item.markdown,re.M)
+        self.assertEqual(len(fields),46)
+        self.assertEqual(fields[0],('WorkItemId','bigint'))
+        self.assertEqual(fields[-3:],[('ManagedReservationId','uniqueidentifier'),('ManagedHold','bit'),('ManagedCompletionNonce','uniqueidentifier')])
+        self.assertIn('prüft ebenfalls nur diese Statusmenge',item.markdown)
+        body='\n'.join(skills.strip_ddl_projection(ROOT,p,(ROOT/p).read_text(encoding='utf-8')) for p in item.metadata['source_paths'])
+        for name,datatype in fields:
+            self.assertRegex(body,r'\b'+re.escape(name)+r'\]?\s+'+re.escape(datatype)+r'(?!\w)')
+        queue=by_name['VW_WorkQueue']
+        view_fields=re.findall(r'^\| `([^`]+)` \| `([^`]+)` \|',queue.markdown,re.M)
+        self.assertEqual(len(view_fields),41)
+        self.assertEqual(dict(view_fields)['RowVersion'],'binary(8)')
+        self.assertNotIn('ClaimToken',dict(view_fields))
+        blocker=by_name['VW_WorkQueueBarrierBlockers']
+        self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',blocker.markdown,re.M)),6)
+        self.assertIn('abgelaufene Lease',blocker.markdown)
+
+    def test_compact_table_skill_preserves_exact_original_whitespace_and_own_header(self):
+        s = skills.read(skills.source_file(ROOT, "toolbelt_core", "WorkType"))
+        path = s.metadata["source_paths"][0]
+        for indent in ("", " ", "    ", "\t"):
+            original = "CREATE TABLE toolbelt_core.WorkType\n" + indent + "(WorkTypeId bigint NOT NULL);\nGO\n"
+            with self.subTest(indent=indent):
+                projected = skills.project_relation_ddl(original, s)
+                self.assertEqual(skills.project_relation_ddl(projected, s), projected)
+                self.assertEqual(skills.strip_ddl_projection(ROOT, path, projected), original)
+                self.assertEqual(skills.read_ddl_comment(projected).markdown, s.markdown)
+                changed = projected.replace("bigint NOT NULL", "int NOT NULL")
+                self.assertNotEqual(skills.strip_ddl_projection(ROOT, path, changed), original)
+        with self.assertRaises(ValueError):
+            skills.project_relation_ddl("CREATE TABLE toolbelt_core.WorkType(WorkTypeId bigint);", s)
+        with self.assertRaises(ValueError):
+            skills.project_relation_ddl("CREATE TABLE Contoso.Other\n(Id bigint);", s)
+        moved = "CREATE TABLE toolbelt_core.WorkType\n(Id bigint);\n" + skills.render_ddl_comment(s)
+        with self.assertRaises(ValueError): skills.project_relation_ddl(moved, s)
+
     def test_capability_skill_describes_visibility_without_invented_installation_state(self):
         s = skills.read(skills.source_file(ROOT, "toolbelt_metadata", "VW_ModuleCapabilities"))
         expected = {k: v for k, v in skills.inventory(ROOT).items()
