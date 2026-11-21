@@ -685,5 +685,42 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertIn("toolbelt_core.VW_Events", skill.metadata["public_entrypoints"])
 
 
+    def test_event_procedure_skills_complete_module_and_preserve_early_outputs(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.event-log"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 6)
+        for skill in records:
+            if skill.metadata["object_type"] != "USP":
+                continue
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.project_procedure_help(text, skill), text)
+            self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+            ret, _ = skills._procedure_help_return(text, skill)
+            tokens = skills._ddl_tokens(text)
+            words = [t[0].casefold() for t in tokens]
+            first_throw = next(t[1] for t in tokens if t[0].casefold() == "throw")
+            self.assertLess(ret, first_throw)
+            if skill.metadata["object_name"].startswith("USP_Delete"):
+                initial = next(tokens[i][1] for i in range(len(words) - 3)
+                               if words[i:i + 4] == ["set", "@deletedrows", "=", "0"])
+                self.assertLess(initial, ret)
+                output = next(p for p in skill.metadata["parameters"] if p["name"] == "@DeletedRows")
+                self.assertTrue(output["is_output"])
+                self.assertIn("zurückgerollte", output["description"])
+                self.assertIn("EINER Transaktion", skill.markdown)
+            elif skill.metadata["object_name"] == "USP_WriteEvent":
+                self.assertIn("65536", skill.markdown)
+                self.assertIn("131072", skill.markdown)
+                self.assertIn("1048576", skill.markdown)
+                self.assertIn("Duplikate", skill.markdown)
+            else:
+                self.assertTrue(skill.metadata["is_internal"])
+                self.assertEqual(skill.metadata["public_entrypoints"], ["toolbelt_core.USP_WriteEvent"])
+                self.assertIn("@EventName=''contoso.helpexample''", text)
+                self.assertNotIn("@EventName=''Contoso.HelpExample''", text)
+
+
 if __name__ == "__main__":
     unittest.main()

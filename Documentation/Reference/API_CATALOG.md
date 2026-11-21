@@ -891,7 +891,7 @@ Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. D
 
 Vertrag und Quelle: [USP_WriteEvent.sql](../../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [USP_WriteEvent.md](../../Modules/toolbelt.core.event-log/Documentation/USP_WriteEvent.md).
 
-<!-- Source/Vertrag SHA256: b18e87a24d5b10382a4a1854682465b2f7dca04a369648a52e1b52f90b96a0e4 -->
+<!-- Source/Vertrag SHA256: 9e1546eb3389c8a4c7e6bf96429534dcbc00d9d6727cd270bb25c74cac31d2c7 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -938,7 +938,7 @@ Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine a
 
 Vertrag und Quelle: [USP_DeleteEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql), [USP_DeleteEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: f896574911c0ba25236769c4ccdf90b81481d0d09ebf6c9a9f9796203fa8987c -->
+<!-- Source/Vertrag SHA256: 83107bb2e55ef22376032d82a00a89fa7b67e739563bf3cd5e81a00bf94801b0 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -971,7 +971,7 @@ Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAt
 
 Vertrag und Quelle: [USP_DeleteRecordedEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql), [USP_DeleteRecordedEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteRecordedEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: 3c1583e73f745567b95da924528bc4095f639fb6256919f4af57e3a3b4f8ea21 -->
+<!-- Source/Vertrag SHA256: a85dcdd4a720cfa8bf7e12b82492966e61c0ff0cefc232fc7050ffde70c86278 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 

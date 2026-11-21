@@ -25,6 +25,19 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.compare(b'SELECT 1;',b'SELECT 2;','Modules/Contoso/Source/Contoso.sql')
 
+    def test_exact_event_help_example_repair_never_admits_business_changes(self):
+        old=(b'    IF ISNULL(@Hilfe, 0) = 1\n    BEGIN\nSELECT '
+             +module.EVENT_HELP_OLD+b';\n        RETURN 0;\n    END;\nINSERT Contoso VALUES(1);')
+        current=old.replace(module.EVENT_HELP_OLD,module.EVENT_HELP_NEW)
+        module.compare(old,current,module.EVENT_HELP_PATH)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current.replace(b'VALUES(1)',b'VALUES(2)'),module.EVENT_HELP_PATH)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current,'Modules/Contoso/Source/Example.sql')
+        outside=b'SELECT '+module.EVENT_HELP_OLD+b';'
+        with self.assertRaisesRegex(ValueError,'NONCANONICAL_EVENT_HELP_EXAMPLE'):
+            module.compare(outside,outside.replace(module.EVENT_HELP_OLD,module.EVENT_HELP_NEW),module.EVENT_HELP_PATH)
+
     def test_non_binding_string_or_class_alias_is_rejected(self):
         for old in (b"SELECT N'Toolbelt_String_Regex';",b'AS EXTERNAL NAME [Contoso].[Toolbelt_String_Regex].[Invoke];'):
             with self.subTest(old=old),self.assertRaises(ValueError):

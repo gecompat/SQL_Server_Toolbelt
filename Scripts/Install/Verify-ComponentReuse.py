@@ -28,6 +28,27 @@ ALIASES={
     'Toolbelt_String_Phonetic':'tlblt_String_Phonetic',
     'Toolbelt_String_Regex':'tlblt_String_Regex',
 }
+EVENT_HELP_PATH='Modules/toolbelt.core.event-log/Source/USP_WriteEventInternal.sql'
+EVENT_HELP_OLD=(b"N'EXEC toolbelt_core.USP_WriteEvent @EventName=''Contoso.HelpExample'',"
+                b"@EventLevel=''INFO'',@Message=N''Synthetic example'';'")
+EVENT_HELP_NEW=EVENT_HELP_OLD.replace(b'Contoso.HelpExample',b'contoso.helpexample')
+
+
+def corrected_historical_help(original,path):
+    # Admit this one invalid lowercase-name example only in the original early
+    # help branch. Never normalize current SQL or a business literal. The new
+    # help remains a separate contract, not historical runtime qualification.
+    if path!=EVENT_HELP_PATH or EVENT_HELP_OLD not in original:
+        return original
+    start=b'    IF ISNULL(@Hilfe, 0) = 1\n    BEGIN\n'
+    end=b'        RETURN 0;\n    END;'
+    if original.count(start)!=1 or original.count(EVENT_HELP_OLD)!=1:
+        raise ValueError('NONCANONICAL_EVENT_HELP_EXAMPLE')
+    a=original.index(start)+len(start)
+    b=original.find(end,a)
+    if b<0 or original[a:b].count(EVENT_HELP_OLD)!=1:
+        raise ValueError('NONCANONICAL_EVENT_HELP_EXAMPLE')
+    return original[:a]+original[a:b].replace(EVENT_HELP_OLD,EVENT_HELP_NEW)+original[b:]
 
 
 def selected(path):
@@ -36,6 +57,7 @@ def selected(path):
 
 def compare(original,current,path):
     original=original.replace(b'\r\n',b'\n');current=current.replace(b'\r\n',b'\n')
+    original=corrected_historical_help(original,path)
     if '/Source/' in path:
         for old,new in ALIASES.items():
             # Only the SQL assembly token may change; never a CLR class name,

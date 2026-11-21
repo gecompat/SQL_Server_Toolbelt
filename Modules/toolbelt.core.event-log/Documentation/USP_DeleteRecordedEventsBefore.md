@@ -4,7 +4,18 @@
 
 ## Zweck und Vertrag
 
-Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAtUtc,EventId), deterministischen begrenzten Batches und bestehender Caller-Transaktions-/Savepointsemantik. Kein Job, keine Deploymentlöschung. Die OccurredAtUtc-Retention bleibt unverändert. Erfordert vorhandenes EXECUTE; erteilt keine Berechtigungen. Fehler 51710–51714 wie im bestehenden Retentionvertrag.
+Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index
+(RecordedAtUtc,EventId), deterministischen begrenzten Batches und bestehender
+Caller-Transaktions-/Savepointsemantik. Kein Job, keine Deploymentlöschung.
+Die OccurredAtUtc-Retention bleibt unverändert. Erfordert vorhandenes EXECUTE;
+erteilt keine Berechtigungen. Eigene Fehler 51710–51713; kein eigener THROW 51714.
+
+Alle Batches eines Aufrufs laufen in einer gemeinsamen Transaktion. Es gibt
+keinen separaten Commit pro Batch. Der OUTPUT-Zähler nach Fehler ist kein Beleg
+committeter Löschungen. Der vollständige
+[Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_DeleteRecordedEventsBefore.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die bisherige Standardhilfe. `@DeletedRows` bleibt bei Hilfe initial 0.
 
 ## Parameter
 
@@ -44,7 +55,9 @@ Ausdrücklich am 2026-10-15 mit Zweck, Vertrag, Alternativen, Risiken und Grenzv
 
 ## Voraussetzungen für den Aufruf
 
-- Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+- Vorhandenes EXECUTE auf diese Retention-USP und gültige bestehende
+  Abhängigkeitsrechte auf EventLog. Kein Second-Session-Provider nötig;
+  uncommittable Callertransaktionen werden abgewiesen. Keine Rechtevergabe.
 
 ## Hilfe und Fehlerklärung
 

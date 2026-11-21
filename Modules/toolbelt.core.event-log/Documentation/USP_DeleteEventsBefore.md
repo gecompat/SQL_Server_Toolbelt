@@ -8,6 +8,14 @@ Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine a
 
 Löscht Events mit älterem `OccurredAtUtc` in explizit begrenzten Batches. Es gibt keine automatische Zeitplanung und keinen stillen Volltabellen-Delete.
 
+Alle Batches eines Aufrufs gehören zu einer gemeinsamen eigenen Transaktion
+oder zum Caller-Savepoint, nicht zu einzelnen Batchcommits. Bei Callertransaktion
+ist das Ergebnis erst mit deren Commit dauerhaft. Ein OUTPUT-Zähler nach Fehler
+kann zurückgerollte Löschungen enthalten und ist kein Erfolgsbeleg.
+Der [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_DeleteEventsBefore.md)
+steht in der DDL und wird bei `@Hilfe=1` zusätzlich zur Standardhilfe ausgegeben;
+`@DeletedRows` wird dabei wie bisher auf 0 gesetzt.
+
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [EVENT_LOG_OBJECTS](EVENT_LOG_OBJECTS.md).
 
 ## Aufrufparameter
@@ -25,7 +33,10 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 
 ## Voraussetzungen für den Aufruf
 
-- Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+- Vorhandenes EXECUTE und gültige Abhängigkeitsrechte auf EventLog. Für dieses
+  lokale Löschen ist kein Second-Session-Provider erforderlich. Ein gültiger
+  Cutoff und committable Transaktionszustand sind notwendig; Retention verändert
+  persistente Daten.
 
 ## Beispielaufruf
 
