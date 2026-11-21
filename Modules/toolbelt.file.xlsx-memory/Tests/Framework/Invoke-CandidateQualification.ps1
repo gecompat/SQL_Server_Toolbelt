@@ -26,15 +26,14 @@ function Release([string]$directory,[string]$module,[string]$assembly,[string]$v
  $directory=[IO.Path]::GetFullPath($directory);$dll=Pin (Join-Path $directory ($assembly+'.dll'));[byte[]]$bytes=[IO.File]::ReadAllBytes($dll)
  $manifestPath=Pin (Join-Path $directory ($assembly+'.trust-manifest.json'));$manifest=[Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($manifestPath)).TrimStart([char]0xFEFF)|ConvertFrom-Json
  $sha512=Digest $bytes 'SHA512'
- $sqlName=if($module-ceq'toolbelt.file.xlsx-memory'){'Toolbelt_File_XlsxMemory'}else{'Toolbelt_Archive_ZipMemory'}
+ $sqlName=if($module-ceq'toolbelt.file.xlsx-memory'){'tlblt_File_XlsxMemory'}else{'tlblt_Archive_ZipMemory'}
  if($manifest.assemblySqlName-cne$sqlName-or$manifest.moduleId-cne$module-or$manifest.moduleVersion-cne$version-or$manifest.assemblyFileName-cne($assembly+'.dll')-or$manifest.permissionSet-cne'SAFE'-or$manifest.sha512-cne$sha512-or$manifest.sqlServerHexLiteral-cne('0x'+$sha512)){throw 'RELEASE_MANIFEST_BINDING'}
- $templatePath=Pin (Join-Path $repoRoot ('Modules/'+$module+'/Deployment/Deploy.sql'));$deployPath=Pin (Join-Path $directory 'Deploy.WithAssembly.sql')
- $template=[Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($templatePath)).TrimStart([char]0xFEFF);$deploy=[Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($deployPath)).TrimStart([char]0xFEFF)
- $marker='$(AssemblyBits)';if([regex]::Matches($template,[regex]::Escape($marker)).Count-ne1-or$deploy.TrimEnd([char[]]"`r`n")-cne$template.Replace($marker,('0x'+[BitConverter]::ToString($bytes).Replace('-',''))).TrimEnd([char[]]"`r`n")){throw 'RELEASE_SQL_HEX_BINDING'}
+ # The shared installer binds these DLL inputs and emits the SQL separately.
+ # This test qualifies the exact supplied provider bytes and source inventory.
  if($module-ceq'toolbelt.file.xlsx-memory'){
-  $expectedSources=@('Clr/Toolbelt.File.XlsxMemory.csproj','Clr/AssemblyInfo.cs','Clr/Workbook.cs','Clr/XlsxEntryPoints.cs','Clr/XlsxCellType.cs','Clr/XlsxCellDisplay.cs','Clr/XlsxCellDisplayBridge.cs','Source/TVF_InternalXlsxSheets.sql','Source/TVF_InternalXlsxCells.sql','Source/USP_InternalXlsxRead.sql','Source/USP_ListXlsxWorksheets.sql','Source/USP_ReadXlsxWorksheetCells.sql','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql','Source/TVF_InternalFormatXlsxCell.sql','Source/TVF_FormatXlsxCell.sql','Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-XlsxBuildProcess.ps1')
-  if(@($manifest.sourceFingerprints).Count-ne20){throw 'RELEASE_SOURCE_COUNT'}
-  for($i=0;$i-lt20;$i++){if($manifest.sourceFingerprints[$i].path-cne$expectedSources[$i]){throw 'RELEASE_SOURCE_SET'}}
+  $expectedSources=@('Clr/Toolbelt.File.XlsxMemory.csproj','Clr/AssemblyInfo.cs','Clr/Workbook.cs','Clr/XlsxEntryPoints.cs','Clr/XlsxCellType.cs','Clr/XlsxCellDisplay.cs','Clr/XlsxCellDisplayBridge.cs','Source/TVF_InternalXlsxSheets.sql','Source/TVF_InternalXlsxCells.sql','Source/USP_InternalXlsxRead.sql','Source/USP_ListXlsxWorksheets.sql','Source/USP_ReadXlsxWorksheetCells.sql','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql','Source/TVF_InternalFormatXlsxCell.sql','Source/TVF_FormatXlsxCell.sql','Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-XlsxBuildProcess.ps1')
+  if(@($manifest.sourceFingerprints).Count-ne$expectedSources.Count){throw 'RELEASE_SOURCE_COUNT'}
+  for($i=0;$i-lt$expectedSources.Count;$i++){if($manifest.sourceFingerprints[$i].path-cne$expectedSources[$i]){throw 'RELEASE_SOURCE_SET'}}
   foreach($entry in $manifest.sourceFingerprints){$root=[IO.Path]::GetFullPath((Join-Path $repoRoot ('Modules/'+$module)));$path=[IO.Path]::GetFullPath((Join-Path $root $entry.path));if(-not$path.StartsWith($root+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'RELEASE_SOURCE_PATH'};[void](Pin $path);if((Digest ([IO.File]::ReadAllBytes($path)))-cne$entry.sha256){throw 'RELEASE_SOURCE_DRIFT'}}
  }
  if((Digest ([IO.File]::ReadAllBytes($dll)))-cne(Digest $bytes)){throw 'RELEASE_BINARY_DRIFT'}

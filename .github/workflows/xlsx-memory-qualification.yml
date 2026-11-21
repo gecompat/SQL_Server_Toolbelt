@@ -79,10 +79,8 @@ jobs:
           path: |
             ${{ env.XLSX_PACKAGE_ROOT }}/zip/Toolbelt.Archive.ZipMemory.dll
             ${{ env.XLSX_PACKAGE_ROOT }}/zip/Toolbelt.Archive.ZipMemory.trust-manifest.json
-            ${{ env.XLSX_PACKAGE_ROOT }}/zip/Deploy.WithAssembly.sql
             ${{ env.XLSX_PACKAGE_ROOT }}/xlsx/Toolbelt.File.XlsxMemory.dll
             ${{ env.XLSX_PACKAGE_ROOT }}/xlsx/Toolbelt.File.XlsxMemory.trust-manifest.json
-            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx/Deploy.WithAssembly.sql
             ${{ env.XLSX_PACKAGE_ROOT }}/zip13/artifacts/Toolbelt.Archive.ZipMemory.dll
             ${{ env.XLSX_PACKAGE_ROOT }}/zip13/artifacts/Toolbelt.Archive.ZipMemory.trust-manifest.json
             ${{ env.XLSX_PACKAGE_ROOT }}/zip13/artifacts/Deploy.WithAssembly.sql

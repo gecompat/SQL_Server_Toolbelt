@@ -1,5 +1,6 @@
 """Markerfreier Buildvertrag; keine SQL-Verbindung oder Infrastrukturaktion."""
 from pathlib import Path
+import hashlib
 import importlib.util
 import re
 import sys
@@ -308,12 +309,15 @@ class MarkerlessContractTests(unittest.TestCase):
         sql=capabilities.render()
         skill=skills.read(skills.source_file(ROOT,'toolbelt_metadata','VW_ModuleCapabilities'))
         self.assertEqual(skills.read_ddl_comment(sql).markdown,skill.markdown)
-        baseline=subprocess.check_output(['git','show',
-            '3041211e:Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql'],cwd=ROOT).decode('utf-8-sig')
         anchor="    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ModuleCapabilities',N'V'),\n"
-        self.assertEqual(baseline.count(anchor),1)
-        baseline=baseline.replace(anchor,anchor+"    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ObjectUsageSkills',N'V'),\n")
-        self.assertEqual(skills.strip_ddl_projection(ROOT,capabilities.TARGET,sql),baseline)
+        added="    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ObjectUsageSkills',N'V'),\n"
+        body=skills.strip_ddl_projection(ROOT,capabilities.TARGET,sql)
+        self.assertEqual(body.count(anchor+added),1)
+        self.assertEqual(body.count(added),1)
+        baseline=body.replace(anchor+added,anchor,1)
+        # Exact predecessor SQL from 3041211e. The digest also works in the shallow SSIS checkout.
+        self.assertEqual(hashlib.sha256(baseline.encode('utf-8')).hexdigest(),
+                         'c9ecd11a585ae73f056377cdb9311890f8e0dc146969c8ee1a727fb637dda49c')
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)
             directory=root/'Metadata/UsageSkills/toolbelt_metadata'
