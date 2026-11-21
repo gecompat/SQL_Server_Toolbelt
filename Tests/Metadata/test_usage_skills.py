@@ -905,6 +905,39 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_queue_producer_status_skills_keep_real_shapes_and_commit_boundaries(self):
+        originals={};records={}
+        names=('USP_EnqueueWork','USP_EnqueueWorkWithPolicy','USP_EnqueueBarrierWork','USP_GetWorkStatus')
+        for name in names:
+            skill=skills.read(skills.source_file(ROOT,'toolbelt_core',name));records[name]=skill
+            path=skill.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_help(text,skill),text)
+            self.assertEqual(skills.project_procedure_ddl(text,skill),text)
+            original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text));originals[name]=original
+            result=skill.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),42 if name in names[1:3] else 22)
+            self.assertTrue(all(not p['argument_required'] for p in skill.metadata['parameters']))
+            self.assertIn('keine neue native',skill.markdown)
+            self.assertLess(skills._procedure_help_return(original,skill)[0],original.index('THROW'))
+        enqueue=originals[names[0]]
+        self.assertIn('SCOPE_IDENTITY()',enqueue)
+        self.assertIn('SAVE TRANSACTION TBX_WorkQueue_Enqueue;',enqueue)
+        self.assertLess(enqueue.index('INSERT INTO #tbx_WorkQueue_StatusResult'),enqueue.index('IF @InitialTranCount = 0 COMMIT'))
+        policy=originals[names[1]]
+        self.assertGreater(policy.index('IF @ResultTable IS NULL SELECT @WasCreated'),policy.index('IF @Initial=0 COMMIT'))
+        self.assertIn('UNKNOWN',records[names[1]].markdown)
+        self.assertIn('kein materialisierter Entscheidungsreceipt',records[names[1]].markdown)
+        self.assertIn('Spacepadding',records[names[1]].markdown)
+        self.assertIn("IF @ExecutionMode='DRAIN_BARRIER' AND @@TRANCOUNT<>0",policy)
+        barrier=originals[names[2]]
+        self.assertEqual(barrier.count('EXEC toolbelt_core.USP_EnqueueWorkWithPolicy '),1)
+        self.assertNotIn('SET NOCOUNT',barrier)
+        status=originals[names[3]]
+        self.assertNotIn('BEGIN TRANSACTION',status)
+        self.assertNotIn('SAVE TRANSACTION',status)
+        self.assertIn('THROW 51931',status)
+        self.assertIn('keinen eigenen WorkType-Policy-/Owner-/ClaimTokenfilter',records[names[3]].markdown)
+
     def test_queue_claim_fail_retry_skills_distinguish_result_shapes_and_transaction_paths(self):
         names=['USP_ClaimWork','USP_ClaimWorkCore','USP_FailWork','USP_FailWorkCore','USP_ScheduleWorkRetry','USP_ScheduleWorkRetryCore']
         records={};originals={}

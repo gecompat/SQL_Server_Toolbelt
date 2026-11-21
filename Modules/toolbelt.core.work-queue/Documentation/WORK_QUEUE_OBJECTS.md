@@ -109,7 +109,7 @@ für diesen USP ausgeschlossen.
 
 ## `USP_GetWorkStatus` und `VW_WorkQueue`
 
-Statusoberflächen liefern Audit-, Lease-, Generation-, Retry-, Dead-Letter-, Prioritäts-, Gruppen- und Barrier-Metadaten. Payload und ClaimToken bleiben verborgen. Direkte DML auf `WorkItem` ist kein öffentlicher Vertrag.
+`VW_WorkQueue` liefert 41 Status-, Audit-, Lease-, Recovery-, Retry-, Dead-Letter-, Prioritäts-, Gruppen- und Barrierfelder. `USP_GetWorkStatus` liefert daraus 22 feste Status-/Audit-/Lease-/Recoveryspalten. Beide verbergen Payload und ClaimToken. Die Prozedur setzt keinen eigenen Besitzer- oder WorkType-Policyfilter und startet keine eigene Transaktion. Direkte DML auf `WorkItem` ist kein öffentlicher Vertrag.
 
 ## Garantien und Grenzen
 
@@ -121,3 +121,7 @@ Die Reihenfolge gilt bestmöglich unter fälligen, sichtbaren und handlerfähige
 2.1 ergänzt interne Claim-/Fail-/Retrykerne und den queueeigenen WorkQueueManagedGate. Öffentliche Signaturen bleiben unverändert. Managedmodus ist opt-in; dann sind direkte Claims und Holdbypässe ausgeschlossen. Admission ist transient, einmalig und an genau eine gesunde äußere Admissiontransaktion gebunden. Das Modul hat keine Rückabhängigkeit auf Worker-Control. Lifecycle lehnt dessen installierten Consumer sowie Managedclaims und Holds vor und unter AppLock ab. Vorhandene 2.0-Evidenz qualifiziert diese neue Integration nicht; 2.0→2.1 Upgrade und Managedfälle sind noch NOT EXECUTED.
 
 Der private Managedclaimtransport verwendet ausschließlich die aus dem kanonischen UPDATE OUTPUT entstandene Claim-ID. Reserve liest diese ID mit exakter ManagedReservationId im selben Admission-TX in den festen internen Transport. Öffentliche ResultTable-Namen bleiben unverändert validiert; kein SkipValidation und kein INSERT EXEC wird verwendet.
+
+## Producer- und Status-Usage-Skills
+
+Einfaches Enqueue und `USP_GetWorkStatus` liefern 22 feste Spalten. Policy- und Barrier-Enqueue liefern `WasCreated` plus 41 Viewspalten. Deren direkte Viewausgabe erfolgt nach eigenem Commit; die ResultTable-Zeile wird vorher materialisiert. `USP_GetWorkStatus` besitzt keinen eigenen TX-/Savepoint- oder Policy-/Besitzerfilter. Die vollständigen quellgeprüften Verträge stehen bei den vier verlinkten Objektseiten und in `Metadata/UsageSkills`; Hilfe liefert jeweils die zusätzliche Skillzeile. Native Hilfe-/Callerzustandsabnahme bleibt separat.

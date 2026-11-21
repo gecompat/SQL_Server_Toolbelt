@@ -4980,7 +4980,7 @@
         0,
         0,
         null,
-        "QUEUED, CLAIMED, COMPLETED oder FAILED.",
+        "QUEUED, BARRIER_WAIT, CLAIMED, RETRY_WAIT, COMPLETED, FAILED oder DEAD_LETTER.",
         null
       ],
       [

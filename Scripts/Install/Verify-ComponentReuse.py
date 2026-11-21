@@ -46,10 +46,15 @@ QUEUE_HELP_STARTS={
     'Modules/toolbelt.core.work-queue/Source/'+name+'.sql':start
     for name,start in (('USP_ClaimWork',b'    IF @Hilfe=1\n    BEGIN\n'),
                        ('USP_FailWork',b'    IF @Hilfe=1\n    BEGIN\n'),
-                       ('USP_ScheduleWorkRetry',b' IF ISNULL(@Hilfe,0)=1 BEGIN\n'))}
+                       ('USP_ScheduleWorkRetry',b' IF ISNULL(@Hilfe,0)=1 BEGIN\n'),
+                       ('USP_EnqueueWork',b'    IF @Hilfe = 1\n    BEGIN\n'),
+                       ('USP_EnqueueWorkWithPolicy',b' IF ISNULL(@Hilfe,0)=1\n BEGIN\n'),
+                       ('USP_EnqueueBarrierWork',b' IF ISNULL(@Hilfe,0)=1\n BEGIN\n'),
+                       ('USP_GetWorkStatus',b'    IF @Hilfe=1\n    BEGIN\n'))}
 QUEUE_HELP_NEW=("1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte.").encode('utf-8')
 RETRY_HELP_STATUS_OLD=b"N'QUEUED, CLAIMED, COMPLETED oder FAILED.'"
 RETRY_HELP_STATUS_NEW=("N'Aktueller Status aus VW_WorkQueue; reguläre Retryentscheidung: RETRY_WAIT oder DEAD_LETTER.'").encode('utf-8')
+GET_HELP_STATUS_NEW=b"N'QUEUED, BARRIER_WAIT, CLAIMED, RETRY_WAIT, COMPLETED, FAILED oder DEAD_LETTER.'"
 
 
 def corrected_historical_help(original,path):
@@ -66,6 +71,11 @@ def corrected_historical_help(original,path):
             if original.count(RETRY_HELP_STATUS_OLD)!=1 or original[a:b].count(RETRY_HELP_STATUS_OLD)!=1:
                 raise ValueError('NONCANONICAL_RETRY_HELP_STATUS')
             original=original[:a]+original[a:b].replace(RETRY_HELP_STATUS_OLD,RETRY_HELP_STATUS_NEW)+original[b:]
+        if path.endswith('/USP_GetWorkStatus.sql') and RETRY_HELP_STATUS_OLD in original:
+            b=original.find(end,a)
+            if original.count(RETRY_HELP_STATUS_OLD)!=1 or original[a:b].count(RETRY_HELP_STATUS_OLD)!=1:
+                raise ValueError('NONCANONICAL_GET_STATUS_HELP')
+            original=original[:a]+original[a:b].replace(RETRY_HELP_STATUS_OLD,GET_HELP_STATUS_NEW)+original[b:]
     if path in WORKER_CONFIG_HELP_PATHS and SCHEMA_HELP_OLD in original:
         start=b' IF ISNULL(@Hilfe,0)=1 BEGIN\n'
         end=b'        RETURN 0;'
