@@ -21,6 +21,11 @@ dabei ausgeführt.
 
 ## Runtime
 
+Die [aktuelle Testmatrix](ZIP_FILES_TEST_MATRIX.md) enthält die separat
+gebundenen Nachweise für die vollständige Archivextraktion V1 und die
+neueren Windows-Läufe für Einzel-Entry und Writer. Die folgenden
+Oktober-Nachweise gelten jeweils für ihren ursprünglichen Kontext.
+
 Am 2026-10-04 wurden auf SQL Server 2025/CU8 Windows, CL170, local elf
 Fälle in früheren Teilabläufen erfolgreich geprüft: die fünf öffentlichen
 SQL-Fixtures Help, InstalledMetadata, Safety, Contract und Atomicity,

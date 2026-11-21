@@ -16,7 +16,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_CreateZipFileFromEntries.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql), [USP_CreateZipFileFromEntries.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_CreateZipFileFromEntries.md), [USP_CreateZipFileFromEntries.md](../../Metadata/UsageSkills/toolbelt_archive/USP_CreateZipFileFromEntries.md).
 
-<!-- Source/Vertrag SHA256: dbeb2b8a857ff2e7b7071301502f92f1322eb63aeb2e9d114854bfca39e17097 -->
+<!-- Source/Vertrag SHA256: 5fc41743605d34b2e7440106a4d3f5e74895ccfb924fd15e6ae5d4153abb5f53 -->
 
 Voraussetzung: Windows-only mit lokalem ZIPfiles1.0.0-Profil, ZIPmemory1.4.0, Windowsfilesystem1.0.0 und ResultTable derselben Datenbank. Vorhandener aktiver Root mit AllowWrite, bestehendes Zielverzeichnis und NTFS-Rechte. Caller-Modus verlangt Windowsauthentifizierung. ServiceAccount nur bei expliziter Wahl mit toolbelt_filesystem_service_account und Root-AllowServiceAccount. Keine zentrale Cross-DB- oder Linuxroute.
 
@@ -65,7 +65,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md), [USP_ExtractZipEntryToFile.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipEntryToFile.md).
 
-<!-- Source/Vertrag SHA256: 1c0086d81e66dc24849c0752e6a6d0eb4d9caf7d0fd1cce4eb16035a9b903750 -->
+<!-- Source/Vertrag SHA256: 5efbbdc846384d4f7103dd4947b3c3449f54af6012abc27070f6ac7b10d5706c -->
 
 Voraussetzung: Windows-only mit lokalem ZIPfiles1.0.0-Profil, ZIPmemory1.4.0, Windowsfilesystem1.0.0 und ResultTable derselben Datenbank. Vorhandener aktiver Root mit AllowWrite, bestehendes Zielverzeichnis und NTFS-Rechte. Caller-Modus verlangt Windowsauthentifizierung. ServiceAccount nur bei expliziter Wahl mit toolbelt_filesystem_service_account und Root-AllowServiceAccount. Keine zentrale Cross-DB- oder Linuxroute.
 
