@@ -1,5 +1,12 @@
 # USP_SplitAdvanced
 
+Der [kanonische Usage-Skill](../../../Metadata/UsageSkills/toolbelt_string/USP_SplitAdvanced.md)
+steht in der ausgelieferten DDL und wird über `@Hilfe=1` nach der bisherigen
+Standardhilfe als genau ein zusätzliches Resultset ausgegeben:
+`SkillFormatVersion`, `SchemaName`, `ObjectName`, `SkillMarkdown nvarchar(max)`.
+Der Hilfezweig kehrt vor Fachfunktion und Zielprüfung zurück. Die neue
+Projektion ist quell-/offlinegeprüft, nicht neu nativ qualifiziert.
+
 Ausdrückliche Einzel-Freigabe 2026-10-01 nach
 [Vertragsbesprechung](../../../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md):
 „Unquoting, Split-USP und ZIP-Writer implementieren“.
@@ -39,8 +46,9 @@ und Pflichtsections. Debug ausschließlich Messages, keine Input-/Tokeninhalte.
 
 ResultTable muss existierende caller-lokale Temp sein; kein reservierter
 #tbx_-Name, global/permanent/variable oder generisches INSERT EXEC.
-Same-database toolbelt.core.result-table >=1.0.0 mit konsistenten Modul-/
-Objektmarkern erforderlich (51681 bei Runtime-Dependencyfehler).
+Same-database toolbelt.core.result-table >=1.0.0 mit exakt erwarteter
+Fünf-Parameter-Signatur erforderlich (51681 bei fehlender, unsichtbarer oder
+abweichender Schnittstelle). Die aktuelle Runtime prüft keine Modul-/Objektmarker.
 Keine automatische Installation oder Rechteausweitung.
 TVFs benötigen diesen Helper nicht; Installer prüft Moduldependency vor Mutation.
 

@@ -1,5 +1,10 @@
 # TVF_SplitAdvanced
 
+Der vollständige [kanonische Usage-Skill](../../../Metadata/UsageSkills/toolbelt_string/TVF_SplitAdvanced.md)
+steht auch im markierten Kommentar der ausgelieferten DDL. Er beschreibt
+Parameter, Statuszeilen, Fehlerprioritäten und Ressourcen des tatsächlichen
+Scanners; seine Integration ändert die Fachlogik nicht.
+
 Öffentlicher S2-Vertrag, Implementierungsfreigabe vom 2026-10-01. Reine T-SQL-Multi-statement-TVF auf SQL Server 2019/2022/2025 unter Windows/Linux; Compatibility Level mindestens 150.
 
 ## Aufruf und Resultset

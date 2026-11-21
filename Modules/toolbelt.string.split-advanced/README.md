@@ -21,14 +21,20 @@ S2-Originaltoken-Semantik und kein automatisches Unquoting.
 
 [Öffentlicher Vertrag](Documentation/TVF_SplitAdvanced.md) · [Design](../../Documentation/Architecture/SPLIT_ADVANCED_MODULE_DESIGN.md) · [Testmatrix](Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md) · [Evidenz](Tests/README.md).
 
-SQLCMD-Deployment: zuerst same-database `toolbelt.core.result-table >=1.0.0`,
-danach in Deployment `sqlcmd -d ToolbeltDemo -b -i Deploy.sql -v DeploymentMode=local`;
-zentral mit DeploymentMode=central. Beide TVFs sind unabhängig, nur USP-
-ResultTable benötigt den Helper. SQL Server 2019+ mit Compatibility>=150.
-Fremdobjekte werden nicht übernommen; bekannte Releases 1.0.0/1.1.0 werden
-markerbasiert ersetzt. Sourcehash ist nur diagnostisch.
+Der [gemeinsame Buildplan](Deployment/README.md) bündelt die ausgewählte
+Modulclosure einschließlich `toolbelt.core.result-table >=1.0.0` in derselben
+Datenbank. Beide TVFs sind fachlich unabhängig vom Helper; nur USP-ResultTable
+benötigt ihn zur Laufzeit. SQL Server 2019+ mit Compatibility>=150.
+Der aktuelle create-only-Weg ersetzt keine vorhandenen Objekte, benötigt
+weder SQLCMD noch Deploymentmarker und bietet keinen impliziten Uninstall.
+Die früheren markerbasierten Installations-/Upgrade-/Uninstallwege gehören
+ausschließlich zu ihren historischen Quellen und Nachweisen.
 
-Uninstall: `sqlcmd -d ToolbeltDemo -b -i Uninstall.sql -v ConfirmNoExternalConsumers=0`; zentral ausschließlich mit `-v ConfirmNoExternalConsumers=1`. Lokale referenzierende Objekte verhindern Deinstallation. Betreiber müssen externe Verbraucher vor zentraler Deinstallation prüfen.
+Alle drei öffentlichen Objekte besitzen einen vollständigen quellgeprüften
+[Usage-Skill](../../Metadata/UsageSkills/README.md) in ihrer ausgelieferten DDL.
+`EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;` liefert zusätzlich zur
+Standardhilfe eine vollständige Skillzeile mit vier Spalten. Die neue
+Hilfeprojektion ist offline geprüft; dies ist keine neue native Abnahme.
 
 Der [ursprüngliche Callerrechtebericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
 belegt drei Einzelgrantprofile und den getrennten ResultTable-/Helperpfad auf

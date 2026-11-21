@@ -604,5 +604,35 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertIn("Sentinelzeile", results)
 
 
+    def test_split_contracts_cover_complete_module_and_exact_scanner_statuses(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.string.split-advanced"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 3)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            if skill.metadata["object_type"] == "USP":
+                self.assertEqual(skills.project_procedure_help(text, skill), text)
+                self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+                ret, _ = skills._procedure_help_return(text, skill)
+                tokens = skills._ddl_tokens(text)
+                words = [t[0].casefold() for t in tokens]
+                call = next(tokens[i][1] for i in range(len(words) - 2)
+                            if words[i:i + 2] == ["from", "toolbelt_string"])
+                self.assertLess(ret, call)
+            else:
+                self.assertEqual(skills.project_function_ddl(text, skill), text)
+                self.assertTrue(all(p["argument_required"] for p in skill.metadata["parameters"]))
+            if skill.metadata["object_name"] == "TVF_SplitAdvanced":
+                business = skills.strip_ddl_projection(ROOT, path, text)
+                codes = set(re.findall(r"SET @Error = '([A-Z_]+)'", business))
+                self.assertEqual(len(codes), 10)
+                for code in codes:
+                    self.assertIn(code, skill.markdown)
+                for limit in ("65536", "16384", "16", "64"):
+                    self.assertIn(limit, skill.markdown)
+
+
 if __name__ == "__main__":
     unittest.main()
