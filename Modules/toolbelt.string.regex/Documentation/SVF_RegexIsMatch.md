@@ -38,3 +38,7 @@ Bei einem Funktionsaufruf mit `SELECT` werden Argumente positionsbezogen überge
 - [Modul, Installation und Testgrenzen](../README.md)
 - [SQL-Definition](../Source/RegexFunctions.sql)
 - [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Skill](../../../Metadata/UsageSkills/toolbelt_string/SVF_RegexIsMatch.md) beschreibt sämtliche Argumente, Defaults, NULL-Pfade, Dialektgrenzen, Ergebnisse und Fehler. Er ist auch Bestandteil der ausgelieferten Funktions-DDL. Interne CLR-Kerne haben keine SQL-Defaults und verweisen auf die öffentlichen Fassaden; sie sind kein zusätzlicher Fachaufrufweg. Historische Nachweise und neue native Qualifikation bleiben getrennt.

@@ -128,3 +128,7 @@ werden unter AppLock erneut geprüft. Diese Erwartung ersetzt keine Trustfreigab
 SC-002/011: Count und Instr prüfen kooperativ500 ms Gesamtzeit einschließlich Vorbereitung und höchstens100000 erfolgreiche Matchschritte. Jeder Suchtimeout liegt im Restbudget, höchstens250 ms. Überschreitungen werfen TBX_REGEX_TIMEOUT beziehungsweise TBX_REGEX_MATCH_LIMIT, nie Teilcount/fehlender Treffer. IsMatch behält250 ms. Gruppenreplacement speichert kompakte Textspans, höchstens65536 Teile, prüft die bestehende R2-Deadline im gesamten Parser und validiert auch ohne Treffer vollständig; darüber TBX_REGEX_REPLACEMENT_LIMIT.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+## Maschinenlesbare Verwendung
+
+Die [gemeinsame Regexreferenz](Documentation/REGEX_FUNCTIONS.md#vollständige-usage-skills) führt zu den vollständigen quellgeprüften Skills der öffentlichen Funktionen. Auch interne CLR-Kerne sind dokumentiert und verweisen auf den passenden öffentlichen Einstieg. Die DDL-Kommentare stammen aus denselben Markdownquellen; neue native Qualifikation bleibt separat.

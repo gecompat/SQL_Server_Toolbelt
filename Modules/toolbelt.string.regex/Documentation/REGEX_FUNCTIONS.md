@@ -51,7 +51,7 @@ Der Parser erlaubt:
 - Literale sowie Escapes für Regex-Metazeichen und `\n`, `\r`, `\t`, `\f`;
 - `.`, `^`, `$`, Gruppen mit `(...)` und Alternation `|`;
 - Zeichenklassen, Negation und Bereiche;
-- `?`, `*`, `+`, `{m}`, `{m,n}` und `{m,}` mit Obergrenze 1.000;
+- `?`, `*`, `+`, `{m}`, `{m,n}` und `{m,}` mit numerischen Grenzen bis 1.000; `{m,}`, `*` und `+` bleiben nach oben offen;
 - `\d = [0-9]`, `\s = [\x09-\x0D\x20]`, `\w = [A-Za-z0-9_]`;
 - ausschließlich die Unicode-Kategorie `\p{L}`.
 
@@ -142,3 +142,9 @@ Der Replacementparser speichert Literalspans und Gruppenreferenzen statt
 kopierter Literalstrings, validiert auch bei fehlendem Match und erlaubt
 höchstens 65536 Teile. Parsing, Gruppennamen und Zahlenreferenzen verbrauchen
 dasselbe kooperative R2-Gesamtbudget wie Suche und Ausgabe.
+
+## Vollständige Usage-Skills
+
+Alle 16 katalogisierten Objekte einschließlich Assembly und sechs internen CLR-Kernen besitzen quellgeprüfte Skills. Die neun öffentlichen Objektseiten verlinken ihren vollständigen Vertrag. Die identischen Texte stehen in der kanonischen Funktions-DDL; die spätere gemeinsame Usage-Skill-View übernimmt sie aus derselben Quelle. Die View wird erst bei vollständiger Katalogabdeckung geliefert.
+
+IsMatch hat einen Engine-Matchtimeout ohne eigenes 500-ms-Gesamtbudget. Count und Instr verwenden zusätzlich ein 500-ms-Traversalbudget und höchstens 100000 erfolgreiche Suchschritte; deren begrenzter Inputintake liegt vor dem Timer. R2 teilt nach der Profilwahl ein gemeinsames Budget auch mit Intake und Ausgabe. SQL bindet die R1-Flags bereits als `nvarchar(4)`; eine ursprünglich breitere Clientquelle kann vor dem CLR-Code gekürzt werden. Die Profile und Timings garantieren weder lineares Backtracking noch eine harte Wallclock- oder Peakheapgrenze.

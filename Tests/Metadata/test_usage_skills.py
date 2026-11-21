@@ -905,6 +905,59 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_regex_module_skills_cover_all_limits_intake_and_private_cores(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.string.regex'}
+        self.assertEqual(len(expected),16)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        for name,s in records.items():
+            if s.metadata['object_type']=='ASSEMBLY':continue
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_function_ddl(text,s),text)
+            clean=skills.strip_ddl_projection(ROOT,path,text)
+            self.assertIn('CREATE FUNCTION',clean)
+            self.assertNotIn(skills.DDL_BEGIN,clean)
+            self.assertTrue(all(p['argument_required'] for p in s.metadata['parameters']))
+            self.assertTrue(all(type(p['nullable']) is bool for p in s.metadata['parameters']))
+            self.assertIn('keine neue native',s.markdown)
+            if name.endswith('Core'):
+                self.assertTrue(s.metadata['is_internal'])
+                self.assertTrue(all(p['sql_default'] is None for p in s.metadata['parameters']))
+                self.assertEqual(s.metadata['public_entrypoints'],['toolbelt_string.'+name[:-4]])
+        for name in ('SVF_RegexIsMatch','SVF_RegexCount','SVF_RegexInstr'):
+            pattern=next(p for p in records[name].metadata['parameters'] if p['name']=='@Pattern')
+            self.assertIn('4000 UTF-16',pattern['description'])
+        self.assertIn('ohne eigenes500ms Gesamtbudget',records['SVF_RegexIsMatch'].markdown)
+        self.assertIn('100000 erfolgreiche Matchschritte',records['SVF_RegexCount'].markdown)
+        self.assertIn('SQL bindet nvarchar(4)',records['SVF_RegexInstr'].markdown)
+        for name in ('SVF_RegexReplace','SVF_RegexSubstring','TVF_RegexMatches','TVF_RegexSplit','TVF_RegexCaptures','SVF_RegexReplaceGroups'):
+            self.assertIn('8388608',records[name].markdown)
+            self.assertIn('64000',records[name].markdown)
+            self.assertIn('die offene Form {m,} bleibt nach oben offen',records[name].markdown)
+        for name,count in (('TVF_RegexMatches',4),('TVF_RegexSplit',4),('TVF_RegexCaptures',8)):
+            result=records[name].markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),count)
+        self.assertIn('65536',records['SVF_RegexReplaceGroups'].markdown)
+        self.assertIn('GroupName je Zeile',records['TVF_RegexCaptures'].markdown)
+        self.assertIn('tokenStart bleibt',records['TVF_RegexSplit'].markdown)
+        self.assertIn('$1 bleibt hier literal',records['SVF_RegexReplace'].markdown)
+        folder=ROOT/'Modules/toolbelt.string.regex/Clr'
+        intake=(folder/'RegexBoundedIntake.cs').read_text(encoding='utf-8-sig')
+        provider=(folder/'RegexProvider.cs').read_text(encoding='utf-8-sig')
+        transform=(folder/'RegexTransformations.cs').read_text(encoding='utf-8-sig')
+        captures=(folder/'RegexCaptures.cs').read_text(encoding='utf-8-sig')
+        relation=(folder/'RegexRelations.cs').read_text(encoding='utf-8-sig')
+        self.assertLess(intake.index('if (value.Length > limit)'),intake.index('char[] copy'))
+        self.assertIn('MaxPatternBytes = 8000',provider)
+        self.assertIn('long left = 500 - clock.ElapsedMilliseconds',provider)
+        self.assertIn('++successful > 100000',provider)
+        self.assertIn('1048576 : 8388608',transform)
+        self.assertIn('500 : 2000',transform)
+        self.assertIn('if (openMaximum) maximum = -1;',provider)
+        self.assertIn('Groups.Count == 64',captures)
+        self.assertIn('parts.Count >= 65536',captures)
+        self.assertIn('declaration.Name.Length + (capture == null ? 0 : capture.Length)',captures)
+        self.assertIn('tokenStart = match.Index + match.Length',relation)
+
     def test_queue_module_is_source_complete_with_distinct_lease_recovery_completion_paths(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.core.work-queue'}
         self.assertEqual(len(expected),20)

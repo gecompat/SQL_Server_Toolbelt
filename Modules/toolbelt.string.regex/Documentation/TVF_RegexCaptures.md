@@ -75,3 +75,7 @@ bestehenden Modul; Trust ist ein separates exaktes administratives Opt-in.
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#regex).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Skill](../../../Metadata/UsageSkills/toolbelt_string/TVF_RegexCaptures.md) beschreibt sämtliche Argumente, Defaults, NULL-Pfade, Dialektgrenzen, Ergebnisse und Fehler. Er ist auch Bestandteil der ausgelieferten Funktions-DDL. Interne CLR-Kerne haben keine SQL-Defaults und verweisen auf die öffentlichen Fassaden; sie sind kein zusätzlicher Fachaufrufweg. Historische Nachweise und neue native Qualifikation bleiben getrennt.
