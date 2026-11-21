@@ -23,7 +23,7 @@ class CurrentSourceDeltaTests(unittest.TestCase):
         with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
             cls.originals={m.name:archive.extractfile(m).read() for m in archive if m.isfile()}
 
-    def test_only_five_exact_functional_changes_are_admitted(self):
+    def test_only_declared_exact_functional_changes_are_admitted(self):
         self.assertEqual(set(self.originals),set(deltas.PATHS))
         for path,original in self.originals.items():
             current=usage_skills.strip_ddl_projection(ROOT,path,(ROOT/path).read_text(encoding='utf-8')).encode('utf-8')

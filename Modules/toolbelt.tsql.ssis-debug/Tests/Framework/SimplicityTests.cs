@@ -194,6 +194,25 @@ internal static partial class ContractTests
         var lookupCapture = Engine.Analyze(Encoding.UTF8.GetBytes(lookupDocument.ToString()), new Options { Operation = "explain", Version = 150, CatalogMode = "package" }, new NullCatalog(), new Budget());
         Assert(lookupCapture.Rows.Any(a => a.Kind == "DebugScript" && a.Complete && a.Content.Contains("_input]") && a.Content.Contains("EXECUTE [dbo].[SyntheticLookupProcedure]")), "LOOKUP_PROCEDURE_FREEZES_INPUT_BEFORE_RESULT_CAPTURE:" + String.Join(",", lookupCapture.Rows.Where(a => a.Kind == "Diagnostic").Select(a => a.Code + "/" + a.Content)));
 
+        foreach (var column in lookupDocument.Descendants().Where(e => (string)e.Attribute("name") == "KeyA" && e.Attribute("dataType") != null))
+        {
+            column.SetAttributeValue("dataType", "wstr");
+            column.SetAttributeValue("length", "12");
+            if (column.Attribute("cachedDataType") != null)
+            {
+                column.SetAttributeValue("cachedDataType", "wstr");
+                column.SetAttributeValue("cachedLength", "12");
+            }
+        }
+        lookupComponent.Element("properties").Elements("property").Single(p => (string)p.Attribute("name") == "SqlCommand").Value = "SELECT KeyA, KeyB, Score FROM dbo.SyntheticLookup";
+        string fullCache = PackageLookupSql(lookupDocument);
+        Assert(fullCache.Contains("DATALENGTH(CAST(ref.[KeyA] AS nvarchar(12)) COLLATE") &&
+            fullCache.Contains("= DATALENGTH(lk.[k"), "LOOKUP_FULL_CACHE_TEXT_LENGTH_RANK_AND_JOIN");
+        lookupComponent.Element("properties").Elements("property").Single(p => (string)p.Attribute("name") == "CacheType").Value = "1";
+        string partialCache = PackageLookupSql(lookupDocument);
+        Assert(partialCache.Contains("ROW_NUMBER() OVER (PARTITION BY") &&
+            !partialCache.Contains("DATALENGTH(lk.[k"), "LOOKUP_OTHER_CACHE_MODES_KEEP_SQL_KEYS");
+
         document = XDocument.Parse(Encoding.UTF8.GetString(packageBytes));
         document.Root.Element(dts + "ConnectionManagers").Add(new XElement(dts + "ConnectionManager", new XAttribute(dts + "refId", "Package.ConnectionManagers[SyntheticFile]"), new XAttribute(dts + "CreationName", "FLATFILE"), new XAttribute(dts + "ObjectName", "SyntheticFile")));
         source = document.Descendants("component").First(c => (string)c.Attribute("componentClassID") == "Microsoft.OLEDBSource");
@@ -207,5 +226,12 @@ internal static partial class ContractTests
         Assert(expression("UPPER(\"abc\")").Sql.Contains("UPPER(") && expression("ROUND(1.25,1)").Sql.Contains("ROUND("), "ADDITIONAL_PACKAGE_SCALAR_FUNCTIONS");
         Assert(expression("[GETDATE]()").Type == "datetime2(7)", "BRACKETED_ZERO_ARGUMENT_GETDATE");
         Assert(expression("DATEPART(\"m\",[GETDATE]())").Sql.Contains("DATEPART(month,"), "DATEPART_MONTH_ALIAS");
+    }
+
+    private static string PackageLookupSql(XDocument document)
+    {
+        var artifacts = Engine.Analyze(Encoding.UTF8.GetBytes(document.ToString()),
+            new Options { Operation = "explain", Version = 150, CatalogMode = "package" }, new NullCatalog(), new Budget());
+        return String.Join("\n", artifacts.Rows.Where(a => a.Kind == "DebugScript" && a.Complete).Select(a => a.Content));
     }
 }
