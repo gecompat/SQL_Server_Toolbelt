@@ -95,6 +95,13 @@ des exakt quellgebundenen Kommentars muss die ursprüngliche Definition
 bytegleich vorliegen. Der Skill bleibt im eigenen CREATE-TABLE-Kopf; ein zum
 Nachbarn oder hinter die Definition verschobener Kommentar wird abgewiesen.
 
+Bei bestehenden kompakten Hilfezweigen darf auch `RETURN 0;` nach dem alten
+Help-SELECT in derselben Zeile stehen. Der Adapter fügt die neue Skillzeile
+nach dem alten Resultset und vor diesem RETURN ein. Eine eigene kompakte
+Layoutmarkierung bindet die zusätzlich nötige Zeilengrenze; beim Entfernen der
+Projektion werden beide exakt entfernt. Ein anderer Hilfezweig, fehlende
+Statementgrenzen oder verwaiste Layoutmarker werden nicht normalisiert.
+
 Bei gruppierten Prozeduren bindet der Hilfeadapter die ausgewählte Identität
 an ihren eigenen `GO`-Batch. Benachbarte Hilfezweige und lokale CREATE-TABLE-
 Anweisungen im Fachpfad werden nicht als neue Prozedurdeklaration behandelt.

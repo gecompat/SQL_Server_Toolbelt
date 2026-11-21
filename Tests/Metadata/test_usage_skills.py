@@ -905,6 +905,61 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_worker_attempt_helpers_distinguish_outer_transaction_commit_rollback_unknown(self):
+        names=['USP_BeginWorkerCompletion','USP_BeginWorkerTransactionWitness','USP_RecordWorkerCommit','USP_RecordWorkerRollback','USP_RecordWorkerUnknown']
+        records={};bodies={}
+        for name in names:
+            s=skills.read(skills.source_file(ROOT,'toolbelt_core',name));records[name]=s
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertTrue(s.metadata['is_internal'])
+            self.assertEqual(len(s.metadata['parameters']),5)
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertIn(skills.HELP_COMPACT,text)
+            original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+            self.assertEqual(original.count('RETURN 0; END;'),1)
+            bodies[name]=original.split('RETURN 0; END;',1)[1]
+            self.assertIn('keine neue native',s.markdown.casefold())
+            self.assertNotIn('@ResultTable',[p['name'] for p in s.metadata['parameters']])
+        for name in names[:2]:
+            self.assertIn('@@TRANCOUNT<>1 OR XACT_STATE()<>1',bodies[name])
+            self.assertNotIn('BEGIN TRANSACTION',bodies[name])
+            self.assertIn('BoundPrincipalId=USER_ID()',bodies[name])
+        self.assertIn('ManagedCompletionNonce=@CompletionNonce',bodies[names[0]])
+        self.assertIn('sp_set_session_context',bodies[names[0]])
+        self.assertIn('INSERT toolbelt_core.WorkerExecutionCommitWitness',bodies[names[1]])
+        self.assertIn("Status='COMPLETED'",bodies[names[2]])
+        self.assertIn('IsOccupied=0',bodies[names[2]])
+        self.assertIn('bleiben IsOccupied und EndedAtUtc unverändert',records[names[3]].markdown)
+        self.assertIn('WITH(UPDLOCK,HOLDLOCK)',bodies[names[3]])
+        self.assertIn("StopStatus='ROLLED_BACK_HELD'",bodies[names[3]])
+        self.assertIn('w.WorkerToken=@WorkerToken',bodies[names[4]])
+        self.assertNotIn('SESSION_CONTEXT',bodies[names[4]])
+        self.assertNotIn('IsOccupied=0',bodies[names[4]])
+        self.assertIn('bleibt1',records[names[4]].markdown)
+
+    def test_compact_help_projects_after_existing_result_without_changing_original_bytes(self):
+        s=skills.read(skills.source_file(ROOT,'toolbelt_core','USP_SecondSessionProbe'))
+        path=s.metadata['source_paths'][0]
+        for spacing in ('', ' ', '  ', '\t'):
+            original=('CREATE OR ALTER PROCEDURE toolbelt_core.USP_SecondSessionProbe @Hilfe bit=0\nAS\nBEGIN\n'
+                      ' IF ISNULL(@Hilfe,0)=1 BEGIN\n SELECT N\'Contoso\' ExistingHelp;'+spacing+'RETURN 0; END;\n SELECT 7;\nEND;\nGO\n')
+            projected=skills.project_procedure_ddl(skills.project_procedure_help(original,s),s)
+            self.assertIn(skills.HELP_COMPACT,projected)
+            self.assertEqual(skills.project_procedure_help(projected,s),projected)
+            self.assertLess(projected.index("SELECT N'Contoso'"),projected.index(skills.HELP_BEGIN))
+            self.assertNotRegex(projected,r'ExistingHelp;[ \t]+\n')
+            clean=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,projected))
+            self.assertEqual(clean,original)
+            changed=projected.replace('SELECT 7;','SELECT 8;')
+            self.assertNotEqual(skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,changed)),original)
+            with self.assertRaises(ValueError):
+                skills.project_procedure_help(projected.replace('=1 BEGIN','=0 BEGIN'),s)
+            with self.assertRaises(ValueError):
+                skills.project_procedure_help(projected.replace(skills.HELP_COMPACT,skills.HELP_COMPACT+' changed'),s)
+        normal=original.replace(';\tRETURN 0;',';\n RETURN 0;')
+        with self.assertRaises(ValueError):skills.project_procedure_help(normal+skills.HELP_COMPACT+'\n',s)
+        with self.assertRaises(ValueError):skills.project_procedure_help(original.replace(';\tRETURN',';/*Contoso*/ RETURN'),s)
+
     def test_worker_identity_skills_distinguish_owner_bound_and_admin_paths(self):
         names=['USP_RegisterWorker','USP_HeartbeatWorker','USP_SetWorkerCapacity','USP_SetWorkerState']
         bodies={};records={}

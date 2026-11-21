@@ -177,6 +177,7 @@ DDL_BEGIN = "-- OBJECT_USAGE_SKILL:BEGIN"
 DDL_END = "-- OBJECT_USAGE_SKILL:END"
 HELP_BEGIN = "-- OBJECT_USAGE_SKILL_HELP:BEGIN"
 HELP_END = "-- OBJECT_USAGE_SKILL_HELP:END"
+HELP_COMPACT = "-- OBJECT_USAGE_SKILL_HELP:COMPACT"
 PARAM_BEGIN = "-- OBJECT_USAGE_SKILL_PARAMETER:BEGIN"
 PARAM_END = "-- OBJECT_USAGE_SKILL_PARAMETER:END"
 EARLY_BEGIN = "-- OBJECT_USAGE_SKILL_EARLY_HELP:BEGIN"
@@ -446,7 +447,12 @@ def _procedure_help_return(text: str, skill: Skill):
     ret = returns[0][0]
     require(words[ret:j - 1] == ["return", "0", ";"], "Hilfe-RETURN muss abschließend RETURN 0; sein")
     line = text.rfind("\n", 0, ts[ret][1]) + 1
-    require(not text[line:ts[ret][1]].strip(), "Hilfe-RETURN muss eigene Zeile besitzen")
+    if text[line:ts[ret][1]].strip():
+        require(words[ret - 1] == ';', "Kompakter Hilfe-RETURN benötigt Statementgrenze")
+        boundary = ts[ret - 1][2]
+        gap = text[boundary:ts[ret][1]]
+        require(not gap.strip() and '\n' not in gap, "Kompakte Hilfe benötigt reinen Zwischenraum")
+        return boundary, len(gap)
     return line, ts[ret][1] - line
 
 
@@ -456,6 +462,19 @@ def render_help_projection(skill: Skill, indent=8):
     # physical line would silently modify its values, not merely SQL layout.
     return (" " * indent + HELP_BEGIN + "\n" + render_help_resultset(skill)
             + " " * indent + HELP_END + "\n")
+
+
+def _existing_help_projection(text, skill, position, indent):
+    block = render_help_projection(skill, indent)
+    compact = '\n' + HELP_COMPACT + '\n' + block
+    if text[:position].endswith(compact):
+        head = text[:position - len(compact)]
+        require(head.rsplit('\n', 1)[-1].strip() and head.endswith(';'),
+                "Nicht kanonische kompakte Hilfegrenze")
+        return compact
+    start, end = _procedure_region(text, skill)
+    require(HELP_COMPACT not in text[start:end], "Verwaiste kompakte Hilfemarkierung")
+    return block
 
 
 def project_procedure_help(text: str, skill: Skill):
@@ -477,19 +496,23 @@ def project_procedure_help(text: str, skill: Skill):
         if words[i:i + 1] in (["procedure"], ["proc"]):
             limit = _procedure_batch_limit(text, ts, words, i)
             regions.append((ts[i][1], ts[limit][1] if limit < len(ts) else len(text)))
-    for marker in re.finditer(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text):
+    for marker in re.finditer(r"(?m)^[ \t]*(?:" + re.escape(HELP_BEGIN) + '|' + re.escape(HELP_COMPACT) + r")$", text):
         require(any(a <= marker.start() < b for a, b in regions), "Skillhilfe außerhalb einer Prozedur")
     marked = re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text[start:end])
     if marked:
         line, indent = _procedure_help_return(text, skill)
-        block = render_help_projection(skill, indent)
+        block = _existing_help_projection(text, skill, line, indent)
         require(text.count(block) == 1 and text[:line].endswith(block),
                 "Vorhandene Skillhilfe ist nicht kanonisch oder steht vor falschem RETURN")
         return text
     require(not re.search(r"(?m)^[ \t]*" + re.escape(HELP_END) + r"$", text[start:end]),
             "Unvollständige Skillhilfe-Markierungen")
+    require(HELP_COMPACT not in text[start:end], "Verwaiste kompakte Hilfemarkierung")
     line, indent = _procedure_help_return(text, skill)
-    return text[:line] + render_help_projection(skill, indent) + text[line:]
+    block = render_help_projection(skill, indent)
+    if text[text.rfind('\n', 0, line) + 1:line].strip():
+        block = '\n' + HELP_COMPACT + '\n' + block
+    return text[:line] + block + text[line:]
 
 
 def strip_help_projection(root: Path, path: str, text: str):
@@ -505,8 +528,8 @@ def strip_help_projection(root: Path, path: str, text: str):
         if not re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text[start:end]):
             continue
         require(project_procedure_help(text, projected) == text, "Nicht kanonische Hilfeprojektion")
-        _, indent = _procedure_help_return(text, projected)
-        text = text.replace(render_help_projection(projected, indent), "", 1)
+        position, indent = _procedure_help_return(text, projected)
+        text = text.replace(_existing_help_projection(text, projected, position, indent), "", 1)
     require(not re.search(r"(?m)^[ \t]*" + re.escape(HELP_BEGIN) + r"$", text),
             "Skillhilfe ohne zugehörigen kanonischen Prozedurskill")
     return text
