@@ -2,6 +2,21 @@
 
 ## Einzelreferenzen
 
+Die sechs persistenten Relationen besitzen vollständige quellgeprüfte
+Usage-Skills, jeweils auch als Kommentar in ihrer kanonischen DDL:
+
+- [WorkItem](../../../Metadata/UsageSkills/toolbelt_core/WorkItem.md): vollständige 46-Spalten-Speicherung;
+- [WorkQueueScheduler](../../../Metadata/UsageSkills/toolbelt_core/WorkQueueScheduler.md): interner Koordinationsanker;
+- [WorkQueueBarrierBlocker](../../../Metadata/UsageSkills/toolbelt_core/WorkQueueBarrierBlocker.md): gespeicherte Blockergenerationen;
+- [WorkQueueManagedGate](../../../Metadata/UsageSkills/toolbelt_core/WorkQueueManagedGate.md): interne Admissionmetadaten;
+- [VW_WorkQueue](../../../Metadata/UsageSkills/toolbelt_core/VW_WorkQueue.md): öffentliche Statusprojektion;
+- [VW_WorkQueueBarrierBlockers](../../../Metadata/UsageSkills/toolbelt_core/VW_WorkQueueBarrierBlockers.md): Snapshot mit aktuellem Generationsvergleich.
+
+Interne Tabellen sind kein direkter fachlicher Schreibweg. Die Skills trennen
+Spaltendefaults, Installations-Seeds und die tatsächlichen Tabellenconstraints
+von den stärkeren Übergangsprüfungen der öffentlichen Prozeduren. Diese
+Quellabnahme ist keine neue native Gesamtqualifikation des Moduls.
+
 Die folgenden Seiten erläutern die einzelnen Aufrufe mit Parametern und
 Beispielen. Die gemeinsamen Fachregeln auf dieser Seite gelten weiterhin.
 
@@ -73,7 +88,7 @@ Heartbeat verlangt `WorkItemId` und das aktuelle `ClaimToken`, läuft in einer k
 
 ## `USP_RecoverExpiredWork` und `USP_ScheduleWorkRetry`
 
-Recovery ist ein ausdrücklicher Supervisor-Aufruf. `@MaxItems` begrenzt den Batch auf 1 bis 1.000, Default 100. Abgelaufene Claims wechseln nach ihrer gespeicherten Retry-Policy entweder in `RETRY_WAIT` oder `DEAD_LETTER`. `USP_ScheduleWorkRetry` trifft dieselbe tokengebundene Entscheidung für einen aktiven Worker-Claim. Der Backoff ist `min(Basis × 2^(Versuch−1), Maximum)` ohne Jitter. Claim- und Leasefelder werden gelöscht; eine Barrier gibt dadurch ihre Gruppe frei. Beide Procedures lehnen eine Caller-Transaktion ab.
+Recovery ist ein ausdrücklicher Supervisor-Aufruf. `@MaxItems` begrenzt den Batch auf 1 bis 1.000, Default 100. Abgelaufene Claims wechseln nach ihrer gespeicherten Retry-Policy entweder in `RETRY_WAIT` oder `DEAD_LETTER`. `USP_ScheduleWorkRetry` trifft dieselbe tokengebundene Entscheidung für einen aktiven Worker-Claim. Der Backoff ist `min(Basis × 2^(Versuch−1), Maximum)` ohne Jitter. Claim- und Leasefelder werden gelöscht; eine Barrier gibt dadurch ihre Gruppe frei. Der vorhandene Retrykern unterstützt eine gesunde Callertransaktion mit eigenem Savepoint; eine pauschale Caller-TX-Sperre gilt hierfür nicht. Die Recoveryvoraussetzungen sind gesondert im jeweiligen Vertrag zu lesen.
 
 `USP_ScheduleWorkRetry @Hilfe = 1` gibt die vollständigen Parameter und die
 Statusspalten des Queue-Resultsets aus. Die Procedure unterstützt derzeit kein
@@ -94,7 +109,7 @@ für diesen USP ausgeschlossen.
 
 ## `USP_GetWorkStatus` und `VW_WorkQueue`
 
-Statusoberflächen liefern Audit-, Lease-, Generation-, Retry-, Dead-Letter-, Prioritäts-, Gruppen- und Barrier-Metadaten. Payload und ClaimToken bleiben verborgen. Direkte DML auf `WorkItem` ist kein öffentlicher Vertrag.
+`VW_WorkQueue` liefert 41 Status-, Audit-, Lease-, Recovery-, Retry-, Dead-Letter-, Prioritäts-, Gruppen- und Barrierfelder. `USP_GetWorkStatus` liefert daraus 22 feste Status-/Audit-/Lease-/Recoveryspalten. Beide verbergen Payload und ClaimToken. Die Prozedur setzt keinen eigenen Besitzer- oder WorkType-Policyfilter und startet keine eigene Transaktion. Direkte DML auf `WorkItem` ist kein öffentlicher Vertrag.
 
 ## Garantien und Grenzen
 
@@ -106,3 +121,11 @@ Die Reihenfolge gilt bestmöglich unter fälligen, sichtbaren und handlerfähige
 2.1 ergänzt interne Claim-/Fail-/Retrykerne und den queueeigenen WorkQueueManagedGate. Öffentliche Signaturen bleiben unverändert. Managedmodus ist opt-in; dann sind direkte Claims und Holdbypässe ausgeschlossen. Admission ist transient, einmalig und an genau eine gesunde äußere Admissiontransaktion gebunden. Das Modul hat keine Rückabhängigkeit auf Worker-Control. Lifecycle lehnt dessen installierten Consumer sowie Managedclaims und Holds vor und unter AppLock ab. Vorhandene 2.0-Evidenz qualifiziert diese neue Integration nicht; 2.0→2.1 Upgrade und Managedfälle sind noch NOT EXECUTED.
 
 Der private Managedclaimtransport verwendet ausschließlich die aus dem kanonischen UPDATE OUTPUT entstandene Claim-ID. Reserve liest diese ID mit exakter ManagedReservationId im selben Admission-TX in den festen internen Transport. Öffentliche ResultTable-Namen bleiben unverändert validiert; kein SkipValidation und kein INSERT EXEC wird verwendet.
+
+## Producer- und Status-Usage-Skills
+
+Einfaches Enqueue und `USP_GetWorkStatus` liefern 22 feste Spalten. Policy- und Barrier-Enqueue liefern `WasCreated` plus 41 Viewspalten. Deren direkte Viewausgabe erfolgt nach eigenem Commit; die ResultTable-Zeile wird vorher materialisiert. `USP_GetWorkStatus` besitzt keinen eigenen TX-/Savepoint- oder Policy-/Besitzerfilter. Die vollständigen quellgeprüften Verträge stehen bei den vier verlinkten Objektseiten und in `Metadata/UsageSkills`; Hilfe liefert jeweils die zusätzliche Skillzeile. Native Hilfe-/Callerzustandsabnahme bleibt separat.
+
+## Vollständige Quellenverträge
+
+Alle 20 katalogisierten Objekte der Queue besitzen nun quellgeprüfte Skills mit ihrer kanonischen DDL-Projektion. Die 14 Prozeduren liefern zusätzlich die frühe Skillhilfe. Leaseverlängerung hat vier, Recovery sieben, Completion 22 und Requeue 41 Ergebnisspalten. Renew, Recovery und Requeue verbieten Callertransaktionen; Completion unterstützt gesunde Savepoints und prüft für ManagedCompletion den geschützten äußeren Abschlussweg. Die neue native Hilfe-/Unicode-/Callerzustandsabnahme und die gemeinsame Installerqualifikation bleiben eigene offene Nachweise.

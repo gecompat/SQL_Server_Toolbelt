@@ -1,5 +1,17 @@
 # T-SQL Script Parser
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_Tsql_ScriptParser`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Der aktuelle Quellstand verwendet eine private Toolbelt-ScriptDom-Identität,
 um andere ScriptDom-Versionen in derselben Datenbank zu erhalten. Der neue
 Provider besteht 248 Offlinefälle; eine native Gesamtqualifikation des neuen
@@ -39,10 +51,6 @@ Versionen und Binarypins.
 
 `toolbelt.tsql.script-parser` stellt deterministische, rein lesende SQL-CLR Table-Valued Functions (TVFs) auf Basis von Microsoft ScriptDom (.NET Framework 4.8) bereit, um begrenzten T-SQL-Code syntaktisch in AST-Knoten, Knoteneigenschaften, einen verlustfreien Tokenstrom und strukturierte Fehlerlisten zu zerlegen.
 
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
-
 ## Kompatibilität der Major-Version 2.0.0
 
 Der [Hardening-Vertrag](../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md) beschreibt die gemeinsamen Parameter-, Fehler-, Ressourcen- und Lifecycle-Grenzen. Die vier Funktionsnamen, Parameterreihenfolge und Ergebnisschemas bleiben erhalten. Bewusste Inkompatibilitäten gegenüber 1.0.0 sind endliche NULL-Limits, die Ablehnung unbekannter Parser-Versionen, konservative Ablehnung komplexer gültiger Skripte, keine partiellen AST-Ausgaben und ausschließlich lexikalisches Tokenize.
@@ -74,3 +82,7 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 - Scope: Unveränderter aktueller Quellbuild2.0.1: native API-/datenbanklokale Minimalrechtematrix Windows2019CU32/2022CU26/2025CU8 über unterstützte CLs lokal/zentral,72 Suites; frische Parser-/Konfigurationsaudits PASS. Erste Lifecycle-Literalhashfehler und ursprüngliche2025Caller-Restoreblockade bleiben erhalten, finale eigene Wiederherstellung PASS. Token-Grenze nativ, Errors255/256 und vorgelagerte257er-Atomablehnung auf2022/2025. Framework248 inklusive unveränderter Originalbudgets; kombinierte Quotenabnahme ausdrücklich am2026-11-05 freigegeben, keine Aufwertung nicht ausgeführter öffentlicher Grenzaufrufe.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Maschinenlesbare Usage-Skills
+
+Alle sechs katalogisierten Objekte einschließlich beider Assemblybeschreibungen besitzen quellgeprüfte Skills. Die vier öffentlichen TVF-Objektseiten verlinken ihre vollständigen Verträge; dieselben Texte stehen in der jeweiligen DDL. Der aktuelle öffentliche Vorwächter ist nicht das gesonderte SSIS-Profil. Die spätere gemeinsame Usage-Skill-View benötigt vollständige Katalogabdeckung; neue native Qualifikation bleibt separat.

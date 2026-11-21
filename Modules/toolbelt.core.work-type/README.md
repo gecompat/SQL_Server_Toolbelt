@@ -1,14 +1,22 @@
 # Work Type Catalog
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 **Praktischer Einstieg:** [Queue-Anleitung mit Handlerregistrierung und Policies](../toolbelt.core.work-queue/Documentation/USAGE.md#work-types-und-berechtigungen).
 Das vollständige Beispiel richtet einen synthetischen Handler und die
 erforderlichen ENQUEUE-/CLAIM-Freigaben ein.
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Status
 
@@ -38,6 +46,13 @@ Version `1.1.0` ergänzt die kontrollierte Entfernung eines deaktivierten Work T
 - `toolbelt_core.USP_SetWorkTypePermission`
 
 Registrierung, Änderung, Deaktivierung und Entfernung sind administrative Vorgänge. Ein registrierender Principal muss `EXECUTE` auf die Zielprocedure besitzen. Ausführungsprovider erhalten einen getrennten Berechtigungs- und Ausführungsvertrag.
+
+Alle neun Katalogobjekte einschließlich interner Tabellen und Autorisierungs-TVF
+besitzen vollständige quellgeprüfte Usage-Skills in der DDL. `@Hilfe=1` der fünf
+Prozeduren liefert zusätzlich zur Standardhilfe den vollständigen Skill vor
+ihrem Fachpfad. Die [kanonischen Quellen](../../Metadata/UsageSkills/README.md)
+werden getrennt von historischer Runtimequalifikation gepflegt; diese
+Quellintegration ist keine neue native Hilfe- oder Gesamtinstallationsabnahme.
 
 Basis-Evidenz Version `1.0.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
 

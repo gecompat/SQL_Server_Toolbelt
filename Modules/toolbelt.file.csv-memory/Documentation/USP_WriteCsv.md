@@ -1,5 +1,12 @@
 # toolbelt_file.USP_WriteCsv
 
+Der [kanonische Skill](../../../Metadata/UsageSkills/toolbelt_file/USP_WriteCsv.md)
+enthält den vollständigen quellengeprüften Aufrufvertrag und steht auch in der
+ausgelieferten DDL. `EXEC toolbelt_file.USP_WriteCsv @Hilfe=1;` liefert vor jeder
+Fachprüfung zuerst die bestehende Standardhilfe und dann genau ein zusätzliches
+Resultset mit `SkillFormatVersion`, `SchemaName`, `ObjectName` und vollständigem
+`SkillMarkdown nvarchar(max)`. Eine neue native Hilfeabnahme steht noch aus.
+
 Schreibt einen read-only Snapshot einer vorhandenen caller-lokalen Temp-Tabelle
 mit genau `RowKind varchar(6)`, `RowOrdinal bigint`, `ColumnOrdinal int`,
 `Value nvarchar(max)`. Nur eingebaute Typen; keine Alias-, computed oder zusätzlichen
@@ -69,8 +76,8 @@ SQL2019+ Windows/Linux sind Zielmatrix; tatsächliche Nachweise stehen in
 | `@MaxOutputBytes` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 UTF-16-Bytes des gesamten CsvText, Default 16777216. Einschließlich Quoteverdopplung, Hüllen, NullTokens, Separatoren und sämtlicher Recordabschlüsse. NULL/außerhalb ungültig; vor Allokation/Veröffentlichung exakt gemessen. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix; beim Writer nicht dieselbe tatsächliche Tabelle wie CellsTable. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
-| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der CSV-Kern den vollständigen Snapshot/das Writergebnis ohne Zellinhalte; im ResultTable-Pfad zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 oder NULL ohne Diagnose, 1..255 abstrakte Severity-10-NOWAIT-Meldung ohne Zellinhalte und ohne zusätzliches Fachresultset. Bei ResultTable zusätzlich Helperdiagnose. |
+| `@Hilfe` | `bit` | `0` | Input | 0 oder NULL: Fachaufruf; 1: vor Fachvalidierung nur bestehende zwölfspaltige Standardhilfe und genau ein zusätzliches vierspaltiges Skill-Resultset, danach RETURN 0. Alle SQL-Parameter besitzen Defaults, daher genügt @Hilfe=1. |
 <!-- API_PARAMETERS:END -->
 
 

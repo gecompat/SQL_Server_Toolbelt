@@ -22,8 +22,10 @@ namespace Toolbelt.Filesystem.Windows
         private const int BufferBytes = 1024 * 1024;
 
         [SqlProcedure]
-        public static void ReadBinaryFileChunk(string rootAlias, string relativePath, long byteOffset, int maxBytes, string executionIdentity)
+        public static void ReadBinaryFileChunk(string rootAlias, string relativePath, long byteOffset, int maxBytes, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_ReadBinaryFileChunk"); return; }
+
             if (byteOffset < 0 || maxBytes < 1 || maxBytes > MaxChunkBytes) Fail("InvalidChunkRange");
             WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowRead", executionIdentity);
             string path = Resolve(root.RootPath, relativePath, false);
@@ -48,8 +50,10 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void ReadTextFileChunk(string rootAlias, string relativePath, long byteOffset, int maxBytes, string encodingName, string executionIdentity)
+        public static void ReadTextFileChunk(string rootAlias, string relativePath, long byteOffset, int maxBytes, string encodingName, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_ReadTextFileChunk"); return; }
+
             if (byteOffset < 0 || maxBytes < 4 || maxBytes > MaxChunkBytes) Fail("InvalidChunkRange");
             WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowRead", executionIdentity);
             string path = Resolve(root.RootPath, relativePath, false); byte[] bytes = null; long length = 0; int used = 0; string text = null;
@@ -74,8 +78,10 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void WriteBinaryFile(string rootAlias, string relativePath, SqlBytes content, bool overwrite, string executionIdentity)
+        public static void WriteBinaryFile(string rootAlias, string relativePath, SqlBytes content, bool overwrite, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_WriteBinaryFile"); return; }
+
             if (content.IsNull) Fail("ContentRequired"); FilesystemExecution execution = new FilesystemExecution(executionIdentity); Root root = GetRoot(rootAlias, "AllowWrite", executionIdentity); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
             // SQL-backed LOBs erst nach Undo lesen; jede Dateiaktion bleibt bei
             // derselben zuvor erfassten Identitaet. Kein ganzes LOB materialisieren.
@@ -85,8 +91,10 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void WriteTextFile(string rootAlias, string relativePath, SqlChars content, string encodingName, bool writeBom, bool overwrite, string executionIdentity)
+        public static void WriteTextFile(string rootAlias, string relativePath, SqlChars content, string encodingName, bool writeBom, bool overwrite, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_WriteTextFile"); return; }
+
             if (content.IsNull) Fail("ContentRequired"); FilesystemExecution execution = new FilesystemExecution(executionIdentity); Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowWrite", executionIdentity); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
             WriteAtomicallyScoped(root, target, overwrite, delegate(FileStream output)
             { written = CopyTextContent(content, encoding, writeBom, output, execution.Run); }, execution.Run);
@@ -94,8 +102,10 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void TranscodeTextFile(string sourceRootAlias, string sourceRelativePath, string sourceEncoding, string targetRootAlias, string targetRelativePath, string targetEncoding, bool writeBom, bool overwrite, string executionIdentity)
+        public static void TranscodeTextFile(string sourceRootAlias, string sourceRelativePath, string sourceEncoding, string targetRootAlias, string targetRelativePath, string targetEncoding, bool writeBom, bool overwrite, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_TranscodeTextFile"); return; }
+
             WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root source = GetRoot(sourceRootAlias, "AllowRead", executionIdentity), targetRoot = GetRoot(targetRootAlias, "AllowWrite", executionIdentity); Encoding input = StrictEncoding(sourceEncoding), output = StrictEncoding(targetEncoding);
             string sourcePath = Resolve(source.RootPath, sourceRelativePath, false), targetPath = Resolve(targetRoot.RootPath, targetRelativePath, false); long written = 0;
             RunAs(callerIdentity, delegate
@@ -112,8 +122,10 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void ListDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity)
+        public static void ListDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_ListDirectory"); return; }
+
             if (maxDepth < 0 || maxDepth > 64 || maxEntries < 1 || maxEntries > 10000) Fail("InvalidListLimit"); WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowList", executionIdentity); string start = Resolve(root.RootPath, relativePath, true);
             List<ListedEntry> entries = new List<ListedEntry>();
             RunAs(callerIdentity, delegate
@@ -139,12 +151,18 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void CreateDirectory(string rootAlias, string relativePath, string executionIdentity) { WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowCreateDirectory", executionIdentity); string path = Resolve(root.RootPath, relativePath, true); RunAs(callerIdentity, delegate { using (NativeParents binding = new NativeParents(path, true, true)) { } }); SendAction(rootAlias, relativePath, "created"); }
+        public static void CreateDirectory(string rootAlias, string relativePath, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean)) {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_CreateDirectory"); return; }
+ WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowCreateDirectory", executionIdentity); string path = Resolve(root.RootPath, relativePath, true); RunAs(callerIdentity, delegate { using (NativeParents binding = new NativeParents(path, true, true)) { } }); SendAction(rootAlias, relativePath, "created"); }
         [SqlProcedure]
-        public static void RemoveFile(string rootAlias, string relativePath, string executionIdentity) { WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowDelete", executionIdentity); string path = Resolve(root.RootPath, relativePath, false); RunAs(callerIdentity, delegate { using (NativeParents binding = new NativeParents(path, false, false)) using (SafeFileHandle file = NativeOpen(path, 0x10080, 3, false)) { NativeDelete(file); } }); SendAction(rootAlias, relativePath, "removed"); }
+        public static void RemoveFile(string rootAlias, string relativePath, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean)) {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_RemoveFile"); return; }
+ WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowDelete", executionIdentity); string path = Resolve(root.RootPath, relativePath, false); RunAs(callerIdentity, delegate { using (NativeParents binding = new NativeParents(path, false, false)) using (SafeFileHandle file = NativeOpen(path, 0x10080, 3, false)) { NativeDelete(file); } }); SendAction(rootAlias, relativePath, "removed"); }
         [SqlProcedure]
-        public static void RemoveDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity)
+        public static void RemoveDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity, SqlBoolean hilfe = default(SqlBoolean))
         {
+            if (hilfe.IsTrue) { UsageSkillsGenerated.Send("toolbelt_filesystem", "CLR_RemoveDirectory"); return; }
+
             if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowDelete", executionIdentity); string path = Resolve(root.RootPath, relativePath, true); if (Same(root.RootPath, path)) Fail("RootDeletionForbidden");
             RunAs(callerIdentity, delegate { RemoveDirectoryBounded(root.RootPath, path, recursive, maxDepth, maxEntries); }); SendAction(rootAlias, relativePath, "removed");
         }

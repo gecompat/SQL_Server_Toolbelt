@@ -1,10 +1,15 @@
-# Table Clone Executor / Hashlayout 1 / Modul 4.1.0
+# Table Clone Executor / Hashlayout 1 / Modul 4.1.1
 
-In4.1 bleibt der Executor14 unverändert triggerfrei; das Hashlayout1 bindet
-jetzt4.1.0. Historische4.0-Hashes sind keine gültigen4.1-Erwartungswerte.
+Der aktuelle Executor bleibt mit 14 Parametern triggerfrei. Hashlayout 1
+bindet Modul 4.1.1, wie der Executor und die
+[Clientableitung](../../Modules/toolbelt.metadata.table-clone/Examples/CalculatePlanHash.py).
+Hashes anderer Modulversionen sind keine
+gültigen Erwartungswerte. Diese Beschreibung korrigiert eine veraltete
+4.1.0-Angabe; die Hashimplementierung wird dadurch nicht verändert.
 Die additive [Datenkopie](TABLE_CLONE_DATA_COPY_CONTRACT.md) verwendet eine eigene
-USP; neue4.1-Qualifikation und Head-CI sind noch nicht ausgeführt. Die folgenden
-4.0-/3.1-Nachweise bleiben historische Evidenz, keine aktuelle Aufwertung.
+USP. Vorhandene Nachweise bleiben an ihre jeweiligen Artefakte gebunden.
+Die neue Skillhilfe und markerfreie Installation benötigen eigene aktuelle
+Abnahme; die folgenden 4.0-/3.1-Nachweise bleiben historische Evidenz.
 
 Stand 2026-10-04, Codex. Die Funktion `USP_ExecuteTableClone` wurde am
 2026-10-01 einzeln freigegeben. Am 2026-10-04 bestätigte der Benutzer das
@@ -57,7 +62,8 @@ keine fremden Datenbanken als Quell-/Zielraum.
 
 Die ersten acht Parameter übernehmen genau die V3-Semantik.
 `@Hilfe=1` wird vor jeder Fach-, Transaktions-, Hash-, Dependency-,
-Temp- oder Rechteprüfung behandelt: ausschließlich kanonisches Help,
+Temp- oder Rechteprüfung behandelt: bisherige Standardhilfe und im neuen
+Quellstand zusätzlich einen vollständigen Skillresultset mit vier Spalten und einer Zeile,
 keine Seiteneffekte oder Debug-Messages. Fachliche Pflichtparameter haben
 deshalb technische NULL-Defaults. Im Fachmodus sind exakt 32 Bytes
 `ExpectedPlanHash` erforderlich; `varbinary(max)` verhindert stille
@@ -159,7 +165,7 @@ Der Header verwendet folgende feste Reihenfolge:
 
 ```text
 H0 = SHA256(
-  F(N'Toolbelt.TableClone.Execute.Hash') || I32(1) || F(N'4.1.0') ||
+  F(N'Toolbelt.TableClone.Execute.Hash') || I32(1) || F(N'4.1.1') ||
   I32(InstallDB_ID) || F(InstallDB_NAME) ||
   Bit(IncludeIdentity) || Bit(IncludeExtendedProperties) || Bit(MapMode) ||
   F(ExternalReferenceRule als nvarchar) || F(ForeignKeyMode als nvarchar) ||

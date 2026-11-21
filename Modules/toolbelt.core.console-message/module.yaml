@@ -38,6 +38,8 @@ objects:
     visibility: public
 permissions_required:
   - "EXECUTE auf toolbelt_core.USP_WriteConsoleMessage"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Chunkgrenzen werden mit Latin1_General_100_BIN2 als UTF-16-Codeunits bestimmt; ein erkanntes Surrogatpaar wird nicht getrennt."
 data_type_contract: "Message ist nvarchar(max); PRINT verwendet höchstens 4.000, RAISERROR/NOWAIT höchstens 2.000 UTF-16-Codeunits je Chunk."
@@ -54,11 +56,13 @@ clr:
   permission_set: null
   trust_method: null
 lifecycle:
-  deploy: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "embedded"
-  source_hash_role: "diagnostic_only"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.core.console-message"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -71,7 +75,7 @@ documentation:
     - "Tests/README.md"
 contracts:
   usp: "1.0"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   security: "Tests/Runtime/Security.Contract.sql"

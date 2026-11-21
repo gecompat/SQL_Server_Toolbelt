@@ -21,7 +21,7 @@ Beginnt einen Root-Context oder erhöht bei erlaubter Verschachtelung den `Scope
 
 ## `USP_EndExecution`
 
-Verringert den `ScopeDepth`. Bei Tiefe 1 werden alle namespaceten Sessionwerte gelöscht. Ein fehlender oder nicht passender Context ist ein Fehler und kein stiller Erfolg.
+Verringert den `ScopeDepth`. Bei Tiefe 1 werden die sechs festen Toolbelt-Ausführungskontextkeys gelöscht; andere Sessionwerte bleiben erhalten. Ein fehlender oder nicht passender Context ist ein Fehler und kein stiller Erfolg.
 
 ## `TVF_CurrentExecutionContext`
 
@@ -30,3 +30,19 @@ Inline TVF für `SELECT`, `CROSS APPLY` und `OUTER APPLY`. Ohne aktiven Context 
 ## `SVF_CurrentExecutionId`
 
 Komfort-Wrapper auf die inline TVF. Für mengenorientierte Abfragen bleibt die TVF vorzuziehen.
+
+## Vollständige Skills und Hilfe
+
+Die [Modulübersicht](../README.md#vollständige-skills-und-hilfe) verlinkt die
+fünf kanonischen Skillquellen. Dieselben vollständigen Texte stehen in der DDL;
+die Prozeduren liefern sie zusätzlich zur bisherigen Standardhilfe als genau
+ein vierkolumniges Resultset (`SkillFormatVersion`, `SchemaName`, `ObjectName`,
+`SkillMarkdown nvarchar(max)`). Die neue Hilfe ist offline geprüft, ihre native
+Abnahme bleibt separat.
+
+`@Hilfe=1` erfolgt vor fachlichem Kontextlesen/-schreiben. Ein vorhandener
+Begin-OUTPUT-Wert bleibt dabei erhalten. Set und End behalten ihr syntaktisches
+Pflichtargument, beispielsweise
+`EXEC toolbelt_core.USP_EndExecution @ExpectedExecutionId=NULL,@Hilfe=1;`.
+Die Keys gelten für die gesamte Verbindung über Datenbankgrenzen hinweg.
+Actor/Tenant sind frei gesetzte Kontextlabels und keine Autorisierung.

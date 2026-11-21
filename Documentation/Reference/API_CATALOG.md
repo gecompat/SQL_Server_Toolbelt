@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-168 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+169 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -14,11 +14,11 @@ Modul `toolbelt.archive.zip-files` · Version `1.0.0` · `USP`
 
 Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBinaryFile. Datei und SQL-Ausgabe sind nicht gemeinsam atomar.
 
-Vertrag und Quelle: [USP_CreateZipFileFromEntries.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql), [USP_CreateZipFileFromEntries.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_CreateZipFileFromEntries.md).
+Vertrag und Quelle: [USP_CreateZipFileFromEntries.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql), [USP_CreateZipFileFromEntries.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_CreateZipFileFromEntries.md), [USP_CreateZipFileFromEntries.md](../../Metadata/UsageSkills/toolbelt_archive/USP_CreateZipFileFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 644f70cef4a901e6031802fe73d64f88b4c68d6e3e0b9c0d199f61bd4ef10e76 -->
+<!-- Source/Vertrag SHA256: dbeb2b8a857ff2e7b7071301502f92f1322eb63aeb2e9d114854bfca39e17097 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Windows-only mit lokalem ZIPfiles1.0.0-Profil, ZIPmemory1.4.0, Windowsfilesystem1.0.0 und ResultTable derselben Datenbank. Vorhandener aktiver Root mit AllowWrite, bestehendes Zielverzeichnis und NTFS-Rechte. Caller-Modus verlangt Windowsauthentifizierung. ServiceAccount nur bei expliziter Wahl mit toolbelt_filesystem_service_account und Root-AllowServiceAccount. Keine zentrale Cross-DB- oder Linuxroute.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -38,12 +38,17 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntryTable sein; beim In-memory-Writer kein Punkt im Namen und kein reservierter #tbx_ZipWriter_-Name. Dateifassade verlangt Namen 2..116 UTF-16-Einheiten ohne Punkt/#tbx_ oder eigene #ZipFiles_*Stage-Namen. Dateipublikation erfolgt vor SQL-Ausgabe und wird bei späterem Routingfehler nicht rückgängig gemacht. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 kurze Abschlussmessage ohne Entrynamen/Payloads/Pfade; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Entries(Ordinal int,EntryName nvarchar(max),Payload varbinary(max)); INSERT #Entries VALUES(1,N'hello.txt',0x4869); EXEC toolbelt_archive.USP_CreateZipFileFromEntries @EntryTable=N'#Entries',@RootAlias=N'ContosoOutput',@RelativePath=N'hello.zip';
+EXEC toolbelt_archive.USP_CreateZipFileFromEntries @Hilfe=1;
+CREATE TABLE #ContosoEntries(Ordinal int,EntryName nvarchar(max),Payload varbinary(max));
+INSERT #ContosoEntries VALUES(1,N'contoso.txt',0x010203);
+-- NurmitvorhandenemautorisiertemRoot/Zielverzeichnis;schreibteineDatei.
+EXEC toolbelt_archive.USP_CreateZipFileFromEntries @EntryTable=N'#ContosoEntries',@RootAlias=N'ContosoRoot',@RelativePath=N'out\contoso.zip';
+DROP TABLE #ContosoEntries;
 ```
 
 Hilfe:
@@ -58,11 +63,11 @@ Modul `toolbelt.archive.zip-files` · Version `1.0.0` · `USP`
 
 Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBinaryFile. Datei und SQL-Ausgabe sind nicht gemeinsam atomar.
 
-Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md).
+Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md), [USP_ExtractZipEntryToFile.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipEntryToFile.md).
 
-<!-- Source/Vertrag SHA256: 7a036d320cbdf497d2c503a228fa6f275b99d31f8f052d75c33dd454aef30686 -->
+<!-- Source/Vertrag SHA256: 1c0086d81e66dc24849c0752e6a6d0eb4d9caf7d0fd1cce4eb16035a9b903750 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Windows-only mit lokalem ZIPfiles1.0.0-Profil, ZIPmemory1.4.0, Windowsfilesystem1.0.0 und ResultTable derselben Datenbank. Vorhandener aktiver Root mit AllowWrite, bestehendes Zielverzeichnis und NTFS-Rechte. Caller-Modus verlangt Windowsauthentifizierung. ServiceAccount nur bei expliziter Wahl mit toolbelt_filesystem_service_account und Root-AllowServiceAccount. Keine zentrale Cross-DB- oder Linuxroute.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -77,12 +82,15 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Name 2..116 UTF-16-Einheiten ohne Punkt/#tbx_ oder eigene #ZipFiles_*Stage-Namen. Datei wird vor SQL-Ausgabe publiziert und bleibt bei späterem Routingfehler bestehen. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 still, 1..255 kurze Abschlussmessage ohne Pfade/Entrynamen/Payloads. Interner Reader/Writer laufen mit Debug=0, die optionale endgültige ResultTable erhält Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_archive.USP_ExtractZipEntryToFile @ZipArchive=0x504B03041400000000000000210000000000000000000000000009000000656D7074792E747874504B0102140014000000000000002100000000000000000000000000090000000000000000000000000000000000656D7074792E747874504B0506000000000100010037000000270000000000,@EntryName=N'empty.txt',@RootAlias=N'ContosoOutput',@RelativePath=N'empty.txt';
+EXEC toolbelt_archive.USP_ExtractZipEntryToFile @Hilfe=1;
+-- VollständigeZIPbytesvomClientanstelleNULLbinden.
+DECLARE @Archive varbinary(max)=NULL;
+EXEC toolbelt_archive.USP_ExtractZipEntryToFile @ZipArchive=@Archive,@EntryName=N'contoso.txt',@RootAlias=N'ContosoRoot',@RelativePath=N'out\contoso.txt';
 ```
 
 Hilfe:
@@ -97,9 +105,11 @@ Modul `toolbelt.archive.zip-memory` · Version `1.4.0` · `USP`
 
 Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload varbinary(max) einer vorhandenen caller-lokalen Temp-Tabelle.
 
-Vertrag und Quelle: [USP_CreateZipFromEntries.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql), [USP_CreateZipFromEntries.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md).
+Vertrag und Quelle: [USP_CreateZipFromEntries.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql), [USP_CreateZipFromEntries.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md), [USP_CreateZipFromEntries.md](../../Metadata/UsageSkills/toolbelt_archive/USP_CreateZipFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 674e8a19cc5531e1636fba87917ca23bcc7f79b8f5ddd2a466be9a34a38e6512 -->
+<!-- Source/Vertrag SHA256: 5c711b21ee50d5533ed20a8ed017b66dbb3cacddfe12b47f563daf91b137fab9 -->
+
+Voraussetzung: ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -115,12 +125,16 @@ Vertrag und Quelle: [USP_CreateZipFromEntries.sql](../../Modules/toolbelt.archiv
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntryTable sein; beim In-memory-Writer kein Punkt im Namen und kein reservierter #tbx_ZipWriter_-Name. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 kurze Abschlussmessage ohne Entrynamen/Payloads/Pfade; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #ZipInput(Ordinal int, EntryName nvarchar(max), Payload varbinary(max)); INSERT #ZipInput VALUES(1,N'hello.txt',0x4869); EXEC toolbelt_archive.USP_CreateZipFromEntries @EntryTable=N'#ZipInput';
+EXEC toolbelt_archive.USP_CreateZipFromEntries @Hilfe=1;
+CREATE TABLE #ContosoEntries(Ordinal int,EntryName nvarchar(max),Payload varbinary(max));
+INSERT #ContosoEntries VALUES(1,N'contoso.txt',0x010203);
+EXEC toolbelt_archive.USP_CreateZipFromEntries @EntryTable=N'#ContosoEntries';
+DROP TABLE #ContosoEntries;
 ```
 
 Hilfe:
@@ -135,9 +149,11 @@ Modul `toolbelt.archive.zip-memory` · Version `1.4.0` · `USP`
 
 Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv im Speicher. Der interne SAFE-CLR-Provider unterstützt ZIP Methods 0 und 8 und prüft die CRC32 des tatsächlichen Payloads.
 
-Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md).
+Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md), [USP_ExtractZipEntryFromBinary.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipEntryFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 99c5cf561b35c53a79d46fb4eb3b853d5e990fdb81652def2988a15182f02646 -->
+<!-- Source/Vertrag SHA256: 1ad150626ea364a67652530ea48100ee841a84449f22f5e505b494944eb73cd2 -->
+
+Voraussetzung: ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -149,14 +165,15 @@ Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.a
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene zusätzliche Readerdiagnose; im ResultTable-Pfad an den kanonischen Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Vollständiges synthetisches ZIP mit hello.txt und dem Text Hi.
-DECLARE @ZipArchive varbinary(max)=0x504B0304140000000000000021580E0E174D02000000020000000900000068656C6C6F2E7478744869504B01021400140000000000000021580E0E174D020000000200000009000000000000000000000080010000000068656C6C6F2E747874504B0506000000000100010037000000290000000000;
-EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary @ZipArchive=@ZipArchive, @EntryName=N'hello.txt';
+EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary @Hilfe=1;
+-- VollständigeZIPbytesvomClientanstelleNULLbinden.
+DECLARE @Archive varbinary(max)=NULL;
+EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary @ZipArchive=@Archive,@EntryName=N'contoso.txt';
 ```
 
 Hilfe:
@@ -171,9 +188,11 @@ Modul `toolbelt.archive.zip-memory` · Version `1.4.0` · `USP`
 
 Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen Single-Disk-ZIP aus varbinary(max), ohne Payloads zu lesen oder zu dekomprimieren.
 
-Vertrag und Quelle: [USP_ListZipEntriesFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql), [USP_ListZipEntriesFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md).
+Vertrag und Quelle: [USP_ListZipEntriesFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql), [USP_ListZipEntriesFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md), [USP_ListZipEntriesFromBinary.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ListZipEntriesFromBinary.md).
 
-<!-- Source/Vertrag SHA256: c6c46882ccc3cb46b1312383516d1ec883b8ccf78dc0024797109977a9c43d5b -->
+<!-- Source/Vertrag SHA256: 0c7be9bfeb92f3237d8f3dbc9c8de2c6f0b71ba903d309ca08c5ee73b8cb7cfd -->
+
+Voraussetzung: ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -182,14 +201,15 @@ Vertrag und Quelle: [USP_ListZipEntriesFromBinary.sql](../../Modules/toolbelt.ar
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene zusätzliche Readerdiagnose; im ResultTable-Pfad an den kanonischen Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Vollständiges synthetisches ZIP mit hello.txt und dem Text Hi.
-DECLARE @ZipArchive varbinary(max)=0x504B0304140000000000000021580E0E174D02000000020000000900000068656C6C6F2E7478744869504B01021400140000000000000021580E0E174D020000000200000009000000000000000000000080010000000068656C6C6F2E747874504B0506000000000100010037000000290000000000;
-EXEC toolbelt_archive.USP_ListZipEntriesFromBinary @ZipArchive=@ZipArchive;
+EXEC toolbelt_archive.USP_ListZipEntriesFromBinary @Hilfe=1;
+-- VollständigeZIPbytesvomClientanstelleNULLbinden.
+DECLARE @Archive varbinary(max)=NULL;
+EXEC toolbelt_archive.USP_ListZipEntriesFromBinary @ZipArchive=@Archive;
 ```
 
 Hilfe:
@@ -204,9 +224,11 @@ Modul `toolbelt.binary.bit-operations` · Version `1.0.0` · `TVF`
 
 Verschiebt die Bits eines bigint-Werts nach links.
 
-Vertrag und Quelle: [TVF_LeftShiftBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_LeftShiftBigInt.sql), [TVF_LeftShiftBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_LeftShiftBigInt.md).
+Vertrag und Quelle: [TVF_LeftShiftBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_LeftShiftBigInt.sql), [TVF_LeftShiftBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_LeftShiftBigInt.md), [TVF_LeftShiftBigInt.md](../../Metadata/UsageSkills/toolbelt_binary/TVF_LeftShiftBigInt.md).
 
-<!-- Source/Vertrag SHA256: 62ce6693db46d0a5daf129aa6da1f2a2a0d292b9bfebee152af3762151d57a0f -->
+<!-- Source/Vertrag SHA256: 9100359be043ed8e810937fc88a98d7e33eb69e9060ea91dcfffdab4123c39c6 -->
+
+Voraussetzung: SQL Server 2019 oder neuer. Alle Funktionsargumente positionsbezogen angeben; für einen deklarierten Default ist DEFAULT anzugeben. Kein CLR oder externer Provider erforderlich.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -225,9 +247,11 @@ Modul `toolbelt.binary.bit-operations` · Version `1.0.0` · `TVF`
 
 Verschiebt die Bits eines bigint-Werts logisch nach rechts.
 
-Vertrag und Quelle: [TVF_RightShiftBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_RightShiftBigInt.sql), [TVF_RightShiftBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_RightShiftBigInt.md).
+Vertrag und Quelle: [TVF_RightShiftBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_RightShiftBigInt.sql), [TVF_RightShiftBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_RightShiftBigInt.md), [TVF_RightShiftBigInt.md](../../Metadata/UsageSkills/toolbelt_binary/TVF_RightShiftBigInt.md).
 
-<!-- Source/Vertrag SHA256: 9ac66c42260bddb6abdc91601432f6aecb7963135cead596c1c5774f61351b35 -->
+<!-- Source/Vertrag SHA256: a5f1219527249b4db4ab138731dde75b3fc0eef987721c3347bb5a3e6e5784b5 -->
+
+Voraussetzung: SQL Server 2019 oder neuer. Alle Funktionsargumente positionsbezogen angeben; für einen deklarierten Default ist DEFAULT anzugeben. Kein CLR oder externer Provider erforderlich.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -246,9 +270,11 @@ Modul `toolbelt.binary.bit-operations` · Version `1.0.0` · `TVF`
 
 Zählt gesetzte Bits im bigint-Wert.
 
-Vertrag und Quelle: [TVF_BitCountBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_BitCountBigInt.sql), [TVF_BitCountBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_BitCountBigInt.md).
+Vertrag und Quelle: [TVF_BitCountBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_BitCountBigInt.sql), [TVF_BitCountBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_BitCountBigInt.md), [TVF_BitCountBigInt.md](../../Metadata/UsageSkills/toolbelt_binary/TVF_BitCountBigInt.md).
 
-<!-- Source/Vertrag SHA256: 3adc33f927c95c20e3c331de0ac707c52754e5bb20bb9d358519e6fcefabafcb -->
+<!-- Source/Vertrag SHA256: 6a1258f344d2586cbb4768e4443f982f83aa7e2a1206ed597e669e945ebb5ad6 -->
+
+Voraussetzung: SQL Server 2019 oder neuer. Alle Funktionsargumente positionsbezogen angeben; für einen deklarierten Default ist DEFAULT anzugeben. Kein CLR oder externer Provider erforderlich.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -266,9 +292,11 @@ Modul `toolbelt.binary.bit-operations` · Version `1.0.0` · `TVF`
 
 Liest das Bit an einer nullbasierten Position.
 
-Vertrag und Quelle: [TVF_GetBitBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_GetBitBigInt.sql), [TVF_GetBitBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_GetBitBigInt.md).
+Vertrag und Quelle: [TVF_GetBitBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_GetBitBigInt.sql), [TVF_GetBitBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_GetBitBigInt.md), [TVF_GetBitBigInt.md](../../Metadata/UsageSkills/toolbelt_binary/TVF_GetBitBigInt.md).
 
-<!-- Source/Vertrag SHA256: 119e23aa08356d23f87f25fc4ff70f5888c0bca562306c7972966e5c039e998c -->
+<!-- Source/Vertrag SHA256: ea55af37f7d291cc2b8d04407449f056dc0d71056db35c7e793d85ad430a66a0 -->
+
+Voraussetzung: SQL Server 2019 oder neuer. Alle Funktionsargumente positionsbezogen angeben; für einen deklarierten Default ist DEFAULT anzugeben. Kein CLR oder externer Provider erforderlich.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -287,9 +315,11 @@ Modul `toolbelt.binary.bit-operations` · Version `1.0.0` · `TVF`
 
 Setzt oder löscht ein Bit an einer nullbasierten Position.
 
-Vertrag und Quelle: [TVF_SetBitBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_SetBitBigInt.sql), [TVF_SetBitBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_SetBitBigInt.md).
+Vertrag und Quelle: [TVF_SetBitBigInt.sql](../../Modules/toolbelt.binary.bit-operations/Source/TVF_SetBitBigInt.sql), [TVF_SetBitBigInt.md](../../Modules/toolbelt.binary.bit-operations/Documentation/TVF_SetBitBigInt.md), [TVF_SetBitBigInt.md](../../Metadata/UsageSkills/toolbelt_binary/TVF_SetBitBigInt.md).
 
-<!-- Source/Vertrag SHA256: cb5498c210db35d5e47813591ed13839ed1357db3149b7dc8e49e62416c1c2cd -->
+<!-- Source/Vertrag SHA256: 9c97a294c3e700e1399186e4970c8d301a7ee0ad42445c82ebf73262fbc33c85 -->
+
+Voraussetzung: SQL Server 2019 oder neuer. Alle Funktionsargumente positionsbezogen angeben; für einen deklarierten Default ist DEFAULT anzugeben. Kein CLR oder externer Provider erforderlich.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -309,9 +339,11 @@ Modul `toolbelt.conversion.base64` · Version `1.1.0` · `TVF`
 
 Codiert Binärdaten als Base64 oder Base64URL.
 
-Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md).
+Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md), [TVF_Base64Encode.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: a890c30e8dfc49df5120a42efc40a18592bddb088bcbe085758ba57ad27648d7 -->
+<!-- Source/Vertrag SHA256: ddb2553f8d55467a780b79a3c6d97471aba77046b0f0c7d4542c93d834d7e06f -->
+
+Voraussetzung: SQL Server 2019 oder neuer; Aufruf als Tabellenfunktion. Beide Argumentpositionen angeben; für einen deklarierten Default ist in einem Funktionsaufruf DEFAULT zu verwenden.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -321,7 +353,9 @@ Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.bas
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_Base64Encode(0x4869, 0);
+SELECT EncodedValue
+FROM toolbelt_conversion.TVF_Base64Encode(0xCAFECAFE,0);
+-- Erwartet: yv7K/g==
 ```
 
 ## toolbelt_conversion.TVF_Base64Decode
@@ -330,9 +364,11 @@ Modul `toolbelt.conversion.base64` · Version `1.1.0` · `TVF`
 
 Decodiert Base64-Text zu Binärdaten.
 
-Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md).
+Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md), [TVF_Base64Decode.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 87922e9c2c879ba721c3275dc776f7ee0eb0e60e3ac05fd95721378545da564f -->
+<!-- Source/Vertrag SHA256: 052f2936c5408fc5c77591f9d2e607f8e18ce169f7c61a08a51b532175cbb2f5 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Base64-Modul installiert. Reiner T-SQL/XML-Provider ohne CLR oder Netzwerk. Funktionsargumente positionsbezogen angeben; bei deklariertem Default das Schlüsselwort DEFAULT oder den gewünschten Wert übergeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -341,7 +377,8 @@ Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.bas
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_Base64Decode(N'SGk=');
+SELECT * FROM toolbelt_conversion.TVF_Base64Decode('yv7K_g');
+-- 0xCAFECAFE
 ```
 
 ## toolbelt_conversion.SVF_Base64Encode
@@ -350,9 +387,11 @@ Modul `toolbelt.conversion.base64` · Version `1.1.0` · `SVF`
 
 Codiert Binärdaten als Base64 oder Base64URL.
 
-Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md).
+Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md), [SVF_Base64Encode.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: eef4c3b664d6c8e51da04b79d172bda03764c3948a1ea172d6360c4470ec0c0b -->
+<!-- Source/Vertrag SHA256: 084658123d579b5aa2fd77ec60290f3355a10c8c111bce0d0dfc45366d38184f -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Base64-Modul installiert. Reiner T-SQL/XML-Provider ohne CLR oder Netzwerk. Funktionsargumente positionsbezogen angeben; bei deklariertem Default das Schlüsselwort DEFAULT oder den gewünschten Wert übergeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -362,7 +401,8 @@ Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.bas
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_conversion.SVF_Base64Encode(0x4869, 0) AS ResultValue;
+SELECT toolbelt_conversion.SVF_Base64Encode(0xCAFECAFE,0) AS Value;
+-- yv7K/g==
 ```
 
 ## toolbelt_conversion.SVF_Base64Decode
@@ -371,9 +411,11 @@ Modul `toolbelt.conversion.base64` · Version `1.1.0` · `SVF`
 
 Decodiert Base64-Text zu Binärdaten.
 
-Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md).
+Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md), [SVF_Base64Decode.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 1ca8e89c95dd7db865f5eca0c1005fa40f9b98bff79fc3954215b772261604f5 -->
+<!-- Source/Vertrag SHA256: 170a2ed9cd5b54afcbfac79cca1f018b787a65c081ce53799a29a300aa701f7b -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Base64-Modul installiert. Reiner T-SQL/XML-Provider ohne CLR oder Netzwerk. Funktionsargumente positionsbezogen angeben; bei deklariertem Default das Schlüsselwort DEFAULT oder den gewünschten Wert übergeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -382,20 +424,21 @@ Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.bas
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_conversion.SVF_Base64Decode(N'SGk=') AS ResultValue;
+SELECT toolbelt_conversion.SVF_Base64Decode('yv7K_g') AS Value;
+-- 0xCAFECAFE
 ```
 
 ## toolbelt_conversion.TVF_Base64EncodeStatus
 
 Modul `toolbelt.conversion.base64` · Version `1.1.0` · `TVF`
 
-Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der kanonische MSTVF-Kern prüft vor XML. Die bisherige TVF/SVF delegiert und liefert bei Überschreitung NULL.
+Codiert begrenzte Binärdaten als Base64 oder Base64URL mit explizitem NULL-/Limitstatus.
 
-Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64EncodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md).
+Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64EncodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md), [TVF_Base64EncodeStatus.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_Base64EncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 9261cc035f98b5bd06149ac603f4e8806afa1320294336c46f91f2588f8419a1 -->
+<!-- Source/Vertrag SHA256: 8f8636d26ea1322b84249e320767c8cb33fb0c059a28246cfc9449e4abcf79cd -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: SQL Server 2019 oder neuer; Aufruf als Tabellenfunktion. Beide Argumentpositionen angeben; für einen deklarierten Default ist in einem Funktionsaufruf DEFAULT zu verwenden.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -405,7 +448,12 @@ Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die US
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_Base64EncodeStatus(0xCAFE,0);
+SELECT EncodedValue,Status
+FROM toolbelt_conversion.TVF_Base64EncodeStatus(0xCAFECAFE,0);
+-- yv7K/g==, OK
+SELECT EncodedValue,Status
+FROM toolbelt_conversion.TVF_Base64EncodeStatus(NULL,1);
+-- NULL, SQL_NULL
 ```
 
 ## toolbelt_conversion.TVF_Base64DecodeStatus
@@ -414,11 +462,11 @@ Modul `toolbelt.conversion.base64` · Version `1.1.0` · `TVF`
 
 Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE, berechnete Ergebnisgröße vor XML. Standard-/URL-Alphabet und definierter Whitespace bleiben. Die bisherige TVF/SVF behält Syntaxfehler unterhalb der Grenzen und liefert bei LIMIT NULL.
 
-Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64DecodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md).
+Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64DecodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md), [TVF_Base64DecodeStatus.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_Base64DecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: f0446c2730e2603ad050ceef7ec05d3b3293e7ff9d931d96b38d8674c243c1e7 -->
+<!-- Source/Vertrag SHA256: 3e60cd8c06402380d4d60f2ccfabf32d1d32d8e787fd420b830cbd6d773030dc -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Base64-Modul installiert. Reiner T-SQL/XML-Provider ohne CLR oder Netzwerk. Funktionsargumente positionsbezogen angeben; bei deklariertem Default das Schlüsselwort DEFAULT oder den gewünschten Wert übergeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -427,7 +475,8 @@ Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die US
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_Base64DecodeStatus('YWJj');
+SELECT * FROM toolbelt_conversion.TVF_Base64DecodeStatus('yv7K_g');
+-- 0xCAFECAFE, Status=OK
 ```
 
 ## toolbelt_conversion.TVF_IntegerToBase
@@ -436,9 +485,11 @@ Modul `toolbelt.conversion.integer-base` · Version `1.1.0` · `TVF`
 
 Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
-Vertrag und Quelle: [TVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_IntegerToBase.sql), [TVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_IntegerToBase.md).
+Vertrag und Quelle: [TVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_IntegerToBase.sql), [TVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_IntegerToBase.md), [TVF_IntegerToBase.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 4a578593ac1617d0ce8e89b189457a69e9c1906ae496d7afa53e611c3c99355b -->
+<!-- Source/Vertrag SHA256: d586ba4cc906339d1dee801fbe78abd08f6b3a39ae8910b13ac6807078886026 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul installiert; reine T-SQL-Funktionen ohne CLR, externe Datenquelle oder Systemkatalogabfrage. Beide Argumente positionsbezogen übergeben. Keine SQL-Defaults.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -448,7 +499,8 @@ Vertrag und Quelle: [TVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.in
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_IntegerToBase(255, '0123456789ABCDEF');
+SELECT * FROM toolbelt_conversion.TVF_IntegerToBase(255,'0123456789ABCDEF');
+-- FF
 ```
 
 ## toolbelt_conversion.TVF_TryBaseToInteger
@@ -457,9 +509,11 @@ Modul `toolbelt.conversion.integer-base` · Version `1.1.0` · `TVF`
 
 Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
-Vertrag und Quelle: [TVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql), [TVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_TryBaseToInteger.md).
+Vertrag und Quelle: [TVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql), [TVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_TryBaseToInteger.md), [TVF_TryBaseToInteger.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 73c709fc5af9a9505bb3bec290657590dacbfff179dcd5e3736b01173c2b2775 -->
+<!-- Source/Vertrag SHA256: aa2844ac5ee7397aae97322f79ce0894015852b8fe23494f3d8b7ed2fb6d0d32 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul installiert; reine T-SQL-Funktionen ohne CLR, externe Datenquelle oder Systemkatalogabfrage. Beide Argumente positionsbezogen übergeben. Keine SQL-Defaults.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -469,7 +523,8 @@ Vertrag und Quelle: [TVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryBaseToInteger('FF', '0123456789ABCDEF');
+SELECT * FROM toolbelt_conversion.TVF_TryBaseToInteger('FF','0123456789ABCDEF');
+-- 255
 ```
 
 ## toolbelt_conversion.SVF_IntegerToBase
@@ -478,9 +533,11 @@ Modul `toolbelt.conversion.integer-base` · Version `1.1.0` · `SVF`
 
 Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
-Vertrag und Quelle: [SVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql), [SVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_IntegerToBase.md).
+Vertrag und Quelle: [SVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql), [SVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_IntegerToBase.md), [SVF_IntegerToBase.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 48a155da27c84a6a56b43436c6c2fb7e5a78650e3e95ee63ffde31e15dfd1e25 -->
+<!-- Source/Vertrag SHA256: 084476647978b2ffef8c619c8869e0fa77668be0d9ef29f0392f997d62c0579e -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul installiert; reine T-SQL-Funktionen ohne CLR, externe Datenquelle oder Systemkatalogabfrage. Beide Argumente positionsbezogen übergeben. Keine SQL-Defaults.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -490,7 +547,8 @@ Vertrag und Quelle: [SVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.in
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_conversion.SVF_IntegerToBase(255, '0123456789ABCDEF') AS ResultValue;
+SELECT toolbelt_conversion.SVF_IntegerToBase(255,'0123456789ABCDEF') AS Value;
+-- FF
 ```
 
 ## toolbelt_conversion.SVF_TryBaseToInteger
@@ -499,9 +557,11 @@ Modul `toolbelt.conversion.integer-base` · Version `1.1.0` · `SVF`
 
 Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
-Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [SVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md).
+Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [SVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md), [SVF_TryBaseToInteger.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 0b015c4938d3d5b95a657ce6b0fc76fdcbae32688f270c62ff8851547df3ad38 -->
+<!-- Source/Vertrag SHA256: e634d0402cf7f5494c907b0e19986f742288233a28db4f5a7956b5a769b58276 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul installiert; reine T-SQL-Funktionen ohne CLR, externe Datenquelle oder Systemkatalogabfrage. Beide Argumente positionsbezogen übergeben. Keine SQL-Defaults.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -511,7 +571,8 @@ Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_conversion.SVF_TryBaseToInteger('FF', '0123456789ABCDEF') AS ResultValue;
+SELECT toolbelt_conversion.SVF_TryBaseToInteger('FF','0123456789ABCDEF') AS Value;
+-- 255
 ```
 
 ## toolbelt_conversion.TVF_TryCastBigInt
@@ -520,11 +581,11 @@ Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
 
 Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status und ErrorCode.
 
-Vertrag und Quelle: [TVF_TryCastBigInt.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBigInt.sql), [TVF_TryCastBigInt.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBigInt.md).
+Vertrag und Quelle: [TVF_TryCastBigInt.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBigInt.sql), [TVF_TryCastBigInt.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBigInt.md), [TVF_TryCastBigInt.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryCastBigInt.md).
 
-<!-- Source/Vertrag SHA256: 7d333cec80ae234520bc677d2f800beab6956f72de79685ba41635741a0f2848 -->
+<!-- Source/Vertrag SHA256: 7cbb93f59755e8d3174c92bd0219142c3d26231bca272ebca075778a3c7a0fa4 -->
 
-Voraussetzung: Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Safe-Cast-Modul installiert. Keine Modul-/Tabellen-/CLR-/Katalogabhängigkeit. Beide Funktionsargumentpositionen angeben, DEFAULT für das technische Budget 8192. Eingabe als Unicodeparameter nvarchar(max) binden, damit keine vorgelagerte varchar-Codepagekonversion den Originaltext verändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -534,7 +595,12 @@ Voraussetzung: Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte.
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryCastBigInt(N'-9223372036854775808', DEFAULT);
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastBigInt(N'+00042',DEFAULT);
+-- 42, OK, NULL
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastBigInt(NULL,0);
+-- NULL, SQL_NULL, NULL (Text-NULL hat Vorrang).
 ```
 
 ## toolbelt_conversion.TVF_TryCastDecimal
@@ -543,11 +609,11 @@ Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
 
 Prüft exakten decimal(38,18)-Bereich vor Skalenverlust; rundet niemals still.
 
-Vertrag und Quelle: [TVF_TryCastDecimal.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDecimal.sql), [TVF_TryCastDecimal.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDecimal.md).
+Vertrag und Quelle: [TVF_TryCastDecimal.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDecimal.sql), [TVF_TryCastDecimal.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDecimal.md), [TVF_TryCastDecimal.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryCastDecimal.md).
 
-<!-- Source/Vertrag SHA256: d7ba9fa5f82c7aa34163a6d26140a7548e3a8a38cc7671a2c749be5098da5443 -->
+<!-- Source/Vertrag SHA256: 8a8d3d1b4a84564ebc60121f11f3e80c8976d56073ebe1b32fced155832712dc -->
 
-Voraussetzung: Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Safe-Cast-Modul installiert. Keine Modul-/Tabellen-/CLR-/Katalogabhängigkeit. Beide Funktionsargumentpositionen angeben, DEFAULT für das technische Budget 8192. Eingabe als Unicodeparameter nvarchar(max) binden, damit keine vorgelagerte varchar-Codepagekonversion den Originaltext verändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -557,7 +623,12 @@ Voraussetzung: Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, son
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryCastDecimal(N'99999999999999999999.9999999999999999991', DEFAULT);
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastDecimal(N'12.5000000000000000000',DEFAULT);
+-- 12.500000000000000000, OK, NULL
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastDecimal(NULL,0);
+-- NULL, SQL_NULL, NULL (Text-NULL hat Vorrang).
 ```
 
 ## toolbelt_conversion.TVF_TryCastDate
@@ -566,11 +637,11 @@ Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
 
 Prüft exakt YYYY-MM-DD und den date-Kalenderbereich unabhängig von Sprache und DATEFORMAT.
 
-Vertrag und Quelle: [TVF_TryCastDate.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDate.sql), [TVF_TryCastDate.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDate.md).
+Vertrag und Quelle: [TVF_TryCastDate.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDate.sql), [TVF_TryCastDate.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDate.md), [TVF_TryCastDate.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryCastDate.md).
 
-<!-- Source/Vertrag SHA256: 59b28516fd3f6e0dd7fa094632cbd2e42c699e965da34c8a3c1b321e5281189e -->
+<!-- Source/Vertrag SHA256: 9306695997385e4bd48268c4825ae35407a3ce789cfb70af55391d79302a0ae7 -->
 
-Voraussetzung: Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Safe-Cast-Modul installiert. Keine Modul-/Tabellen-/CLR-/Katalogabhängigkeit. Beide Funktionsargumentpositionen angeben, DEFAULT für das technische Budget 8192. Eingabe als Unicodeparameter nvarchar(max) binden, damit keine vorgelagerte varchar-Codepagekonversion den Originaltext verändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -580,7 +651,12 @@ Voraussetzung: Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryCastDate(N'2024-02-29', DEFAULT);
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastDate(N'2026-11-20',DEFAULT);
+-- 2026-11-20, OK, NULL
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastDate(NULL,0);
+-- NULL, SQL_NULL, NULL (Text-NULL hat Vorrang).
 ```
 
 ## toolbelt_conversion.TVF_TryCastDateTime2
@@ -589,11 +665,11 @@ Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
 
 Prüft ISO-Datetime mit großem T und höchstens sieben Fractionziffern ohne Rundung oder Zeitzonenverlust.
 
-Vertrag und Quelle: [TVF_TryCastDateTime2.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDateTime2.sql), [TVF_TryCastDateTime2.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDateTime2.md).
+Vertrag und Quelle: [TVF_TryCastDateTime2.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDateTime2.sql), [TVF_TryCastDateTime2.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDateTime2.md), [TVF_TryCastDateTime2.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryCastDateTime2.md).
 
-<!-- Source/Vertrag SHA256: e112747514e3764b7b4cf6cdfbc39a07ff7d2bbf54da749a549d1d4a60504aec -->
+<!-- Source/Vertrag SHA256: f0f9645f7c950b15a519e289588a3b28874b787375a413af261887c8ce5a9879 -->
 
-Voraussetzung: Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpretation.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Safe-Cast-Modul installiert. Keine Modul-/Tabellen-/CLR-/Katalogabhängigkeit. Beide Funktionsargumentpositionen angeben, DEFAULT für das technische Budget 8192. Eingabe als Unicodeparameter nvarchar(max) binden, damit keine vorgelagerte varchar-Codepagekonversion den Originaltext verändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -603,7 +679,12 @@ Voraussetzung: Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpre
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryCastDateTime2(N'2024-02-29T23:59:59.1234567', DEFAULT);
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastDateTime2(N'2026-11-20T12:34:56.1234567',DEFAULT);
+-- 2026-11-20 12:34:56.1234567, OK, NULL
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastDateTime2(NULL,0);
+-- NULL, SQL_NULL, NULL (Text-NULL hat Vorrang).
 ```
 
 ## toolbelt_conversion.TVF_TryCastBit
@@ -612,11 +693,11 @@ Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
 
 Akzeptiert ausschließlich den Text0 oder1; native permissive Bitkonversion bleibt ausgeschlossen.
 
-Vertrag und Quelle: [TVF_TryCastBit.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBit.sql), [TVF_TryCastBit.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBit.md).
+Vertrag und Quelle: [TVF_TryCastBit.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBit.sql), [TVF_TryCastBit.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBit.md), [TVF_TryCastBit.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryCastBit.md).
 
-<!-- Source/Vertrag SHA256: ef1b3e4d812473be5e830286f5e113f357088407647bb88cd1081400925053be -->
+<!-- Source/Vertrag SHA256: 49de10844e1e6e322bf6c2744c9bbf8541bc1711d8be63f030d95bd25e5fd0f1 -->
 
-Voraussetzung: Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Safe-Cast-Modul installiert. Keine Modul-/Tabellen-/CLR-/Katalogabhängigkeit. Beide Funktionsargumentpositionen angeben, DEFAULT für das technische Budget 8192. Eingabe als Unicodeparameter nvarchar(max) binden, damit keine vorgelagerte varchar-Codepagekonversion den Originaltext verändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -626,7 +707,12 @@ Voraussetzung: Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryCastBit(N'2', DEFAULT);
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastBit(N'1',DEFAULT);
+-- 1, OK, NULL
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastBit(NULL,0);
+-- NULL, SQL_NULL, NULL (Text-NULL hat Vorrang).
 ```
 
 ## toolbelt_conversion.TVF_TryCastUniqueIdentifier
@@ -635,11 +721,11 @@ Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
 
 Prüft vollständige GUID-Lexik im8-4-4-4-12-Muster vor Konversion; keine Suffixtrunkierung.
 
-Vertrag und Quelle: [TVF_TryCastUniqueIdentifier.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastUniqueIdentifier.sql), [TVF_TryCastUniqueIdentifier.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastUniqueIdentifier.md).
+Vertrag und Quelle: [TVF_TryCastUniqueIdentifier.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastUniqueIdentifier.sql), [TVF_TryCastUniqueIdentifier.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastUniqueIdentifier.md), [TVF_TryCastUniqueIdentifier.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_TryCastUniqueIdentifier.md).
 
-<!-- Source/Vertrag SHA256: 51c0d85a79af4745220012d3df99289d3a505ff40af71bf82379d02e4c71f859 -->
+<!-- Source/Vertrag SHA256: d4c72f61a7e3b3ef5ed504dc774931ae4ee6c18ade9f9abd59d35df28de7a189 -->
 
-Voraussetzung: Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Braces.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Safe-Cast-Modul installiert. Keine Modul-/Tabellen-/CLR-/Katalogabhängigkeit. Beide Funktionsargumentpositionen angeben, DEFAULT für das technische Budget 8192. Eingabe als Unicodeparameter nvarchar(max) binden, damit keine vorgelagerte varchar-Codepagekonversion den Originaltext verändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -649,18 +735,25 @@ Voraussetzung: Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Br
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_TryCastUniqueIdentifier(N'00112233-4455-6677-8899-aabbccddeeff', DEFAULT);
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastUniqueIdentifier(N'00112233-4455-6677-8899-aabbccddeeff',DEFAULT);
+-- 00112233-4455-6677-8899-aabbccddeeff, OK, NULL
+SELECT Value,Status,ErrorCode
+FROM toolbelt_conversion.TVF_TryCastUniqueIdentifier(NULL,0);
+-- NULL, SQL_NULL, NULL (Text-NULL hat Vorrang).
 ```
 
 ## toolbelt_conversion.TVF_UriComponentEncode
 
 Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `TVF`
 
-Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
+Codiert eine Unicode-URI-Komponente als begrenzte UTF-8-Percentdarstellung.
 
-Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncode.md).
+Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncode.md), [TVF_UriComponentEncode.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: 17b0f4c57c7d231bb1d0b4c79e89901077bc5990346b050d4bd3dba58b034ba5 -->
+<!-- Source/Vertrag SHA256: 34192d8ce36a1ae0bc40cd23aebce378c8a7063ffed484a0785f17b06241ccfb -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. URI-Modul und deklarierte Generate-Series-Abhängigkeit installiert. SQL-UTF8-Kollation Latin1_General_100_BIN2_UTF8 und master.dbo.fn_varbintohexstr werden vom T-SQL-Provider verwendet. Kein CLR, Datei-/Netzwerkzugriff oder Fachsystemkatalog.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -669,7 +762,8 @@ Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversi
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_UriComponentEncode(N'a b/ä');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentEncode(N'a b/Ä');
+-- a%20b%2F%C3%84
 ```
 
 ## toolbelt_conversion.TVF_UriComponentDecode
@@ -678,9 +772,11 @@ Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `TVF`
 
 Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
-Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecode.md).
+Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecode.md), [TVF_UriComponentDecode.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: 8e06893fa21a4bf41aa807ffed6e4514588e887c2e411492460f34ef1d794b13 -->
+<!-- Source/Vertrag SHA256: f2fcf3e061354eb481025353a6a7bbcc892e72f41aeb0a217e452785186e17de -->
+
+Voraussetzung: URIcomponent-Modul mit demselben kanonischen GenerateSeries-Kern. TSQL auf Windows/Linux SQL2019/2022/2025, zulässiges CL150/160/170. Keine Datei-, Netzwerk-, CLR-, Katalog- oder Trustabhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -689,18 +785,22 @@ Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversi
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_UriComponentDecode(N'a%20b%2F%C3%A4');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'Contoso%20A%2BB');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(NCHAR(256));
+SELECT toolbelt_conversion.SVF_UriComponentDecode(N'%F0%9F%98%80');
 ```
 
 ## toolbelt_conversion.SVF_UriComponentEncode
 
 Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `SVF`
 
-Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
+Codiert eine Unicode-URI-Komponente als begrenzte UTF-8-Percentdarstellung.
 
-Vertrag und Quelle: [SVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentEncode.sql), [SVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentEncode.md).
+Vertrag und Quelle: [SVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentEncode.sql), [SVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentEncode.md), [SVF_UriComponentEncode.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: 583ab2fd0edb9fa3c7d621d2622a4f6a337934476bc1b1d10daceacd08158133 -->
+<!-- Source/Vertrag SHA256: 56225f0643d6101b4e07e480dab1b7af76b88d83186eb5a5dd1d9e5ea7a5694f -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. URI-Modul und deklarierte Generate-Series-Abhängigkeit installiert. SQL-UTF8-Kollation Latin1_General_100_BIN2_UTF8 und master.dbo.fn_varbintohexstr werden vom T-SQL-Provider verwendet. Kein CLR, Datei-/Netzwerkzugriff oder Fachsystemkatalog.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -709,7 +809,8 @@ Vertrag und Quelle: [SVF_UriComponentEncode.sql](../../Modules/toolbelt.conversi
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_conversion.SVF_UriComponentEncode(N'a b/ä') AS ResultValue;
+SELECT toolbelt_conversion.SVF_UriComponentEncode(N'a b/Ä') AS Value;
+-- a%20b%2F%C3%84
 ```
 
 ## toolbelt_conversion.SVF_UriComponentDecode
@@ -718,9 +819,11 @@ Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `SVF`
 
 Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
-Vertrag und Quelle: [SVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentDecode.sql), [SVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentDecode.md).
+Vertrag und Quelle: [SVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentDecode.sql), [SVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentDecode.md), [SVF_UriComponentDecode.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: 03befd753d8248ee253ee93217e202f6d10fa263559b53714c7744511cf6a8cb -->
+<!-- Source/Vertrag SHA256: 212a3b16577d9799d3a43049b70283714fed934cfc7b7e9a97c495dc67af7e21 -->
+
+Voraussetzung: URIcomponent-Modul mit demselben kanonischen GenerateSeries-Kern. TSQL auf Windows/Linux SQL2019/2022/2025, zulässiges CL150/160/170. Keine Datei-, Netzwerk-, CLR-, Katalog- oder Trustabhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -729,20 +832,22 @@ Vertrag und Quelle: [SVF_UriComponentDecode.sql](../../Modules/toolbelt.conversi
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_conversion.SVF_UriComponentDecode(N'a%20b%2F%C3%A4') AS ResultValue;
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'Contoso%20A%2BB');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(NCHAR(256));
+SELECT toolbelt_conversion.SVF_UriComponentDecode(N'%F0%9F%98%80');
 ```
 
 ## toolbelt_conversion.TVF_UriComponentEncodeStatus
 
 Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `TVF`
 
-Genau eine Zeile: OK, SQL_NULL oder LIMIT. Eingang vor UTF-8-Konvertierung/Series prüfen. Aus höchstens 32768 Codeeinheiten entstehen selbst bei drei UTF-8-Bytes und drei Escapezeichen je Byte höchstens 589824 UTF-16-Ausgabebytes; die 1-MiB-Grenze ist damit schon vor Aggregation abgesichert. Altfassaden liefern bei LIMIT NULL.
+Codiert eine Unicode-URI-Komponente als begrenzte UTF-8-Percentdarstellung.
 
-Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncodeStatus.md).
+Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncodeStatus.md), [TVF_UriComponentEncodeStatus.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_UriComponentEncodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 0f1d7184f20ce09416cf26e50a487b94157a3c53d131109d1c1ee1d8e8fe7798 -->
+<!-- Source/Vertrag SHA256: ffffcb5db42aa4ce5d5e80be638547202047d42a89c8c3adc1a0d6b60b279f04 -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. URI-Modul und deklarierte Generate-Series-Abhängigkeit installiert. SQL-UTF8-Kollation Latin1_General_100_BIN2_UTF8 und master.dbo.fn_varbintohexstr werden vom T-SQL-Provider verwendet. Kein CLR, Datei-/Netzwerkzugriff oder Fachsystemkatalog.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -751,7 +856,8 @@ Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die US
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_UriComponentEncodeStatus(N'Contoso €');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentEncodeStatus(N'a b/Ä');
+-- a%20b%2F%C3%84, Status=OK
 ```
 
 ## toolbelt_conversion.TVF_UriComponentDecodeStatus
@@ -760,11 +866,11 @@ Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `TVF`
 
 Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Strikte UTF-8-/Percent-/NUL-Regeln bleiben; bei LIMIT IsValid=0, ValidationCode=14, Wert NULL. Die Ausgabe ist durch den vor Series geprüften Eingang unter 1 MiB begrenzt. Altfassaden behalten ihre Spalten und liefern bei LIMIT NULL.
 
-Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecodeStatus.md).
+Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecodeStatus.md), [TVF_UriComponentDecodeStatus.md](../../Metadata/UsageSkills/toolbelt_conversion/TVF_UriComponentDecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 3d069256b8c43b731c6461127a1def8eb7c96827ea814319da098d6786af6595 -->
+<!-- Source/Vertrag SHA256: d128463f88a1372c827237f2e418f8991d5ed92095b41a3f8df3d097eeac96b7 -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: URIcomponent-Modul mit demselben kanonischen GenerateSeries-Kern. TSQL auf Windows/Linux SQL2019/2022/2025, zulässiges CL150/160/170. Keine Datei-, Netzwerk-, CLR-, Katalog- oder Trustabhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -773,44 +879,35 @@ Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die US
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'%E2%82%AC');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'Contoso%20A%2BB');
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(NCHAR(256));
+SELECT toolbelt_conversion.SVF_UriComponentDecode(N'%F0%9F%98%80');
 ```
 
 ## toolbelt_core.USP_WriteConsoleMessage
 
 Modul `toolbelt.core.console-message` · Version `1.0.0` · `USP`
 
-Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.
+Gibt begrenzten Unicode-Text in den SQL-Messages-Kanal aus, wahlweise mit NOWAIT.
 
-Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md).
+Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md), [USP_WriteConsoleMessage.md](../../Metadata/UsageSkills/toolbelt_core/USP_WriteConsoleMessage.md).
 
-<!-- Source/Vertrag SHA256: 015b7ee72d30f809266af0693c5daa86b0f85e75e81e13c8181bb0980ade3786 -->
+<!-- Source/Vertrag SHA256: cfa58f28d9c810b9fce5deac9be4351f9f01da040ee0b2fe7647462d5377e06f -->
+
+Voraussetzung: Installierte reine T-SQL-Prozedur auf SQL Server 2019/2022/2025, Windows oder Linux, lokal/zentral gemäß Modulvertrag. Client/Treiber muss Informationsnachrichten entgegennehmen; NOWAIT ist keine Zusage sofortiger UI-Darstellung. Keine CLR-, Datei-, Netzwerk- oder Tabellenabhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Message` | `nvarchar(max)` | `NULL` | Input | Auszugebender Unicode-Text als nvarchar(max), maximal 1048576 UTF-16-Bytes und höchstens 512 berechnete Frames. CR/LF und Prozentzeichen sind Inhalt, kein Formatstring. Default/NULL und leerer Text erzeugen keine Ausgabe; Überschreitung wird vor erster Ausgabe abgewiesen. |
 | `@Immediate` | `bit` | `0` | Input | Taxativ für bit: 0 puffert über PRINT mit bis 4000 Codeeinheiten je Frame (Default); 1 nutzt RAISERROR Severity 0 WITH NOWAIT mit bis 2000 Codeeinheiten je Frame. NULL entspricht 0; konkrete Clientpufferung bleibt vom Client abhängig. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0; in dieser Procedure haben alle diese Werte bewusst keine Wirkung und erzeugen keine zusätzliche Diagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert ausschließlich Hilfe und ignoriert alle anderen Argumente; 0 führt die Messageausgabe aus (Default). NULL wird wie 0 behandelt. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe plus genau ein vierkolumniges Skill-Resultset und kehrt vor Fachprüfungen und Fachausgabe zurück. 0 oder NULL führt den Normalpfad aus. Alle übrigen Parameter werden bei Hilfe fachlich ignoriert; ihre SQL-Typbindung gilt weiterhin. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_WriteConsoleMessage
-      @Message = N'Schritt 1 abgeschlossen.'
-    , @Immediate = 1;
-```
-
-```sql
-EXEC toolbelt_core.USP_WriteConsoleMessage
-      @Message = N'Gepufferte Ausgabe'
-    , @Immediate = 0;
-
-EXEC toolbelt_core.USP_WriteConsoleMessage
-      @Message = N'Fortschritt: 100 %'
-    , @Immediate = 1;
-
-EXEC toolbelt_core.USP_WriteConsoleMessage @Hilfe = 1;
+EXEC toolbelt_core.USP_WriteConsoleMessage @Message=N'Example progress: 25%',@Immediate=1;
+EXEC toolbelt_core.USP_WriteConsoleMessage @Hilfe=1;
 ```
 
 Hilfe:
@@ -823,11 +920,13 @@ EXEC toolbelt_core.USP_WriteConsoleMessage @Hilfe=1;
 
 Modul `toolbelt.core.error-envelope` · Version `1.0.0` · `USP`
 
-Erzeugt aus explizit im aufrufenden CATCH gelesenen ERROR_*-Werten genau eine standardisierte Fehlerzeile. Die Procedure führt keinen Rethrow aus; der Aufrufer verwendet anschließend THROW; im ursprünglichen CATCH.
+Formatiert explizit übergebene Fehlerdaten mit aktuellem Ausführungskontext als eine Fehlerzeile.
 
-Vertrag und Quelle: [USP_CaptureErrorEnvelope.sql](../../Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql), [USP_CaptureErrorEnvelope.md](../../Modules/toolbelt.core.error-envelope/Documentation/USP_CaptureErrorEnvelope.md).
+Vertrag und Quelle: [USP_CaptureErrorEnvelope.sql](../../Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql), [USP_CaptureErrorEnvelope.md](../../Modules/toolbelt.core.error-envelope/Documentation/USP_CaptureErrorEnvelope.md), [USP_CaptureErrorEnvelope.md](../../Metadata/UsageSkills/toolbelt_core/USP_CaptureErrorEnvelope.md).
 
-<!-- Source/Vertrag SHA256: aba157ba3445d320ca5a5984532e4afc85b77587db9ff571b517bc579dcde4e0 -->
+<!-- Source/Vertrag SHA256: c8b05f1252fe109f9cddb0f3e57460b6a6bae7e70b6aa4f35d31e1d678b68cab -->
+
+Voraussetzung: Installierte T-SQL-Prozedur auf SQL Server 2019/2022/2025, Windows/Linux, lokal/zentral gemäß Modulvertrag. Direktes Resultset benötigt keine ResultTable-Operation und funktioniert im vorgesehenen uncommittable Callerpfad ohne Temp-DDL/INSERT. Für ResultTable-Ausgabe vorhandene lokale #Temp und USP_PrepareResultTable; zuerst Caller-Rollback bei XACT_STATE()=-1.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -837,28 +936,21 @@ Vertrag und Quelle: [USP_CaptureErrorEnvelope.sql](../../Modules/toolbelt.core.e
 | `@ErrorProcedure` | `nvarchar(776)` | `NULL` | Input | Optionaler reiner Unicode-Text nvarchar(776), normalerweise ERROR_PROCEDURE() im CATCH, kein auszuführender Objektname. NULL bleibt NULL, leerer Text wird nicht besonders validiert. |
 | `@ErrorLine` | `int` | `NULL` | Input | Optionale positive int-Zeilennummer aus ERROR_LINE(); NULL (Default) ist erlaubt, 0/negativ ergibt 51403. |
 | `@ErrorMessage` | `nvarchar(4000)` | `NULL` | Input | Fachlich erforderlicher Unicode-Fehlertext nvarchar(4000), normalerweise ERROR_MESSAGE() im CATCH. NULL, leer und nach SQL-Gleichheit leere reine Spacefolgen ergeben 51404; keine automatische Redigierung geheimer Inhalte. |
-| `@ExecutionId` | `uniqueidentifier` | `NULL` | Input | Optionaler SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier). Default/NULL liest toolbelt.execution.id aus SESSION_CONTEXT mit TRY_CONVERT; fehlender/ungültiger Kontext bleibt NULL. Eine explizite ID muss keinem gespeicherten Kontext entsprechen. |
+| `@ExecutionId` | `uniqueidentifier` | `NULL` | Input | Optionaler SQL-uniqueidentifier, Default NULL. NULL liest SESSION_CONTEXT(N'toolbelt.execution.id') mit TRY_CONVERT(uniqueidentifier,...); fehlende oder nicht parsebare Werte können NULL ergeben, ausdrücklich nicht unterstützte Konvertierungen behalten Enginefehler. Explizite ID wird unverändert übernommen und muss keinem gespeicherten Kontext entsprechen. Kein automatischer Kontextschreibzugriff. |
 | `@AdditionalContext` | `nvarchar(4000)` | `NULL` | Input | Optionaler Unicode-Freitext nvarchar(4000), kein vorgeschriebenes JSON-Schema und keine Ausführung. NULL/leer wird unverändert ausgegeben; nur bereits bereinigte, für den Empfänger zulässige Zusatzinformation übergeben. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) gibt eine direkte Fehlerzeile aus, auch bei XACT_STATE()=-1. Sonst Name einer bereits vom Caller angelegten lokalen #Temp-Tabelle als sysname, z.B. N'#Envelope', keine globale oder mehrteilige Tabelle; ResultTable-Helper nötig. Bei uncommittable Caller zuerst Rollback, sonst 51406. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 bereitet Replace vor (Default), 1 hängt bei kompatibler ResultTable an; NULL wird vom kanonischen Helper wie 0 behandelt. Nur bei nicht-NULL ResultTable relevant. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) und NULL ohne Diagnose; 1..255 erzeugen eine abstrakte Informationsmeldung ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur Hilfe vor Fachvalidierung; 0 (Default) und NULL führen die Fachoperation aus. Im Hilfemodus sind die fachlich erforderlichen Error*-Werte nicht nötig. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe plus genau ein vierkolumniges Skill-Resultset und kehrt vor Fachprüfungen und Fachausgabe zurück. 0 oder NULL führt den Normalpfad aus. Alle übrigen Parameter werden bei Hilfe fachlich ignoriert; ihre SQL-Typbindung gilt weiterhin. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-BEGIN TRY
-    THROW 50000,N'Synthetischer Beispielfehler',1;
-END TRY
-BEGIN CATCH
-    DECLARE @Number int=ERROR_NUMBER(), @Severity int=ERROR_SEVERITY(),
-            @State int=ERROR_STATE(), @Line int=ERROR_LINE(),
-            @Procedure nvarchar(128)=ERROR_PROCEDURE(),
-            @Message nvarchar(4000)=ERROR_MESSAGE();
-    EXEC toolbelt_core.USP_CaptureErrorEnvelope
-      @ErrorNumber=@Number, @ErrorSeverity=@Severity, @ErrorState=@State,
-      @ErrorProcedure=@Procedure, @ErrorLine=@Line, @ErrorMessage=@Message;
-END CATCH;
+-- Synthetische explizite Fehlerdaten, keine echte Fehlersitzung nötig:
+EXEC toolbelt_core.USP_CaptureErrorEnvelope
+ @ErrorNumber=50001,@ErrorSeverity=16,@ErrorState=1,
+ @ErrorMessage=N'Example failure',@AdditionalContext=N'Synthetic example';
+EXEC toolbelt_core.USP_CaptureErrorEnvelope @Hilfe=1;
 ```
 
 Hilfe:
@@ -871,16 +963,21 @@ EXEC toolbelt_core.USP_CaptureErrorEnvelope @Hilfe=1;
 
 Modul `toolbelt.core.event-log` · Version `1.0.0` · `VIEW`
 
-Zeigt protokollierte Toolbelt-Events.
+Öffentliche ungefilterte Projektion aller persistierten Ereignis- und Auditspalten.
 
-Vertrag und Quelle: [VW_Events.sql](../../Modules/toolbelt.core.event-log/Source/VW_Events.sql), [VW_Events.md](../../Modules/toolbelt.core.event-log/Documentation/VW_Events.md).
+Vertrag und Quelle: [VW_Events.sql](../../Modules/toolbelt.core.event-log/Source/VW_Events.sql), [VW_Events.md](../../Modules/toolbelt.core.event-log/Documentation/VW_Events.md), [VW_Events.md](../../Metadata/UsageSkills/toolbelt_core/VW_Events.md).
 
-<!-- Source/Vertrag SHA256: ee5a6dd447561adee9115c35aa761694357a3ebd0d83f9389d70da60ed311a5a -->
+<!-- Source/Vertrag SHA256: 339e490972a6976483cc9d0f5d07a581826829d98270e1680a6b114617e58a8a -->
+
+Voraussetzung: Installiertes Modul toolbelt.core.event-log in der gewählten Datenbank, SQL2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170. View benötigt die Tabelle. Für das reine SELECT ist keine aktive Second-Session-Verbindung nötig; die getrennte öffentliche Schreibfassade benötigt ihren konfigurierten Second-Session-/Work-Type-/Execution-Context-Vertrag. Kein automatisches Einrichten dieser Infrastruktur.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_Events;
+SELECT TOP (100) EventId,RecordedAtUtc,EventName,EventLevel
+FROM toolbelt_core.VW_Events
+ORDER BY RecordedAtUtc DESC,EventId DESC;
+-- Explizite Reihenfolge; keine ungefilterte Ausgabe von Message/DataJson.
 ```
 
 ## toolbelt_core.USP_WriteEvent
@@ -889,11 +986,11 @@ Modul `toolbelt.core.event-log` · Version `1.0.0` · `USP`
 
 Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. Der Remote-Commit ist unabhängig von Commit oder Rollback der Caller-Transaktion.
 
-Vertrag und Quelle: [USP_WriteEvent.sql](../../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [USP_WriteEvent.md](../../Modules/toolbelt.core.event-log/Documentation/USP_WriteEvent.md).
+Vertrag und Quelle: [USP_WriteEvent.sql](../../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [USP_WriteEvent.md](../../Modules/toolbelt.core.event-log/Documentation/USP_WriteEvent.md), [USP_WriteEvent.md](../../Metadata/UsageSkills/toolbelt_core/USP_WriteEvent.md).
 
-<!-- Source/Vertrag SHA256: b18e87a24d5b10382a4a1854682465b2f7dca04a369648a52e1b52f90b96a0e4 -->
+<!-- Source/Vertrag SHA256: 2ac1b36c3f719a368eaa4816a162ecc314ee8ee7bc32f6298e95862cc6db3ac8 -->
 
-Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux, passende CL150/160/170, lokal/zentral. EventLog und execution-context installiert. Konfigurierter aktivierter Loopback-Provider in second-session >=1.1.0 mit RPC OUT und Remote-Proc-Transaction-Promotion OFF. Aktiv registrierter JSON_PAYLOAD-Work-Type toolbelt.event-log.write mit kanonischem Handler USP_WriteEventInternal(@PayloadJson nvarchar(max),@Hilfe bit=0), ohne fachliches Resultset. Vorhandene lokale und Remote-Policy EXECUTE_NEW_SESSION plus Remote-Handler-EXECUTE. Runtime-Preflight prüft unter anderem OBJECT_ID und @SuppressResult-Parameter; er installiert/konfiguriert nichts.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -916,12 +1013,14 @@ Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schrei
 | `@ErrorProcedure` | `sysname` | `NULL` | Input | Optionale Fehlerprocedure als sysname (höchstens 128 Codeeinheiten), etwa ERROR_PROCEDURE(); NULL/leer erlaubt, kein auszuführender Aufruf. |
 | `@ErrorLine` | `int` | `NULL` | Input | Optionale positive int-Zeilennummer aus ERROR_LINE(); NULL erlaubt, 0/negativ wird abgewiesen. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile vor dem Fachpfad; 0 oder NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_WriteEvent @EventName='demo.completed', @Message=N'Synthetic example';
+EXEC toolbelt_core.USP_WriteEvent @EventName='contoso.example',@EventLevel='INFO',@Message=N'Synthetic event',@DataJson=N'{"rows":1}';
+-- Persistiert über den zuvor autorisierten/konfigurierten Provider.
+EXEC toolbelt_core.USP_WriteEvent @Hilfe=1;
 ```
 
 Hilfe:
@@ -936,25 +1035,29 @@ Modul `toolbelt.core.event-log` · Version `1.0.0` · `USP`
 
 Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine automatische Zeitplanung aus.
 
-Vertrag und Quelle: [USP_DeleteEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql), [USP_DeleteEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteEventsBefore.md).
+Vertrag und Quelle: [USP_DeleteEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql), [USP_DeleteEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteEventsBefore.md), [USP_DeleteEventsBefore.md](../../Metadata/UsageSkills/toolbelt_core/USP_DeleteEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: f896574911c0ba25236769c4ccdf90b81481d0d09ebf6c9a9f9796203fa8987c -->
+<!-- Source/Vertrag SHA256: 210d4d95951d6d599f6a7fe72d2ec84ddae299aaac89d9b5b308e95a3ae28376 -->
 
-Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+Voraussetzung: Installiertes EventLog, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal oder zentral. Gültiger datetime2(7)-Cutoff als UTC-Konvention ohne automatische Zeitzonenkonvertierung. Kein Second-Session-Provider für Retention erforderlich. Fehlender Cutoff wird im Fachpfad abgewiesen. Committable Callertransaktion erlaubt, uncommittable nicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@BeforeOccurredAtUtc` | `datetime2(7)` | `NULL` | Input | Fachlich erforderlicher SQL-datetime2(7)-UTC-Cutoff, z.B. CONVERT(datetime2(7),'2026-10-30T00:00:00',126). Löscht ausschließlich OccurredAtUtc &lt; Cutoff, nicht gleich. NULL (technischer Default für Hilfe) wird im Fachaufruf abgewiesen; keine automatische Zeitzonenkonvertierung. |
 | `@BatchSize` | `int` | `1000` | Input | Ganzzahlige Zahl 1..10000 Zeilen je Batch, inklusive. Default/NULL = 1000; 0/negativ/&gt;10000 wird abgewiesen. |
 | `@MaxBatches` | `int` | `1` | Input | Ganzzahl 1..100 Batches je Aufruf, inklusive. Default/NULL = 1; 0/negativ/&gt;100 wird abgewiesen. Kein Hintergrundjob; Grenzen werden nicht automatisch über mehrere Aufrufe fortgesetzt. |
-| `@DeletedRows` | `bigint` | `NULL` | OUTPUT | bigint OUTPUT: Der Eingabewert wird immer auf 0 gesetzt, auch im Hilfemodus; danach Anzahl der in diesem Aufruf gelöschten Zeilen. Zum Empfangen eine bigint-Variable mit OUTPUT übergeben; Eingabe-NULL ist kein Löschlimit. |
+| `@DeletedRows` | `bigint` | `NULL` | OUTPUT | bigint OUTPUT, Eingabewert wird auch bei Hilfe auf 0 gesetzt. Nach Erfolg Zahl der Löschungen dieses Aufrufs. Bei Fehler sind eventuell bereits gezählte, anschließend zurückgerollte Batches kein Beweis persistenter Löschung; nur erfolgreichen Aufruf als Ergebnis auswerten. Zum Empfang Callervariable mit OUTPUT übergeben; kein Löschlimit. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile vor dem Fachpfad; 0 oder NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteEventsBefore @BeforeOccurredAtUtc='2026-01-01', @BatchSize=1000, @MaxBatches=5, @DeletedRows=@n OUTPUT;
+DECLARE @Deleted bigint;
+EXEC toolbelt_core.USP_DeleteEventsBefore @BeforeOccurredAtUtc='2000-01-01T00:00:00',@BatchSize=100,@MaxBatches=1,@DeletedRows=@Deleted OUTPUT;
+SELECT @Deleted AS DeletedRows;
+-- Nur im autorisierten synthetischen Scope; persistente Löschung.
+EXEC toolbelt_core.USP_DeleteEventsBefore @Hilfe=1;
 ```
 
 Hilfe:
@@ -969,25 +1072,29 @@ Modul `toolbelt.core.event-log` · Version `1.0.0` · `USP`
 
 Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAtUtc,EventId), deterministischen begrenzten Batches und bestehender Caller-Transaktions-/Savepointsemantik. Kein Job, keine Deploymentlöschung. Die OccurredAtUtc-Retention bleibt unverändert. Erfordert vorhandenes EXECUTE; erteilt keine Berechtigungen. Fehler 51710–51714 wie im bestehenden Retentionvertrag.
 
-Vertrag und Quelle: [USP_DeleteRecordedEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql), [USP_DeleteRecordedEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteRecordedEventsBefore.md).
+Vertrag und Quelle: [USP_DeleteRecordedEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql), [USP_DeleteRecordedEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteRecordedEventsBefore.md), [USP_DeleteRecordedEventsBefore.md](../../Metadata/UsageSkills/toolbelt_core/USP_DeleteRecordedEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: 3c1583e73f745567b95da924528bc4095f639fb6256919f4af57e3a3b4f8ea21 -->
+<!-- Source/Vertrag SHA256: 6b55f9e9becce765f3484018f5aa2c5db5e665ae8fca5383540c6694d677d6c1 -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: Installiertes EventLog, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal oder zentral. Gültiger datetime2(7)-Cutoff als UTC-Konvention ohne automatische Zeitzonenkonvertierung. Kein Second-Session-Provider für Retention erforderlich. Fehlender Cutoff wird im Fachpfad abgewiesen. Committable Callertransaktion erlaubt, uncommittable nicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@BeforeRecordedAtUtc` | `datetime2(7)` | `NULL` | Input | Fachlich erforderlicher SQL-datetime2(7)-UTC-Cutoff, z.B. CONVERT(datetime2(7),'2026-10-30T00:00:00',126). Löscht ausschließlich RecordedAtUtc &lt; Cutoff, nicht gleich. NULL (technischer Default für Hilfe) wird im Fachaufruf abgewiesen; keine automatische Zeitzonenkonvertierung. |
 | `@BatchSize` | `int` | `1000` | Input | Ganzzahlige Zahl 1..10000 Zeilen je Batch, inklusive. Default/NULL = 1000; 0/negativ/&gt;10000 wird abgewiesen. |
 | `@MaxBatches` | `int` | `1` | Input | Ganzzahl 1..100 Batches je Aufruf, inklusive. Default/NULL = 1; 0/negativ/&gt;100 wird abgewiesen. Kein Hintergrundjob; Grenzen werden nicht automatisch über mehrere Aufrufe fortgesetzt. |
-| `@DeletedRows` | `bigint` | `NULL` | OUTPUT | bigint OUTPUT: Der Eingabewert wird immer auf 0 gesetzt, auch im Hilfemodus; danach Anzahl der in diesem Aufruf gelöschten Zeilen. Zum Empfangen eine bigint-Variable mit OUTPUT übergeben; Eingabe-NULL ist kein Löschlimit. |
+| `@DeletedRows` | `bigint` | `NULL` | OUTPUT | bigint OUTPUT, Eingabewert wird auch bei Hilfe auf 0 gesetzt. Nach Erfolg Zahl der Löschungen dieses Aufrufs. Bei Fehler sind eventuell bereits gezählte, anschließend zurückgerollte Batches kein Beweis persistenter Löschung; nur erfolgreichen Aufruf als Ergebnis auswerten. Zum Empfang Callervariable mit OUTPUT übergeben; kein Löschlimit. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile vor dem Fachpfad; 0 oder NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @BeforeRecordedAtUtc='2026-01-01',@BatchSize=1000,@MaxBatches=1,@DeletedRows=@n OUTPUT;
+DECLARE @Deleted bigint;
+EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @BeforeRecordedAtUtc='2000-01-01T00:00:00',@BatchSize=100,@MaxBatches=1,@DeletedRows=@Deleted OUTPUT;
+SELECT @Deleted AS DeletedRows;
+-- Nur im autorisierten synthetischen Scope; persistente Löschung.
+EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @Hilfe=1;
 ```
 
 Hilfe:
@@ -1002,18 +1109,23 @@ Modul `toolbelt.core.execution-cancel` · Version `1.0.0` · `TVF`
 
 Liest den registrierten kooperativen Abbruchstatus einer Ausführung.
 
-Vertrag und Quelle: [TVF_ExecutionCancellationStatus.sql](../../Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql), [TVF_ExecutionCancellationStatus.md](../../Modules/toolbelt.core.execution-cancel/Documentation/TVF_ExecutionCancellationStatus.md).
+Vertrag und Quelle: [TVF_ExecutionCancellationStatus.sql](../../Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql), [TVF_ExecutionCancellationStatus.md](../../Modules/toolbelt.core.execution-cancel/Documentation/TVF_ExecutionCancellationStatus.md), [TVF_ExecutionCancellationStatus.md](../../Metadata/UsageSkills/toolbelt_core/TVF_ExecutionCancellationStatus.md).
 
-<!-- Source/Vertrag SHA256: 227c823f9f2e02aad01171e1923231d9654ef2bc68ccd20480e17735e18b0c94 -->
+<!-- Source/Vertrag SHA256: faaa3af85c3072c9924a12c966e0ddd7232c7f8d42e203e2d7c181a894dc2700 -->
+
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, unterstützte CL150/160/170, lokal oder zentral. Modul ExecutionCancellation und seine passenden Quellobjekte installiert. Request benötigt execution-context >=1.0.0, für implizite ID einen gültigen aktuellen Kontext; Statusfunktionen benötigen keinen aktiven Kontext. Tabelle/Quoten sind pro installierender Datenbank, nicht serverweit oder pro Session.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@ExecutionId` | `uniqueidentifier` | `kein Default` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Gesuchte ID, ohne Default und ohne Fallback auf den aktuellen Kontext. Bei NULL oder fehlender Anforderung keine Zeile; bei vorhandener Anforderung genau eine nicht sensible Statuszeile. |
+| `@ExecutionId` | `uniqueidentifier` | `kein Default` | Input | Explizites Argument ohne SQL-Default. NULL findet keine Anforderung und ergibt keine Zeilen. Auch Null-GUID ist kein Parameterfehler; sie findet regulär keinen über die öffentliche Request-USP angelegten Eintrag. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
+SELECT toolbelt_core.SVF_IsCancellationRequested(NULL) AS IsRequested;
+-- 0.
 SELECT * FROM toolbelt_core.TVF_ExecutionCancellationStatus(NULL);
+-- Keine Zeilen.
 ```
 
 ## toolbelt_core.SVF_IsCancellationRequested
@@ -1022,18 +1134,23 @@ Modul `toolbelt.core.execution-cancel` · Version `1.0.0` · `SVF`
 
 Prüft, ob für eine Ausführung ein kooperativer Abbruch angefordert wurde.
 
-Vertrag und Quelle: [SVF_IsCancellationRequested.sql](../../Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql), [SVF_IsCancellationRequested.md](../../Modules/toolbelt.core.execution-cancel/Documentation/SVF_IsCancellationRequested.md).
+Vertrag und Quelle: [SVF_IsCancellationRequested.sql](../../Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql), [SVF_IsCancellationRequested.md](../../Modules/toolbelt.core.execution-cancel/Documentation/SVF_IsCancellationRequested.md), [SVF_IsCancellationRequested.md](../../Metadata/UsageSkills/toolbelt_core/SVF_IsCancellationRequested.md).
 
-<!-- Source/Vertrag SHA256: 59f07360338ffba759ec4883a434a85def7fca09375f5dcda2c83daaf0d8aa21 -->
+<!-- Source/Vertrag SHA256: 0cd4ce9b75cf4bf4febb9146a3931f505236ced82766313950c82023bd5bf9c2 -->
+
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, unterstützte CL150/160/170, lokal oder zentral. Modul ExecutionCancellation und seine passenden Quellobjekte installiert. Request benötigt execution-context >=1.0.0, für implizite ID einen gültigen aktuellen Kontext; Statusfunktionen benötigen keinen aktiven Kontext. Tabelle/Quoten sind pro installierender Datenbank, nicht serverweit oder pro Session.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@ExecutionId` | `uniqueidentifier` | `kein Default` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Gesuchte ID, ohne Default und ohne Kontextfallback. Rückgabe 1 bei vorhandener Anforderung, sonst 0, ausdrücklich auch bei NULL. |
+| `@ExecutionId` | `uniqueidentifier` | `kein Default` | Input | Explizites Argument ohne SQL-Default. NULL findet keine Anforderung und ergibt 0. Auch Null-GUID ist kein Parameterfehler; sie findet regulär keinen über die öffentliche Request-USP angelegten Eintrag. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_core.SVF_IsCancellationRequested(NULL) AS ResultValue;
+SELECT toolbelt_core.SVF_IsCancellationRequested(NULL) AS IsRequested;
+-- 0.
+SELECT * FROM toolbelt_core.TVF_ExecutionCancellationStatus(NULL);
+-- Keine Zeilen.
 ```
 
 ## toolbelt_core.USP_RequestExecutionCancellation
@@ -1042,30 +1159,27 @@ Modul `toolbelt.core.execution-cancel` · Version `1.0.0` · `USP`
 
 Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedure beendet keine Session und verändert keine Work-Queue-Einträge.
 
-Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [USP_RequestExecutionCancellation.md](../../Modules/toolbelt.core.execution-cancel/Documentation/USP_RequestExecutionCancellation.md).
+Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [USP_RequestExecutionCancellation.md](../../Modules/toolbelt.core.execution-cancel/Documentation/USP_RequestExecutionCancellation.md), [USP_RequestExecutionCancellation.md](../../Metadata/UsageSkills/toolbelt_core/USP_RequestExecutionCancellation.md).
 
-<!-- Source/Vertrag SHA256: adae27e8ee42a2f8b81ab085e99b56316612c0f9d5572a42b7b4e4f996e3b1f9 -->
+<!-- Source/Vertrag SHA256: fbfd2fa3e8eebd0321716301c8557fc9f1fd683757205d77b5fc5188caa57f69 -->
+
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, unterstützte CL150/160/170, lokal oder zentral. Modul ExecutionCancellation und seine passenden Quellobjekte installiert. Request benötigt execution-context >=1.0.0, für implizite ID einen gültigen aktuellen Kontext; Statusfunktionen benötigen keinen aktiven Kontext. Tabelle/Quoten sind pro installierender Datenbank, nicht serverweit oder pro Session.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@ExecutionId` | `uniqueidentifier` | `NULL` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Explizite Ziel-ID darf nicht die Null-GUID sein. NULL/Default verwendet den aktiven Execution Context; fehlt dann eine ID, entsteht ein Fehler. Keine aktive Callertransaktion zulässig. |
-| `@CancellationReason` | `nvarchar(512)` | `NULL` | Input | Optionaler Unicode-Grund nvarchar(512), keine Ausführung und keine automatische Redigierung; keine Secrets übergeben. NULL/leer bzw. LEN=0 (reine Spaces) wird NULL. Bei wiederholter Anforderung derselben ID bleiben erster Grund und Zeitpunkt erhalten. |
+| `@ExecutionId` | `uniqueidentifier` | `NULL` | Input | NULL verwendet SVF_CurrentExecutionId; fehlt auch dort eine ID, Fehler 52601. Null-GUID ist 52602. Eine vorhandene ID bleibt unverändert. Technischer Default NULL. |
+| `@CancellationReason` | `nvarchar(512)` | `NULL` | Input | Optionaler nicht sensibler Audittext im gebundenen nvarchar(512), NULL erlaubt. LEN=0 einschließlich ausschließlich gewöhnlicher Spaces wird NULL; sonst bleibt der Text einschließlich trailing Spaces erhalten. Keine zusätzliche Prüfung einer vor Parameterbindung längeren Eingabe. Bei vorhandener ID kein Überschreiben des ursprünglichen Grundes. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: zuerst bestehende zwölfspaltige Hilfe, zusätzlich genau eine vollständige vier-spaltige Skillzeile, dann RETURN 0 vor Transaktions-/Kontext-/Quotenprüfung. 0 oder NULL: Fachpfad. Alle USP-Argumente besitzen Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_RequestExecutionCancellation @CancellationReason=N'planned maintenance';
-```
-
-```sql
-EXEC toolbelt_core.USP_RequestExecutionCancellation
-    @CancellationReason = N'planned maintenance';
-
-SELECT *
-FROM toolbelt_core.TVF_ExecutionCancellationStatus
-    (toolbelt_core.SVF_CurrentExecutionId());
+DECLARE @Id uniqueidentifier=NEWID();
+EXEC toolbelt_core.USP_RequestExecutionCancellation @ExecutionId=@Id,@CancellationReason=N'Synthetic checkpoint';
+SELECT * FROM toolbelt_core.TVF_ExecutionCancellationStatus(@Id);
+EXEC toolbelt_core.USP_RequestExecutionCancellation @Hilfe=1;
+-- Nur Testidentität in autorisiertem Scope; die Anforderung persistiert.
 ```
 
 Hilfe:
@@ -1078,58 +1192,71 @@ EXEC toolbelt_core.USP_RequestExecutionCancellation @Hilfe=1;
 
 Modul `toolbelt.core.execution-context` · Version `1.0.0` · `TVF`
 
-Liest den Toolbelt-Ausführungskontext der aktuellen Session.
+Liest den aktuellen Toolbelt-Ausführungskontext als relationale null- oder einzeilige Projektion; geeigneter Einstieg für APPLY und Diagnose.
 
-Vertrag und Quelle: [TVF_CurrentExecutionContext.sql](../../Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql), [TVF_CurrentExecutionContext.md](../../Modules/toolbelt.core.execution-context/Documentation/TVF_CurrentExecutionContext.md).
+Vertrag und Quelle: [TVF_CurrentExecutionContext.sql](../../Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql), [TVF_CurrentExecutionContext.md](../../Modules/toolbelt.core.execution-context/Documentation/TVF_CurrentExecutionContext.md), [TVF_CurrentExecutionContext.md](../../Metadata/UsageSkills/toolbelt_core/TVF_CurrentExecutionContext.md).
 
-<!-- Source/Vertrag SHA256: f7227c7c2559ad214dd16cfb05b5d0c5aa0767cf963801d34c33c8c03414ee05 -->
+<!-- Source/Vertrag SHA256: 22c142e0dd1cfe0de939b76d5365cc81d3c300f3b085007d9fe28050f5a0d4ee -->
+
+Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
 Keine Eingabeparameter.
 
 ```sql
 SELECT * FROM toolbelt_core.TVF_CurrentExecutionContext();
+-- Ohne gültige aktive ExecutionId: keine Zeile.
 ```
 
 ## toolbelt_core.SVF_CurrentExecutionId
 
 Modul `toolbelt.core.execution-context` · Version `1.0.0` · `SVF`
 
-Liest die Execution-ID der aktuellen Session.
+Skalarer Komfortzugriff auf die ID des aktuellen Ausführungskontexts; relationaler Kern ist TVF_CurrentExecutionContext.
 
-Vertrag und Quelle: [SVF_CurrentExecutionId.sql](../../Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql), [SVF_CurrentExecutionId.md](../../Modules/toolbelt.core.execution-context/Documentation/SVF_CurrentExecutionId.md).
+Vertrag und Quelle: [SVF_CurrentExecutionId.sql](../../Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql), [SVF_CurrentExecutionId.md](../../Modules/toolbelt.core.execution-context/Documentation/SVF_CurrentExecutionId.md), [SVF_CurrentExecutionId.md](../../Metadata/UsageSkills/toolbelt_core/SVF_CurrentExecutionId.md).
 
-<!-- Source/Vertrag SHA256: 5dda2c27f31858f4a58996891844f3c9e3941381ea45ff964101b12104206824 -->
+<!-- Source/Vertrag SHA256: f82aebe529f8833cc5d569ded01f490808bb61106cffc8a617eeef07ec7fc65f -->
+
+Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT toolbelt_core.SVF_CurrentExecutionId() AS ResultValue;
+SELECT toolbelt_core.SVF_CurrentExecutionId() AS ExecutionId;
 ```
 
 ## toolbelt_core.USP_BeginExecution
 
 Modul `toolbelt.core.execution-context` · Version `1.0.0` · `USP`
 
-Beginnt einen sessiongebundenen Toolbelt Execution Context oder erhöht bei erlaubter Verschachtelung dessen ScopeDepth. Die Execution-ID wird als OUTPUT zurückgegeben.
+Beginnt einen Toolbelt-Ausführungskontext in dieser Verbindung oder erhöht seine ScopeDepth bei zulässiger Verschachtelung.
 
-Vertrag und Quelle: [USP_BeginExecution.sql](../../Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql), [USP_BeginExecution.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_BeginExecution.md).
+Vertrag und Quelle: [USP_BeginExecution.sql](../../Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql), [USP_BeginExecution.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_BeginExecution.md), [USP_BeginExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_BeginExecution.md).
 
-<!-- Source/Vertrag SHA256: 3c6eccd3bedab7d2d51b50abded3a3d663cec13c81e238d3a8fd3b4c6351dd2f -->
+<!-- Source/Vertrag SHA256: 6b6eae795ebd367aae400897c619e01117df7372d6a842438753ae93b2d1d524 -->
+
+Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@ExecutionId` | `uniqueidentifier` | `NULL` | OUTPUT | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. INPUT/OUTPUT: Ohne aktiven Kontext wird die übergebene ID verwendet oder bei NULL (Default) NEWID erzeugt; bei Verschachtelung muss eine explizite ID der aktiven ID entsprechen. OUTPUT enthält anschließend die aktive ID. |
+| `@ExecutionId` | `uniqueidentifier` | `NULL` | OUTPUT | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. INPUT/OUTPUT: Ohne aktiven Kontext wird die übergebene ID verwendet oder bei NULL (Default) NEWID erzeugt; bei Verschachtelung muss eine explizite ID der aktiven ID entsprechen. OUTPUT enthält anschließend die aktive ID. Im Hilfezweig wird dieser INPUT/OUTPUT-Parameter nicht initialisiert oder geändert; ein bereits übergebener Wert bleibt erhalten. Für Rückgabe an eine Callervariable OUTPUT am EXEC angeben. |
 | `@CorrelationId` | `uniqueidentifier` | `NULL` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Am Root ist NULL (Default) gleich der ExecutionId; eine explizite ID wird gespeichert. Bei Verschachtelung bedeutet NULL übernehmen, eine explizite ID muss übereinstimmen. |
-| `@Actor` | `nvarchar(256)` | `NULL` | Input | Optionaler Unicode-Kontexttext nvarchar(256), keine geprüfte Identität/Authentifizierung. Am Root bleiben NULL/leer so gespeichert; kein Login-Fallback in dieser Procedure. Bei Verschachtelung übernimmt NULL den aktiven Wert; expliziter Text darf ihn nicht verändern. |
-| `@Tenant` | `nvarchar(256)` | `NULL` | Input | Optionaler Unicode-Kontexttext nvarchar(256), keine Existenz-/Berechtigungsprüfung eines Mandanten. Am Root NULL/leer zulässig; bei Verschachtelung bedeutet NULL übernehmen, expliziter Text muss zum aktiven Wert passen. |
+| `@Actor` | `nvarchar(256)` | `NULL` | Input | Optionaler Unicode-Kontexttext nvarchar(256), keine geprüfte Identität/Authentifizierung. Am Root entfernt NULL den Key und leerer Text wird als leerer Wert gesetzt; kein Login-Fallback in dieser Procedure. Bei Verschachtelung übernimmt NULL den aktiven Wert; expliziter Text darf ihn nicht verändern. Verschachtelte Gleichheitsprüfung verwendet normale SQL-Vergleichs-/Padding-/Collationsemantik, keine binäre Identitätsprüfung; bestehende Werte werden dort nicht ersetzt. |
+| `@Tenant` | `nvarchar(256)` | `NULL` | Input | Optionaler Unicode-Kontexttext nvarchar(256), keine Existenz-/Berechtigungsprüfung eines Mandanten. Am Root entfernt NULL den Key und leerer Text wird als leerer Wert gesetzt; bei Verschachtelung bedeutet NULL übernehmen, expliziter Text muss zum aktiven Wert passen. Verschachtelte Gleichheitsprüfung verwendet normale SQL-Vergleichs-/Padding-/Collationsemantik, keine binäre Identitätsprüfung; bestehende Werte werden dort nicht ersetzt. |
 | `@AllowNested` | `bit` | `1` | Input | Taxativ für bit: 1 erlaubt bei aktivem Kontext eine weitere Verschachtelung (Default und NULL); 0 lehnt einen erneuten Begin ab. Tiefe höchstens 32767; bei Root-Neuanlage ohne Kontext hat das Flag keine sperrende Wirkung. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und genau eine zusätzliche vierkolumnige Skillzeile vor fachlichem SESSION_CONTEXT-Lesen oder -Schreiben. 0 oder NULL führt den Normalpfad aus. SQL-Typbindung und syntaktisch erforderliche Argumente bleiben erhalten. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-DECLARE @Id uniqueidentifier; EXEC toolbelt_core.USP_BeginExecution @ExecutionId=@Id OUTPUT;
+-- Eigene Sitzung ohne vorher aktiven Context verwenden.
+DECLARE @Id uniqueidentifier;
+EXEC toolbelt_core.USP_BeginExecution @ExecutionId=@Id OUTPUT,@Actor=N'Contoso example';
+SELECT * FROM toolbelt_core.TVF_CurrentExecutionContext();
+EXEC toolbelt_core.USP_EndExecution @ExpectedExecutionId=@Id;
+-- Hilfe liest/schreibt keinen Context und erhält einen vorhandenen OUTPUT-Wert:
+EXEC toolbelt_core.USP_BeginExecution @ExecutionId=@Id OUTPUT,@Hilfe=1;
 ```
 
 Hilfe:
@@ -1142,11 +1269,13 @@ EXEC toolbelt_core.USP_BeginExecution @Hilfe=1;
 
 Modul `toolbelt.core.execution-context` · Version `1.0.0` · `USP`
 
-Ändert Correlation-ID, Actor oder Tenant eines aktiven Contexts. Die erwartete Execution-ID verhindert Änderungen an einem fremden oder veralteten Sessionzustand.
+Ändert CorrelationId, Actor oder Tenant eines aktiven Kontexts unter Prüfung der erwarteten ExecutionId.
 
-Vertrag und Quelle: [USP_SetExecutionContext.sql](../../Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql), [USP_SetExecutionContext.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_SetExecutionContext.md).
+Vertrag und Quelle: [USP_SetExecutionContext.sql](../../Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql), [USP_SetExecutionContext.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_SetExecutionContext.md), [USP_SetExecutionContext.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetExecutionContext.md).
 
-<!-- Source/Vertrag SHA256: f47a0ef97f4cfe27bd669146b0d4e61433907fcd9ea0b3112322322b251d0474 -->
+<!-- Source/Vertrag SHA256: c0407fef5c2621750a54bea7e7ee3a32cba0eb1ae0cbe7a0f29bd81c17d59b8a -->
+
+Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1157,14 +1286,17 @@ Vertrag und Quelle: [USP_SetExecutionContext.sql](../../Modules/toolbelt.core.ex
 | `@ClearActor` | `bit` | `0` | Input | Taxativ für bit: 0 erhält den Actor bzw. erlaubt dessen expliziten Ersatz (Default/NULL); 1 entfernt den Actor aus dem Sessionkontext. Bei 1 darf Actor auch nicht als Leertext übergeben werden, sondern muss NULL sein. |
 | `@ClearTenant` | `bit` | `0` | Input | Taxativ für bit: 0 erhält den Tenant bzw. erlaubt dessen expliziten Ersatz (Default/NULL); 1 entfernt den Tenant. Bei 1 muss Tenant NULL sein, auch Leertext ist ein Konflikt. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und genau eine zusätzliche vierkolumnige Skillzeile vor fachlichem SESSION_CONTEXT-Lesen oder -Schreiben. 0 oder NULL führt den Normalpfad aus. SQL-Typbindung und syntaktisch erforderliche Argumente bleiben erhalten. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: in derselben Session zuvor USP_BeginExecution aufrufen.
 DECLARE @Id uniqueidentifier=toolbelt_core.SVF_CurrentExecutionId();
-EXEC toolbelt_core.USP_SetExecutionContext @ExpectedExecutionId=@Id, @Actor=N'Contoso example', @Tenant=N'Fabrikam';
+-- Nur mit eigenem bereits begonnenem Context ausführen:
+EXEC toolbelt_core.USP_SetExecutionContext @ExpectedExecutionId=@Id,@Actor=N'Contoso step';
+EXEC toolbelt_core.USP_SetExecutionContext @ExpectedExecutionId=@Id,@ClearActor=1;
+-- Pflichtargument bleibt auch für Hilfe syntaktisch erforderlich:
+EXEC toolbelt_core.USP_SetExecutionContext @ExpectedExecutionId=NULL,@Hilfe=1;
 ```
 
 Hilfe:
@@ -1177,24 +1309,28 @@ EXEC toolbelt_core.USP_SetExecutionContext @ExpectedExecutionId=NULL, @Hilfe=1;
 
 Modul `toolbelt.core.execution-context` · Version `1.0.0` · `USP`
 
-Verringert den ScopeDepth eines aktiven Contexts und löscht bei Tiefe 1 alle Toolbelt-Sessionwerte.
+Beendet genau eine Ebene des aktiven Ausführungskontexts unter Prüfung der erwarteten ExecutionId.
 
-Vertrag und Quelle: [USP_EndExecution.sql](../../Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql), [USP_EndExecution.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_EndExecution.md).
+Vertrag und Quelle: [USP_EndExecution.sql](../../Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql), [USP_EndExecution.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_EndExecution.md), [USP_EndExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_EndExecution.md).
 
-<!-- Source/Vertrag SHA256: 2a1d54f1e642eceeef9a04dea6132b01627502961eef9e5964586aa9abbf80d5 -->
+<!-- Source/Vertrag SHA256: 14987642660071ea79c11cd95768d57f7b8373680f9a81f95cec1f5222ba3ac7 -->
+
+Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@ExpectedExecutionId` | `uniqueidentifier` | `kein Default` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Muss im Fachaufruf nicht-NULL und gleich der aktiven Session-ExecutionId sein; fehlender Kontext/abweichende ID wird abgewiesen. Pflichtargument ohne technischen Default; für @Hilfe=1 darf explizit NULL übergeben werden. Verringert einen eigenen Scope; am letzten Scope werden die namespaceten Kontextwerte entfernt. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und genau eine zusätzliche vierkolumnige Skillzeile vor fachlichem SESSION_CONTEXT-Lesen oder -Schreiben. 0 oder NULL führt den Normalpfad aus. SQL-Typbindung und syntaktisch erforderliche Argumente bleiben erhalten. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: aktiver Context in derselben Session.
 DECLARE @Id uniqueidentifier=toolbelt_core.SVF_CurrentExecutionId();
+-- Nur den eigenen zuvor begonnenen Scope beenden:
 EXEC toolbelt_core.USP_EndExecution @ExpectedExecutionId=@Id;
+-- Help benötigt das Pflichtargument, aber keinen aktiven Context:
+EXEC toolbelt_core.USP_EndExecution @ExpectedExecutionId=NULL,@Hilfe=1;
 ```
 
 Hilfe:
@@ -1209,20 +1345,25 @@ Modul `toolbelt.core.generate-series` · Version `1.0.0` · `TVF`
 
 Erzeugt eine Folge von bigint-Werten einschließlich erreichbarem Endwert.
 
-Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md).
+Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md), [TVF_GenerateSeriesBigInt.md](../../Metadata/UsageSkills/toolbelt_core/TVF_GenerateSeriesBigInt.md).
 
-<!-- Source/Vertrag SHA256: 8e3b50ad972c924028d43172b2164058e0c8028786477a8cb9f80ea3b717b245 -->
+<!-- Source/Vertrag SHA256: 8ddfbde6f22cd19e9ff4b5955085e9a5a40dcc2171f89dac65d7413adc725cbf -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows oder Linux; Compatibility Level 150/160/170. Modul installiert, kein CLR oder externer Provider. Alle drei Argumentpositionen müssen im Funktionsaufruf angegeben werden; DEFAULT in der dritten Position oder explizites NULL aktiviert den Richtungsdefault.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Start` | `bigint` | `kein Default` | Input | Erster Wert im gesamten SQL-bigint-Bereich; Start wird bei gültiger Richtung eingeschlossen. NULL ergibt keine Zeilen; ein zusätzlich übergebener Schritt 0 bleibt ein Enginefehler. |
 | `@Stop` | `bigint` | `kein Default` | Input | Inklusive Zielgrenze im SQL-bigint-Bereich; nur tatsächlich durch ganze Schritte erreichbare Werte werden ausgegeben, kein künstlicher Endwert. NULL ergibt keine Zeilen, außer dem ausdrücklich ungültigen Schritt-0-Fall. |
-| `@Step` | `bigint` | `NULL` | Input | Ganzzahlige Schrittweite als bigint. Default/NULL: +1 bei Start &lt;= Stop, sonst -1. Positive Werte laufen aufwärts, negative abwärts; zur Richtung unpassende Grenzen ergeben keine Zeilen. 0 ergibt einen SQL-Engine-Divisionsfehler.Die berechnete Zeilenzahl muss in bigint passen; keine feste kleine Ausgabelimitierung. |
+| `@Step` | `bigint` | `NULL` | Input | Ganzzahlige Schrittweite als bigint. Default/NULL: +1 bei Start &lt;= Stop, sonst -1. Positive Werte laufen aufwärts, negative abwärts; zur Richtung unpassende Grenzen ergeben keine Zeilen. 0 ergibt einen SQL-Engine-Divisionsfehler. Die berechnete Zeilenzahl muss in bigint passen; keine feste kleine Ausgabelimitierung. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigInt(1, 5, 1);
+SELECT Value FROM toolbelt_core.TVF_GenerateSeriesBigInt(2,10,3) ORDER BY Value;
+-- 2, 5, 8; kein künstlicher Endwert 10.
+SELECT Value FROM toolbelt_core.TVF_GenerateSeriesBigInt(10,1,-4) ORDER BY Value DESC;
+-- 10, 6, 2.
 ```
 
 ## toolbelt_core.TVF_GenerateSeriesInt
@@ -1231,20 +1372,25 @@ Modul `toolbelt.core.generate-series` · Version `1.0.0` · `TVF`
 
 Erzeugt eine Folge von int-Werten einschließlich erreichbarem Endwert.
 
-Vertrag und Quelle: [TVF_GenerateSeriesInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql), [TVF_GenerateSeriesInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesInt.md).
+Vertrag und Quelle: [TVF_GenerateSeriesInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql), [TVF_GenerateSeriesInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesInt.md), [TVF_GenerateSeriesInt.md](../../Metadata/UsageSkills/toolbelt_core/TVF_GenerateSeriesInt.md).
 
-<!-- Source/Vertrag SHA256: 1fd59911c5eb647fc997fd40e96a7168a7d901faf72174ee3ed057d94eebd73c -->
+<!-- Source/Vertrag SHA256: 4e8e0747e462e02ff1c611e6420bef50d36ffd5fc98ae2fc6a06afdbfc2bdb81 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows oder Linux; Compatibility Level 150/160/170. Modul installiert, kein CLR oder externer Provider. Alle drei Argumentpositionen müssen im Funktionsaufruf angegeben werden; DEFAULT in der dritten Position oder explizites NULL aktiviert den Richtungsdefault.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Start` | `int` | `kein Default` | Input | Erster Wert im gesamten SQL-int-Bereich; Start wird bei gültiger Richtung eingeschlossen. NULL ergibt keine Zeilen; ein zusätzlich übergebener Schritt 0 bleibt ein Enginefehler. |
 | `@Stop` | `int` | `kein Default` | Input | Inklusive Zielgrenze im SQL-int-Bereich; nur tatsächlich durch ganze Schritte erreichbare Werte werden ausgegeben, kein künstlicher Endwert. NULL ergibt keine Zeilen, außer dem ausdrücklich ungültigen Schritt-0-Fall. |
-| `@Step` | `int` | `NULL` | Input | Ganzzahlige Schrittweite als int. Default/NULL: +1 bei Start &lt;= Stop, sonst -1. Positive Werte laufen aufwärts, negative abwärts; zur Richtung unpassende Grenzen ergeben keine Zeilen. 0 ergibt einen SQL-Engine-Divisionsfehler.Die berechnete Zeilenzahl muss in bigint passen; keine feste kleine Ausgabelimitierung. |
+| `@Step` | `int` | `NULL` | Input | Ganzzahlige Schrittweite als int. Default/NULL: +1 bei Start &lt;= Stop, sonst -1. Positive Werte laufen aufwärts, negative abwärts; zur Richtung unpassende Grenzen ergeben keine Zeilen. 0 ergibt einen SQL-Engine-Divisionsfehler. Die berechnete Zeilenzahl muss in bigint passen; keine feste kleine Ausgabelimitierung. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_core.TVF_GenerateSeriesInt(1, 5, 1);
+SELECT Value FROM toolbelt_core.TVF_GenerateSeriesInt(2,10,3) ORDER BY Value;
+-- 2, 5, 8; kein künstlicher Endwert 10.
+SELECT Value FROM toolbelt_core.TVF_GenerateSeriesInt(10,1,-4) ORDER BY Value DESC;
+-- 10, 6, 2.
 ```
 
 ## toolbelt_core.TVF_GenerateSeriesBigIntStatus
@@ -1253,11 +1399,11 @@ Modul `toolbelt.core.generate-series` · Version `1.0.0` · `TVF`
 
 Vor Expansion exakte Anzahl mit decimal(38,0) und Restrechnung bestimmen. Höchstens 1000000 OK-Zeilen. LIMIT, INVALID, SQL_NULL oder EMPTY liefern eine Kontrollzeile ohne Value. RequestedRows unterscheidet leere und zu große Reihen. Keine garantierte Reihenfolge. Die mathematischen Alt-APIs bleiben unverändert und benötigen vertrauenswürdige Direktgrants. Untrusted Legacygrants werden nicht automatisch entzogen; SC-018 bleibt in einer solchen Installation offen.
 
-Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigIntStatus.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigIntStatus.md).
+Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigIntStatus.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigIntStatus.md), [TVF_GenerateSeriesBigIntStatus.md](../../Metadata/UsageSkills/toolbelt_core/TVF_GenerateSeriesBigIntStatus.md).
 
-<!-- Source/Vertrag SHA256: 5430377ddf160b130a11f8ff05bd92fe3b397eba9dd6e14784909e43280b81a3 -->
+<!-- Source/Vertrag SHA256: a961188bdc65266e12729b03a057b31ae68ca9196579895df6b8f3b5ada61d02 -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: SQL Server 2019/2022/2025, Windows oder Linux; Compatibility Level 150/160/170. Modul installiert, kein CLR oder externer Provider. Alle drei Argumentpositionen müssen im Funktionsaufruf angegeben werden; DEFAULT in der dritten Position oder explizites NULL aktiviert den Richtungsdefault.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1268,7 +1414,11 @@ Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die US
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,DEFAULT);
+SELECT Value,Status,RequestedRows
+FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,2) ORDER BY Value;
+-- (1,OK,3), (3,OK,3), (5,OK,3).
+SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,1000001,1);
+-- Eine Zeile: Value=NULL, Status=LIMIT, RequestedRows=1000001.
 ```
 
 ## toolbelt_core.USP_PrepareResultTable
@@ -1277,9 +1427,11 @@ Modul `toolbelt.core.result-table` · Version `1.0.0` · `USP`
 
 Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vorhandenen Referenztabelle vor. Die Procedure fügt keine fachlichen Resultzeilen ein.
 
-Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md).
+Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md), [USP_PrepareResultTable.md](../../Metadata/UsageSkills/toolbelt_core/USP_PrepareResultTable.md).
 
-<!-- Source/Vertrag SHA256: 7a5f23ff7145a0f217f89cc6359d1ab2220d57d3a1c0186a490324424ffe7e6b -->
+<!-- Source/Vertrag SHA256: 096f48198210e6ebcde5991a9787a42a9b6d510b95ef8350cc8bed805ea3ace9 -->
+
+Voraussetzung: Ziel-#Temp und Referenztabelle müssen im unterstützten Session-/Namensscope existieren. Kein frei geliefertes DDL, keine globale oder permanente Zieltabelle. Der Help-Pfad benötigt keine Ziel-/Referenztabelle.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1287,19 +1439,15 @@ Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.res
 | `@LikeTable` | `nvarchar(776)` | `NULL` | Input | Fachlich erforderliche vorhandene Referenztabelle als #LocalTemplate, Schema.Table oder Database.Schema.Table, optional regulär quotierte Namensbestandteile. Keine einteilige permanente Tabelle, Server-/vierteilige Namen, Views, Synonyme oder ##Temps. NULL/leer ungültig. Referenzspalten müssen dem unterstützten einfügbaren Typ-/Metadatenvertrag in RESULT_TABLE_MODULE_DESIGN.md entsprechen; der Helper übernimmt Spaltenshape und keine fachlichen Zeilen. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ im gebundenen bit: 0 ersetzt/leert vorhandene Zielinhalte und baut nötigenfalls das Schema um (Default); 1 erhält vorhandene Zeilen und lehnt einen nötigen Schemaumbau bei nicht leerem Ziel mit 51025 ab. Ein leeres Ziel darf auch bei 1 angepasst werden. NULL wirkt wie 0. Keine Append-Operation des Helpers selbst; fachliche Zeilen fügt der Caller danach ein. |
 | `@Debug` | `tinyint` | `0` | Input | Ganzzahl tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine Debugmessages, 1 Preflight/Ablauf, 2 zusätzlich zusammengefasste Metadaten/Schemaentscheidung, 3..255 zusätzlich normalisierte Referenzmetadaten und geplantes DDL. Die Schwellwerte gelten kumulativ; 255 besitzt im aktuellen Code keine weitere eigene Stufe. Nur Messages, kein Zusatzresultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert die Standardhilfe und danach genau ein Skill-Resultset vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
+CREATE TABLE #Shape (ItemId int NOT NULL);
 CREATE TABLE #Result (Dummy int NULL);
-CREATE TABLE #ResultShape (ItemOrdinal bigint NOT NULL, ItemValue varchar(100) NULL);
-
 EXEC toolbelt_core.USP_PrepareResultTable
-      @ResultTableToAlter = N'#Result'
-    , @LikeTable          = N'#ResultShape'
-    , @KeepData           = 0;
-DROP TABLE #Result, #ResultShape;
+ @ResultTableToAlter=N'#Result', @LikeTable=N'#Shape', @KeepData=0;
 ```
 
 Hilfe:
@@ -1312,16 +1460,21 @@ EXEC toolbelt_core.USP_PrepareResultTable @Hilfe=1;
 
 Modul `toolbelt.core.second-session` · Version `1.1.0` · `VIEW`
 
-Zeigt konfigurierte Second-Session-Provider.
+Katalogsicht auf gespeicherten Second-Session-Provider und sichtbare Linked-Server-Flags.
 
-Vertrag und Quelle: [VW_SecondSessionProviders.sql](../../Modules/toolbelt.core.second-session/Source/VW_SecondSessionProviders.sql), [VW_SecondSessionProviders.md](../../Modules/toolbelt.core.second-session/Documentation/VW_SecondSessionProviders.md).
+Vertrag und Quelle: [VW_SecondSessionProviders.sql](../../Modules/toolbelt.core.second-session/Source/VW_SecondSessionProviders.sql), [VW_SecondSessionProviders.md](../../Modules/toolbelt.core.second-session/Documentation/VW_SecondSessionProviders.md), [VW_SecondSessionProviders.md](../../Metadata/UsageSkills/toolbelt_core/VW_SecondSessionProviders.md).
 
-<!-- Source/Vertrag SHA256: 9716d7e39f4843130342e78a5879a7e42ea2d19164ed5a9fbfa198c482b495ec -->
+<!-- Source/Vertrag SHA256: 66837cee405fd818a2454733634fa28b99e6aea65b494d2c393fb498e4486ac0 -->
+
+Voraussetzung: Installiertes Modul mit dieser Tabelle, SQL2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170, lokal/zentral. Die Sicht benötigt zusätzlich bestehende Sichtbarkeit in master.sys.servers. Die DDL selbst prüft keine funktionierende Remoteverbindung, Treiberverfügbarkeit oder Datenbank-/Serveridentität.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_SecondSessionProviders;
+SELECT ProviderName,IsEnabled,LinkedServerExists,RpcOutEnabled,RemoteProcTransactionPromotionEnabled
+FROM toolbelt_core.VW_SecondSessionProviders;
+-- Keine Zeile: kein gespeicherter Provider.
+-- Flags sind sichtbare Katalogzustände, kein Connectivity-/TLS-Test.
 ```
 
 ## toolbelt_core.USP_ConfigureSecondSessionLoopback
@@ -1330,11 +1483,11 @@ Modul `toolbelt.core.second-session` · Version `1.1.0` · `USP`
 
 Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Linked-Server. Das Modul legt weder Linked Server noch Login-Mappings oder Credentials an.
 
-Vertrag und Quelle: [USP_ConfigureSecondSessionLoopback.sql](../../Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql), [USP_ConfigureSecondSessionLoopback.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ConfigureSecondSessionLoopback.md).
+Vertrag und Quelle: [USP_ConfigureSecondSessionLoopback.sql](../../Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql), [USP_ConfigureSecondSessionLoopback.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ConfigureSecondSessionLoopback.md), [USP_ConfigureSecondSessionLoopback.md](../../Metadata/UsageSkills/toolbelt_core/USP_ConfigureSecondSessionLoopback.md).
 
-<!-- Source/Vertrag SHA256: 4429e709ed31a2194de4f94da594ba4d4132af4a374620c0873ac958ed4cf84c -->
+<!-- Source/Vertrag SHA256: 247bbca45836522d35ada2f7d4b19bc71e6b21ef7f46212eb77534083965e86a -->
 
-Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170, lokal/zentral. Diese Prozedur läuft im Toolbelt-Zielkatalog. Vorhandener sichtbarer is_linked=1-Eintrag in master.sys.servers, RPC OUT=1, Remote-Proc-Transaction-Promotion=0. Remote-Ziel muss unter DB_NAME() den kanonischen USP_SecondSessionProbe mit passenden Rechten erreichen. Probe gilt auch für Enabled=0 und vor der Providerzeilenänderung. Name und SQL-Typ sind kein Connection String; QUOTENAME schützt die dynamischen Objektidentifier. Datenbankname/SPID der Probe sind Rückgabedaten, kein kryptografischer Nachweis derselben physischen SQLinstanz; das tatsächliche Loopbackziel ist administrativ festzulegen.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1344,12 +1497,15 @@ Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schrei
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: vorhandene Standardhilfe plus eine vollständige vier-spaltige Skillzeile vor Fachprüfung/Katalog/RPC/Mutation; 0 oder NULL: Fachpfad. Alle Argumente besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @LinkedServerName=N'TBX_LOOPBACK';
+-- Vorhandener administrativ korrekter synthetischer Loopback vorausgesetzt.
+EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @LinkedServerName=N'ContosoLoopback',@Enabled=1;
+-- Führt Probe-RPC aus und kann Konfigurationsdaten ändern.
+EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @Hilfe=1;
 ```
 
 Hilfe:
@@ -1364,11 +1520,11 @@ Modul `toolbelt.core.second-session` · Version `1.1.0` · `USP`
 
 Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Session aus. Raw SQL ist ausgeschlossen; der Provider muss rpc out aktiv und Remote-Transaction-Promotion deaktiviert haben.
 
-Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [USP_ExecuteWorkTypeInNewSession.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ExecuteWorkTypeInNewSession.md).
+Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [USP_ExecuteWorkTypeInNewSession.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ExecuteWorkTypeInNewSession.md), [USP_ExecuteWorkTypeInNewSession.md](../../Metadata/UsageSkills/toolbelt_core/USP_ExecuteWorkTypeInNewSession.md).
 
-<!-- Source/Vertrag SHA256: 30f302414865b0b8b551d3a383fb078bc4c0b7e156e1e7d006a884bfb78eefe7 -->
+<!-- Source/Vertrag SHA256: a9b48c4bd91b325a4b294154ce95861fb8dfd73f860046079cefdfecfe74b834 -->
 
-Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170, lokal/zentral. Diese Prozedur läuft im Toolbelt-Zielkatalog. Aktiver registrierter lokaler WorkType mit NONE oder JSON_PAYLOAD, sichtbare gültige lokale App-Policy EXECUTE_NEW_SESSION. Aktivierter gespeicherter loopback-Provider mit sichtbarem LinkedServerExists=1,RpcOutEnabled=1,Promotion=0; gültige Remote-Anmeldung und installierter Dispatcher in derselben benannten Toolbelt-DB. Remote ebenfalls aktive Registrierung/Policy/Handler-EXECUTE/korrekte Signatur. Keine automatische Provideranlage oder Umstellung nach Verbindungsfehler.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1380,14 +1536,17 @@ Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schrei
 | `@Tenant` | `nvarchar(256)` | `NULL` | Input | Optionaler Unicode-Text nvarchar(256); NULL/Default übernimmt den aktiven Tenant oder bleibt NULL. Leer ist ein expliziter Wert; keine Mandantenberechtigungsprüfung. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Bei XACT_STATE()=-1 unzulässig, ebenso zusammen mit SuppressResult=1; direkte Ausgabe bleibt bei uncommittable Caller möglich. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
-| `@SuppressResult` | `bit` | `0` | Input | Taxativ für bit: 0 liefert die Infrastruktur-Ergebniszeile oder routet sie nach ResultTable (Default/NULL); 1 unterdrückt nur diese Ausgabe nach erfolgreichem Remote-Handlerlauf und Returncodeprüfung. Mit nicht-NULL ResultTable unvereinbar. |
+| `@SuppressResult` | `bit` | `0` | Input | 0 oder NULL: Infrastrukturresultat direkt oder nach ResultTable; 1: diese Ausgabe nach erfolgreichem Dispatcher-Return unterdrücken. Nicht mit ResultTable kombinierbar. Das prüft NICHT automatisch HandlerReturnCode=0; ein nichtzero Handlercode kann dadurch ohne Ausgabe bleiben. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: vorhandene Standardhilfe plus eine vollständige vier-spaltige Skillzeile vor Fachprüfung/Katalog/RPC/Mutation; 0 oder NULL: Fachpfad. Alle Argumente besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @WorkTypeName='demo.noop';
+-- Registrierter, erlaubter synthetischer NONE-Handler vorausgesetzt.
+EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @WorkTypeName='contoso.noop';
+-- Infrastrukturzeile einschließlich HandlerReturnCode bewusst auswerten.
+EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @Hilfe=1;
 ```
 
 Hilfe:
@@ -1400,32 +1559,39 @@ EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @Hilfe=1;
 
 Modul `toolbelt.core.work-queue` · Version `2.1.0` · `VIEW`
 
-Zeigt Queue-Status und Auditmetadaten ohne Payload und ClaimToken.
+Öffentliche Queue-Statusprojektion ohne PayloadJson, ClaimToken und Managedtoken.
 
-Vertrag und Quelle: [VW_WorkQueue.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql), [VW_WorkQueue.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueue.md).
+Vertrag und Quelle: [VW_WorkQueue.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql), [VW_WorkQueue.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueue.md), [VW_WorkQueue.md](../../Metadata/UsageSkills/toolbelt_core/VW_WorkQueue.md).
 
-<!-- Source/Vertrag SHA256: 463753d307452b80f4bbb29519aa54e859a5d53837561c026529ef76e68326b8 -->
+<!-- Source/Vertrag SHA256: 48414a7f7d07bd4876a4bb1714f2797bc1780de10ee5f885ff51c39969cf4707 -->
+
+Voraussetzung: SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral in der Moduldatenbank; WorkType- und Queue-Objekte installiert. Keine CLR-/Datei-/Netzwerkabhängigkeit dieser Relation. Der aktuelle gemeinsame Installer ist markerfrei/create-only; keine eigenständige Ausführung alter Upgradezweige oder automatische Reparatur aus diesem Skill. Bestehende Objekte werden erhalten, daher setzt der hier beschriebene Vertrag eine passende aktuelle Definition voraus.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueue;
+SELECT WorkItemId,WorkTypeName,Status,IsLeaseExpired
+FROM toolbelt_core.VW_WorkQueue ORDER BY WorkItemId;
 ```
 
 ## toolbelt_core.VW_WorkQueueBarrierBlockers
 
 Modul `toolbelt.core.work-queue` · Version `2.1.0` · `VIEW`
 
-Zeigt aktive Claim-Generationen, die eine Gruppenbarriere blockieren.
+Öffentliche Barrier-Snapshotprojektion mit aktuellem Claimgenerationsvergleich.
 
-Vertrag und Quelle: [VW_WorkQueueBarrierBlockers.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql), [VW_WorkQueueBarrierBlockers.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueueBarrierBlockers.md).
+Vertrag und Quelle: [VW_WorkQueueBarrierBlockers.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql), [VW_WorkQueueBarrierBlockers.md](../../Modules/toolbelt.core.work-queue/Documentation/VW_WorkQueueBarrierBlockers.md), [VW_WorkQueueBarrierBlockers.md](../../Metadata/UsageSkills/toolbelt_core/VW_WorkQueueBarrierBlockers.md).
 
-<!-- Source/Vertrag SHA256: c54caf0ba6f2b8d171b7beb85f59fb6d7fae22b7c05ff0f6cde541905a507454 -->
+<!-- Source/Vertrag SHA256: 6e7fb7f3669c434c06c16e2ffe8674493716997619a73deb8b1a2f017471a9bf -->
+
+Voraussetzung: SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral in der Moduldatenbank; WorkType- und Queue-Objekte installiert. Keine CLR-/Datei-/Netzwerkabhängigkeit dieser Relation. Der aktuelle gemeinsame Installer ist markerfrei/create-only; keine eigenständige Ausführung alter Upgradezweige oder automatische Reparatur aus diesem Skill. Bestehende Objekte werden erhalten, daher setzt der hier beschriebene Vertrag eine passende aktuelle Definition voraus.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueueBarrierBlockers;
+SELECT BarrierWorkItemId,BarrierEpoch,BlockingWorkItemId,BlockingClaimGeneration,IsResolved
+FROM toolbelt_core.VW_WorkQueueBarrierBlockers
+ORDER BY BarrierWorkItemId,BarrierEpoch,BlockingWorkItemId;
 ```
 
 ## toolbelt_core.USP_EnqueueWork
@@ -1434,25 +1600,29 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wird niemals SQL-Text entgegengenommen oder ausgeführt.
 
-Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [USP_EnqueueWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWork.md).
+Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [USP_EnqueueWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWork.md), [USP_EnqueueWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnqueueWork.md).
 
-<!-- Source/Vertrag SHA256: f73ddd0feb3ce5baf1b81689809e1ec4ec33f7dd375429da07625271eb16695d -->
+<!-- Source/Vertrag SHA256: 321e7b70e8e876e9c18d69479c22355e980f530396a2199fbcce04bfdd7ca355 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächlich registrierter aktiver WorkType mit ENQUEUE-Policy und passendem ParameterMode. Nur einfaches Enqueue verlangt zusätzlich sichtbaren P/PC-Handler; kein Handleraufruf. Gesunder Caller-TX ist möglich; keine pauschale Caller-TX-Sperre. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. Erfordert aktiven Eintrag und ENQUEUE-Policy; dieser ältere Enqueue-Pfad benötigt zusätzlich Metadatensicht auf den Handler. |
+| `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. Erfordert aktiven Eintrag und ENQUEUE-Policy; dieser einfache Enqueue-Pfad benötigt zusätzlich Metadatensicht auf den Handler. |
 | `@PayloadJson` | `nvarchar(max)` | `NULL` | Input | Bei Work-Type-ParameterMode NONE ausschließlich NULL (Default); bei JSON_PAYLOAD erforderlicher JSON-Objekttext gemäß konkretem Handlervertrag, z.B. N'{"value":1}'. Höchstens 65536 UTF-16-Bytes (64 KiB); kein Array/Scalarroot. Nach LTRIM normaler Spaces muss { folgen, daher keine führenden Tabs/CR/LF. Leer/ungültig wird abgewiesen; keine allgemeine automatische Prüfung der deklarativen PayloadContractJson-Felder. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='demo.json', @PayloadJson=N'{"value":1}';
+EXEC toolbelt_core.USP_EnqueueWork @Hilfe=1;
+
+-- Voraussetzung: tatsächlich registrierter autorisierter NONE-Handler.
+EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='contoso.noop';
+-- Erneuter Aufruf erzeugt ein weiteres Item, keine Idempotency-Replaygarantie.
 ```
 
 Hilfe:
@@ -1467,36 +1637,39 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
 
-Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [USP_EnqueueWorkWithPolicy.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWorkWithPolicy.md).
+Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [USP_EnqueueWorkWithPolicy.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWorkWithPolicy.md), [USP_EnqueueWorkWithPolicy.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnqueueWorkWithPolicy.md).
 
-<!-- Source/Vertrag SHA256: 07fb61d908935b6338515ac7fdcb75327f2a22d0ea3df8865554046c05347b08 -->
+<!-- Source/Vertrag SHA256: d1539aedb77699a00608671f265ee45a93fe02d3a4971c12fadaaa11e6413ae0 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächlich registrierter aktiver WorkType mit ENQUEUE-Policy und passendem ParameterMode. Nur einfaches Enqueue verlangt zusätzlich sichtbaren P/PC-Handler; kein Handleraufruf. DRAIN_BARRIER verlangt@@TRANCOUNT0; SHARED unterstützt gesunden Caller-TX/Savepoint. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. Muss aktiviert und für ENQUEUE autorisiert sein. |
 | `@PayloadJson` | `nvarchar(max)` | `NULL` | Input | Bei Work-Type-ParameterMode NONE ausschließlich NULL (Default); bei JSON_PAYLOAD erforderlicher JSON-Objekttext gemäß konkretem Handlervertrag, z.B. N'{"value":1}'. Höchstens 65536 UTF-16-Bytes (64 KiB); kein Array/Scalarroot. Nach LTRIM normaler Spaces muss { folgen, daher keine führenden Tabs/CR/LF. Leer/ungültig wird abgewiesen; keine allgemeine automatische Prüfung der deklarativen PayloadContractJson-Felder. |
-| `@IdempotencyKey` | `varchar(128)` | `NULL` | Input | Optionaler varchar(128)-Schlüssel innerhalb genau eines Work Types; NULL (Default) deaktiviert Idempotency-Key-Wiederverwendung. Leerer Text ist ein expliziter Schlüssel, kein NULL-Ersatz. Vergleich gemäß binärer SQL-Collation, kein Normalisieren. Solange das Item besteht, liefert dieselbe Payload-/Policykonfiguration das bestehende Item; abweichende Konfiguration wird abgewiesen. Kein Beweis einer Exactly-once-Handlerwirkung. |
-| `@Priority` | `tinyint` | `0` | Input | Ganzzahl 0..255 als tinyint, Default 0; höhere Werte werden bevorzugt. Explizites NULL ist unzulässig. Keine Zusage einer global strikt seriellen FIFO-Reihenfolge unter Konkurrenz. |
+| `@IdempotencyKey` | `varchar(128)` | `NULL` | Input | Optionaler varchar(128)-Schlüssel innerhalb genau eines Work Types; NULL (Default) deaktiviert Idempotency-Key-Wiederverwendung. Leerer Text ist ein expliziter Schlüssel, kein NULL-Ersatz. Vergleich gemäß binärer SQL-Collation, kein Normalisieren. Solange das Item besteht, liefert dieselbe Payload-/Policykonfiguration das bestehende Item; abweichende Konfiguration wird abgewiesen. Kein Beweis einer Exactly-once-Handlerwirkung. SQL-BIN2 ohne zusätzlichen Längenvergleich ist keine Byteidentitätsgarantie; SQL-Spacepadding beachten. |
+| `@Priority` | `tinyint` | `0` | Input | Ganzzahl 0..255 als tinyint, Default 0; höhere Werte werden bevorzugt. Explizites NULL ist unzulässig. Keine Zusage einer global strikt seriellen FIFO-Reihenfolge unter Konkurrenz. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
 | `@ExecutionGroup` | `varchar(128)` | `'default'` | Input | Nichtleerer varchar(128)-Gruppenname, binär/case-sensitiv gemäß SQL-Namensvergleich; keine feste Werteliste und keine separate Gruppenregistrierung. NULL/leer/reine Spaces ungültig; keine automatische Normalisierung. Die Gruppe bestimmt den Geltungsbereich der Barriers. Default ist der konkrete Name default. |
-| `@MaxAttempts` | `tinyint` | `3` | Input | Ganzzahl 1..10 Versuche pro Retryzyklus einschließlich, Default 3; explizites NULL ist kein Default und unzulässig. Die Policy wird am Item gespeichert und später nicht aus einer geänderten Konfiguration nachgelesen. |
-| `@RetryBaseDelaySeconds` | `int` | `60` | Input | Ganzzahl 1..86400 Sekunden einschließlich, Default 60; NULL/0/negativ/zu groß unzulässig. Basis des exponentiellen Retry-Backoffs; muss &lt;= RetryMaxDelaySeconds sein. |
-| `@RetryMaxDelaySeconds` | `int` | `3600` | Input | Ganzzahl von RetryBaseDelaySeconds bis 86400 Sekunden einschließlich, Default 3600; NULL oder kleiner als Basis unzulässig. Begrenzt den exponentiellen Backoff; keine Zufallsstreuung. |
-| `@ExecutionMode` | `varchar(16)` | `'SHARED'` | Input | Taxativ in kanonischer Schreibweise: SHARED = normale Queuearbeit (Default); DRAIN_BARRIER = gruppengebundene Barrierarbeit mit Blocker-Snapshot und zusätzlichen Schedulerregeln. DRAIN_BARRIER verlangt @@TRANCOUNT=0. Kein automatisches UPPER; NULL/leer/andere Modi unzulässig. |
+| `@MaxAttempts` | `tinyint` | `3` | Input | Ganzzahl 1..10 Versuche pro Retryzyklus einschließlich, Default 3; explizites NULL ist kein Default und unzulässig. Die Policy wird am Item gespeichert und später nicht aus einer geänderten Konfiguration nachgelesen. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
+| `@RetryBaseDelaySeconds` | `int` | `60` | Input | Ganzzahl 1..86400 Sekunden einschließlich, Default 60; NULL/0/negativ/zu groß unzulässig. Basis des exponentiellen Retry-Backoffs; muss &lt;= RetryMaxDelaySeconds sein. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
+| `@RetryMaxDelaySeconds` | `int` | `3600` | Input | Ganzzahl von RetryBaseDelaySeconds bis 86400 Sekunden einschließlich, Default 3600; NULL oder kleiner als Basis unzulässig. Begrenzt den exponentiellen Backoff; keine Zufallsstreuung. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
+| `@ExecutionMode` | `varchar(16)` | `'SHARED'` | Input | Taxativ in kanonischer Schreibweise: SHARED = normale Queuearbeit (Default); DRAIN_BARRIER = gruppengebundene Barrierarbeit mit Blocker-Snapshot und zusätzlichen Schedulerregeln. DRAIN_BARRIER verlangt @@TRANCOUNT=0. Kein automatisches UPPER; NULL/leer/andere Modi unzulässig. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wie 0 beim Helper. Nur bei nicht-NULL ResultTable an den kanonischen Vorbereitungshelper übergeben: 1..255 kann dessen Diagnose erzeugen. Ohne ResultTable erzeugt dieser Pfad keine zusätzlichen eigenen Debug-Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: aktiver, ausführbarer Work Type demo.noop.
+EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @Hilfe=1;
+
+-- Voraussetzung: tatsächlich registrierter autorisierter NONE-Handler.
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy
- @WorkTypeName='demo.noop', @PayloadJson=NULL, @IdempotencyKey=N'example-1',
- @Priority=10, @ExecutionGroup=N'example-group', @MaxAttempts=3,
- @RetryBaseDelaySeconds=60, @RetryMaxDelaySeconds=3600, @ExecutionMode='SHARED';
+ @WorkTypeName='contoso.noop',@IdempotencyKey='contoso.request.1',
+ @ExecutionGroup='contoso.group',@Priority=10,@ExecutionMode='SHARED',
+ @MaxAttempts=3,@RetryBaseDelaySeconds=60,@RetryMaxDelaySeconds=3600;
+-- Gleicher Key wird nur mit tatsächlich gleicher Policy wiederverwendet.
 ```
 
 Hilfe:
@@ -1511,33 +1684,35 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten aktiven Claims derselben ExecutionGroup abwartet; Retry-Policy und optionaler Idempotency Key bleiben gebunden.
 
-Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [USP_EnqueueBarrierWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueBarrierWork.md).
+Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [USP_EnqueueBarrierWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueBarrierWork.md), [USP_EnqueueBarrierWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnqueueBarrierWork.md).
 
-<!-- Source/Vertrag SHA256: aa2d3034be90206d1f992e717c8c3a9fed7943689ced889de9704772d1d5c52f -->
+<!-- Source/Vertrag SHA256: 83a2d7c7c45e08c266c678597dfb7ada1a0bf6dab87a2a1d0b0f8923c8ddc26c -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächlich registrierter aktiver WorkType mit ENQUEUE-Policy und passendem ParameterMode. Nur einfaches Enqueue verlangt zusätzlich sichtbaren P/PC-Handler; kein Handleraufruf. DRAIN_BARRIER verlangt@@TRANCOUNT0; SHARED unterstützt gesunden Caller-TX/Savepoint. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. Muss aktiviert und für ENQUEUE autorisiert sein. |
 | `@PayloadJson` | `nvarchar(max)` | `NULL` | Input | Bei Work-Type-ParameterMode NONE ausschließlich NULL (Default); bei JSON_PAYLOAD erforderlicher JSON-Objekttext gemäß konkretem Handlervertrag, z.B. N'{"value":1}'. Höchstens 65536 UTF-16-Bytes (64 KiB); kein Array/Scalarroot. Nach LTRIM normaler Spaces muss { folgen, daher keine führenden Tabs/CR/LF. Leer/ungültig wird abgewiesen; keine allgemeine automatische Prüfung der deklarativen PayloadContractJson-Felder. |
 | `@ExecutionGroup` | `varchar(128)` | `NULL` | Input | Nichtleerer varchar(128)-Gruppenname, binär/case-sensitiv gemäß SQL-Namensvergleich; keine feste Werteliste und keine separate Gruppenregistrierung. NULL/leer/reine Spaces ungültig; keine automatische Normalisierung. Die Gruppe bestimmt den Geltungsbereich der Barriers. Fachlich erforderlich; technischer Default NULL dient nur dem Hilfemodus. |
-| `@Priority` | `tinyint` | `NULL` | Input | Fachlich erforderliche Ganzzahl 0..255 als tinyint. Technischer Default NULL dient nur Hilfe; bei NULL im Fachaufruf Fehler 51975. Der Wrapper setzt den Modus fest auf DRAIN_BARRIER; Callertransaktionen sind ausgeschlossen. |
-| `@IdempotencyKey` | `varchar(128)` | `NULL` | Input | Optionaler varchar(128)-Schlüssel innerhalb genau eines Work Types; NULL (Default) deaktiviert Idempotency-Key-Wiederverwendung. Leerer Text ist ein expliziter Schlüssel, kein NULL-Ersatz. Vergleich gemäß binärer SQL-Collation, kein Normalisieren. Solange das Item besteht, liefert dieselbe Payload-/Policykonfiguration das bestehende Item; abweichende Konfiguration wird abgewiesen. Kein Beweis einer Exactly-once-Handlerwirkung. |
-| `@MaxAttempts` | `tinyint` | `3` | Input | Ganzzahl 1..10 Versuche pro Retryzyklus einschließlich, Default 3; explizites NULL ist kein Default und unzulässig. Die Policy wird am Item gespeichert und später nicht aus einer geänderten Konfiguration nachgelesen. |
-| `@RetryBaseDelaySeconds` | `int` | `60` | Input | Ganzzahl 1..86400 Sekunden einschließlich, Default 60; NULL/0/negativ/zu groß unzulässig. Basis des exponentiellen Retry-Backoffs; muss &lt;= RetryMaxDelaySeconds sein. |
-| `@RetryMaxDelaySeconds` | `int` | `3600` | Input | Ganzzahl von RetryBaseDelaySeconds bis 86400 Sekunden einschließlich, Default 3600; NULL oder kleiner als Basis unzulässig. Begrenzt den exponentiellen Backoff; keine Zufallsstreuung. |
+| `@Priority` | `tinyint` | `NULL` | Input | Fachlich erforderliche Ganzzahl 0..255 als tinyint. Technischer Default NULL dient nur Hilfe; bei NULL im Fachaufruf Fehler 51975. Der Wrapper setzt den Modus fest auf DRAIN_BARRIER; Callertransaktionen sind ausgeschlossen. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
+| `@IdempotencyKey` | `varchar(128)` | `NULL` | Input | Optionaler varchar(128)-Schlüssel innerhalb genau eines Work Types; NULL (Default) deaktiviert Idempotency-Key-Wiederverwendung. Leerer Text ist ein expliziter Schlüssel, kein NULL-Ersatz. Vergleich gemäß binärer SQL-Collation, kein Normalisieren. Solange das Item besteht, liefert dieselbe Payload-/Policykonfiguration das bestehende Item; abweichende Konfiguration wird abgewiesen. Kein Beweis einer Exactly-once-Handlerwirkung. SQL-BIN2 ohne zusätzlichen Längenvergleich ist keine Byteidentitätsgarantie; SQL-Spacepadding beachten. |
+| `@MaxAttempts` | `tinyint` | `3` | Input | Ganzzahl 1..10 Versuche pro Retryzyklus einschließlich, Default 3; explizites NULL ist kein Default und unzulässig. Die Policy wird am Item gespeichert und später nicht aus einer geänderten Konfiguration nachgelesen. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
+| `@RetryBaseDelaySeconds` | `int` | `60` | Input | Ganzzahl 1..86400 Sekunden einschließlich, Default 60; NULL/0/negativ/zu groß unzulässig. Basis des exponentiellen Retry-Backoffs; muss &lt;= RetryMaxDelaySeconds sein. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
+| `@RetryMaxDelaySeconds` | `int` | `3600` | Input | Ganzzahl von RetryBaseDelaySeconds bis 86400 Sekunden einschließlich, Default 3600; NULL oder kleiner als Basis unzulässig. Begrenzt den exponentiellen Backoff; keine Zufallsstreuung. NichtNULL ist der zulässige fachliche Vertrag; der Code hat nicht für jeden dieser Werte einen vollständigen NULL-Frühguard. Bei vorhandenem IdempotencyKey kann UNKNOWN den Differenzvergleich umgehen; bei neuem Item wirken Tabellenconstraints. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wie 0 beim Helper. Nur bei nicht-NULL ResultTable an den kanonischen Vorbereitungshelper übergeben: 1..255 kann dessen Diagnose erzeugen. Ohne ResultTable erzeugt dieser Pfad keine zusätzlichen eigenen Debug-Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: registrierter passender Handler; Barrier hat Seiteneffekte auf Claims.
+EXEC toolbelt_core.USP_EnqueueBarrierWork @Hilfe=1;
+
+-- Ohne Caller-TX; registrierter autorisierter NONE-Handler erforderlich.
 EXEC toolbelt_core.USP_EnqueueBarrierWork
- @WorkTypeName='demo.noop', @PayloadJson=NULL, @ExecutionGroup=N'example-group', @Priority=10;
+ @WorkTypeName='contoso.noop',@ExecutionGroup='contoso.group',@Priority=10;
 ```
 
 Hilfe:
@@ -1550,13 +1725,13 @@ EXEC toolbelt_core.USP_EnqueueBarrierWork @Hilfe=1;
 
 Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
-Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffnet eine zeitlich begrenzte Lease. Abgelaufene Claims werden nicht implizit übernommen.
+Atomarer prioritäts- und barriergesteuerter Queueclaim mit begrenzter Lease. Öffentlicher Einstieg.
 
-Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [USP_ClaimWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ClaimWork.md).
+Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [USP_ClaimWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ClaimWork.md), [USP_ClaimWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_ClaimWork.md).
 
-<!-- Source/Vertrag SHA256: 3e5db6306f40062ddb6c260833f5dbfda3b76c25caa2612b33f763af13dc8077 -->
+<!-- Source/Vertrag SHA256: f497a2f8880ec9f0a63c77225d2df5248af859a9dfb7fce4cd8b6ca6c0806eca -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Passende Queue2.1.0 mit WorkType-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170,lokal/zentral. Tatsächliche aktuelle IDs/Token aus autorisierten Claim-/Statusausgaben verwenden. Keine Callertransaktion im öffentlichen Claimpfad. Private Managed-Admission verlangt genau eine gesunde bestehende Transaktion und passende Gatebindung. Hilfe ignoriert Fachargumente und kehrt vor Datenzugriff/Mutation zurück; SQL-Typkonvertierung liegt vorher.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1564,12 +1739,15 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
+EXEC toolbelt_core.USP_ClaimWork @Hilfe=1;
+
 EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=300;
+-- Null oder eine vertrauliche tatsächliche Claimzeile sicher übernehmen.
 ```
 
 Hilfe:
@@ -1584,11 +1762,11 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Verlängert eine noch aktive Lease mit passendem ClaimToken um ihre beim Claim festgelegte Dauer ab Engine-Zeit. Eine abgelaufene Lease wird nicht wiederbelebt.
 
-Vertrag und Quelle: [USP_RenewWorkLease.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql), [USP_RenewWorkLease.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RenewWorkLease.md).
+Vertrag und Quelle: [USP_RenewWorkLease.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql), [USP_RenewWorkLease.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RenewWorkLease.md), [USP_RenewWorkLease.md](../../Metadata/UsageSkills/toolbelt_core/USP_RenewWorkLease.md).
 
-<!-- Source/Vertrag SHA256: fb8908252e96416073d9114aac87b6e457f49851d2c092d14e1f7944ecf34b4b -->
+<!-- Source/Vertrag SHA256: c858e06f313b6a903dfff00bb29718515c80e62b19d3f4af9c27d7f2c9c0f671 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Queue 2.1.0 mit WorkType-/ResultTableabhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170 gemäß Modulmatrix. Keine Callertransaktion. Nur eigene aktuelle Claim-ID/Token verwenden; die Lease muss noch aktiv sein. Clientzeiten verlängern keine Enginelease. Alle Argumente haben technische Defaults für Hilfe; erforderliche NULL-Fachwerte bleiben ungültig. SQL-Typbindung und Breitenkonvertierung liegen vor dem Code.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1597,14 +1775,16 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- WorkItemId und ClaimToken durch den eigenen aktuellen Claim ersetzen;
--- Beispielkonstanten sind keine gültige Claim-Berechtigung.
-EXEC toolbelt_core.USP_RenewWorkLease @WorkItemId=1,@ClaimToken='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_RenewWorkLease @Hilfe=1;
+
+-- Eigene aktive Claim-ID/Token einsetzen, keine fremden Bindings.
+DECLARE @Token uniqueidentifier='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_RenewWorkLease @WorkItemId=1,@ClaimToken=@Token;
 ```
 
 Hilfe:
@@ -1619,11 +1799,11 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT oder DEAD_LETTER. Alte ClaimTokens werden atomar invalidiert.
 
-Vertrag und Quelle: [USP_RecoverExpiredWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql), [USP_RecoverExpiredWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RecoverExpiredWork.md).
+Vertrag und Quelle: [USP_RecoverExpiredWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql), [USP_RecoverExpiredWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RecoverExpiredWork.md), [USP_RecoverExpiredWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_RecoverExpiredWork.md).
 
-<!-- Source/Vertrag SHA256: c74e3956bd8d9d74eaccdbef04f13bd619876433dd1bb82783f25d32308b4c07 -->
+<!-- Source/Vertrag SHA256: ed8f1d3c11e2c3ba6aac835e9719edbe7e829d4dd32e958241dd0d0def7b68c0 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Queue 2.1.0 mit WorkType-/ResultTableabhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170 gemäß Modulmatrix. Keine Callertransaktion. Expliziter Supervisorbatch; keine Übernahme von Managed-/Holditems. MaxItems 1..1000 begrenzt die Zahl ausgewählter Items. Alle Argumente haben technische Defaults für Hilfe; erforderliche NULL-Fachwerte bleiben ungültig. SQL-Typbindung und Breitenkonvertierung liegen vor dem Code.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1631,11 +1811,14 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
+EXEC toolbelt_core.USP_RecoverExpiredWork @Hilfe=1;
+
+-- Autorisierter Supervisor, ohne Caller-TX:
 EXEC toolbelt_core.USP_RecoverExpiredWork @MaxItems=100;
 ```
 
@@ -1651,11 +1834,11 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED ab. Ein fachliches Arbeitsergebnis wird in E1a nicht gespeichert.
 
-Vertrag und Quelle: [USP_CompleteWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql), [USP_CompleteWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_CompleteWork.md).
+Vertrag und Quelle: [USP_CompleteWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql), [USP_CompleteWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_CompleteWork.md), [USP_CompleteWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_CompleteWork.md).
 
-<!-- Source/Vertrag SHA256: 140b7fc3b9d2f650f4280c08862026dbdbb1187c0721916045e4dec5954041da -->
+<!-- Source/Vertrag SHA256: 1fbe02e112e77635a08c66a748a1c4411f44749fd017a84895ec119a45064d9c -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Queue 2.1.0 mit WorkType-/ResultTableabhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170 gemäß Modulmatrix. Ein gesunder Caller-TX ist zulässig. ManagedCompletion verlangt den geschützten äußeren TX, Nonce und AppLock. Ein einfacher aktiver Claim darf einen eigenen TX verwenden. Alle Argumente haben technische Defaults für Hilfe; erforderliche NULL-Fachwerte bleiben ungültig. SQL-Typbindung und Breitenkonvertierung liegen vor dem Code.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1664,14 +1847,16 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- WorkItemId und ClaimToken durch den eigenen aktuellen Claim ersetzen;
--- Beispielkonstanten sind keine gültige Claim-Berechtigung.
-EXEC toolbelt_core.USP_CompleteWork @WorkItemId=1, @ClaimToken='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_CompleteWork @Hilfe=1;
+
+-- Eigene aktive Claim-ID/Token einsetzen, keine fremden Bindings.
+DECLARE @Token uniqueidentifier='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_CompleteWork @WorkItemId=1,@ClaimToken=@Token;
 ```
 
 Hilfe:
@@ -1684,13 +1869,13 @@ EXEC toolbelt_core.USP_CompleteWork @Hilfe=1;
 
 Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
-Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Gespeichert werden nur ein stabiler Code und eine optionale bereinigte Kurzmeldung.
+Tokengebundener endgültiger FAILED-Abschluss eines aktiven Queueclaims. Öffentlicher Einstieg.
 
-Vertrag und Quelle: [USP_FailWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql), [USP_FailWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_FailWork.md).
+Vertrag und Quelle: [USP_FailWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql), [USP_FailWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_FailWork.md), [USP_FailWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_FailWork.md).
 
-<!-- Source/Vertrag SHA256: 1a09b04450a463004c29e5299ef0104f2d4caeae6f76e9e39db66d1a37f84b76 -->
+<!-- Source/Vertrag SHA256: 56f1c26961f2a4cd914aa45257ee6f5f3ba87d7474776115b463151fcc7cc147 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Passende Queue2.1.0 mit WorkType-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170,lokal/zentral. Tatsächliche aktuelle IDs/Token aus autorisierten Claim-/Statusausgaben verwenden. Eigene Transaktion oder gesunder Caller-TX mit Savepoint ist im vorhandenen Kern möglich; nicht pauschal als verboten beschreiben. Hilfe ignoriert Fachargumente und kehrt vor Datenzugriff/Mutation zurück; SQL-Typkonvertierung liegt vorher.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1701,14 +1886,17 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- WorkItemId und ClaimToken durch den eigenen aktuellen Claim ersetzen;
--- Beispielkonstanten sind keine gültige Claim-Berechtigung.
-EXEC toolbelt_core.USP_FailWork @WorkItemId=1,@ClaimToken='00000000-0000-0000-0000-000000000001',@FailureCode='DEMO.ERROR';
+EXEC toolbelt_core.USP_FailWork @Hilfe=1;
+
+-- Tatsächliche eigene Claim-ID/Token ersetzen diese synthetischen Werte:
+DECLARE @Token uniqueidentifier='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_FailWork @WorkItemId=1,@ClaimToken=@Token,@FailureCode='CONTOSO.TRANSIENT';
+-- Kein freier Replaypfad; falsche/nicht vorhandene Bindung ist kein erfolgreicher Übergang.
 ```
 
 Hilfe:
@@ -1721,13 +1909,13 @@ EXEC toolbelt_core.USP_FailWork @Hilfe=1;
 
 Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
-Plant einen tokengebundenen Retry oder verschiebt nach Dead Letter.
+Tokengebundene Retry-/Dead-Letter-Entscheidung nach gespeicherter Queuepolicy. Öffentlicher Einstieg.
 
-Vertrag und Quelle: [USP_ScheduleWorkRetry.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql), [USP_ScheduleWorkRetry.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ScheduleWorkRetry.md).
+Vertrag und Quelle: [USP_ScheduleWorkRetry.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql), [USP_ScheduleWorkRetry.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_ScheduleWorkRetry.md), [USP_ScheduleWorkRetry.md](../../Metadata/UsageSkills/toolbelt_core/USP_ScheduleWorkRetry.md).
 
-<!-- Source/Vertrag SHA256: 990ce897689e74e60d468675190be72d6d71388aa918cb907d2b5a510ad94fb5 -->
+<!-- Source/Vertrag SHA256: ef989ef181dfafd92011a1aa0bb92b0de76d3058dc5607e30eba87405aa3d2fb -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Passende Queue2.1.0 mit WorkType-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170,lokal/zentral. Tatsächliche aktuelle IDs/Token aus autorisierten Claim-/Statusausgaben verwenden. Eigene Transaktion oder gesunder Caller-TX mit Savepoint ist im vorhandenen Kern möglich; nicht pauschal als verboten beschreiben. Hilfe ignoriert Fachargumente und kehrt vor Datenzugriff/Mutation zurück; SQL-Typkonvertierung liegt vorher.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1738,15 +1926,17 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | Taxativ zulässig ist ausschließlich NULL (Default). Diese Version unterstützt kein ResultTable-Routing; jeder nicht-NULL Name wird mit 51989 abgewiesen. Eine Statuszeile wird direkt zurückgegeben. |
 | `@KeepData` | `bit` | `0` | Input | bit 0/1/NULL ist als Standardparameter vorhanden, Default 0; mangels ResultTable-Routing in dieser Procedure ohne Wirkung. Kein Append/Replace-Modus für die Queue selbst. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0; der aktuelle Retrykern nutzt diesen Parameter nicht für zusätzliche Diagnose-Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- ID und Token stammen aus dem eigenen aktuellen Claim.
-DECLARE @WorkItemId bigint=NULL, @ClaimToken uniqueidentifier=NULL; -- tatsächliche Claimwerte einsetzen
-EXEC toolbelt_core.USP_ScheduleWorkRetry @WorkItemId=@WorkItemId, @ClaimToken=@ClaimToken,
- @FailureCode='EXAMPLE_RETRY', @FailureMessage=N'Synthetischer Testfehler';
+EXEC toolbelt_core.USP_ScheduleWorkRetry @Hilfe=1;
+
+-- Tatsächliche eigene Claim-ID/Token ersetzen diese synthetischen Werte:
+DECLARE @Token uniqueidentifier='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_ScheduleWorkRetry @WorkItemId=1,@ClaimToken=@Token,@FailureCode='CONTOSO.TRANSIENT';
+-- Kein freier Replaypfad; falsche/nicht vorhandene Bindung ist kein erfolgreicher Übergang.
 ```
 
 Hilfe:
@@ -1761,11 +1951,11 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Beginnt für ein Dead-Letter-Item einen neuen Retry-Zyklus.
 
-Vertrag und Quelle: [USP_RequeueDeadLetter.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql), [USP_RequeueDeadLetter.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RequeueDeadLetter.md).
+Vertrag und Quelle: [USP_RequeueDeadLetter.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql), [USP_RequeueDeadLetter.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_RequeueDeadLetter.md), [USP_RequeueDeadLetter.md](../../Metadata/UsageSkills/toolbelt_core/USP_RequeueDeadLetter.md).
 
-<!-- Source/Vertrag SHA256: 44fa0f1be4e281afbc6dbfc0a8a5d426fcff1def2ccc9763a1b9812460dfdcd4 -->
+<!-- Source/Vertrag SHA256: bcb2059c4b5e703416fe88ede7101bf8b2e929aae09cb3d1ec9e1460df1293df -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Queue 2.1.0 mit WorkType-/ResultTableabhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170 gemäß Modulmatrix. Keine Callertransaktion. Aktuell DEAD_LETTER, nicht gehalten und nicht Managed. Aktuelle RowVersion für optionales CAS; NULL deaktiviert CAS. Keine freie Freigabe unbekannter Ownership. Alle Argumente haben technische Defaults für Hilfe; erforderliche NULL-Fachwerte bleiben ungültig. SQL-Typbindung und Breitenkonvertierung liegen vor dem Code.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1775,14 +1965,16 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wie 0 beim Helper. Nur bei nicht-NULL ResultTable an den kanonischen Vorbereitungshelper übergeben: 1..255 kann dessen Diagnose erzeugen. Ohne ResultTable erzeugt dieser Pfad keine zusätzlichen eigenen Debug-Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Eine tatsächliche eigene DEAD_LETTER-ID einsetzen.
-DECLARE @WorkItemId bigint=NULL;
-EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@WorkItemId, @RequeueReason=N'Synthetischer Wiederholungsversuch';
+EXEC toolbelt_core.USP_RequeueDeadLetter @Hilfe=1;
+
+-- Synthetische ID/RowVersion durch das eigene tatsächliche DEAD_LETTER-Item ersetzen.
+EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=1,
+ @ExpectedRowVersion=0x0000000000000001,@RequeueReason=N'Contoso: Ursache behoben';
 ```
 
 Hilfe:
@@ -1797,11 +1989,11 @@ Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden bewusst nicht offengelegt.
 
-Vertrag und Quelle: [USP_GetWorkStatus.sql](../../Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql), [USP_GetWorkStatus.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_GetWorkStatus.md).
+Vertrag und Quelle: [USP_GetWorkStatus.sql](../../Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql), [USP_GetWorkStatus.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_GetWorkStatus.md), [USP_GetWorkStatus.md](../../Metadata/UsageSkills/toolbelt_core/USP_GetWorkStatus.md).
 
-<!-- Source/Vertrag SHA256: 8f446c69f1931a2a543f7771594f85285ed8522c0fec628696d4b9e8821a6126 -->
+<!-- Source/Vertrag SHA256: 0e608b4ca778fda88b32e1870fbd05b950c43239d2487fac5b01519bb411e319 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächliches existierendes Item; kein aktiver/registrierter Handler für reine Statuslesung erforderlich. Gesunder Caller-TX ist möglich; keine pauschale Caller-TX-Sperre. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1809,12 +2001,16 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
+EXEC toolbelt_core.USP_GetWorkStatus @Hilfe=1;
+
+-- Synthetische ID durch die eigene tatsächliche Enqueue-/Claim-ID ersetzen.
 EXEC toolbelt_core.USP_GetWorkStatus @WorkItemId=1;
+-- Statuslesung liefert weder Payload noch ClaimToken.
 ```
 
 Hilfe:
@@ -1829,13 +2025,11 @@ Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Datenbankprincipal.
 
-Vertrag und Quelle: [USP_SetWorkTypePermission.sql](../../Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql), [USP_SetWorkTypePermission.md](../../Modules/toolbelt.core.work-type/Documentation/USP_SetWorkTypePermission.md).
+Vertrag und Quelle: [USP_SetWorkTypePermission.sql](../../Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql), [USP_SetWorkTypePermission.md](../../Modules/toolbelt.core.work-type/Documentation/USP_SetWorkTypePermission.md), [USP_SetWorkTypePermission.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkTypePermission.md).
 
-<!-- Source/Vertrag SHA256: 68352dbf42e87c31f49ac3be7d282073fff3d6c738abc7fc87199d5eaeba0731 -->
+<!-- Source/Vertrag SHA256: e96cc15a8b76ee6fd5f27aee124dd9f602992f986e9046d6e15c52941fd81da6 -->
 
-Voraussetzung: Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.
-
-Voraussetzung: EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine automatische Rechtevergabe.
+Voraussetzung: SQL Server 2019/2022/2025 auf Windows/Linux, passende CL150/160/170, lokal/zentral. WorkType-Katalog und Policyobjekte in derselben Datenbank; zentrale Verwendung wertet den tatsächlichen DBtoken dieses Katalogs aus. Kein Second-Session- oder Queue-Provider für diese lokale Policyverwaltung/-entscheidung erforderlich. Eine Policy bindet WorkTypeId, Aktion, tatsächliche DBprincipal-ID/SID/create_date und exakte binary(8)-RowVersion des Work Types. Ändert sich dessen RowVersion oder wird ein Principal unter neuer Identität wiederangelegt, wird die alte Zeile unwirksam statt automatisch übernommen. Aktuelle sys.user_token-Zeilen einschließlich wirksamer Rollen werden im jeweiligen Katalog ausgewertet; kein frei übergebener Actor/Name kann einen Callertoken ersetzen. Principal muss im lokalen sys.database_principals sichtbar sein, type in S/U/G/R/E/X und principal_id ungleich 0; keine Erstellung fehlender Identitäten. Work Type muss registriert sein, nicht zwingend enabled. Auch REMOVE setzt vorhandenen Principal und Work Type voraus und ist kein allgemeiner Bereiniger verwaister Zeilen.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1844,12 +2038,15 @@ Voraussetzung: EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine
 | `@PermissionName` | `varchar(32)` | `NULL` | Input | Taxativ und binär/case-sensitiv: ENQUEUE erlaubt das Einreihen; CLAIM erlaubt das Beanspruchen von Arbeit; EXECUTE_NEW_SESSION erlaubt den Start über den Second-Session-Provider. Keine weiteren Aktionen und kein implizites UPPER. SQL-Space-Padding ist vom binären Vergleich nicht aufgehoben. Fachlich erforderlich, NULL ungültig. |
 | `@PermissionState` | `varchar(8)` | `'ALLOW'` | Input | Taxativ und binär/case-sensitiv: ALLOW legt eine erlaubende lokale Policy an (Default); DENY legt eine verbietende Policy an und gewinnt gegen passende ALLOWs; REMOVE entfernt den Eintrag genau dieser Aktion/Principal-Zuordnung. NULL/andere Werte ungültig. Dies ersetzt keine SQL-Objekt-EXECUTE-Rechte und vergibt keine Serverrechte. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert bestehende zwölfspaltige Standardhilfe und genau eine vollständige vier-spaltige Skillzeile, danach RETURN 0 vor Parametervalidierung/CONTROL-/Katalogprüfung oder Policyänderung. 0 oder NULL führt den Fachpfad aus. Alle Argumente besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='demo.noop', @Principal=N'ContosoProducer', @PermissionName='ENQUEUE', @PermissionState='ALLOW';
+-- Bestehender synthetischer Work Type und DBprincipal sind Voraussetzung.
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='contoso.noop',@Principal=N'ContosoProducer',@PermissionName='ENQUEUE',@PermissionState='ALLOW';
+-- Persistente App-Delegation, nur im autorisierten Verwaltungsscope.
+EXEC toolbelt_core.USP_SetWorkTypePermission @Hilfe=1;
 ```
 
 Hilfe:
@@ -1862,16 +2059,20 @@ EXEC toolbelt_core.USP_SetWorkTypePermission @Hilfe=1;
 
 Modul `toolbelt.core.work-type` · Version `1.2.0` · `VIEW`
 
-Zeigt registrierte Work Types und deren Konfiguration.
+Liest den Work-Type-Katalog einschließlich Handlername und sichtbarer Handlerexistenz.
 
-Vertrag und Quelle: [VW_WorkTypes.sql](../../Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql), [VW_WorkTypes.md](../../Modules/toolbelt.core.work-type/Documentation/VW_WorkTypes.md).
+Vertrag und Quelle: [VW_WorkTypes.sql](../../Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql), [VW_WorkTypes.md](../../Modules/toolbelt.core.work-type/Documentation/VW_WorkTypes.md), [VW_WorkTypes.md](../../Metadata/UsageSkills/toolbelt_core/VW_WorkTypes.md).
 
-<!-- Source/Vertrag SHA256: e8836468eb2ce2565c1e3861168680b87128b0aa4b23e80cb3e795da6090da51 -->
+<!-- Source/Vertrag SHA256: 0ee1aba4c3bc2f4fb00ac2e5fa81456842dbcee87a7cdaf5aa80784d77ef7a5c -->
+
+Voraussetzung: Work-Type-Modul in der gewählten Moduldatenbank installiert und lesbar. Bei zentraler Installation gegebenenfalls dreiteiligen Namen verwenden. Kein Aufrufparameter.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_WorkTypes;
+SELECT WorkTypeName,HandlerQualifiedName,ParameterMode,IsEnabled,HandlerExists
+FROM toolbelt_core.VW_WorkTypes
+ORDER BY WorkTypeName;
 ```
 
 ## toolbelt_core.USP_RegisterWorkType
@@ -1880,11 +2081,11 @@ Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.
 
-Vertrag und Quelle: [USP_RegisterWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql), [USP_RegisterWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RegisterWorkType.md).
+Vertrag und Quelle: [USP_RegisterWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql), [USP_RegisterWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RegisterWorkType.md), [USP_RegisterWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_RegisterWorkType.md).
 
-<!-- Source/Vertrag SHA256: 91e7bf9cf81ca6beb98117283f44391dbd819d00c55b01fa4dfbc0d2042bc0f7 -->
+<!-- Source/Vertrag SHA256: 04c817055d03a0f57003324fef68917b2c65d20d73ba1f0602c1562f45c7532c -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. WorkType und VW_WorkTypes in derselben Datenbank, sichtbare vorhandene Handlerprozedur P/PC in dieser Datenbank, nicht sys oder is_ms_shipped. Vorhandenes Handler-EXECUTE des registrierenden Principals erforderlich. Für Routing zusätzlich existierender sameDB ResultTable-Helper und gültige lokale Caller-Temp. ParameterMode ist eine Deklaration: diese Prozedur prüft NICHT die passende Handler-Parametersignatur; der spätere Dispatcher prüft diese separat. NONE ohne Payloadvertrag; JSON_PAYLOAD verlangt ein JSON-Objekt nach ISJSON und { nach LTRIM gewöhnlicher Spaces, kein ausführbares JSON-Schema.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1902,12 +2103,15 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile vor Fach-/Handler-/Katalogprüfung oder Änderungen. Danach RETURN 0. 0 oder NULL: Fachpfad. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='demo.noop', @HandlerSchema=N'dbo', @HandlerProcedure=N'USP_DemoNoop';
+-- Vorhandener synthetischer Handler dbo.ContosoNoop ohne Parameter vorausgesetzt.
+EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='contoso.noop',@HandlerSchema=N'dbo',@HandlerProcedure=N'ContosoNoop',@ParameterMode='NONE';
+-- Ändert den Katalog im autorisierten Verwaltungsscope; kein Handleraufruf.
+EXEC toolbelt_core.USP_RegisterWorkType @Hilfe=1;
 ```
 
 Hilfe:
@@ -1922,26 +2126,28 @@ Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfiguration.
 
-Vertrag und Quelle: [USP_DisableWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql), [USP_DisableWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_DisableWorkType.md).
+Vertrag und Quelle: [USP_DisableWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql), [USP_DisableWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_DisableWorkType.md), [USP_DisableWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_DisableWorkType.md).
 
-<!-- Source/Vertrag SHA256: 1792956b51482c527a18d51aad276b8047b83d2624877f700818865bb1912796 -->
+<!-- Source/Vertrag SHA256: 6c3452913b5fa94cbfb5b978cf02265ed693a896105af09a424d16d858b281d2 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: WorkType-Katalog und VW_WorkTypes in derselben Datenbank, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Für ResultTable zusätzlich vorhandener sameDB ResultTable-Helper und gültige caller-lokale Temp. Keine automatische Dependencyinstallation. ExpectedRowVersion NULL deaktiviert nur den optimistischen Versionsvergleich; sonst exakte binary(8)-Bytes aus zuletzt gelesenem Katalog verwenden, keinen Hextext. Already-disabled mit NULL-Grund ist ein No-op, die optionale RowVersion-Prüfung gilt trotzdem. Jede tatsächliche Änderung erzeugt neue RowVersion und macht ältere gebundene WorkType-Policies unwirksam, bis sie ausdrücklich neu konfiguriert werden.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Kanonischer registrierter WorkTypeName als varchar(128), kein SQL-Text oder Handler-Aufruf. Verfügbare Namen über toolbelt_core.VW_WorkTypes ermitteln; der Eintrag muss für diese Operation freigegeben sein. NULL/leer ist im Fachaufruf ungültig. |
-| `@DisabledReason` | `nvarchar(1000)` | `NULL` | Input | Optionaler Unicode-Freitext nvarchar(1000), keine automatische Redigierung. Bei erster Deaktivierung wird der Wert einschließlich NULL gespeichert. Bei wiederholter Deaktivierung erhält NULL den vorhandenen Grund; ein expliziter Text einschließlich leer kann ihn ändern. |
+| `@DisabledReason` | `nvarchar(1000)` | `NULL` | Input | Optionales nvarchar(1000), NULL/leer erlaubt, keine Redigierung. Bei erster Deaktivierung einschließlich NULL gespeichert. Ist der Eintrag bereits deaktiviert, bewahrt NULL den Grund; nicht-NULL ändert nur bei ungleichem ISNULL(...,N'')-SQL-Textvergleich. Datenbankcollation und SQL-Padding können Groß-/Kleinschreibung oder trailing Spaces als gleich behandeln. Keine garantierte bytegenaue Textersetzung. |
 | `@ExpectedRowVersion` | `binary(8)` | `NULL` | Input | Optionaler binary(8)-Wert aus der zuletzt gelesenen RowVersion der betreffenden Zeile, als Bytes/SQL-Hexliteral (nicht als Hextext). NULL schaltet diese optionale Vergleichsprüfung aus; bei Abweichung wird die Änderung abgewiesen. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe und genau eine vollständige vier-spaltige Skillzeile vor Fachprüfung/Katalog/Temp-Ergebnis/Änderung; danach RETURN 0. 0 oder NULL: Fachpfad. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_DisableWorkType @WorkTypeName='demo.noop';
+EXEC toolbelt_core.USP_DisableWorkType @WorkTypeName='contoso.noop',@DisabledReason=N'Synthetic maintenance';
+-- Persistente Änderung, bestehender synthetischer Eintrag erforderlich.
+EXEC toolbelt_core.USP_DisableWorkType @Hilfe=1;
 ```
 
 Hilfe:
@@ -1956,11 +2162,11 @@ Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Datenverlustfreigabe und optionale RowVersion-Prüfung verhindern versehentliche oder konkurrierende Löschungen.
 
-Vertrag und Quelle: [USP_RemoveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql), [USP_RemoveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RemoveWorkType.md).
+Vertrag und Quelle: [USP_RemoveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql), [USP_RemoveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RemoveWorkType.md), [USP_RemoveWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_RemoveWorkType.md).
 
-<!-- Source/Vertrag SHA256: e76f53fa47f4452b1e4235609086ef6d29c37ca931dc4f8126cdaf06ae778ab7 -->
+<!-- Source/Vertrag SHA256: a5029fdc55c7d9dfdf9e9e0356db825ad3cfd2772a39529f96e4423ca768af44 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: WorkType-Katalog und VW_WorkTypes in derselben Datenbank, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Für ResultTable zusätzlich vorhandener sameDB ResultTable-Helper und gültige caller-lokale Temp. Keine automatische Dependencyinstallation. ExpectedRowVersion NULL deaktiviert nur den optimistischen Versionsvergleich; sonst exakte binary(8)-Bytes aus zuletzt gelesenem Katalog verwenden, keinen Hextext. Aktive Einträge können nicht entfernt werden. Bestehende Referenzen können den DELETE durch Engine-/FK-Fehler verhindern; kein automatisches Entfernen von Workitems oder anderen Verbrauchern.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1970,12 +2176,14 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe und genau eine vollständige vier-spaltige Skillzeile vor Fachprüfung/Katalog/Temp-Ergebnis/Änderung; danach RETURN 0. 0 oder NULL: Fachpfad. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName='demo.noop', @AllowDelete=1;
+EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName='contoso.noop',@AllowDelete=1;
+-- Nur bereits deaktivierter synthetischer Eintrag im autorisierten Scope.
+EXEC toolbelt_core.USP_RemoveWorkType @Hilfe=1;
 ```
 
 Hilfe:
@@ -1990,11 +2198,11 @@ Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-EXECUTE-Vertrag erzwingen.
 
-Vertrag und Quelle: [USP_ResolveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql), [USP_ResolveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_ResolveWorkType.md).
+Vertrag und Quelle: [USP_ResolveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql), [USP_ResolveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_ResolveWorkType.md), [USP_ResolveWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_ResolveWorkType.md).
 
-<!-- Source/Vertrag SHA256: 8d67d48b37bca8c311c253794186a0d329afc446060bab0835989e06695ec5b1 -->
+<!-- Source/Vertrag SHA256: abe86226f3f781ddc178017756c4e6a44aee62bdb9b456afbcb1ba26a2ad4e37 -->
 
-Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
+Voraussetzung: WorkType-Katalog und VW_WorkTypes in derselben Datenbank, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Für ResultTable zusätzlich vorhandener sameDB ResultTable-Helper und gültige caller-lokale Temp. Keine automatische Dependencyinstallation. RequireEnabled und RequireExecutableByCaller NULL=>1; RequiredPermission NULL bedeutet keine App-Policyprüfung. SuppressResult muss 0/1 sein, NULL oder 1 mit ResultTable wird abgewiesen. Ein deaktivierter Eintrag ist mit RequireEnabled=0 möglich; der Handler muss dennoch sichtbar existieren. RequireExecutableByCaller=0 überspringt nur dessen EXECUTE-Check, verleiht kein Recht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2006,12 +2214,14 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Nicht zusammen mit SuppressResult=1. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe und genau eine vollständige vier-spaltige Skillzeile vor Fachprüfung/Katalog/Temp-Ergebnis/Änderung; danach RETURN 0. 0 oder NULL: Fachpfad. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName='demo.noop';
+EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName='contoso.noop',@RequiredPermission='EXECUTE_NEW_SESSION',@SuppressResult=1;
+-- Nur Preflight; registrierter Handler, bestehende Rechte und Policy nötig.
+EXEC toolbelt_core.USP_ResolveWorkType @Hilfe=1;
 ```
 
 Hilfe:
@@ -2024,51 +2234,51 @@ EXEC toolbelt_core.USP_ResolveWorkType @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
 
-Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.
+Öffentliche tokenfreie Statusprojektion aller registrierten Worker-generationen.
 
-Vertrag und Quelle: [VW_WorkerStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerStatus.sql), [VW_WorkerStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerStatus.md).
+Vertrag und Quelle: [VW_WorkerStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerStatus.sql), [VW_WorkerStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerStatus.md), [VW_WorkerStatus.md](../../Metadata/UsageSkills/toolbelt_core/VW_WorkerStatus.md).
 
-<!-- Source/Vertrag SHA256: 9e37dcdfa32a47bc3f689f3987f80ce23e5229b12639d328a0ffb190f0fe1459 -->
+<!-- Source/Vertrag SHA256: 5ad504a1cf5fac4e53188f7c93dbb940b70298c3a3566b09e59e08aa45950dae -->
 
-Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+Voraussetzung: Installiertes Worker-Control1.0.0 und passende Queue2.1.0-/ExecutionContext-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Markerfreier create-only-Installer erhält vorhandene Objekte; hier ist eine passende aktuelle Definition vorausgesetzt, kein eigenständiges CREATE/Upgrade aus dem Skill. Keine CLR-/Datei-/Netzwerk-/LLM-Aufrufe der Relation.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_WorkerStatus;
+SELECT WorkerId,WorkerGeneration,State,Capacity,OccupiedSlots,ConfigVersion
+FROM toolbelt_core.VW_WorkerStatus ORDER BY WorkerId,WorkerGeneration;
 ```
 
 ## toolbelt_core.VW_WorkerExecutionStatus
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
 
-Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.
+Öffentliche tokenfreie Reservationshistorie mit exakt passender aktueller Hold-Disposition.
 
-Vertrag und Quelle: [VW_WorkerExecutionStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerExecutionStatus.sql), [VW_WorkerExecutionStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerExecutionStatus.md).
+Vertrag und Quelle: [VW_WorkerExecutionStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerExecutionStatus.sql), [VW_WorkerExecutionStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerExecutionStatus.md), [VW_WorkerExecutionStatus.md](../../Metadata/UsageSkills/toolbelt_core/VW_WorkerExecutionStatus.md).
 
-<!-- Source/Vertrag SHA256: c3d15b7896d8caf5947310e046eb51dd7431139774e0e15e892e08a24054e1da -->
+<!-- Source/Vertrag SHA256: 333d2834bf3aefc59588047bb7361ada404c140701f194d964b084498e340cfe -->
 
-Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+Voraussetzung: Installiertes Worker-Control1.0.0 und passende Queue2.1.0-/ExecutionContext-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Markerfreier create-only-Installer erhält vorhandene Objekte; hier ist eine passende aktuelle Definition vorausgesetzt, kein eigenständiges CREATE/Upgrade aus dem Skill. Keine CLR-/Datei-/Netzwerk-/LLM-Aufrufe der Relation.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT TOP (20) * FROM toolbelt_core.VW_WorkerExecutionStatus;
+SELECT SlotReservationId,WorkItemId,ClaimGeneration,State,IsHeld,HoldVersion,StopStatus
+FROM toolbelt_core.VW_WorkerExecutionStatus ORDER BY WorkItemId,ClaimGeneration;
 ```
 
 ## toolbelt_core.USP_ClaimWorkerWork
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Fachliche Fassade der privaten atomaren Managed-Admission.
+Öffentlicher Einstieg für atomare Managed-Admission eines eigenen Workers.
 
-Vertrag und Quelle: [USP_ClaimWorkerWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ClaimWorkerWork.sql), [USP_ClaimWorkerWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ClaimWorkerWork.md).
+Vertrag und Quelle: [USP_ClaimWorkerWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ClaimWorkerWork.sql), [USP_ClaimWorkerWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ClaimWorkerWork.md), [USP_ClaimWorkerWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_ClaimWorkerWork.md).
 
-<!-- Source/Vertrag SHA256: b78292046196ebda3e94c6babff82db5816c7e3becaa999585f83b2a5bb56559 -->
+<!-- Source/Vertrag SHA256: 229a359392b39a45b2f3e3042d1dc2226982cd44176c1f8ea69d1978219fe0d8 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2078,12 +2288,17 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_ClaimWorkerWork @Hilfe=1;
+
+-- IDs/Token aus tatsächlicher eigener Registrierung verwenden:
+DECLARE @Id uniqueidentifier='00000000-0000-0000-0000-000000000001',@Token uniqueidentifier='00000000-0000-0000-0000-000000000002';
+EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Id,@WorkerGeneration=1,@WorkerToken=@Token;
+-- Synthetische Bindung ohne Registrierung wird abgewiesen; echte Ausgabe privat behandeln.
 ```
 
 Hilfe:
@@ -2096,15 +2311,13 @@ EXEC toolbelt_core.USP_ClaimWorkerWork @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Schließt ausschließlich eine Generation ohne belegte oder ungeklärte Reservations.
+Schließt eine exakt token-/principalgebundene Generation ohne belegte Reservations.
 
-Vertrag und Quelle: [USP_CloseWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql), [USP_CloseWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_CloseWorker.md).
+Vertrag und Quelle: [USP_CloseWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql), [USP_CloseWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_CloseWorker.md), [USP_CloseWorker.md](../../Metadata/UsageSkills/toolbelt_core/USP_CloseWorker.md).
 
-<!-- Source/Vertrag SHA256: ab44280b73ae66fe0ab5357e2243e0e5d973c7ddf28eb27f1df4ef43092d8f24 -->
+<!-- Source/Vertrag SHA256: f043b5492452a2e3a65cba12df695c66fcbecca0fa435751b8079d2dd6bd4cb6 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2112,12 +2325,16 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@WorkerGeneration` | `bigint` | `NULL` | Input | Fachlich erforderliche positive bigint-WorkerGeneration aus der konkreten Registrierung, exakt zusammen mit WorkerId verwenden. Keine automatische Wahl der neuesten Generation; NULL/fehlende oder unpassende Generation wird abgewiesen. Belegte oder ungeklärte Reservations dieser Generation blockieren Close. |
 | `@WorkerToken` | `uniqueidentifier` | `NULL` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Geheimes WorkerToken aus derselben Registrierung; muss zu WorkerId, Generation und aktuellem Datenbankprincipal passen. NULL/abweichendes Token ungültig; kein ClaimToken und kein Token aus einer Vorgängergeneration. Nicht protokollieren. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_CloseWorker @Hilfe=1;
+
+-- Synthetische Bindung durch die eigene tatsächliche Registrierung ersetzen:
+DECLARE @Id uniqueidentifier='00000000-0000-0000-0000-000000000001',@Token uniqueidentifier='00000000-0000-0000-0000-000000000002';
+EXEC toolbelt_core.USP_CloseWorker @WorkerId=@Id,@WorkerGeneration=1,@WorkerToken=@Token;
 ```
 
 Hilfe:
@@ -2130,15 +2347,13 @@ EXEC toolbelt_core.USP_CloseWorker @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.
+Deaktiviert Managed-Admission versionsgebunden nur ohne aktive Claims, belegte Reservations und Holds.
 
-Vertrag und Quelle: [USP_DisableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql), [USP_DisableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_DisableManagedWorkers.md).
+Vertrag und Quelle: [USP_DisableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql), [USP_DisableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_DisableManagedWorkers.md), [USP_DisableManagedWorkers.md](../../Metadata/UsageSkills/toolbelt_core/USP_DisableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: d4b289310abc14ae75eca24a89048a4775342fd3a49bbd00cfc670004626757e -->
+<!-- Source/Vertrag SHA256: 91d0781d3c87f8e896a57298f43c138dbf50026aaba54a6f7e8dca65f85da83f -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2146,12 +2361,18 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;
+
+-- Synthetischer Versionswert: durch frische Ausgabe eines autorisierten
+-- Konfigurations-/Registrierungsaufrufs ersetzen; kein Rowversion-Zahlentext.
+DECLARE @Expected binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_DisableManagedWorkers @ExpectedConfigVersion=@Expected;
+-- Ein veralteter Beispielwert wird ausdrücklich mit54212 abgewiesen.
 ```
 
 Hilfe:
@@ -2164,15 +2385,13 @@ EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.
+Aktiviert Managed-Admission versionsgebunden nur ohne aktive Claims, belegte Reservations und Holds.
 
-Vertrag und Quelle: [USP_EnableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql), [USP_EnableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_EnableManagedWorkers.md).
+Vertrag und Quelle: [USP_EnableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql), [USP_EnableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_EnableManagedWorkers.md), [USP_EnableManagedWorkers.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: bc7060f8fb606587f314b18cebf6afdeb7b4daf8162f2b7b843332c7d52f59fb -->
+<!-- Source/Vertrag SHA256: cfc07721430dbd303c787cbe5752f7339d9fb0584e4d011ce69c9de2c9a20231 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2180,12 +2399,18 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;
+
+-- Synthetischer Versionswert: durch frische Ausgabe eines autorisierten
+-- Konfigurations-/Registrierungsaufrufs ersetzen; kein Rowversion-Zahlentext.
+DECLARE @Expected binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_EnableManagedWorkers @ExpectedConfigVersion=@Expected;
+-- Ein veralteter Beispielwert wird ausdrücklich mit54212 abgewiesen.
 ```
 
 Hilfe:
@@ -2198,15 +2423,13 @@ EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu übernehmen.
+Erneuert die Heartbeatzeit einer token-/principalgebundenen, noch nicht abgelaufenen Generation.
 
-Vertrag und Quelle: [USP_HeartbeatWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql), [USP_HeartbeatWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_HeartbeatWorker.md).
+Vertrag und Quelle: [USP_HeartbeatWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql), [USP_HeartbeatWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_HeartbeatWorker.md), [USP_HeartbeatWorker.md](../../Metadata/UsageSkills/toolbelt_core/USP_HeartbeatWorker.md).
 
-<!-- Source/Vertrag SHA256: 6424135e35d747af6e5507a49047483ccc8b43591ebf77f737014feba20013f7 -->
+<!-- Source/Vertrag SHA256: 6fa8765be8c5821f3a1db7cbb281ab38aa87f58e7e2d5945834196e30cf04939 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2214,12 +2437,18 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@WorkerGeneration` | `bigint` | `NULL` | Input | Fachlich erforderliche positive bigint-WorkerGeneration aus der konkreten Registrierung, exakt zusammen mit WorkerId verwenden. Keine automatische Wahl der neuesten Generation; NULL/fehlende oder unpassende Generation wird abgewiesen. Eine abgelaufene/UNREACHABLE-Generation darf nicht wiederbelebt werden. |
 | `@WorkerToken` | `uniqueidentifier` | `NULL` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Geheimes WorkerToken aus derselben Registrierung; muss zu WorkerId, Generation und aktuellem Datenbankprincipal passen. NULL/abweichendes Token ungültig; kein ClaimToken und kein Token aus einer Vorgängergeneration. Nicht protokollieren. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
+
+-- Synthetische Identitäten ersetzen durch tatsächliches eigenes Registrierungsresultat:
+DECLARE @Id uniqueidentifier='00000000-0000-0000-0000-000000000001',
+ @Token uniqueidentifier='00000000-0000-0000-0000-000000000002';
+EXEC toolbelt_core.USP_HeartbeatWorker @WorkerId=@Id,@WorkerGeneration=1,@WorkerToken=@Token;
+-- Beispielwerte ohne passende Registrierung ergeben54215.
 ```
 
 Hilfe:
@@ -2232,29 +2461,32 @@ EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispatchfence erhalten UNKNOWN ohne Replay.
+Klassifiziert eine exakte aktuelle Disposition anhand von Connectionfence und locking Witness-/Absencebelegen.
 
-Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md).
+Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md), [USP_ReconcileWorkerExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_ReconcileWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 326e1bab8ba8c4654f8bf7198df3693777ee025f517e7c2815fceadcccf27682 -->
+<!-- Source/Vertrag SHA256: 73c6cf381554a0fb786c8709443ef1eafa2c32d4fceb6805602cf8f1b0ccc445 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@SlotReservationId` | `uniqueidentifier` | `NULL` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Fachlich erforderliche SlotReservationId eines tatsächlich reservierten Versuchs, unverändert aus ClaimWorkerWork/Status übernehmen. Keine frei gewählte UUID, SPID oder WorkItemId; NULL/fehlende Reservation ist ungültig. |
-| `@ExpectedHoldVersion` | `binary(8)` | `NULL` | Input | Fachlich erforderliche binary(8)-HoldVersion genau der aktuellen WorkerExecutionDisposition dieses Versuchs, aus dessen Statusausgabe übernehmen. Kein ConfigVersion-/RowVersion-Ersatz einer anderen Zeile; NULL oder Drift wird abgewiesen. Der Code prüft Sessionfence und Commitwitness; fehlende Beweisbarkeit bleibt UNKNOWN und ist keine Freigabe zum Replay. |
+| `@ExpectedHoldVersion` | `binary(8)` | `NULL` | Input | Fachlich erforderliche binary(8)-HoldVersion genau der aktuellen Disposition dieses Slots, als Bytes aus aktueller Statusausgabe übernehmen; kein ConfigVersion-/anderer Rowversion-Ersatz. NULL wird vor Gates mit54227/1 abgewiesen. Exakte Driftprüfung erst nach beiden gewonnenen Gates; dortige Drift ergibt54227/2. Bei Gatekonflikt kann UNKNOWN/Occupied1 ohne Versionsprüfung zurückkommen. Dieser Wert ist konservativ, keine aktuelle Belegungsmessung und keine Replayfreigabe. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;
+
+-- Nur aktuelle exakte Reservation/Disposition verwenden:
+DECLARE @Slot uniqueidentifier='00000000-0000-0000-0000-000000000001',@Hold binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Slot,@ExpectedHoldVersion=@Hold;
+-- Nach echter Reconciliation HoldVersion aus VW_WorkerExecutionStatus neu lesen.
 ```
 
 Hilfe:
@@ -2267,15 +2499,13 @@ EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Registriert eine neue principal- und generationgebundene Workeridentität; übernimmt keine alten Reservations.
+Erzeugt eine neue principalgebundene Generation einer stabilen WorkerId ohne Übernahme alter Reservations.
 
-Vertrag und Quelle: [USP_RegisterWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql), [USP_RegisterWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_RegisterWorker.md).
+Vertrag und Quelle: [USP_RegisterWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql), [USP_RegisterWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_RegisterWorker.md), [USP_RegisterWorker.md](../../Metadata/UsageSkills/toolbelt_core/USP_RegisterWorker.md).
 
-<!-- Source/Vertrag SHA256: d867c96b5f3b7ca4262a3993ffb8947314adaee706fed1cdb4d9103f8c007d84 -->
+<!-- Source/Vertrag SHA256: 58aafbef5349002aed08899f687558516fda1870342cdb0e79a4faf8bf1eeb25 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2285,12 +2515,16 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_RegisterWorker @Hilfe=1;
+
+DECLARE @Id uniqueidentifier=NEWID();
+EXEC toolbelt_core.USP_RegisterWorker @WorkerId=@Id,@Capacity=1,@RunMode='BOUNDED';
+-- Registrierungsresultat einschließlich geheimem WorkerToken sicher übernehmen.
 ```
 
 Hilfe:
@@ -2303,15 +2537,13 @@ EXEC toolbelt_core.USP_RegisterWorker @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase; UNKNOWN und COMPLETED bleiben gesperrt.
+Gibt einen nachgewiesen zurückgerollten gehaltenen Queueauftrag versionsgebunden für einen neuen Retryzyklus frei.
 
-Vertrag und Quelle: [USP_ReleaseHeldWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReleaseHeldWork.sql), [USP_ReleaseHeldWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReleaseHeldWork.md).
+Vertrag und Quelle: [USP_ReleaseHeldWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReleaseHeldWork.sql), [USP_ReleaseHeldWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReleaseHeldWork.md), [USP_ReleaseHeldWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_ReleaseHeldWork.md).
 
-<!-- Source/Vertrag SHA256: c5cdab7647a6df21b87f5b243340798c6369911233cc6171a3d4dd238d2259c1 -->
+<!-- Source/Vertrag SHA256: 46f3559f145fc89867a7f7ba3cc31366e5e23edd8c72fa50952f053cf5925180 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2320,12 +2552,17 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;
+
+-- Nur nach bewiesenem Rollback und mit frisch gelesener HoldVersion:
+DECLARE @Item bigint=1,@Hold binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_ReleaseHeldWork @WorkItemId=@Item,@ExpectedHoldVersion=@Hold;
+-- Synthetische/stale Werte werden abgewiesen; UNKNOWN ist keine Freigabe.
 ```
 
 Hilfe:
@@ -2338,15 +2575,13 @@ EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Ändert die Live-Capacity einer exakten Workergeneration ohne Übernahme oder Abbruch laufender Arbeit.
+Ändert versionsgebunden die lokale Kapazität einer exakt adressierten nicht geschlossenen Generation.
 
-Vertrag und Quelle: [USP_SetWorkerCapacity.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql), [USP_SetWorkerCapacity.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerCapacity.md).
+Vertrag und Quelle: [USP_SetWorkerCapacity.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql), [USP_SetWorkerCapacity.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerCapacity.md), [USP_SetWorkerCapacity.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerCapacity.md).
 
-<!-- Source/Vertrag SHA256: 944fd84bdf107e4ef5ee1a3e978c9b84f99a23b299e4ef6e16464d380bc0c103 -->
+<!-- Source/Vertrag SHA256: 4713d80b9b2244b4c1cb2409e1ebafb866e13283e8ad05b05224e986016543b7 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2357,12 +2592,17 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_SetWorkerCapacity @Hilfe=1;
+
+-- Nur mit realer adressierter Workeridentität und frischer globaler Version verwenden:
+DECLARE @Id uniqueidentifier='00000000-0000-0000-0000-000000000001',@Version binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_SetWorkerCapacity @WorkerId=@Id,@WorkerGeneration=1,@Capacity=2,@ExpectedConfigVersion=@Version;
+-- Synthetische/veraltete Werte werden abgewiesen.
 ```
 
 Hilfe:
@@ -2375,15 +2615,13 @@ EXEC toolbelt_core.USP_SetWorkerCapacity @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Ändert das globale Live-Admissionbudget versionsgebunden ohne laufende Arbeit abzubrechen.
+Ändert das globale Live-Admissionbudget ohne laufende Arbeit abzubrechen.
 
-Vertrag und Quelle: [USP_SetWorkerConcurrency.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql), [USP_SetWorkerConcurrency.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerConcurrency.md).
+Vertrag und Quelle: [USP_SetWorkerConcurrency.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql), [USP_SetWorkerConcurrency.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerConcurrency.md), [USP_SetWorkerConcurrency.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerConcurrency.md).
 
-<!-- Source/Vertrag SHA256: 897b6e85ef823fb4091751bbc6bb0a79cbb391cf6ab06c7351839ea01e7f09e9 -->
+<!-- Source/Vertrag SHA256: 52f6991c025b3d9a09208cfdf5bbd5eb16595beee45f5a9d9c4e075a9e84a13a -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2392,12 +2630,18 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_SetWorkerConcurrency @Hilfe=1;
+
+-- Synthetischer Versionswert: durch frische Ausgabe eines autorisierten
+-- Konfigurations-/Registrierungsaufrufs ersetzen; kein Rowversion-Zahlentext.
+DECLARE @Expected binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_SetWorkerConcurrency @MaxConcurrentExecutions=2,@ExpectedConfigVersion=@Expected;
+-- Ein veralteter Beispielwert wird ausdrücklich mit54212 abgewiesen.
 ```
 
 Hilfe:
@@ -2410,15 +2654,13 @@ EXEC toolbelt_core.USP_SetWorkerConcurrency @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Ändert Intervalldefaults ausschließlich für künftig registrierte Generationen.
+Ändert globale Registrierungsintervalldefaults; bestehende Generationen behalten ihre gespeicherten Werte.
 
-Vertrag und Quelle: [USP_SetWorkerIntervals.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql), [USP_SetWorkerIntervals.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerIntervals.md).
+Vertrag und Quelle: [USP_SetWorkerIntervals.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql), [USP_SetWorkerIntervals.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerIntervals.md), [USP_SetWorkerIntervals.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerIntervals.md).
 
-<!-- Source/Vertrag SHA256: 51ede882f01dd399bad578ec3fa04e1fe43719ce48931b2c9f260263408e7d51 -->
+<!-- Source/Vertrag SHA256: 2ad922e49e4dc320f960e217d78fbfe05b741d310615b12241f7ef4fc8ec868f -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2428,12 +2670,18 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_SetWorkerIntervals @Hilfe=1;
+
+-- Synthetischer Versionswert: durch frische Ausgabe eines autorisierten
+-- Konfigurations-/Registrierungsaufrufs ersetzen; kein Rowversion-Zahlentext.
+DECLARE @Expected binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_SetWorkerIntervals @HeartbeatSeconds=15,@UnreachableSeconds=60,@ExpectedConfigVersion=@Expected;
+-- Ein veralteter Beispielwert wird ausdrücklich mit54212 abgewiesen.
 ```
 
 Hilfe:
@@ -2446,15 +2694,13 @@ EXEC toolbelt_core.USP_SetWorkerIntervals @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Steuert ACTIVE, PAUSED oder DRAINING einer exakten lebenden Workergeneration.
+Steuert versionsgebunden die neueste noch lebende Worker-generation auf ACTIVE,PAUSED oder DRAINING.
 
-Vertrag und Quelle: [USP_SetWorkerState.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql), [USP_SetWorkerState.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerState.md).
+Vertrag und Quelle: [USP_SetWorkerState.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql), [USP_SetWorkerState.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerState.md), [USP_SetWorkerState.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerState.md).
 
-<!-- Source/Vertrag SHA256: 9ee9b85a1b2df56f1448379131d85678553b120b3480e8ad48cf2d4e335dd464 -->
+<!-- Source/Vertrag SHA256: d07ec8329cca2642b4ad8ad0079e89f2811345c01439c9900cdb824655ab3458 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2465,12 +2711,17 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_SetWorkerState @Hilfe=1;
+
+-- Nur mit neuester lebender Workeridentität und frischer globaler Version:
+DECLARE @Id uniqueidentifier='00000000-0000-0000-0000-000000000001',@Version binary(8)=0x0000000000000001;
+EXEC toolbelt_core.USP_SetWorkerState @WorkerId=@Id,@WorkerGeneration=1,@RequestedState='PAUSED',@ExpectedConfigVersion=@Version;
+-- Synthetische/veraltete Werte werden abgewiesen.
 ```
 
 Hilfe:
@@ -2483,15 +2734,13 @@ EXEC toolbelt_core.USP_SetWorkerState @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Persistiert generationgebunden Stop und Hold vor Providerabbruch; Completiongewinner bleibt committed.
+Persistiert versionsgebunden Stop/Hold einer exakten Reservation oder erkennt deren vorherigen Commit.
 
-Vertrag und Quelle: [USP_StopWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkerExecution.sql), [USP_StopWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkerExecution.md).
+Vertrag und Quelle: [USP_StopWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkerExecution.sql), [USP_StopWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkerExecution.md), [USP_StopWorkerExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_StopWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: c64054232f6583053a7536956a9e9267740c432ee2777cf1496af518c8865cc3 -->
+<!-- Source/Vertrag SHA256: abaf4e41d1d68f14eecbc8a0ed17d3fb69e15c425fbd121768c6a134a17bc189 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2500,12 +2749,16 @@ Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eige
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_StopWorkerExecution @Hilfe=1;
+
+-- Reservation und Claimgeneration aus tatsächlicher Claim-/Statuszeile:
+DECLARE @Slot uniqueidentifier='00000000-0000-0000-0000-000000000001';
+EXEC toolbelt_core.USP_StopWorkerExecution @SlotReservationId=@Slot,@ExpectedClaimGeneration=1;
 ```
 
 Hilfe:
@@ -2518,28 +2771,31 @@ EXEC toolbelt_core.USP_StopWorkerExecution @Hilfe=1;
 
 Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
-Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/Hold ihrer eingefrorenen exakten Generationen.
+Friert eine explizite Worker-generationen-Auswahl ein und persistiert atomar Pause/Stop/Holds.
 
-Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md).
+Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md), [USP_StopWorkers.md](../../Metadata/UsageSkills/toolbelt_core/USP_StopWorkers.md).
 
-<!-- Source/Vertrag SHA256: 9591949c416a1c1cfa77a8daf2cb5eb5298e88814998eeff328fc61771a50f4b -->
+<!-- Source/Vertrag SHA256: 1521fb381e8951c7d1d479e97c7fdf6467ce616d7fc8a6931ae73dd7d14d6e95 -->
 
-Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
-
-Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@WorkersTable` | `sysname` | `NULL` | Input | Fachlich erforderlicher sysname einer vorhandenen caller-lokalen #Temp-Tabelle, keine ##Temp/persistente oder mehrteilige Tabelle. Exakt zwei NOT-NULL-Basistyp-Spalten: WorkerId uniqueidentifier und WorkerGeneration bigint; keine Zusatzspalten oder Aliasdatentypen. 0..1000 eindeutige (WorkerId,WorkerGeneration)-Paare, Generation &gt;0, jede exakte Generation muss existieren. Doppelpaare werden abgewiesen; leere Auswahl ist ein No-op. Die Auswahl wird vor Stop eingefroren, maximal 100000 Reservations; Beispiel CREATE TABLE #Workers(WorkerId uniqueidentifier NOT NULL,WorkerGeneration bigint NOT NULL). |
+| `@WorkersTable` | `sysname` | `NULL` | Input | Vorhandene caller-lokale #Temp-Tabelle, keine ##Temp oder persistente Tabelle. Exakt zwei NOT-NULL-Basistyp-Spalten WorkerId uniqueidentifier und WorkerGeneration bigint; keine Zusatzspalten oder Aliasdatentypen. Spaltenreihenfolge, Index und Identity werden nicht geprüft, Columnnamen folgen tempdb-Kollation. 0..1000 eindeutige Paare, Generation&gt;0, jede exakte Generation muss existieren. Duplikate scheitern beim Kopieren am privaten PK. Grenzen erst nach vollständiger Kopie/Snapshot: keine Scanquote, maximal100000 eingefrorene Reservations. Leer bedeutet keine Workeraktion; optionale ResultTable-Vorbereitung bleibt möglich. Keine privaten #tbx_-Namen verwenden. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_core.USP_StopWorkers @Hilfe=1;
+
+CREATE TABLE #ContosoWorkers(WorkerId uniqueidentifier NOT NULL,WorkerGeneration bigint NOT NULL);
+-- Nur tatsächlich gewählte vorhandene IDs/Generationen einfügen.
+EXEC toolbelt_core.USP_StopWorkers @WorkersTable=N'#ContosoWorkers';
+-- Diese leere Beispielauswahl stoppt keinen Worker.
 ```
 
 Hilfe:
@@ -2554,21 +2810,26 @@ Modul `toolbelt.datetime.bucket` · Version `1.0.0` · `TVF`
 
 Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu.
 
-Vertrag und Quelle: [TVF_DateBucketDate.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql), [TVF_DateBucketDate.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDate.md).
+Vertrag und Quelle: [TVF_DateBucketDate.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql), [TVF_DateBucketDate.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDate.md), [TVF_DateBucketDate.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDate.md).
 
-<!-- Source/Vertrag SHA256: 1cff430eb4a81b96d2f5b60af266befff96f906c082e099697086e92dcf67781 -->
+<!-- Source/Vertrag SHA256: aac646fe018650f4478ccf340f4607fed8ab3f7d583fb1c4d3c950e66229f056 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, unterstützte CL150/160/170. Modul installiert; kein CLR oder externer Datenzugriff. Alle vier Funktionsargumentpositionen angeben. DEFAULT für Origin wählt den deklarierten Bezugspunkt; explizites NULL wählt ihn nicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
+| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
 | `@Value` | `date` | `kein Default` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
 | `@Origin` | `date` | `'19000101'` | Input | SQL-date (0001-01-01..9999-12-31), etwa CONVERT(date,'20261030',112); kein Uhrzeit-/Offsetanteil. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateBucketDate('day', 7, CONVERT(date,'2024-07-19'), CONVERT(date,'2024-01-01'));
+SELECT * FROM toolbelt_datetime.TVF_DateBucketDate
+ ('day',2,CONVERT(date,'2026-01-04T12:00:00'),
+ CONVERT(date,'2026-01-01T00:00:00'));
+-- Bucketanfang 2026-01-03 00:00:00 (bei date ohne Uhrzeit); gültig, Code=0.
 ```
 
 ## toolbelt_datetime.TVF_DateBucketDateTime2
@@ -2577,21 +2838,26 @@ Modul `toolbelt.datetime.bucket` · Version `1.0.0` · `TVF`
 
 Ordnet einen datetime2-Wert einem originbezogenen Zeit-Bucket zu.
 
-Vertrag und Quelle: [TVF_DateBucketDateTime2.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql), [TVF_DateBucketDateTime2.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTime2.md).
+Vertrag und Quelle: [TVF_DateBucketDateTime2.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql), [TVF_DateBucketDateTime2.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTime2.md), [TVF_DateBucketDateTime2.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDateTime2.md).
 
-<!-- Source/Vertrag SHA256: 3834b1e99c0c4e99169111bb1201ce3ea28d26d2a07ad2c505f798eadfe2df9d -->
+<!-- Source/Vertrag SHA256: c3a1a2889c15d708e8f5a0f103a1090029d9f73ac9a06f808275db647bc2217c -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, unterstützte CL150/160/170. Modul installiert; kein CLR oder externer Datenzugriff. Alle vier Funktionsargumentpositionen angeben. DEFAULT für Origin wählt den deklarierten Bezugspunkt; explizites NULL wählt ihn nicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag; hour/hh = Stunde; minute/mi/n = Minute; second/ss/s = Sekunde; millisecond/ms = Millisekunde. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
+| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
 | `@Value` | `datetime2(7)` | `kein Default` | Input | SQL-datetime2(7) (0001-01-01..9999-12-31, bis sieben Nachkommastellen), etwa CONVERT(datetime2(7),'2026-10-30T12:34:56.1234567',126); keine Zeitzone. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
 | `@Origin` | `datetime2(7)` | `'19000101'` | Input | SQL-datetime2(7) (0001-01-01..9999-12-31, bis sieben Nachkommastellen), etwa CONVERT(datetime2(7),'2026-10-30T12:34:56.1234567',126); keine Zeitzone. Referenz für die Bucketgrenzen. Default ist 1900-01-01 um 00:00:00, soweit der Typ eine Uhrzeit besitzt. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateBucketDateTime2('day', 7, CONVERT(datetime2(7),'2024-07-19T14:35:42'), CONVERT(datetime2(7),'2024-01-01'));
+SELECT * FROM toolbelt_datetime.TVF_DateBucketDateTime2
+ ('day',2,CONVERT(datetime2(7),'2026-01-04T12:00:00'),
+ CONVERT(datetime2(7),'2026-01-01T00:00:00'));
+-- Bucketanfang 2026-01-03 00:00:00 (bei date ohne Uhrzeit); gültig, Code=0.
 ```
 
 ## toolbelt_datetime.TVF_DateBucketDateTimeOffset
@@ -2600,21 +2866,26 @@ Modul `toolbelt.datetime.bucket` · Version `1.0.0` · `TVF`
 
 Ordnet einen datetimeoffset-Wert einem originbezogenen Zeit-Bucket zu.
 
-Vertrag und Quelle: [TVF_DateBucketDateTimeOffset.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql), [TVF_DateBucketDateTimeOffset.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTimeOffset.md).
+Vertrag und Quelle: [TVF_DateBucketDateTimeOffset.sql](../../Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql), [TVF_DateBucketDateTimeOffset.md](../../Modules/toolbelt.datetime.bucket/Documentation/TVF_DateBucketDateTimeOffset.md), [TVF_DateBucketDateTimeOffset.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDateTimeOffset.md).
 
-<!-- Source/Vertrag SHA256: 9c355cb98fa9d3c3040c88b8943d085e64a3954b827e0a8874b40abfd0244002 -->
+<!-- Source/Vertrag SHA256: b04e1a0e8ae15b1db616a563ba676017ce5590bf6b6d1b133ca031408fc888eb -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, unterstützte CL150/160/170. Modul installiert; kein CLR oder externer Datenzugriff. Alle vier Funktionsargumentpositionen angeben. DEFAULT für Origin wählt den deklarierten Bezugspunkt; explizites NULL wählt ihn nicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Taxativ, jeweils gleiche Bedeutung innerhalb einer Aliasgruppe: year/yy/yyyy = Kalenderjahr; quarter/qq/q = Quartal; month/mm/m = Monat; dayofyear/dy/y/day/dd/d = Kalendertag; week/wk/ww = Woche; weekday/dw/w = ebenfalls Kalendertag; hour/hh = Stunde; minute/mi/n = Minute; second/ss/s = Sekunde; millisecond/ms = Millisekunde. Keine weiteren Dateparts, insbesondere kein iso_week, microsecond oder nanosecond. Groß-/Kleinschreibung wird durch LOWER normalisiert; nachgestellte Spaces folgen SQL-Gleichheitsvergleich, führende werden nicht getrimmt. Leer/unbekannt ist ungültig; NULL führt zu NULL-Resultfeldern. |
-| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Nicht darstellbare Grenzen werden über den Validierungsvertrag gemeldet. |
+| `@Width` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647 als int: Anzahl der in DatePart gewählten Einheiten pro Bucket. 0/negativ ist ungültig; NULL ergibt NULL-Resultfelder. Eine nicht darstellbare berechnete Bucketgrenze löst einen Engine-Bereichsfehler aus; dafür existiert kein eigener ValidationCode. |
 | `@Value` | `datetimeoffset(7)` | `kein Default` | Input | SQL-datetimeoffset(7), etwa CONVERT(datetimeoffset(7),'2026-10-30T12:34:56.1234567+02:00',127); Offset -14:00..+14:00 und gültiger lokaler/UTC-SQL-Wertebereich, keine Zeitzonen-/Sommerzeitdatenbank. Einzuordnender Wert, auch vor Origin zulässig; NULL ergibt NULL-Resultfelder. |
 | `@Origin` | `datetimeoffset(7)` | `'1900-01-01 00:00:00 +00:00'` | Input | SQL-datetimeoffset(7), etwa CONVERT(datetimeoffset(7),'2026-10-30T12:34:56.1234567+02:00',127); Offset -14:00..+14:00 und gültiger lokaler/UTC-SQL-Wertebereich, keine Zeitzonen-/Sommerzeitdatenbank. Referenz für die Bucketgrenzen. Default ist 1900-01-01 00:00:00+00:00; das Ergebnis verwendet den Offset des Origins. Explizites NULL ist kein Default und ergibt NULL-Resultfelder. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateBucketDateTimeOffset('day', 7, CONVERT(datetimeoffset(7),'2024-07-19T14:35:42+02:00'), CONVERT(datetimeoffset(7),'2024-01-01'));
+SELECT * FROM toolbelt_datetime.TVF_DateBucketDateTimeOffset
+ ('day',2,CONVERT(datetimeoffset(7),'2026-01-04T12:00:00+00:00'),
+ CONVERT(datetimeoffset(7),'2026-01-01T00:00:00+00:00'));
+-- Bucketanfang 2026-01-03 00:00:00 (bei date ohne Uhrzeit); gültig, Code=0.
 ```
 
 ## toolbelt_datetime.TVF_CalendarDifference
@@ -2623,9 +2894,11 @@ Modul `toolbelt.datetime.calendar-difference` · Version `1.0.0` · `TVF`
 
 Zerlegt ein Datumsintervall nach der Anniversary-Regel in Kalenderjahre, Monate und Tage.
 
-Vertrag und Quelle: [TVF_CalendarDifference.sql](../../Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql), [TVF_CalendarDifference.md](../../Modules/toolbelt.datetime.calendar-difference/Documentation/TVF_CalendarDifference.md).
+Vertrag und Quelle: [TVF_CalendarDifference.sql](../../Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql), [TVF_CalendarDifference.md](../../Modules/toolbelt.datetime.calendar-difference/Documentation/TVF_CalendarDifference.md), [TVF_CalendarDifference.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_CalendarDifference.md).
 
-<!-- Source/Vertrag SHA256: 836f0647c6d134537c3cd37086a404ea208fea24673a1183f46c8ccb0ead3da7 -->
+<!-- Source/Vertrag SHA256: 332b30ac6a84a151fca1eda2d7591d390cb2c0399ae9c9ad6754c964109b7c10 -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2635,7 +2908,8 @@ Vertrag und Quelle: [TVF_CalendarDifference.sql](../../Modules/toolbelt.datetime
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_CalendarDifference(CONVERT(date,'2024-01-31'), CONVERT(date,'2025-03-02'));
+SELECT * FROM toolbelt_datetime.TVF_CalendarDifference('20240131','20250302');
+-- Sign=1, Years=1, Months=1, Days=2.
 ```
 
 ## toolbelt_datetime.TVF_DateSpineDay
@@ -2644,9 +2918,11 @@ Modul `toolbelt.datetime.date-spine` · Version `1.0.0` · `TVF`
 
 Liefert alle Tage, die einen halboffenen Zeitraum schneiden.
 
-Vertrag und Quelle: [TVF_DateSpineDay.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql), [TVF_DateSpineDay.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineDay.md).
+Vertrag und Quelle: [TVF_DateSpineDay.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql), [TVF_DateSpineDay.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineDay.md), [TVF_DateSpineDay.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_DateSpineDay.md).
 
-<!-- Source/Vertrag SHA256: bd9a3026bbb1bc956e218e994107c6331b0e59da0d152aea12a7434a5b958a72 -->
+<!-- Source/Vertrag SHA256: fbb148ec881392962ff41a09a23d0a4e9d3cfb3d666c406ec9c37adb78158fa2 -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2656,7 +2932,9 @@ Vertrag und Quelle: [TVF_DateSpineDay.sql](../../Modules/toolbelt.datetime.date-
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateSpineDay(CONVERT(date,'2024-01-15'), CONVERT(date,'2024-03-01'));
+SELECT Ordinal,PeriodStart FROM toolbelt_datetime.TVF_DateSpineDay('20260227','20260303')
+ORDER BY Ordinal;
+-- vier Zeilen von 2026-02-27 bis 2026-03-02.
 ```
 
 ## toolbelt_datetime.TVF_DateSpineIsoWeek
@@ -2665,9 +2943,11 @@ Modul `toolbelt.datetime.date-spine` · Version `1.0.0` · `TVF`
 
 Liefert alle ISO-Wochen, die einen halboffenen Zeitraum schneiden.
 
-Vertrag und Quelle: [TVF_DateSpineIsoWeek.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql), [TVF_DateSpineIsoWeek.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineIsoWeek.md).
+Vertrag und Quelle: [TVF_DateSpineIsoWeek.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql), [TVF_DateSpineIsoWeek.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineIsoWeek.md), [TVF_DateSpineIsoWeek.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_DateSpineIsoWeek.md).
 
-<!-- Source/Vertrag SHA256: 8c451f13ce1aea58f43dc82e8c3053fef78439ca6f2862a3fbd14714e6cd883d -->
+<!-- Source/Vertrag SHA256: 08437f01259022625b97a0c2f87bf3103cdbc490ac572ee8c4dbe33a54b90d24 -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2677,7 +2957,9 @@ Vertrag und Quelle: [TVF_DateSpineIsoWeek.sql](../../Modules/toolbelt.datetime.d
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateSpineIsoWeek(CONVERT(date,'2024-01-15'), CONVERT(date,'2024-03-01'));
+SELECT Ordinal,PeriodStart FROM toolbelt_datetime.TVF_DateSpineIsoWeek('20251231','20260108')
+ORDER BY Ordinal;
+-- zwei Zeilen mit 2025-12-29 und 2026-01-05.
 ```
 
 ## toolbelt_datetime.TVF_DateSpineMonth
@@ -2686,9 +2968,11 @@ Modul `toolbelt.datetime.date-spine` · Version `1.0.0` · `TVF`
 
 Liefert alle Monate, die einen halboffenen Zeitraum schneiden.
 
-Vertrag und Quelle: [TVF_DateSpineMonth.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql), [TVF_DateSpineMonth.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineMonth.md).
+Vertrag und Quelle: [TVF_DateSpineMonth.sql](../../Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql), [TVF_DateSpineMonth.md](../../Modules/toolbelt.datetime.date-spine/Documentation/TVF_DateSpineMonth.md), [TVF_DateSpineMonth.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_DateSpineMonth.md).
 
-<!-- Source/Vertrag SHA256: 1600d874bd182a4849a3758f87e418471c05bd4c9f4c44c266874ba37027bbe1 -->
+<!-- Source/Vertrag SHA256: 4941439290612686742bd6dc8051eaa442f69685a447edcb9a809d1554a5efb2 -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2698,7 +2982,9 @@ Vertrag und Quelle: [TVF_DateSpineMonth.sql](../../Modules/toolbelt.datetime.dat
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_DateSpineMonth(CONVERT(date,'2024-01-15'), CONVERT(date,'2024-03-01'));
+SELECT Ordinal,PeriodStart FROM toolbelt_datetime.TVF_DateSpineMonth('20260115','20260402')
+ORDER BY Ordinal;
+-- vier Zeilen mit 2026-01-01, 2026-02-01, 2026-03-01 und 2026-04-01.
 ```
 
 ## toolbelt_datetime.TVF_TruncateDate
@@ -2707,9 +2993,11 @@ Modul `toolbelt.datetime.truncate` · Version `1.0.0` · `TVF`
 
 Kürzt einen date-Wert auf den Beginn der ausgewählten Kalenderperiode.
 
-Vertrag und Quelle: [TVF_TruncateDate.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql), [TVF_TruncateDate.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDate.md).
+Vertrag und Quelle: [TVF_TruncateDate.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql), [TVF_TruncateDate.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDate.md), [TVF_TruncateDate.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_TruncateDate.md).
 
-<!-- Source/Vertrag SHA256: 5b5115711fea2761d2fd3d4092204f54257df6c79eb32c9648585be1244f17e9 -->
+<!-- Source/Vertrag SHA256: c4f9ad7528b5f805e58cf9dbcd6223fff722db54ae7766758ce2a4b31b532645 -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2719,7 +3007,8 @@ Vertrag und Quelle: [TVF_TruncateDate.sql](../../Modules/toolbelt.datetime.trunc
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_TruncateDate('day', CONVERT(date,'2024-07-19'));
+SELECT * FROM toolbelt_datetime.TVF_TruncateDate('month', CONVERT(date,'2026-11-20T12:34:56.1234567'));
+-- Beginn November 2026, IsValid=1, ValidationCode=0.
 ```
 
 ## toolbelt_datetime.TVF_TruncateDateTime2
@@ -2728,9 +3017,11 @@ Modul `toolbelt.datetime.truncate` · Version `1.0.0` · `TVF`
 
 Kürzt einen datetime2-Wert auf den Beginn der gewählten Zeiteinheit.
 
-Vertrag und Quelle: [TVF_TruncateDateTime2.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql), [TVF_TruncateDateTime2.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTime2.md).
+Vertrag und Quelle: [TVF_TruncateDateTime2.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql), [TVF_TruncateDateTime2.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTime2.md), [TVF_TruncateDateTime2.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_TruncateDateTime2.md).
 
-<!-- Source/Vertrag SHA256: bfdbef348174eef14b7707240ba4f8f13e16948f02ed9746a349fe3324691f3c -->
+<!-- Source/Vertrag SHA256: cc16eae2f4a36547268b7ac77dcd3cc7b4a9261b42b8decd14a66859eab3dbf1 -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2740,7 +3031,8 @@ Vertrag und Quelle: [TVF_TruncateDateTime2.sql](../../Modules/toolbelt.datetime.
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_TruncateDateTime2('day', CONVERT(datetime2(7),'2024-07-19T14:35:42'));
+SELECT * FROM toolbelt_datetime.TVF_TruncateDateTime2('month', CONVERT(datetime2(7),'2026-11-20T12:34:56.1234567'));
+-- Beginn November 2026, IsValid=1, ValidationCode=0.
 ```
 
 ## toolbelt_datetime.TVF_TruncateDateTimeOffset
@@ -2749,9 +3041,11 @@ Modul `toolbelt.datetime.truncate` · Version `1.0.0` · `TVF`
 
 Kürzt einen datetimeoffset-Wert auf die gewählte Zeiteinheit und erhält den Offset.
 
-Vertrag und Quelle: [TVF_TruncateDateTimeOffset.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql), [TVF_TruncateDateTimeOffset.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTimeOffset.md).
+Vertrag und Quelle: [TVF_TruncateDateTimeOffset.sql](../../Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql), [TVF_TruncateDateTimeOffset.md](../../Modules/toolbelt.datetime.truncate/Documentation/TVF_TruncateDateTimeOffset.md), [TVF_TruncateDateTimeOffset.md](../../Metadata/UsageSkills/toolbelt_datetime/TVF_TruncateDateTimeOffset.md).
 
-<!-- Source/Vertrag SHA256: 79a823cc272bc4f2d4d38d3966c435b73ab17dd553dba7cdb8a6e0c9c7918ac7 -->
+<!-- Source/Vertrag SHA256: 05b6e50348637df69b1160ed88deabeb31764d2a0fb35c8900752d46047fbf0b -->
+
+Voraussetzung: SQL Server 2019, 2022 oder 2025, Windows oder Linux; unterstützte Compatibility Levels 150/160/170. Modul und seine deklarierten Funktionsabhängigkeiten müssen installiert sein. Kein CLR oder externer Datenzugriff. Alle SQL-Funktionsargumente positionsbezogen angeben.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2761,7 +3055,8 @@ Vertrag und Quelle: [TVF_TruncateDateTimeOffset.sql](../../Modules/toolbelt.date
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_datetime.TVF_TruncateDateTimeOffset('day', CONVERT(datetimeoffset(7),'2024-07-19T14:35:42+02:00'));
+SELECT * FROM toolbelt_datetime.TVF_TruncateDateTimeOffset('month', CONVERT(datetimeoffset(7),'2026-11-20T12:34:56.1234567+02:00'));
+-- Beginn November 2026, IsValid=1, ValidationCode=0.
 ```
 
 ## toolbelt_file.USP_LoadBinaryFile
@@ -2770,11 +3065,11 @@ Modul `toolbelt.file.content` · Version `1.0.0` · `USP`
 
 Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unter einem Eintrag der Root-Allowlist liegen.
 
-Vertrag und Quelle: [USP_LoadBinaryFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [USP_LoadBinaryFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md).
+Vertrag und Quelle: [USP_LoadBinaryFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [USP_LoadBinaryFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md), [USP_LoadBinaryFile.md](../../Metadata/UsageSkills/toolbelt_file/USP_LoadBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: b068618173136dcc1a797f6f78d2aaef2c08fc42f5eb1e0cbfd156f936a90770 -->
+<!-- Source/Vertrag SHA256: ea1dd7b12af828976379d0a4352583de0c0836bbda7da88bd81571f71e42a9df -->
 
-Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
+Voraussetzung: SQL Server2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170. Datenbanktabelle mit administrativ gepflegtem aktivem Root. Provider-/Plattform-/OS-Leserechte unabhängig von Rootfreigabe erfüllen. Für ResultTable sameDB core.result-table>=1.0.0. Aktueller gemeinsamer Offlinebuilder expandiert FileContentRootPredicate.sql in normale SQL-DDL; rohe Source-Prozedurdatei enthält noch :r-Quellinclude und ist kein direkt unverändert auszuführender SQLCMD-freier Installer. Eingabepfad LTRIM/RTRIM normaler Spaces und NULLIF leer; dann zwei REPLACE-Schritte für doppelte/einfache Backslashes nach Slash nur für den Allowlistvergleich. Absolutheit nach Laufwerkbuchstabe:/ oder führendem /; geprüftes ../-Traversal wird abgewiesen, keine vollständige OS-Kanonisierung aller Punkt-/Device-/Aliasformen. Aktive Roots werden ebenfalls slashnormalisiert, nicht generell getrimmt. Vergleich literal BIN2 an exakter Rootlänge oder Verzeichnisgrenze mit angehängtem /; Prozent/Unterstrich/Klammern sind dort keine Wildcards. Ein exakter Rootpfad selbst kann zugelassen sein, nicht nur dessen Kinder. Keine Symlink-/Junction-/Hardlink-/Handleprüfung; tatsächlicher BULK-Aufruf liest den getrimmten Originalpfad. Keine handlegebundene Sandbox oder TOCTOU-/Dateisystemidentitätsgarantie.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2783,13 +3078,15 @@ Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und pa
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Das Ziel wird vor Datei-I/O vorbereitet; Provider-/Decoderfehler rollen den eigenen SQL-Ausgabescope zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene Dateiinhaltsdiagnose; ausschließlich im ResultTable-Pfad an den kanonischen Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN 0 vor Pfad-/Transaktions-/Temp-/Root-/Dateiarbeit. 0/NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: passende Allowlist und eigene synthetische Datei.
-EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=N'C:\ExampleRoot\sample.bin', @MaxBytes=1048576;
+EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=N'C:\Contoso\Input\example.bin',@MaxBytes=1048576;
+-- Synthetischer serverseitiger Pfad; aktiver Root und vorhandene Rechte nötig.
+-- IsValid/ValidationCode prüfen; MaxBytes ist kein Vorallokationslimit.
+EXEC toolbelt_file.USP_LoadBinaryFile @Hilfe=1;
 ```
 
 Hilfe:
@@ -2804,11 +3101,11 @@ Modul `toolbelt.file.content` · Version `1.0.0` · `USP`
 
 Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM und decodiert entsprechend; Inhalt ohne BOM wird mit @FallbackEncoding gelesen.
 
-Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md).
+Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md), [USP_LoadTextFile.md](../../Metadata/UsageSkills/toolbelt_file/USP_LoadTextFile.md).
 
-<!-- Source/Vertrag SHA256: 315bef2b13447346f9772623f324bbefa86ce7ac7ab7183650a6cc6fc0ef60b9 -->
+<!-- Source/Vertrag SHA256: ff0f2e84144b28f9b9dac9131123004e552b4465452efe56ab12b91bb5a5cc95 -->
 
-Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
+Voraussetzung: SQL Server2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170. Datenbanktabelle mit administrativ gepflegtem aktivem Root. Provider-/Plattform-/OS-Leserechte unabhängig von Rootfreigabe erfüllen. Für ResultTable sameDB core.result-table>=1.0.0. Aktueller gemeinsamer Offlinebuilder expandiert FileContentRootPredicate.sql in normale SQL-DDL; rohe Source-Prozedurdatei enthält noch :r-Quellinclude und ist kein direkt unverändert auszuführender SQLCMD-freier Installer. Eingabepfad LTRIM/RTRIM normaler Spaces und NULLIF leer; dann zwei REPLACE-Schritte für doppelte/einfache Backslashes nach Slash nur für den Allowlistvergleich. Absolutheit nach Laufwerkbuchstabe:/ oder führendem /; geprüftes ../-Traversal wird abgewiesen, keine vollständige OS-Kanonisierung aller Punkt-/Device-/Aliasformen. Aktive Roots werden ebenfalls slashnormalisiert, nicht generell getrimmt. Vergleich literal BIN2 an exakter Rootlänge oder Verzeichnisgrenze mit angehängtem /; Prozent/Unterstrich/Klammern sind dort keine Wildcards. Ein exakter Rootpfad selbst kann zugelassen sein, nicht nur dessen Kinder. Keine Symlink-/Junction-/Hardlink-/Handleprüfung; tatsächlicher BULK-Aufruf liest den getrimmten Originalpfad. Keine handlegebundene Sandbox oder TOCTOU-/Dateisystemidentitätsgarantie.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2818,13 +3115,15 @@ Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und pa
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Das Ziel wird vor Datei-I/O vorbereitet; Provider-/Decoderfehler rollen den eigenen SQL-Ausgabescope zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene Dateiinhaltsdiagnose; ausschließlich im ResultTable-Pfad an den kanonischen Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN 0 vor Pfad-/Transaktions-/Temp-/Root-/Dateiarbeit. 0/NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: passende Allowlist und eigene synthetische Datei.
-EXEC toolbelt_file.USP_LoadTextFile @FilePath=N'C:\ExampleRoot\sample.txt', @MaxBytes=1048576;
+EXEC toolbelt_file.USP_LoadTextFile @FilePath=N'C:\Contoso\Input\example.txt',@MaxBytes=1048576;
+-- Synthetischer serverseitiger Pfad; aktiver Root und vorhandene Rechte nötig.
+-- IsValid/ValidationCode prüfen; MaxBytes ist kein Vorallokationslimit.
+EXEC toolbelt_file.USP_LoadTextFile @Hilfe=1;
 ```
 
 Hilfe:
@@ -2839,17 +3138,17 @@ Modul `toolbelt.file.csv-memory` · Version `1.0.0` · `USP`
 
 Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zellen; keine Datei- oder Netzwerkquelle.
 
-Vertrag und Quelle: [USP_ParseCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql), [USP_ParseCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md).
+Vertrag und Quelle: [USP_ParseCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql), [USP_ParseCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md), [USP_ParseCsv.md](../../Metadata/UsageSkills/toolbelt_file/USP_ParseCsv.md).
 
-<!-- Source/Vertrag SHA256: a1f967f941ad2a15a49c6080f057edbfc7dae2b42b6c6d9854f693476b40b631 -->
+<!-- Source/Vertrag SHA256: eef13c0d44b6c2d7f9ffe22d33408a84f832806d92e3afc9886c667cd4cc0af9 -->
 
-Voraussetzung: Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Helper.
+Voraussetzung: Installiertes Modul mit autorisierter SAFE-Assembly tlblt_File_CsvMemory, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, CL150/160/170 soweit zur Engine passend, lokal oder zentral. Kein Datei-, Netzwerk- oder Encodingprovider. ResultTable >=1.0.0 in derselben Datenbank für Routing. Separator genau eine UTF-16-Codeunit, nicht NULL/leer, keine Doppelquote, CR, LF, NUL oder Surrogate. NullToken NULL deaktiviert SQL-NULL; sonst 1..128 Codeunits, ohne Separator, Doppelquote, CR, LF, NUL oder ungepaarte Surrogate. Gültige Surrogatpaare im Token sind erlaubt. Tokenvergleich exakt nach Länge und Codeunits, nicht SQL-Padding.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Text` | `nvarchar(max)` | `NULL` | Input | Vollständiger In-memory-CSV-Text als nvarchar(max), kein Dateipfad und keine kodierten Bytes. Leer ergibt keine Zellen; NULL (technischer Default) ist außerhalb Hilfe ein Argumentfehler. Quote ist fest Doppelquote, innen durch Verdopplung escaped; Recordgrenzen LF oder CRLF, kein isoliertes CR. Kein Trim/Normalisieren; NUL und ungepaarte Surrogate bleiben Zellinhalt. Alle Records müssen die Breite des ersten haben; finaler Recordabschluss erzeugt keinen Zusatzrecord. |
 | `@Separator` | `nvarchar(2)` | `N','` | Input | Genau eine UTF-16-Einheit, Default Komma; keine mehrzeichige Trennfolge. Doppelquote U+0022, CR, LF, NUL und einzelne High-/Low-Surrogate sind verboten. NULL/leer ungültig; Vergleich nach exakter Einheit/Länge, kein Trim. |
-| `@HasHeader` | `bit` | `0` | Input | Taxativ im gebundenen bit: 0 kein Header (Default); 1 erster Record als HEADER/RowOrdinal 0, DATA beginnt bei 1. NULL ist ungültig und kein Default. Header zählt zu MaxCells, nicht zu MaxRows. Writer verlangt bei 1 einen vollständigen nicht-NULL-Header. |
+| `@HasHeader` | `bit` | `0` | Input | 0: alle Records DATA ab RowOrdinal 1. 1: erster Record HEADER mit RowOrdinal 0, folgende DATA ab 1. NULL ungültig. Header zählt zu MaxCells, nicht MaxRows. Auch mit 1 ergibt leerer Text keine Zellen. |
 | `@NullToken` | `nvarchar(128)` | `NULL` | Input | NULL (Default) deaktiviert die DATA-NULL-Darstellung. Andernfalls 1..128 UTF-16-Einheiten, ohne Separator, Doppelquote, CR, LF, NUL oder ungepaarte Surrogate; gültige Surrogatpaare sind erlaubt. Binäre längensensitive Übereinstimmung: nur unquoted DATA-Token wird SQL-NULL. Quoted Token und HEADER sind Text; der Writer quoted einen wörtlich gleichen Text zur Unterscheidung. |
 | `@MaxRows` | `bigint` | `100000` | Input | Ganzzahl 1..100000 DATA-Records, Default 100000; Header zählt nicht mit. NULL/außerhalb ungültig; Überschreitung verwirft den gesamten Aufruf. |
 | `@MaxColumns` | `int` | `1024` | Input | Ganzzahl 1..1024 Spalten pro Record, Default 1024; positive rechteckige Breite für alle Records. NULL/außerhalb ungültig. |
@@ -2857,13 +3156,16 @@ Voraussetzung: Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Help
 | `@MaxInputBytes` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 DATALENGTH-Bytes des UTF-16-Inputs, Default 16777216; einschließlich Quotes, Separatoren, Header und Zeilenumbrüchen. NULL/außerhalb ungültig; kein Streaming und keine Teilausgabe bei Überschreitung. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix; beim Writer nicht dieselbe tatsächliche Tabelle wie CellsTable. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
-| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der CSV-Kern den vollständigen Snapshot/das Writergebnis ohne Zellinhalte; im ResultTable-Pfad zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 oder NULL ohne Diagnose, 1..255 abstrakte Severity-10-NOWAIT-Meldung ohne Zellinhalte und ohne zusätzliches Fachresultset. Bei ResultTable zusätzlich Helperdiagnose. |
+| `@Hilfe` | `bit` | `0` | Input | 0 oder NULL: Fachaufruf; 1: vor Fachvalidierung nur bestehende zwölfspaltige Standardhilfe und genau ein zusätzliches vierspaltiges Skill-Resultset, danach RETURN 0. Alle SQL-Parameter besitzen Defaults, daher genügt @Hilfe=1. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_file.USP_ParseCsv @Text=N'a,b',@NullToken=N'NULL';
+DECLARE @Csv nvarchar(max)=N'name,value'+NCHAR(10)+N'alpha,1';
+EXEC toolbelt_file.USP_ParseCsv @Text=@Csv,@HasHeader=1;
+-- Vier Zellen: HEADER (0,1)/(0,2), DATA (1,1)/(1,2).
+EXEC toolbelt_file.USP_ParseCsv @Hilfe=1;
 ```
 
 Hilfe:
@@ -2878,11 +3180,11 @@ Modul `toolbelt.file.csv-memory` · Version `1.0.0` · `USP`
 
 Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten als vollständig budgetiertes CSV.
 
-Vertrag und Quelle: [USP_WriteCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql), [USP_WriteCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md).
+Vertrag und Quelle: [USP_WriteCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql), [USP_WriteCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md), [USP_WriteCsv.md](../../Metadata/UsageSkills/toolbelt_file/USP_WriteCsv.md).
 
-<!-- Source/Vertrag SHA256: 244cca9cc379b893a965d789f512ce096feb852df8875346d755f61cd6b4298a -->
+<!-- Source/Vertrag SHA256: b273ae9d191c2c95f7285b0ab459c462d02ab33ec3dc43f34b2f6b24e4db8b0d -->
 
-Voraussetzung: Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleibt unverändert.
+Voraussetzung: Installiertes Modul mit autorisierter SAFE-Assembly tlblt_File_CsvMemory, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, CL150/160/170 soweit zur Engine passend, lokal oder zentral. Kein Datei-, Netzwerk- oder Encodingprovider. ResultTable >=1.0.0 in derselben Datenbank für Routing. Separator genau eine UTF-16-Codeunit, nicht NULL/leer, keine Doppelquote, CR, LF, NUL oder Surrogate. NullToken NULL deaktiviert SQL-NULL; sonst 1..128 Codeunits, ohne Separator, Doppelquote, CR, LF, NUL oder ungepaarte Surrogate. Gültige Surrogatpaare im Token sind erlaubt. Tokenvergleich exakt nach Länge und Codeunits, nicht SQL-Padding.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2898,13 +3200,18 @@ Voraussetzung: Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleib
 | `@MaxOutputBytes` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 UTF-16-Bytes des gesamten CsvText, Default 16777216. Einschließlich Quoteverdopplung, Hüllen, NullTokens, Separatoren und sämtlicher Recordabschlüsse. NULL/außerhalb ungültig; vor Allokation/Veröffentlichung exakt gemessen. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix; beim Writer nicht dieselbe tatsächliche Tabelle wie CellsTable. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
-| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der CSV-Kern den vollständigen Snapshot/das Writergebnis ohne Zellinhalte; im ResultTable-Pfad zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 oder NULL ohne Diagnose, 1..255 abstrakte Severity-10-NOWAIT-Meldung ohne Zellinhalte und ohne zusätzliches Fachresultset. Bei ResultTable zusätzlich Helperdiagnose. |
+| `@Hilfe` | `bit` | `0` | Input | 0 oder NULL: Fachaufruf; 1: vor Fachvalidierung nur bestehende zwölfspaltige Standardhilfe und genau ein zusätzliches vierspaltiges Skill-Resultset, danach RETURN 0. Alle SQL-Parameter besitzen Defaults, daher genügt @Hilfe=1. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #CsvCells(RowKind varchar(6),RowOrdinal bigint,ColumnOrdinal int,Value nvarchar(max)); INSERT #CsvCells VALUES('DATA',1,1,N'Contoso'); EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvCells'; DROP TABLE #CsvCells;
+CREATE TABLE #CsvCells(RowKind varchar(6),RowOrdinal bigint,ColumnOrdinal int,[Value] nvarchar(max));
+INSERT #CsvCells VALUES('DATA',1,1,N'a,b'),('DATA',1,2,N'x');
+EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvCells',@LineEnding='LF';
+-- CsvText: Doppelquote a,b Doppelquote ,x gefolgt von LF; DataRows=1, ColumnCount=2.
+DROP TABLE #CsvCells;
+EXEC toolbelt_file.USP_WriteCsv @Hilfe=1;
 ```
 
 Hilfe:
@@ -2919,9 +3226,11 @@ Modul `toolbelt.file.xlsx-memory` · Version `1.2.0` · `USP`
 
 Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/Netzwerkzugriffe, Formelberechnung oder Typinferenz.
 
-Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql), [USP_ListXlsxWorksheets.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md).
+Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql), [USP_ListXlsxWorksheets.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ListXlsxWorksheets.md), [USP_ListXlsxWorksheets.md](../../Metadata/UsageSkills/toolbelt_file/USP_ListXlsxWorksheets.md).
 
-<!-- Source/Vertrag SHA256: 09505945015628d1c2c5d08c870b7899af75fb6bc192404155859da9d58d99f5 -->
+<!-- Source/Vertrag SHA256: 37917c0ccc13e880bd4da25a302a72a190019d5269bdba909f982ed79f457942 -->
+
+Voraussetzung: Modul XLSXmemory1.2.0 mit SAFE-Assembly tlblt_File_XlsxMemory, ZIPmemory>=1.4.0 und ResultTable>=1.0.0 gemäß Modulabhängigkeiten. Unterstützte SQL2019/2022/2025 Windows/Linux-Kontexte gemäß Modulmatrix, vorhandene CLR-/Trustvoraussetzungen. Keine Installation, Rechteerteilung, Labänderung oder Datenquelle wird durch diesen Aufruf vorbereitet.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2940,14 +3249,15 @@ Vertrag und Quelle: [USP_ListXlsxWorksheets.sql](../../Modules/toolbelt.file.xls
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix. XlsxBinary=NULL lässt das Ziel vollständig unverändert und prüft es nicht. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Keine Workbookinhalte; im Zielpfad zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe = 1;
--- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.
-EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary = @SyntheticWorkbook;
+EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe=1;
+-- Vollständige Client-Workbookbytes binden, keinen Serverpfad.
+DECLARE @Workbook varbinary(max)=NULL;
+EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary=@Workbook;
 ```
 
 Hilfe:
@@ -2962,9 +3272,11 @@ Modul `toolbelt.file.xlsx-memory` · Version `1.2.0` · `USP`
 
 Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/Netzwerkzugriffe, Formelberechnung oder Typinferenz.
 
-Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql), [USP_ReadXlsxWorksheetCells.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md).
+Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql), [USP_ReadXlsxWorksheetCells.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/USP_ReadXlsxWorksheetCells.md), [USP_ReadXlsxWorksheetCells.md](../../Metadata/UsageSkills/toolbelt_file/USP_ReadXlsxWorksheetCells.md).
 
-<!-- Source/Vertrag SHA256: 0aec35a45ceec89ea3e2fad2a7d0db6c9e84a27261884d4c815e58b6770fc5f4 -->
+<!-- Source/Vertrag SHA256: 85a077fa2e61ce9fd5a61875817e42496fa7de20bfab62a259cbafdb94eea9df -->
+
+Voraussetzung: Modul XLSXmemory1.2.0 mit SAFE-Assembly tlblt_File_XlsxMemory, ZIPmemory>=1.4.0 und ResultTable>=1.0.0 gemäß Modulabhängigkeiten. Unterstützte SQL2019/2022/2025 Windows/Linux-Kontexte gemäß Modulmatrix, vorhandene CLR-/Trustvoraussetzungen. Keine Installation, Rechteerteilung, Labänderung oder Datenquelle wird durch diesen Aufruf vorbereitet.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -2984,14 +3296,15 @@ Vertrag und Quelle: [USP_ReadXlsxWorksheetCells.sql](../../Modules/toolbelt.file
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix. XlsxBinary=NULL lässt das Ziel vollständig unverändert und prüft es nicht. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Keine Workbookinhalte; im Zielpfad zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @Hilfe = 1;
--- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.
-EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @XlsxBinary = @SyntheticWorkbook, @SheetOrdinal = 1;
+EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @Hilfe=1;
+-- Vollständige Client-Workbookbytes binden, keinen Serverpfad.
+DECLARE @Workbook varbinary(max)=NULL;
+EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @XlsxBinary=@Workbook,@SheetOrdinal=1;
 ```
 
 Hilfe:
@@ -3006,9 +3319,11 @@ Modul `toolbelt.file.xlsx-memory` · Version `1.2.0` · `TVF`
 
 Interpretiert den zuvor gelesenen Rohwert einer XLSX-Zelle als begrenzten, typisierten Wert.
 
-Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql), [TVF_InterpretXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md).
+Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql), [TVF_InterpretXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md), [TVF_InterpretXlsxCell.md](../../Metadata/UsageSkills/toolbelt_file/TVF_InterpretXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: 484995fbe21bfd4d2b2aef851855411a8d9974a3d973e41b14f4e15bb95f0481 -->
+<!-- Source/Vertrag SHA256: bd38ec0e000068bd124729ecf1a3fb9730e0b9384bb847def7dde340a8e33fd3 -->
+
+Voraussetzung: Modul XLSXmemory1.2.0 mit SAFE-Assembly tlblt_File_XlsxMemory, ZIPmemory>=1.4.0 und ResultTable>=1.0.0 gemäß Modulabhängigkeiten. Unterstützte SQL2019/2022/2025 Windows/Linux-Kontexte gemäß Modulmatrix, vorhandene CLR-/Trustvoraussetzungen. Keine Installation, Rechteerteilung, Labänderung oder Datenquelle wird durch diesen Aufruf vorbereitet.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3017,13 +3332,13 @@ Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx
 | `@RawValue` | `nvarchar(max)` | `NULL` | Input | Unveränderter Inhalt des gespeicherten v-Elements, maximal 65536 UTF-16-Einheiten; NULL bedeutet fehlendes v, leer bleibt von NULL verschieden. n akzeptiert ASCII-Zahlen mit optional +/- sowie Punkt/Exponent e/E, auch .5/1., ohne Spaces; für Number-/Serialparsing zusätzlich höchstens 128 Einheiten, exakter SqlDecimal-Bereich bis 38 Ziffern ohne Rundung. b verlangt exakt 0 oder 1; s einen nichtnegativen Int32-ASCII-Dezimalindex (führende Nullen erlaubt); str exakte Gleichheit zu TextValue; d ISO YYYY-MM-DD oder YYYY-MM-DDTHH:mm:ss[.1..7 Ziffern] passend zum Ziel, ohne Z/Offset. inlineStr verlangt NULL. Gespeicherter Formelcache kann übergeben werden, keine Formelberechnung. Allgemeine strikte UTF-16-Prüfung und atomare Ausgabequote gelten auch bei später ungenutztem Wert. |
 | `@TextValue` | `nvarchar(max)` | `NULL` | Input | Bereits aufgelöster Shared-/Inline-/Stringcache-Text, maximal 65536 wohlgeformte UTF-16-Einheiten; leer ist gültiger Text, NULL bedeutet kein Text. s benötigt ihn im Textzweig, inlineStr benötigt ihn zusammen mit Presence=0/Raw=NULL; str muss bytegenau mit RawValue übereinstimmen. Kein erneuter SST-/Workbookzugriff oder Trim. Der feste Outputcharge zählt Echos/Typedtext mehrfach und kann vor diesem einzelnen Inputmaximum greifen. |
 | `@TargetType` | `nvarchar(max)` | `NULL` | Input | Taxativ, ordinal ohne Trim: number = exakte SqlDecimal-Zahl; boolean = bit aus b; text = Stringtext beziehungsweise Rawdarstellung; date = Datum; datetime = datetime2(7); time = Uhrzeit unter 24h; duration = vorzeichenbehaftete 100ns-Ticks, auch über 24h. Maximal 32 UTF-16-Einheiten. NULL (Default) wählt zuerst die Formatklasse, ohne Format n→number, b→boolean, d→datetime, s/str/inlineStr→text. Leer/andere Werte oder Widerspruch zu Formatklasse ergeben Status 2. Kompatibilität mit StoredType bleibt erforderlich, keine allgemeine Cast-API. |
-| `@FormatCode` | `nvarchar(max)` | `NULL` | Input | Taxativ und exakt: 0 = Zahl ganzzahlig; 0.00 = Zahl mit zwei Dezimalstellen; #,##0.00 = Zahl mit Gruppierung/zwei Stellen; 0% = Prozent ganzzahlig; 0.00% = Prozent mit zwei Stellen; 0.00E+00 = wissenschaftliche Zahl mit zwei Mantissenstellen; yyyy-mm-dd = date; yyyy-mm-dd hh:mm:ss = datetime; hh:mm:ss = time; @ = text. Keine Excel-General-/Farb-/Locale-/Mehrsektionsgrammatik, kein Trim/Casefold; höchstens 128 UTF-16-Einheiten. Zusätzlich [h]:mm:ss = duration. NULL (Default) wählt ohne Formatvorgabe nach TargetType/StoredType; Formatcode klassifiziert hier den Typ und erzeugt keinen Anzeigetext. Unbekannt/leer ergibt Status 6. |
+| `@FormatCode` | `nvarchar(max)` | `NULL` | Input | Exakte endliche Klassifikation: 0,0.00,#,##0.00,0%,0.00%,0.00E+00 -&gt; number; yyyy-mm-dd -&gt; date; yyyy-mm-dd hh:mm:ss -&gt; datetime; hh:mm:ss -&gt; time; [h]:mm:ss -&gt; duration; @ -&gt; text. Höchstens128 UTF16-Einheiten. NULL klassifiziert nicht und erlaubt Ziel-/StoredType-Default; leer/unbekannt Status6, Widerspruch zum expliziten Target Status2. Dieser Typkern rendert kein Anzeigeformat und liest keine Styles. |
 | `@Date1904` | `bit` | `NULL` | Input | Taxativ im gebundenen bit: 0 = Excel1900-Datumssystem, 1 = Excel1904-Datumssystem. NULL (Default) ist nur bei numerischem date-/datetime-Ziel ungültig (Status 2); sonst kein implizites Workbookauslesen. Im 1900-System ist ursprüngliches Serialintervall [60,61) der fiktive Schalttag und ergibt Status 7 vor Rundung. Zeit-/Dauerwerte benötigen keinen Datumssystemdefault. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_file.TVF_InterpretXlsxCell(N'n', 1, N'1.235', NULL, N'number', N'0.00', 0);
+SELECT * FROM toolbelt_file.TVF_InterpretXlsxCell(N'n',1,N'1.235',NULL,N'number',NULL,NULL);
 ```
 
 ## toolbelt_file.TVF_FormatXlsxCell
@@ -3032,9 +3347,11 @@ Modul `toolbelt.file.xlsx-memory` · Version `1.2.0` · `TVF`
 
 Formatiert eine XLSX-Einzelzelle mit den unterstützten Literalformaten und Kulturen.
 
-Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql), [TVF_FormatXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md).
+Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql), [TVF_FormatXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md), [TVF_FormatXlsxCell.md](../../Metadata/UsageSkills/toolbelt_file/TVF_FormatXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: d127e5aed4dd1b144fa6e507815b146047397fbeaf1b6b88af1903a65607b0f1 -->
+<!-- Source/Vertrag SHA256: 3a2de638bacab9812d1c72dad8628aba8f964f7ea1c074433e53fc31fcddaf5b -->
+
+Voraussetzung: Modul XLSXmemory1.2.0 mit SAFE-Assembly tlblt_File_XlsxMemory, ZIPmemory>=1.4.0 und ResultTable>=1.0.0 gemäß Modulabhängigkeiten. Unterstützte SQL2019/2022/2025 Windows/Linux-Kontexte gemäß Modulmatrix, vorhandene CLR-/Trustvoraussetzungen. Keine Installation, Rechteerteilung, Labänderung oder Datenquelle wird durch diesen Aufruf vorbereitet.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3050,7 +3367,7 @@ Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-me
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_file.TVF_FormatXlsxCell(N'n', 1, N'1.235', NULL, N'number', N'0.00', 0, N'de-DE');
+SELECT * FROM toolbelt_file.TVF_FormatXlsxCell(N'n',1,N'1.235',NULL,N'number',N'0.00',NULL,N'de-DE');
 ```
 
 ## toolbelt_filesystem.USP_ReadBinaryFileChunk
@@ -3059,11 +3376,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md), [USP_ReadBinaryFileChunk.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_ReadBinaryFileChunk.md).
 
-<!-- Source/Vertrag SHA256: d700c4c4f8a180d7f832ca25c3da32faa85db71f0da460474c2c1727b34f3622 -->
+<!-- Source/Vertrag SHA256: f8385001a5fe33de8df937371b29b443a4af45a68c66bfffa7f707bc6a187c57 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3075,16 +3392,15 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk
- @RootAlias=N'ExampleRoot', @RelativePath=N'example.bin', @ByteOffset=0, @MaxBytes=1024, @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @Hilfe=1;
+-- Fachaufruf nur mit eigener passender Rootkonfiguration:
+EXEC toolbelt_filesystem.USP_ReadBinaryFileChunk @RootAlias=N'ContosoRead',@RelativePath=N'sample.bin',@MaxBytes=1024;
 ```
 
 Hilfe:
@@ -3099,11 +3415,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächste Byte-Position.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md), [USP_ReadTextFileChunk.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_ReadTextFileChunk.md).
 
-<!-- Source/Vertrag SHA256: a14c6039114ba23ec880d94d9aaa82fa0561c5d8a76fc8000959cdc038f674ef -->
+<!-- Source/Vertrag SHA256: 45c188f6e20dcaa03db0cd6e9771ba7126fc8910a8395ec8a6e08648811abece -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3116,16 +3432,15 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_ReadTextFileChunk
- @RootAlias=N'ExampleRoot', @RelativePath=N'example.txt', @ByteOffset=0, @MaxBytes=1024, @EncodingName=N'utf-8', @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_ReadTextFileChunk @Hilfe=1;
+-- Fachaufruf nur mit eigener passender Rootkonfiguration:
+EXEC toolbelt_filesystem.USP_ReadTextFileChunk @RootAlias=N'ContosoRead',@RelativePath=N'sample.txt',@EncodingName=N'utf-8';
 ```
 
 Hilfe:
@@ -3140,11 +3455,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md), [USP_WriteBinaryFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_WriteBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 068d626645b92582007d675b73a6cee5e32b0d26aed4b85f4c5016b4d84fbf72 -->
+<!-- Source/Vertrag SHA256: f23c9e6f20855185cae509d110339e5cf6bf9095bb03f6cd0c8cc3675bc679c8 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3156,16 +3471,13 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_WriteBinaryFile
- @RootAlias=N'ExampleRoot', @RelativePath=N'example.bin', @Content=0x4869, @Overwrite=0, @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_WriteBinaryFile @Hilfe=1;
 ```
 
 Hilfe:
@@ -3180,11 +3492,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md), [USP_WriteTextFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_WriteTextFile.md).
 
-<!-- Source/Vertrag SHA256: 378d753055aa123254a33988a0f4b11c94fec46d679d37f8e52cdfe234514431 -->
+<!-- Source/Vertrag SHA256: cfd854036d97930f8b5795d43350b9eba35593a2522b2486a9a69dd736de2842 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3198,16 +3510,13 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_WriteTextFile
- @RootAlias=N'ExampleRoot', @RelativePath=N'example.txt', @Content=N'Contoso', @EncodingName=N'utf-8', @WriteBom=0, @Overwrite=0, @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_WriteTextFile @Hilfe=1;
 ```
 
 Hilfe:
@@ -3222,11 +3531,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md), [USP_TranscodeTextFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_TranscodeTextFile.md).
 
-<!-- Source/Vertrag SHA256: 46446b91185b0b3e707eec63240f1fcdf85cb3be4e81cc73330c98697c749c7e -->
+<!-- Source/Vertrag SHA256: b0bd631ac37b3262f835b3d9c622e0f233cc73a7745a025dc3f9b11642bbec81 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3242,16 +3551,13 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_TranscodeTextFile
- @SourceRootAlias=N'ExampleRoot', @SourceRelativePath=N'input.txt', @SourceEncodingName=N'utf-8', @TargetRootAlias=N'ExampleRoot', @TargetRelativePath=N'output.txt', @TargetEncodingName=N'utf-16', @Overwrite=0, @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_TranscodeTextFile @Hilfe=1;
 ```
 
 Hilfe:
@@ -3266,11 +3572,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md), [USP_ListDirectory.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_ListDirectory.md).
 
-<!-- Source/Vertrag SHA256: ea4804ccb24635ec613deae578a763a15ed96eb69efe6035d3d8f26e1895f584 -->
+<!-- Source/Vertrag SHA256: f6683343794febfb02c68bc77c182328c007b00d36bc44c852ddc1d62e0a1b39 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowList erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3283,16 +3589,15 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_ListDirectory
- @RootAlias=N'ExampleRoot', @RelativePath=N'', @Recursive=0, @MaxEntries=100, @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_ListDirectory @Hilfe=1;
+-- Fachaufruf nur mit eigener passender Rootkonfiguration:
+EXEC toolbelt_filesystem.USP_ListDirectory @RootAlias=N'ContosoRead',@RelativePath=N'',@MaxEntries=100;
 ```
 
 Hilfe:
@@ -3307,30 +3612,27 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Erstellt ein Verzeichnis unter einem freigegebenen Root.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md), [USP_CreateDirectory.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_CreateDirectory.md).
 
-<!-- Source/Vertrag SHA256: 0e62e7ed3f632fc53491571369321e967a8c0f4591587545f8db35e0bd61baa3 -->
+<!-- Source/Vertrag SHA256: dae122786cad89428a4b90f808a04922bab893580a84ebbd6cb4797a3dca562f -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowCreateDirectory erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@RootAlias` | `sysname` | `NULL` | Input | Fachlich erforderlicher vorhandener aktiver RootAlias aus toolbelt_filesystem.FileSystemRoot, maximal sysname/128 UTF-16-Einheiten; keine Pfadangabe. NULL/leer/Whitespace-only ungültig. Der Root muss die jeweilige Operation AllowRead/AllowWrite/AllowList/AllowCreateDirectory/AllowDelete erlauben und bei ServiceAccount zusätzlich AllowServiceAccount=1. Verfügbare Werte hängen von vorhandener administrativer Konfiguration/Rechten ab; keine festen eingebauten Aliase und keine automatische Rootanlage. |
-| `@RelativePath` | `nvarchar(4000)` | `NULL` | Input | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer ist erlaubt und bezeichnet den Root; normale fehlende Unterverzeichnisse werden innerhalb der freigegebenen Rootkette angelegt. NULL ungültig. |
+| `@RelativePath` | `nvarchar(4000)` | `NULL` | Input | Relativer Pfad unter dem freigegebenen Root, nvarchar(4000), z.B. N'inbox\sample.txt'; kein absoluter/Laufwerks-/UNC-/Devicepfad und kein Doppelpunkt/ADS. Normalisierung mit Path.GetFullPath darf die Rootgrenze nicht verlassen; gültige Win32-Komponenten, keine abschließenden Punkte/Spaces an gebundenen Eltern. Reparse Points werden abgewiesen. NULL ungültig; kein SQL-/Glob-/URL-Text. Leer ist erlaubt und bezeichnet den Root; fehlende Komponenten des konfigurierten Zielpfads werden durch NativeParents angelegt; physische Rootkonfiguration muss deshalb von autorisierter Verwaltung stammen. NULL ungültig. |
 | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Input | Taxativ, ordinal/case- und whitespace-sensitiv: Caller (Default) nutzt die erfasste Windows-Identität des authentifizierten Callers; SQL-Login allein genügt nicht. ServiceAccount nutzt ausdrücklich die SQL-Dienstidentität, nur mit vorhandener Mitgliedschaft in der kanonischen Rolle toolbelt_filesystem_service_account und Root-AllowServiceAccount=1. NULL/leer/andere Werte ungültig. Kein automatischer Fallback oder Rechteerteilung. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_CreateDirectory
- @RootAlias=N'ExampleRoot', @RelativePath=N'example-dir', @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_CreateDirectory @Hilfe=1;
 ```
 
 Hilfe:
@@ -3345,11 +3647,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Entfernt eine Datei unter einem freigegebenen Root.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md), [USP_RemoveFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_RemoveFile.md).
 
-<!-- Source/Vertrag SHA256: 46b2b2ac598ad1fc6d75628496abf15a2fb857eb5d627e884cd5a3074ddf08d8 -->
+<!-- Source/Vertrag SHA256: 75c9c42f93f56e9dbbe63f6bfac1a8ed04936c8bb5f4597c636c07d2475e2fef -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3359,16 +3661,13 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_RemoveFile
- @RootAlias=N'ExampleRoot', @RelativePath=N'own-example.bin', @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_RemoveFile @Hilfe=1;
 ```
 
 Hilfe:
@@ -3383,11 +3682,11 @@ Modul `toolbelt.filesystem.windows` · Version `1.0.0` · `USP`
 
 Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.
 
-Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md).
+Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md), [USP_RemoveDirectory.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_RemoveDirectory.md).
 
-<!-- Source/Vertrag SHA256: 62d9b272167c7ef9191682253d32e40e50ea5d2e0ea82e3dec2512727c1cf96f -->
+<!-- Source/Vertrag SHA256: cff75d31e0f6f6c02fe767405b89dea503395dd3b47a01f89e1dc63e331023e9 -->
 
-Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
+Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3400,16 +3699,13 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Dateisystemarbeit erfolgt vor diesem SQL-Routing; ein späterer Zielfehler rollt bereits publizierte Dateieffekte nicht zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Windows-Filesystem-Wrapper nicht ausgewertet und auch nicht an den ResultTable-Helper weitergegeben; erzeugt keine zusätzlichen Messages. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe und anschließend genau eine vollständige vierkolumnige Skillzeile; Rückkehr vor Root-/Identitäts-/Datei-/ResultTable-Zugriff. 0 oder NULL führt den Fachpfad aus. Fachlich ungültige, aber SQL-typgültige Argumente werden bei Hilfe nicht geprüft. SQL-Typbindung erfolgt dennoch vor dem Prozedureinstieg. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.
--- Caller erfordert Windows Authentication; bei SQL-Authentifizierung
--- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.
-EXEC toolbelt_filesystem.USP_RemoveDirectory
- @RootAlias=N'ExampleRoot', @RelativePath=N'own-example-dir', @Recursive=0, @ExecutionIdentity=N'Caller';
+-- Reine Hilfe ohne Rootkonfiguration oder Dateioperation:
+EXEC toolbelt_filesystem.USP_RemoveDirectory @Hilfe=1;
 ```
 
 Hilfe:
@@ -3424,9 +3720,11 @@ Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Array aus Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.
 
-Vertrag und Quelle: [USP_JsonArray.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArray.sql), [USP_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArray.md).
+Vertrag und Quelle: [USP_JsonArray.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArray.sql), [USP_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArray.md), [USP_JsonArray.md](../../Metadata/UsageSkills/toolbelt_json/USP_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: f9de32f1bbcce9edbeaaa2cd9258fee3f4de6b25e1ce7abbd68d6c4c5c4e0d2d -->
+<!-- Source/Vertrag SHA256: 0abe69b5f2f3e0c423dd1c4d93102863c83443409f35a3ca0f759f81c24bfe10 -->
+
+Voraussetzung: Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3437,15 +3735,16 @@ Vertrag und Quelle: [USP_JsonArray.sql](../../Modules/toolbelt.json.constructors
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntriesTable sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der JSON-Kern die vollständig validierte Bereitstellung; im Temp-Pfad wird der Wert zusätzlich an den Helper weitergegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Entries(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
-INSERT #Entries VALUES(1,N'string',N'Contoso'),(2,N'number',N'42');
-EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#Entries';
-DROP TABLE #Entries;
+EXEC toolbelt_json.USP_JsonArray @Hilfe=1;
+CREATE TABLE #ContosoEntries(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #ContosoEntries VALUES(1,N'string',N'Contoso');
+EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#ContosoEntries';
+DROP TABLE #ContosoEntries;
 ```
 
 Hilfe:
@@ -3460,9 +3759,11 @@ Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Object aus Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.
 
-Vertrag und Quelle: [USP_JsonObject.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObject.sql), [USP_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObject.md).
+Vertrag und Quelle: [USP_JsonObject.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObject.sql), [USP_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObject.md), [USP_JsonObject.md](../../Metadata/UsageSkills/toolbelt_json/USP_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: 6046923c0ec3dd43743196b1b6a82c8c012fc58395e589488427c22be01d6a0c -->
+<!-- Source/Vertrag SHA256: 41d121c7e010811e797a086c503ffbe8f467982d57441877f3877029a5e7f2e3 -->
+
+Voraussetzung: Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3473,15 +3774,16 @@ Vertrag und Quelle: [USP_JsonObject.sql](../../Modules/toolbelt.json.constructor
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntriesTable sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der JSON-Kern die vollständig validierte Bereitstellung; im Temp-Pfad wird der Wert zusätzlich an den Helper weitergegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Entries(Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
-INSERT #Entries VALUES(1,N'name',N'string',N'Contoso'),(2,N'count',N'number',N'42');
-EXEC toolbelt_json.USP_JsonObject @EntriesTable=N'#Entries';
-DROP TABLE #Entries;
+EXEC toolbelt_json.USP_JsonObject @Hilfe=1;
+CREATE TABLE #ContosoEntries(Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #ContosoEntries VALUES(1,N'contoso',N'string',N'Contoso');
+EXEC toolbelt_json.USP_JsonObject @EntriesTable=N'#ContosoEntries';
+DROP TABLE #ContosoEntries;
 ```
 
 Hilfe:
@@ -3496,9 +3798,11 @@ Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.
 
-Vertrag und Quelle: [USP_JsonArraysByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArraysByGroup.sql), [USP_JsonArraysByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArraysByGroup.md).
+Vertrag und Quelle: [USP_JsonArraysByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArraysByGroup.sql), [USP_JsonArraysByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArraysByGroup.md), [USP_JsonArraysByGroup.md](../../Metadata/UsageSkills/toolbelt_json/USP_JsonArraysByGroup.md).
 
-<!-- Source/Vertrag SHA256: 216d1ed8371e2438d28aaa9f75c7d911ad9cfbc6745d26476210df5ada68ade1 -->
+<!-- Source/Vertrag SHA256: 46a16015ecbf69d601250afedc1f3116cb52522e1bd30c1c3418020d1f594b46 -->
+
+Voraussetzung: Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3509,25 +3813,16 @@ Vertrag und Quelle: [USP_JsonArraysByGroup.sql](../../Modules/toolbelt.json.cons
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntriesTable sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der JSON-Kern die vollständig validierte Bereitstellung; im Temp-Pfad wird der Wert zusätzlich an den Helper weitergegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
-INSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');
-EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';
-DROP TABLE #Entries;
-```
-
-```sql
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
-INSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');
-EXEC toolbelt_json.USP_JsonArraysByGroup
- @EntriesTable = N'#Entries', @MaxEntries = 10000,
- @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,
- @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;
-DROP TABLE #Entries;
+EXEC toolbelt_json.USP_JsonArraysByGroup @Hilfe=1;
+CREATE TABLE #ContosoEntries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #ContosoEntries VALUES(1,1,N'string',N'Contoso');
+EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#ContosoEntries';
+DROP TABLE #ContosoEntries;
 ```
 
 Hilfe:
@@ -3542,9 +3837,11 @@ Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.
 
-Vertrag und Quelle: [USP_JsonObjectsByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObjectsByGroup.sql), [USP_JsonObjectsByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObjectsByGroup.md).
+Vertrag und Quelle: [USP_JsonObjectsByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObjectsByGroup.sql), [USP_JsonObjectsByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObjectsByGroup.md), [USP_JsonObjectsByGroup.md](../../Metadata/UsageSkills/toolbelt_json/USP_JsonObjectsByGroup.md).
 
-<!-- Source/Vertrag SHA256: 14779351aee4858440583485ae38d5dcc3dd322603168b312576e6b6d024f777 -->
+<!-- Source/Vertrag SHA256: 91746710f5adc8403f4ba1ea859cb1900feaaf903915f338e97443642c45cae3 -->
+
+Voraussetzung: Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3555,25 +3852,16 @@ Vertrag und Quelle: [USP_JsonObjectsByGroup.sql](../../Modules/toolbelt.json.con
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntriesTable sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Bei &gt;0 meldet der JSON-Kern die vollständig validierte Bereitstellung; im Temp-Pfad wird der Wert zusätzlich an den Helper weitergegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
-INSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');
-EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';
-DROP TABLE #Entries;
-```
-
-```sql
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
-INSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');
-EXEC toolbelt_json.USP_JsonObjectsByGroup
- @EntriesTable = N'#Entries', @MaxEntries = 10000,
- @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,
- @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;
-DROP TABLE #Entries;
+EXEC toolbelt_json.USP_JsonObjectsByGroup @Hilfe=1;
+CREATE TABLE #ContosoEntries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #ContosoEntries VALUES(1,1,N'contoso',N'string',N'Contoso');
+EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#ContosoEntries';
+DROP TABLE #ContosoEntries;
 ```
 
 Hilfe:
@@ -3588,9 +3876,11 @@ Modul `toolbelt.json.constructors` · Version `1.3.0` · `CLR_AGGREGATE`
 
 Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.
 
-Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonArray.md).
+Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonArray.md), [AGF_JsonArray.md](../../Metadata/UsageSkills/toolbelt_json/AGF_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: 88ca6e935ca2150ba5d1bd24f8e0eae27fb28ff213cc2ddf3b617789caa26f31 -->
+<!-- Source/Vertrag SHA256: 51cbe44bc273984ea070c69dccc5214c8ff0a904209eb6e810b2712a0ebd30e1 -->
+
+Voraussetzung: Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3602,9 +3892,8 @@ Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructor
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-DECLARE @Entries TABLE(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max),Profile tinyint);
-INSERT @Entries VALUES(2,N'number',N'2',1),(1,N'string',N'Contoso',1);
-SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) AS JsonValue FROM @Entries;
+SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],CONVERT(tinyint,1)) AS JsonValue
+FROM (VALUES(1,N'string',N'Contoso'),(2,N'number',N'2')) AS e(Ordinal,ValueKind,[Value]);
 ```
 
 ## toolbelt_json.AGF_JsonObject
@@ -3613,9 +3902,11 @@ Modul `toolbelt.json.constructors` · Version `1.3.0` · `CLR_AGGREGATE`
 
 Aggregiert typisierte Einträge mit eindeutigen Schlüsseln zu einem JSON-Objekt.
 
-Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonObject.md).
+Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonObject.md), [AGF_JsonObject.md](../../Metadata/UsageSkills/toolbelt_json/AGF_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: 09615e1bc2f4c7e035b7468f5e8f404e4ec99918a1f91668437ff92b08c44fe0 -->
+<!-- Source/Vertrag SHA256: d3c355cea51328be9c711b1c22d183abf242322f1d49ee78e246f2a7e319f0d3 -->
+
+Voraussetzung: Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3628,9 +3919,8 @@ Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructor
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-DECLARE @Entries TABLE(Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max),Profile tinyint);
-INSERT @Entries VALUES(1,N'name',N'string',N'Contoso',1),(2,N'count',N'number',N'2',1);
-SELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile) AS JsonValue FROM @Entries;
+SELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],CONVERT(tinyint,1)) AS JsonValue
+FROM (VALUES(1,N'contoso',N'string',N'Contoso'),(2,N'count',N'number',N'2')) AS e(Ordinal,[Key],ValueKind,[Value]);
 ```
 
 ## toolbelt_json.TVF_JsonPathExists
@@ -3639,19 +3929,22 @@ Modul `toolbelt.json.path-exists` · Version `1.0.0` · `TVF`
 
 Prüft, ob ein unterstützter Pfad in einem JSON-Dokument existiert.
 
-Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExists.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md).
+Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExists.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md), [TVF_JsonPathExists.md](../../Metadata/UsageSkills/toolbelt_json/TVF_JsonPathExists.md).
 
-<!-- Source/Vertrag SHA256: f618a6506f54786106491a997e4d792677ec435654b63d4146ba38565348dcce -->
+<!-- Source/Vertrag SHA256: 07f7edad180bdc607d2730884376e334e17e5e2d54e89f1267dd4d229d1dd3d6 -->
+
+Voraussetzung: JSONpath-Modul mit nativer ISJSON/OPENJSON-Unterstützung in derselben DB. Windows/Linux SQL2019/2022/2025, CL150/160/170 im zulässigen Hostprofil. Kein Quellkatalog-, Datei-, Netzwerk-, CLR- oder Trustzugriff.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiger JSON-Wert einschließlich Skalar/root-null, maximal 16777216 UTF-16-Bytes und lexikalische Containertiefe 128. Leer ist ungültiges JSON. NULL in Json oder Path liefert SQL_NULL/NULL vor weiterer Prüfung. Syntaxfehler ergeben INVALID/0; Ressourcenüberschreitungen LIMIT/NULL im Statuskern beziehungsweise NULL in der Wertfassade. Frontier höchstens 10000 Werte, kumulatives Parserworkbudget 67108864 Bytes. |
-| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. Objektschlüssel verlangen BIN2-Gleichheit UND identische UTF16-Bytelänge; a und a&lt;Space&gt; sowie leer und Space sind verschieden. Steuer-/Wildcardvergleiche behalten die vorhandene SQL-Paddingsemantik; dies ist keine vollständige native SQL/JSON-Pfadgrammatik. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{"items":[1,2]}', N'$.items[0]');
+SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"items":[{"name":null}]}',N'$.items[*].name');
+SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"a ":1}',N'$."a"');
 ```
 
 ## toolbelt_json.TVF_JsonPathExistsStatus
@@ -3660,21 +3953,22 @@ Modul `toolbelt.json.path-exists` · Version `1.0.0` · `TVF`
 
 Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. Höchstens 10000 Frontierwerte; maximal 10001 werden zur Überschreitungsfeststellung aufgenommen. Vor jedem OPENJSON werden die vorgesehenen Inputbytes gegen das kumulative 64-MiB-Budget gebucht. Containerroots werden ohne zusätzliche Wrapper-Ebene validiert. Die bisherige TVF liefert bei LIMIT NULL; kein falsches MISSING.
 
-Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExistsStatus.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md).
+Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExistsStatus.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md), [TVF_JsonPathExistsStatus.md](../../Metadata/UsageSkills/toolbelt_json/TVF_JsonPathExistsStatus.md).
 
-<!-- Source/Vertrag SHA256: 3e3d2b6c48d2f7a82ed37817462a6eb17bb0e264a9b1aa0d22f10bd8f698f4a3 -->
+<!-- Source/Vertrag SHA256: 48991c47c77383138ff7870ca56541e1a617d3a8e4c24df0a63d2f5f68d5cce9 -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: JSONpath-Modul mit nativer ISJSON/OPENJSON-Unterstützung in derselben DB. Windows/Linux SQL2019/2022/2025, CL150/160/170 im zulässigen Hostprofil. Kein Quellkatalog-, Datei-, Netzwerk-, CLR- oder Trustzugriff.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiger JSON-Wert einschließlich Skalar/root-null, maximal 16777216 UTF-16-Bytes und lexikalische Containertiefe 128. Leer ist ungültiges JSON. NULL in Json oder Path liefert SQL_NULL/NULL vor weiterer Prüfung. Syntaxfehler ergeben INVALID/0; Ressourcenüberschreitungen LIMIT/NULL im Statuskern beziehungsweise NULL in der Wertfassade. Frontier höchstens 10000 Werte, kumulatives Parserworkbudget 67108864 Bytes. |
-| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. Objektschlüssel verlangen BIN2-Gleichheit UND identische UTF16-Bytelänge; a und a&lt;Space&gt; sowie leer und Space sind verschieden. Steuer-/Wildcardvergleiche behalten die vorhandene SQL-Paddingsemantik; dies ist keine vollständige native SQL/JSON-Pfadgrammatik. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"a":null}',N'$.a');
+SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"items":[{"name":null}]}',N'$.items[*].name');
+SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"a ":1}',N'$."a"');
 ```
 
 ## toolbelt_json.TVF_ResolveJsonPointer
@@ -3683,23 +3977,29 @@ Modul `toolbelt.json.pointer` · Version `1.0.0` · `TVF`
 
 Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Der freigegebene feste128er-Guard gibt darüber DEPTH_LIMIT vor JSON_SYNTAX zurück.
 
-Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md).
+Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md), [TVF_ResolveJsonPointer.md](../../Metadata/UsageSkills/toolbelt_json/TVF_ResolveJsonPointer.md).
 
-<!-- Source/Vertrag SHA256: 1ed0a9813ca5fbfdfb50b046705d53ef2435c42a2c6b3e9c6c7ad024cdc2087f -->
+<!-- Source/Vertrag SHA256: 58d59a61c42da10d745bb5e908aafa826b138245c3554f0970d7dab93d5d3e68 -->
 
-Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release.
+Voraussetzung: SQL Server2019/2022/2025 Windows/Linux gemäß Modulmatrix, unterstützter Compatibility Level mindestens150 auch im zentralen Aufrufkontext. Ausschließlich native ISJSON-/OPENJSON-Grammatik und begrenzter UTF16-Policywalker; keine CLR-Assembly, Daten-/Systemkatalogtabelle, Serveroption oder Abhängigkeit eines anderen Moduls. Der gesamte Input muss gültige Syntax, Tiefen- und Unicodepolicy erfüllen, auch nicht traversierte Teile.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiger JSON-Wert einschließlich Skalar/root-null, wohlgeformtes Unicode auch in decodierten Escapes. Leer ist ungültig; DATALENGTH darf MaxInputBytes nicht überschreiten. Vor nativer Prüfung gilt die absolute Containertiefengrenze 128, danach das abgesenkte MaxDepth. NULL in Json oder Pointer ergibt SQL_NULL vor Parameterprüfung. Kein partiell gültiges Dokument und keine Mutation. |
-| `@Pointer` | `nvarchar(max)` | `kein Default` | Input | RFC6901-Stringpointer, keine URIfragmentform #/...: leer bezeichnet Root, sonst beginnt der Text mit /. Segmente sind exakte binäre/case-sensitive Objektkeys; ~0 decodiert einmal zu ~, ~1 zu /. Kein anderes ~-Escape oder Percentdecoding. Arrayindizes sind nullbasiert kanonische nicht negative ASCII-Dezimalzahlen ohne führende Nullen; - ist kein Appendindex, Wildcards fehlen. Maximal 4000 UTF-16-Einheiten, wohlgeformtes Unicode; / bezeichnet einen leeren Key. NULL ergibt SQL_NULL. |
-| `@MaxInputBytes` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 UTF-16-Bytes des JSON-Dokuments, Default 16777216; keine Zeichenanzahl. NULL/außerhalb ergibt INVALID/PARAMETER, Überschreitung INVALID/INPUT_LIMIT. Nur absenkbar; früher Json-/Pointer-NULL-Pfad hat Vorrang. |
-| `@MaxDepth` | `int` | `128` | Input | Ganzzahl 1..128 gleichzeitig offene JSON-Container, Default 128. Gilt für das gesamte Dokument, auch nicht traversierte Teile. NULL/außerhalb ergibt INVALID/PARAMETER; vor nativer JSON-Prüfung bleibt zusätzlich die absolute Schutzgrenze 128 wirksam. |
+| `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiger JSON-Wert einschließlich Skalar/root-null, wohlgeformtes Unicode auch in decodierten Escapes. Leer ist ungültig; DATALENGTH darf MaxInputBytes nicht überschreiten. Vor nativer Prüfung gilt die absolute Containertiefengrenze 128, danach das abgesenkte MaxDepth. NULL in Json oder Pointer ergibt SQL_NULL vor Parameterprüfung. Kein partiell gültiges Dokument und keine Mutation. Argumentposition ausdrücklich angeben; nur bei den beiden vorhandenen SQL-Budgetdefaults ist DEFAULT zulässig. SQL-NULL in Json oder Pointer kurzschließt auch ungültige Budgets. |
+| `@Pointer` | `nvarchar(max)` | `kein Default` | Input | RFC6901-Stringpointer, keine URIfragmentform #/...: leer bezeichnet Root, sonst beginnt der Text mit /. Segmente sind exakte binäre/case-sensitive Objektkeys; ~0 decodiert einmal zu ~, ~1 zu /. Kein anderes ~-Escape oder Percentdecoding. Arrayindizes sind nullbasiert kanonische nicht negative ASCII-Dezimalzahlen ohne führende Nullen; - ist kein Appendindex, Wildcards fehlen. Maximal 4000 UTF-16-Einheiten, wohlgeformtes Unicode; / bezeichnet einen leeren Key. NULL ergibt SQL_NULL. Argumentposition ausdrücklich angeben; nur bei den beiden vorhandenen SQL-Budgetdefaults ist DEFAULT zulässig. SQL-NULL in Json oder Pointer kurzschließt auch ungültige Budgets. |
+| `@MaxInputBytes` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 UTF-16-Bytes des JSON-Dokuments, Default 16777216; keine Zeichenanzahl. NULL/außerhalb ergibt INVALID/PARAMETER, Überschreitung INVALID/INPUT_LIMIT. Nur absenkbar; früher Json-/Pointer-NULL-Pfad hat Vorrang. Argumentposition ausdrücklich angeben; nur bei den beiden vorhandenen SQL-Budgetdefaults ist DEFAULT zulässig. SQL-NULL in Json oder Pointer kurzschließt auch ungültige Budgets. |
+| `@MaxDepth` | `int` | `128` | Input | Ganzzahl 1..128 gleichzeitig offene JSON-Container, Default 128. Gilt für das gesamte Dokument, auch nicht traversierte Teile. NULL/außerhalb ergibt INVALID/PARAMETER; vor nativer JSON-Prüfung bleibt zusätzlich die absolute Schutzgrenze 128 wirksam. Argumentposition ausdrücklich angeben; nur bei den beiden vorhandenen SQL-Budgetdefaults ist DEFAULT zulässig. SQL-NULL in Json oder Pointer kurzschließt auch ungültige Budgets. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT Status,JsonType,Value,ErrorCode FROM toolbelt_json.TVF_ResolveJsonPointer(N'{"items":[null,"example"]}',N'/items/1',DEFAULT,DEFAULT);
+SELECT Status,JsonType,Value,ErrorCode
+FROM toolbelt_json.TVF_ResolveJsonPointer(N'{"a/b":[null,"example"]}',N'/a~1b/1',DEFAULT,DEFAULT);
+-- FOUND / STRING / example / NULL.
+SELECT * FROM toolbelt_json.TVF_ResolveJsonPointer(N'null',N'',DEFAULT,DEFAULT);
+-- JSON_NULL mit JsonType als Text NULL und Value SQL-NULL.
+SELECT * FROM toolbelt_json.TVF_ResolveJsonPointer(NULL,NULL,0,0);
+-- SQL_NULL vor Parameterfehlern.
 ```
 
 ## toolbelt_json.USP_ValidateJsonSchema
@@ -3708,11 +4008,11 @@ Modul `toolbelt.json.schema` · Version `1.0.1` · `USP`
 
 Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode und globalem Arbeitsbudget; SUMMARY plus begrenzte Diagnosen.
 
-Vertrag und Quelle: [USP_ValidateJsonSchema.sql](../../Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql), [USP_ValidateJsonSchema.md](../../Modules/toolbelt.json.schema/Documentation/USP_ValidateJsonSchema.md).
+Vertrag und Quelle: [USP_ValidateJsonSchema.sql](../../Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql), [USP_ValidateJsonSchema.md](../../Modules/toolbelt.json.schema/Documentation/USP_ValidateJsonSchema.md), [USP_ValidateJsonSchema.md](../../Metadata/UsageSkills/toolbelt_json/USP_ValidateJsonSchema.md).
 
-<!-- Source/Vertrag SHA256: 3814ab5472aa6337ca5bfaff41a3be25d4988df6af94feef1283a418f31d502f -->
+<!-- Source/Vertrag SHA256: e5f45856ad8fe4dbbfdafe173d27ec6ab19029de71912b6c08468d357a9be4f5 -->
 
-Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies in derselben Datenbank, ResultTable >=1.0.0, vorhandene Aufrufrechte. Nur Teilqualifikation, unreleased.
+Voraussetzung: Installiertes Schema1.0.1 mit autorisierten SAFE-Assemblies tlblt_JsonSchema und tlblt_JsonCore, SQL2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Einziges Profil toolbelt-2020-12-v1, exakte ordinale Schreibweise/Länge ohne Trim. Boolean-Schema true/false oder Schemaobjekt. Kein vollständiges Draft2020-12-Profil. Taxative 22 Keywords: `$schema`, `$ref`, `$defs`, `title`, `description`, `$comment`, `type`, `required`, `properties`, `additionalProperties`, `items`, `prefixItems`, `minItems`, `maxItems`, `minProperties`, `maxProperties`, `minLength`, `maxLength`, `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`. $schema nur String https://json-schema.org/draft/2020-12/schema, keine andere Draftkennung. title/description/$comment nur Stringannotation ohne Validierungseffekt. Unknowns einschließlich enum,const,format,pattern,multipleOf,allOf/anyOf/oneOf,not,if/then/else,contains,uniqueItems,$id/$anchor/$dynamicRef und unevaluated* ergeben UNSUPPORTED, nicht stilles Ignorieren. `type`: einer von null/boolean/number/string/object/array/integer als String oder nichtleere Arraymenge ohne doppelte Typnamen. `required`: Array eindeutiger Strings, leer erlaubt. `properties` und `$defs`: Objekte mit Boolean-/Objektschemas. `additionalProperties` und `items`: einzelnes Boolean-/Objektschema, keine alte Array-items-Tupleform. `prefixItems`: nichtleeres Array von Schemas; `items` gilt für Positionen dahinter oder alle ohne prefixItems. Object-/Array-/Stringkeywords greifen nur auf den passenden Instanztyp. Zählerbounds min*/max* sind mathematisch nichtnegative ganze JSON-Zahlen, keine auf SQL-int beschränkten Eingabeparameter. minLength/maxLength zählen Unicode-Skalare, nicht UTF16-Codeunits/Grapheme. Numeric minimum/maximum/exclusive* verlangen JSON-Zahlen, keine alten Boolean-exclusive-Schalter. integer wird mathematisch bestimmt: z.B. 1.0 ist integer, ohne Coercion oder Gleitkommarundung. Nur nichtrekursive lokale URIfragment-$ref: beginnt mit #, danach einmal strict Percentbytes/UTF8 und dann einmal RFC6901 ~0/~1 decodieren. Rootfragment # möglich, aber Selbst-/Referenzzyklen im gesamten Schema-/Containmentgraph sind UNSUPPORTED/REF_CYCLE. Kein Netzwerk, Dateizugriff oder externer Resolver; leere/externe Referenz ohne # ist UNSUPPORTED/EXTERNAL_REF. Fehlerhafte Prozent-/UTF8-/~-/Fragmentlexik INVALID_SCHEMA/REF_SYNTAX; fehlendes/nicht als Schema erschlossenes Ziel bzw. ungeeigneter Arrayindex INVALID_SCHEMA/REF_TARGET. Alle bekannten Schemaorte einschließlich ungenutzter $defs werden zuerst geprüft, inklusive Formen, lokaler Targets und Zyklen. Schemaorte/Graphkanten stabil nach vollständig codierten Pointern, Instanzmember nach decodierter UTF16-Identität und Instanzarrays numerisch; keine Kultur-/SQL-Padding-Normalisierung. SameDB core.result-table>=1.0.0 mit exakt fünf erwarteten Parametern ist auch für direkten SELECT erforderlich: seine Metadatensignatur wird vor CLR-Auswertung geprüft. Diese Routine installiert/erweitert keine Abhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3727,15 +4027,13 @@ Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Nur payloadfreie Messages; keine Dokument-/Schema-/Endpointausgabe. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Argument-/Namespace-/Helper-/CLR-/Fachprüfung oder Zielmutation. 0 oder NULL: Fachpfad. Alle SQL-Argumente besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'{"quantity":3}', @Schema=N'{"properties":{"quantity":{"type":"integer","minimum":1}}}';
-```
-
-```sql
+EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'{"quantity":3}',@Schema=N'{"type":"object","required":["quantity"],"properties":{"quantity":{"type":"integer","minimum":1}}}';
+-- SUMMARY VALID,IsValid=1; keine ERROR-Zeilen.
 EXEC toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
 ```
 
@@ -3751,16 +4049,49 @@ Modul `toolbelt.metadata.capability-catalog` · Version `1.0.0` · `VW`
 
 Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete.
 
-Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md).
+Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md), [VW_ModuleCapabilities.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: 8e5af29ac8d0cd3f2c2202fe0b229774598418d8b41e8461da80e9012a28a081 -->
+<!-- Source/Vertrag SHA256: 75a5b52dd91513865a2bce976aa9deadaa58a6e98f77c0e78ea165cc5782d591 -->
+
+Voraussetzung: Installierte markerfreie View auf SQL2019/2022/2025 Windows/Linux, lokal oder zentral mit dem zulässigen Compatibility Level. Keine Runtime-Modulabhängigkeit und kein CLR-Aufruf. Der Generator liest beim Offlinebuild alle module.yaml-Dateien deterministisch und erzeugt feste Kandidatentupel ModuleId/qualifizierter Name/zulässige SQL-Objekttypen. Assemblies aus expliziten Deklarationen; bei einem Modul ohne Objekte Fallback auf dessen deklarierten CLR-Assemblynamen. Toolbelt-Assemblyalias tlblt_, bereits tlblt-Namen erhalten; private ScriptDom-Alias tlblt.Microsoft.SqlServer.TransactSql.ScriptDom. Unbekannte Manifestformen/Objekttypen oder Assemblyaliasformen brechen den Build ab, keine automatische Runtime-Discovery.
 
 Keine Eingabeparameter.
 
 ```sql
-SELECT ModuleId, ModuleVersion, DeploymentMode, MetadataStatus
+SELECT ModuleId,ModuleVersion,DeploymentMode,MetadataStatus
 FROM toolbelt_metadata.VW_ModuleCapabilities
 ORDER BY ModuleId;
+
+SELECT ModuleId,MetadataStatus
+FROM ContosoToolbelt.toolbelt_metadata.VW_ModuleCapabilities
+WHERE ModuleId=N'toolbelt.metadata.identifier';
+-- Eine Zeile bedeutet nur: mindestens ein sichtbarer namens-/typgleicher Kandidat.
+```
+
+## toolbelt_metadata.VW_ObjectUsageSkills
+
+Modul `toolbelt.metadata.capability-catalog` · Version `1.0.0` · `VW`
+
+Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills lesen.
+
+Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
+
+<!-- Source/Vertrag SHA256: c8e37296636f7f8574f7fb8238557efa7ccce1e74807803465cb6fa3c30496d5 -->
+
+Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
+
+Keine Eingabeparameter.
+
+```sql
+SELECT SchemaName,ObjectName,ObjectType,DatabaseRole,IsInternal,Description
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+ORDER BY DatabaseRole,SchemaName,ObjectName;
+
+SELECT SkillMarkdown
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+WHERE DatabaseRole=N'toolbelt'
+  AND SchemaName=N'toolbelt_conversion'
+  AND ObjectName=N'TVF_Base64Encode';
 ```
 
 ## toolbelt_metadata.TVF_ParseMultipartName
@@ -3769,18 +4100,22 @@ Modul `toolbelt.metadata.identifier` · Version `1.0.0` · `TVF`
 
 Zerlegt und validiert ein- bis vierteilige SQL-Identifier.
 
-Vertrag und Quelle: [TVF_ParseMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql), [TVF_ParseMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/TVF_ParseMultipartName.md).
+Vertrag und Quelle: [TVF_ParseMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql), [TVF_ParseMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/TVF_ParseMultipartName.md), [TVF_ParseMultipartName.md](../../Metadata/UsageSkills/toolbelt_metadata/TVF_ParseMultipartName.md).
 
-<!-- Source/Vertrag SHA256: 672d08e3ae116374fe1fb7dd859cfeb07f47afca343930a5a8101710e66a1160 -->
+<!-- Source/Vertrag SHA256: 2bf2576b2b158b70a6889fb87ebd25a268d36098cf4bf05522163546cb1e902d -->
+
+Voraussetzung: Identifier-Modul, Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Rein lokale Stringverarbeitung, keine Objekt-/Datenbank-/Serverauflösung oder Metadatensicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 Zeichen. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. |
+| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 UTF16-Codeeinheiten. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. ASCII-Delimiter werden binär erkannt, escaped ]] wird einmal zurückgenommen. Gequotete Spaces einschließlich [ ] sind Inhalt, keine Auslassung; Spaces vor einer öffnenden Klammer sind BRACKET_SYNTAX. Parameterbindung auf1035Codeeinheiten liegt vor der Funktion und kann längere Callerwerte kürzen; ursprüngliche Länge bei Bedarf vorher im Client/max-Typ prüfen. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_metadata.TVF_ParseMultipartName(N'dbo.[Order Items]');
+SELECT * FROM toolbelt_metadata.TVF_ParseMultipartName(N'[ContosoDb]..[Order]]Line]');
+SELECT toolbelt_metadata.SVF_QuoteMultipartName(N'dbo.ContosoSource');
+SELECT * FROM toolbelt_metadata.TVF_ParseMultipartName(N'[ ]');
 ```
 
 ## toolbelt_metadata.SVF_QuoteMultipartName
@@ -3789,18 +4124,22 @@ Modul `toolbelt.metadata.identifier` · Version `1.0.0` · `SVF`
 
 Validiert einen mehrteiligen SQL-Namen und quotiert seine Komponenten.
 
-Vertrag und Quelle: [SVF_QuoteMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql), [SVF_QuoteMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/SVF_QuoteMultipartName.md).
+Vertrag und Quelle: [SVF_QuoteMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql), [SVF_QuoteMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/SVF_QuoteMultipartName.md), [SVF_QuoteMultipartName.md](../../Metadata/UsageSkills/toolbelt_metadata/SVF_QuoteMultipartName.md).
 
-<!-- Source/Vertrag SHA256: 0018868f0e091edecb81f0a6c6ed862a70a12ae31c80f24428d3b16e8be12ebf -->
+<!-- Source/Vertrag SHA256: fe3237a7b25ff5604c9f1cf4ce20e2724348e8cd1d03ad74f005599e5a5c5b7f -->
+
+Voraussetzung: Identifier-Modul, Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Rein lokale Stringverarbeitung, keine Objekt-/Datenbank-/Serverauflösung oder Metadatensicht.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 Zeichen. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. |
+| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 UTF16-Codeeinheiten. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. ASCII-Delimiter werden binär erkannt, escaped ]] wird einmal zurückgenommen. Gequotete Spaces einschließlich [ ] sind Inhalt, keine Auslassung; Spaces vor einer öffnenden Klammer sind BRACKET_SYNTAX. Parameterbindung auf1035Codeeinheiten liegt vor der Funktion und kann längere Callerwerte kürzen; ursprüngliche Länge bei Bedarf vorher im Client/max-Typ prüfen. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_metadata.SVF_QuoteMultipartName(N'dbo.[Order Items]') AS ResultValue;
+SELECT * FROM toolbelt_metadata.TVF_ParseMultipartName(N'[ContosoDb]..[Order]]Line]');
+SELECT toolbelt_metadata.SVF_QuoteMultipartName(N'dbo.ContosoSource');
+SELECT * FROM toolbelt_metadata.TVF_ParseMultipartName(N'[ ]');
 ```
 
 ## toolbelt_metadata.USP_ScriptTableClone
@@ -3809,11 +4148,11 @@ Modul `toolbelt.metadata.table-clone` · Version `4.1.1` · `USP`
 
 Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfangs; niemals DDL-Ausführung oder Datenkopie. Unsupported führt zum Abbruch.
 
-Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md).
+Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md), [USP_ScriptTableClone.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: c46cc19fa5294649617bc40ceb8d3c1f4725732a32968f5e686a535d6681525c -->
+<!-- Source/Vertrag SHA256: 366afd87530ef3b804438bc299a13ce258550da59fd537a611a9ca1e923fd323 -->
 
-Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Zielname darf noch nicht existieren. IncludeTriggers=1 verlangt Windows und den separat installierten Parser 2.0.
+Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3829,16 +4168,15 @@ Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Z
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht die Map-Tabelle. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 meldet den vollständig vorbereiteten Script-only-Plan; bei ResultTable zusätzlich kumulative Helperstufen. Kein Zusatzresultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N'dbo',@SourceTable=N'SyntheticSource',@TargetSchema=N'dbo',@TargetTable=N'SyntheticClone';
-```
-
-```sql
-EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N'dbo',@SourceTable=N'SyntheticSource',@TargetSchema=N'dbo',@TargetTable=N'SyntheticClone',@IncludeTriggers=1;
+EXEC toolbelt_metadata.USP_ScriptTableClone @Hilfe=1;
+-- Vorhandene synthetische Quelle und freies Ziel in dieser DB vorausgesetzt.
+EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N'dbo',@SourceTable=N'ContosoSource',
+ @TargetSchema=N'dbo',@TargetTable=N'ContosoClone';
 ```
 
 Hilfe:
@@ -3853,11 +4191,11 @@ Modul `toolbelt.metadata.table-clone` · Version `4.1.1` · `USP`
 
 Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.
 
-Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md).
+Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md), [USP_ExecuteTableClone.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: f414347f78dab56dec1e29edd53f6164a8a304a94fefd82f29e23d53f3d17f78 -->
+<!-- Source/Vertrag SHA256: dfee7ade70bd33ebd233cc4040fe8a4261b3f70469a87630f0ec8f64ce568549 -->
 
-Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Platzhalter für die externe kanonische Hashberechnung; der Beispielaufruf ist bis dahin nicht ausführbar.
+Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3869,24 +4207,22 @@ Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Pl
 | `@IncludeExtendedProperties` | `bit` | `0` | Input | Taxativ im gebundenen bit: 0 lehnt vorhandene relevante Extended Properties ab (Default), statt sie still zu ignorieren; 1 rendert die unterstützten originalen sql_variant-Werte samt Metadaten gemäß W1-Vertrag. Toolbelt.-Marker, FK-Properties und nicht unterstützte Propertytypen bleiben ausgeschlossen. NULL ungültig; keine Kopie von Rechten/Ownern. |
 | `@TableMap` | `sysname` | `NULL` | Input | NULL (Default) wählt Einzelmodus mit vier expliziten Identifierparametern. Sonst Vorhandene caller-lokale #Temp mit genau fünf NOT-NULL-Basisspalten: MapOrdinal int, SourceSchema nvarchar(max), SourceTable nvarchar(max), TargetSchema nvarchar(max), TargetTable nvarchar(max); keine Alias-/computed-/Zusatzspalten. 1..64 Zeilen, positive eindeutige MapOrdinal-Werte. Vier einzelne unquotierte Identifierwerte je Zeile, 1..128 UTF-16-Einheiten ohne NUL, keine Multipartinterpretation/Trim. Source-/Target-Identitäten müssen jeweils eindeutig sein. Kein #tbx_-Präfix und keine Identität mit ResultTable. Für Script/Execute darf der Name nach # nur ASCII-Buchstaben, Ziffern und _ enthalten; die vier Einzelidentifier müssen NULL sein. Gemappte FK-Referenzen werden auf ihre Ziele umgebogen. |
 | `@ExternalReferenceRule` | `varchar(16)` | `'REJECT'` | Input | Taxativ, bytegenau ohne Trim/Casefold: REJECT (Default) lehnt ausgehende FKs auf nicht gemappte Referenzziele ab; KEEP ist nur im Mapmodus erlaubt und erhält für diese Ziele den originalen qualifizierten Namen. Gemappte Referenzen werden in beiden Modi umgebogen; KEEP überspringt keinen FK. Im Einzelmodus ausschließlich REJECT. NULL/andere Werte ungültig. |
-| `@ExpectedPlanHash` | `varbinary(max)` | `NULL` | Input | Fachlich erforderliche exakt 32 Bytes varbinary des SHA256-Planhashes aus dem dokumentierten Hashlayout1 für Modul4.1.0. Aus unveränderten triggerfreien Vorschauzeilen, exakten Optionen und Installationsdatenbankidentität gemäß TABLE_CLONE_EXECUTE_CONTRACT.md/Examples/CalculatePlanHash.py berechnen. Kein Hextext ohne Konvertierung, kein Hash allein des Scripttexts. NULL/falsche Länge ungültig, Abweichung vom frisch erzeugten Plan bricht ab. |
+| `@ExpectedPlanHash` | `varbinary(max)` | `NULL` | Input | Fachlich erforderliche exakt 32 Bytes varbinary des SHA256-Planhashes aus dem dokumentierten Hashlayout1 für Modul4.1.1. Aus unveränderten triggerfreien Vorschauzeilen, exakten Optionen und Installationsdatenbankidentität gemäß TABLE_CLONE_EXECUTE_CONTRACT.md/Examples/CalculatePlanHash.py berechnen. Kein Hextext ohne Konvertierung, kein Hash allein des Scripttexts. NULL/falsche Länge ungültig, Abweichung vom frisch erzeugten Plan bricht ab. |
 | `@ForeignKeyMode` | `varchar(16)` | `'CREATE'` | Input | Taxativ, bytegenau ohne Trim/Casefold: CREATE (Default) führt alle fachlichen Planzeilen einschließlich FKs/Zustände aus; DEFER überspringt ausschließlich FOREIGN_KEY und FOREIGN_KEY_STATE für spätere Datenkopie. Beide Zeilenarten bleiben im vollständigen Planhash. NULL/andere Werte ungültig; bestehende Constraints werden nicht deaktiviert. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht die Map-Tabelle. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Der Executor plant intern ausdrücklich mit Debug=0 und erzeugt keine eigenen zusätzlichen Diagnosemessages; bei ResultTable wird der übergebene Wert an den Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
--- Voraussetzung: eigene Quelltabelle und neues Ziel in vorhandenen Schemas.
--- Den Vorschauplan mit identischen Optionen erzeugen und seinen Hash
--- nach dem kanonischen Client-Framing berechnen; keine Konstante erfinden.
-DECLARE @CalculatedPlanHash varbinary(max)=NULL; -- berechneten 32-Byte-Hash einsetzen
-EXEC toolbelt_metadata.USP_ExecuteTableClone
- @SourceSchema=N'dbo', @SourceTable=N'SyntheticSource',
- @TargetSchema=N'dbo', @TargetTable=N'SyntheticClone',
- @ExpectedPlanHash=@CalculatedPlanHash, @ForeignKeyMode='CREATE';
+EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;
+-- Client muss exakten Hash aus unveränderter Vorschau und tatsächlichem DB-Kontext binden.
+DECLARE @AcceptedPlanHash varbinary(max)=NULL;
+-- NULL vor Fachaufruf durch die berechneten32Bytes ersetzen; sonst bewusst Fehler.
+EXEC toolbelt_metadata.USP_ExecuteTableClone @SourceSchema=N'dbo',@SourceTable=N'ContosoSource',
+ @TargetSchema=N'dbo',@TargetTable=N'ContosoClone',@ExpectedPlanHash=@AcceptedPlanHash;
 ```
 
 Hilfe:
@@ -3901,42 +4237,35 @@ Modul `toolbelt.metadata.table-clone` · Version `4.1.1` · `USP`
 
 Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene leere formgleiche Ziele; keine Strukturkopie oder Rechtevergabe.
 
-Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md).
+Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md), [USP_CopyTableCloneData.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_CopyTableCloneData.md).
 
-<!-- Source/Vertrag SHA256: e6232a898c842dde034f8ae7191cc8a7e33e9a4cf21b4a44b98dbd7531b809a9 -->
+<!-- Source/Vertrag SHA256: 125f2fd512045cb62a6a719afb14433798d9e7676fdd6e5be5ff8bc835d514e3 -->
 
-Voraussetzung: Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.
-
-Voraussetzung: Vorhandene DB-Metadatensicht und Source-/Target-Rechte; fehlende FKs verlangen zusätzlich Server-DDL-Sicht und DDL-Rechte. KEEP benötigt vorhandenes Identity-ALTER. Aktive Targettrigger, RLS und nicht tabellenlokale Ausführung blockieren.
-
-Voraussetzung: Verändert Zielinhalte und kann fehlende gemappte FKs erzeugen. Identity-Zähler können trotz Rollback fortgeschritten bleiben; kein RESEED oder Identitätszuordnungsversprechen.
+Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@TableMap` | `sysname` | `NULL` | Input | Vorhandene caller-lokale #Temp mit genau fünf NOT-NULL-Basisspalten: MapOrdinal int, SourceSchema nvarchar(max), SourceTable nvarchar(max), TargetSchema nvarchar(max), TargetTable nvarchar(max); keine Alias-/computed-/Zusatzspalten. 1..64 Zeilen, positive eindeutige MapOrdinal-Werte. Vier einzelne unquotierte Identifierwerte je Zeile, 1..128 UTF-16-Einheiten ohne NUL, keine Multipartinterpretation/Trim. Source-/Target-Identitäten müssen jeweils eindeutig sein. Kein #tbx_-Präfix und keine Identität mit ResultTable. Fachlich erforderlich, NULL ungültig. Hier müssen die fünf Spalten zusätzlich exakt in der genannten Reihenfolge und ohne IDENTITY stehen. Source und Target müssen beide existieren, formgleich und als Mengen von ObjectIDs disjunkt sein; jedes Ziel muss leer sein. Keine Filter/Upserts/CrossDB oder impliziten Typkonvertierungen. |
 | `@IdentityMode` | `varchar(16)` | `NULL` | Input | Taxativ, bytegenau ohne Trim/Casefold und fachlich erforderlich: KEEP kopiert Identitywerte unter vorhandenen erforderlichen Rechten; REGENERATE lässt Identityspalten beim Transport weg und erzeugt neue Zielwerte. REGENERATE ist bei identityabhängigen Beziehungen ausgeschlossen. NULL/leer/andere Werte ungültig. Keine neue ID-Zuordnung/RESEED; Identity-Zählerfortschritt kann trotz Rollback bleiben. |
-| `@ConsistencyMode` | `varchar(16)` | `NULL` | Input | Taxativ, bytegenau ohne Trim/Casefold und fachlich erforderlich: SNAPSHOT verwendet die bereits aktivierte Datenbankoption; SERIALIZABLE hält Quellbereichssperren. NULL/leer/andere Werte ungültig. Keine automatische Optionsänderung; aktive Callertransaktion wird abgelehnt. |
+| `@ConsistencyMode` | `varchar(16)` | `NULL` | Input | Taxativ, bytegenau ohne Trim/Casefold und fachlich erforderlich: SNAPSHOT verwendet die bereits aktivierte Datenbankoption; SERIALIZABLE hält Quellbereichssperren. NULL/leer/andere Werte ungültig. Keine automatische Optionsänderung; aktive Callertransaktion wird abgelehnt. SERIALIZABLE verwendet TABLOCK/HOLDLOCK an Quellen; Ziele werden unabhängig vom Quellmodus mit TABLOCKX/UPDLOCK/HOLDLOCK gesperrt. Isolations-/SET-Änderungen bleiben im Prozedurscope. |
 | `@RowLimit` | `bigint` | `100000` | Input | Ganzzahl 1..100000 global kopierte Zeilen über alle gemappten Tabellen, Default 100000. NULL/außerhalb ungültig; Überschreitung verhindert die gesamte Kopie, kein TOP-Teilimport. |
-| `@PayloadByteLimit` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 Bytes globaler tatsächlich transportierter SQL-Nutzdaten, Default 16777216. Summe bigint-DATALENGTH, NULL zählt 0; computed/rowversion und bei REGENERATE Identity zählen nicht. Kein Gesamt-Heap-/Dateigrößenbudget; NULL/außerhalb ungültig. |
+| `@PayloadByteLimit` | `bigint` | `16777216` | Input | Ganzzahl 1..16777216 Bytes globaler tatsächlich transportierter SQL-Nutzdaten, Default 16777216. Summe bigint-DATALENGTH, NULL zählt 0; computed/rowversion und bei REGENERATE Identity zählen nicht. Kein Gesamt-Heap-/Dateigrößenbudget; NULL/außerhalb ungültig. Gezählt wird SUM(DATALENGTH) nur tatsächlich transportierter Sourcefelder; NULL zählt0, Computed/rowversion und bei REGENERATE Identity bleiben außerhalb. Kein Heap-, Log-, Index-, Versionstore- oder physischer Tabellenbytes-Nachweis. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht TableMap. Die späte ResultTable-Ausgabe ist Teil derselben eigenen Transaktion wie Kopie/FK-DDL. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Aktuell keine eigenen zusätzlichen Copy-Diagnosemessages; bei ResultTable wird der Wert an den Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #CopyMap
-(
- MapOrdinal int NOT NULL,
- SourceSchema nvarchar(max) NOT NULL, SourceTable nvarchar(max) NOT NULL,
- TargetSchema nvarchar(max) NOT NULL, TargetTable nvarchar(max) NOT NULL
-);
--- Eigene synthetische Tabellen bestehen bereits; SyntheticClone ist leer und formgleich.
-INSERT #CopyMap VALUES (1,N'dbo',N'SyntheticSource',N'dbo',N'SyntheticClone');
-EXEC toolbelt_metadata.USP_CopyTableCloneData
- @TableMap=N'#CopyMap', @IdentityMode='KEEP', @ConsistencyMode='SERIALIZABLE';
-DROP TABLE #CopyMap;
+EXEC toolbelt_metadata.USP_CopyTableCloneData @Hilfe=1;
+CREATE TABLE #ContosoMap(MapOrdinal int NOT NULL,SourceSchema nvarchar(max) NOT NULL,
+ SourceTable nvarchar(max) NOT NULL,TargetSchema nvarchar(max) NOT NULL,TargetTable nvarchar(max) NOT NULL);
+INSERT #ContosoMap VALUES(1,N'dbo',N'ContosoSource',N'dbo',N'ContosoClone');
+-- Bestehendes leeres formgleiches Ziel, vorhandene Rechte vorausgesetzt; ändert Daten.
+EXEC toolbelt_metadata.USP_CopyTableCloneData @TableMap=N'#ContosoMap',
+ @IdentityMode='KEEP',@ConsistencyMode='SERIALIZABLE',@RowLimit=1000,@PayloadByteLimit=1048576;
+DROP TABLE #ContosoMap;
 ```
 
 Hilfe:
@@ -3951,9 +4280,11 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Verschiebt einen synthetischen 2D-Geography-Point im SRID 4326 deterministisch innerhalb eines Radius.
 
-Vertrag und Quelle: [DeterministicGeoJitter.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql), [TVF_DeterministicGeoJitter.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicGeoJitter.md).
+Vertrag und Quelle: [DeterministicGeoJitter.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql), [TVF_DeterministicGeoJitter.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicGeoJitter.md), [TVF_DeterministicGeoJitter.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicGeoJitter.md).
 
-<!-- Source/Vertrag SHA256: 5ada64a0b7c7410fafbbf92cdca4e40b799e778cebdc4170fd3a5a4ba0732f91 -->
+<!-- Source/Vertrag SHA256: 03156c5506e2abd41f000c85d699681b72d926821575b3fe9d396df7b989bbf7 -->
+
+Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Keine Fach- oder Systemkatalogabfrage für die Transformation erforderlich. Input- und Fehlercodes vor Weiterverwendung auswerten.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3966,7 +4297,8 @@ Vertrag und Quelle: [DeterministicGeoJitter.sql](../../Modules/toolbelt.pseudony
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicGeoJitter(geography::Point(48.2,16.3,4326), 0x01020304, 1, 42, 25);
+DECLARE @Point geography=geography::Point(0,0,4326);
+SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicGeoJitter(@Point,0x010203,1,0,100);
 ```
 
 ## toolbelt_pseudonymization.TVF_DeterministicTranslate
@@ -3975,9 +4307,11 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Übersetzt ASCII-Buchstaben und Ziffern deterministisch über eine bijektive Abbildung.
 
-Vertrag und Quelle: [DeterministicTranslate.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql), [TVF_DeterministicTranslate.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicTranslate.md).
+Vertrag und Quelle: [DeterministicTranslate.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql), [TVF_DeterministicTranslate.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicTranslate.md), [TVF_DeterministicTranslate.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicTranslate.md).
 
-<!-- Source/Vertrag SHA256: 59780ed3dc898cb77cfdf31b4d369b06469272650335b796bb6d0c8689beee98 -->
+<!-- Source/Vertrag SHA256: 79f9b691aabb657f13d9096d6fa7f8053e6795fbbae6c7f99890dbcd272e971b -->
+
+Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Keine Fach- oder Systemkatalogabfrage für die Transformation erforderlich. Input- und Fehlercodes vor Weiterverwendung auswerten.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3990,7 +4324,7 @@ Vertrag und Quelle: [DeterministicTranslate.sql](../../Modules/toolbelt.pseudony
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicTranslate(N'  Contoso-123  ', 1, 42, N'- ', N'standard');
+SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicTranslate(N'Contoso-123',1,0,N'-',N'standard');
 ```
 
 ## toolbelt_pseudonymization.TVF_DeterministicRange
@@ -3999,9 +4333,11 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Ordnet einen Schlüssel deterministisch einem ganzzahligen Zielbereich zu.
 
-Vertrag und Quelle: [TVF_DeterministicRange.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql), [TVF_DeterministicRange.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicRange.md).
+Vertrag und Quelle: [TVF_DeterministicRange.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql), [TVF_DeterministicRange.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicRange.md), [TVF_DeterministicRange.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicRange.md).
 
-<!-- Source/Vertrag SHA256: 77a9f4ae0bcd992826a8d987c78902d4e1380fafd1edf395d242b545e8bd682b -->
+<!-- Source/Vertrag SHA256: db972e88cb6d5dc51706d6d9ffc3aa90532b80c128466c1ca37ac45241d3f9cb -->
+
+Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Keine Fach- oder Systemkatalogabfrage für die Transformation erforderlich. Input- und Fehlercodes vor Weiterverwendung auswerten.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4014,7 +4350,7 @@ Vertrag und Quelle: [TVF_DeterministicRange.sql](../../Modules/toolbelt.pseudony
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicRange(0x01020304, 1, 42, 1, 100);
+SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicRange(0x010203,1,0,-10,10);
 ```
 
 ## toolbelt_pseudonymization.TVF_DeterministicDateShift
@@ -4023,9 +4359,11 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Verschiebt ein Datum deterministisch um eine begrenzte Anzahl Tage.
 
-Vertrag und Quelle: [TVF_DeterministicDateShift.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql), [TVF_DeterministicDateShift.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicDateShift.md).
+Vertrag und Quelle: [TVF_DeterministicDateShift.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql), [TVF_DeterministicDateShift.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicDateShift.md), [TVF_DeterministicDateShift.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicDateShift.md).
 
-<!-- Source/Vertrag SHA256: fcfc30ff5e1c0ca67efb95554cbdb29c62962f6d5309e471e1887b1fc618d198 -->
+<!-- Source/Vertrag SHA256: 1bd5e0a92aee11e70b615ded8474e4ca9b0596fd4462386baaeff56dc0d22f80 -->
+
+Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Keine Fach- oder Systemkatalogabfrage für die Transformation erforderlich. Input- und Fehlercodes vor Weiterverwendung auswerten.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4038,7 +4376,7 @@ Vertrag und Quelle: [TVF_DeterministicDateShift.sql](../../Modules/toolbelt.pseu
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicDateShift(CONVERT(datetime2(7),'2024-07-19T14:35:42'), 0x01020304, 1, 42, 7);
+SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicDateShift(CONVERT(datetime2(7),'2026-01-15T12:34:56'),0x010203,1,0,30);
 ```
 
 ## toolbelt_pseudonymization.USP_DeterministicLookup
@@ -4047,9 +4385,11 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `USP`
 
 Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisierungs- oder Eins-zu-eins-Schutz.
 
-Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql), [USP_DeterministicLookup.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/USP_DeterministicLookup.md).
+Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql), [USP_DeterministicLookup.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/USP_DeterministicLookup.md), [USP_DeterministicLookup.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/USP_DeterministicLookup.md).
 
-<!-- Source/Vertrag SHA256: 3716c2d1f013173213b4497f8d194421f2f99bb35beac1c0952a2568f26c6e95 -->
+<!-- Source/Vertrag SHA256: 31e659e5ce104aa2aa4174ef5e095ef03e96bf80b145db65ba7f07b54a7336ef -->
+
+Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Eigene Caller-Temps ohne parallele Mutation; Fassade vor Core verwenden. Ein gesunder Caller-TX mit Savepoint ist möglich. Kein eigener Reparaturvertrag für doomed Caller-TX.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4065,13 +4405,18 @@ Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudon
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf keine der beiden Eingabetabellen sein. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0, NULL wirkt wie 0: 0 still; 1 Phasenmessages; 2 zusätzlich Zeilen-/Bytezahlen; 3..255 zusätzlich Temp-Objektmetadaten. Keine Keys, Werte, Seeds oder Hashes; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Input(Ordinal bigint, [Key] varbinary(max)); CREATE TABLE #Pool(Ordinal bigint, [Value] nvarchar(max)); INSERT #Input VALUES(10,0x010203); INSERT #Pool VALUES(20,N'synthetic'); EXEC toolbelt_pseudonymization.USP_DeterministicLookup @InputTable=N'#Input',@LookupTable=N'#Pool',@MappingVersion=1,@LookupVersion=1;
-DROP TABLE #Input, #Pool;
+EXEC toolbelt_pseudonymization.USP_DeterministicLookup @Hilfe=1;
+CREATE TABLE #ContosoInput(Ordinal bigint,[Key] varbinary(max));
+CREATE TABLE #ContosoPool(Ordinal bigint,[Value] nvarchar(max));
+INSERT #ContosoInput VALUES(1,0x010203),(2,NULL);
+INSERT #ContosoPool VALUES(10,N'Contoso alpha'),(30,N'Contoso beta');
+EXEC toolbelt_pseudonymization.USP_DeterministicLookup @InputTable=N'#ContosoInput',@LookupTable=N'#ContosoPool',@MappingVersion=1,@LookupVersion=1;
+DROP TABLE #ContosoInput;DROP TABLE #ContosoPool;
 ```
 
 Hilfe:
@@ -4086,20 +4431,22 @@ Modul `toolbelt.string.directional-trim` · Version `1.0.0` · `TVF`
 
 Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem Unicode-Text.
 
-Vertrag und Quelle: [TVF_TrimDirectionalNvarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql), [TVF_TrimDirectionalNvarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalNvarchar.md).
+Vertrag und Quelle: [TVF_TrimDirectionalNvarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql), [TVF_TrimDirectionalNvarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalNvarchar.md), [TVF_TrimDirectionalNvarchar.md](../../Metadata/UsageSkills/toolbelt_string/TVF_TrimDirectionalNvarchar.md).
 
-<!-- Source/Vertrag SHA256: de3bdc9a291d07d5da9347126ac4bd046a61accaa1dac09cf8bf8d3e74e3ef15 -->
+<!-- Source/Vertrag SHA256: 8c9adda9915d29098e6d557d15df8d52bc781556c7d7bc5ba498df67dc19ebef -->
+
+Voraussetzung: Directionaltrim-Modul und kanonische mathematische TVF_GenerateSeriesBigInt derselben Installationsdatenbank. Windows/Linux SQL2019/2022/2025, zulässigeCL150/160/170. Installationscollation/Codepage bestimmen den Zeichenvergleich, kein dynamischer Caller-Collationvertrag.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max); Positionen zählen UTF-16-Codeeinheiten. Leer bleibt leer; NULL ergibt NULL. NUL wird nicht entfernt; Zeichenvergleiche verwenden die Installationscollation. |
+| `@Value` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leere Positionen jenseits des letzten Zeichens werden bei der Grenzsuche übersprungen. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 | `@Characters` | `nvarchar(4000)` | `N' '` | Input | Bis 4000 UTF-16-Codeeinheiten als nvarchar(4000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'  Contoso-123  ', N' ', 'BOTH');
+SELECT * FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N' xxContoso-123xx ',N' x','BOTH');
 ```
 
 ## toolbelt_string.TVF_TrimDirectionalVarchar
@@ -4108,349 +4455,392 @@ Modul `toolbelt.string.directional-trim` · Version `1.0.0` · `TVF`
 
 Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem varchar-Text.
 
-Vertrag und Quelle: [TVF_TrimDirectionalVarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql), [TVF_TrimDirectionalVarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalVarchar.md).
+Vertrag und Quelle: [TVF_TrimDirectionalVarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql), [TVF_TrimDirectionalVarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalVarchar.md), [TVF_TrimDirectionalVarchar.md](../../Metadata/UsageSkills/toolbelt_string/TVF_TrimDirectionalVarchar.md).
 
-<!-- Source/Vertrag SHA256: 10afae061f8e56a730d52943d8ed96a8f622c104eee3d139694d1a80f12cb2ae -->
+<!-- Source/Vertrag SHA256: 57867404e700720680fe7b15e95b7888985524afcfa752893f201c16baf0d0e0 -->
+
+Voraussetzung: Directionaltrim-Modul und kanonische mathematische TVF_GenerateSeriesBigInt derselben Installationsdatenbank. Windows/Linux SQL2019/2022/2025, zulässigeCL150/160/170. Installationscollation/Codepage bestimmen den Zeichenvergleich, kein dynamischer Caller-Collationvertrag.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `varchar(max)` | `kein Default` | Input | Text als varchar(max) unter der Datenbank-Codepage; die Positionsermittlung ist byteorientiert, kein Unicode-Codepoint-Vertrag. Leer bleibt leer; NULL ergibt NULL. NUL wird nicht entfernt; Zeichenvergleiche verwenden die Installationscollation. |
+| `@Value` | `varchar(max)` | `kein Default` | Input | Text als varchar(max) unter der Installationscodepage einschließlich gegebenenfalls UTF8. SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leere Positionen jenseits des letzten Zeichens werden bei der Grenzsuche übersprungen. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 | `@Characters` | `varchar(8000)` | `' '` | Input | Bis 8000 Bytes als varchar(8000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_TrimDirectionalVarchar('  Contoso  ', N' ', 'BOTH');
+SELECT * FROM toolbelt_string.TVF_TrimDirectionalVarchar(' xxContoso-123xx ',' x','BOTH');
 ```
 
 ## toolbelt_string.TVF_JaroWinklerSimilarity
 
 Modul `toolbelt.string.edit-distance` · Version `1.1.0` · `TVF`
 
-Berechnet einen Jaro-Winkler-Ähnlichkeitsscore zwischen 0 und 1 über Unicode Scalars.
+Begrenzte symmetrische Unicode-Skalar-Jaro-Winkler-Ähnlichkeit.
 
-Vertrag und Quelle: [JaroWinkler.sql](../../Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql), [TVF_JaroWinklerSimilarity.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_JaroWinklerSimilarity.md).
+Vertrag und Quelle: [JaroWinkler.sql](../../Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql), [TVF_JaroWinklerSimilarity.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_JaroWinklerSimilarity.md), [TVF_JaroWinklerSimilarity.md](../../Metadata/UsageSkills/toolbelt_string/TVF_JaroWinklerSimilarity.md).
 
-<!-- Source/Vertrag SHA256: cb1a4ac564354c0cb98f577f761052290628edbec07075e12908ead4c7a4fbc7 -->
+<!-- Source/Vertrag SHA256: 5c0c4791fcfae9fa1224e31b2939199bbc41044413dbdebe8d885c93639b4d64 -->
+
+Voraussetzung: Installiertes Modul und passende SAFE-Assembly tlblt_String_EditDistance auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux; lokaler/zentraler Aufruf gemäß Modulvertrag. CLR muss bereits gültig konfiguriert und autorisiert sein. Kein Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Vergleichskern, keine nachgeladene Library oder Runtime-Rechtevergabe.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text ohne automatische Normalisierung oder Casefolding; leer ist gültig. Verarbeitung zählt Unicode-Skalarwerte, nicht Graphemcluster. Grenzen je Profile: standard 2048 UTF-16-Einheiten/1024 Skalare, large 65536/32768. Ungültige Surrogatfolgen ergeben ErrorCode 4; Überschreitung der UTF-16-Grenze ergibt Code 3, der Skalargrenze Code 5; geplantes Worklimit Code 6. Ist einer der beiden Texte NULL, entsteht eine NULL-Ergebniszeile vor Profil-/Schwellenprüfung. |
-| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text ohne automatische Normalisierung oder Casefolding; leer ist gültig. Verarbeitung zählt Unicode-Skalarwerte, nicht Graphemcluster. Grenzen je Profile: standard 2048 UTF-16-Einheiten/1024 Skalare, large 65536/32768. Ungültige Surrogatfolgen ergeben ErrorCode 4; Überschreitung der UTF-16-Grenze ergibt Code 3, der Skalargrenze Code 5; geplantes Worklimit Code 6. Ist einer der beiden Texte NULL, entsteht eine NULL-Ergebniszeile vor Profil-/Schwellenprüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) = höchstens 2048 UTF-16-Einheiten, 1024 Skalare pro Text und 1048576 geplante Arbeitseinheiten; large = 65536 Einheiten, 32768 Skalare und 16777216 Arbeitseinheiten. NULL/leer/andere Schreibweisen ergeben ErrorCode 1, außer beim frühen NULL-Textpfad. Größeres Profil hebt die endlichen Worklimits nicht auf. Bei Jaro begrenzt das Workbudget die konservativ geplante Fenstersuche. |
+| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max), ohne Trimmen, Culture-/Casefolding oder Normalisierung. NUL und nachgestellte Spaces bleiben Daten. NULL auf mindestens einer Textseite liefert eine Zeile mit NULL-Fachwerten und ErrorCode=0 vor allen Profil-, Schwellen- und Längenprüfungen. Leerer Text ist von NULL verschieden. Verglichen werden strikte Unicode-Skalare, keine Graphemcluster. |
+| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max), ohne Trimmen, Culture-/Casefolding oder Normalisierung. NUL und nachgestellte Spaces bleiben Daten. NULL auf mindestens einer Textseite liefert eine Zeile mit NULL-Fachwerten und ErrorCode=0 vor allen Profil-, Schwellen- und Längenprüfungen. Leerer Text ist von NULL verschieden. Verglichen werden strikte Unicode-Skalare, keine Graphemcluster. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, keine andere Schreibweise und kein Trim. standard: je Text maximal 2048 UTF-16-Codeunits und 1024 Skalare, maximal 1048576 geplante Arbeitseinheiten. large: 65536 Codeunits, 32768 Skalare, 16777216 Arbeitseinheiten. NULL/leer/unbekannt liefert Code 1, außer beim früheren NULL-Textpfad. Im SQL-Funktionsaufruf bei vorhandenem Default das Argument ausdrücklich als DEFAULT angeben statt seine Position wegzulassen. SQL-Default standard. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_JaroWinklerSimilarity(N'kitten', N'sitting', N'standard');
+SELECT * FROM toolbelt_string.TVF_JaroWinklerSimilarity(N'MARTHA',N'MARHTA',N'standard');
+-- Similarity ungefähr 0.961111; ErrorCode=0.
+-- Für Profil-/Schwellen-Defaults die Position mit DEFAULT belegen.
 ```
 
 ## toolbelt_string.TVF_LevenshteinDistance
 
 Modul `toolbelt.string.edit-distance` · Version `1.1.0` · `TVF`
 
-Berechnet die begrenzte Levenshtein-Editierdistanz zweier Unicode-Texte.
+Begrenzte Unicode-Skalar-Levenshtein-Distanz mit optionalem Schwellennachweis.
 
-Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_LevenshteinDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_LevenshteinDistance.md).
+Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_LevenshteinDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_LevenshteinDistance.md), [TVF_LevenshteinDistance.md](../../Metadata/UsageSkills/toolbelt_string/TVF_LevenshteinDistance.md).
 
-<!-- Source/Vertrag SHA256: 3600d43c72c948835d212ecb76322606a24ce9b56d39b9863244f5abf8893bb6 -->
+<!-- Source/Vertrag SHA256: 2a6a15dd21cf972dffc94bc3bb99b61786894b1a7f19f315e130bb4df016340b -->
+
+Voraussetzung: Installiertes Modul und passende SAFE-Assembly tlblt_String_EditDistance auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux; lokaler/zentraler Aufruf gemäß Modulvertrag. CLR muss bereits gültig konfiguriert und autorisiert sein. Kein Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Vergleichskern, keine nachgeladene Library oder Runtime-Rechtevergabe.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text ohne automatische Normalisierung oder Casefolding; leer ist gültig. Verarbeitung zählt Unicode-Skalarwerte, nicht Graphemcluster. Grenzen je Profile: standard 2048 UTF-16-Einheiten/1024 Skalare, large 65536/32768. Ungültige Surrogatfolgen ergeben ErrorCode 4; Überschreitung der UTF-16-Grenze ergibt Code 3, der Skalargrenze Code 5; geplantes Worklimit Code 6. Ist einer der beiden Texte NULL, entsteht eine NULL-Ergebniszeile vor Profil-/Schwellenprüfung. |
-| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text ohne automatische Normalisierung oder Casefolding; leer ist gültig. Verarbeitung zählt Unicode-Skalarwerte, nicht Graphemcluster. Grenzen je Profile: standard 2048 UTF-16-Einheiten/1024 Skalare, large 65536/32768. Ungültige Surrogatfolgen ergeben ErrorCode 4; Überschreitung der UTF-16-Grenze ergibt Code 3, der Skalargrenze Code 5; geplantes Worklimit Code 6. Ist einer der beiden Texte NULL, entsteht eine NULL-Ergebniszeile vor Profil-/Schwellenprüfung. |
-| `@MaxDistance` | `int` | `NULL` | Input | NULL (Default) berechnet ohne Distanzschwelle. Ganzzahl 0..2147483647 begrenzt die gesuchte Distanz; 0 verlangt Gleichheit. Bei Überschreitung ExceedsMaxDistance auswerten, keinen exakten Vollabstand unterstellen. Negative Werte ergeben ErrorCode 2, sofern kein früher NULL-Textpfad greift. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) = höchstens 2048 UTF-16-Einheiten, 1024 Skalare pro Text und 1048576 geplante Arbeitseinheiten; large = 65536 Einheiten, 32768 Skalare und 16777216 Arbeitseinheiten. NULL/leer/andere Schreibweisen ergeben ErrorCode 1, außer beim frühen NULL-Textpfad. Größeres Profil hebt die endlichen Worklimits nicht auf. |
+| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max), ohne Trimmen, Culture-/Casefolding oder Normalisierung. NUL und nachgestellte Spaces bleiben Daten. NULL auf mindestens einer Textseite liefert eine Zeile mit NULL-Fachwerten und ErrorCode=0 vor allen Profil-, Schwellen- und Längenprüfungen. Leerer Text ist von NULL verschieden. Verglichen werden strikte Unicode-Skalare, keine Graphemcluster. |
+| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max), ohne Trimmen, Culture-/Casefolding oder Normalisierung. NUL und nachgestellte Spaces bleiben Daten. NULL auf mindestens einer Textseite liefert eine Zeile mit NULL-Fachwerten und ErrorCode=0 vor allen Profil-, Schwellen- und Längenprüfungen. Leerer Text ist von NULL verschieden. Verglichen werden strikte Unicode-Skalare, keine Graphemcluster. |
+| `@MaxDistance` | `int` | `NULL` | Input | int-Schwelle: NULL bedeutet vollständige Distanz, nichtnegativ bis 2147483647 begrenzt die gesuchte Distanz; negativ ergibt Code 2 nach Profilprüfung, außer beim frühen NULL-Textpfad. Überschreitung ist ExceedsMaxDistance=1 bei Distance=NULL und Code 0, kein exakter Abstand. Vor DP kann bereits die Skalarlängendifferenz die Überschreitung beweisen. Bei vorhandenem SQL-Default ausdrücklich DEFAULT oder NULL übergeben. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, keine andere Schreibweise und kein Trim. standard: je Text maximal 2048 UTF-16-Codeunits und 1024 Skalare, maximal 1048576 geplante Arbeitseinheiten. large: 65536 Codeunits, 32768 Skalare, 16777216 Arbeitseinheiten. NULL/leer/unbekannt liefert Code 1, außer beim früheren NULL-Textpfad. Im SQL-Funktionsaufruf bei vorhandenem Default das Argument ausdrücklich als DEFAULT angeben statt seine Position wegzulassen. SQL-Default standard. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_LevenshteinDistance(N'kitten', N'sitting', NULL, N'standard');
+SELECT * FROM toolbelt_string.TVF_LevenshteinDistance(N'kitten',N'sitting',NULL,N'standard');
+-- Distance=3, ExceedsMaxDistance=0, ErrorCode=0.
+-- Für Profil-/Schwellen-Defaults die Position mit DEFAULT belegen.
 ```
 
 ## toolbelt_string.TVF_OsaDistance
 
 Modul `toolbelt.string.edit-distance` · Version `1.1.0` · `TVF`
 
-Berechnet die begrenzte Optimal-String-Alignment-Distanz mit benachbarten Transpositionen.
+Begrenzte Unicode-Skalar-OSA-Distanz mit optionalem Schwellennachweis.
 
-Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_OsaDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_OsaDistance.md).
+Vertrag und Quelle: [EditDistance.sql](../../Modules/toolbelt.string.edit-distance/Source/EditDistance.sql), [TVF_OsaDistance.md](../../Modules/toolbelt.string.edit-distance/Documentation/TVF_OsaDistance.md), [TVF_OsaDistance.md](../../Metadata/UsageSkills/toolbelt_string/TVF_OsaDistance.md).
 
-<!-- Source/Vertrag SHA256: 11cbc2a534a3f7579cb8633beabf946159510181a7cab0f67753194742a8b370 -->
+<!-- Source/Vertrag SHA256: 57910b6d2b45913c4f635015abf43c5a970f341d20da581b960b8275ee649bf3 -->
+
+Voraussetzung: Installiertes Modul und passende SAFE-Assembly tlblt_String_EditDistance auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux; lokaler/zentraler Aufruf gemäß Modulvertrag. CLR muss bereits gültig konfiguriert und autorisiert sein. Kein Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Vergleichskern, keine nachgeladene Library oder Runtime-Rechtevergabe.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text ohne automatische Normalisierung oder Casefolding; leer ist gültig. Verarbeitung zählt Unicode-Skalarwerte, nicht Graphemcluster. Grenzen je Profile: standard 2048 UTF-16-Einheiten/1024 Skalare, large 65536/32768. Ungültige Surrogatfolgen ergeben ErrorCode 4; Überschreitung der UTF-16-Grenze ergibt Code 3, der Skalargrenze Code 5; geplantes Worklimit Code 6. Ist einer der beiden Texte NULL, entsteht eine NULL-Ergebniszeile vor Profil-/Schwellenprüfung. |
-| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text ohne automatische Normalisierung oder Casefolding; leer ist gültig. Verarbeitung zählt Unicode-Skalarwerte, nicht Graphemcluster. Grenzen je Profile: standard 2048 UTF-16-Einheiten/1024 Skalare, large 65536/32768. Ungültige Surrogatfolgen ergeben ErrorCode 4; Überschreitung der UTF-16-Grenze ergibt Code 3, der Skalargrenze Code 5; geplantes Worklimit Code 6. Ist einer der beiden Texte NULL, entsteht eine NULL-Ergebniszeile vor Profil-/Schwellenprüfung. |
-| `@MaxDistance` | `int` | `NULL` | Input | NULL (Default) berechnet ohne Distanzschwelle. Ganzzahl 0..2147483647 begrenzt die gesuchte Distanz; 0 verlangt Gleichheit. Bei Überschreitung ExceedsMaxDistance auswerten, keinen exakten Vollabstand unterstellen. Negative Werte ergeben ErrorCode 2, sofern kein früher NULL-Textpfad greift. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) = höchstens 2048 UTF-16-Einheiten, 1024 Skalare pro Text und 1048576 geplante Arbeitseinheiten; large = 65536 Einheiten, 32768 Skalare und 16777216 Arbeitseinheiten. NULL/leer/andere Schreibweisen ergeben ErrorCode 1, außer beim frühen NULL-Textpfad. Größeres Profil hebt die endlichen Worklimits nicht auf. |
+| `@LeftText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max), ohne Trimmen, Culture-/Casefolding oder Normalisierung. NUL und nachgestellte Spaces bleiben Daten. NULL auf mindestens einer Textseite liefert eine Zeile mit NULL-Fachwerten und ErrorCode=0 vor allen Profil-, Schwellen- und Längenprüfungen. Leerer Text ist von NULL verschieden. Verglichen werden strikte Unicode-Skalare, keine Graphemcluster. |
+| `@RightText` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max), ohne Trimmen, Culture-/Casefolding oder Normalisierung. NUL und nachgestellte Spaces bleiben Daten. NULL auf mindestens einer Textseite liefert eine Zeile mit NULL-Fachwerten und ErrorCode=0 vor allen Profil-, Schwellen- und Längenprüfungen. Leerer Text ist von NULL verschieden. Verglichen werden strikte Unicode-Skalare, keine Graphemcluster. |
+| `@MaxDistance` | `int` | `NULL` | Input | int-Schwelle: NULL bedeutet vollständige Distanz, nichtnegativ bis 2147483647 begrenzt die gesuchte Distanz; negativ ergibt Code 2 nach Profilprüfung, außer beim frühen NULL-Textpfad. Überschreitung ist ExceedsMaxDistance=1 bei Distance=NULL und Code 0, kein exakter Abstand. Vor DP kann bereits die Skalarlängendifferenz die Überschreitung beweisen. Bei vorhandenem SQL-Default ausdrücklich DEFAULT oder NULL übergeben. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, keine andere Schreibweise und kein Trim. standard: je Text maximal 2048 UTF-16-Codeunits und 1024 Skalare, maximal 1048576 geplante Arbeitseinheiten. large: 65536 Codeunits, 32768 Skalare, 16777216 Arbeitseinheiten. NULL/leer/unbekannt liefert Code 1, außer beim früheren NULL-Textpfad. Im SQL-Funktionsaufruf bei vorhandenem Default das Argument ausdrücklich als DEFAULT angeben statt seine Position wegzulassen. SQL-Default standard. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_OsaDistance(N'kitten', N'sitting', NULL, N'standard');
+SELECT * FROM toolbelt_string.TVF_OsaDistance(N'ab',N'ba',NULL,N'standard');
+-- OSA-Distance=1.
+-- Für Profil-/Schwellen-Defaults die Position mit DEFAULT belegen.
 ```
 
 ## toolbelt_string.TVF_ColognePhonetic
 
 Modul `toolbelt.string.phonetic` · Version `1.0.0` · `TVF`
 
-Berechnet den vollständigen begrenzten Kölner Phonetikcode.
+Vollständiger begrenzter Kölner Phonetikcode mit geschlossenem Alphabet.
 
-Vertrag und Quelle: [TVF_ColognePhonetic.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql), [TVF_ColognePhonetic.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_ColognePhonetic.md).
+Vertrag und Quelle: [TVF_ColognePhonetic.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql), [TVF_ColognePhonetic.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_ColognePhonetic.md), [TVF_ColognePhonetic.md](../../Metadata/UsageSkills/toolbelt_string/TVF_ColognePhonetic.md).
 
-<!-- Source/Vertrag SHA256: 5e3183dcb18deb1373f0bf74cfd60db55e9b3c5836b7bcc44a76c8a09656f6e9 -->
+<!-- Source/Vertrag SHA256: 571ed7b593b9cf62a3bb54d6ebf5021db150911266adea798aae75a4c6caf6a9 -->
+
+Voraussetzung: Installiertes Modul mit passender autorisierter SAFE-Assembly tlblt_String_Phonetic, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, lokal oder zentral. Keine Abhängigkeit von Distanz-/Jaro-Assembly, Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Scanner. Der markierte Scannerport und sein Herkunfts-/Lizenzvertrag bleiben unverändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Text` | `nvarchar(max)` | `kein Default` | Input | Rohtext mit höchstens 4096 UTF-16-Einheiten; gültige Surrogatpaare werden geprüft, ein nicht unterstützter Skalar wird nicht still entfernt. ASCII-Zeichen sind zulässig. NULL ergibt NULL-Code(s)/ErrorCode 0; leer ist gültig. Längen-/Arbeitsgrenze ergibt Code 2, ungepaarte Surrogate Code 1 und nicht unterstützte Zeichen Code 3. Keine frei wählbare Sprache/Transliteration. Zusätzlich zu ASCII sind ÄÖÜäöüß erlaubt; Umlaute werden A/O/U und ß wird SS. Kein allgemeiner Unicode-Phonetikdienst. |
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Unicode-Rohtext mit höchstens 4096 UTF-16-Codeunits vor jeder eigenen Textkopie. NULL liefert NULL-Code(s) und ErrorCode=0, leerer Text ist gültig und liefert leere Codes. Ungültige Surrogatfolge ergibt Code 1, Größenquote Code 2, Zeichen außerhalb des geschlossenen Alphabets Code 3. Ein gültiges Supplementary-Paar bleibt dennoch außerhalb dieses Alphabets und ergibt Code 3. Zusätzlich zu ASCII U+0000..U+007F ausschließlich ÄÖÜäöüß. ASCII a..z wird zu A..Z, Umlaute zu A/O/U, ß zu SS. Kein globales Trimmen; Satz-/Kontrollzeichen bleiben im Buchstabenkontext und können den Lookahead beeinflussen. Kein SQL-Default; Argument ausdrücklich übergeben. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_ColognePhonetic(N'Contoso');
+SELECT * FROM toolbelt_string.TVF_ColognePhonetic(N'PH');
+-- PhoneticCode=3, ErrorCode=0.
+SELECT * FROM toolbelt_string.TVF_ColognePhonetic(NULL);
+-- Genau eine NULL-Codezeile mit ErrorCode=0.
 ```
 
 ## toolbelt_string.TVF_DoubleMetaphone
 
 Modul `toolbelt.string.phonetic` · Version `1.0.0` · `TVF`
 
-Berechnet den primären und alternativen Double-Metaphone-Code.
+Vollständige begrenzte primäre und alternative Double-Metaphone-Codes.
 
-Vertrag und Quelle: [TVF_DoubleMetaphone.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql), [TVF_DoubleMetaphone.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_DoubleMetaphone.md).
+Vertrag und Quelle: [TVF_DoubleMetaphone.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql), [TVF_DoubleMetaphone.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_DoubleMetaphone.md), [TVF_DoubleMetaphone.md](../../Metadata/UsageSkills/toolbelt_string/TVF_DoubleMetaphone.md).
 
-<!-- Source/Vertrag SHA256: 4530a080c96d0b51c2534cd58e1eea3e6d46a59969da002154c15679d094e469 -->
+<!-- Source/Vertrag SHA256: 02c161850019374ee41ed9a01cfe09c1bd2a7d29524dc1049f00a15ad2a0de04 -->
+
+Voraussetzung: Installiertes Modul mit passender autorisierter SAFE-Assembly tlblt_String_Phonetic, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, lokal oder zentral. Keine Abhängigkeit von Distanz-/Jaro-Assembly, Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Scanner. Der markierte Scannerport und sein Herkunfts-/Lizenzvertrag bleiben unverändert.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Text` | `nvarchar(max)` | `kein Default` | Input | Rohtext mit höchstens 4096 UTF-16-Einheiten; gültige Surrogatpaare werden geprüft, ein nicht unterstützter Skalar wird nicht still entfernt. ASCII-Zeichen sind zulässig. NULL ergibt NULL-Code(s)/ErrorCode 0; leer ist gültig. Längen-/Arbeitsgrenze ergibt Code 2, ungepaarte Surrogate Code 1 und nicht unterstützte Zeichen Code 3. Keine frei wählbare Sprache/Transliteration. Zusätzlich zu ASCII sind ÇçÑñ erlaubt. Randzeichen mit Code &lt;=32 werden entfernt, ASCII wird großgeschrieben; Ç/Ñ erhalten die definierte Lautbehandlung. Andere Akzente werden nicht automatisch transliteriert. |
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Unicode-Rohtext mit höchstens 4096 UTF-16-Codeunits vor jeder eigenen Textkopie. NULL liefert NULL-Code(s) und ErrorCode=0, leerer Text ist gültig und liefert leere Codes. Ungültige Surrogatfolge ergibt Code 1, Größenquote Code 2, Zeichen außerhalb des geschlossenen Alphabets Code 3. Ein gültiges Supplementary-Paar bleibt dennoch außerhalb dieses Alphabets und ergibt Code 3. Zusätzlich zu ASCII U+0000..U+007F ausschließlich ÇçÑñ. ASCII a..z wird zu A..Z, ç/ñ zu Ç/Ñ. Vor dem Scanner werden äußere ASCII-Codeunits &lt;=U+0020 entfernt; innere Kontroll-/Satzzeichen bleiben im Kontext. Keine allgemeine Culture- oder Unicode-Normalisierung. Kein SQL-Default; Argument ausdrücklich übergeben. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_DoubleMetaphone(N'Contoso');
+SELECT * FROM toolbelt_string.TVF_DoubleMetaphone(N'PH');
+-- PrimaryCode=F, AlternateCode=F, ErrorCode=0.
+SELECT * FROM toolbelt_string.TVF_DoubleMetaphone(NULL);
+-- Genau eine NULL-Codezeile mit ErrorCode=0.
 ```
 
 ## toolbelt_string.TVF_RegexCaptures
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `TVF`
 
-Liefert Gruppen-Captures einschließlich wiederholter Captures.
+Materialisiert alle Wiederholungen deklarierter Capturegruppen und Kontrollzeilen unbeteiligter Gruppen.
 
-Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [TVF_RegexCaptures.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexCaptures.md).
+Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [TVF_RegexCaptures.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexCaptures.md), [TVF_RegexCaptures.md](../../Metadata/UsageSkills/toolbelt_string/TVF_RegexCaptures.md).
 
-<!-- Source/Vertrag SHA256: 8a0e9acefe89166a3c52a3414b86c7e6e8407190f46c0fd82156ce74841b772c -->
+<!-- Source/Vertrag SHA256: d8ebbfc36ce0d66d7fc9b0b57955e08748372f22838ad6038a85c9aac7645cf4 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. Capturegruppen können unbenannt oder (?&lt;Name&gt;...) sein; Namen 1..128 ASCII-Zeichen, Beginn Buchstabe/_ danach zusätzlich Ziffern, ohne case-insensitive Namensduplikate. Maximal 64 deklarierte Gruppen und konservative Capture-History 100000. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
-| `@MaxRows` | `int` | `10000` | Input | Ganzzahl 1..100000, Default 10000; NULL/0/negativ/größer ungültig. Begrenzt die vollständig materialisierte Ausgabe; Überschreitung verwirft den gesamten Aufruf ohne gültiges Teilpräfix. Zählt jede Capture und auch Kontrollzeilen nicht beteiligter deklarierter Gruppen, nicht bloß Matches. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten in standard,8388608 in large. Keine automatische Kürzung. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens8000 UTF-16-Einheiten, nach Übersetzung64000; Gruppentiefe64,Alternationen1024. Normale und (?&lt;Name&gt;...)-Captures zulässig, maximal64 Gruppen; Name1..128 ASCII-Zeichen, BeginnA-Z/a-z/_, danach zusätzlichZiffern, keine ordinal-case-insensitiven Duplikate. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. R2 validiert Profil,Flags,Input/Pattern und gegebenenfalls Replacement auch vor dieser Leerausgabe. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. Als nvarchar(max) gebunden, im begrenzten Intake maximal4 UTF-16-Einheiten. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, ohne Trim/Casefold. standard:1048576 UTF-16-Einheiten pro Input/Ersatz/Output und500ms kooperatives Budget; large:8388608 und2000ms. NULL/leer/andereWerte ungültig. Profilintake maximal8 Einheiten vor Start des gemeinsamen Kontexttimers. Früher Input/Pattern-NULL-Kurzschluss,beiReplace zusätzlichReplacementNULL, hat Vorrang. |
+| `@MaxRows` | `int` | `10000` | Input | Ganzzahl1..100000, fachlich nichtNULL. Grenze der vollständig materialisierten Ausgabe, keine TOP-/Teilpräfixsemantik. Bei Überschreitung Fehler statt verwendbarer Teilzeilen. Zählt jede Capture und auch Kontrollzeilen nicht beteiligter Gruppen. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_RegexCaptures(N'abc123 def456', N'[0-9]+', 1, N'c', N'standard', 1000);
+SELECT * FROM toolbelt_string.TVF_RegexCaptures(N'abab',N'(ab)+',1,N'c',N'standard',10000) ORDER BY MatchOrdinal,GroupOrdinal,CaptureOrdinal;
 ```
 
 ## toolbelt_string.SVF_RegexReplaceGroups
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `SVF`
 
-Ersetzt Regex-Treffer mit dem getrennten Gruppen-Ersatzvertrag.
+Ersetzt Gesamttreffer mit streng geprüften numerischen oder benannten Gruppenreferenzen.
 
-Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [SVF_RegexReplaceGroups.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplaceGroups.md).
+Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [SVF_RegexReplaceGroups.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplaceGroups.md), [SVF_RegexReplaceGroups.md](../../Metadata/UsageSkills/toolbelt_string/SVF_RegexReplaceGroups.md).
 
-<!-- Source/Vertrag SHA256: 8863ad619fa8672845c9713ab74fd648e9a1fdf4934f079f102726b1305bfdc8 -->
+<!-- Source/Vertrag SHA256: 7da2fcaac5f30f02087bfda3fe65230bce353b188f1ea6e7c90098b0701edce0 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. Capturegruppen können unbenannt oder (?&lt;Name&gt;...) sein; Namen 1..128 ASCII-Zeichen, Beginn Buchstabe/_ danach zusätzlich Ziffern, ohne case-insensitive Namensduplikate. Maximal 64 deklarierte Gruppen und konservative Capture-History 100000. |
-| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | Ersetzungstext, leer löscht den Treffer; NULL ergibt NULL vor weiterer Prüfung. Gruppenreferenzen ausschließlich $1..$64 auf vorhandene Gruppen, ${Name} auf deklarierte Namen sowie $$ für ein Dollarzeichen. $0/Gruppe 0, unbekannte Referenzen und ungültige Syntax werden auch ohne Treffer abgewiesen; höchstens 65536 Ersetzungsteile. Höchstens 1048576 UTF-16-Einheiten im Profil standard beziehungsweise 8388608 in large; auch die gesamte erzeugte Ausgabe bleibt auf dieses Profilbudget begrenzt. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. |
-| `@Occurrence` | `int` | `0` | Input | Ganzzahl 0..2147483647, Default 0: 0 ersetzt alle Treffer ab Start, positiv nur den n-ten Treffer ab Start. Negativ/NULL ungültig; vor Start bleibt der Text erhalten. |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten in standard,8388608 in large. Keine automatische Kürzung. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens8000 UTF-16-Einheiten, nach Übersetzung64000; Gruppentiefe64,Alternationen1024. Normale und (?&lt;Name&gt;...)-Captures zulässig, maximal64 Gruppen; Name1..128 ASCII-Zeichen, BeginnA-Z/a-z/_, danach zusätzlichZiffern, keine ordinal-case-insensitiven Duplikate. |
+| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | Strikter Ersatz: $N für eine existierende positive vollständige ASCII-Gruppennummer ohne führende0, ${Name} nur für exakt case-sensitiv passenden expliziten Namen, $$ für ein Dollarzeichen. Backslash bleibt literal. $0,unbekannte/beschädigte Referenzen und einzelneDollarzeichen sind Fehler vor erster Suche; erzeugteDollarzeichen werden nicht erneut interpretiert. Verwendet den letzten erfolgreichen Capture, unbeteiligte Gruppe wird leer. Höchstens65536 geparste Ersatzteile. Leer löscht den Treffer, NULL ergibt frühNULL. Ersatzlänge wie Profil; fertiger Output bleibt ebenfalls profilbegrenzt. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. R2 validiert Profil,Flags,Input/Pattern und gegebenenfalls Replacement auch vor dieser Leerausgabe. |
+| `@Occurrence` | `int` | `0` | Input | 0=alle Treffer abStart,positiv=nur n-ter Treffer;0..2147483647. NULL/negativ und bei Nicht-Replace0 sind ungültig. VorStart bleibt der Input beiReplace erhalten. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. Als nvarchar(max) gebunden, im begrenzten Intake maximal4 UTF-16-Einheiten. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, ohne Trim/Casefold. standard:1048576 UTF-16-Einheiten pro Input/Ersatz/Output und500ms kooperatives Budget; large:8388608 und2000ms. NULL/leer/andereWerte ungültig. Profilintake maximal8 Einheiten vor Start des gemeinsamen Kontexttimers. Früher Input/Pattern-NULL-Kurzschluss,beiReplace zusätzlichReplacementNULL, hat Vorrang. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_string.SVF_RegexReplaceGroups(N'abc123 def456', N'(?<Digits>[0-9]+)', N'[${Digits}]', 1, 0, N'c', N'standard') AS ResultValue;
+SELECT toolbelt_string.SVF_RegexReplaceGroups(N'Contoso42',N'(?<word>[A-Za-z]+)([0-9]+)',N'${word}:$2:$$',1,0,N'c',N'standard') AS Replaced;
 ```
 
 ## toolbelt_string.TVF_RegexMatches
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `TVF`
 
-Liefert vollständige Regex-Treffer mit Ordinals und Positionen.
+Materialisiert nicht überlappende Gesamttreffer mit Position, Länge und Originaltext.
 
-Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexMatches.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexMatches.md).
+Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexMatches.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexMatches.md), [TVF_RegexMatches.md](../../Metadata/UsageSkills/toolbelt_string/TVF_RegexMatches.md).
 
-<!-- Source/Vertrag SHA256: 20d7b09daf31112168b5fb863561ef44ffc9b014ac96ba677ebd04d67c160735 -->
+<!-- Source/Vertrag SHA256: 5e947df6bf2165e14d602b1e4c7eb4a3c7c5d735db10015a851357875357aca3 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
-| `@MaxRows` | `int` | `10000` | Input | Ganzzahl 1..100000, Default 10000; NULL/0/negativ/größer ungültig. Begrenzt die vollständig materialisierte Ausgabe; Überschreitung verwirft den gesamten Aufruf ohne gültiges Teilpräfix. Zählt Matchzeilen. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten in standard,8388608 in large. Keine automatische Kürzung. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens8000 UTF-16-Einheiten, nach Übersetzung64000; Gruppentiefe64,Alternationen1024. Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. R2 validiert Profil,Flags,Input/Pattern und gegebenenfalls Replacement auch vor dieser Leerausgabe. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. Als nvarchar(max) gebunden, im begrenzten Intake maximal4 UTF-16-Einheiten. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, ohne Trim/Casefold. standard:1048576 UTF-16-Einheiten pro Input/Ersatz/Output und500ms kooperatives Budget; large:8388608 und2000ms. NULL/leer/andereWerte ungültig. Profilintake maximal8 Einheiten vor Start des gemeinsamen Kontexttimers. Früher Input/Pattern-NULL-Kurzschluss,beiReplace zusätzlichReplacementNULL, hat Vorrang. |
+| `@MaxRows` | `int` | `10000` | Input | Ganzzahl1..100000, fachlich nichtNULL. Grenze der vollständig materialisierten Ausgabe, keine TOP-/Teilpräfixsemantik. Bei Überschreitung Fehler statt verwendbarer Teilzeilen. Zählt Gesamttreffer beziehungsweise sämtliche Splittokens einschließlich Leertokens. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_RegexMatches(N'abc123 def456', N'[0-9]+', 1, N'c', N'standard', 1000);
+SELECT * FROM toolbelt_string.TVF_RegexMatches(N'a1b22',N'\d+',1,N'c',N'standard',10000) ORDER BY Ordinal;
 ```
 
 ## toolbelt_string.TVF_RegexSplit
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `TVF`
 
-Zerlegt einen Text an Regex-Treffern.
+Zerlegt den ganzen Input an Regexseparatoren in Originaltokens einschließlich Leertokens.
 
-Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexSplit.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexSplit.md).
+Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexSplit.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexSplit.md), [TVF_RegexSplit.md](../../Metadata/UsageSkills/toolbelt_string/TVF_RegexSplit.md).
 
-<!-- Source/Vertrag SHA256: 957d286bdbb61ea6c96782b6cf59fb22e6e2a8dd9d6a798f3f17483bb3dc48dc -->
+<!-- Source/Vertrag SHA256: 9f716e71b216188dfd0a68cbcf6d945a8e383db9db5b011d49c03af7aeed2534 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
-| `@MaxRows` | `int` | `10000` | Input | Ganzzahl 1..100000, Default 10000; NULL/0/negativ/größer ungültig. Begrenzt die vollständig materialisierte Ausgabe; Überschreitung verwirft den gesamten Aufruf ohne gültiges Teilpräfix. Bei Split zählen auch leere Tokens. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten in standard,8388608 in large. Keine automatische Kürzung. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens8000 UTF-16-Einheiten, nach Übersetzung64000; Gruppentiefe64,Alternationen1024. Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. Als nvarchar(max) gebunden, im begrenzten Intake maximal4 UTF-16-Einheiten. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, ohne Trim/Casefold. standard:1048576 UTF-16-Einheiten pro Input/Ersatz/Output und500ms kooperatives Budget; large:8388608 und2000ms. NULL/leer/andereWerte ungültig. Profilintake maximal8 Einheiten vor Start des gemeinsamen Kontexttimers. Früher Input/Pattern-NULL-Kurzschluss,beiReplace zusätzlichReplacementNULL, hat Vorrang. |
+| `@MaxRows` | `int` | `10000` | Input | Ganzzahl1..100000, fachlich nichtNULL. Grenze der vollständig materialisierten Ausgabe, keine TOP-/Teilpräfixsemantik. Bei Überschreitung Fehler statt verwendbarer Teilzeilen. Zählt Gesamttreffer beziehungsweise sämtliche Splittokens einschließlich Leertokens. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_RegexSplit(N'a,b;;c', N'[0-9]+', N'c', N'standard', 1000);
+SELECT * FROM toolbelt_string.TVF_RegexSplit(N'a,,b,',N',',N'c',N'standard',10000) ORDER BY Ordinal;
 ```
 
 ## toolbelt_string.SVF_RegexIsMatch
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `CLR_SVF`
 
-Prüft, ob ein regulärer Ausdruck im Text trifft.
+Prüft im begrenzten Toolbelt-Regexdialekt, ob mindestens ein Gesamttreffer existiert.
 
-Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexIsMatch.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexIsMatch.md).
+Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexIsMatch.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexIsMatch.md), [SVF_RegexIsMatch.md](../../Metadata/UsageSkills/toolbelt_string/SVF_RegexIsMatch.md).
 
-<!-- Source/Vertrag SHA256: 59dab0304c5a97006b945aee2e921ea11d3d13cea27f401da296e5eef2568c08 -->
+<!-- Source/Vertrag SHA256: 696e81ad03531a2580a583b83645f7a313161b59668ebb07039b5a75b0e22a7f -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum 1048576 UTF-16-Einheiten (2097152 Bytes). |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Bytes, also 4000 Einheiten. |
-| `@Flags` | `nvarchar(4)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten=2097152Bytes. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens4000 UTF-16-Einheiten=8000Bytes.Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Flags` | `nvarchar(4)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. SQL bindet nvarchar(4) schon vor dem CLR-Aufruf; eine ursprünglich breitere Clientquelle kann dabei gekürzt werden. Kein Nachweis ihrer ursprünglichen Länge. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_string.SVF_RegexIsMatch(N'abc123 def456', N'[0-9]+', N'c') AS ResultValue;
+SELECT toolbelt_string.SVF_RegexIsMatch(N'Contoso 42',N'\d+',DEFAULT) AS HasDigits;
 ```
 
 ## toolbelt_string.SVF_RegexInstr
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `CLR_SVF`
 
-Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
+Liefert die absolute UTF-16-Start- oder Endposition des n-ten Gesamttreffers.
 
-Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexInstr.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexInstr.md).
+Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexInstr.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexInstr.md), [SVF_RegexInstr.md](../../Metadata/UsageSkills/toolbelt_string/SVF_RegexInstr.md).
 
-<!-- Source/Vertrag SHA256: 1f2a39824e62480f88f853635342fdb969a13fc37ee1e55ffc372f8f33cca501 -->
+<!-- Source/Vertrag SHA256: 0a295d694e6aa82288dede005a5337c197f1d8ee16b5c0827fbc87d3781ed5a6 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum 1048576 UTF-16-Einheiten (2097152 Bytes). |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Bytes, also 4000 Einheiten. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. Ein Beginn nach Länge+1 liefert 0 vor Pattern-/Flagprüfung. |
-| `@Occurrence` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: n-ter Treffer ab Start; 0/negativ/NULL ungültig. |
-| `@ReturnOption` | `int` | `0` | Input | Taxativ: 0 = 1-basierter Trefferbeginn (Default); 1 = 1-basierte exklusive Endposition. NULL/andere int-Werte ungültig. Kein Treffer ergibt 0. |
-| `@Flags` | `nvarchar(4)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten=2097152Bytes. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens4000 UTF-16-Einheiten=8000Bytes.Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. Count/Instr liefern dann0 vor Pattern-/Flagintake. |
+| `@Occurrence` | `int` | `1` | Input | Positiver n-ter Treffer abStart,1..2147483647. NULL/negativ und bei Nicht-Replace0 sind ungültig. VorStart bleibt der Input beiReplace erhalten. |
+| `@ReturnOption` | `int` | `0` | Input | Taxativ0=absolute1-basierte Startposition,1=absolute1-basierte Endposition exklusiv. NULL/andereWerte ungültig. OhneTreffer0. |
+| `@Flags` | `nvarchar(4)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. SQL bindet nvarchar(4) schon vor dem CLR-Aufruf; eine ursprünglich breitere Clientquelle kann dabei gekürzt werden. Kein Nachweis ihrer ursprünglichen Länge. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_string.SVF_RegexInstr(N'abc123 def456', N'[0-9]+', 1, 1, 0, N'c') AS ResultValue;
+SELECT toolbelt_string.SVF_RegexInstr(N'a1b22',N'\d+',1,2,0,N'c') AS StartPosition;
 ```
 
 ## toolbelt_string.SVF_RegexCount
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `CLR_SVF`
 
-Zählt Regex-Treffer ab der angegebenen Startposition.
+Zählt nicht überlappende Gesamttreffer ab einer UTF-16-Startposition.
 
-Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexCount.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexCount.md).
+Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexCount.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexCount.md), [SVF_RegexCount.md](../../Metadata/UsageSkills/toolbelt_string/SVF_RegexCount.md).
 
-<!-- Source/Vertrag SHA256: d32555c8a1446bc429d243da00f80e205a32ee8229451a12154c9857cf25a9f0 -->
+<!-- Source/Vertrag SHA256: 7ab3dd0853db7344de93a4a88abd6be261559b0477d12e33f191a1314465497f -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum 1048576 UTF-16-Einheiten (2097152 Bytes). |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Bytes, also 4000 Einheiten. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. Ein Beginn nach Länge+1 liefert 0 vor Pattern-/Flagprüfung. |
-| `@Flags` | `nvarchar(4)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten=2097152Bytes. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens4000 UTF-16-Einheiten=8000Bytes.Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. Count/Instr liefern dann0 vor Pattern-/Flagintake. |
+| `@Flags` | `nvarchar(4)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. SQL bindet nvarchar(4) schon vor dem CLR-Aufruf; eine ursprünglich breitere Clientquelle kann dabei gekürzt werden. Kein Nachweis ihrer ursprünglichen Länge. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_string.SVF_RegexCount(N'abc123 def456', N'[0-9]+', 1, N'c') AS ResultValue;
+SELECT toolbelt_string.SVF_RegexCount(N'a1b22',N'\d+',1,N'c') AS MatchCount;
 ```
 
 ## toolbelt_string.SVF_RegexReplace
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `SVF`
 
-Ersetzt ganze Regex-Treffer durch einen literalen Ersatztext.
+Ersetzt ausgewählte Gesamttreffer durch literalen Unicode-Text ohne Gruppenexpansion.
 
-Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexReplace.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplace.md).
+Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexReplace.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplace.md), [SVF_RegexReplace.md](../../Metadata/UsageSkills/toolbelt_string/SVF_RegexReplace.md).
 
-<!-- Source/Vertrag SHA256: 854a67b2cab63768ba647f8f4b7de9b34e89a5bcd741a4c6b2a494eecd63a443 -->
+<!-- Source/Vertrag SHA256: d70c71c36f9ebdb2d11007777033383f7d2be8625d7a212c4792fb796da72a03 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. |
-| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | Ersetzungstext, leer löscht den Treffer; NULL ergibt NULL vor weiterer Prüfung. Wird wörtlich eingesetzt: $1, ${Name} und Backslashes lösen keine Gruppenreferenzen aus. Höchstens 1048576 UTF-16-Einheiten im Profil standard beziehungsweise 8388608 in large; auch die gesamte erzeugte Ausgabe bleibt auf dieses Profilbudget begrenzt. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. |
-| `@Occurrence` | `int` | `0` | Input | Ganzzahl 0..2147483647, Default 0: 0 ersetzt alle Treffer ab Start, positiv nur den n-ten Treffer ab Start. Negativ/NULL ungültig; vor Start bleibt der Text erhalten. |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten in standard,8388608 in large. Keine automatische Kürzung. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens8000 UTF-16-Einheiten, nach Übersetzung64000; Gruppentiefe64,Alternationen1024. Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | Literaler Ersatztext: $1,${Name},Backslash werden nicht expandiert. Leer löscht den Treffer, NULL ergibt frühNULL. Ersatzlänge wie Profil; fertiger Output bleibt ebenfalls profilbegrenzt. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. R2 validiert Profil,Flags,Input/Pattern und gegebenenfalls Replacement auch vor dieser Leerausgabe. |
+| `@Occurrence` | `int` | `0` | Input | 0=alle Treffer abStart,positiv=nur n-ter Treffer;0..2147483647. NULL/negativ und bei Nicht-Replace0 sind ungültig. VorStart bleibt der Input beiReplace erhalten. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. Als nvarchar(max) gebunden, im begrenzten Intake maximal4 UTF-16-Einheiten. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, ohne Trim/Casefold. standard:1048576 UTF-16-Einheiten pro Input/Ersatz/Output und500ms kooperatives Budget; large:8388608 und2000ms. NULL/leer/andereWerte ungültig. Profilintake maximal8 Einheiten vor Start des gemeinsamen Kontexttimers. Früher Input/Pattern-NULL-Kurzschluss,beiReplace zusätzlichReplacementNULL, hat Vorrang. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_string.SVF_RegexReplace(N'abc123 def456', N'[0-9]+', N'X', 1, 1, N'c', N'standard') AS ResultValue;
+SELECT toolbelt_string.SVF_RegexReplace(N'a1b22',N'\d+',N'$1',1,0,N'c',N'standard') AS LiteralReplacement;
+-- $1 bleibt hier literal; für Gruppen die getrennte ReplaceGroups-API nutzen.
 ```
 
 ## toolbelt_string.SVF_RegexSubstring
 
 Modul `toolbelt.string.regex` · Version `1.3.0` · `SVF`
 
-Liefert den ausgewählten vollständigen Regex-Treffer.
+Liefert den n-ten Gesamttreffer als Unicode-Text oder NULL, wenn er fehlt.
 
-Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexSubstring.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexSubstring.md).
+Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexSubstring.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexSubstring.md), [SVF_RegexSubstring.md](../../Metadata/UsageSkills/toolbelt_string/SVF_RegexSubstring.md).
 
-<!-- Source/Vertrag SHA256: bd2c8bc12dd37d0c103de8b870390d9ec7e8c2d72155994fead7f617fd54d265 -->
+<!-- Source/Vertrag SHA256: 953b0ad7cde577e107d8508911aa286c491f9dc5da6be1174d1f1f9a0ee35af0 -->
+
+Voraussetzung: Installierte SAFE-Regexassembly tlblt_String_Regex und passende kanonische Objekte1.3.0 derselben Datenbank. SQL2019/2022/2025 Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen gemäß gewähltem Installer; keine eigene Serverkonfiguration oder Rechtevergabe. Alle Inputwerte als Unicode übergeben, varchar beim Caller unter seiner Quellcollation ausdrücklich nach nvarchar(max) konvertieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; leer ist gültig. Positionen zählen UTF-16-Einheiten, 1-basiert, ohne automatische Normalisierung. NULL ergibt NULL bei SVF bzw. keine Zeilen bei TVF vor weiterer Parameterprüfung. Maximum richtet sich nach Profile. |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Begrenzter Toolbelt-Regexdialekt gemäß REGEX_FUNCTIONS.md, kein beliebiges .NET-Pattern: Literale/Escapes, Punkt, ^/$, Gruppen/Alternativen, Klassen und begrenzte Quantoren; ASCII-Definitionen für \d/\w/\s, Unicode-Kategorie nur \p{L}. Lookarounds und Pattern-Backreferences sind nicht erlaubt. Leer ist gültig, NULL propagiert NULL/keine Zeilen vor anderer Prüfung. Maximum 8000 UTF-16-Einheiten, übersetztes Pattern höchstens 64000, Gruppentiefe 64, Alternativen 1024 und Quantorobergrenze 1000. |
-| `@Start` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: 1-basierter Suchbeginn in UTF-16-Einheiten. NULL/0/negativ ungültig. Länge+1 lässt einen terminalen Leertreffer zu; weiter dahinter gibt es keinen Treffer. |
-| `@Occurrence` | `int` | `1` | Input | Ganzzahl 1..2147483647, Default 1: n-ter Treffer ab Start; 0/negativ/NULL ungültig. |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ sind die einzelnen Flags c = case-sensitiv (Default), i = case-insensitiv/CultureInvariant, m = ^/$ je Zeile, s = Punkt auch über Zeilenumbrüche. Leer ist ebenfalls gültig und case-sensitiv. Erlaubte Mengen: leer, c, i, m, s, cm, cs, im, is, ms, cms, ims; Reihenfolge beliebig, jedes Zeichen höchstens einmal. c+i, Großbuchstaben, Spaces, andere Zeichen und NULL sind ungültig. Ein früher NULL-Input/-Pattern-Pfad überspringt die Prüfung. |
-| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Taxativ, ordinal/case-sensitiv ohne Trim: standard (Default) erlaubt 1048576 Input-UTF-16-Einheiten und 500 ms kooperatives Gesamtbudget; large erlaubt 8388608 Einheiten und 2000 ms. Jede Engine-Suche bleibt auf höchstens 250 ms begrenzt. NULL/leer/andere Werte ungültig; NULL-Input/-Pattern (bei Replace auch NULL-Replacement) beendet vorher. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Unicode-Input, leer ist gültig. NULL ergibt NULL beim Skalar beziehungsweise null Zeilen bei TVFs vor sonstiger CLR-Validierung. Höchstens1048576 UTF-16-Einheiten in standard,8388608 in large. Keine automatische Kürzung. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Toolbelt-Dialekt gemäß Grammatik unten. Leer gültig; NULL hat denselben frühen Kurzschluss wie Input. Höchstens8000 UTF-16-Einheiten, nach Übersetzung64000; Gruppentiefe64,Alternationen1024. Gruppen steuern nur die Patternstruktur; keine benannten Gruppen oder Captureausgabe in diesem Modus. |
+| `@Start` | `int` | `1` | Input | Ganzzahl1..2147483647, fachlich nichtNULL; 1-basierter Suchbeginn im ganzen Input, Anker behalten den Originalinput. Länge+1 kann terminalen Leertreffer liefern, danach kein Treffer. R2 validiert Profil,Flags,Input/Pattern und gegebenenfalls Replacement auch vor dieser Leerausgabe. |
+| `@Occurrence` | `int` | `1` | Input | Positiver n-ter Treffer abStart,1..2147483647. NULL/negativ und bei Nicht-Replace0 sind ungültig. VorStart bleibt der Input beiReplace erhalten. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Taxativ: c=case-sensitiv, i=case-insensitiv/CultureInvariant, m=^/$ zeilenweise, s=Punkt einschließlich Newlines. Leer ist case-sensitiv. Jede Reihenfolge ohne Duplikate ist erlaubt; c und i schließen sich aus. Mengen: leer,c,i,m,s,cm,cs,im,is,ms,cms,ims. NULL, Großbuchstaben, Spaces und andere Zeichen sind ungültig. Keine Datenbank-Collation steuert das Matching; keine Normalisierung. Als nvarchar(max) gebunden, im begrenzten Intake maximal4 UTF-16-Einheiten. |
+| `@Profile` | `nvarchar(max)` | `N'standard'` | Input | Exakt ordinal standard oder large, ohne Trim/Casefold. standard:1048576 UTF-16-Einheiten pro Input/Ersatz/Output und500ms kooperatives Budget; large:8388608 und2000ms. NULL/leer/andereWerte ungültig. Profilintake maximal8 Einheiten vor Start des gemeinsamen Kontexttimers. Früher Input/Pattern-NULL-Kurzschluss,beiReplace zusätzlichReplacementNULL, hat Vorrang. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_string.SVF_RegexSubstring(N'abc123 def456', N'[0-9]+', 1, 1, N'c', N'standard') AS ResultValue;
+SELECT toolbelt_string.SVF_RegexSubstring(N'a1b22',N'\d+',1,2,N'c',N'standard') AS SecondMatch;
 ```
 
 ## toolbelt_string.TVF_SplitAdvanced
@@ -4459,22 +4849,29 @@ Modul `toolbelt.string.split-advanced` · Version `1.1.0` · `TVF`
 
 Zerlegt Originaltokens mit mehreren Separatoren, Quotes und Escape-Regeln; entquotiert sie nicht.
 
-Vertrag und Quelle: [TVF_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql), [TVF_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md).
+Vertrag und Quelle: [TVF_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql), [TVF_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md), [TVF_SplitAdvanced.md](../../Metadata/UsageSkills/toolbelt_string/TVF_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: e1acfd95cf172e9b527f8a6a469f4962c34d56226c73394aca8f5341b3d9f89f -->
+<!-- Source/Vertrag SHA256: d2c5f0ff4310ad799971ca94f96a974af5e6702c47ebf363c33001c26c40d7d9 -->
+
+Voraussetzung: Reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, unterstützter Compatibility Level mindestens 150. OPENJSON liest ausschließlich übergebenes JSON, keine Quelldaten oder externen Systeme. Lokal/zentral dieselbe Fachquelle. Separatoren müssen ein nichtleeres JSON-Array von Strings sein; NUL und aktive Quote-/Escapezeichen darin verboten. Quote und Escape leer unabhängig deaktiviert, sonst jeweils genau eine unterschiedliche Nicht-Surrogate-Codeunit; NULL ist bei nicht-NULL Input ungültig. Separatorstrings selbst sind keine Unicode-Normalisierungsfunktion.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | Text mit maximal 65536 UTF-16-Einheiten, NUL verboten; leer ist gültig. NULL ist ein früher No-op ohne Zeilen, selbst bei ungültiger Konfiguration. Tokens bleiben im Original einschließlich Quotes/Escapes; zum Entfernen TVF_UnquoteToken verwenden. |
-| `@SeparatorsJson` | `nvarchar(max)` | `kein Default` | Input | JSON-Array aus 1..16 verschiedenen nicht leeren Strings, z.B. ["::",","]; kein Objekt, keine JSON-null-/Zahlen-/Boolean-Elemente. Je Separator 1..64 UTF-16-Einheiten, Gesamt-JSON höchstens 16384 Einheiten. Binäre Gleichheit einschließlich Spaces; NUL und die aktivierten Quote-/Escape-Zeichen verboten. Längster passender Separator gewinnt. NULL ist außerhalb des frühen Input-NULL-Pfads ungültig. |
-| `@Quote` | `nvarchar(max)` | `N'"'` | Input | Genau eine UTF-16-Einheit (Default Doppelquote) aktiviert Quotegruppen; leer deaktiviert sie. NULL, NUL und Surrogate ungültig. Muss sich vom aktiven Escape unterscheiden und darf in keinem Separator vorkommen; keine automatische mehrzeichige Quote-Syntax. |
-| `@Escape` | `nvarchar(max)` | `N'\'` | Input | Genau eine UTF-16-Einheit (Default Backslash) schützt das nächste Zeichen vor Parserwirkung; leer deaktiviert Escaping. NULL, NUL und Surrogate ungültig. Darf weder aktives Quote noch Bestandteil eines Separators sein. Ein finales Escape ohne Folgezeichen ist ein Parserfehler; Ausgabe bleibt unentschlüsselt. |
-| `@KeepEmpty` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 behält leere Tokens einschließlich leerem Input (Default); 0 entfernt sie. NULL wird wie 1 behandelt. |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Text mit maximal 65536 UTF-16-Einheiten, NUL verboten; leer ist gültig. NULL ist ein früher No-op ohne Zeilen, selbst bei ungültiger Konfiguration. Tokens bleiben im Original einschließlich Quotes/Escapes; zum Entfernen TVF_UnquoteToken verwenden. Argumentposition muss angegeben werden; bei vorhandenem SQL-Default ist DEFAULT zulässig, kein Weglassen des Arguments. |
+| `@SeparatorsJson` | `nvarchar(max)` | `kein Default` | Input | JSON-Array aus 1..16 verschiedenen nicht leeren Strings, z.B. ["::",","]; kein Objekt, keine JSON-null-/Zahlen-/Boolean-Elemente. Je Separator 1..64 UTF-16-Einheiten, Gesamt-JSON höchstens 16384 Einheiten. Binäre Gleichheit einschließlich Spaces; NUL und die aktivierten Quote-/Escape-Zeichen verboten. Längster passender Separator gewinnt. NULL ist außerhalb des frühen Input-NULL-Pfads ungültig. Fachlich nur bei nicht-NULL Input erforderlich; der frühe NULL-No-op prüft diesen Wert nicht. Argumentposition muss angegeben werden; bei vorhandenem SQL-Default ist DEFAULT zulässig, kein Weglassen des Arguments. |
+| `@Quote` | `nvarchar(max)` | `N'"'` | Input | Genau eine UTF-16-Einheit (Default Doppelquote) aktiviert Quotegruppen; leer deaktiviert sie. NULL, NUL und Surrogate ungültig. Muss sich vom aktiven Escape unterscheiden und darf in keinem Separator vorkommen; keine automatische mehrzeichige Quote-Syntax. Diese Konfiguration wird bei Input=NULL nicht ausgewertet; sonst ist NULL ungültig. Es werden keine Unicode-Scalars oder Grapheme gescannt. Argumentposition muss angegeben werden; bei vorhandenem SQL-Default ist DEFAULT zulässig, kein Weglassen des Arguments. |
+| `@Escape` | `nvarchar(max)` | `N'\'` | Input | Genau eine UTF-16-Einheit (Default Backslash) schützt das nächste Zeichen vor Parserwirkung; leer deaktiviert Escaping. NULL, NUL und Surrogate ungültig. Darf weder aktives Quote noch Bestandteil eines Separators sein. Ein finales Escape ohne Folgezeichen ist ein Parserfehler; Ausgabe bleibt unentschlüsselt. Diese Konfiguration wird bei Input=NULL nicht ausgewertet; sonst ist NULL ungültig. Es werden keine Unicode-Scalars oder Grapheme gescannt. Argumentposition muss angegeben werden; bei vorhandenem SQL-Default ist DEFAULT zulässig, kein Weglassen des Arguments. |
+| `@KeepEmpty` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 behält leere Tokens einschließlich leerem Input (Default); 0 entfernt sie. NULL wird wie 1 behandelt. Argumentposition muss angegeben werden; bei vorhandenem SQL-Default ist DEFAULT zulässig, kein Weglassen des Arguments. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_SplitAdvanced(N'a,b;;c', N'[",",";"]', N'"', N'\', 1);
+SELECT Value,Ordinal,IsValid,ErrorCode,ErrorPosition
+FROM toolbelt_string.TVF_SplitAdvanced(N'a;"b;c";d',N'[";"]',DEFAULT,DEFAULT,DEFAULT)
+ORDER BY Ordinal;
+-- Drei Originaltokens; IsValid=1, Fehlerfelder NULL.
+SELECT * FROM toolbelt_string.TVF_SplitAdvanced(NULL,NULL,NULL,NULL,NULL);
+-- Keine Zeilen, wegen frühem NULL-No-op.
 ```
 
 ## toolbelt_string.TVF_UnquoteToken
@@ -4483,9 +4880,11 @@ Modul `toolbelt.string.split-advanced` · Version `1.1.0` · `TVF`
 
 Entfernt ein unterstütztes äußeres Quote-Paar und decodiert dessen Escapes.
 
-Vertrag und Quelle: [TVF_UnquoteToken.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql), [TVF_UnquoteToken.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_UnquoteToken.md).
+Vertrag und Quelle: [TVF_UnquoteToken.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql), [TVF_UnquoteToken.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_UnquoteToken.md), [TVF_UnquoteToken.md](../../Metadata/UsageSkills/toolbelt_string/TVF_UnquoteToken.md).
 
-<!-- Source/Vertrag SHA256: 2a5d72efca3169ded886ef0dc0c53812248db2f7655f0571deedd9c85e704526 -->
+<!-- Source/Vertrag SHA256: 2bc48dbac6428d5cc5149a9ee99f6b6810b9aa5a1ce19324caecc708b539a655 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Split-Advanced-Modul installiert; diese Funktion selbst hat keine Tabellen-/Helper-/CLR-/Netzwerkabhängigkeit. Alle vier Argumentpositionen angeben, DEFAULT für die gewünschten technischen Defaults.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4497,7 +4896,12 @@ Vertrag und Quelle: [TVF_UnquoteToken.sql](../../Modules/toolbelt.string.split-a
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_UnquoteToken(N'[a]]b]', NULL, NULL, 0);
+SELECT * FROM toolbelt_string.TVF_UnquoteToken
+ (N'[a]]b]',DEFAULT,DEFAULT,DEFAULT);
+-- Value=a]b, IsValid=1, ErrorCode/ErrorPosition=NULL.
+SELECT * FROM toolbelt_string.TVF_UnquoteToken
+ (NULL,DEFAULT,DEFAULT,DEFAULT);
+-- Keine Zeile.
 ```
 
 ## toolbelt_string.USP_SplitAdvanced
@@ -4506,31 +4910,29 @@ Modul `toolbelt.string.split-advanced` · Version `1.1.0` · `USP`
 
 Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unquoting.
 
-Vertrag und Quelle: [USP_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql), [USP_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/USP_SplitAdvanced.md).
+Vertrag und Quelle: [USP_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql), [USP_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/USP_SplitAdvanced.md), [USP_SplitAdvanced.md](../../Metadata/UsageSkills/toolbelt_string/USP_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: d329e41af61d65cdefa1e69956e49bf4b700e7822daa5e3c2fe0e0a4687f845f -->
+<!-- Source/Vertrag SHA256: 4bd38ca17a04e0825580163df59a273b1d617c3b35c6cc642bc031cee09c9502 -->
+
+Voraussetzung: Reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, unterstützter Compatibility Level mindestens 150. OPENJSON liest ausschließlich übergebenes JSON, keine Quelldaten oder externen Systeme. Lokal/zentral dieselbe Fachquelle. Öffentlicher TVF-Kern in derselben Datenbank installiert; ResultTable-Pfad zusätzlich sameDB USP_PrepareResultTable >=1.0.0 mit exakt den fünf erwarteten SQL-Parametern. Keine Extended Properties oder Runtime-Modulmarkerprüfung. Separatoren müssen ein nichtleeres JSON-Array von Strings sein; NUL und aktive Quote-/Escapezeichen darin verboten. Quote und Escape leer unabhängig deaktiviert, sonst jeweils genau eine unterschiedliche Nicht-Surrogate-Codeunit; NULL ist bei nicht-NULL Input ungültig. Separatorstrings selbst sind keine Unicode-Normalisierungsfunktion.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Input` | `nvarchar(max)` | `NULL` | Input | Text mit maximal 65536 UTF-16-Einheiten, NUL verboten; leer ist gültig. NULL ist ein früher No-op ohne Zeilen, selbst bei ungültiger Konfiguration. Tokens bleiben im Original einschließlich Quotes/Escapes; zum Entfernen TVF_UnquoteToken verwenden. |
-| `@SeparatorsJson` | `nvarchar(max)` | `NULL` | Input | JSON-Array aus 1..16 verschiedenen nicht leeren Strings, z.B. ["::",","]; kein Objekt, keine JSON-null-/Zahlen-/Boolean-Elemente. Je Separator 1..64 UTF-16-Einheiten, Gesamt-JSON höchstens 16384 Einheiten. Binäre Gleichheit einschließlich Spaces; NUL und die aktivierten Quote-/Escape-Zeichen verboten. Längster passender Separator gewinnt. NULL ist außerhalb des frühen Input-NULL-Pfads ungültig. |
-| `@Quote` | `nvarchar(max)` | `N'"'` | Input | Genau eine UTF-16-Einheit (Default Doppelquote) aktiviert Quotegruppen; leer deaktiviert sie. NULL, NUL und Surrogate ungültig. Muss sich vom aktiven Escape unterscheiden und darf in keinem Separator vorkommen; keine automatische mehrzeichige Quote-Syntax. |
-| `@Escape` | `nvarchar(max)` | `N'\'` | Input | Genau eine UTF-16-Einheit (Default Backslash) schützt das nächste Zeichen vor Parserwirkung; leer deaktiviert Escaping. NULL, NUL und Surrogate ungültig. Darf weder aktives Quote noch Bestandteil eines Separators sein. Ein finales Escape ohne Folgezeichen ist ein Parserfehler; Ausgabe bleibt unentschlüsselt. |
+| `@SeparatorsJson` | `nvarchar(max)` | `NULL` | Input | JSON-Array aus 1..16 verschiedenen nicht leeren Strings, z.B. ["::",","]; kein Objekt, keine JSON-null-/Zahlen-/Boolean-Elemente. Je Separator 1..64 UTF-16-Einheiten, Gesamt-JSON höchstens 16384 Einheiten. Binäre Gleichheit einschließlich Spaces; NUL und die aktivierten Quote-/Escape-Zeichen verboten. Längster passender Separator gewinnt. NULL ist außerhalb des frühen Input-NULL-Pfads ungültig. Fachlich nur bei nicht-NULL Input erforderlich; der frühe NULL-No-op prüft diesen Wert nicht. |
+| `@Quote` | `nvarchar(max)` | `N'"'` | Input | Genau eine UTF-16-Einheit (Default Doppelquote) aktiviert Quotegruppen; leer deaktiviert sie. NULL, NUL und Surrogate ungültig. Muss sich vom aktiven Escape unterscheiden und darf in keinem Separator vorkommen; keine automatische mehrzeichige Quote-Syntax. Diese Konfiguration wird bei Input=NULL nicht ausgewertet; sonst ist NULL ungültig. Es werden keine Unicode-Scalars oder Grapheme gescannt. |
+| `@Escape` | `nvarchar(max)` | `N'\'` | Input | Genau eine UTF-16-Einheit (Default Backslash) schützt das nächste Zeichen vor Parserwirkung; leer deaktiviert Escaping. NULL, NUL und Surrogate ungültig. Darf weder aktives Quote noch Bestandteil eines Separators sein. Ein finales Escape ohne Folgezeichen ist ein Parserfehler; Ausgabe bleibt unentschlüsselt. Diese Konfiguration wird bei Input=NULL nicht ausgewertet; sonst ist NULL ungültig. Es werden keine Unicode-Scalars oder Grapheme gescannt. |
 | `@KeepEmpty` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 behält leere Tokens einschließlich leerem Input (Default); 0 entfernt sie. NULL wird wie 1 behandelt. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert vor Fachfunktion und Dependency-/Zielprüfung die bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile und kehrt zurück. 0 oder NULL führt den Fachpfad aus. Alle USP-Argumente besitzen technische Defaults. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;b', @SeparatorsJson=N'[";"]', @Quote=N'', @Escape=N'';
-```
-
-```sql
-EXEC toolbelt_string.USP_SplitAdvanced
-    @Input=N'a;"b;c";d', @SeparatorsJson=N'[";"]';
+EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;"b;c";d',@SeparatorsJson=N'[";"]';
+-- Drei Originaltokens: a, Doppelquote b;c Doppelquote, d.
 EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;
 ```
 
@@ -4544,11 +4946,13 @@ EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;
 
 Modul `toolbelt.string.split-characters` · Version `1.0.0` · `TVF`
 
-Zerlegt einen Text an jedem Zeichen der angegebenen Separatormenge.
+Teilt begrenzten Unicode-Text an einer Menge einzelner UTF-16-Separatoren.
 
-Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharacters.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharacters.md).
+Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharacters.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharacters.md), [TVF_SplitByCharacters.md](../../Metadata/UsageSkills/toolbelt_string/TVF_SplitByCharacters.md).
 
-<!-- Source/Vertrag SHA256: a4b5ed39ecde3d6f0d6f6ef5a79c356f8898cd335cd98f7995ac415ce9f043ad -->
+<!-- Source/Vertrag SHA256: 3af5bb3edf4f4945785e25111cad3b1832dda0cc2da83d89c4b9dab3857ef717 -->
+
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul und Generate-Series-Abhängigkeit installiert. Alle drei Argumentpositionen angeben; DEFAULT oder NULL bei KeepEmpty wirkt wie 1. Keine CLR-, Datei-, Netzwerk- oder Systemkatalogabhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4559,20 +4963,22 @@ Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.sp
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_SplitByCharacters(N'a,b;;c', N',;', 1);
+SELECT * FROM toolbelt_string.TVF_SplitByCharacters(N'a,,b',N',',DEFAULT)
+ORDER BY Ordinal;
+-- Value a / leer / b, Ordinal 1 / 2 / 3.
 ```
 
 ## toolbelt_string.TVF_SplitByCharactersStatus
 
 Modul `toolbelt.string.split-characters` · Version `1.0.0` · `TVF`
 
-Erst vollständige Spanprüfung, danach höchstens 10000 OK-Tokenzeilen. LIMIT, INVALID, SQL_NULL und EMPTY liefern genau eine Kontrollzeile ohne Value/Ordinal. Keine Tokenpräfixe. Die bisherige TVF filtert ausschließlich OK; bei Grenzüberschreitung liefert sie keine Zeilen. Positionen und Separatorvergleich zählen BIN2-Codeeinheiten.
+Teilt begrenzten Unicode-Text an einer Menge einzelner UTF-16-Separatoren.
 
-Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharactersStatus.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharactersStatus.md).
+Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharactersStatus.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharactersStatus.md), [TVF_SplitByCharactersStatus.md](../../Metadata/UsageSkills/toolbelt_string/TVF_SplitByCharactersStatus.md).
 
-<!-- Source/Vertrag SHA256: ae1365be4088f698457f5210e1c25f3fc2485f93e6c29f5073d260e0e0c9092c -->
+<!-- Source/Vertrag SHA256: 5227f5003f15515afafedcec784c54453632b1a3ff6cdde992786ae7b4fab7ce -->
 
-Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul und Generate-Series-Abhängigkeit installiert. Alle drei Argumentpositionen angeben; DEFAULT oder NULL bei KeepEmpty wirkt wie 1. Keine CLR-, Datei-, Netzwerk- oder Systemkatalogabhängigkeit.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4583,7 +4989,9 @@ Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die US
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_string.TVF_SplitByCharactersStatus(N'a,b',N',',1) ORDER BY Ordinal;
+SELECT * FROM toolbelt_string.TVF_SplitByCharactersStatus(N'a,,b',N',',DEFAULT)
+ORDER BY Ordinal;
+-- Value a / leer / b, Ordinal 1 / 2 / 3, jeweils OK.
 ```
 
 ## toolbelt_string.USP_CompareTextPairs
@@ -4592,9 +5000,11 @@ Modul `toolbelt.string.text-pairs` · Version `1.0.0` · `USP`
 
 Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jaro-TVFs. Globale Fehler veröffentlichen keine Teilresultate.
 
-Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql), [USP_CompareTextPairs.md](../../Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md).
+Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql), [USP_CompareTextPairs.md](../../Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md), [USP_CompareTextPairs.md](../../Metadata/UsageSkills/toolbelt_string/USP_CompareTextPairs.md).
 
-<!-- Source/Vertrag SHA256: 99af3bff8340617b112179099eeaa54db104e6c7a727d58061242823278761d8 -->
+<!-- Source/Vertrag SHA256: 7af2eb4235d0bf0c0c72451559bab37393ade3f01feab3297e1d79668453995a -->
+
+Voraussetzung: Installierte Module text-pairs, edit-distance mit passender SAFE-Assembly und ResultTable-Helfer im selben Toolbelt-Datenbankkontext, SQL Server 2019/2022/2025 unter Windows/Linux gemäß Modulmatrix. Zentrale Verwendung erfolgt dreiteilig mit sessionlokalen #Temps des Callers. Input muss während des synchronen Aufrufs stabil bleiben; keine MARS-/parallele Mutation. Tabellenrouting benötigt eine committable lokale Transaktion oder eine neu startbare eigene Transaktion; verteilte Caller-Savepoints sind nicht unterstützt. Reine Hilfe kehrt vor diesen Fachprüfungen zurück.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4608,12 +5018,17 @@ Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.tex
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Zusätzlich Name 2..116 UTF-16-Einheiten, kein #tbx_-Präfix und nicht dieselbe Tabelle wie PairsTable. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert bisherige zwölfspaltige Standardhilfe und genau eine zusätzliche vierkolumnige Skillzeile vor Fach-, Transaktions-, Tabellen- und Dependencyprüfungen. 0 oder NULL führt den Fachpfad aus. Fachargumente werden im Hilfezweig ignoriert, SQL-Typbindung gilt weiterhin. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-CREATE TABLE #Pairs(PairOrdinal bigint,LeftText nvarchar(max),RightText nvarchar(max)); INSERT #Pairs VALUES(1,N'kitten',N'sitting'); EXEC toolbelt_string.USP_CompareTextPairs @PairsTable=N'#Pairs',@Algorithm=N'levenshtein';
+CREATE TABLE #Pairs(PairOrdinal bigint,LeftText nvarchar(max),RightText nvarchar(max));
+INSERT #Pairs VALUES(1,N'kitten',N'sitting'),(2,NULL,N'example');
+EXEC toolbelt_string.USP_CompareTextPairs @PairsTable=N'#Pairs',@Algorithm=N'levenshtein';
+-- Ordinal 1: Distance=3/Exceeds=0/Code=0; Ordinal 2: NULL-Fachwerte/Code=0.
+EXEC toolbelt_string.USP_CompareTextPairs @Hilfe=1;
+DROP TABLE #Pairs;
 ```
 
 Hilfe:
@@ -4628,22 +5043,24 @@ Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert die AST-Knoten eines begrenzten T-SQL-Skripts.
 
-Vertrag und Quelle: [TVF_ParseScriptNodes.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodes.sql), [TVF_ParseScriptNodes.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodes.md).
+Vertrag und Quelle: [TVF_ParseScriptNodes.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodes.sql), [TVF_ParseScriptNodes.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodes.md), [TVF_ParseScriptNodes.md](../../Metadata/UsageSkills/toolbelt_tsql/TVF_ParseScriptNodes.md).
 
-<!-- Source/Vertrag SHA256: 9c163ed1218cac92b5aa90e05cd6ff28d94599dd7852a7db882e10badaf30e82 -->
+<!-- Source/Vertrag SHA256: c32174fc9815c161a7f611a7f725bb5d96f5670c6cd083076f6279458a6e2ad5 -->
+
+Voraussetzung: Windows-only UNSAFE-CLR-Modul2.0.1 gemäß aktuellem Modulvertrag; passende tlblt_Tsql_ScriptParser-Assembly und exakt vom aktuellen Builder gebundene tlblt.Microsoft.SqlServer.TransactSql.ScriptDom-Abhängigkeit. Unterstützte SQL2019/2022/2025-Hosts mit zulässigem CL150/160/170; der Parserdialekt ist separat wählbar. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers. Es wird kein Zielsystem oder Katalog für den Text benötigt.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Zu parsende T-SQL-Quelle als Unicode-Text, kein Objektname/Pfad und keine Ausführung. Leer ist zulässig. NULL liefert keine Zeilen vor jeder anderen Argumentprüfung. MaxInputBytes sowie vorgelagerte Struktur-/Token- und jeweilige Ausgabelimits gelten; Syntaxfehler über TVF_ParseScriptErrors untersuchen, nicht mit fehlenden AST-Zeilen verwechseln. |
-| `@TSqlVersion` | `int` | `160` | Input | Taxativ: 80 = SQL2000-Grammatik, 90 = 2005, 100 = 2008, 110 = 2012, 120 = 2014, 130 = 2016, 140 = 2017, 150 = 2019, 160 = 2022 (Default), 170 = 2025. Wählt den ScriptDom-Parser, nicht die installierte Engine/DB-Compatibility. NULL wirkt wie 160; alle anderen int-Werte werden abgewiesen. |
-| `@QuotedIdentifiers` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 interpretiert doppelte Anführungszeichen als Identifier (Default), 0 als Stringliterale gemäß Parsermodus. NULL wirkt wie 1. Kein automatisches Auslesen des Session-SET-Zustands. |
-| `@MaxInputBytes` | `int` | `2097152` | Input | Ganzzahl 1..2097152 UTF-16-Bytes, Default 2097152; explizites NULL übernimmt diesen Default. 0/negativ/größer ungültig; Überschreitung des gewählten Budgets wirft TBX_TSQLPARSE_INPUT_TOO_LARGE. Bei SqlText=NULL greift vorher der No-op. |
-| `@MaxNestingDepth` | `int` | `100` | Input | Ganzzahl 1..256, Default 100; NULL übernimmt 100. Begrenzt den Struktur-/AST-Pfad, nicht nur Klammerzeichen. Weitere unabhängige Vorabgrenzen (512 Atome, 32 Strukturebenen, 16 Kommentarverschachtelungen) und Ausgabelimits bleiben wirksam; ein höherer Wert hebt sie nicht auf. |
+| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Vollständiger Unicode-T-SQL-Text, kein Dateipfad oder Connectionstring. Leer ist zulässig. SQLNULL liefert null Zeilen vor jeder anderen CLR-Validierung. Höchstens MaxInputBytes UTF16-Bytes; Länge wird vor ToSqlString-Materialisierung geprüft. Der Text wird nur geparst, niemals ausgeführt. |
+| `@TSqlVersion` | `int` | `160` | Input | Taxativ80,90,100,110,120,130,140,150,160,170; SQLDefault160 und explizitNULL ebenfalls160. Wählt ScriptDom-Grammatik, nicht Hostversion oder Datenbank-CL. Kein automatischer Versionsfallback; andere Werte werfen INVALID_VERSION. Früher NULL-Text überspringt diese Prüfung. |
+| `@QuotedIdentifiers` | `bit` | `1` | Input | bit:1 behandelt doppelte Anführungszeichen als Identifier,0 gemäß deaktiviertem QUOTED_IDENTIFIER-Parsermodus. SQLDefault1; explizitNULL ebenfalls1. Kein SET auf der Sitzung; betrifft nur den lokalen Parser. |
+| `@MaxInputBytes` | `int` | `2097152` | Input | int1..2097152 einschließlich; SQLDefault2097152,explizitNULL ebenfalls2097152. Positive Byteobergrenze für SqlChars.Length*2 vor Stringkopie. 0/negativ/zu groß wirft INVALID_MAX_BYTES. Keine Ausgabe-/Heap-/Zeitquote. |
+| `@MaxNestingDepth` | `int` | `100` | Input | int1..256 einschließlich; SQLDefault100,explizitNULL ebenfalls100. Grenze der iterativen AST-Tiefe,Root0. Zusätzlich konservativer Vorwächter mit Strukturgrenze min(32,angeforderterTiefe); nicht mit AST-Tiefe gleichsetzen. Tokenize erstellt keinen AST,wendet aber denselben Vorwächter an. Ungültig wirft INVALID_MAX_DEPTH. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodes(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);
+SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodes(N'SELECT 1 AS ContosoValue;',160,1,2097152,100) ORDER BY NodeId;
 ```
 
 ## toolbelt_tsql.TVF_ParseScriptNodeProperties
@@ -4652,22 +5069,24 @@ Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert Eigenschaften der geparsten T-SQL-AST-Knoten.
 
-Vertrag und Quelle: [TVF_ParseScriptNodeProperties.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodeProperties.sql), [TVF_ParseScriptNodeProperties.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodeProperties.md).
+Vertrag und Quelle: [TVF_ParseScriptNodeProperties.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodeProperties.sql), [TVF_ParseScriptNodeProperties.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodeProperties.md), [TVF_ParseScriptNodeProperties.md](../../Metadata/UsageSkills/toolbelt_tsql/TVF_ParseScriptNodeProperties.md).
 
-<!-- Source/Vertrag SHA256: 025a15483680a50b4175af443d10dadf60337459c7df9cca38afef240eaacb47 -->
+<!-- Source/Vertrag SHA256: 49a8840c67f79730b2d7e16bab3ef45c1cb26cb5bdeb2b5fa61ac09f6994a489 -->
+
+Voraussetzung: Windows-only UNSAFE-CLR-Modul2.0.1 gemäß aktuellem Modulvertrag; passende tlblt_Tsql_ScriptParser-Assembly und exakt vom aktuellen Builder gebundene tlblt.Microsoft.SqlServer.TransactSql.ScriptDom-Abhängigkeit. Unterstützte SQL2019/2022/2025-Hosts mit zulässigem CL150/160/170; der Parserdialekt ist separat wählbar. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers. Es wird kein Zielsystem oder Katalog für den Text benötigt.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Zu parsende T-SQL-Quelle als Unicode-Text, kein Objektname/Pfad und keine Ausführung. Leer ist zulässig. NULL liefert keine Zeilen vor jeder anderen Argumentprüfung. MaxInputBytes sowie vorgelagerte Struktur-/Token- und jeweilige Ausgabelimits gelten; Syntaxfehler über TVF_ParseScriptErrors untersuchen, nicht mit fehlenden AST-Zeilen verwechseln. |
-| `@TSqlVersion` | `int` | `160` | Input | Taxativ: 80 = SQL2000-Grammatik, 90 = 2005, 100 = 2008, 110 = 2012, 120 = 2014, 130 = 2016, 140 = 2017, 150 = 2019, 160 = 2022 (Default), 170 = 2025. Wählt den ScriptDom-Parser, nicht die installierte Engine/DB-Compatibility. NULL wirkt wie 160; alle anderen int-Werte werden abgewiesen. |
-| `@QuotedIdentifiers` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 interpretiert doppelte Anführungszeichen als Identifier (Default), 0 als Stringliterale gemäß Parsermodus. NULL wirkt wie 1. Kein automatisches Auslesen des Session-SET-Zustands. |
-| `@MaxInputBytes` | `int` | `2097152` | Input | Ganzzahl 1..2097152 UTF-16-Bytes, Default 2097152; explizites NULL übernimmt diesen Default. 0/negativ/größer ungültig; Überschreitung des gewählten Budgets wirft TBX_TSQLPARSE_INPUT_TOO_LARGE. Bei SqlText=NULL greift vorher der No-op. |
-| `@MaxNestingDepth` | `int` | `100` | Input | Ganzzahl 1..256, Default 100; NULL übernimmt 100. Begrenzt den Struktur-/AST-Pfad, nicht nur Klammerzeichen. Weitere unabhängige Vorabgrenzen (512 Atome, 32 Strukturebenen, 16 Kommentarverschachtelungen) und Ausgabelimits bleiben wirksam; ein höherer Wert hebt sie nicht auf. |
+| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Vollständiger Unicode-T-SQL-Text, kein Dateipfad oder Connectionstring. Leer ist zulässig. SQLNULL liefert null Zeilen vor jeder anderen CLR-Validierung. Höchstens MaxInputBytes UTF16-Bytes; Länge wird vor ToSqlString-Materialisierung geprüft. Der Text wird nur geparst, niemals ausgeführt. |
+| `@TSqlVersion` | `int` | `160` | Input | Taxativ80,90,100,110,120,130,140,150,160,170; SQLDefault160 und explizitNULL ebenfalls160. Wählt ScriptDom-Grammatik, nicht Hostversion oder Datenbank-CL. Kein automatischer Versionsfallback; andere Werte werfen INVALID_VERSION. Früher NULL-Text überspringt diese Prüfung. |
+| `@QuotedIdentifiers` | `bit` | `1` | Input | bit:1 behandelt doppelte Anführungszeichen als Identifier,0 gemäß deaktiviertem QUOTED_IDENTIFIER-Parsermodus. SQLDefault1; explizitNULL ebenfalls1. Kein SET auf der Sitzung; betrifft nur den lokalen Parser. |
+| `@MaxInputBytes` | `int` | `2097152` | Input | int1..2097152 einschließlich; SQLDefault2097152,explizitNULL ebenfalls2097152. Positive Byteobergrenze für SqlChars.Length*2 vor Stringkopie. 0/negativ/zu groß wirft INVALID_MAX_BYTES. Keine Ausgabe-/Heap-/Zeitquote. |
+| `@MaxNestingDepth` | `int` | `100` | Input | int1..256 einschließlich; SQLDefault100,explizitNULL ebenfalls100. Grenze der iterativen AST-Tiefe,Root0. Zusätzlich konservativer Vorwächter mit Strukturgrenze min(32,angeforderterTiefe); nicht mit AST-Tiefe gleichsetzen. Tokenize erstellt keinen AST,wendet aber denselben Vorwächter an. Ungültig wirft INVALID_MAX_DEPTH. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodeProperties(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);
+SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodeProperties(N'SELECT 1 AS ContosoValue;',160,1,2097152,100) ORDER BY NodeId,PropertyName;
 ```
 
 ## toolbelt_tsql.TVF_TokenizeScript
@@ -4676,22 +5095,24 @@ Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert Tokens eines T-SQL-Skripts.
 
-Vertrag und Quelle: [TVF_TokenizeScript.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_TokenizeScript.sql), [TVF_TokenizeScript.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_TokenizeScript.md).
+Vertrag und Quelle: [TVF_TokenizeScript.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_TokenizeScript.sql), [TVF_TokenizeScript.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_TokenizeScript.md), [TVF_TokenizeScript.md](../../Metadata/UsageSkills/toolbelt_tsql/TVF_TokenizeScript.md).
 
-<!-- Source/Vertrag SHA256: b42ff33f40cc15a52eae37460d0d0632022bc92023b11c1352fc7f4a47b7267c -->
+<!-- Source/Vertrag SHA256: 91ff6613a69ee186cd1e95da5bfeca50ef15c115d2d6e6b38363b5d84f310299 -->
+
+Voraussetzung: Windows-only UNSAFE-CLR-Modul2.0.1 gemäß aktuellem Modulvertrag; passende tlblt_Tsql_ScriptParser-Assembly und exakt vom aktuellen Builder gebundene tlblt.Microsoft.SqlServer.TransactSql.ScriptDom-Abhängigkeit. Unterstützte SQL2019/2022/2025-Hosts mit zulässigem CL150/160/170; der Parserdialekt ist separat wählbar. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers. Es wird kein Zielsystem oder Katalog für den Text benötigt.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Zu parsende T-SQL-Quelle als Unicode-Text, kein Objektname/Pfad und keine Ausführung. Leer ist zulässig. NULL liefert keine Zeilen vor jeder anderen Argumentprüfung. MaxInputBytes sowie vorgelagerte Struktur-/Token- und jeweilige Ausgabelimits gelten; Syntaxfehler über TVF_ParseScriptErrors untersuchen, nicht mit fehlenden AST-Zeilen verwechseln. |
-| `@TSqlVersion` | `int` | `160` | Input | Taxativ: 80 = SQL2000-Grammatik, 90 = 2005, 100 = 2008, 110 = 2012, 120 = 2014, 130 = 2016, 140 = 2017, 150 = 2019, 160 = 2022 (Default), 170 = 2025. Wählt den ScriptDom-Parser, nicht die installierte Engine/DB-Compatibility. NULL wirkt wie 160; alle anderen int-Werte werden abgewiesen. |
-| `@QuotedIdentifiers` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 interpretiert doppelte Anführungszeichen als Identifier (Default), 0 als Stringliterale gemäß Parsermodus. NULL wirkt wie 1. Kein automatisches Auslesen des Session-SET-Zustands. |
-| `@MaxInputBytes` | `int` | `2097152` | Input | Ganzzahl 1..2097152 UTF-16-Bytes, Default 2097152; explizites NULL übernimmt diesen Default. 0/negativ/größer ungültig; Überschreitung des gewählten Budgets wirft TBX_TSQLPARSE_INPUT_TOO_LARGE. Bei SqlText=NULL greift vorher der No-op. |
-| `@MaxNestingDepth` | `int` | `100` | Input | Ganzzahl 1..256, Default 100; NULL übernimmt 100. Begrenzt den Struktur-/AST-Pfad, nicht nur Klammerzeichen. Weitere unabhängige Vorabgrenzen (512 Atome, 32 Strukturebenen, 16 Kommentarverschachtelungen) und Ausgabelimits bleiben wirksam; ein höherer Wert hebt sie nicht auf. |
+| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Vollständiger Unicode-T-SQL-Text, kein Dateipfad oder Connectionstring. Leer ist zulässig. SQLNULL liefert null Zeilen vor jeder anderen CLR-Validierung. Höchstens MaxInputBytes UTF16-Bytes; Länge wird vor ToSqlString-Materialisierung geprüft. Der Text wird nur geparst, niemals ausgeführt. |
+| `@TSqlVersion` | `int` | `160` | Input | Taxativ80,90,100,110,120,130,140,150,160,170; SQLDefault160 und explizitNULL ebenfalls160. Wählt ScriptDom-Grammatik, nicht Hostversion oder Datenbank-CL. Kein automatischer Versionsfallback; andere Werte werfen INVALID_VERSION. Früher NULL-Text überspringt diese Prüfung. |
+| `@QuotedIdentifiers` | `bit` | `1` | Input | bit:1 behandelt doppelte Anführungszeichen als Identifier,0 gemäß deaktiviertem QUOTED_IDENTIFIER-Parsermodus. SQLDefault1; explizitNULL ebenfalls1. Kein SET auf der Sitzung; betrifft nur den lokalen Parser. |
+| `@MaxInputBytes` | `int` | `2097152` | Input | int1..2097152 einschließlich; SQLDefault2097152,explizitNULL ebenfalls2097152. Positive Byteobergrenze für SqlChars.Length*2 vor Stringkopie. 0/negativ/zu groß wirft INVALID_MAX_BYTES. Keine Ausgabe-/Heap-/Zeitquote. |
+| `@MaxNestingDepth` | `int` | `100` | Input | int1..256 einschließlich; SQLDefault100,explizitNULL ebenfalls100. Grenze der iterativen AST-Tiefe,Root0. Zusätzlich konservativer Vorwächter mit Strukturgrenze min(32,angeforderterTiefe); nicht mit AST-Tiefe gleichsetzen. Tokenize erstellt keinen AST,wendet aber denselben Vorwächter an. Ungültig wirft INVALID_MAX_DEPTH. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_tsql.TVF_TokenizeScript(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);
+SELECT * FROM toolbelt_tsql.TVF_TokenizeScript(N'SELECT 1 AS ContosoValue;',160,1,2097152,100) ORDER BY TokenIndex;
 ```
 
 ## toolbelt_tsql.TVF_ParseScriptErrors
@@ -4700,22 +5121,26 @@ Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert Parserfehler eines T-SQL-Skripts, ohne das Skript auszuführen.
 
-Vertrag und Quelle: [TVF_ParseScriptErrors.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptErrors.sql), [TVF_ParseScriptErrors.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptErrors.md).
+Vertrag und Quelle: [TVF_ParseScriptErrors.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptErrors.sql), [TVF_ParseScriptErrors.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptErrors.md), [TVF_ParseScriptErrors.md](../../Metadata/UsageSkills/toolbelt_tsql/TVF_ParseScriptErrors.md).
 
-<!-- Source/Vertrag SHA256: f10409f688604272c60fe4233757c9acb35212399b4790dc7d1ebe2b8d8600fb -->
+<!-- Source/Vertrag SHA256: 565c1356454699a68cb5f6dec6da13f1809557d93949a66c05af1f98a70f244b -->
+
+Voraussetzung: Windows-only UNSAFE-CLR-Modul2.0.1 gemäß aktuellem Modulvertrag; passende tlblt_Tsql_ScriptParser-Assembly und exakt vom aktuellen Builder gebundene tlblt.Microsoft.SqlServer.TransactSql.ScriptDom-Abhängigkeit. Unterstützte SQL2019/2022/2025-Hosts mit zulässigem CL150/160/170; der Parserdialekt ist separat wählbar. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers. Es wird kein Zielsystem oder Katalog für den Text benötigt.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Zu parsende T-SQL-Quelle als Unicode-Text, kein Objektname/Pfad und keine Ausführung. Leer ist zulässig. NULL liefert keine Zeilen vor jeder anderen Argumentprüfung. MaxInputBytes sowie vorgelagerte Struktur-/Token- und jeweilige Ausgabelimits gelten; Syntaxfehler über TVF_ParseScriptErrors untersuchen, nicht mit fehlenden AST-Zeilen verwechseln. |
-| `@TSqlVersion` | `int` | `160` | Input | Taxativ: 80 = SQL2000-Grammatik, 90 = 2005, 100 = 2008, 110 = 2012, 120 = 2014, 130 = 2016, 140 = 2017, 150 = 2019, 160 = 2022 (Default), 170 = 2025. Wählt den ScriptDom-Parser, nicht die installierte Engine/DB-Compatibility. NULL wirkt wie 160; alle anderen int-Werte werden abgewiesen. |
-| `@QuotedIdentifiers` | `bit` | `1` | Input | Taxativ im gebundenen bit: 1 interpretiert doppelte Anführungszeichen als Identifier (Default), 0 als Stringliterale gemäß Parsermodus. NULL wirkt wie 1. Kein automatisches Auslesen des Session-SET-Zustands. |
-| `@MaxInputBytes` | `int` | `2097152` | Input | Ganzzahl 1..2097152 UTF-16-Bytes, Default 2097152; explizites NULL übernimmt diesen Default. 0/negativ/größer ungültig; Überschreitung des gewählten Budgets wirft TBX_TSQLPARSE_INPUT_TOO_LARGE. Bei SqlText=NULL greift vorher der No-op. |
-| `@MaxNestingDepth` | `int` | `100` | Input | Ganzzahl 1..256, Default 100; NULL übernimmt 100. Begrenzt den Struktur-/AST-Pfad, nicht nur Klammerzeichen. Weitere unabhängige Vorabgrenzen (512 Atome, 32 Strukturebenen, 16 Kommentarverschachtelungen) und Ausgabelimits bleiben wirksam; ein höherer Wert hebt sie nicht auf. |
+| `@SqlText` | `nvarchar(max)` | `kein Default` | Input | Vollständiger Unicode-T-SQL-Text, kein Dateipfad oder Connectionstring. Leer ist zulässig. SQLNULL liefert null Zeilen vor jeder anderen CLR-Validierung. Höchstens MaxInputBytes UTF16-Bytes; Länge wird vor ToSqlString-Materialisierung geprüft. Der Text wird nur geparst, niemals ausgeführt. |
+| `@TSqlVersion` | `int` | `160` | Input | Taxativ80,90,100,110,120,130,140,150,160,170; SQLDefault160 und explizitNULL ebenfalls160. Wählt ScriptDom-Grammatik, nicht Hostversion oder Datenbank-CL. Kein automatischer Versionsfallback; andere Werte werfen INVALID_VERSION. Früher NULL-Text überspringt diese Prüfung. |
+| `@QuotedIdentifiers` | `bit` | `1` | Input | bit:1 behandelt doppelte Anführungszeichen als Identifier,0 gemäß deaktiviertem QUOTED_IDENTIFIER-Parsermodus. SQLDefault1; explizitNULL ebenfalls1. Kein SET auf der Sitzung; betrifft nur den lokalen Parser. |
+| `@MaxInputBytes` | `int` | `2097152` | Input | int1..2097152 einschließlich; SQLDefault2097152,explizitNULL ebenfalls2097152. Positive Byteobergrenze für SqlChars.Length*2 vor Stringkopie. 0/negativ/zu groß wirft INVALID_MAX_BYTES. Keine Ausgabe-/Heap-/Zeitquote. |
+| `@MaxNestingDepth` | `int` | `100` | Input | int1..256 einschließlich; SQLDefault100,explizitNULL ebenfalls100. Grenze der iterativen AST-Tiefe,Root0. Zusätzlich konservativer Vorwächter mit Strukturgrenze min(32,angeforderterTiefe); nicht mit AST-Tiefe gleichsetzen. Tokenize erstellt keinen AST,wendet aber denselben Vorwächter an. Ungültig wirft INVALID_MAX_DEPTH. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);
+SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS ContosoValue;',160,1,2097152,100) ORDER BY ErrorOrdinal;
+-- Eigene reine Syntaxgegenprobe,keine Ausführung des Texts:
+SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT FROM;',160,1,2097152,100) ORDER BY ErrorOrdinal;
 ```
 
 ## toolbelt_tsql.USP_ExplainSsisDataFlow
@@ -4724,13 +5149,11 @@ Modul `toolbelt.tsql.ssis-debug` · Version `1.0.0` · `USP`
 
 Debug-SQL aus DTSX-XML, Paketdefaults und optionalen JSON-Startwerten. Standardmäßig paketbasierter Entwurf ohne Quellkatalogzugriff; CatalogMode=catalog wählt strengere Prüfung. Keine automatische Paket-/SQL-Ausführung.
 
-Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md).
+Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md), [USP_ExplainSsisDataFlow.md](../../Metadata/UsageSkills/toolbelt_tsql/USP_ExplainSsisDataFlow.md).
 
-<!-- Source/Vertrag SHA256: 0e8768d5a3c7113dfd80227176f39fb6385eeffcbdcea262ae92112e772da16f -->
+<!-- Source/Vertrag SHA256: e0b68ad6bb1825f7e2f39ce0ca227dc8a4c9f28e20a0f5a6e5bf2cba10940642 -->
 
-Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Aktuelle Liefer- und Prüfgrenzen gemäß CurrentInstallation.md; historische Nachweise bleiben getrennt.
-
-Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON. Nur values der vollständigen Bindings-Vorlage bearbeiten.
+Voraussetzung: Windows SQL2019/2022/2025 und zum Host zulässiges CL150/160/170. Vorhandene UNSAFE-Assembly tlblt_Tsql_SsisDebug mit privatem gepinntem tlblt.Microsoft.SqlServer.TransactSql.ScriptDom, vorhandene CLR-/Trustvoraussetzungen. Keine Abhängigkeit auf öffentliche Parser-TVFs. Derselbe ResultTable-Helper nur bei optionalem Zielrouting. Vollständiges entschlüsseltes DTSX-XML mit unterstütztem Format6/8; keine SSIS-Installation, Dateiquelle oder Zielserververbindung wird benötigt. Package-Modus kann Zielmetadaten durch Paketdeklarationen ersetzen, aber keine nicht vorhandene Prozedurdefinition rekonstruieren.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4742,7 +5165,7 @@ Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-D
 | `@TargetFlow` | `varchar(64)` | `NULL` | Input | NULL (Default) berücksichtigt alle erkannten Zielflüsse getrennt. Sonst exakte modellinterne TargetFlowId aus der Workflow-/StageIndex-Ausgabe desselben Pakets, maximal varchar(64). Groß-/Kleinschreibung und Whitespace bleiben erhalten. Leer oder unbekannt ist ungültig. Bei procedure-definition ist genau eine vorhandene TargetFlowId erforderlich. |
 | `@InspectStage` | `varchar(64)` | `NULL` | Input | Taxativ für Steuerwerte: NULL (Default) liefert Zielskript/Stufenverzeichnis ohne zusätzliche StageSql-Auswahl; all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören. all benötigt keinen expliziten TargetFlow. Kein Trim/Casefold; unbekannte/leere konkrete ID ungültig. Bei procedure-definition ist ausschließlich NULL zulässig. |
 | `@LookupPolicies` | `nvarchar(max)` | `NULL` | Input | NULL (Default) bedeutet beliebige, pro relevantem Snapshot einmal materialisierte Trefferauswahl. Sonst exakt JSON-Objekt {"schemaVersion":1,"lookups":{"&lt;Lookup-Komponenten-ID&gt;":{"orderBy":[{"column":"&lt;Referenzspalte&gt;","direction":"asc"}]}}}. IDs müssen existierende Lookupkomponenten adressieren, orderBy nicht leer und ohne doppelte Spalten. direction taxativ asc = aufsteigend oder desc = absteigend, exakt kleingeschrieben. Keine freien ORDER-BY-Ausdrücke; vollständige Sortierbindung erforderlich, Gleichstände erhalten keine erfundene Eindeutigkeit. |
-| `@ComparisonCollation` | `sysname` | `NULL` | Input | NULL (Default) verwendet bei Katalogbindung die Collation der expliziten defaultDatabase. Sonst genau ein tatsächlich vom Server unterstützter Collationname als sysname, kein COLLATE-SQL-Fragment; Prüfung gegen sys.fn_helpcollations. Dynamische Serverwertemenge, kein festes erfundenes Inventar: SELECT name FROM sys.fn_helpcollations() zeigt sie. Dient Vergleichs-/Ausdrucksbindung und ändert keine DB-/Spaltencollation; leer/unbekannt ungültig. |
+| `@ComparisonCollation` | `sysname` | `NULL` | Input | NULL (Default) verwendet bei Katalogbindung die Collation der expliziten defaultDatabase. Sonst genau ein tatsächlich vom Server unterstützter Collationname als sysname, kein COLLATE-SQL-Fragment; Prüfung gegen sys.fn_helpcollations. Dynamische Serverwertemenge, kein festes erfundenes Inventar: SELECT name FROM sys.fn_helpcollations() zeigt sie. Dient Vergleichs-/Ausdrucksbindung und ändert keine DB-/Spaltencollation; leer/unbekannt ungültig. Im paketbasierten Modus wird keine Serverliste abgefragt: dort sind nur Latin1_General_100_BIN2 beziehungsweise Latin1_General_100_BIN2_UTF8 bekannt, ohne explizite Wahl BIN2/1252 als Entwurfsannahme. |
 | `@TSqlVersion` | `smallint` | `150` | Input | Taxativ: 150 = SQL-Server-2019-Grammatik (Default), 160 = 2022, 170 = 2025 für die Parser-/Sicherheitsprüfung erzeugten SQLs. Kein automatischer Dialektwechsel/Ablesen der Engineversion. NULL/andere smallint-Werte ungültig. |
 | `@MaxPackageBytes` | `bigint` | `134217728` | Input | bigint 0..9223372036854775807, Default 134217728: Rohbytes des DTSX-Pakets. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben. |
 | `@MaxXmlCharacters` | `bigint` | `134217728` | Input | bigint 0..9223372036854775807, Default 134217728: vom XML-Reader gezählte Zeichen des Pakets. 0 bedeutet für genau diesen konfigurierbaren Zähler unbegrenzt, positive Werte setzen die Obergrenze. Explizites NULL/negative Werte sind Parameterfehler; SQL-Parser-/AST-, feste Tiefen-/Protokoll-, Rechte-/Ownershipgrenzen und Caller-Timeouts werden auch bei 0 nicht aufgehoben. |
@@ -4776,30 +5199,18 @@ Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-D
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Name 2..116 UTF-16-Einheiten; der vollständige Artefaktsatz wird vor Zielmutation erzeugt. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 still, 1..255 eine redigierte Abschlussmessage mit Artefakt-/SQL-Prüfeinheitenzählern. Kein zusätzliches Resultset und keine Quell-/Secretwerte; der interne ResultTable-Helper wird ausdrücklich mit Debug=0 aufgerufen. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile; Rückkehr vor fachlicher Parameter-/Paket-/Katalogprüfung und Ergebniszielmutation. 0 oder NULL führt den Fachpfad aus. Im internen CLR-Einstieg bleiben die neun LOB-Argumente auch bei Hilfe syntaktisch erforderlich. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
-```
-
-```sql
--- Vollständiges DTSX-XML als Clientparameter übergeben.
-DECLARE @DtsxXml nvarchar(max)=NULL;
-EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageXml=@DtsxXml;
-```
-
-```sql
--- @PackageBytes vom Client übergeben.
-DECLARE @PackageBytes varbinary(max)=NULL;
-EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';
-```
-
-```sql
--- @PackageBytes vom Client übergeben; konfigurierbare Zähler direkt als SQL-Parameter.
-DECLARE @PackageBytes varbinary(max)=NULL;
-EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template',@MaxComponents=0,@MaxPackageBytes=0;
+-- Vollständiges synthetisches DTSX-XML vom Client binden.
+DECLARE @Dtsx nvarchar(max)=NULL;
+-- @Dtsx vor dem Fachaufruf mit dem Paket füllen.
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageXml=@Dtsx,@CatalogMode='package',
+ @StartValues=N'{"User::SourceFloor":5}';
+-- Nur tatsächlich vorhandene, eindeutig benannte, nicht sensitive Werte angeben.
 ```
 
 Hilfe:
@@ -4812,100 +5223,123 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
 
 Modul `toolbelt.validation.semantic-version` · Version `1.1.0` · `TVF`
 
-Prüft und zerlegt eine Version nach SemVer 2.0.0.
+Prüft und zerlegt einen strikten SemVer-2.0.0-Text mit explizitem Validierungsstatus.
 
-Vertrag und Quelle: [TVF_ParseSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql), [TVF_ParseSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_ParseSemanticVersion.md).
+Vertrag und Quelle: [TVF_ParseSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql), [TVF_ParseSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_ParseSemanticVersion.md), [TVF_ParseSemanticVersion.md](../../Metadata/UsageSkills/toolbelt_validation/TVF_ParseSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: 9818a3812285df7291e50a2664aa770c4cb928fdb49d2b1e5804d9ad9cabb3ba -->
+<!-- Source/Vertrag SHA256: f4a2f3f3956c5fd41afb29db539026dd522b1f9b07a289234ddc2a040102ec91 -->
+
+Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Version` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
+| `@Version` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_validation.TVF_ParseSemanticVersion(N'1.2.3-alpha.1+build.7');
+SELECT * FROM toolbelt_validation.TVF_ParseSemanticVersion('1.2.3-alpha.1+build.007');
+-- IsValid=1, ValidationCode=VALID; BuildMetadata bleibt build.007.
+SELECT IsValid,ValidationCode FROM toolbelt_validation.TVF_ParseSemanticVersion(NULL);
+-- Genau eine Zeile mit NULL_INPUT.
 ```
 
 ## toolbelt_validation.TVF_CompareSemanticVersion
 
 Modul `toolbelt.validation.semantic-version` · Version `1.1.0` · `TVF`
 
-Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolge nicht.
+Vergleicht zwei gültige SemVer-Versionen nach Präzedenz als relationaler Kern.
 
-Vertrag und Quelle: [TVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql), [TVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_CompareSemanticVersion.md).
+Vertrag und Quelle: [TVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql), [TVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_CompareSemanticVersion.md), [TVF_CompareSemanticVersion.md](../../Metadata/UsageSkills/toolbelt_validation/TVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: f98f27b8cc1b1e46d2e8bcccac98d35cc0d3dc69ad6864e6430698b4b6201926 -->
+<!-- Source/Vertrag SHA256: 39d2a40a699b301e1e0d20b5cf863360a434b8895d419a2e6a81a09f9fe03da0 -->
+
+Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@LeftVersion` | `varchar(8000)` | `kein Default` | Input | Linker Vergleichsoperand. ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
-| `@RightVersion` | `varchar(8000)` | `kein Default` | Input | Rechter Vergleichsoperand. ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
+| `@LeftVersion` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
+| `@RightVersion` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_validation.TVF_CompareSemanticVersion(N'1.2.3', N'2.0.0');
+SELECT * FROM toolbelt_validation.TVF_CompareSemanticVersion('1.0.0-alpha.2','1.0.0-alpha.10');
+-- ComparisonResult=-1.
+SELECT * FROM toolbelt_validation.TVF_CompareSemanticVersion('1.0.0+one','1.0.0+two');
+-- ComparisonResult=0, Builddaten sind kein Tie-Breaker.
 ```
 
 ## toolbelt_validation.TVF_SemanticVersionSortKey
 
 Modul `toolbelt.validation.semantic-version` · Version `1.1.0` · `TVF`
 
-Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.
+Erzeugt einen binären Sortierschlüssel für gültige SemVer-Präzedenz.
 
-Vertrag und Quelle: [TVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql), [TVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_SemanticVersionSortKey.md).
+Vertrag und Quelle: [TVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql), [TVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_SemanticVersionSortKey.md), [TVF_SemanticVersionSortKey.md](../../Metadata/UsageSkills/toolbelt_validation/TVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: 25a0d144057821f7b60ab2c5a625d3ccbab3bbad59b7aa66535a458429d2d9ac -->
+<!-- Source/Vertrag SHA256: 3bab2293b061240a35898885c08f1b00892f16dd9221e815a8d17e9651c5ddb9 -->
+
+Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Version` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
+| `@Version` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT * FROM toolbelt_validation.TVF_SemanticVersionSortKey(N'1.2.3-alpha.1+build.7');
+SELECT v.Version,s.SortKey
+FROM (VALUES('1.0.0'),('1.0.0-beta'),('1.0.0-alpha')) v(Version)
+CROSS APPLY toolbelt_validation.TVF_SemanticVersionSortKey(v.Version) s
+WHERE s.SortKey IS NOT NULL
+ORDER BY s.SortKey,v.Version;
+-- alpha, beta, Release; zusätzlicher Tie-Breaker für gleiche Präzedenz.
 ```
 
 ## toolbelt_validation.SVF_CompareSemanticVersion
 
 Modul `toolbelt.validation.semantic-version` · Version `1.1.0` · `SVF`
 
-Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolge nicht.
+Skalarer Komfortaufruf des kanonischen relationalen SemVer-Vergleichs.
 
-Vertrag und Quelle: [SVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql), [SVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_CompareSemanticVersion.md).
+Vertrag und Quelle: [SVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql), [SVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_CompareSemanticVersion.md), [SVF_CompareSemanticVersion.md](../../Metadata/UsageSkills/toolbelt_validation/SVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: 70f72271a5cca9e04091eb7e692c92e532d2f313887e44f1acf789da1eeab3e9 -->
+<!-- Source/Vertrag SHA256: 367cacc4cdea611771af20ab175ac7244c37b7a03096ee76e8255fb6341b5d9e -->
+
+Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@LeftVersion` | `varchar(8000)` | `kein Default` | Input | Linker Vergleichsoperand. ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
-| `@RightVersion` | `varchar(8000)` | `kein Default` | Input | Rechter Vergleichsoperand. ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
+| `@LeftVersion` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
+| `@RightVersion` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_validation.SVF_CompareSemanticVersion(N'1.2.3', N'2.0.0') AS ResultValue;
+SELECT toolbelt_validation.SVF_CompareSemanticVersion('2.0.0','1.9.9') AS ComparisonResult;
+-- 1; für viele Quellzeilen die TVF per APPLY verwenden.
 ```
 
 ## toolbelt_validation.SVF_SemanticVersionSortKey
 
 Modul `toolbelt.validation.semantic-version` · Version `1.1.0` · `SVF`
 
-Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.
+Skalarer Komfortaufruf des kanonischen relationalen SemVer-Sortierschlüssels.
 
-Vertrag und Quelle: [SVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql), [SVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_SemanticVersionSortKey.md).
+Vertrag und Quelle: [SVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql), [SVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_SemanticVersionSortKey.md), [SVF_SemanticVersionSortKey.md](../../Metadata/UsageSkills/toolbelt_validation/SVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: 294f518d0fc4e9dc0b79ceced99fcdf245eb30d3158f730b90ec19022d208f32 -->
+<!-- Source/Vertrag SHA256: 90ce8afb583544b90c3c04a6c3878304b244409da1f7bb8a670ddeb8af546a36 -->
+
+Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Version` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVer-2.0.0-Text als varchar(8000): Major.Minor.Patch, optional -PreRelease und +BuildMetadata. Core-Zahlen und numerische Pre-release-Identifier ohne führende Nullen; Pre-release/Build als nichtleere punktgetrennte Identifier aus ASCII-Buchstaben, Ziffern und -. Keine Spaces, kein v-Präfix oder Normalisieren; ASCII-Case bleibt relevant. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit Grund, bei Vergleich/Sortierung NULL; Build-Metadaten beeinflussen die Präzedenz nicht. |
+| `@Version` | `varchar(8000)` | `kein Default` | Input | ASCII-SemVertext als varchar(8000): Major.Minor.Patch mit optionalem -PreRelease und +BuildMetadata. Corezahlen und ausschließlich numerische Pre-release-Identifier ohne führende Nullen außer 0; Build-Identifier dürfen führende Nullen besitzen. Nichtleere punktgetrennte Identifier bestehen aus ASCII-Buchstaben, Ziffern oder Bindestrich. Kein v-Präfix, Trimmen, Whitespace oder Normalisieren. NULL und leer sind zulässige Prüfargumente, aber keine gültige Version. Große Zahlen bleiben Text, kein int-/bigint-Limit. Die SQL-Argumentbindung kann längere Werte bereits auf 8000 Bytes kürzen; Überlänge daher vor dem Aufruf am ursprünglichen Wert prüfen. Kein SQL-Default; Argument syntaktisch erforderlich. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
 ```sql
-SELECT toolbelt_validation.SVF_SemanticVersionSortKey(N'1.2.3-alpha.1+build.7') AS ResultValue;
+SELECT toolbelt_validation.SVF_SemanticVersionSortKey('1.2.3-alpha.1') AS SortKey;
+-- Für Mengen TVF_SemanticVersionSortKey per APPLY verwenden.
 ```

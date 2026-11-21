@@ -1,5 +1,18 @@
 # toolbelt_core.USP_RegisterWorkType
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_RegisterWorkType.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Die Integration ist offline geprüft, nicht neu nativ
+abgenommen. Registrierung prüft Existenz und Handler-EXECUTE, nicht die zum
+ParameterMode passende Handler-Parametersignatur; diese prüft der spätere
+Dispatcher separat.
+
+Ohne Callertransaktion liegt der eigene Katalog-Commit vor dem ResultTable-Routing.
+Ein Routingfehler kann daher bereits persistente Registrierung/Änderung
+hinterlassen. Tatsächliche Updates ändern die RowVersion und erfordern eine
+erneute ausdrückliche Konfiguration gebundener App-Policies. Die Registrierung
+legt selbst keine ALLOW-Policies oder SQL-Rechte an.
+
 ## Zweck
 
 Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.
@@ -31,7 +44,7 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile vor Fach-/Handler-/Katalogprüfung oder Änderungen. Danach RETURN 0. 0 oder NULL: Fachpfad. Alle Parameter besitzen technische Defaults. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf

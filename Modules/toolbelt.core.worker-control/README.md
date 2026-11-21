@@ -1,8 +1,55 @@
 # Managed Worker Control
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 **Anleitung und Beispiele:** [Worker starten und steuern](../../Workers/ExternalQueue/USAGE.md).
 Der Leitfaden erklärt alle öffentlichen Steuerfunktionen, globale/lokale
 Parallelität, Betriebsarten, Pause/Drain/Stop, Hold und Wiederfreigabe.
+
+## Relationen und maschinenlesbare Verträge
+
+Die sieben Relationen besitzen vollständige quellgeprüfte Skills, auch in
+ihrer kanonischen DDL:
+
+- [WorkerControlConfiguration](../../Metadata/UsageSkills/toolbelt_core/WorkerControlConfiguration.md)
+- [WorkerRegistration](../../Metadata/UsageSkills/toolbelt_core/WorkerRegistration.md)
+- [WorkerSlotReservation](../../Metadata/UsageSkills/toolbelt_core/WorkerSlotReservation.md)
+- [WorkerExecutionDisposition](../../Metadata/UsageSkills/toolbelt_core/WorkerExecutionDisposition.md)
+- [WorkerExecutionCommitWitness](../../Metadata/UsageSkills/toolbelt_core/WorkerExecutionCommitWitness.md)
+- [VW_WorkerStatus](../../Metadata/UsageSkills/toolbelt_core/VW_WorkerStatus.md)
+- [VW_WorkerExecutionStatus](../../Metadata/UsageSkills/toolbelt_core/VW_WorkerExecutionStatus.md)
+
+Die fünf Tabellen sind intern. Für Caller bleiben die öffentlichen Steuerpfade
+und Statusviews vorgesehen. Tabellenconstraints, gespeicherte Statuswerte und
+ein einzelner Witness ersetzen keine vollständige Provider-/Transaktionsprüfung.
+Die Skill-Quellabnahme ist keine neue native Gesamtqualifikation.
+
+Auch alle 22 Prozeduren besitzen jetzt einen vollständigen quellgeprüften Skill
+unter [Metadata/UsageSkills/toolbelt_core](../../Metadata/UsageSkills/toolbelt_core).
+Damit sind die Verträge aller 29 Modulobjekte beschrieben. `@Hilfe=1` liefert
+bei jeder Prozedur zusätzlich zur bisherigen Standardhilfe genau eine
+vier-spaltige Skillzeile mit dem vollständigen Markdown. Die ausgelieferte DDL
+enthält denselben Text; notwendige native Hilfe-/Installerprüfungen bleiben
+von dieser Quellenabnahme getrennt.
+
+Die Skills unterscheiden tokengebundene Workeraufrufe von administrativer
+EXECUTE-Autorität. Stop ist zunächst eine persistierte Anforderung mit Hold;
+UNKNOWN beweist weder Commit noch Rollback und erlaubt keinen Replay. Vor einer
+expliziten Freigabe muss die nach Stop/Reconcile aktuelle HoldVersion frisch
+gelesen werden. Interne Bindungs-/Transaktionshelfer bleiben Teil des
+kontrollierten Providers und sind kein manueller Ersatz für diesen Ablauf.
+
+## Nachweisstand
 
 SQL2.1-Integration und eigener Worker-Control1.0-Lifecycle. [Vertrag](../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md).
 
@@ -24,10 +71,6 @@ Provider-/Rechte-/Recoverygrenzen bleiben erhalten.
 Globale Admission zählt IsOccupied unabhängig vom Proofstatus. Generationen haben feste registrierte Intervalle; administrative Pause überlebt Close/Expiry/Neuregistrierung. Stop/Hold und private Witness-/Sessionlockproofs schützen gegen Replay. UNKNOWN bleibt belegt.
 
 [Testmatrix](Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md), [Evidenz](Tests/README.md).
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

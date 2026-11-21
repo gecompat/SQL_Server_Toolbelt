@@ -63,6 +63,7 @@ permissions_required:
   - "EXECUTE auf den jeweils benötigten Work-Queue-USPs"
   - "SELECT auf toolbelt_core.VW_WorkQueue für Statusleser"
   - "Claim-Worker benötigen Metadatensichtbarkeit auf registrierte Handler, regulär über EXECUTE auf diese Procedures"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Status, WorkTypeName und FailureCode verwenden Latin1_General_100_BIN2; Meldung und Payload bleiben nvarchar."
 data_type_contract: "WorkItemId und ClaimGeneration sind bigint; ClaimToken uniqueidentifier; Lease-Dauer 5 bis 86400 Sekunden; PayloadJson ist ein JSON-Objekt mit höchstens 65536 Bytes; FailureMessage umfasst höchstens 1000 Unicode-Codeeinheiten."
 help_contract_version: "1.0"
@@ -109,13 +110,13 @@ lifecycle_error_range: "51940-51949"
 clr:
   used: false
 lifecycle:
-  deploy: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "embedded"
-  source_hash_role: "diagnostic_only"
-  repeat_control_preflight: "Deployment/RepeatInstalledControl.Preflight.sql"
-  repeat_control_cleanup: "Deployment/RepeatInstalledControl.Cleanup.sql"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.core.work-queue"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -130,7 +131,7 @@ documentation:
     - "Tests/README.md"
 contracts:
   usp: "1.0"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 supported_upgrades:
   - from: "1.0.0"

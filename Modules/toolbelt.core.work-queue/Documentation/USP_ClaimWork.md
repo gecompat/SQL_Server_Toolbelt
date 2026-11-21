@@ -2,9 +2,15 @@
 
 ## Zweck
 
-Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffnet eine zeitlich begrenzte Lease. Abgelaufene Claims werden nicht implizit übernommen.
+Beansprucht atomar höchstens einen nach Priorität, Fälligkeit und Barrierregeln beanspruchbaren Queueeintrag und eröffnet eine zeitlich begrenzte Lease. Abgelaufene Claims werden nicht implizit übernommen.
 
 ## Verhalten und Ergebnis
+
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_ClaimWork.md)
+steht auch in der kanonischen DDL. `@Hilfe=1` ergänzt die Standardhilfe um
+eine vollständige Skillzeile mit `SkillFormatVersion`, `SchemaName`,
+`ObjectName` und `SkillMarkdown nvarchar(max)`. Neue Hilfe-/Installerabnahme
+bleibt von historischen unveränderten Fachbelegen getrennt.
 
 `@LeaseDurationSeconds` besitzt den Default 300 und erlaubt 5 bis 86.400 Sekunden. Claim darf nicht in einer Caller-Transaktion laufen. Er liefert null oder eine Zeile mit Work Item, Work Type, Payload, geheimem ClaimToken, Claimzeit, Generation, Leasegrenze und Heartbeatzeit.
 
@@ -36,7 +42,7 @@ Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf

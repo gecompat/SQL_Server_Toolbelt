@@ -56,7 +56,13 @@ jobs:
             [Management.Automation.Language.Parser]::ParseFile($path,[ref]$tokens,[ref]$errors) | Out-Null
             if ($errors.Count) { throw 'CSV adapter parse failed.' }
           }
-          & Modules/toolbelt.file.csv-memory/Tests/Framework/Test-LifecycleGuardControls.ps1
+      - name: Historical lifecycle guard counterexamples without SQL
+        shell: pwsh
+        run: |
+          $code="import sys;from pathlib import Path;sys.path.insert(0,'Tests/Release');from ssis_historical_context import historical_root;print(historical_root(Path.cwd(),'2fbe8e3e86f370b22ad2ce9f9716d971072a052b'))"
+          $frozen=python -B -c $code
+          if ($LASTEXITCODE -ne 0) { throw 'Historical CSV lifecycle source unavailable' }
+          & (Join-Path $frozen 'Modules/toolbelt.file.csv-memory/Tests/Framework/Test-LifecycleGuardControls.ps1')
       - name: One build and exact candidate Framework qualification
         shell: pwsh
         run: |

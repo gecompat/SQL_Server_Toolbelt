@@ -1,5 +1,17 @@
 # Strikte Safe Casts
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 `toolbelt.conversion.safe-cast` 1.0.0 bietet genau sechs reine Inline-TVFs im
 Schema `toolbelt_conversion`: BigInt, Decimal38/18, Date, DateTime2(7), Bit
 und UniqueIdentifier. Der [kanonische Vertrag](../../Documentation/Architecture/SAFE_CAST_CONTRACT.md)
@@ -39,10 +51,6 @@ dieselben sechs schemagebundenen IF-Objekte. SQLCMD-Deployment verwendet
 [Beispiele](Examples/SafeCast.sql) und [Testmatrix](Tests/SAFE_CAST_TEST_MATRIX.md)
 verwenden ausschließlich synthetische Daten. Das 8192-Byte-Limit begrenzt
 Eingabetext; keine allgemeine Heap-, Durchsatz- oder Parallelitätszusage.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

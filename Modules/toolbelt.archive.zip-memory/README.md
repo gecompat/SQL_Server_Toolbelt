@@ -1,5 +1,17 @@
 # ZIP Memory Inspection
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_Archive_ZipMemory`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktueller Release-1.4-Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8 erfolgreich; echte Upgradefixture, Writerregression und nichtdoomende Lifecycle-Callerablehnung. Historische Reader-/Writer-Matrix ersetzt keine weitere 1.4-Kapazitätsqualifikation.
 
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität bleiben offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
@@ -150,3 +162,7 @@ exaktem SHA2-512 autorisiertem Releaseartefakt.
 SC-004: Entryextraktion verwendet standardmäßig 16777216 Bytes (16 MiB), höchstens 67108864 Bytes (64 MiB). Deklarierte und tatsächlich gelesene Größe werden geprüft. Ein exakt dimensionierter finaler Entrybuffer ersetzt wachsenden MemoryStream und ToArray-Abschlusskopie. Archiv-/Compressed-/Ratio-/CRC-Grenzen bleiben bestehen. Die technische ArchiveSession teilt die feste Entryobergrenze.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+## Maschinenlesbare Usage-Skills
+
+Alle katalogisierten Objekte dieses Moduls besitzen quellgeprüfte Skills. Die öffentlichen Objektseiten verlinken die vollständigen Verträge; interne CLR-Helfer und ihre benötigten gezielten Providerrechte sind ausdrücklich abgegrenzt. DDL und zusätzliche frühe Prozedurhilfe verwenden dieselben Texte. Die gemeinsame Usage-Skill-View folgt erst bei vollständiger Katalogabdeckung. Neue native Hilfe-/Unicode-/Callerzustands- und Gesamtinstallerabnahme bleiben separat.

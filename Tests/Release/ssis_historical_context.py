@@ -24,7 +24,7 @@ def is_reparse_point(path):
 
 
 @lru_cache(maxsize=2)
-def historical_root(root, baseline=BASELINE):
+def historical_root(root, baseline=BASELINE, checkout_dir=None):
     root = Path(root).resolve()
     paths = [path for path in git(root, "ls-tree", "-r", "--name-only", baseline, "--", *FROZEN_PATHS[:2]).splitlines()
              if path.endswith((".json", ".zip", ".zip.sha256"))]
@@ -34,11 +34,18 @@ def historical_root(root, baseline=BASELINE):
     if not paths:
         raise ValueError("SSIS historical evidence inventory missing")
     git(root, "diff", "--quiet", baseline, "--", *paths)
-    runtime = root / ".runtime"
-    runtime.mkdir(exist_ok=True)
+    if checkout_dir is None:
+        runtime = root / ".runtime"
+        runtime.mkdir(exist_ok=True)
+        checkout = runtime / ("ssis-historical-" + baseline[:8])
+    else:
+        requested = Path(checkout_dir)
+        if not requested.is_absolute() or not requested.parent.is_dir():
+            raise ValueError("SSIS historical worktree requires an existing absolute parent")
+        runtime = requested.parent
+        checkout = runtime.resolve() / requested.name
     if is_reparse_point(runtime):
         raise ValueError("SSIS historical worktree parent is redirected")
-    checkout = runtime / ("ssis-historical-" + baseline[:8])
     if not os.path.lexists(checkout):
         git(root, "worktree", "add", "--detach", "--quiet", str(checkout), baseline)
     if (is_reparse_point(checkout) or Path(git(checkout, "rev-parse", "--show-toplevel").strip()).resolve() != checkout

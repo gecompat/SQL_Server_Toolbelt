@@ -34,7 +34,6 @@ function Assert-ReleaseTools {
 $moduleRoot = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.File.XlsxMemory.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.File.XlsxMemory.dll"
-$deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $OutputDirectory) {
     if (-not (Test-Path -LiteralPath $OutputDirectory -PathType Container) -or
@@ -47,7 +46,7 @@ $sourcePaths = @('Clr/Toolbelt.File.XlsxMemory.csproj','Clr/AssemblyInfo.cs','Cl
     'Source/TVF_InternalXlsxCells.sql','Source/USP_InternalXlsxRead.sql','Source/USP_ListXlsxWorksheets.sql',
     'Source/USP_ReadXlsxWorksheetCells.sql','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql',
     'Source/TVF_InternalFormatXlsxCell.sql','Source/TVF_FormatXlsxCell.sql',
-    'Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-XlsxBuildProcess.ps1')
+    'Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-XlsxBuildProcess.ps1')
 $sourceFingerprints = @(foreach ($relative in $sourcePaths) {
     [ordered]@{ path = $relative; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $moduleRoot $relative)).Hash }
 })
@@ -135,7 +134,7 @@ $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.file.xlsx-memory'
     moduleVersion = '1.2.0'
-    assemblySqlName = 'Toolbelt_File_XlsxMemory'
+    assemblySqlName = 'tlblt_File_XlsxMemory'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
     directFrameworkReferences = @('System', 'System.Data', 'System.Xml')
@@ -147,16 +146,7 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.File.XlsxMemory.trust-manifest.json'
-$deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.File.XlsxMemory.dll'
-
-$deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
-$marker = '$(AssemblyBits)'
-if ([regex]::Matches($deployTemplate, [regex]::Escape($marker)).Count -ne 1) {
-    throw 'Deployment/Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.'
-}
-
-$deployScript = $deployTemplate.Replace($marker, '0x' + $assemblyHex)
 
 [IO.File]::WriteAllBytes($assemblyOutputPath, $assemblyBytes)
 if ((Get-Item -LiteralPath $assemblyOutputPath).Length -ne $assemblyBytes.LongLength -or
@@ -164,14 +154,13 @@ if ((Get-Item -LiteralPath $assemblyOutputPath).Length -ne $assemblyBytes.LongLe
     throw 'Der ausgegebene CLR-Snapshot ist nicht hashkonsistent.'
 }
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
-$deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8
 Assert-ReleaseSources
 Assert-ReleaseTools
 
 [pscustomobject]@{
     AssemblyPath = $assemblyOutputPath
     TrustManifestPath = $manifestPath
-    DeployScriptPath = $deployPath
+    InstallBuilder = "Deployment/Build-Install.ps1"
     AssemblyHash = '0x' + $sha512
     AssemblyDescription = $description
 }

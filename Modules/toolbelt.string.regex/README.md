@@ -1,8 +1,16 @@
 # toolbelt.string.regex
 
-## Installation des neuen Quellstands
 
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_String_Regex`.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
 
 ## Security-Korrektur 2026-10-14
 
@@ -120,3 +128,7 @@ werden unter AppLock erneut geprüft. Diese Erwartung ersetzt keine Trustfreigab
 SC-002/011: Count und Instr prüfen kooperativ500 ms Gesamtzeit einschließlich Vorbereitung und höchstens100000 erfolgreiche Matchschritte. Jeder Suchtimeout liegt im Restbudget, höchstens250 ms. Überschreitungen werfen TBX_REGEX_TIMEOUT beziehungsweise TBX_REGEX_MATCH_LIMIT, nie Teilcount/fehlender Treffer. IsMatch behält250 ms. Gruppenreplacement speichert kompakte Textspans, höchstens65536 Teile, prüft die bestehende R2-Deadline im gesamten Parser und validiert auch ohne Treffer vollständig; darüber TBX_REGEX_REPLACEMENT_LIMIT.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+## Maschinenlesbare Verwendung
+
+Die [gemeinsame Regexreferenz](Documentation/REGEX_FUNCTIONS.md#vollständige-usage-skills) führt zu den vollständigen quellgeprüften Skills der öffentlichen Funktionen. Auch interne CLR-Kerne sind dokumentiert und verweisen auf den passenden öffentlichen Einstieg. Die DDL-Kommentare stammen aus denselben Markdownquellen; neue native Qualifikation bleibt separat.

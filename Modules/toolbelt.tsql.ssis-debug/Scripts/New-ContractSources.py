@@ -6,6 +6,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT.parents[1] / "Scripts/Documentation"))
 from generate_parameter_help import parameter_notes, literal as help_literal, INTERNAL_LOB_NOTE, INTERNAL_UNICODE_NOTE
+sys.path.insert(0, str(ROOT.parents[1] / "Scripts/Metadata"))
+import usage_skills
 
 
 def literal(value):
@@ -14,7 +16,7 @@ def literal(value):
     return "N'" + value.replace("'", "''") + "'"
 
 
-def generate(write=True):
+def generate(write=True, project_skills=True):
     api = json.loads((ROOT / "Contracts/Api.json").read_text(encoding="utf-8"))
     # Shared editorial source; Api.json remains the module's typed contract and
     # carries a generated projection for standalone consumers/package tooling.
@@ -107,6 +109,19 @@ GO
     select = "SELECT " + ",".join(fields) + " FROM OPENJSON(@rows) WITH (" + json_shape + ")"
     constants = {"Sql": internal_help_sql, "Columns": columns, "Shape": shape, "Select": select}
     cs = "// Generiert aus Contracts/Api.json; nicht manuell parallel pflegen.\nnamespace Toolbelt.Tsql.SsisDebug\n{\n    internal static class HelpContract\n    {\n" + "\n".join('        internal const string ' + name + ' = @"' + value.replace('"', '""') + '";' for name, value in constants.items()) + "\n    }\n}\n"
+    if project_skills:
+        repo = ROOT.parents[1]
+        public_skill = usage_skills.read(usage_skills.source_file(repo, "toolbelt_tsql", "USP_ExplainSsisDataFlow"))
+        internal_skill = usage_skills.read(usage_skills.source_file(repo, "toolbelt_tsql", "USP_ExplainSsisDataFlowInternal"))
+        public = usage_skills.project_procedure_ddl(
+            usage_skills.project_procedure_help(public, public_skill), public_skill)
+        internal = usage_skills.project_clr_procedure_ddl(internal, internal_skill)
+        # Preserve the existing CLR help batch and execution path. The appended
+        # constant SELECT is encoded as an ordinary escaped C# string: checkout
+        # CRLF must never alter LF inside the canonical Markdown SQL value.
+        old_sql = '        internal const string Sql = @"' + internal_help_sql.replace('"', '""') + '";'
+        suffix = json.dumps("\n" + usage_skills.render_help_resultset(internal_skill), ensure_ascii=True)
+        cs = cs.replace(old_sql, old_sql[:-1] + ' + ' + suffix + ';', 1)
     files = {"Contracts/Api.json": api_text, "Source/USP_ExplainSsisDataFlow.sql": public, "Source/USP_ExplainSsisDataFlowInternal.sql": internal, "Clr/HelpContract.Generated.cs": cs}
     if write:
         for file, text in files.items():

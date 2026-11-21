@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: Deterministic Mapping Runtime
 
 on:
@@ -43,7 +44,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  current-component-contract:
+    name: Current component equivalence and original lifecycle assertions
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject business drift before reusing original assertions
+        run: |
+          python -B Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py
+          python -B Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_contract.py
   runtime:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.sql-version }} Linux CL${{ matrix.compatibility-level }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -62,6 +78,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
           fetch-depth: 0
       - name: Statische deterministische Verträge prüfen
         run: python3 Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_contract.py

@@ -120,11 +120,13 @@ concurrency:
 jobs:
   offline-contract:
     runs-on: windows-latest
-    timeout-minutes: 10
+    # Current framework plus intact historical evidence checks; previous 10m timed out.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the frozen predecessor for historical evidence checks
         run: |
+          git fetch --no-tags --depth=1 origin 2fbe8e3e86f370b22ad2ce9f9716d971072a052b
           git fetch --no-tags --depth=1 origin 75d42047557d06b82777ba0c860e90f44247920e
           git fetch --no-tags --depth=1 origin 763d46d4eafa79394399d51aec7d3ab90d0dad0c
           git fetch --no-tags --depth=1 origin 410c994f657888faf5ccb1097b1d1a985a98ec96
@@ -152,30 +154,58 @@ jobs:
           "SSIS_SCRIPT_DOM_PATH=$privateDom" >> $env:GITHUB_ENV
       - name: Static contract and canonical generation
         run: python Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_contract.py
+      - name: Current common markerless package and client boundaries without SQL
+        shell: pwsh
+        run: |
+          python -B -m unittest discover -s Scripts/Install/Tests
+          if ($LASTEXITCODE -ne 0) { throw 'Current markerless source/package checks failed' }
+          ./Deployment/Tests/Test-MarkerlessPackage.ps1
+          ./Deployment/Tests/Test-CurrentInstall.ps1
+      - name: Select exact historical deployment evidence sources
+        shell: pwsh
+        run: |
+          # The original evidence tests can create three nested worktrees.
+          $shortRoot=Join-Path $env:RUNNER_TEMP 'h'
+          if (Test-Path -LiteralPath $shortRoot) { throw 'Historical worktree path already present' }
+          $code="import sys;from pathlib import Path;sys.path.insert(0,'Tests/Release');from ssis_historical_context import historical_root;print(historical_root(Path.cwd(),'2fbe8e3e86f370b22ad2ce9f9716d971072a052b',sys.argv[1]))"
+          $frozen=python -B -c $code $shortRoot
+          if ($LASTEXITCODE -ne 0) { throw 'Historical deployment source unavailable' }
+          "TBX_HISTORICAL_ROOT=$frozen" >> $env:GITHUB_ENV
+          "PYTHONDONTWRITEBYTECODE=1" >> $env:GITHUB_ENV
       - name: Markerless installer control tests
         run: python -m unittest discover -s Modules/toolbelt.tsql.ssis-debug/Tests/Static -p test_simple_install.py
       - name: Parse consumer batch separators without SQL
         shell: pwsh
         run: ./Modules/toolbelt.tsql.ssis-debug/Tests/Static/Test-SimpleSqlBatches.ps1 -ScriptDomDllPath $env:SSIS_SCRIPT_DOM_PATH
-      - name: Versioned ZIP integrity, exact build sources and tampering controls without SQL
+      - name: Historical Versioned ZIP integrity, exact build sources and tampering controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Modules/toolbelt.tsql.ssis-debug/Tests/Static -p test_install_package.py
-      - name: Components V2 package integrity and tampering controls without SQL
+      - name: Historical Components V2 package integrity and tampering controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_components_v2_delivery.py
-      - name: Current package, standalone runtime binding and tampering controls without SQL
+      - name: Historical Current package, standalone runtime binding and tampering controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_delivery.py
-      - name: Exact procedure V1 package scope and tampering controls without SQL
+      - name: Historical Exact procedure V1 package scope and tampering controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_procedure_delivery.py
-      - name: Full Windows procedure V1 matrix and negative evidence controls without SQL
+      - name: Historical Full Windows procedure V1 matrix and negative evidence controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_procedure_matrix.py
-      - name: Current build qualification, security and reuse controls without SQL
+      - name: Historical Current build qualification, security and reuse controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_build.py
-      - name: Copy Column source, host evidence and admission counterexamples without SQL
+      - name: Historical Copy Column source, host evidence and admission counterexamples without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p "test_ssis_copy_column*.py"
-      - name: Current security-corrected ZIP and SSMS counterexamples without SQL
+      - name: Historical Current security-corrected ZIP and SSMS counterexamples without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p "test_ssis_security_corrected*.py"
-      - name: Current build native adapter rejection before SQL
+      - name: Historical Current build native adapter rejection before SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: ./Tests/Release/Test-CurrentBuildAdapter.ps1
-      - name: Fresh combined build scope and visible current SSMS guards without SQL
+      - name: Historical Fresh combined build scope and visible current SSMS guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: |
           ./Tests/Release/Test-FreshBuildAdapter.ps1
           python -m unittest discover -s Tests/Release -p test_ssis_current_ssms.py
@@ -184,33 +214,47 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Fresh evidence counterexamples failed' }
           python Scripts/Release/validate_ssis_fresh_build.py --historical
           if ($LASTEXITCODE -ne 0) { throw 'Fresh current-build evidence failed' }
-      - name: Current package full 12-context matrix provenance without SQL
+      - name: Historical Current package full 12-context matrix provenance without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_matrix.py
-      - name: Current DebugScript snapshot coherence evidence without SQL
+      - name: Historical Current DebugScript snapshot coherence evidence without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_snapshot.py
-      - name: Current functional qualification input guards without SQL
+      - name: Historical Current functional qualification input guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_qualification.py
-      - name: Current login, GUI and transport qualification guards without SQL
+      - name: Historical Current login, GUI and transport qualification guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_access.py
-      - name: Current authenticated Windows TLS evidence and tampering controls without SQL
+      - name: Historical Current authenticated Windows TLS evidence and tampering controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_tls.py
-      - name: Native Linux export host evidence and tampering controls without SQL
+      - name: Historical Native Linux export host evidence and tampering controls without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_linux_export.py
-      - name: Administrative SSIS trust evidence and pre-SQL input guards without SQL
+      - name: Historical Administrative SSIS trust evidence and pre-SQL input guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_administrative_trust.py
-      - name: Preparation and hard client recovery evidence without SQL
+      - name: Historical Preparation and hard client recovery evidence without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_preparation_recovery.py
-      - name: Target-bound SSMS preflight and copy guards without SQL
+      - name: Historical Target-bound SSMS preflight and copy guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_ssms_gui.py
-      - name: SSMS receipt execution envelope guards without SQL
+      - name: Historical SSMS receipt execution envelope guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_autonomous_ssms.py
-      - name: Visible SSMS startup before manual authentication without SQL
+      - name: Historical Visible SSMS startup before manual authentication without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_visible_ssms.py
-      - name: Multi-batch SSMS SQLCMD envelope and stop-probe guards without SQL
+      - name: Historical Multi-batch SSMS SQLCMD envelope and stop-probe guards without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_sqlcmd_envelope.py
-      - name: Current standalone T-SQL installer CL matrix composition without SQL
+      - name: Historical Current standalone T-SQL installer CL matrix composition without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: python -m unittest discover -s Tests/Release -p test_ssis_current_standalone_matrix.py
-      - name: Historical standalone T-SQL installer matrix evidence binding without SQL
+      - name: Historical Historical standalone T-SQL installer matrix evidence binding without SQL
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         run: >-
           python -c "import sys; sys.path[:0]=['Tests/Release','Scripts/Release']; from ssis_historical_context import historical_root; from validate_ssis_current_standalone_matrix import ROOT, validate; validate(historical_root(ROOT)); print('SSIS_HISTORICAL_STANDALONE_MATRIX_PASS')"
       - name: Reproduce current provider build
@@ -262,7 +306,8 @@ jobs:
         run: >-
           ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-Syntax.ps1
           -ScriptDomDllPath $env:SSIS_SCRIPT_DOM_PATH -SourceOnly
-      - name: Native adapter syntax without SQL access
+      - name: Historical Native adapter syntax without SQL access
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         shell: pwsh
         run: |
           foreach ($file in Get-ChildItem Modules/toolbelt.tsql.ssis-debug/Tests/Runtime -Filter *.ps1) {
@@ -280,7 +325,8 @@ jobs:
           & Tests/Release/Invoke-CurrentStandaloneTsqlInstallerMatrixLab.ps1 -RunsetPath .runtime/ci-current-matrix-validation/runset.json -ExpectedRunsetSha256 ('0' * 64) -CaseIndex 0 -ValidateOnly
           & Tests/Release/Test-CurrentSqlParameterAdapter.ps1
           & Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentLab.ps1 -Version 2019 -Mode local -CompatibilityLevel 150 -JournalDirectory .runtime/ci-current-validation -ExpectedTargetKey unused -ExpectedContractSha256 ('0' * 64) -SsisReleaseDirectory unused -ParserReleaseDirectory unused -QualifiedProviderSha512 ('0' * 128) -CasesExpectedSha256 (Get-FileHash Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CurrentCases.ps1 -Algorithm SHA256).Hash -ValidateOnly
-      - name: Installation example contract without SQL access
+      - name: Historical Installation example contract without SQL access
+        working-directory: ${{ env.TBX_HISTORICAL_ROOT }}
         shell: pwsh
         run: ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-InstallationExample.ps1
 # Offline evidence only: no SQL host, trusted assembly, Lab or authenticated TLS qualification.

@@ -33,8 +33,13 @@ objects:
   - { type: CLR_TVF, schema: "toolbelt_tsql", name: "TVF_ParseScriptNodeProperties", visibility: public }
   - { type: CLR_TVF, schema: "toolbelt_tsql", name: "TVF_TokenizeScript", visibility: public }
   - { type: CLR_TVF, schema: "toolbelt_tsql", name: "TVF_ParseScriptErrors", visibility: public }
+  - { type: ASSEMBLY, name: tlblt.Microsoft.SqlServer.TransactSql.ScriptDom, visibility: internal }
+
 permissions_required:
   - "SELECT on the required public function"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
   - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
   - "Upgrade from the previous ScriptDom pin additionally requires existing database VIEW DEFINITION; no grants are issued."
 clr:
@@ -49,10 +54,13 @@ clr:
   release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
   trust_removed_by_uninstall: false
 lifecycle:
-  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
-  deploy_template: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.tsql.script-parser"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -71,7 +79,7 @@ documentation:
     - "Tests/OUTPUT_QUOTA_ACCEPTANCE_PROPOSAL.md"
 contracts:
   usp: "not applicable"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   static: "Tests/Static/validate_contract.py"

@@ -1,5 +1,17 @@
 # ZIP-Dateifassaden
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 toolbelt.archive.zip-files 1.0.0 verbindet genau zwei öffentliche T-SQL-USPs
 mit bestehenden ZIP-Memory-/Windows-Filesystem-/ResultTableverträgen.
 Source implementiert; begrenzte native Windows-local-Teilnachweise vorhanden,
@@ -51,3 +63,7 @@ ResultTable-#tbx_-Verbot erlaubt; sonst #tbx_. Keine fremde Tempadoption.
 SC-004: Extraktion erbt Default16 MiB und feste64-MiB-Entrygrenze; Dateifassade prüft diese vor dem Binaryprovider. Größere bisherige Extraktionsparameter sind zu migrieren. Keine stillen Teilpayloads.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+## Maschinenlesbare Usage-Skills
+
+Alle katalogisierten Objekte dieses Moduls besitzen quellgeprüfte Skills. Die öffentlichen Objektseiten verlinken die vollständigen Verträge; interne CLR-Helfer und ihre benötigten gezielten Providerrechte sind ausdrücklich abgegrenzt. DDL und zusätzliche frühe Prozedurhilfe verwenden dieselben Texte. Die gemeinsame Usage-Skill-View folgt erst bei vollständiger Katalogabdeckung. Neue native Hilfe-/Unicode-/Callerzustands- und Gesamtinstallerabnahme bleiben separat.

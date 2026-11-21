@@ -29,6 +29,13 @@ Der technische `NULL`-Default für `@FilePath` ermöglicht `@Hilfe = 1`; im
 normalen Aufruf bleibt der Pfad fachlich erforderlich. Hilfe wird vor
 Pfadnormalisierung und Dateizugriff zurückgegeben.
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_file/USP_LoadBinaryFile.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Diese Integration ist offline geprüft, nicht neu nativ
+abgenommen. `MaxBytes` ist ein Nachleselimit. Bei normaler `IsValid=0`-Ausgabe
+wird eine ResultTable trotzdem regulär befüllt; bei KeepData=0 können ihre
+vorherigen Daten bereits ersetzt sein. RETURN0 allein ist kein Erfolg des Lesens.
+
 Die Standardparameter stehen jetzt in der vereinbarten Reihenfolge
 `@ResultTable, @KeepData, @Debug, @Hilfe`. Bisherige positionsgebundene
 Aufrufe mit Debug-/Hilfe-Werten müssen auf benannte Parameter umgestellt
@@ -42,7 +49,7 @@ werden; benannte Aufrufe behalten ihre Bedeutung.
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Das Ziel wird vor Datei-I/O vorbereitet; Provider-/Decoderfehler rollen den eigenen SQL-Ausgabescope zurück. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene Dateiinhaltsdiagnose; ausschließlich im ResultTable-Pfad an den kanonischen Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN 0 vor Pfad-/Transaktions-/Temp-/Root-/Dateiarbeit. 0/NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 <!-- API_PARAMETERS:END -->
 
 `toolbelt.core.result-table` Version `1.0.0` wird nur für `@ResultTable`
@@ -88,7 +95,9 @@ EXEC toolbelt_file.USP_LoadBinaryFile
 - `EXECUTE` auf `toolbelt_file.USP_LoadBinaryFile`
 - Bei `@ResultTable`: zusätzlich `EXECUTE` auf `toolbelt_core.USP_PrepareResultTable`
 - Lesezugriff auf den Dateipfad
-- `ADMINISTER BULK OPERATIONS` oder `ad hoc distributed queries`
+- Für Engine/Plattform ausreichende bestehende Bulkberechtigung; eine
+  Ad-hoc-Konfigurationsoption ersetzt keine Rechte. Siehe den
+  [Microsoft-Bulkvertrag](https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-bulk-transact-sql?view=sql-server-ver17).
 
 ## Technischer Lösungsweg
 

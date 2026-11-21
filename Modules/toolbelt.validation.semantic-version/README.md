@@ -1,5 +1,17 @@
 # toolbelt.validation.semantic-version
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktuelle [Utility-Callerrechte](../../Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md): einzelne SELECT-/EXECUTE-Grants für16 öffentliche Funktionen lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; andere APIs, direkte Dependencies und Helper bleiben unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren Scope; keine Statusaufwertung.
 
 Für Scalarwrapper ist das nativ geprüfte direkte Einzelrecht EXECUTE. Das [korrigierte Manifest samt Paketbindung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md) nennt SELECT für TVFs und EXECUTE für Scalarwrapper. Ältere Scalarheader bleiben historische Kommentare; maßgeblich sind die hier genannten, nativ geprüften Einzelrechte.
@@ -29,19 +41,36 @@ Modulversion `1.1.0` ergänzt die beiden inline-TVF-APIs. Die SVFs delegieren
 an diese Kerne. Für mengenorientierte Aufrufe sind die TVFs mit `APPLY` zu
 bevorzugen.
 
-Aktuelle Evidenz:
+## Maschinenlesbare Objektverträge
+
+Die kanonischen Skills beschreiben sämtliche Parameter, Validierungscodes,
+Ergebnisse, Rechte und Grenzen und sind identisch in der jeweiligen Funktions-DDL
+enthalten:
+
+- [Version prüfen und zerlegen](../../Metadata/UsageSkills/toolbelt_validation/TVF_ParseSemanticVersion.md)
+- [Versionen relational vergleichen](../../Metadata/UsageSkills/toolbelt_validation/TVF_CompareSemanticVersion.md)
+- [Relationalen Sortierschlüssel erzeugen](../../Metadata/UsageSkills/toolbelt_validation/TVF_SemanticVersionSortKey.md)
+- [Skalar vergleichen](../../Metadata/UsageSkills/toolbelt_validation/SVF_CompareSemanticVersion.md)
+- [Skalaren Sortierschlüssel erzeugen](../../Metadata/UsageSkills/toolbelt_validation/SVF_SemanticVersionSortKey.md)
+
+Die Argumentgrenze beträgt 8000 Bytes nach SQL-Typbindung. Längere Originalwerte
+vor dem Aufruf prüfen, damit sie nicht bereits bei der Bindung gekürzt werden.
+NULL oder ungültige Eingaben liefern den Parserstatus beziehungsweise einen
+NULL-Vergleich/Schlüssel; NULL bedeutet keine gleiche Präzedenz. Builddaten
+liefern keinen Tie-Breaker. Das Binärformat ist kein zugesicherter externer
+Serialisierungsvertrag. Für Details zur aktuellen Skillprojektion und ihren
+Abnahmegrenzen siehe [Usage-Skills](../../Metadata/UsageSkills/README.md).
+
+Frühere Runtime-Evidenz:
 [Semantic-Version Runtime Run 30535377984](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984)
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Der vollständige Adapter ist am 2026-08-29 zusätzlich auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Windows-Läufe
-bleiben offen.
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Die damals offenen
+Windows-Läufe sind durch die oben genannte Nachqualifikation vom 2026-10-19
+abgedeckt; die datierten Nachweise behalten jeweils ihren ursprünglichen Scope.
 
 Siehe [Design](../../Documentation/Architecture/SEMANTIC_VERSION_MODULE_DESIGN.md)
 und [Testmatrix](./Tests/SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md).
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

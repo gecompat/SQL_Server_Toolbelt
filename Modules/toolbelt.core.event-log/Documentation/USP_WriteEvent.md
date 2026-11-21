@@ -10,6 +10,14 @@ Schreibt genau ein Event über den konfigurierten Second-Session-Provider. Die P
 
 Die Procedure kann in einer regulären, zurückgerollten oder uncommittable Caller-Transaktion verwendet werden. Ein erfolgreicher Returncode bedeutet, dass der Remote-Handler synchron erfolgreich committed hat. Provider- oder Handlerfehler werden an den Caller weitergegeben.
 
+Ein Fehler nach dem Remote-Commit oder eine verlorene Transportantwort beweist
+nicht, dass kein Event geschrieben wurde. Die Prozedur dedupliziert nicht anhand
+der ExecutionId oder CorrelationId; ein erneuter Aufruf kann ein Duplikat erzeugen.
+Der [vollständige Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_WriteEvent.md)
+steht in der ausgelieferten DDL und wird über `@Hilfe=1` nach der Standardhilfe
+als zusätzliche vier-spaltige Skillzeile ausgegeben. Diese Projektion ist keine
+neue native Hilfe-/Transportabnahme.
+
 Der interne `USP_WriteEventInternal`-Kern hat einen Help-Aufruf für seine
 gebundene JSON-Payload und den fehlenden fachlichen Resultset-Vertrag. Direkte
 Aufrufe bleiben auf die vorgesehene Event-Log-Fassade beschränkt; Hilfe
@@ -41,12 +49,15 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 | `@ErrorProcedure` | `sysname` | `NULL` | Input | Optionale Fehlerprocedure als sysname (höchstens 128 Codeeinheiten), etwa ERROR_PROCEDURE(); NULL/leer erlaubt, kein auszuführender Aufruf. |
 | `@ErrorLine` | `int` | `NULL` | Input | Optionale positive int-Zeilennummer aus ERROR_LINE(); NULL erlaubt, 0/negativ wird abgewiesen. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bestehende zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile vor dem Fachpfad; 0 oder NULL: Fachaufruf. Alle Parameter besitzen technische Defaults. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf
 
-- Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+- Administrativ vorbereiteter Loopback-Linked-Server mit aktivem Provider,
+  RPC OUT und deaktivierter Remote-Transaktionspromotion; registrierter aktiver
+  Event-Work-Type und passende lokale/Remote-Policy EXECUTE_NEW_SESSION sowie
+  Remote-Handler-EXECUTE. Das Schreiben persistiert außerhalb der Callertransaktion.
 
 ## Beispielaufruf
 

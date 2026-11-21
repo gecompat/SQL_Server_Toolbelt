@@ -14,10 +14,10 @@ Bei der Ergebnisdeutung insbesondere SQL-NULL, leere Ergebnismengen und
 Statuswerte unterscheiden. Bei Prozeduren erklärt `@Hilfe=1` Parameter,
 Ergebnisse und Fehler. Für Installation, Rechte und tatsächlich ausgeführte
 Plattformtests der verlinkten Modulbeschreibung und Testmatrix folgen.
-Die vollständigen Parametertexte entsprechen den Objektseiten; dafür ist der
-[gemeinsame aktuelle Installationsstand](../../INSTALL.md)
-erforderlich. Ein älteres installiertes Paket aktualisiert seine Hilfe nicht
-durch den Besuch dieser Referenz.
+Für den vollständigen Usage-Skill stehen die
+[Skill-View](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md)
+und bei Prozeduren die Hilfeausgabe im
+[gemeinsamen aktuellen Installationsstand](../../INSTALL.md) zur Verfügung.
 Ein Beispiel mit registrierten Handlern, Claims oder Dateien setzt die dort
 beschriebene Vorbereitung voraus.
 
@@ -62,19 +62,20 @@ Voraussetzungen und können Zustände verändern. Nicht gesammelt ausführen.
 - `Modules/*/module.yaml` bestimmt Umfang, Sichtbarkeit, Typ und Modulversion.
 - `Modules/*/Source/*.sql` liefert Parameterreihenfolge, SQL-Typen, Defaults
   und OUTPUT. Auch dynamisch deklarierte CLR-Aggregate werden berücksichtigt.
-- [api_examples.json](api_examples.json) enthält die redaktionellen
-  Kurzbeschreibungen, quellgeprüften Parametererklärungen, synthetischen Beispiele
-  und Voraussetzungen je API. Die Parametererklärungen werden auch in die
-  markierten `API_PARAMETERS`-Blöcke der Objektseiten geschrieben; diese Blöcke
-  nicht separat bearbeiten.
-- [usp_help.json](usp_help.json) enthält zusätzliche Required-/Nullable-Metadaten
-  und die übrigen Help-Abschnitte der T-SQL-Prozeduren. Parameterbeschreibungen
-  werden darin nicht dupliziert. Signaturen und diese Metadaten müssen dieselbe
-  Parametermenge besitzen; neue oder entfernte Parameter stoppen den Build.
+- Die [kanonischen Usage-Skills](../../Metadata/UsageSkills/README.md) liefern
+  Kurzbeschreibungen, Parametererklärungen, synthetische Beispiele und
+  Voraussetzungen für den Beispielkatalog. Dieselben Parametererklärungen
+  erscheinen in den generierten `API_PARAMETERS`-Blöcken der Objektseiten.
+- Bei öffentlichen T-SQL-Prozeduren bezieht auch die Standardhilfe ihre
+  Parameterbeschreibungen, fachliche Pflicht und NULL-Regeln aus dem Usage-Skill.
+  [usp_help.json](usp_help.json) liefert die übrigen strukturierten Help-Zeilen.
+  [api_examples.json](api_examples.json) bleibt Quelle für historische
+  Projektionen und den separaten SSIS-Standardhilfe-Generator.
 - [`generate_parameter_help.py`](../../Scripts/Documentation/generate_parameter_help.py)
   schreibt die markierten `API_PARAMETER_HELP`-Blöcke. Der
   [SSIS-Generator](../../Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py)
-  übernimmt dieselben Texte in API-Projektion, Fassade und interne CLR-Hilfe.
+  erzeugt die SSIS-Standardhilfe und ergänzt die vollständigen kanonischen
+  Skilltexte in Fassade und CLR-Hilfe.
 - Modullokale Objektseiten bleiben die verbindlichen fachlichen Verträge,
   insbesondere für zulässige Parameterwerte, Resultsets und Grenzen.
 
@@ -82,8 +83,8 @@ Der Katalog ersetzt keine Objektseite und behauptet keine Runtime-Validierung.
 Er wird ausschließlich offline aus Repositoryquellen erzeugt. Zugangsdaten,
 installierte SQL-Kataloge und reale Ausgaben werden nicht eingelesen.
 
-Bei einer neuen oder entfernten öffentlichen API muss die Beispielregistry
-mitgepflegt werden. Jeder Source-Parameter benötigt eine passende Erklärung;
+Bei einer neuen oder entfernten öffentlichen API muss der zugehörige
+kanonische Skill mitgepflegt werden. Jeder Source-Parameter benötigt eine passende Erklärung;
 neue oder entfernte Parameter stoppen die Prüfung bis zur redaktionellen Pflege.
 Bei Vertragsänderungen sind Beschreibung, Beispiele und
 Voraussetzungen fachlich zu prüfen; der Generator kann diese semantische

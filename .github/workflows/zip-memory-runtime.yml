@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: ZIP Memory CLR Runtime
 
 on:
@@ -51,6 +52,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - run: >-
           python3
           Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
@@ -63,6 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
           fetch-depth: 0
       - name: Historical 1.2.0 release fixture
         shell: pwsh
@@ -91,6 +95,8 @@ jobs:
           path: .runtime/zip-memory-release/**
 
   sql-server-linux:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.sql_version }} Linux / compatibility ${{ matrix.compatibility_level }}
     needs: build-net-framework
     runs-on: ubuntu-latest
@@ -116,6 +122,8 @@ jobs:
             compatibility_level: 170
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - name: Download exact deployment input
         uses: actions/download-artifact@v4
         with:

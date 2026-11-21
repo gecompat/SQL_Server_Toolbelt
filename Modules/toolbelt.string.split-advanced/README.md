@@ -1,5 +1,17 @@
 # Quote/Escape Multi-Separator Split
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Modul `toolbelt.string.split-advanced`, Version 1.1.0, unreleased. S2 wurde am
 2026-10-01 freigegeben. Die spätere ausdrückliche Einzel-Freigabe
 „Unquoting, Split-USP und ZIP-Writer implementieren“ ergänzt
@@ -9,14 +21,20 @@ S2-Originaltoken-Semantik und kein automatisches Unquoting.
 
 [Öffentlicher Vertrag](Documentation/TVF_SplitAdvanced.md) · [Design](../../Documentation/Architecture/SPLIT_ADVANCED_MODULE_DESIGN.md) · [Testmatrix](Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md) · [Evidenz](Tests/README.md).
 
-SQLCMD-Deployment: zuerst same-database `toolbelt.core.result-table >=1.0.0`,
-danach in Deployment `sqlcmd -d ToolbeltDemo -b -i Deploy.sql -v DeploymentMode=local`;
-zentral mit DeploymentMode=central. Beide TVFs sind unabhängig, nur USP-
-ResultTable benötigt den Helper. SQL Server 2019+ mit Compatibility>=150.
-Fremdobjekte werden nicht übernommen; bekannte Releases 1.0.0/1.1.0 werden
-markerbasiert ersetzt. Sourcehash ist nur diagnostisch.
+Der [gemeinsame Buildplan](Deployment/README.md) bündelt die ausgewählte
+Modulclosure einschließlich `toolbelt.core.result-table >=1.0.0` in derselben
+Datenbank. Beide TVFs sind fachlich unabhängig vom Helper; nur USP-ResultTable
+benötigt ihn zur Laufzeit. SQL Server 2019+ mit Compatibility>=150.
+Der aktuelle create-only-Weg ersetzt keine vorhandenen Objekte, benötigt
+weder SQLCMD noch Deploymentmarker und bietet keinen impliziten Uninstall.
+Die früheren markerbasierten Installations-/Upgrade-/Uninstallwege gehören
+ausschließlich zu ihren historischen Quellen und Nachweisen.
 
-Uninstall: `sqlcmd -d ToolbeltDemo -b -i Uninstall.sql -v ConfirmNoExternalConsumers=0`; zentral ausschließlich mit `-v ConfirmNoExternalConsumers=1`. Lokale referenzierende Objekte verhindern Deinstallation. Betreiber müssen externe Verbraucher vor zentraler Deinstallation prüfen.
+Alle drei öffentlichen Objekte besitzen einen vollständigen quellgeprüften
+[Usage-Skill](../../Metadata/UsageSkills/README.md) in ihrer ausgelieferten DDL.
+`EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;` liefert zusätzlich zur
+Standardhilfe eine vollständige Skillzeile mit vier Spalten. Die neue
+Hilfeprojektion ist offline geprüft; dies ist keine neue native Abnahme.
 
 Der [ursprüngliche Callerrechtebericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
 belegt drei Einzelgrantprofile und den getrennten ResultTable-/Helperpfad auf
@@ -24,10 +42,6 @@ sechs physischen Zielen bei höchstem CL. Der
 [ergänzende CL-Abschluss](../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
 fügt die sechs niedrigeren CL-Fälle hinzu, ohne unveränderte grüne Fälle zu
 wiederholen. Lifecycle- und echte CrossDB-Kontexte bleiben separat.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

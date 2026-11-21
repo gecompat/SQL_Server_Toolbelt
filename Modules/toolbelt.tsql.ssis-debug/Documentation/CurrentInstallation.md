@@ -23,16 +23,16 @@ Komponentenumfang ohne Versionsschalter. Historische V1-/V2-Dateien sind keine
 Lieferung dieses API-Standards. Der fachliche Vertrag steht in
 [SSIS_CURRENT_API_CONTRACT.md](../../../Documentation/Architecture/SSIS_CURRENT_API_CONTRACT.md).
 
-## Aktueller Entwicklungsstand mit ANSI-Sicherheitskorrektur
+## Historischer Entwicklungsstand mit ANSI-Sicherheitskorrektur
 
-Verwende das [aktuelle Installationspaket](../InstallPackages/README.md#aktuelles-paket-mit-ansi-sicherheitskorrektur).
+Verwende das [aktuelle Installationspaket](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md#aktuelles-paket-mit-ansi-sicherheitskorrektur).
 Es enthält die drei benötigten Module und den sicherheitskorrigierten Provider.
 ZIP-Prüfsumme kontrollieren, vollständig entpacken und anschließend der
-[lokalen Installation](../Examples/Installation/README.md) folgen. Die
-[Objektreferenz](USP_ExplainSsisDataFlow.md) erklärt Bindings, DebugScript und
+[lokalen Installation](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Examples/Installation/README.md) folgen. Die
+[Objektreferenz](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md) erklärt Bindings, DebugScript und
 Prozedurdefinition desselben aktuellen Builds.
 
-Die [frische Abnahme](../../../Releases/1.0.0/SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md)
+Die [frische Abnahme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Releases/1.0.0/SSIS-CURRENT-ZIP-SSMS-QUALIFICATION.md)
 deckt zwölf Windows-/Engine-/CL-/Moduskontexte sowie einen sichtbaren
 Windows-/SSMS-Gesamtfall ab. Strikte TLS-Verbindung und unabhängige
 Sicherheitsabnahme sind separat an dieselbe DLL gebunden. Windows-Anmeldung mit
@@ -49,15 +49,15 @@ Die folgenden vollständigen Nachweise und das Qualified-ZIP gelten für den
 Build vor Copy Column. Ihre ursprünglichen Artefakte bleiben unverändert.
 
 Für den neuen 40-Parameter-Stand mit `procedure-definition` verwende das
-[qualifizierte Installations-ZIP](../InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip).
-Entpacke es, prüfe die [ZIP-Prüfsumme](../InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip.sha256)
-und folge für lokale Installation der [Installationsanleitung](../Examples/Installation/README.md)
-für die drei enthaltenen Module. Die [aktuelle Gesamtabnahme](../Tests/Qualification/Current.Build.20261104.json)
+[qualifizierte Installations-ZIP](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip).
+Entpacke es, prüfe die [ZIP-Prüfsumme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Qualified-Install-Windows.zip.sha256)
+und folge für lokale Installation der [Installationsanleitung](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Examples/Installation/README.md)
+für die drei enthaltenen Module. Die [aktuelle Gesamtabnahme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Build.20261104.json)
 trennt neue Prüfungen und die Anwendbarkeit früherer Windows-/CL-Kontexte.
 Das Paket korrigiert den Abbruch bei Materialisierungsfehlern der erzeugten
 Prozedur. Bereits installierte Definitionen müssen aus diesem Build neu
 erzeugt und nach ihrem eigenen Ownership-/Versionsnachweis ersetzt werden.
-Die [Objektreferenz](USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
+Die [Objektreferenz](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md#geprüften-zielpfad-als-prozedur-wiederverwenden)
 zeigt den anschließenden Generator- und Prozeduraufruf.
 
 ## Qualifizierter Installationsumfang
@@ -68,7 +68,7 @@ zeigt den anschließenden Generator- und Prozeduraufruf.
 | 2022 | CU26 | 150, 160 | lokal und zentral |
 | 2025 | CU8 | 150, 160, 170 | lokal und zentral |
 
-Die [frische Ausgabeabnahme](../Tests/README.md#frische-buildgebundene-ausgabeabnahme)
+Die [frische Ausgabeabnahme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/README.md#frische-buildgebundene-ausgabeabnahme)
 belegt alle zwölf Kontexte am unveränderten qualifizierten ZIP mit
 15.204 Assertions und zwölf frischen Windows-Abschlussaudits. Sie ergänzt
 die ursprüngliche Wiederverwendungsabnahme, deren Berichte unverändert bleiben.
@@ -82,7 +82,7 @@ SQL-Anmeldung; er ist kein Nachweis für Windows-Anmeldung mit striktem TLS.
 Installiere ResultTable, Parser und SSIS-Debug aus dem geprüften Paket in
 derselben zentralen Moduldatenbank. Verwende dafür die vorhandenen
 Deployment-Dateien mit `DeploymentMode=central`. Die
-[ResultTable-Datei](../../toolbelt.core.result-table/Deployment/Deploy.sql)
+[ResultTable-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.core.result-table/Deployment/Deploy.sql)
 benötigt SQLCMD und das eigene Deployment-Verzeichnis als Arbeitsverzeichnis.
 Für Parser und SSIS-Debug enthält das ZIP bereits die vollständigen Dateien
 `Artifacts/Deploy.WithAssembly.sql`. Die vorher geprüften Trustfreigaben und
@@ -101,7 +101,7 @@ Prozeduraufrufe und Quellrechte gelten in dieser Datenbank.
 ## Installation der bisherigen Paketstände
 
 Der vorherige Source-Build mit vollständiger Parameterhilfe liegt im
-[Parameter-Help-Paket](../../../Releases/1.0.0/PARAMETER-HELP.md). Dessen Anleitung
+[Parameter-Help-Paket](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Releases/1.0.0/PARAMETER-HELP.md). Dessen Anleitung
 erklärt Neuinstallation, die getrennte administrative Trustfreigabe und die
 Kontrolle der installierten Hilfe. Die zugehörigen Funktionsnachweise bleiben
 an diesen Build und seine Modulartefakte gebunden.
@@ -110,7 +110,7 @@ Der eigenständige SSIS-Installer enthält denselben fachlichen Kern mit ältere
 Hilfetexten. Seine bisherigen Nachweise bleiben an genau diese Dateien gebunden;
 er wird durch neue Tests nicht rückwirkend zu einem anderen Build.
 Die reine T-SQL-Datei heißt
-[`SSIS-INSTALL-TSQL-CURRENT.sql`](../../../Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
+[`SSIS-INSTALL-TSQL-CURRENT.sql`](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Releases/1.0.0/SSIS-INSTALL-TSQL-CURRENT.sql).
 Er enthält die drei benötigten DLLs und die abhängigen SQL-Objekte; zur
 Ausführung sind weder SQLCMD noch weitere Dateien erforderlich. Die Datei in
 einer frischen Sitzung in der gewünschten Datenbank vollständig ausführen.
@@ -129,7 +129,7 @@ Die enthaltenen Trust-, Eigentums-, Transaktions- und Sitzungsprüfungen gelten
 auch hier. Zusätzliche Serverrechte werden nicht automatisch vergeben.
 
 Alternativ enthält das
-[aktuelle ZIP](../InstallPackages/SSIS-Debug-Current-Install-Windows.zip)
+[aktuelle ZIP](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-Current-Install-Windows.zip)
 Artefakte, Quellen, Lizenztexte und gebundene Qualifikationsnachweise.
 Neuinstallation und Wiederholung desselben aktuellen Stands werden getrennt
 geprüft. Eine ältere inkompatible Entwicklungsinstallation muss vor der
@@ -198,7 +198,7 @@ ORDER BY Ordinal;
 `@CatalogBindings` ist die ausdrücklich erlaubte Zuordnung der Paketverbindungen
 zu Datenbanken derselben Instanz. Sie enthält keine Zugangsdaten und wird nicht
 aus einer fremden Umgebung übernommen. Die Felder und Flatfile-Zuordnungen sind
-in der [Prozedurbeschreibung](USP_ExplainSsisDataFlow.md) erklärt. Ohne benötigte
+in der [Prozedurbeschreibung](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md) erklärt. Ohne benötigte
 Zuordnung bleibt der betroffene Pfad als unvollständig gekennzeichnet.
 
 ## Debug-SQL und fehlende Werte
@@ -217,7 +217,7 @@ Das erzeugte Debug-SQL liest ausschließlich die explizit zugeordneten Quellen;
 Flatfile-Ziele werden als lesende Projektion dargestellt, keine Datei wird
 geschrieben und kein SSIS-Task gestartet.
 
-Die zusätzliche [Snapshot-Kohärenzqualifikation](../Tests/Qualification/Current.SnapshotCoherence.20261030.json)
+Die zusätzliche [Snapshot-Kohärenzqualifikation](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.SnapshotCoherence.20261030.json)
 prüft Windows SQL Server 2025/CU8/CL170 lokal und zentral. Eine Quellzeile wird
 erst nach Materialisierung aller Planeinheiten und vor den ersten Lese-Batches
 eingefügt: Der ausgegebene Ziel-/Row-Count-Snapshot bleibt bei zwei Zeilen,
@@ -254,16 +254,16 @@ EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe = 1;
 ## Qualifizierter Installationsumfang
 
 Der aktuelle Repository-Stand des getrennten
-[SSIS-Trustskripts](../Tests/InstallerTrust/README.md) ist mit dem unveränderten
+[SSIS-Trustskripts](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/InstallerTrust/README.md) ist mit dem unveränderten
 heutigen Binary auf Windows SQL2019/2022/2025 qualifiziert: 54 Assertions und
 drei unabhängige Audits. NULL sowie leere und überlange Literale werden vor
 einem Eintrag abgewiesen. Das ersetzt keine vollständige Windows-Anmeldung
 des Installationsbeispiels. Das öffentliche `PrepareServer.sql` ist inzwischen
-[separat auf allen drei Windows-Versionen geprüft](../Tests/WindowsClientRecovery/README.md):
+[separat auf allen drei Windows-Versionen geprüft](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/WindowsClientRecovery/README.md):
 54 Assertions und drei frische Audits. Sein Pending-Guard berücksichtigt die
 dokumentierten impliziten Speicherdefaults und verweigert echte ausstehende
 Änderungen weiterhin. `Install-Local.ps1` liest Release-SQL ausdrücklich als UTF8.
-Der [Windows-Installer-/CLI-Nachweis](../Tests/Qualification/InstallerClient.Windows.20261101.json)
+Der [Windows-Installer-/CLI-Nachweis](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/InstallerClient.Windows.20261101.json)
 belegt auf SQL2025/CU8, CL150 auch öffentliche Vorbereitung und Erst-/
 Wiederholungsinstallation unter NTLM, aktuelle API sowie vollständige
 DebugScript-Ausführung mit zehn Assertions und frischem Windows-Abschlussaudit.
@@ -272,8 +272,8 @@ Gesamtkoordinator bleibt `FAILED_CLEANED`. Der vollständige Windows-/SSMS-
 Scripttransport bleibt ein eigenes Abnahmekriterium. Ältere
 ZIP-/Standalone-Nachweise bleiben an ihre unveränderten Lieferbytes gebunden.
 
-Die [Current-ZIP-Matrix](../Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
-und die separate [Standalone-T-SQL-Installer-Matrix](../../../Releases/1.0.0/ssis-current-standalone-installer-matrix.json)
+Die [Current-ZIP-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.InstallPackage.Matrix.20261029.json)
+und die separate [Standalone-T-SQL-Installer-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Releases/1.0.0/ssis-current-standalone-installer-matrix.json)
 belegen den festen aktuellen Lieferstand auf Windows SQL2019/CL150,
 SQL2022/CL150 und CL160 sowie SQL2025/CL150, CL160 und CL170, jeweils local
 und central. Die ZIP-Matrix besteht aus zwei unverändert übernommenen und zehn
@@ -281,21 +281,21 @@ zusätzlichen Installationsfällen; die Standalone-Matrix aus vier unverändert
 übernommenen und acht zusätzlichen Fällen. Beide Nachweise sind auf ihren
 beschriebenen synthetischen Vertragsumfang begrenzt und behaupten keine
 allgemeine Vollständigkeit aller SSIS-Komponenten oder APIs. Die separate
-[aktuelle Funktionsabnahme](../Tests/Qualification/Current.Functional.20261031.json)
+[aktuelle Funktionsabnahme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Functional.20261031.json)
 qualifiziert den freigegebenen Debugvertrag mit 12.396 Assertions. Die
-[Anmeldeabnahme](../Tests/Qualification/Current.Access.Windows.CL.20261031.json)
+[Anmeldeabnahme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.Access.Windows.CL.20261031.json)
 ergänzt 1.596 Assertions für Lowpriv-Cross-DB-Identitäten und Windows-Ausführung
 sowie eine sichtbar geprüfte SSMS-SQL-Anmeldung. Sie behauptet keine
 Windows-Anmeldung in SSMS und keinen erfolgreichen GUI-Gesamtkoordinator.
 Der aktuelle Debugvertrag ist auf Windows funktionsqualifiziert; das Modul
 bleibt unveröffentlicht. Head-/Main-CI und Integration werden getrennt am
 jeweiligen PR-/Merge-Head nachgewiesen. Die separate
-[authentifizierte TLS-Abnahme](../Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json)
+[authentifizierte TLS-Abnahme](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Current.AuthenticatedTls.Windows.20261031.json)
 bestand auf Windows/Hyper-V SQL2025 RTM, CL170, local/central mit 412 Assertions,
 signiertem V2-Snapshot und unabhängigem Cleanup-Audit. Tatsächliche
 SSIS-Paketausführung bleibt eine separate Grenze.
 
 Die konkrete qualifizierte Plattform-/CL-/Modusauswahl sowie verbleibende
-Analysegrenzen stehen in der [Prüfmatrix](../Tests/README.md). Funktionale
+Analysegrenzen stehen in der [Prüfmatrix](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.tsql.ssis-debug/Tests/README.md). Funktionale
 Labprüfungen belegen keine authentifizierte TLS-Verbindung, tatsächliche
 SSIS-Paketausführung oder Veröffentlichungsfreigabe.

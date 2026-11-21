@@ -6,9 +6,22 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 ## Verhalten und Ergebnis
 
-Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlich gebundene Parameter an den internen Remote-Dispatcher. Execution- und Correlation-ID werden aus dem aktiven Execution Context übernommen oder deterministisch ergänzt.
+Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlich
+gebundene Parameter an den internen Remote-Dispatcher. Explizite IDs haben
+Vorrang vor Kontext; fehlende ExecutionId wird NEWID, fehlende CorrelationId
+fällt auf die gewählte ExecutionId zurück.
 
-Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand, Context-IDs, Handler-Returncode und Remote-Dauer. Ein Handlerfehler wird nicht in Erfolg umgewandelt.
+Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand,
+Context-IDs, Handler-Returncode und Remote-Dauer. Geworfene SQL-/Handlerfehler
+bleiben sichtbar. Ein nichtzero Handlercode allein führt dagegen nicht automatisch
+zu Fehler oder Rollback. Geprüft wird der separate Dispatcher-/Providercode;
+`@SuppressResult=1` kann den Handlercode ohne Ausgabe lassen.
+
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_ExecuteWorkTypeInNewSession.md)
+steht in der DDL und folgt bei `@Hilfe=1` nach der Standardhilfe als zusätzliche
+vier-spaltige Skillzeile. Die Projektion ist keine neue native Abnahme.
+Remote-Commit und spätere Ausgabe sind nicht atomar gekoppelt; nach Output-,
+Cleanup- oder Transportfehler niemals automatisch von Nichtausführung ausgehen.
 
 `@ResultTable` folgt dem allgemeinen USP-Vertrag, ist aber bei `XACT_STATE() = -1` nicht zulässig. Die direkte Standardausgabe bleibt in diesem Zustand verfügbar.
 
@@ -27,14 +40,17 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 | `@Tenant` | `nvarchar(256)` | `NULL` | Input | Optionaler Unicode-Text nvarchar(256); NULL/Default übernimmt den aktiven Tenant oder bleibt NULL. Leer ist ein expliziter Wert; keine Mandantenberechtigungsprüfung. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Bei XACT_STATE()=-1 unzulässig, ebenso zusammen mit SuppressResult=1; direkte Ausgabe bleibt bei uncommittable Caller möglich. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
-| `@SuppressResult` | `bit` | `0` | Input | Taxativ für bit: 0 liefert die Infrastruktur-Ergebniszeile oder routet sie nach ResultTable (Default/NULL); 1 unterdrückt nur diese Ausgabe nach erfolgreichem Remote-Handlerlauf und Returncodeprüfung. Mit nicht-NULL ResultTable unvereinbar. |
+| `@SuppressResult` | `bit` | `0` | Input | 0 oder NULL: Infrastrukturresultat direkt oder nach ResultTable; 1: diese Ausgabe nach erfolgreichem Dispatcher-Return unterdrücken. Nicht mit ResultTable kombinierbar. Das prüft NICHT automatisch HandlerReturnCode=0; ein nichtzero Handlercode kann dadurch ohne Ausgabe bleiben. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: vorhandene Standardhilfe plus eine vollständige vier-spaltige Skillzeile vor Fachprüfung/Katalog/RPC/Mutation; 0 oder NULL: Fachpfad. Alle Argumente besitzen technische Defaults. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf
 
-- Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+- Aktiv registrierter Work Type, gültige lokale und Remote-Policy
+  EXECUTE_NEW_SESSION, passender Handler und bestehendes Remote-EXECUTE sowie
+  administrativ vorbereiteter und aktiv konfigurierter Loopback-Provider.
+  Ein Dreiteilname oder Actor/Tenant ersetzt keine Berechtigung.
 
 ## Beispielaufruf
 

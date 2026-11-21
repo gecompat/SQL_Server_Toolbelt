@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: Q1 Migration Idempotency
 
 on:
@@ -33,15 +34,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  current-component-contract:
+    name: Current component equivalence and original lifecycle assertions
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject business drift before reusing original assertions
+        run: |
+          python -B Modules/toolbelt.core.generate-series/Tests/Static/validate_contract.py
   static-contract:
     name: Static contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - run: python3 Tests/Quality/MigrationIdempotency/validate_contract.py
 
   sql-server-linux:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.version }} Linux
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -57,6 +74,8 @@ jobs:
             image: "mcr.microsoft.com/mssql/server:2025-latest"
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - name: Verify repeat deploy and uninstall
         env:
           TBX_SQL_IMAGE: ${{ matrix.image }}

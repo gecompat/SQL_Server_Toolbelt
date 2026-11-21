@@ -14,8 +14,9 @@ Die [Installationsanleitung](../INSTALL.md) verwendet den gemeinsamen aktuellen
 Installer mit eingebetteten DLLs. Sie führt durch Windows-/Portable- und
 lokale/zentrale Profile, Rechte, CLR und Trust, SSMS-Ausführung und den ersten
 Hilfeaufruf. Erwartete Ergebnisse und Fehlerklärung stehen im selben Leseweg;
-ein eigener Build ist nicht erforderlich. Der Satz ist für leere ausgewählte
-Testdatenbanken bestimmt. Frühere Stable-/CLR-/Help-Pakete stehen getrennt in
+Ein fertig gebauter Satz enthält die benötigten Binaries; für den Quellweg
+sind die dokumentierten Buildinputs erforderlich. Der aktuelle create-only-Weg
+ist kein Upgrade bestehender Installationen. Frühere Stable-/CLR-/Help-Pakete stehen getrennt in
 der [Releaseübersicht](../Releases/README.md#historische-pakete-und-nachweise).
 
 ## Queue und Worker verstehen und verwenden
@@ -47,17 +48,17 @@ Installer ist unveröffentlicht; alle Modulmanifeste bleiben `unreleased`.
    Deployment-Modus, Dependencies, Rechte und Einschränkungen.
 2. Wähle anhand des [Deployment-Modells](Architecture/DEPLOYMENT_MODEL.md)
    zwischen lokaler und zentraler Installation. Lies anschließend den
-   [Deploymentablauf](../Deployment/README.md): Er beschreibt PowerShell 7,
-   `sqlcmd`, ausdrückliche Zielwahl, CLR-Eingaben und Fehlergrenzen.
+   [Deploymentablauf](../Deployment/README.md): Er beschreibt den Offlineplan,
+   normale SQL-Dateien und alternativ PowerShell 7.4 mit ODBC-sqlcmd sowie
+   ausdrückliche Zielwahl, CLR-Eingaben und Fehlergrenzen.
 3. Beginne mit dem dort beschriebenen `-PlanOnly` für deine Modulauswahl.
-   Der erwartete Plan nennt Module, automatisch ergänzte Dependencies und
-   erforderliche Eingaben; er installiert nichts. Fehlende Eingaben oder
-   ungeeignete Voraussetzungen zuerst klären. Der Runner baut keine Binaries
-   und erteilt keine Rechte oder Trustfreigaben.
+   Der Plan nennt Profil, Module und ergänzte Pflichtabhängigkeiten; er lädt
+   keine Binaries und verbindet sich nicht mit SQL Server. Die Buildanleitung
+   erklärt die danach benötigten Eingaben. Rechte werden nicht vergeben.
 4. Führe ein Deployment erst mit den dokumentierten Voraussetzungen auf einer
-   bewusst gewählten Umgebung aus. Die Module haben eigene Transaktionen;
-   ein späterer Fehler rollt frühere erfolgreich installierte Module nicht
-   pauschal zurück. Wiederholung und Uninstall folgen dem jeweiligen Lifecycle.
+   bewusst gewählten Umgebung aus. Bei Fehlern können Teilobjekte bestehen
+   bleiben. Create-only ergänzt fehlende Objekte, ersetzt bestehende nicht und
+   bietet kein automatisches Upgrade oder Uninstall.
 5. Wähle danach ein einzelnes passendes Beispiel im
    [API-Katalog](Reference/README.md). Erklärt werden Parameter und
    Voraussetzungen; für Resultsets, Seiteneffekte und Fehler bleibt die

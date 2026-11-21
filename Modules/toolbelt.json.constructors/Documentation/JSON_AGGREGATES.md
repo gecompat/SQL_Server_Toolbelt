@@ -50,3 +50,7 @@ Quoten bleiben gleich. Voraussetzungen, Fallback, Frameaufbau und Grenzen
 stehen im [Transportvertrag](../../../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md#kompakte-aktuelle-engine-zustände-für-nullmengen).
 Historische Native-/Paketnachweise qualifizieren weiterhin ausschließlich ihre
 ursprünglichen Binaries; die neue native Restabnahme ist gesondert zu lesen.
+
+## Maschinenlesbare Verträge
+
+Die beiden Aggregate besitzen vollständige Skills in ihren Objektseiten und der ausgelieferten CREATE-AGGREGATE-DDL. Ihre festen Profile unterscheiden sich von den konfigurierbaren globalen Limits der Prozeduren. Das AGF-Depthlimit von 127 Containerebenen je eingebettetem JSON-Fragment gilt nicht pauschal für den Legacy-USP-Pfad. Die interne Zustandsprüfsumme ist keine Signatur oder Herkunftsauthentifizierung.

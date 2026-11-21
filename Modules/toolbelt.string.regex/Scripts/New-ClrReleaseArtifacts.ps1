@@ -11,7 +11,6 @@ $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.String.Regex.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.String.Regex.dll"
-$deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
 # Releaseartefakte benötigen ein leeres Ziel und exakt denselben Quellstand
 # vor/nach Build. Pfade im Manifest sind ausschließlich modulrelativ.
@@ -25,7 +24,7 @@ $sourcePaths = @(
     'Clr/Toolbelt.String.Regex.csproj', 'Clr/Properties/AssemblyInfo.cs',
     'Clr/RegexProvider.cs', 'Clr/RegexBoundedIntake.cs', 'Clr/RegexTransformations.cs', 'Clr/RegexRelations.cs',
     'Clr/RegexCaptures.cs', 'Source/RegexFunctions.sql', 'Source/RegexRelations.sql',
-    'Source/RegexCaptures.sql', 'Deployment/Deploy.sql', 'Deployment/Uninstall.sql',
+    'Source/RegexCaptures.sql',
     'Scripts/New-ClrReleaseArtifacts.ps1'
 )
 function Get-ReleaseSourceFingerprints {
@@ -75,7 +74,7 @@ $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.string.regex'
     moduleVersion = '1.3.0'
-    assemblySqlName = 'Toolbelt_String_Regex'
+    assemblySqlName = 'tlblt_String_Regex'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
     directFrameworkReferences = @('System', 'System.Data')
@@ -86,27 +85,17 @@ $manifest = [ordered]@{
 }
 
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.String.Regex.trust-manifest.json'
-$deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.String.Regex.dll'
-$deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
-if ([regex]::Matches($deployTemplate,[regex]::Escape('$(AssemblyBits)')).Count -ne 1) {
-    throw 'Deployment/Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.'
-}
-$deployScript = $deployTemplate.Replace('$(AssemblyBits)', '0x' + $assemblyHex)
-
-# Unmittelbar vor dem Schreiben erneut prüfen; ein anderer Agent darf den
-# gekoppelten Source-/Lifecycle-Stand nicht unbemerkt austauschen.
 if ((ConvertTo-Json -InputObject @(Get-ReleaseSourceFingerprints) -Compress) -cne $sourceSnapshot) {
     throw 'Releasequellen wurden vor dem Artefaktschreiben verändert.'
 }
 [IO.File]::Copy($assemblyPath, $assemblyOutputPath, $true)
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
-$deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8
 
 [pscustomobject]@{
     AssemblyPath = $assemblyOutputPath
     TrustManifestPath = $manifestPath
-    DeployScriptPath = $deployPath
+    InstallBuilder = "Deployment/Build-Install.ps1"
     AssemblyHash = '0x' + $sha512
     AssemblyDescription = $description
 }

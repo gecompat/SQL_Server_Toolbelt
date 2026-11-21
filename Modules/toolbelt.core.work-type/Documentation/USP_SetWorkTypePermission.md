@@ -4,6 +4,12 @@ Verwaltet ausschließlich die ausdrückliche Delegation eines vorhandenen Work
 Types an einen vorhandenen Datenbankbenutzer oder eine Datenbankrolle.
 Kein SQL-GRANT, keine Rollenzuweisung, kein Handleraufruf und kein Datenresultset.
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkTypePermission.md)
+steht in der ausgelieferten DDL. `@Hilfe=1` liefert ihn nach der bisherigen
+Standardhilfe als zusätzliche Zeile mit `SkillFormatVersion`, `SchemaName`,
+`ObjectName` und `SkillMarkdown nvarchar(max)`, vor der CONTROL-Prüfung und
+Policyänderung. Die Projektion ist offline geprüft, nicht neu nativ abgenommen.
+
 <!-- API_PARAMETERS:BEGIN -->
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -12,7 +18,7 @@ Kein SQL-GRANT, keine Rollenzuweisung, kein Handleraufruf und kein Datenresultse
 | `@PermissionName` | `varchar(32)` | `NULL` | Input | Taxativ und binär/case-sensitiv: ENQUEUE erlaubt das Einreihen; CLAIM erlaubt das Beanspruchen von Arbeit; EXECUTE_NEW_SESSION erlaubt den Start über den Second-Session-Provider. Keine weiteren Aktionen und kein implizites UPPER. SQL-Space-Padding ist vom binären Vergleich nicht aufgehoben. Fachlich erforderlich, NULL ungültig. |
 | `@PermissionState` | `varchar(8)` | `'ALLOW'` | Input | Taxativ und binär/case-sensitiv: ALLOW legt eine erlaubende lokale Policy an (Default); DENY legt eine verbietende Policy an und gewinnt gegen passende ALLOWs; REMOVE entfernt den Eintrag genau dieser Aktion/Principal-Zuordnung. NULL/andere Werte ungültig. Dies ersetzt keine SQL-Objekt-EXECUTE-Rechte und vergibt keine Serverrechte. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert bestehende zwölfspaltige Standardhilfe und genau eine vollständige vier-spaltige Skillzeile, danach RETURN 0 vor Parametervalidierung/CONTROL-/Katalogprüfung oder Policyänderung. 0 oder NULL führt den Fachpfad aus. Alle Argumente besitzen technische Defaults. |
 <!-- API_PARAMETERS:END -->
 
 Rückgabe 0 bei Erfolg. Fehler 51590 Parameter, 51591 fehlendes CONTROL auf
@@ -31,6 +37,10 @@ Die interne inline TVF `TVF_WorkTypeAuthorization` liefert genau eine bit-Spalte
 IsAllowed; wirksame DBtoken einschließlich Rollen werden ausgewertet. Ein
 gültiges DENY überstimmt ALLOW. Ohne gültiges ALLOW wird abgewiesen, auch dbo.
 Actor, Tenant, ORIGINAL_LOGIN-Text und Clientangaben verleihen keine Autorität.
+
+Die interne Entscheidung prüft weder `WorkType.IsEnabled` noch Handler-EXECUTE
+oder Providerverfügbarkeit. Öffentliche Consumer müssen diese zusätzlichen
+Verträge weiterhin erfüllen. Sie ist kein vollständiger Ausführungs-Preflight.
 
 ```sql
 EXEC toolbelt_core.USP_SetWorkTypePermission

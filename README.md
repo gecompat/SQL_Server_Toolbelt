@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 45 Module implementiert – 26 teilweise validiert](https://img.shields.io/badge/Status-45%20Module%20implementiert%20%7C%2026%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 45 Module implementiert – 30 teilweise validiert](https://img.shields.io/badge/Status-45%20Module%20implementiert%20%7C%2030%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -38,10 +38,12 @@ Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
 Mit PowerShell 7.4+ und sqlcmd (ODBC) übernimmt der
 [Ein-Aufruf-Installer](./Deployment/ONE-CALL-INSTALL.md) Vorprüfung, Trust und
 lokale oder zentrale Neuinstallation.
-Der gemeinsame aktuelle Installer enthält fertige SQL-Skripte und DLLs für
-Windows/Linux sowie lokale/zentrale Neuinstallation. Die Anleitung erklärt
-Profilauswahl, Rechte, CLR und Trust, SSMS, ersten Aufruf und Fehlerklärung.
-Ein eigener Build ist nicht erforderlich. Der Satz ist ein Entwicklungssnapshot für leere ausgewählte Testdatenbanken.
+Der aktuelle Quellstand verwendet einen gemeinsamen markerfreien SQL-Kern für
+Windows/Portable sowie lokale/zentrale Installation. Die normale SQL-Datei
+benötigt keinen SQLCMD-Modus; alternativ übernimmt der Client die Ausführung.
+[Quellbuild](./Scripts/Install/README.md), fertigen gebauten Satz und
+historische Vorabreleases bitte unterscheiden. Der aktuelle Lebenszyklus ist
+create-only, kein automatisches Upgrade oder Uninstall.
 
 Für die Nutzung führen die [Modulübersicht](./Modules/README.md),
 die [Lesewege](./Documentation/README.md) und die

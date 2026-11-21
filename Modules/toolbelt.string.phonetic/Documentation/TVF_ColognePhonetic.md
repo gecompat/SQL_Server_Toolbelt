@@ -28,7 +28,7 @@ Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../Tests/R
 <!-- API_PARAMETERS:BEGIN -->
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Text` | `nvarchar(max)` | `kein Default` | Input | Rohtext mit höchstens 4096 UTF-16-Einheiten; gültige Surrogatpaare werden geprüft, ein nicht unterstützter Skalar wird nicht still entfernt. ASCII-Zeichen sind zulässig. NULL ergibt NULL-Code(s)/ErrorCode 0; leer ist gültig. Längen-/Arbeitsgrenze ergibt Code 2, ungepaarte Surrogate Code 1 und nicht unterstützte Zeichen Code 3. Keine frei wählbare Sprache/Transliteration. Zusätzlich zu ASCII sind ÄÖÜäöüß erlaubt; Umlaute werden A/O/U und ß wird SS. Kein allgemeiner Unicode-Phonetikdienst. |
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Unicode-Rohtext mit höchstens 4096 UTF-16-Codeunits vor jeder eigenen Textkopie. NULL liefert NULL-Code(s) und ErrorCode=0, leerer Text ist gültig und liefert leere Codes. Ungültige Surrogatfolge ergibt Code 1, Größenquote Code 2, Zeichen außerhalb des geschlossenen Alphabets Code 3. Ein gültiges Supplementary-Paar bleibt dennoch außerhalb dieses Alphabets und ergibt Code 3. Zusätzlich zu ASCII U+0000..U+007F ausschließlich ÄÖÜäöüß. ASCII a..z wird zu A..Z, Umlaute zu A/O/U, ß zu SS. Kein globales Trimmen; Satz-/Kontrollzeichen bleiben im Buchstabenkontext und können den Lookahead beeinflussen. Kein SQL-Default; Argument ausdrücklich übergeben. |
 <!-- API_PARAMETERS:END -->
 
 ## Beispielaufruf

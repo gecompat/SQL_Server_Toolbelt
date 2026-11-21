@@ -18,11 +18,22 @@
 
 `OccupiedSlots` zählt auch ungeklärte Reservations. HeartbeatSeconds und UnreachableSeconds sind bei Registrierung gepinnte Werte; neue Konfigurationswerte gelten erst für neue Generationen. Eine fehlende Heartbeatmeldung ist kein Rollbacknachweis.
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/VW_WorkerStatus.md)
+steht auch in der DDL. `ConfigVersion` stammt aus der aktuellen globalen
+Konfigurationszeile; die Intervalle stammen dagegen aus der Registration.
+Die View filtert nicht auf aktive Worker oder den Caller. Eine fehlende
+Konfigurationszeile blendet wegen des CROSS JOIN alle Registrierungen aus.
+`State` ist gespeichert und wird beim SELECT nicht aus dem Heartbeatalter
+neu berechnet. Der Zähler wertet ausschließlich `IsOccupied=1` aus.
+
 ```sql
 SELECT WorkerId,WorkerGeneration,ProviderKind,State,Capacity,RunMode,LastHeartbeatAtUtc,OccupiedSlots,ConfigVersion,HeartbeatSeconds,UnreachableSeconds FROM toolbelt_core.VW_WorkerStatus;
 ```
 
-Der [Architekturvertrag](../../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md) beschreibt Stop, Admission und Proof. Laufzeitnachweise sind noch nicht ausgeführt.
+Der [Architekturvertrag](../../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
+beschreibt Stop, Admission und Proof. [Vorhandene Nachweise](../Tests/README.md)
+behalten ihre jeweilige Ziel- und Artefaktbindung; die aktuelle Skill-/DDL-/
+Installerprojektion ist dadurch nicht erneut nativ abgenommen.
 
 ## Aufrufparameter
 

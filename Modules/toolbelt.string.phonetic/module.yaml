@@ -32,9 +32,12 @@ objects:
   - {type: TVF, schema: "toolbelt_string", name: "TVF_DoubleMetaphone", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_ColognePhoneticCore", visibility: internal}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_DoubleMetaphoneCore", visibility: internal}
-  - {type: ASSEMBLY, name: "Toolbelt_String_Phonetic", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_String_Phonetic", visibility: internal}
 permissions_required:
   - "SELECT auf den öffentlichen TVFs"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
   - "Lifecycle: VIEW DEFINITION auf Datenbank und SELECT auf sys.sql_expression_dependencies"
   - "CREATE FUNCTION, CREATE ASSEMBLY, Schema-ALTER; ALTER ANY ASSEMBLY nur bei Binarywechsel"
   - "Datenbankweite Release-Marker benötigen zusätzlich dafür wirksame Rechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
@@ -56,7 +59,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_String_Phonetic"
+  assembly_sql_name: "tlblt_String_Phonetic"
   assembly_file_name: "Toolbelt.String.Phonetic.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly; getrenntes Opt-in"
@@ -65,13 +68,13 @@ clr:
   build_project: "Clr/Toolbelt.String.Phonetic.csproj"
   release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
 lifecycle:
-  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
-  deploy_template: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "generated from exact built assembly; build-only until separate qualification"
-  source_hash_role: "diagnostic_only"
-  trust_removed_by_uninstall: false
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.string.phonetic"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -88,7 +91,7 @@ documentation:
   differential_transport: "Tests/Differential/TRANSPORT.md"
 contracts:
   usp: "not applicable"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   static: "Tests/Static/validate_contract.py"

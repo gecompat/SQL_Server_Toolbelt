@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.uri-component"
 module_name: "URI Component Percent-Encoding"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "validated"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Codiert und decodiert RFC-3986-URI-Komponenten als UTF-8-Octets."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150,160,170]
 platforms:
-  windows: "validated"
-  linux: "validated"
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: tsql-utf8-inline
     technology: "T-SQL bounded status MSTVF with legacy inline wrapper"
     platforms: [Windows,Linux]
-    status: "validated"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -53,6 +53,8 @@ objects:
 permissions_required:
   - "SELECT auf toolbelt_conversion.TVF_UriComponentEncode, TVF_UriComponentDecode, TVF_UriComponentEncodeStatus und TVF_UriComponentDecodeStatus"
   - "EXECUTE auf toolbelt_conversion.SVF_UriComponentEncode und SVF_UriComponentDecode"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "UTF-8-Konvertierung verwendet Latin1_General_100_BIN2_UTF8; die erzeugte Percent-Darstellung ist ASCII."
 data_type_contract: "Alle öffentlichen APIs akzeptieren und liefern nvarchar(max); Decode ist ein strikter ASCII-URI-Komponentenvertrag."
@@ -72,11 +74,13 @@ clr:
   permission_set: null
   trust_method: null
 lifecycle:
-  deploy: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "embedded"
-  source_hash_role: "diagnostic_only"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.conversion.uri-component"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -95,7 +99,7 @@ documentation:
     - "Tests/README.md"
 contracts:
   usp: "not applicable"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   status_permissions: "../../Tests/V0C_StatusPermissions.Contract.sql"

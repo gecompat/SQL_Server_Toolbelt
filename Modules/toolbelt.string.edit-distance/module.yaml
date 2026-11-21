@@ -37,9 +37,12 @@ objects:
   - {type: TVF, schema: "toolbelt_string", name: "TVF_OsaDistance", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_LevenshteinDistanceCore", visibility: internal}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_OsaDistanceCore", visibility: internal}
-  - {type: ASSEMBLY, name: "Toolbelt_String_EditDistance", visibility: internal}
+  - {type: ASSEMBLY, name: "tlblt_String_EditDistance", visibility: internal}
 permissions_required:
   - "SELECT auf den öffentlichen TVFs"
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
   - "CREATE FUNCTION, CREATE ASSEMBLY und Schema-ALTER für Deployment"
   - "ALTER ANY ASSEMBLY bei Binarywechsel"
   - "VIEW DEFINITION auf Datenbank und SELECT auf sys.sql_expression_dependencies für Lifecycle"
@@ -64,7 +67,7 @@ clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_String_EditDistance"
+  assembly_sql_name: "tlblt_String_EditDistance"
   assembly_file_name: "Toolbelt.String.EditDistance.dll"
   permission_set: "SAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
@@ -73,13 +76,13 @@ clr:
   build_project: "Clr/Toolbelt.String.EditDistance.csproj"
   release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
 lifecycle:
-  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
-  deploy_template: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "generated from exact built assembly"
-  source_hash_role: "diagnostic_only"
-  trust_removed_by_uninstall: false
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.string.edit-distance"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -98,7 +101,7 @@ documentation:
     - "Examples/JaroWinkler.sql"
 contracts:
   usp: "not applicable"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   static: "Tests/Static/validate_contract.py"

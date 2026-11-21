@@ -33,4 +33,4 @@ $result=@(foreach($source in $sources){
     }})
     [pscustomobject]@{path=$source.path;statements=$statements}
 })
-[IO.File]::WriteAllText([IO.Path]::GetFullPath($OutputFile),($result|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
+[IO.File]::WriteAllText([IO.Path]::GetFullPath($OutputFile),(ConvertTo-Json -InputObject $result -Depth 8),[Text.UTF8Encoding]::new($false))

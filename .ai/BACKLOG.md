@@ -1879,7 +1879,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 19 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 15 sind `validated`, 30 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
@@ -2635,7 +2635,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 - **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `8384333831ac81919df287cf3616ff4e` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3fbecb532a13b72fc3ce38effe7e0d4899837c89)).
-- **Aktuelle Bindung:** [Modules/toolbelt.core.result-table/Deployment/Deploy.sql](../Modules/toolbelt.core.result-table/Deployment/Deploy.sql).
+- **Aktuelle Bindung:** [Modules/toolbelt.core.result-table/Deployment/Deploy.sql](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.core.result-table/Deployment/Deploy.sql).
 - **Abgleich:** Bestehendes toolbelt_core wird anhand ALTER-Recht akzeptiert; eine Schemaowner-/effektive CONTROL-Policy fehlt. Objektmarker und Locking schließen spätere Manipulation durch einen untrusted Schemaowner nicht aus.
 - **Nächster Schritt / Akzeptanz:** Kompatible Trustpolicy für bestehende gemeinsam genutzte Schemas beschließen. Fremdes leeres Schema, Owner und indirekte Kontrollrechte negativ testen; kein automatischer Ownertransfer oder Rechteentzug.
 - **Recheck 2026-10-15:** Die gebundenen fachlichen Quellen sind gegenüber dem Ausgangsabgleich unverändert. Die beschriebene Ursache und die offene Vertrags-/Designentscheidung bestehen fort; Priorität, Reife D und proposed unverändert.
@@ -2745,7 +2745,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 - **Disposition:** implemented; mit [PR #319](https://github.com/gecompat/SQL_Server_Toolbelt/pull/319) integriert. Priorität **P1**, ursprüngliche Reife **T**; kein offenes Implementierungspaket.
 - **Cloudreferenzen:** `411ece02a76081919c530b7b14ec5a87` (commit_scan, low, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/8ca1b953546894c33e8bf7d18e2612cf51a7f682)).
-- **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Deployment/Deploy.sql](../Modules/toolbelt.core.work-queue/Deployment/Deploy.sql), [Modules/toolbelt.core.work-queue/Source/WorkItem.sql](../Modules/toolbelt.core.work-queue/Source/WorkItem.sql).
+- **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Deployment/Deploy.sql](https://github.com/gecompat/SQL_Server_Toolbelt/blob/2fbe8e3e86f370b22ad2ce9f9716d971072a052b/Modules/toolbelt.core.work-queue/Deployment/Deploy.sql), [Modules/toolbelt.core.work-queue/Source/WorkItem.sql](../Modules/toolbelt.core.work-queue/Source/WorkItem.sql).
 - **Historischer Abgleich vor PR #319:** Der aktive Legacyclaimcheck steht vor Deployment-TX/AppLock. Unter dem Lock wird Version/Managedhold geprüft, nicht derselbe Legacyclaimzustand unter claimverhindernder Sperre. Der Backfill kann später hinzugekommene Claims in eine abgeleitete Lease überführen.
 - **Akzeptanzplanung vor PR #319:** Bestehende Zusage 'kein Upgrade aktiver Legacyclaims' atomar bis zur Migration sichern. Zwei Sessions und genuine 1.0/1.1 mit claimendem Consumer deterministisch testen; historische Repeat-PASS ersetzen diesen Racefall nicht.
 - **Recheck 2026-10-15 vor Cloudabschluss:** Aktive Legacyclaims werden in der Deploymenttransaktion unter TABLOCKX/HOLDLOCK erneut geprüft; die Sperre bleibt bis Transaktionsende. Zwei synchronisierte native Sessions belegen Abweisung und Sperrwirkung. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
@@ -6349,13 +6349,13 @@ Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der bet
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
 | Tests | Statische Prüfung und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
-| Blocker | Keine. Die vollständige Windows-/Linux-Matrix ist erfolgreich. |
+| Blocker | Native Grenzfallabnahme der geänderten Funktionen am aktuellen Quellstand steht aus. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesign `JSON_PATH_EXISTS_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.json.path-exists/`; [W2b JSON Path Runtime 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943), [Documentation Consistency 30568128932](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128932) und lokaler physischer Linux-Lauf vom 2026-08-29 erfolgreich. |
-| Nächster Schritt | Keine autonome Validierung offen; Konstruktoren und Aggregate bleiben ohne Einzelvertrag und Freigabe zurückgestellt. |
+| Nächster Schritt | Gezielte Gegenproben aus [FunctionEdgeCases.sql](../Tests/Metadata/FunctionEdgeCases.sql) am aktuellen Build abnehmen. |
 
 Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der betroffenen Security-/Wartungsverträge ist in der vollständigen Sechs-Ziel-Matrix und den zusätzlichen Status-/Clientfällen geprüft; ältere datierte Einschränkungen beschreiben den damaligen Stand. Siehe [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md).
 
@@ -6390,12 +6390,13 @@ Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der bet
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
 | Tests | Statische Contracts und GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; Anniversary-, Grenzwert-, Unicode-/UTF-8-, Fehler-, Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Scope geprüft. |
-| Blocker | Keine. Die vollständige Windows-/Linux-Matrix einschließlich Collation-, ASCII-/Unicode-/Large-Input- und Kollisionsfällen ist erfolgreich. |
+| Blocker | Native Grenzfallabnahme der geänderten Funktionen am aktuellen Quellstand steht aus. |
 | Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399), [Documentation Consistency 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014) und lokaler physischer Linux-Lauf vom 2026-08-29. |
-| Nächster Schritt | Keine autonome Validierung offen; zusätzliche fachliche Ausbaustufen benötigen Einzelvertrag und Freigabe. |
+| Nächster Schritt | Gezielte Gegenproben aus [FunctionEdgeCases.sql](../Tests/Metadata/FunctionEdgeCases.sql) am aktuellen Build abnehmen. |
 
 
 Securitystand 2026-10-15: URI Component ist teilweise validiert; die beiden anderen W1-Module bleiben validiert. Historische Matrixnachweise qualifizieren die neuen URI-Limits nicht vollständig.
@@ -6500,13 +6501,13 @@ Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der bet
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zustandsbasierter kanonischer Parser; genau eine Ergebniszeile; rechtsbündige Teile; vollständige Escape-, Omission-, Längen-, Collation-, Wrapper-, Deployment- und Lifecycle-Contracts; Dokumentation und Change-Impact-Registry gekoppelt. |
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
-| Blocker | Kein Merge-Blocker; die vollständige Pflichtmatrix ist erfolgreich. |
+| Blocker | Native Grenzfallabnahme der geänderten Funktionen am aktuellen Quellstand steht aus. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`; kanonische Artefakte unter `Modules/toolbelt.metadata.identifier/`; [Identifier Runtime Run 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834) erfolgreich. |
-| Nächster Schritt | Keine autonome Validierung offen; Release bleibt unautorisiert. |
+| Nächster Schritt | Gezielte Gegenproben aus [FunctionEdgeCases.sql](../Tests/Metadata/FunctionEdgeCases.sql) am aktuellen Build abnehmen. |
 
 ### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
 

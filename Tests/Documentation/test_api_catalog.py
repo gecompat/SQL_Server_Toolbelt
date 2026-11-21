@@ -28,14 +28,34 @@ class CatalogTests(unittest.TestCase):
             " @Answer decimal(10,2) = NULL OUTPUT\nAS SELECT 1;\nGO\n"
             "CREATE VIEW toolbelt_test.VW_Test AS SELECT 1 AS Value;", encoding="utf-8")
         (self.module / "README.md").write_text("# Synthetischer Vertrag\n", encoding="utf-8")
-        self.registry = self.root / "Documentation/Reference/api_examples.json"
-        self.registry.write_text(json.dumps({
-            "toolbelt_test.USP_Test": dict(summary="Synthetisches Beispiel.", requirements=[],
-                parameter_notes={"@RootAlias": "Synthetischer Alias.", "@Answer": "Synthetischer Output."},
-                examples=["EXEC toolbelt_test.USP_Test @RootAlias=N'example';"]),
-            "toolbelt_test.VW_Test": dict(summary="Synthetische View.", requirements=[], parameter_notes={},
-                examples=["SELECT * FROM toolbelt_test.VW_Test;"]),
-        }), encoding="utf-8")
+        directory = self.root / "Metadata/UsageSkills/toolbelt_test"
+        directory.mkdir(parents=True)
+        self.skill = directory / "USP_Test.md"
+        self.view_skill = directory / "VW_Test.md"
+        for item, path, description, example in (
+            (catalog.objects(self.root)[0], self.skill, "Synthetisches Beispiel.",
+             "EXEC toolbelt_test.USP_Test @RootAlias=N'example';"),
+            (catalog.objects(self.root)[1], self.view_skill, "Synthetische View.",
+             "SELECT * FROM toolbelt_test.VW_Test;"),
+        ):
+            _, params = catalog.signature(item)
+            metadata = dict(name=item["name"].lower().replace("_", "-"),
+                            description=description, skill_format_version="1.0",
+                            module_id=item["module"], schema_name=item["schema"],
+                            object_name=item["name"], object_type=item["type"],
+                            database_role="toolbelt", is_internal=False, review_status="verified",
+                            source_paths=["Modules/toolbelt.test/Source/Test.sql"],
+                            parameters=[dict(name=p["name"], sql_type=p["type"], sql_default=p["default"],
+                                             is_output=p["output"], argument_required=False,
+                                             business_required=False, nullable=True,
+                                             description="Synthetischer Output." if p["output"] else "Synthetischer Alias.")
+                                        for p in params])
+            front = "\n".join(f"{field}: {json.dumps(value, ensure_ascii=False)}"
+                              for field, value in metadata.items())
+            sections = "\n".join(f"## {section}\n\n" +
+                                 (f"```sql\n{example}\n```\n" if section == "Aufrufbeispiele" else "Synthetisch.\n")
+                                 for section in catalog.usage_skills.SECTIONS)
+            path.write_text(f"---\n{front}\n---\n\n{sections}", encoding="utf-8", newline="\n")
 
     def test_public_inventory_includes_block_view_and_excludes_internal(self):
         self.assertEqual([i["name"] for i in catalog.objects(self.root)], ["USP_Test", "VW_Test"])
@@ -55,11 +75,14 @@ class CatalogTests(unittest.TestCase):
         _, params = catalog.signature(dict(schema="toolbelt_test", name="AGF_Test", type="CLR_AGGREGATE", root=self.module))
         self.assertEqual([p["name"] for p in params], ["@Ordinal", "@Value"])
 
-    def test_registry_missing_and_stale_entries_are_rejected(self):
-        entries = json.loads(self.registry.read_text(encoding="utf-8"))
-        entries["toolbelt_test.Obsolete"] = entries.pop("toolbelt_test.VW_Test")
-        self.registry.write_text(json.dumps(entries), encoding="utf-8")
-        with self.assertRaisesRegex(ValueError, "unvollständig/veraltet"):
+    def test_missing_or_misidentified_skill_is_rejected(self):
+        content = self.view_skill.read_text(encoding="utf-8")
+        self.view_skill.unlink()
+        with self.assertRaisesRegex(ValueError, "Usage-Skill fehlt"):
+            catalog.render(self.root)
+        self.view_skill.write_text(content.replace('object_name: "VW_Test"', 'object_name: "VW_Other"'),
+                                   encoding="utf-8", newline="\n")
+        with self.assertRaisesRegex(ValueError, "gehört nicht zur öffentlichen Schnittstelle"):
             catalog.render(self.root)
 
     def test_unknown_type_and_duplicate_api_fail_closed(self):
@@ -77,17 +100,30 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Parametererklärungen"):
             catalog.render(self.root)
 
+    def test_existing_parameter_binding_cannot_drift_from_skill(self):
+        original = self.source.read_text(encoding="utf-8")
+        for before, after in (
+            ("decimal(10,2)", "decimal(11,2)"),
+            ("NULL OUTPUT", "NULL"),
+            (" = NULL OUTPUT", " OUTPUT"),
+            ("N'AS,(--)'", "N'as,(--)'"),
+        ):
+            with self.subTest(after=after):
+                self.source.write_text(original.replace(before, after), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "SQL-Parameterbindung"):
+                    catalog.render(self.root)
+
     def test_drift_for_source_contract_example_and_artifact(self):
-        for path in [self.source, self.module / "README.md", self.registry,
+        for path in [self.source, self.module / "README.md", self.skill,
                      self.root / "Documentation/Reference/API_CATALOG.html"]:
             with self.subTest(path=path.name):
                 catalog.check(self.root, write=True)
                 old = path.read_text(encoding="utf-8")
-                new = old.replace("Synthetisches Beispiel.", "Neues Beispiel.") if path == self.registry else old + "\n-- change\n"
-                path.write_text(new, encoding="utf-8")
+                new = old.replace("Synthetisches Beispiel.", "Neues Beispiel.") if path == self.skill else old + "\n-- change\n"
+                path.write_text(new, encoding="utf-8", newline="\n")
                 with self.assertRaisesRegex(ValueError, "Katalog veraltet"):
                     catalog.check(self.root)
-                path.write_text(old, encoding="utf-8")
+                path.write_text(old, encoding="utf-8", newline="\n")
 
     def test_render_escapes_html_and_portable_line_endings(self):
         catalog.check(self.root, write=True)

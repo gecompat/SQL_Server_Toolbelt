@@ -1,8 +1,16 @@
 # Error Envelope
 
-## Installation des neuen Quellstands
 
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
 
 ## Security-Korrektur 2026-10-14
 
@@ -21,13 +29,20 @@ Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` 
 
 Die Procedure führt bewusst keinen Rethrow aus. Nur `THROW;` im ursprünglichen `CATCH` erhält Enginefehler unverändert. Zusatzkontext muss synthetisch oder bereits bereinigt sein.
 
+Mit `@Hilfe=1` werden die bisherige Standardhilfe und anschließend genau eine
+zusätzliche Skillzeile ausgegeben. Der vollständige
+[kanonische Skill](../../Metadata/UsageSkills/toolbelt_core/USP_CaptureErrorEnvelope.md)
+ist identisch in der DDL enthalten. Hilfe kehrt vor Fachvalidierung, Kontextlesen
+und ResultTable-Verarbeitung zurück. Die neue Hilfeausgabe ist offline geprüft;
+ihre native Abnahme steht separat aus.
+
 ## Artefakte
 
-- `Source/USP_CaptureErrorEnvelope.sql`
-- `Documentation/USP_CaptureErrorEnvelope.md`
-- `Examples/ErrorEnvelope.sql`
-- `Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md`
-- `Deployment/Deploy.sql` und `Deployment/Uninstall.sql`
+- [SQL-Definition](Source/USP_CaptureErrorEnvelope.sql)
+- [Objektvertrag](Documentation/USP_CaptureErrorEnvelope.md)
+- [Beispiele](Examples/ErrorEnvelope.sql)
+- [Testmatrix](Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md)
+- [Aktueller Buildplan](Deployment/README.md)
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948
 sowie der erfolgreiche physische Linux-Lauf 2019/2022/2025 vom 2026-08-29.

@@ -22,7 +22,11 @@ def run_hidden(*args, **kwargs):
     """Preserve subprocess results while suppressing Windows console creation."""
     if sys.platform == "win32":
         kwargs["creationflags"] = kwargs.get("creationflags", 0) | subprocess.CREATE_NO_WINDOW
+    tree_timeout=kwargs.pop('tree_timeout',False)
     try:
+        if tree_timeout:
+            from run_archived_release_validation import run_owned
+            return run_owned(*args,**kwargs)
         return subprocess.run(*args, **kwargs)
     except subprocess.TimeoutExpired as error:
         def tail(value):
@@ -1836,6 +1840,18 @@ def main() -> int:
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "object_usage_skills" in checks:
+        for args in (
+            ["Scripts/Metadata/generate_usage_skills.py", "--check"],
+            ["-m", "unittest", "discover", "-s", "Tests/Metadata"],
+        ):
+            result = run_hidden(
+                [sys.executable, "-B", *args], cwd=REPOSITORY_ROOT,
+                capture_output=True, text=True, encoding="utf-8", timeout=120,
+            )
+            if result.returncode:
+                raise ValidationError("Usage-Skills: " + result.stdout + result.stderr)
+            print((result.stdout + result.stderr).strip())
     if "markerless_installation" in checks:
         result = run_hidden(
             [sys.executable,"-B","-m","unittest","discover","-s","Scripts/Install/Tests"],
@@ -1845,13 +1861,14 @@ def main() -> int:
             raise ValidationError("Markerfreie Installation: "+result.stdout+result.stderr)
         print(result.stderr.strip())
     if "release_preparation" in checks:
-        # Preserve every unique check; the documentation runner collapses only
-        # the known duplicate CSV-class registration in the historical evidence suite.
+        # Preserve the original complete suite at its immutable lifecycle source.
+        # Current installation/component checks above remain separate gates.
         # Die gewachsene Suite überschreitet auf CI zwanzig Minuten.
         # Dreißig Minuten bleiben endlich; Fortschritt bleibt bei Timeout sichtbar.
         # Keep the hidden process boundary so no console window steals focus.
+        from run_archived_release_validation import command as historical_release_command
         result = run_hidden(
-            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/run_release_validation.py")],
+            historical_release_command(), tree_timeout=True,
             cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=1800,
         )
         if result.returncode:

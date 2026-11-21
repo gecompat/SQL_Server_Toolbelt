@@ -1,28 +1,27 @@
 # Pakete, aktueller Installer und historische Releases
 
-## Aktueller gemeinsamer Installer
+## Aktueller markerfreier Quellstand
 
-Für eine Neuinstallation verwende den [rc.4-Installationssatz](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip)
-mit seiner [SHA256-Datei](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip.sha256).
-Er enthält den geprüften Ein-Aufruf-Installer, die vollständige unveränderte
-SQL-Basis und die Anleitung. Nach dem Entpacken genügt ein Aufruf für die
-lokale oder zentrale Installation. Kein Repositorycheckout, weiterer
-Paketdownload oder DLL-Build ist erforderlich.
+Der aktuelle [gemeinsame Installationskern](../Scripts/Install/README.md)
+erzeugt normale SQL-Dateien ohne SQLCMD-Modus oder Deploymentmarker. Der
+[Ein-Aufruf-Client](../Deployment/ONE-CALL-INSTALL.md) verwendet denselben Kern.
+Der aktuelle Satz wird aus einem festgeschriebenen Commit gebaut; ein Build
+ist keine Veröffentlichung und übernimmt keine native Gesamtqualifikation
+historischer Lieferungen. Anwender beginnen mit [INSTALL](../INSTALL.md).
 
-Beginne mit der [Kurzanleitung](1.0.0/RC4-INSTALL.md) bzw. der
-[Anwenderanleitung](../INSTALL.md). Die [Releasehinweise](1.0.0/RC4.md) und der
-[versionierte Buildsatz](1.0.0/Builds/rc4/README.md) erklären Source-/Artefaktbindung.
-Der Satz bleibt ein **Entwicklungsvorabrelease für leere ausgewählte
-Testdatenbanken**. Bestehende Modul-/Installationsnachweise werden nur im
-gebundenen Scope wiederverwendet; es gibt keine neue Modul-Supportzusage.
+## Veröffentlichte Vorabreleases
 
-## Quellen und Paketpflege
+Die bisher veröffentlichten Sätze bis rc.4 bleiben unverändert. Der
+[rc.4-Installationssatz](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip)
+mit [SHA256](https://github.com/gecompat/SQL_Server_Toolbelt/releases/download/v1.0.0-rc.4/SQL-Server-Toolbelt-v1.0.0-rc.4-Install.zip.sha256)
+enthält seinen ursprünglichen Client und seine SQL-Basis. Dessen
+[Kurzanleitung](1.0.0/RC4-INSTALL.md), [Releasehinweise](1.0.0/RC4.md) und
+[Buildbindung](1.0.0/Builds/rc4/README.md) gelten ausschließlich für diesen
+veröffentlichten Stand; sie liefern den neuen markerfreien Vertrag nicht nach.
 
-Der [aktuelle Quellkandidat](1.0.0/CURRENT-CANDIDATE.md) beschreibt den Bau aus
-einem festgelegten Git-Commit und die strikte Bindung an den gemeinsamen
-Installer. Er richtet sich an Paketpfleger; Anwender beginnen mit der
-[Installation](../INSTALL.md). Ein aktueller Quellbaum qualifiziert historische
-Pakete nicht rückwirkend.
+Die früheren [Quellkandidaten](1.0.0/CURRENT-CANDIDATE.md) und ihre Builder
+bleiben an ihre ursprünglichen Sätze gebunden. Für aktuelle Paketpflege gelten
+[die neuen Buildschritte](../Scripts/Install/README.md#installationssatz-aus-festgeschriebenen-quellen-bauen).
 
 ## Historische Pakete und Nachweise
 
@@ -39,10 +38,9 @@ Pakete nicht rückwirkend.
 
 Ein veröffentlichter **Projektsnapshot** und unterstützte **Modulversionen** sind
 verschiedene Aussagen. Der bestehende RC-Snapshot bleibt veröffentlicht; alle
-Modulmanifeste bleiben `unreleased`. Der aktuelle gemeinsame Installer und der Quellkandidat sind im
-[Buildverzeichnis](1.0.0/Builds/rc3/README.md) versioniert;
-Download und Veröffentlichungsstatus des Vorabreleases stehen in den
-[Releasehinweisen](1.0.0/RC4.md). Die historischen 19/26-Zielkanäle
+Modulmanifeste bleiben `unreleased`. Die früheren gemeinsamen Installer und Quellkandidaten stehen in ihren
+versionierten Buildverzeichnissen; ihr Veröffentlichungsstatus steht bei den
+jeweiligen Releasehinweisen. Die historischen 19/26-Zielkanäle
 der [Freigabematrix](1.0.0/FREIGABEMATRIX.md) sind keine aktuelle Supportfreigabe.
 
 Für Paketpflege gelten die [Veröffentlichungsregeln](../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis).

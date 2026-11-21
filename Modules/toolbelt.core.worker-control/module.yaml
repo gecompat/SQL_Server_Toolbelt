@@ -80,6 +80,7 @@ objects:
 permissions_required:
   - "Vorhandene EXECUTE-Rechte für Steuer-/Dispatch-USPs; getrennte Autorität."
   - "Vorhandene SELECT-Rechte auf Statussichten; keine Grants durch das Modul."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 collation_contract: "Technische Zustände verwenden Latin1_General_100_BIN2; IDs und Tokens uniqueidentifier."
 data_type_contract: "Globale/lokale Budgetzahlen int; Generationen bigint; Konfigurations-/Holdversion binary(8)."
 help_contract_version: "1.0"
@@ -182,11 +183,13 @@ lifecycle_error_range: "54240-54246"
 clr:
   used: false
 lifecycle:
-  deploy: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
-  release_manifest: "embedded"
-  source_hash_role: "diagnostic_only"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.core.worker-control"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -214,7 +217,7 @@ documentation:
     - "Tests/README.md"
 contracts:
   usp: "1.0"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   static: "Tests/Static/validate_contract.py"

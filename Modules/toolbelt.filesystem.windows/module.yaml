@@ -32,7 +32,7 @@ schemas:
   - "toolbelt_filesystem"
 objects:
   - { type: TABLE, schema: "toolbelt_filesystem", name: "FileSystemRoot", visibility: configuration }
-  - { type: ASSEMBLY, name: "Toolbelt_Filesystem_Windows", visibility: internal }
+  - { type: ASSEMBLY, name: "tlblt_Filesystem_Windows", visibility: internal }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_ReadBinaryFileChunk", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_ReadTextFileChunk", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_WriteBinaryFile", visibility: public }
@@ -42,17 +42,32 @@ objects:
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_CreateDirectory", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveFile", visibility: public }
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveDirectory", visibility: public }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_CreateDirectory, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ListDirectory, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ReadBinaryFileChunk, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_ReadTextFileChunk, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_RemoveDirectory, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_RemoveFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_TranscodeTextFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_WriteBinaryFile, visibility: internal }
+  - { type: CLR_USP, schema: toolbelt_filesystem, name: CLR_WriteTextFile, visibility: internal }
+  - { type: USP, schema: toolbelt_filesystem, name: USP_InternalEmitHelp, visibility: internal }
+  - { type: USP, schema: toolbelt_filesystem, name: USP_InternalRouteResult, visibility: internal }
+
 permissions_required:
   - "EXECUTE on the required public procedure"
   - "SELECT on toolbelt_filesystem.FileSystemRoot; this exposes configured physical root and work paths."
-  - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
   - "Windows Authentication and NTFS rights for Caller; Caller is the default."
   - "NTFS rights for the SQL Server service account only when ServiceAccount is explicitly selected."
+  - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
+  - "Installation: beim Hashweg vorhandene Rechte zur exakten Assembly-Hashfreigabe; DB-Trustwege benötigen bereits TRUSTWORTHY ON und einen passend autorisierten Owner. Keine Rechtevergabe oder Trustworthy-Aktivierung."
+historical_lifecycle_permissions:
+  - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
 clr:
   used: true
   language: "C#"
   target_framework: ".NET Framework 4.8"
-  assembly_sql_name: "Toolbelt_Filesystem_Windows"
+  assembly_sql_name: "tlblt_Filesystem_Windows"
   assembly_file_name: "Toolbelt.Filesystem.Windows.dll"
   permission_set: "UNSAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
@@ -60,10 +75,13 @@ clr:
   release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
   trust_removed_by_uninstall: false
 lifecycle:
-  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
-  deploy_template: "Deployment/Deploy.sql"
-  uninstall: "Deployment/Uninstall.sql"
-  execution_mode: "SQLCMD"
+  install_builder: "../../Deployment/Build-Install.ps1"
+  module_selector: "toolbelt.filesystem.windows"
+  execution_mode: "TSQL"
+  installation: "create-only"
+  upgrade: "not supported; existing objects are preserved"
+  uninstall: "not supported; no automatic deletion"
+  historical_source_commit: "2fbe8e3e86f370b22ad2ce9f9716d971072a052b"
 documentation:
   module: "README.md"
   public_objects:
@@ -86,7 +104,7 @@ documentation:
     - "Tests/README.md"
 contracts:
   usp: "1.0"
-  deployment: "1.0"
+  deployment: "2.0"
   validation: "1.0"
 tests:
   security: "Tests/Runtime/Security.Contract.sql"

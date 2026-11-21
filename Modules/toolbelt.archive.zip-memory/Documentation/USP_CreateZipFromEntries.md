@@ -21,7 +21,7 @@ Erzeugt ein vollständig finalisiertes In-memory-ZIP aus einer vorhandenen lokal
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntryTable sein; beim In-memory-Writer kein Punkt im Namen und kein reservierter #tbx_ZipWriter_-Name. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 kurze Abschlussmessage ohne Entrynamen/Payloads/Pfade; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 <!-- API_PARAMETERS:END -->
 
 Alle Limits können unabhängig gesenkt oder erhöht werden. Explizites NULL ist ungültig; eine unbegrenzte Einstellung gibt es nicht. Die Obergrenzen sind konservative Engineering-Ceilings, keine ZIP-Formatgrenze, SQL-2-GB-Zusage oder allgemeine Kapazitäts- bzw. Parallelitätsgarantie. Die praktische Qualifikation wird separat ausgewiesen. Envelope und Archiv zählen Framing, Namen und Header zusätzlich zur Payloadsumme.
@@ -89,3 +89,9 @@ Handlern, Tabellen oder Dateien setzen deren beschriebene Vorbereitung voraus.
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Skill](../../../Metadata/UsageSkills/toolbelt_archive/USP_CreateZipFromEntries.md) enthält alle Parameter, konkrete Ergebnisfelder, Rechte, Ressourcen- und Transaktionsgrenzen sowie Fehlerpfade. Derselbe Text steht in der DDL und wird über `@Hilfe=1` zusätzlich zur bisherigen Standardhilfe als vollständige Skillzeile ausgegeben. Neue native Qualifikation bleibt getrennt.
+
+Writer-Namen können bei entsprechendem MaxEntryNameCodeUnits bis2048 UTF16-Einheiten enthalten, während der Reader unabhängig höchstens1024 unterstützt. Eine vollständig innerhalb der Writerlimits erzeugte Datei ist daher nicht automatisch unter allen Readerlimits wieder lesbar. Der kooperative CLR-Timer umfasst nicht den vorherigen SQL-Envelopebau.

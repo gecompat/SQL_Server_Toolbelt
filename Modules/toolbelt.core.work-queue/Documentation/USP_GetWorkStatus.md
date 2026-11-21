@@ -6,7 +6,7 @@ Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden
 
 ## Verhalten und Ergebnis
 
-Statusoberflächen liefern Audit-, Lease-, Generation-, Retry-, Dead-Letter-, Prioritäts-, Gruppen- und Barrier-Metadaten. Payload und ClaimToken bleiben verborgen. Direkte DML auf `WorkItem` ist kein öffentlicher Vertrag.
+Diese Prozedur liefert 22 feste Status-, Audit-, Lease- und Recoveryspalten. Sie liefert nicht alle 41 Spalten der View und insbesondere keine zusätzlichen Retry-, Prioritäts-, Gruppen- oder Barrierfelder. Payload und ClaimToken bleiben verborgen. Es gibt keinen eigenen WorkType-Policy-, Besitzer- oder ClaimTokenfilter. Die lesende Prozedur startet keine Transaktion und garantiert bei ResultTable-Fehlern keinen eigenen Rollback. Direkte DML auf `WorkItem` ist kein öffentlicher Vertrag.
 
 Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht in [WORK_QUEUE_OBJECTS](WORK_QUEUE_OBJECTS.md).
 
@@ -18,7 +18,7 @@ Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
 |---|---|---|
 | `WorkItemId` | `bigint` | Eindeutige Queue-ID. |
 | `WorkTypeName` | `varchar(128)` | Kanonischer Work-Type-Name. |
-| `Status` | `varchar(16)` | QUEUED, CLAIMED, COMPLETED oder FAILED. |
+| `Status` | `varchar(16)` | QUEUED, BARRIER_WAIT, CLAIMED, RETRY_WAIT, COMPLETED, FAILED oder DEAD_LETTER. |
 | `EnqueuedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt der Einreihung. |
 | `EnqueuedBy` | `sysname` | Original-Login der Einreihung. |
 | `ClaimedAtUtc` | `datetime2(7)` | UTC-Zeitpunkt des Claims. |
@@ -48,7 +48,7 @@ Die SQL-Hilfe beschreibt folgende Ergebnisspalten:
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf
@@ -78,3 +78,7 @@ Die Hilfe beschreibt Parameter, Ergebnis und Fehlervertrag. Bei Abweichungen zue
 - [Modul, Installation und Testgrenzen](../README.md)
 - [SQL-Definition](../Source/USP_GetWorkStatus.sql)
 - [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_core/USP_GetWorkStatus.md) enthält sämtliche Parameter, konkrete Ergebnistypen, Rechte, Transaktionsgrenzen und Fehler. `@Hilfe=1` liefert zusätzlich zur bisherigen Standardhilfe genau eine vollständige Skillzeile. Die Quelle beschreibt Verhalten; sie behauptet keine neue native Qualifikation.

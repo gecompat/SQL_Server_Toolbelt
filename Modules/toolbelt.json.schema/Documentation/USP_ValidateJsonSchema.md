@@ -26,7 +26,7 @@ EXEC toolbelt_json.USP_ValidateJsonSchema
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255: 0 (Default) oder NULL ohne Diagnose; 1..255 aktiviert die im Objekt beschriebenen abstrakten Diagnose-Messages, ohne zusätzlichen fachlichen Resultset. Nur payloadfreie Messages; keine Dokument-/Schema-/Endpointausgabe. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Argument-/Namespace-/Helper-/CLR-/Fachprüfung oder Zielmutation. 0 oder NULL: Fachpfad. Alle SQL-Argumente besitzen technische Defaults. |
 <!-- API_PARAMETERS:END -->
 
 Die zehn Spalten haben die feste Reihenfolge:
@@ -54,7 +54,22 @@ Batch abgewiesen. Die vollständige Antwort entsteht vor einer ResultTable-
 Mutation; eigene Transaktionen oder committable Caller-Savepoints schützen
 diesen Schreibpfad, ohne fremde oder doomed Callertransaktionen zurückzurollen.
 
-Native API-, Clientmetadaten-, Rechte- und Lifecycle-Nachweise sind noch offen.
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_json/USP_ValidateJsonSchema.md)
+beschreibt Parameter, Ergebnisfelder, Fehlerpriorität und Ressourcen im Detail.
+`@Hilfe=1` liefert zusätzlich zur bisherigen Standardhilfe genau ein Resultset
+mit `SkillFormatVersion`, `SchemaName`, `ObjectName` und dem vollständigen
+`SkillMarkdown nvarchar(max)`. Die Hilfe kehrt vor Fach- und Abhängigkeitsprüfungen
+zurück.
+
+`MaxErrors` begrenzt gespeicherte Diagnosen. Bei einem späteren Arbeitsabbruch
+können frühere ERROR-Zeilen erhalten bleiben; ihr endgültiger Status ist dann
+`LIMIT` und `IsValid=NULL`. Sie beweisen kein abgeschlossenes Ungültigkeitsurteil.
+
+Die [historischen nativen Nachweise](../Tests/NATIVE_EVIDENCE.md) und das oben
+verlinkte Callerprofil gelten ausschließlich für ihre gebundenen Artefakte.
+Die aktuelle Skill-/Hilfeprojektion und der markerfreie Installer sind dadurch
+nicht erneut nativ geprüft. Noch erforderliche aktuelle Abnahmen werden getrennt
+geführt; die frühere pauschale Offenangabe ersetzt keine Nachweiszuordnung.
 
 ## Technischer Lösungsweg
 

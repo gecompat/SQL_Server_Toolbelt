@@ -1,9 +1,13 @@
 """Markerfreier Buildvertrag; keine SQL-Verbindung oder Infrastrukturaktion."""
 from pathlib import Path
+import hashlib
 import importlib.util
 import re
 import sys
 import unittest
+import tempfile
+import subprocess
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'Scripts/Install'))
@@ -21,6 +25,120 @@ capabilities=load('New-MarkerlessCapabilities.py')
 
 
 class MarkerlessContractTests(unittest.TestCase):
+    def test_property_policy_excludes_only_exact_source_bound_skill_projections(self):
+        path='Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql'
+        text=(ROOT/path).read_text(encoding='utf-8')
+        self.assertIn('sp_addextendedproperty',text)  # description, not execution
+        installer.validate_extended_property_scope([dict(path=path,sql=text)])
+        with self.assertRaisesRegex(ValueError,'unexpected Extended Property usage'):
+            installer.validate_extended_property_scope([dict(path=path,sql=text+"\nSELECT * FROM sys.extended_properties;\n")])
+        with self.assertRaises(ValueError):
+            installer.validate_extended_property_scope([dict(path=path,sql=text.replace('sp_addextendedproperty','sp_addextendedproperty_tampered',1))])
+        with self.assertRaisesRegex(ValueError,'unexpected Extended Property usage'):
+            installer.validate_extended_property_scope([dict(path='Modules/Contoso/Source/Example.sql',sql='SELECT * FROM sys.extended_properties;')])
+
+    def test_constant_skill_catalogue_is_complete_and_cannot_hide_extra_operations(self):
+        skills=installer.usage_skill_tools()
+        text=skills.render_catalogue(ROOT)
+        installer.validate_extended_property_scope([dict(path=skills.VIEW_TARGET,sql=text)])
+        self.assertEqual(text,(ROOT/skills.VIEW_TARGET).read_text(encoding='utf-8'))
+        for change in (text+'\nEXEC sys.sp_addextendedproperty;\n',text.replace('AS SkillMarkdown','AS Contoso',1)):
+            with self.assertRaisesRegex(ValueError,'noncanonical Skill catalogue'):
+                installer.validate_extended_property_scope([dict(path=skills.VIEW_TARGET,sql=change)])
+        source={'path':skills.VIEW_TARGET,'statements':[dict(kind='CreateOrAlterViewStatement',
+            name='toolbelt_metadata.VW_ObjectUsageSkills',sql=text)]}
+        emitted=installer.emit_sources([source],{'VW_ObjectUsageSkills':'ContosoWrong'})
+        self.assertIn("IF OBJECT_ID(N'toolbelt_metadata.VW_ObjectUsageSkills') IS NULL",emitted)
+        self.assertNotIn('ContosoWrong',emitted)
+        self.assertNotIn('DROP VIEW',emitted)
+        self.assertNotIn('ALTER VIEW',emitted)
+
+    def test_assembly_create_prefix_carries_exact_reviewed_skill_and_no_runtime_metadata_query(self):
+        skills=installer.usage_skill_tools()
+        expected={key[2] for key,value in skills.inventory(ROOT).items() if value['object_type']=='ASSEMBLY'}
+        self.assertTrue(expected)
+        for name in sorted(expected):
+            header=installer.assembly_ddl_prefix(name)
+            self.assertTrue(header.startswith('CREATE ASSEMBLY ['+name+']\n'))
+            self.assertTrue(header.endswith('FROM '))
+            self.assertEqual(skills.read_ddl_comment(header).markdown,
+                             skills.read(skills.source_file(ROOT,'',name)).markdown)
+            remaining=header.replace(skills.render_ddl_comment(skills.read_ddl_comment(header)),'',1)
+            self.assertEqual(remaining,'CREATE ASSEMBLY ['+name+']\nFROM ')
+        for name in ('ForeignAssembly','tlblt_bad]; DROP TABLE x;--'):
+            with self.assertRaises(ValueError):installer.assembly_ddl_prefix(name)
+
+    def test_assembly_skill_binding_includes_full_catalogue_without_selecting_binaries(self):
+        name='tlblt_Tsql_SsisDebug'
+        bindings=installer.build_source_bindings([name])
+        path='Metadata/UsageSkills/_assemblies/'+name+'.md'
+        self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
+        self.assertIn('Scripts/Metadata/usage_skills.py',bindings)
+        # The complete known-object catalogue is global even for a partial
+        # installer. This is source binding, not binary dependency selection.
+        self.assertIn('Metadata/UsageSkills/_assemblies/tlblt_String_Regex.md',bindings)
+        self.assertIn('Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDate.md',bindings)
+
+    def test_source_binding_includes_transitive_admission_and_shared_compiler_sources(self):
+        pins=installer.build_source_bindings()
+        self.assertIn('Modules/toolbelt.tsql.ssis-debug/Scripts/New-SimpleInstall.py',pins)
+        self.assertIn('Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json',pins)
+        for path in (ROOT/'Modules/toolbelt.tsql.ssis-debug/Exchange/Core').glob('*.cs'):
+            self.assertEqual(pins[path.relative_to(ROOT).as_posix()],installer.sha(installer.normalize(path.read_bytes())))
+
+    def test_current_module_lifecycle_has_one_markerless_builder(self):
+        paths=list((ROOT/'Modules').glob('*/module.yaml'))
+        self.assertEqual(len(paths),45)
+        for path in paths:
+            text=path.read_text(encoding='utf-8-sig')
+            lifecycle=manifest.section(text,'lifecycle')
+            self.assertEqual(manifest.scalar(lifecycle,'  module_selector'),path.parent.name)
+            self.assertEqual(manifest.scalar(lifecycle,'  execution_mode'),'TSQL')
+            self.assertEqual(manifest.scalar(lifecycle,'  installation'),'create-only')
+            builder=path.parent/manifest.scalar(lifecycle,'  install_builder')
+            self.assertEqual(builder.resolve(),(ROOT/'Deployment/Build-Install.ps1').resolve())
+            self.assertTrue(builder.is_file())
+            self.assertEqual(manifest.scalar(manifest.section(text,'contracts'),'  deployment'),'2.0')
+            self.assertFalse((path.parent/'Deployment/Deploy.sql').exists())
+            self.assertFalse((path.parent/'Deployment/Uninstall.sql').exists())
+
+    def test_current_binary_builders_emit_no_retired_sql_payload(self):
+        builders=list((ROOT/'Modules').glob('*/Scripts/New-ClrReleaseArtifacts.ps1'))
+        builders.append(ROOT/'Modules/toolbelt.json.core/Scripts/New-JsonClosureRelease.ps1')
+        for path in builders:
+            text=path.read_text(encoding='utf-8-sig')
+            self.assertNotIn('Deploy.WithAssembly.sql',text,path)
+            self.assertNotIn('Uninstall.Expanded.sql',text,path)
+            self.assertNotIn('Deployment/Deploy.sql',text,path)
+
+    def test_canonical_manifests_already_use_prefixed_assembly_names(self):
+        names=set()
+        for path in (ROOT/'Modules').glob('*/module.yaml'):
+            text=path.read_text(encoding='utf-8-sig')
+            own={obj['name'] for obj in manifest.objects(text) if obj['type']=='ASSEMBLY'}
+            clr=manifest.section(text,'clr')
+            if clr and manifest.scalar(clr,'  used')=='true':
+                own.add(manifest.scalar(clr,'  assembly_sql_name'))
+            for name in own:
+                self.assertTrue(name.startswith('tlblt'),path)
+                self.assertNotIn(name,names)
+                names.add(name)
+        self.assertEqual(len(names),13)
+
+    def test_canonical_sources_need_no_legacy_name_translation(self):
+        selected=installer.modules('Windows','local')
+        sources,_=installer.source_files(selected)
+        names={obj['name'] for module in selected for obj in manifest.objects(module['text'])
+               if obj['type']=='ASSEMBLY'}
+        names.update(manifest.scalar(manifest.section(module['text'],'clr'),'  assembly_sql_name')
+                     for module in selected if manifest.section(module['text'],'clr')
+                     and manifest.scalar(manifest.section(module['text'],'clr'),'  used')=='true')
+        references={name for source in sources for name in re.findall(
+            r'(?i)\bEXTERNAL\s+NAME\s+\[([^\]]+)\]',source['sql'])}
+        self.assertTrue(references)
+        self.assertTrue(references<=names,references-names)
+        self.assertTrue(all(name.startswith('tlblt') for name in references))
+
     def test_inline_and_multiline_objects_and_lists_have_same_contract(self):
         expected=[{'type':'USP','schema':'toolbelt_core','name':'Contoso','visibility':'public'}]
         inline='objects:\n  - { type: USP, schema: "toolbelt_core", name: Contoso, visibility: public }\nnext: 1\n'
@@ -51,6 +169,40 @@ class MarkerlessContractTests(unittest.TestCase):
                         self.assertLess(positions[dependency],positions[module['id']])
                 if profile[0]=='Portable': self.assertTrue(installer.WINDOWS_ONLY.isdisjoint(ids))
                 if profile[1]=='central': self.assertTrue(installer.LOCAL_ONLY.isdisjoint(ids))
+
+    def test_module_selection_adds_dependencies_and_common_metadata_without_other_binaries(self):
+        selected=installer.modules('Windows','local',['toolbelt.tsql.ssis-debug'])
+        ids=[m['id'] for m in selected]
+        self.assertIn('toolbelt.tsql.ssis-debug',ids)
+        self.assertNotIn('toolbelt.tsql.script-parser',ids)
+        self.assertNotIn('toolbelt.file.xlsx-memory',ids)
+        self.assertIn('toolbelt.metadata.capability-catalog',ids)
+        for index,module in enumerate(selected):
+            for dependency in module['dependencies']:
+                self.assertIn(dependency,ids[:index])
+
+    def test_module_selection_does_not_silently_drop_unsupported_requests(self):
+        for platform,mode,ids in (
+            ('Portable','local',['toolbelt.tsql.ssis-debug']),
+            ('Windows','central',['toolbelt.filesystem.windows']),
+            ('Windows','local',['toolbelt.not-present']),
+            ('Windows','local',[]),
+            ('Windows','local',['toolbelt.json.core','toolbelt.json.core'])):
+            with self.subTest(platform=platform,mode=mode,ids=ids):
+                with self.assertRaises(ValueError): installer.modules(platform,mode,ids)
+
+    def test_portable_clone_subset_preserves_conditional_parser_boundary(self):
+        ids=[m['id'] for m in installer.modules('Portable','central',['toolbelt.metadata.table-clone'])]
+        self.assertIn('toolbelt.metadata.table-clone',ids)
+        self.assertNotIn('toolbelt.tsql.script-parser',ids)
+
+    def test_unrelated_modules_do_not_require_ssis_or_parser_release_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for ids in ({'toolbelt.string.regex'},{'toolbelt.core.result-table'}):
+                artifacts,binaries=installer.binary_inputs(Path(directory),ids)
+                selected=[a for a in artifacts if a['module_id'] in ids]
+                self.assertTrue(all(a['file'] in binaries for a in selected))
+                self.assertEqual(len(selected),int('toolbelt.string.regex' in ids))
 
     def test_actual_source_closure_expands_fragments_without_running_deployment(self):
         sources,pins=installer.source_files(installer.modules('Windows','local'))
@@ -90,8 +242,32 @@ class MarkerlessContractTests(unittest.TestCase):
 
     def test_module_without_source_or_clr_is_rejected(self):
         module={'id':'toolbelt.conversion.safe-cast','text':'objects: []\nclr:\n  used: false\n'}
-        with self.assertRaisesRegex(ValueError,'module without executable source'):
-            installer.source_files([module])
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            inventory=root/'Scripts/Install/module_sources.json'
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text('{"schema":"toolbelt-install-sources/v1","modules":{"toolbelt.conversion.safe-cast":[]}}',encoding='utf-8')
+            with patch.object(installer,'ROOT',root):
+                with self.assertRaisesRegex(ValueError,'module without executable source'):
+                    installer.source_files([module])
+
+    def test_functional_inventory_is_independent_of_legacy_deployments(self):
+        selected=installer.modules('Windows','local')
+        sources,pins=installer.source_files(selected)
+        self.assertEqual(len(sources),194)
+        self.assertIn('Scripts/Install/module_sources.json',pins)
+        self.assertFalse(any('/Deployment/' in path for path in pins))
+
+    def test_source_inventory_rejects_cross_module_paths(self):
+        module={'id':'toolbelt.conversion.safe-cast','text':'objects: []\nclr:\n  used: false\n'}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            inventory=root/'Scripts/Install/module_sources.json'
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text('{"schema":"toolbelt-install-sources/v1","modules":{"toolbelt.conversion.safe-cast":["Modules/other/Source/Other.sql"]}}',encoding='utf-8')
+            with patch.object(installer,'ROOT',root):
+                with self.assertRaisesRegex(ValueError,'functional source path'):
+                    installer.source_files([module])
 
     def test_every_profile_has_create_text_for_all_declared_sql_objects(self):
         # Unabhängiger Sollbestand aus den öffentlichen Objektdeklarationen.
@@ -128,10 +304,51 @@ class MarkerlessContractTests(unittest.TestCase):
         for path in (ROOT/'Modules').glob('*/module.yaml'):
             self.assertIn("N'"+path.parent.name+"'",sql)
 
+    def test_capability_generator_requires_reviewed_own_skill_and_preserves_body(self):
+        skills=installer.usage_skill_tools()
+        sql=capabilities.render()
+        skill=skills.read(skills.source_file(ROOT,'toolbelt_metadata','VW_ModuleCapabilities'))
+        self.assertEqual(skills.read_ddl_comment(sql).markdown,skill.markdown)
+        anchor="    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ModuleCapabilities',N'V'),\n"
+        added="    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ObjectUsageSkills',N'V'),\n"
+        body=skills.strip_ddl_projection(ROOT,capabilities.TARGET,sql)
+        self.assertEqual(body.count(anchor+added),1)
+        self.assertEqual(body.count(added),1)
+        baseline=body.replace(anchor+added,anchor,1)
+        # Exact predecessor SQL from 3041211e. The digest also works in the shallow SSIS checkout.
+        self.assertEqual(hashlib.sha256(baseline.encode('utf-8')).hexdigest(),
+                         'c9ecd11a585ae73f056377cdb9311890f8e0dc146969c8ee1a727fb637dda49c')
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            directory=root/'Metadata/UsageSkills/toolbelt_metadata'
+            directory.mkdir(parents=True)
+            with self.assertRaises(FileNotFoundError): capabilities.render(root)
+            draft=directory/'VW_ModuleCapabilities.md'
+            draft.write_text(skill.markdown.replace('review_status: "verified"','review_status: "draft"'),encoding='utf-8',newline='\n')
+            with self.assertRaises(ValueError): capabilities.render(root)
+
+    def test_pure_tsql_build_binds_capability_projection_editorial_inputs(self):
+        bindings=installer.build_source_bindings()
+        for path in (capabilities.TARGET,'Scripts/Metadata/usage_skills.py',
+                     'Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md',
+                     'Scripts/Install/New-MarkerlessCapabilities.py'):
+            self.assertIn(path,bindings)
+            self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
+
+    def test_partial_build_source_ledger_binds_every_editorial_skill(self):
+        bindings=installer.build_source_bindings()
+        editorial={p.relative_to(ROOT).as_posix() for p in (ROOT/'Metadata/UsageSkills').glob('*/*.md')}
+        self.assertEqual(len(editorial),257)
+        self.assertTrue(editorial <= bindings.keys())
+        for path in editorial:
+            self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
+
     def test_permission_contract_is_preserved_and_unknown_declarations_fail(self):
         text=(ROOT/'Modules/toolbelt.filesystem.windows/module.yaml').read_text(encoding='utf-8')
         self.assertEqual(installer.assembly_permission(text),'UNSAFE')
-        legacy=(ROOT/'Modules/toolbelt.filesystem.windows/Deployment/Deploy.sql').read_text(encoding='utf-8')
+        legacy=subprocess.check_output(['git','show',
+            '2fbe8e3e86f370b22ad2ce9f9716d971072a052b:Modules/toolbelt.filesystem.windows/Deployment/Deploy.sql'],
+            cwd=ROOT).decode('utf-8-sig')
         self.assertIn('WITH PERMISSION_SET = '+installer.assembly_permission(text),legacy)
         for value in ('SAFE','EXTERNAL_ACCESS','UNSAFE'):
             self.assertEqual(installer.assembly_permission('clr:\n  permission_set: "'+value+'"\n'),value)

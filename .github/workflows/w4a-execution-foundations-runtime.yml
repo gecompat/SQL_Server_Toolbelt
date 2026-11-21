@@ -1,3 +1,4 @@
+# Current markerless install gates run separately; native lifecycle jobs below retain their original source.
 name: W4a Execution Foundations Runtime
 
 on:
@@ -51,12 +52,16 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - name: Validate Error Envelope
         run: python3 Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py
       - name: Validate Execution Context
         run: python3 Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
 
   runtime:
+    # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
+    if: github.event_name == 'workflow_dispatch'
     name: SQL Server ${{ matrix.sql-version }} Linux
     needs: static-contracts
     runs-on: ubuntu-latest
@@ -67,6 +72,8 @@ jobs:
         sql-version: ["2019", "2022", "2025"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && '2fbe8e3e86f370b22ad2ce9f9716d971072a052b' || github.sha }}
       - name: Execute contracts, lifecycle, central and session isolation
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}

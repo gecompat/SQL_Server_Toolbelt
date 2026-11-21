@@ -1,5 +1,65 @@
 # Gemeinsamer create-only-Installer: begrenzte Abnahme
 
+## Aktuelle Skill-Erweiterung
+
+Die aktuelle Entwicklung erweitert Prozeduren um konstante Skillausgabe und die
+Dateisystem-CLR-Einstiege um einen optionalen Hilfeschalter. Deren neu gebaute
+Assembly ist nicht die Binary des folgenden nativen Consumer-Nachweises.
+Der aktuelle gemeinsame Builder verlangt dafür einen frischen, vollständig
+quellgebundenen lokalen Buildinput; eine frühere Assembly ohne Hilfeschalter
+wird nicht als Ersatz übernommen. Der aktuelle begrenzte Modulinstaller ist
+offline gebaut und syntaktisch geprüft. Alle vier Gesamtprofile mit der
+vollständigen Skill-View wurden ebenfalls offline gebaut und für SQL150,
+SQL160 und SQL170 geparst. Der entpackte Installationssatz wurde über den
+tatsächlich gepackten Einstieg mit simuliertem SQL-Client geprüft. Alle vier
+Profile wurden über das mitgelieferte Payload gefunden und der
+create-only-Abschluss ausgewertet. Neue Hilfe-/Binder-/Minimalrechte- und
+Gesamtinstallationsabnahme stehen aus. Die folgenden datierten Nachweise bleiben
+unverändert und gelten ausschließlich für ihre ursprünglichen Artefakte.
+
+Für den ersten nativen Verbrauchercheck erzeugt
+[`new_usage_skill_expectations.py`](../../../Tests/Metadata/new_usage_skill_expectations.py)
+eine private JSON-Datei mit allen kanonischen Texten. Der
+[`Invoke-UsageSkillChecks.ps1`](../../../Tests/Metadata/Invoke-UsageSkillChecks.ps1)
+prüft auf einer bereits eingegrenzten offenen Testverbindung das achtspaltige
+Schema, Inventar und vollständige Unicode-Werte per ordinalem Vergleich.
+Er ruft die T-SQL-Standardhilfe mit zusätzlichem Skill und im lokalen
+Windows-Profil optional die reine CLR-Skillausgabe mit typgültigem,
+fachlich ungültigem Argument ab. Dabei prüft er Transaktion, SET-Optionen
+und die caller-lokale Testtabelle. Die native Ausführung steht aus.
+
+## Aktuelle Funktionskorrekturen: native Gegenproben offen
+
+Der Quellabgleich vom 2026-11-21 hat fünf gezielt geänderte SQL-Dateien in
+vier Modulen von 293 unveränderten Fachquellen getrennt. Dies betrifft neun
+öffentliche Funktionen einschließlich ihrer delegierenden Fassaden:
+
+- URI-Decoding weist Nicht-ASCII-Rohinput prozedural vor der Hexkonvertierung ab.
+- JSON-Pfadexistenz vergleicht Schlüssel zusätzlich nach UTF16-Bytelänge;
+  die rohe JSON-Quoting-/Tiefenprüfung erkennt nur literale ASCII-Strukturzeichen.
+- Multipart-Identifier verwenden durchgehend physische UTF16-Einheiten und
+  binäre Delimiter. Leer und Space sind verschieden; Supplementaryzeichen
+  werden nicht durch einen SC-Zeichenschritt in einen Einheitenpuffer gekürzt.
+- Directional-Trim verwendet für die NUL-Probe dieselben Zeichenpositionen
+  wie für CHARINDEX und die Ausgabe, auch unter SC-/UTF8-Collations.
+
+[current_source_deltas.py](../current_source_deltas.py) beschreibt ausschließlich
+die exakten Änderungen am unveränderlichen Ausgangscode. Der strikte
+Wiederverwendungsmodus lehnt diese Dateien weiterhin ab. Der explizite
+`--check-current-deltas`-Modus prüft die Änderungen separat; er ist kein
+Laufzeitnachweis und überträgt keine historischen Ergebnisse auf die Korrekturen.
+Die vier aktuellen Modulmanifeste sind bis zur entsprechenden Abnahme teilweise
+validiert. Ihre historischen Nachweise bleiben unverändert erhalten.
+
+Die synthetische [native Gegenprobe](../../../Tests/Metadata/FunctionEdgeCases.sql)
+enthält 19 deklarierte Assertions, ist derzeit **nicht ausgeführt** und setzt
+eine bereits installierte eigene Testdatenbank voraus. Sie ändert weder
+Rechte noch Konfiguration oder Daten. Für eine Ausführung unter ausgewählten
+Nicht-SC-, SC- und UTF8-Datenbankcollations ist ein eigener konkreter endlicher
+nativer Testscope erforderlich. Geschlossene frühere Testfenster bleiben
+geschlossen. Die neue Hilfe-/Unicode-/Callerzustands-/Gesamtinstallerabnahme ist
+zusätzlich erforderlich; grüne Offlineprüfungen ersetzen sie nicht.
+
 ## Bestandener begrenzter Gesamtfall vom 2026-11-20
 
 Nach ausdrücklicher separater Freigabe bestand der abschließende Einmallauf

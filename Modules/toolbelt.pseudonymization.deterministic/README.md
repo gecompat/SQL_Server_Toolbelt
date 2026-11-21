@@ -1,5 +1,17 @@
 # Deterministische synthetische Zuordnung
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Modul `toolbelt.pseudonymization.deterministic`, erster Release `1.0.0`,
 additiver Translate-Slice `1.1.0` implementiert.
 Die additive GeoJitter-Welle `1.2.0` ergänzt genau eine Inline-TVF.
@@ -84,3 +96,7 @@ Sie ersetzt keine SELECT-Metadaten-, Lifecycle-, Resource- oder Rechteprüfung.
 - Scope: Version 1.2.0: Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 lokal/zentral PASS; ausdrücklich GeoJitter.Contract.sql (ursprüngliche fünf unpartitionierte Batches/504 Orakel), GeoJitter.Safety.sql, InstalledMetadata.Contract.sql plus Client-/SQLmetadaten, echte1.0/1.1-Upgrades, FirstInstall/Repeat/CallerTX-SET/Snapshot-Faults/FutureSlots/Uninstall/ownCleanup; alte sieben Source-Dateien bytegleich, kein erneuter finaler Vollfamilien-Runtime-Nachweis; keine Konfigurations-/Rechteänderungen, neue Minimalrechte/weitere Targets/exakt129ByteUDT offen; aktueller CI-/PR-Mergegate am exakten Head separat nachzuweisen; unreleased
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Maschinenlesbare Usage-Skills
+
+Alle acht katalogisierten Objekte besitzen quellgeprüfte Skills, die auf den jeweiligen Objektseiten verlinkt sind. Das schließt die drei internen Encoder-, Range- und Lookuphelfer ein. Die Funktions-DDL enthält die vollständigen Texte; beide Lookup-Prozeduren liefern sie zusätzlich über `@Hilfe=1`. Die gemeinsame View wird erst mit vollständiger Katalogabdeckung generiert. Native Hilfe-/Callerzustands- und Gesamtinstallerqualifikation bleiben separat.

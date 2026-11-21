@@ -10,8 +10,8 @@ $sourcePaths=@('Clr/Toolbelt.String.Phonetic.csproj','Clr/Properties/AssemblyInf
  'Clr/PhoneticInput.cs','Clr/PhoneticBridge.cs','Clr/CologneKernel.cs','Clr/DoubleMetaphoneKernel.cs',
  'Source/TVF_ColognePhonetic.sql','Source/TVF_DoubleMetaphone.sql',
  'Source/TVF_ColognePhoneticCore.sql','Source/TVF_DoubleMetaphoneCore.sql',
- 'Deployment/Deploy.sql','Deployment/Uninstall.sql','Deployment/Preflight.sql',
- 'Deployment/MarkRelease.sql','Deployment/Add-TrustedAssembly.sql','Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-OwnedProcess.ps1',
+
+ 'Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-OwnedProcess.ps1',
  'ThirdParty/ApacheCommonsCodec/LICENSE.txt','ThirdParty/ApacheCommonsCodec/NOTICE.txt')
 function Get-SourcePins { foreach($relative in $sourcePaths){[ordered]@{path=$relative;sha256=(Get-FileHash -LiteralPath (Join-Path $moduleRoot $relative) -Algorithm SHA256).Hash}} }
 $pins=@(Get-SourcePins);$before=ConvertTo-Json -InputObject $pins -Compress
@@ -37,17 +37,8 @@ Save-New 'Toolbelt.String.Phonetic.dll' $bytes
 Save-New 'Build.stdout.txt' ($utf8.GetBytes($result.Stdout))
 Save-New 'Build.stderr.txt' ($utf8.GetBytes($result.Stderr))
 # Kein qualifiziertes Binary wird aus einem Build-Ergebnis allein abgeleitet.
-$manifest=[ordered]@{schemaVersion='1.0';moduleId='toolbelt.string.phonetic';moduleVersion='1.0.0';assemblySqlName='Toolbelt_String_Phonetic';assemblyFileName='Toolbelt.String.Phonetic.dll';permissionSet='SAFE';directFrameworkReferences=@('System','System.Data');sha256=$sha256;sha512=$sha512;sqlServerHexLiteral=('0x'+$sha512);managedIdentity=$identity.FullName;sourceFingerprints=$pins;buildOnly=$true;offlineQualified=$false;sqlQualified=$false}
+$manifest=[ordered]@{schemaVersion='1.0';moduleId='toolbelt.string.phonetic';moduleVersion='1.0.0';assemblySqlName='tlblt_String_Phonetic';assemblyFileName='Toolbelt.String.Phonetic.dll';permissionSet='SAFE';directFrameworkReferences=@('System','System.Data');sha256=$sha256;sha512=$sha512;sqlServerHexLiteral=('0x'+$sha512);managedIdentity=$identity.FullName;sourceFingerprints=$pins;buildOnly=$true;offlineQualified=$false;sqlQualified=$false}
 Save-New 'Toolbelt.String.Phonetic.trust-manifest.json' ($utf8.GetBytes((ConvertTo-Json -InputObject $manifest -Depth 8)))
-$deploy=[IO.File]::ReadAllText((Join-Path $moduleRoot 'Deployment/Deploy.sql'),$utf8)
-if([regex]::Matches($deploy,[regex]::Escape('$(AssemblyBits)')).Count -ne 1){throw 'PHONETIC_BUILD_BITS_PLACEHOLDER'}
-$deploy=$deploy.Replace('$(AssemblyBits)','0x'+[BitConverter]::ToString($bytes).Replace('-',''))
-[void][IO.Directory]::CreateDirectory((Join-Path $OutputDirectory 'Deployment'))
-[void][IO.Directory]::CreateDirectory((Join-Path $OutputDirectory 'Source'))
-foreach($relative in @('Deployment/Preflight.sql','Deployment/MarkRelease.sql','Deployment/Uninstall.sql','Deployment/Add-TrustedAssembly.sql','Source/TVF_ColognePhonetic.sql','Source/TVF_DoubleMetaphone.sql','Source/TVF_ColognePhoneticCore.sql','Source/TVF_DoubleMetaphoneCore.sql')){
- Save-New $relative ([IO.File]::ReadAllBytes((Join-Path $moduleRoot $relative)))
-}
-Save-New 'Deployment/Deploy.WithAssembly.sql' ($utf8.GetBytes($deploy))
-# Vollständiges SQLCMD-Paket: alle referenzierten Include-Bytes sind gebunden.
+# SQL installation is built separately by Deployment/Build-Install.ps1.
 if((ConvertTo-Json -InputObject @(Get-SourcePins) -Compress) -cne $before -or (Get-FileHash -LiteralPath $dll -Algorithm SHA256).Hash -cne $sha256){throw 'PHONETIC_BUILD_FINAL_DRIFT'}
 Write-Output 'PASS PHONETIC_BUILD_ONLY'

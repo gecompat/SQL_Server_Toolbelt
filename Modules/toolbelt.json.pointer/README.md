@@ -1,5 +1,17 @@
 # JSON Pointer Resolution
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktuelle [Callerrechte](../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md): getrennte Objektrechte auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Weitere Funktions-, Client-, Lifecycle- und Ressourcengates sowie Modulstatus bleiben separat.
 
 `toolbelt.json.pointer` 1.0.0 enthält genau eine lesende native T-SQL-MSTVF:
@@ -29,19 +41,24 @@ Latin1_General_100_BIN2. Keine Normalisierung und kein URIfragment-/Patchpfad.
 
 SQL Server2019/2022/2025 Windows/Linux mit kompatiblem CL150+ sind Zielplattformen.
 Local und central verwenden dieselbe TF; zentrale Caller benötigen ebenfalls
-CL150+. SQLCMD-Deployment verwendet `DeploymentMode=local|central`, zentraler
-Uninstall `ConfirmNoExternalConsumers=1`. Vorhandene Rechte werden verwendet;
-kein CLR, Servertrust, Konfigurationswechsel oder abhängiges Modul.
+CL150+. Der [gemeinsame Buildplan](Deployment/README.md) erzeugt eine normale
+SQL-Datei für local oder central, ohne SQLCMD oder Deploymentmarker. Create-only
+ersetzt keine vorhandene Funktion und bietet keinen impliziten Uninstall.
+Frühere Lifecyclewege bleiben ihren historischen Artefakten zugeordnet.
+Vorhandene Rechte werden verwendet; kein CLR, Servertrust,
+Konfigurationswechsel oder abhängiges Modul.
+
+Der vollständige [Usage-Skill](../../Metadata/UsageSkills/toolbelt_json/TVF_ResolveJsonPointer.md)
+steht als markierter Kommentar in der ausgelieferten DDL. Er beschreibt alle
+Status-/Fehlercodes, die vollständige Dokumentvalidierung und das kumulative
+OPENJSON-Operandbudget. Die passive Projektion ändert die Fachlogik nicht und
+ist keine neue native Qualifikation.
 
 [Objektvertrag](Documentation/TVF_ResolveJsonPointer.md),
 [Beispiele](Examples/JsonPointer.sql), [Testmatrix](Tests/JSON_POINTER_TEST_MATRIX.md)
 und [Ausführungsnachweise](Tests/README.md) sind getrennt verlinkt.
 Wiederholtes Fragmentparsing kann Arbeit proportional zu Input mal Tiefe
 benötigen. Keine allgemeine Heap-, Durchsatz-, Laufzeit- oder APPLY-Zusage.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Aktuelle Validierungsevidenz
 

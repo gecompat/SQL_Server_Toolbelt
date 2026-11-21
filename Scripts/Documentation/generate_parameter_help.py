@@ -95,11 +95,16 @@ def default_value(param):
     return default
 
 
-def help_rows(item, params, metadata, registry):
+def help_rows(item, params, metadata, registry, *, skill=None):
     key = item["schema"] + "." + item["name"]
     if set(metadata) != {"parameters", "rows"}:
         raise ValueError("Invalid help metadata: " + key)
     flags, notes = metadata["parameters"], registry[key]["parameter_notes"]
+    if skill is not None:
+        catalog.validate_skill_signature(skill, params)
+        flags = {p["name"]: [p["business_required"], p["nullable"]]
+                 for p in skill.metadata["parameters"]}
+        notes = {p["name"]: p["description"] for p in skill.metadata["parameters"]}
     names = {p["name"] for p in params}
     if set(flags) != names or set(notes) != names:
         raise ValueError("Help parameters differ from SQL signature: " + key)
@@ -120,9 +125,9 @@ def help_rows(item, params, metadata, registry):
     return rows
 
 
-def render(item, rows):
+def render(item, rows, skill=None):
     values = ",\n".join("        (" + ", ".join(literal(v, i in (7, 8)) for i, v in enumerate(row)) + ")" for row in rows)
-    return "\n        " + BEGIN + "\n" + """        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
+    body = "\n        " + BEGIN + "\n" + """        SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion,
             CAST(""" + literal(item["schema"]) + """ AS sysname) AS SchemaName,
             CAST(""" + literal(item["name"]) + """ AS sysname) AS ObjectName,
             CAST(v.Section AS varchar(32)) AS Section, CAST(v.Ordinal AS int) AS Ordinal,
@@ -138,31 +143,64 @@ def render(item, rows):
             WHEN 'RESULT_COLUMN' THEN 2 WHEN 'EXAMPLE' THEN 3 ELSE 4 END, v.Ordinal;
         RETURN 0;
         """ + END + "\n    "
+    if skill is not None:
+        sys.path.insert(0, str(ROOT / "Scripts/Metadata"))
+        import usage_skills
+        usage_skills.require(skill.metadata["schema_name"] == item["schema"]
+                             and skill.metadata["object_name"] == item["name"],
+                             "Hilfe-/Skillidentität")
+        body = body.replace("        RETURN 0;", usage_skills.render_help_projection(skill) + "        RETURN 0;", 1)
+    return body
 
 
-def generate(root=ROOT, write=False):
+def reviewed_skill(root, item):
+    """Vorhandene geprüfte Migration nutzen; Entwürfe bleiben nicht auslieferbar.
+
+    Die vollständige Skillabnahme ist ein separates Inventargate. Während der
+    Migration erhalten nur tatsächlich geprüfte Quellen die neue Projektion.
+    """
+    path = Path(root) / "Metadata/UsageSkills" / item["schema"] / (item["name"] + ".md")
+    if not path.is_file():
+        return None
+    sys.path.insert(0, str(ROOT / "Scripts/Metadata"))
+    import usage_skills
+    source = usage_skills.read(path, verified=False)
+    if source.metadata["review_status"] == "draft":
+        return None
+    return usage_skills.validate(source)
+
+
+def public_help_projections(root=ROOT):
     root = Path(root)
     metadata = json.loads((root / METADATA).read_text(encoding="utf-8"))
     registry = parameter_notes(root)
-    expected, changes = set(), {}
+    projections = []
     for item in catalog.objects(root):
         if item["type"] != "USP" or item["module"] == "toolbelt.tsql.ssis-debug":
             continue
         key = item["schema"] + "." + item["name"]
-        expected.add(key)
         path, params = catalog.signature(item)
+        skill = reviewed_skill(root, item)
+        rows = help_rows(item, params, metadata[key], registry, skill=skill)
+        projections.append((item, path, render(item, rows), render(item, rows, skill)))
+    if set(metadata) != {item["schema"] + "." + item["name"] for item, *_ in projections}:
+        raise ValueError("Help registry differs from public USP manifest")
+    return projections
+
+
+def generate(root=ROOT, write=False):
+    changes = {}
+    projections = public_help_projections(root)
+    for item, path, _, body in projections:
         text = changes.get(path, path.read_text(encoding="utf-8-sig"))
         a, b = help_span(text, item)
-        body = render(item, help_rows(item, params, metadata[key], registry))
         if not write and text[a:b] != body:
-            raise ValueError("Generated parameter help is stale: " + key)
+            raise ValueError("Generated parameter help is stale: " + item["schema"] + "." + item["name"])
         changes[path] = text[:a] + body + text[b:]
-    if set(metadata) != expected:
-        raise ValueError("Help registry differs from public USP manifest")
     if write:
         for path, text in changes.items():
             path.write_text(text, encoding="utf-8", newline="\n")
-    return len(expected)
+    return len(projections)
 
 
 if __name__ == "__main__":

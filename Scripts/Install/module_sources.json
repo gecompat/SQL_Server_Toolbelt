@@ -1,0 +1,288 @@
+{
+  "schema": "toolbelt-install-sources/v1",
+  "modules": {
+    "toolbelt.archive.zip-files": [
+      "Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql",
+      "Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql"
+    ],
+    "toolbelt.archive.zip-memory": [
+      "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalExtractZipEntryClr.sql",
+      "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalListZipEntriesClr.sql",
+      "Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql",
+      "Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql",
+      "Modules/toolbelt.archive.zip-memory/Source/ZipWriterClr.sql",
+      "Modules/toolbelt.archive.zip-memory/Source/USP_CreateZipFromEntries.sql"
+    ],
+    "toolbelt.binary.bit-operations": [
+      "Modules/toolbelt.binary.bit-operations/Source/TVF_LeftShiftBigInt.sql",
+      "Modules/toolbelt.binary.bit-operations/Source/TVF_RightShiftBigInt.sql",
+      "Modules/toolbelt.binary.bit-operations/Source/TVF_BitCountBigInt.sql",
+      "Modules/toolbelt.binary.bit-operations/Source/TVF_GetBitBigInt.sql",
+      "Modules/toolbelt.binary.bit-operations/Source/TVF_SetBitBigInt.sql"
+    ],
+    "toolbelt.conversion.base64": [
+      "Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql",
+      "Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql",
+      "Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql",
+      "Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql"
+    ],
+    "toolbelt.conversion.integer-base": [
+      "Modules/toolbelt.conversion.integer-base/Source/TVF_IntegerToBase.sql",
+      "Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql",
+      "Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql",
+      "Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql"
+    ],
+    "toolbelt.conversion.safe-cast": [
+      "Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBigInt.sql",
+      "Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDecimal.sql",
+      "Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDate.sql",
+      "Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDateTime2.sql",
+      "Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBit.sql",
+      "Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastUniqueIdentifier.sql"
+    ],
+    "toolbelt.conversion.uri-component": [
+      "Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql",
+      "Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql",
+      "Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentEncode.sql",
+      "Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentDecode.sql"
+    ],
+    "toolbelt.core.console-message": [
+      "Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql"
+    ],
+    "toolbelt.core.error-envelope": [
+      "Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql"
+    ],
+    "toolbelt.core.event-log": [
+      "Modules/toolbelt.core.event-log/Source/EventLog.sql",
+      "Modules/toolbelt.core.event-log/Source/VW_Events.sql",
+      "Modules/toolbelt.core.event-log/Source/USP_WriteEventInternal.sql",
+      "Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql",
+      "Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql",
+      "Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql"
+    ],
+    "toolbelt.core.execution-cancel": [
+      "Modules/toolbelt.core.execution-cancel/Source/ExecutionCancellation.sql",
+      "Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql",
+      "Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql",
+      "Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql"
+    ],
+    "toolbelt.core.execution-context": [
+      "Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql",
+      "Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql",
+      "Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql",
+      "Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql",
+      "Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql"
+    ],
+    "toolbelt.core.generate-series": [
+      "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql",
+      "Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql"
+    ],
+    "toolbelt.core.result-table": [
+      "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql"
+    ],
+    "toolbelt.core.second-session": [
+      "Modules/toolbelt.core.second-session/Source/SecondSessionProvider.sql",
+      "Modules/toolbelt.core.second-session/Source/VW_SecondSessionProviders.sql",
+      "Modules/toolbelt.core.second-session/Source/USP_SecondSessionProbe.sql",
+      "Modules/toolbelt.core.second-session/Source/USP_DispatchWorkType.sql",
+      "Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql",
+      "Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql"
+    ],
+    "toolbelt.core.work-queue": [
+      "Modules/toolbelt.core.work-queue/Source/WorkItem.sql",
+      "Modules/toolbelt.core.work-queue/Source/WorkQueueManagedGate.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql",
+      "Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql",
+      "Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_FailWorkCore.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetryCore.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql",
+      "Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql"
+    ],
+    "toolbelt.core.work-type": [
+      "Modules/toolbelt.core.work-type/Source/WorkType.sql",
+      "Modules/toolbelt.core.work-type/Source/WorkTypePermission.sql",
+      "Modules/toolbelt.core.work-type/Source/TVF_WorkTypeAuthorization.sql",
+      "Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql",
+      "Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql",
+      "Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql",
+      "Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql",
+      "Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql",
+      "Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql"
+    ],
+    "toolbelt.core.worker-control": [
+      "Modules/toolbelt.core.worker-control/Source/WorkerControlTables.sql",
+      "Modules/toolbelt.core.worker-control/Source/VW_WorkerStatus.sql",
+      "Modules/toolbelt.core.worker-control/Source/VW_WorkerExecutionStatus.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_BeginWorkerCompletion.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_BeginWorkerTransactionWitness.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_BindWorkerExecution.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_ClaimWorkerWork.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_FinalizeWorkerFailure.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_RecordWorkerCommit.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_RecordWorkerRollback.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_RecordWorkerUnknown.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_ReleaseHeldWork.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_ReserveWorkerExecution.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_StopWorkerExecution.sql",
+      "Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql"
+    ],
+    "toolbelt.datetime.bucket": [
+      "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketCore.sql",
+      "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTimeOffset.sql",
+      "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDateTime2.sql",
+      "Modules/toolbelt.datetime.bucket/Source/TVF_DateBucketDate.sql"
+    ],
+    "toolbelt.datetime.calendar-difference": [
+      "Modules/toolbelt.datetime.calendar-difference/Source/TVF_CalendarDifference.sql"
+    ],
+    "toolbelt.datetime.date-spine": [
+      "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineCore.sql",
+      "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineDay.sql",
+      "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineIsoWeek.sql",
+      "Modules/toolbelt.datetime.date-spine/Source/TVF_DateSpineMonth.sql"
+    ],
+    "toolbelt.datetime.truncate": [
+      "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTimeOffset.sql",
+      "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDateTime2.sql",
+      "Modules/toolbelt.datetime.truncate/Source/TVF_TruncateDate.sql"
+    ],
+    "toolbelt.file.content": [
+      "Modules/toolbelt.file.content/Source/FileContentRootAllowlist.sql",
+      "Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql",
+      "Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql"
+    ],
+    "toolbelt.file.csv-memory": [
+      "Modules/toolbelt.file.csv-memory/Source/TVF_InternalParseCsv.sql",
+      "Modules/toolbelt.file.csv-memory/Source/SVF_InternalMeasureCsvCell.sql",
+      "Modules/toolbelt.file.csv-memory/Source/SVF_InternalQuoteCsvCell.sql",
+      "Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql",
+      "Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql"
+    ],
+    "toolbelt.file.xlsx-memory": [
+      "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalFormatXlsxCell.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalInterpretXlsxCell.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalXlsxSheets.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/TVF_InternalXlsxCells.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/USP_InternalXlsxRead.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/USP_ListXlsxWorksheets.sql",
+      "Modules/toolbelt.file.xlsx-memory/Source/USP_ReadXlsxWorksheetCells.sql"
+    ],
+    "toolbelt.filesystem.windows": [
+      "Modules/toolbelt.filesystem.windows/Source/FileSystemRoot.sql",
+      "Modules/toolbelt.filesystem.windows/Source/Procedures.sql"
+    ],
+    "toolbelt.json.constructors": [
+      "Modules/toolbelt.json.constructors/Source/JsonEntryEvaluate.sql",
+      "Modules/toolbelt.json.constructors/Source/JsonAggregates.sql",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonConstructInternal.sql",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonArray.sql",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonObject.sql",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonArraysByGroup.sql",
+      "Modules/toolbelt.json.constructors/Source/USP_JsonObjectsByGroup.sql"
+    ],
+    "toolbelt.json.core": [],
+    "toolbelt.json.path-exists": [
+      "Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql"
+    ],
+    "toolbelt.json.pointer": [
+      "Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql"
+    ],
+    "toolbelt.json.schema": [
+      "Modules/toolbelt.json.schema/Source/JsonSchemaBridge.sql",
+      "Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql"
+    ],
+    "toolbelt.metadata.capability-catalog": [
+      "Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql",
+      "Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql"
+    ],
+    "toolbelt.metadata.identifier": [
+      "Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql",
+      "Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql"
+    ],
+    "toolbelt.metadata.table-clone": [
+      "Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql",
+      "Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql",
+      "Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql",
+      "Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql"
+    ],
+    "toolbelt.pseudonymization.deterministic": [
+      "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicIntegerBytes.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRangeCore.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookupCore.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql",
+      "Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql"
+    ],
+    "toolbelt.string.directional-trim": [
+      "Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql",
+      "Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql"
+    ],
+    "toolbelt.string.edit-distance": [
+      "Modules/toolbelt.string.edit-distance/Source/EditDistance.sql",
+      "Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql"
+    ],
+    "toolbelt.string.phonetic": [
+      "Modules/toolbelt.string.phonetic/Source/TVF_ColognePhoneticCore.sql",
+      "Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphoneCore.sql",
+      "Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql",
+      "Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql"
+    ],
+    "toolbelt.string.regex": [
+      "Modules/toolbelt.string.regex/Source/RegexFunctions.sql",
+      "Modules/toolbelt.string.regex/Source/RegexRelations.sql",
+      "Modules/toolbelt.string.regex/Source/RegexCaptures.sql"
+    ],
+    "toolbelt.string.split-advanced": [
+      "Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql",
+      "Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql",
+      "Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql"
+    ],
+    "toolbelt.string.split-characters": [
+      "Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql"
+    ],
+    "toolbelt.string.text-pairs": [
+      "Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql"
+    ],
+    "toolbelt.tsql.script-parser": [
+      "Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodes.sql",
+      "Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodeProperties.sql",
+      "Modules/toolbelt.tsql.script-parser/Source/TVF_TokenizeScript.sql",
+      "Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptErrors.sql"
+    ],
+    "toolbelt.tsql.ssis-debug": [
+      "Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql",
+      "Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlowInternal.sql"
+    ],
+    "toolbelt.validation.semantic-version": [
+      "Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql",
+      "Modules/toolbelt.validation.semantic-version/Source/TVF_CompareSemanticVersion.sql",
+      "Modules/toolbelt.validation.semantic-version/Source/TVF_SemanticVersionSortKey.sql",
+      "Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql",
+      "Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql"
+    ]
+  }
+}

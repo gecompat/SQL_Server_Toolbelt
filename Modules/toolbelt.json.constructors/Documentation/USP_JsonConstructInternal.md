@@ -23,3 +23,7 @@ Private Snapshot-/Fragment-/Ergebnistabellen; Eingabewerte niemals als SQL ausf�
 Zahlen werden als Literalgrammatik gepr체ft, ohne numerische SQL-Konvertierung.
 Geordnete STRING_AGG-Fragmente vermeiden das wiederholte Anf체gen an ein wachsendes
 Gesamt-LOB; dies ist keine Streaming-, Echtzeit- oder Parallelit채tszusage.
+
+## Vollst채ndiger Usage-Skill
+
+Der [quellgepr체fte Vertrag](../../../Metadata/UsageSkills/toolbelt_json/USP_JsonConstructInternal.md) beschreibt s채mtliche Argumente, Entrykinds, Ergebnisschema, Rechte, Ressourcen und Fehlerpriorit채ten. Er steht identisch in der kanonischen Objekt-DDL. Die Prozeduren liefern ihn zus채tzlich als eigene Skillzeile nach der bisherigen Standardhilfe. Interne Einstiegspunkte bleiben intern; neue native Qualifikation wird nicht aus dem Quellvergleich abgeleitet.

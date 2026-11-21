@@ -1,5 +1,17 @@
 # File Content
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 **Modul-ID:** `toolbelt.file.content`
 **Version:** `1.0.0`
 **Implementierungsstatus:** `implemented`
@@ -39,12 +51,17 @@ wird. Ohne diesen Parameter bleibt das direkte Resultset unverändert.
 
 Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
-`Deployment/Deploy.sql` benötigt die SQLCMD-Variable
-`DeploymentMode=local|central`. Zusätzlich muss `OPENROWSET(BULK...)` auf
-SQL Server aktiviert sein (`ad hoc distributed queries`) oder der Aufrufer
-besitzt `ADMINISTER BULK OPERATIONS`.
-Die beiden Procedure-Dateien binden im SQLCMD-Modus das gemeinsame
-Queryfragment `Source/FileContentRootPredicate.sql` ein.
+Der aktuelle Offlinebuilder expandiert das gemeinsame interne Quellfragment
+`Source/FileContentRootPredicate.sql` in die normale SQL-Datei. Endanwender
+benötigen dafür keinen SQLCMD-Modus. Die rohe Prozedur-Quelldatei mit `:r` ist
+kein direkt unverändert auszuführender Installer.
+
+Voraussetzung sind passende vorhandene Bulkberechtigungen für die konkrete
+Engine/Plattform und Dateileserechte des wirksamen Sicherheitskontexts.
+Eine Option `ad hoc distributed queries` ersetzt keine Berechtigung;
+der Installer aktiviert diese oder andere Serveroptionen nicht automatisch.
+Siehe [Microsofts Bulkvertrag](https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-bulk-transact-sql?view=sql-server-ver17)
+und [Dateizugriffskontext](https://learn.microsoft.com/en-us/sql/relational-databases/import-export/prepare-data-for-bulk-export-or-import-sql-server).
 
 ## Vertrag
 
@@ -57,6 +74,18 @@ Queryfragment `Source/FileContentRootPredicate.sql` ein.
   UTF-16 BE und UTF-32 werden abgewiesen. Ohne BOM gilt `Windows-1252`.
 - Fehler werden als standardisiertes Resultset mit `IsValid = 0` und
   `ValidationCode` zurückgegeben, soweit fachlich klassifizierbar.
+
+`MaxBytes` wird erst nach dem vollständigen Lesen geprüft und begrenzt weder
+Vorallokation noch Datei-I/O. Die aktuelle BULK-Pfadquotierung hat trotz
+`nvarchar(4000)`-Signatur eine Grenze von 128 Zeichen. Eine normale Fehlerzeile
+mit `IsValid=0` kann im ResultTable-Pfad vorherige Daten ersetzen, weil der
+Helper das Ziel bereits vor Pfad-/Encoding-/Rootprüfung vorbereitet.
+Die Allowlist ist lexikalisch, keine Sandbox gegen Dateisystemlinks.
+
+Alle drei Objekte besitzen vollständige quellgeprüfte
+[Usage-Skills](../../Metadata/UsageSkills/README.md) in der DDL. Beide USPs
+liefern sie bei `@Hilfe=1` nach der Standardhilfe als zusätzliche vier-spaltige
+Skillzeile. Diese Projektion ist offline geprüft, nicht neu nativ qualifiziert.
 
 ## Dokumentation
 

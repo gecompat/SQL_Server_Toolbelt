@@ -17,7 +17,7 @@ zwischen gepuffertem `PRINT` und sofort gesendetem
 | `@Message` | `nvarchar(max)` | `NULL` | Input | Auszugebender Unicode-Text als nvarchar(max), maximal 1048576 UTF-16-Bytes und höchstens 512 berechnete Frames. CR/LF und Prozentzeichen sind Inhalt, kein Formatstring. Default/NULL und leerer Text erzeugen keine Ausgabe; Überschreitung wird vor erster Ausgabe abgewiesen. |
 | `@Immediate` | `bit` | `0` | Input | Taxativ für bit: 0 puffert über PRINT mit bis 4000 Codeeinheiten je Frame (Default); 1 nutzt RAISERROR Severity 0 WITH NOWAIT mit bis 2000 Codeeinheiten je Frame. NULL entspricht 0; konkrete Clientpufferung bleibt vom Client abhängig. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255 oder NULL, Default 0; in dieser Procedure haben alle diese Werte bewusst keine Wirkung und erzeugen keine zusätzliche Diagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert ausschließlich Hilfe und ignoriert alle anderen Argumente; 0 führt die Messageausgabe aus (Default). NULL wird wie 0 behandelt. |
+| `@Hilfe` | `bit` | `0` | Input | Optionaler bit, Default 0. 1 liefert die bisherige zwölfspaltige Standardhilfe plus genau ein vierkolumniges Skill-Resultset und kehrt vor Fachprüfungen und Fachausgabe zurück. 0 oder NULL führt den Normalpfad aus. Alle übrigen Parameter werden bei Hilfe fachlich ignoriert; ihre SQL-Typbindung gilt weiterhin. |
 <!-- API_PARAMETERS:END -->
 
 ## Ergebnis- und Fehlervertrag
@@ -27,10 +27,16 @@ zurück. Fehler `52801` weist mehr als 1 MiB UTF-16 zurück; `52802` mehr als
 512 Frames. Beide Grenzen werden vor erster Ausgabe geprüft, ohne Teiltext
 oder Kürzung. Tatsächliche Engine- oder Clientfehler werden nicht umklassifiziert.
 
-`@Hilfe = 1` liefert das Help-Resultset gemäß
+`@Hilfe = 1` liefert das bisherige Help-Resultset gemäß
 [`USP_CONTRACT.md`](../../../Documentation/Standards/USP_CONTRACT.md). Der
 deklarative `RESULT_COLUMN`-Eintrag beschreibt ausdrücklich, dass kein
 fachliches Resultset existiert.
+
+Danach folgt genau ein zusätzliches vierkolumniges Skill-Resultset mit
+`SkillFormatVersion`, `SchemaName`, `ObjectName` und vollständigem
+`SkillMarkdown nvarchar(max)` aus der
+[kanonischen Quelle](../../../Metadata/UsageSkills/toolbelt_core/USP_WriteConsoleMessage.md).
+Beide Hilfeausgaben erfolgen vor der fachlichen Message- und Grenzprüfung.
 
 ## Chunking
 

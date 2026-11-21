@@ -445,6 +445,15 @@ change_impact:
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
   packages:
+    object_usage_skills:
+      paths:
+        - Metadata/UsageSkills/**
+        - Scripts/Metadata/**
+        - Tests/Metadata/**
+        - Modules/*/module.yaml
+        - Modules/*/Source/**
+      checks:
+        - object_usage_skills
     markerless_installation:
       paths:
         - Scripts/Install/**
@@ -475,6 +484,8 @@ change_impact:
         - markdown_links
     public_api_catalog:
       paths:
+        - "Metadata/UsageSkills/**/*.md"
+        - "Scripts/Metadata/usage_skills.py"
         - "Scripts/Documentation/*.py"
         - "Scripts/Release/parameter_help_transition.py"
         - "Scripts/Release/HistoricalSources/parameter-help-20261030/*"

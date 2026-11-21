@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """Offline-Katalog: öffentliche Manifestobjekte, echte SQL-Signaturen und Beispiele.
 
-Die kleine explizite Beispielregistry ergänzt die modullokalen Verträge. Sie
-enthält ausschließlich redaktionelle, synthetische Inhalte. SQLCMD, SQL Server,
-Secrets, Hostdaten und externe Pakete werden weder benötigt noch gelesen.
+Die kanonischen Usage-Skills liefern die redaktionellen Inhalte.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import html
-import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEST = ROOT / "Documentation/Reference"
-REGISTRY = DEST / "api_examples.json"
+sys.path.insert(0, str(ROOT / "Scripts/Metadata"))
+import usage_skills
 PUBLIC_TYPES = {"USP", "TVF", "SVF", "VW", "VIEW", "CLR_TVF", "CLR_SVF", "CLR_AGGREGATE"}
 PARAMETER_BEGIN = "<!-- API_PARAMETERS:BEGIN -->"
 PARAMETER_END = "<!-- API_PARAMETERS:END -->"
@@ -216,13 +215,52 @@ def documentation(item: dict) -> list[Path]:
     return candidates or [item["root"] / "README.md"]
 
 
+def validate_skill_signature(skill, params: list[dict]) -> None:
+    declared = skill.metadata["parameters"]
+    identity = ".".join(skill.identity[1:])
+    if [p["name"] for p in declared] != [p["name"] for p in params]:
+        raise ValueError(f"Parametererklärungen fehlen oder sind veraltet: {identity}")
+    for field, sql in zip(declared, params):
+        default = None if sql["default"] == "kein Default" else sql["default"]
+        if (re.sub(r"\s+", "", field["sql_type"]).casefold() != sql["type"].casefold()
+                or field["sql_default"] != default or field["is_output"] != sql["output"]
+                or field["argument_required"] != (skill.metadata["object_type"] != "USP" or default is None)):
+            raise ValueError(f"Usage-Skill weicht von der SQL-Parameterbindung ab: {identity} {sql['name']}")
+
+
+def public_skill_entries(root: Path, entries: list[dict]) -> dict:
+    result = {}
+    for item in entries:
+        schema, name = item["schema"], item["name"]
+        key = schema + "." + name
+        path = root / "Metadata/UsageSkills" / schema / (name + ".md")
+        if not path.is_file():
+            raise ValueError(f"Usage-Skill fehlt: {key}")
+        skill = usage_skills.read(path)
+        m = skill.metadata
+        if (m["schema_name"], m["object_name"], m["module_id"], m["object_type"], m["is_internal"]) != (
+            schema, name, item["module"], item["type"], False
+        ):
+            raise ValueError(f"Usage-Skill gehört nicht zur öffentlichen Schnittstelle: {key}")
+        source, params = signature(item)
+        validate_skill_signature(skill, params)
+        _, body = usage_skills.parse_frontmatter(skill.markdown)
+        sections = dict(re.findall(r"^## ([^\n]+)\n([\s\S]*?)(?=^## |\Z)", body, re.M))
+        examples = [sql.strip() for sql in re.findall(
+            r"^```sql\n([\s\S]*?)^```$", sections["Aufrufbeispiele"], re.M
+        ) if key.casefold() in sql.casefold()]
+        if not examples or any("/*" in sql or "*/" in sql for sql in examples):
+            raise ValueError(f"Usage-Skill benötigt ein sicher einbettbares eigenes SQL-Beispiel: {key}")
+        result[key] = dict(summary=m["description"], examples=examples,
+                           requirements=[" ".join(sections["Voraussetzungen"].split())],
+                           parameter_notes={p["name"]: p["description"] for p in m["parameters"]},
+                           skill_path=path, source=source, params=params)
+    return result
+
+
 def render(root: Path = ROOT) -> dict[str, str]:
-    registry = json.loads((root / REGISTRY.relative_to(ROOT)).read_text(encoding="utf-8"))
     entries = objects(root)
-    keys = {i["schema"] + "." + i["name"] for i in entries}
-    if keys != registry.keys():
-        raise ValueError(f"Beispielregistry unvollständig/veraltet: fehlen={sorted(keys-registry.keys())}, "
-                         f"veraltet={sorted(registry.keys()-keys)}")
+    registry = public_skill_entries(root, entries)
     md = ["# SQL Server Toolbelt Beispielkatalog", "",
           "<!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->", "",
           f"{len(entries)} öffentliche Schnittstellen aus {len({i['module'] for i in entries})} Modulen. "
@@ -239,8 +277,6 @@ def render(root: Path = ROOT) -> dict[str, str]:
     for item in entries:
         key = item["schema"] + "." + item["name"]
         entry = registry[key]
-        if set(entry) != {"summary", "examples", "requirements", "parameter_notes"} or not entry["summary"] or not entry["examples"]:
-            raise ValueError(f"Ungültiger redaktioneller Eintrag: {key}")
         if (not isinstance(entry["summary"], str)
                 or not isinstance(entry["examples"], list)
                 or not isinstance(entry["requirements"], list)
@@ -248,11 +284,9 @@ def render(root: Path = ROOT) -> dict[str, str]:
                 or any(not isinstance(s, str) or not s.strip() for s in
                        entry["examples"] + entry["requirements"] + list(entry["parameter_notes"].values()))):
             raise ValueError(f"Ungültige redaktionelle Inhalte: {key}")
-        source, params = signature(item)
-        if set(entry["parameter_notes"]) != {p["name"] for p in params}:
-            raise ValueError(f"Parametererklärungen fehlen oder sind veraltet: {key}")
+        source, params = entry["source"], entry["params"]
         docs = documentation(item)
-        sources = [source] + docs
+        sources = [source] + docs + [entry["skill_path"]]
         fingerprint = hashlib.sha256("\n".join(
             p.relative_to(root).as_posix() + "\n" + p.read_text(encoding="utf-8-sig")
             for p in sources).encode("utf-8")).hexdigest()
@@ -271,8 +305,6 @@ def render(root: Path = ROOT) -> dict[str, str]:
         sql += ["-- " + key, "-- " + entry["summary"]]
         sql += ["-- Voraussetzung: " + r for r in entry["requirements"]]
         for example in entry["examples"]:
-            if not isinstance(example, str) or key not in example:
-                raise ValueError(f"Beispiel ohne eigenen Aufruf: {key}")
             md += ["```sql", example, "```", ""]
             sql += ["/* Separat auswählen und ausführen:", example, "*/", ""]
         if item["type"] == "USP":
@@ -332,7 +364,7 @@ def render(root: Path = ROOT) -> dict[str, str]:
 
 
 def check(root: Path = ROOT, write: bool = False) -> None:
-    registry = json.loads((root / REGISTRY.relative_to(ROOT)).read_text(encoding="utf-8"))
+    registry = public_skill_entries(root, objects(root))
     check_parameter_blocks(root, registry, write)
     for name, expected in render(root).items():
         target = root / DEST.relative_to(ROOT) / name

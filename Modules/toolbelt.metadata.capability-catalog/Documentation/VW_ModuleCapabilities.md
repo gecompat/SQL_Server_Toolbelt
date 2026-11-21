@@ -18,6 +18,13 @@ FROM toolbelt_metadata.VW_ModuleCapabilities ORDER BY ModuleId;
 
 Der aktuelle markerfreie Vertrag ist noch nicht nativ vollständig qualifiziert. Frühere Markerläufe qualifizieren ausschließlich die nachfolgend erhaltene alte Definition.
 
+Der [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md)
+enthält den vollständigen aktuellen Vertrag und steht auch als Kommentar in der
+kanonischen DDL. Es gibt keine Aufrufparameter oder `@Hilfe` für diese View.
+Die separat beauftragte konstante `toolbelt_metadata.VW_ObjectUsageSkills`
+liefert Beschreibungen bekannter Objekte und führt diese Sichtbarkeitsfilterung
+nicht durch. Ein Skill ist kein Installationsnachweis.
+
 ## Historischer Marker-Vertrag bis 2026-11-19
 
 # toolbelt_metadata.VW_ModuleCapabilities

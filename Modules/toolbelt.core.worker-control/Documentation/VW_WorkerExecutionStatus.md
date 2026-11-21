@@ -17,11 +17,20 @@
 
 Jede Reservation bleibt über ihre eigene Claimgeneration sichtbar. Nur die exakt zugehörige aktuelle Disposition liefert eine HoldVersion; nach einem Folgeclaim ist die historische Version NULL. IsHeld ist dann false, StopStatus NONE (COMMITTED: ALREADY_COMMITTED). Historisches IsHeld=false und StopStatus=NONE bedeuten keine aktuelle Disposition; sie beweisen keinesfalls, dass der Attempt nie gestoppt oder gehalten war. Diese Zeile beschreibt keine Wiederfreigabe und autorisiert keinen Eingriff in eine spätere Generation.
 
+Der [vollständige Skill](../../../Metadata/UsageSkills/toolbelt_core/VW_WorkerExecutionStatus.md)
+ist auch in der DDL enthalten. Die View prüft keinen Commit-Witness und keinen
+tatsächlichen Handlercommit. Bei passender Disposition wird ihr StopStatus
+unverändert übernommen; der COMMITTED-Fallback greift nur ohne passenden Wert.
+Es gibt keinen Caller-/Ownerfilter und keine automatische Historybereinigung.
+
 ```sql
 SELECT SlotReservationId,WorkItemId,ClaimGeneration,ExecutionId,WorkerId,WorkerGeneration,State,IsHeld,HoldVersion,StopStatus FROM toolbelt_core.VW_WorkerExecutionStatus;
 ```
 
-Der [Architekturvertrag](../../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md) beschreibt Stop, Admission und Proof. Laufzeitnachweise sind noch nicht ausgeführt.
+Der [Architekturvertrag](../../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
+beschreibt Stop, Admission und Proof. [Vorhandene Nachweise](../Tests/README.md)
+behalten ihre jeweilige Ziel- und Artefaktbindung; die aktuelle Skill-/DDL-/
+Installerprojektion ist dadurch nicht erneut nativ abgenommen.
 
 ## Aufrufparameter
 

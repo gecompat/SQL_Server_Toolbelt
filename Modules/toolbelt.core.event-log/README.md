@@ -1,10 +1,18 @@
 # Rollback-independent Event Log
 
+
+## Aktuelle Installation
+
+Den [modulbezogenen Buildplan](Deployment/README.md) oder den
+[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
+Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
+kein SQLCMD-Modus, keine Deployment-Extended-Properties.
+Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
+aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+
 Aktuelle [Callerrechte](../../Releases/1.0.0/EVENT-LOG-CALLER-QUALIFICATION.md): getrennte Objektrechte auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Weitere Funktions-, Client-, Lifecycle- und Ressourcengates sowie Modulstatus bleiben separat.
-
-## Installation des neuen Quellstands
-
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
 
 ## Status
 
@@ -14,21 +22,40 @@ Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scr
 
 `toolbelt_core.USP_WriteEvent` schreibt strukturierte Events synchron über `toolbelt.core.second-session`. Der Remote-Commit ist von Commit oder Rollback der Caller-Transaktion unabhängig und funktioniert auch aus einem uncommittable Caller, solange der administrierte Loopback-Provider verfügbar ist.
 
-Das Modul speichert keinen frei ausführbaren SQL-Text. `DataJson` ist auf ein JSON-Objekt mit 32 KiB UTF-16-Speicher begrenzt. Meldungen und optionale Fehlerdaten müssen vor der Persistierung auf Vertraulichkeit geprüft werden.
+Das Modul führt keine Eventtexte als SQL aus. `DataJson` ist auf ein JSON-Objekt
+mit 65536 UTF-16-Bytes (64 KiB) begrenzt. Meldungen und optionale Fehlerdaten
+müssen vor der Persistierung auf Vertraulichkeit geprüft werden. Die View
+maskiert diese Inhalte nicht.
 
 ## Öffentliche Objekte
 
 - `toolbelt_core.USP_WriteEvent`
 - `toolbelt_core.VW_Events`
 - `toolbelt_core.USP_DeleteEventsBefore`
+- `toolbelt_core.USP_DeleteRecordedEventsBefore`
 
-Der interne Handler `USP_WriteEventInternal` wird als Work Type `toolbelt.event-log.write` registriert. Deploy und Uninstall verändern keinen Linked Server und keine Login-Mappings.
+Der interne Handler `USP_WriteEventInternal` gehört zum Work Type
+`toolbelt.event-log.write`. Der gemeinsame create-only-Installer registriert
+einen fehlenden Eintrag nur zusammen mit den selbst neu angelegten
+Abhängigkeitsobjekten; bestehende Einträge werden nicht stillschweigend ersetzt.
+Den Loopback-Provider und seine vorhandenen Berechtigungen administrativ
+vorbereiten; der Installer richtet keinen Linked Server oder Loginmapping ein.
 
-Ein wiederholter Uninstall ist auch nach dem Entfernen der WorkType-Dependency
-möglich, wenn sämtliche Event-Log-Objekte und Modulmarker bereits fehlen.
+Alle sechs Objekte besitzen einen vollständigen quellgeprüften
+[Usage-Skill](../../Metadata/UsageSkills/README.md) in ihrer ausgelieferten DDL.
+Die vier Prozeduren liefern ihn über `@Hilfe=1` zusätzlich zur bisherigen
+Standardhilfe. Die neue Projektion ist offline geprüft, nicht neu nativ
+qualifiziert. Schreibfehler nach einem Remote-Commit können einen unsicheren
+Ausgang bedeuten; gleiche Kontext-IDs verhindern keine Duplikate bei Wiederholung.
+
+## Historischer Lifecycle
+
+In den früheren markerbasierten Installationsartefakten war ein wiederholter
+Uninstall auch nach dem Entfernen der WorkType-Dependency
+möglich, wenn sämtliche Event-Log-Objekte und Modulmarker bereits fehlten.
 Ein noch installierter oder inkonsistent markierter Event-Log-Zustand ohne
-WorkType bleibt mit Fehler 51748 gesperrt. Der optionale Registryzugriff wird
-erst nach der Existenzprüfung kompiliert. Die
+WorkType blieb mit Fehler 51748 gesperrt. Dies beschreibt keinen aktuellen
+Uninstallweg: der gemeinsame Installer ist create-only. Die
 [Releaseprüfung](../../Releases/1.0.0/RELEASE-GATES.md) dokumentiert den tatsächlichen Scope.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410

@@ -36,25 +36,17 @@ class SimpleInstaller(unittest.TestCase):
     def save(self):
         (self.root / "Toolbelt.Tsql.SsisDebug.trust-manifest.json").write_text(json.dumps(self.manifest), encoding="utf-8")
 
-    def test_modes(self):
-        for mode in ("auto", "hash", "trustworthy-checked", "trustworthy"):
+    def test_admission_retains_bound_bytes_for_every_supported_mode(self):
+        for mode in ('auto','hash','trustworthy-checked','trustworthy'):
             with self.subTest(mode=mode):
-                sql = installer.render(self.root, self.dom, mode)
-                self.assertTrue(sql.startswith("USE [ContosoSsisDebug];"))
-                self.assertIn("DECLARE @TrustMethod varchar(24)='" + mode + "'", sql)
-                self.assertNotRegex(sql, r"(?im)^\s*(?:GO\s*$|:\w|ALTER DATABASE|GRANT|RECONFIGURE)")
-                self.assertNotIn("sys.extended_properties", sql)
-                self.assertNotIn("sp_addextendedproperty", sql)
-                self.assertIn("IF @TrustMethod='hash'\n EXEC sys.sp_executesql", sql)
-                self.assertEqual(sql.count("CREATE PROCEDURE"), 3)
-                self.assertIn("IF OBJECT_ID(N'toolbelt_tsql.USP_ExplainSsisDataFlow') IS NULL", sql)
-                self.assertIn("[tlblt.Microsoft.SqlServer.TransactSql.ScriptDom]", sql)
-                self.assertNotIn("TVF_ParseScriptNodes", sql)
+                result=installer.validate_inputs(self.root,self.dom,mode)
+                self.assertEqual(result['provider'],b'synthetic provider')
+                self.assertEqual(result['scriptdom'],b'synthetic private dependency')
 
     def reject(self, mutate, expected):
         mutate(); self.save()
         with self.assertRaisesRegex(ValueError, expected):
-            installer.render(self.root, self.dom)
+            installer.validate_inputs(self.root, self.dom)
 
     def test_payload_drift(self):
         self.reject(lambda: self.dom.write_bytes(b"changed"), "BINARY_BINDING")
@@ -70,10 +62,8 @@ class SimpleInstaller(unittest.TestCase):
 
     def test_unknown_mode(self):
         with self.assertRaisesRegex(ValueError, "TRUST_MODE"):
-            installer.render(self.root, self.dom, "fallback")
+            installer.validate_inputs(self.root, self.dom, "fallback")
 
-    def test_literal(self):
-        self.assertEqual(installer.literal("SELECT N'quote';"), "N'SELECT N''quote'';'")
 
 
 if __name__ == "__main__":
