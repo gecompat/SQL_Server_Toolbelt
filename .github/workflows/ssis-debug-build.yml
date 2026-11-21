@@ -164,8 +164,11 @@ jobs:
       - name: Select exact historical deployment evidence sources
         shell: pwsh
         run: |
-          $code="import sys;from pathlib import Path;sys.path.insert(0,'Tests/Release');from ssis_historical_context import historical_root;print(historical_root(Path.cwd(),'2fbe8e3e86f370b22ad2ce9f9716d971072a052b'))"
-          $frozen=python -B -c $code
+          # The original evidence tests can create three nested worktrees.
+          $shortRoot=Join-Path $env:RUNNER_TEMP 'h'
+          if (Test-Path -LiteralPath $shortRoot) { throw 'Historical worktree path already present' }
+          $code="import sys;from pathlib import Path;sys.path.insert(0,'Tests/Release');from ssis_historical_context import historical_root;print(historical_root(Path.cwd(),'2fbe8e3e86f370b22ad2ce9f9716d971072a052b',sys.argv[1]))"
+          $frozen=python -B -c $code $shortRoot
           if ($LASTEXITCODE -ne 0) { throw 'Historical deployment source unavailable' }
           "TBX_HISTORICAL_ROOT=$frozen" >> $env:GITHUB_ENV
           "PYTHONDONTWRITEBYTECODE=1" >> $env:GITHUB_ENV
