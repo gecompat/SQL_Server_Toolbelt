@@ -32,9 +32,24 @@ EVENT_HELP_PATH='Modules/toolbelt.core.event-log/Source/USP_WriteEventInternal.s
 EVENT_HELP_OLD=(b"N'EXEC toolbelt_core.USP_WriteEvent @EventName=''Contoso.HelpExample'',"
                 b"@EventLevel=''INFO'',@Message=N''Synthetic example'';'")
 EVENT_HELP_NEW=EVENT_HELP_OLD.replace(b'Contoso.HelpExample',b'contoso.helpexample')
+SCHEMA_HELP_PATH='Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql'
+SCHEMA_HELP_OLD=("Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.").encode('utf-8')
+SCHEMA_HELP_NEW=("1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Argument-/Namespace-/Helper-/CLR-/Fachprüfung oder Zielmutation. 0 oder NULL: Fachpfad. Alle SQL-Argumente besitzen technische Defaults.").encode('utf-8')
 
 
 def corrected_historical_help(original,path):
+    # This exact description correction belongs only to the existing early
+    # Schema help branch. New help is not upgraded to historical runtime proof.
+    if path==SCHEMA_HELP_PATH and SCHEMA_HELP_OLD in original:
+        start=b' IF @Hilfe=1\n BEGIN\n'
+        end=b'        RETURN 0;'
+        if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_SCHEMA_HELP_DESCRIPTION')
+        a=original.index(start)+len(start)
+        b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_SCHEMA_HELP_DESCRIPTION')
+        original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,SCHEMA_HELP_NEW)+original[b:]
     # Admit this one invalid lowercase-name example only in the original early
     # help branch. Never normalize current SQL or a business literal. The new
     # help remains a separate contract, not historical runtime qualification.

@@ -905,6 +905,36 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_schema_skills_distinguish_public_facade_and_required_clr_arguments(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.json.schema"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 3)
+        facade = next(s for s in records if s.metadata["object_type"] == "USP")
+        raw = next(s for s in records if s.metadata["object_type"] == "CLR_TVF")
+        self.assertEqual(len(raw.metadata["parameters"]), 8)
+        self.assertTrue(all(p["argument_required"] and p["sql_default"] is None
+                            for p in raw.metadata["parameters"]))
+        self.assertEqual(raw.metadata["parameters"][2]["sql_type"], "nvarchar(32)")
+        self.assertEqual(facade.metadata["parameters"][2]["sql_type"], "varchar(32)")
+        self.assertTrue(all("55600" not in p["description"] and "Default" not in p["description"].replace("Kein SQL-Default", "")
+                            for p in raw.metadata["parameters"]))
+        for s in (facade, raw):
+            path = s.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.read_ddl_comment(text).markdown, s.markdown)
+            for value in ("SCHEMA_BYTES", "DOCUMENT_BYTES", "EVALUATION_LIMIT", "REF_CYCLE",
+                          "INVALID_INSTANCE", "SQL_NULL", "ErrorsTruncated", "IsValid=NULL"):
+                self.assertIn(value, s.markdown)
+            if s is raw:
+                self.assertEqual(skills.project_function_ddl(text, s), text)
+                self.assertEqual(len(skills._dynamic_clr_slots(text)), 1)
+            else:
+                self.assertEqual(skills.project_procedure_help(text, s), text)
+                self.assertEqual(skills.project_procedure_ddl(text, s), text)
+                early_return, _ = skills._procedure_help_return(text, s)
+                self.assertLess(early_return, text.index("THROW 55600"))
+
     def test_guarded_dynamic_clr_ddl_roundtrips_without_general_literal_interpretation(self):
         skill = skills.read(skills.source_file(ROOT, "toolbelt_string", "TVF_ColognePhoneticCore"))
         path = skill.metadata["source_paths"][0]

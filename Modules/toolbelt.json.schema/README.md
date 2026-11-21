@@ -19,7 +19,14 @@ besteht aus einer SUMMARY-Zeile und höchstens `MaxErrors` ERROR-Zeilen.
 Gekürzte Diagnosen ändern das vollständige Urteil nicht; ein ausgeschöpftes
 Arbeitsbudget ergibt `LIMIT` mit `IsValid=NULL`.
 
-Das [nativ geprüfte Caller-Rechteprofil](../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) belegt direkte Ausgabe und ResultTable mit drei einzelnen Objektrechten. Die [Objektdokumentation](Documentation/USP_ValidateJsonSchema.md) nennt die erforderlichen Rechte; das [aktuelle Manifest samt Paketbindung](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md) führt alle drei Rechte. Modulstatus und ausführbare SQL-/DLL-Bytes bleiben unverändert.
+Das [historisch nativ geprüfte Caller-Rechteprofil](../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) belegt direkte Ausgabe und ResultTable mit drei einzelnen Objektrechten für seine gebundenen Artefakte. Die [Objektdokumentation](Documentation/USP_ValidateJsonSchema.md) nennt die erforderlichen Rechte; der [damalige Manifestübergang](../../Releases/1.0.0/CALLER-METADATA-UPDATE.md) führt alle drei Rechte. Der fachliche CLR-Kern bleibt unverändert; die neue SQL-Hilfe ist separat abzunehmen.
+
+Die quellgeprüften Skills der [öffentlichen USP](../../Metadata/UsageSkills/toolbelt_json/USP_ValidateJsonSchema.md)
+und der [internen CLR-Bridge](../../Metadata/UsageSkills/toolbelt_json/FT_ValidateJsonSchemaInternal.md)
+beschreiben beide Verträge getrennt. Die USP liefert über `@Hilfe=1` zusätzlich
+zur bisherigen Standardhilfe den vollständigen Skill als eigenes Resultset.
+Die interne Funktion besitzt keine SQL-Parameterdefaults; ihre Argumentfehler
+sind CLR-Exceptions, keine öffentliche 55600-Abbildung.
 
 Der [kanonische Vertrag](../../Documentation/Architecture/JSON_SCHEMA_CONTRACT.md)
 definiert unterstützte Keywords, lokale nichtrekursive Referenzen, exakte
@@ -34,7 +41,14 @@ kommt `/$defs/z` vor `/$defs/~0` und `/$defs/~1`. Instanzmember bleiben nach
 decodierten Keys geordnet, Instanzarrays nach numerischem Index. Die
 öffentliche Signatur, das Profil und die zehn Ergebnisfelder bleiben gleich.
 
-Vor der Installation müssen `toolbelt.json.core`1.0 und
+## Historischer versionsgebundener Lifecycle
+
+Der folgende Abschnitt beschreibt frühere Registry-/Upgrade-/Uninstallverträge
+und ihre ursprünglichen Nachweise. Für die aktuelle Installation gilt der
+markerfreie Einstieg oben; historische Owner- und Migrationsbedingungen sind
+keine zusätzlichen Voraussetzungen dieses create-only-Installers.
+
+Vor der damaligen Installation mussten `toolbelt.json.core`1.0 und
 `toolbelt.core.result-table` mindestens1.0 in derselben Datenbank vorliegen.
 Vorhandene Constructors müssen separat auf die bekannte Version1.3 migriert
 werden. Der Schema-Lifecycle installiert oder repariert keine Dependency.

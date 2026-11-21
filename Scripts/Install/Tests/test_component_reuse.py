@@ -43,6 +43,19 @@ class ComponentReuseTests(unittest.TestCase):
             with self.subTest(old=old),self.assertRaises(ValueError):
                 module.compare(old,old.replace(b'Toolbelt_String_Regex',b'tlblt_String_Regex'),'Modules/Contoso/Source/Contoso.sql')
 
+    def test_schema_help_description_repair_is_confined_to_original_early_branch(self):
+        old=(b' IF @Hilfe=1\n BEGIN\nSELECT N\''+module.SCHEMA_HELP_OLD+
+             b"';\n        RETURN 0;\n END;\nSELECT 7;")
+        current=old.replace(module.SCHEMA_HELP_OLD,module.SCHEMA_HELP_NEW)
+        module.compare(old,current,module.SCHEMA_HELP_PATH)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current.replace(b'SELECT 7;',b'SELECT 8;'),module.SCHEMA_HELP_PATH)
+        with self.assertRaises(ValueError):
+            module.compare(old,current,'Modules/Contoso/Source/Example.sql')
+        outside=b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';"
+        with self.assertRaisesRegex(ValueError,'NONCANONICAL_SCHEMA_HELP_DESCRIPTION'):
+            module.compare(outside,outside.replace(module.SCHEMA_HELP_OLD,module.SCHEMA_HELP_NEW),module.SCHEMA_HELP_PATH)
+
     def test_arbitrary_clr_changes_are_never_normalized(self):
         with self.assertRaises(ValueError):
             module.compare(b'Toolbelt_String_Regex',b'tlblt_String_Regex','Modules/Contoso/Clr/Provider.cs')
