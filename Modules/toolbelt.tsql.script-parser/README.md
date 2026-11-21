@@ -82,3 +82,7 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 - Scope: Unveränderter aktueller Quellbuild2.0.1: native API-/datenbanklokale Minimalrechtematrix Windows2019CU32/2022CU26/2025CU8 über unterstützte CLs lokal/zentral,72 Suites; frische Parser-/Konfigurationsaudits PASS. Erste Lifecycle-Literalhashfehler und ursprüngliche2025Caller-Restoreblockade bleiben erhalten, finale eigene Wiederherstellung PASS. Token-Grenze nativ, Errors255/256 und vorgelagerte257er-Atomablehnung auf2022/2025. Framework248 inklusive unveränderter Originalbudgets; kombinierte Quotenabnahme ausdrücklich am2026-11-05 freigegeben, keine Aufwertung nicht ausgeführter öffentlicher Grenzaufrufe.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Maschinenlesbare Usage-Skills
+
+Alle sechs katalogisierten Objekte einschließlich beider Assemblybeschreibungen besitzen quellgeprüfte Skills. Die vier öffentlichen TVF-Objektseiten verlinken ihre vollständigen Verträge; dieselben Texte stehen in der jeweiligen DDL. Der aktuelle öffentliche Vorwächter ist nicht das gesonderte SSIS-Profil. Die spätere gemeinsame Usage-Skill-View benötigt vollständige Katalogabdeckung; neue native Qualifikation bleibt separat.

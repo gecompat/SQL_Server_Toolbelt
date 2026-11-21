@@ -905,6 +905,34 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_script_parser_skills_keep_tokenization_errors_ast_and_guard_quotas_distinct(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.tsql.script-parser'}
+        self.assertEqual(len(expected),6)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        names=('TVF_ParseScriptNodes','TVF_ParseScriptNodeProperties','TVF_TokenizeScript','TVF_ParseScriptErrors')
+        for name,count,limit in zip(names,(13,4,6,6),(32768,131072,8192,256)):
+            s=records[name];path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_function_ddl(text,s),text)
+            self.assertNotIn(skills.DDL_BEGIN,skills.strip_ddl_projection(ROOT,path,text))
+            self.assertTrue(all(p['argument_required'] and p['nullable'] for p in s.metadata['parameters']))
+            self.assertEqual([p['sql_default'] for p in s.metadata['parameters']],[None,'160','1','2097152','100'])
+            result=s.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),count)
+            for value in (str(limit),'16777216','512','8192','32','16','keine neue native'):
+                self.assertIn(value,s.markdown)
+        self.assertIn('Keine AST-Syntaxvalidierung',records[names[2]].markdown)
+        self.assertIn('Auch Errors kann bei gültigem AST',records[names[3]].markdown)
+        source=(ROOT/'Modules/toolbelt.tsql.script-parser/Clr/ScriptParserProvider.cs').read_text(encoding='utf-8-sig')
+        self.assertLess(source.index('if (input.IsNull) return rows;'),source.index('int version ='))
+        self.assertLess(source.index('checked(input.Length * 2L)'),source.index('input.ToSqlString()'))
+        self.assertLess(source.index('if (kind == OutputKind.Tokens)'),source.index('parser.Parse(tokens'))
+        self.assertIn('if (fragment != null) Walk(fragment, depth, kind, rows, budget)',source)
+        self.assertIn('long next = checked(bytes + 128L)',source)
+        self.assertIn('StringComparer.Ordinal.Compare(a.Name, b.Name)',source)
+        guard=(ROOT/'Modules/toolbelt.tsql.script-parser/Clr/PreparseGuard.cs').read_text(encoding='utf-8-sig')
+        self.assertIn('AtomLimit=512, StructureLimit=32, CommentLimit=16',guard)
+        self.assertIn('8192,StructureLimit,CommentLimit,0,0',guard)
+
     def test_json_constructor_skills_cover_module_grouping_phases_and_separate_aggregate_limits(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.json.constructors'}
         self.assertEqual(len(expected),9)

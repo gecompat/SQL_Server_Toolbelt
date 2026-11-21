@@ -64,3 +64,7 @@ Alle Ausgaben unterliegen außerdem 16.777.216 verrechneten Bytes pro Aufruf und
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#sql-parser).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_tsql/TVF_ParseScriptNodes.md) enthält sämtliche Parameter, technische Defaults und NULL-Fallbacks, die konkreten Ergebnisspalten, Rechte und Limits. Der identische Skill steht als Kommentar in der kanonischen DDL. Parserdialekt, Hostversion, Datenbank-CL, konservativer Rohtextwächter und AST-Tiefe sind getrennte Begriffe. Native Qualifikation bleibt von diesem Quellnachweis getrennt.

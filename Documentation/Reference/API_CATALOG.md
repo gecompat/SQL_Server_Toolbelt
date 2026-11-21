@@ -3426,7 +3426,7 @@ JSON-Array aus Ordinal/ValueKind/Value; vollständig validiert und atomar gerout
 
 Vertrag und Quelle: [USP_JsonArray.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArray.sql), [USP_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: fe7ff5ede79d8dd9950a27dfcde41f29d5b8fb4549482154ba0c1191299d7198 -->
+<!-- Source/Vertrag SHA256: 279d5416a7b6afacfe6be78ca1a59c085ffd64275f650e669a12ffd02562ec52 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3462,7 +3462,7 @@ JSON-Object aus Ordinal/ValueKind/Value/Key; vollständig validiert und atomar g
 
 Vertrag und Quelle: [USP_JsonObject.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObject.sql), [USP_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: 44d9ade670ca134c45e6061405523805cffbbdfe45cb51c29ab5438887825da3 -->
+<!-- Source/Vertrag SHA256: dd32cb5255bc196dfbc9115ea1e172462add3323829b4c21cfb6c574405c487f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3498,7 +3498,7 @@ JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und 
 
 Vertrag und Quelle: [USP_JsonArraysByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonArraysByGroup.sql), [USP_JsonArraysByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonArraysByGroup.md).
 
-<!-- Source/Vertrag SHA256: 0eee2f61202f159d4b2f91d9c1a11375c666d85bba5d95e4936fde805288f408 -->
+<!-- Source/Vertrag SHA256: 3f9e2646b6ce8665acc00464edd1b2647c3497587b873399a72db27145261351 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3544,7 +3544,7 @@ JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert
 
 Vertrag und Quelle: [USP_JsonObjectsByGroup.sql](../../Modules/toolbelt.json.constructors/Source/USP_JsonObjectsByGroup.sql), [USP_JsonObjectsByGroup.md](../../Modules/toolbelt.json.constructors/Documentation/USP_JsonObjectsByGroup.md).
 
-<!-- Source/Vertrag SHA256: 25938ea231ef489f9d8eb3702c04104bcfe0fe900e130013d2836a140e69d6c7 -->
+<!-- Source/Vertrag SHA256: 68739f9bf7662b4cd2d4d987b1721587f776954da3422d472737f39edce5b834 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3590,7 +3590,7 @@ Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.
 
 Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonArray.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonArray.md).
 
-<!-- Source/Vertrag SHA256: 3edd14951e11ddd4b82658c439d996400b121d407bab023eee6a9d4b7ae89e7b -->
+<!-- Source/Vertrag SHA256: 36b0800c01429972ddeddbd268e496b43a6bd38a7af0f73a5b52a4888ea605c4 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3615,7 +3615,7 @@ Aggregiert typisierte Einträge mit eindeutigen Schlüsseln zu einem JSON-Objekt
 
 Vertrag und Quelle: [JsonAggregates.sql](../../Modules/toolbelt.json.constructors/Source/JsonAggregates.sql), [AGF_JsonObject.md](../../Modules/toolbelt.json.constructors/Documentation/AGF_JsonObject.md).
 
-<!-- Source/Vertrag SHA256: 8a80e28255efef8c6e00ab60c9f598cd186bc5f3b2fd61cae4c94b5d9861ee44 -->
+<!-- Source/Vertrag SHA256: fd8f3a06fa20020a16135742ab0fcca459a7010215aeef26bdb4c27ab8728054 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4630,7 +4630,7 @@ Liefert die AST-Knoten eines begrenzten T-SQL-Skripts.
 
 Vertrag und Quelle: [TVF_ParseScriptNodes.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodes.sql), [TVF_ParseScriptNodes.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodes.md).
 
-<!-- Source/Vertrag SHA256: 9c163ed1218cac92b5aa90e05cd6ff28d94599dd7852a7db882e10badaf30e82 -->
+<!-- Source/Vertrag SHA256: 6c70ece6af65ab27213e544ef88ef6b21e4b14233fecd90262902f81f4dd3394 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4654,7 +4654,7 @@ Liefert Eigenschaften der geparsten T-SQL-AST-Knoten.
 
 Vertrag und Quelle: [TVF_ParseScriptNodeProperties.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptNodeProperties.sql), [TVF_ParseScriptNodeProperties.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptNodeProperties.md).
 
-<!-- Source/Vertrag SHA256: 025a15483680a50b4175af443d10dadf60337459c7df9cca38afef240eaacb47 -->
+<!-- Source/Vertrag SHA256: c26a72ed441ede476261c4c0d9eb1b3df593b39b852e650ae92e77e420a55cb5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4678,7 +4678,7 @@ Liefert Tokens eines T-SQL-Skripts.
 
 Vertrag und Quelle: [TVF_TokenizeScript.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_TokenizeScript.sql), [TVF_TokenizeScript.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_TokenizeScript.md).
 
-<!-- Source/Vertrag SHA256: b42ff33f40cc15a52eae37460d0d0632022bc92023b11c1352fc7f4a47b7267c -->
+<!-- Source/Vertrag SHA256: 09bd98c5d8c73d8005cdc283ae0a65422a83e89b1e995fe9461eea0d2ae48785 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4702,7 +4702,7 @@ Liefert Parserfehler eines T-SQL-Skripts, ohne das Skript auszuführen.
 
 Vertrag und Quelle: [TVF_ParseScriptErrors.sql](../../Modules/toolbelt.tsql.script-parser/Source/TVF_ParseScriptErrors.sql), [TVF_ParseScriptErrors.md](../../Modules/toolbelt.tsql.script-parser/Documentation/TVF_ParseScriptErrors.md).
 
-<!-- Source/Vertrag SHA256: f10409f688604272c60fe4233757c9acb35212399b4790dc7d1ebe2b8d8600fb -->
+<!-- Source/Vertrag SHA256: 2bbb7271f9a56993836172b5794ee7678c7af454e5e1896be2c88128828a1582 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

@@ -54,3 +54,9 @@ Alle Ausgaben unterliegen außerdem 16.777.216 verrechneten Bytes pro Aufruf und
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#sql-parser).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_tsql/TVF_ParseScriptErrors.md) enthält sämtliche Parameter, technische Defaults und NULL-Fallbacks, die konkreten Ergebnisspalten, Rechte und Limits. Der identische Skill steht als Kommentar in der kanonischen DDL. Parserdialekt, Hostversion, Datenbank-CL, konservativer Rohtextwächter und AST-Tiefe sind getrennte Begriffe. Native Qualifikation bleibt von diesem Quellnachweis getrennt.
+
+Auch bei fehlerfrei geparstem AST führt die gemeinsame Implementierung den Walk mit Tieflimit aus. Die Fehlerfunktion kann daher statt leerer Ausgabe MAX_DEPTH_EXCEEDED werfen. Lexikalische Fehlerlisten werden vor einem möglichen AST-Parse geliefert. Die abstrakte Ausgabequote ist keine Heap- oder Laufzeitgarantie.
