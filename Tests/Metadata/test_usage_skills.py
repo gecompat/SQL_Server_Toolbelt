@@ -905,6 +905,37 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_worker_admission_bind_finalization_contracts_preserve_private_boundary_and_outputs(self):
+        names=['USP_ReserveWorkerExecution','USP_BindWorkerExecution','USP_FinalizeWorkerFailure']
+        records={};bodies={}
+        for name in names:
+            s=skills.read(skills.source_file(ROOT,'toolbelt_core',name));records[name]=s
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertTrue(s.metadata['is_internal'])
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+            self.assertEqual(original.count('RETURN 0; END;'),1)
+            bodies[name]=original.split('RETURN 0; END;',1)[1]
+            self.assertIn('keine neue native',s.markdown.casefold())
+        reserve=bodies[names[0]]
+        self.assertIn('@ClaimedWorkItemId=@CanonicalClaimId OUTPUT,@EmitResult=0',reserve)
+        self.assertIn('wi.WorkItemId=@CanonicalClaimId AND wi.ManagedReservationId=@Reservation',reserve)
+        self.assertNotIn('INSERT EXEC',reserve.replace('-- Fester interner Transport: kein öffentlicher ResultTable-Name und kein INSERT EXEC.',''))
+        self.assertIn('Leeres Ergebnis beweist keine völlige Mutationsfreiheit',records[names[0]].markdown)
+        bind=bodies[names[1]]
+        self.assertIn("@LockOwner=N'Session',@LockTimeout=0",bind)
+        self.assertIn('@read_only=1',bind)
+        self.assertIn("r.State='RESERVED' AND r.AttemptNonce IS NULL",bind)
+        self.assertIn('Kein Rebind',records[names[1]].markdown)
+        final=records[names[2]]
+        outcome=next(p for p in final.metadata['parameters'] if p['name']=='@Outcome')
+        self.assertEqual((outcome['sql_type'],outcome['sql_default'],outcome['is_output'],outcome['business_required']),('varchar(24)','NULL',True,False))
+        self.assertIn('bei reiner Hilfe nicht überschrieben',final.markdown)
+        self.assertIn('@Retry=1 EXEC toolbelt_core.USP_ScheduleWorkRetryCore @EmitResult=0',bodies[names[2]])
+        self.assertIn("Status IN('FAILED','RETRY_WAIT','DEAD_LETTER')",bodies[names[2]])
+        self.assertIn('State bleibtROLLED_BACK',final.markdown)
+
     def test_worker_attempt_helpers_distinguish_outer_transaction_commit_rollback_unknown(self):
         names=['USP_BeginWorkerCompletion','USP_BeginWorkerTransactionWitness','USP_RecordWorkerCommit','USP_RecordWorkerRollback','USP_RecordWorkerUnknown']
         records={};bodies={}

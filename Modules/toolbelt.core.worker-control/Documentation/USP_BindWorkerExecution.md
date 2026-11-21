@@ -18,6 +18,12 @@ Interner attemptgebundener Providerpfad.
 
 ## Ergebnis
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_BindWorkerExecution.md)
+steht auch in der kanonischen DDL. `@Hilfe=1` ergänzt die Standardhilfe um
+eine vollständige Skillzeile. Fachaufrufe gehören ausschließlich in den
+kontrollierten Managedproviderpfad; Transaktions-, Connection-, Token- und
+OUTPUT-Regeln stehen im Skill. Kein manueller Dispatch-/Recoveryersatz.
+
 Kein fachliches Resultset.
 
-Hilfe zuerst ohne Mutation, Debug nur Messages. ResultTable atomar nach kanonischem Vertrag. Bestehende Rechte, keine Grants. Fehler54210..54239 und unveränderte Engine-/Queuefehler. Sourcevorbereitung: not executed, unreleased.
+Hilfe zuerst ohne fachliche Mutation; keine eigenen Debugmessages. Kein fachlicher Resultset und keine ResultTable-/KeepData-Option. Bestehende Rechte, keine Grants. Fehler54210..54239 und unveränderte Engine-/Queuefehler. Sourcevorbereitung: not executed, unreleased.
