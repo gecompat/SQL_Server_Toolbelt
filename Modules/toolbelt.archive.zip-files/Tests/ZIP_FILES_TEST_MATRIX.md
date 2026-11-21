@@ -88,6 +88,20 @@ sowie genau eine extrahierte Datei mit drei Bytes. Der frische Audit
 bestätigte, dass Testdatenbank samt Testbenutzer und Rechten und der eigene
 Testroot entfernt waren und der Trust-Vorzustand wiederhergestellt war.
 
+Der native [Ressourcenlimit-Fall](Runtime/ZipFiles.Directory.ResourceLimits.sql)
+auf Windows SQL Server 2025/CU8, CL170, lokal im Caller-Modus prüfte ein
+[synthetisches ZIP mit zwei gespeicherten Dateien](Runtime/Build-ZipDirectoryLimitsFixture.py).
+Fünf Aufrufe knapp unter dem jeweils benötigten Budget bestätigten die
+Ablehnung für Archivgröße, Eintragszahl, Einzeldateigröße, Gesamtgröße und
+Pfadlänge. Die ersten beiden Fälle lieferten SQL-Fehler, die übrigen
+`failed` und `not_attempted` mit den erwarteten Fehlercodes und ohne
+geschriebene Bytes. Der sechste Aufruf setzte alle Budgets genau auf den
+Bedarf und extrahierte beide Dateien in denselben Root bei deaktiviertem
+Überschreiben. Der Gastcheck bestätigte die beiden exakten Dateiinhalte.
+Der frische Audit bestätigte die Abwesenheit von Testdatenbank und Testroot
+sowie den Trust-Vorzustand. Die Prüfung verwendet kleine Nutzdaten und
+belegt die caller-seitigen Grenzen am Fixturebedarf.
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
