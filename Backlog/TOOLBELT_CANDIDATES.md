@@ -17,8 +17,10 @@ Ein teilweise validiertes Modul ist nicht automatisch eine neue Entwicklungswell
 
 Regex-, JSON-Aggregat-, Split-, Table-Clone- und XLSX-Slices sind bereits
 implementiert; ältere Ready-/Deferred-Zeilen dürfen sie nicht erneut beauftragen.
-TC-2026-034 trennt die vorhandenen Writer-/Einzel-Entry-Funktionen von der noch
-nicht implementierten [vollständigen Dateisystemextraktion](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md).
+TC-2026-034 umfasst die vorhandenen Writer- und Einzel-Entry-Funktionen sowie
+die seit [PR #635](https://github.com/gecompat/SQL_Server_Toolbelt/pull/635)
+integrierte [vollständige Dateisystemextraktion](../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md)
+für Windows/local mit NTFS.
 TC-2026-049: die am 13. November bestätigten Caller-/ServiceAccount-Profile
 reichen aus; kein zusätzlicher RunAs-Modus. Das lokale bidirektionale
 [SQL-Dialektwerkzeug](../Documentation/Research/TSQL_DATABRICKS_V1_SCOPE_PROPOSAL.md)
@@ -834,7 +836,7 @@ und zusätzliche Formatprovider bleiben bedarfsabhängig, ohne automatische Arbe
 | **Plattformgrenzen** | Externe und CLR-Provider sind je Plattform zu validieren. Pfad- und ACL-Semantik ist betriebssystemabhängig. |
 | **Dependencies** | `TC-2026-033` für Vorab-Listing; optional `TC-2026-037` für kontrollierte Datei-I/O. |
 | **Duplikatprüfung** | `TC-2026-033` listet nur Metadaten. Gzip und weitere Algorithmen stehen getrennt in `TC-2026-035` und `TC-2026-036`. |
-| **Status** | `implemented`; Runtime `partially validated`; ZIP-Erzeugung und vollständige Dateisystemextraktion offen |
+| **Status** | `implemented`; Runtime `partially validated`; In-memory-Erzeugung, Einzel-Entry-Dateifassaden und vollständige NTFS-Extraktion V1 integriert |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-09-11 |
 | **Nächster Schritt** | Der [Vorschlag für ZIP-Erzeugung](../Documentation/Architecture/ZIP_CREATION_PROPOSAL.md) begrenzt den offenen Slice auf eine typisierte In-memory-Entryliste und Binaryoutput. ZIP-Erzeugung erst nach eigener Vertrags- und Implementierungsfreigabe beginnen; Datei-I/O bleibt getrennt. |
@@ -850,6 +852,12 @@ und zusätzliche Formatprovider bleiben bedarfsabhängig, ohne automatische Arbe
 > Vorhandene ZIP-Files-Fassaden extrahieren einen einzelnen Entry beziehungsweise
 > erzeugen ein Archiv aus Dateieingaben und ersetzen keine vollständige
 > Archiv-zu-Verzeichnis-Extraktion.
+
+> Statusabgleich 2026-11-21 — Codex: Die vollständige Extraktion V1 ist nach
+> Einzelvertragsfreigabe über [PR #635](https://github.com/gecompat/SQL_Server_Toolbelt/pull/635)
+> integriert. Der [Objektvertrag](../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md)
+> und seine [Testmatrix](../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md#vollständige-archivextraktion-v1)
+> gelten für den dokumentierten Windows-/NTFS-Umfang.
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 

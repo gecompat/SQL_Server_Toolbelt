@@ -1,5 +1,26 @@
 # ZIP-Dateifassaden – Testmatrix
 
+## Vollständige Archivextraktion V1
+
+[PR #635](https://github.com/gecompat/SQL_Server_Toolbelt/pull/635) dokumentiert
+den am 2026-11-21 integrierten Stand für
+`toolbelt_archive.USP_ExtractZipArchiveToDirectory`. Die SQL-Abnahme mit
+[`ZipFiles.Directory.sql`](Runtime/ZipFiles.Directory.sql) auf Windows SQL Server
+2025/CU8, CL170, lokal unter Windows-Anmeldung bestand fünf Prüfungen zu
+Dateiinhalt, Verzeichnisanlage und Ergebnisweitergabe, Preflight-Teilstatus,
+Transaktionsablehnung und verweigertem Überschreiben ohne Root-Freigabe.
+Der frische Cleanup-Audit für eigene Datenbank, Verzeichnis und Trust bestand.
+
+Der lokale NTFS-Frameworklauf belegt erfolgreiches exklusives Überschreiben,
+konkurrierende Zielanlage, CRC-bedingten Abbruch, die Ablehnung einer zu
+breiten DACL und die gemeinsame Rootsperre. Hinzu kommen 14 Reader-Fälle,
+16 Pfad- und Ablaufgegenproben, vier offline geprüfte Installerprofile und
+der unabhängige Sicherheitsreview. Die [Main-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/44950763237)
+bezieht sich auf Merge `19cebb79`. Die übrigen SQL-Versionen und ein positiver
+SQL-Aufruf mit Überschreiben liegen außerhalb dieses nativen Nachweisumfangs.
+
+## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
+
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
 vom 2026-10-04 gelten ausschließlich für Windows SQL Server 2025/CU8, CL170,
 local: elf frühere erfolgreiche Fälle und zwei später gezielt erfolgreiche

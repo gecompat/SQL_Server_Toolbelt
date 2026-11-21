@@ -2,8 +2,10 @@
 
 ## Vollständige ZIP-Extraktion — 2026-11-21
 
-V1 ist zur Implementierung freigegeben. Überschreiben erfordert exklusive
-Schreibhoheit am konfigurierten Ziel. Der
+V1 ist über [PR #635](https://github.com/gecompat/SQL_Server_Toolbelt/pull/635)
+integriert. Überschreiben erfordert exklusive Schreibhoheit am konfigurierten
+Ziel. Die [Testmatrix](../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md#vollständige-archivextraktion-v1)
+dokumentiert den qualifizierten Umfang. Der
 [Objektvertrag](../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md)
 enthält Aufruf und Teilfehlerverhalten. Der
 [ursprüngliche Vertragsentwurf](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md)
@@ -28,7 +30,7 @@ Abnahme und deren Geltungsbereich.
 
 ## Bereinigter Planungsstand – 2026-11-18
 
-Der aktuelle Auftrag betrifft Anwenderdokumentation und lokale Bereinigung,
+Der damalige Auftrag betraf Anwenderdokumentation und lokale Bereinigung,
 keine neue Fachfunktion, SQL-/TLS-Testwelle oder Veröffentlichung. Frühere
 uncommittete Planungsentwürfe sind vollständig privat erhalten; veraltete
 Offenlisten daraus ersetzen keine späteren gültigen Nachweise.
@@ -36,11 +38,10 @@ Der [Abgleich der erforderlichen Restpunkte](../Releases/1.0.0/CURRENT-QUALIFICA
 und die [gemeinsame Installationsabnahme](../Releases/1.0.0/CURRENT-INSTALL-QUALIFICATION.md)
 begrenzen die aktuellen Aussagen. Historische Einträge unten bleiben erhalten.
 
-Eindeutige noch nicht implementierte Planungsrichtungen stehen im
-[bereinigten Kandidatenplan](../Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md):
-vollständige ZIP-Dateisystemextraktion und ein separates lokales bidirektionales
-SQL-Dialektwerkzeug benötigen weiterhin den konkreten Vertragsabschluss und
-eine eigene Implementierungsfreigabe. Vorhandene Caller-/ServiceAccount-
+Der [bereinigte Kandidatenplan](../Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
+führt das separate lokale bidirektionale SQL-Dialektwerkzeug als Entwurf mit
+ausstehendem Vertragsabschluss und eigener Implementierungsfreigabe.
+Vorhandene Caller-/ServiceAccount-
 Identitäten reichen aus; kein zusätzlicher RunAs-Modus ist beauftragt.
 Allgemeine alte „ready“- oder Qualifikationslisten sind kein neuer Arbeitsauftrag.
 
