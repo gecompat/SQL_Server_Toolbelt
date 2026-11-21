@@ -62,6 +62,15 @@ Syntaxtest ist kein nativer Hilfe- oder Gesamtinstallationsnachweis. Historische
 Fachbelege werden ausschließlich für den exakt verglichenen verbleibenden
 Fachpfad genutzt, niemals zur Abnahme der neuen Hilfeausgabe.
 
+Auch das [CSV-Modul](../../Modules/toolbelt.file.csv-memory/README.md) besitzt
+jetzt vollständige quellgeprüfte Verträge für seine beiden öffentlichen
+Prozeduren, drei internen CLR-Funktionen und die Assembly. Die Prozeduren
+liefern den zusätzlichen Skill im frühen Hilfezweig. Die internen Funktionen
+tragen ihn als DDL-Kommentar: Parserfehler sind eine Sentinelzeile,
+Messfehler negative Codes; der Quoter wirft Exceptions und setzt einen
+vollständigen Budgetpreflight voraus. Diese Transporte dürfen nicht
+gegeneinander ausgetauscht werden.
+
 Bei gruppierten Prozeduren bindet der Hilfeadapter die ausgewählte Identität
 an ihren eigenen `GO`-Batch. Benachbarte Hilfezweige und lokale CREATE-TABLE-
 Anweisungen im Fachpfad werden nicht als neue Prozedurdeklaration behandelt.

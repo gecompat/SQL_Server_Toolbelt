@@ -43,22 +43,38 @@ ein uncommittable Zustand nach einem technischen Fehler bleibt sichtbar.
 
 Die [CSV-Callerprüfung](../../Releases/1.0.0/CSV-CALLER-PROFILE.md) belegt die getrennten vorhandenen Rechte: Parser benötigt EXECUTE auf die USP und SELECT auf den internen Parser; Writer benötigt EXECUTE auf die USP und beide internen Skalare. ResultTable benötigt zusätzlich EXECUTE auf den sameDB-Helfer. Zwölf Ziel-/CL-Fälle bestanden. Das [korrigierte Manifest mit Paketbindung](../../Releases/1.0.0/CSV-METADATA-UPDATE.md) nennt diese Rechte; weitere Gates bleiben separat. Keine automatische Rechtevergabe.
 
-## Build und Lifecycle
+## Build und Lebenszyklus
 
 `Clr/Toolbelt.File.CsvMemory.csproj` baut die .NET48-Assembly.
-`Scripts/New-ClrReleaseArtifacts.ps1` konsumiert anschließend deren exakte
-SHA256-geprüfte Bytes und erzeugt Binary, Hashmanifest und SQLCMD-Deployment.
-Das Binary wird nicht versioniert.
-Exakten SHA2-512-Trust bei Bedarf mit `Deployment/Add-TrustedAssembly.sql`
-separat autorisieren; `Deploy.sql` installiert keine Dependencies oder Rechte.
-`clr strict security` bleibt aktiv. `TRUSTWORTHY ON` ist kein Installationsweg.
-`DeploymentMode=local|central`; zentraler Uninstall verlangt die ausdrückliche
-Bestätigung `ConfirmNoExternalConsumers=1`. Uninstall entfernt keinen Servertrust.
+Der gemeinsame [Buildplan](Deployment/README.md) konsumiert geprüfte
+Eingangsartefakte und bündelt die ausgewählte Dependency-Closure in einer
+gewöhnlichen SQL-Datei. Das Binary wird nicht versioniert. Der create-only-Weg
+ersetzt keine vorhandenen Objekte und bietet keinen impliziten Upgrade- oder
+Uninstalllauf.
+
+Die [gemeinsamen Trustprofile](../../Deployment/ONE-CALL-INSTALL.md) erlauben
+Hashtrust oder die ausdrücklich gewählte Nutzung einer bereits geeigneten
+TRUSTWORTHY-ON-Datenbank mit oder ohne Hashprüfung. Der Installer aktiviert
+TRUSTWORTHY nicht und deaktiviert `clr strict security` nicht. Frühere
+SQLCMD-/Lifecycle-Skripte bleiben ausschließlich in ihren historischen
+Quellständen und Nachweisen erhalten.
 
 Interne Transporte: `TVF_InternalParseCsv` (fünf nullable CLR-Felder einschließlich
 privatem ErrorCode), `SVF_InternalMeasureCsvCell` und `SVF_InternalQuoteCsvCell`.
 Die beiden Skalare verwenden denselben Quotingkern. Messung der gesamten Ausgabe
 erfolgt vor Fragmentallokation, Quoting erst nach erfolgreichem globalem Budget.
+
+## Maschinenlesbare Verwendung
+
+Die kanonischen Skills für
+[`USP_ParseCsv`](../../Metadata/UsageSkills/toolbelt_file/USP_ParseCsv.md) und
+[`USP_WriteCsv`](../../Metadata/UsageSkills/toolbelt_file/USP_WriteCsv.md)
+beschreiben Argumente, Ausgaben, Rechte und Fehler. `@Hilfe=1` liefert vor jeder
+Fachprüfung die bestehende Standardhilfe und zusätzlich ein Skill-Resultset mit
+vier Spalten und vollständigem Unicode-Markdown. Die internen Funktionen
+tragen ihren vollständigen Skill in der ausgelieferten DDL; der gemeinsame
+SQL-Skillkatalog ist erst nach vollständiger projektweiter Abdeckung verfügbar.
+Diese Quellintegration ist keine neue native Laufzeitabnahme.
 
 [Beispiele](Examples/Csv.sql), [Testmatrix](Tests/CSV_TEST_MATRIX.md) und
 [Evidenz](Tests/README.md) trennen vorhandenen Testcode von ausgeführten Nachweisen.

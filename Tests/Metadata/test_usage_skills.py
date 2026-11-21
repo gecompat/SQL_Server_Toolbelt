@@ -567,5 +567,42 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertIn("varchar(max)", skill.markdown.split("## Ergebnisse", 1)[1])
 
 
+    def test_csv_contracts_cover_complete_module_and_distinct_error_transports(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.file.csv-memory"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 6)
+        for skill in records:
+            kind = skill.metadata["object_type"]
+            if kind == "ASSEMBLY":
+                continue
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            if kind == "USP":
+                self.assertEqual(skills.project_procedure_help(text, skill), text)
+                self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+                ret, _ = skills._procedure_help_return(text, skill)
+                words = [t[0].casefold() for t in skills._ddl_tokens(text)]
+                tokens = skills._ddl_tokens(text)
+                guard = next(tokens[i][1] for i in range(len(words) - 2)
+                             if words[i:i + 3] == ["if", "xact_state", "("])
+                self.assertLess(ret, guard)
+            else:
+                self.assertTrue(skill.metadata["is_internal"])
+                self.assertEqual(skills.project_function_ddl(text, skill), text)
+                self.assertTrue(all(p["argument_required"] and p["sql_default"] is None
+                                    for p in skill.metadata["parameters"]))
+            results = skill.markdown.split("## Ergebnisse", 1)[1].split("## Aufrufbeispiele", 1)[0]
+            if skill.metadata["object_name"] == "SVF_InternalMeasureCsvCell":
+                self.assertIn("-55300/-55303/-55307", results)
+                self.assertIn("bigint", results)
+            elif skill.metadata["object_name"] == "SVF_InternalQuoteCsvCell":
+                self.assertIn("Keine Statusspalte", results)
+                self.assertIn("CSV_QUOTE_PREVALIDATION_REQUIRED", skill.markdown)
+            elif skill.metadata["object_name"] == "TVF_InternalParseCsv":
+                self.assertIn("RowKind nvarchar(6)", results)
+                self.assertIn("Sentinelzeile", results)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -28,9 +28,17 @@ Status bleibt privat. Unerwartete Engine-/CLR-Fehler werden unverändert
 weitergegeben; keine Eingabewerte in eigenen Fehlertexten.
 
 ```sql
-EXEC toolbelt_file.USP_ParseCsv @Text=N'name,value'+NCHAR(10)+N'Contoso,7', @HasHeader=1;
+DECLARE @Csv nvarchar(max)=N'name,value'+NCHAR(10)+N'Contoso,7';
+EXEC toolbelt_file.USP_ParseCsv @Text=@Csv, @HasHeader=1;
 EXEC toolbelt_file.USP_ParseCsv @Hilfe=1;
 ```
+
+Die Hilfe liefert vor Fachvalidierung zuerst die bestehende Standardhilfe und
+dann genau ein Skill-Resultset mit `SkillFormatVersion`, `SchemaName`,
+`ObjectName` und vollständigem `SkillMarkdown nvarchar(max)`. Der
+[kanonische Skill](../../../Metadata/UsageSkills/toolbelt_file/USP_ParseCsv.md)
+steht außerdem in der ausgelieferten DDL. Diese Integration ist quellgeprüft;
+eine neue native Hilfeabnahme ist damit nicht behauptet.
 
 `@ResultTable` verwendet den [USP-Vertrag](../../../Documentation/Standards/USP_CONTRACT.md)
 und kanonischen sameDB-ResultTable-Helper. Syntax, Form, Budgets und privater

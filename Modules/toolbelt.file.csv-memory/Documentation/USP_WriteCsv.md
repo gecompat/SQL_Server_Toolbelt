@@ -1,5 +1,12 @@
 # toolbelt_file.USP_WriteCsv
 
+Der [kanonische Skill](../../../Metadata/UsageSkills/toolbelt_file/USP_WriteCsv.md)
+enthält den vollständigen quellengeprüften Aufrufvertrag und steht auch in der
+ausgelieferten DDL. `EXEC toolbelt_file.USP_WriteCsv @Hilfe=1;` liefert vor jeder
+Fachprüfung zuerst die bestehende Standardhilfe und dann genau ein zusätzliches
+Resultset mit `SkillFormatVersion`, `SchemaName`, `ObjectName` und vollständigem
+`SkillMarkdown nvarchar(max)`. Eine neue native Hilfeabnahme steht noch aus.
+
 Schreibt einen read-only Snapshot einer vorhandenen caller-lokalen Temp-Tabelle
 mit genau `RowKind varchar(6)`, `RowOrdinal bigint`, `ColumnOrdinal int`,
 `Value nvarchar(max)`. Nur eingebaute Typen; keine Alias-, computed oder zusätzlichen
