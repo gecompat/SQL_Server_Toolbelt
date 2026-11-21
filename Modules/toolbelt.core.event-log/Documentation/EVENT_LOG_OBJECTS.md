@@ -24,6 +24,14 @@ validiert oder speichert keine Payload.
 
 Read-only-Sicht auf Eventzeit, Aufzeichnungszeit, Eventklassifikation, Context, Source, Caller- und Remote-Session sowie optionale SQL-Fehlerdaten.
 
+Der vorgesehene Leseweg projiziert alle 24 Tabellenspalten ohne Tenantfilter
+oder Maskierung. Die einfache Viewdefinition erzwingt selbst kein DML-Verbot;
+Lesekonsumenten benötigen passende SELECT-Rechte. Die vollständigen
+quellgeprüften Skills für [View](../../../Metadata/UsageSkills/toolbelt_core/VW_Events.md)
+und [interne Tabelle](../../../Metadata/UsageSkills/toolbelt_core/EventLog.md)
+stehen außerdem in ihrer ausgelieferten DDL. Das ist keine neue Abnahme der
+Schreib- oder Retentionprozeduren.
+
 ## `USP_DeleteEventsBefore`
 
 Löscht Events mit älterem `OccurredAtUtc` in explizit begrenzten Batches. Es gibt keine automatische Zeitplanung und keinen stillen Volltabellen-Delete.

@@ -665,5 +665,25 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertTrue(skill.metadata["parameters"][0]["argument_required"])
 
 
+    def test_event_relations_describe_full_unfiltered_schema(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.event-log"
+                    and key[2] in ("EventLog", "VW_Events")}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 2)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.project_relation_ddl(text, skill), text)
+            self.assertEqual(skill.metadata["parameters"], [])
+            self.assertIn("kein technisch erzwungenes SQL-DML-Verbot", skill.markdown)
+            self.assertIn("24 Spalten", skill.markdown)
+            for column in ("RecordedAtUtc", "DataJson", "CallerTransactionCount", "ErrorLine"):
+                self.assertIn("`" + column + "`", skill.markdown)
+            if skill.metadata["object_type"] == "TABLE":
+                self.assertTrue(skill.metadata["is_internal"])
+                self.assertIn("toolbelt_core.VW_Events", skill.metadata["public_entrypoints"])
+
+
 if __name__ == "__main__":
     unittest.main()
