@@ -82,7 +82,9 @@ Auf einem Buildhost aus den gebundenen Binaryinputs eine normale SQL-Datei bauen
 ```
 
 Die danebenliegende `.manifest.json` gehört zur SQL-Datei. Der Client überprüft
-Hash und deklarierte Schnittstellen. Bei einem festen Trustweg im Buildmanifest
+Hash und deklarierte Schnittstellen. Bei `-InstallSql` übernimmt `-Platform Auto`
+das Plattformprofil aus dem Buildmanifest. Der Zielserver muss dieses Profil
+unterstützen. Bei einem festen Trustweg im Buildmanifest
 wird dieser verwendet, sofern der Aufruf ihn nicht ausdrücklich überschreibt.
 Details zu Inputs und vier Profilen: [gemeinsamer SQL-Build](../Scripts/Install/README.md).
 `Deploy-All.ps1` führt Planung, Quellbuild und Installation über denselben Kern.
@@ -92,6 +94,8 @@ Details zu Inputs und vier Profilen: [gemeinsamer SQL-Build](../Scripts/Install/
 - `-ValidateOnly`: Paket-/Dateikontrolle ohne Verbindung und ohne SQL-Ausführung.
 - `-PreflightOnly`: lesende Zielprüfung; mit Vorbereitungsflags ausschließlich
   deren lesende Planung, keine Datenbankanlage oder Konfigurationsänderung.
+  Der Client prüft die Plattform-/Moduskombination vor der schreibenden
+  Vorbereitung.
 - `-TrustServerCertificate`: nur ausdrücklich auf Wunsch; die Prüfung von
   Zertifikatskette und Servername entfällt. Kein automatischer TLS-Fallback.
 - `-LoginTimeoutSeconds` und `-CommandTimeoutSeconds`: endliche Clientgrenzen;

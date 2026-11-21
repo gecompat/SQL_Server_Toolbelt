@@ -69,10 +69,19 @@ def apply(original, path):
         text = replace_exact(text, 'LEFT(PartValue, 1)', 'LEFT(PartValue COLLATE Latin1_General_100_BIN2, 1)')
         text = replace_exact(text, 'RIGHT(PartValue, 1)', 'RIGHT(PartValue COLLATE Latin1_General_100_BIN2, 1)')
     elif path in (TRIM_N, TRIM_V):
-        # Keep installation-collation CHARINDEX/SUBSTRING semantics. The NUL
-        # probe must use the same character positions, including SC/UTF8.
+        # Keep installation-collation positions for both NUL and membership.
+        # Physical bounds can overshoot actual positions under SC/UTF8.
         text = replace_exact(text, '@Value COLLATE Latin1_General_100_BIN2, positions.Value, 1',
                              '@Value, positions.Value, 1')
+        text = replace_exact(text, '        WHERE CASE\n',
+            '        CROSS APPLY (VALUES (SUBSTRING(@Value, positions.Value, 1))) AS character_at_position(CharacterValue)\n'
+            '        WHERE CASE\n'
+            '            WHEN DATALENGTH(character_at_position.CharacterValue) = 0 THEN 1\n')
+        text = replace_exact(text,
+            '= 0 THEN 1\n            WHEN '+('UNICODE' if path == TRIM_N else 'ASCII')+'(SUBSTRING(@Value, positions.Value, 1))',
+            '= 0 THEN 1\n            WHEN '+('UNICODE' if path == TRIM_N else 'ASCII')+'(character_at_position.CharacterValue)')
+        text = replace_exact(text, 'CHARINDEX(SUBSTRING(@Value, positions.Value, 1), @Characters)',
+                             'CHARINDEX(character_at_position.CharacterValue, @Characters)')
     else:
         raise ValueError('CURRENT_SOURCE_DELTA_UNKNOWN_PATH')
     return text.encode('utf-8')

@@ -35,6 +35,36 @@ def objects(selected):
     return common.interface_objects(selected)
 
 
+def validate_assemblies(data, assemblies, selected):
+    expected = {common.caps.assembly_name(obj['name']) for module in selected
+                for obj in module['objects'] if obj['type'] == 'ASSEMBLY'}
+    require(set(assemblies) == expected, 'assembly inventory')
+    binaries = re.findall(rb'(?m)^DECLARE @bits([0-9]+) varbinary\(max\)=0x([0-9A-F]+);$', data)
+    declarations = [(index, name) for name, index in re.findall(
+        rb"(?m)^IF NOT EXISTS\(SELECT 1 FROM sys\.assemblies WHERE name=N'(tlblt[A-Za-z0-9_.]*)'\)"
+        rb" BEGIN DECLARE @ddl([0-9]+) nvarchar\(max\)=CAST\(N'CREATE ASSEMBLY \[\1\]$", data)]
+    uses = re.findall(rb"(?m)^FROM '\+CONVERT\(nvarchar\(max\),@bits([0-9]+),1\)"
+                      rb"\+N' WITH PERMISSION_SET=(?:SAFE|EXTERNAL_ACCESS|UNSAFE);'; EXEC sys\.sp_executesql @ddl\1; END;$", data)
+    indices = {index for index, _ in binaries}
+    require(len(binaries) == len(declarations) == len(indices) == len(expected)
+            and {index for index, _ in declarations} == indices
+            and uses == [index for index, _ in declarations], 'embedded assembly inventory')
+    names = dict(declarations)
+    computed = {names[index].decode('ascii'): hashlib.sha512(bytes.fromhex(payload.decode('ascii'))).hexdigest()
+                for index, payload in binaries}
+    require(computed == assemblies, 'embedded assembly bytes')
+
+
+def validate_sources(commit, bindings, selected, assemblies):
+    _, sources = common.source_files(selected)
+    expected = set(sources) | set(common.build_source_bindings(assemblies)) | set(common.LICENSE_FILES)
+    expected.update(path.relative_to(ROOT).as_posix() for path in (ROOT/'Modules').glob('*/module.yaml'))
+    require(set(bindings) == expected, 'complete profile source inventory')
+    for name, digest in bindings.items():
+        require(sha(common.normalize(source_file(commit, name))) == digest,
+                'profile does not bind declared source: '+name)
+
+
 def payload(profiles_directory,source_commit,release):
     commit=git('rev-parse','--verify','--end-of-options',source_commit+'^{commit}').decode().strip()
     require(re.fullmatch('[0-9a-f]{40}',commit),'source commit')
@@ -48,15 +78,12 @@ def payload(profiles_directory,source_commit,release):
         require(sha(data)==record['sql_sha256'],'SQL bytes changed')
         require(data.startswith(b'USE [ContosoToolbelt];\n') and
                 len(re.findall(rb"(?m)^DECLARE @TrustMethod varchar\(24\)=N'auto';$",data))==1,'controlled SQL parameters')
-        for name,digest in record['source_sha256'].items():
-            require(sha(source_file(commit,name).replace(b'\r\n',b'\n'))==digest,
-                    'profile does not bind declared source: '+name)
         selected=common.modules(platform,mode)
         require([m['id'] for m in selected]==record['modules'],'module closure')
         require(record['objects']==objects(selected),'interface inventory')
         assemblies=record['binary_sha512']
-        require(assemblies and all(re.fullmatch(r'tlblt[A-Za-z0-9_.]*',name)
-                and re.fullmatch('[0-9a-fA-F]{128}',digest) for name,digest in assemblies.items()),'assembly contract')
+        validate_assemblies(data,assemblies,selected)
+        validate_sources(commit,record['source_sha256'],selected,assemblies)
         name=f'Sql/Install-{platform}-{mode}.sql';files[name]=data
         profiles.append({'platform':platform,'mode':mode,'path':name,'modules':record['modules'],
                          'objects':objects(selected),'assemblies':assemblies})

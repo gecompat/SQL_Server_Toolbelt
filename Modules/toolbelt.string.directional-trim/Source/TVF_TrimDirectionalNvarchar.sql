@@ -20,7 +20,7 @@ RETURNS TABLE
 -- object_type: "TVF"
 -- database_role: "toolbelt"
 -- is_internal: false
--- parameters: [{"name": "@Value", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt."}, {"name": "@Characters", "sql_type": "nvarchar(4000)", "sql_default": "N' '", "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Bis 4000 UTF-16-Codeeinheiten als nvarchar(4000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt."}, {"name": "@Direction", "sql_type": "varchar(8)", "sql_default": "'BOTH'", "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang."}]
+-- parameters: [{"name": "@Value", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leere Positionen jenseits des letzten Zeichens werden bei der Grenzsuche übersprungen. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt."}, {"name": "@Characters", "sql_type": "nvarchar(4000)", "sql_default": "N' '", "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Bis 4000 UTF-16-Codeeinheiten als nvarchar(4000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt."}, {"name": "@Direction", "sql_type": "varchar(8)", "sql_default": "'BOTH'", "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang."}]
 -- source_paths: ["Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql"]
 -- review_status: "verified"
 -- source_module_version: "1.0.0"
@@ -40,7 +40,7 @@ RETURNS TABLE
 --
 -- | Parameter | SQL-Typ | SQL-Default | Richtung | Vertrag |
 -- |---|---|---|---|---|
--- | `@Value` | `nvarchar(max)` | kein Default | Input | Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
+-- | `@Value` | `nvarchar(max)` | kein Default | Input | Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leere Positionen jenseits des letzten Zeichens werden bei der Grenzsuche übersprungen. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 -- | `@Characters` | `nvarchar(4000)` | `N' '` | Input | Bis 4000 UTF-16-Codeeinheiten als nvarchar(4000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 -- | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 --
@@ -66,7 +66,7 @@ RETURNS TABLE
 --
 -- ## Nebenwirkungen
 --
--- UPPER(Direction) unter Installationscollation, anschließend binärer SQL-Vergleich zuLEADING/TRAILING/BOTH einschließlich SQL-Space-Padding. Serienobergrenze DATALENGTH/2(nvarchar) beziehungsweise DATALENGTH(varchar) erhält physischeTrailingSpaces, kann beiSC/Multibyte mehr Kandidaten alsZeichen liefern. Für jedePosition verwenden NUL-Probe und CHARINDEX-Suchzeichen dieselbe native SUBSTRING-Collation. Kein binärerPositionswechsel allein zurNUL-Erkennung. NUL wird immer alsnichtzutrennend behandelt. Alleanderen Zeichen gegenCharacters alsZeichenmenge perCHARINDEX vergleichen; keine LIKE-/Regex-/Substringmustersyntax, Installationscollation bleibt wirksam.
+-- UPPER(Direction) unter Installationscollation, anschließend binärer SQL-Vergleich zuLEADING/TRAILING/BOTH einschließlich SQL-Space-Padding. Serienobergrenze DATALENGTH/2(nvarchar) beziehungsweise DATALENGTH(varchar) erhält physischeTrailingSpaces, kann beiSC/Multibyte mehr Kandidaten alsZeichen liefern. Leere SUBSTRING-Ergebnisse jenseits des letzten Zeichens beeinflussen die Grenzen nicht. NUL-Probe und CHARINDEX verwenden die Zeichenpositionen der Installationscollation. Kein binärerPositionswechsel allein zurNUL-Erkennung. NUL wird immer alsnichtzutrennend behandelt. Alleanderen Zeichen gegenCharacters alsZeichenmenge perCHARINDEX vergleichen; keine LIKE-/Regex-/Substringmustersyntax, Installationscollation bleibt wirksam.
 --
 -- MIN/MAX der nicht zu entfernenden Positionen bestimmen Grenzen. LEADING entfernt nurlinks,TRAILING nurrechts,BOTHbeides. DieselbeSUBSTRING-Semantik beimAusschneiden;AusgabeExplizit imursprünglichen SQLStringtyp. LeereCharactersmenge entferntnichts,NULLinValue/CharactershatimCASEVorrang,danachungültigeRichtung perDivisiondurch0. Die deklarierte Defaultmenge ist ein einzelnerSpace. ReinlesendeInline-TVF,keineeigeneTransaktion/Katalog-/Datei-/Netzwerkzugriffe.
 --
@@ -93,9 +93,11 @@ RETURN
         SELECT positions.Value
         FROM Parameters AS parameters
         CROSS APPLY toolbelt_core.TVF_GenerateSeriesBigInt(1, parameters.InputLength, 1) AS positions
+        CROSS APPLY (VALUES (SUBSTRING(@Value, positions.Value, 1))) AS character_at_position(CharacterValue)
         WHERE CASE
-            WHEN UNICODE(SUBSTRING(@Value, positions.Value, 1)) = 0 THEN 0
-            ELSE CHARINDEX(SUBSTRING(@Value, positions.Value, 1), @Characters) END = 0
+            WHEN DATALENGTH(character_at_position.CharacterValue) = 0 THEN 1
+            WHEN UNICODE(character_at_position.CharacterValue) = 0 THEN 0
+            ELSE CHARINDEX(character_at_position.CharacterValue, @Characters) END = 0
     ),
     Bounds AS
     (

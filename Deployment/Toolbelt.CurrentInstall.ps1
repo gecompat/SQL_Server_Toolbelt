@@ -44,6 +44,19 @@ function New-ToolbeltInstallScratch {
     $directory
 }
 
+function Select-ToolbeltInstallProfile($Package,[string]$Platform,[string]$DeploymentMode,[string]$HostPlatform,[bool]$SingleSql) {
+    $selectedPlatform=$Platform
+    if($Platform -eq 'Auto'){
+        $selectedPlatform=if($SingleSql){$Package.Manifest.profiles[0].platform}elseif($HostPlatform -eq 'Linux'){'Portable'}else{'Windows'}
+    }
+    if($HostPlatform -eq 'Linux' -and $selectedPlatform -eq 'Windows'){
+        Stop-ToolbeltInstall 'PLATFORM' 'Windows-Profil ist auf Linux nicht unterstützt.'
+    }
+    $profiles=@($Package.Manifest.profiles|Where-Object {$_.platform -ceq $selectedPlatform -and $_.mode -ceq $DeploymentMode})
+    if($profiles.Count -ne 1){Stop-ToolbeltInstall 'PROFILE' 'Die gewählte Plattform-/Moduskombination fehlt in der Eingabe.'}
+    $profiles[0]
+}
+
 function Invoke-ToolbeltInstall {
     [CmdletBinding()]
     param(
@@ -108,7 +121,9 @@ function Invoke-ToolbeltInstall {
             $plan=[Text.UnicodeEncoding]::new($false,$false,$true).GetString([Convert]::FromHexString($builder.ToString()))
             $parsed=$plan|ConvertFrom-Json
             if($parsed.database_name -cne $Database -or $parsed.platform -cnotin @('Windows','Linux') -or @($parsed.configurations).Count -lt 1){Stop-ToolbeltInstall 'PROBE' 'Ungültiger Vorbereitungsplan.'}
+            $plannedProfile=Select-ToolbeltInstallProfile $package $Platform $DeploymentMode $parsed.platform ([bool]$InstallSql)
             if($PreflightOnly){return [pscustomobject]@{Status='PREPARATION_PREFLIGHT_OK';Mutations=$false;DatabaseExists=($null -ne $parsed.database_guid);Platform=$parsed.platform}}
+            [void](Get-ToolbeltInstallSql $package $plannedProfile $Database $TrustMethod)
             $preparationJournal=New-ToolbeltPreparationJournal $Database $ServerInstance $plan
             Write-Host ('Privates Vorbereitungsjournal: '+$preparationJournal.Path)
             [IO.File]::WriteAllText($prepareFile,(Get-ToolbeltPreparationSql $Database ([bool]$CreateDatabase) ([bool]$EnableClr) $plan),[Text.UTF8Encoding]::new($false))
@@ -142,15 +157,11 @@ function Invoke-ToolbeltInstall {
         $hostPlatform=$matches[0].Groups[1].Value;$parsedGuid=[guid]::Empty
         if(-not [guid]::TryParse($matches[0].Groups[2].Value,[ref]$parsedGuid)){Stop-ToolbeltInstall 'PROBE' 'Ungültige Datenbankidentität.'}
         $guid=$parsedGuid.ToString()
-        if($preparationJournal -and $guid -cne $preparationJournal.Record.outcome.DatabaseGuid){
-            Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Die vorbereitete Datenbank wurde vor der Installationsprüfung ersetzt.'
+        if($preparationJournal -and ($guid -cne $preparationJournal.Record.outcome.DatabaseGuid -or $hostPlatform -cne $parsed.platform)){
+            Stop-ToolbeltInstall 'TBX_TARGET_CHANGED' 'Datenbankidentität oder Plattform weicht vom Vorbereitungsplan ab.'
         }
-        $selectedPlatform=if($Platform -eq 'Auto'){if($hostPlatform -eq 'Linux'){'Portable'}else{'Windows'}}else{$Platform}
-        if($hostPlatform -eq 'Linux' -and $selectedPlatform -eq 'Windows'){Stop-ToolbeltInstall 'PLATFORM' 'Windows-Profil ist auf Linux nicht unterstützt.'}
-        $selection=@($package.Manifest.profiles|Where-Object {$_.platform -ceq $selectedPlatform -and $_.mode -ceq $DeploymentMode})
-        if($selection.Count -ne 1){Stop-ToolbeltInstall 'PROFILE' 'Die gewählte Plattform-/Moduskombination fehlt in der Eingabe.'}
-        $profile=$selection[0]
-        if($PreflightOnly){return [pscustomobject]@{Status='PREFLIGHT_OK';Platform=$selectedPlatform;DeploymentMode=$DeploymentMode;Mutations=$false}}
+        $profile=Select-ToolbeltInstallProfile $package $Platform $DeploymentMode $hostPlatform ([bool]$InstallSql)
+        if($PreflightOnly){return [pscustomobject]@{Status='PREFLIGHT_OK';Platform=$profile.platform;DeploymentMode=$DeploymentMode;Mutations=$false}}
         $sql=Get-ToolbeltInstallSql $package $profile $Database $TrustMethod
         $identifier=$Database.Replace(']',']]')
         $guard=@"
@@ -171,7 +182,7 @@ $preflight
         $result=Invoke-ToolbeltSql @call -File $installFile;Assert-ToolbeltSqlSuccess $result 'Trust/Installation'
         $receipt=@([regex]::Matches($result.Stdout,'(?m)^\s*TBX_INSTALL_OK\|(\d+)\s*$'))
         if($receipt.Count -ne 1 -or [int]$receipt[0].Groups[1].Value -ne @($profile.modules).Count){Stop-ToolbeltInstall 'RECEIPT' 'Vollständiger Schnittstellenabschluss fehlt; Zielzustand vor Wiederholung prüfen.'}
-        [pscustomobject]@{Status='INSTALLED_OR_PRESENT';Profile=$selectedPlatform+'-'+$DeploymentMode;Modules=@($profile.modules).Count;
+        [pscustomobject]@{Status='INSTALLED_OR_PRESENT';Profile=$profile.platform+'-'+$DeploymentMode;Modules=@($profile.modules).Count;
             Release=$package.Manifest.release;TrustMethod=$TrustMethod;Lifecycle='create-only';
             PreparationJournal=$(if($preparationJournal){$preparationJournal.Path}else{$null})}
     }finally{

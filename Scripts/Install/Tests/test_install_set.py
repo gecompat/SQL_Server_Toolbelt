@@ -1,6 +1,7 @@
 """Delivery boundaries with synthetic SQL only; no server or publication."""
 from pathlib import Path
 import importlib.util
+import hashlib
 import json
 import sys
 import tempfile
@@ -16,6 +17,37 @@ COMMIT='a'*40
 
 
 class InstallSetTests(unittest.TestCase):
+    def test_embedded_assembly_bytes_and_declared_names_are_bound(self):
+        selected=[{'objects':[{'type':'ASSEMBLY','name':'tlblt_Contoso'}]}]
+        data=(b'DECLARE @bits0 varbinary(max)=0xCAFE;\n'
+              b"IF NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'tlblt_Contoso')"
+              b" BEGIN DECLARE @ddl0 nvarchar(max)=CAST(N'CREATE ASSEMBLY [tlblt_Contoso]\n"
+              b"FROM '+CONVERT(nvarchar(max),@bits0,1)+N' WITH PERMISSION_SET=SAFE;'; EXEC sys.sp_executesql @ddl0; END;\n")
+        hashes={'tlblt_Contoso':hashlib.sha512(bytes.fromhex('CAFE')).hexdigest()}
+        module.payload.validate_assemblies(data,hashes,selected)
+        for changed in (data.replace(b'CAFE',b'CEFE'),data.replace(b'@ddl0',b'@ddl1'),
+                        data.replace(b'@bits0,1',b'@bits1,1'),
+                        data.replace(b'tlblt_Contoso',b'tlblt_Fabrikam')):
+            with self.assertRaises(ValueError): module.payload.validate_assemblies(changed,hashes,selected)
+        with self.assertRaises(ValueError): module.payload.validate_assemblies(data,{},selected)
+
+    def test_source_inventory_rejects_missing_or_changed_entries(self):
+        payload=module.payload
+        original=b'SELECT 1;\n'
+        with patch.object(payload.common,'source_files',return_value=([],{'Contoso.sql':None})), patch.object(
+                payload.common,'build_source_bindings',return_value={}), patch.object(
+                payload,'source_file',return_value=original):
+            names={'Contoso.sql',*payload.common.LICENSE_FILES}
+            names.update(path.relative_to(ROOT).as_posix() for path in (ROOT/'Modules').glob('*/module.yaml'))
+            bindings=dict.fromkeys(names,payload.sha(original))
+            payload.validate_sources(COMMIT,bindings,[],{})
+            del bindings['Contoso.sql']
+            with self.assertRaisesRegex(ValueError,'complete profile source inventory'):
+                payload.validate_sources(COMMIT,bindings,[],{})
+            bindings['Contoso.sql']=payload.sha(b'SELECT 2;\n')
+            with self.assertRaisesRegex(ValueError,'profile does not bind declared source'):
+                payload.validate_sources(COMMIT,bindings,[],{})
+
     def inner(self,path,tamper=False,duplicate=False):
         files={'Sql/Install-'+p+'-'+m+'.sql':b'USE [ContosoToolbelt];\nSELECT 1;\n'
                for p in ('Windows','Portable') for m in ('local','central')}

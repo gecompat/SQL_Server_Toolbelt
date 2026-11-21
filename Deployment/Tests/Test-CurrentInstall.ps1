@@ -16,7 +16,7 @@ function Invoke-ToolbeltSql {
     $sql=[IO.File]::ReadAllText($File)
     if([IO.Path]::GetFileName($File) -eq 'prepare.sql'){
         if($script:sqlCalls -eq 1){
-            $plan=@{server_name='localhost';database_name='ContosoApp';platform='Windows';
+            $plan=@{server_name='localhost';database_name='ContosoApp';platform=$(if($script:scenario -eq 'linux'){'Linux'}else{'Windows'});
                 database_guid=$(if($script:scenario -eq 'prepared-identity-mismatch'){'22222222-2222-2222-2222-222222222222'}else{$null});
                 configurations=@(@{configuration_id=1562;configured=1;running=1})}
             $wire=[Convert]::ToHexString([Text.Encoding]::Unicode.GetBytes((ConvertTo-Json -InputObject $plan -Depth 8 -Compress)))
@@ -26,7 +26,7 @@ function Invoke-ToolbeltSql {
     }
     if([IO.Path]::GetFileName($File) -eq 'preflight.sql'){
         $identity=if($script:scenario -eq 'after-preparation-replaced'){'22222222-2222-2222-2222-222222222222'}else{'11111111-1111-1111-1111-111111111111'}
-        return @{ExitCode=0;Stdout=('TBX_PREFLIGHT|'+$(if($script:scenario -eq 'linux'){'Linux'}else{'Windows'})+'|'+$identity);Stderr=''}
+        return @{ExitCode=0;Stdout=('TBX_PREFLIGHT|'+$(if($script:scenario -in 'linux','after-preparation-platform-changed'){'Linux'}else{'Windows'})+'|'+$identity);Stderr=''}
     }
     if([IO.Path]::GetFileName($File) -ne 'install.sql'){throw 'UNEXPECTED_SQL_PHASE'}
     $script:captured=$sql
@@ -64,6 +64,20 @@ try{
     $script:scenario='linux';$script:sqlCalls=0
     Reject-Test {Invoke-ToolbeltInstall @base -Platform Windows} 'WINDOWS_PROFILE_REJECTED_ON_LINUX'
     Assert-Test ($script:sqlCalls -eq 1) 'NO_INSTALL_AFTER_PLATFORM_REJECTION'
+    $script:sqlCalls=0
+    Reject-Test {Invoke-ToolbeltInstall @base -Platform Windows -CreateDatabase -EnableClr} 'PREPARE_REJECTS_WINDOWS_ON_LINUX'
+    Assert-Test ($script:sqlCalls -eq 1 -and -not (Test-Path (Join-Path $temp 'preparation.json'))) 'PLATFORM_REJECTION_BEFORE_MUTATION'
+    $script:scenario='success';$script:sqlCalls=0
+    $central=$base.Clone();$central.DeploymentMode='central'
+    Reject-Test {Invoke-ToolbeltInstall @central -CreateDatabase -EnableClr} 'PREPARE_REJECTS_WRONG_MODE'
+    Assert-Test ($script:sqlCalls -eq 1 -and -not (Test-Path (Join-Path $temp 'preparation.json'))) 'MODE_REJECTION_BEFORE_MUTATION'
+    $record.platform='Portable';$record.mode='central'
+    [IO.File]::WriteAllText(($path+'.manifest.json'),(ConvertTo-Json -InputObject $record -Depth 16),[Text.UTF8Encoding]::new($false))
+    $script:sqlCalls=0
+    $portable=Invoke-ToolbeltInstall @central
+    Assert-Test ($portable.Profile -ceq 'Portable-central' -and $script:sqlCalls -eq 2) 'AUTO_SINGLE_PORTABLE_PROFILE_ON_WINDOWS'
+    $record.platform='Windows';$record.mode='local'
+    [IO.File]::WriteAllText(($path+'.manifest.json'),(ConvertTo-Json -InputObject $record -Depth 16),[Text.UTF8Encoding]::new($false))
     $script:scenario='wrong-client';$script:sqlCalls=0
     Reject-Test {Invoke-ToolbeltInstall @base} 'NO_IMPLICIT_GO_PROVIDER'
     Assert-Test ($script:sqlCalls -eq 0) 'NO_CONNECTION_AFTER_CLIENT_REJECTION'
@@ -85,6 +99,9 @@ try{
     $script:scenario='after-preparation-replaced';$script:sqlCalls=0
     Reject-Test {Invoke-ToolbeltInstall @base -CreateDatabase 6>$null} 'IDENTITY_CHANGED_AFTER_PREPARATION'
     Assert-Test ($script:sqlCalls -eq 3) 'NO_INSTALL_ON_REPLACED_PREPARED_TARGET'
+    $script:scenario='after-preparation-platform-changed';$script:sqlCalls=0
+    Reject-Test {Invoke-ToolbeltInstall @base -CreateDatabase 6>$null} 'PLATFORM_CHANGED_AFTER_PREPARATION'
+    Assert-Test ($script:sqlCalls -eq 3) 'NO_INSTALL_ON_CHANGED_PREPARED_PLATFORM'
     "CURRENT_INSTALL_PASS checks=$script:checks; mocked transport only"
 }finally{
     $full=[IO.Path]::GetFullPath($temp);$boundary=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))+[IO.Path]::DirectorySeparatorChar

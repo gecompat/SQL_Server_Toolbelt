@@ -17,6 +17,12 @@ CONSTRUCTOR_DELIVERY_SHA256='5a425e740cc9a4b3af6b6a4df74b66a7c5deb6fe13af39e889b
 WINDOWS_ONLY={'toolbelt.archive.zip-files','toolbelt.filesystem.windows','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}
 LOCAL_ONLY={'toolbelt.archive.zip-files','toolbelt.filesystem.windows'}
 CATALOGUE_MODULE='toolbelt.metadata.capability-catalog'
+LICENSE_FILES=(
+    'LICENSE.md',
+    'Modules/toolbelt.tsql.ssis-debug/InstallPackages/ThirdParty/ScriptDom-180.117.0/LICENSE',
+    'Modules/toolbelt.string.phonetic/ThirdParty/ApacheCommonsCodec/LICENSE.txt',
+    'Modules/toolbelt.string.phonetic/ThirdParty/ApacheCommonsCodec/NOTICE.txt',
+)
 SKIP={'Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql',
       'Modules/toolbelt.file.content/Source/FileContentRootPredicate.sql'}
 TABLE_GROUPS={
@@ -404,7 +410,7 @@ IF @TrustMethod IN('trustworthy','trustworthy-checked') AND NOT EXISTS(SELECT 1 
  THROW 51000,N'Gewählter Weg verlangt vorhandenes TRUSTWORTHY ON; keine automatische Aktivierung.',1;
 BEGIN TRY
 '''
-    for license_file in ('LICENSE.md','Modules/toolbelt.tsql.ssis-debug/InstallPackages/ThirdParty/ScriptDom-180.117.0/LICENSE','Modules/toolbelt.string.phonetic/ThirdParty/ApacheCommonsCodec/LICENSE.txt','Modules/toolbelt.string.phonetic/ThirdParty/ApacheCommonsCodec/NOTICE.txt'):
+    for license_file in LICENSE_FILES:
         hashes[license_file]=sha(normalize((ROOT/license_file).read_bytes()))
         text=(ROOT/license_file).read_text(encoding='utf-8-sig')
         require('*/' not in text,'license comment boundary')

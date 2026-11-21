@@ -4076,7 +4076,7 @@ Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills
 
 Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
 
-<!-- Source/Vertrag SHA256: a2ce0d9b45cf18d437b01e4b28bef9f0e3ea904347893671b69769bf11591e34 -->
+<!-- Source/Vertrag SHA256: c8e37296636f7f8574f7fb8238557efa7ccce1e74807803465cb6fa3c30496d5 -->
 
 Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 
@@ -4433,13 +4433,13 @@ Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem Unicode-Te
 
 Vertrag und Quelle: [TVF_TrimDirectionalNvarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql), [TVF_TrimDirectionalNvarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalNvarchar.md), [TVF_TrimDirectionalNvarchar.md](../../Metadata/UsageSkills/toolbelt_string/TVF_TrimDirectionalNvarchar.md).
 
-<!-- Source/Vertrag SHA256: 6daf33594503342d5de272837a0527db085bb90f54a7d22893316a55202e3da5 -->
+<!-- Source/Vertrag SHA256: 8c9adda9915d29098e6d557d15df8d52bc781556c7d7bc5ba498df67dc19ebef -->
 
 Voraussetzung: Directionaltrim-Modul und kanonische mathematische TVF_GenerateSeriesBigInt derselben Installationsdatenbank. Windows/Linux SQL2019/2022/2025, zulässigeCL150/160/170. Installationscollation/Codepage bestimmen den Zeichenvergleich, kein dynamischer Caller-Collationvertrag.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
+| `@Value` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leere Positionen jenseits des letzten Zeichens werden bei der Grenzsuche übersprungen. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 | `@Characters` | `nvarchar(4000)` | `N' '` | Input | Bis 4000 UTF-16-Codeeinheiten als nvarchar(4000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 
@@ -4457,13 +4457,13 @@ Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem varchar-Te
 
 Vertrag und Quelle: [TVF_TrimDirectionalVarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql), [TVF_TrimDirectionalVarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalVarchar.md), [TVF_TrimDirectionalVarchar.md](../../Metadata/UsageSkills/toolbelt_string/TVF_TrimDirectionalVarchar.md).
 
-<!-- Source/Vertrag SHA256: cc27f84d18d7bf434550775f6a31be3eb9437b81b8fc166c014e575a98f32fcb -->
+<!-- Source/Vertrag SHA256: 57867404e700720680fe7b15e95b7888985524afcfa752893f201c16baf0d0e0 -->
 
 Voraussetzung: Directionaltrim-Modul und kanonische mathematische TVF_GenerateSeriesBigInt derselben Installationsdatenbank. Windows/Linux SQL2019/2022/2025, zulässigeCL150/160/170. Installationscollation/Codepage bestimmen den Zeichenvergleich, kein dynamischer Caller-Collationvertrag.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `varchar(max)` | `kein Default` | Input | Text als varchar(max) unter der Installationscodepage einschließlich gegebenenfalls UTF8. SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
+| `@Value` | `varchar(max)` | `kein Default` | Input | Text als varchar(max) unter der Installationscodepage einschließlich gegebenenfalls UTF8. SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leere Positionen jenseits des letzten Zeichens werden bei der Grenzsuche übersprungen. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 | `@Characters` | `varchar(8000)` | `' '` | Input | Bis 8000 Bytes als varchar(8000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 

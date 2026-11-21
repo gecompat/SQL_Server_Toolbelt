@@ -55,7 +55,9 @@ class CurrentSourceDeltaTests(unittest.TestCase):
         for path in (deltas.TRIM_N,deltas.TRIM_V):
             text=deltas.apply(self.originals[path],path).decode('utf-8')
             self.assertNotIn('@Value COLLATE Latin1_General_100_BIN2',text)
-            self.assertIn('CHARINDEX(SUBSTRING(@Value, positions.Value, 1), @Characters)',text)
+            self.assertIn('VALUES (SUBSTRING(@Value, positions.Value, 1))',text)
+            self.assertIn('CHARINDEX(character_at_position.CharacterValue, @Characters)',text)
+            self.assertIn('WHEN DATALENGTH(character_at_position.CharacterValue) = 0 THEN 1',text)
 
     def test_unknown_or_drifted_original_is_rejected(self):
         with self.assertRaisesRegex(ValueError,'UNKNOWN_PATH'):deltas.apply(b'SELECT 1;','Contoso.sql')
