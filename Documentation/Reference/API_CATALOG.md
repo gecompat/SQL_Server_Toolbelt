@@ -2028,7 +2028,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
 
 Vertrag und Quelle: [VW_WorkerStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerStatus.sql), [VW_WorkerStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerStatus.md).
 
-<!-- Source/Vertrag SHA256: 9e37dcdfa32a47bc3f689f3987f80ce23e5229b12639d328a0ffb190f0fe1459 -->
+<!-- Source/Vertrag SHA256: 0c81ee00f2d060db98cd3b5e36f990ef360750bebd011bdbbde5987ba358b5c3 -->
 
 Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
 
@@ -2046,7 +2046,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
 
 Vertrag und Quelle: [VW_WorkerExecutionStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerExecutionStatus.sql), [VW_WorkerExecutionStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerExecutionStatus.md).
 
-<!-- Source/Vertrag SHA256: c3d15b7896d8caf5947310e046eb51dd7431139774e0e15e892e08a24054e1da -->
+<!-- Source/Vertrag SHA256: 512c80fc8fee7154e86387aca6dbfa72026c5d7b94025f98460a517b431acd2b -->
 
 Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
 

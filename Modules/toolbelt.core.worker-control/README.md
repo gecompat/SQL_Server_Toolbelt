@@ -16,6 +16,26 @@ aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 Der Leitfaden erklärt alle öffentlichen Steuerfunktionen, globale/lokale
 Parallelität, Betriebsarten, Pause/Drain/Stop, Hold und Wiederfreigabe.
 
+## Relationen und maschinenlesbare Verträge
+
+Die sieben Relationen besitzen vollständige quellgeprüfte Skills, auch in
+ihrer kanonischen DDL:
+
+- [WorkerControlConfiguration](../../Metadata/UsageSkills/toolbelt_core/WorkerControlConfiguration.md)
+- [WorkerRegistration](../../Metadata/UsageSkills/toolbelt_core/WorkerRegistration.md)
+- [WorkerSlotReservation](../../Metadata/UsageSkills/toolbelt_core/WorkerSlotReservation.md)
+- [WorkerExecutionDisposition](../../Metadata/UsageSkills/toolbelt_core/WorkerExecutionDisposition.md)
+- [WorkerExecutionCommitWitness](../../Metadata/UsageSkills/toolbelt_core/WorkerExecutionCommitWitness.md)
+- [VW_WorkerStatus](../../Metadata/UsageSkills/toolbelt_core/VW_WorkerStatus.md)
+- [VW_WorkerExecutionStatus](../../Metadata/UsageSkills/toolbelt_core/VW_WorkerExecutionStatus.md)
+
+Die fünf Tabellen sind intern. Für Caller bleiben die öffentlichen Steuerpfade
+und Statusviews vorgesehen. Tabellenconstraints, gespeicherte Statuswerte und
+ein einzelner Witness ersetzen keine vollständige Provider-/Transaktionsprüfung.
+Die Skill-Quellabnahme ist keine neue native Gesamtqualifikation.
+
+## Nachweisstand
+
 SQL2.1-Integration und eigener Worker-Control1.0-Lifecycle. [Vertrag](../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md).
 
 Source implementiert, teilweise validiert und unveröffentlicht. Die

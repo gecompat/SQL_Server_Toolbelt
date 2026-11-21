@@ -905,6 +905,44 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_worker_relations_cover_real_columns_and_separate_witness_from_status(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items()
+                  if v['module_id']=='toolbelt.core.worker-control' and v['object_type'] in ('TABLE','VIEW')}
+        records=[skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected]
+        self.assertEqual(skills.validate_coverage(records,expected),7)
+        counts={'WorkerControlConfiguration':5,'WorkerRegistration':12,'WorkerSlotReservation':13,
+                'WorkerExecutionDisposition':5,'WorkerExecutionCommitWitness':5,
+                'VW_WorkerStatus':11,'VW_WorkerExecutionStatus':10}
+        by_name={s.metadata['object_name']:s for s in records}
+        for name,s in by_name.items():
+            text=(ROOT/s.metadata['source_paths'][0]).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_relation_ddl(text,s),text)
+            fields=re.findall(r'^\| `([^`]+)` \| `([^`]+)` \|',s.markdown,re.M)
+            self.assertEqual(len(fields),counts[name])
+            self.assertEqual(s.metadata['parameters'],[])
+            self.assertIn('keine neue native',s.markdown.casefold())
+            if s.metadata['object_type']=='TABLE':
+                self.assertTrue(s.metadata['is_internal'])
+                tokens,anchor=skills._relation_anchor(text,s)
+                columns=[];depth=1;start=True
+                for token,_,_ in tokens[anchor+1:]:
+                    if depth==1 and start:
+                        if token.casefold() not in ('constraint','primary','foreign','check','unique'):
+                            columns.append(token.strip('[]'))
+                        start=False
+                    if token=='(':depth+=1
+                    if token==')':
+                        depth-=1
+                        if depth==0:break
+                    if token==',' and depth==1:start=True
+                self.assertEqual([n for n,_ in fields],columns)
+        self.assertIn('keine kryptografische Signatur',by_name['WorkerExecutionCommitWitness'].markdown)
+        self.assertIn('uncommittete Zeile',by_name['WorkerExecutionCommitWitness'].markdown)
+        self.assertIn('CROSS JOIN',by_name['VW_WorkerStatus'].markdown)
+        self.assertIn('keine dynamische Unerreichbarkeitsberechnung',by_name['VW_WorkerStatus'].markdown)
+        self.assertIn('WorkItemId UND SlotReservationId',by_name['VW_WorkerExecutionStatus'].markdown)
+        self.assertIn('dortiges NONE bleibt auch bei COMMITTED NONE',by_name['VW_WorkerExecutionStatus'].markdown)
+
     def test_queue_relation_skills_cover_all_six_relations_and_actual_status_limits(self):
         expected = {k: v for k, v in skills.inventory(ROOT).items()
                     if v['module_id'] == 'toolbelt.core.work-queue' and v['object_type'] in ('TABLE','VIEW')}
