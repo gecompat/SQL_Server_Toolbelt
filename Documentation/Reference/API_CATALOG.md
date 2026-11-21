@@ -151,7 +151,7 @@ Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv i
 
 Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md), [USP_ExtractZipEntryFromBinary.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipEntryFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 5d41ade812af8035bb0d2a313b9ab88a377e99bde0daf0057e3c22a8b8252b58 -->
+<!-- Source/Vertrag SHA256: 1ad150626ea364a67652530ea48100ee841a84449f22f5e505b494944eb73cd2 -->
 
 Voraussetzung: ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
 
@@ -892,7 +892,7 @@ Gibt begrenzten Unicode-Text in den SQL-Messages-Kanal aus, wahlweise mit NOWAIT
 
 Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md), [USP_WriteConsoleMessage.md](../../Metadata/UsageSkills/toolbelt_core/USP_WriteConsoleMessage.md).
 
-<!-- Source/Vertrag SHA256: 4523ca34c8a6570c91e8a9dd484172620842b6288e25b56eaf19da6dfce1afc8 -->
+<!-- Source/Vertrag SHA256: cfa58f28d9c810b9fce5deac9be4351f9f01da040ee0b2fe7647462d5377e06f -->
 
 Voraussetzung: Installierte reine T-SQL-Prozedur auf SQL Server 2019/2022/2025, Windows oder Linux, lokal/zentral gemäß Modulvertrag. Client/Treiber muss Informationsnachrichten entgegennehmen; NOWAIT ist keine Zusage sofortiger UI-Darstellung. Keine CLR-, Datei-, Netzwerk- oder Tabellenabhängigkeit.
 
@@ -924,7 +924,7 @@ Formatiert explizit übergebene Fehlerdaten mit aktuellem Ausführungskontext al
 
 Vertrag und Quelle: [USP_CaptureErrorEnvelope.sql](../../Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql), [USP_CaptureErrorEnvelope.md](../../Modules/toolbelt.core.error-envelope/Documentation/USP_CaptureErrorEnvelope.md), [USP_CaptureErrorEnvelope.md](../../Metadata/UsageSkills/toolbelt_core/USP_CaptureErrorEnvelope.md).
 
-<!-- Source/Vertrag SHA256: 1166695e741cb4e228e4c0acbb50322413dc34ee36a9f6d5aa36e21ebbf2d85a -->
+<!-- Source/Vertrag SHA256: c8b05f1252fe109f9cddb0f3e57460b6a6bae7e70b6aa4f35d31e1d678b68cab -->
 
 Voraussetzung: Installierte T-SQL-Prozedur auf SQL Server 2019/2022/2025, Windows/Linux, lokal/zentral gemäß Modulvertrag. Direktes Resultset benötigt keine ResultTable-Operation und funktioniert im vorgesehenen uncommittable Callerpfad ohne Temp-DDL/INSERT. Für ResultTable-Ausgabe vorhandene lokale #Temp und USP_PrepareResultTable; zuerst Caller-Rollback bei XACT_STATE()=-1.
 
@@ -988,7 +988,7 @@ Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. D
 
 Vertrag und Quelle: [USP_WriteEvent.sql](../../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [USP_WriteEvent.md](../../Modules/toolbelt.core.event-log/Documentation/USP_WriteEvent.md), [USP_WriteEvent.md](../../Metadata/UsageSkills/toolbelt_core/USP_WriteEvent.md).
 
-<!-- Source/Vertrag SHA256: aa26bed5ba83afca380bfdab8db2c73e0d83f8bc58dc876a786faf585231864a -->
+<!-- Source/Vertrag SHA256: 2ac1b36c3f719a368eaa4816a162ecc314ee8ee7bc32f6298e95862cc6db3ac8 -->
 
 Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux, passende CL150/160/170, lokal/zentral. EventLog und execution-context installiert. Konfigurierter aktivierter Loopback-Provider in second-session >=1.1.0 mit RPC OUT und Remote-Proc-Transaction-Promotion OFF. Aktiv registrierter JSON_PAYLOAD-Work-Type toolbelt.event-log.write mit kanonischem Handler USP_WriteEventInternal(@PayloadJson nvarchar(max),@Hilfe bit=0), ohne fachliches Resultset. Vorhandene lokale und Remote-Policy EXECUTE_NEW_SESSION plus Remote-Handler-EXECUTE. Runtime-Preflight prüft unter anderem OBJECT_ID und @SuppressResult-Parameter; er installiert/konfiguriert nichts.
 
@@ -1037,7 +1037,7 @@ Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine a
 
 Vertrag und Quelle: [USP_DeleteEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql), [USP_DeleteEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteEventsBefore.md), [USP_DeleteEventsBefore.md](../../Metadata/UsageSkills/toolbelt_core/USP_DeleteEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: 1dcf21e8502130c83b95cf7024807ea85884e57c461d1c72392063c1a6d0430a -->
+<!-- Source/Vertrag SHA256: 210d4d95951d6d599f6a7fe72d2ec84ddae299aaac89d9b5b308e95a3ae28376 -->
 
 Voraussetzung: Installiertes EventLog, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal oder zentral. Gültiger datetime2(7)-Cutoff als UTC-Konvention ohne automatische Zeitzonenkonvertierung. Kein Second-Session-Provider für Retention erforderlich. Fehlender Cutoff wird im Fachpfad abgewiesen. Committable Callertransaktion erlaubt, uncommittable nicht.
 
@@ -1074,7 +1074,7 @@ Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAt
 
 Vertrag und Quelle: [USP_DeleteRecordedEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql), [USP_DeleteRecordedEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteRecordedEventsBefore.md), [USP_DeleteRecordedEventsBefore.md](../../Metadata/UsageSkills/toolbelt_core/USP_DeleteRecordedEventsBefore.md).
 
-<!-- Source/Vertrag SHA256: 736193c61d0c27552cb7617c9f20eab290c52cb45794830e18e8a4faa1367687 -->
+<!-- Source/Vertrag SHA256: 6b55f9e9becce765f3484018f5aa2c5db5e665ae8fca5383540c6694d677d6c1 -->
 
 Voraussetzung: Installiertes EventLog, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal oder zentral. Gültiger datetime2(7)-Cutoff als UTC-Konvention ohne automatische Zeitzonenkonvertierung. Kein Second-Session-Provider für Retention erforderlich. Fehlender Cutoff wird im Fachpfad abgewiesen. Committable Callertransaktion erlaubt, uncommittable nicht.
 
@@ -1161,7 +1161,7 @@ Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedur
 
 Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [USP_RequestExecutionCancellation.md](../../Modules/toolbelt.core.execution-cancel/Documentation/USP_RequestExecutionCancellation.md), [USP_RequestExecutionCancellation.md](../../Metadata/UsageSkills/toolbelt_core/USP_RequestExecutionCancellation.md).
 
-<!-- Source/Vertrag SHA256: 17254c87edecbbd3726e1998161f7c574a275bf2c4f3239e98dc2c7f2b6efc78 -->
+<!-- Source/Vertrag SHA256: fbfd2fa3e8eebd0321716301c8557fc9f1fd683757205d77b5fc5188caa57f69 -->
 
 Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, unterstützte CL150/160/170, lokal oder zentral. Modul ExecutionCancellation und seine passenden Quellobjekte installiert. Request benötigt execution-context >=1.0.0, für implizite ID einen gültigen aktuellen Kontext; Statusfunktionen benötigen keinen aktiven Kontext. Tabelle/Quoten sind pro installierender Datenbank, nicht serverweit oder pro Session.
 
@@ -1233,7 +1233,7 @@ Beginnt einen Toolbelt-Ausführungskontext in dieser Verbindung oder erhöht sei
 
 Vertrag und Quelle: [USP_BeginExecution.sql](../../Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql), [USP_BeginExecution.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_BeginExecution.md), [USP_BeginExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_BeginExecution.md).
 
-<!-- Source/Vertrag SHA256: 37cd149ccfb24bdce4fc46c4aea52670318e55c0bfac3193d22077b0ae6c7666 -->
+<!-- Source/Vertrag SHA256: 6b6eae795ebd367aae400897c619e01117df7372d6a842438753ae93b2d1d524 -->
 
 Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
@@ -1273,7 +1273,7 @@ Modul `toolbelt.core.execution-context` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetExecutionContext.sql](../../Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql), [USP_SetExecutionContext.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_SetExecutionContext.md), [USP_SetExecutionContext.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetExecutionContext.md).
 
-<!-- Source/Vertrag SHA256: 8840d7973813bfa7c985a62f06f2125c18cd26e53c34fd220b42cbbcfadd990a -->
+<!-- Source/Vertrag SHA256: c0407fef5c2621750a54bea7e7ee3a32cba0eb1ae0cbe7a0f29bd81c17d59b8a -->
 
 Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
@@ -1313,7 +1313,7 @@ Beendet genau eine Ebene des aktiven Ausführungskontexts unter Prüfung der erw
 
 Vertrag und Quelle: [USP_EndExecution.sql](../../Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql), [USP_EndExecution.md](../../Modules/toolbelt.core.execution-context/Documentation/USP_EndExecution.md), [USP_EndExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_EndExecution.md).
 
-<!-- Source/Vertrag SHA256: 50767bae7cc2b2bfb20ea30e544d1f39d6dfae2abcc40c49bfe3e97f93809d03 -->
+<!-- Source/Vertrag SHA256: 14987642660071ea79c11cd95768d57f7b8373680f9a81f95cec1f5222ba3ac7 -->
 
 Voraussetzung: Installiertes reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, lokal oder zentral. Die sechs festen SESSION_CONTEXT-Keys gehören zur aktuellen SQL-Verbindung und sind nicht nach Datenbank getrennt: toolbelt.execution.id, toolbelt.execution.correlation_id, toolbelt.execution.actor, toolbelt.execution.tenant, toolbelt.execution.started_at_utc und toolbelt.execution.depth. Keine CLR-, Datei-, Netzwerk- oder Benutzertabellenabhängigkeit. Nicht gleichzeitig per MARS/anderen Aufrufen oder direkt über sp_set_session_context manipulieren; Enginebeschränkungen und extern read_only gesetzte Keys können Schreibaufrufe blockieren.
 
@@ -1429,7 +1429,7 @@ Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vor
 
 Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md), [USP_PrepareResultTable.md](../../Metadata/UsageSkills/toolbelt_core/USP_PrepareResultTable.md).
 
-<!-- Source/Vertrag SHA256: d2b32377e84311c09479eae7f97fa510f58f977571c28beeeee0eb424bd020cf -->
+<!-- Source/Vertrag SHA256: 096f48198210e6ebcde5991a9787a42a9b6d510b95ef8350cc8bed805ea3ace9 -->
 
 Voraussetzung: Ziel-#Temp und Referenztabelle müssen im unterstützten Session-/Namensscope existieren. Kein frei geliefertes DDL, keine globale oder permanente Zieltabelle. Der Help-Pfad benötigt keine Ziel-/Referenztabelle.
 
@@ -1485,7 +1485,7 @@ Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Lin
 
 Vertrag und Quelle: [USP_ConfigureSecondSessionLoopback.sql](../../Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql), [USP_ConfigureSecondSessionLoopback.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ConfigureSecondSessionLoopback.md), [USP_ConfigureSecondSessionLoopback.md](../../Metadata/UsageSkills/toolbelt_core/USP_ConfigureSecondSessionLoopback.md).
 
-<!-- Source/Vertrag SHA256: 4488a888c6034e1e04d3b473a2d840855d8d13fb31519e4872c5aa4e8a3f2a23 -->
+<!-- Source/Vertrag SHA256: 247bbca45836522d35ada2f7d4b19bc71e6b21ef7f46212eb77534083965e86a -->
 
 Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170, lokal/zentral. Diese Prozedur läuft im Toolbelt-Zielkatalog. Vorhandener sichtbarer is_linked=1-Eintrag in master.sys.servers, RPC OUT=1, Remote-Proc-Transaction-Promotion=0. Remote-Ziel muss unter DB_NAME() den kanonischen USP_SecondSessionProbe mit passenden Rechten erreichen. Probe gilt auch für Enabled=0 und vor der Providerzeilenänderung. Name und SQL-Typ sind kein Connection String; QUOTENAME schützt die dynamischen Objektidentifier. Datenbankname/SPID der Probe sind Rückgabedaten, kein kryptografischer Nachweis derselben physischen SQLinstanz; das tatsächliche Loopbackziel ist administrativ festzulegen.
 
@@ -1522,7 +1522,7 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [USP_ExecuteWorkTypeInNewSession.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ExecuteWorkTypeInNewSession.md), [USP_ExecuteWorkTypeInNewSession.md](../../Metadata/UsageSkills/toolbelt_core/USP_ExecuteWorkTypeInNewSession.md).
 
-<!-- Source/Vertrag SHA256: 46bad7b7e7f881729e95142d88bece2fcb5cc759ea624f9d375713946e1011cd -->
+<!-- Source/Vertrag SHA256: a9b48c4bd91b325a4b294154ce95861fb8dfd73f860046079cefdfecfe74b834 -->
 
 Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170, lokal/zentral. Diese Prozedur läuft im Toolbelt-Zielkatalog. Aktiver registrierter lokaler WorkType mit NONE oder JSON_PAYLOAD, sichtbare gültige lokale App-Policy EXECUTE_NEW_SESSION. Aktivierter gespeicherter loopback-Provider mit sichtbarem LinkedServerExists=1,RpcOutEnabled=1,Promotion=0; gültige Remote-Anmeldung und installierter Dispatcher in derselben benannten Toolbelt-DB. Remote ebenfalls aktive Registrierung/Policy/Handler-EXECUTE/korrekte Signatur. Keine automatische Provideranlage oder Umstellung nach Verbindungsfehler.
 
@@ -1602,7 +1602,7 @@ Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wi
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [USP_EnqueueWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWork.md), [USP_EnqueueWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnqueueWork.md).
 
-<!-- Source/Vertrag SHA256: 2ec1135b474732a5343c4935c0f4aa63e55b90798b08bae26ef26bef02ec4883 -->
+<!-- Source/Vertrag SHA256: 321e7b70e8e876e9c18d69479c22355e980f530396a2199fbcce04bfdd7ca355 -->
 
 Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächlich registrierter aktiver WorkType mit ENQUEUE-Policy und passendem ParameterMode. Nur einfaches Enqueue verlangt zusätzlich sichtbaren P/PC-Handler; kein Handleraufruf. Gesunder Caller-TX ist möglich; keine pauschale Caller-TX-Sperre. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
@@ -1639,7 +1639,7 @@ Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlic
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [USP_EnqueueWorkWithPolicy.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueWorkWithPolicy.md), [USP_EnqueueWorkWithPolicy.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnqueueWorkWithPolicy.md).
 
-<!-- Source/Vertrag SHA256: b2da5f8639c0485656aeaf8c910a0ba3c75f6f87648931a8acb98f3a564c309c -->
+<!-- Source/Vertrag SHA256: d1539aedb77699a00608671f265ee45a93fe02d3a4971c12fadaaa11e6413ae0 -->
 
 Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächlich registrierter aktiver WorkType mit ENQUEUE-Policy und passendem ParameterMode. Nur einfaches Enqueue verlangt zusätzlich sichtbaren P/PC-Handler; kein Handleraufruf. DRAIN_BARRIER verlangt@@TRANCOUNT0; SHARED unterstützt gesunden Caller-TX/Savepoint. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
@@ -1686,7 +1686,7 @@ Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten ak
 
 Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [USP_EnqueueBarrierWork.md](../../Modules/toolbelt.core.work-queue/Documentation/USP_EnqueueBarrierWork.md), [USP_EnqueueBarrierWork.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnqueueBarrierWork.md).
 
-<!-- Source/Vertrag SHA256: e90fea4e6879255c6e0650afc6d03dbb011c1108a4beb703e79373579d6207a3 -->
+<!-- Source/Vertrag SHA256: 83a2d7c7c45e08c266c678597dfb7ada1a0bf6dab87a2a1d0b0f8923c8ddc26c -->
 
 Voraussetzung: Kanonische Queue2.1.0 einschließlich WorkType/ResultTable derselben Datenbank. SQL2019/2022/2025 unter Windows/Linux mit geeignetem CL150/160/170 gemäß Modulmatrix. Tatsächlich registrierter aktiver WorkType mit ENQUEUE-Policy und passendem ParameterMode. Nur einfaches Enqueue verlangt zusätzlich sichtbaren P/PC-Handler; kein Handleraufruf. DRAIN_BARRIER verlangt@@TRANCOUNT0; SHARED unterstützt gesunden Caller-TX/Savepoint. Alle Parameter haben technische Defaults für Hilfe; fachliche NULL-Pflichtwerte sind keine gültigen Ersatzwerte. SQL-Typbindung passiert vor dem Prozedurcode.
 
@@ -2027,7 +2027,7 @@ Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Daten
 
 Vertrag und Quelle: [USP_SetWorkTypePermission.sql](../../Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql), [USP_SetWorkTypePermission.md](../../Modules/toolbelt.core.work-type/Documentation/USP_SetWorkTypePermission.md), [USP_SetWorkTypePermission.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkTypePermission.md).
 
-<!-- Source/Vertrag SHA256: ef6c3c9e04740bb9f63899d4508295e2fdc5d66250ffb34823e63c81567945f5 -->
+<!-- Source/Vertrag SHA256: e96cc15a8b76ee6fd5f27aee124dd9f602992f986e9046d6e15c52941fd81da6 -->
 
 Voraussetzung: SQL Server 2019/2022/2025 auf Windows/Linux, passende CL150/160/170, lokal/zentral. WorkType-Katalog und Policyobjekte in derselben Datenbank; zentrale Verwendung wertet den tatsächlichen DBtoken dieses Katalogs aus. Kein Second-Session- oder Queue-Provider für diese lokale Policyverwaltung/-entscheidung erforderlich. Eine Policy bindet WorkTypeId, Aktion, tatsächliche DBprincipal-ID/SID/create_date und exakte binary(8)-RowVersion des Work Types. Ändert sich dessen RowVersion oder wird ein Principal unter neuer Identität wiederangelegt, wird die alte Zeile unwirksam statt automatisch übernommen. Aktuelle sys.user_token-Zeilen einschließlich wirksamer Rollen werden im jeweiligen Katalog ausgewertet; kein frei übergebener Actor/Name kann einen Callertoken ersetzen. Principal muss im lokalen sys.database_principals sichtbar sein, type in S/U/G/R/E/X und principal_id ungleich 0; keine Erstellung fehlender Identitäten. Work Type muss registriert sein, nicht zwingend enabled. Auch REMOVE setzt vorhandenen Principal und Work Type voraus und ist kein allgemeiner Bereiniger verwaister Zeilen.
 
@@ -2083,7 +2083,7 @@ Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work 
 
 Vertrag und Quelle: [USP_RegisterWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql), [USP_RegisterWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RegisterWorkType.md), [USP_RegisterWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_RegisterWorkType.md).
 
-<!-- Source/Vertrag SHA256: 8280c169c457737da7d5ceeb0a8e913f9b8274adeb09bef28c6006fad1ac000e -->
+<!-- Source/Vertrag SHA256: 04c817055d03a0f57003324fef68917b2c65d20d73ba1f0602c1562f45c7532c -->
 
 Voraussetzung: SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. WorkType und VW_WorkTypes in derselben Datenbank, sichtbare vorhandene Handlerprozedur P/PC in dieser Datenbank, nicht sys oder is_ms_shipped. Vorhandenes Handler-EXECUTE des registrierenden Principals erforderlich. Für Routing zusätzlich existierender sameDB ResultTable-Helper und gültige lokale Caller-Temp. ParameterMode ist eine Deklaration: diese Prozedur prüft NICHT die passende Handler-Parametersignatur; der spätere Dispatcher prüft diese separat. NONE ohne Payloadvertrag; JSON_PAYLOAD verlangt ein JSON-Objekt nach ISJSON und { nach LTRIM gewöhnlicher Spaces, kein ausführbares JSON-Schema.
 
@@ -2128,7 +2128,7 @@ Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfigura
 
 Vertrag und Quelle: [USP_DisableWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql), [USP_DisableWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_DisableWorkType.md), [USP_DisableWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_DisableWorkType.md).
 
-<!-- Source/Vertrag SHA256: 6478e708c4e8272257458b0c8136e537b44bf084fe5c31cb00cda51af2d2c782 -->
+<!-- Source/Vertrag SHA256: 6c3452913b5fa94cbfb5b978cf02265ed693a896105af09a424d16d858b281d2 -->
 
 Voraussetzung: WorkType-Katalog und VW_WorkTypes in derselben Datenbank, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Für ResultTable zusätzlich vorhandener sameDB ResultTable-Helper und gültige caller-lokale Temp. Keine automatische Dependencyinstallation. ExpectedRowVersion NULL deaktiviert nur den optimistischen Versionsvergleich; sonst exakte binary(8)-Bytes aus zuletzt gelesenem Katalog verwenden, keinen Hextext. Already-disabled mit NULL-Grund ist ein No-op, die optionale RowVersion-Prüfung gilt trotzdem. Jede tatsächliche Änderung erzeugt neue RowVersion und macht ältere gebundene WorkType-Policies unwirksam, bis sie ausdrücklich neu konfiguriert werden.
 
@@ -2164,7 +2164,7 @@ Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Da
 
 Vertrag und Quelle: [USP_RemoveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql), [USP_RemoveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RemoveWorkType.md), [USP_RemoveWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_RemoveWorkType.md).
 
-<!-- Source/Vertrag SHA256: b432f587e8f5ab7764148c3ea74561e67167ddd9b2f3038f6b181ca10dcab4c6 -->
+<!-- Source/Vertrag SHA256: a5029fdc55c7d9dfdf9e9e0356db825ad3cfd2772a39529f96e4423ca768af44 -->
 
 Voraussetzung: WorkType-Katalog und VW_WorkTypes in derselben Datenbank, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Für ResultTable zusätzlich vorhandener sameDB ResultTable-Helper und gültige caller-lokale Temp. Keine automatische Dependencyinstallation. ExpectedRowVersion NULL deaktiviert nur den optimistischen Versionsvergleich; sonst exakte binary(8)-Bytes aus zuletzt gelesenem Katalog verwenden, keinen Hextext. Aktive Einträge können nicht entfernt werden. Bestehende Referenzen können den DELETE durch Engine-/FK-Fehler verhindern; kein automatisches Entfernen von Workitems oder anderen Verbrauchern.
 
@@ -2200,7 +2200,7 @@ Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-
 
 Vertrag und Quelle: [USP_ResolveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql), [USP_ResolveWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_ResolveWorkType.md), [USP_ResolveWorkType.md](../../Metadata/UsageSkills/toolbelt_core/USP_ResolveWorkType.md).
 
-<!-- Source/Vertrag SHA256: 73156d1c232f431fa90f2c4680b668e81a1cc73382122c9aa0175c40558d786d -->
+<!-- Source/Vertrag SHA256: abe86226f3f781ddc178017756c4e6a44aee62bdb9b456afbcb1ba26a2ad4e37 -->
 
 Voraussetzung: WorkType-Katalog und VW_WorkTypes in derselben Datenbank, SQL Server 2019/2022/2025 Windows/Linux mit passenden CL150/160/170, lokal/zentral. Für ResultTable zusätzlich vorhandener sameDB ResultTable-Helper und gültige caller-lokale Temp. Keine automatische Dependencyinstallation. RequireEnabled und RequireExecutableByCaller NULL=>1; RequiredPermission NULL bedeutet keine App-Policyprüfung. SuppressResult muss 0/1 sein, NULL oder 1 mit ResultTable wird abgewiesen. Ein deaktivierter Eintrag ist mit RequireEnabled=0 möglich; der Handler muss dennoch sichtbar existieren. RequireExecutableByCaller=0 überspringt nur dessen EXECUTE-Check, verleiht kein Recht.
 
@@ -2315,7 +2315,7 @@ Schließt eine exakt token-/principalgebundene Generation ohne belegte Reservati
 
 Vertrag und Quelle: [USP_CloseWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql), [USP_CloseWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_CloseWorker.md), [USP_CloseWorker.md](../../Metadata/UsageSkills/toolbelt_core/USP_CloseWorker.md).
 
-<!-- Source/Vertrag SHA256: d43666eba2d38fc91859bbeb0292921447baeb2673dec9f31791b3f75f5ce2ab -->
+<!-- Source/Vertrag SHA256: f043b5492452a2e3a65cba12df695c66fcbecca0fa435751b8079d2dd6bd4cb6 -->
 
 Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
@@ -2351,7 +2351,7 @@ Deaktiviert Managed-Admission versionsgebunden nur ohne aktive Claims, belegte R
 
 Vertrag und Quelle: [USP_DisableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql), [USP_DisableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_DisableManagedWorkers.md), [USP_DisableManagedWorkers.md](../../Metadata/UsageSkills/toolbelt_core/USP_DisableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: 5891dfd52061f92adfbb0d09478b78fc950d16f97fdec6634cbdf9bae8bb12a4 -->
+<!-- Source/Vertrag SHA256: 91d0781d3c87f8e896a57298f43c138dbf50026aaba54a6f7e8dca65f85da83f -->
 
 Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
@@ -2389,7 +2389,7 @@ Aktiviert Managed-Admission versionsgebunden nur ohne aktive Claims, belegte Res
 
 Vertrag und Quelle: [USP_EnableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql), [USP_EnableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_EnableManagedWorkers.md), [USP_EnableManagedWorkers.md](../../Metadata/UsageSkills/toolbelt_core/USP_EnableManagedWorkers.md).
 
-<!-- Source/Vertrag SHA256: eac0d4212dbd2916b382e1f5d5feeff98213e55e819eb5cca88d0e205ca87e61 -->
+<!-- Source/Vertrag SHA256: cfc07721430dbd303c787cbe5752f7339d9fb0584e4d011ce69c9de2c9a20231 -->
 
 Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
@@ -2427,7 +2427,7 @@ Erneuert die Heartbeatzeit einer token-/principalgebundenen, noch nicht abgelauf
 
 Vertrag und Quelle: [USP_HeartbeatWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql), [USP_HeartbeatWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_HeartbeatWorker.md), [USP_HeartbeatWorker.md](../../Metadata/UsageSkills/toolbelt_core/USP_HeartbeatWorker.md).
 
-<!-- Source/Vertrag SHA256: 829c0f786d07167e622768dab016febbe33d19d0d8be8fd4d12dcd1093fe18d9 -->
+<!-- Source/Vertrag SHA256: 6fa8765be8c5821f3a1db7cbb281ab38aa87f58e7e2d5945834196e30cf04939 -->
 
 Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
@@ -2465,7 +2465,7 @@ Klassifiziert eine exakte aktuelle Disposition anhand von Connectionfence und lo
 
 Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md), [USP_ReconcileWorkerExecution.md](../../Metadata/UsageSkills/toolbelt_core/USP_ReconcileWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 61c7bf7a8ef9ce304601bc93416e721a17cb1f0ab8be66f6e215e682a687d483 -->
+<!-- Source/Vertrag SHA256: 73c6cf381554a0fb786c8709443ef1eafa2c32d4fceb6805602cf8f1b0ccc445 -->
 
 Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
@@ -2503,7 +2503,7 @@ Erzeugt eine neue principalgebundene Generation einer stabilen WorkerId ohne Üb
 
 Vertrag und Quelle: [USP_RegisterWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql), [USP_RegisterWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_RegisterWorker.md), [USP_RegisterWorker.md](../../Metadata/UsageSkills/toolbelt_core/USP_RegisterWorker.md).
 
-<!-- Source/Vertrag SHA256: fc834f2b4d8d82f3f15e1c132a710d78b11b6a8c143f9b1741a6469d69b7b01f -->
+<!-- Source/Vertrag SHA256: 58aafbef5349002aed08899f687558516fda1870342cdb0e79a4faf8bf1eeb25 -->
 
 Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
@@ -2579,7 +2579,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerCapacity.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql), [USP_SetWorkerCapacity.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerCapacity.md), [USP_SetWorkerCapacity.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerCapacity.md).
 
-<!-- Source/Vertrag SHA256: ea10295592c05109d5f4de3c07f0a13486b45cdf86a9e3c7e71f275819ad45bc -->
+<!-- Source/Vertrag SHA256: 4713d80b9b2244b4c1cb2409e1ebafb866e13283e8ad05b05224e986016543b7 -->
 
 Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
@@ -2619,7 +2619,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerConcurrency.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql), [USP_SetWorkerConcurrency.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerConcurrency.md), [USP_SetWorkerConcurrency.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerConcurrency.md).
 
-<!-- Source/Vertrag SHA256: cf215a35de2118eded8b318bdf1ca9e6530395585cfe3025775d5da2985b0012 -->
+<!-- Source/Vertrag SHA256: 52f6991c025b3d9a09208cfdf5bbd5eb16595beee45f5a9d9c4e075a9e84a13a -->
 
 Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
@@ -2658,7 +2658,7 @@ Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
 
 Vertrag und Quelle: [USP_SetWorkerIntervals.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql), [USP_SetWorkerIntervals.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerIntervals.md), [USP_SetWorkerIntervals.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerIntervals.md).
 
-<!-- Source/Vertrag SHA256: 7bd94946494a2f2581a7e408c283d89a0546003d6c125e69ab49590a896fe999 -->
+<!-- Source/Vertrag SHA256: 2ad922e49e4dc320f960e217d78fbfe05b741d310615b12241f7ef4fc8ec868f -->
 
 Voraussetzung: Worker-Control1.0.0 mit passender Queue2.1.0, WorkerControlConfiguration, WorkQueueManagedGate und WorkQueueScheduler in derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux mit zulässigem CL150/160/170, lokal/zentral. Fachaufruf verlangt @@TRANCOUNT0 und XACT_STATE0. Frische exakte globale ConfigVersion aus autorisierter Ausgabe übernehmen, kein erfundener Default. Optionales ResultTable-Routing benötigt den installierten Helper und eine geeignete vom Caller angelegte lokale Temp. Hilfe benötigt keine gültigen Fachwerte oder Tabellenabfragen.
 
@@ -2698,7 +2698,7 @@ Steuert versionsgebunden die neueste noch lebende Worker-generation auf ACTIVE,P
 
 Vertrag und Quelle: [USP_SetWorkerState.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql), [USP_SetWorkerState.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerState.md), [USP_SetWorkerState.md](../../Metadata/UsageSkills/toolbelt_core/USP_SetWorkerState.md).
 
-<!-- Source/Vertrag SHA256: e1efa6172cc607f0ebf7595e0fec14bf028b82d8a6ac32df74223e35e8cd6281 -->
+<!-- Source/Vertrag SHA256: d07ec8329cca2642b4ad8ad0079e89f2811345c01439c9900cdb824655ab3458 -->
 
 Voraussetzung: Passendes Worker-Control1.0.0 mit Queue2.1.0 und seinen Context-/Cancellation-/ResultTable-Abhängigkeiten derselben Moduldatenbank. SQL2019/2022/2025 Windows/Linux, zulässiges CL150/160/170, lokal/zentral. Fachaufruf benötigt neutralen Callertransaktionszustand sowie Gate1,Scheduler1,Konfiguration1. Hilfe ist mit technischen Defaults ohne Fachargumente möglich. Keine CLR-/Datei-/Netzwerkabhängigkeit dieses Aufrufs.
 
@@ -2775,7 +2775,7 @@ Friert eine explizite Worker-generationen-Auswahl ein und persistiert atomar Pau
 
 Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md), [USP_StopWorkers.md](../../Metadata/UsageSkills/toolbelt_core/USP_StopWorkers.md).
 
-<!-- Source/Vertrag SHA256: 86574a57ad378a791e78c051e68b736386a158fb4b7880fea92bc11ed8bd2617 -->
+<!-- Source/Vertrag SHA256: 1521fb381e8951c7d1d479e97c7fdf6467ce616d7fc8a6931ae73dd7d14d6e95 -->
 
 Voraussetzung: Worker-Control 1.0.0 mit passender Queue 2.1.0 sowie Context-, Cancellation- und ResultTable-Integration derselben Moduldatenbank. SQL Server 2019/2022/2025 auf Windows/Linux mit zulässigem CL150/160/170, lokal oder zentral. Der Fachpfad verlangt @@TRANCOUNT=0 und XACT_STATE()=0; keine Caller-Savepoints. Bestehende IDs, Generationen und Versionen aus tatsächlichen autorisierten Ausgaben übernehmen. Hostnamen, SPIDs oder frei gewählte UUIDs ersetzen diese Bindungen nicht. Hilfe ist mit technischen Defaults ohne Fachwerte aufrufbar.
 
@@ -3067,7 +3067,7 @@ Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unt
 
 Vertrag und Quelle: [USP_LoadBinaryFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [USP_LoadBinaryFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md), [USP_LoadBinaryFile.md](../../Metadata/UsageSkills/toolbelt_file/USP_LoadBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 6df78ae365a882f710e19a6a81b02535977f1b4f3bd25bf0b9148d801c2d71ac -->
+<!-- Source/Vertrag SHA256: ea1dd7b12af828976379d0a4352583de0c0836bbda7da88bd81571f71e42a9df -->
 
 Voraussetzung: SQL Server2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170. Datenbanktabelle mit administrativ gepflegtem aktivem Root. Provider-/Plattform-/OS-Leserechte unabhängig von Rootfreigabe erfüllen. Für ResultTable sameDB core.result-table>=1.0.0. Aktueller gemeinsamer Offlinebuilder expandiert FileContentRootPredicate.sql in normale SQL-DDL; rohe Source-Prozedurdatei enthält noch :r-Quellinclude und ist kein direkt unverändert auszuführender SQLCMD-freier Installer. Eingabepfad LTRIM/RTRIM normaler Spaces und NULLIF leer; dann zwei REPLACE-Schritte für doppelte/einfache Backslashes nach Slash nur für den Allowlistvergleich. Absolutheit nach Laufwerkbuchstabe:/ oder führendem /; geprüftes ../-Traversal wird abgewiesen, keine vollständige OS-Kanonisierung aller Punkt-/Device-/Aliasformen. Aktive Roots werden ebenfalls slashnormalisiert, nicht generell getrimmt. Vergleich literal BIN2 an exakter Rootlänge oder Verzeichnisgrenze mit angehängtem /; Prozent/Unterstrich/Klammern sind dort keine Wildcards. Ein exakter Rootpfad selbst kann zugelassen sein, nicht nur dessen Kinder. Keine Symlink-/Junction-/Hardlink-/Handleprüfung; tatsächlicher BULK-Aufruf liest den getrimmten Originalpfad. Keine handlegebundene Sandbox oder TOCTOU-/Dateisystemidentitätsgarantie.
 
@@ -3103,7 +3103,7 @@ Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM un
 
 Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md), [USP_LoadTextFile.md](../../Metadata/UsageSkills/toolbelt_file/USP_LoadTextFile.md).
 
-<!-- Source/Vertrag SHA256: c7c34670bfd4ab8e3cd6aa446ea51da12abf2c023048d84d470cd89d616ccc4b -->
+<!-- Source/Vertrag SHA256: ff0f2e84144b28f9b9dac9131123004e552b4465452efe56ab12b91bb5a5cc95 -->
 
 Voraussetzung: SQL Server2019/2022/2025 Windows/Linux gemäß Modulmatrix, passende CL150/160/170. Datenbanktabelle mit administrativ gepflegtem aktivem Root. Provider-/Plattform-/OS-Leserechte unabhängig von Rootfreigabe erfüllen. Für ResultTable sameDB core.result-table>=1.0.0. Aktueller gemeinsamer Offlinebuilder expandiert FileContentRootPredicate.sql in normale SQL-DDL; rohe Source-Prozedurdatei enthält noch :r-Quellinclude und ist kein direkt unverändert auszuführender SQLCMD-freier Installer. Eingabepfad LTRIM/RTRIM normaler Spaces und NULLIF leer; dann zwei REPLACE-Schritte für doppelte/einfache Backslashes nach Slash nur für den Allowlistvergleich. Absolutheit nach Laufwerkbuchstabe:/ oder führendem /; geprüftes ../-Traversal wird abgewiesen, keine vollständige OS-Kanonisierung aller Punkt-/Device-/Aliasformen. Aktive Roots werden ebenfalls slashnormalisiert, nicht generell getrimmt. Vergleich literal BIN2 an exakter Rootlänge oder Verzeichnisgrenze mit angehängtem /; Prozent/Unterstrich/Klammern sind dort keine Wildcards. Ein exakter Rootpfad selbst kann zugelassen sein, nicht nur dessen Kinder. Keine Symlink-/Junction-/Hardlink-/Handleprüfung; tatsächlicher BULK-Aufruf liest den getrimmten Originalpfad. Keine handlegebundene Sandbox oder TOCTOU-/Dateisystemidentitätsgarantie.
 
@@ -3140,7 +3140,7 @@ Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zell
 
 Vertrag und Quelle: [USP_ParseCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql), [USP_ParseCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md), [USP_ParseCsv.md](../../Metadata/UsageSkills/toolbelt_file/USP_ParseCsv.md).
 
-<!-- Source/Vertrag SHA256: e671c5042add90737c568abfc6734baf9e25281500597d946aea7a5fa61428cc -->
+<!-- Source/Vertrag SHA256: eef13c0d44b6c2d7f9ffe22d33408a84f832806d92e3afc9886c667cd4cc0af9 -->
 
 Voraussetzung: Installiertes Modul mit autorisierter SAFE-Assembly tlblt_File_CsvMemory, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, CL150/160/170 soweit zur Engine passend, lokal oder zentral. Kein Datei-, Netzwerk- oder Encodingprovider. ResultTable >=1.0.0 in derselben Datenbank für Routing. Separator genau eine UTF-16-Codeunit, nicht NULL/leer, keine Doppelquote, CR, LF, NUL oder Surrogate. NullToken NULL deaktiviert SQL-NULL; sonst 1..128 Codeunits, ohne Separator, Doppelquote, CR, LF, NUL oder ungepaarte Surrogate. Gültige Surrogatpaare im Token sind erlaubt. Tokenvergleich exakt nach Länge und Codeunits, nicht SQL-Padding.
 
@@ -3182,7 +3182,7 @@ Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten al
 
 Vertrag und Quelle: [USP_WriteCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql), [USP_WriteCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md), [USP_WriteCsv.md](../../Metadata/UsageSkills/toolbelt_file/USP_WriteCsv.md).
 
-<!-- Source/Vertrag SHA256: c3e4b9b41134e1e4920085f4824464bf9ae0896d2559193d0845d549bde0d0d3 -->
+<!-- Source/Vertrag SHA256: b273ae9d191c2c95f7285b0ab459c462d02ab33ec3dc43f34b2f6b24e4db8b0d -->
 
 Voraussetzung: Installiertes Modul mit autorisierter SAFE-Assembly tlblt_File_CsvMemory, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, CL150/160/170 soweit zur Engine passend, lokal oder zentral. Kein Datei-, Netzwerk- oder Encodingprovider. ResultTable >=1.0.0 in derselben Datenbank für Routing. Separator genau eine UTF-16-Codeunit, nicht NULL/leer, keine Doppelquote, CR, LF, NUL oder Surrogate. NullToken NULL deaktiviert SQL-NULL; sonst 1..128 Codeunits, ohne Separator, Doppelquote, CR, LF, NUL oder ungepaarte Surrogate. Gültige Surrogatpaare im Token sind erlaubt. Tokenvergleich exakt nach Länge und Codeunits, nicht SQL-Padding.
 
@@ -3378,7 +3378,7 @@ Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md), [USP_ReadBinaryFileChunk.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_ReadBinaryFileChunk.md).
 
-<!-- Source/Vertrag SHA256: 9dff23ff49e0a7e96ac36274cb2b44013417596f72c3df2f7117e3f60586299d -->
+<!-- Source/Vertrag SHA256: f8385001a5fe33de8df937371b29b443a4af45a68c66bfffa7f707bc6a187c57 -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3417,7 +3417,7 @@ Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächs
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md), [USP_ReadTextFileChunk.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_ReadTextFileChunk.md).
 
-<!-- Source/Vertrag SHA256: 40cc140fda32237ca58daf821b5b9558cb2d8ff55a26fb0b4a3d530f965fdd52 -->
+<!-- Source/Vertrag SHA256: 45c188f6e20dcaa03db0cd6e9771ba7126fc8910a8395ec8a6e08648811abece -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3457,7 +3457,7 @@ Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md), [USP_WriteBinaryFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_WriteBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 17cce60e4d715f9ca627a47805169cad9030667dad1896d4eea0a48bef377a10 -->
+<!-- Source/Vertrag SHA256: f23c9e6f20855185cae509d110339e5cf6bf9095bb03f6cd0c8cc3675bc679c8 -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3494,7 +3494,7 @@ Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md), [USP_WriteTextFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_WriteTextFile.md).
 
-<!-- Source/Vertrag SHA256: acc263a6329af9970791d0c221d5c84d7f43b7900effea22e7b883fe46c2c0ee -->
+<!-- Source/Vertrag SHA256: cfd854036d97930f8b5795d43350b9eba35593a2522b2486a9a69dd736de2842 -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3533,7 +3533,7 @@ Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md), [USP_TranscodeTextFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_TranscodeTextFile.md).
 
-<!-- Source/Vertrag SHA256: 791e118caf5db90e2e7b6c284c4ceff1629594a2fafa8105ded504fa4c1e7344 -->
+<!-- Source/Vertrag SHA256: b0bd631ac37b3262f835b3d9c622e0f233cc73a7745a025dc3f9b11642bbec81 -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowRead und AllowWrite erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3574,7 +3574,7 @@ Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md), [USP_ListDirectory.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_ListDirectory.md).
 
-<!-- Source/Vertrag SHA256: 9fe400682487e96cdf1f7a3287e249b3df96d1178221b50984ca74661b9c7879 -->
+<!-- Source/Vertrag SHA256: f6683343794febfb02c68bc77c182328c007b00d36bc44c852ddc1d62e0a1b39 -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowList erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3614,7 +3614,7 @@ Erstellt ein Verzeichnis unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md), [USP_CreateDirectory.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_CreateDirectory.md).
 
-<!-- Source/Vertrag SHA256: 1f2caacea86dd8341a9e83fda5e4e0ebd8bad50184a033be95e331bb4e51e4ba -->
+<!-- Source/Vertrag SHA256: dae122786cad89428a4b90f808a04922bab893580a84ebbd6cb4797a3dca562f -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowCreateDirectory erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3649,7 +3649,7 @@ Entfernt eine Datei unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md), [USP_RemoveFile.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_RemoveFile.md).
 
-<!-- Source/Vertrag SHA256: ad627979428ef67dfc8e6615da633c90af3f8f03aba333542a8bca398899f3ff -->
+<!-- Source/Vertrag SHA256: 75c9c42f93f56e9dbbe63f6bfac1a8ed04936c8bb5f4597c636c07d2475e2fef -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -3684,7 +3684,7 @@ Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md), [USP_RemoveDirectory.md](../../Metadata/UsageSkills/toolbelt_filesystem/USP_RemoveDirectory.md).
 
-<!-- Source/Vertrag SHA256: 7510aeeae360c39b6e26fe491fa5e56e6c017e1f5712f0c9c762c4835c7596bd -->
+<!-- Source/Vertrag SHA256: cff75d31e0f6f6c02fe767405b89dea503395dd3b47a01f89e1dc63e331023e9 -->
 
 Voraussetzung: Installiertes Windows-Dateisystemmodul mit passender UNSAFE-CLR-Binary auf Windows SQL Server 2019/2022/2025. Nur lokaler Modulpfad, nicht Linux oder zentrale Cross-DB-Verwendung. Aktiver konfigurierter Root und AllowDelete erforderlich. Native Provider akzeptieren nur unterstützte lokale Laufwerks-/Handlepfade; UNC-/Netzwerkpfade sind kein zugesicherter Weg. Konfiguration, Trust und Rechte werden nicht automatisch angelegt. Die reine Hilfe kehrt vor diesen fachlichen Voraussetzungen zurück. Ein physischer Dateipfad wird nicht als Caller-Eingabe angenommen; RootAlias verweist auf vorhandene autorisierte Konfiguration.
 
@@ -4076,7 +4076,7 @@ Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills
 
 Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
 
-<!-- Source/Vertrag SHA256: aaafe434ce5d80a8cc4a9783f4fc7ccace9d88a10dd5c6329e8adf917518feda -->
+<!-- Source/Vertrag SHA256: a2ce0d9b45cf18d437b01e4b28bef9f0e3ea904347893671b69769bf11591e34 -->
 
 Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 
@@ -4150,7 +4150,7 @@ Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfan
 
 Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md), [USP_ScriptTableClone.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: f2452f1b90ace5e6e2481cb76d6b4947c4277813d5e5d562a8e27bcb7c57f4ee -->
+<!-- Source/Vertrag SHA256: 366afd87530ef3b804438bc299a13ce258550da59fd537a611a9ca1e923fd323 -->
 
 Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
@@ -4193,7 +4193,7 @@ Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-d
 
 Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md), [USP_ExecuteTableClone.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: a674a12fd1de6b886291f436e62ea8ee578bc51abaf6dbbee78ce7faf530bf3a -->
+<!-- Source/Vertrag SHA256: dfee7ade70bd33ebd233cc4040fe8a4261b3f70469a87630f0ec8f64ce568549 -->
 
 Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
@@ -4239,7 +4239,7 @@ Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene lee
 
 Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md), [USP_CopyTableCloneData.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_CopyTableCloneData.md).
 
-<!-- Source/Vertrag SHA256: 10deceb8bccafe92370ff2da53d2ff8dac3181839092ee82bca9a1a5110784a9 -->
+<!-- Source/Vertrag SHA256: 125f2fd512045cb62a6a719afb14433798d9e7676fdd6e5be5ff8bc835d514e3 -->
 
 Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
@@ -4387,7 +4387,7 @@ Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisieru
 
 Vertrag und Quelle: [USP_DeterministicLookup.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql), [USP_DeterministicLookup.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/USP_DeterministicLookup.md), [USP_DeterministicLookup.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/USP_DeterministicLookup.md).
 
-<!-- Source/Vertrag SHA256: ed3ca6861b756e0d487cc5cc47716dfa35741c527ed9e87e92057a6c990e74a2 -->
+<!-- Source/Vertrag SHA256: 31e659e5ce104aa2aa4174ef5e095ef03e96bf80b145db65ba7f07b54a7336ef -->
 
 Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Eigene Caller-Temps ohne parallele Mutation; Fassade vor Core verwenden. Ein gesunder Caller-TX mit Savepoint ist möglich. Kein eigener Reparaturvertrag für doomed Caller-TX.
 
@@ -4912,7 +4912,7 @@ Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unqu
 
 Vertrag und Quelle: [USP_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/USP_SplitAdvanced.sql), [USP_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/USP_SplitAdvanced.md), [USP_SplitAdvanced.md](../../Metadata/UsageSkills/toolbelt_string/USP_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: 7e359c8d7dcdb186cafc594d47fb02143893a528969c4cf41c99e3104e0033d9 -->
+<!-- Source/Vertrag SHA256: 4bd38ca17a04e0825580163df59a273b1d617c3b35c6cc642bc031cee09c9502 -->
 
 Voraussetzung: Reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, unterstützter Compatibility Level mindestens 150. OPENJSON liest ausschließlich übergebenes JSON, keine Quelldaten oder externen Systeme. Lokal/zentral dieselbe Fachquelle. Öffentlicher TVF-Kern in derselben Datenbank installiert; ResultTable-Pfad zusätzlich sameDB USP_PrepareResultTable >=1.0.0 mit exakt den fünf erwarteten SQL-Parametern. Keine Extended Properties oder Runtime-Modulmarkerprüfung. Separatoren müssen ein nichtleeres JSON-Array von Strings sein; NUL und aktive Quote-/Escapezeichen darin verboten. Quote und Escape leer unabhängig deaktiviert, sonst jeweils genau eine unterschiedliche Nicht-Surrogate-Codeunit; NULL ist bei nicht-NULL Input ungültig. Separatorstrings selbst sind keine Unicode-Normalisierungsfunktion.
 
@@ -5002,7 +5002,7 @@ Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jar
 
 Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql), [USP_CompareTextPairs.md](../../Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md), [USP_CompareTextPairs.md](../../Metadata/UsageSkills/toolbelt_string/USP_CompareTextPairs.md).
 
-<!-- Source/Vertrag SHA256: 56bd1a8a8f9cb0866ca3d5d91c0b53ae0f7e36d10a4286eea25dc8b6be4474c6 -->
+<!-- Source/Vertrag SHA256: 7af2eb4235d0bf0c0c72451559bab37393ade3f01feab3297e1d79668453995a -->
 
 Voraussetzung: Installierte Module text-pairs, edit-distance mit passender SAFE-Assembly und ResultTable-Helfer im selben Toolbelt-Datenbankkontext, SQL Server 2019/2022/2025 unter Windows/Linux gemäß Modulmatrix. Zentrale Verwendung erfolgt dreiteilig mit sessionlokalen #Temps des Callers. Input muss während des synchronen Aufrufs stabil bleiben; keine MARS-/parallele Mutation. Tabellenrouting benötigt eine committable lokale Transaktion oder eine neu startbare eigene Transaktion; verteilte Caller-Savepoints sind nicht unterstützt. Reine Hilfe kehrt vor diesen Fachprüfungen zurück.
 

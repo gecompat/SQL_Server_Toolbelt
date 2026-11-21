@@ -66,16 +66,16 @@ Voraussetzungen und können Zustände verändern. Nicht gesammelt ausführen.
   Kurzbeschreibungen, Parametererklärungen, synthetische Beispiele und
   Voraussetzungen für den Beispielkatalog. Dieselben Parametererklärungen
   erscheinen in den generierten `API_PARAMETERS`-Blöcken der Objektseiten.
-- [api_examples.json](api_examples.json) speist weiterhin die bisherige
-  Standardhilfe. Die vollständige Usage-Skill-Ausgabe verwendet die Markdownquelle.
-- [usp_help.json](usp_help.json) enthält zusätzliche Required-/Nullable-Metadaten
-  und die übrigen Help-Abschnitte der T-SQL-Prozeduren. Parameterbeschreibungen
-  werden darin nicht dupliziert. Signaturen und diese Metadaten müssen dieselbe
-  Parametermenge besitzen; neue oder entfernte Parameter stoppen den Build.
+- Bei öffentlichen T-SQL-Prozeduren bezieht auch die Standardhilfe ihre
+  Parameterbeschreibungen, fachliche Pflicht und NULL-Regeln aus dem Usage-Skill.
+  [usp_help.json](usp_help.json) liefert die übrigen strukturierten Help-Zeilen.
+  [api_examples.json](api_examples.json) bleibt Quelle für historische
+  Projektionen und den separaten SSIS-Standardhilfe-Generator.
 - [`generate_parameter_help.py`](../../Scripts/Documentation/generate_parameter_help.py)
   schreibt die markierten `API_PARAMETER_HELP`-Blöcke. Der
   [SSIS-Generator](../../Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py)
-  übernimmt dieselben Texte in API-Projektion, Fassade und interne CLR-Hilfe.
+  erzeugt die SSIS-Standardhilfe und ergänzt die vollständigen kanonischen
+  Skilltexte in Fassade und CLR-Hilfe.
 - Modullokale Objektseiten bleiben die verbindlichen fachlichen Verträge,
   insbesondere für zulässige Parameterwerte, Resultsets und Grenzen.
 

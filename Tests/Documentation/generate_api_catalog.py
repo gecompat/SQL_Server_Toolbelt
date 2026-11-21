@@ -223,7 +223,8 @@ def validate_skill_signature(skill, params: list[dict]) -> None:
     for field, sql in zip(declared, params):
         default = None if sql["default"] == "kein Default" else sql["default"]
         if (re.sub(r"\s+", "", field["sql_type"]).casefold() != sql["type"].casefold()
-                or field["sql_default"] != default or field["is_output"] != sql["output"]):
+                or field["sql_default"] != default or field["is_output"] != sql["output"]
+                or field["argument_required"] != (skill.metadata["object_type"] != "USP" or default is None)):
             raise ValueError(f"Usage-Skill weicht von der SQL-Parameterbindung ab: {identity} {sql['name']}")
 
 

@@ -215,6 +215,20 @@ def selected(path):
     return path.startswith('Modules/') and ('/Source/' in path or '/Clr/' in path or '/Exchange/Core/' in path) and path.endswith(('.sql','.cs','.csproj'))
 
 
+def restore_reviewed_standard_help(original, current, path, projections, help_span):
+    """Compare the business and guard bytes against the immutable predecessor."""
+    if not projections:
+        return current
+    prior=corrected_historical_help(original.replace(b'\r\n',b'\n'),path).decode('utf-8')
+    for item,expected in projections:
+        a,b=help_span(current,item)
+        if current[a:b]!=expected:
+            raise ValueError('COMPONENT_REUSE_CURRENT_STANDARD_HELP_DRIFT: '+item['name'])
+        x,y=help_span(prior,item)
+        current=current[:a]+prior[x:y]+current[b:]
+    return current
+
+
 def compare(original,current,path):
     original=original.replace(b'\r\n',b'\n');current=current.replace(b'\r\n',b'\n')
     original=corrected_historical_help(original,path)
@@ -292,6 +306,13 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
     if allow_current_deltas:
         sys.path.insert(0,str(root/'Scripts/Install'))
         import current_source_deltas
+    sys.path.insert(0,str(root/'Scripts/Documentation'))
+    import generate_parameter_help
+    help_by_path={}
+    for item,source,standard,_ in generate_parameter_help.public_help_projections(root):
+        path=source.relative_to(root).as_posix()
+        if path in originals:
+            help_by_path.setdefault(path,[]).append((item,standard))
     for path,data in originals.items():
         current=(root/path).read_bytes()
         if path==SSIS_HELP_PATH and ssis_base is not None:
@@ -311,6 +332,10 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
             text=usage_skills.strip_missing_help_projection(root,path,text)
             text=usage_skills.strip_help_projection(root,path,text)
             current=usage_skills.strip_ddl_projection(root,path,text).encode('utf-8')
+        if path in help_by_path:
+            text=current.decode('utf-8').replace('\r\n','\n')
+            current=restore_reviewed_standard_help(data,text,path,help_by_path[path],
+                                                   generate_parameter_help.help_span).encode('utf-8')
         if allow_current_deltas:
             if path in current_source_deltas.PATHS:
                 # This is a separate exact source-change check, not reuse of

@@ -7,6 +7,11 @@ verwenden `schema_name: ""`. Das Inventar stammt aus den Moduldeklarationen.
 Der [Vertrag](../../Backlog/OBJECT_USAGE_SKILLS.md) legt Identität, Abschnitte
 und Parameterfelder fest.
 
+Bei Prozeduren bedeutet `argument_required`, dass SQL keinen Default für
+den Parameter kennt. Funktionen erwarten jede Argumentposition. Ein deklarierter
+Funktionsdefault wird an dieser Position über `DEFAULT` verwendet.
+`business_required` und `nullable` beschreiben die fachliche Validierung.
+
 Die 257 Quellen decken das vollständige Inventar einschließlich technischer
 Objekte und der [Skill-View](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md)
 ab. Prüfe Änderungen gegen die Implementierung. Der Generator lehnt fehlende,

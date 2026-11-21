@@ -13,6 +13,23 @@ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
 
 class ComponentReuseTests(unittest.TestCase):
+    def test_reviewed_standard_help_restore_exposes_guard_and_business_changes(self):
+        sys.path.insert(0,str(ROOT/'Scripts/Documentation'))
+        from generate_parameter_help import help_span
+        item={'name':'USP_Contoso'}
+        file='Modules/toolbelt.test/Source/USP_Contoso.sql'
+        original="CREATE PROCEDURE x.USP_Contoso @Hilfe bit=0 AS BEGIN IF @Hilfe=1 BEGIN SELECT N'old'; RETURN 0; END; SELECT 17; END;"
+        projected=original.replace("N'old'","N'current'")
+        expected=projected[slice(*help_span(projected,item))]
+        def restore(text):
+            return module.restore_reviewed_standard_help(original.encode(),text,file,[(item,expected)],help_span)
+        self.assertEqual(restore(projected),original)
+        with self.assertRaisesRegex(ValueError,'STANDARD_HELP_DRIFT'):
+            restore(projected.replace("N'current'","N'unknown'"))
+        for old,new in (('IF @Hilfe=1','IF @Hilfe=0'),('SELECT 17','SELECT 18')):
+            with self.subTest(old=old),self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+                module.compare(original.encode(),restore(projected.replace(old,new)).encode(),file)
+
     def test_current_full_inventory_separates_unchanged_files_from_declared_deltas(self):
         self.assertGreater(module.verify(allow_current_deltas=True),0)
 
