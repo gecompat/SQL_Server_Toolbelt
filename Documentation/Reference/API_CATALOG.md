@@ -4076,7 +4076,7 @@ Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills
 
 Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
 
-<!-- Source/Vertrag SHA256: c8e37296636f7f8574f7fb8238557efa7ccce1e74807803465cb6fa3c30496d5 -->
+<!-- Source/Vertrag SHA256: 7c4d1681d4e565f795c07060316620bf9340e73aa5b3cc8bf36d04b7796bbfd4 -->
 
 Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 
