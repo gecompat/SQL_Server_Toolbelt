@@ -883,5 +883,27 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertIn("keine vollständige Surrogatvalidierung", skill.markdown)
 
 
+    def test_json_pointer_skill_covers_source_statuses_and_exact_key_comparison(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.json.pointer"}
+        skill = skills.read(skills.source_file(ROOT, "toolbelt_json", "TVF_ResolveJsonPointer"))
+        self.assertEqual(skills.validate_coverage([skill], expected), 1)
+        path = skill.metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        self.assertEqual(skills.project_function_ddl(text, skill), text)
+        body = skills.strip_ddl_projection(ROOT, path, text)
+        codes = set(re.findall(r"VALUES\('INVALID',NULL,NULL,'([A-Z_]+)'\)", body))
+        self.assertEqual(len(codes), 10)
+        for code in codes:
+            self.assertIn(code, skill.markdown)
+        self.assertIn("DATALENGTH([key])=DATALENGTH(@Token)", body)
+        self.assertIn("BIN2 PLUS DATALENGTH", skill.markdown)
+        for limit in ("16777216", "67108864", "4000", "128"):
+            self.assertIn(limit, skill.markdown)
+        self.assertTrue(all(p["argument_required"] for p in skill.metadata["parameters"]))
+        self.assertEqual([p["sql_default"] for p in skill.metadata["parameters"]],
+                         [None, None, "16777216", "128"])
+
+
 if __name__ == "__main__":
     unittest.main()

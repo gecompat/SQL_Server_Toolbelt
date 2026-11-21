@@ -41,9 +41,18 @@ Latin1_General_100_BIN2. Keine Normalisierung und kein URIfragment-/Patchpfad.
 
 SQL Server2019/2022/2025 Windows/Linux mit kompatiblem CL150+ sind Zielplattformen.
 Local und central verwenden dieselbe TF; zentrale Caller benötigen ebenfalls
-CL150+. SQLCMD-Deployment verwendet `DeploymentMode=local|central`, zentraler
-Uninstall `ConfirmNoExternalConsumers=1`. Vorhandene Rechte werden verwendet;
-kein CLR, Servertrust, Konfigurationswechsel oder abhängiges Modul.
+CL150+. Der [gemeinsame Buildplan](Deployment/README.md) erzeugt eine normale
+SQL-Datei für local oder central, ohne SQLCMD oder Deploymentmarker. Create-only
+ersetzt keine vorhandene Funktion und bietet keinen impliziten Uninstall.
+Frühere Lifecyclewege bleiben ihren historischen Artefakten zugeordnet.
+Vorhandene Rechte werden verwendet; kein CLR, Servertrust,
+Konfigurationswechsel oder abhängiges Modul.
+
+Der vollständige [Usage-Skill](../../Metadata/UsageSkills/toolbelt_json/TVF_ResolveJsonPointer.md)
+steht als markierter Kommentar in der ausgelieferten DDL. Er beschreibt alle
+Status-/Fehlercodes, die vollständige Dokumentvalidierung und das kumulative
+OPENJSON-Operandbudget. Die passive Projektion ändert die Fachlogik nicht und
+ist keine neue native Qualifikation.
 
 [Objektvertrag](Documentation/TVF_ResolveJsonPointer.md),
 [Beispiele](Examples/JsonPointer.sql), [Testmatrix](Tests/JSON_POINTER_TEST_MATRIX.md)

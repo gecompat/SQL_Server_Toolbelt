@@ -3685,7 +3685,7 @@ Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, J
 
 Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md).
 
-<!-- Source/Vertrag SHA256: 1ed0a9813ca5fbfdfb50b046705d53ef2435c42a2c6b3e9c6c7ad024cdc2087f -->
+<!-- Source/Vertrag SHA256: c14e77e7527612e615d652ce988cd072ad66c2df882f53035e46bd034568525c -->
 
 Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release.
 

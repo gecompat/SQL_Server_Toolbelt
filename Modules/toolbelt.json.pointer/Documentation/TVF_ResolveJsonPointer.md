@@ -4,6 +4,11 @@
 Der [kanonische Vertrag](../../../Documentation/Architecture/JSON_POINTER_CONTRACT.md)
 ist für Semantik und Fehlerpriorität verbindlich.
 
+Der vollständige [kanonische Usage-Skill](../../../Metadata/UsageSkills/toolbelt_json/TVF_ResolveJsonPointer.md)
+steht auch als markierter Kommentar in der ausgelieferten DDL. Seine Integration
+ist quell-/offlinegeprüft und verändert die Fachlogik nicht; historische native
+Nachweise behalten ihre ursprüngliche Bindung.
+
 <!-- API_PARAMETERS:BEGIN -->
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
