@@ -313,6 +313,9 @@ und explizite Vergleichscollation. Normale SQL-NULL-Gleichheit, keine automatisc
 UPPER-/TRIM-/Sentineländerungen. SQL- versus Full-Cache-Vergleich ist als
 pragmatisches Profil sichtbar, einschließlich Groß-/Kleinschreibung, Leerzeichen,
 Codepage und numerischer Typen. Temp-Spalten erhalten explizite Collation.
+Für Full Cache im Paketmodus kommt bei Textschlüsseln die Byte-Länge jedes
+normalisierten Schlüsselwerts in JOIN und PARTITION hinzu. Dadurch bleiben
+Werte mit nachgestellten Leerzeichen auch unter SQL-Padding unterscheidbar.
 
 ### Verbindliches NOLOCK-Profil
 

@@ -10,7 +10,8 @@ JSON_PATH = 'Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql'
 IDENTIFIER = 'Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql'
 TRIM_N = 'Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql'
 TRIM_V = 'Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql'
-PATHS = frozenset((URI, JSON_PATH, IDENTIFIER, TRIM_N, TRIM_V))
+SSIS_LOOKUP = 'Modules/toolbelt.tsql.ssis-debug/Clr/Translator.cs'
+PATHS = frozenset((URI, JSON_PATH, IDENTIFIER, TRIM_N, TRIM_V, SSIS_LOOKUP))
 
 
 def replace_exact(text, old, new, count=1):
@@ -82,6 +83,58 @@ def apply(original, path):
             '= 0 THEN 1\n            WHEN '+('UNICODE' if path == TRIM_N else 'ASCII')+'(character_at_position.CharacterValue)')
         text = replace_exact(text, 'CHARINDEX(SUBSTRING(@Value, positions.Value, 1), @Characters)',
                              'CHARINDEX(character_at_position.CharacterValue, @Characters)')
+    elif path == SSIS_LOOKUP:
+        text = replace_exact(text,
+            '        internal string PlanSaltState, PlanSaltOwner, PlanHash;\n'
+            '        internal bool FreshPerExecution;\n'
+            '        internal readonly List<StageColumn> Columns = new List<StageColumn>();\n',
+            '        internal string PlanSaltState, PlanSaltOwner, PlanHash;\n'
+            '        internal bool FreshPerExecution, PreserveTextKeyLength;\n'
+            '        internal readonly List<StageColumn> Columns = new List<StageColumn>();\n')
+        text = replace_exact(text,
+            '            string suffix = runToken + "_" + lookupIds[c.Id];\n'
+            '            var cache = new LookupCache { Name = "#tbx_SsisDebug_L_" + suffix, StateName = "#tbx_SsisDebug_S_" + suffix };\n'
+            '            if (options.CatalogMode == "package") cache.Name = "lookup_reference_" + lookupIds[c.Id];\n'
+            '            cache.Inputs.UnionWith(stage.ReferenceInputs);\n'
+            '            var projections = new List<string>(); var partitions = new List<string>(); var joins = new List<string>(); int ordinal = 0;\n'
+            '            foreach (Column key in keys)\n',
+            '            string suffix = runToken + "_" + lookupIds[c.Id];\n'
+            '            var cache = new LookupCache { Name = "#tbx_SsisDebug_L_" + suffix, StateName = "#tbx_SsisDebug_S_" + suffix,\n'
+            '                PreserveTextKeyLength = options.CatalogMode == "package" && PackageReader.P(c.Properties, "CacheType", "0") == "0" };\n'
+            '            if (options.CatalogMode == "package") cache.Name = "lookup_reference_" + lookupIds[c.Id];\n'
+            '            cache.Inputs.UnionWith(stage.ReferenceInputs);\n'
+            '            var projections = new List<string>(); var partitions = new List<string>(); int ordinal = 0;\n'
+            '            foreach (Column key in keys)\n')
+        text = replace_exact(text,
+            '                ValidateCodePage(key, right.Collation);\n'
+            '                string alias = Util.Id("k", ++ordinal), normalized = Normalize("ref." + Util.Q(name), left.Type), source = Normalize("m." + Util.Q(left.Alias), left.Type);\n'
+            '                cache.Columns.Add(new StageColumn { Alias = alias, Name = alias, Id = key.Id, Type = left.Type, Nullable = true, Collation = bindings.Collation });\n'
+            '                projections.Add(normalized + " AS " + Util.Q(alias)); partitions.Add(normalized); joins.Add(source + " = lk." + Util.Q(alias));\n'
+            '            }\n',
+            '                ValidateCodePage(key, right.Collation);\n'
+            '                string alias = Util.Id("k", ++ordinal), normalized = Normalize("ref." + Util.Q(name), left.Type);\n'
+            '                cache.Columns.Add(new StageColumn { Alias = alias, Name = alias, Id = key.Id, Type = left.Type, Nullable = true, Collation = bindings.Collation });\n'
+            '                projections.Add(normalized + " AS " + Util.Q(alias)); partitions.Add(normalized);\n'
+            '                if (cache.PreserveTextKeyLength && TextType(left.Type)) partitions.Add("DATALENGTH(" + normalized + ")");\n'
+            '            }\n')
+        text = replace_exact(text,
+            '        {\n'
+            '            var joins = keys.Select(k => { StageColumn left = Find(parent, k.Lineage); StageColumn right = cache.Columns.Single(x => x.Id == k.Id && x.Alias.StartsWith("k", StringComparison.Ordinal)); return Normalize("m." + Util.Q(left.Alias), left.Type) + " = lk." + Util.Q(right.Alias); }).ToList();\n'
+            '            stage.Columns.AddRange(parent.Columns); var fields = parent.Columns.Select(x => "m." + Util.Q(x.Alias) + " AS " + Util.Q(x.Alias)).ToList();\n',
+            '        {\n'
+            '            var joins = new List<string>();\n'
+            '            foreach (Column key in keys)\n'
+            '            {\n'
+            '                StageColumn left = Find(parent, key.Lineage);\n'
+            '                StageColumn right = cache.Columns.Single(x => x.Id == key.Id && x.Alias.StartsWith("k", StringComparison.Ordinal));\n'
+            '                string source = Normalize("m." + Util.Q(left.Alias), left.Type), reference = "lk." + Util.Q(right.Alias);\n'
+            '                joins.Add(source + " = " + reference);\n'
+            '                // SQL equality pads strings with spaces even under BIN2. Keep the\n'
+            '                // same text-and-length tuple for lookup ranking and matching.\n'
+            '                if (cache.PreserveTextKeyLength && TextType(left.Type))\n'
+            '                    joins.Add("DATALENGTH(" + source + ") = DATALENGTH(" + reference + ")");\n'
+            '            }\n'
+            '            stage.Columns.AddRange(parent.Columns); var fields = parent.Columns.Select(x => "m." + Util.Q(x.Alias) + " AS " + Util.Q(x.Alias)).ToList();\n')
     else:
         raise ValueError('CURRENT_SOURCE_DELTA_UNKNOWN_PATH')
     return text.encode('utf-8')
