@@ -906,6 +906,48 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_clone_skills_separate_preview_hash_execution_copy_and_internal_fk_mode(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.metadata.table-clone'}
+        self.assertEqual(len(expected),4)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        originals={}
+        for name,s in records.items():
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8')
+            self.assertEqual(skills.read_ddl_comment(text).markdown,s.markdown)
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            self.assertIn('keine neue native',s.markdown)
+            originals[name]=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+        self.assertEqual([len(records[n].metadata['parameters']) for n in (
+            'USP_ScriptTableClone','USP_ScriptTableCloneInternal','USP_ExecuteTableClone','USP_CopyTableCloneData')],[13,14,14,9])
+        core=originals['USP_ScriptTableCloneInternal'];executor=originals['USP_ExecuteTableClone'];copy=originals['USP_CopyTableCloneData']
+        self.assertIn('@@TRANCOUNT=0 OR XACT_STATE()<>1',core)
+        self.assertIn("@InternalPurpose='COPY_FK'",copy)
+        self.assertIn("SET @Text=N'4.1.1'",executor)
+        contract=(ROOT/'Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md').read_text(encoding='utf-8')
+        client=(ROOT/'Modules/toolbelt.metadata.table-clone/Examples/CalculatePlanHash.py').read_text(encoding='utf-8')
+        self.assertIn("F(N'4.1.1')",contract)
+        self.assertIn("frame('4.1.1')",client)
+        self.assertNotIn('EXEC sys.sp_executesql @TableDdl',core)
+        self.assertNotIn('EXEC sys.sp_executesql @TrScript',core)
+        for name,guard in (('USP_ExecuteTableClone','IF @@TRANCOUNT>0'),('USP_CopyTableCloneData','IF @@TRANCOUNT<>0')):
+            text=(ROOT/records[name].metadata['source_paths'][0]).read_text(encoding='utf-8')
+            self.assertLess(text.index(skills.HELP_BEGIN),text.index(guard))
+            self.assertIn('@LockTimeout=0',originals[name])
+        self.assertLess(executor.index('IF @PlanHash<>@ExpectedPlanHash'),executor.index('BEGIN TRANSACTION;'))
+        self.assertIn("ObjectKind NOT IN('FOREIGN_KEY','FOREIGN_KEY_STATE')",executor)
+        self.assertGreater(copy.count('EXEC sys.sp_executesql @SafetySql'),3)
+        self.assertLess(copy.index('IF @Rows IS NULL OR @Rows>@RowLimit'),copy.index("N'INSERT '+@Target"))
+        self.assertLess(copy.index('IF @Bytes IS NULL OR @Bytes>@PayloadByteLimit'),copy.index("N'INSERT '+@Target"))
+        self.assertIn('SET @IdentityOwned=1;',copy)
+        self.assertIn('IF @IdentityOwned=1 SET IDENTITY_INSERT',copy)
+        self.assertIn("snapshot_isolation_state=1",copy)
+        self.assertNotIn('ALTER DATABASE',copy)
+        self.assertIn('Modul4.1.1',next(p['description'] for p in records['USP_ExecuteTableClone'].metadata['parameters'] if p['name']=='@ExpectedPlanHash'))
+        self.assertIn('keine spätere Drift-/Recoverygarantie',records['USP_ScriptTableClone'].markdown)
+        self.assertIn('Identity-Zähler können Rollback überleben',records['USP_CopyTableCloneData'].markdown)
+        self.assertIn('nur fehlende',records['USP_ScriptTableCloneInternal'].markdown)
+
     def test_ssis_skills_bind_existing_unicode_clr_help_without_changing_analysis(self):
         spec=importlib.util.spec_from_file_location('ssis_skill_contracts',ROOT/'Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py')
         generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)

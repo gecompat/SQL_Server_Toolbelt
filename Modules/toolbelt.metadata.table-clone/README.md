@@ -11,6 +11,37 @@ Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
 Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
 aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 
+## Vorschau, Ausführung und Datenkopie wählen
+
+`USP_ScriptTableClone` gibt einen vollständigen Plan aus, führt ihn aber nicht
+aus. `USP_ExecuteTableClone` erzeugt den triggerfreien Plan erneut und führt
+ihn nur bei passendem akzeptiertem Hash aus. `USP_CopyTableCloneData` kopiert
+separat Daten in bereits vorhandene leere formgleiche Ziele. Alle drei arbeiten
+in ihrer Installationsdatenbank; ein zentraler dreiteiliger Aufruf macht daraus
+keine Cross-DB-Kopie.
+
+Der neue Quellstand enthält für alle vier Modulobjekte einen eigenen
+[Usage-Skill](../../Metadata/UsageSkills/README.md). `@Hilfe=1` liefert die
+bisherige Standardhilfe und danach genau eine vollständige Skillzeile vor
+Fachprüfungen oder Mutation. Der interne Planer bleibt ein Helfer der drei
+öffentlichen Einstiege. Die gemeinsame SQL-Skillview folgt erst bei vollständiger
+projektweiter Abdeckung; diese Quellergänzung ist kein neuer nativer Gesamt-PASS.
+
+```sql
+EXEC toolbelt_metadata.USP_ScriptTableClone @Hilfe=1;
+EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;
+EXEC toolbelt_metadata.USP_CopyTableCloneData @Hilfe=1;
+```
+
+Der [Executorhash](../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md#hashlayout-version-1)
+bindet aktuell Modul **4.1.1**, die Installationsdatenbankidentität, Optionen,
+Map und sämtliche unveränderten Planzeilen. Die
+[Clientableitung](Examples/CalculatePlanHash.py) verwendet denselben Stand.
+Ein Hash allein des Scripttexts genügt nicht. Vorschau benötigt keine
+Source-Datenlese- oder Ziel-DDL-Rechte; Executor und Copy haben getrennte
+zusätzliche Rechte- und Seiteneffektprüfungen. Identity-Zähler können trotz
+Rollback fortgeschritten sein.
+
 
 Der Entwicklungsstand bindet den optionalen Triggerpfad an die neue private
 [Parser-Identität](../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md#private-parser-identität--2026-11-20).

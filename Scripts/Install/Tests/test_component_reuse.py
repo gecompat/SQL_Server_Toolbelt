@@ -78,6 +78,19 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NONCANONICAL_RETRY_HELP_STATUS'):
             module.compare(outside,outside.replace(module.RETRY_HELP_STATUS_OLD,module.RETRY_HELP_STATUS_NEW),path)
 
+    def test_clone_help_repairs_cannot_change_executor_hash_or_business_code(self):
+        for path in module.CLONE_HELP_PATHS:
+            old=(b'    IF @Hilfe=1\n    BEGIN\nSELECT N\''+module.SCHEMA_HELP_OLD+
+                 (module.CLONE_HASH_NOTE_OLD if path.endswith('/USP_ExecuteTableClone.sql') else b'')+
+                 b"';\n        RETURN 0;\n END;\nSET @Text=N'4.1.1';")
+            current=old.replace(module.SCHEMA_HELP_OLD,module.QUEUE_HELP_NEW).replace(module.CLONE_HASH_NOTE_OLD,module.CLONE_HASH_NOTE_NEW)
+            module.compare(old,current,path)
+            with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+                module.compare(old,current.replace(b"SET @Text=N'4.1.1'",b"SET @Text=N'4.1.0'"),path)
+            with self.assertRaisesRegex(ValueError,'NONCANONICAL_CLONE_HELP'):
+                module.compare(old.replace(b'@Hilfe',b'@Other'),current,path)
+            with self.assertRaises(ValueError):module.compare(old,current,'Modules/Contoso/Source/Other.sql')
+
     def test_ssis_help_repairs_stay_in_the_generated_help_batch(self):
         for path,start,end in ((module.SSIS_PUBLIC_PATH,b'    IF @Hilfe=1\n    BEGIN\n',b'        RETURN;'),
                                (module.SSIS_HELP_PATH,b'        internal const string Sql = @"',b'        internal const string Columns = ')):

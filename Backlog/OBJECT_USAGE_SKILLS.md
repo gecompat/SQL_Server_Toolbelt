@@ -31,6 +31,17 @@ Source of Truth. Abgeleitete API-/Help-Projektionen an die Skillquelle koppeln.
 
 ## Drei übereinstimmende Darstellungen
 
+Quellstand 2026-11-21: Alle vier Table-Clone-Prozeduren besitzen geprüfte
+Skillquellen, identische DDL-Kommentare und frühe zusätzliche Skillresultsets.
+Vorschau, hashgebundener Executor und Datenkopie sind nach Rechten, Mutation,
+Transaktionen, Budgets und interner COPY_FK-Grenze getrennt beschrieben. Eine
+veraltete 4.1.0-Angabe im Hashvertrag wurde an die bereits vorhandene
+4.1.1-Implementierung und Clientableitung angeglichen; Hashbytes/Fachpfade
+bleiben unverändert. Der Offlineinstaller nimmt nur exakt quellgebundene
+Skillprojektionen von seiner Property-Nutzungsprüfung aus; zusätzlicher
+SQL-Zugriff außerhalb dieser Texte bleibt gesperrt. Neue native Hilfe- und
+Gesamtinstallerabnahme ist dadurch nicht nachgewiesen.
+
 Quellstand 2026-11-21: Öffentliche und interne SSIS-Prozedur besitzen eigene
 geprüfte Skillquellen. Der Vertragsgenerator erzeugt daraus DDL und frühen
 Skillresultset; beim CLR-Einstieg ergänzt er den vorhandenen Help-Konstantenbatch

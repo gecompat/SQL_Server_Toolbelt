@@ -24,6 +24,18 @@ capabilities=load('New-MarkerlessCapabilities.py')
 
 
 class MarkerlessContractTests(unittest.TestCase):
+    def test_property_policy_excludes_only_exact_source_bound_skill_projections(self):
+        path='Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql'
+        text=(ROOT/path).read_text(encoding='utf-8')
+        self.assertIn('sp_addextendedproperty',text)  # description, not execution
+        installer.validate_extended_property_scope([dict(path=path,sql=text)])
+        with self.assertRaisesRegex(ValueError,'unexpected Extended Property usage'):
+            installer.validate_extended_property_scope([dict(path=path,sql=text+"\nSELECT * FROM sys.extended_properties;\n")])
+        with self.assertRaises(ValueError):
+            installer.validate_extended_property_scope([dict(path=path,sql=text.replace('sp_addextendedproperty','sp_addextendedproperty_tampered',1))])
+        with self.assertRaisesRegex(ValueError,'unexpected Extended Property usage'):
+            installer.validate_extended_property_scope([dict(path='Modules/Contoso/Source/Example.sql',sql='SELECT * FROM sys.extended_properties;')])
+
     def test_assembly_create_prefix_carries_exact_reviewed_skill_and_no_runtime_metadata_query(self):
         skills=installer.usage_skill_tools()
         expected={key[2] for key,value in skills.inventory(ROOT).items() if value['object_type']=='ASSEMBLY'}

@@ -325,6 +325,25 @@ def build_source_bindings(assembly_names=()):
     return {path.relative_to(ROOT).as_posix():sha(normalize(path.read_bytes())) for path in sorted(paths)}
 
 
+def validate_extended_property_scope(sources):
+    # A canonical passive Skill can describe existing Property-copy semantics.
+    # It is data, including its exact early-help SELECT. Never strip arbitrary
+    # comments/literals or accept a changed/unbound projection as harmless.
+    import sys
+    sys.path.insert(0,str(ROOT/'Scripts/Metadata'))
+    import usage_skills
+    for source in sources:
+        sql=source['sql']
+        if usage_skills.DDL_BEGIN in sql or usage_skills.HELP_BEGIN in sql:
+            sql=usage_skills.strip_help_projection(ROOT,source['path'],sql)
+            sql=usage_skills.strip_ddl_projection(ROOT,source['path'],sql)
+        if 'extended_properties' in sql or 'sp_addextendedproperty' in sql:
+            require(source['path']=='Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql',
+                    'unexpected Extended Property usage')
+            # This existing domain feature copies original source-table
+            # properties; it is never an installer metadata registry.
+
+
 def build(inputs,work,output,platform,mode,trust,module_ids=None):
     require(not output.exists() and not Path(str(output)+'.manifest.json').exists(),'new output required')
     require(work.is_relative_to(ROOT/'.runtime') and not work.exists(),'new private work directory required')
@@ -347,11 +366,7 @@ def build(inputs,work,output,platform,mode,trust,module_ids=None):
     require(used_schemas<={schema for module in selected for schema in module['schemas']},'source schema unbound')
     body=emit_sources(parsed,alias)
     require(not re.search(r'Toolbelt\.(?:Module|Managed|Visibility|DeploymentMode|AssemblySha512|ArtifactId)',body),'runtime marker remains')
-    for source in sources:
-        if 'extended_properties' in source['sql'] or 'sp_addextendedproperty' in source['sql']:
-            require(source['path']=='Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql','unexpected Extended Property usage')
-            # Fachliches Kopieren von Quelltabellen-Eigenschaften ist ein
-            # ausdrücklich vorhandener Table-Clone-Vertrag, keine Installation.
+    validate_extended_property_scope(sources)
     prefix='''USE [ContosoToolbelt];
 /* Gemeinsamer Funktionsinstaller: nur USE anpassen, als normale SQL-Abfrage ausführen.
 Keine SQLCMD-Direktiven, Installationsmarker, Deploymentlogs oder Rechtevergabe.

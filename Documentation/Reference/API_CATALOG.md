@@ -3811,7 +3811,7 @@ Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfan
 
 Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: c46cc19fa5294649617bc40ceb8d3c1f4725732a32968f5e686a535d6681525c -->
+<!-- Source/Vertrag SHA256: 7185795bcd5acc39290e4abee80f7d440a6a466e533b8fae17eb96548823fd43 -->
 
 Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Zielname darf noch nicht existieren. IncludeTriggers=1 verlangt Windows und den separat installierten Parser 2.0.
 
@@ -3829,7 +3829,7 @@ Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Z
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht die Map-Tabelle. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 meldet den vollständig vorbereiteten Script-only-Plan; bei ResultTable zusätzlich kumulative Helperstufen. Kein Zusatzresultset. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
@@ -3855,7 +3855,7 @@ Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-d
 
 Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: f414347f78dab56dec1e29edd53f6164a8a304a94fefd82f29e23d53f3d17f78 -->
+<!-- Source/Vertrag SHA256: deaaa7d3cfeb5d4dbd4abf1e572c7df5f4e7d32b0cee5521d37782dbc99da73b -->
 
 Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Platzhalter für die externe kanonische Hashberechnung; der Beispielaufruf ist bis dahin nicht ausführbar.
 
@@ -3869,12 +3869,12 @@ Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Pl
 | `@IncludeExtendedProperties` | `bit` | `0` | Input | Taxativ im gebundenen bit: 0 lehnt vorhandene relevante Extended Properties ab (Default), statt sie still zu ignorieren; 1 rendert die unterstützten originalen sql_variant-Werte samt Metadaten gemäß W1-Vertrag. Toolbelt.-Marker, FK-Properties und nicht unterstützte Propertytypen bleiben ausgeschlossen. NULL ungültig; keine Kopie von Rechten/Ownern. |
 | `@TableMap` | `sysname` | `NULL` | Input | NULL (Default) wählt Einzelmodus mit vier expliziten Identifierparametern. Sonst Vorhandene caller-lokale #Temp mit genau fünf NOT-NULL-Basisspalten: MapOrdinal int, SourceSchema nvarchar(max), SourceTable nvarchar(max), TargetSchema nvarchar(max), TargetTable nvarchar(max); keine Alias-/computed-/Zusatzspalten. 1..64 Zeilen, positive eindeutige MapOrdinal-Werte. Vier einzelne unquotierte Identifierwerte je Zeile, 1..128 UTF-16-Einheiten ohne NUL, keine Multipartinterpretation/Trim. Source-/Target-Identitäten müssen jeweils eindeutig sein. Kein #tbx_-Präfix und keine Identität mit ResultTable. Für Script/Execute darf der Name nach # nur ASCII-Buchstaben, Ziffern und _ enthalten; die vier Einzelidentifier müssen NULL sein. Gemappte FK-Referenzen werden auf ihre Ziele umgebogen. |
 | `@ExternalReferenceRule` | `varchar(16)` | `'REJECT'` | Input | Taxativ, bytegenau ohne Trim/Casefold: REJECT (Default) lehnt ausgehende FKs auf nicht gemappte Referenzziele ab; KEEP ist nur im Mapmodus erlaubt und erhält für diese Ziele den originalen qualifizierten Namen. Gemappte Referenzen werden in beiden Modi umgebogen; KEEP überspringt keinen FK. Im Einzelmodus ausschließlich REJECT. NULL/andere Werte ungültig. |
-| `@ExpectedPlanHash` | `varbinary(max)` | `NULL` | Input | Fachlich erforderliche exakt 32 Bytes varbinary des SHA256-Planhashes aus dem dokumentierten Hashlayout1 für Modul4.1.0. Aus unveränderten triggerfreien Vorschauzeilen, exakten Optionen und Installationsdatenbankidentität gemäß TABLE_CLONE_EXECUTE_CONTRACT.md/Examples/CalculatePlanHash.py berechnen. Kein Hextext ohne Konvertierung, kein Hash allein des Scripttexts. NULL/falsche Länge ungültig, Abweichung vom frisch erzeugten Plan bricht ab. |
+| `@ExpectedPlanHash` | `varbinary(max)` | `NULL` | Input | Fachlich erforderliche exakt 32 Bytes varbinary des SHA256-Planhashes aus dem dokumentierten Hashlayout1 für Modul4.1.1. Aus unveränderten triggerfreien Vorschauzeilen, exakten Optionen und Installationsdatenbankidentität gemäß TABLE_CLONE_EXECUTE_CONTRACT.md/Examples/CalculatePlanHash.py berechnen. Kein Hextext ohne Konvertierung, kein Hash allein des Scripttexts. NULL/falsche Länge ungültig, Abweichung vom frisch erzeugten Plan bricht ab. |
 | `@ForeignKeyMode` | `varchar(16)` | `'CREATE'` | Input | Taxativ, bytegenau ohne Trim/Casefold: CREATE (Default) führt alle fachlichen Planzeilen einschließlich FKs/Zustände aus; DEFER überspringt ausschließlich FOREIGN_KEY und FOREIGN_KEY_STATE für spätere Datenkopie. Beide Zeilenarten bleiben im vollständigen Planhash. NULL/andere Werte ungültig; bestehende Constraints werden nicht deaktiviert. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht die Map-Tabelle. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Der Executor plant intern ausdrücklich mit Debug=0 und erzeugt keine eigenen zusätzlichen Diagnosemessages; bei ResultTable wird der übergebene Wert an den Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
@@ -3903,7 +3903,7 @@ Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene lee
 
 Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md).
 
-<!-- Source/Vertrag SHA256: e6232a898c842dde034f8ae7191cc8a7e33e9a4cf21b4a44b98dbd7531b809a9 -->
+<!-- Source/Vertrag SHA256: 0e6ce36c5230a08b16b16099ae28dca8f77ea046860076ae5bc6fefce0be2677 -->
 
 Voraussetzung: Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.
 
@@ -3921,7 +3921,7 @@ Voraussetzung: Verändert Zielinhalte und kann fehlende gemappte FKs erzeugen. I
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Kein #tbx_-Präfix und nicht TableMap. Die späte ResultTable-Ausgabe ist Teil derselben eigenen Transaktion wie Kopie/FK-DDL. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Aktuell keine eigenen zusätzlichen Copy-Diagnosemessages; bei ResultTable wird der Wert an den Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 

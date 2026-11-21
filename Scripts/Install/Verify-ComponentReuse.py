@@ -77,6 +77,11 @@ ARCHIVE_HELP_STARTS={
 XLSX_HELP_PATHS={
     'Modules/toolbelt.file.xlsx-memory/Source/'+name+'.sql'
     for name in ('USP_ListXlsxWorksheets','USP_ReadXlsxWorksheetCells')}
+CLONE_HELP_PATHS={
+    'Modules/toolbelt.metadata.table-clone/Source/'+name+'.sql'
+    for name in ('USP_ScriptTableClone','USP_ExecuteTableClone','USP_CopyTableCloneData')}
+CLONE_HASH_NOTE_OLD=b'Hashlayout1 f\xc3\xbcr Modul4.1.0.'
+CLONE_HASH_NOTE_NEW=b'Hashlayout1 f\xc3\xbcr Modul4.1.1.'
 SSIS_PUBLIC_PATH='Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql'
 SSIS_HELP_PATH='Modules/toolbelt.tsql.ssis-debug/Clr/HelpContract.Generated.cs'
 SSIS_HELP_NEW=('1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile; '
@@ -86,6 +91,18 @@ SSIS_HELP_NEW=('1: bisherige zwölfspaltige Standardhilfe plus genau eine vollst
 
 
 def corrected_historical_help(original,path):
+    if path in CLONE_HELP_PATHS and SCHEMA_HELP_OLD in original:
+        start=b'    IF @Hilfe=1\n    BEGIN\n';end=b'        RETURN 0;'
+        if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_CLONE_HELP')
+        a=original.index(start)+len(start);b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:raise ValueError('NONCANONICAL_CLONE_HELP')
+        inside=original[a:b].replace(SCHEMA_HELP_OLD,QUEUE_HELP_NEW)
+        if path.endswith('/USP_ExecuteTableClone.sql'):
+            if original.count(CLONE_HASH_NOTE_OLD)!=1 or inside.count(CLONE_HASH_NOTE_OLD)!=1:
+                raise ValueError('NONCANONICAL_CLONE_HASH_HELP')
+            inside=inside.replace(CLONE_HASH_NOTE_OLD,CLONE_HASH_NOTE_NEW)
+        original=original[:a]+inside+original[b:]
     if path in (SSIS_PUBLIC_PATH,SSIS_HELP_PATH) and SCHEMA_HELP_OLD in original:
         if original.count(SCHEMA_HELP_OLD)!=1:raise ValueError('NONCANONICAL_SSIS_HELP')
         if path==SSIS_PUBLIC_PATH:
