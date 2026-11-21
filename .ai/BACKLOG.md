@@ -7,13 +7,15 @@ Assembly-Koexistenz und DTSX-Debug](../Backlog/INSTALLATION_AND_DTSX_SIMPLICITY.
 festgehalten: `tlblt`-Präfix auch für Drittanbieterassemblies zur Koexistenz mit
 anderen CLR-Installationen, wählbare TRUSTWORTHY-/Hashwege, vollständig ohne
 Extended Properties und normale SQL-Ausführung ohne SQLCMD als Standard.
-DTSX soll möglichst allein reichen; Defaults, optionale Startwerte und
-Connection-Manager-Expressions sollen aufgelöst werden. Paketbasierte
-SQL-Erzeugung ohne verpflichtende Quellkatalogrechte und optionale strengere
-Katalogabnahme werden getrennt zu konkretisieren sein.
-Status: Benutzeranforderungen erfasst; keine aktuelle Funktionsumsetzung,
-Regeländerung oder neue Qualifikation aus dieser Planpflege. Historische
-Nachweise bleiben erhalten; der bisherige Releasevertrag bleibt unverändert.
+Der Auftrag umfasste außerdem Paketdefaults, optionale Startwerte und
+Connection-Manager-Expressions sowie paketbasierte SQL-Erzeugung und eine
+optionale strengere Katalogabnahme.
+**Stand 2026-11-21.** Der gemeinsame Installer, die paketbasierte
+DTSX-Debug-Erzeugung und der Skill-Katalog sind integriert. Der
+[Deploymentabschluss](../Backlog/UNIFIED_DEPLOYMENT.md) nennt den gebauten
+Installationssatz und seine Nachweise. Der
+[Skill-Katalog](../Backlog/OBJECT_USAGE_SKILLS.md) dokumentiert seine native
+Abnahme und deren Geltungsbereich.
 
 ## Bereinigter Planungsstand – 2026-11-18
 

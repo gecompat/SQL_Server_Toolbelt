@@ -1,10 +1,19 @@
 # Maschinenlesbare Usage-Skills für Toolbelt-Objekte
 
-Status: Benutzerauftrag und Freigabe der zusätzlichen rein lesenden View vom
-2026-11-20. Der anschließend bereitgestellte Analyze-Plan wird als gemeinsamer
-Usage-Skill-Vertrag übernommen. Dieser Umfang ergänzt den fortbestehenden
-[Deploymentauftrag](UNIFIED_DEPLOYMENT.md). Keine Veröffentlichung, Tags oder
-Änderung der laufenden Key18-Installation.
+**Status 2026-11-21.** Der integrierte Katalog umfasst 257 überprüfte Skills.
+Die kanonischen Markdownquellen speisen SQL-Sicht, DDL und Prozedurhilfe.
+[PR #630](https://github.com/gecompat/SQL_Server_Toolbelt/pull/630) dokumentiert
+den unabhängigen Review, grüne Head- und Main-CI und die native Abnahme auf
+Windows SQL Server 2025 CU8, CL170, lokal. Dort bestanden Erst- und
+Wiederholungsinstallation, 257 exakte Unicode-Katalogvergleiche, vier frühe
+Hilfeaufrufe, 19 Funktionsgrenzfälle und der frische Abschlussaudit. Der
+Katalogabruf ist für die Installationsanmeldung in diesem Profil belegt.
+
+Workflow und Leserechte stehen in der
+[Anleitung zur Skill-View](../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md).
+Der gemeinsame Installationsstand steht im [Deploymentauftrag](UNIFIED_DEPLOYMENT.md).
+Die folgenden Abschnitte halten den ursprünglichen Auftrag vom 2026-11-20
+und die Befunde bis zur Integration fest.
 
 ## Maßgebliche Quelle und vollständiger Umfang
 
@@ -138,11 +147,10 @@ Rückkehr vor dieser Konstruktion.
 Eine tatsächliche historische API-Ausnahme wird ohne native Auswertung nicht
 behauptet. Der aktuelle Quellstand kehrt bei Nicht-ASCII-Rohinput prozedural mit
 Code 10 zurück, bevor Hex-/Binary-CTEs ausgeführt werden. Die drei Skills sind
-am korrigierten Quellcode geprüft. Die neue native Gegenprobe bleibt offen;
-der funktionale Fix wird nicht als unveränderter Fachpfad normalisiert und
-nicht durch historische Nachweise qualifiziert.
+am korrigierten Quellcode geprüft. Die native Gegenprobe stand zu diesem
+Zeitpunkt noch aus. Ihr späterer Nachweis ist im Abschlussstatus oben verlinkt.
 
-### Vollständige Quellabdeckung, 2026-11-21
+### Vollständige Quellabdeckung vor der nativen Abnahme, 2026-11-21
 
 Alle 257 katalogisierten Objekte einschließlich der neuen View besitzen jetzt
 geprüfte kanonische Skillquellen; keine fehlenden Dateien oder Entwürfe.
@@ -150,14 +158,14 @@ Identifier verwenden konsistente UTF16-Einheiten, binäre Delimiter und
 längengenaue Leerheitsprüfung. Bei Trim ist die NUL-Probe an dieselbe
 Installationscollation wie Zeichenvergleich und Ausgabe gebunden. Zusammen
 mit URI/JSON sind dies fünf gezielt geänderte Funktionsdateien in vier
-Modulen; deren aktuelle native Gegenproben bleiben offen. Der strikte
-Wiederverwendungsmodus lehnt sie weiterhin ab. Die getrennte aktuelle
-Quellprüfung gibt ausdrücklich keinen nativen PASS aus.
+Modulen. Diese Zwischenstufe belegte die Quellen, die nativen Gegenproben
+folgten in der oben verlinkten Abnahme. Der strikte Wiederverwendungsmodus
+behandelt sie als geänderte Fachquellen.
 
 Die konstante View ist in das Objektinventar und den gemeinsamen Builder für
-Gesamt- und Teilinstaller integriert. Einquellenkopplung aller API-/Help-Projektionen,
-neue native Hilfe-/Caller-/Unicode-/Installerabnahme, unabhängiger Review,
-Head-/Main-CI und aktueller Releasebau sind weiterhin Abschlussbedingungen.
+Gesamt- und Teilinstaller integriert. Die weiteren damaligen Abschlussgates
+umfassten die API-/Help-Projektionen, die native Abnahme, unabhängigen Review,
+Head-/Main-CI und den Releasebau.
 
 Zuerst öffentlicher USP, interner Helfer, Funktion, View und Tabelle als geprüfte
 Prototypen; anschließend vollständige Inventarabdeckung. Identitäten, Frontmatter,

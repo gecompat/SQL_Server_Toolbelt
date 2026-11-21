@@ -1,9 +1,21 @@
 # Einheitliche aktuelle Toolbelt-Installation
 
-Status: ausdrücklich zur autonomen Umsetzung freigegeben am 2026-11-20.
-Der Benutzer beauftragt nach dem vollständigen Deploymentabgleich die offenen
-Punkte bis zur Integration auf origin/main und einem gebauten Release,
-einschließlich Dokumentation. Die Freigabe zum Bauen ist keine Veröffentlichung.
+**Status 2026-11-21.** Der gemeinsame Create-only-Installer und der
+Usage-Skill-Katalog sind integriert. Der lokal gebaute Installationssatz
+`v1.0.0-rc.5` aus Merge-Commit `73eec6e3` enthält die vier Windows- und
+Portable-Profile, die erweiterte Trust-Auswahl und die DTSX-Lookup-Korrektur.
+Alle vier Profile und die ZIP-Prüfsummen wurden offline geprüft.
+
+Die native Windows-Lokalabnahme ist an
+[PR #630](https://github.com/gecompat/SQL_Server_Toolbelt/pull/630) gebunden.
+[PR #632](https://github.com/gecompat/SQL_Server_Toolbelt/pull/632) belegt den
+gesonderten Trust-Zweig für vorbereitete Datenbanken.
+[PR #633](https://github.com/gecompat/SQL_Server_Toolbelt/pull/633) belegt die
+Lookup-Korrektur. Die Nachweise gelten jeweils für ihre dokumentierten Profile.
+Die [Installationsanleitung](../INSTALL.md) ist der Einstieg für Anwender.
+
+Die folgenden Abschnitte dokumentieren den am 2026-11-20 freigegebenen
+Implementierungsauftrag und die Zwischenstände vor seiner Integration.
 
 ## Verbindlicher Gesamtumfang
 

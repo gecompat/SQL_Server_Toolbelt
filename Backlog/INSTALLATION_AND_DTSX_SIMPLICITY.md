@@ -1,11 +1,11 @@
 # Einfachere Assembly-Installation und DTSX-Debug-Erzeugung
 
-Status: Umsetzung am 2026-11-20 durch ausdrücklichen Benutzerauftrag freigegeben.
-Die erste kohärente Teilstufe implementiert den SSIS-Komfortaufruf und dessen
-markerlosen SQL-Installer; [Vertrag und Anleitung](../Modules/toolbelt.tsql.ssis-debug/Documentation/SimpleInstallation.md).
-Die nachfolgenden Anforderungen bleiben als ursprünglicher Anforderungsabgleich
-erhalten. Der [gemeinsame create-only-Quellinstaller](../Scripts/Install/README.md) ist ebenfalls implementiert. Seine vier Profile sind offline geprüft; native Paketabnahme und tatsächliche Abschluss-CI werden als getrennte Abnahmegates geführt. Ein früherer Modulnachweis ist keine neue Gesamtqualifikation dieses Installationswegs.
-Historische Releaseartefakte werden weder ersetzt noch neu qualifiziert.
+**Status 2026-11-21.** Der SSIS-Komfortaufruf und der gemeinsame markerlose
+Create-only-Installer sind umgesetzt. Die
+[Installationsanleitung](../INSTALL.md) führt vom gebauten Satz zum SQL-Aufruf.
+Buildstand und Abnahmeprofile stehen im [Deploymentabschluss](UNIFIED_DEPLOYMENT.md).
+Die folgenden Anforderungen und Abnahmefortschritte dokumentieren den
+ursprünglichen Auftrag vom 2026-11-20.
 
 Die ausdrücklich beauftragte Fertigstellung aus realen Paketbefunden wird im
 [konkreten Folgeplan](DTSX_DEBUG_COMPLETION.md) geführt. Private Pakete und
