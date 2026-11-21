@@ -16,8 +16,20 @@ konkurrierende Zielanlage, CRC-bedingten Abbruch, die Ablehnung einer zu
 breiten DACL und die gemeinsame Rootsperre. Hinzu kommen 14 Reader-Fälle,
 16 Pfad- und Ablaufgegenproben, vier offline geprüfte Installerprofile und
 der unabhängige Sicherheitsreview. Die [Main-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/44950763237)
-bezieht sich auf Merge `19cebb79`. Die übrigen SQL-Versionen und ein positiver
-SQL-Aufruf mit Überschreiben liegen außerhalb dieses nativen Nachweisumfangs.
+bezieht sich auf Merge `19cebb79`.
+
+Der separate native Lauf vom 2026-11-21 prüfte mit
+[`ZipFiles.ExclusiveOverwrite.sql`](Runtime/ZipFiles.ExclusiveOverwrite.sql)
+das positive SQL-Überschreiben auf Windows SQL Server 2025/CU8, CL170, lokal
+mit NTLM. Ein eigener NTFS-Root mit geschützter DACL für den Windows-Aufrufer
+war über `AllowZipOverwrite = 1` freigegeben. Fünf Prüfungen bestätigten
+Windows-Anmeldung, beide ResultTable-Zeilen und den jeweiligen Byte-Readback.
+Der Aufruf mit `@OverwriteExistingFiles = 1` ersetzte die drei Ausgangsbytes
+durch zwei neue Bytes. Der frische Gast-/SQL-Audit bestätigte die Entfernung
+von Testverzeichnis und Testdatenbank sowie den Trust-Vorzustand. Der
+Installationssatz und die Produktbinaries aus PR #635 wurden verwendet.
+Die übrigen SQL-Versionen und ServiceAccount liegen außerhalb dieses nativen
+Nachweisumfangs.
 
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
