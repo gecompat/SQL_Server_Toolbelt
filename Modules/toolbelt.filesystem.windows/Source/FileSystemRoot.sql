@@ -95,6 +95,7 @@ CREATE TABLE [toolbelt_filesystem].[FileSystemRoot]
     , AllowList            bit             NOT NULL CONSTRAINT [DF_FileSystemRoot_AllowList] DEFAULT (1)
     , AllowDelete          bit             NOT NULL CONSTRAINT [DF_FileSystemRoot_AllowDelete] DEFAULT (0)
     , AllowCreateDirectory bit             NOT NULL CONSTRAINT [DF_FileSystemRoot_AllowCreateDirectory] DEFAULT (0)
+    , AllowZipOverwrite    bit             NOT NULL CONSTRAINT [DF_FileSystemRoot_AllowZipOverwrite] DEFAULT (0)
     , IsActive             bit             NOT NULL CONSTRAINT [DF_FileSystemRoot_IsActive] DEFAULT (1)
     , CONSTRAINT [PK_FileSystemRoot] PRIMARY KEY CLUSTERED (RootAlias)
     , CONSTRAINT [CK_FileSystemRoot_RootAlias] CHECK (RootAlias NOT LIKE N'%[^A-Za-z0-9_-]%')

@@ -2,6 +2,13 @@
 
 ## Stand und Freigabegrenze
 
+Am 2026-11-21 hat der Benutzer V1 einschließlich Implementierung, Tests und
+unabhängigem Sicherheitsreview freigegeben. Überschreiben ist ausschließlich
+für exklusive Schreibhoheit am konfigurierten Root freigegeben. Der
+[Objektvertrag](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md)
+beschreibt die konkrete Signatur, Dateisystemvoraussetzungen und Ergebnisse.
+Die folgende ursprüngliche Planungsabgrenzung bleibt als Vorgeschichte erhalten.
+
 Stand 2026-11-13: Der Benutzer hat die vorgeschlagene Funktionsrichtung
 bestätigt: alle regulären Datei-Entries des Archivs verarbeiten, beim ersten
 Fehler anhalten und pro Entry einen Status ausgeben. Ressourcenlimits sind

@@ -669,7 +669,8 @@ namespace Toolbelt.Archive.ZipMemory
         private static IList<EntryMetadata> ReadEntries(
             ArchiveReader reader,
             EndOfCentralDirectory eocd,
-            Action checkpoint = null)
+            Action checkpoint = null,
+            bool retainLocalHeaderErrors = false)
         {
             long centralEnd =
                 eocd.CentralDirectoryOffset +
@@ -750,7 +751,7 @@ namespace Toolbelt.Archive.ZipMemory
                 string decodedName =
                     DecodeEntryName(nameBytes, flags);
 
-                if (decodedName.Length > MaxEntryNameCharacters)
+                if (decodedName.Length > MaxEntryNameCharacters && !retainLocalHeaderErrors)
                 {
                     throw new ZipProviderException(
                         51325,
@@ -769,8 +770,17 @@ namespace Toolbelt.Archive.ZipMemory
                     uncompressed,
                     ConvertDosDateTime(localFileDate, localFileTime),
                     eocd.CentralDirectoryOffset);
+                entry.CreatorPlatform = reader.ReadUInt16(cursor + 4) >> 8;
+                entry.ExternalAttributes = reader.ReadUInt32(cursor + 38);
 
-                ValidateLocalHeader(reader, entry);
+                if (retainLocalHeaderErrors)
+                {
+                    try { ValidateLocalHeader(reader, entry); }
+                    catch (ZipProviderException) { entry.LocalHeaderInvalid = true; }
+                    catch (EndOfStreamException) { entry.LocalHeaderInvalid = true; }
+                    entry.ReleaseIndexedNameBytes(cursor + 46);
+                }
+                else ValidateLocalHeader(reader, entry);
                 entries.Add(entry);
                 cursor += recordLength;
             }
@@ -943,6 +953,22 @@ namespace Toolbelt.Archive.ZipMemory
             decimal maxCompressionRatio,
             Action checkpoint = null)
         {
+            byte[] output = null;
+            ReadPayloadChunks(reader, entry, maxEntryBytes, maxCompressionRatio, checkpoint,
+                delegate
+                {
+                    output = new byte[checked((int)entry.UncompressedBytes)];
+                    return delegate(byte[] buffer, int count, long offset)
+                    { Buffer.BlockCopy(buffer, 0, output, checked((int)offset), count); };
+                });
+            return output;
+        }
+
+        private static void ReadPayloadChunks(
+            ArchiveReader reader, EntryMetadata entry, long maxEntryBytes,
+            decimal maxCompressionRatio, Action checkpoint,
+            Func<Action<byte[], int, long>> createSink)
+        {
             using (BoundedReadStream compressed =
                 reader.OpenBoundedStream(
                     entry.PayloadOffset,
@@ -950,7 +976,7 @@ namespace Toolbelt.Archive.ZipMemory
             {
                 if (maxEntryBytes < 1 || maxEntryBytes > MaxExtractedEntryBytes || entry.UncompressedBytes > maxEntryBytes)
                     throw new ZipProviderException(51325, "ZIP-Entry überschreitet die feste Extraktionsgrenze.");
-                byte[] output = new byte[checked((int)entry.UncompressedBytes)];
+                Action<byte[], int, long> consume = createSink();
                 Stream payloadStream = compressed;
                 DeflateStream deflate = null;
                 long totalBytesRead = 0;
@@ -992,7 +1018,7 @@ namespace Toolbelt.Archive.ZipMemory
                         total += read;
                         totalBytesRead = total;
 
-                        if (total > maxEntryBytes || total > output.LongLength)
+                        if (total > maxEntryBytes || total > entry.UncompressedBytes)
                         {
                             throw new ZipProviderException(
                                 51325,
@@ -1004,7 +1030,7 @@ namespace Toolbelt.Archive.ZipMemory
                             entry.CompressedBytes,
                             maxCompressionRatio);
 
-                        Buffer.BlockCopy(buffer, 0, output, checked((int)(total - read)), read);
+                        consume(buffer, read, total - read);
                     }
                 }
                 finally
@@ -1022,9 +1048,8 @@ namespace Toolbelt.Archive.ZipMemory
                         "Der komprimierte Payload enthält nicht konsumierte Bytes.");
                 }
 
-                if (output.LongLength != totalBytesRead)
+                if (entry.UncompressedBytes != totalBytesRead)
                     throw new ZipProviderException(51321, "Die tatsächliche ZIP-Entrygröße weicht von der Deklaration ab.");
-                return output;
             }
         }
 
@@ -1504,6 +1529,8 @@ namespace Toolbelt.Archive.ZipMemory
                 EntryOrdinal = entryOrdinal;
                 EntryName = entryName;
                 EntryNameBytes = entryNameBytes;
+                IsDirectory = entryName.EndsWith("/", StringComparison.Ordinal) ||
+                    entryName.EndsWith("\\", StringComparison.Ordinal);
                 LocalHeaderOffset = localHeaderOffset;
                 CompressionMethod = compressionMethod;
                 GeneralPurposeFlags = generalPurposeFlags;
@@ -1527,14 +1554,22 @@ namespace Toolbelt.Archive.ZipMemory
             public DateTime? LastModifiedAt { get; private set; }
             public long CentralDirectoryOffset { get; private set; }
             public long PayloadOffset { get; set; }
+            public int CreatorPlatform { get; set; }
+            public uint ExternalAttributes { get; set; }
+            public bool LocalHeaderInvalid { get; set; }
+            public long LongNameOffset { get; private set; }
+            public int LongNameBytes { get; private set; }
+            public bool IsDirectory { get; private set; }
 
-            public bool IsDirectory
+            public void ReleaseIndexedNameBytes(long nameOffset)
             {
-                get
+                if (EntryName.Length > MaxEntryNameCharacters)
                 {
-                    return EntryName.EndsWith("/", StringComparison.Ordinal) ||
-                           EntryName.EndsWith("\\", StringComparison.Ordinal);
+                    LongNameOffset = nameOffset;
+                    LongNameBytes = EntryNameBytes.Length;
+                    EntryName = null;
                 }
+                EntryNameBytes = null;
             }
         }
 

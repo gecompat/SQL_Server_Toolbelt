@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-169 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+170 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -97,6 +97,48 @@ Hilfe:
 
 ```sql
 EXEC toolbelt_archive.USP_ExtractZipEntryToFile @Hilfe=1;
+```
+
+## toolbelt_archive.USP_ExtractZipArchiveToDirectory
+
+Modul `toolbelt.archive.zip-files` · Version `1.0.0` · `USP`
+
+Extrahiert ein ZIP gestreamt in einen konfigurierten lokalen NTFS-Ordner und meldet jeden Eintrag.
+
+Vertrag und Quelle: [USP_ExtractZipArchiveToDirectory.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipArchiveToDirectory.sql), [USP_ExtractZipArchiveToDirectory.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md), [USP_ExtractZipArchiveToDirectory.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipArchiveToDirectory.md).
+
+<!-- Source/Vertrag SHA256: 515458a409107af03c7c46b3180423a9c65a3bf85f958994c5b255353bd08bff -->
+
+Voraussetzung: Lokale Installation auf Windows SQL Server, festes NTFS-Laufwerk und vorhandene Root-Konfiguration. Für fehlende Verzeichnisse ist AllowCreateDirectory erforderlich. Die Sitzung darf keine aktive oder implizite SQL-Transaktion haben.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@ZipArchive` | `varbinary(max)` | `NULL` | Input | Vollständiges ZIP als Bytes. NULL oder 0x ist ungültig. |
+| `@RootAlias` | `sysname` | `NULL` | Input | Vorhandener konfigurierter Alias mit AllowWrite. NULL oder leer ist ungültig. |
+| `@RelativeDirectory` | `nvarchar(4000)` | `N''` | Input | Relativer Zielordner. Leer verwendet den Root. NULL, absolute und unsichere Pfade sind ungültig. |
+| `@OverwriteExistingFiles` | `bit` | `0` | Input | 0 lehnt bestehende Dateien ab. 1 erfordert unabhängig davon administratives AllowZipOverwrite und exklusive Schreibhoheit. NULL ist ungültig. |
+| `@MaxArchiveBytes` | `bigint` | `67108864` | Input | Archivbytes. 1 bis 268435456, NULL ungültig. |
+| `@MaxEntries` | `bigint` | `1000` | Input | Dateien und Verzeichnisse. 1 bis 10000, NULL ungültig. |
+| `@MaxEntryBytes` | `bigint` | `16777216` | Input | Expandierte Bytes je Datei. 1 bis 67108864, NULL ungültig. |
+| `@MaxTotalExpandedBytes` | `bigint` | `268435456` | Input | Summe deklarierter expandierter Bytes. Positiver bigint, NULL ungültig. Entry- und Anzahlgrenzen gelten zusätzlich. |
+| `@MaxCompressionRatio` | `decimal(9,2)` | `200.00` | Input | Expansionsfaktor 1,00 bis 9999999,99, NULL ungültig. |
+| `@MaxPathLength` | `int` | `1024` | Input | ZIP-Eintragsname in UTF-16-Codeeinheiten. 1 bis 1024, NULL ungültig. |
+| `@ExecutionIdentity` | `nvarchar(16)` | `N'Caller'` | Input | Ordinal exakt Caller oder ServiceAccount. ServiceAccount erfordert die freigegebene Datenbankrolle und Root-AllowServiceAccount. Kein Fallback, NULL ungültig. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert Zeilen. Sonst vorhandene lokale temporäre Tabelle nach ResultTable-Vertrag. |
+| `@KeepData` | `bit` | `0` | Input | Bei ResultTable 0 ersetzt und 1 ergänzt bei kompatiblem Schema. NULL entspricht 0. |
+| `@Debug` | `tinyint` | `0` | Input | 0 bis 255. NULL entspricht 0. Nur Diagnose des ResultTable-Helpers. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert die Skillzeile vor der Facharbeit. 0 oder NULL führt die Fachfunktion aus. |
+
+Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
+
+```sql
+EXEC toolbelt_archive.USP_ExtractZipArchiveToDirectory @Hilfe = 1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_archive.USP_ExtractZipArchiveToDirectory @Hilfe=1;
 ```
 
 ## toolbelt_archive.USP_CreateZipFromEntries
@@ -4051,7 +4093,7 @@ Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-M
 
 Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md), [VW_ModuleCapabilities.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: 75a5b52dd91513865a2bce976aa9deadaa58a6e98f77c0e78ea165cc5782d591 -->
+<!-- Source/Vertrag SHA256: 4db9e3bfa8d1a8f2d67ffdbed1cb5ddebd8606e8bbcf5e7f84e9d3f58cf0aa19 -->
 
 Voraussetzung: Installierte markerfreie View auf SQL2019/2022/2025 Windows/Linux, lokal oder zentral mit dem zulässigen Compatibility Level. Keine Runtime-Modulabhängigkeit und kein CLR-Aufruf. Der Generator liest beim Offlinebuild alle module.yaml-Dateien deterministisch und erzeugt feste Kandidatentupel ModuleId/qualifizierter Name/zulässige SQL-Objekttypen. Assemblies aus expliziten Deklarationen; bei einem Modul ohne Objekte Fallback auf dessen deklarierten CLR-Assemblynamen. Toolbelt-Assemblyalias tlblt_, bereits tlblt-Namen erhalten; private ScriptDom-Alias tlblt.Microsoft.SqlServer.TransactSql.ScriptDom. Unbekannte Manifestformen/Objekttypen oder Assemblyaliasformen brechen den Build ab, keine automatische Runtime-Discovery.
 
@@ -4076,7 +4118,7 @@ Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills
 
 Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
 
-<!-- Source/Vertrag SHA256: 7c4d1681d4e565f795c07060316620bf9340e73aa5b3cc8bf36d04b7796bbfd4 -->
+<!-- Source/Vertrag SHA256: 5e3d3ff419e8dcbbbb4bb2a90159cc517f61ce23b69842ab5bc4d13c8f99d5be -->
 
 Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 

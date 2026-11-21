@@ -295,6 +295,14 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
         # New current constant metadata, never a historically qualified object.
         actual.remove(usage_skills.VIEW_TARGET)
         originals.pop(usage_skills.VIEW_TARGET,None)
+    if allow_current_deltas:
+        sys.path.insert(0,str(root/'Scripts/Install'))
+        import zip_extraction_deltas
+        additional={path for path in zip_extraction_deltas.NEW_FILES
+                    if not module_ids or path.split('/')[1] in module_ids}
+        if not additional <= actual or additional & set(originals):
+            raise ValueError('CURRENT_ZIP_SOURCE_INVENTORY_CHANGED')
+        actual.difference_update(additional)
     if actual!=set(originals):raise ValueError('COMPONENT_REUSE_SOURCE_INVENTORY_CHANGED')
     # New passive Skill comments are a separate current projection. Admit only
     # exact, reviewed source-mapped Markdown and its canonical help projections;
@@ -320,7 +328,8 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
         if fs_records is not None and path=='Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs':
             # Only exact new optional parameter/first help instruction pairs
             # are removed. Fresh binaries/new help still need current proof.
-            current=clr_usage_skills.strip_provider_help(current.decode('utf-8').replace('\r\n','\n'),fs_records).encode('utf-8')
+            records=[record for record in fs_records if record.metadata['source_paths'][1]==path]
+            current=clr_usage_skills.strip_provider_help(current.decode('utf-8').replace('\r\n','\n'),records).encode('utf-8')
         if fs_records is not None and path=='Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj':
             text=current.decode('utf-8').replace('\r\n','\n')
             item='    <Compile Include="UsageSkillsGenerated.cs" />\n'
@@ -337,6 +346,9 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
             current=restore_reviewed_standard_help(data,text,path,help_by_path[path],
                                                    generate_parameter_help.help_span).encode('utf-8')
         if allow_current_deltas:
+            if path in zip_extraction_deltas.REGIONS:
+                compare(zip_extraction_deltas.apply(data,path),current,path)
+                continue
             if path in current_source_deltas.PATHS:
                 # This is a separate exact source-change check, not reuse of
                 # the historical behavior or native evidence of this file.
@@ -344,7 +356,7 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
                 continue
         compare(data,current,path)
     if allow_current_deltas:
-        return len(set(originals)-current_source_deltas.PATHS)
+        return len(set(originals)-current_source_deltas.PATHS-zip_extraction_deltas.REGIONS.keys())
     return len(originals)
 
 

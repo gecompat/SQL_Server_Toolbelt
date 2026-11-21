@@ -21,7 +21,15 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindowsFilesystemProvider.cs" />
+    <Compile Include="ArchiveNativePaths.cs" />
+    <Compile Include="ArchiveDestination.cs" />
+    <Compile Include="ArchiveSqlBridge.cs" />
     <Compile Include="UsageSkillsGenerated.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\toolbelt.archive.zip-memory\Clr\Toolbelt.Archive.ZipMemory.csproj">
+      <Name>Toolbelt.Archive.ZipMemory</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

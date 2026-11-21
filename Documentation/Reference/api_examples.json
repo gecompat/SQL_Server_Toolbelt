@@ -2602,5 +2602,31 @@
       "SELECT auf der Sicht. Die Einträge beschreiben bekannte Objekte und bestätigen weder Installation noch Aufruferrechte."
     ],
     "parameter_notes": {}
+  },
+  "toolbelt_archive.USP_ExtractZipArchiveToDirectory": {
+    "summary": "Extrahiert ein ZIP gestreamt in einen konfigurierten lokalen NTFS-Ordner und meldet jeden Eintrag.",
+    "examples": [
+      "DECLARE @Zip varbinary(max) = 0x504B0506000000000000000000000000000000000000;\nEXEC toolbelt_archive.USP_ExtractZipArchiveToDirectory @ZipArchive=@Zip, @RootAlias=N'ContosoExports';"
+    ],
+    "requirements": [
+      "Lokales NTFS-Laufwerk und konfigurierter aktiver Rootalias."
+    ],
+    "parameter_notes": {
+      "@ZipArchive": "Vollständiges ZIP als Bytes. NULL oder 0x ist ungültig.",
+      "@RootAlias": "Vorhandener konfigurierter Alias mit AllowWrite. NULL oder leer ist ungültig.",
+      "@RelativeDirectory": "Relativer Zielordner. Leer verwendet den Root. NULL, absolute und unsichere Pfade sind ungültig.",
+      "@OverwriteExistingFiles": "0 lehnt bestehende Dateien ab. 1 erfordert unabhängig davon administratives AllowZipOverwrite und exklusive Schreibhoheit. NULL ist ungültig.",
+      "@MaxArchiveBytes": "Archivbytes. 1 bis 268435456, NULL ungültig.",
+      "@MaxEntries": "Dateien und Verzeichnisse. 1 bis 10000, NULL ungültig.",
+      "@MaxEntryBytes": "Expandierte Bytes je Datei. 1 bis 67108864, NULL ungültig.",
+      "@MaxTotalExpandedBytes": "Summe deklarierter expandierter Bytes. Positiver bigint, NULL ungültig. Entry- und Anzahlgrenzen gelten zusätzlich.",
+      "@MaxCompressionRatio": "Expansionsfaktor 1,00 bis 9999999,99, NULL ungültig.",
+      "@MaxPathLength": "ZIP-Eintragsname in UTF-16-Codeeinheiten. 1 bis 1024, NULL ungültig.",
+      "@ExecutionIdentity": "Ordinal exakt Caller oder ServiceAccount. ServiceAccount erfordert die freigegebene Datenbankrolle und Root-AllowServiceAccount. Kein Fallback, NULL ungültig.",
+      "@ResultTable": "NULL liefert Zeilen. Sonst vorhandene lokale temporäre Tabelle nach ResultTable-Vertrag.",
+      "@KeepData": "Bei ResultTable 0 ersetzt und 1 ergänzt bei kompatiblem Schema. NULL entspricht 0.",
+      "@Debug": "0 bis 255. NULL entspricht 0. Nur Diagnose des ResultTable-Helpers.",
+      "@Hilfe": "1 liefert die Skillzeile vor der Facharbeit. 0 oder NULL führt die Fachfunktion aus."
+    }
   }
 }

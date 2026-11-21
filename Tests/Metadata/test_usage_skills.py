@@ -1082,8 +1082,13 @@ class UsageSkillTests(unittest.TestCase):
 
     def test_zip_skills_distinguish_status_conventions_metadata_crc_and_file_publication(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id'] in ('toolbelt.archive.zip-memory','toolbelt.archive.zip-files')}
-        self.assertEqual(len(expected),10)
+        self.assertEqual(len(expected),11)
         records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        archive=records['USP_ExtractZipArchiveToDirectory']
+        public=(ROOT/archive.metadata['source_paths'][0]).read_text(encoding='utf-8-sig')
+        self.assertEqual(skills.project_procedure_ddl(public,archive),public)
+        self.assertEqual(skills.project_procedure_help(public,archive),public)
+        self.assertIn('not_attempted',archive.markdown)
         counts={'USP_CreateZipFromEntries':5,'USP_ExtractZipEntryFromBinary':7,'USP_ListZipEntriesFromBinary':13,
                 'USP_CreateZipFileFromEntries':4,'USP_ExtractZipEntryToFile':4,'TVF_InternalZipWriterName':3,
                 'TVF_InternalZipWriterArchive':3,'TVF_InternalExtractZipEntryClr':9,'TVF_InternalListZipEntriesClr':15}

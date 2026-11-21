@@ -32,6 +32,9 @@ Originalbibliothek nicht.
 Vom Repositoryroot aus, mit neuen Ausgabeordnern:
 
 ```powershell
+$msbuild = (Get-Command MSBuild.exe -ErrorAction Stop).Source
+python Scripts/Install/filesystem_build.py --msbuild $msbuild `
+  --module toolbelt.archive.zip-memory --output .runtime/simple-common/inputs/zip-memory
 & Modules/toolbelt.tsql.script-parser/Scripts/New-ClrReleaseArtifacts.ps1 `
   -ScriptDomDllPath C:/BuildInputs/Microsoft.SqlServer.TransactSql.ScriptDom.dll `
   -OutputDirectory .runtime/simple-common/inputs/parser
@@ -46,6 +49,14 @@ python Scripts/Install/New-SimpleCommonInstall.py `
   --work .runtime/simple-common/build-windows-central `
   --output .runtime/simple-common/Install-Toolbelt.sql `
   --platform Windows --mode central --trust-mode auto
+```
+
+Für das Windows-Local-Profil zusätzlich den Dateisystemprovider in
+`.runtime/simple-common/inputs/filesystem` bauen.
+
+```powershell
+python Scripts/Install/filesystem_build.py --msbuild $msbuild `
+  --output .runtime/simple-common/inputs/filesystem
 ```
 
 Unveränderte CLR-Binaries werden nur bei passender Compilerbindung aus den

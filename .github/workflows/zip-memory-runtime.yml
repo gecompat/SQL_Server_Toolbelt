@@ -13,6 +13,8 @@ on:
       - "Modules/toolbelt.archive.zip-memory/Tests/Runtime/**"
       - "Modules/toolbelt.archive.zip-memory/Tests/Static/**"
       - "Modules/toolbelt.archive.zip-memory/module.yaml"
+      - "Modules/toolbelt.filesystem.windows/Clr/**"
+      - "Modules/toolbelt.filesystem.windows/Tests/Runtime/ArchiveDestination.Framework.cs"
       - "Modules/toolbelt.core.result-table/Source/**"
       - "Modules/toolbelt.core.result-table/Deployment/**"
       - "Modules/toolbelt.core.result-table/module.yaml"
@@ -30,6 +32,8 @@ on:
       - "Modules/toolbelt.archive.zip-memory/Tests/Runtime/**"
       - "Modules/toolbelt.archive.zip-memory/Tests/Static/**"
       - "Modules/toolbelt.archive.zip-memory/module.yaml"
+      - "Modules/toolbelt.filesystem.windows/Clr/**"
+      - "Modules/toolbelt.filesystem.windows/Tests/Runtime/ArchiveDestination.Framework.cs"
       - "Modules/toolbelt.core.result-table/Source/**"
       - "Modules/toolbelt.core.result-table/Deployment/**"
       - "Modules/toolbelt.core.result-table/module.yaml"
@@ -87,6 +91,31 @@ jobs:
           if ($length -lt 1 -or $length -gt 4194304) { throw 'ZIP_WRITER_FRAMEWORK_BINARY_INTAKE' }
           $ownDirectory = [IO.Path]::GetFullPath((Join-Path $env:RUNNER_TEMP ('zip-writer-framework-' + [guid]::NewGuid().ToString('N'))))
           ./Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath $assembly -ExpectedAssemblySHA512 $manifest.sha512 -ExpectedAssemblyLength $length.ToString([Globalization.CultureInfo]::InvariantCulture) -EvidenceDirectory $ownDirectory
+      - name: Current Archive Reader and NTFS extraction contracts
+        if: github.event_name != 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP ('toolbelt-archive-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $out | Out-Null
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $msbuild = & $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1
+          & $msbuild Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj /t:Rebuild /p:Configuration=Release "/p:OutputPath=$out/" "/p:BaseIntermediateOutputPath=$out/obj/" /nologo /v:minimal /m:1
+          if ($LASTEXITCODE) { throw 'ZIP_PROVIDER_BUILD_FAILED' }
+          $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
+          $zip = Join-Path $out 'Toolbelt.Archive.ZipMemory.dll'
+          $filesystem = Join-Path $out 'Toolbelt.Filesystem.Windows.dll'
+          $entry = (Resolve-Path Modules/toolbelt.archive.zip-memory/Tests/Runtime/EntrySecurity.Framework.cs).Path
+          $destination = (Resolve-Path Modules/toolbelt.filesystem.windows/Tests/Runtime/ArchiveDestination.Framework.cs).Path
+          $entryTest = Join-Path $out 'ZipEntrySecurity.exe'
+          $destinationTest = Join-Path $out 'ArchiveDestination.Framework.exe'
+          & $csc /nologo "/out:$entryTest" /reference:System.Data.dll /reference:System.IO.Compression.dll "/reference:$zip" $entry
+          if ($LASTEXITCODE) { throw 'ZIP_ENTRY_SECURITY_TEST_BUILD_FAILED' }
+          & $csc /nologo "/out:$destinationTest" /reference:System.Data.dll /reference:System.IO.Compression.dll "/reference:$zip" "/reference:$filesystem" $destination
+          if ($LASTEXITCODE) { throw 'ZIP_DESTINATION_TEST_BUILD_FAILED' }
+          & $entryTest
+          if ($LASTEXITCODE) { throw 'ZIP_ENTRY_SECURITY_TEST_FAILED' }
+          & $destinationTest ([IO.Path]::GetTempPath())
+          if ($LASTEXITCODE) { throw 'ZIP_DESTINATION_TEST_FAILED' }
       - name: Upload exact deployment input
         uses: actions/upload-artifact@v4
         with:

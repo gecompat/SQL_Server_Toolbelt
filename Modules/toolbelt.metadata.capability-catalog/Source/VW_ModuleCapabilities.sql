@@ -92,6 +92,7 @@ WITH Candidates AS
     SELECT v.ModuleId,v.ObjectName,v.ObjectTypes FROM (VALUES
     (N'toolbelt.archive.zip-files',N'toolbelt_archive.USP_CreateZipFileFromEntries',N'P,PC'),
     (N'toolbelt.archive.zip-files',N'toolbelt_archive.USP_ExtractZipEntryToFile',N'P,PC'),
+    (N'toolbelt.archive.zip-files',N'toolbelt_archive.USP_ExtractZipArchiveToDirectory',N'P,PC'),
     (N'toolbelt.archive.zip-memory',N'toolbelt_archive.USP_CreateZipFromEntries',N'P,PC'),
     (N'toolbelt.archive.zip-memory',N'toolbelt_archive.TVF_InternalZipWriterName',N'FT'),
     (N'toolbelt.archive.zip-memory',N'toolbelt_archive.TVF_InternalZipWriterArchive',N'FT'),
@@ -262,6 +263,7 @@ WITH Candidates AS
     (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.CLR_RemoveFile',N'PC'),
     (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.CLR_TranscodeTextFile',N'PC'),
     (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.CLR_WriteBinaryFile',N'PC'),
+    (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.CLR_ExtractZipArchiveToDirectory',N'PC'),
     (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.CLR_WriteTextFile',N'PC'),
     (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_InternalEmitHelp',N'P,PC'),
     (N'toolbelt.filesystem.windows',N'toolbelt_filesystem.USP_InternalRouteResult',N'P,PC'),

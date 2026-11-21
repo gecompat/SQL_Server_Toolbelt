@@ -1,5 +1,14 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Vollständige ZIP-Extraktion — 2026-11-21
+
+V1 ist zur Implementierung freigegeben. Überschreiben erfordert exklusive
+Schreibhoheit am konfigurierten Ziel. Der
+[Objektvertrag](../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md)
+enthält Aufruf und Teilfehlerverhalten. Der
+[ursprüngliche Vertragsentwurf](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md)
+dokumentiert die Abgrenzung.
+
 ## Einfachere Installation und DTSX-Debug — 2026-11-19
 
 Auf Benutzerauftrag sind die [Zukunftsanforderungen für einfache Installation,

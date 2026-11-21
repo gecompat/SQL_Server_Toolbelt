@@ -254,7 +254,7 @@ class MarkerlessContractTests(unittest.TestCase):
     def test_functional_inventory_is_independent_of_legacy_deployments(self):
         selected=installer.modules('Windows','local')
         sources,pins=installer.source_files(selected)
-        self.assertEqual(len(sources),194)
+        self.assertEqual(len(sources),196)
         self.assertIn('Scripts/Install/module_sources.json',pins)
         self.assertFalse(any('/Deployment/' in path for path in pins))
 
@@ -315,6 +315,13 @@ class MarkerlessContractTests(unittest.TestCase):
         self.assertEqual(body.count(anchor+added),1)
         self.assertEqual(body.count(added),1)
         baseline=body.replace(anchor+added,anchor,1)
+        for module,name,kind in (
+            ('toolbelt.archive.zip-files','toolbelt_archive.USP_ExtractZipArchiveToDirectory','P,PC'),
+            ('toolbelt.filesystem.windows','toolbelt_filesystem.CLR_ExtractZipArchiveToDirectory','PC'),
+        ):
+            row=f"    (N'{module}',N'{name}',N'{kind}'),\n"
+            self.assertEqual(baseline.count(row),1)
+            baseline=baseline.replace(row,'',1)
         # Exact predecessor SQL from 3041211e. The digest also works in the shallow SSIS checkout.
         self.assertEqual(hashlib.sha256(baseline.encode('utf-8')).hexdigest(),
                          'c9ecd11a585ae73f056377cdb9311890f8e0dc146969c8ee1a727fb637dda49c')
@@ -338,7 +345,7 @@ class MarkerlessContractTests(unittest.TestCase):
     def test_partial_build_source_ledger_binds_every_editorial_skill(self):
         bindings=installer.build_source_bindings()
         editorial={p.relative_to(ROOT).as_posix() for p in (ROOT/'Metadata/UsageSkills').glob('*/*.md')}
-        self.assertEqual(len(editorial),257)
+        self.assertEqual(len(editorial),259)
         self.assertTrue(editorial <= bindings.keys())
         for path in editorial:
             self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))

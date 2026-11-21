@@ -3,7 +3,8 @@
   "modules": {
     "toolbelt.archive.zip-files": [
       "Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql",
-      "Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql"
+      "Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql",
+      "Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipArchiveToDirectory.sql"
     ],
     "toolbelt.archive.zip-memory": [
       "Modules/toolbelt.archive.zip-memory/Source/TVF_InternalExtractZipEntryClr.sql",
@@ -191,7 +192,8 @@
     ],
     "toolbelt.filesystem.windows": [
       "Modules/toolbelt.filesystem.windows/Source/FileSystemRoot.sql",
-      "Modules/toolbelt.filesystem.windows/Source/Procedures.sql"
+      "Modules/toolbelt.filesystem.windows/Source/Procedures.sql",
+      "Modules/toolbelt.filesystem.windows/Source/ArchiveExtraction.sql"
     ],
     "toolbelt.json.constructors": [
       "Modules/toolbelt.json.constructors/Source/JsonEntryEvaluate.sql",
