@@ -540,6 +540,32 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertTrue(parameter["argument_required"])
                 self.assertIsNone(parameter["sql_default"])
 
+    def test_phonetic_module_has_complete_contracts_and_preserves_transport_types(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.string.phonetic"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 5)
+        for skill in records:
+            if skill.metadata["object_type"] == "ASSEMBLY":
+                continue
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            self.assertEqual(skills.project_function_ddl(text, skill), text)
+            self.assertEqual(len(skill.metadata["parameters"]), 1)
+            parameter = skill.metadata["parameters"][0]
+            self.assertEqual(parameter["name"], "@Text")
+            self.assertEqual(parameter["sql_type"], "nvarchar(max)")
+            self.assertTrue(parameter["argument_required"] and parameter["nullable"])
+            self.assertIsNone(parameter["sql_default"])
+            for limit in ("4096", "8192", "16384", "32768"):
+                self.assertIn(limit, skill.markdown)
+            if skill.metadata["object_type"] == "CLR_TVF":
+                self.assertTrue(skill.metadata["is_internal"])
+                self.assertIn("nvarchar(max)", skill.markdown.split("## Ergebnisse", 1)[1])
+            else:
+                self.assertFalse(skill.metadata["is_internal"])
+                self.assertIn("varchar(max)", skill.markdown.split("## Ergebnisse", 1)[1])
+
 
 if __name__ == "__main__":
     unittest.main()

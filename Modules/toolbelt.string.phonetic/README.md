@@ -14,7 +14,7 @@ aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 
 Aktuelle [CLR-Callerrechte](../../Releases/1.0.0/CLR-STRING-CALLER-QUALIFICATION.md): isolierte SELECT-Profile auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen. Neue Testtreiber/Fixtures sind entwickelt; Produktimplementierung und Modulstatus bleiben unverändert. Weitere API-/Client-/Lifecycle- und Ressourcengates sind separat.
 
-Version 1.0.0, unreleased und teilweise validiert. Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht.
+Version 1.0.0, unreleased und teilweise validiert. Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Der unten dokumentierte Differentialvergleich deckt einen festen Korpus ab; vollständiger Scannervergleich, vollständige Fachzielmatrix, weitere Rechtekontexte und aktuelle Head-CI bleiben getrennte Gates. Die oben verlinkte Callerqualifikation belegt ausschließlich ihren isolierten SELECT-Scope.
 Die [Testdokumentation](Tests/README.md) trennt Offline- und private native
 Teilnachweise von der noch offenen vollständigen Qualifikation.
 
@@ -33,31 +33,38 @@ Lizenz](ThirdParty/ApacheCommonsCodec/README.md) sowie der
 [kanonische Vertrag](../../Documentation/Architecture/PHONETIC_CONTRACT.md)
 enthalten die genauen Alphabete, Transformationen und Prioritäten.
 
+## Maschinenlesbare Objektverträge
+
+- [Kölner Phonetik](../../Metadata/UsageSkills/toolbelt_string/TVF_ColognePhonetic.md)
+- [Double Metaphone](../../Metadata/UsageSkills/toolbelt_string/TVF_DoubleMetaphone.md)
+
+Jeder öffentliche Einstieg und sein interner CLR-Core besitzen einen eigenen
+kanonischen Skill, identisch in ihrer DDL. Die Skills beschreiben den Unterschied
+zwischen öffentlichen `varchar(max)`-Codes und internem `nvarchar(max)`-Transport,
+NULL, leerem Code und Fachfehler sowie die festen Alphabet-/Größengrenzen.
+Eine Skillbeschreibung ist kein neuer nativer Funktions- oder Gesamtnachweis.
+Zur vollständigen noch offenen SQL-Katalogintegration siehe
+[Usage-Skills](../../Metadata/UsageSkills/README.md).
+
 ## Installation und Abhängigkeiten
 
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
+Den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden:
+normale SQL-Datei, kein SQLCMD-Modus und keine Deploymentmarker. Lokal und zentral
+steht derselbe Funktionssatz bereit. Der Hashweg und ausdrücklich gewählte Wege
+mit bereits vorhandenem Datenbank-Trust sind getrennte Optionen; der Installer
+aktiviert `TRUSTWORTHY` nicht und erteilt keine Rechte.
 
 Ausgewählte Laufzeitnachweise liegen für Linux2019/latest CL150 und
 Windows2025/exakt CU8 CL170 vor; die übrige Zielmatrix bleibt offen.
 Keine Abhängigkeit von der Distanz-/Jaro-Assembly.
 
-1. Das neue Binary getrennt offline qualifizieren und seine vollständigen Bytes
-   sowie SHA2-512 binden. Build-only ist keine Qualifikation.
-2. Administrativ den exakten Hash separat mit Deployment/Add-TrustedAssembly.sql
-   optieren. Bestehende CLR-Konfiguration und strict security bleiben erhalten.
-3. SQLCMD Deployment/Deploy.sql aus Deployment ausführen, mit AssemblyBits,
-   DeploymentMode=local|central und ExpectedInstalledAssemblyHash (0x nur
-   für Abwesenheit, sonst exakter installierter SHA2-512).
-4. Für Uninstall dieselbe installierte Hash-Erwartung; bei central zusätzlich
-   ConfirmNoExternalConsumers=1 nach tatsächlicher Consumerprüfung.
-
-Lifecycleprüfungen erfolgen vor Mutation und unter eigener Transaktion/AppLock.
-Fremde Slots, inkohärente Marker, Hash-/Ownerabweichungen und lokale fremde
-Consumer werden abgelehnt. Caller-Transaktionen sind nicht unterstützt.
-Lifecycle benötigt bestehende vollständige Metadatensicht; Runtime-SELECT
-bekommt keine zusätzliche Hash- oder datenbankweite Sichtbarkeitsanforderung.
-Keine Rechte-, Owner-, Konfigurations- oder Truständerung durch Standarddeploy.
-Uninstall entfernt keinen Servertrust.
+Binaryherkunft, exakte Lieferbytes und notwendige vorhandene Rechte vor der
+Installation prüfen; Build-only ist keine Qualifikation. Bestehende Definitionen
+bleiben im create-only-Weg erhalten, ein automatischer Upgrade-/Uninstallpfad ist
+nicht vorgesehen. Frühere SQLCMD-/Marker-/AppLock-/Uninstallparameter und ihre
+Nachweise gehören ausschließlich zu den ursprünglichen Lieferungen. Ein
+fachlicher SELECT benötigt keine zusätzliche Runtime-Assemblyhashsicht oder
+datenbankweite Metadatensicht.
 
 ## Tests und Grenzen
 

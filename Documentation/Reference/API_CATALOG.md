@@ -4200,7 +4200,7 @@ Berechnet den vollständigen begrenzten Kölner Phonetikcode.
 
 Vertrag und Quelle: [TVF_ColognePhonetic.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql), [TVF_ColognePhonetic.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_ColognePhonetic.md).
 
-<!-- Source/Vertrag SHA256: 5e3183dcb18deb1373f0bf74cfd60db55e9b3c5836b7bcc44a76c8a09656f6e9 -->
+<!-- Source/Vertrag SHA256: 7a49cbf4f790ebae41ab9929019d9e9b921951d9e4d35730a760b0b2e44fde82 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4220,7 +4220,7 @@ Berechnet den primären und alternativen Double-Metaphone-Code.
 
 Vertrag und Quelle: [TVF_DoubleMetaphone.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql), [TVF_DoubleMetaphone.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_DoubleMetaphone.md).
 
-<!-- Source/Vertrag SHA256: 4530a080c96d0b51c2534cd58e1eea3e6d46a59969da002154c15679d094e469 -->
+<!-- Source/Vertrag SHA256: 9298eb3a6696df977392f92fcd796ce01b57ac62a6a8c5a3575d3156baaa2366 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
