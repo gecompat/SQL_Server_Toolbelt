@@ -905,6 +905,56 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_zip_skills_distinguish_status_conventions_metadata_crc_and_file_publication(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id'] in ('toolbelt.archive.zip-memory','toolbelt.archive.zip-files')}
+        self.assertEqual(len(expected),10)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        counts={'USP_CreateZipFromEntries':5,'USP_ExtractZipEntryFromBinary':7,'USP_ListZipEntriesFromBinary':13,
+                'USP_CreateZipFileFromEntries':4,'USP_ExtractZipEntryToFile':4,'TVF_InternalZipWriterName':3,
+                'TVF_InternalZipWriterArchive':3,'TVF_InternalExtractZipEntryClr':9,'TVF_InternalListZipEntriesClr':15}
+        originals={}
+        for name,count in counts.items():
+            s=records[name];path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            if name.startswith('USP_'):
+                self.assertEqual(skills.project_procedure_ddl(text,s),text)
+                self.assertEqual(skills.project_procedure_help(text,s),text)
+                clean=skills.strip_help_projection(ROOT,path,text)
+            else:
+                self.assertEqual(skills.project_function_ddl(text,s),text)
+                self.assertTrue(all(p['argument_required'] and p['sql_default'] is None for p in s.metadata['parameters']))
+                self.assertTrue(s.metadata['public_entrypoints']);clean=text
+            originals[name]=skills.strip_ddl_projection(ROOT,path,clean)
+            result=s.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),count)
+            self.assertIn('keine neue native',s.markdown)
+        source=(ROOT/'Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs').read_text(encoding='utf-8-sig')
+        writer=(ROOT/'Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs').read_text(encoding='utf-8-sig')
+        encrypted=source.index('if (encrypted)')
+        self.assertLess(encrypted,source.index('if (entry.CompressionMethod != 0',encrypted))
+        self.assertIn('actualCrc32 != entry.Crc32',source)
+        self.assertIn('ValidateLocalHeader(reader, entry);',source)
+        self.assertIn('return Array.Empty<ProviderListResult>();',source)
+        self.assertIn('Writer-Erfolg0',records['TVF_InternalZipWriterArchive'].markdown)
+        self.assertIn('ErrorNumberNULL',records['TVF_InternalExtractZipEntryClr'].markdown)
+        self.assertIn('Keine Dekompression oder Prüfung aller Payload-CRCs',records['USP_ListZipEntriesFromBinary'].markdown)
+        self.assertIn('MaxArchiveBytes = 268435456L',source)
+        self.assertIn('maxArchive.Value',writer)
+        self.assertIn('new UTF8Encoding(false, true)',writer)
+        self.assertIn('maxNameUnits.Value > 2048',writer)
+        self.assertIn('MaxEntryNameCharacters = 1024',source)
+        for name in ('USP_CreateZipFileFromEntries','USP_ExtractZipEntryToFile'):
+            sql=originals[name]
+            self.assertIn('@@TRANCOUNT<>0 OR XACT_STATE()<>0',sql)
+            self.assertLess(sql.index('EXEC toolbelt_filesystem.USP_WriteBinaryFile'),sql.index('            BEGIN TRANSACTION;'))
+            self.assertNotIn('EXEC toolbelt_filesystem.USP_DeleteFile',sql)
+            self.assertIn('bleibt auch bei späterem SQL-Routingfehler bestehen',records[name].markdown)
+        raw=records['TVF_InternalExtractZipEntryClr']
+        self.assertFalse(next(p for p in raw.metadata['parameters'] if p['name']=='@FailIfEncrypted')['nullable'])
+        self.assertIn('SET @FailIfEncrypted = ISNULL(@FailIfEncrypted, 1)',originals['USP_ExtractZipEntryFromBinary'])
+        self.assertNotIn('BEGIN TRANSACTION',originals['USP_ListZipEntriesFromBinary'])
+        self.assertNotIn('BEGIN TRANSACTION',originals['USP_ExtractZipEntryFromBinary'])
+        self.assertIn('Value.WRITE(@Payload,NULL,0)',originals['USP_CreateZipFromEntries'])
+
     def test_script_parser_skills_keep_tokenization_errors_ast_and_guard_quotas_distinct(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.tsql.script-parser'}
         self.assertEqual(len(expected),6)

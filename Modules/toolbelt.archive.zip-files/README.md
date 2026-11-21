@@ -63,3 +63,7 @@ ResultTable-#tbx_-Verbot erlaubt; sonst #tbx_. Keine fremde Tempadoption.
 SC-004: Extraktion erbt Default16 MiB und feste64-MiB-Entrygrenze; Dateifassade prüft diese vor dem Binaryprovider. Größere bisherige Extraktionsparameter sind zu migrieren. Keine stillen Teilpayloads.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+## Maschinenlesbare Usage-Skills
+
+Alle katalogisierten Objekte dieses Moduls besitzen quellgeprüfte Skills. Die öffentlichen Objektseiten verlinken die vollständigen Verträge; interne CLR-Helfer und ihre benötigten gezielten Providerrechte sind ausdrücklich abgegrenzt. DDL und zusätzliche frühe Prozedurhilfe verwenden dieselben Texte. Die gemeinsame Usage-Skill-View folgt erst bei vollständiger Katalogabdeckung. Neue native Hilfe-/Unicode-/Callerzustands- und Gesamtinstallerabnahme bleiben separat.

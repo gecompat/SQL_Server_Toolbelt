@@ -78,6 +78,18 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NONCANONICAL_RETRY_HELP_STATUS'):
             module.compare(outside,outside.replace(module.RETRY_HELP_STATUS_OLD,module.RETRY_HELP_STATUS_NEW),path)
 
+    def test_archive_help_repairs_are_scoped_to_original_positive_help_branches(self):
+        for path,start in module.ARCHIVE_HELP_STARTS.items():
+            old=start+b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nSELECT 7;"
+            current=old.replace(module.SCHEMA_HELP_OLD,module.QUEUE_HELP_NEW)
+            module.compare(old,current,path)
+            with self.assertRaisesRegex(ValueError,'NONCANONICAL_ARCHIVE_HELP'):
+                module.compare(old.replace(b'@Hilfe',b'@Other'),current,path)
+            with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+                module.compare(old,current.replace(b'SELECT 7;',b'SELECT 8;'),path)
+            with self.assertRaises(ValueError):
+                module.compare(old,current,'Modules/Contoso/Source/Other.sql')
+
     def test_constructor_help_repairs_do_not_admit_business_or_other_path_changes(self):
         start=b' IF @Hilfe=1\n BEGIN\n'
         old=start+b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nSELECT 7;"

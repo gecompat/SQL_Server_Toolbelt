@@ -162,3 +162,7 @@ exaktem SHA2-512 autorisiertem Releaseartefakt.
 SC-004: Entryextraktion verwendet standardmäßig 16777216 Bytes (16 MiB), höchstens 67108864 Bytes (64 MiB). Deklarierte und tatsächlich gelesene Größe werden geprüft. Ein exakt dimensionierter finaler Entrybuffer ersetzt wachsenden MemoryStream und ToArray-Abschlusskopie. Archiv-/Compressed-/Ratio-/CRC-Grenzen bleiben bestehen. Die technische ArchiveSession teilt die feste Entryobergrenze.
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+## Maschinenlesbare Usage-Skills
+
+Alle katalogisierten Objekte dieses Moduls besitzen quellgeprüfte Skills. Die öffentlichen Objektseiten verlinken die vollständigen Verträge; interne CLR-Helfer und ihre benötigten gezielten Providerrechte sind ausdrücklich abgegrenzt. DDL und zusätzliche frühe Prozedurhilfe verwenden dieselben Texte. Die gemeinsame Usage-Skill-View folgt erst bei vollständiger Katalogabdeckung. Neue native Hilfe-/Unicode-/Callerzustands- und Gesamtinstallerabnahme bleiben separat.

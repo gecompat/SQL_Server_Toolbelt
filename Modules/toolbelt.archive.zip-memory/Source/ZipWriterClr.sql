@@ -10,6 +10,80 @@ GO
 -- Name-Binding: strenges UTF-16-Validieren vor UTF-8-Encoding; eine Statuszeile.
 CREATE FUNCTION toolbelt_archive.TVF_InternalZipWriterName(@Name nvarchar(max), @MaxUnits int)
 RETURNS TABLE(ErrorNumber int, ErrorMessage nvarchar(4000), Payload varbinary(max))
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-archive-tvf-internalzipwritername"
+-- description: "Interner strenger UTF16-/UTF8-Namensencoder mit einer Writer-Statuszeile."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.archive.zip-memory"
+-- schema_name: "toolbelt_archive"
+-- object_name: "TVF_InternalZipWriterName"
+-- object_type: "CLR_TVF"
+-- database_role: "toolbelt"
+-- is_internal: true
+-- parameters: [{"name": "@Name", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Relativer Dateientryname,1..MaxUnits UTF16-Einheiten. Keine führenden/abschließenden Slashes,Backslash,Doppelpunkt,NUL oder leeren/./..-Segmente. Wohlgeformtes UTF16. SqlString-Marshalling kann vor dieser Längenprüfung materialisieren."}, {"name": "@MaxUnits", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "NichtNULL,1..2048. Keine SQL-Defaults. Der öffentliche Reader bleibt unabhängig bei1024Namenseinheiten."}]
+-- source_paths: ["Modules/toolbelt.archive.zip-memory/Source/ZipWriterClr.sql", "Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs", "Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.4.0"
+-- public_entrypoints: ["toolbelt_archive.USP_CreateZipFromEntries"]
+-- ---
+--
+-- # TVF_InternalZipWriterName
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Interner strenger UTF16-/UTF8-Namensencoder mit einer Writer-Statuszeile.
+--
+-- ## Voraussetzungen
+--
+-- ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Richtung | Vertrag |
+-- |---|---|---|---|
+-- | `@Name` | `nvarchar(max)` | kein Default | Input | Relativer Dateientryname,1..MaxUnits UTF16-Einheiten. Keine führenden/abschließenden Slashes,Backslash,Doppelpunkt,NUL oder leeren/./..-Segmente. Wohlgeformtes UTF16. SqlString-Marshalling kann vor dieser Längenprüfung materialisieren. |
+-- | `@MaxUnits` | `int` | kein Default | Input | NichtNULL,1..2048. Keine SQL-Defaults. Der öffentliche Reader bleibt unabhängig bei1024Namenseinheiten. |
+--
+-- InternerCLR-Einstieg:alleArgumenteexplizit,keineSQL-Defaults,keinHilfe-/ResultTableparameter. ÖffentlicheFassadebevorzugen;notwendigegezielteProvider-SELECT-Rechtebleibenmodulabhängig.
+--
+-- ## Ergebnisse
+--
+-- | Spalte | SQL-Typ | Vertrag |
+-- |---|---|---|
+-- | `ErrorNumber` | `int` | NULL implizit; Writer0=Erfolg;ReaderNULL=Erfolg;sonst erwarteterFehlercode |
+-- | `ErrorMessage` | `nvarchar(4000)` | NULL implizit; NULL beiErfolg,erwarteteFehlermeldungbeiFehler |
+-- | `Payload` | `varbinary(max)` | NULL implizit; WriterArchiv beziehungsweiseUTF8Name,beiFehlerNULL |
+--
+-- Genau eineStatuszeile;WriterErfolg0,ReaderErfolgNULL. NiemalsbeideKonventionenvermischen.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- InternerProvider:öffentlicheFassadeverwenden.
+-- EXEC toolbelt_archive.USP_CreateZipFromEntries @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf die öffentliche Memory-USP und gezielte SELECT-Rechte auf benötigte interne CLR-TVFs gemäß Modulvertrag. Writer braucht die ResultTable-Schnittstelle für beide Ausgaben; Reader Helper-EXECUTE nur bei ResultTable. Leserechte auf Caller-Temps und Metadatensicht für Writer, tempdb.sys.columns und spezifische sys.parameters-Sicht. Interne Kennzeichnung ist kein Verbot notwendiger Providerberechtigungen, aber kein Freibrief für allgemeine Direktnutzung. Keine Filesystemrechte für den Memorypfad.
+--
+-- ## Ressourcenbedarf
+--
+-- Name1..MaxUnits, MaxUnits1..2048UTF16-Einheiten. UTF8-Payload höchstens3*MaxUnitsBytes. Keine Archivpayload, kein Timer, keine Dateioperation. SqlString-Marshalling und UTF8-Kopie sind kein Peakheap- oder vorheriger LOB-Intakevertrag.
+--
+-- ## Nebenwirkungen
+--
+-- Reine interne Name-Status-TVF: Name und Limit prüfen; relative Dateisegmente ohne Backslash, Doppelpunkt, NUL, führenden/abschließenden Slash, leere Segmente oder ./.. verlangen. UTF8Encoding(false,true) verweigert kaputtes UTF16 statt Ersatzzeichen. Erfolg: ErrorNumber0, ErrorMessageNULL und Payload mit strikten UTF8-Namensbytes. Eine erwartete Fehlerzeile enthält keine Payload. Keine SQL- oder Dateiabfrage. SqlString-Marshalling kann vor der Längenprüfung materialisieren; kein allgemeiner LOB-Intakebeweis.
+--
+-- ## Fehlerbehandlung
+--
+-- Reader:51320 Argumente,51321 Struktur/Encoding/Stream,51322 Name fehlt,51323 gesuchter Name doppelt,51324 Encryption verboten,51325 Ressourcen,51326 Ratio,51327 Format/Method,51328 Integrität,51329 Wrapper/Dependency. Writer:51350 Argumente,51351 SQL-Inputshape,51352 Name,51353 Namensduplikat,51354 Ressourcen,51355 Format/Overflow,51356 Timeout,51357 Dependency,51358 Transport,51359 Providerstatus. Status-TVFs wandeln nur explizit gefangene Fehler um; unerwartete CLR-/Enginefehler bleiben Originalexceptions. Reader-ErfolgNULL, Writer-Erfolg0. Öffentliche Fassaden werfen statt einer Teilpayload.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter aktueller Vertrag; keine neue native Hilfe-/Unicode-/Minimalrechte-/Callerzustands-/Installer-/ZIP-/Dateipublikationsabnahme. Historische Nachweise bleiben an ihre Artefakte gebunden. CRC32, Status und PathSafe sind keine Signatur, Malwareprüfung oder Herkunftsauthentifizierung. Kein allgemeiner ZIP64-, Encryption-, Streaming- oder Mehrdatei-Unpacker. Keine Installations- oder Rechteattestation. ZIPnamen, Payloads, Dateipfade und Runtimebefunde privat halten.
+-- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Archive_ZipMemory].[Toolbelt.Archive.ZipMemory.ZipEntryProvider].[EncodeWriterNameStatus];
 GO
 -- Archive-Binding: TBZW-Version-1-Envelope ohne ContextConnection/Dateifallback;
@@ -18,5 +92,94 @@ CREATE FUNCTION toolbelt_archive.TVF_InternalZipWriterArchive
 (@Envelope varbinary(max), @Method int, @MaxEntries int, @MaxNameUnits int,
  @MaxEntry bigint, @MaxTotal bigint, @MaxArchive bigint, @MaxEnvelope bigint, @Budget int)
 RETURNS TABLE(ErrorNumber int, ErrorMessage nvarchar(4000), Payload varbinary(max))
+-- OBJECT_USAGE_SKILL:BEGIN
+-- ---
+-- name: "toolbelt-archive-tvf-internalzipwriterarchive"
+-- description: "Interner begrenzter TBZW-Envelope-zu-ZIP-Writer mit einer Statuszeile."
+-- skill_format_version: "1.0"
+-- module_id: "toolbelt.archive.zip-memory"
+-- schema_name: "toolbelt_archive"
+-- object_name: "TVF_InternalZipWriterArchive"
+-- object_type: "CLR_TVF"
+-- database_role: "toolbelt"
+-- is_internal: true
+-- parameters: [{"name": "@Envelope", "sql_type": "varbinary(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "NichtNULL TBZW-Version1-Envelope mit gebundenen Namen/Payloads,keine freie ZIP-/SQL-Datei. Little-endian Header12Bytes,jeEntry Ordinal4/NameBytes4/PayloadBytes8/Name/Payload,keine Restbytes."}, {"name": "@Method", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Taxativ0=Stored oder8=Deflate,für alleEntries. NichtNULL;keine freieKompressionsstufe."}, {"name": "@MaxEntries", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..1024, Öffentlicher Default 256: Entries über die gesamte Tabelle. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}, {"name": "@MaxNameUnits", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..2048, Öffentlicher Default 1024: UTF-16-Einheiten je Entryname; Reader bleibt unabhängig bei 1024. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}, {"name": "@MaxEntry", "sql_type": "bigint", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..33554432, Öffentlicher Default 16777216: unkomprimierte Payloadbytes je Entry. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}, {"name": "@MaxTotal", "sql_type": "bigint", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..134217728, Öffentlicher Default 67108864: Summe unkomprimierter Payloadbytes aller Entries. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}, {"name": "@MaxArchive", "sql_type": "bigint", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..150994944, Öffentlicher Default 71303168: Bytes des vollständigen finalisierten ZIP einschließlich Header, Namen und Directory. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}, {"name": "@MaxEnvelope", "sql_type": "bigint", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..142606336, Öffentlicher Default 71303168: Bytes des internen Übergabe-Envelopes einschließlich Framing und Namen, nicht nur Payload. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}, {"name": "@Budget", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..60000, Öffentlicher Default 30000: Millisekunden kooperatives Writerbudget; keine harte Gesamtwallclock-/SQL-Marshallingfrist. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung."}]
+-- source_paths: ["Modules/toolbelt.archive.zip-memory/Source/ZipWriterClr.sql", "Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs", "Modules/toolbelt.archive.zip-memory/Clr/ZipWriter.cs"]
+-- review_status: "verified"
+-- source_module_version: "1.4.0"
+-- public_entrypoints: ["toolbelt_archive.USP_CreateZipFromEntries"]
+-- ---
+--
+-- # TVF_InternalZipWriterArchive
+--
+-- ## Zweck und Einsatzfälle
+--
+-- Interner begrenzter TBZW-Envelope-zu-ZIP-Writer mit einer Statuszeile.
+--
+-- ## Voraussetzungen
+--
+-- ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
+--
+-- ## Parameter und Zugriff
+--
+-- | Parameter | SQL-Typ | SQL-Default | Richtung | Vertrag |
+-- |---|---|---|---|
+-- | `@Envelope` | `varbinary(max)` | kein Default | Input | NichtNULL TBZW-Version1-Envelope mit gebundenen Namen/Payloads,keine freie ZIP-/SQL-Datei. Little-endian Header12Bytes,jeEntry Ordinal4/NameBytes4/PayloadBytes8/Name/Payload,keine Restbytes. |
+-- | `@Method` | `int` | kein Default | Input | Taxativ0=Stored oder8=Deflate,für alleEntries. NichtNULL;keine freieKompressionsstufe. |
+-- | `@MaxEntries` | `int` | kein Default | Input | Ganzzahl 1..1024, Öffentlicher Default 256: Entries über die gesamte Tabelle. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+-- | `@MaxNameUnits` | `int` | kein Default | Input | Ganzzahl 1..2048, Öffentlicher Default 1024: UTF-16-Einheiten je Entryname; Reader bleibt unabhängig bei 1024. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+-- | `@MaxEntry` | `bigint` | kein Default | Input | Ganzzahl 1..33554432, Öffentlicher Default 16777216: unkomprimierte Payloadbytes je Entry. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+-- | `@MaxTotal` | `bigint` | kein Default | Input | Ganzzahl 1..134217728, Öffentlicher Default 67108864: Summe unkomprimierter Payloadbytes aller Entries. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+-- | `@MaxArchive` | `bigint` | kein Default | Input | Ganzzahl 1..150994944, Öffentlicher Default 71303168: Bytes des vollständigen finalisierten ZIP einschließlich Header, Namen und Directory. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+-- | `@MaxEnvelope` | `bigint` | kein Default | Input | Ganzzahl 1..142606336, Öffentlicher Default 71303168: Bytes des internen Übergabe-Envelopes einschließlich Framing und Namen, nicht nur Payload. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+-- | `@Budget` | `int` | kein Default | Input | Ganzzahl 1..60000, Öffentlicher Default 30000: Millisekunden kooperatives Writerbudget; keine harte Gesamtwallclock-/SQL-Marshallingfrist. Innerhalb dieses Bereichs absenkbar oder erhöhbar; NULL/0/negativ/höher ungültig. Keine unbegrenzte Einstellung. |
+--
+-- InternerCLR-Einstieg:alleArgumenteexplizit,keineSQL-Defaults,keinHilfe-/ResultTableparameter. ÖffentlicheFassadebevorzugen;notwendigegezielteProvider-SELECT-Rechtebleibenmodulabhängig.
+--
+-- ## Ergebnisse
+--
+-- | Spalte | SQL-Typ | Vertrag |
+-- |---|---|---|
+-- | `ErrorNumber` | `int` | NULL implizit; Writer0=Erfolg;ReaderNULL=Erfolg;sonst erwarteterFehlercode |
+-- | `ErrorMessage` | `nvarchar(4000)` | NULL implizit; NULL beiErfolg,erwarteteFehlermeldungbeiFehler |
+-- | `Payload` | `varbinary(max)` | NULL implizit; WriterArchiv beziehungsweiseUTF8Name,beiFehlerNULL |
+--
+-- Genau eineStatuszeile;WriterErfolg0,ReaderErfolgNULL. NiemalsbeideKonventionenvermischen.
+--
+-- ## Aufrufbeispiele
+--
+-- ```sql
+-- -- InternerProvider:öffentlicheFassadeverwenden.
+-- EXEC toolbelt_archive.USP_CreateZipFromEntries @Hilfe=1;
+-- ```
+--
+-- ## Rechte
+--
+-- Vorhandenes EXECUTE auf die öffentliche Memory-USP und gezielte SELECT-Rechte auf benötigte interne CLR-TVFs gemäß Modulvertrag. Writer braucht die ResultTable-Schnittstelle für beide Ausgaben; Reader Helper-EXECUTE nur bei ResultTable. Leserechte auf Caller-Temps und Metadatensicht für Writer, tempdb.sys.columns und spezifische sys.parameters-Sicht. Interne Kennzeichnung ist kein Verbot notwendiger Providerberechtigungen, aber kein Freibrief für allgemeine Direktnutzung. Keine Filesystemrechte für den Memorypfad.
+--
+-- ## Ressourcenbedarf
+--
+-- Writergrenzen:Entries1..1024, Namen1..2048Codeunits, Entry1..33554432, Summe1..134217728, ZIP1..150994944, Envelope1..142606336, Budget1..60000ms. Readergrenzen:268435456Archivbytes,10000Entries,1024Namenseinheiten, komprimiert134217728, extrahiert maximal67108864. Reader hat keinen eigenen Timer. Snapshot-, Envelope-, Seek- und Transportkopien, Deflatepuffer und CRC kosten zusätzlich Speicher/CPU. Kooperatives Writerbudget ist keine harte Wallclock-, Heap- oder SQL-Transportquote.
+--
+-- ## Nebenwirkungen
+--
+-- Dieser interne Einstieg führt nur den beschriebenen CLR-Providerteil aus. Die zusätzlichen SQL-Validierungen, Transaktionen und das Routing liegen in der öffentlichen Fassade und werden hier nicht nachgebildet.
+--
+-- Die öffentliche Fassade normalisiert KeepData/Debug/Hilfe bei NULL zu 0 und liefert frühe Hilfe. Sie prüft Stored/Deflate byte- und längengenau, endliche Ressourcenlimits und die beiden Writer-TVFs. Die fünfparametrige PrepareResultTable-Schnittstelle wird auch ohne Ausgabeziel geprüft. Input und Output müssen verschiedene sichtbare lokale Caller-Temps ohne Punkt oder ## sein; Writer-Helpernamen sind reserviert. Inputspalten: Ordinal int, EntryName nvarchar(max), Payload varbinary(max), nicht computed oder verschlüsselt. Geprüft werden system_type_id/max_length, kein zusätzlicher user_type_id-Gleichheitsguard. LEN-Namensgrenzen folgen SQL-Space-Semantik.
+--
+-- Doomed Caller werden abgewiesen. Eigene Transaktion oder eigener Savepoint; HOLDLOCK stabilisiert Preflight und Snapshot. Keine parallele MARS-/Caller-Mutation derselben Temps. Positive eindeutige Ordinals, nichtNULL-Fachwerte, Count-, Entry- und Summengrenzen vor privater Payloadkopie prüfen. Die Name-TVF codiert wohlgeformtes UTF16 streng nach UTF8. Duplikate nach exakten Namensbytes und Länge abweisen. Envelopegröße:12+Payloadsumme+16*Count+Namensbytes. In Ordinalreihenfolge Little-endian-TBZW-V1-Envelope mittels lokaler LOB-.WRITE-Operationen bilden.
+--
+-- Die Archive-TVF kopiert den begrenzten Envelope einmal in eigenen seekbaren Speicher. Header, Version, Count, steigende Ordinals, UTF8-Namen, Ressourcen und Restfreiheit prüfen. Stored0 oder Deflate8; CRC32 bei Payloadverarbeitung, UTF8-Flag und feste DOS-Zeit1980-01-01. Lokale Header nachtragen, CentralDirectory und EOCD finalisieren. Keine ZIP64-, Multi-Disk-, Encryption-, Verzeichnisentry- oder Extrafeldunterstützung. Leere Eingabe erzeugt ein22Byte-EOCD-ZIP. Der kooperative CLR-Timer umfasst Kopie, Writer und Finalisierung; SQL-Preflight, Envelopebau und Ergebnistransport liegen außerhalb.
+--
+-- Eine Writer-Statuszeile: ErrorNumber0 und nichtNULL-Payload bei Erfolg. Die Fassade prüft den Status und materialisiert fünf Ergebnisfelder. Optionales Helper-DDL/INSERT gehört zur Transaktion beziehungsweise zum Savepoint. Eigener Commit vor Abschluss-PRINT und direkter Ausgabe; im CATCH eigener Rollback oder committable eigener Savepointrollback. Kein Dateizugriff. Writer-Namenslimit2048 und Readerlimit1024 sind verschieden. Deflatebytes haben keine pauschale plattformübergreifende Bitgleichheitszusage.
+--
+-- ## Fehlerbehandlung
+--
+-- Reader:51320 Argumente,51321 Struktur/Encoding/Stream,51322 Name fehlt,51323 gesuchter Name doppelt,51324 Encryption verboten,51325 Ressourcen,51326 Ratio,51327 Format/Method,51328 Integrität,51329 Wrapper/Dependency. Writer:51350 Argumente,51351 SQL-Inputshape,51352 Name,51353 Namensduplikat,51354 Ressourcen,51355 Format/Overflow,51356 Timeout,51357 Dependency,51358 Transport,51359 Providerstatus. Status-TVFs wandeln nur explizit gefangene Fehler um; unerwartete CLR-/Enginefehler bleiben Originalexceptions. Reader-ErfolgNULL, Writer-Erfolg0. Öffentliche Fassaden werfen statt einer Teilpayload.
+--
+-- ## Aussagegrenzen
+--
+-- Quellgeprüfter aktueller Vertrag; keine neue native Hilfe-/Unicode-/Minimalrechte-/Callerzustands-/Installer-/ZIP-/Dateipublikationsabnahme. Historische Nachweise bleiben an ihre Artefakte gebunden. CRC32, Status und PathSafe sind keine Signatur, Malwareprüfung oder Herkunftsauthentifizierung. Kein allgemeiner ZIP64-, Encryption-, Streaming- oder Mehrdatei-Unpacker. Keine Installations- oder Rechteattestation. ZIPnamen, Payloads, Dateipfade und Runtimebefunde privat halten.
+-- OBJECT_USAGE_SKILL:END
 AS EXTERNAL NAME [tlblt_Archive_ZipMemory].[Toolbelt.Archive.ZipMemory.ZipEntryProvider].[CreateWriterArchiveStatus];
 GO

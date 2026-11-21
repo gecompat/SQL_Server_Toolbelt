@@ -28,7 +28,7 @@ Runtime nicht ausgeführt; unveröffentlicht.
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit dem Namen einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. Darf nicht die EntryTable sein; beim In-memory-Writer kein Punkt im Namen und kein reservierter #tbx_ZipWriter_-Name. Dateifassade verlangt Namen 2..116 UTF-16-Einheiten ohne Punkt/#tbx_ oder eigene #ZipFiles_*Stage-Namen. Dateipublikation erfolgt vor SQL-Ausgabe und wird bei späterem Routingfehler nicht rückgängig gemacht. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. 0 keine eigenen Messages, 1..255 kurze Abschlussmessage ohne Entrynamen/Payloads/Pfade; bei ResultTable zusätzlich Helperdiagnose. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 <!-- API_PARAMETERS:END -->
 
 ## Ergebnis
@@ -77,3 +77,9 @@ und vorhandenes Zielverzeichnis voraus. [Runtime offen](../Tests/README.md).
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Skill](../../../Metadata/UsageSkills/toolbelt_archive/USP_CreateZipFileFromEntries.md) enthält alle Parameter, konkrete Ergebnisfelder, Rechte, Ressourcen- und Transaktionsgrenzen sowie Fehlerpfade. Derselbe Text steht in der DDL und wird über `@Hilfe=1` zusätzlich zur bisherigen Standardhilfe als vollständige Skillzeile ausgegeben. Neue native Qualifikation bleibt getrennt.
+
+Die Datei wird vor dem endgültigen SQL-ResultTable-Routing veröffentlicht. Ein späterer SQL-Fehler nimmt die Dateipublikation nicht zurück; der Aufruf löscht nicht kompensierend. Er verlangt einen Aufruf ohne Callertransaktion und bestehende Root-, Windowsidentitäts- und NTFS-Rechte.

@@ -81,10 +81,16 @@ anderer möglicher Profile.
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | tinyint 0..255, Default 0; NULL wirkt wie 0. Keine eigene zusätzliche Readerdiagnose; im ResultTable-Pfad an den kanonischen Helper weitergereicht. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte. |
 <!-- API_PARAMETERS:END -->
 
 
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zip).
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Skill](../../../Metadata/UsageSkills/toolbelt_archive/USP_ListZipEntriesFromBinary.md) enthält alle Parameter, konkrete Ergebnisfelder, Rechte, Ressourcen- und Transaktionsgrenzen sowie Fehlerpfade. Derselbe Text steht in der DDL und wird über `@Hilfe=1` zusätzlich zur bisherigen Standardhilfe als vollständige Skillzeile ausgegeben. Neue native Qualifikation bleibt getrennt.
+
+Die Liste prüft die Container-/Headerstruktur und liefert Metadaten. Sie dekomprimiert nicht alle Entries und prüft deren Payload-CRCs nicht. IsExtractionSupported bedeutet nur unterstützte Method0/8 ohne Verschlüsselung; Quoten, Duplikate, Pfade und tatsächliche Payloadintegrität sind separat. PathSafe ist eine begrenzte lexikalische Klassifikation und ersetzt keine Windows-Pfad- oder Rootautorisierung.
