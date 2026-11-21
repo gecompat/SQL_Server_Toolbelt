@@ -58,7 +58,7 @@ class ParameterHelp(unittest.TestCase):
         self.assertNotEqual(schema_upgrade.canonical_definition_hash(),schema_upgrade.current_definition_hash(old))
 
     def test_all_public_usps_have_every_exact_parameter_description(self):
-        self.assertEqual(generator.generate(), 73)
+        self.assertEqual(generator.generate(), 74)
         notes = generator.parameter_notes()
         files = transition.ssis_files(ROOT)
         prefix = ROOT / "Modules/toolbelt.tsql.ssis-debug"
@@ -68,8 +68,8 @@ class ParameterHelp(unittest.TestCase):
         for p in api["parameters"]:
             self.assertEqual(p["description"], notes["toolbelt_tsql.USP_ExplainSsisDataFlow"]["parameter_notes"][p["name"]])
         public = [i for i in generator.catalog.objects(ROOT) if i["type"] == "USP"]
-        self.assertEqual(len(public), 74)
-        self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 675)
+        self.assertEqual(len(public), 75)
+        self.assertEqual(sum(len(generator.catalog.signature(i)[1]) for i in public), 690)
 
     def test_original_help_transition_at_recorded_source_scope(self):
         for path in transition.snapshot(ROOT):
