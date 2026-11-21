@@ -272,6 +272,31 @@ class MarkerlessContractTests(unittest.TestCase):
         for path in (ROOT/'Modules').glob('*/module.yaml'):
             self.assertIn("N'"+path.parent.name+"'",sql)
 
+    def test_capability_generator_requires_reviewed_own_skill_and_preserves_body(self):
+        skills=installer.usage_skill_tools()
+        sql=capabilities.render()
+        skill=skills.read(skills.source_file(ROOT,'toolbelt_metadata','VW_ModuleCapabilities'))
+        self.assertEqual(skills.read_ddl_comment(sql).markdown,skill.markdown)
+        baseline=subprocess.check_output(['git','show',
+            '3041211e:Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql'],cwd=ROOT).decode('utf-8-sig')
+        self.assertEqual(skills.strip_ddl_projection(ROOT,capabilities.TARGET,sql),baseline)
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            directory=root/'Metadata/UsageSkills/toolbelt_metadata'
+            directory.mkdir(parents=True)
+            with self.assertRaises(FileNotFoundError): capabilities.render(root)
+            draft=directory/'VW_ModuleCapabilities.md'
+            draft.write_text(skill.markdown.replace('review_status: "verified"','review_status: "draft"'),encoding='utf-8',newline='\n')
+            with self.assertRaises(ValueError): capabilities.render(root)
+
+    def test_pure_tsql_build_binds_capability_projection_editorial_inputs(self):
+        bindings=installer.build_source_bindings()
+        for path in (capabilities.TARGET,'Scripts/Metadata/usage_skills.py',
+                     'Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md',
+                     'Scripts/Install/New-MarkerlessCapabilities.py'):
+            self.assertIn(path,bindings)
+            self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
+
     def test_permission_contract_is_preserved_and_unknown_declarations_fail(self):
         text=(ROOT/'Modules/toolbelt.filesystem.windows/module.yaml').read_text(encoding='utf-8')
         self.assertEqual(installer.assembly_permission(text),'UNSAFE')

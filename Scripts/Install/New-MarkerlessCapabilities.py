@@ -1,6 +1,7 @@
 """Leitet sichtbare Schnittstellenkandidaten aus den Modulmanifesten ab."""
 from pathlib import Path
 import argparse
+import sys
 from markerless_manifest import objects, scalar, section
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -32,7 +33,7 @@ def render(root=ROOT):
             found.append((module,assembly_name(scalar(section(text,'clr'),'  assembly_sql_name')),'ASSEMBLY'))
         rows.extend(found)
     values=',\n    '.join("(N'%s',N'%s',N'%s')"%row for row in rows)
-    return '''-- ============================================================================
+    sql='''-- ============================================================================
 -- Objekt: toolbelt_metadata.VW_ModuleCapabilities; Typ: View
 -- Zweck: Sichtbare bekannte Toolbelt-Schnittstellenkandidaten anzeigen.
 -- Vertrag: Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
@@ -72,6 +73,11 @@ SELECT CONVERT(sysname,ModuleId) ModuleId,CONVERT(nvarchar(4000),NULL) ModuleVer
 FROM Visible;
 GO
 '''
+    sys.path.insert(0,str(root/'Scripts/Metadata'))
+    import usage_skills
+    skill=usage_skills.read(usage_skills.source_file(root,'toolbelt_metadata','VW_ModuleCapabilities'))
+    usage_skills.require(skill.metadata['source_paths'][0]==TARGET,'Capability-Skillquellbindung')
+    return usage_skills.project_relation_ddl(sql,skill)
 
 
 if __name__=='__main__':

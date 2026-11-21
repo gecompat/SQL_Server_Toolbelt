@@ -81,6 +81,13 @@ Messfehler negative Codes; der Quoter wirft Exceptions und setzt einen
 vollständigen Budgetpreflight voraus. Diese Transporte dürfen nicht
 gegeneinander ausgetauscht werden.
 
+Der [Capability-Skill](toolbelt_metadata/VW_ModuleCapabilities.md) beschreibt
+eine andere Oberfläche als den hier erzeugten Skillkatalog: Die Capability-View
+liest `sys.objects` und `sys.assemblies`, um sichtbare namens-/typgleiche
+Kandidaten zu zeigen. Ihre Version und ihr Modus bleiben NULL. Der konstante
+Skillkatalog liefert Nutzungsverträge unabhängig von der Installation. Keine
+der beiden Views attestiert vorhandene Aufruferrechte.
+
 Bei gruppierten Prozeduren bindet der Hilfeadapter die ausgewählte Identität
 an ihren eigenen `GO`-Batch. Benachbarte Hilfezweige und lokale CREATE-TABLE-
 Anweisungen im Fachpfad werden nicht als neue Prozedurdeklaration behandelt.

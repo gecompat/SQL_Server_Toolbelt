@@ -905,6 +905,25 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_capability_skill_describes_visibility_without_invented_installation_state(self):
+        s = skills.read(skills.source_file(ROOT, "toolbelt_metadata", "VW_ModuleCapabilities"))
+        expected = {k: v for k, v in skills.inventory(ROOT).items()
+                    if v["module_id"] == "toolbelt.metadata.capability-catalog"
+                    and k[2] == "VW_ModuleCapabilities"}
+        self.assertEqual(skills.validate_coverage([s], expected), 1)
+        self.assertEqual(s.metadata["parameters"], [])
+        path = s.metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        self.assertEqual(skills.project_relation_ddl(text, s), text)
+        self.assertEqual(skills.read_ddl_comment(text).markdown, s.markdown)
+        body = skills.strip_ddl_projection(ROOT, path, text)
+        self.assertIn("OBJECT_ID(c.ObjectName)", body)
+        self.assertIn("CONVERT(varbinary(256),a.name)", body)
+        self.assertIn("SELECT DISTINCT ModuleId", body)
+        for term in ("Metadata Visibility", "incomplete", "immer NULL", "VW_ObjectUsageSkills", "keine neue native"):
+            self.assertIn(term.casefold(), s.markdown.casefold())
+        self.assertNotIn("extended_properties", body)
+
     def test_schema_skills_distinguish_public_facade_and_required_clr_arguments(self):
         expected = {key: value for key, value in skills.inventory(ROOT).items()
                     if value["module_id"] == "toolbelt.json.schema"}

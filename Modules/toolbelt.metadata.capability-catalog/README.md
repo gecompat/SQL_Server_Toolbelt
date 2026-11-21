@@ -16,6 +16,13 @@ Das Modul zeigt sichtbare bekannte Schnittstellenkandidaten ohne Installationsma
 
 Die [Objektreferenz](Documentation/VW_ModuleCapabilities.md) erklärt die vier Spalten und Metadata Visibility. Der [gemeinsame SQL-Installer](../../Scripts/Install/README.md) ist der neue Standard ohne SQLCMD. Er benötigt keine Marker für diese View. Die Kandidatenliste wird mit `python Scripts/Install/New-MarkerlessCapabilities.py` aus den Modulmanifesten erzeugt und mit `--check` geprüft.
 
+Der vollständige [Usage-Skill](../../Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md)
+ist in der kanonischen View-DDL eingebettet. Diese Capability-View liest
+SQL-Kataloge und filtert nach Sichtbarkeit. Die separat beauftragte
+`toolbelt_metadata.VW_ObjectUsageSkills` beschreibt dagegen bekannte
+Nutzungsverträge als konstante Daten, unabhängig von ihrer Installation.
+Keine der beiden Oberflächen ersetzt eine Berechtigungsprüfung.
+
 Die Quellumstellung ist implementiert; aktuelle native Gesamtqualifikation steht aus. Die folgenden datierten Nachweise und Lifecycle-Beschreibungen gehören zum ursprünglichen Marker-Vertrag.
 
 ## Historische Modulbeschreibung und Nachweise

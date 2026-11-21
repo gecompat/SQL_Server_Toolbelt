@@ -38,8 +38,8 @@ permissions_required:
   - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
-collation_contract: "Markernamen, Modul-IDs und erlaubte Werte werden mit expliziten Latin1_General_100_BIN2-/CI_AS-Collations ausgewertet."
-data_type_contract: "ModuleId ist sysname; Markerwerte werden verlustvermeidend als nvarchar(4000) projiziert; MetadataStatus ist varchar(16)."
+collation_contract: "Objektauflösung und DISTINCT folgen der wirksamen Datenbankkollation; Assemblynamen werden als varbinary(256) verglichen. Kein Marker- oder Versionsvergleich."
+data_type_contract: "ModuleId ist sysname; ModuleVersion und DeploymentMode sind nvarchar(4000) und immer NULL; MetadataStatus ist varchar(16) und immer incomplete."
 help_contract_version: "not applicable"
 resultset_contracts:
   - name: "VW_ModuleCapabilities"

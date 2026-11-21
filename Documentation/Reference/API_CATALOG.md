@@ -3753,7 +3753,7 @@ Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-M
 
 Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: c4ca5a8486f36f8e9c453988c1375c372129326ea8acb27f83dd6dfc7e0afc44 -->
+<!-- Source/Vertrag SHA256: 62c4f53ce24fb70b6d906eefe7571097ee0890d9a82ea5efe7525b504a753d7f -->
 
 Keine Eingabeparameter.
 

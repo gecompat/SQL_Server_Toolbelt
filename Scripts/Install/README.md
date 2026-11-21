@@ -81,6 +81,11 @@ Deploy-/Uninstall-Skripten ab. Bereits die aktuellen Manifeste und SQL-Quellen
 verwenden `tlblt`-Assemblynamen; der Build muss sie nicht erst nachträglich
 für die aktuelle Funktionalität übersetzen.
 
+Jeder Build prüft außerdem die kanonische Capability-Projektion. Ihr geprüfter
+Skill, der Skill-Leser und die generierte Viewquelle werden deshalb auch bei
+reinen T-SQL-Teilinstallern im Quellenmanifest gebunden. Eine Änderung dieser
+Eingaben verlangt einen neuen Build; ein altes Manifest wird nicht nachgetragen.
+
 ## Installieren
 
 Die Zieldatenbank muss existieren. SQL Server 2019 oder neuer und mindestens

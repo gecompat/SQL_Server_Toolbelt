@@ -311,9 +311,13 @@ def build_source_bindings(assembly_names=()):
                  'Modules/toolbelt.json.constructors/Documentation/KNOWN_CLR_ARTIFACTS.json',
                  'Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json'):
         paths.add(ROOT/name)
+    # Every build checks the canonical capability projection, including pure
+    # T-SQL subsets. Bind its reviewed editorial input and reader as well.
+    skills=usage_skill_tools()
+    paths.add(ROOT/'Scripts/Metadata/usage_skills.py')
+    paths.add(ROOT/caps.TARGET)
+    paths.add(skills.source_file(ROOT,'toolbelt_metadata','VW_ModuleCapabilities'))
     if assembly_names:
-        skills=usage_skill_tools()
-        paths.add(ROOT/'Scripts/Metadata/usage_skills.py')
         paths.update(skills.source_file(ROOT,'',name) for name in assembly_names)
         if 'tlblt_Filesystem_Windows' in assembly_names:
             import filesystem_build
