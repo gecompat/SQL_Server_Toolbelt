@@ -62,6 +62,20 @@ Windows SQL Server 2025/CU8, CL170, lokal ist damit durch die fünf bestehenden
 SQL-Prüfungen mit der gebundenen SQL-Dienstidentität, den korrigierten separaten
 Gastcheck und beide Abschlussaudits abgedeckt. Der SQL-Fall wurde wiederverwendet.
 
+Der zusätzliche native Teilabbruchfall vom 2026-11-21 mit
+[`ZipFiles.Directory.Partial.sql`](Runtime/ZipFiles.Directory.Partial.sql)
+lief lokal mit Windows-Anmeldung auf SQL Server 2025/CU8, CL170.
+Der [Fixture-Generator](Runtime/Build-ZipDirectoryPartialFixture.py) erzeugt
+drei lesbare Einträge im ZIP-Verzeichnis und eine Prüfsummenabweichung im zweiten
+Dateiinhalt. Vier SQL-Prüfungen bestätigten die ResultTable-Zeilen
+`completed`, `failed` mit `CRC_MISMATCH` und `not_attempted` in
+Archivreihenfolge sowie den Byte-Readback der ersten Datei. Der separate
+Gastcheck bestätigte, dass außer der Besitzmarkierung nur diese Datei im
+Testroot verblieb. Der frische Abschlussaudit bestätigte die Abwesenheit
+von Testroot und Testdatenbank sowie den ursprünglichen Trustzustand.
+Die Produktbinaries und der Installationssatz aus der V1-Abnahme wurden
+wiederverwendet.
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
