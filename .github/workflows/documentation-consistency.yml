@@ -156,7 +156,11 @@ jobs:
             git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/test_pointer_probe_cleanup.py Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py .github/workflows/documentation-consistency.yml || scope_result=$?
             if [ "$scope_result" -eq 1 ]; then run_scope=true; elif [ "$scope_result" -ne 0 ]; then exit "$scope_result"; fi
           fi
-          if [ "$run_scope" = true ]; then python3 Tests/CI/test_pointer_probe_cleanup.py; fi
+          if [ "$run_scope" = true ]; then
+            # The synthetic tester invokes the original manual deployment driver.
+            frozen=$(python3 -B -c "import sys;from pathlib import Path;sys.path.insert(0,'Tests/Release');from ssis_historical_context import historical_root;print(historical_root(Path.cwd(),'2fbe8e3e86f370b22ad2ce9f9716d971072a052b'))")
+            (cd "$frozen" && python3 -B Tests/CI/test_pointer_probe_cleanup.py)
+          fi
 
       - name: Test strict Lab driver arguments without Lab access
         shell: pwsh
