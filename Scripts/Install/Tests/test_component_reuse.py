@@ -78,6 +78,18 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NONCANONICAL_RETRY_HELP_STATUS'):
             module.compare(outside,outside.replace(module.RETRY_HELP_STATUS_OLD,module.RETRY_HELP_STATUS_NEW),path)
 
+    def test_ssis_help_repairs_stay_in_the_generated_help_batch(self):
+        for path,start,end in ((module.SSIS_PUBLIC_PATH,b'    IF @Hilfe=1\n    BEGIN\n',b'        RETURN;'),
+                               (module.SSIS_HELP_PATH,b'        internal const string Sql = @"',b'        internal const string Columns = ')):
+            old=start+b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';\n"+end+b'\nSELECT 7;'
+            current=old.replace(module.SCHEMA_HELP_OLD,module.SSIS_HELP_NEW)
+            module.compare(old,current,path)
+            with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+                module.compare(old,current.replace(b'SELECT 7;',b'SELECT 8;'),path)
+            with self.assertRaisesRegex(ValueError,'NONCANONICAL_SSIS_HELP'):
+                module.compare(old.replace(start,b'Contoso'),current,path)
+            with self.assertRaises(ValueError):module.compare(old,current,'Modules/Contoso/Source/Other.sql')
+
     def test_xlsx_help_repair_never_admits_business_or_guard_changes(self):
         for path in module.XLSX_HELP_PATHS:
             old=(b'    IF @Hilfe=1\n    BEGIN\nSELECT N\''+module.SCHEMA_HELP_OLD+

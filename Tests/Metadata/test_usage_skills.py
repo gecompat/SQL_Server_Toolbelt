@@ -1,6 +1,7 @@
 """Reale Prototypen und adversarielle Datentransporte; keine SQL-Verbindung."""
 from copy import deepcopy
 import importlib.util
+import json
 from pathlib import Path
 import re
 import tempfile
@@ -904,6 +905,48 @@ class UsageSkillTests(unittest.TestCase):
         self.assertEqual([p["sql_default"] for p in skill.metadata["parameters"]],
                          [None, None, "16777216", "128"])
 
+
+    def test_ssis_skills_bind_existing_unicode_clr_help_without_changing_analysis(self):
+        spec=importlib.util.spec_from_file_location('ssis_skill_contracts',ROOT/'Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py')
+        generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+        files=generator.generate(write=False)
+        baseline=generator.generate(write=False,project_skills=False)
+        module=ROOT/'Modules/toolbelt.tsql.ssis-debug'
+        public=skills.read(skills.source_file(ROOT,'toolbelt_tsql','USP_ExplainSsisDataFlow'))
+        raw=skills.read(skills.source_file(ROOT,'toolbelt_tsql','USP_ExplainSsisDataFlowInternal'))
+        self.assertEqual(len(public.metadata['parameters']),43)
+        self.assertEqual(len(raw.metadata['parameters']),43)
+        mandatory=[p for p in raw.metadata['parameters'] if p['argument_required']]
+        self.assertEqual(len(mandatory),9)
+        self.assertTrue(all('(max)' in p['sql_type'] and p['sql_default'] is None for p in mandatory))
+        self.assertFalse(any(p['argument_required'] for p in public.metadata['parameters']))
+        for path,text in files.items():self.assertEqual((module/path).read_text(encoding='utf-8'),text)
+        for s in (public,raw):
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8')
+            self.assertEqual(skills.read_ddl_comment(text).markdown,s.markdown)
+            clean=skills.strip_help_projection(ROOT,path,text)
+            self.assertEqual(skills.strip_ddl_projection(ROOT,path,clean),baseline['Source/'+s.metadata['object_name']+'.sql'])
+            for value in ('IsExecutable=false','4194304','INSERT EXEC','noch nicht ausgeführt'):
+                self.assertIn(value,s.markdown)
+        public_sql=files['Source/USP_ExplainSsisDataFlow.sql']
+        self.assertLess(public_sql.index(skills.HELP_BEGIN),public_sql.index('SET XACT_ABORT OFF'))
+        raw_sql=files['Source/USP_ExplainSsisDataFlowInternal.sql']
+        self.assertEqual(skills.project_clr_procedure_ddl(raw_sql,raw),raw_sql)
+        with self.assertRaisesRegex(ValueError,'Signatur weicht'):
+            skills.project_clr_procedure_ddl(raw_sql.replace('@PackageBytes varbinary(max),','@PackageBytes varbinary(max) = NULL,'),raw)
+        with self.assertRaisesRegex(ValueError,'Signatur weicht'):
+            skills.project_clr_procedure_ddl(raw_sql.replace('@Operation nvarchar(32)','@Operation varchar(32)'),raw)
+        cs=files['Clr/HelpContract.Generated.cs']
+        encoded=re.search(r'" \+ ("(?:[^"\\]|\\.)*");\n        internal const string Columns',cs)
+        self.assertIsNotNone(encoded)
+        self.assertEqual(json.loads(encoded[1]),'\n'+skills.render_help_resultset(raw))
+        # Checkout line endings cannot alter LF inside the escaped suffix.
+        encoded_crlf=re.search(r'" \+ ("(?:[^"\\]|\\.)*");\r\n        internal const string Columns',cs.replace('\n','\r\n'))
+        self.assertEqual(json.loads(encoded_crlf[1]),json.loads(encoded[1]))
+        adapter=(module/'Clr/SqlAdapter.cs').read_text(encoding='utf-8')
+        self.assertLess(adapter.index('if (!hilfe.IsNull && hilfe.Value)'),adapter.index('var options = new Options'))
+        self.assertLess(adapter.index('HelpContract.Sql'),adapter.index('ResourceOptions.FromSqlParameters'))
+        self.assertIn('SqlContext.Pipe.ExecuteAndSend(help)',adapter)
 
     def test_xlsx_skills_preserve_null_priority_raw_contracts_and_type_display_limits(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.file.xlsx-memory'}

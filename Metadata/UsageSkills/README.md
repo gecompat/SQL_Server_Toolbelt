@@ -196,3 +196,20 @@ Runtimeausgaben gehören nicht in diese Dateien.
 Der DDL-Generator unterstützt auch die fest gebundenen CREATE-AGGREGATE-Definitionen der JSON-Konstruktoren. Im dynamischen Weg wird nur der bekannte `IF OBJECT_ID`-/konstante `EXEC sys.sp_executesql`-Aufbau mit passender Objektidentität akzeptiert. Beliebige SQL-Strings, Verkettungen und ungeschützte Ausführung sind keine Skillcontainer. Der Kommentar bleibt im eigenen Header vor EXTERNAL NAME; Entfernen der exakten Projektion erhält alle ursprünglichen Fachbytes.
 
 Ein vorhandener früher positiver Hilfezweig darf mit `RETURN 0;` oder `RETURN;` enden. Der Generator erhält die ursprüngliche Form unverändert und ergänzt nur das konstante Skillresultset davor. Fachcode hinter dem RETURN oder abweichende Rückgabewerte werden zurückgewiesen. Dies ersetzt keine native Hilfeabnahme.
+
+## Bestehende SSIS-CLR-Hilfe
+
+Der SSIS-Vertragsgenerator verwendet dieselben beiden kanonischen Skillquellen
+für öffentliche T-SQL-Hilfe, interne CLR-Hilfe und DDL. Der zusätzliche interne
+SELECT wird an den bestehenden konstanten Help-Batch angehängt; der Provider
+behält seinen frühen Hilfezweig. Ein normal escapierter C#-String erhält die
+originalen LF-Zeichen des Skilltexts auch bei einem CRLF-Checkout. Pflicht-LOBs
+und Unicodebindung der internen Signatur bleiben erhalten. Ungeklammerte
+CLR-Prozedursignaturen werden nur bei exakter Tokenübereinstimmung mit dem
+vollständigen geprüften Parametervertrag als DDL-Projektionsziel zugelassen.
+
+[SsisUsageSkillConstantHarness.cs](../../Tests/Metadata/SsisUsageSkillConstantHarness.cs)
+prüft den tatsächlich kompilierten Help-Konstantentext gegen den generierten
+Skill-SELECT. Er lädt nur die Assemblymetadaten und liest die erwartete lokale
+Testdatei; weder Provider, SQL-Pipe noch Analysepfad werden ausgeführt. Dies
+ersetzt keine native SQL-Hilfe- oder Callerzustandsabnahme.

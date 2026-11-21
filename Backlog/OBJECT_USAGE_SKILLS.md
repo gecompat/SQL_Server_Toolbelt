@@ -31,6 +31,15 @@ Source of Truth. Abgeleitete API-/Help-Projektionen an die Skillquelle koppeln.
 
 ## Drei übereinstimmende Darstellungen
 
+Quellstand 2026-11-21: Öffentliche und interne SSIS-Prozedur besitzen eigene
+geprüfte Skillquellen. Der Vertragsgenerator erzeugt daraus DDL und frühen
+Skillresultset; beim CLR-Einstieg ergänzt er den vorhandenen Help-Konstantenbatch
+mit einem LF-stabil escapten SELECT. Die neun technisch erforderlichen LOBs
+und der Analysepfad bleiben unverändert. Paketentwurf ohne Quellkatalog,
+optionale Katalogabnahme und spätere manuelle Ausführung sind ausdrücklich
+getrennt. Kompilierte Help-Konstanten sind offline prüfbar; neue native
+SQL-Pipe-/Callerzustands-/Installerabnahme bleibt separat erforderlich.
+
 Quellstand 2026-11-21: Auch die zehn katalogisierten XLSX-Objekte besitzen jetzt
 geprüfte Skillquellen. Workbook-/Rohzellenlesen, Typinterpretation und Anzeige
 sind ausdrücklich getrennt; öffentliche NULL-Binary-Priorität, interne

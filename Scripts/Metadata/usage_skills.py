@@ -569,7 +569,18 @@ def _clr_procedure_anchor(text, skill):
                if words[j:j + 3] == ["as", "external", "name"]]
     require(len(anchors) == 1, "Eindeutiges AS EXTERNAL NAME erforderlich")
     anchor = anchors[0]
-    require(words[anchor - 1] == ")", "Geklammerte CLR-Parameterdeklaration erforderlich")
+    if words[anchor - 1] != ")":
+        # SQL procedures may omit signature parentheses. Admit only the full
+        # reviewed parameter contract, not arbitrary text before EXTERNAL NAME.
+        signature = ",\n".join(p["name"] + " " + p["sql_type"]
+                                + ("" if p["sql_default"] is None else " = " + p["sql_default"])
+                                for p in skill.metadata["parameters"])
+        expected = _ddl_tokens(signature)
+        def contract_token(value):
+            return value if value.startswith(("N'", "'")) else value.casefold()
+        require([contract_token(t[0]) for t in ts[i + 4:anchor]]
+                == [contract_token(t[0]) for t in expected],
+                "Ungeklammerte CLR-Signatur weicht vom Skillvertrag ab")
     start = ts[anchor - 1][2]
     require(text[start:ts[anchor][1]].strip() == ""
             or DDL_BEGIN in text[start:ts[anchor][1]], "CLR-Headerlayout")

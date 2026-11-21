@@ -77,9 +77,25 @@ ARCHIVE_HELP_STARTS={
 XLSX_HELP_PATHS={
     'Modules/toolbelt.file.xlsx-memory/Source/'+name+'.sql'
     for name in ('USP_ListXlsxWorksheets','USP_ReadXlsxWorksheetCells')}
+SSIS_PUBLIC_PATH='Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql'
+SSIS_HELP_PATH='Modules/toolbelt.tsql.ssis-debug/Clr/HelpContract.Generated.cs'
+SSIS_HELP_NEW=('1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile; '
+               'Rückkehr vor fachlicher Parameter-/Paket-/Katalogprüfung und Ergebniszielmutation. '
+               '0 oder NULL führt den Fachpfad aus. Im internen CLR-Einstieg bleiben die neun '
+               'LOB-Argumente auch bei Hilfe syntaktisch erforderlich.').encode('utf-8')
 
 
 def corrected_historical_help(original,path):
+    if path in (SSIS_PUBLIC_PATH,SSIS_HELP_PATH) and SCHEMA_HELP_OLD in original:
+        if original.count(SCHEMA_HELP_OLD)!=1:raise ValueError('NONCANONICAL_SSIS_HELP')
+        if path==SSIS_PUBLIC_PATH:
+            start=b'    IF @Hilfe=1\n    BEGIN\n';end=b'        RETURN;'
+        else:
+            start=b'        internal const string Sql = @"';end=b'        internal const string Columns = '
+        if original.count(start)!=1:raise ValueError('NONCANONICAL_SSIS_HELP')
+        a=original.index(start)+len(start);b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:raise ValueError('NONCANONICAL_SSIS_HELP')
+        original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,SSIS_HELP_NEW)+original[b:]
     if path in XLSX_HELP_PATHS and SCHEMA_HELP_OLD in original:
         start=b'    IF @Hilfe=1\n    BEGIN\n';end=b'        RETURN 0;'
         if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
@@ -211,6 +227,15 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
         fs_records=clr_usage_skills.module_records(root,'toolbelt.filesystem.windows')
         clr_usage_skills.generate(root,'toolbelt.filesystem.windows','Toolbelt.Filesystem.Windows',root/generated,check=True)
         actual.remove(generated)
+    ssis_base=None
+    if SSIS_HELP_PATH in actual:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('ssis_usage_contract',root/'Modules/toolbelt.tsql.ssis-debug/Scripts/New-ContractSources.py')
+        ssis_generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(ssis_generator)
+        projected=ssis_generator.generate(write=False)
+        if (root/SSIS_HELP_PATH).read_text(encoding='utf-8-sig')!=projected['Clr/HelpContract.Generated.cs']:
+            raise ValueError('CURRENT_SSIS_HELP_NOT_CANONICAL')
+        ssis_base=ssis_generator.generate(write=False,project_skills=False)['Clr/HelpContract.Generated.cs'].encode('utf-8')
     projection='Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql'
     if projection in actual:
         # The known-object inventory is a current generated metadata surface,
@@ -234,6 +259,8 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
     import usage_skills
     for path,data in originals.items():
         current=(root/path).read_bytes()
+        if path==SSIS_HELP_PATH and ssis_base is not None:
+            current=ssis_base
         if fs_records is not None and path=='Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs':
             # Only exact new optional parameter/first help instruction pairs
             # are removed. Fresh binaries/new help still need current proof.

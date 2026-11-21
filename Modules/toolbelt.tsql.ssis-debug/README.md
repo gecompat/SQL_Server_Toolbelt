@@ -38,6 +38,28 @@ prüfen. `CatalogMode=catalog` ergänzt reale Metadatenprüfung; die ausführlic
 und die weiterhin verfügbare Binding-Vorlage. Paket und SQL werden während der
 Analyse niemals ausgeführt.
 
+## Maschinenlesbare Gebrauchsanweisung
+
+Im neuen Quellstand liefert `@Hilfe=1` die bisherige Standardhilfe und danach
+genau einen zusätzlichen Resultset mit einer vollständigen Skillzeile:
+`SkillFormatVersion`, `SchemaName`, `ObjectName`, `SkillMarkdown nvarchar(max)`.
+Der Hilfeweg kehrt vor Paket-, Fachparameter- und Katalogprüfung sowie einer
+Ergebniszielmutation zurück. Beide Einstiege besitzen eine eigene
+[kanonische Skillquelle](../../Metadata/UsageSkills/README.md) und denselben
+Text in ihrer ausgelieferten DDL. Die projektweite SQL-Skillview wird erst bei
+vollständiger Abdeckung ausgeliefert.
+
+```sql
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
+```
+
+Die interne CLR-Prozedur bleibt ein Implementierungsdetail: Ihre neun
+LOB-Parameter haben technisch keine SQL-Defaults und müssen auch bei Hilfe
+explizit angegeben werden. Die öffentliche Fassade übernimmt diese Bindung.
+Neue Hilfe- und Installerbytes benötigen eigene aktuelle Abnahme; die
+unveränderten fachlichen Analysepfade werden getrennt mit ihren bisherigen
+gebundenen Nachweisen abgeglichen.
+
 Die veröffentlichten Vorabreleases bis rc.4 und deren gemeinsame Installer
 bleiben unverändert. Sie enthalten diesen neuen Vertrag noch nicht. Die
 markerbasierten Lifecycle-Skripte sind kein Upgrade-/Uninstallweg für die neue

@@ -344,7 +344,7 @@
       "default": "0",
       "required": false,
       "nullable": true,
-      "description": "Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden."
+      "description": "1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige Skillzeile; Rückkehr vor fachlicher Parameter-/Paket-/Katalogprüfung und Ergebniszielmutation. 0 oder NULL führt den Fachpfad aus. Im internen CLR-Einstieg bleiben die neun LOB-Argumente auch bei Hilfe syntaktisch erforderlich."
     }
   ],
   "columns": [
