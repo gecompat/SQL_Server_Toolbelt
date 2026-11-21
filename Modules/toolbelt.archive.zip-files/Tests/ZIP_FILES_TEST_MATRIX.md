@@ -127,6 +127,40 @@ kleinen Nutzdaten. Physische Maximallast war kein Bestandteil des Falls.
 Der erste Lauf bleibt wegen des zu engen Testorakels für SQL-Fehler 8114
 `FAILED_CLEANED`; sein separater Abschlussaudit bestand.
 
+### Physische Grenzfälle
+
+Der [native Lasttest](Runtime/ZipFiles.Directory.PhysicalCeilings.sql)
+auf Windows SQL Server 2025/CU8, CL170, lokal im Caller-Modus prüfte echte
+ZIP-Daten am Maximum und jeweils eine Einheit darüber:
+
+| Dimension | Vollständig extrahiert | Abgelehnt |
+|---|---:|---:|
+| Archivgröße | 268.435.456 Bytes | 268.435.457 Bytes mit `ZIP_ARCHIVE_LIMIT` |
+| Expandierte Größe je Eintrag | 67.108.864 Bytes | 67.108.865 Bytes mit `ENTRY_SIZE_LIMIT` |
+| Dateien je Archiv | 10.000 | 10.001 mit `ZIP_ENTRY_COUNT_LIMIT` |
+| Pfadlänge des Eintrags | 1.024 UTF-16-Einheiten | 1.025 mit `ENTRY_NAME_LIMIT` |
+| Komprimierte Größe je Eintrag | 134.217.728 Bytes | 134.217.729 Bytes mit `ENTRY_SIZE_LIMIT` |
+
+Der Gastcheck bestätigte 10.005 publizierte Dateien und ihre Sollgrößen,
+einschließlich des langen Pfads. Der
+[Fixture-Generator](Runtime/Build-ZipDirectoryPhysicalFixtures.py) erzeugt
+kleine Eingaben für den Lab-Transport. SQL Server setzt daraus die
+vollständigen großen Archive zusammen.
+
+Die interne Grenze für komprimierte Nutzdaten wurde mit einer separaten
+[DEFLATE-Fixture](Runtime/ZipFiles.Directory.CompressedCeiling.sql) auf
+demselben Ziel geprüft. Der Gastcheck bestätigte das eine erwartete
+Ausgabebyte. Beide frischen Audits bestätigten die Entfernung der jeweiligen
+Testdatenbank und des Testroots sowie den ursprünglichen Trustzustand.
+
+Die SQL-Typmaxima für Gesamtgröße und Ratio sind durch gültige
+V1-Nutzdaten nicht erreichbar. 10.000 Einträge zu je höchstens 64 MiB
+begrenzen die Gesamtexpansion bereits auf höchstens 625 GiB. Stored expandiert
+mit Faktor 1. DEFLATE kann pro codierter Rückreferenz höchstens 258 Bytes
+ausgeben und benötigt dafür Eingabebits, sodass der SQL-Maximalfaktor
+9.999.999,99 außer Reichweite liegt. Für diese beiden Werte gilt der
+Parametergrenznachweis oben. [DEFLATE-Spezifikation](https://www.rfc-editor.org/rfc/rfc1951#section-3.2.5)
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
