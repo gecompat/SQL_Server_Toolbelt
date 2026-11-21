@@ -69,8 +69,8 @@ Triggerübernahme benötigt auf Windows zusätzlich den strikten Parservertrag.
 
 Für ein einzelnes Modul beim gemeinsamen Builder beispielsweise
 `--module toolbelt.tsql.ssis-debug` ergänzen. Die Option ist wiederholbar;
-transitive Pflichtabhängigkeiten werden automatisch in Installationsreihenfolge
-ergänzt. Unbekannte Module oder eine für Plattform beziehungsweise zentralen
+transitive Pflichtabhängigkeiten und das gemeinsame Metadatenmodul werden
+automatisch in Installationsreihenfolge ergänzt. Unbekannte Module oder eine für Plattform beziehungsweise zentralen
 Modus unzulässige Auswahl führen zum Abbruch, statt stillschweigend wegzufallen.
 Ohne `--module` entsteht weiterhin das vollständige gewählte Profil.
 
@@ -81,10 +81,11 @@ Deploy-/Uninstall-Skripten ab. Bereits die aktuellen Manifeste und SQL-Quellen
 verwenden `tlblt`-Assemblynamen; der Build muss sie nicht erst nachträglich
 für die aktuelle Funktionalität übersetzen.
 
-Jeder Build prüft außerdem die kanonische Capability-Projektion. Ihr geprüfter
-Skill, der Skill-Leser und die generierte Viewquelle werden deshalb auch bei
-reinen T-SQL-Teilinstallern im Quellenmanifest gebunden. Eine Änderung dieser
-Eingaben verlangt einen neuen Build; ein altes Manifest wird nicht nachgetragen.
+Jeder Build prüft die Capability-Reihen und bindet die vollständige
+[Skill-View](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md)
+mit allen kanonischen Markdownquellen und dem Generator im Quellenmanifest.
+Das gilt auch bei reinen T-SQL-Teilinstallern. Baue das Installationsartefakt
+nach Änderungen dieser Eingaben neu.
 
 ## Installieren
 

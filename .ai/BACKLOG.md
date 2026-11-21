@@ -1879,7 +1879,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 19 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 15 sind `validated`, 30 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
@@ -6349,13 +6349,13 @@ Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der bet
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
 | Tests | Statische Prüfung und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
-| Blocker | Keine. Die vollständige Windows-/Linux-Matrix ist erfolgreich. |
+| Blocker | Native Grenzfallabnahme der geänderten Funktionen am aktuellen Quellstand steht aus. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesign `JSON_PATH_EXISTS_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.json.path-exists/`; [W2b JSON Path Runtime 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943), [Documentation Consistency 30568128932](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128932) und lokaler physischer Linux-Lauf vom 2026-08-29 erfolgreich. |
-| Nächster Schritt | Keine autonome Validierung offen; Konstruktoren und Aggregate bleiben ohne Einzelvertrag und Freigabe zurückgestellt. |
+| Nächster Schritt | Gezielte Gegenproben aus [FunctionEdgeCases.sql](../Tests/Metadata/FunctionEdgeCases.sql) am aktuellen Build abnehmen. |
 
 Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der betroffenen Security-/Wartungsverträge ist in der vollständigen Sechs-Ziel-Matrix und den zusätzlichen Status-/Clientfällen geprüft; ältere datierte Einschränkungen beschreiben den damaligen Stand. Siehe [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md).
 
@@ -6390,12 +6390,13 @@ Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der bet
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
 | Tests | Statische Contracts und GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; Anniversary-, Grenzwert-, Unicode-/UTF-8-, Fehler-, Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Scope geprüft. |
-| Blocker | Keine. Die vollständige Windows-/Linux-Matrix einschließlich Collation-, ASCII-/Unicode-/Large-Input- und Kollisionsfällen ist erfolgreich. |
+| Blocker | Native Grenzfallabnahme der geänderten Funktionen am aktuellen Quellstand steht aus. |
 | Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399), [Documentation Consistency 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014) und lokaler physischer Linux-Lauf vom 2026-08-29. |
-| Nächster Schritt | Keine autonome Validierung offen; zusätzliche fachliche Ausbaustufen benötigen Einzelvertrag und Freigabe. |
+| Nächster Schritt | Gezielte Gegenproben aus [FunctionEdgeCases.sql](../Tests/Metadata/FunctionEdgeCases.sql) am aktuellen Build abnehmen. |
 
 
 Securitystand 2026-10-15: URI Component ist teilweise validiert; die beiden anderen W1-Module bleiben validiert. Historische Matrixnachweise qualifizieren die neuen URI-Limits nicht vollständig.
@@ -6500,13 +6501,13 @@ Nachqualifikation 2026-10-19: Der aktuelle Kohortenstand einschließlich der bet
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zustandsbasierter kanonischer Parser; genau eine Ergebniszeile; rechtsbündige Teile; vollständige Escape-, Omission-, Längen-, Collation-, Wrapper-, Deployment- und Lifecycle-Contracts; Dokumentation und Change-Impact-Registry gekoppelt. |
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
-| Blocker | Kein Merge-Blocker; die vollständige Pflichtmatrix ist erfolgreich. |
+| Blocker | Native Grenzfallabnahme der geänderten Funktionen am aktuellen Quellstand steht aus. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`; kanonische Artefakte unter `Modules/toolbelt.metadata.identifier/`; [Identifier Runtime Run 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834) erfolgreich. |
-| Nächster Schritt | Keine autonome Validierung offen; Release bleibt unautorisiert. |
+| Nächster Schritt | Gezielte Gegenproben aus [FunctionEdgeCases.sql](../Tests/Metadata/FunctionEdgeCases.sql) am aktuellen Build abnehmen. |
 
 ### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
 
