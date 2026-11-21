@@ -1,22 +1,9 @@
 # ZIP-Dateifassaden
 
-
-## Aktuelle Installation
-
-Den [modulbezogenen Buildplan](Deployment/README.md) oder den
-[gemeinsamen Installer](../../Deployment/ONE-CALL-INSTALL.md) verwenden.
-Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
-kein SQLCMD-Modus, keine Deployment-Extended-Properties.
-Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
-Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
-aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
-
-
-toolbelt.archive.zip-files 1.0.0 verbindet drei öffentliche T-SQL-USPs
-mit bestehenden ZIP-Memory-/Windows-Filesystem-/ResultTableverträgen.
-Source implementiert; begrenzte native Windows-local-Teilnachweise vorhanden,
-vollständige Qualifikation offen; unveröffentlicht. Keine Assembly.
-Der genaue getrennte Laufumfang steht in [Tests](Tests/README.md).
+`toolbelt.archive.zip-files` 1.0.0 bietet drei öffentliche Prozeduren zur
+ZIP-Erzeugung, Einzel-Entry-Extraktion und vollständigen Archivextraktion
+auf Windows. ZIP-Memory, Windows-Filesystem und ResultTable liegen in
+derselben Datenbank. Der ZIP-Dateifassaden-Build ist unveröffentlicht.
 
 - [CreateZipFileFromEntries](Documentation/USP_CreateZipFileFromEntries.md)
 - [ExtractZipEntryToFile](Documentation/USP_ExtractZipEntryToFile.md)
@@ -26,23 +13,24 @@ Der genaue getrennte Laufumfang steht in [Tests](Tests/README.md).
 
 ## Installation
 
-Für den neuen markerfreien Quellstand den [gemeinsamen SQL-Installer](../../Scripts/Install/README.md) verwenden. Die folgenden modulspezifischen Lifecycle-Befehle gehören zum bisherigen markerbasierten Weg und sind kein Upgrade oder Uninstall für diesen Funktionssatz.
-
-Windows SQL Server 2019/2022/2025, local. Zuerst ZIP Memory >=1.4.0,
-Windows Filesystem/ResultTable >=1.0.0 in derselben DB nach deren eigenen
-Binary-/Trustverträgen installieren. Keine Assembly-, Trust-, Root-, Rechte-,
-Owner- oder Configänderung. Aus Deployment-Verzeichnis SQLCMD Deploy.sql mit
-DeploymentMode=local ausführen; kein Providerfallback. Objektmarker sind nur
-für ZIP-Writer und Core erforderlich; der bestehende Legacyreader und FS
-bleiben an ihre P-Slots/DB-Versionen gebunden (siehe öffentlichen Vertrag).
-Bekannter Zwei-P-Release1.0.0 wiederholbar. Uninstall entfernt nur eigene
-Slots/Marker; sichtbare Consumer blockieren. Dependencies/Schema bleiben.
+Für Windows SQL Server 2019, 2022 oder 2025 das Profil `Windows/local` wählen.
+Der modulbezogene Build erzeugt eine SQL-Datei mit den Pflichtabhängigkeiten.
+In dieser Datei die Zieldatenbank im ersten `USE` einsetzen und sie als
+normale SQL-Abfrage ausführen. Der gemeinsame Installationsclient ist der
+zweite Einstieg und beschreibt die Voraussetzungen für CLR, Trust und
+Aufruferrechte. Beide Wege verwenden den markerfreien Create-only-Installer.
+Wiederholungsinstallationen erhalten bestehende Objekte. Die Anleitung zum
+modulbezogenen Build verlinkt auch die historischen Lifecycle-Artefakte.
+[Modulbezogener Build](Deployment/README.md) · [Gemeinsamer Installer](../../Deployment/ONE-CALL-INSTALL.md)
 
 ## Sicherheits- und Ergebnisgrenzen
 
 Caller Default mit Windowsauthentifizierung/vorhandenen NTFS-Rechten,
 ServiceAccount nur explizit; keine aktive Caller-SQL-TX.
-Erst vollständiges ZIP/Entry-Binary, dann Dateipublikation.
+Writer und Einzel-Entry-Fassade bereiten den Payload vor der
+Dateipublikation vollständig auf. Die vollständige Archivextraktion
+prüft das Archivverzeichnis vorab und veröffentlicht die geprüften
+Einträge einzeln.
 Keine SQL-/Dateisystematomarität: später SQL-/Clientfehler kann eine
 veröffentlichte Datei hinterlassen. Prepare+Insert gemeinsam spät SQL-
 rückrollbar; kein kompensierender Delete. Leerer Entry: 0-Byte-Datei.
@@ -51,6 +39,13 @@ Drei eigene kollisionsgeprüfte #ZipFiles_* Brücken ausdrücklich nur wegen
 ResultTable-#tbx_-Verbot erlaubt; sonst #tbx_. Keine fremde Tempadoption.
 
 ## Aktuelle Validierungsevidenz
+
+Die [Windows-/CL-Abnahme](Tests/ZIP_FILES_TEST_MATRIX.md#aktuelle-windows-cl-abnahme-für-einzel-entry-writer-und-v1)
+enthält die sechs geprüften Engine-/CL-Kombinationen und die getrennten
+ServiceAccount-, Negativ- und Publish-Nachweise. Die
+[V1-Abnahme](Tests/ZIP_FILES_TEST_MATRIX.md#vollständige-archivextraktion-v1)
+dokumentiert unter anderem die physischen Grenzfälle. Der folgende
+Manifestnachweis gehört zu den historischen Einzel-Entry- und Writer-Läufen.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
