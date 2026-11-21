@@ -634,5 +634,36 @@ class UsageSkillTests(unittest.TestCase):
                     self.assertIn(limit, skill.markdown)
 
 
+    def test_cancellation_contracts_cover_schema_quotas_and_early_help(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.execution-cancel"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 4)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            kind = skill.metadata["object_type"]
+            if kind == "TABLE":
+                self.assertEqual(skills.project_relation_ddl(text, skill), text)
+                for field in ("RequestedByPrincipalId", "RequestedByPrincipalSid",
+                              "RequestedByPrincipalCreatedAt", "RowVersion"):
+                    self.assertIn(field, skill.markdown)
+            elif kind == "USP":
+                self.assertEqual(skills.project_procedure_help(text, skill), text)
+                self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+                ret, _ = skills._procedure_help_return(text, skill)
+                tokens = skills._ddl_tokens(text)
+                guard = next(t[1] for t in tokens if t[0].casefold() == "@@trancount")
+                self.assertLess(ret, guard)
+                for code in range(52600, 52607):
+                    self.assertIn(str(code), skill.markdown)
+                for quota in ("100000", "10000"):
+                    self.assertIn(quota, skill.markdown)
+            else:
+                self.assertEqual(skills.project_function_ddl(text, skill), text)
+                self.assertTrue(skill.metadata["parameters"][0]["nullable"])
+                self.assertTrue(skill.metadata["parameters"][0]["argument_required"])
+
+
 if __name__ == "__main__":
     unittest.main()

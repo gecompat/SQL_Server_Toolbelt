@@ -30,6 +30,14 @@ kontrollierten Work-Queue-Ausgang.
 Die Objekte, Berechtigungen, Fehler und Beispiele stehen in
 [EXECUTION_CANCELLATION_OBJECTS.md](Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
+Alle vier Objekte einschließlich der persistenten Tabelle besitzen einen
+vollständigen [Usage-Skill](../../Metadata/UsageSkills/README.md) in ihrer DDL.
+`EXEC toolbelt_core.USP_RequestExecutionCancellation @Hilfe=1;` liefert vor
+Transaktions-, Kontext- und Quotenprüfung die bisherige Standardhilfe sowie
+eine zusätzliche Skillzeile mit vollständigem Unicode-Markdown. Die neue
+Projektion ist quell-/offlinegeprüft; historische Fachnachweise werden dadurch
+nicht zur nativen Abnahme dieser Hilfeausgabe.
+
 Die [aktuellen Testnachweise](Tests/README.md#vollständige-achtspaltige-windows-repeat-matrix-vom-2026-11-06)
 belegen den befüllten Repeat aller acht Spalten einschließlich isolierter
 Principalgegenproben auf Windows2019/2022/2025 über alle unterstützten CLs

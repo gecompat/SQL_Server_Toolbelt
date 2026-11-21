@@ -1004,7 +1004,7 @@ Liest den registrierten kooperativen Abbruchstatus einer Ausführung.
 
 Vertrag und Quelle: [TVF_ExecutionCancellationStatus.sql](../../Modules/toolbelt.core.execution-cancel/Source/TVF_ExecutionCancellationStatus.sql), [TVF_ExecutionCancellationStatus.md](../../Modules/toolbelt.core.execution-cancel/Documentation/TVF_ExecutionCancellationStatus.md).
 
-<!-- Source/Vertrag SHA256: 227c823f9f2e02aad01171e1923231d9654ef2bc68ccd20480e17735e18b0c94 -->
+<!-- Source/Vertrag SHA256: 71c4afc7b0cb08b37a2104d97015284f5ac3953c8c40732b5aa200d6f362780d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1024,7 +1024,7 @@ Prüft, ob für eine Ausführung ein kooperativer Abbruch angefordert wurde.
 
 Vertrag und Quelle: [SVF_IsCancellationRequested.sql](../../Modules/toolbelt.core.execution-cancel/Source/SVF_IsCancellationRequested.sql), [SVF_IsCancellationRequested.md](../../Modules/toolbelt.core.execution-cancel/Documentation/SVF_IsCancellationRequested.md).
 
-<!-- Source/Vertrag SHA256: 59f07360338ffba759ec4883a434a85def7fca09375f5dcda2c83daaf0d8aa21 -->
+<!-- Source/Vertrag SHA256: 64da492d6faa41bb9b5c142e79490b90b11bbb654edeb799e50b28c8b6126fbb -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1044,7 +1044,7 @@ Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedur
 
 Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [USP_RequestExecutionCancellation.md](../../Modules/toolbelt.core.execution-cancel/Documentation/USP_RequestExecutionCancellation.md).
 
-<!-- Source/Vertrag SHA256: adae27e8ee42a2f8b81ab085e99b56316612c0f9d5572a42b7b4e4f996e3b1f9 -->
+<!-- Source/Vertrag SHA256: c68390e13674269e1f17a919221625695a75b70b554477724b265339808f928b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

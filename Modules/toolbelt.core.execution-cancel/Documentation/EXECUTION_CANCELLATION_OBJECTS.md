@@ -31,13 +31,24 @@ lassen den ersten Auditzeitpunkt und Grund unverändert. Die Procedure liefert
 kein fachliches Resultset; der Status wird über die TVF abgefragt.
 
 Der Aufruf benötigt eine Session ohne aktive Transaktion. Fehler `52600` bis
-`52604` bezeichnen Parameter-, Context- oder Transaktionsfehler. Die Procedure
+`52604` bezeichnen Transaktions-, Kontext-, Identitäts- oder AppLockfehler.
+`52605` bedeutet die erreichte Gesamtquote von 100000 Anforderungen, `52606`
+die Principalquote von 10000. Die Identität ist an DBprincipal-ID, SID und
+Erstellzeit gebunden; historische nicht zuordenbare Einträge zählen zur
+Gesamtquote. Vorhandene ExecutionIds bleiben auch bei ausgeschöpfter Quote
+idempotent. Die Procedure
 führt weder `KILL` aus noch requeued oder terminalisiert sie Work-Queue-Items.
 
 `@Hilfe = 1` gibt vor Transaktions- und Contextprüfung das standardisierte
 12-Spalten-Help-Resultset mit Parametern, Fehlerbereich, fehlendem Fachresultset
 und vollständigem Beispielaufruf aus. Der Help-Aufruf speichert keine
 Cancellation-Anforderung.
+
+Zusätzlich folgt genau ein Skill-Resultset mit `SkillFormatVersion`,
+`SchemaName`, `ObjectName` und vollständigem `SkillMarkdown nvarchar(max)`.
+Die [kanonischen Quellen](../../../Metadata/UsageSkills/README.md) werden auch
+in die DDL aller vier Objekte eingebettet. Das ist keine neue native
+Hilfequalifikation.
 
 ```sql
 EXEC toolbelt_core.USP_RequestExecutionCancellation
