@@ -905,6 +905,39 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_queue_claim_fail_retry_skills_distinguish_result_shapes_and_transaction_paths(self):
+        names=['USP_ClaimWork','USP_ClaimWorkCore','USP_FailWork','USP_FailWorkCore','USP_ScheduleWorkRetry','USP_ScheduleWorkRetryCore']
+        records={};originals={}
+        for name in names:
+            s=skills.read(skills.source_file(ROOT,'toolbelt_core',name));records[name]=s
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text));originals[name]=original
+            expected_count=8 if 'Claim' in name else 22 if 'Fail' in name else 41
+            result=s.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),expected_count)
+            self.assertIn('keine neue native',s.markdown.casefold())
+        core=records['USP_ClaimWorkCore'];original=originals['USP_ClaimWorkCore']
+        output=next(p for p in core.metadata['parameters'] if p['name']=='@ClaimedWorkItemId')
+        self.assertTrue(output['is_output']);self.assertEqual(output['sql_default'],'NULL')
+        self.assertLess(skills._procedure_help_return(original,core)[0],original.index('SET @ClaimedWorkItemId=NULL;'))
+        self.assertIn('(@EmitResult=0 AND @ManagedAdmissionToken IS NULL)',original)
+        self.assertIn('SAVE TRANSACTION TBX_WorkQueue_ClaimCore',original)
+        self.assertIn('ORDER BY wi.Priority DESC',original)
+        fail=originals['USP_FailWorkCore']
+        self.assertIn('SAVE TRANSACTION TBX_WorkQueue_Fail',fail)
+        self.assertIn('IF XACT_STATE()=-1',fail)
+        self.assertEqual(next(p for p in records['USP_FailWorkCore'].metadata['parameters'] if p['name']=='@FailureMessage')['sql_type'],'nvarchar(max)')
+        retry=originals['USP_ScheduleWorkRetryCore']
+        self.assertIn('SAVE TRANSACTION TBX_WorkQueue_Retry',retry)
+        self.assertNotIn("IF @Status IS NULL",retry)
+        self.assertIn('fehlende WorkItemId',records['USP_ScheduleWorkRetryCore'].markdown)
+        self.assertIn('Kein materialisierter Entscheidungsreceipt',records['USP_ScheduleWorkRetry'].markdown)
+        self.assertGreater(retry.index('IF @EmitResult=1 SELECT *'),retry.index('IF @Initial=0 COMMIT;'))
+        for family in ['ClaimWork','FailWork','ScheduleWorkRetry']:
+            self.assertEqual(originals['USP_'+family].count('EXEC toolbelt_core.USP_'+family+'Core '),1)
+
     def test_complete_worker_module_skills_preserve_stop_fences_and_conservative_unknown(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.core.worker-control'}
         records=[skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected]

@@ -42,9 +42,30 @@ WORKER_CONFIG_HELP_PATHS={
                  'USP_ClaimWorkerWork','USP_CloseWorker','USP_StopWorkerExecution','USP_StopWorkers',
                  'USP_ReconcileWorkerExecution','USP_ReleaseHeldWork')}
 WORKER_CONFIG_HELP_NEW=("1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig.").encode('utf-8')
+QUEUE_HELP_STARTS={
+    'Modules/toolbelt.core.work-queue/Source/'+name+'.sql':start
+    for name,start in (('USP_ClaimWork',b'    IF @Hilfe=1\n    BEGIN\n'),
+                       ('USP_FailWork',b'    IF @Hilfe=1\n    BEGIN\n'),
+                       ('USP_ScheduleWorkRetry',b' IF ISNULL(@Hilfe,0)=1 BEGIN\n'))}
+QUEUE_HELP_NEW=("1: bisherige Standardhilfe plus genau eine vollständige Skillzeile, danach RETURN0 vor Fachprüfungen, Tabellenzugriff oder Mutation. 0 oder NULL: Fachpfad. Alle Argumente haben technische Defaults; erforderliche fachliche NULL-Defaults sind keine gültigen Ersatzwerte.").encode('utf-8')
+RETRY_HELP_STATUS_OLD=b"N'QUEUED, CLAIMED, COMPLETED oder FAILED.'"
+RETRY_HELP_STATUS_NEW=("N'Aktueller Status aus VW_WorkQueue; reguläre Retryentscheidung: RETRY_WAIT oder DEAD_LETTER.'").encode('utf-8')
 
 
 def corrected_historical_help(original,path):
+    if path in QUEUE_HELP_STARTS and SCHEMA_HELP_OLD in original:
+        start=QUEUE_HELP_STARTS[path];end=b'        RETURN 0;'
+        if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_QUEUE_HELP_DESCRIPTION')
+        a=original.index(start)+len(start);b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_QUEUE_HELP_DESCRIPTION')
+        original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,QUEUE_HELP_NEW)+original[b:]
+        if path.endswith('/USP_ScheduleWorkRetry.sql') and RETRY_HELP_STATUS_OLD in original:
+            b=original.find(end,a)
+            if original.count(RETRY_HELP_STATUS_OLD)!=1 or original[a:b].count(RETRY_HELP_STATUS_OLD)!=1:
+                raise ValueError('NONCANONICAL_RETRY_HELP_STATUS')
+            original=original[:a]+original[a:b].replace(RETRY_HELP_STATUS_OLD,RETRY_HELP_STATUS_NEW)+original[b:]
     if path in WORKER_CONFIG_HELP_PATHS and SCHEMA_HELP_OLD in original:
         start=b' IF ISNULL(@Hilfe,0)=1 BEGIN\n'
         end=b'        RETURN 0;'

@@ -3952,7 +3952,7 @@
         0,
         0,
         null,
-        "QUEUED, CLAIMED, COMPLETED oder FAILED.",
+        "Aktueller Status aus VW_WorkQueue; reguläre Retryentscheidung: RETRY_WAIT oder DEAD_LETTER.",
         null
       ],
       [

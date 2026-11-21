@@ -88,7 +88,7 @@ Heartbeat verlangt `WorkItemId` und das aktuelle `ClaimToken`, läuft in einer k
 
 ## `USP_RecoverExpiredWork` und `USP_ScheduleWorkRetry`
 
-Recovery ist ein ausdrücklicher Supervisor-Aufruf. `@MaxItems` begrenzt den Batch auf 1 bis 1.000, Default 100. Abgelaufene Claims wechseln nach ihrer gespeicherten Retry-Policy entweder in `RETRY_WAIT` oder `DEAD_LETTER`. `USP_ScheduleWorkRetry` trifft dieselbe tokengebundene Entscheidung für einen aktiven Worker-Claim. Der Backoff ist `min(Basis × 2^(Versuch−1), Maximum)` ohne Jitter. Claim- und Leasefelder werden gelöscht; eine Barrier gibt dadurch ihre Gruppe frei. Beide Procedures lehnen eine Caller-Transaktion ab.
+Recovery ist ein ausdrücklicher Supervisor-Aufruf. `@MaxItems` begrenzt den Batch auf 1 bis 1.000, Default 100. Abgelaufene Claims wechseln nach ihrer gespeicherten Retry-Policy entweder in `RETRY_WAIT` oder `DEAD_LETTER`. `USP_ScheduleWorkRetry` trifft dieselbe tokengebundene Entscheidung für einen aktiven Worker-Claim. Der Backoff ist `min(Basis × 2^(Versuch−1), Maximum)` ohne Jitter. Claim- und Leasefelder werden gelöscht; eine Barrier gibt dadurch ihre Gruppe frei. Der vorhandene Retrykern unterstützt eine gesunde Callertransaktion mit eigenem Savepoint; eine pauschale Caller-TX-Sperre gilt hierfür nicht. Die Recoveryvoraussetzungen sind gesondert im jeweiligen Vertrag zu lesen.
 
 `USP_ScheduleWorkRetry @Hilfe = 1` gibt die vollständigen Parameter und die
 Statusspalten des Queue-Resultsets aus. Die Procedure unterstützt derzeit kein

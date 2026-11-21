@@ -56,6 +56,28 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NONCANONICAL_SCHEMA_HELP_DESCRIPTION'):
             module.compare(outside,outside.replace(module.SCHEMA_HELP_OLD,module.SCHEMA_HELP_NEW),module.SCHEMA_HELP_PATH)
 
+    def test_queue_help_repairs_are_confined_to_exact_public_positive_branch(self):
+        for path,start in module.QUEUE_HELP_STARTS.items():
+            old=start+b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nUPDATE Contoso SET Value=7;"
+            current=old.replace(module.SCHEMA_HELP_OLD,module.QUEUE_HELP_NEW)
+            module.compare(old,current,path)
+            with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+                module.compare(old,current.replace(b'Value=7',b'Value=8'),path)
+            with self.assertRaisesRegex(ValueError,'NONCANONICAL_QUEUE_HELP_DESCRIPTION'):
+                module.compare(old.replace(b'=1',b'=0',1),current,path)
+            with self.assertRaises(ValueError):module.compare(old,current,'Modules/Contoso/Source/Other.sql')
+
+    def test_retry_status_description_repair_stays_inside_original_help(self):
+        path='Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql';start=module.QUEUE_HELP_STARTS[path]
+        old=start+b'SELECT '+module.RETRY_HELP_STATUS_OLD+b",N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nSELECT 7;"
+        current=old.replace(module.SCHEMA_HELP_OLD,module.QUEUE_HELP_NEW).replace(module.RETRY_HELP_STATUS_OLD,module.RETRY_HELP_STATUS_NEW)
+        module.compare(old,current,path)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current.replace(b'SELECT 7;',b'SELECT 8;'),path)
+        outside=start+b"SELECT N'"+module.SCHEMA_HELP_OLD+b"';\n        RETURN 0;\n END;\nSELECT "+module.RETRY_HELP_STATUS_OLD+b';'
+        with self.assertRaisesRegex(ValueError,'NONCANONICAL_RETRY_HELP_STATUS'):
+            module.compare(outside,outside.replace(module.RETRY_HELP_STATUS_OLD,module.RETRY_HELP_STATUS_NEW),path)
+
     def test_worker_config_help_description_repairs_never_admit_nonhelp_sql(self):
         old=(b' IF ISNULL(@Hilfe,0)=1 BEGIN\nSELECT N\''+module.SCHEMA_HELP_OLD+
              b"';\n        RETURN 0;\n END;\nUPDATE Contoso SET Value=7;")
