@@ -52,8 +52,8 @@ Für DTSX allein gibt es den [kleineren Funktionssatz](Modules/toolbelt.tsql.ssi
 
 SQL Server 2019 oder neuer, Compatibility Level mindestens 150, eine online
 schreibbare Zieldatenbank und die für die ausgeführten Objekte erforderlichen
-vorhandenen Rechte. CLR-Module benötigen aktiviertes CLR und unveränderte
-Strict Security. Windows-Funktionen behalten ihre Plattform-/Dateirechte.
+vorhandenen Rechte. CLR-Module benötigen aktiviertes CLR und deaktiviertes
+Lightweight Pooling. Windows-Funktionen behalten ihre Plattform-/Dateirechte.
 
 | Trustweg | Verhalten |
 |---|---|
@@ -61,6 +61,11 @@ Strict Security. Windows-Funktionen behalten ihre Plattform-/Dateirechte.
 | hash | Erwartete Assemblybytes vergleichen und deren Hashes registrieren |
 | trustworthy-checked | Vorhandenen DB-Trust nutzen, Assemblybytes vergleichen, keine Hashregistrierung |
 | trustworthy | Vorhandenen DB-Trust ohne Toolbelt-Hashvergleich nutzen |
+
+Bei bereits deaktivierter CLR Strict Security setzt der PowerShell-Client
+eine vorhandene Datenbank mit `TRUSTWORTHY ON` und den fest gewählten Weg
+`trustworthy-checked` oder `trustworthy` voraus. `auto`, `hash` und die
+administrative Vorbereitung erfordern weiterhin aktivierte Strict Security.
 
 Der Installer aktiviert TRUSTWORTHY nicht, ändert keinen Owner und vergibt keine
 Rechte. Die Engine verlangt die notwendigen CREATE-/Assemblyrechte; Hashfreigabe

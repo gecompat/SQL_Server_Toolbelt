@@ -70,7 +70,7 @@ function Assert-ToolbeltSqlSuccess($Result, [string]$Phase) {
         TBX_VERSION = 'Der Satz unterstützt SQL Server 2019, 2022 und 2025 als reguläre Datenbank-Engine.'
         TBX_DATABASE_STATE = 'Ziel muss online und beschreibbar sein sowie Compatibility Level 150 oder höher verwenden.'
         TBX_CLR = 'CLR ist deaktiviert. Die Administration muss clr enabled vorbereiten; danach erneut bewusst starten.'
-        TBX_SECURITY = 'Erforderlich sind clr strict security=1 und lightweight pooling=0. Keine automatische Konfigurationsänderung.'
+        TBX_SECURITY = 'Lightweight Pooling muss deaktiviert sein. CLR Strict Security muss aktiviert sein, außer bei bestehendem TRUSTWORTHY ON mit ausdrücklich gewähltem DB-Trustweg. Die administrative Vorbereitung erfordert Strict Security ON. Eine automatische Konfigurationsänderung erfolgt nicht.'
         TBX_NOT_EMPTY = 'Die Zieldatenbank enthält bereits Objekte oder Toolbelt-Marker. Dieser Aufruf ist nur für eine leere Neuinstallation bestimmt.'
         TBX_PLATFORM = 'Die SQL-Server-Plattform muss Windows oder Linux sein.'
         TBX_LOCK = 'Ein anderer Ein-Aufruf-Installer belegt das Ziel. Keine automatische Wiederholung.'
