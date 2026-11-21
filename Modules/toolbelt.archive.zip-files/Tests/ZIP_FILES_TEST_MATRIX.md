@@ -207,6 +207,24 @@ Abwesenheit weiterer Dateien. Beide separaten Audits bestanden. Der
 erste Negativlauf bleibt wegen des zu engen Orakels für den vom Wrapper
 gemeldeten SQL-Fehler 51540 als `FAILED_CLEANED` dokumentiert.
 
+Der [Reparse-Point-Fall](Runtime/ZipFiles.LegacyReparse.sql) bestätigte für
+Writer und Einzel-Entry-Extraktion die kontrollierte Ablehnung eines
+Zielpfads mit Junction auf Windows SQL Server 2025/CU8 CL170. Junction und
+Ziel lagen im selben isolierten Testroot. Der Gastcheck bestätigte die
+unveränderte Sentinel-Datei, der frische Audit die Bereinigung.
+
+Der [native NoOverwrite-Konkurrenzfall](Runtime/ZipFiles.LegacyRace.sql)
+verwendete auf demselben Ziel zwei Windows-authentifizierte Sitzungen
+mit unterschiedlichen 4-MiB-Payloads. Für jede Fassade überlappten die
+gemessenen SQL-Aufrufintervalle. Jeweils genau eine Sitzung publizierte,
+die andere erhielt den Publishfehler. Der Readback bestätigte die genaue
+Länge und den SHA-256-Wert des Gewinners. Der Gastcheck fand genau die
+beiden Zieldateien neben dem eigenen Marker. Der frische Audit bestätigte
+die Bereinigung. Der erste Transportversuch mit zwei getrennten
+Lab-Aufträgen bleibt `FAILED_CLEANED` mit frischem Audit PASS. Der
+erfolgreiche Lauf nutzte einen registrierten Gastauftrag mit zwei
+SQL-Sitzungen unter derselben Lab-Transportsperre.
+
 Im [ServiceAccount-Gesamtfall](Runtime/ZipFiles.LegacyServiceAccount.sql)
 auf Windows SQL Server 2025/CU8 CL170 bestanden fünf native Prüfungen,
 einschließlich Archiv-Readback und bytegenauer Einzel-Entry-Extraktion.
