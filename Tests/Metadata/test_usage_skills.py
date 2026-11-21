@@ -905,6 +905,33 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_worker_identity_skills_distinguish_owner_bound_and_admin_paths(self):
+        names=['USP_RegisterWorker','USP_HeartbeatWorker','USP_SetWorkerCapacity','USP_SetWorkerState']
+        bodies={};records={}
+        for name in names:
+            s=skills.read(skills.source_file(ROOT,'toolbelt_core',name));records[name]=s
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            ret,_=skills._procedure_help_return(text,s)
+            self.assertLess(ret,text.index(' IF @@TRANCOUNT<>0'))
+            body=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+            bodies[name]=body.split('-- API_PARAMETER_HELP:END',1)[1]
+            self.assertTrue(all(p['sql_default'] is not None for p in s.metadata['parameters']))
+            self.assertIn('keine neue native',s.markdown.casefold())
+        self.assertIn('OwnerPrincipalId=USER_ID()',bodies['USP_HeartbeatWorker'])
+        self.assertIn('WorkerToken=@WorkerToken',bodies['USP_HeartbeatWorker'])
+        self.assertIn("State='UNREACHABLE'",bodies['USP_HeartbeatWorker'])
+        self.assertFalse(any(p['name']=='@ResultTable' for p in records['USP_HeartbeatWorker'].metadata['parameters']))
+        self.assertIn("AND State<>'CLOSED'",bodies['USP_SetWorkerCapacity'])
+        self.assertNotIn('OwnerPrincipalId',bodies['USP_SetWorkerCapacity'])
+        self.assertNotIn('DATEADD',bodies['USP_SetWorkerCapacity'])
+        self.assertIn('auch eine ältere oder UNREACHABLE-Generation',records['USP_SetWorkerCapacity'].markdown)
+        self.assertIn('ALLEN Generationen',records['USP_SetWorkerState'].markdown)
+        self.assertIn("State IN('ACTIVE','PAUSED')",bodies['USP_RegisterWorker'])
+        self.assertNotIn('ManagedEnabled',bodies['USP_RegisterWorker'])
+        self.assertIn('hier nicht erhöht',records['USP_RegisterWorker'].markdown)
+
     def test_worker_configuration_skills_keep_early_help_and_typed_version_mutations_separate(self):
         names=['USP_EnableManagedWorkers','USP_DisableManagedWorkers','USP_SetWorkerConcurrency','USP_SetWorkerIntervals']
         for name in names:

@@ -37,7 +37,8 @@ SCHEMA_HELP_OLD=("Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fach
 SCHEMA_HELP_NEW=("1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Argument-/Namespace-/Helper-/CLR-/Fachprüfung oder Zielmutation. 0 oder NULL: Fachpfad. Alle SQL-Argumente besitzen technische Defaults.").encode('utf-8')
 WORKER_CONFIG_HELP_PATHS={
     'Modules/toolbelt.core.worker-control/Source/'+name+'.sql'
-    for name in ('USP_EnableManagedWorkers','USP_DisableManagedWorkers','USP_SetWorkerConcurrency','USP_SetWorkerIntervals')}
+    for name in ('USP_EnableManagedWorkers','USP_DisableManagedWorkers','USP_SetWorkerConcurrency','USP_SetWorkerIntervals',
+                 'USP_RegisterWorker','USP_HeartbeatWorker','USP_SetWorkerCapacity','USP_SetWorkerState')}
 WORKER_CONFIG_HELP_NEW=("1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig.").encode('utf-8')
 
 

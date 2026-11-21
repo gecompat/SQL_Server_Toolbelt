@@ -16,7 +16,7 @@ Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu ü
 
 Kein fachliches Resultset.
 
-Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis nutzt den kanonischen ResultTable-Vertrag atomar. Fehler 54210..54239, bestehende Queue-/Enginefehler bleiben getrennt. Vorhandene EXECUTE-Rechte sind erforderlich; keine Rechtevergabe. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
+Hilfe zuerst ohne Fachprüfung; Debug erzeugt hier keine eigenen Messages. Ein tabellarisches Ergebnis nutzt den kanonischen ResultTable-Vertrag atomar. Fehler 54210..54239, bestehende Queue-/Enginefehler bleiben getrennt. Vorhandene EXECUTE-Rechte sind erforderlich; keine Rechtevergabe. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
 
 ## Aufrufparameter
 
@@ -27,7 +27,7 @@ Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis 
 | `@WorkerGeneration` | `bigint` | `NULL` | Input | Fachlich erforderliche positive bigint-WorkerGeneration aus der konkreten Registrierung, exakt zusammen mit WorkerId verwenden. Keine automatische Wahl der neuesten Generation; NULL/fehlende oder unpassende Generation wird abgewiesen. Eine abgelaufene/UNREACHABLE-Generation darf nicht wiederbelebt werden. |
 | `@WorkerToken` | `uniqueidentifier` | `NULL` | Input | SQL-uniqueidentifier, z.B. CAST('00000000-0000-0000-0000-000000000001' AS uniqueidentifier), keine frei formatierte Zeichenfolge. Geheimes WorkerToken aus derselben Registrierung; muss zu WorkerId, Generation und aktuellem Datenbankprincipal passen. NULL/abweichendes Token ungültig; kein ClaimToken und kein Token aus einer Vorgängergeneration. Nicht protokollieren. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf
@@ -47,6 +47,15 @@ EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
 ```
 
 ## Hilfe und Fehlerklärung
+
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_HeartbeatWorker.md)
+steht auch in der DDL. `@Hilfe=1` liefert zusätzlich zur bisherigen Standardhilfe
+eine Skillzeile mit `SkillFormatVersion`, `SchemaName`, `ObjectName` und
+`SkillMarkdown nvarchar(max)`. Fachlich erforderliche NULL-Defaults dienen nur
+der Hilfe. Die Skillreferenz trennt tatsächliche Owner-/Tokenprüfungen von
+administrativer EXECUTE-Autorität sowie die Rückgabe neuer Identitäten von
+einer Bestätigung bereits laufender Arbeit. Historische Nachweise bleiben
+an ihre ursprünglichen Artefakte gebunden.
 
 ```sql
 EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
