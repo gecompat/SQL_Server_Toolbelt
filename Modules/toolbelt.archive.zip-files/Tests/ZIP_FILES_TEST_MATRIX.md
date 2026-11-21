@@ -44,8 +44,23 @@ zwei Ersatzbytes. Der Windows-SQL-Ausführungsbeleg bindet die geprüfte Fixture
 Ein zusätzlicher Gast-Metadatencheck scheiterte nach der SQL-Prüfung. Der
 Gesamtkoordinator bleibt `FAILED_CLEANED`. Der separate frische Gast-/SQL-Audit
 bestand für die Abwesenheit von Testverzeichnis und Testdatenbank und für den
-wiederhergestellten Trust-Vorzustand. Der positive Nachweis gilt für den
-SQL-Aufruf im ServiceAccount-Modus auf diesem Ziel.
+wiederhergestellten Trust-Vorzustand.
+
+Die ursprüngliche Gastprüfung verlangte versehentlich zwei Treffer für
+`replace.bin`. Die korrigierte
+[Gast-Metadatenfixture](Runtime/ZipFiles.ServiceAccount.GuestMetadata.ps1)
+prüft genau eine reguläre, zwei Byte lange Ersatzdatei, genau eine
+Besitzmarkierung und weiterhin zwei ACEs in der geschützten DACL. Der separate
+native Gastlauf auf demselben ausgewählten Windows-Ziel bestand. Er prüfte
+auch die Ablehnung einer fehlenden Ersatzdatei, einer falschen Dateilänge
+und einer abweichenden DACL. Der eigene synthetische NTFS-Root verwendete die
+Gast-Testidentität und die Administratorengruppe. Ein neuer unabhängiger
+Gast-Audit bestätigte die Abwesenheit des Roots.
+
+Der Gesamtnachweis für exklusives Überschreiben im ServiceAccount-Modus auf
+Windows SQL Server 2025/CU8, CL170, lokal ist damit durch die fünf bestehenden
+SQL-Prüfungen mit der gebundenen SQL-Dienstidentität, den korrigierten separaten
+Gastcheck und beide Abschlussaudits abgedeckt. Der SQL-Fall wurde wiederverwendet.
 
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
