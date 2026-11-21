@@ -42,7 +42,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string PreviewQuery;
         internal readonly List<KeyValuePair<string, string>> PreviewCtes = new List<KeyValuePair<string, string>>();
         internal string PlanSaltState, PlanSaltOwner, PlanHash;
-        internal bool FreshPerExecution;
+        internal bool FreshPerExecution, PreserveTextKeyLength;
         internal readonly List<StageColumn> Columns = new List<StageColumn>();
         internal readonly HashSet<string> Inputs = new HashSet<string>(StringComparer.Ordinal);
         internal readonly List<LookupCache> Dependencies = new List<LookupCache>();
@@ -842,18 +842,20 @@ namespace Toolbelt.Tsql.SsisDebug
             }
             SqlQuery query = Query(c, stage); List<BoundColumn> reference = Projection.Columns(query, safety);
             string suffix = runToken + "_" + lookupIds[c.Id];
-            var cache = new LookupCache { Name = "#tbx_SsisDebug_L_" + suffix, StateName = "#tbx_SsisDebug_S_" + suffix };
+            var cache = new LookupCache { Name = "#tbx_SsisDebug_L_" + suffix, StateName = "#tbx_SsisDebug_S_" + suffix,
+                PreserveTextKeyLength = options.CatalogMode == "package" && PackageReader.P(c.Properties, "CacheType", "0") == "0" };
             if (options.CatalogMode == "package") cache.Name = "lookup_reference_" + lookupIds[c.Id];
             cache.Inputs.UnionWith(stage.ReferenceInputs);
-            var projections = new List<string>(); var partitions = new List<string>(); var joins = new List<string>(); int ordinal = 0;
+            var projections = new List<string>(); var partitions = new List<string>(); int ordinal = 0;
             foreach (Column key in keys)
             {
                 StageColumn left = Find(parent, key.Lineage); string name = ReferenceName(c, PackageReader.P(key.Properties, "JoinToReferenceColumn")); BoundColumn right = reference.SingleOrDefault(x => x.Name == name);
                 if (right == null) throw new DebugFault("invalid_lineage", "Lookup-Referenzschlüssel fehlt.");
                 ValidateCodePage(key, right.Collation);
-                string alias = Util.Id("k", ++ordinal), normalized = Normalize("ref." + Util.Q(name), left.Type), source = Normalize("m." + Util.Q(left.Alias), left.Type);
+                string alias = Util.Id("k", ++ordinal), normalized = Normalize("ref." + Util.Q(name), left.Type);
                 cache.Columns.Add(new StageColumn { Alias = alias, Name = alias, Id = key.Id, Type = left.Type, Nullable = true, Collation = bindings.Collation });
-                projections.Add(normalized + " AS " + Util.Q(alias)); partitions.Add(normalized); joins.Add(source + " = lk." + Util.Q(alias));
+                projections.Add(normalized + " AS " + Util.Q(alias)); partitions.Add(normalized);
+                if (cache.PreserveTextKeyLength && TextType(left.Type)) partitions.Add("DATALENGTH(" + normalized + ")");
             }
             var refAliases = new Dictionary<string, StageColumn>(StringComparer.Ordinal);
             foreach (BoundColumn r in reference)
@@ -900,7 +902,18 @@ namespace Toolbelt.Tsql.SsisDebug
         }
         private void RenderLookupJoin(Component c, Port port, Stage stage, Stage parent, LookupCache cache, List<Column> keys, string mode, bool noMatch)
         {
-            var joins = keys.Select(k => { StageColumn left = Find(parent, k.Lineage); StageColumn right = cache.Columns.Single(x => x.Id == k.Id && x.Alias.StartsWith("k", StringComparison.Ordinal)); return Normalize("m." + Util.Q(left.Alias), left.Type) + " = lk." + Util.Q(right.Alias); }).ToList();
+            var joins = new List<string>();
+            foreach (Column key in keys)
+            {
+                StageColumn left = Find(parent, key.Lineage);
+                StageColumn right = cache.Columns.Single(x => x.Id == key.Id && x.Alias.StartsWith("k", StringComparison.Ordinal));
+                string source = Normalize("m." + Util.Q(left.Alias), left.Type), reference = "lk." + Util.Q(right.Alias);
+                joins.Add(source + " = " + reference);
+                // SQL equality pads strings with spaces even under BIN2. Keep the
+                // same text-and-length tuple for lookup ranking and matching.
+                if (cache.PreserveTextKeyLength && TextType(left.Type))
+                    joins.Add("DATALENGTH(" + source + ") = DATALENGTH(" + reference + ")");
+            }
             stage.Columns.AddRange(parent.Columns); var fields = parent.Columns.Select(x => "m." + Util.Q(x.Alias) + " AS " + Util.Q(x.Alias)).ToList();
             var refAliases = cache.Columns.Where(x => x.Name != null && x.Alias.StartsWith("r", StringComparison.Ordinal)).ToDictionary(x => x.Name, x => x, StringComparer.Ordinal);
             if (options.CatalogMode == "package")

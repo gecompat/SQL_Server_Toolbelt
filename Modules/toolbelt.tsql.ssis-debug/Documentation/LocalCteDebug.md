@@ -87,6 +87,13 @@ Die Vorschau zeigt auch NULL-Bedingungen und Lookup-Fail-Bedingungen; sie
 simuliert daraus keinen SSIS-Paketabbruch. Die Lookupauswahl bleibt ohne
 explizite Auswahlregel pragmatisch, nicht deterministisch zugesichert.
 
+Bei Full-Cache-Lookups vergleicht der Paketmodus Textschlüssel unter BIN2
+einschließlich ihrer Byte-Länge. Nachgestellte Leerzeichen unterscheiden so
+Schlüssel sowohl beim Zuordnen als auch beim Gruppieren von Referenzzeilen.
+Die Längenprüfung ergänzt den Vergleich der bereits in den DTSX-Schlüsseltyp
+konvertierten Werte. Duplikate mit identischem Schlüssel folgen der
+konfigurierten Auswahlregel.
+
 Unpivot folgt den im Paket zugeordneten PivotKey-/DestinationColumn-Werten.
 Reine NULL-Gruppen werden ausgelassen; bei vollständig NULL-Eingaben bleibt
 eine Vorschauzeile. Microsoft beschreibt für SSIS ebenfalls Besonderheiten
