@@ -1,6 +1,6 @@
 # Gemeinsamer create-only-Installer: begrenzte Abnahme
 
-## Aktuelle Skill-Erweiterung: native Abnahme offen
+## Aktuelle Skill-Erweiterung
 
 Die aktuelle Entwicklung erweitert Prozeduren um konstante Skillausgabe und die
 Dateisystem-CLR-Einstiege um einen optionalen Hilfeschalter. Deren neu gebaute
@@ -8,9 +8,22 @@ Assembly ist nicht die Binary des folgenden nativen Consumer-Nachweises.
 Der aktuelle gemeinsame Builder verlangt dafür einen frischen, vollständig
 quellgebundenen lokalen Buildinput; eine frühere Assembly ohne Hilfeschalter
 wird nicht als Ersatz übernommen. Der aktuelle begrenzte Modulinstaller ist
-offline gebaut und syntaktisch geprüft. Neue Hilfe-/Binder-/Minimalrechte- und
+offline gebaut und syntaktisch geprüft. Alle vier Gesamtprofile mit der
+vollständigen Skill-View wurden ebenfalls offline gebaut und für SQL150,
+SQL160 und SQL170 geparst. Neue Hilfe-/Binder-/Minimalrechte- und
 Gesamtinstallationsabnahme stehen aus. Die folgenden datierten Nachweise bleiben
 unverändert und gelten ausschließlich für ihre ursprünglichen Artefakte.
+
+Für den ersten nativen Verbrauchercheck erzeugt
+[`new_usage_skill_expectations.py`](../../../Tests/Metadata/new_usage_skill_expectations.py)
+eine private JSON-Datei mit allen kanonischen Texten. Der
+[`Invoke-UsageSkillChecks.ps1`](../../../Tests/Metadata/Invoke-UsageSkillChecks.ps1)
+prüft auf einer bereits eingegrenzten offenen Testverbindung das achtspaltige
+Schema, Inventar und vollständige Unicode-Werte per ordinalem Vergleich.
+Er ruft die T-SQL-Standardhilfe mit zusätzlichem Skill und im lokalen
+Windows-Profil optional die reine CLR-Skillausgabe mit typgültigem,
+fachlich ungültigem Argument ab. Dabei prüft er Transaktion, SET-Optionen
+und die caller-lokale Testtabelle. Die native Ausführung steht aus.
 
 ## Aktuelle Funktionskorrekturen: native Gegenproben offen
 
