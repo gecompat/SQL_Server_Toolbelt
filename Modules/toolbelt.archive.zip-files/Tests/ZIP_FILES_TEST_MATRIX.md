@@ -76,6 +76,18 @@ von Testroot und Testdatenbank sowie den ursprünglichen Trustzustand.
 Die Produktbinaries und der Installationssatz aus der V1-Abnahme wurden
 wiederverwendet.
 
+Der ergänzende
+[`ServiceAccount`-Teilabbruchfall](Runtime/ZipFiles.Directory.Partial.ServiceAccount.sql)
+verwendete dasselbe ZIP auf Windows SQL Server 2025/CU8, CL170, lokal.
+Die fünf nativen SQL-Prüfungen bestätigten die Rollenmitgliedschaft des
+temporären Datenbankbenutzers, alle drei ResultTable-Status einschließlich
+`CRC_MISMATCH` und den vollständigen Readback des ersten Eintrags im
+`ServiceAccount`-Modus. Der Gastcheck bestätigte die geschützte DACL für
+die tatsächlich gebundene SQL-Dienstidentität und die Administratorengruppe
+sowie genau eine extrahierte Datei mit drei Bytes. Der frische Audit
+bestätigte, dass Testdatenbank samt Testbenutzer und Rechten und der eigene
+Testroot entfernt waren und der Trust-Vorzustand wiederhergestellt war.
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
