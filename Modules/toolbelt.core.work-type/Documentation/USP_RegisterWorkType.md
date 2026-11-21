@@ -1,5 +1,18 @@
 # toolbelt_core.USP_RegisterWorkType
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_RegisterWorkType.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Die Integration ist offline geprüft, nicht neu nativ
+abgenommen. Registrierung prüft Existenz und Handler-EXECUTE, nicht die zum
+ParameterMode passende Handler-Parametersignatur; diese prüft der spätere
+Dispatcher separat.
+
+Ohne Callertransaktion liegt der eigene Katalog-Commit vor dem ResultTable-Routing.
+Ein Routingfehler kann daher bereits persistente Registrierung/Änderung
+hinterlassen. Tatsächliche Updates ändern die RowVersion und erfordern eine
+erneute ausdrückliche Konfiguration gebundener App-Policies. Die Registrierung
+legt selbst keine ALLOW-Policies oder SQL-Rechte an.
+
 ## Zweck
 
 Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.

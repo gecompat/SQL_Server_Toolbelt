@@ -787,5 +787,28 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertIn("kein Handleraufruf", skill.markdown)
 
 
+    def test_worktype_module_has_complete_source_contracts_including_registration(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.work-type"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 9)
+        skill = next(s for s in records if s.metadata["object_name"] == "USP_RegisterWorkType")
+        path = skill.metadata["source_paths"][0]
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        self.assertEqual(skills.project_procedure_help(text, skill), text)
+        self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+        ret, _ = skills._procedure_help_return(text, skill)
+        tokens = skills._ddl_tokens(text)
+        first_throw = next(t[1] for t in tokens if t[0].casefold() == "throw")
+        self.assertLess(ret, first_throw)
+        commit = next(t[1] for t in tokens if t[0].casefold() == "commit")
+        helper = next(t[1] for t in tokens if t[0].casefold() == "usp_prepareresulttable")
+        self.assertLess(commit, helper)
+        for code in list(range(51500, 51513)) + [51518]:
+            self.assertIn(str(code), skill.markdown)
+        self.assertIn("NICHT die passende Handler-Parametersignatur", skill.markdown)
+        self.assertIn("keine neuen Policyzeilen", skill.markdown)
+
+
 if __name__ == "__main__":
     unittest.main()

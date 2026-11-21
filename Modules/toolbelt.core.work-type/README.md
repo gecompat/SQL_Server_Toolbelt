@@ -47,13 +47,12 @@ Version `1.1.0` ergänzt die kontrollierte Entfernung eines deaktivierten Work T
 
 Registrierung, Änderung, Deaktivierung und Entfernung sind administrative Vorgänge. Ein registrierender Principal muss `EXECUTE` auf die Zielprocedure besitzen. Ausführungsprovider erhalten einen getrennten Berechtigungs- und Ausführungsvertrag.
 
-Die [Policyverwaltung](Documentation/USP_SetWorkTypePermission.md), ihre interne
-Tabelle und Autorisierungs-TVF besitzen vollständige quellgeprüfte Usage-Skills
-in der DDL. `@Hilfe=1` der Verwaltungsprozedur liefert zusätzlich zur
-Standardhilfe den vollständigen Skill vor der fachlichen CONTROL-Prüfung.
-Die [kanonischen Quellen](../../Metadata/UsageSkills/README.md) werden getrennt
-von historischer Runtimequalifikation gepflegt; die Integration dieses
-Policyteilumfangs ist keine Abnahme aller übrigen Katalogprozeduren.
+Alle neun Katalogobjekte einschließlich interner Tabellen und Autorisierungs-TVF
+besitzen vollständige quellgeprüfte Usage-Skills in der DDL. `@Hilfe=1` der fünf
+Prozeduren liefert zusätzlich zur Standardhilfe den vollständigen Skill vor
+ihrem Fachpfad. Die [kanonischen Quellen](../../Metadata/UsageSkills/README.md)
+werden getrennt von historischer Runtimequalifikation gepflegt; diese
+Quellintegration ist keine neue native Hilfe- oder Gesamtinstallationsabnahme.
 
 Basis-Evidenz Version `1.0.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
 

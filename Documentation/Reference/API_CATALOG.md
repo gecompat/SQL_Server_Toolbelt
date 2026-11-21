@@ -1882,7 +1882,7 @@ Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work 
 
 Vertrag und Quelle: [USP_RegisterWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql), [USP_RegisterWorkType.md](../../Modules/toolbelt.core.work-type/Documentation/USP_RegisterWorkType.md).
 
-<!-- Source/Vertrag SHA256: 91e7bf9cf81ca6beb98117283f44391dbd819d00c55b01fa4dfbc0d2042bc0f7 -->
+<!-- Source/Vertrag SHA256: 6cfc80b01eb0b9800b4000e0995b981ae9ad85063aa5b637eff9d616e7340a7f -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
