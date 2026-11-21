@@ -88,9 +88,15 @@ SSIS_HELP_NEW=('1: bisherige zwölfspaltige Standardhilfe plus genau eine vollst
                'Rückkehr vor fachlicher Parameter-/Paket-/Katalogprüfung und Ergebniszielmutation. '
                '0 oder NULL führt den Fachpfad aus. Im internen CLR-Einstieg bleiben die neun '
                'LOB-Argumente auch bei Hilfe syntaktisch erforderlich.').encode('utf-8')
+IDENTIFIER_SCALAR_PATH='Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql'
+IDENTIFIER_SCALAR_RIGHTS_OLD=b'-- Rechte:          SELECT oder REFERENCES'
+IDENTIFIER_SCALAR_RIGHTS_NEW=b'-- Rechte:          EXECUTE und erforderliche Ownershipchain zum Parser'
 
 
 def corrected_historical_help(original,path):
+    if path==IDENTIFIER_SCALAR_PATH and IDENTIFIER_SCALAR_RIGHTS_OLD in original:
+        if original.count(IDENTIFIER_SCALAR_RIGHTS_OLD)!=1:raise ValueError('NONCANONICAL_IDENTIFIER_RIGHTS_COMMENT')
+        original=original.replace(IDENTIFIER_SCALAR_RIGHTS_OLD,IDENTIFIER_SCALAR_RIGHTS_NEW)
     if path in CLONE_HELP_PATHS and SCHEMA_HELP_OLD in original:
         start=b'    IF @Hilfe=1\n    BEGIN\n';end=b'        RETURN 0;'
         if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
@@ -223,7 +229,7 @@ def compare(original,current,path):
     if original!=current: raise ValueError('COMPONENT_REUSE_NOT_PROVEN: '+path)
 
 
-def verify(root=ROOT,baseline=BASELINE,module_ids=None):
+def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=False):
     scopes=['Modules/'+name for name in module_ids] if module_ids else ['Modules']
     raw=subprocess.check_output(['git','archive','--format=tar',baseline,*scopes],cwd=root,timeout=120)
     originals={}
@@ -274,6 +280,9 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
     import sys
     sys.path.insert(0,str(root/'Scripts/Metadata'))
     import usage_skills
+    if allow_current_deltas:
+        sys.path.insert(0,str(root/'Scripts/Install'))
+        import current_source_deltas
     for path,data in originals.items():
         current=(root/path).read_bytes()
         if path==SSIS_HELP_PATH and ssis_base is not None:
@@ -293,9 +302,26 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None):
             text=usage_skills.strip_missing_help_projection(root,path,text)
             text=usage_skills.strip_help_projection(root,path,text)
             current=usage_skills.strip_ddl_projection(root,path,text).encode('utf-8')
+        if allow_current_deltas:
+            if path in current_source_deltas.PATHS:
+                # This is a separate exact source-change check, not reuse of
+                # the historical behavior or native evidence of this file.
+                compare(current_source_deltas.apply(data,path),current,path)
+                continue
         compare(data,current,path)
+    if allow_current_deltas:
+        return len(set(originals)-current_source_deltas.PATHS)
     return len(originals)
 
 
 if __name__=='__main__':
-    print('COMPONENT_SOURCE_REUSE_PROVEN files='+str(verify())+'; new skill/help/deployment/package qualification separate; no SQL executed')
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--check-current-deltas',action='store_true',
+                        help='Separately verify declared source fixes; never assert native reuse for them.')
+    args=parser.parse_args()
+    count=verify(allow_current_deltas=args.check_current_deltas)
+    prefix='CURRENT_SOURCE_CHECK_PASSED unchanged_files=' if args.check_current_deltas else 'COMPONENT_SOURCE_REUSE_PROVEN files='
+    print(prefix+str(count)+
+          ('; declared functional deltas source-checked only, current native qualification required' if args.check_current_deltas else '')+
+          '; new skill/help/deployment/package qualification separate; no SQL executed')

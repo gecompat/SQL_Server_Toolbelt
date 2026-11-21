@@ -12,6 +12,38 @@ offline gebaut und syntaktisch geprüft. Neue Hilfe-/Binder-/Minimalrechte- und
 Gesamtinstallationsabnahme stehen aus. Die folgenden datierten Nachweise bleiben
 unverändert und gelten ausschließlich für ihre ursprünglichen Artefakte.
 
+## Aktuelle Funktionskorrekturen: native Gegenproben offen
+
+Der Quellabgleich vom 2026-11-21 hat fünf gezielt geänderte SQL-Dateien in
+vier Modulen von 293 unveränderten Fachquellen getrennt. Dies betrifft neun
+öffentliche Funktionen einschließlich ihrer delegierenden Fassaden:
+
+- URI-Decoding weist Nicht-ASCII-Rohinput prozedural vor der Hexkonvertierung ab.
+- JSON-Pfadexistenz vergleicht Schlüssel zusätzlich nach UTF16-Bytelänge;
+  die rohe JSON-Quoting-/Tiefenprüfung erkennt nur literale ASCII-Strukturzeichen.
+- Multipart-Identifier verwenden durchgehend physische UTF16-Einheiten und
+  binäre Delimiter. Leer und Space sind verschieden; Supplementaryzeichen
+  werden nicht durch einen SC-Zeichenschritt in einen Einheitenpuffer gekürzt.
+- Directional-Trim verwendet für die NUL-Probe dieselben Zeichenpositionen
+  wie für CHARINDEX und die Ausgabe, auch unter SC-/UTF8-Collations.
+
+[current_source_deltas.py](../current_source_deltas.py) beschreibt ausschließlich
+die exakten Änderungen am unveränderlichen Ausgangscode. Der strikte
+Wiederverwendungsmodus lehnt diese Dateien weiterhin ab. Der explizite
+`--check-current-deltas`-Modus prüft die Änderungen separat; er ist kein
+Laufzeitnachweis und überträgt keine historischen Ergebnisse auf die Korrekturen.
+Die vier aktuellen Modulmanifeste sind bis zur entsprechenden Abnahme teilweise
+validiert. Ihre historischen Nachweise bleiben unverändert erhalten.
+
+Die synthetische [native Gegenprobe](../../../Tests/Metadata/FunctionEdgeCases.sql)
+enthält 19 deklarierte Assertions, ist derzeit **nicht ausgeführt** und setzt
+eine bereits installierte eigene Testdatenbank voraus. Sie ändert weder
+Rechte noch Konfiguration oder Daten. Für eine Ausführung unter ausgewählten
+Nicht-SC-, SC- und UTF8-Datenbankcollations ist ein eigener konkreter endlicher
+nativer Testscope erforderlich. Geschlossene frühere Testfenster bleiben
+geschlossen. Die neue Hilfe-/Unicode-/Callerzustands-/Gesamtinstallerabnahme ist
+zusätzlich erforderlich; grüne Offlineprüfungen ersetzen sie nicht.
+
 ## Bestandener begrenzter Gesamtfall vom 2026-11-20
 
 Nach ausdrücklicher separater Freigabe bestand der abschließende Einmallauf

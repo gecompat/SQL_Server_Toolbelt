@@ -108,21 +108,21 @@ Produktview und kein Versand von Entwürfen.
 
 ### Quellbefund JSON-Path-Keyvergleich, 2026-11-21
 
-Der Propertyzweig von `TVF_JsonPathExistsStatus` vergleicht den OPENJSON-Key
-mit dem Pfadtoken ausschließlich über BIN2-Gleichheit. Eine zusätzliche
-Längengleichheit ist nicht vorhanden. Der
+Der ursprünglich untersuchte Propertyzweig von `TVF_JsonPathExistsStatus`
+verglich den OPENJSON-Key ausschließlich über BIN2-Gleichheit, ohne zusätzliche
+Längengleichheit. Der
 [Microsoft-Vertrag](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/string-comparison-assignment?view=sql-server-ver17)
 beschreibt die Leerzeichenauffüllung bei SQL-Zeichenkettengleichheit. Daraus
 ergibt sich ein konkreter Quellverdacht für die Verwechslung eines JSON-Keys
 mit derselben Zeichenfolge und abschließendem Leerzeichen. Eine native
 Gegenprobe wurde nicht ausgeführt; kein beobachtetes API-FAIL behaupten.
 
-Beide JSON-Path-Skills bleiben Entwürfe. Vor ihrer Abnahme sind der gepaddete
-Vergleich, eine notwendige Längenabsicherung und passende positive/negative
-API-Gegenfälle zu klären. Ein fachlicher Fix darf weder als passiver Kommentar
-normalisiert noch mit alten unveränderten Runtime-Nachweisen qualifiziert
-werden. Bestehende Grenzen und Native-Freigaben bleiben erhalten; unabhängige
-Skillverträge weiter bearbeiten.
+Aktueller Quellstand: Beide Matchzweige verlangen zusätzlich identische
+UTF16-Bytelänge. Die rohe Quoting-/Tiefenprüfung verwendet literale binäre
+ASCII-Strukturzeichen. Beide Skills sind am korrigierten Quellcode geprüft;
+positive/negative native API-Gegenfälle sind vorbereitet, aber noch nicht
+ausgeführt. Der Fix wird separat von unveränderten Quellen geprüft und erbt
+keine alten Runtime-Nachweise. Geschlossene native Grenzen bleiben erhalten.
 
 ### Quellbefund URI-Decoder, 2026-11-20
 
@@ -135,11 +135,28 @@ keinen eigenen TRY-/Guardpfad. Die vorhandene Nicht-ASCII-Validierung soll
 Code 10 liefern, ist aber keine ausdrücklich vorangestellte prozedurale
 Rückkehr vor dieser Konstruktion.
 
-Eine tatsächliche API-Ausnahme wird ohne native Auswertung nicht behauptet.
-Die drei Decoder-Skills bleiben Entwürfe, bis Auswertbarkeit und notwendige
-Absicherung geklärt sind. Ein späterer Fix darf nicht als unveränderter
-Fachpfad normalisiert oder durch historische Nachweise qualifiziert werden.
-Unabhängige Skills und unveränderte Fachpfade werden weiter bearbeitet.
+Eine tatsächliche historische API-Ausnahme wird ohne native Auswertung nicht
+behauptet. Der aktuelle Quellstand kehrt bei Nicht-ASCII-Rohinput prozedural mit
+Code 10 zurück, bevor Hex-/Binary-CTEs ausgeführt werden. Die drei Skills sind
+am korrigierten Quellcode geprüft. Die neue native Gegenprobe bleibt offen;
+der funktionale Fix wird nicht als unveränderter Fachpfad normalisiert und
+nicht durch historische Nachweise qualifiziert.
+
+### Vollständige Quellabdeckung, 2026-11-21
+
+Alle 257 katalogisierten Objekte einschließlich der neuen View besitzen jetzt
+geprüfte kanonische Skillquellen; keine fehlenden Dateien oder Entwürfe.
+Identifier verwenden konsistente UTF16-Einheiten, binäre Delimiter und
+längengenaue Leerheitsprüfung. Bei Trim ist die NUL-Probe an dieselbe
+Installationscollation wie Zeichenvergleich und Ausgabe gebunden. Zusammen
+mit URI/JSON sind dies fünf gezielt geänderte Funktionsdateien in vier
+Modulen; deren aktuelle native Gegenproben bleiben offen. Der strikte
+Wiederverwendungsmodus lehnt sie weiterhin ab. Die getrennte aktuelle
+Quellprüfung gibt ausdrücklich keinen nativen PASS aus.
+
+Einquellenkopplung aller API-/Help-Projektionen, vollständige Viewintegration,
+neue native Hilfe-/Caller-/Unicode-/Installerabnahme, unabhängiger Review,
+Head-/Main-CI und aktueller Releasebau sind weiterhin Abschlussbedingungen.
 
 Zuerst öffentlicher USP, interner Helfer, Funktion, View und Tabelle als geprüfte
 Prototypen; anschließend vollständige Inventarabdeckung. Identitäten, Frontmatter,

@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.uri-component"
 module_name: "URI Component Percent-Encoding"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "validated"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Codiert und decodiert RFC-3986-URI-Komponenten als UTF-8-Octets."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150,160,170]
 platforms:
-  windows: "validated"
-  linux: "validated"
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: tsql-utf8-inline
     technology: "T-SQL bounded status MSTVF with legacy inline wrapper"
     platforms: [Windows,Linux]
-    status: "validated"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true

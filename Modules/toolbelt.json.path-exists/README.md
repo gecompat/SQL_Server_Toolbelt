@@ -11,6 +11,14 @@ Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
 Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
 aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 
+Der aktuelle Quellstand vom 2026-11-21 enthält gezielte funktionale Korrekturen
+für die bei der Skillprüfung gefundenen Randfälle. Der Modulstatus ist bis zu
+den [neuen nativen Gegenproben](../../Scripts/Install/Tests/QUALIFICATION.md#aktuelle-funktionskorrekturen-native-gegenproben-offen)
+teilweise validiert. Historische Nachweise bleiben an ihre ursprünglichen
+Artefakte gebunden. Die vollständigen Usage-Skills stehen in der ausgelieferten
+Funktions-DDL und unter [Metadata/UsageSkills](../../Metadata/UsageSkills/README.md);
+eine Skillbeschreibung attestiert weder Installation noch Aufruferrechte.
+
 
 Aktuelle [Callerrechte](../../Releases/1.0.0/JSON-PATH-CALLER-QUALIFICATION.md): getrennte Objektrechte auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Weitere Funktions-, Client-, Lifecycle- und Ressourcengates sowie Modulstatus bleiben separat.
 

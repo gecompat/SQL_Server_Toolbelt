@@ -51,14 +51,16 @@ class MarkerlessContractTests(unittest.TestCase):
         for name in ('ForeignAssembly','tlblt_bad]; DROP TABLE x;--'):
             with self.assertRaises(ValueError):installer.assembly_ddl_prefix(name)
 
-    def test_assembly_skill_source_binding_covers_only_selected_editorial_inputs(self):
+    def test_assembly_skill_binding_includes_full_catalogue_without_selecting_binaries(self):
         name='tlblt_Tsql_SsisDebug'
         bindings=installer.build_source_bindings([name])
         path='Metadata/UsageSkills/_assemblies/'+name+'.md'
         self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
         self.assertIn('Scripts/Metadata/usage_skills.py',bindings)
-        self.assertNotIn('Metadata/UsageSkills/_assemblies/tlblt_String_Regex.md',bindings)
-        self.assertNotIn('Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDate.md',bindings)
+        # The complete known-object catalogue is global even for a partial
+        # installer. This is source binding, not binary dependency selection.
+        self.assertIn('Metadata/UsageSkills/_assemblies/tlblt_String_Regex.md',bindings)
+        self.assertIn('Metadata/UsageSkills/toolbelt_datetime/TVF_DateBucketDate.md',bindings)
 
     def test_source_binding_includes_transitive_admission_and_shared_compiler_sources(self):
         pins=installer.build_source_bindings()
@@ -307,6 +309,14 @@ class MarkerlessContractTests(unittest.TestCase):
                      'Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md',
                      'Scripts/Install/New-MarkerlessCapabilities.py'):
             self.assertIn(path,bindings)
+            self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
+
+    def test_partial_build_source_ledger_binds_every_editorial_skill(self):
+        bindings=installer.build_source_bindings()
+        editorial={p.relative_to(ROOT).as_posix() for p in (ROOT/'Metadata/UsageSkills').glob('*/*.md')}
+        self.assertEqual(len(editorial),257)
+        self.assertTrue(editorial <= bindings.keys())
+        for path in editorial:
             self.assertEqual(bindings[path],installer.sha(installer.normalize((ROOT/path).read_bytes())))
 
     def test_permission_contract_is_preserved_and_unknown_declarations_fail(self):

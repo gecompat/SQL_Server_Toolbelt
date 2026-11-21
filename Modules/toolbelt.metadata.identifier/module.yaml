@@ -2,7 +2,7 @@ module_id: "toolbelt.metadata.identifier"
 module_name: "Identifier and Multipart Name Toolkit"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Analysiert und begrenzt ein- bis vierteilige SQL-Identifier ohne Objektauflösung."
 
@@ -17,14 +17,14 @@ compatibility_levels:
   - 170
 
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 
 providers:
   - id: tsql-state-machine
     technology: T-SQL Multi-statement TVF und Scalar UDF
     platforms: [Windows, Linux]
-    status: validated
+    status: "partially validated"
 
 deployment_capabilities:
   local: true

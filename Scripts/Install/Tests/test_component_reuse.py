@@ -13,8 +13,12 @@ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
 
 class ComponentReuseTests(unittest.TestCase):
-    def test_current_full_component_inventory_matches_declared_reuse_scope(self):
-        self.assertGreater(module.verify(),0)
+    def test_current_full_inventory_separates_unchanged_files_from_declared_deltas(self):
+        self.assertGreater(module.verify(allow_current_deltas=True),0)
+
+    def test_strict_reuse_still_rejects_a_functionally_changed_module(self):
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.verify(module_ids=['toolbelt.json.path-exists'])
 
     def test_only_sql_assembly_binding_and_comment_alias_are_permitted(self):
         old=b'-- Toolbelt_String_Regex\nAS EXTERNAL NAME [Toolbelt_String_Regex].[Contoso.Provider].[Invoke];'
@@ -24,6 +28,13 @@ class ComponentReuseTests(unittest.TestCase):
     def test_business_sql_change_is_rejected(self):
         with self.assertRaises(ValueError):
             module.compare(b'SELECT 1;',b'SELECT 2;','Modules/Contoso/Source/Contoso.sql')
+
+    def test_identifier_scalar_rights_comment_repair_keeps_every_business_byte_bound(self):
+        old=module.IDENTIFIER_SCALAR_RIGHTS_OLD+b'\nRETURN 1;'
+        current=module.IDENTIFIER_SCALAR_RIGHTS_NEW+b'\nRETURN 1;'
+        module.compare(old,current,module.IDENTIFIER_SCALAR_PATH)
+        with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+            module.compare(old,current.replace(b'RETURN 1;',b'RETURN 2;'),module.IDENTIFIER_SCALAR_PATH)
 
     def test_exact_event_help_example_repair_never_admits_business_changes(self):
         old=(b'    IF ISNULL(@Hilfe, 0) = 1\n    BEGIN\nSELECT '

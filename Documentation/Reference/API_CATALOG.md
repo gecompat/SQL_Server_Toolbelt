@@ -680,7 +680,7 @@ Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
 Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: 8e06893fa21a4bf41aa807ffed6e4514588e887c2e411492460f34ef1d794b13 -->
+<!-- Source/Vertrag SHA256: 0b01a8e46eff394b0e9a84446a861e811940fef52da4435d436fcbbf9b6c7671 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -720,7 +720,7 @@ Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
 Vertrag und Quelle: [SVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/SVF_UriComponentDecode.sql), [SVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/SVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: 03befd753d8248ee253ee93217e202f6d10fa263559b53714c7744511cf6a8cb -->
+<!-- Source/Vertrag SHA256: 813994c28506cb0dfb888b7dbc0230b4fc5a7b43d5f4460d4358c51cc6b9c264 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -762,7 +762,7 @@ Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Strikte UTF-8-/Percent-/NUL-
 
 Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecodeStatus.md).
 
-<!-- Source/Vertrag SHA256: 3d069256b8c43b731c6461127a1def8eb7c96827ea814319da098d6786af6595 -->
+<!-- Source/Vertrag SHA256: 31e6c0b40fd5b072cfd786b3ec69a422b8a1075407766f9539e660973b186cdc -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -3641,12 +3641,12 @@ Prüft, ob ein unterstützter Pfad in einem JSON-Dokument existiert.
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExists.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md).
 
-<!-- Source/Vertrag SHA256: f618a6506f54786106491a997e4d792677ec435654b63d4146ba38565348dcce -->
+<!-- Source/Vertrag SHA256: 1b5b2637218c6faefcbb653fc02e3e8128e16dd7daebab90ebd754e586259490 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiger JSON-Wert einschließlich Skalar/root-null, maximal 16777216 UTF-16-Bytes und lexikalische Containertiefe 128. Leer ist ungültiges JSON. NULL in Json oder Path liefert SQL_NULL/NULL vor weiterer Prüfung. Syntaxfehler ergeben INVALID/0; Ressourcenüberschreitungen LIMIT/NULL im Statuskern beziehungsweise NULL in der Wertfassade. Frontier höchstens 10000 Werte, kumulatives Parserworkbudget 67108864 Bytes. |
-| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. Objektschlüssel verlangen BIN2-Gleichheit UND identische UTF16-Bytelänge; a und a&lt;Space&gt; sowie leer und Space sind verschieden. Steuer-/Wildcardvergleiche behalten die vorhandene SQL-Paddingsemantik; dies ist keine vollständige native SQL/JSON-Pfadgrammatik. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
@@ -3662,14 +3662,14 @@ Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. 
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExistsStatus.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md).
 
-<!-- Source/Vertrag SHA256: 3e3d2b6c48d2f7a82ed37817462a6eb17bb0e264a9b1aa0d22f10bd8f698f4a3 -->
+<!-- Source/Vertrag SHA256: c69e8890c9d39cd85171f37522d20661a2b03c38db61c16aa93284b2a7b0fcbe -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiger JSON-Wert einschließlich Skalar/root-null, maximal 16777216 UTF-16-Bytes und lexikalische Containertiefe 128. Leer ist ungültiges JSON. NULL in Json oder Path liefert SQL_NULL/NULL vor weiterer Prüfung. Syntaxfehler ergeben INVALID/0; Ressourcenüberschreitungen LIMIT/NULL im Statuskern beziehungsweise NULL in der Wertfassade. Frontier höchstens 10000 Werte, kumulatives Parserworkbudget 67108864 Bytes. |
-| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | SQL/JSON-Teilmenge, maximal 4000 UTF-16-Einheiten/128 Segmente: $ für Root, .ASCII_key mit Buchstaben/Ziffern/_, ."JSON-escaped key" für beliebige Keys, [0].. mit nullbasiertem ASCII-Dezimalindex ohne führende Nullen, [*] für beliebiges Arrayelement. Keine Objektwildcards, Filter, Ranges, Indexlisten oder last. Optionale Präfixe lax / strict werden case-insensitiv erkannt und ändern den Existenzvertrag nicht; äußere normale Spaces werden entfernt. Keys bleiben binär/case-sensitiv. Leer/fehlerhaft ergibt INVALID/0; NULL ergibt SQL_NULL/NULL. Objektschlüssel verlangen BIN2-Gleichheit UND identische UTF16-Bytelänge; a und a&lt;Space&gt; sowie leer und Space sind verschieden. Steuer-/Wildcardvergleiche behalten die vorhandene SQL-Paddingsemantik; dies ist keine vollständige native SQL/JSON-Pfadgrammatik. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
@@ -3771,11 +3771,11 @@ Zerlegt und validiert ein- bis vierteilige SQL-Identifier.
 
 Vertrag und Quelle: [TVF_ParseMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql), [TVF_ParseMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/TVF_ParseMultipartName.md).
 
-<!-- Source/Vertrag SHA256: 672d08e3ae116374fe1fb7dd859cfeb07f47afca343930a5a8101710e66a1160 -->
+<!-- Source/Vertrag SHA256: 5bf70898527cd6949ce223bb6e25e18691eed0205cfc0b85a5601907c1f6e162 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 Zeichen. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. |
+| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 UTF16-Codeeinheiten. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. ASCII-Delimiter werden binär erkannt, escaped ]] wird einmal zurückgenommen. Gequotete Spaces einschließlich [ ] sind Inhalt, keine Auslassung; Spaces vor einer öffnenden Klammer sind BRACKET_SYNTAX. Parameterbindung auf1035Codeeinheiten liegt vor der Funktion und kann längere Callerwerte kürzen; ursprüngliche Länge bei Bedarf vorher im Client/max-Typ prüfen. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
@@ -3791,11 +3791,11 @@ Validiert einen mehrteiligen SQL-Namen und quotiert seine Komponenten.
 
 Vertrag und Quelle: [SVF_QuoteMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql), [SVF_QuoteMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/SVF_QuoteMultipartName.md).
 
-<!-- Source/Vertrag SHA256: 0018868f0e091edecb81f0a6c6ed862a70a12ae31c80f24428d3b16e8be12ebf -->
+<!-- Source/Vertrag SHA256: b59a9d563cf84174ce119e03cc72728d83bf19b6fdd31794febe8b75dde21f7a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 Zeichen. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. |
+| `@MultipartName` | `nvarchar(1035)` | `kein Default` | Input | Ein- bis vierteiliger SQL-Identifier als nvarchar(1035), je ausgeschriebenem Teil höchstens 128 UTF16-Codeeinheiten. Formen: Object; Schema.Object; Database.Schema.Object; Server.Database.Schema.Object; Database..Object; Server.Database..Object; Server..Schema.Object; Server...Object. Eckige Klammern erlauben Punkte im Teil und ]] als escaped Schlussklammer. Keine doppelten Quotes als Delimiter, äußeren Spaces, leeren Objektteile oder Steuerzeichen. NULL/leer/ungültig ergibt beim Parser IsValid=0 mit ValidationCode, beim Scalarwrapper NULL. Existenz und Rechte werden nicht dadurch geprüft. ASCII-Delimiter werden binär erkannt, escaped ]] wird einmal zurückgenommen. Gequotete Spaces einschließlich [ ] sind Inhalt, keine Auslassung; Spaces vor einer öffnenden Klammer sind BRACKET_SYNTAX. Parameterbindung auf1035Codeeinheiten liegt vor der Funktion und kann längere Callerwerte kürzen; ursprüngliche Länge bei Bedarf vorher im Client/max-Typ prüfen. |
 
 Die Beschreibungen nennen Eingabeform, erlaubte Werte, fachliche Pflicht und Grenzen. Der verlinkte Objektvertrag ergänzt Resultate und Implementierungsdetails.
 
@@ -4088,11 +4088,11 @@ Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem Unicode-Te
 
 Vertrag und Quelle: [TVF_TrimDirectionalNvarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql), [TVF_TrimDirectionalNvarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalNvarchar.md).
 
-<!-- Source/Vertrag SHA256: de3bdc9a291d07d5da9347126ac4bd046a61accaa1dac09cf8bf8d3e74e3ef15 -->
+<!-- Source/Vertrag SHA256: 634615a08ec117208f9b8676164138613a5820f05eac37f35205736a0ab0147a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max); Positionen zählen UTF-16-Codeeinheiten. Leer bleibt leer; NULL ergibt NULL. NUL wird nicht entfernt; Zeichenvergleiche verwenden die Installationscollation. |
+| `@Value` | `nvarchar(max)` | `kein Default` | Input | Unicode-Text als nvarchar(max). SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 | `@Characters` | `nvarchar(4000)` | `N' '` | Input | Bis 4000 UTF-16-Codeeinheiten als nvarchar(4000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 
@@ -4110,11 +4110,11 @@ Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem varchar-Te
 
 Vertrag und Quelle: [TVF_TrimDirectionalVarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalVarchar.sql), [TVF_TrimDirectionalVarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalVarchar.md).
 
-<!-- Source/Vertrag SHA256: 10afae061f8e56a730d52943d8ed96a8f622c104eee3d139694d1a80f12cb2ae -->
+<!-- Source/Vertrag SHA256: c8b642e9e00922fba24330c6ec2eccb115aadd7fdd3a54ddd44439263ec260bd -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `varchar(max)` | `kein Default` | Input | Text als varchar(max) unter der Datenbank-Codepage; die Positionsermittlung ist byteorientiert, kein Unicode-Codepoint-Vertrag. Leer bleibt leer; NULL ergibt NULL. NUL wird nicht entfernt; Zeichenvergleiche verwenden die Installationscollation. |
+| `@Value` | `varchar(max)` | `kein Default` | Input | Text als varchar(max) unter der Installationscodepage einschließlich gegebenenfalls UTF8. SUBSTRING/CHARINDEX und NUL-Probe verwenden dieselben Zeichenpositionen der Installationscollation; SC zählt Supplementaryzeichen zusammen. Die obere Seriengrenze ist physisch DATALENGTH/2 bei nvarchar beziehungsweise DATALENGTH bei varchar und kann mehr Positionen als tatsächliche Zeichen enthalten. Leer bleibt leer, NULL ergibt NULL; keine dynamische Caller-Collation. NUL wird nicht entfernt. |
 | `@Characters` | `varchar(8000)` | `' '` | Input | Bis 8000 Bytes als varchar(8000) als Menge einzelner zu entfernender Zeichen, kein Suchstring/Pattern. Default ist genau ein Space; leer entfernt nichts, NULL ergibt NULL. %, [ usw. sind literal; NUL wird nicht getrimmt. |
 | `@Direction` | `varchar(8)` | `'BOTH'` | Input | Taxativ: LEADING entfernt Zeichen nur links; TRAILING nur rechts; BOTH an beiden Rändern (Default). UPPER normalisiert die Groß-/Kleinschreibung, Vergleich erfolgt nach SQL-Gleichheitsregeln einschließlich Space-Padding; kein Trim der führenden Spaces. Andere Werte und NULL erzeugen einen Enginefehler, außer NULL bei Value/Characters hat Vorrang. |
 

@@ -11,6 +11,14 @@ Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
 Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
 aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
 
+Der aktuelle Quellstand vom 2026-11-21 enthält gezielte funktionale Korrekturen
+für die bei der Skillprüfung gefundenen Randfälle. Der Modulstatus ist bis zu
+den [neuen nativen Gegenproben](../../Scripts/Install/Tests/QUALIFICATION.md#aktuelle-funktionskorrekturen-native-gegenproben-offen)
+teilweise validiert. Historische Nachweise bleiben an ihre ursprünglichen
+Artefakte gebunden. Die vollständigen Usage-Skills stehen in der ausgelieferten
+Funktions-DDL und unter [Metadata/UsageSkills](../../Metadata/UsageSkills/README.md);
+eine Skillbeschreibung attestiert weder Installation noch Aufruferrechte.
+
 
 Aktuelle [Utility-Callerrechte](../../Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md): einzelne SELECT-/EXECUTE-Grants für16 öffentliche Funktionen lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; andere APIs, direkte Dependencies und Helper bleiben unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren Scope; keine Statusaufwertung.
 

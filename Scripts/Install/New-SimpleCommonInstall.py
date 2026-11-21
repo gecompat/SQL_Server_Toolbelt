@@ -315,6 +315,9 @@ def build_source_bindings(assembly_names=()):
     # T-SQL subsets. Bind its reviewed editorial input and reader as well.
     skills=usage_skill_tools()
     paths.add(ROOT/'Scripts/Metadata/usage_skills.py')
+    # The source-bound Skill policy and the complete catalogue consume these
+    # editorial records, including records not installed by a partial profile.
+    paths.update((ROOT/'Metadata/UsageSkills').glob('*/*.md'))
     paths.add(ROOT/caps.TARGET)
     paths.add(skills.source_file(ROOT,'toolbelt_metadata','VW_ModuleCapabilities'))
     if assembly_names:

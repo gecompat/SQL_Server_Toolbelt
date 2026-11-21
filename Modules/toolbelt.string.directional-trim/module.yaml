@@ -2,7 +2,7 @@ module_id: "toolbelt.string.directional-trim"
 module_name: "Directional TRIM Compatibility"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Bietet die SQL-Server-2022-TRIM-Positionen portable für varchar und nvarchar."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150,160,170]
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: tsql-inline
     technology: T-SQL Inline TVF
     platforms: [Windows,Linux]
-    status: validated
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true

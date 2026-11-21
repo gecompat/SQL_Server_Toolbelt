@@ -2,7 +2,7 @@ module_id: "toolbelt.json.path-exists"
 module_name: "JSON Path Exists"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "validated"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Prüft SQL/JSON-Pfade auf SQL Server 2019+ ohne fachliche Fehler."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "validated"
-  linux: "validated"
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: tsql-stateful
     technology: T-SQL Multi-statement TVF
     platforms: [Windows, Linux]
-    status: "validated"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true

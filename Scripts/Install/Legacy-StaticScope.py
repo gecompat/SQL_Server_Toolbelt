@@ -1,8 +1,9 @@
 """Explicit original lifecycle assertions plus current component equivalence.
 
 Retired SQL lifecycle is checked at its immutable source, never installed by the
-current builder. Any business-source change rejects reuse before the old suite
-runs. Current markerless lifecycle and client checks are separate mandatory gates.
+current builder. Unchanged files retain exact equivalence. Declared functional
+deltas are checked separately and never inherit the old suite's runtime scope.
+Current markerless lifecycle and client checks are separate mandatory gates.
 """
 from pathlib import Path
 import importlib.util
@@ -31,13 +32,14 @@ def run(module_id):
         subprocess.run(['git','fetch','--no-tags','--depth=1','origin',BASELINE],cwd=ROOT,check=True,timeout=120)
     common=load('New-SimpleCommonInstall')
     selected=[m['id'] for m in common.modules('Windows','local',[module_id])]
-    count=load('Verify-ComponentReuse').verify(module_ids=selected)
+    count=load('Verify-ComponentReuse').verify(module_ids=selected,allow_current_deltas=True)
     sys.path.insert(0,str(ROOT/'Tests/Release'))
     from ssis_historical_context import historical_root
     frozen=historical_root(ROOT,BASELINE)
     path=frozen/'Modules'/module_id/'Tests/Static/validate_contract.py'
     env=os.environ.copy();env['PYTHONDONTWRITEBYTECODE']='1';env['PYTHONIOENCODING']='utf-8'
     result=subprocess.run([sys.executable,'-B',str(path)],cwd=frozen,env=env,timeout=120)
-    print('STATIC_SCOPE module='+module_id+'; current component equivalence files='+str(count)+
-          '; lifecycle assertions at '+BASELINE+'; new deployment acceptance separate',flush=True)
+    print('STATIC_SCOPE module='+module_id+'; unchanged component files='+str(count)+
+          '; declared deltas source-checked, not runtime-qualified; lifecycle assertions at '+BASELINE+
+          '; current help/deployment/native acceptance separate',flush=True)
     return result.returncode
