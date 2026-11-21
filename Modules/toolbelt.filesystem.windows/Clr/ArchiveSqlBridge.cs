@@ -41,10 +41,10 @@ WHERE RootAlias = @Alias AND IsActive = 1 AND AllowWrite = 1
 
             var archive = new ZipEntryProvider.ExtractionArchive(zipArchive.Stream, zipArchive.Length, maxArchiveBytes,
                 maxEntries, maxEntryBytes, maxTotalExpandedBytes, maxCompressionRatio, maxPathLength);
-            IList<ZipEntryProvider.ExtractionOutcome> outcomes;
+            IList<ArchiveDirectoryExtraction.ExtractionOutcome> outcomes;
             using (var destination = new ArchiveDestination(root, relativeDirectory, work, createDirectories,
                 overwriteExistingFiles, exclusiveRoot, execution.RunArchive))
-                outcomes = ZipEntryProvider.ExtractDirectory(archive, destination);
+                outcomes = ArchiveDirectoryExtraction.ExtractDirectory(archive, destination);
 
             if (stageRows) { StoreArchiveOutcomes(outcomes); return; }
             SqlDataRecord result = Record("Ordinal", SqlDbType.BigInt, "EntryName", SqlDbType.NVarChar, -1,
@@ -83,7 +83,7 @@ ELSE 0 END;";
             }
         }
 
-        private static void StoreArchiveOutcomes(IList<ZipEntryProvider.ExtractionOutcome> outcomes)
+        private static void StoreArchiveOutcomes(IList<ArchiveDirectoryExtraction.ExtractionOutcome> outcomes)
         {
             using (var connection = new SqlConnection("context connection=true"))
             using (var command = connection.CreateCommand())

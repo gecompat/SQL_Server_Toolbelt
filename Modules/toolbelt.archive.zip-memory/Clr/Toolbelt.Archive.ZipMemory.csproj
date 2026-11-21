@@ -29,7 +29,6 @@
     <Compile Include="ZipWriter.cs" />
     <Compile Include="ArchiveSession.cs" />
     <Compile Include="ArchiveExtraction.cs" />
-    <Compile Include="DirectoryExtraction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

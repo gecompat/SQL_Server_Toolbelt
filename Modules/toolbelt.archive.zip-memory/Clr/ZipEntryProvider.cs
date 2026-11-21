@@ -953,21 +953,26 @@ namespace Toolbelt.Archive.ZipMemory
             decimal maxCompressionRatio,
             Action checkpoint = null)
         {
-            byte[] output = null;
-            ReadPayloadChunks(reader, entry, maxEntryBytes, maxCompressionRatio, checkpoint,
-                delegate
+            byte[] output;
+            using (var chunks = ReadPayloadChunks(reader, entry, maxEntryBytes, maxCompressionRatio, checkpoint).GetEnumerator())
+            {
+                bool more = chunks.MoveNext();
+                output = new byte[checked((int)entry.UncompressedBytes)];
+                int offset = 0;
+                while (more)
                 {
-                    output = new byte[checked((int)entry.UncompressedBytes)];
-                    return delegate(byte[] buffer, int count, long offset)
-                    { Buffer.BlockCopy(buffer, 0, output, checked((int)offset), count); };
-                });
+                    var chunk = chunks.Current;
+                    Buffer.BlockCopy(chunk.Array, chunk.Offset, output, offset, chunk.Count);
+                    offset += chunk.Count;
+                    more = chunks.MoveNext();
+                }
+            }
             return output;
         }
 
-        private static void ReadPayloadChunks(
+        private static IEnumerable<ArraySegment<byte>> ReadPayloadChunks(
             ArchiveReader reader, EntryMetadata entry, long maxEntryBytes,
-            decimal maxCompressionRatio, Action checkpoint,
-            Func<Action<byte[], int, long>> createSink)
+            decimal maxCompressionRatio, Action checkpoint)
         {
             using (BoundedReadStream compressed =
                 reader.OpenBoundedStream(
@@ -976,7 +981,6 @@ namespace Toolbelt.Archive.ZipMemory
             {
                 if (maxEntryBytes < 1 || maxEntryBytes > MaxExtractedEntryBytes || entry.UncompressedBytes > maxEntryBytes)
                     throw new ZipProviderException(51325, "ZIP-Entry überschreitet die feste Extraktionsgrenze.");
-                Action<byte[], int, long> consume = createSink();
                 Stream payloadStream = compressed;
                 DeflateStream deflate = null;
                 long totalBytesRead = 0;
@@ -1030,7 +1034,7 @@ namespace Toolbelt.Archive.ZipMemory
                             entry.CompressedBytes,
                             maxCompressionRatio);
 
-                        consume(buffer, read, total - read);
+                        yield return new ArraySegment<byte>(buffer, 0, read);
                     }
                 }
                 finally

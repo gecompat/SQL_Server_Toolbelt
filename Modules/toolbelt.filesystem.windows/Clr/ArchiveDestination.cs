@@ -4,13 +4,12 @@ using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using Microsoft.Win32.SafeHandles;
-using Toolbelt.Archive.ZipMemory;
 
 namespace Toolbelt.Filesystem.Windows
 {
     public static partial class WindowsFilesystemProvider
     {
-        private sealed class ArchiveDestination : ZipEntryProvider.IExtractionDestination, IDisposable
+        private sealed class ArchiveDestination : ArchiveDirectoryExtraction.IExtractionDestination, IDisposable
         {
             private const string LockName = ".tlblt-zip-extract.lock";
             private const uint ReadFilePolicy = 0x00120080;
@@ -101,7 +100,10 @@ namespace Toolbelt.Filesystem.Windows
                         // A zero-length entry is still a payload with a CRC.
                         copy((buffer, count) => { });
                         EnsureGuard();
-                        using (var target = Walk(Target(path), true)) committed = true;
+                        filesystem(() =>
+                        {
+                            using (var target = Walk(Target(path), true)) committed = true;
+                        });
                         return null;
                     }, false);
                 else
@@ -268,7 +270,7 @@ namespace Toolbelt.Filesystem.Windows
                 string normal = path.Replace('/', '\\');
                 if (normal.Length != 0)
                     foreach (string part in normal.Split('\\'))
-                        if (!ZipEntryProvider.IsWindowsPathComponent(part) ||
+                        if (!ArchiveDirectoryExtraction.IsWindowsPathComponent(part) ||
                             String.Equals(part, LockName, StringComparison.OrdinalIgnoreCase))
                             throw new IOException("UNSAFE_PATH");
                 return normal;

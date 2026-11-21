@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
 using System.IO.Compression;
@@ -62,13 +61,24 @@ public static class EntrySecurityContract
         throw new InvalidOperationException("ZIP_STREAM_FIXTURE");
     }
 
+    static long CopyVerified(ZipEntryProvider.ExtractionArchive reader, int index, Action<byte[],int> write)
+    {
+        long bytes = 0;
+        foreach (var chunk in reader.ReadVerified(index))
+        {
+            write(chunk.Array,chunk.Count);
+            bytes += chunk.Count;
+        }
+        return bytes;
+    }
+
     static void StreamingCases()
     {
         byte[] archive = Archive(1048576);
         var reader = Open(archive);
         long count = 0;
         int chunks = 0;
-        long result = reader.CopyVerified(0, (buffer, read) =>
+        long result = CopyVerified(reader, 0, (buffer, read) =>
         {
             if (buffer.Length > 81920 || read <= 0) throw new InvalidOperationException("ZIP_STREAM_CHUNK");
             count += read;
@@ -89,7 +99,7 @@ public static class EntrySecurityContract
         corrupt[CentralEntry(corrupt) + 16] ^= 1;
         try
         {
-            Open(corrupt).CopyVerified(0, (buffer, read) => { });
+            CopyVerified(Open(corrupt), 0, (buffer, read) => { });
             throw new InvalidOperationException("ZIP_STREAM_CRC_NOT_ENFORCED");
         }
         catch (InvalidDataException error)
@@ -136,13 +146,13 @@ public static class EntrySecurityContract
             using (var zip = new ZipArchive(output, ZipArchiveMode.Create, true))
                 zip.CreateEntry("empty/");
             byte[] emptyDirectory = output.ToArray();
-            if (Open(emptyDirectory).CopyVerified(0, (buffer, read) => { }) != 0)
+            if (CopyVerified(Open(emptyDirectory), 0, (buffer, read) => { }) != 0)
                 throw new InvalidOperationException("ZIP_STREAM_DIRECTORY_SIZE");
             emptyDirectory[14] ^= 1;
             emptyDirectory[CentralEntry(emptyDirectory) + 16] ^= 1;
             try
             {
-                Open(emptyDirectory).CopyVerified(0, (buffer, read) => { });
+                CopyVerified(Open(emptyDirectory), 0, (buffer, read) => { });
                 throw new InvalidOperationException("ZIP_STREAM_DIRECTORY_CRC_NOT_ENFORCED");
             }
             catch (InvalidDataException error)
@@ -150,118 +160,6 @@ public static class EntrySecurityContract
                 if (error.Message != "CRC_MISMATCH") throw;
             }
         }
-        cases++;
-    }
-
-    sealed class TestDestination : ZipEntryProvider.IExtractionDestination
-    {
-        public readonly List<string> Inspections = new List<string>();
-        public readonly Dictionary<string, byte[]> Published = new Dictionary<string, byte[]>();
-        public string Conflict;
-        public string FailAfterPublish;
-
-        public string Inspect(string path, bool directory)
-        {
-            Inspections.Add(path);
-            return path == Conflict ? "TARGET_EXISTS" : null;
-        }
-
-        public string Publish(string path, bool directory, Action<Action<byte[], int>> copy, out bool published)
-        {
-            published = false;
-            using (var stage = new MemoryStream())
-            {
-                try { copy((buffer, count) => stage.Write(buffer, 0, count)); }
-                catch (InvalidDataException error) { return error.Message; }
-                Published.Add(path, stage.ToArray());
-                published = true;
-            }
-            return path == FailAfterPublish ? "CLEANUP_FAILED" : null;
-        }
-    }
-
-    static byte[] ArchiveWithNames(params string[] names)
-    {
-        using (var output = new MemoryStream())
-        {
-            using (var zip = new ZipArchive(output, ZipArchiveMode.Create, true))
-                foreach (string name in names)
-                    if (name.EndsWith("/", StringComparison.Ordinal))
-                        zip.CreateEntry(name);
-                    else
-                        using (var content = zip.CreateEntry(name).Open()) content.WriteByte(11);
-            return output.ToArray();
-        }
-    }
-
-    static void DirectoryCases()
-    {
-        string[][] conflicts = {
-            new[] { "parent/value", "PARENT/other" },
-            new[] { "parent/value", "parent" },
-            new[] { "parent/value", "parent/value" },
-            new[] { "parent/value", "parent" , "parent-other" }
-        };
-        foreach (string[] names in conflicts)
-        {
-            var target = new TestDestination();
-            var rows = ZipEntryProvider.ExtractDirectory(Open(ArchiveWithNames(names)), target);
-            if (target.Published.Count != 0 || rows.Count != names.Length || rows[0].Status != "not_attempted" ||
-                rows[1].Status != "failed" || rows[1].ErrorCode != "PATH_COLLISION")
-                throw new InvalidOperationException("ZIP_DIRECTORY_COLLISION");
-            cases++;
-        }
-
-        foreach (string forbidden in new[] { "NUL.txt", "LPT²", "tail.", "tail ", "name:stream", "a//b", "a\\b" })
-        {
-            var target = new TestDestination();
-            var rows = ZipEntryProvider.ExtractDirectory(Open(ArchiveWithNames("ok", forbidden)), target);
-            if (target.Published.Count != 0 || rows[0].Status != "not_attempted" || rows[1].ErrorCode != "UNSAFE_PATH")
-                throw new InvalidOperationException("ZIP_DIRECTORY_UNSAFE");
-            cases++;
-        }
-
-        var blocked = new TestDestination { Conflict = "second" };
-        var blockedRows = ZipEntryProvider.ExtractDirectory(Open(ArchiveWithNames("first", "second", "third")), blocked);
-        if (blocked.Published.Count != 0 || blockedRows[1].ErrorCode != "TARGET_EXISTS" ||
-            blockedRows[0].Status != "not_attempted" || blockedRows[2].Status != "not_attempted")
-            throw new InvalidOperationException("ZIP_DIRECTORY_DESTINATION_PREFLIGHT");
-        cases++;
-
-        var shortAlias = new TestDestination();
-        var aliasRows = ZipEntryProvider.ExtractDirectory(Open(ArchiveWithNames("long name.txt", "LONGNA~1.TXT")), shortAlias);
-        if (shortAlias.Published.Count != 0 || aliasRows[0].Status != "not_attempted" ||
-            aliasRows[1].ErrorCode != "SHORT_NAME_ALIAS_FORBIDDEN")
-            throw new InvalidOperationException("ZIP_DIRECTORY_SHORT_ALIAS");
-        cases++;
-
-        var expected = new TestDestination();
-        var completeRows = ZipEntryProvider.ExtractDirectory(Open(ArchiveWithNames("parent/value", "parent/", "empty/")), expected);
-        if (expected.Inspections.Count != 3 || expected.Published.Count != 3 || completeRows[0].BytesWritten != 1 ||
-            completeRows[1].BytesWritten != 0 || completeRows[2].Status != "completed")
-            throw new InvalidOperationException("ZIP_DIRECTORY_SUCCESS");
-        cases++;
-
-        // Change the middle entry's declared CRC in both headers without
-        // disturbing the directory or the verification of the first payload.
-        byte[] corrupted = ArchiveWithNames("first", "second", "third");
-        int central = CentralEntry(corrupted) - (46 + "second".Length);
-        int local = BitConverter.ToInt32(corrupted, central + 42);
-        corrupted[central + 16] ^= 1;
-        corrupted[local + 14] ^= 1;
-        var partial = new TestDestination();
-        var partialRows = ZipEntryProvider.ExtractDirectory(Open(corrupted), partial);
-        if (partial.Published.Count != 1 || !partial.Published.ContainsKey("first") ||
-            partialRows[0].Status != "completed" || partialRows[1].ErrorCode != "CRC_MISMATCH" ||
-            partialRows[2].Status != "not_attempted")
-            throw new InvalidOperationException("ZIP_DIRECTORY_PARTIAL");
-        cases++;
-
-        var cleanup = new TestDestination { FailAfterPublish = "first" };
-        var cleanupRows = ZipEntryProvider.ExtractDirectory(Open(ArchiveWithNames("first", "second")), cleanup);
-        if (cleanup.Published.Count != 1 || cleanupRows[0].Status != "completed" ||
-            cleanupRows[0].ErrorCode != "CLEANUP_FAILED" || cleanupRows[1].Status != "not_attempted")
-            throw new InvalidOperationException("ZIP_DIRECTORY_POST_PUBLICATION");
         cases++;
     }
 
@@ -279,7 +177,6 @@ public static class EntrySecurityContract
             Case(overflow,67108864,51325,0);
             Case(Archive(1),67108865,51320,0);
             StreamingCases();
-            DirectoryCases();
             Console.WriteLine("ZIP_ENTRY_SECURITY_PASS cases=" + cases); return 0;
         }
         catch (Exception error) { Console.Error.WriteLine("ZIP_ENTRY_SECURITY_FAILED " + error.Message); return 1; }

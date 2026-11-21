@@ -23,6 +23,7 @@
     <Compile Include="WindowsFilesystemProvider.cs" />
     <Compile Include="ArchiveNativePaths.cs" />
     <Compile Include="ArchiveDestination.cs" />
+    <Compile Include="ArchiveDirectoryExtraction.cs" />
     <Compile Include="ArchiveSqlBridge.cs" />
     <Compile Include="UsageSkillsGenerated.cs" />
   </ItemGroup>

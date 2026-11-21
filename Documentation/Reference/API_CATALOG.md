@@ -107,7 +107,7 @@ Extrahiert ein ZIP gestreamt in einen konfigurierten lokalen NTFS-Ordner und mel
 
 Vertrag und Quelle: [USP_ExtractZipArchiveToDirectory.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipArchiveToDirectory.sql), [USP_ExtractZipArchiveToDirectory.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipArchiveToDirectory.md), [USP_ExtractZipArchiveToDirectory.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipArchiveToDirectory.md).
 
-<!-- Source/Vertrag SHA256: 515458a409107af03c7c46b3180423a9c65a3bf85f958994c5b255353bd08bff -->
+<!-- Source/Vertrag SHA256: 22ceaa4e8ae529182a9d77f55944c219e0e44d3d53879f4e7d450748c7eff60b -->
 
 Voraussetzung: Lokale Installation auf Windows SQL Server, festes NTFS-Laufwerk und vorhandene Root-Konfiguration. Für fehlende Verzeichnisse ist AllowCreateDirectory erforderlich. Die Sitzung darf keine aktive oder implizite SQL-Transaktion haben.
 
@@ -4118,7 +4118,7 @@ Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills
 
 Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
 
-<!-- Source/Vertrag SHA256: 5e3d3ff419e8dcbbbb4bb2a90159cc517f61ce23b69842ab5bc4d13c8f99d5be -->
+<!-- Source/Vertrag SHA256: e6d15738d7ad2d8be20323a582a3b6c0e5befa93ae83de4ca57f727c6afec4cb -->
 
 Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 

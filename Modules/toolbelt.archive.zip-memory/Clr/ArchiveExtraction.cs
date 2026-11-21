@@ -40,7 +40,9 @@ namespace Toolbelt.Archive.ZipMemory
                 maxEntryBytes = maxEntry;
                 this.maxRatio = maxRatio;
                 var manifest = new List<ExtractionEntry>(entries.Count);
-                var names = new HashSet<string>(StringComparer.Ordinal);
+                // The same hosting constraint applies as in the ZIP writer:
+                // HashSet<T> requests MayLeakOnAbort in the SQL CLR SAFE host.
+                var names = new Dictionary<string, bool>(StringComparer.Ordinal);
                 long total = 0;
                 foreach (var entry in entries)
                 {
@@ -60,7 +62,7 @@ namespace Toolbelt.Archive.ZipMemory
                         error = "ENTRY_NAME_LIMIT";
                     else if (GetPathStatus(entry.EntryName) != PathSafe || entry.EntryName.IndexOf('\0') >= 0)
                         error = "UNSAFE_PATH";
-                    else if (!names.Add(entry.EntryName))
+                    else if (names.ContainsKey(entry.EntryName))
                         error = "PATH_COLLISION";
                     else if (entry.IsDirectory && entry.UncompressedBytes != 0)
                         error = "INVALID_DIRECTORY_PAYLOAD";
@@ -74,6 +76,8 @@ namespace Toolbelt.Archive.ZipMemory
                         (entry.CompressedBytes == 0 || (decimal)entry.UncompressedBytes / entry.CompressedBytes > maxRatio))
                         error = "COMPRESSION_RATIO_LIMIT";
                     if (entry.UncompressedBytes <= maxTotal - total) total += entry.UncompressedBytes;
+                    if (entry.EntryName != null && !names.ContainsKey(entry.EntryName))
+                        names.Add(entry.EntryName, true);
                     // Oversized names never participate in path resolution. Re-read
                     // them only if the caller needs the original name for its outcome.
                     Func<string> readName = entry.EntryName != null ? null : (Func<string>)(() =>
@@ -85,30 +89,35 @@ namespace Toolbelt.Archive.ZipMemory
 
             public IList<ExtractionEntry> Entries { get; private set; }
 
-            public long CopyVerified(int index, Action<byte[], int> write)
+            // The returned segment remains valid until the next MoveNext().
+            // Exhaust the sequence before publishing. No filesystem code
+            // executes on the SAFE reader's stack.
+            public IEnumerable<ArraySegment<byte>> ReadVerified(int index)
             {
                 var entry = entries[index];
                 if (Entries[index].ErrorCode != null) throw new InvalidOperationException("ZIP_ENTRY_PREFLIGHT_FAILED");
                 uint crc = UInt32.MaxValue;
-                try
+                using (var chunks = ReadPayloadChunks(reader, entry, maxEntryBytes, maxRatio, null).GetEnumerator())
                 {
-                    ReadPayloadChunks(reader, entry, maxEntryBytes, maxRatio, null, delegate
+                    while (MoveToNextChunk(chunks))
                     {
-                        return delegate(byte[] buffer, int count, long offset)
-                        {
-                            for (int i = 0; i < count; i++)
-                                crc = CrcTable[(int)((crc ^ buffer[i]) & 0xffU)] ^ (crc >> 8);
-                            write(buffer, count);
-                        };
-                    });
+                        var chunk = chunks.Current;
+                        for (int i = 0; i < chunk.Count; i++)
+                            crc = CrcTable[(int)((crc ^ chunk.Array[chunk.Offset + i]) & 0xffU)] ^ (crc >> 8);
+                        yield return chunk;
+                    }
                 }
+                if (~crc != entry.Crc32) throw new InvalidDataException("CRC_MISMATCH");
+            }
+
+            private static bool MoveToNextChunk(IEnumerator<ArraySegment<byte>> chunks)
+            {
+                try { return chunks.MoveNext(); }
                 catch (ZipProviderException error)
                 {
                     throw new InvalidDataException(error.ErrorNumber == 51325 ? "ENTRY_SIZE_LIMIT" :
                         error.ErrorNumber == 51326 ? "COMPRESSION_RATIO_LIMIT" : "INVALID_ENTRY_PAYLOAD");
                 }
-                if (~crc != entry.Crc32) throw new InvalidDataException("CRC_MISMATCH");
-                return entry.UncompressedBytes;
             }
 
             private static void CheckBound(long value, long max, string name)

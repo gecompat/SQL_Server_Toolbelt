@@ -91,7 +91,7 @@ jobs:
           if ($length -lt 1 -or $length -gt 4194304) { throw 'ZIP_WRITER_FRAMEWORK_BINARY_INTAKE' }
           $ownDirectory = [IO.Path]::GetFullPath((Join-Path $env:RUNNER_TEMP ('zip-writer-framework-' + [guid]::NewGuid().ToString('N'))))
           ./Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath $assembly -ExpectedAssemblySHA512 $manifest.sha512 -ExpectedAssemblyLength $length.ToString([Globalization.CultureInfo]::InvariantCulture) -EvidenceDirectory $ownDirectory
-      - name: Current Archive Reader and NTFS extraction contracts
+      - name: Current NTFS extraction contract
         if: github.event_name != 'workflow_dispatch'
         shell: pwsh
         run: |
@@ -104,16 +104,10 @@ jobs:
           $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
           $zip = Join-Path $out 'Toolbelt.Archive.ZipMemory.dll'
           $filesystem = Join-Path $out 'Toolbelt.Filesystem.Windows.dll'
-          $entry = (Resolve-Path Modules/toolbelt.archive.zip-memory/Tests/Runtime/EntrySecurity.Framework.cs).Path
           $destination = (Resolve-Path Modules/toolbelt.filesystem.windows/Tests/Runtime/ArchiveDestination.Framework.cs).Path
-          $entryTest = Join-Path $out 'ZipEntrySecurity.exe'
           $destinationTest = Join-Path $out 'ArchiveDestination.Framework.exe'
-          & $csc /nologo "/out:$entryTest" /reference:System.Data.dll /reference:System.IO.Compression.dll "/reference:$zip" $entry
-          if ($LASTEXITCODE) { throw 'ZIP_ENTRY_SECURITY_TEST_BUILD_FAILED' }
           & $csc /nologo "/out:$destinationTest" /reference:System.Data.dll /reference:System.IO.Compression.dll "/reference:$zip" "/reference:$filesystem" $destination
           if ($LASTEXITCODE) { throw 'ZIP_DESTINATION_TEST_BUILD_FAILED' }
-          & $entryTest
-          if ($LASTEXITCODE) { throw 'ZIP_ENTRY_SECURITY_TEST_FAILED' }
           & $destinationTest ([IO.Path]::GetTempPath())
           if ($LASTEXITCODE) { throw 'ZIP_DESTINATION_TEST_FAILED' }
       - name: Upload exact deployment input

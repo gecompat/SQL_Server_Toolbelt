@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using ExtractionArchive = Toolbelt.Archive.ZipMemory.ZipEntryProvider.ExtractionArchive;
+using ExtractionEntry = Toolbelt.Archive.ZipMemory.ZipEntryProvider.ExtractionEntry;
 
-namespace Toolbelt.Archive.ZipMemory
+namespace Toolbelt.Filesystem.Windows
 {
-    public static partial class ZipEntryProvider
+    public static class ArchiveDirectoryExtraction
     {
         // The Windows consumer binds each relative path to its authorized root.
         // Inspect cannot mutate it. Publish must keep a file unpublished until
@@ -87,7 +88,13 @@ namespace Toolbelt.Archive.ZipMemory
                 bool published;
                 string error = destination.Publish(paths[i], entry.IsDirectory, write =>
                 {
-                    bytes = archive.CopyVerified(index, write);
+                    long verified = 0;
+                    foreach (var chunk in archive.ReadVerified(index))
+                    {
+                        write(chunk.Array, chunk.Count);
+                        verified += chunk.Count;
+                    }
+                    bytes = verified;
                 }, out published);
                 if ((published && !bytes.HasValue) || (!published && error == null))
                     throw new InvalidOperationException("ZIP_PUBLICATION_CONTRACT_FAILED");
@@ -191,7 +198,7 @@ namespace Toolbelt.Archive.ZipMemory
                 stem == "CONIN$" || stem == "CONOUT$") return false;
             return stem.Length != 4 ||
                 (stem.Substring(0, 3) != "COM" && stem.Substring(0, 3) != "LPT") ||
-                "123456789¹²³".IndexOf(stem[3]) < 0;
+                "123456789\u00b9\u00b2\u00b3".IndexOf(stem[3]) < 0;
         }
 
         private struct ExtractionPath
