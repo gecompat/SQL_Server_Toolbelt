@@ -56,5 +56,11 @@ aus. Es gibt weder Metadatentabelle noch Extended Properties oder Analyseaufrufe
 
 Lange Texte werden serverseitig als `nvarchar(max)` geliefert. Anzeige- und
 Exportgrenzen des Clients separat einstellen; abgeschnittene Bildschirmtexte
-sind kein vollständiger Skill. Die neue native Unicode-, Rechte- und
-Installerabnahme bleibt bis zu ihrem tatsächlichen Nachweis offen.
+sind kein vollständiger Skill.
+
+Die [native Abnahme für rc.5](https://github.com/gecompat/SQL_Server_Toolbelt/pull/630)
+hat auf Windows SQL Server 2025 CU8, Compatibility Level 170, die lokale Erst-
+und Wiederholungsinstallation sowie die vollständige Unicode-Ausgabe aller
+257 Katalogzeilen bestätigt. Der frische Abschlussaudit war erfolgreich. Der
+Nachweis für den Katalogabruf gilt für die Installationsanmeldung in diesem
+lokalen Profil.

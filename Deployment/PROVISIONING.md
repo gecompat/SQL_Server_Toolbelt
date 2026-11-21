@@ -63,7 +63,9 @@ Aufrufs administrativ stabil bleiben. Ein erkannter Wechsel bricht ab.
 Verschlüsselung und der ausdrückliche Zertifikatsprüfungs-Override behalten
 ihren bisherigen Vertrag. Der Assembly-Trust bleibt an exakte Paket-Hashes gebunden.
 
-`Status=INSTALLED` bestätigt die Installation; `PreparationJournal` nennt das
+`Status=INSTALLED_OR_PRESENT` bestätigt, dass die erwarteten Schnittstellen
+und Assemblies vorhanden sind. Die Bestätigung bezieht sich auf den Bestand
+nach einem Create-only-Lauf. `PreparationJournal` nennt das
 aufbewahrte Journal. Dieses dokumentiert den Vorzustand und den bestätigten
 Vorbereitungsabschluss. Bei Prozessverlust bleibt der Ausgang ausdrücklich
 unbekannt. Es gibt **keinen Gesamtrollback**: Eine angelegte Datenbank, aktiviertes
