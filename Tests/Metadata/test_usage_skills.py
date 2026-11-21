@@ -905,6 +905,46 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_complete_worker_module_skills_preserve_stop_fences_and_conservative_unknown(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.core.worker-control'}
+        records=[skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected]
+        self.assertEqual(skills.validate_coverage(records,expected),29)
+        by_name={s.metadata['object_name']:s for s in records}
+        names=['USP_ClaimWorkerWork','USP_CloseWorker','USP_StopWorkerExecution','USP_StopWorkers','USP_ReconcileWorkerExecution','USP_ReleaseHeldWork']
+        bodies={}
+        for name in names:
+            s=by_name[name];path=s.metadata['source_paths'][0]
+            text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            ret,_=skills._procedure_help_return(text,s)
+            self.assertLess(ret,text.index(' IF @@TRANCOUNT<>0'))
+            original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+            bodies[name]=original.split('-- API_PARAMETER_HELP:END',1)[1]
+            self.assertIn('keine neue native',s.markdown.casefold())
+        claim=bodies[names[0]]
+        self.assertNotIn('BEGIN TRANSACTION',claim)
+        self.assertEqual(claim.count('EXEC toolbelt_core.USP_ReserveWorkerExecution '),1)
+        self.assertIn('State=\'CLOSED\'',bodies[names[1]])
+        self.assertIn('IsOccupied=1',bodies[names[1]])
+        stop=bodies[names[2]]
+        self.assertLess(stop.index('IF @IsCompleted=1'),stop.index('FROM toolbelt_core.WorkerExecutionCommitWitness'))
+        self.assertIn('bestehender Dispositions-StopStatus',by_name[names[2]].markdown)
+        batch=bodies[names[3]]
+        self.assertIn('SET LOCK_TIMEOUT 0;',batch)
+        self.assertIn('COUNT_BIG(*) FROM #tbx_StopWorkersSelection)>1000',batch)
+        self.assertIn('COUNT_BIG(*) FROM #tbx_StopWorkersReservations)>100000',batch)
+        self.assertIn('ORDER BY SlotReservationId',batch)
+        rec=bodies[names[4]]
+        self.assertLess(rec.index("@SessionLock<0 INSERT"),rec.index('IF @Item IS NULL OR @HoldVersion'))
+        self.assertIn('ERROR_NUMBER()=1222 AND XACT_STATE()=1',rec)
+        self.assertNotIn('SAVE TRANSACTION',rec)
+        self.assertIn('ohne Versionsprüfung',by_name[names[4]].markdown)
+        release=bodies[names[5]]
+        self.assertIn('WITH(READPAST,READCOMMITTEDLOCK)',release)
+        self.assertIn('RetryCycleNumber=RetryCycleNumber+1,CycleAttemptCount=0',release)
+        self.assertIn("@LockOwner=N'Transaction',@LockTimeout=0",release)
+
     def test_worker_admission_bind_finalization_contracts_preserve_private_boundary_and_outputs(self):
         names=['USP_ReserveWorkerExecution','USP_BindWorkerExecution','USP_FinalizeWorkerFailure']
         records={};bodies={}

@@ -17,7 +17,7 @@ Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispat
 
 SlotReservationId uniqueidentifier NOT NULL; Outcome varchar(24) NOT NULL; Occupied bit NOT NULL
 
-Hilfe zuerst ohne Mutation, Debug nur Messages. ResultTable atomar nach kanonischem Vertrag. Bestehende Rechte, keine Grants. Fehler54210..54239 und unveränderte Engine-/Queuefehler. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
+Hilfe zuerst ohne fachliche Mutation; Debug erzeugt hier keine eigenen Messages. ResultTable atomar nach kanonischem Vertrag. Bestehende Rechte, keine Grants. Fehler54210..54239 und unveränderte Engine-/Queuefehler. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
 
 Der Witnessnachweis verwendet UPDLOCK und HOLDLOCK (serialisierbarer Schlüssel-/Absencebereich) innerhalb der kurzen Reconciletransaktion. Dadurch wird auch bei RCSI keine ältere Snapshotversion als Rollbacknachweis verwendet. Der Attemptsessionlock und dieser Bereichsschutz bleiben bis zum Commit bestehen. READCOMMITTEDLOCK wird nicht zusätzlich kombiniert, weil er HOLDLOCK widerspricht.
 
@@ -33,7 +33,7 @@ Der interne Locktimeout wird mit einem SQL2019-kompatiblen Literal ausschließli
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf
@@ -53,6 +53,14 @@ EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;
 ```
 
 ## Hilfe und Fehlerklärung
+
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_ReconcileWorkerExecution.md)
+steht auch in der kanonischen DDL. `@Hilfe=1` ergänzt die Standardhilfe um
+eine vollständige Skillzeile mit `SkillFormatVersion`, `SchemaName`,
+`ObjectName` und `SkillMarkdown nvarchar(max)`. Die Referenz beschreibt
+Prüfreihenfolge, genaue Statusbedeutung, Transaktionsgrenzen und tatsächliche
+Berechtigungsbindung. RETURN0 allein ist kein Handlercommit-/Rollbackbeweis.
+Historische Nachweise behalten ihre eigene Ziel- und Artefaktbindung.
 
 ```sql
 EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;

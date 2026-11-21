@@ -38,7 +38,9 @@ SCHEMA_HELP_NEW=("1: bisherige zwölfspaltige Standardhilfe plus genau eine voll
 WORKER_CONFIG_HELP_PATHS={
     'Modules/toolbelt.core.worker-control/Source/'+name+'.sql'
     for name in ('USP_EnableManagedWorkers','USP_DisableManagedWorkers','USP_SetWorkerConcurrency','USP_SetWorkerIntervals',
-                 'USP_RegisterWorker','USP_HeartbeatWorker','USP_SetWorkerCapacity','USP_SetWorkerState')}
+                 'USP_RegisterWorker','USP_HeartbeatWorker','USP_SetWorkerCapacity','USP_SetWorkerState',
+                 'USP_ClaimWorkerWork','USP_CloseWorker','USP_StopWorkerExecution','USP_StopWorkers',
+                 'USP_ReconcileWorkerExecution','USP_ReleaseHeldWork')}
 WORKER_CONFIG_HELP_NEW=("1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig.").encode('utf-8')
 
 

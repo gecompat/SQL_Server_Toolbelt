@@ -34,6 +34,21 @@ und Statusviews vorgesehen. Tabellenconstraints, gespeicherte Statuswerte und
 ein einzelner Witness ersetzen keine vollständige Provider-/Transaktionsprüfung.
 Die Skill-Quellabnahme ist keine neue native Gesamtqualifikation.
 
+Auch alle 22 Prozeduren besitzen jetzt einen vollständigen quellgeprüften Skill
+unter [Metadata/UsageSkills/toolbelt_core](../../Metadata/UsageSkills/toolbelt_core).
+Damit sind die Verträge aller 29 Modulobjekte beschrieben. `@Hilfe=1` liefert
+bei jeder Prozedur zusätzlich zur bisherigen Standardhilfe genau eine
+vier-spaltige Skillzeile mit dem vollständigen Markdown. Die ausgelieferte DDL
+enthält denselben Text; notwendige native Hilfe-/Installerprüfungen bleiben
+von dieser Quellenabnahme getrennt.
+
+Die Skills unterscheiden tokengebundene Workeraufrufe von administrativer
+EXECUTE-Autorität. Stop ist zunächst eine persistierte Anforderung mit Hold;
+UNKNOWN beweist weder Commit noch Rollback und erlaubt keinen Replay. Vor einer
+expliziten Freigabe muss die nach Stop/Reconcile aktuelle HoldVersion frisch
+gelesen werden. Interne Bindungs-/Transaktionshelfer bleiben Teil des
+kontrollierten Providers und sind kein manueller Ersatz für diesen Ablauf.
+
 ## Nachweisstand
 
 SQL2.1-Integration und eigener Worker-Control1.0-Lifecycle. [Vertrag](../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md).
