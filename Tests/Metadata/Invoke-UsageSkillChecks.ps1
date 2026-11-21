@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory)] [System.Data.Common.DbConnection] $Connection,
     [Parameter(Mandatory)] [string] $ExpectedCatalogue,
     [Parameter(Mandatory)] [datetime] $Deadline,
-    [switch] $WithWindowsFilesystem
+    [switch] $WithWindowsLocalProviders
 )
 
 Set-StrictMode -Version Latest
@@ -43,11 +43,27 @@ $helpColumns = @('SkillFormatVersion', 'SchemaName', 'ObjectName', 'SkillMarkdow
 $helpCases = @(
     @{ Key = 'toolbelt:toolbelt_core:USP_PrepareResultTable'; Standard = $true
        Sql = "EXEC toolbelt_core.USP_PrepareResultTable @Hilfe=1, @ResultTableToAlter=N'#UsageSkillWitness', @LikeTable=N'invalid';" }
+    @{ Key = 'toolbelt:toolbelt_core:USP_SecondSessionProbe'; Standard = $true
+       Sql = @'
+DECLARE @SessionId int=17, @DatabaseName sysname=N'Contoso';
+EXEC toolbelt_core.USP_SecondSessionProbe @Hilfe=1, @RemoteSessionId=@SessionId OUTPUT,
+    @RemoteDatabaseName=@DatabaseName OUTPUT;
+IF @SessionId IS NULL OR @SessionId<>17 OR @DatabaseName IS NULL OR @DatabaseName<>N'Contoso'
+    THROW 52821,N'SKILL_HELP_CHANGED_OUTPUT',1;
+'@ }
 )
-if ($WithWindowsFilesystem) {
+if ($WithWindowsLocalProviders) {
     $helpCases += @{
         Key = 'toolbelt:toolbelt_filesystem:CLR_ReadBinaryFileChunk'; Standard = $false
         Sql = "EXEC toolbelt_filesystem.CLR_ReadBinaryFileChunk @Hilfe=1, @ByteOffset=-1;"
+    }
+    $helpCases += @{
+        Key = 'toolbelt:toolbelt_tsql:USP_ExplainSsisDataFlowInternal'; Standard = $true
+        Sql = @'
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlowInternal @PackageBytes=NULL,@ProjectContext=NULL,@Bindings=NULL,
+    @CatalogBindings=NULL,@LookupPolicies=NULL,@ProcedureSchema=NULL,@ProcedureName=NULL,
+    @PackageXml=NULL,@StartValues=NULL,@Hilfe=1;
+'@
     }
 }
 $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
@@ -68,6 +84,19 @@ try {
         }
         if ($reader.NextResult() -or $seen.Count -ne $catalogue.Count) { throw 'SKILL_CATALOGUE_COVERAGE' }
     } finally { $reader.Dispose() }
+
+    if ($WithWindowsLocalProviders) {
+        Set-Command @'
+BEGIN TRY
+    EXEC sys.sp_executesql N'EXEC toolbelt_tsql.USP_ExplainSsisDataFlowInternal @Hilfe=1;';
+    THROW 52822,N'SKILL_HELP_MANDATORY_ARGUMENT_BYPASSED',1;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER()<>201 THROW;
+END CATCH;
+'@
+        [void]$command.ExecuteNonQuery()
+    }
 
     foreach ($case in $helpCases) {
         try {

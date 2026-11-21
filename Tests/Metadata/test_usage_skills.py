@@ -29,6 +29,22 @@ def literal_value(expression):
 
 
 class UsageSkillTests(unittest.TestCase):
+    def test_every_declared_sql_object_carries_its_canonical_ddl_and_tsql_help(self):
+        source_text = {}
+        for skill in skills.load_catalogue(ROOT):
+            kind = skill.metadata["object_type"]
+            if kind == "ASSEMBLY":
+                continue  # Projected in the installer from the selected assembly name.
+            source = skill.metadata["source_paths"][0]
+            if source not in source_text:
+                source_text[source] = (ROOT / source).read_text(encoding="utf-8-sig")
+            text = source_text[source]
+            with self.subTest(identity=skill.identity, source=source):
+                ddl = skills.render_ddl_comment(skill)
+                self.assertTrue(ddl in text or ddl.replace("'", "''") in text)
+                if kind == "USP":
+                    self.assertIn(skills.render_help_resultset(skill), text)
+
     def test_full_generator_never_creates_partial_output_from_review_drafts(self):
         spec = importlib.util.spec_from_file_location("generate_usage_skills", ROOT / "Scripts/Metadata/generate_usage_skills.py")
         generator = importlib.util.module_from_spec(spec)
