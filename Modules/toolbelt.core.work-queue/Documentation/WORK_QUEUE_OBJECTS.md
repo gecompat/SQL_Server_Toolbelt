@@ -125,3 +125,7 @@ Der private Managedclaimtransport verwendet ausschließlich die aus dem kanonisc
 ## Producer- und Status-Usage-Skills
 
 Einfaches Enqueue und `USP_GetWorkStatus` liefern 22 feste Spalten. Policy- und Barrier-Enqueue liefern `WasCreated` plus 41 Viewspalten. Deren direkte Viewausgabe erfolgt nach eigenem Commit; die ResultTable-Zeile wird vorher materialisiert. `USP_GetWorkStatus` besitzt keinen eigenen TX-/Savepoint- oder Policy-/Besitzerfilter. Die vollständigen quellgeprüften Verträge stehen bei den vier verlinkten Objektseiten und in `Metadata/UsageSkills`; Hilfe liefert jeweils die zusätzliche Skillzeile. Native Hilfe-/Callerzustandsabnahme bleibt separat.
+
+## Vollständige Quellenverträge
+
+Alle 20 katalogisierten Objekte der Queue besitzen nun quellgeprüfte Skills mit ihrer kanonischen DDL-Projektion. Die 14 Prozeduren liefern zusätzlich die frühe Skillhilfe. Leaseverlängerung hat vier, Recovery sieben, Completion 22 und Requeue 41 Ergebnisspalten. Renew, Recovery und Requeue verbieten Callertransaktionen; Completion unterstützt gesunde Savepoints und prüft für ManagedCompletion den geschützten äußeren Abschlussweg. Die neue native Hilfe-/Unicode-/Callerzustandsabnahme und die gemeinsame Installerqualifikation bleiben eigene offene Nachweise.

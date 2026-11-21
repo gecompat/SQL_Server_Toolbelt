@@ -905,6 +905,39 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_queue_module_is_source_complete_with_distinct_lease_recovery_completion_paths(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.core.work-queue'}
+        self.assertEqual(len(expected),20)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        originals={}
+        names=('USP_RenewWorkLease','USP_RecoverExpiredWork','USP_CompleteWork','USP_RequeueDeadLetter')
+        for name,count in zip(names,(4,7,22,41)):
+            s=records[name];path=s.metadata['source_paths'][0]
+            text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text));originals[name]=original
+            result=s.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+            self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),count)
+            self.assertLess(skills._procedure_help_return(original,s)[0],original.index('THROW'))
+            self.assertIn('keine neue native',s.markdown)
+        renew=originals[names[0]];recover=originals[names[1]]
+        self.assertNotIn('ManagedHold',renew)
+        self.assertIn('kein eigener managedhold-',records[names[0]].markdown.casefold())
+        self.assertIn('ManagedReservationId IS NULL AND ManagedHold=0',recover)
+        self.assertIn('TOP (@MaxItems)',recover)
+        self.assertLess(recover.index('@NowUtc datetime2(7)=SYSUTCDATETIME()'),recover.index('BEGIN TRANSACTION'))
+        for name in (names[0],names[1],names[3]):
+            self.assertIn('@@TRANCOUNT<>0 OR XACT_STATE()<>0',originals[name])
+        complete=originals[names[2]]
+        self.assertIn('SAVE TRANSACTION TBX_WorkQueue_Complete',complete)
+        self.assertIn('@InitialTranCount<>1 OR @ManagedCompletionNonce IS NULL',complete)
+        self.assertIn('APPLOCK_MODE',complete)
+        requeue=originals[names[3]]
+        self.assertIn('@ExpectedRowVersion IS NULL OR RowVersion=@ExpectedRowVersion',requeue)
+        self.assertGreater(requeue.index('IF @ResultTable IS NULL SELECT *'),requeue.index('  COMMIT;'))
+        self.assertIn('kein materialisierter Entscheidungsreceipt',records[names[3]].markdown)
+
     def test_queue_producer_status_skills_keep_real_shapes_and_commit_boundaries(self):
         originals={};records={}
         names=('USP_EnqueueWork','USP_EnqueueWorkWithPolicy','USP_EnqueueBarrierWork','USP_GetWorkStatus')
