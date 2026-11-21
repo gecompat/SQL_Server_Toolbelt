@@ -10,7 +10,10 @@ quellgebundenen lokalen Buildinput; eine frühere Assembly ohne Hilfeschalter
 wird nicht als Ersatz übernommen. Der aktuelle begrenzte Modulinstaller ist
 offline gebaut und syntaktisch geprüft. Alle vier Gesamtprofile mit der
 vollständigen Skill-View wurden ebenfalls offline gebaut und für SQL150,
-SQL160 und SQL170 geparst. Neue Hilfe-/Binder-/Minimalrechte- und
+SQL160 und SQL170 geparst. Der entpackte Installationssatz wurde über den
+tatsächlich gepackten Einstieg mit simuliertem SQL-Client geprüft. Alle vier
+Profile wurden über das mitgelieferte Payload gefunden und der
+create-only-Abschluss ausgewertet. Neue Hilfe-/Binder-/Minimalrechte- und
 Gesamtinstallationsabnahme stehen aus. Die folgenden datierten Nachweise bleiben
 unverändert und gelten ausschließlich für ihre ursprünglichen Artefakte.
 
