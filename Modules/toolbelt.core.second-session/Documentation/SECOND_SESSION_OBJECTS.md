@@ -21,15 +21,24 @@ Die Procedure legt keinen Linked Server, kein Login-Mapping und keine Credential
 
 ## `USP_ExecuteWorkTypeInNewSession`
 
-Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlich gebundene Parameter an den internen Remote-Dispatcher. Execution- und Correlation-ID werden aus dem aktiven Execution Context übernommen oder deterministisch ergänzt.
+Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlich
+gebundene Parameter an den internen Remote-Dispatcher. Explizite IDs haben
+Vorrang vor Kontext-IDs; fehlt eine ExecutionId, wird NEWID erzeugt, fehlende
+CorrelationId fällt auf die gewählte ExecutionId zurück.
 
-Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand, Context-IDs, Handler-Returncode und Remote-Dauer. Ein Handlerfehler wird nicht in Erfolg umgewandelt.
+Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand,
+Context-IDs, Handler-Returncode und Remote-Dauer. Geworfene Handler-/SQL-Fehler
+werden weitergegeben. Ein nichtzero Handler-Returncode allein wird jedoch nicht
+automatisch als Fehler interpretiert oder rollbackt.
 
 `@ResultTable` folgt dem allgemeinen USP-Vertrag, ist aber bei `XACT_STATE() = -1` nicht zulässig. Die direkte Standardausgabe bleibt in diesem Zustand verfügbar.
 
 ## Resultsetfreie Infrastrukturaufrufe
 
-`USP_ExecuteWorkTypeInNewSession` unterstützt ab Version `1.1.0` `@SuppressResult = 1`. Der Remote-Handler und dessen Returncode werden vollständig ausgeführt und geprüft; lediglich das lokale Infrastruktur-Resultset entfällt. `@SuppressResult` und `@ResultTable` schließen einander aus.
+`USP_ExecuteWorkTypeInNewSession` unterstützt `@SuppressResult = 1`. Der
+Remote-Handler wird ausgeführt; auf 0 geprüft wird der Dispatcher-/Providercode,
+nicht automatisch der separate Handlercode. Nur das lokale Infrastrukturresultset
+entfällt. `@SuppressResult` und `@ResultTable` schließen einander aus.
 
 Die internen `USP_DispatchWorkType`- und `USP_SecondSessionProbe`-Hilfen
 beschreiben ihre OUTPUT-Werte und den fehlenden fachlichen Resultset-Vertrag.
@@ -39,6 +48,12 @@ startet keinen Handler.
 Der Dispatcher akzeptiert JSON-Handler grundsätzlich nur mit genau einem
 `@PayloadJson nvarchar(max)`-Eingabeparameter. Eine eng gebundene Ausnahme gilt
 für den registrierten `toolbelt.event-log.write`-Handler: Bei passender
-Event-Log-Modulidentität und exakt `@PayloadJson` plus technischem
+kanonischer Work-Type-/Handlernamenskombination und exakt `@PayloadJson` plus technischem
 `@Hilfe bit` führt der Dispatcher den Handler mit `@Hilfe = 0` aus. Andere
 Work Types und Handler bleiben beim bestehenden Einparametervertrag.
+
+Die vollständigen [kanonischen Skills](../../../Metadata/UsageSkills/README.md)
+stehen in der DDL. Hilfe liefert nach dem vorhandenen Standardresultset genau
+eine zusätzliche vier-spaltige Skillzeile; beim Dispatcher bleiben OUTPUT-Werte
+unverändert. Dies ist keine neue native Hilfeabnahme. Die Konfigurationsprobe
+belegt Rückgabewerte und getrennte Session, keine kryptografische Serveridentität.

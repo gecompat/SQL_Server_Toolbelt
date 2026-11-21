@@ -1,5 +1,14 @@
 # toolbelt_core.USP_ConfigureSecondSessionLoopback
 
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_ConfigureSecondSessionLoopback.md)
+steht in der DDL und folgt bei `@Hilfe=1` als zusätzliche vier-spaltige Skillzeile
+auf die Standardhilfe. Die neue Projektion ist offline geprüft, nicht nativ
+abgenommen. Die Probe läuft auch bei `@Enabled=0`; zurückgegebener DBname und
+SPID sind kein kryptografischer Nachweis derselben physischen SQLinstanz.
+Ohne Callertransaktion liegt der eigene Konfigurations-Commit vor dem
+ResultTable-Routing. Ein Outputfehler kann daher persistente Konfiguration
+hinterlassen.
+
 ## Zweck
 
 Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Linked-Server. Das Modul legt weder Linked Server noch Login-Mappings oder Credentials an.
@@ -28,7 +37,9 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 
 ## Voraussetzungen für den Aufruf
 
-- Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+- Administrativ vorhandener sichtbarer Loopback-Linked-Server mit RPC OUT und
+  deaktivierter Transaktionspromotion, gültigem Loginmapping und Remote-Probe-Recht.
+  Diese Prozedur speichert die lokale Auswahl; sie legt keine Infrastruktur an.
 
 ## Beispielaufruf
 

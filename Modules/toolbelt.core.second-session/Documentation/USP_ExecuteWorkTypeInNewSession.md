@@ -6,9 +6,22 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 ## Verhalten und Ergebnis
 
-Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlich gebundene Parameter an den internen Remote-Dispatcher. Execution- und Correlation-ID werden aus dem aktiven Execution Context übernommen oder deterministisch ergänzt.
+Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlich
+gebundene Parameter an den internen Remote-Dispatcher. Explizite IDs haben
+Vorrang vor Kontext; fehlende ExecutionId wird NEWID, fehlende CorrelationId
+fällt auf die gewählte ExecutionId zurück.
 
-Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand, Context-IDs, Handler-Returncode und Remote-Dauer. Ein Handlerfehler wird nicht in Erfolg umgewandelt.
+Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand,
+Context-IDs, Handler-Returncode und Remote-Dauer. Geworfene SQL-/Handlerfehler
+bleiben sichtbar. Ein nichtzero Handlercode allein führt dagegen nicht automatisch
+zu Fehler oder Rollback. Geprüft wird der separate Dispatcher-/Providercode;
+`@SuppressResult=1` kann den Handlercode ohne Ausgabe lassen.
+
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_ExecuteWorkTypeInNewSession.md)
+steht in der DDL und folgt bei `@Hilfe=1` nach der Standardhilfe als zusätzliche
+vier-spaltige Skillzeile. Die Projektion ist keine neue native Abnahme.
+Remote-Commit und spätere Ausgabe sind nicht atomar gekoppelt; nach Output-,
+Cleanup- oder Transportfehler niemals automatisch von Nichtausführung ausgehen.
 
 `@ResultTable` folgt dem allgemeinen USP-Vertrag, ist aber bei `XACT_STATE() = -1` nicht zulässig. Die direkte Standardausgabe bleibt in diesem Zustand verfügbar.
 
@@ -34,7 +47,10 @@ Der gemeinsame Vertrag mit weiteren Ergebnis-, Fehler- und Betriebsregeln steht 
 
 ## Voraussetzungen für den Aufruf
 
-- Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
+- Aktiv registrierter Work Type, gültige lokale und Remote-Policy
+  EXECUTE_NEW_SESSION, passender Handler und bestehendes Remote-EXECUTE sowie
+  administrativ vorbereiteter und aktiv konfigurierter Loopback-Provider.
+  Ein Dreiteilname oder Actor/Tenant ersetzt keine Berechtigung.
 
 ## Beispielaufruf
 

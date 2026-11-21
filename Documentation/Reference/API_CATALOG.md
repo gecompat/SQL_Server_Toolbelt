@@ -1316,7 +1316,7 @@ Zeigt konfigurierte Second-Session-Provider.
 
 Vertrag und Quelle: [VW_SecondSessionProviders.sql](../../Modules/toolbelt.core.second-session/Source/VW_SecondSessionProviders.sql), [VW_SecondSessionProviders.md](../../Modules/toolbelt.core.second-session/Documentation/VW_SecondSessionProviders.md).
 
-<!-- Source/Vertrag SHA256: 9716d7e39f4843130342e78a5879a7e42ea2d19164ed5a9fbfa198c482b495ec -->
+<!-- Source/Vertrag SHA256: a0664724c0665a751a52f51e704deaab9bec4ed2b1e80e8e90d87b664749dcf5 -->
 
 Keine Eingabeparameter.
 
@@ -1332,7 +1332,7 @@ Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Lin
 
 Vertrag und Quelle: [USP_ConfigureSecondSessionLoopback.sql](../../Modules/toolbelt.core.second-session/Source/USP_ConfigureSecondSessionLoopback.sql), [USP_ConfigureSecondSessionLoopback.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ConfigureSecondSessionLoopback.md).
 
-<!-- Source/Vertrag SHA256: 4429e709ed31a2194de4f94da594ba4d4132af4a374620c0873ac958ed4cf84c -->
+<!-- Source/Vertrag SHA256: 194f3a3a87b4740d93e881a6197d84b728b7709429aa41056fd812f53839dead -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1366,7 +1366,7 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [USP_ExecuteWorkTypeInNewSession.md](../../Modules/toolbelt.core.second-session/Documentation/USP_ExecuteWorkTypeInNewSession.md).
 
-<!-- Source/Vertrag SHA256: 30f302414865b0b8b551d3a383fb078bc4c0b7e156e1e7d006a884bfb78eefe7 -->
+<!-- Source/Vertrag SHA256: 95321a9ebd0d86fef29dd63eb00afea2e5bbba301fb3dc8ec8b621f7489dc791 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 

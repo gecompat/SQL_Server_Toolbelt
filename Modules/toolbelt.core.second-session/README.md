@@ -16,7 +16,10 @@ Aktuelle [Callerrechte](../../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 
 
 ## Status
 
-`toolbelt.core.second-session` Version `1.1.0` ist implementiert und `validated`. Der vollständige Adapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich.
+`toolbelt.core.second-session` Version `1.1.0` ist implementiert und teilweise
+validiert. Historische Moduladapter bestanden auf Windows-/Linux-Zielen;
+sie qualifizieren ausschließlich ihre damaligen Artefakte. Die neue
+Usage-Skill-/Installerintegration ist damit nicht nativ abgenommen.
 
 Die manuelle Windows-Validierung über `System.Data.SqlClient` war am 2026-08-04 auf SQL Server 2025 erfolgreich; sie umfasste lokale und zentrale Bereitstellung, den Collation-übergreifenden Abgleich mit `master.sys.servers`, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützten und vollständigen Uninstall.
 
@@ -37,10 +40,18 @@ Der Linked Server wird administrativ außerhalb des Moduls angelegt. Er muss:
 
 Das Modul speichert nur den Linked-Server-Namen. Credentials und Login-Mappings werden weder erzeugt noch gespeichert oder entfernt.
 
+Die Konfigurationsprobe vergleicht sichtbare Flags, zurückgegebenen
+Datenbanknamen und abweichende SPID. Sie ersetzt keine administrative Prüfung,
+dass das Ziel tatsächlich dieselbe SQLinstanz ist, und keinen TLS-Nachweis.
+
 ## Work-Type-Signaturen
 
 - `NONE`: Handler ohne Parameter.
 - `JSON_PAYLOAD`: exakt `@PayloadJson nvarchar(max)` als einziger Parameter.
+
+Nur für den kanonisch gebundenen Event-Log-Handler gilt die eng geprüfte
+Ausnahme mit zweitem `@Hilfe bit`, das der Dispatcher explizit auf 0 setzt.
+Dies ist keine allgemeine Zulassung weiterer optionaler Handlerparameter.
 
 Handler-Resultsets werden mit `WITH RESULT SETS NONE` abgelehnt. Der Remote-Dispatcher führt den Handler in einer eigenen Transaktion aus und überträgt Execution-ID, Correlation-ID, Actor und Tenant in den Remote-`SESSION_CONTEXT`.
 
@@ -51,6 +62,19 @@ Die Standardausgabe ist auch bei `XACT_STATE() = -1` zulässig, weil die lokale 
 Provider-Spike-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703841095
 
 Version `1.1.0` ergänzt `@SuppressResult = 1` für erfolgreiche Infrastrukturaufrufe ohne lokales Resultset. Die Option ist insbesondere für rollback-unabhängige Side-Effect-Handler vorgesehen und kann nicht mit `@ResultTable` kombiniert werden.
+
+Der Dispatcher-Returncode wird auf Erfolg geprüft. Ein nichtzero
+`HandlerReturnCode` allein löst hingegen keinen automatischen THROW/Rollback aus;
+bei unterdrückter Ausgabe bleibt er ohne Ergebniszeile. Unerwartete SQL-Fehler
+bleiben sichtbar. Remote-Commit und spätere Ausgabe sind nicht atomar gekoppelt:
+Transport-, Cleanup- oder Routingfehler können bereits persistente Handlerwirkung
+hinterlassen. Gleiche Kontext-IDs verhindern keine Duplikate bei Wiederholung.
+
+Alle sechs Objekte besitzen vollständige quellgeprüfte
+[Usage-Skills](../../Metadata/UsageSkills/README.md) in ihrer ausgelieferten DDL.
+Die vier Prozeduren liefern sie über `@Hilfe=1` nach der bisherigen Standardhilfe.
+Beim Dispatcher bleiben dabei alle vier OUTPUT-Eingangswerte unverändert.
+Die neue Hilfeprojektion ist offline geprüft, nicht neu nativ qualifiziert.
 
 Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
 

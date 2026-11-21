@@ -810,5 +810,44 @@ class UsageSkillTests(unittest.TestCase):
         self.assertIn("keine neuen Policyzeilen", skill.markdown)
 
 
+    def test_second_session_contracts_cover_module_and_preserve_dispatch_help_outputs(self):
+        expected = {key: value for key, value in skills.inventory(ROOT).items()
+                    if value["module_id"] == "toolbelt.core.second-session"}
+        records = [skills.read(skills.source_file(ROOT, key[1], key[2])) for key in expected]
+        self.assertEqual(skills.validate_coverage(records, expected), 6)
+        for skill in records:
+            path = skill.metadata["source_paths"][0]
+            text = (ROOT / path).read_text(encoding="utf-8-sig")
+            kind = skill.metadata["object_type"]
+            if kind in ("TABLE", "VIEW"):
+                self.assertEqual(skills.project_relation_ddl(text, skill), text)
+                continue
+            self.assertEqual(skills.project_procedure_help(text, skill), text)
+            self.assertEqual(skills.project_procedure_ddl(text, skill), text)
+            ret, _ = skills._procedure_help_return(text, skill)
+            name = skill.metadata["object_name"]
+            if name == "USP_DispatchWorkType":
+                tokens = skills._ddl_tokens(text)
+                words = [t[0].casefold() for t in tokens]
+                initial = next(tokens[i][1] for i in range(len(words) - 3)
+                               if words[i:i + 4] == ["set", "@remotesessionid", "=", "@@spid"])
+                self.assertLess(ret, initial)
+                outputs = [p for p in skill.metadata["parameters"] if p["is_output"]]
+                self.assertEqual(len(outputs), 4)
+                self.assertTrue(all("unverändert" in p["description"] for p in outputs))
+                self.assertIn("NICHT automatisch", skill.markdown)
+                self.assertIn("exakt null SQL-Parameter", skill.markdown)
+            elif name == "USP_ExecuteWorkTypeInNewSession":
+                self.assertIn("Dispatcher-/ProviderReturnCode", skill.markdown)
+                self.assertIn("Handlercode ungleich0", skill.markdown)
+                self.assertIn("Remote-Commit liegt vor", skill.markdown)
+                fields = re.findall(r"^\| `\w+` \| `.+(?:NOT NULL|NULL)` \|$", skill.markdown, re.M)
+                self.assertEqual(len(fields), 16)
+            elif name == "USP_ConfigureSecondSessionLoopback":
+                self.assertIn("kein kryptografischer Nachweis", skill.markdown)
+                fields = re.findall(r"^\| `\w+` \| `.+(?:NOT NULL|NULL)` \|$", skill.markdown, re.M)
+                self.assertEqual(len(fields), 9)
+
+
 if __name__ == "__main__":
     unittest.main()
