@@ -33,7 +33,7 @@ Infrastrukturprozeduren ohne eigenes fachliches Resultset erhalten keinen bedeut
 
 Sobald `@Hilfe = 1` gilt:
 
-- wird ausschließlich das standardisierte Help-Resultset ausgegeben;
+- wird der Usage-Skill ausgegeben. Wo eine Standardhilfe vorhanden ist, folgt der Skill als zweites Resultset;
 - wird die fachliche Funktion nicht ausgeführt;
 - entstehen keine fachlichen Seiteneffekte;
 - werden fachliche Pflichtparameter nicht validiert;
@@ -41,7 +41,7 @@ Sobald `@Hilfe = 1` gilt:
 - wird keine ResultTable geprüft oder verändert;
 - werden keine Debug-Messages erzeugt.
 
-Damit ein reiner Hilfeaufruf möglich ist, erhalten fachlich verpflichtende Parameter technische Defaults, normalerweise `NULL`. Das Help-Resultset kennzeichnet getrennt, ob ein Parameter bei `@Hilfe = 0` fachlich erforderlich ist.
+Auch beim Hilfeaufruf verlangt SQL alle Argumente ohne deklarierten Default. Der Skill beschreibt die technische Argumentpflicht und die fachliche Pflicht getrennt. Vorhandene OUTPUT-Initialisierung bleibt wirksam.
 
 Jede `PARAMETER`-Zeile enthält den vollständigen quellgeprüften Eingabevertrag
 aus der [Parameterdokumentation](CODE_DOCUMENTATION.md#vollständiger-eingabevertrag-je-parameter):
@@ -52,6 +52,12 @@ bedingte Zulässigkeit/Pflicht erklärt `Description`. `DefaultValue` zeigt den
 technischen SQL-Default als SQL-Ausdruck; SQL-NULL in dieser Spalte bedeutet,
 dass kein Default deklariert ist. Fachliche Ersatzwerte stehen in `Description`.
 `OUTPUT`-Richtung und Eingabe-/Ausgabeverhalten werden dort ausdrücklich erklärt.
+
+Der Usage-Skill besteht aus einer Zeile mit `SkillFormatVersion varchar(16)`,
+`SchemaName sysname`, `ObjectName sysname` und `SkillMarkdown nvarchar(max)`.
+Die vollständige Markdownquelle einschließlich Frontmatter ist auch über
+die [Skill-View](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md)
+abrufbar.
 
 ## 3. Einheitliches Help-Resultset
 

@@ -14,6 +14,8 @@ from pathlib import Path
 import re
 
 FORMAT_VERSION = "1.0"
+VIEW_TARGET = "Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql"
+CATALOGUE_MODULE = "toolbelt.metadata.capability-catalog"
 SECTIONS = (
     "Zweck und Einsatzfälle", "Voraussetzungen", "Parameter und Zugriff",
     "Ergebnisse", "Aufrufbeispiele", "Rechte", "Ressourcenbedarf",
@@ -995,12 +997,6 @@ def inventory(root: Path):
         if clr and manifest.scalar(clr, "  used") == "true":
             declared = ("toolbelt", "", manifest.scalar(clr, "  assembly_sql_name"))
             require(declared in result, "Eigene CLR-Assembly fehlt im Objektinventar: " + module)
-    # Explicitly approved new API; its source/manifest registration is coupled
-    # to full generation, not falsely treated as an already installed object.
-    own = ("toolbelt", "toolbelt_metadata", "VW_ObjectUsageSkills")
-    result.setdefault(own, dict(module_id="toolbelt.metadata.capability-catalog",
-                                object_type="VW", is_internal=False,
-                                source_module_version="1.0.0"))
     return result
 
 
@@ -1048,3 +1044,24 @@ def render_view(skills, schema="toolbelt_metadata", *, require_self=True):
             " CONVERT(nvarchar(max),v.SkillMarkdown) AS SkillMarkdown\n"
             "FROM (VALUES\n" + ",\n".join(rows) +
             "\n)v(SchemaName,ObjectName,ObjectType,DatabaseRole,IsInternal,Description,SkillFormatVersion,SkillMarkdown);\n")
+
+
+def load_catalogue(root: Path):
+    records = tuple(read(path) for path in sorted((root / "Metadata/UsageSkills").glob("*/*.md")))
+    validate_coverage(records, inventory(root))
+    return records
+
+
+def render_catalogue(root: Path):
+    """Complete constant catalogue from reviewed sources, including its own DDL Skill."""
+    records = load_catalogue(root)
+    own = next(s for s in records if s.identity ==
+               ("toolbelt", "toolbelt_metadata", "VW_ObjectUsageSkills"))
+    require(own.metadata["source_paths"][0] == VIEW_TARGET
+            and own.metadata["module_id"] == CATALOGUE_MODULE, "Skill-View-Quellbindung")
+    sql = render_view(records)
+    prefix = "CREATE OR ALTER VIEW [toolbelt_metadata].[VW_ObjectUsageSkills]\nAS\n"
+    require(sql.startswith(prefix), "Skill-View-Header")
+    # This renderer owns the entire constant definition. No need to tokenize
+    # megabytes of quoted Skill data merely to locate its fixed AS boundary.
+    return prefix + render_ddl_comment(own) + sql[len(prefix):]

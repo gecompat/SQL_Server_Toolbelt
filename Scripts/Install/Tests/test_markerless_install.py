@@ -36,6 +36,22 @@ class MarkerlessContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'unexpected Extended Property usage'):
             installer.validate_extended_property_scope([dict(path='Modules/Contoso/Source/Example.sql',sql='SELECT * FROM sys.extended_properties;')])
 
+    def test_constant_skill_catalogue_is_complete_and_cannot_hide_extra_operations(self):
+        skills=installer.usage_skill_tools()
+        text=skills.render_catalogue(ROOT)
+        installer.validate_extended_property_scope([dict(path=skills.VIEW_TARGET,sql=text)])
+        self.assertEqual(text,(ROOT/skills.VIEW_TARGET).read_text(encoding='utf-8'))
+        for change in (text+'\nEXEC sys.sp_addextendedproperty;\n',text.replace('AS SkillMarkdown','AS Contoso',1)):
+            with self.assertRaisesRegex(ValueError,'noncanonical Skill catalogue'):
+                installer.validate_extended_property_scope([dict(path=skills.VIEW_TARGET,sql=change)])
+        source={'path':skills.VIEW_TARGET,'statements':[dict(kind='CreateOrAlterViewStatement',
+            name='toolbelt_metadata.VW_ObjectUsageSkills',sql=text)]}
+        emitted=installer.emit_sources([source],{'VW_ObjectUsageSkills':'ContosoWrong'})
+        self.assertIn("IF OBJECT_ID(N'toolbelt_metadata.VW_ObjectUsageSkills') IS NULL",emitted)
+        self.assertNotIn('ContosoWrong',emitted)
+        self.assertNotIn('DROP VIEW',emitted)
+        self.assertNotIn('ALTER VIEW',emitted)
+
     def test_assembly_create_prefix_carries_exact_reviewed_skill_and_no_runtime_metadata_query(self):
         skills=installer.usage_skill_tools()
         expected={key[2] for key,value in skills.inventory(ROOT).items() if value['object_type']=='ASSEMBLY'}
@@ -153,12 +169,13 @@ class MarkerlessContractTests(unittest.TestCase):
                 if profile[0]=='Portable': self.assertTrue(installer.WINDOWS_ONLY.isdisjoint(ids))
                 if profile[1]=='central': self.assertTrue(installer.LOCAL_ONLY.isdisjoint(ids))
 
-    def test_module_selection_adds_only_transitive_dependencies(self):
+    def test_module_selection_adds_dependencies_and_common_metadata_without_other_binaries(self):
         selected=installer.modules('Windows','local',['toolbelt.tsql.ssis-debug'])
         ids=[m['id'] for m in selected]
         self.assertIn('toolbelt.tsql.ssis-debug',ids)
         self.assertNotIn('toolbelt.tsql.script-parser',ids)
         self.assertNotIn('toolbelt.file.xlsx-memory',ids)
+        self.assertIn('toolbelt.metadata.capability-catalog',ids)
         for index,module in enumerate(selected):
             for dependency in module['dependencies']:
                 self.assertIn(dependency,ids[:index])
@@ -236,7 +253,7 @@ class MarkerlessContractTests(unittest.TestCase):
     def test_functional_inventory_is_independent_of_legacy_deployments(self):
         selected=installer.modules('Windows','local')
         sources,pins=installer.source_files(selected)
-        self.assertEqual(len(sources),193)
+        self.assertEqual(len(sources),194)
         self.assertIn('Scripts/Install/module_sources.json',pins)
         self.assertFalse(any('/Deployment/' in path for path in pins))
 
@@ -293,6 +310,9 @@ class MarkerlessContractTests(unittest.TestCase):
         self.assertEqual(skills.read_ddl_comment(sql).markdown,skill.markdown)
         baseline=subprocess.check_output(['git','show',
             '3041211e:Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql'],cwd=ROOT).decode('utf-8-sig')
+        anchor="    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ModuleCapabilities',N'V'),\n"
+        self.assertEqual(baseline.count(anchor),1)
+        baseline=baseline.replace(anchor,anchor+"    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ObjectUsageSkills',N'V'),\n")
         self.assertEqual(skills.strip_ddl_projection(ROOT,capabilities.TARGET,sql),baseline)
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)

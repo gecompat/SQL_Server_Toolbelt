@@ -9,7 +9,7 @@ object_type: "VW"
 database_role: "toolbelt"
 is_internal: false
 parameters: []
-source_paths: ["Scripts/Metadata/usage_skills.py"]
+source_paths: ["Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql", "Scripts/Metadata/usage_skills.py", "Scripts/Metadata/generate_usage_skills.py"]
 review_status: "verified"
 source_module_version: "1.0.0"
 ---
@@ -22,7 +22,7 @@ Zuerst anhand von Kurzbeschreibungen ein passendes bekanntes Objekt auswählen, 
 
 ## Voraussetzungen
 
-Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Der beauftragte vollständige Katalog soll für Gesamt- und Teilprofile desselben Quellstands identisch sein, einschließlich nicht ausgewählter Module. Diese vollständige Installerintegration ist noch offen.
+Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 
 ## Parameter und Zugriff
 
@@ -64,4 +64,4 @@ Fehlende Sicht oder SELECT-Rechte bleiben Enginefehler. Bei unbekannter Identit�
 
 ## Aussagegrenzen
 
-Keine Aussage über installierte Version, Definition, Metadatensichtbarkeit anderer Objekte oder vorhandene Ausführungsrechte. Interne Objekte nicht als öffentliche API verwenden. Die aktuelle Implementierung befindet sich in der Prototypabnahme; vollständige Inventarabdeckung und native Integration sind separat nachzuweisen. Create-only ersetzt keinen älteren oder fremden Katalog bei einer weiteren Teilinstallation. Ein aktueller Gesamtkatalog benötigt eine frische Installation oder separat kontrollierte manuelle Aktualisierung; keine automatische DROP-/ALTER-Operation.
+Keine Aussage über installierte Version, Definition, Metadatensichtbarkeit anderer Objekte oder vorhandene Ausführungsrechte. Interne Objekte nicht als öffentliche API verwenden. Der Generator prüft die vollständige Inventarabdeckung. Die native Integrationsprüfung steht separat aus. Create-only ersetzt keinen älteren oder fremden Katalog bei einer weiteren Teilinstallation. Ein aktueller Gesamtkatalog benötigt eine frische Installation oder separat kontrollierte manuelle Aktualisierung; keine automatische DROP-/ALTER-Operation.

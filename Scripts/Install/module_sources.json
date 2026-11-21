@@ -214,7 +214,8 @@
       "Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql"
     ],
     "toolbelt.metadata.capability-catalog": [
-      "Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql"
+      "Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql",
+      "Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql"
     ],
     "toolbelt.metadata.identifier": [
       "Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql",

@@ -1,10 +1,10 @@
 module_id: "toolbelt.metadata.capability-catalog"
-module_name: "Module Capability Catalog"
+module_name: "Module Capability and Object Usage Catalog"
 version: "1.0.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Zeigt sichtbare bekannte Modulschnittstellenkandidaten ohne Installationsregistry; Version und Deployment-Modus bleiben NULL, MetadataStatus bleibt incomplete."
+description: "Bekannte Objekt-Skills als konstante SQL-Daten und sichtbare Modulschnittstellenkandidaten; keine Installations-, Versions- oder Rechteattestation."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -16,6 +16,10 @@ platforms:
 providers:
   - id: tsql-catalog-view
     technology: T-SQL View over sys.objects/sys.assemblies
+    platforms: [Windows, Linux]
+    status: "partially validated"
+  - id: tsql-constant-usage-skills
+    technology: "Generated constant T-SQL view from reviewed Markdown"
     platforms: [Windows, Linux]
     status: "partially validated"
 deployment_capabilities:
@@ -32,14 +36,19 @@ objects:
     schema: "toolbelt_metadata"
     name: "VW_ModuleCapabilities"
     visibility: public
+  - type: VW
+    schema: "toolbelt_metadata"
+    name: "VW_ObjectUsageSkills"
+    visibility: public
 permissions_required:
   - "SELECT auf toolbelt_metadata.VW_ModuleCapabilities"
-  - "Normale Metadata Visibility der aktuellen Datenbank"
+  - "Capability-View: normale Metadata Visibility der aktuellen Datenbank."
+  - "SELECT auf toolbelt_metadata.VW_ObjectUsageSkills; kein Zugriff auf beschriebene Fachobjekte erforderlich."
   - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 historical_lifecycle_permissions:
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Objektauflösung und DISTINCT folgen der wirksamen Datenbankkollation; Assemblynamen werden als varbinary(256) verglichen. Kein Marker- oder Versionsvergleich."
-data_type_contract: "ModuleId ist sysname; ModuleVersion und DeploymentMode sind nvarchar(4000) und immer NULL; MetadataStatus ist varchar(16) und immer incomplete."
+data_type_contract: "Capability-View: ModuleId sysname; ModuleVersion/DeploymentMode nvarchar(4000) immer NULL; MetadataStatus varchar(16) immer incomplete. Skill-View: acht deklarierte Spalten, vollständiger SkillMarkdown nvarchar(max)."
 help_contract_version: "not applicable"
 resultset_contracts:
   - name: "VW_ModuleCapabilities"
@@ -48,6 +57,8 @@ resultset_contracts:
       - "ModuleVersion nvarchar(4000)"
       - "DeploymentMode nvarchar(4000)"
       - "MetadataStatus varchar(16)"
+  - name: "VW_ObjectUsageSkills"
+    columns: ["SchemaName sysname", "ObjectName sysname", "ObjectType varchar(60)", "DatabaseRole nvarchar(128)", "IsInternal bit", "Description nvarchar(4000)", "SkillFormatVersion varchar(16)", "SkillMarkdown nvarchar(max)"]
 lifecycle_error_range: "51280-51289"
 clr:
   used: false
@@ -65,6 +76,7 @@ documentation:
   module: "README.md"
   public_objects:
     - "Documentation/VW_ModuleCapabilities.md"
+    - "Documentation/VW_ObjectUsageSkills.md"
   architecture:
     - "../../Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md"
   test_matrix:

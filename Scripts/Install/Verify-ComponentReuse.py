@@ -272,6 +272,15 @@ def verify(root=ROOT,baseline=BASELINE,module_ids=None,allow_current_deltas=Fals
             raise ValueError('CURRENT_CAPABILITY_PROJECTION_NOT_CANONICAL')
         actual.remove(projection)
         originals.pop(projection)
+    import sys
+    sys.path.insert(0,str(root/'Scripts/Metadata'))
+    import usage_skills
+    if usage_skills.VIEW_TARGET in actual:
+        if (root/usage_skills.VIEW_TARGET).read_text(encoding='utf-8-sig')!=usage_skills.render_catalogue(root):
+            raise ValueError('CURRENT_USAGE_SKILL_VIEW_NOT_CANONICAL')
+        # New current constant metadata, never a historically qualified object.
+        actual.remove(usage_skills.VIEW_TARGET)
+        originals.pop(usage_skills.VIEW_TARGET,None)
     if actual!=set(originals):raise ValueError('COMPONENT_REUSE_SOURCE_INVENTORY_CHANGED')
     # New passive Skill comments are a separate current projection. Admit only
     # exact, reviewed source-mapped Markdown and its canonical help projections;

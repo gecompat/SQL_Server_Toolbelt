@@ -16,6 +16,7 @@ CONSTRUCTOR_DELIVERY='Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-C
 CONSTRUCTOR_DELIVERY_SHA256='5a425e740cc9a4b3af6b6a4df74b66a7c5deb6fe13af39e889b282f784a29823'
 WINDOWS_ONLY={'toolbelt.archive.zip-files','toolbelt.filesystem.windows','toolbelt.tsql.script-parser','toolbelt.tsql.ssis-debug'}
 LOCAL_ONLY={'toolbelt.archive.zip-files','toolbelt.filesystem.windows'}
+CATALOGUE_MODULE='toolbelt.metadata.capability-catalog'
 SKIP={'Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql',
       'Modules/toolbelt.file.content/Source/FileContentRootPredicate.sql'}
 TABLE_GROUPS={
@@ -76,7 +77,10 @@ def modules(platform, mode, module_ids=None):
                 and all(isinstance(m,str) for m in module_ids)
                 and len(module_ids)==len(set(module_ids)),'explicit module selection')
         require(set(module_ids)<=set(selected),'unknown or unsupported module profile')
-        closure=set(module_ids);pending=list(module_ids)
+        # The approved known-object Skill catalogue is part of every complete
+        # and partial installer. Keep its metadata module a deployment unit.
+        require(CATALOGUE_MODULE in selected,'metadata catalogue unavailable')
+        closure=set(module_ids)|{CATALOGUE_MODULE};pending=list(closure)
         while pending:
             current=pending.pop()
             require(current in selected,'unsupported module dependency')
@@ -247,6 +251,10 @@ def emit_sources(parsed, alias):
         path=source['path'];parts=Path(path).parts;key=parts[1]+'/'+parts[-1]
         statements=[s for s in source['statements'] if s['kind']!='PredicateSetStatement']
         def rewrite(text):
+            if path=='Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql':
+                # All identifiers inside the descriptions are data. Alias
+                # rewriting there would silently change the canonical Skills.
+                return text
             for old,new in alias.items():
                 text=text.replace('['+old+']','['+new+']').replace("N'"+old+"'","N'"+new+"'")
             return text
@@ -315,6 +323,7 @@ def build_source_bindings(assembly_names=()):
     # T-SQL subsets. Bind its reviewed editorial input and reader as well.
     skills=usage_skill_tools()
     paths.add(ROOT/'Scripts/Metadata/usage_skills.py')
+    paths.add(ROOT/'Scripts/Metadata/generate_usage_skills.py')
     # The source-bound Skill policy and the complete catalogue consume these
     # editorial records, including records not installed by a partial profile.
     paths.update((ROOT/'Metadata/UsageSkills').glob('*/*.md'))
@@ -337,6 +346,11 @@ def validate_extended_property_scope(sources):
     import usage_skills
     for source in sources:
         sql=source['sql']
+        if source['path']==usage_skills.VIEW_TARGET:
+            require(sql==usage_skills.render_catalogue(ROOT),'noncanonical Skill catalogue')
+            # The exact generated definition contains constant descriptions,
+            # including names of operations which this view never executes.
+            continue
         if usage_skills.DDL_BEGIN in sql or usage_skills.HELP_BEGIN in sql:
             sql=usage_skills.strip_help_projection(ROOT,source['path'],sql)
             sql=usage_skills.strip_ddl_projection(ROOT,source['path'],sql)

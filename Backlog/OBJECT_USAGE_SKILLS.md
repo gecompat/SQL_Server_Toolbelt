@@ -154,7 +154,8 @@ Modulen; deren aktuelle native Gegenproben bleiben offen. Der strikte
 Wiederverwendungsmodus lehnt sie weiterhin ab. Die getrennte aktuelle
 Quellprüfung gibt ausdrücklich keinen nativen PASS aus.
 
-Einquellenkopplung aller API-/Help-Projektionen, vollständige Viewintegration,
+Die konstante View ist in das Objektinventar und den gemeinsamen Builder für
+Gesamt- und Teilinstaller integriert. Einquellenkopplung aller API-/Help-Projektionen,
 neue native Hilfe-/Caller-/Unicode-/Installerabnahme, unabhängiger Review,
 Head-/Main-CI und aktueller Releasebau sind weiterhin Abschlussbedingungen.
 

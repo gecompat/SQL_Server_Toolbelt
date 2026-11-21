@@ -988,6 +988,15 @@ FROM toolbelt_metadata.VW_ModuleCapabilities
 ORDER BY ModuleId;
 */
 
+-- toolbelt_metadata.VW_ObjectUsageSkills
+-- Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills lesen.
+-- Voraussetzung: SELECT auf der Sicht. Die Einträge beschreiben bekannte Objekte und bestätigen weder Installation noch Aufruferrechte.
+/* Separat auswählen und ausführen:
+SELECT DatabaseRole, SchemaName, ObjectName, Description
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+WHERE IsInternal = 0;
+*/
+
 -- toolbelt_metadata.TVF_ParseMultipartName
 -- Zerlegt und validiert ein- bis vierteilige SQL-Identifier.
 /* Separat auswählen und ausführen:

@@ -1,4 +1,4 @@
-# Module Capability Catalog
+# Module Capability and Object Usage Catalog
 
 
 ## Aktuelle Installation
@@ -10,6 +10,33 @@ kein SQLCMD-Modus, keine Deployment-Extended-Properties.
 Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
 Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
 aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+
+## Funktionen finden und anwenden
+
+[VW_ObjectUsageSkills](Documentation/VW_ObjectUsageSkills.md) liefert bekannte
+Objekte, Kurzbeschreibungen und vollständige maschinenlesbare Gebrauchsanweisungen.
+Gesamt- und Teilinstaller nehmen dieses Metadatamodul auf; der konstante
+Skillkatalog ist für denselben Quellstand identisch. Er beschreibt auch Objekte,
+die im gewählten Teilprofil nicht installiert sind.
+
+```sql
+SELECT SchemaName,ObjectName,Description
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+WHERE IsInternal=0 AND Description LIKE N'%DTSX%';
+
+SELECT SkillMarkdown
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+WHERE DatabaseRole=N'toolbelt' AND SchemaName=N'toolbelt_tsql'
+  AND ObjectName=N'USP_ExplainSsisDataFlow';
+```
+
+Vorhandenes SELECT auf der Skill-View reicht zum Lesen. Die beschriebenen
+Objektrechte werden separat benötigt. Die View verwendet konstante Daten aus
+[Metadata/UsageSkills](../../Metadata/UsageSkills/README.md), keine Runtime-
+Katalogabfrage, Metadatentabelle oder Extended Properties. Der Installer erhält
+eine bestehende Definition; ein neuer Quellkatalog erfordert eine frische oder
+gesondert kontrolliert aktualisierte Installation. Neue native Abnahme bleibt
+separat offen.
 
 
 Das Modul zeigt sichtbare bekannte Schnittstellenkandidaten ohne Installationsmarker oder Verwaltungstabelle. Version und Deploymentmodus bleiben NULL; `MetadataStatus=incomplete` kennzeichnet die fehlende beweisbare Zuordnung. Namensgleichheit wird nicht als Herkunft oder vollständige Installation ausgegeben.

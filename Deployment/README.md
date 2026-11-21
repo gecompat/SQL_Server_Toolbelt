@@ -27,6 +27,13 @@ Pflichtabhängigkeiten. Nicht unterstützte Plattform-/Moduskombinationen werden
 abgewiesen. Ohne ModuleId wird das vollständige Profil gewählt. Planen lädt
 keine Binaries und verbindet sich nicht mit SQL Server.
 
+Gesamt- und Teilinstaller enthalten außerdem das
+[gemeinsame Metadatamodul](../Modules/toolbelt.metadata.capability-catalog/README.md).
+Seine Skill-View beschreibt sämtliche bekannten Objekte desselben Quellstands,
+einschließlich nicht ausgewählter Module. Sie bestätigt keine Installation
+oder Aufruferrechte. Vorhandene Katalogdefinitionen bleiben beim erneuten
+Installieren erhalten.
+
 ## SQL-Datei bauen
 
 Mit den gemäß Buildanleitung bereitgestellten, gebundenen Eingaben:

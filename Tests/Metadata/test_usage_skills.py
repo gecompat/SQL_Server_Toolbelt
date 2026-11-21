@@ -45,7 +45,31 @@ class UsageSkillTests(unittest.TestCase):
                 self.assertFalse(output.parent.exists())
             else:
                 self.assertEqual(generator.generate(ROOT, output), len(expected))
-                self.assertEqual(output.read_text(encoding="utf-8"), skills.render_view(sources))
+                self.assertEqual(output.read_text(encoding="utf-8"), skills.render_catalogue(ROOT))
+
+    def test_complete_catalogue_rejects_drafts_missing_and_duplicate_sources_before_write(self):
+        spec=importlib.util.spec_from_file_location('catalogue_generator_negative',ROOT/'Scripts/Metadata/generate_usage_skills.py')
+        generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+        own=skills.read(skills.source_file(ROOT,'toolbelt_metadata','VW_ObjectUsageSkills'))
+        # Fixture roots contain data only; use the actual trusted reader.
+        sys.path.insert(0,str(ROOT/'Scripts/Install'))
+        import markerless_manifest
+        for bad in ('draft','missing','duplicate'):
+            with self.subTest(case=bad),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory)
+                manifest=root/'Modules/toolbelt.metadata.capability-catalog/module.yaml'
+                manifest.parent.mkdir(parents=True)
+                manifest.write_text('module_id: "toolbelt.metadata.capability-catalog"\nversion: "1.0.0"\nobjects:\n'
+                    '  - type: VW\n    schema: "toolbelt_metadata"\n    name: "VW_ObjectUsageSkills"\n    visibility: public\n',encoding='utf-8')
+                source=root/'Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md'
+                source.parent.mkdir(parents=True)
+                if bad!='missing':
+                    text=own.markdown.replace('review_status: "verified"','review_status: "draft"') if bad=='draft' else own.markdown
+                    source.write_text(text,encoding='utf-8',newline='\n')
+                if bad=='duplicate':source.with_name('Duplicate.md').write_text(own.markdown,encoding='utf-8',newline='\n')
+                output=root/'never-created/Skills.sql'
+                with self.assertRaises(ValueError):generator.generate(root,output)
+                self.assertFalse(output.parent.exists())
 
     def test_every_source_is_structurally_valid_and_unreviewed_sources_reject_shipping(self):
         for path in sorted((ROOT / "Metadata/UsageSkills").glob("*/*.md")):

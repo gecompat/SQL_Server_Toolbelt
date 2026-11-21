@@ -282,6 +282,7 @@ WITH Candidates AS
     (N'toolbelt.json.schema',N'toolbelt_json.FT_ValidateJsonSchemaInternal',N'FT'),
     (N'toolbelt.json.schema',N'tlblt_JsonSchema',N'ASSEMBLY'),
     (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ModuleCapabilities',N'V'),
+    (N'toolbelt.metadata.capability-catalog',N'toolbelt_metadata.VW_ObjectUsageSkills',N'V'),
     (N'toolbelt.metadata.identifier',N'toolbelt_metadata.TVF_ParseMultipartName',N'IF,TF,FT'),
     (N'toolbelt.metadata.identifier',N'toolbelt_metadata.SVF_QuoteMultipartName',N'FN,FS'),
     (N'toolbelt.metadata.table-clone',N'toolbelt_metadata.USP_ScriptTableClone',N'P,PC'),

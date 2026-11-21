@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-168 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+169 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -3641,7 +3641,7 @@ Prüft, ob ein unterstützter Pfad in einem JSON-Dokument existiert.
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExists.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md).
 
-<!-- Source/Vertrag SHA256: 1b5b2637218c6faefcbb653fc02e3e8128e16dd7daebab90ebd754e586259490 -->
+<!-- Source/Vertrag SHA256: 1f8cbc469f7c2092cfb2a54fa13517cec2b886e5d04620ed3dd4c9f003c02be7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3662,7 +3662,7 @@ Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. 
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExistsStatus.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md).
 
-<!-- Source/Vertrag SHA256: c69e8890c9d39cd85171f37522d20661a2b03c38db61c16aa93284b2a7b0fcbe -->
+<!-- Source/Vertrag SHA256: 71b4948a63fc52f67d5cd4f9a6ae4fa19023a85fb2337d487df66b50d0bb0ed8 -->
 
 Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
 
@@ -3753,7 +3753,7 @@ Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-M
 
 Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: 62c4f53ce24fb70b6d906eefe7571097ee0890d9a82ea5efe7525b504a753d7f -->
+<!-- Source/Vertrag SHA256: 6d5f584b6b9ed6e61e1f383016c9c4d43c1f2bec392e3eac37be5a3e6d90a0e0 -->
 
 Keine Eingabeparameter.
 
@@ -3761,6 +3761,26 @@ Keine Eingabeparameter.
 SELECT ModuleId, ModuleVersion, DeploymentMode, MetadataStatus
 FROM toolbelt_metadata.VW_ModuleCapabilities
 ORDER BY ModuleId;
+```
+
+## toolbelt_metadata.VW_ObjectUsageSkills
+
+Modul `toolbelt.metadata.capability-catalog` · Version `1.0.0` · `VW`
+
+Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills lesen.
+
+Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md).
+
+<!-- Source/Vertrag SHA256: f3439d5482f4842ba4c37119b10297bc6f68ee117177cfefa682bf996f55814c -->
+
+Voraussetzung: SELECT auf der Sicht. Die Einträge beschreiben bekannte Objekte und bestätigen weder Installation noch Aufruferrechte.
+
+Keine Eingabeparameter.
+
+```sql
+SELECT DatabaseRole, SchemaName, ObjectName, Description
+FROM toolbelt_metadata.VW_ObjectUsageSkills
+WHERE IsInternal = 0;
 ```
 
 ## toolbelt_metadata.TVF_ParseMultipartName
@@ -3791,7 +3811,7 @@ Validiert einen mehrteiligen SQL-Namen und quotiert seine Komponenten.
 
 Vertrag und Quelle: [SVF_QuoteMultipartName.sql](../../Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql), [SVF_QuoteMultipartName.md](../../Modules/toolbelt.metadata.identifier/Documentation/SVF_QuoteMultipartName.md).
 
-<!-- Source/Vertrag SHA256: b59a9d563cf84174ce119e03cc72728d83bf19b6fdd31794febe8b75dde21f7a -->
+<!-- Source/Vertrag SHA256: 73b32e05b4d4581d898e046b2f558b1f4f5d99f59183bda6e4cd452253789ddc -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4088,7 +4108,7 @@ Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem Unicode-Te
 
 Vertrag und Quelle: [TVF_TrimDirectionalNvarchar.sql](../../Modules/toolbelt.string.directional-trim/Source/TVF_TrimDirectionalNvarchar.sql), [TVF_TrimDirectionalNvarchar.md](../../Modules/toolbelt.string.directional-trim/Documentation/TVF_TrimDirectionalNvarchar.md).
 
-<!-- Source/Vertrag SHA256: 634615a08ec117208f9b8676164138613a5820f05eac37f35205736a0ab0147a -->
+<!-- Source/Vertrag SHA256: 7d9dc35592f46d9506634697d149f9cb70dc0afedbdd95d17d1d416d2d0a4446 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
