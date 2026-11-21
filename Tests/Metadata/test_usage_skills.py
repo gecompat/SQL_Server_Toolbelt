@@ -905,6 +905,30 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_worker_configuration_skills_keep_early_help_and_typed_version_mutations_separate(self):
+        names=['USP_EnableManagedWorkers','USP_DisableManagedWorkers','USP_SetWorkerConcurrency','USP_SetWorkerIntervals']
+        for name in names:
+            s=skills.read(skills.source_file(ROOT,'toolbelt_core',name))
+            text=(ROOT/s.metadata['source_paths'][0]).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.project_procedure_help(text,s),text)
+            self.assertEqual(skills.project_procedure_ddl(text,s),text)
+            ret,_=skills._procedure_help_return(text,s)
+            tokens=skills._ddl_tokens(text)
+            pairs=[(tokens[i][0].casefold(),tokens[i+1][0].casefold(),tokens[i][1]) for i in range(len(tokens)-1)]
+            first_temp=next(pos for a,b,pos in pairs if (a,b)==('create','table'))
+            self.assertLess(ret,first_temp)
+            body=skills.strip_ddl_projection(ROOT,s.metadata['source_paths'][0],skills.strip_help_projection(ROOT,s.metadata['source_paths'][0],text))
+            self.assertIn('SET XACT_ABORT OFF;',body)
+            self.assertLess(body.index('IF @@TRANCOUNT<>0'),body.index('BEGIN TRANSACTION;'))
+            self.assertLess(body.index('IF @ResultTable IS NOT NULL'),body.index('COMMIT TRANSACTION;'))
+            expected=next(p for p in s.metadata['parameters'] if p['name']=='@ExpectedConfigVersion')
+            self.assertEqual((expected['sql_type'],expected['sql_default'],expected['business_required'],expected['nullable']),('binary(8)','NULL',True,False))
+            self.assertIn('wird die eigene Mutation zurückgerollt',s.markdown)
+            self.assertIn('nach Commit',s.markdown)
+            self.assertIn('kein No-op' if name in names[:2] else 'ändern dennoch ConfigVersion' if name==names[3] else 'verändert dennoch ConfigVersion',s.markdown)
+            if name in names[:2]:self.assertIn('54217/1',s.markdown)
+            if name==names[3]:self.assertIn('Arithmetic-Overflow',s.markdown)
+
     def test_worker_relations_cover_real_columns_and_separate_witness_from_status(self):
         expected={k:v for k,v in skills.inventory(ROOT).items()
                   if v['module_id']=='toolbelt.core.worker-control' and v['object_type'] in ('TABLE','VIEW')}

@@ -56,6 +56,18 @@ class ComponentReuseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NONCANONICAL_SCHEMA_HELP_DESCRIPTION'):
             module.compare(outside,outside.replace(module.SCHEMA_HELP_OLD,module.SCHEMA_HELP_NEW),module.SCHEMA_HELP_PATH)
 
+    def test_worker_config_help_description_repairs_never_admit_nonhelp_sql(self):
+        old=(b' IF ISNULL(@Hilfe,0)=1 BEGIN\nSELECT N\''+module.SCHEMA_HELP_OLD+
+             b"';\n        RETURN 0;\n END;\nUPDATE Contoso SET Value=7;")
+        current=old.replace(module.SCHEMA_HELP_OLD,module.WORKER_CONFIG_HELP_NEW)
+        for path in module.WORKER_CONFIG_HELP_PATHS:
+            module.compare(old,current,path)
+            with self.assertRaisesRegex(ValueError,'COMPONENT_REUSE_NOT_PROVEN'):
+                module.compare(old,current.replace(b'Value=7',b'Value=8'),path)
+            with self.assertRaisesRegex(ValueError,'NONCANONICAL_WORKER_CONFIG_HELP_DESCRIPTION'):
+                module.compare(old.replace(b'=1 BEGIN',b'=0 BEGIN'),current,path)
+        with self.assertRaises(ValueError):module.compare(old,current,'Modules/Contoso/Source/Example.sql')
+
     def test_arbitrary_clr_changes_are_never_normalized(self):
         with self.assertRaises(ValueError):
             module.compare(b'Toolbelt_String_Regex',b'tlblt_String_Regex','Modules/Contoso/Clr/Provider.cs')

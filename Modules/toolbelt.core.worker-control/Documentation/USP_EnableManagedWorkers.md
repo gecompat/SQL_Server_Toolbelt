@@ -16,7 +16,7 @@ Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder unge
 
 ConfigVersion binary(8) NOT NULL; ManagedEnabled bit NOT NULL
 
-Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis nutzt den kanonischen ResultTable-Vertrag atomar. Fehler 54210..54239, bestehende Queue-/Enginefehler bleiben getrennt. Vorhandene EXECUTE-Rechte sind erforderlich; keine Rechtevergabe. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
+Hilfe zuerst ohne Fachprüfung; Debug erzeugt hier keine eigenen Messages. Ein tabellarisches Ergebnis nutzt den kanonischen ResultTable-Vertrag atomar. Fehler 54210..54239, bestehende Queue-/Enginefehler bleiben getrennt. Vorhandene EXECUTE-Rechte sind erforderlich; keine Rechtevergabe. Nachweise und offene Grenzen: [Modulstatus](../README.md); unveröffentlicht.
 
 ## Aufrufparameter
 
@@ -27,7 +27,7 @@ Hilfe zuerst ohne Fachprüfung; Debug nur Messages. Ein tabellarisches Ergebnis 
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL (Default) liefert den fachlichen SELECT-Resultset. Sonst ein einzelner sysname mit 2..116 UTF-16-Einheiten einschließlich führendem # als Name einer bereits im Caller-Scope angelegten lokalen #Temp-Tabelle, z.B. N'#Result'; keine globale ##Temp, persistente oder mehrteilige Tabelle. Der ResultTable-Helper muss verfügbar sein; die Ausgabeform wird anhand des konkreten Objektresultsets vorbereitet. |
 | `@KeepData` | `bit` | `0` | Input | Taxativ für bit: 0 ersetzt Ergebnisdaten (Default), 1 hängt bei kompatibler ResultTable an; NULL entspricht 0. Nur bei nicht-NULL ResultTable relevant; Schema- und Datenbehandlung folgen dem kanonischen ResultTable-Vertrag. |
 | `@Debug` | `tinyint` | `0` | Input | Standardparameter tinyint 0..255 oder NULL, Default 0. Im aktuellen öffentlichen Worker-Control-Pfad entstehen dadurch keine zusätzlichen eigenen Diagnose-Messages; insbesondere werden keine Tokens ausgegeben. |
-| `@Hilfe` | `bit` | `0` | Input | Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden. |
+| `@Hilfe` | `bit` | `0` | Input | 1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig. |
 <!-- API_PARAMETERS:END -->
 
 ## Voraussetzungen für den Aufruf
@@ -47,6 +47,14 @@ EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;
 ```
 
 ## Hilfe und Fehlerklärung
+
+Der vollständige [Usage-Skill](../../../Metadata/UsageSkills/toolbelt_core/USP_EnableManagedWorkers.md)
+steht auch in der kanonischen DDL. `@Hilfe=1` liefert zusätzlich zur bisherigen
+Standardhilfe genau eine Skillzeile mit `SkillFormatVersion`, `SchemaName`,
+`ObjectName` und `SkillMarkdown nvarchar(max)`. Fachliche NULL-Defaults sind
+nur für die Hilfe zulässig. Jeder erfolgreiche Konfigurationsaufruf ändert die
+Version auch bei identischen Werten; für den nächsten Aufruf die neue Version
+übernehmen. ResultTable-Routing liegt vor Commit in derselben Transaktion.
 
 ```sql
 EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;

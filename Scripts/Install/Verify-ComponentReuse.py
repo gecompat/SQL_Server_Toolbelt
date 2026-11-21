@@ -35,9 +35,23 @@ EVENT_HELP_NEW=EVENT_HELP_OLD.replace(b'Contoso.HelpExample',b'contoso.helpexamp
 SCHEMA_HELP_PATH='Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql'
 SCHEMA_HELP_OLD=("Taxativ für bit: 1 liefert nur die Standardhilfe vor der Fachvalidierung; 0 (Default) führt den Fachaufruf aus. NULL wird wie 0 behandelt. Syntaktisch erforderliche Argumente ohne technischen Default müssen auch beim Help-Aufruf angegeben werden.").encode('utf-8')
 SCHEMA_HELP_NEW=("1: bisherige zwölfspaltige Standardhilfe plus genau eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Argument-/Namespace-/Helper-/CLR-/Fachprüfung oder Zielmutation. 0 oder NULL: Fachpfad. Alle SQL-Argumente besitzen technische Defaults.").encode('utf-8')
+WORKER_CONFIG_HELP_PATHS={
+    'Modules/toolbelt.core.worker-control/Source/'+name+'.sql'
+    for name in ('USP_EnableManagedWorkers','USP_DisableManagedWorkers','USP_SetWorkerConcurrency','USP_SetWorkerIntervals')}
+WORKER_CONFIG_HELP_NEW=("1: bisherige Standardhilfe plus eine vollständige vier-spaltige Skillzeile, danach RETURN0 vor Tempresult, Transaktions-/Versions-/Fachprüfung und Mutation. 0 oder NULL: Fachpfad. Alle Parameter haben technische Defaults; im Fachpfad sind die als erforderlich beschriebenen NULL-Defaults ungültig.").encode('utf-8')
 
 
 def corrected_historical_help(original,path):
+    if path in WORKER_CONFIG_HELP_PATHS and SCHEMA_HELP_OLD in original:
+        start=b' IF ISNULL(@Hilfe,0)=1 BEGIN\n'
+        end=b'        RETURN 0;'
+        if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_WORKER_CONFIG_HELP_DESCRIPTION')
+        a=original.index(start)+len(start)
+        b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_WORKER_CONFIG_HELP_DESCRIPTION')
+        original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,WORKER_CONFIG_HELP_NEW)+original[b:]
     # This exact description correction belongs only to the existing early
     # Schema help branch. New help is not upgraded to historical runtime proof.
     if path==SCHEMA_HELP_PATH and SCHEMA_HELP_OLD in original:
