@@ -49,3 +49,7 @@ SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) AS JsonVal
 - [Modul, Installation und Testgrenzen](../README.md)
 - [SQL-Definition](../Source/JsonAggregates.sql)
 - [Objektübersicht](../../../Documentation/Reference/API_CATALOG.md)
+
+## Vollständiger Usage-Skill
+
+Der [quellgeprüfte Vertrag](../../../Metadata/UsageSkills/toolbelt_json/AGF_JsonArray.md) beschreibt sämtliche Argumente, Entrykinds, Ergebnisschema, Rechte, Ressourcen und Fehlerprioritäten. Er steht identisch in der kanonischen Objekt-DDL. Die Prozeduren liefern ihn zusätzlich als eigene Skillzeile nach der bisherigen Standardhilfe. Interne Einstiegspunkte bleiben intern; neue native Qualifikation wird nicht aus dem Quellvergleich abgeleitet.

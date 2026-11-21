@@ -190,3 +190,9 @@ Skilltexte beschreiben bekannte Quellen. Sie attestieren weder Installation,
 identische vorhandene Definitionen noch Aufruferrechte und erteilen keine
 Ausführungsautorität. Private Pakete, Serverdaten, Zugangsdaten und echte
 Runtimeausgaben gehören nicht in diese Dateien.
+
+## CLR-Aggregate und bestehendes RETURN
+
+Der DDL-Generator unterstützt auch die fest gebundenen CREATE-AGGREGATE-Definitionen der JSON-Konstruktoren. Im dynamischen Weg wird nur der bekannte `IF OBJECT_ID`-/konstante `EXEC sys.sp_executesql`-Aufbau mit passender Objektidentität akzeptiert. Beliebige SQL-Strings, Verkettungen und ungeschützte Ausführung sind keine Skillcontainer. Der Kommentar bleibt im eigenen Header vor EXTERNAL NAME; Entfernen der exakten Projektion erhält alle ursprünglichen Fachbytes.
+
+Ein vorhandener früher positiver Hilfezweig darf mit `RETURN 0;` oder `RETURN;` enden. Der Generator erhält die ursprüngliche Form unverändert und ergänzt nur das konstante Skillresultset davor. Fachcode hinter dem RETURN oder abweichende Rückgabewerte werden zurückgewiesen. Dies ersetzt keine native Hilfeabnahme.

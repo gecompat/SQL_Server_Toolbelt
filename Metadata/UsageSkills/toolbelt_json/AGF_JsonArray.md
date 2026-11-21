@@ -1,5 +1,5 @@
 ---
-name: "toolbelt-toolbelt-toolbelt-json-agf-jsonarray"
+name: "toolbelt-json-agf-jsonarray"
 description: "Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array."
 skill_format_version: "1.0"
 module_id: "toolbelt.json.constructors"
@@ -8,9 +8,9 @@ object_name: "AGF_JsonArray"
 object_type: "CLR_AGGREGATE"
 database_role: "toolbelt"
 is_internal: false
-parameters: [{"name": "@Ordinal", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Ganzzahl 1..2147483647, nicht NULL und je Aggregatgruppe eindeutig. Bestimmt die Ausgabeordnung unabhängig von Callback-/Inputreihenfolge; Lücken sind erlaubt."}, {"name": "@ValueKind", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Taxativ, bytegenau ohne Trim/Casefold: string = unquotierter Unicode-Text, der JSON-escaped/quotiert wird; number = vollständiges JSON-Zahlenliteral ohne zusätzliche Quotes/Spaces (optionales -, kanonischer Ganzzahlteil, optional Bruch/Exponent); boolean = exakt true oder false; null = JSON-null und verlangt SQL-NULL in Value; json = vollständiges Objekt oder Array, kein JSON-Skalar. NULL/andere Werte ungültig. Keine Typinferenz."}, {"name": "@Value", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Rohwert gemäß ValueKind: string erlaubt auch leeren Text, number erwartet z.B. -12.5e2, boolean exakt true/false, json z.B. {\"x\":1} oder [1,2], null ausschließlich SQL-NULL. Für alle anderen Kinds ist SQL-NULL ungültig. Unicode einschließlich decodierter JSON-Escapes muss wohlgeformt sein; kein automatisches Trim/Coercion. Endliche Gesamt-/Ergebnisbudgets gelten zusätzlich. Bei json höchstens 127 Containerebenen, damit der äußere Aggregatcontainer Tiefe 128 nicht überschreitet."}, {"name": "@Profile", "sql_type": "tinyint", "sql_default": null, "is_output": false, "argument_required": true, "business_required": null, "nullable": null, "description": "Taxativ für tinyint: 1 = höchstens 10000 Entries, 2097152 Payloadbytes und 5242880 serialisierte Zustandsbytes; 2 = 100000 Entries, 16777216 Payloadbytes und 37748736 Zustandsbytes. Kein Default: an jedem Inputeintrag explizit übergeben. Muss in einer Aggregatgruppe gleich bleiben; NULL/andere/gemischte Werte sind Fehler."}]
-source_paths: ["Modules/toolbelt.json.constructors/Source/JsonAggregates.sql"]
-review_status: "draft"
+parameters: [{"name": "@Ordinal", "sql_type": "int", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Ganzzahl 1..2147483647, nicht NULL und je Aggregatgruppe eindeutig. Bestimmt die Ausgabeordnung unabhängig von Callback-/Inputreihenfolge; Lücken sind erlaubt."}, {"name": "@ValueKind", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Taxativ, bytegenau ohne Trim/Casefold: string = unquotierter Unicode-Text, der JSON-escaped/quotiert wird; number = vollständiges JSON-Zahlenliteral ohne zusätzliche Quotes/Spaces (optionales -, kanonischer Ganzzahlteil, optional Bruch/Exponent); boolean = exakt true oder false; null = JSON-null und verlangt SQL-NULL in Value; json = vollständiges Objekt oder Array, kein JSON-Skalar. NULL/andere Werte ungültig. Keine Typinferenz."}, {"name": "@Value", "sql_type": "nvarchar(max)", "sql_default": null, "is_output": false, "argument_required": true, "business_required": false, "nullable": true, "description": "Rohwert gemäß ValueKind: string erlaubt auch leeren Text, number erwartet z.B. -12.5e2, boolean exakt true/false, json z.B. {\"x\":1} oder [1,2], null ausschließlich SQL-NULL. Für alle anderen Kinds ist SQL-NULL ungültig. Unicode einschließlich decodierter JSON-Escapes muss wohlgeformt sein; kein automatisches Trim/Coercion. Endliche Gesamt-/Ergebnisbudgets gelten zusätzlich. Bei json höchstens 127 Containerebenen, damit der äußere Aggregatcontainer Tiefe 128 nicht überschreitet."}, {"name": "@Profile", "sql_type": "tinyint", "sql_default": null, "is_output": false, "argument_required": true, "business_required": true, "nullable": false, "description": "Taxativ für tinyint: 1 = höchstens 10000 Entries, 2097152 Payloadbytes und 5242880 serialisierte Zustandsbytes; 2 = 100000 Entries, 16777216 Payloadbytes und 37748736 Zustandsbytes. Kein Default: an jedem Inputeintrag explizit übergeben. Muss in einer Aggregatgruppe gleich bleiben; NULL/andere/gemischte Werte sind Fehler."}]
+source_paths: ["Modules/toolbelt.json.constructors/Source/JsonAggregates.sql", "Modules/toolbelt.json.constructors/Clr/JsonAggregates.cs", "Modules/toolbelt.json.constructors/Clr/OwnedAggregateBuilder.cs", "Modules/toolbelt.json.constructors/Clr/AgfValidCodec.cs", "Modules/toolbelt.json.constructors/Clr/AgfFaultCodec.cs", "Modules/toolbelt.json.constructors/Clr/AgfDispatcher.cs", "Modules/toolbelt.json.core/Clr/JsonCanonicalCore.cs", "Modules/toolbelt.json.core/Clr/JsonSyntaxScanner.cs"]
+review_status: "verified"
 source_module_version: "1.3.0"
 ---
 
@@ -20,54 +20,52 @@ source_module_version: "1.3.0"
 
 Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.
 
-Reviewentwurf: vorhandene Beschreibung mit der Implementierung abgleichen.
-
 ## Voraussetzungen
 
-Noch gegen den Code zu prüfen.
+Kanonisches Modul1.3.0 mit JsonCore-Abhängigkeit und bekannter SAFE-Assembly tlblt_JsonConstructors. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Die Prozeduren brauchen den ResultTablehelper auch für direkte Ausgabe. Vorhandene CLR-/Trustvoraussetzungen des gewählten Installers; der Aufruf ändert keine Rechte oder Serverkonfiguration.
 
 ## Parameter und Zugriff
 
-| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+| Parameter | SQL-Typ | SQL-Default | Richtung | Vertrag |
 |---|---|---|---|---|
-| `@Ordinal` | `int` | `kein Default` | Input | Ganzzahl 1..2147483647, nicht NULL und je Aggregatgruppe eindeutig. Bestimmt die Ausgabeordnung unabhängig von Callback-/Inputreihenfolge; Lücken sind erlaubt. |
-| `@ValueKind` | `nvarchar(max)` | `kein Default` | Input | Taxativ, bytegenau ohne Trim/Casefold: string = unquotierter Unicode-Text, der JSON-escaped/quotiert wird; number = vollständiges JSON-Zahlenliteral ohne zusätzliche Quotes/Spaces (optionales -, kanonischer Ganzzahlteil, optional Bruch/Exponent); boolean = exakt true oder false; null = JSON-null und verlangt SQL-NULL in Value; json = vollständiges Objekt oder Array, kein JSON-Skalar. NULL/andere Werte ungültig. Keine Typinferenz. |
-| `@Value` | `nvarchar(max)` | `kein Default` | Input | Rohwert gemäß ValueKind: string erlaubt auch leeren Text, number erwartet z.B. -12.5e2, boolean exakt true/false, json z.B. {"x":1} oder [1,2], null ausschließlich SQL-NULL. Für alle anderen Kinds ist SQL-NULL ungültig. Unicode einschließlich decodierter JSON-Escapes muss wohlgeformt sein; kein automatisches Trim/Coercion. Endliche Gesamt-/Ergebnisbudgets gelten zusätzlich. Bei json höchstens 127 Containerebenen, damit der äußere Aggregatcontainer Tiefe 128 nicht überschreitet. |
-| `@Profile` | `tinyint` | `kein Default` | Input | Taxativ für tinyint: 1 = höchstens 10000 Entries, 2097152 Payloadbytes und 5242880 serialisierte Zustandsbytes; 2 = 100000 Entries, 16777216 Payloadbytes und 37748736 Zustandsbytes. Kein Default: an jedem Inputeintrag explizit übergeben. Muss in einer Aggregatgruppe gleich bleiben; NULL/andere/gemischte Werte sind Fehler. |
+| `@Ordinal` | `int` | kein Default | Input | Ganzzahl 1..2147483647, nicht NULL und je Aggregatgruppe eindeutig. Bestimmt die Ausgabeordnung unabhängig von Callback-/Inputreihenfolge; Lücken sind erlaubt. |
+| `@ValueKind` | `nvarchar(max)` | kein Default | Input | Taxativ, bytegenau ohne Trim/Casefold: string = unquotierter Unicode-Text, der JSON-escaped/quotiert wird; number = vollständiges JSON-Zahlenliteral ohne zusätzliche Quotes/Spaces (optionales -, kanonischer Ganzzahlteil, optional Bruch/Exponent); boolean = exakt true oder false; null = JSON-null und verlangt SQL-NULL in Value; json = vollständiges Objekt oder Array, kein JSON-Skalar. NULL/andere Werte ungültig. Keine Typinferenz. |
+| `@Value` | `nvarchar(max)` | kein Default | Input | Rohwert gemäß ValueKind: string erlaubt auch leeren Text, number erwartet z.B. -12.5e2, boolean exakt true/false, json z.B. {"x":1} oder [1,2], null ausschließlich SQL-NULL. Für alle anderen Kinds ist SQL-NULL ungültig. Unicode einschließlich decodierter JSON-Escapes muss wohlgeformt sein; kein automatisches Trim/Coercion. Endliche Gesamt-/Ergebnisbudgets gelten zusätzlich. Bei json höchstens 127 Containerebenen, damit der äußere Aggregatcontainer Tiefe 128 nicht überschreitet. |
+| `@Profile` | `tinyint` | kein Default | Input | Taxativ für tinyint: 1 = höchstens 10000 Entries, 2097152 Payloadbytes und 5242880 serialisierte Zustandsbytes; 2 = 100000 Entries, 16777216 Payloadbytes und 37748736 Zustandsbytes. Kein Default: an jedem Inputeintrag explizit übergeben. Muss in einer Aggregatgruppe gleich bleiben; NULL/andere/gemischte Werte sind Fehler. |
+
+ValueKind ist bytegenau string,number,boolean,null oderjson,ohneTrim/Casefold. string nimmt unquotierten Text,escaped/quotiert ihn; leer ist gültig. number nimmt ein vollständiges JSON-Zahlenliteral ohne Spaces/Quotes: optionalMinus,0 oder führende1..9 mitZiffern,optionalBruch/Exponent; keine numerische Normalisierung. boolean exakttrue/false. null verlangt SQLNULL inValue; andereKinds verbieten SQLNULL. json verlangt vollständiges Objekt/Array,keinen Scalarroot; Originalformat,Whitespace und innere doppelte Keys bleiben erhalten. Raw-UTF16 und decodierte Unicode-Escapes müssen wohlgeformt sein. Escape verarbeitet Quote,Backslash,Slash und Controls; keine Typinferenz,Trim,Coercion oderSQL-Ausführung ausWerten.
 
 ## Ergebnisse
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+nvarchar(max): vollständig geprüftes JSON in Ordinalreihenfolge,Source-EMPTY liefert[] beziehungsweise{}. Keine zusätzlichen Statuszeilen oderHilfeparameter. SQL GROUP BY bestimmt die Aggregatgruppen;ohneGrouping einAggregatwert. Fehler werfen6522 statt abgeschnittenerAusgabe. Profil/Ordinal sind jeZeile erforderlich,auchSQLNULL-Zeilen werdennichtautomatischignoriert.
 
 ## Aufrufbeispiele
 
 ```sql
-DECLARE @Entries TABLE(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max),Profile tinyint);
-INSERT @Entries VALUES(2,N'number',N'2',1),(1,N'string',N'Contoso',1);
-SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) AS JsonValue FROM @Entries;
+SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],CONVERT(tinyint,1)) AS JsonValue
+FROM (VALUES(1,N'string',N'Contoso'),(2,N'number',N'2')) AS e(Ordinal,ValueKind,[Value]);
 ```
 
 ## Rechte
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+Vorhandenes EXECUTE auf das gewählte öffentliche CLR-Aggregat. Zugriff auf fachliche Eingabetabellen braucht deren eigene SELECT-Rechte. Die Aggregate führen selbst keine SQL-Abfragen aus. Zentrale Dreiteilnamen benötigen Datenbankzugriff und Identitätsmapping. Keine Serverrolle oder Rechtevergabe aus dem Skill ableiten.
 
 ## Ressourcenbedarf
 
-Noch gegen tatsächliche Grenzen/Algorithmen zu prüfen; keine Kapazitäts- oder Laufzeitwerte erfinden.
+AGF-Profil1:10000 Entries,2097152 Raw-/Resultbudgetbytes,5242880 serialisierte Zustandsbytes. Profil2:100000,16777216,37748736. Alle Profilwerte müssen je Aggregatgruppe gleich sein; kein Default. Interne Run-Kompression ist kein unbegrenzter Pfad. Mehrere Gruppen, Callbacks und Transportkopien multiplizieren Gesamtkosten. Keine Gesamtquery-, Peakheap- oder Wallclockquote.
 
 ## Nebenwirkungen
 
-Noch am tatsächlichen Ausführungspfad zu prüfen; dieser Entwurf erteilt keine Ausführungsautorität.
+Engine ruft Init/Accumulate/Merge/Serialize/Terminate auf. Jede SQL-Zeile zählt,auch NULL-Zeilen; Profil muss pro Aggregatgruppe einheitlich1 oder2 sein. Ordinals positiv/eindeutig bestimmen endgültige Ausgabeordnung unabhängig von Callback-/Merge-Reihenfolge. Objectkeys werden exakt nach UTF16-Bytes mit Länge verglichen,kein SQL-Spacepadding. Metadaten und dominierende Budgetfehler vor vermeidbarer LOBkopie; fehlerhafter Zustand verwirft unnötige Payload. Der Builder besitzt seinen Zustand,Merge übernimmt keine veränderbaren fremden Bytearrays.
+
+Gemeinsamer JsonCanonicalCore mit expliziter AgfJson-Policy validiert Entryliterale und vollständige Objekt-/Arrayfragmente. Höchstens127 Containerebenen je json-Fragment,weil der neue äußere Aggregatcontainer eine weitere Ebene erzeugt. Globaler Fehler gewinnt nach fester Priorität:Profil,Count,Ordinal,Key,Kindlänge,Rohbytes,vorläufigeMindestbytes,doppelteKeys,Kind,SQLNULL-Kohärenz,starkeMindestbytes,Entryfehler nachOrdinal/Phase,Outputbytes. Kein SQL-ISJSON oder Katalogzugriff durch die Aggregate.
+
+Terminate baut erst vollständig gültiges JSON in Ordinalreihenfolge,bei leerem Zustand[] beziehungsweise{}. Kein DISTINCT-Filter und kein Mapping zur USP-Gruppierung; SQL GROUP BY legt Aggregatgruppen fest. Interner AGF3-Zustand hat Header/Mode/Profil/Längen-/Semantikprüfung undSHA256-Prüfsumme; kompakte verifizierte Nullruns sind ein interner Transportpfad,keine öffentliche Wire-/Persistenzschnittstelle. Prüfsumme ist keine Signatur oder Herkunftsauthentifizierung. Fehler poisonen den Builder; keine automatische Wiederholung oder verwertbaren Teilresultate.
 
 ## Fehlerbehandlung
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
+SQL6522 mit stabilen Innerpräfixen TBX_JSON_AGG_:PROFILE_INVALID,ENTRY_LIMIT,ORDINAL_INVALID,KEY_INVALID,KIND_LENGTH,RAW_LIMIT,MINIMUM_LIMIT,DUPLICATE_KEY,KIND_INVALID,NULL_INVALID,STRONG_MINIMUM_LIMIT,UTF16_INVALID,BOOLEAN_INVALID,NUMBER_INVALID,JSON_INVALID,DECODED_UTF16_INVALID,DEPTH_LIMIT,OUTPUT_LIMIT. Technische Transport-/Zustands-/Ressourcenfehler STATE_INVALID oderRESOURCE_FAILURE,ohne originale Datenmeldungen. Keine automatische Wiederholung. Feste globale/Ordinal-Fehlerpriorität statt erster physischer Callbackfehler.
 
 ## Aussagegrenzen
 
-Noch am Code zu prüfen; aus vorhandenen Unterlagen nicht automatisch als verifiziert übernommen.
-
-Ursprüngliche Objektverträge:
-- `Modules/toolbelt.json.constructors/Documentation/AGF_JsonArray.md`
-
-Keine Installations-, Definitions- oder Rechteattestation.
+Quellgeprüfter aktueller Vertrag; keine neue native Hilfe-/Unicode-/Minimalrechte-/Callerzustands-/Installer-/Merge-/Spill-/Grenzabnahme. Historische Nachweise bleiben an ihre Artefakte gebunden. Kein allgemeines SQL/JSON-Abfrage-, Patch-, PrettyPrint-, Schema- oder Typinferenzwerkzeug. Geprüfte Bytebudgets sind keine Peakheap- oder Gesamtquerygarantie. Keine Installations- oder Rechteattestation. Inputdaten, Keys und Runtimebefunde privat halten.

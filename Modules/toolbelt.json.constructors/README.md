@@ -94,3 +94,7 @@ Reproduzierbarer Nachweis: `local: Tests/CI/run-lab-local.ps1`, siehe [Tests](Te
 - Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: vier Constructor1.3-Fixtures mit16 MiB/100000 Einträgen sowie genuine bekannte1.2→1.3-Migration bestanden. Fünf Procedureidentitäten, effektive Owner und vorhandene Rechte erhalten; post-DROP-Rollback, Annotationserhalt, neue Core-Referenz, Schema30-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Keine Konfigurations-/Rechte-/Owneränderungen. Weitere physische Ziel-/Lifecycle-/Minimalrechtematrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Maschinenlesbare Usage-Skills
+
+Alle neun katalogisierten Objekte einschließlich Assembly, internem T-SQL-Kern und CLR-Entrybrücke besitzen quellgeprüfte Skills. Die Objektseiten verlinken die vollständigen Verträge. Die kanonische Funktions-/Aggregat-/Prozedur-DDL enthält dieselben Texte; alle fünf Prozeduren liefern zusätzlich die frühe Skillhilfe. Die gemeinsame Usage-Skill-View wird erst bei vollständiger Katalogabdeckung erzeugt. Neue native Hilfe-/Callerzustands- und Gesamtinstallerqualifikation bleiben separat.

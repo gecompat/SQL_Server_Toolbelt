@@ -905,6 +905,79 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_json_constructor_skills_cover_module_grouping_phases_and_separate_aggregate_limits(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.json.constructors'}
+        self.assertEqual(len(expected),9)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        for name,s in records.items():
+            kind=s.metadata['object_type']
+            if kind=='ASSEMBLY':continue
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            projected=skills.project_aggregate_ddl(text,s) if kind=='CLR_AGGREGATE' else skills.project_procedure_ddl(text,s) if kind=='USP' else skills.project_function_ddl(text,s)
+            self.assertEqual(projected,text)
+            if kind=='USP':
+                self.assertEqual(skills.project_procedure_help(text,s),text)
+                clean=skills.strip_help_projection(ROOT,path,text)
+            else:clean=text
+            clean=skills.strip_ddl_projection(ROOT,path,clean)
+            self.assertNotIn(skills.DDL_BEGIN,clean)
+            self.assertIn('keine neue native',s.markdown)
+            if kind in ('CLR_AGGREGATE','CLR_TVF'):
+                self.assertTrue(all(p['argument_required'] and p['sql_default'] is None for p in s.metadata['parameters']))
+        core=records['USP_JsonConstructInternal'];path=core.metadata['source_paths'][0]
+        text=(ROOT/path).read_text(encoding='utf-8-sig')
+        clean=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+        self.assertLess(skills._procedure_help_return(clean,core)[0],clean.index('THROW 53600'))
+        self.assertIn('CONVERT(varbinary(2048),[Key]),DATALENGTH([Key])',clean)
+        self.assertIn('IF ISJSON(@Value)<>1',clean)
+        self.assertIn('WHILE @CostPass<=1',clean)
+        self.assertIn('SAVE TRANSACTION @Savepoint',clean)
+        self.assertIn('53611',core.markdown)
+        for name in ('AGF_JsonArray','AGF_JsonObject'):
+            for limit in ('127','5242880','37748736','100000'):
+                self.assertIn(limit,records[name].markdown)
+        raw=records['FT_JsonEntryEvaluateInternal']
+        self.assertEqual(len(raw.metadata['parameters']),6)
+        result=raw.markdown.split('## Ergebnisse\n\n',1)[1].split('\n\n## ',1)[0]
+        self.assertEqual(len(re.findall(r'^\| `([^`]+)` \|',result,re.M)),8)
+        self.assertIn('ADAPTER_CONTRACT',raw.markdown)
+        self.assertIn('kein AGF-Depthlimit127',raw.markdown)
+
+    def test_bare_help_return_is_preserved_and_still_must_end_positive_branch(self):
+        skill=skills.read(skills.source_file(ROOT,'toolbelt_json','USP_JsonConstructInternal'))
+        path=skill.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+        original=skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,text))
+        position,_=skills._procedure_help_return(original,skill)
+        self.assertTrue(original[position:].lstrip().startswith('RETURN;'))
+        projected=skills.project_procedure_ddl(skills.project_procedure_help(original,skill),skill)
+        self.assertEqual(skills.strip_ddl_projection(ROOT,path,skills.strip_help_projection(ROOT,path,projected)),original)
+        for tail in ('RETURN 1;','RETURN; SELECT 1;'):
+            bad=original[:position]+original[position:].replace('RETURN;',tail,1)
+            with self.assertRaises(ValueError):skills.project_procedure_help(bad,skill)
+
+    def test_guarded_aggregate_ddl_roundtrips_and_does_not_interpret_arbitrary_data(self):
+        skill=skills.read(skills.source_file(ROOT,'toolbelt_json','AGF_JsonArray'));path=skill.metadata['source_paths'][0]
+        payload=('CREATE AGGREGATE toolbelt_json.AGF_JsonArray\n'
+                 '(@Ordinal int,@ValueKind nvarchar(max),@Value nvarchar(max),@Profile tinyint)\n'
+                 'RETURNS nvarchar(max)\nEXTERNAL NAME [tlblt_JsonConstructors].[Toolbelt.JsonConstructors.JsonArrayAggregate];')
+        def wrap(sql):return "IF OBJECT_ID(N'toolbelt_json.AGF_JsonArray') IS NULL\n EXEC sys.sp_executesql N'"+sql.replace("'","''")+"';\nGO\n"
+        original=wrap(payload);projected=skills.project_aggregate_ddl(original,skill)
+        self.assertEqual(skills.project_aggregate_ddl(projected,skill),projected)
+        self.assertEqual(skills.read_ddl_comment(projected).markdown,skill.markdown)
+        self.assertEqual(skills.strip_ddl_projection(ROOT,path,projected),original)
+        data="SELECT N'"+skills._dynamic_clr_slots(projected,aggregate=True)[0][3].replace("'","''")+"';"
+        self.assertEqual(skills.read_ddl_comments(data),[])
+        self.assertEqual(skills.strip_ddl_projection(ROOT,path,data),data)
+        for bad in (original.replace("OBJECT_ID(N'toolbelt_json.","OBJECT_ID(N'Contoso."),
+                    original.replace("';\nGO","' + N'';\nGO"),original+original,original+'\n'+payload,
+                    original.split('\n',1)[1],wrap(payload.replace('EXTERNAL NAME','; SELECT 1; EXTERNAL NAME'))):
+            with self.assertRaises(ValueError):skills.project_aggregate_ddl(bad,skill)
+        moved=wrap(payload+'\n'+skills.render_ddl_comment(skill))
+        with self.assertRaises(ValueError):skills.project_aggregate_ddl(moved,skill)
+        altered=projected.replace('[Toolbelt.JsonConstructors.JsonArrayAggregate]','[Contoso.Changed]')
+        self.assertNotEqual(skills.strip_ddl_projection(ROOT,path,altered),original)
+        with self.assertRaises(ValueError):skills.project_aggregate_ddl(projected.replace('5242880','5242881',1),skill)
+
     def test_pseudonymization_module_skills_cover_null_priority_hash_domains_and_lookup_boundary(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.pseudonymization.deterministic'}
         self.assertEqual(len(expected),8)

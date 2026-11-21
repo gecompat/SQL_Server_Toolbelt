@@ -223,9 +223,9 @@ def read_ddl_comments(text: str):
             start = None
         offset += len(line) + 1
     require(start is None, "Unvollständige DDL-Skillmarkierungen")
-    # Only guarded, constant CREATE FUNCTION executions are executable DDL.
+    # Only guarded, constant CLR FUNCTION/AGGREGATE executions are DDL.
     # Other SQL literals (including examples of these markers) remain data.
-    for _, _, _, payload in _dynamic_clr_slots(text):
+    for _, _, _, payload in (*_dynamic_clr_slots(text), *_dynamic_clr_slots(text, aggregate=True)):
         result.extend(read_ddl_comments(payload))
     return result
 
@@ -272,13 +272,16 @@ def strip_ddl_projection(root: Path, path: str, text: str):
         canonical = read(source)
         require(canonical.markdown == projected.markdown
                 and m["source_paths"][0] == path, "DDL-Skill ist nicht kanonisch/quellzugeordnet")
-        dynamic = [slot for slot in _dynamic_clr_slots(text)
+        dynamic = [slot for slot in _dynamic_clr_slots(text, aggregate=m["object_type"] == "CLR_AGGREGATE")
                    if slot[0] == (m["schema_name"].casefold(), m["object_name"].casefold())]
         if dynamic:
-            require(len(dynamic) == 1 and m["object_type"] in ("CLR_TVF", "CLR_SVF"),
+            require(len(dynamic) == 1 and m["object_type"] in ("CLR_TVF", "CLR_SVF", "CLR_AGGREGATE"),
                     "Eindeutiger dynamischer CLR-Slot erforderlich")
             _, a, b, payload = dynamic[0]
-            _existing_function_skill(payload, canonical)
+            if m["object_type"] == "CLR_AGGREGATE":
+                _existing_aggregate_skill(payload, canonical)
+            else:
+                _existing_function_skill(payload, canonical)
             clean = strip_ddl_projection(root, path, payload)
             text = text[:a] + "N'" + clean.replace("'", "''") + "'" + text[b:]
             continue
@@ -290,6 +293,8 @@ def strip_ddl_projection(root: Path, path: str, text: str):
             _existing_procedure_skill(text, canonical)
         elif m["object_type"] == "CLR_USP":
             _existing_clr_procedure_skill(text, canonical)
+        elif m["object_type"] == "CLR_AGGREGATE":
+            _existing_aggregate_skill(text, canonical)
         comment = render_ddl_comment(canonical)
         require(text.count(comment) == 1, "DDL-Skillkommentar nicht eindeutig/bytegleich")
         text = text.replace(comment, "", 1)
@@ -335,7 +340,7 @@ def _ddl_tokens(text):
     return tuple(result)
 
 
-def _dynamic_clr_slots(text):
+def _dynamic_clr_slots(text, aggregate=False):
     """Known IF OBJECT_ID/constant EXEC shape, never general SQL evaluation.
 
     The guard must name the created function; no concatenation, parameters or
@@ -365,7 +370,8 @@ def _dynamic_clr_slots(text):
         inner = _ddl_tokens(payload)
         iw = [v.casefold().strip("[]") for v, _, _ in inner]
         p = 3 if iw[:3] == ["create", "or", "alter"] else 1
-        if (not iw or iw[0] != "create" or iw[p:p + 1] != ["function"]
+        kind = "aggregate" if aggregate else "function"
+        if (not iw or iw[0] != "create" or iw[p:p + 1] != [kind]
                 or len(iw) < p + 6 or iw[p + 2] != "." or iw[p + 4] != "("):
             continue
         identity = (iw[p + 1], iw[p + 3])
@@ -373,8 +379,13 @@ def _dynamic_clr_slots(text):
             continue
         # Exactly one final CLR binding; another SQL statement cannot become
         # a recognized passive metadata container.
-        if (len(iw) < 9 or iw[-9:-6] != ["as", "external", "name"]
-                or iw[-5] != "." or iw[-3] != "." or iw[-1] != ";"):
+        if aggregate:
+            if (p != 1 or len(iw) < 6 or iw[-6:-4] != ["external", "name"]
+                    or iw[-3] != "." or iw[-1] != ";"
+                    or ";" in iw[:-1] or "go" in iw or iw.count("create") != 1):
+                continue
+        elif (len(iw) < 9 or iw[-9:-6] != ["as", "external", "name"]
+              or iw[-5] != "." or iw[-3] != "." or iw[-1] != ";"):
             continue
         slots.append((identity, a, b, payload))
     return tuple(slots)
@@ -445,7 +456,8 @@ def _procedure_help_return(text: str, skill: Skill):
     require(level == 0 and len(returns) == 1 and returns[0][1] == 1,
             "Hilfezweig benötigt genau einen direkten RETURN")
     ret = returns[0][0]
-    require(words[ret:j - 1] == ["return", "0", ";"], "Hilfe-RETURN muss abschließend RETURN 0; sein")
+    require(words[ret:j - 1] in (["return", "0", ";"], ["return", ";"]),
+            "Hilfe-RETURN muss abschließend RETURN 0; oder RETURN; sein")
     line = text.rfind("\n", 0, ts[ret][1]) + 1
     if text[line:ts[ret][1]].strip():
         require(words[ret - 1] == ';', "Kompakter Hilfe-RETURN benötigt Statementgrenze")
@@ -736,6 +748,52 @@ def strip_missing_help_projection(root, path, text):
     return text
 
 
+def _aggregate_header(text, skill):
+    ts, words, i, limit = _function_declaration(text, skill, kind="aggregate")
+    anchors = [j for j in range(i + 5, limit - 1)
+               if words[j:j + 2] == ["external", "name"]]
+    require(len(anchors) == 1, "Eindeutiger Aggregate-EXTERNAL-NAME-Header erforderlich")
+    return ts, i, anchors[0]
+
+
+def _existing_aggregate_skill(text, skill):
+    matches = [s for s in read_ddl_comments(text) if s.identity == skill.identity]
+    require(len(matches) <= 1, "Doppelte Aggregate-Skillidentität")
+    if not matches:
+        return False
+    comment = render_ddl_comment(skill)
+    require(matches[0].markdown == skill.markdown and text.count(comment) == 1,
+            "Vorhandener Aggregate-Skill weicht ab")
+    ts, i, anchor = _aggregate_header(text, skill)
+    position = text.index(comment)
+    require(ts[i + 4][1] < position and position + len(comment) <= ts[anchor][1],
+            "Aggregate-Skill steht außerhalb des eigenen Headers")
+    return True
+
+
+def project_aggregate_ddl(text, skill):
+    """Passiver Skill für deklarierte CLR-Aggregate, auch im festen Guard."""
+    validate(skill)
+    require(skill.metadata["object_type"] == "CLR_AGGREGATE", "CLR-Aggregate-Skill erforderlich")
+    identity = (skill.metadata["schema_name"].casefold(), skill.metadata["object_name"].casefold())
+    dynamic = [slot for slot in _dynamic_clr_slots(text, aggregate=True) if slot[0] == identity]
+    if dynamic:
+        require(len(dynamic) == 1, "Eindeutiger dynamischer Aggregate-Slot erforderlich")
+        words = [v.casefold().strip("[]") for v, _, _ in _ddl_tokens(text)]
+        require(not any(words[i:i + 5] == ["aggregate", identity[0], ".", identity[1], "("]
+                        for i in range(len(words) - 4)),
+                "Direkte/dynamische Aggregate-Identität mehrdeutig")
+        _, a, b, payload = dynamic[0]
+        projected = project_aggregate_ddl(payload, skill)
+        return text[:a] + "N'" + projected.replace("'", "''") + "'" + text[b:]
+    if _existing_aggregate_skill(text, skill):
+        return text
+    ts, _, anchor = _aggregate_header(text, skill)
+    line = text.rfind("\n", 0, ts[anchor][1]) + 1
+    require(not text[line:ts[anchor][1]].strip(), "Aggregate-EXTERNAL benötigt eigene LF-Grenze")
+    return text[:line] + render_ddl_comment(skill) + text[line:]
+
+
 def _existing_function_skill(text, skill):
     matches = [s for s in read_ddl_comments(text) if s.identity == skill.identity]
     require(len(matches) <= 1, "Doppelte DDL-Skillidentität")
@@ -755,7 +813,7 @@ def _existing_function_skill(text, skill):
     return bool(matches)
 
 
-def _function_declaration(text, skill):
+def _function_declaration(text, skill, kind="function"):
     ts = _ddl_tokens(text)
     words = [t[0].casefold() for t in ts]
     creates = [i for i, word in enumerate(words) if word == "create"]
@@ -766,7 +824,7 @@ def _function_declaration(text, skill):
         if words[i:i + 2] == ["or", "alter"]:
             i += 2
         if [w.strip("[]") for w in words[i:i + 5]] == [
-                "function", m["schema_name"].casefold(), ".", m["object_name"].casefold(), "("]:
+                kind, m["schema_name"].casefold(), ".", m["object_name"].casefold(), "("]:
             found.append((create, i))
     require(len(found) == 1, "Genau eine passende DDL-/Skillidentität erforderlich")
     create, i = found[0]
