@@ -102,6 +102,31 @@ Der frische Audit bestätigte die Abwesenheit von Testdatenbank und Testroot
 sowie den Trust-Vorzustand. Die Prüfung verwendet kleine Nutzdaten und
 belegt die caller-seitigen Grenzen am Fixturebedarf.
 
+Der native [Maximalwerte-Fall](Runtime/ZipFiles.Directory.TechnicalCeilings.sql)
+verwendete dasselbe ZIP auf Windows SQL Server 2025/CU8, CL170, lokal im
+Caller-Modus. Die öffentliche API akzeptierte die sechs Maximalwerte in
+einem Aufruf und extrahierte beide Dateien. Die Gegenproben überschritten
+jeweils genau einen Maximalwert:
+
+| Aufrufparameter | Akzeptierter Maximalwert | Abgelehnter Wert |
+|---|---:|---:|
+| `@MaxArchiveBytes` | 268435456 | 268435457 |
+| `@MaxEntries` | 10000 | 10001 |
+| `@MaxEntryBytes` | 67108864 | 67108865 |
+| `@MaxPathLength` | 1024 | 1025 |
+| `@MaxTotalExpandedBytes` (`bigint`) | 9223372036854775807 | 9223372036854775808 |
+| `@MaxCompressionRatio` (`decimal(9,2)`) | 9999999.99 | 10000000.00 |
+
+Die vier CLR-Fehler nannten Parameter und Maximum. Die letzten beiden
+Werte scheiterten bereits bei der SQL-Typkonvertierung. Die Ablehnungen
+lieferten keine Ergebniszeilen. Danach waren beide Ziele bei deaktiviertem
+Überschreiben publizierbar, und der Gastcheck bestätigte ihre exakten Bytes.
+Der frische Audit bestätigte die Abwesenheit von Testdatenbank und Testroot
+sowie den Trust-Vorzustand. Das sind Prüfungen der Parametergrenzen mit
+kleinen Nutzdaten. Physische Maximallast war kein Bestandteil des Falls.
+Der erste Lauf bleibt wegen des zu engen Testorakels für SQL-Fehler 8114
+`FAILED_CLEANED`; sein separater Abschlussaudit bestand.
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
