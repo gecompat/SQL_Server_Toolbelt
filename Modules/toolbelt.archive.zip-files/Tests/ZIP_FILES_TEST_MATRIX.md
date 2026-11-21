@@ -28,8 +28,24 @@ Der Aufruf mit `@OverwriteExistingFiles = 1` ersetzte die drei Ausgangsbytes
 durch zwei neue Bytes. Der frische Gast-/SQL-Audit bestätigte die Entfernung
 von Testverzeichnis und Testdatenbank sowie den Trust-Vorzustand. Der
 Installationssatz und die Produktbinaries aus PR #635 wurden verwendet.
-Die übrigen SQL-Versionen und ServiceAccount liegen außerhalb dieses nativen
-Nachweisumfangs.
+Dieser Lauf belegt den Caller-Modus auf dem ausgewählten SQL-Ziel.
+
+Der ergänzende ServiceAccount-Lauf am 2026-11-21 nutzte
+[`ZipFiles.ExclusiveOverwrite.ServiceAccount.sql`](Runtime/ZipFiles.ExclusiveOverwrite.ServiceAccount.sql)
+mit demselben Installationssatz auf Windows SQL Server 2025/CU8, CL170, lokal.
+Der autorisierte Benutzer ohne Login in der eigenen Testdatenbank rief die
+öffentliche Prozedur mit `@ExecutionIdentity = N'ServiceAccount'` auf. Der
+eigene Root hatte `AllowServiceAccount = 1`, `AllowZipOverwrite = 1` und eine
+geschützte DACL für die gebundene SQL-Dienstidentität und Administratoren.
+Die fünf SQL-Prüfungen bestanden. Sie bestätigen die Rollenprüfung, beide
+ResultTable-Zeilen und den jeweiligen Byte-Readback von drei Ausgangsbytes und
+zwei Ersatzbytes. Der Windows-SQL-Ausführungsbeleg bindet die geprüfte Fixture.
+
+Ein zusätzlicher Gast-Metadatencheck scheiterte nach der SQL-Prüfung. Der
+Gesamtkoordinator bleibt `FAILED_CLEANED`. Der separate frische Gast-/SQL-Audit
+bestand für die Abwesenheit von Testverzeichnis und Testdatenbank und für den
+wiederhergestellten Trust-Vorzustand. Der positive Nachweis gilt für den
+SQL-Aufruf im ServiceAccount-Modus auf diesem Ziel.
 
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
