@@ -31,6 +31,16 @@ Source of Truth. Abgeleitete API-/Help-Projektionen an die Skillquelle koppeln.
 
 ## Drei übereinstimmende Darstellungen
 
+Quellstand 2026-11-21: Auch die zehn katalogisierten XLSX-Objekte besitzen jetzt
+geprüfte Skillquellen. Workbook-/Rohzellenlesen, Typinterpretation und Anzeige
+sind ausdrücklich getrennt; öffentliche NULL-Binary-Priorität, interne
+Limitprüfung, partweise CRC-Aussage, gezählter Speichercharge und endliche
+Anzeigeformate sind beschrieben. Die neun aufrufbaren Objekte enthalten ihre
+DDL-Projektion, die drei Prozeduren zusätzlich den frühen Skillresultset.
+Fachpfade bleiben unverändert. Dies schließt die neue native Hilfe-, Unicode-,
+Callerzustands-, Rechte- und Installerabnahme nicht ein und eröffnet keine
+Wiederholung historischer Testwellen.
+
 1. Prozeduren: bisherige Hilfe erhalten und genau ein zusätzliches Skill-
    Resultset mit `SkillFormatVersion`, `SchemaName`, `ObjectName` und
    `SkillMarkdown nvarchar(max)` liefern. Dies ersetzt ausdrücklich den zuvor

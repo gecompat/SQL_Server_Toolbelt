@@ -74,9 +74,20 @@ ARCHIVE_HELP_STARTS={
         ('zip-memory','USP_ListZipEntriesFromBinary',b'    IF @Hilfe = 1\n    BEGIN\n'),
         ('zip-files','USP_CreateZipFileFromEntries',b'    IF @Hilfe=1\n    BEGIN\n'),
         ('zip-files','USP_ExtractZipEntryToFile',b'    IF @Hilfe=1\n    BEGIN\n'))}
+XLSX_HELP_PATHS={
+    'Modules/toolbelt.file.xlsx-memory/Source/'+name+'.sql'
+    for name in ('USP_ListXlsxWorksheets','USP_ReadXlsxWorksheetCells')}
 
 
 def corrected_historical_help(original,path):
+    if path in XLSX_HELP_PATHS and SCHEMA_HELP_OLD in original:
+        start=b'    IF @Hilfe=1\n    BEGIN\n';end=b'        RETURN 0;'
+        if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_XLSX_HELP')
+        a=original.index(start)+len(start);b=original.find(end,a)
+        if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:
+            raise ValueError('NONCANONICAL_XLSX_HELP')
+        original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,QUEUE_HELP_NEW)+original[b:]
     if path in ARCHIVE_HELP_STARTS and SCHEMA_HELP_OLD in original:
         start=ARCHIVE_HELP_STARTS[path];end=b'        RETURN 0;'
         if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:

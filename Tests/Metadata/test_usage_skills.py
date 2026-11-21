@@ -905,6 +905,56 @@ class UsageSkillTests(unittest.TestCase):
                          [None, None, "16777216", "128"])
 
 
+    def test_xlsx_skills_preserve_null_priority_raw_contracts_and_type_display_limits(self):
+        expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id']=='toolbelt.file.xlsx-memory'}
+        self.assertEqual(len(expected),10)
+        records={k[2]:skills.read(skills.source_file(ROOT,k[1],k[2])) for k in expected}
+        originals={}
+        for name,s in records.items():
+            if s.metadata['object_type']=='ASSEMBLY':continue
+            path=s.metadata['source_paths'][0];text=(ROOT/path).read_text(encoding='utf-8-sig')
+            self.assertEqual(skills.read_ddl_comment(text).markdown,s.markdown)
+            if name.startswith('USP_'):
+                self.assertEqual(skills.project_procedure_ddl(text,s),text)
+                self.assertEqual(skills.project_procedure_help(text,s),text)
+                clean=skills.strip_help_projection(ROOT,path,text)
+            else:
+                self.assertEqual(skills.project_function_ddl(text,s),text);clean=text
+            originals[name]=skills.strip_ddl_projection(ROOT,path,clean)
+            if name.startswith('TVF_Internal'):
+                self.assertTrue(s.metadata['public_entrypoints'])
+                self.assertTrue(all(p['argument_required'] and p['sql_default'] is None for p in s.metadata['parameters']))
+            self.assertIn('keine neue native',s.markdown)
+        for name in ('USP_ListXlsxWorksheets','USP_ReadXlsxWorksheetCells'):
+            text=originals[name]
+            self.assertLess(text.index('IF @XlsxBinary IS NULL'),text.index('THROW 51520'))
+            self.assertLess(text.index('IF @XlsxBinary IS NULL'),text.index('EXEC toolbelt_file.USP_InternalXlsxRead'))
+            self.assertNotIn('CREATE TABLE #',text)
+            self.assertIn('Tablevariablen',records[name].markdown)
+        entry=(ROOT/'Modules/toolbelt.file.xlsx-memory/Clr/XlsxEntryPoints.cs').read_text(encoding='utf-8-sig')
+        self.assertLess(entry.index('var limits = Limits('),entry.index('if (input.IsNull)'))
+        self.assertLess(entry.index('if (cells &&'),entry.index('if (input.IsNull)'))
+        self.assertLess(entry.index('input.Length >'),entry.index('input.Value,'))
+        self.assertIn('new Row {Error=51520',entry)
+        self.assertIn('ErrorNumberNULL',records['TVF_InternalXlsxSheets'].markdown)
+        core=originals['USP_InternalXlsxRead']
+        self.assertLess(core.index('CREATE TABLE #'),core.index('IF @XlsxBinary IS NULL'))
+        self.assertLess(core.index('IF @ResultTable IS NULL\n    BEGIN'),core.index('DECLARE @SheetsDependencyId'))
+        self.assertLess(core.index('IF @Hilfe=1'),core.index('IF @ReadCells IS NULL'))
+        self.assertIn('sys.parameters',records['USP_InternalXlsxRead'].markdown)
+        self.assertIn('keine doppelten Koordinaten',records['USP_ReadXlsxWorksheetCells'].markdown)
+        self.assertIn('kein Nachweis aller Worksheet-/SST-Payloads',records['USP_ListXlsxWorksheets'].markdown)
+        self.assertIn('Status3',records['TVF_InterpretXlsxCell'].markdown)
+        self.assertIn('262144',records['TVF_InterpretXlsxCell'].markdown)
+        self.assertIn('[60,61)',records['TVF_InterpretXlsxCell'].markdown)
+        self.assertIn('half-away-from-zero',records['TVF_FormatXlsxCell'].markdown)
+        self.assertIn('Anzeige aber Unsupported6',records['TVF_FormatXlsxCell'].markdown)
+        self.assertIn('en-US,de-DE,tr-TR',records['TVF_FormatXlsxCell'].markdown)
+        for name in ('TVF_InterpretXlsxCell','TVF_FormatXlsxCell'):
+            self.assertTrue(all(p['sql_default']=='NULL' for p in records[name].metadata['parameters']))
+            self.assertIn('ISNULL(',originals[name])
+            self.assertIn('11)',originals[name])
+
     def test_zip_skills_distinguish_status_conventions_metadata_crc_and_file_publication(self):
         expected={k:v for k,v in skills.inventory(ROOT).items() if v['module_id'] in ('toolbelt.archive.zip-memory','toolbelt.archive.zip-files')}
         self.assertEqual(len(expected),10)
