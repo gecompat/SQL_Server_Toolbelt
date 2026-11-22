@@ -55,6 +55,19 @@ INT-Zählungen setzen die Zusicherung `max_group_rows` voraus.
 TOP und LIMIT erfordern einen positiven Literalwert und ORDER BY über
 nicht nullbare Ausgabealiase. Für die begrenzte Auswahl muss `unique_order`
 genau die als eindeutig zugesicherte Reihenfolge der Schlüssel enthalten.
+ROW_NUMBER wird mit dem logischen Rückgabetyp der Quelle ausgegeben. Es
+erfordert nicht nullbare gebundene Schlüssel, deren eindeutige Reihenfolge
+in `ranking_order` (Partition, dann Sortierung) und das Limit
+`max_partition_rows`. Die Databricks-Formen QUALIFY ROW_NUMBER() = 1 und
+ROW_NUMBER() <= n werden als gefilterte abgeleitete Tabelle ausgegeben.
+Die Rangspalte bleibt intern.
+
+DATE unterstützt explizite Kalenderliterale, typisierte Eingaben,
+YEAR/MONTH/DAY und Tagesarithmetik. Für DATE-Eingaben aus Tabellen oder
+Parametern ist der gemeinsame inklusive Wertebereich `date_domain` nötig.
+DATEADD akzeptiert ganzzahlige Literale als Verschiebung und prüft beide
+Bereichsgrenzen. DATEDIFF erhält die Reihenfolge von Start und Ende.
+Zeitstempel und andere Zeiteinheiten liegen außerhalb dieses Teilumfangs.
 Spaltennamen müssen auf beiden Seiten identisch sein. Parameterwerte
 werden erst durch den jeweiligen SQL-Client gebunden.
 

@@ -391,7 +391,7 @@ class SelectBinding:
             require(tree.args.get("distinct") is False, "union_all_required")
         else:
             shape(tree, exp.Select, "expressions", "from_", "where", "joins", "with_", "order", "limit",
-                  "group", "having")
+                  "group", "having", "qualify")
             require(allow_ctes or (tree.args.get("order") is None and tree.args.get("limit") is None),
                     "nested_order")
         with_node = tree.args.get("with_")
@@ -437,27 +437,33 @@ class SelectBinding:
             name = identifier(projection.args["alias"])
             require(name.casefold() not in seen, "duplicate_output")
             seen.add(name.casefold())
-            value, sql_type, nullable = resolve(projection.this)
+            value, sql_type, nullable = (resolve(projection.this) if grouped else self.projection(projection.this))
             outputs.append(f"{value} AS {quote(name, self.target)}")
             schema.append({"name": name, "type": sql_type, "nullable": nullable})
         require(bool(outputs), "projection_required")
         order = tree.args.get("order")
         limit = tree.args.get("limit")
+        qualify = tree.args.get("qualify")
         ordering = self.ordering(order, schema) if order is not None else ""
         count = self.row_limit(limit, order) if limit is not None else None
         top = f"TOP ({count}) " if count is not None and self.target == "tsql" else ""
-        sql = "SELECT " + top + ", ".join(outputs)
+        source_sql = ""
         if from_sql:
-            sql += "\n" + "\n".join(from_sql)
+            source_sql += "\n" + "\n".join(from_sql)
         where = tree.args.get("where")
         if where:
             shape(where, exp.Where, "this")
-            sql += "\nWHERE " + self.predicate(where.this)
+            source_sql += "\nWHERE " + self.predicate(where.this)
         if grouping:
-            sql += "\nGROUP BY " + ", ".join(grouping)
+            source_sql += "\nGROUP BY " + ", ".join(grouping)
         if having is not None:
             shape(having, exp.Having, "this")
-            sql += "\nHAVING " + self.predicate(having.this, resolve)
+            source_sql += "\nHAVING " + self.predicate(having.this, resolve)
+        projection = ", ".join(outputs)
+        if qualify is not None:
+            require(not grouped and from_node is not None, "qualify_scope")
+            projection, source_sql = self.qualify(qualify, outputs, schema, source_sql, tree.expressions)
+        sql = "SELECT " + top + projection + source_sql
         require(len(self.parameters) <= 64 and len({name.casefold() for name in self.parameters}) == len(self.parameters),
                 "parameter_inventory")
         if ordering:
@@ -498,6 +504,77 @@ class SelectBinding:
         require(all(self.operand(column)[0] in grouping for column in node.find_all(exp.Column)),
                 "unbound_group_column")
         return self.operand(node)
+
+    def ranking(self, node):
+        shape(node, exp.Window, "this", "partition_by", "order", "over")
+        shape(node.this, exp.RowNumber)
+        require(node.args.get("over") == "OVER", "ranking_window")
+        order = node.args.get("order")
+        shape(order, exp.Order, "expressions")
+        require(bool(order.expressions), "ranking_order")
+        partition = node.args.get("partition_by") or []
+        order_sql = []
+        keys = []
+        partition_sql = []
+        for column in partition:
+            value, key = self.ranking_key(column)
+            partition_sql.append(value)
+            keys.append(key)
+        for item in order.expressions:
+            shape(item, exp.Ordered, "this", "desc", "nulls_first")
+            value, key = self.ranking_key(item.this)
+            order_sql.append(value + (" DESC" if item.args.get("desc") else " ASC"))
+            keys.append(key)
+        require(len(keys) == len(set(keys)), "ranking_duplicate_key")
+        bound = self.context.get("max_partition_rows")
+        require(type(bound) is int and 0 <= bound <= 2_147_483_647, "ranking_cardinality", "requires_context")
+        require(self.context.get("ranking_order") == keys, "ranking_unique", "requires_context")
+        fact = {"max_partition_rows": bound, "ranking_order": keys}
+        if fact not in self.assumptions:
+            self.assumptions.append(fact)
+        by = "PARTITION BY " + ", ".join(partition_sql) + " " if partition_sql else ""
+        result_type = "BIGINT" if self.source == "tsql" else "INT"
+        rank = f"ROW_NUMBER() OVER ({by}ORDER BY {', '.join(order_sql)})"
+        return f"CAST({rank} AS {result_type})", result_type, False
+
+    def projection(self, node):
+        if type(node) is exp.Window:
+            return self.ranking(node)
+        if type(node) is exp.Cast and type(node.this) is exp.Window:
+            shape(node, exp.Cast, "this", "to")
+            shape(node.to, exp.DataType, "this")
+            target_type = node.to.this.name
+            require(target_type in ("INT", "BIGINT"), "ranking_cast")
+            ranked, _, _ = self.ranking(node.this)
+            return f"CAST({ranked} AS {target_type})", target_type, False
+        return self.operand(node)
+
+    def ranking_key(self, column):
+        shape(column, exp.Column, "this", "table")
+        sql, _, nullable = self.operand(column)
+        require(not nullable, "ranking_nullable_key")
+        return sql, f"{column.table}.{column.name}"
+
+    def qualify(self, node, outputs, schema, source_sql, projections):
+        shape(node, exp.Qualify, "this")
+        require(self.source == "databricks" and all(expr.find(exp.Window) is None for expr in projections),
+                "qualify_scope")
+        predicate = node.this
+        require(type(predicate) in (exp.EQ, exp.LTE), "qualify_predicate")
+        shape(predicate, type(predicate), "this", "expression")
+        shape(predicate.this, exp.Window, "this", "partition_by", "order", "over")
+        limit = self.integer_literal(predicate.expression)
+        require(limit > 0 and (type(predicate) is exp.LTE or limit == 1), "qualify_limit")
+        rank, _, _ = self.ranking(predicate.this)
+        helper = "_toolbelt_row_number"
+        relation = quote("_toolbelt_qualified", self.target)
+        rank_name = quote(helper, self.target)
+        require(helper.casefold() not in {column["name"].casefold() for column in schema}, "qualify_alias")
+        names = [quote(column["name"], self.target) for column in schema]
+        public = ", ".join(f"{relation}.{name} AS {name}" for name in names)
+        inner = f"SELECT {', '.join(outputs)}, {rank} AS {rank_name}{source_sql}"
+        operator = "<=" if type(predicate) is exp.LTE else "="
+        return public, f"\nFROM (\n{inner}\n) AS {relation}\nWHERE {relation}.{rank_name} {operator} {limit}"
 
     def count(self, node):
         shape(node, exp.Count, "this", "big_int")

@@ -232,6 +232,31 @@ class TranslateIntegerSelect(unittest.TestCase):
         context["date_domain"][1] = "9999-12-31"
         self.assertEqual(convert(sql, "tsql", context)["code"], "date_add_range")
 
+    def test_row_number_and_qualify_lowering(self):
+        body = "ROW_NUMBER() OVER(PARTITION BY t.k ORDER BY t.id DESC)"
+        table = " FROM main.demo.T AS t"
+        context = {
+            "relation": {"source": ["main", "demo", "T"], "target": ["dbo", "T"],
+                         "columns": {key: {"type": "INT", "nullable": False} for key in ("id", "k")}},
+            "max_partition_rows": 100,
+            "ranking_order": ["t.k", "t.id"],
+        }
+        direct = convert(f"SELECT {body} AS position{table}", "databricks", context)
+        self.assertEqual(direct["status"], "converted")
+        self.assertEqual(direct["result_schema"], [{"name": "position", "type": "INT", "nullable": False}])
+        report = convert(f"SELECT t.id AS id{table} QUALIFY {body} <= 2 ORDER BY id", "databricks", context)
+        self.assertEqual(report["status"], "converted")
+        self.assertIn("WHERE [_toolbelt_qualified].[_toolbelt_row_number] <= 2", report["sql"])
+        self.assertIn("ORDER BY [id] ASC", report["sql"])
+        self.assertEqual(report["result_schema"], [{"name": "id", "type": "INT", "nullable": False}])
+        reverse_relation = {**context["relation"], "source": ["dbo", "T"], "target": ["main", "demo", "T"]}
+        reverse = convert(report["sql"], "tsql", {**context, "relation": reverse_relation})
+        self.assertEqual(reverse["status"], "converted")
+        self.assertEqual(reverse["result_schema"], report["result_schema"])
+        self.assertIsNone(convert(f"SELECT t.id AS id{table} QUALIFY {body} = 2", "databricks", context)["sql"])
+        self.assertEqual(convert(f"SELECT {body} AS position{table}", "databricks",
+                                 {**context, "ranking_order": []})["status"], "requires_context")
+
 
 if __name__ == "__main__":
     unittest.main()
