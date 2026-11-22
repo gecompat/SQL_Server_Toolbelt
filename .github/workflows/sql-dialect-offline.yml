@@ -1,4 +1,4 @@
-name: SQL Dialect Offline
+name: SQL Dialect Qualification
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   bounded-query-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,3 +24,5 @@ jobs:
       - run: >-
           python -m pip install --require-hashes --only-binary=:all: -r Scripts/SqlDialect/requirements.txt
       - run: python -m unittest discover -s Scripts/SqlDialect
+      - name: Verify fixed synthetic values and schema on SQL Server 2025
+        run: bash Scripts/SqlDialect/run-sql-server-acceptance.sh
