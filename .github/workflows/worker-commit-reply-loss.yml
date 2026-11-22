@@ -1,0 +1,61 @@
+name: Worker Commit Reply Loss
+
+on:
+  pull_request:
+    paths: &fault-paths
+      - ".github/workflows/worker-commit-reply-loss.yml"
+      - "Workers/ExternalQueue/ManagedQueueWorker.psm1"
+      - "Workers/ExternalQueue/ExecutionActors.psm1"
+      - "Workers/ExternalQueue/Tests/CommitReplyGate.Contract.ps1"
+      - "Workers/ExternalQueue/Tests/Runtime/CommitReplyGate.cs"
+      - "Workers/ExternalQueue/Tests/Runtime/Invoke-CommitReplyLoss.ps1"
+      - "Workers/ExternalQueue/Tests/Runtime/run-commit-reply-loss.sh"
+      - "Modules/toolbelt.core.worker-control/Source/**"
+      - "Modules/toolbelt.core.work-queue/Source/**"
+  push:
+    branches: [main]
+    paths: *fault-paths
+
+permissions:
+  contents: read
+
+jobs:
+  worker-install-sql:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build only the current Worker Control dependency closure
+        shell: pwsh
+        run: |
+          $root='.runtime/worker-commit-reply'
+          New-Item -ItemType Directory -Path "$root/inputs/parser" | Out-Null
+          $package=Join-Path $env:RUNNER_TEMP 'worker-scriptdom.zip'
+          $unpacked=Join-Path $env:RUNNER_TEMP 'worker-scriptdom'
+          Invoke-WebRequest 'https://api.nuget.org/v3-flatcontainer/microsoft.sqlserver.transactsql.scriptdom/180.117.0/microsoft.sqlserver.transactsql.scriptdom.180.117.0.nupkg' -OutFile $package -TimeoutSec 60
+          Expand-Archive -LiteralPath $package -DestinationPath $unpacked
+          . ./Scripts/Clr/Resolve-ToolbeltScriptDom.ps1
+          $dom=Resolve-ToolbeltScriptDom -Path "$unpacked/lib/net472/Microsoft.SqlServer.TransactSql.ScriptDom.dll"
+          Copy-Item -LiteralPath $dom -Destination "$root/inputs/parser/"
+          ./Deployment/Build-Install.ps1 -Platform Portable -ModuleId toolbelt.core.worker-control -Inputs "$root/inputs" -OutputSqlFile "$root/install.sql"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: worker-commit-install
+          path: .runtime/worker-commit-reply/install.sql*
+          if-no-files-found: error
+          retention-days: 1
+  committed-reply-lost:
+    needs: worker-install-sql
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: worker-commit-install
+          path: .runtime/worker-commit-reply
+      - name: Verify loopback transport controls
+        shell: pwsh
+        run: ./Workers/ExternalQueue/Tests/CommitReplyGate.Contract.ps1
+      - name: Run managed executor with lost native SQL commit reply
+        run: bash Workers/ExternalQueue/Tests/Runtime/run-commit-reply-loss.sh
