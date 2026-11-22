@@ -201,6 +201,37 @@ class TranslateIntegerSelect(unittest.TestCase):
         actual = convert(sql, "tsql", {})
         self.assertEqual(actual["result_schema"], [{"name": "smallest", "type": "INT", "nullable": True}])
 
+    def test_date_arithmetic_and_direction(self):
+        sql = ("SELECT DATEADD(day,-2,CAST('20260101' AS date)) AS shifted, "
+               "DATEDIFF(day,CAST('20260101' AS date),CAST('20260103' AS date)) AS elapsed, "
+               "YEAR(CAST('20260101' AS date)) AS year")
+        first = convert(sql, "tsql", {})
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("DATE_ADD(CAST('2026-01-01' AS DATE), -2)", first["sql"])
+        self.assertIn("DATEDIFF(CAST('2026-01-03' AS DATE), CAST('2026-01-01' AS DATE))", first["sql"])
+        reverse = convert(first["sql"], "databricks", {})
+        self.assertEqual(reverse["status"], "converted")
+        self.assertEqual(reverse["result_schema"], first["result_schema"])
+        self.assertIn("DATEDIFF(day, CAST('20260101' AS DATE), CAST('20260103' AS DATE))", reverse["sql"])
+        for rejected in (
+            "SELECT DATEADD(day,1,CAST('99991231' AS date)) AS a",
+            "SELECT DATEADD(month,1,CAST('20000101' AS date)) AS a",
+            "SELECT DATEDIFF(day,'20260101','20260103') AS a",
+            "SELECT CAST('20260230' AS DATE) AS a",
+        ):
+            self.assertIsNone(convert(rejected, "tsql", {})["sql"])
+
+    def test_date_add_respects_declared_bounds(self):
+        sql = "SELECT DATEADD(day,1,@start) AS shifted"
+        context = {"parameters": {"start": {"type": "DATE", "nullable": True}}}
+        self.assertEqual(convert(sql, "tsql", context)["status"], "requires_context")
+        context["date_domain"] = ["2025-01-01", "9999-12-30"]
+        first = convert(sql, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertEqual(first["assumptions"], [{"date_domain": context["date_domain"]}])
+        context["date_domain"][1] = "9999-12-31"
+        self.assertEqual(convert(sql, "tsql", context)["code"], "date_add_range")
+
 
 if __name__ == "__main__":
     unittest.main()

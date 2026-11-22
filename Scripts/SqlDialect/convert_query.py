@@ -1,6 +1,7 @@
 """Translate the first explicitly bound, integer-only SELECT profile offline."""
 
 import argparse
+from datetime import date, timedelta
 import json
 import re
 from pathlib import Path
@@ -17,6 +18,7 @@ MAX_TOKENS = 512
 MAX_DEPTH = 16
 NAME = re.compile(r"[A-Za-z_][A-Za-z_0-9]{0,127}\Z")
 COMPARISONS = {exp.EQ: "=", exp.NEQ: "<>", exp.LT: "<", exp.LTE: "<=", exp.GT: ">", exp.GTE: ">="}
+DOMAIN_TYPES = ("INT", "BIGINT", "DATE")
 
 
 class Rejected(Exception):
@@ -51,6 +53,7 @@ class SelectBinding:
         self.target = "databricks" if source == "tsql" else "tsql"
         self.context = context
         self.relations = {}
+        self.base_relations = set()
         self.ctes = {}
         self.parameters = {}
         self.capabilities = set()
@@ -91,6 +94,7 @@ class SelectBinding:
         columns = binding.get("columns")
         require(isinstance(columns, dict) and bool(columns), "relation_columns", "requires_context")
         self.relations[alias] = (columns, False)
+        self.base_relations.add(alias)
         return self.qualified(target, alias), alias
 
     def qualified(self, parts, alias):
@@ -169,6 +173,7 @@ class SelectBinding:
                     or (right.table == local_name and left.table in self.relations), "lateral_correlation")
         member = self.child()
         member.relations = self.relations.copy()
+        member.base_relations = self.base_relations.copy()
         sql, schema = member.query(query, allow_ctes=False)
         self.relations[alias] = ({column["name"]: column for column in schema}, not cross)
         relation = f"(\n{sql}\n) AS {quote(alias, self.target)}"
@@ -231,13 +236,30 @@ class SelectBinding:
             target_type = node.to.this.name
             if type(node.this) is exp.Null:
                 shape(node.this, exp.Null)
-                require(target_type in ("INT", "BIGINT"), "integer_cast")
+                require(target_type in DOMAIN_TYPES, "type_cast")
                 return f"CAST(NULL AS {target_type})", target_type, True
+            if target_type == "DATE" and type(node.this) is exp.Literal and node.this.is_string:
+                value = self.date_literal(node.this.this)
+                literal = value.isoformat()
+                if self.target == "tsql":
+                    literal = literal.replace("-", "")
+                return f"CAST('{literal}' AS DATE)", "DATE", False
             operand, source_type, nullable = self.operand(node.this)
             require(target_type == source_type or (source_type, target_type) == ("INT", "BIGINT"), "integer_cast")
             return f"CAST({operand} AS {target_type})", target_type, nullable
         if type(node) is exp.Case:
             return self.searched_case(node)
+        if type(node) in (exp.Year, exp.Month, exp.Day):
+            shape(node, type(node), "this")
+            value, nullable = self.date_operand(node.this)
+            return f"{node.key.upper()}({value})", "INT", nullable
+        if type(node) in (exp.DateAdd, exp.TsOrDsAdd, exp.DateDiff):
+            return self.date_arithmetic(node)
+        value = self.integer_literal(node)
+        return f"CAST({value} AS INT)", "INT", False
+
+    @staticmethod
+    def integer_literal(node):
         negative = type(node) is exp.Neg
         if negative:
             shape(node, exp.Neg, "this")
@@ -247,7 +269,75 @@ class SelectBinding:
         value = int(node.this) * (-1 if negative else 1)
         # The minimum INT has dialect-specific literal typing. Keep a shared range.
         require(-2_147_483_647 <= value <= 2_147_483_647, "integer_literal_range")
-        return f"CAST({value} AS INT)", "INT", False
+        return value
+
+    def date_literal(self, value):
+        iso = re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value)
+        compact = self.source == "tsql" and re.fullmatch(r"[0-9]{8}", value)
+        require(iso or compact, "date_literal")
+        if compact:
+            value = f"{value[:4]}-{value[4:6]}-{value[6:]}"
+        try:
+            return date.fromisoformat(value)
+        except ValueError:
+            raise Rejected("invalid_input", "date_literal") from None
+
+    def date_operand(self, node):
+        if type(node) is exp.TsOrDsToDate:
+            shape(node, exp.TsOrDsToDate, "this", "default_date")
+            node = node.this
+        if type(node) is exp.TimeStrToTime:
+            shape(node, exp.TimeStrToTime, "this")
+            node = node.this
+        sql, sql_type, nullable = self.operand(node)
+        require(sql_type == "DATE", "explicit_date_type")
+        return sql, nullable
+
+    def date_arithmetic(self, node):
+        shape(node, type(node), "this", "expression", "unit", "big_int")
+        unit = node.args.get("unit")
+        shape(unit, exp.Var, "this")
+        require(unit.this == "DAY" and not node.args.get("big_int"), "date_unit")
+        if type(node) is exp.DateDiff:
+            end, end_null = self.date_operand(node.this)
+            start, start_null = self.date_operand(node.expression)
+            sql = f"DATEDIFF(day, {start}, {end})" if self.target == "tsql" else f"DATEDIFF({end}, {start})"
+            return sql, "INT", start_null or end_null
+        source = node.this
+        require(type(source) in (exp.Column, exp.Parameter, exp.Placeholder, exp.Cast), "date_add_source")
+        if type(source) is exp.Cast:
+            # Literal DATE casts or one same-type cast on a native DATE input.
+            require(type(source.this) in (exp.Literal, exp.Null, exp.Column, exp.Parameter, exp.Placeholder),
+                    "date_add_source")
+        sql, nullable = self.date_operand(source)
+        days = self.integer_literal(node.expression)
+        if type(source) is exp.Cast and type(source.this) is exp.Literal:
+            start = end = self.date_literal(source.this.this)
+        elif type(source) is exp.Cast and type(source.this) is exp.Null:
+            start = end = None
+        else:
+            anchor = source.this if type(source) is exp.Cast else source
+            require(type(anchor) is not exp.Column or anchor.table in self.base_relations, "date_add_derived_range")
+            start, end = self.date_domain()
+        if start is not None:
+            try:
+                shift = timedelta(days=days)
+                _ = start + shift, end + shift
+            except OverflowError:
+                raise Rejected("unsupported", "date_add_range") from None
+        result = f"DATEADD(day, {days}, {sql})" if self.target == "tsql" else f"DATE_ADD({sql}, {days})"
+        return result, "DATE", nullable
+
+    def date_domain(self):
+        bounds = self.context.get("date_domain")
+        require(isinstance(bounds, list) and len(bounds) == 2 and all(isinstance(item, str) for item in bounds),
+                "date_domain", "requires_context")
+        start, end = [self.date_literal(item) for item in bounds]
+        require(start <= end, "date_domain", "invalid_input")
+        fact = {"date_domain": [start.isoformat(), end.isoformat()]}
+        if fact not in self.assumptions:
+            self.assumptions.append(fact)
+        return start, end
 
     def searched_case(self, node):
         shape(node, exp.Case, "ifs", "default")
@@ -264,12 +354,13 @@ class SelectBinding:
             branches.append(f"WHEN {self.predicate(branch.this)} THEN {then_sql}")
         return f"CASE {' '.join(branches)} ELSE {else_sql} END", result_type, nullable
 
-    @staticmethod
-    def column_contract(declaration):
+    def column_contract(self, declaration):
         require(isinstance(declaration, dict), "operand_type", "requires_context")
         sql_type = declaration.get("type")
         nullable = declaration.get("nullable")
-        require(sql_type in ("INT", "BIGINT") and type(nullable) is bool, "operand_contract", "requires_context")
+        require(sql_type in DOMAIN_TYPES and type(nullable) is bool, "operand_contract", "requires_context")
+        if sql_type == "DATE":
+            self.date_domain()
         return sql_type, nullable
 
     def predicate(self, node, resolve=None):
