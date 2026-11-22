@@ -21,11 +21,11 @@ $database = $env:TBX_COMMIT_DATABASE
 if ($port -notin 1024..65535 -or $database -cnotmatch '^ContosoCommit_[a-f0-9]{16}$' -or
     [string]::IsNullOrEmpty($env:MSSQL_SA_PASSWORD)) { throw 'COMMIT_PROBE_TARGET' }
 $builder = [Data.SqlClient.SqlConnectionStringBuilder]::new()
-$builder.DataSource = "tcp:127.0.0.1,$port"
-$builder.InitialCatalog = $database
-$builder.UserID = 'sa'; $builder.Password = $env:MSSQL_SA_PASSWORD
-$builder.Encrypt = $true; $builder.TrustServerCertificate = $true
-$builder.Pooling = $false; $builder.Enlist = $false; $builder.ConnectRetryCount = 0; $builder.ConnectTimeout = 5
+$builder['Data Source'] = "tcp:127.0.0.1,$port"
+$builder['Initial Catalog'] = $database
+$builder['User ID'] = 'sa'; $builder['Password'] = $env:MSSQL_SA_PASSWORD
+$builder['Encrypt'] = $true; $builder['TrustServerCertificate'] = $true
+$builder['Pooling'] = $false; $builder['Enlist'] = $false; $builder['ConnectRetryCount'] = 0; $builder['Connect Timeout'] = 5
 $direct = $builder.ConnectionString
 $control = [Data.SqlClient.SqlConnection]::new($direct)
 $gate = $null; $subscription = $null; $shell = $null; $task = $null; $observer = $null
@@ -74,7 +74,7 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
 
     $stage = 'EXECUTOR'
     $gate = [CommitReplyGate]::new($port)
-    $builder.DataSource = "tcp:127.0.0.1,$($gate.Port)"
+    $builder['Data Source'] = "tcp:127.0.0.1,$($gate.Port)"
     $proxy = $builder.ConnectionString
     $builder.Clear()
     $subscription = [CommitReplyDiagnostic]::new($gate)
