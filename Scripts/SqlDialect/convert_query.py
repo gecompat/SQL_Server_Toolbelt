@@ -249,6 +249,21 @@ class SelectBinding:
             return f"CAST({operand} AS {target_type})", target_type, nullable
         if type(node) is exp.Case:
             return self.searched_case(node)
+        if type(node) is exp.Coalesce:
+            shape(node, exp.Coalesce, "this", "expressions", "is_null")
+            values = [self.operand(value) for value in (node.this, *node.expressions)]
+            sql_type = values[0][1]
+            require(len(values) >= 2 and all(item[1] == sql_type for item in values), "coalesce_type")
+            if node.args.get("is_null"):
+                require(self.source == "tsql" and len(values) == 2, "isnull_shape")
+            operands = ", ".join(item[0] for item in values)
+            return f"COALESCE({operands})", sql_type, all(item[2] for item in values)
+        if type(node) is exp.Nullif:
+            shape(node, exp.Nullif, "this", "expression")
+            first, first_type, _ = self.operand(node.this)
+            second, second_type, _ = self.operand(node.expression)
+            require(first_type == second_type, "nullif_type")
+            return f"NULLIF({first}, {second})", first_type, True
         if type(node) in (exp.Year, exp.Month, exp.Day):
             shape(node, type(node), "this")
             value, nullable = self.date_operand(node.this)

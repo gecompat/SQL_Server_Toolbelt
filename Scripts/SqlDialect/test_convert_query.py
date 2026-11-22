@@ -271,6 +271,17 @@ class TranslateIntegerSelect(unittest.TestCase):
         ):
             self.assertIsNone(convert(rejected, "tsql", {})["sql"])
 
+    def test_type_matched_null_functions(self):
+        query = "SELECT ISNULL(@x,0) AS a, COALESCE(@x,1) AS b, NULLIF(@x,1) AS c"
+        context = {"parameters": {"x": {"type": "INT", "nullable": True}}}
+        first = convert(query, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("COALESCE(CAST(:x AS INT)", first["sql"])
+        self.assertEqual([item["nullable"] for item in first["result_schema"]], [False, False, True])
+        self.assertEqual(convert(first["sql"], "databricks", context)["result_schema"], first["result_schema"])
+        self.assertIsNone(convert("SELECT isnull(:x) AS a", "databricks", context)["sql"])
+        self.assertIsNone(convert(query.replace("NULLIF(@x,1)", "NULLIF(@x,CAST(1 AS BIGINT))"), "tsql", context)["sql"])
+
 
 if __name__ == "__main__":
     unittest.main()

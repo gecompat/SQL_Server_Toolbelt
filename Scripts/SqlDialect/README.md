@@ -43,6 +43,8 @@ Vergleichstypen, `IS NULL`, logische Verknüpfungen sowie typgleiche
 Casts und die Erweiterung von `INT` auf `BIGINT`. Ein gesuchter
 `CASE`-Ausdruck akzeptiert typgleiche Zweige einschließlich expliziter
 NULL-Casts und verlangt einen ELSE-Zweig. Die Abfrage kann
+gleich typisierte Operanden in COALESCE, NULLIF und dem zweistelligen
+T-SQL-ISNULL verwenden. Sie kann
 vollständig qualifizierte Relationen mit Alias enthalten. Mehrere Relationen
 werden als Liste `relations` übergeben. Nichtrekursive CTEs können auf früher
 definierte CTEs derselben Abfrage verweisen. Explizite INNER-, LEFT-, RIGHT-,
