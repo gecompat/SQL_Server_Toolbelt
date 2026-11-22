@@ -42,9 +42,18 @@ Die Annahmekriterien sind der Installationsabschluss für 41 Module, 259
 Katalogeinträge in der ausdrücklich benannten Zieldatenbank, exakte
 Assemblybytes und passende Hashfreigaben bei aktiver CLR Strict Security
 und ausgeschaltetem TRUSTWORTHY sowie die nachgewiesene Entfernung des
-Containers. Dieser Clientfall verwendet eine vorbereitete Datenbank.
-Die bestehenden fachlichen Portable-Läufe und die frühere Abnahme der
-optionalen administrativen Vorbereitung stehen separat.
+Containers. Der [erste Lauf auf main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/45011758926)
+verwendete eine vorbereitete Datenbank.
+
+Für den Gesamtfall mit `-CreateDatabase -EnableClr` startet dieselbe CI
+mit fehlender Zieldatenbank und deaktiviertem CLR. Sie liest das private
+Vorbereitungsjournal und prüft, dass beide Änderungen ausgeführt wurden.
+Frische SQL-Sitzungen gleichen die angelegte Datenbank-GUID mit dem Journal
+ab, prüfen den wirksamen CLR-Zustand und vergleichen sämtliche anderen
+Serveroptionen mit dem unabhängig gelesenen Vorzustand. Die übrigen
+Installationskriterien und der geprüfte Container-Cleanup gelten weiterhin.
+Die fachlichen Portable-Läufe und die frühere native Vorbereitungsabnahme
+auf sechs Zielkontexten behalten ihren jeweiligen Umfang.
 
 Das Windows-Labjournal und die ursprünglichen Fehlversuche bleiben privat.
 Ein erster Windows-Versuch bestand die lokale Installation und scheiterte
