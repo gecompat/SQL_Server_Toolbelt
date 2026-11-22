@@ -1,6 +1,36 @@
 # Gemeinsamer create-only-Installer: begrenzte Abnahme
 
-## Aktuelle Skill-Erweiterung
+## Gemeinsamer Installationssatz nach der ZIP-Abnahme
+
+Der private Installationssatz wurde aus `98f49b53` mit Windows lokal/zentral
+und Portable lokal/zentral gebaut. Der äußere Satz, der innere Payload und
+alle vier SQL-Profile sind an diesen Produktstand und ihre Dateihashes
+gebunden. Integrierte Nachweise für die einzelnen ZIP-Fassaden gelten
+weiterhin für ihren jeweiligen Funktionsumfang.
+
+Die geänderten SQL-Funktionen zu URI, JSON-Pfaden, Identifiern und Trim
+bestanden in [PR #630](https://github.com/gecompat/SQL_Server_Toolbelt/pull/630)
+19 native Prüfungen auf Windows SQL 2025/CU8 CL170 im lokalen Gesamtprofil.
+Dort bestanden auch 257 vollständige Skill-Katalogvergleiche und die frühe
+Hilfe. [PR #632](https://github.com/gecompat/SQL_Server_Toolbelt/pull/632)
+prüfte den gesonderten DB-Trust-Zweig. Diese Originalnachweise tragen ihre
+jeweiligen Profile.
+
+Die [aktuelle Portable-CI](../../../.github/workflows/common-install-native.yml)
+baut und prüft zwei gezielte zusätzliche native Kontexte in eigenen
+SQL-Server-Containern. SQL 2019 CL150 lokal prüft Nicht-SC, SQL 2025 CL170
+zentral prüft UTF-8 und einen getrennt gemappten SQL-Caller mit `SELECT` auf
+den Skill-Katalog. Prüfungen sind der vollständige Vergleich der Skill-Zeilen
+per UTF-16-Digest, die 19 Grenzassertions sowie zentral die verweigerten
+Zugriffe auf die zweite View und auf den Katalog nach Widerruf. Der Container wird
+anschließend entfernt und seine Abwesenheit geprüft.
+
+Der Adapter verwendet die aktuellen gemeinsamen Buildskripte einmal und
+bündelt die zwei Zielkontexte unter demselben Build. Er benötigt keine
+zusätzlichen Alt-Lifecycle-, ZIP-Funktions-, SSMS- oder TLS-Testläufe. Die
+tatsächlichen Head- und Main-CI-Ergebnisse belegen die ausgeführten Kontexte.
+
+## Historischer Vorbereitungsstand der Skill-Erweiterung
 
 Die aktuelle Entwicklung erweitert Prozeduren um konstante Skillausgabe und die
 Dateisystem-CLR-Einstiege um einen optionalen Hilfeschalter. Deren neu gebaute
@@ -28,7 +58,7 @@ Windows-Profil optional die reine CLR-Skillausgabe mit typgültigem,
 fachlich ungültigem Argument ab. Dabei prüft er Transaktion, SET-Optionen
 und die caller-lokale Testtabelle. Die native Ausführung steht aus.
 
-## Aktuelle Funktionskorrekturen: native Gegenproben offen
+## Historischer Vorbereitungsstand der Funktionsgegenproben
 
 Der Quellabgleich vom 2026-11-21 hat fünf gezielt geänderte SQL-Dateien in
 vier Modulen von 293 unveränderten Fachquellen getrennt. Dies betrifft neun
