@@ -1,5 +1,10 @@
 # Einheitliche aktuelle Toolbelt-Installation
 
+**Status 2026-11-22 nach der ZIP-Abnahme.** Der gemeinsame private
+Installationssatz wurde aus `98f49b53` neu gebaut. Die
+[gebundene Abnahme](../Scripts/Install/Tests/QUALIFICATION.md#gemeinsamer-installationssatz-nach-der-zip-abnahme)
+nennt die vier Installationsprofile und ihre nativen Prüfkontexte.
+
 **Status 2026-11-21.** Der gemeinsame Create-only-Installer und der
 Usage-Skill-Katalog sind integriert. Der lokal gebaute Installationssatz
 `v1.0.0-rc.5` aus Merge-Commit `73eec6e3` enthält die vier Windows- und

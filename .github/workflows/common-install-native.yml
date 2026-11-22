@@ -1,0 +1,80 @@
+name: Current Common Installer Native
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/common-install-native.yml"
+      - "Scripts/Install/Tests/run-common-portable-linux.sh"
+      - "Scripts/Install/New-SimpleCommonInstall.py"
+      - "Tests/Metadata/FunctionEdgeCases.sql"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/common-install-native.yml"
+      - "Scripts/Install/Tests/run-common-portable-linux.sh"
+      - "Scripts/Install/New-SimpleCommonInstall.py"
+      - "Tests/Metadata/FunctionEdgeCases.sql"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: common-install-native-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  portable-profiles:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build source-bound portable profiles
+        shell: pwsh
+        run: |
+          $root='.runtime/common-portable'
+          New-Item -ItemType Directory -Path "$root/inputs/parser","$root/profiles" | Out-Null
+          $package=Join-Path $env:RUNNER_TEMP 'common-scriptdom.zip'
+          $unpacked=Join-Path $env:RUNNER_TEMP 'common-scriptdom'
+          Invoke-WebRequest 'https://api.nuget.org/v3-flatcontainer/microsoft.sqlserver.transactsql.scriptdom/180.117.0/microsoft.sqlserver.transactsql.scriptdom.180.117.0.nupkg' -OutFile $package -TimeoutSec 60
+          Expand-Archive -LiteralPath $package -DestinationPath $unpacked
+          . ./Scripts/Clr/Resolve-ToolbeltScriptDom.ps1
+          $dom=Resolve-ToolbeltScriptDom -Path "$unpacked/lib/net472/Microsoft.SqlServer.TransactSql.ScriptDom.dll"
+          Copy-Item -LiteralPath $dom -Destination "$root/inputs/parser/"
+          $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $msbuild=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1
+          python Scripts/Install/filesystem_build.py --module toolbelt.archive.zip-memory --msbuild $msbuild --output "$root/inputs/zip-memory"
+          if($LASTEXITCODE){throw 'COMMON_PORTABLE_BUILD'}
+          foreach($mode in 'local','central'){
+            ./Deployment/Build-Install.ps1 -Inputs "$root/inputs" -OutputSqlFile "$root/profiles/Install-Portable-$mode.sql" -Platform Portable -DeploymentMode $mode
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: common-portable-profiles
+          path: .runtime/common-portable/profiles/
+          if-no-files-found: error
+          retention-days: 7
+
+  native-linux:
+    name: Portable ${{ matrix.mode }} SQL Server ${{ matrix.engine }}
+    needs: portable-profiles
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: "2019"
+            mode: local
+          - engine: "2025"
+            mode: central
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: common-portable-profiles
+          path: .runtime/common-portable/profiles
+      - name: Install and verify exact catalogue and focused SQL cases
+        env:
+          TBX_SQL_VERSION: ${{ matrix.engine }}
+          TBX_INSTALL_MODE: ${{ matrix.mode }}
+        run: bash Scripts/Install/Tests/run-common-portable-linux.sh
