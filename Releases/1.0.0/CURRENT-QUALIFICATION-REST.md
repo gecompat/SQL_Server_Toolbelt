@@ -1,26 +1,55 @@
 # Aktueller Abgleich: geschlossene Teilumfänge und echte Restqualifikation
 
-Stand 2026-11-17. Diese Übersicht ordnet spätere Nachweise vor älteren
-Offen-Formulierungen ein. Sie ersetzt keine Originalausführung, erweitert
+Stand 2026-11-22 (Produktstand `db4f29db`). Diese Übersicht ordnet spätere
+Nachweise vor älteren Offen-Formulierungen ein. Sie ersetzt keine Originalausführung, erweitert
 keine Freigabe und ist kein Gesamtfreigaberecord. Die [45-Modul-Übersicht](../../Tests/README.md#modulspezifische-testmatrizen)
 und jeweilige Modulmatrix bestimmen die tatsächlich zugesagten Pflichten.
 Lokale nicht integrierte Vertragsentwürfe sind keine Implementierungsfreigabe.
 
 ## Gemeinsamer aktueller Installationssatz
 
-Der [neue gemeinsame Installer](CURRENT-INSTALL.md) schließt die frühere
-Ctor-/Parser-/SSIS-Quellbindungslücke. [Zwölf native Fresh-Install-Profile](CURRENT-INSTALL-QUALIFICATION.md)
+Die [frühere gemeinsame Installer-Abnahme](CURRENT-INSTALL.md) schloss die
+damalige Ctor-/Parser-/SSIS-Quellbindungslücke. [Zwölf native Fresh-Install-Profile](CURRENT-INSTALL-QUALIFICATION.md)
 auf sechs Windows-/Linux-Enginepaaren mit den jeweiligen Standard-CLs und sechs
 frischen Audits sind bestanden. Die aktuelle Parserbindung von SSIS ist eng
 abgegrenzt aktualisiert; die übrige Modelllogik und geprüfte Binaries werden
 wiederverwendet. Frühere Paket-, SSMS-, TLS- und Sicherheitsrecords bleiben
 an ihre ursprünglichen Providerbytes gebunden und sind keine neuen Gesamtfälle.
-Keine weitere gemeinsame Installerwelle aus alten pauschalen Offen-Zeilen ableiten.
+
+Für den aktuellen markerfreien Installationssatz gelten die
+[vier separat gebundenen Profilabnahmen](../../Scripts/Install/Tests/QUALIFICATION.md).
+Die gepackte PowerShell-/ODBC-Ausführung auf Ubuntu ist für Portable zentral
+auf Linux SQL Server 2025 CL170 belegt. Der anschließende Gesamtfall aus dem
+aktuellen ZIP legte die fehlende Datenbank mit `-CreateDatabase` an,
+aktivierte CLR mit `-EnableClr` und installierte 41 Module. Der Abschlussaudit
+prüfte GUID, Konfiguration, Trust und Containerentfernung.
+[Linux-Client ohne Vorbereitung](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/45011758926) ·
+[Gesamtfall mit Vorbereitung](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/45013101814)
+
+## Offene Abnahme des Dialektwerkzeugs
+
+[PR #655](https://github.com/gecompat/SQL_Server_Toolbelt/pull/655) integriert
+den freigegebenen Offline- und SQL-Server-Umfang. Auf `main` bestanden 24
+Offline-Tests sowie zehn native SQL-Server-2025-Fälle für Werte, Schema,
+NULL, Multiplizität und vereinbarte Reihenfolge. Die CI bestätigte die
+Entfernung des Containers.
+[Main-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/45023399256)
+
+Die native Databricks-Abnahme steht ausdrücklich aus. Sie setzt ein
+ausgewähltes, laufendes SQL-Warehouse voraus. Die historischen Spark-Belege
+gelten für ihren Researchkorpus. Ob der vorgesehene `ROW_NUMBER`-Ersatzpfad
+für laterales `TOP`/`LIMIT` nötig ist, hängt vom getesteten Warehouseprofil ab.
+[Abnahmeweg](../../Scripts/SqlDialect/README.md#native-abnahme) ·
+[V1-Vertrag](../../Documentation/Research/TSQL_DATABRICKS_V1_SCOPE_PROPOSAL.md#outer-apply-konkrete-erlaubte-regeln)
 
 ## Geschlossene Teilumfänge nicht erneut testen
 
 | Alte pauschale Offen-Angabe | Späterer maßgeblicher Nachweis |
 |---|---|
+| Worker: Verlust der Antwort auf den tatsächlichen Commit ungetestet | [Nativer Main-Lauf nach PR #654](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/45020053497). Auf Linux SQL Server 2025 bestätigte eine getrennte Sitzung den persistierten Effekt vor dem Verbindungsabbruch. Der Worker meldete UNKNOWN und hielt den Slot belegt. Reconciliation bestätigte COMMITTED, gab den Slot frei und belegte genau einen Effekt. Der Container-Cleanup bestand. Der Fall gilt für Antwortverlust nach dauerhaftem Commit. |
+| Table Clone: Triggerübernahme mit privatem Parserpaar fehlt | [Native Parserpaar-/Trigger-Abnahme](../../Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md#privates-parserpaar--22-november-2026) für die sechs Windows-/Engine-/CL-Kontexte in lokal und zentral mit 24 Fixture-Ausführungen und drei Abschlussaudits. |
+| Windows Filesystem: konkrete Codepage-, Chunk-, Limit- und Atomic-Write-Fälle fehlen | [Native I/O-Grenzfälle](../../Modules/toolbelt.filesystem.windows/Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md#native-io-grenzfälle--22-november-2026) mit 22 SQL-Assertions auf SQL Server 2025/CU8 CL170 im Caller-Modus, separater Prüfung der Dateibytes und frischem Abschlussaudit. |
+| ZIP: Windows-/CL-Fassaden und portables Memory-Profil offen | [ZIP Files](../../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md#vollständige-archivextraktion-v1) belegt die beauftragten Windows-/Local-Fälle einschließlich Einzel-Entry und Writer. [ZIP Memory](../../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build) belegt den deklarierten portablen Umfang auf Windows und Linux lokal und zentral. |
 | XLSX: reale Archiv-/Part-/Summen-/Partanzahl-Grenzen und aktuelles Paket fehlen | [192 native Grenzaufrufe auf 24 Routen, zwölf frische Audits und fokussiertes Paket](XLSX-NATIVE-PACKAGE-QUALIFICATION.md). Blattanzahl und SST haben ihre eigenen unveränderten Nachweise. Keine Heapmessung daraus ableiten. |
 | XLSX: die benannten übrigen Typ-/Anzeige-Fixtures fehlen | [74 neue vollständige Fixture-Ausführungen, elf frische Audits](XLSX-CELL-API-REST-QUALIFICATION.md); nur die dort ausdrücklich benannten disjunkten Ziel-/Modusprofile. |
 | XLSX: die benannten übrigen Typ-/Anzeige-Clientmetadaten fehlen | [37 neue Originalhelfer-Ausführungen mit 95 Readerfällen und elf frischen Fallaudits](XLSX-CELL-CLIENT-REST-QUALIFICATION.md). Der ursprüngliche Callback-Fehler und sein eigener Audit bleiben erhalten; Katalognullability und andere Client-/Consumerprofile bleiben separat. |
@@ -79,9 +108,9 @@ Nur sein tatsächlich fehlender, zugesagter Teil darf ausgewählt werden.
 | XLSX | [Namespace-, Lifecycle- und Sicherheitsvertrag](../../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md): der Erhalt fremder Caller-/ResultTable-Namensräume und tatsächlich zugesagte Aufrufrechte. Bereits geschlossene Größen-, Versions-, Marker-, WrongType-, Kompositions- und Callerprofile oben wiederverwenden. Weitere Owner-/Consumerprofile nur bei konkreter Zusage; keine allgemeine Heap- oder Clienthostwelle. |
 | JSON | [Core](../../Modules/toolbelt.json.core/Tests/TEST_MATRIX.md), [Schema](../../Modules/toolbelt.json.schema/Tests/TEST_MATRIX.md) und [Constructors](../../Modules/toolbelt.json.constructors/Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md): öffentliche APIs, Ownership-/Dependency-Erhalt und atomarer Lifecycle im zugesagten Zielumfang. Vor Auswahl einer ACL-/Owner-/Recoveryprüfung die konkrete Zeile gegen spätere Berichte abgleichen. Keine pauschale direkte CLR-, Netzwerk-, Linux-Client- oder Ressourcenmatrix. |
 | Table Clone | [Öffentlicher Clone-/Executorvertrag](../../Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md): zugesagte Copy-/Trigger-/FK-/ResultTable-Funktionen und deren notwendige Aufrufrechte, atomare Fehler und Caller-Namensräume. Planner-/Executor-Grundrechte, W1/W2, SQLCMD und bekannte Vorgänger sind bereits belegt; keine pauschale neue Rechte- oder Recoveryvollmatrix. |
-| Windows Filesystem | [I/O-/Caller-/Dateisicherheitsvertrag](../../Modules/toolbelt.filesystem.windows/Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md): noch unbelegte zugesagte Codepage-/Chunk-/Limit-/Atomic-Write-Fälle. Vorhandene Caller-/NTFS-/Reparse- und begrenzte Racebelege zuerst wiederverwenden. Ein weiterer TLS-Test ist kein I/O-Pflichtgate. Echte Identitäts-/Datei-/ACLänderungen benötigen weiterhin ihren konkreten Scope. |
+| Windows Filesystem | [I/O-/Caller-/Dateisicherheitsvertrag](../../Modules/toolbelt.filesystem.windows/Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md): Die oben benannten I/O-Grenzen ergänzen die vorhandenen Caller-/NTFS-/Reparse- und begrenzten Racebelege. Weitere Identitäts-, Datei- oder ACL-Fälle benötigen eine konkrete vertragliche Lücke. |
 | File Content und ZIP-Dateifassaden | [File Content](../../Modules/toolbelt.file.content/Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md) und [ZIP Files](../../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md): zugesagte Root-/Zielerhaltung, öffentliche Ausgabe-/KeepData-Semantik und sicherer Publish-/Abbruchpfad. Bereits belegte Repeat-/Drift-/Alias-/Grenzfälle nicht wiederholen. ZIP Files bleibt Windows/local; keine Linux-/Central-Erweiterung. |
-| Regex und Worker | [Regex](../../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) und [Worker Control](../../Modules/toolbelt.core.worker-control/Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md): nur konkret zugesagte, noch unbelegte Sicherheits-/Dispositionseigenschaften. Bereits belegte SQL-Capturegrenze und lokale Windows-Providerfälle bleiben geschlossen. Eine weiterführende Host-/Committransportprüfung benötigt einen konkreten fehlenden Vertragsnachweis statt des Labels FullProduct=false. |
+| Regex und Worker | Die SQL-Capturegrenze, die lokalen Windows-Providerfälle und der Antwortverlust nach dauerhaftem Commit sind belegt. Andere Hostausfälle und Dispositionsgrenzen bleiben in ihren jeweiligen Verträgen dokumentiert. Für einen zusätzlichen Lauf ist eine konkrete noch unbelegte Zusage erforderlich. [Regex](../../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) · [Worker Control](../../Modules/toolbelt.core.worker-control/Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md) |
 
 Dieser Abgleich ändert weder Produktcode noch historische Records, Modulstatus
 oder den freigegebenen Supportzielumfang. Insbesondere ist er kein Nachweis,
