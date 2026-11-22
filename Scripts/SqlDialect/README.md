@@ -49,10 +49,16 @@ vollständig qualifizierte Relationen mit Alias enthalten. Mehrere Relationen
 werden als Liste `relations` übergeben. Nichtrekursive CTEs können auf früher
 definierte CTEs derselben Abfrage verweisen. Explizite INNER-, LEFT-, RIGHT-,
 FULL- und CROSS-Joins werden übersetzt. Das logische Schema berücksichtigt
-zusätzliche NULLs aus Outer Joins. Abgeleitete Tabellen und `UNION ALL` mit
-positionsweise identischen Spaltentypen bleiben in beiden Richtungen erhalten.
-Unkorrelierte EXISTS-Unterabfragen und gleich typisierte IN-Literallisten
-folgen derselben Namensbindung.
+zusätzliche NULLs aus Outer Joins. Abgeleitete Tabellen, DISTINCT und
+UNION mit oder ohne ALL unterstützen den gemeinsamen skalaren
+Vergleichsvertrag. UNION erfordert positionsweise identische Spaltentypen.
+Für Sternprojektionen über Basistabellen muss `column_order` sämtliche
+Spalten in der ursprünglichen Reihenfolge aufführen. Verdeckte oder
+doppelte Ausgabespalten werden abgelehnt.
+EXISTS-Unterabfragen erlauben eine Ebene der Gleichheitskorrelation.
+IN akzeptiert gleich typisierte Literallisten. Dezimalprojektionen
+erhalten explizite Precision und Scale. Ein Cast, der ein Literal
+runden oder abschneiden müsste, wird abgelehnt.
 Gruppierung über benannte Spalten, HAVING, MIN/MAX und COUNT/COUNT_BIG
 sind für die gebundenen Ganzzahlabfragen abgedeckt. Erforderliche
 INT-Zählungen setzen die Zusicherung `max_group_rows` voraus.
@@ -86,6 +92,11 @@ Filter auf der rechten Relation bleiben in der Unterabfrage.
 Der Aufrufer muss mit `"lateral_select": true` die
 entsprechende Databricks-Fähigkeit ausdrücklich zusichern. Der Bericht führt
 diese Voraussetzung unter `required_capabilities` auf.
+Für direkt laterales TOP/LIMIT sind zusätzlich
+`lateral_ordered_limit: true` und `lateral_unique_order` nötig.
+Korrelierte Skalaraggregate ohne GROUP BY benötigen
+`lateral_scalar_aggregate: true`. Diese Schalter sind Zusicherungen des
+Aufrufers zur gewählten Zielengine. Der Offline-Check ermittelt sie nicht.
 
 Die JSON-Ausgabe enthält bei `converted` SQL, ein logisches Ergebnisschema
 und den Parametervertrag. Bei fehlendem Kontext, einem nicht abgedeckten

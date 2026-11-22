@@ -19,6 +19,7 @@ MAX_DEPTH = 16
 NAME = re.compile(r"[A-Za-z_][A-Za-z_0-9]{0,127}\Z")
 COMPARISONS = {exp.EQ: "=", exp.NEQ: "<>", exp.LT: "<", exp.LTE: "<=", exp.GT: ">", exp.GTE: ">="}
 DOMAIN_TYPES = ("INT", "BIGINT", "DATE")
+DECIMAL_TYPE = re.compile(r"DECIMAL\(([1-9][0-9]?),([0-9]{1,2})\)\Z")
 INTEGER_LIMITS = {"INT": (-2**31, 2**31-1), "BIGINT": (-2**63, 2**63-1)}
 ARITHMETIC = {exp.Add: "+", exp.Sub: "-", exp.Mul: "*"}
 
@@ -56,6 +57,7 @@ class SelectBinding:
         self.context = context
         self.relations = {}
         self.base_relations = set()
+        self.column_orders = {}
         self.ctes = {}
         self.parameters = {}
         self.capabilities = set()
@@ -70,6 +72,7 @@ class SelectBinding:
             self.require_new_alias(alias)
             sql, schema = self.child().query(table.this, allow_ctes=False)
             self.relations[alias] = ({column["name"]: column for column in schema}, False)
+            self.column_orders[alias] = [column["name"] for column in schema]
             return f"(\n{sql}\n) AS {quote(alias, self.target)}", alias
         shape(table, exp.Table, "this", "db", "catalog", "alias")
         parts = tuple(identifier(table.args[key]) for key in ("catalog", "db", "this") if table.args.get(key))
@@ -81,6 +84,7 @@ class SelectBinding:
             columns = self.ctes.get(parts[0])
             require(columns is not None, "unbound_cte", "requires_context")
             self.relations[alias] = (columns, False)
+            self.column_orders[alias] = list(columns)
             return self.qualified(parts, alias), alias
         source_width = 2 if self.source == "tsql" else 3
         require(len(parts) == source_width, "qualified_relation", "requires_context")
@@ -97,6 +101,11 @@ class SelectBinding:
         require(isinstance(columns, dict) and bool(columns), "relation_columns", "requires_context")
         self.relations[alias] = (columns, False)
         self.base_relations.add(alias)
+        if "column_order" in binding:
+            order = binding["column_order"]
+            require(isinstance(order, list) and all(isinstance(name, str) and NAME.fullmatch(name) for name in order)
+                    and len(order) == len(columns) and set(order) == set(columns), "relation_column_order", "invalid_input")
+            self.column_orders[alias] = order
         return self.qualified(target, alias), alias
 
     def qualified(self, parts, alias):
@@ -151,7 +160,27 @@ class SelectBinding:
         self.require_new_alias(alias)
         shape(lateral.this, exp.Subquery, "this")
         query = lateral.this.this
-        shape(query, exp.Select, "expressions", "from_", "where")
+        shape(query, exp.Select, "expressions", "from_", "where", "order", "limit")
+        has_limit = query.args.get("limit") is not None
+        require(has_limit or query.args.get("order") is None, "lateral_order_without_limit")
+        if has_limit:
+            self.require_capability("lateral_ordered_limit")
+        if any(projection.find(exp.AggFunc) is not None for projection in query.expressions):
+            self.require_capability("lateral_scalar_aggregate")
+            require(not has_limit, "lateral_aggregate_limit")
+        sql, schema = self.correlated_select(query, allow_order=has_limit)
+        self.relations[alias] = ({column["name"]: column for column in schema}, not cross)
+        self.column_orders[alias] = [column["name"] for column in schema]
+        relation = f"(\n{sql}\n) AS {quote(alias, self.target)}"
+        if self.target == "tsql":
+            return ("CROSS APPLY " if cross else "OUTER APPLY ") + relation
+        return ("CROSS JOIN LATERAL " if cross else "LEFT JOIN LATERAL ") + relation + ("" if cross else " ON TRUE")
+
+    def require_capability(self, name):
+        require(self.context.get(name) is True, name + "_required", "requires_context")
+        self.capabilities.add(name)
+
+    def correlated_select(self, query, allow_order=False):
         from_node = query.args.get("from_")
         shape(from_node, exp.From, "this")
         shape(from_node.this, exp.Table, "this", "db", "catalog", "alias")
@@ -159,7 +188,7 @@ class SelectBinding:
         shape(local_alias, exp.TableAlias, "this")
         local_name = identifier(local_alias.this)
         for projection in query.expressions:
-            require(all(column.table == local_name for column in projection.find_all(exp.Column)), "lateral_projection")
+            require(all(column.table == local_name for column in projection.find_all(exp.Column)), "correlated_projection")
         where = query.args.get("where")
         if where is not None:
             shape(where, exp.Where, "this")
@@ -167,12 +196,9 @@ class SelectBinding:
         member = self.child()
         member.relations = self.relations.copy()
         member.base_relations = self.base_relations.copy()
-        sql, schema = member.query(query, allow_ctes=False)
-        self.relations[alias] = ({column["name"]: column for column in schema}, not cross)
-        relation = f"(\n{sql}\n) AS {quote(alias, self.target)}"
-        if self.target == "tsql":
-            return ("CROSS APPLY " if cross else "OUTER APPLY ") + relation
-        return ("CROSS JOIN LATERAL " if cross else "LEFT JOIN LATERAL ") + relation + ("" if cross else " ON TRUE")
+        if allow_order:
+            member.context = {**self.context, "unique_order": self.context.get("lateral_unique_order")}
+        return member.query(query, allow_ctes=False, allow_order=allow_order)
 
     def lateral_filter(self, node, local_name):
         kind = type(node)
@@ -251,12 +277,15 @@ class SelectBinding:
             return f"CAST({marker} AS {sql_type})", sql_type, nullable
         if type(node) is exp.Cast:
             shape(node, exp.Cast, "this", "to")
-            shape(node.to, exp.DataType, "this")
-            target_type = node.to.this.name
+            target_type = self.cast_type(node.to)
             if type(node.this) is exp.Null:
                 shape(node.this, exp.Null)
-                require(target_type in DOMAIN_TYPES, "type_cast")
+                require(target_type in DOMAIN_TYPES or self.decimal_dimensions(target_type), "type_cast")
                 return f"CAST(NULL AS {target_type})", target_type, True
+            dimensions = self.decimal_dimensions(target_type)
+            if dimensions and type(node.this) in (exp.Literal, exp.Neg):
+                value = self.exact_decimal_literal(node.this, dimensions)
+                return f"CAST({value} AS {target_type})", target_type, False
             if target_type == "DATE" and type(node.this) is exp.Literal and node.this.is_string:
                 value = self.date_literal(node.this.this)
                 literal = value.isoformat()
@@ -304,6 +333,45 @@ class SelectBinding:
         # The minimum INT has dialect-specific literal typing. Keep a shared range.
         require(-2_147_483_647 <= value <= 2_147_483_647, "integer_literal_range")
         return value
+
+    @staticmethod
+    def decimal_dimensions(sql_type):
+        match = DECIMAL_TYPE.fullmatch(sql_type) if isinstance(sql_type, str) else None
+        if match:
+            precision, scale = map(int, match.groups())
+            require(1 <= precision <= 38 and 0 <= scale <= precision, "decimal_dimensions")
+            require(sql_type == f"DECIMAL({precision},{scale})", "decimal_dimensions")
+            return precision, scale
+        return None
+
+    def cast_type(self, node):
+        shape(node, exp.DataType, "this", "expressions")
+        name = node.this.name
+        if name != "DECIMAL":
+            require(not node.expressions, "type_dimensions")
+            return name
+        require(len(node.expressions) == 2, "decimal_dimensions")
+        values = []
+        for parameter in node.expressions:
+            shape(parameter, exp.DataTypeParam, "this")
+            values.append(self.integer_literal(parameter.this))
+        sql_type = f"DECIMAL({values[0]},{values[1]})"
+        require(self.decimal_dimensions(sql_type), "decimal_dimensions")
+        return sql_type
+
+    @staticmethod
+    def exact_decimal_literal(node, dimensions):
+        negative = type(node) is exp.Neg
+        if negative:
+            shape(node, exp.Neg, "this")
+            node = node.this
+        shape(node, exp.Literal, "this", "is_string")
+        require(not node.is_string and re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", node.this), "decimal_literal")
+        whole, _, fraction = node.this.partition(".")
+        precision, scale = dimensions
+        require(len(whole.lstrip("0")) <= precision - scale and len(fraction.rstrip("0")) <= scale
+                and len(whole) + len(fraction) <= 38, "decimal_literal_range")
+        return ("-" if negative else "") + node.this
 
     def date_literal(self, value):
         iso = re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value)
@@ -441,7 +509,8 @@ class SelectBinding:
         require(isinstance(declaration, dict), "operand_type", "requires_context")
         sql_type = declaration.get("type")
         nullable = declaration.get("nullable")
-        require(sql_type in DOMAIN_TYPES and type(nullable) is bool, "operand_contract", "requires_context")
+        require((sql_type in DOMAIN_TYPES or self.decimal_dimensions(sql_type)) and type(nullable) is bool,
+                "operand_contract", "requires_context")
         if sql_type == "DATE":
             self.date_domain()
         return sql_type, nullable
@@ -470,7 +539,12 @@ class SelectBinding:
         if kind is exp.Exists:
             shape(node, exp.Exists, "this")
             shape(node.this, exp.Select, "expressions", "from_", "where", "joins")
-            sql, _ = self.child().query(node.this, allow_ctes=False)
+            if any(column.table in self.relations for column in node.this.find_all(exp.Column)):
+                shape(node.this, exp.Select, "expressions", "from_", "where")
+                require(node.this.find(exp.AggFunc, exp.Window, exp.Exists) is None, "exists_correlation_scope")
+                sql, _ = self.correlated_select(node.this)
+            else:
+                sql, _ = self.child().query(node.this, allow_ctes=False)
             return f"(EXISTS (\n{sql}\n))"
         shape(node, kind, "this", "expression")
         require(kind in COMPARISONS or kind is exp.Is, "predicate")
@@ -496,15 +570,15 @@ class SelectBinding:
         require(sql_type == expected_type, "in_literal_type")
         return sql
 
-    def query(self, tree, allow_ctes=True):
+    def query(self, tree, allow_ctes=True, allow_order=False):
         is_union = type(tree) is exp.Union
         if is_union:
             shape(tree, exp.Union, "this", "expression", "distinct", "with_")
-            require(tree.args.get("distinct") is False, "union_all_required")
+            require(type(tree.args.get("distinct")) is bool, "union_distinctness")
         else:
             shape(tree, exp.Select, "expressions", "from_", "where", "joins", "with_", "order", "limit",
-                  "group", "having", "qualify")
-            require(allow_ctes or (tree.args.get("order") is None and tree.args.get("limit") is None),
+                  "group", "having", "qualify", "distinct")
+            require(allow_ctes or allow_order or (tree.args.get("order") is None and tree.args.get("limit") is None),
                     "nested_order")
         with_node = tree.args.get("with_")
         require(allow_ctes or with_node is None, "nested_cte")
@@ -516,7 +590,8 @@ class SelectBinding:
                     "union_schema")
             for left, right in zip(left_schema, right_schema, strict=True):
                 left["nullable"] |= right["nullable"]
-            return prefix + left_sql + "\nUNION ALL\n" + right_sql, left_schema
+            operator = "UNION" if tree.args["distinct"] else "UNION ALL"
+            return prefix + left_sql + f"\n{operator}\n" + right_sql, left_schema
         sql, schema = self.select(tree)
         return prefix + sql, schema
 
@@ -544,7 +619,7 @@ class SelectBinding:
         outputs = []
         schema = []
         seen = set()
-        for projection in tree.expressions:
+        for projection in self.expand_projection(tree.expressions, grouped):
             shape(projection, exp.Alias, "this", "alias")
             name = identifier(projection.args["alias"])
             require(name.casefold() not in seen, "duplicate_output")
@@ -558,6 +633,9 @@ class SelectBinding:
         qualify = tree.args.get("qualify")
         ordering = self.ordering(order, schema) if order is not None else ""
         count = self.row_limit(limit, order) if limit is not None else None
+        distinct = tree.args.get("distinct")
+        if distinct is not None:
+            shape(distinct, exp.Distinct)
         top = f"TOP ({count}) " if count is not None and self.target == "tsql" else ""
         source_sql = ""
         if from_sql:
@@ -573,9 +651,9 @@ class SelectBinding:
             source_sql += "\nHAVING " + self.predicate(having.this, resolve)
         projection = ", ".join(outputs)
         if qualify is not None:
-            require(not grouped and from_node is not None, "qualify_scope")
+            require(not grouped and distinct is None and from_node is not None, "qualify_scope")
             projection, source_sql = self.qualify(qualify, outputs, schema, source_sql, tree.expressions)
-        sql = "SELECT " + top + projection + source_sql
+        sql = "SELECT " + ("DISTINCT " if distinct is not None else "") + top + projection + source_sql
         require(len(self.parameters) <= 64 and len({name.casefold() for name in self.parameters}) == len(self.parameters),
                 "parameter_inventory")
         if ordering:
@@ -583,6 +661,24 @@ class SelectBinding:
         if count is not None and self.target == "databricks":
             sql += f"\nLIMIT {count}"
         return sql, schema
+
+    def expand_projection(self, projections, grouped):
+        for node in projections:
+            if type(node) is exp.Star:
+                shape(node, exp.Star)
+                aliases = list(self.relations)
+            elif type(node) is exp.Column and type(node.this) is exp.Star:
+                shape(node, exp.Column, "this", "table")
+                shape(node.this, exp.Star)
+                aliases = [identifier(node.args.get("table"))]
+            else:
+                yield node
+                continue
+            require(not grouped and bool(aliases), "star_scope")
+            for alias in aliases:
+                require(alias in self.column_orders, "star_column_order", "requires_context")
+                for name in self.column_orders[alias]:
+                    yield exp.Alias(this=exp.column(name, table=alias), alias=exp.to_identifier(name))
 
     def group_columns(self, node):
         shape(node, exp.Group, "expressions")

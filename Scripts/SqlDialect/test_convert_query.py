@@ -149,7 +149,9 @@ class TranslateIntegerSelect(unittest.TestCase):
         reverse = convert(first["sql"], "databricks", context)
         self.assertEqual(reverse["status"], "converted")
         self.assertEqual(first["result_schema"], reverse["result_schema"])
-        self.assertIsNone(convert(sql.replace("UNION ALL", "UNION"), "tsql", context)["sql"])
+        distinct = convert(sql.replace("UNION ALL", "UNION"), "tsql", context)
+        self.assertEqual(distinct["status"], "converted")
+        self.assertIn("\nUNION\n", distinct["sql"])
         wider = {"parameters": {"p": {"type": "BIGINT", "nullable": True}}}
         self.assertIsNone(convert(sql, "tsql", wider)["sql"])
 
@@ -270,12 +272,65 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertEqual(first["status"], "converted")
         self.assertIn("EXISTS", first["sql"])
         self.assertEqual(convert(first["sql"], "databricks", {})["result_schema"], first["result_schema"])
+        correlated = convert(query.replace("x.id = 0", "x.id = p.id AND x.id > 0"), "tsql", {})
+        self.assertEqual(correlated["status"], "converted")
+        self.assertEqual(convert(correlated["sql"], "databricks", {})["status"], "converted")
         for rejected in (
-            query.replace("x.id = 0", "x.id = p.id"),
+            query.replace("x.id = 0", "x.id > p.id"),
             query.replace("IN (1, -2)", "IN (SELECT 1 AS id)"),
             query.replace("IN (1, -2)", "IN (1, CAST(2 AS BIGINT))"),
         ):
             self.assertIsNone(convert(rejected, "tsql", {})["sql"])
+
+    def test_exact_decimal_projection_and_declared_parameter(self):
+        query = "SELECT CAST(-12.345 AS DECIMAL(20,3)) AS amount, @cost AS cost"
+        params = {"parameters": {"cost": {"type": "DECIMAL(38,12)", "nullable": True}}}
+        first = convert(query, "tsql", params)
+        self.assertEqual(first["status"], "converted")
+        self.assertEqual([item["type"] for item in first["result_schema"]], ["DECIMAL(20,3)", "DECIMAL(38,12)"])
+        self.assertEqual(convert(first["sql"], "databricks", params)["result_schema"], first["result_schema"])
+        for rejected in (
+            query.replace("DECIMAL(20,3)", "DECIMAL(20,2)"),
+            query.replace("DECIMAL(20,3)", "DECIMAL(4,3)"),
+            query.replace("DECIMAL(20,3)", "DECIMAL(39,3)"),
+            query.replace("@cost", "@cost + CAST(1 AS DECIMAL(38,12))"),
+        ):
+            self.assertIsNone(convert(rejected, "tsql", params)["sql"])
+
+    def test_lateral_limit_and_scalar_aggregate_have_distinct_gates(self):
+        base = "WITH q AS (SELECT 1 AS id) SELECT b.value AS value FROM q AS a "
+        length = base + ("OUTER APPLY (SELECT TOP (1) z.id AS value FROM q AS z "
+                         "WHERE z.id = a.id ORDER BY value DESC) AS b")
+        context = {"lateral_select": True}
+        self.assertEqual(convert(length, "tsql", context)["code"], "lateral_ordered_limit_required")
+        context.update(lateral_ordered_limit=True, lateral_unique_order=["value"])
+        first = convert(length, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("LIMIT 1", first["sql"])
+        self.assertEqual(first["required_capabilities"], ["lateral_ordered_limit", "lateral_select"])
+        self.assertEqual(convert(first["sql"], "databricks", context)["result_schema"], first["result_schema"])
+        aggregate = base + "CROSS APPLY (SELECT COUNT_BIG(*) AS value FROM q AS z WHERE z.id = a.id) AS b"
+        self.assertEqual(convert(aggregate, "tsql", context)["code"], "lateral_scalar_aggregate_required")
+        context["lateral_scalar_aggregate"] = True
+        result = convert(aggregate, "tsql", context)
+        self.assertEqual(result["status"], "converted")
+        self.assertIn("CROSS JOIN LATERAL", result["sql"])
+        self.assertEqual(result["result_schema"], [{"name": "value", "type": "BIGINT", "nullable": False}])
+
+    def test_star_expansion_uses_complete_declared_order(self):
+        table = {**self.binding, "columns": {
+            "id": {"type": "INT", "nullable": False},
+            "other": {"type": "BIGINT", "nullable": True},
+        }}
+        query = "SELECT DISTINCT e.* FROM dbo.Event AS e"
+        self.assertEqual(convert(query, "tsql", {"relation": table})["code"], "star_column_order")
+        table["column_order"] = ["other", "id"]
+        result = convert(query, "tsql", {"relation": table})
+        self.assertEqual(result["status"], "converted")
+        self.assertEqual([column["name"] for column in result["result_schema"]], ["other", "id"])
+        self.assertIn("SELECT DISTINCT `e`.`other` AS `other`", result["sql"])
+        self.assertIsNone(convert("WITH q AS (SELECT 1 AS v) SELECT * FROM q AS t CROSS JOIN q AS u",
+                                  "tsql", {})["sql"])
 
     def test_type_matched_null_functions(self):
         query = "SELECT ISNULL(@x,0) AS a, COALESCE(@x,1) AS b, NULLIF(@x,1) AS c"
