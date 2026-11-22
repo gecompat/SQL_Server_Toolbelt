@@ -95,7 +95,7 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
             Registration=@{WorkerId=[guid]$Claim.WorkerId;WorkerGeneration=[long]$Claim.WorkerGeneration;WorkerToken=[guid]$Claim.WorkerToken}
             Claim=@{WorkItemId=[long]$Claim.WorkItemId;ClaimGeneration=[long]$Claim.ClaimGeneration
                 ClaimToken=[guid]$Claim.ClaimToken;ExecutionId=[guid]$Claim.ExecutionId
-                SlotReservationId=[guid]$Claim.SlotReservationId;WorkTypeName='test.commit.loss'}
+                SlotReservationId=[guid]$Claim.SlotReservationId;WorkTypeName='test.commit.loss';PayloadJson=$null}
             Budget=86400;Terminal='UNKNOWN';SlotEndConfirmed=$false;PrimaryDiagnostic=$null;PrimaryError=$null
             FailureDiagnostic=$null
         }
@@ -112,6 +112,7 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
         [pscustomobject]@{Commit=$result.Committed;Rollback=$result.RollbackConfirmed;Disposed=$result.ResourcesDisposed
             Terminal=$context.Terminal;SlotEndConfirmed=$context.SlotEndConfirmed
             Phase=$context.PrimaryDiagnostic?.Phase;SqlNumber=$context.PrimaryDiagnostic?.SqlNumber
+            Code=$context.PrimaryDiagnostic?.Code
             Secondary=$actor.Shared.SecondaryCode}
     }).AddArgument((Resolve-Path (Join-Path $PSScriptRoot '../..')).Path).AddArgument($claim).AddArgument($direct).AddArgument($proxy)
     $task = $shell.BeginInvoke()
@@ -128,7 +129,8 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
                     $known=@('BIND','BEGIN_CONTEXT','BEGIN_TRANSACTION','TRANSACTION_WITNESS','RESOLVE_HANDLER','HANDLER','COMPLETING','COMMITTING')
                     $phase=if($early[0].Phase -cin $known){$early[0].Phase}else{'NONE'}
                     $sqlNumber=if($early[0].SqlNumber -is [int]){$early[0].SqlNumber}else{0}
-                    Write-Host "WORKER_COMMIT_EARLY_END phase=$phase sqlNumber=$sqlNumber commit=$([bool]$early[0].Commit)"
+                    $code=if($early[0].Code -cmatch '^WORKER\.[A-Z_]+$'){$early[0].Code}else{'NONE'}
+                    Write-Host "WORKER_COMMIT_EARLY_END phase=$phase sqlNumber=$sqlNumber code=$code commit=$([bool]$early[0].Commit)"
                 }
             } catch {
                 $failure=$_.Exception
