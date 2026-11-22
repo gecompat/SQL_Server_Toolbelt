@@ -8,6 +8,31 @@ alle vier SQL-Profile sind an diesen Produktstand und ihre Dateihashes
 gebunden. Integrierte Nachweise für die einzelnen ZIP-Fassaden gelten
 weiterhin für ihren jeweiligen Funktionsumfang.
 
+### Native Ergebnisse für die gebundenen Profile
+
+| Profil | Engine und Compatibility Level | Ergebnis |
+|---|---|---|
+| Windows lokal | SQL 2025/CU8 CL170 | Ausgelieferter Ein-Aufruf-Client: 45 Module; 259 exakte Skill-Zeilen, vier frühe Hilfeaufrufe. |
+| Windows zentral | SQL 2025/CU8 CL170 | Ausgelieferter Ein-Aufruf-Client: 43 Module; 259 exakte Skill-Zeilen, zwei frühe Hilfeaufrufe, 19 SC-Grenzprüfungen. Der zentrale DTSX-Aufruf aus der getrennten Testdatenbank erzeugte SQL mit dem übergebenen Startwert. Das unveränderte SQL lieferte beim Ausführen genau die erwartete Zeile. |
+| Portable lokal | Linux SQL 2019 CL150 | 41 Module; 259 exakte Skill-Digests und 19 Nicht-SC-Grenzprüfungen. |
+| Portable zentral | Linux SQL 2025 CL170 | 41 Module; 259 exakte Skill-Digests und 19 UTF-8-Grenzprüfungen. Ein gemappter SQL-Caller bestand den dreiteiligen View-Zugriff; die fremde View und der Zugriff nach Widerruf wurden mit SQL 229 abgewiesen. |
+
+Die Windows-Aufrufe prüften auch die exakten installierten Assemblybytes.
+Der unabhängige Abschlussaudit bestätigte zwei entfernte eigene Datenbanken,
+die Entfernung der 12 eigenen Trust-Einträge und den wiederhergestellten
+CLR-Zustand. Die in der Linux-CI gebauten SQL-Dateien waren bytegleich mit
+den portablen Profilen aus dem gemeinsamen Satz. Die CI bestätigte beide
+Containerentfernungen. Beide Linux-Profile wurden als normale SQL-Datei
+ausgeführt. Der gepackte Ein-Aufruf-Client wurde auf Windows nativ und für
+die Paketaufnahme ohne SQL geprüft.
+
+Das Windows-Labjournal und die ursprünglichen Fehlversuche bleiben privat.
+Ein erster Windows-Versuch bestand die lokale Installation und scheiterte
+an einer falschen Namensprüfung des Testadapters. Der separate Audit
+bestand. Die korrigierte Prüfung vergleicht sämtliche Assemblynamen und
+Hashes mit dem Profilmanifest. Der erste lokale Linux-Versuch erreichte
+vor dem Replay in CI wegen der AIO-Grenze des Hosts keine Installation.
+
 Die geänderten SQL-Funktionen zu URI, JSON-Pfaden, Identifiern und Trim
 bestanden in [PR #630](https://github.com/gecompat/SQL_Server_Toolbelt/pull/630)
 19 native Prüfungen auf Windows SQL 2025/CU8 CL170 im lokalen Gesamtprofil.
@@ -29,6 +54,33 @@ Der Adapter verwendet die aktuellen gemeinsamen Buildskripte einmal und
 bündelt die zwei Zielkontexte unter demselben Build. Er benötigt keine
 zusätzlichen Alt-Lifecycle-, ZIP-Funktions-, SSMS- oder TLS-Testläufe. Die
 tatsächlichen Head- und Main-CI-Ergebnisse belegen die ausgeführten Kontexte.
+Die Abnahme ist auf die genannten Profile, Identitäten und Eingaben
+gebunden. Die ZIP-Builderkennzeichnung dokumentiert weiterhin den
+Offline-Build, dessen native Ergebnisse hier separat erfasst sind.
+
+### Privates Parser-Binärpaar und Minimalrechte
+
+Die beiden im gemeinsamen Windows-Paket enthaltenen Parser-Binaries
+wurden bei der Installation per SHA2-512 geprüft. Windows 2025/CU8 CL170
+lief im Gesamtprofil. Für die verbleibenden CLs und Engines kamen kleine
+Teilinstaller mit denselben beiden Assemblybytes zum Einsatz.
+
+| Windows-Engine | Compatibility Level | Lokal und zentral |
+|---|---|---:|
+| SQL Server 2019/CU32 | 150 | 11 SQL-Suites |
+| SQL Server 2022/CU26 | 150, 160 | 22 SQL-Suites |
+| SQL Server 2025/CU8 | 150, 160, 170 | 33 SQL-Suites |
+
+Je Kontext bestanden API, Syntax, Limits, der gezielte Ausgabegrenztest und
+die synthetische datenbanklokale Minimalrechte-Fixture mit genau vier
+`SELECT`-Grants. Je zentralem Kontext bestand zusätzlich der direkte
+dreiteilige Aufruf aus einer anderen eigenen Datenbank. Die drei
+Teilinstallerläufe endeten mit frischen unabhängigen Abschlussaudits;
+ihre sechs Datenbanken wurden entfernt. Für CL170 gilt der separate
+Audit des gemeinsamen Windows-Laufs. Die Quotenprüfung deckt die
+ausgeführten Token- und Fehlergrenzen ab. Der frühere kombinierte
+Nachweis zum vollständigen Budgetvertrag bleibt an seinen ursprünglichen
+Artefaktstand gebunden.
 
 ## Historischer Vorbereitungsstand der Skill-Erweiterung
 

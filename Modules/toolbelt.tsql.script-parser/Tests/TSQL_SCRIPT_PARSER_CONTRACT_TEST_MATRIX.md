@@ -1,5 +1,11 @@
 # T-SQL Script Parser Contract-Testmatrix
 
+Die [Abnahme des privaten Binärpaars](../../../Scripts/Install/Tests/QUALIFICATION.md#privates-parser-binärpaar-und-minimalrechte)
+vom 22. November 2026 belegt die vier öffentlichen APIs, datenbanklokale
+Minimalrechte und die dort benannten Ausgabegrenzen in zwölf aktuellen
+Windows-Engine-/CL-/Moduskontexten. Die folgenden älteren Nachweise
+beziehen sich auf ihre damaligen Binaries.
+
 ## Aktuelle native API-/Rechtematrix vom 2026-11-05
 
 | Windows-Ziel | Compatibility Levels | Modi | Bestandene Suites | Abschluss |
