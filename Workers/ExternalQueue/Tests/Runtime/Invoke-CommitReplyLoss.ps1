@@ -61,10 +61,14 @@ SELECT @Version=ConfigVersion FROM toolbelt_core.WorkerControlConfiguration WHER
 EXEC toolbelt_core.USP_SetWorkerConcurrency @MaxConcurrentExecutions=1,@ExpectedConfigVersion=@Version;
 EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.commit.loss';
 EXEC toolbelt_core.USP_RegisterWorker @WorkerId=@Worker,@Capacity=1,@RunMode='BOUNDED',@ResultTable=N'#CommitWorker';
-DECLARE @WorkerGeneration bigint,@WorkerToken uniqueidentifier;
-SELECT @WorkerGeneration=WorkerGeneration,@WorkerToken=WorkerToken FROM #CommitWorker;
-EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Worker,@WorkerGeneration=@WorkerGeneration,@WorkerToken=@WorkerToken,@ResultTable=N'#CommitClaim';
 '@ @{'@Worker'=[guid]::NewGuid()}
+    # ResultTable changes the stub schema. Compile the reader in a fresh batch.
+    Invoke-ProbeSql $control @'
+DECLARE @Worker uniqueidentifier;
+DECLARE @WorkerGeneration bigint,@WorkerToken uniqueidentifier;
+SELECT @Worker=WorkerId,@WorkerGeneration=WorkerGeneration,@WorkerToken=WorkerToken FROM #CommitWorker;
+EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Worker,@WorkerGeneration=@WorkerGeneration,@WorkerToken=@WorkerToken,@ResultTable=N'#CommitClaim';
+'@
     $claim = Invoke-ProbeSql $control @'
 IF (SELECT COUNT(*) FROM #CommitClaim)<>1 THROW 54972,N'COMMIT_PROBE_CLAIM',2;
 SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken,c.ExecutionId,c.SlotReservationId,
@@ -141,11 +145,16 @@ IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE SlotReserv
     THROW 54972,N'COMMIT_PROBE_UNKNOWN_OCCUPIED',4;
 EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.commit.loss';
 EXEC toolbelt_core.USP_RegisterWorker @WorkerId=@Worker,@Capacity=1,@RunMode='BOUNDED',@ResultTable=N'#FollowWorker';
-DECLARE @WorkerGeneration bigint,@WorkerToken uniqueidentifier;
-SELECT @WorkerGeneration=WorkerGeneration,@WorkerToken=WorkerToken FROM #FollowWorker;
-EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Worker,@WorkerGeneration=@WorkerGeneration,@WorkerToken=@WorkerToken,@ResultTable=N'#FollowClaim';
-IF EXISTS(SELECT 1 FROM #FollowClaim) THROW 54972,N'COMMIT_PROBE_UNSAFE_ADMISSION',5;
 '@ ($slot + @{'@Worker'=[guid]::NewGuid()})
+    Invoke-ProbeSql $control @'
+DECLARE @Worker uniqueidentifier;
+DECLARE @WorkerGeneration bigint,@WorkerToken uniqueidentifier;
+SELECT @Worker=WorkerId,@WorkerGeneration=WorkerGeneration,@WorkerToken=WorkerToken FROM #FollowWorker;
+EXEC toolbelt_core.USP_ClaimWorkerWork @WorkerId=@Worker,@WorkerGeneration=@WorkerGeneration,@WorkerToken=@WorkerToken,@ResultTable=N'#FollowClaim';
+'@
+    Invoke-ProbeSql $control @'
+IF EXISTS(SELECT 1 FROM #FollowClaim) THROW 54972,N'COMMIT_PROBE_UNSAFE_ADMISSION',5;
+'@
     $stage='RECONCILE'
     Invoke-ProbeSql $observer @'
 DECLARE @Version binary(8)=(SELECT HoldVersion FROM toolbelt_core.WorkerExecutionDisposition WHERE SlotReservationId=@Slot);
