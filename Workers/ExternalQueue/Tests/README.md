@@ -1,5 +1,23 @@
 # Worker-Qualifikation
 
+## Verbindungsverlust beim Commit
+
+Die Implementierung des gezielten Recoverynachweises ist seit 2026-11-22
+freigegeben. Der [Loopback-Contract](CommitReplyGate.Contract.ps1) prüft
+bereits die Transportvorrichtung: Sie lässt den Request durch, hält die
+Antwort auf genau einer eigenen TCP-Verbindung zurück und schließt beide
+Seiten. Sie verarbeitet oder protokolliert keine SQL- oder TLS-Nutzdaten.
+
+Für den nativen Gesamtfall muss der tatsächliche Worker-Commit den
+Rendezvouspunkt auslösen. Eine weitere SQL-Sitzung muss zuerst den
+persistierten Einzeleffekt und Witness beobachten. Danach ist die
+Verbindung vor Zustellung der Antwort zu schließen. Die Abnahme prüft
+UNKNOWN beim ursprünglichen Ausführer, das Ausbleiben eines zweiten
+Versuchs und die fachlich korrekte Disposition bei expliziter Reconciliation
+mit einem frischen Abschlussaudit. Der Loopback-Contract ist die
+Transportgegenprobe. Der [native Workflow](../../../.github/workflows/worker-commit-reply-loss.yml)
+bindet diesen Fall an den aktuellen Worker und die eigene SQL-2025-Testinstanz.
+
 ## Terminalhistorie nach Fehlerabschluss und Folgeclaim
 
 `Runtime/Invoke-TerminalHistoryContract.ps1` läuft über den bestehenden
