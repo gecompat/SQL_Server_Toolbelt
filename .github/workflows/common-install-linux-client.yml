@@ -1,0 +1,78 @@
+name: Packaged Installer Linux Client
+
+on:
+  pull_request:
+    paths: &installer-paths
+      - ".github/workflows/common-install-linux-client.yml"
+      - "Deployment/**"
+      - "Scripts/Clr/**"
+      - "Scripts/Install/**"
+  push:
+    branches: [main]
+    paths: *installer-paths
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the four profiles and the normal installation ZIP
+        shell: pwsh
+        run: |
+          $root='.runtime/common-linux-client'
+          New-Item -ItemType Directory -Path "$root/inputs","$root/profiles" | Out-Null
+          $package=Join-Path $env:RUNNER_TEMP 'common-client-scriptdom.zip'
+          $unpacked=Join-Path $env:RUNNER_TEMP 'common-client-scriptdom'
+          Invoke-WebRequest 'https://api.nuget.org/v3-flatcontainer/microsoft.sqlserver.transactsql.scriptdom/180.117.0/microsoft.sqlserver.transactsql.scriptdom.180.117.0.nupkg' -OutFile $package -TimeoutSec 60
+          Expand-Archive -LiteralPath $package -DestinationPath $unpacked
+          . ./Scripts/Clr/Resolve-ToolbeltScriptDom.ps1
+          $dom=Resolve-ToolbeltScriptDom -Path "$unpacked/lib/net472/Microsoft.SqlServer.TransactSql.ScriptDom.dll"
+          $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $msbuild=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1
+          if(-not $msbuild){throw 'MSBuild not found'}
+          python Scripts/Install/filesystem_build.py --module toolbelt.archive.zip-memory --msbuild $msbuild --output "$root/inputs/zip-memory"
+          if($LASTEXITCODE){throw 'ZIP Memory build failed'}
+          python Scripts/Install/filesystem_build.py --msbuild $msbuild --output "$root/inputs/filesystem"
+          if($LASTEXITCODE){throw 'Filesystem build failed'}
+          ./Modules/toolbelt.tsql.script-parser/Scripts/New-ClrReleaseArtifacts.ps1 -ScriptDomDllPath $dom -OutputDirectory "$root/inputs/parser"
+          ./Modules/toolbelt.tsql.ssis-debug/Scripts/New-ClrReleaseArtifacts.ps1 -ScriptDomDllPath $dom -ParserReleaseDirectory "$root/inputs/parser" -OutputDirectory "$root/inputs/ssis"
+          foreach($platform in 'Windows','Portable'){
+            foreach($mode in 'local','central'){
+              ./Deployment/Build-Install.ps1 -Inputs "$root/inputs" -OutputSqlFile "$root/profiles/Install-$platform-$mode.sql" -Platform $platform -DeploymentMode $mode
+            }
+          }
+          python Scripts/Install/New-InstallPayload.py --profiles "$root/profiles" --output "$root/Toolbelt-Install-Payload.zip"
+          if($LASTEXITCODE){throw 'Installer payload build failed'}
+          python Scripts/Install/New-InstallSet.py --payload "$root/Toolbelt-Install-Payload.zip" --output "$root/Toolbelt-Install.zip"
+          if($LASTEXITCODE){throw 'Installer set build failed'}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-client-install-set
+          path: .runtime/common-linux-client/Toolbelt-Install.zip*
+          if-no-files-found: error
+          retention-days: 1
+
+  native-linux-client:
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-client-install-set
+          path: .runtime/common-linux-client
+      - name: Install Microsoft ODBC sqlcmd on the Linux client host
+        run: |
+          curl --fail --silent --show-error --location --max-time 45 \
+            https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb \
+            --output "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo dpkg -i "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo apt-get update -qq
+          sudo env ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18
+      - name: Run the extracted installer against isolated SQL Server on Linux
+        run: bash Scripts/Install/Tests/run-packaged-linux-client.sh
