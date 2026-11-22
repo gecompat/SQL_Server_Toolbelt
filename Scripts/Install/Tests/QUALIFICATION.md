@@ -23,8 +23,28 @@ die Entfernung der 12 eigenen Trust-Einträge und den wiederhergestellten
 CLR-Zustand. Die in der Linux-CI gebauten SQL-Dateien waren bytegleich mit
 den portablen Profilen aus dem gemeinsamen Satz. Die CI bestätigte beide
 Containerentfernungen. Beide Linux-Profile wurden als normale SQL-Datei
-ausgeführt. Der gepackte Ein-Aufruf-Client wurde auf Windows nativ und für
-die Paketaufnahme ohne SQL geprüft.
+ausgeführt. Der gepackte Ein-Aufruf-Client wurde in dieser Welle auf Windows
+nativ und für die Paketaufnahme ohne SQL geprüft.
+
+### Ein-Aufruf-Installer auf einem Linux-Client
+
+Die [Linux-Client-CI](../../../.github/workflows/common-install-linux-client.yml)
+baut den normalen vierprofiligen Installationssatz am jeweiligen CI-Commit.
+Auf Ubuntu 24.04 verifiziert sie Archiv und Commitbindung und ruft
+`Deployment/Install-Toolbelt.ps1` aus dem entpackten Satz mit PowerShell 7
+und Microsoft ODBC-`sqlcmd` auf. Der Einstieg findet den mitgelieferten
+Payload selbst und wählt das Portable-Zentralprofil für SQL Server 2025 auf
+Linux, CL170. Die synthetische SQL-Anmeldung nutzt verschlüsselten Transport
+mit einem ausdrücklich gesetzten Zertifikats-Override zum lokalen
+Wegwerfcontainer.
+
+Die Annahmekriterien sind der Installationsabschluss für 41 Module, 259
+Katalogeinträge in der ausdrücklich benannten Zieldatenbank, exakte
+Assemblybytes und passende Hashfreigaben bei aktiver CLR Strict Security
+und ausgeschaltetem TRUSTWORTHY sowie die nachgewiesene Entfernung des
+Containers. Dieser Clientfall verwendet eine vorbereitete Datenbank.
+Die bestehenden fachlichen Portable-Läufe und die frühere Abnahme der
+optionalen administrativen Vorbereitung stehen separat.
 
 Das Windows-Labjournal und die ursprünglichen Fehlversuche bleiben privat.
 Ein erster Windows-Versuch bestand die lokale Installation und scheiterte
