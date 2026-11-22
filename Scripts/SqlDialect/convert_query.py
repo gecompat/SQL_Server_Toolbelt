@@ -19,6 +19,8 @@ MAX_DEPTH = 16
 NAME = re.compile(r"[A-Za-z_][A-Za-z_0-9]{0,127}\Z")
 COMPARISONS = {exp.EQ: "=", exp.NEQ: "<>", exp.LT: "<", exp.LTE: "<=", exp.GT: ">", exp.GTE: ">="}
 DOMAIN_TYPES = ("INT", "BIGINT", "DATE")
+INTEGER_LIMITS = {"INT": (-2**31, 2**31-1), "BIGINT": (-2**63, 2**63-1)}
+ARITHMETIC = {exp.Add: "+", exp.Sub: "-", exp.Mul: "*"}
 
 
 class Rejected(Exception):
@@ -161,16 +163,7 @@ class SelectBinding:
         where = query.args.get("where")
         if where is not None:
             shape(where, exp.Where, "this")
-            correlation = where.this
-            while type(correlation) is exp.Paren:
-                shape(correlation, exp.Paren, "this")
-                correlation = correlation.this
-            shape(correlation, exp.EQ, "this", "expression")
-            left, right = correlation.this, correlation.expression
-            shape(left, exp.Column, "this", "table")
-            shape(right, exp.Column, "this", "table")
-            require((left.table == local_name and right.table in self.relations)
-                    or (right.table == local_name and left.table in self.relations), "lateral_correlation")
+            self.lateral_filter(where.this, local_name)
         member = self.child()
         member.relations = self.relations.copy()
         member.base_relations = self.base_relations.copy()
@@ -180,6 +173,27 @@ class SelectBinding:
         if self.target == "tsql":
             return ("CROSS APPLY " if cross else "OUTER APPLY ") + relation
         return ("CROSS JOIN LATERAL " if cross else "LEFT JOIN LATERAL ") + relation + ("" if cross else " ON TRUE")
+
+    def lateral_filter(self, node, local_name):
+        kind = type(node)
+        if kind is exp.Paren:
+            shape(node, exp.Paren, "this")
+            self.lateral_filter(node.this, local_name)
+            return
+        if kind is exp.And:
+            shape(node, exp.And, "this", "expression")
+            self.lateral_filter(node.this, local_name)
+            self.lateral_filter(node.expression, local_name)
+            return
+        if all(column.table == local_name for column in node.find_all(exp.Column)):
+            require(node.find(exp.Exists) is None, "lateral_subquery")
+            return
+        shape(node, exp.EQ, "this", "expression")
+        left, right = node.this, node.expression
+        shape(left, exp.Column, "this", "table")
+        shape(right, exp.Column, "this", "table")
+        require((left.table == local_name and right.table in self.relations)
+                or (right.table == local_name and left.table in self.relations), "lateral_correlation")
 
     def child(self):
         member = SelectBinding(self.source, self.context)
@@ -206,6 +220,11 @@ class SelectBinding:
         return "WITH " + ",\n".join(definitions) + "\n"
 
     def operand(self, node):
+        if type(node) is exp.Paren:
+            shape(node, exp.Paren, "this")
+            return self.operand(node.this)
+        if type(node) in ARITHMETIC:
+            return self.integer_range(node)[:3]
         if type(node) is exp.Column:
             shape(node, exp.Column, "this", "table")
             require(node.args.get("table") is not None, "column_qualifier", "requires_context")
@@ -353,6 +372,55 @@ class SelectBinding:
         if fact not in self.assumptions:
             self.assumptions.append(fact)
         return start, end
+
+    def integer_range(self, node):
+        kind = type(node)
+        if kind in ARITHMETIC:
+            shape(node, kind, "this", "expression")
+            left, left_type, left_null, (lo, hi) = self.integer_range(node.this)
+            right, right_type, right_null, (rlo, rhi) = self.integer_range(node.expression)
+            require(left_type == right_type, "arithmetic_type")
+            if kind is exp.Add:
+                bounds = lo + rlo, hi + rhi
+            elif kind is exp.Sub:
+                bounds = lo - rhi, hi - rlo
+            else:
+                products = lo * rlo, lo * rhi, hi * rlo, hi * rhi
+                bounds = min(products), max(products)
+            self.require_integer_range(left_type, bounds, "arithmetic_range")
+            return f"({left} {ARITHMETIC[kind]} {right})", left_type, left_null or right_null, bounds
+        if kind is exp.Paren:
+            shape(node, exp.Paren, "this")
+            return self.integer_range(node.this)
+        if kind is exp.Cast:
+            shape(node, exp.Cast, "this", "to")
+            shape(node.to, exp.DataType, "this")
+            sql, sql_type, nullable, bounds = self.integer_range(node.this)
+            target_type = node.to.this.name
+            require(target_type == sql_type or (sql_type, target_type) == ("INT", "BIGINT"), "integer_cast")
+            return f"CAST({sql} AS {target_type})", target_type, nullable, bounds
+        if kind in (exp.Literal, exp.Neg):
+            value = self.integer_literal(node)
+            return f"CAST({value} AS INT)", "INT", False, (value, value)
+        require(kind in (exp.Column, exp.Parameter, exp.Placeholder), "arithmetic_operand")
+        if kind is exp.Column:
+            require(node.table in self.base_relations, "derived_integer_range", "requires_context")
+        sql, sql_type, nullable = self.operand(node)
+        require(sql_type in INTEGER_LIMITS, "arithmetic_type")
+        domains = self.context.get("integer_domains")
+        interval = domains.get(sql_type) if isinstance(domains, dict) else None
+        require(isinstance(interval, list) and len(interval) == 2 and all(type(end) is int for end in interval),
+                "integer_domain", "requires_context")
+        self.require_integer_range(sql_type, interval, "integer_domain")
+        fact = {"integer_domain": {sql_type: interval.copy()}}
+        if fact not in self.assumptions:
+            self.assumptions.append(fact)
+        return sql, sql_type, nullable, tuple(interval)
+
+    @staticmethod
+    def require_integer_range(sql_type, interval, code):
+        minimum, maximum = INTEGER_LIMITS[sql_type]
+        require(minimum <= interval[0] <= interval[1] <= maximum, code)
 
     def searched_case(self, node):
         shape(node, exp.Case, "ifs", "default")
@@ -536,6 +604,16 @@ class SelectBinding:
             return f"{node.key.upper()}({value})", sql_type, nullable or not grouping
         if type(node) is exp.Count:
             return self.count(node)
+        if type(node) is exp.Sum:
+            return self.sum_projection(node, grouping)[:3]
+        if type(node) is exp.Cast and type(node.this) is exp.Sum:
+            shape(node, exp.Cast, "this", "to")
+            shape(node.to, exp.DataType, "this")
+            expression, _, nullable, interval = self.sum_projection(node.this, grouping)
+            sql_type = node.to.this.name
+            require(sql_type in INTEGER_LIMITS, "sum_cast")
+            self.require_integer_range(sql_type, interval, "sum_cast_range")
+            return f"CAST({expression} AS {sql_type})", sql_type, nullable
         if type(node) is exp.Cast and type(node.this) is exp.Count:
             shape(node, exp.Cast, "this", "to")
             shape(node.to, exp.DataType, "this")
@@ -548,6 +626,24 @@ class SelectBinding:
         require(all(self.operand(column)[0] in grouping for column in node.find_all(exp.Column)),
                 "unbound_group_column")
         return self.operand(node)
+
+    def sum_projection(self, node, grouping):
+        shape(node, exp.Sum, "this")
+        operand, input_type, nullable, (low, high) = self.integer_range(node.this)
+        rows = self.context.get("max_group_rows")
+        require(type(rows) is int and 0 <= rows <= 2_147_483_647, "sum_cardinality", "requires_context")
+        output_type = input_type if self.source == "tsql" else "BIGINT"
+        interval = min(0, low * rows), max(0, high * rows)
+        self.require_integer_range(output_type, interval, "sum_range")
+        fact = {"max_group_rows": rows}
+        if fact not in self.assumptions:
+            self.assumptions.append(fact)
+        if self.target == "tsql" and output_type == "BIGINT" and input_type == "INT":
+            operand = f"CAST({operand} AS BIGINT)"
+        expression = f"SUM({operand})"
+        if self.target == "databricks" and output_type == "INT":
+            expression = f"CAST({expression} AS INT)"
+        return expression, output_type, nullable or not grouping, interval
 
     def ranking(self, node):
         shape(node, exp.Window, "this", "partition_by", "order", "over")

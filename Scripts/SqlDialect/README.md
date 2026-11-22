@@ -56,6 +56,10 @@ folgen derselben Namensbindung.
 Gruppierung über benannte Spalten, HAVING, MIN/MAX und COUNT/COUNT_BIG
 sind für die gebundenen Ganzzahlabfragen abgedeckt. Erforderliche
 INT-Zählungen setzen die Zusicherung `max_group_rows` voraus.
+Addition, Subtraktion, Multiplikation und SUM verwenden deklarierte
+`integer_domains` für Spalten und Parameter. Jede Zwischengröße wird
+gegen den gemeinsamen Typbereich geprüft. SUM erfordert zusätzlich
+`max_group_rows` und prüft die Grenze vor dem Ergebniscast.
 TOP und LIMIT erfordern einen positiven Literalwert und ORDER BY über
 nicht nullbare Ausgabealiase. Für die begrenzte Auswahl muss `unique_order`
 genau die als eindeutig zugesicherte Reihenfolge der Schlüssel enthalten.
@@ -76,8 +80,10 @@ Spaltennamen müssen auf beiden Seiten identisch sein. Parameterwerte
 werden erst durch den jeweiligen SQL-Client gebunden.
 
 Der Teilumfang für APPLY und LATERAL akzeptiert eine einzelne laterale
-Unterabfrage mit einer benannten Relation und optional einer gleich typisierten
-Gleichheitskorrelation. Der Aufrufer muss mit `"lateral_select": true` die
+Unterabfrage mit einer benannten Relation. Eine Korrelation darf aus
+gleich typisierten Spaltenpaaren bestehen, die per AND verbunden sind.
+Filter auf der rechten Relation bleiben in der Unterabfrage.
+Der Aufrufer muss mit `"lateral_select": true` die
 entsprechende Databricks-Fähigkeit ausdrücklich zusichern. Der Bericht führt
 diese Voraussetzung unter `required_capabilities` auf.
 

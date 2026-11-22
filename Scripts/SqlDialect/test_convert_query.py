@@ -131,6 +131,12 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertIn("OUTER APPLY", second["sql"])
         self.assertEqual(second["result_schema"], first["result_schema"])
         self.assertIsNone(convert(sql.replace("z.id = x.id", "z.id > x.id"), "tsql", context)["sql"])
+        additional = sql.replace("1 AS id", "1 AS id, 2 AS k").replace(
+            "WHERE z.id = x.id", "WHERE z.id = x.id AND z.k = x.k AND z.id >= 1"
+        )
+        compound = convert(additional, "tsql", context)
+        self.assertEqual(compound["status"], "converted")
+        self.assertEqual(convert(compound["sql"], "databricks", context)["status"], "converted")
 
     def test_union_all_derived_relation_and_schema(self):
         sql = ("WITH one AS (SELECT 1 AS id) SELECT d.id AS merged FROM "
@@ -281,6 +287,28 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertEqual(convert(first["sql"], "databricks", context)["result_schema"], first["result_schema"])
         self.assertIsNone(convert("SELECT isnull(:x) AS a", "databricks", context)["sql"])
         self.assertIsNone(convert(query.replace("NULLIF(@x,1)", "NULLIF(@x,CAST(1 AS BIGINT))"), "tsql", context)["sql"])
+
+    def test_bounded_arithmetic_and_sum(self):
+        query = "SELECT SUM(e.id * @factor) AS total FROM dbo.Event AS e"
+        context = {
+            "relation": {**self.binding, "columns": {"id": {"type": "INT", "nullable": False}}},
+            "parameters": {"factor": {"type": "INT", "nullable": False}},
+            "integer_domains": {"INT": [-10, 100]},
+            "max_group_rows": 20,
+        }
+        first = convert(query, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertEqual(first["result_schema"], [{"name": "total", "type": "INT", "nullable": True}])
+        self.assertIn("CAST(SUM", first["sql"])
+        relation = {**context["relation"], "source": self.binding["target"], "target": self.binding["source"]}
+        second = convert(first["sql"], "databricks", {**context, "relation": relation})
+        self.assertEqual(second["status"], "converted")
+        self.assertEqual(second["result_schema"], first["result_schema"])
+        self.assertIsNone(convert(query, "tsql", {**context, "max_group_rows": 2_147_483_647})["sql"])
+        self.assertIsNone(convert(query, "tsql", {**context, "integer_domains": {"INT": [-50_000, 50_000]}})["sql"])
+        self.assertEqual(convert(query, "tsql", {**context, "integer_domains": {}})["status"], "requires_context")
+        arithmetic = convert("SELECT (10 - 2) * 3 AS value", "tsql", {})
+        self.assertEqual(convert(arithmetic["sql"], "databricks", {})["result_schema"], arithmetic["result_schema"])
 
 
 if __name__ == "__main__":
