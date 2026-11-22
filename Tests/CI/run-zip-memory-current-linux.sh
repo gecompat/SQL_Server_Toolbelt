@@ -61,7 +61,7 @@ PY
 MSSQL_SA_PASSWORD="Tbx!$(openssl rand -hex 20)Aa1"
 export MSSQL_SA_PASSWORD
 echo "::add-mask::$MSSQL_SA_PASSWORD"
-container="$(docker run --detach --network none \
+container="$(docker run --detach \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD \
   --volume "$PWD:/workspace:ro" "mcr.microsoft.com/mssql/server:$version-latest")"
 sqlcmd_path="$(docker exec "$container" sh -c '
@@ -70,16 +70,24 @@ sqlcmd_path="$(docker exec "$container" sh -c '
   done
   exit 1
 ')"
+client() {
+  docker exec -i --env SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" "$container" \
+    "$sqlcmd_path" -S tcp:127.0.0.1,1433 -U sa -C -b "$@"
+}
 sql() {
-  SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" docker exec -i --env SQLCMDPASSWORD "$container" \
-    "$sqlcmd_path" -S localhost -U sa -C -b -x -f 65001 -h -1 -W -r 1 "$@"
+  client -x -f 65001 -h -1 -W -r 1 "$@"
 }
 ready=false
 for attempt in {1..60}; do
-  if sql -l 2 -Q 'SELECT 1;' >/dev/null 2>&1; then ready=true; break; fi
+  if client -l 2 -Q 'SELECT 1;' >"$root/readiness.log" 2>&1; then ready=true; break; fi
+  if [[ "$(docker inspect -f '{{.State.Running}}' "$container")" != true ]]; then break; fi
   sleep 2
 done
-[[ "$ready" == true ]] || { echo 'ZIP_PORTABLE_SQL_STARTUP' >&2; exit 1; }
+if [[ "$ready" != true ]]; then
+  cat "$root/readiness.log" >&2
+  echo 'ZIP_PORTABLE_SQL_STARTUP' >&2
+  exit 1
+fi
 
 sql -Q "IF NOT EXISTS (SELECT 1 FROM sys.dm_os_host_info WHERE host_platform=N'Linux')
   OR CONVERT(int,SERVERPROPERTY('ProductMajorVersion'))<>$major
