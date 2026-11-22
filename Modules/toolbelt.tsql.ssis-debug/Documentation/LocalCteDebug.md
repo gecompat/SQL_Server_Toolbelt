@@ -88,6 +88,7 @@ Treffer eingestellt, erscheint im `StageIndex` die Stufe `lookup_misses_…`
 mit der Komponenten-ID des Lookups. `@InspectStage=N'all'` liefert ihren
 SQL-Block als `StageSql`. Alternativ die `TargetFlowId` und `StageId` aus
 dieser Zeile als `@TargetFlow` und `@InspectStage` erneut übergeben.
+Ist erst eine nachgelagerte Stufe blockiert, bleibt der Lookup-Block abrufbar.
 
 Der Block liefert die ursprünglichen Eingabespalten genau der Zeilen, für die
 der Lookup unter den Vergleichsregeln der Vorschau keinen Treffer findet.

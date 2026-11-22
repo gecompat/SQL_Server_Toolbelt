@@ -122,6 +122,9 @@ namespace Toolbelt.Tsql.SsisDebug
                 {
                     if (end.Error != null)
                     {
+                        // Ein nachgelagerter Blocker macht die vorgeschalteten Lookup-Fehlzeilen nicht ungültig.
+                        foreach (var misses in inspectable.Skip(ancestors.Count).Where(s => options.Stage == "all" || s.Id == options.Stage))
+                            EmitPackagePreview(misses, "StageSql", target.Key);
                         output.Diagnostic(end.RootCauseCode ?? end.Error, end.RootCauseComponent ?? end.Component, end.RootCauseText ?? end.ErrorText, target.Key);
                         output.Add(new Artifact { Kind = "DebugScript", Target = target.Key, Stage = end.Id, Component = end.Component, Content = "-- Unvollständiger Paketpfad; konkrete Erstursache in Diagnostic/StageIndex.\n", Complete = false, Safety = "blocked", Executable = false });
                         continue;

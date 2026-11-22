@@ -275,8 +275,9 @@ sie im V1-Profil nicht ausgeschlossen/ausdrücklich modelliert sind. Match-/
 Vorgängeransichten bleiben als solche untersuchbar.
 
 Der lokale Paketmodus behält für Fail-Lookups den Trefferpfad im Zielskript.
-Für einen vollständig übersetzten Zielpfad führt `StageIndex` zusätzlich einen
-separat auswählbaren `lookup_misses_…`-Block. Er verwendet `NOT EXISTS` mit
+Für einen bereits übersetzten Lookup führt `StageIndex` zusätzlich einen
+separat auswählbaren `lookup_misses_…`-Block, auch bei einem nachgelagerten
+Blocker. Er verwendet `NOT EXISTS` mit
 demselben Schlüsselprädikat und derselben Referenz wie der Trefferpfad und
 projiziert die unveränderten Eingabespalten. Prozedurresultsets folgen dem
 bestehenden lokalen Materialisierungsvertrag. Der Block simuliert keinen

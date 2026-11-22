@@ -238,6 +238,12 @@ internal static partial class ContractTests
         Assert(procedureMisses.Contains("_input]") && procedureMisses.Contains("WHERE NOT EXISTS") &&
             procedureMisses.Split(new[] { "EXECUTE [dbo].[SyntheticLookupProcedure]" }, StringSplitOptions.None).Length == 2 &&
             !procedureMisses.Contains("CREATE TABLE [##"), "LOOKUP_MISSES_REUSES_ONE_PROCEDURE_CAPTURE");
+        foreach (var destination in lookupDocument.Descendants("component").Where(c => (string)c.Attribute("componentClassID") == "Microsoft.OLEDBDestination"))
+            destination.Element("inputs").Element("input").Element("inputColumns").RemoveNodes();
+        var blockedTarget = preview(index.Stage, index.Target);
+        Assert(!blockedTarget.Rows.Single(a => a.Kind == "DebugScript").Complete &&
+            blockedTarget.Rows.Single(a => a.Kind == "StageSql").Stage == index.Stage,
+            "LOOKUP_MISSES_REMAIN_AVAILABLE_BEFORE_BLOCKED_TARGET");
 
         document = XDocument.Parse(Encoding.UTF8.GetString(packageBytes));
         document.Root.Element(dts + "ConnectionManagers").Add(new XElement(dts + "ConnectionManager", new XAttribute(dts + "refId", "Package.ConnectionManagers[SyntheticFile]"), new XAttribute(dts + "CreationName", "FLATFILE"), new XAttribute(dts + "ObjectName", "SyntheticFile")));

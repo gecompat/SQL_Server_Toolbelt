@@ -162,6 +162,12 @@ def apply(original, path):
             "                    if (options.Stage == \"all\") foreach (var stage in inspectable) EmitPackagePreview(stage, \"StageSql\", target.Key);\n"
             "                    else if (options.Stage != null) EmitPackagePreview(inspectable.Single(s => s.Id == options.Stage), \"StageSql\", target.Key);\n")
         text = replace_exact(text,
+            "                        output.Diagnostic(end.RootCauseCode ?? end.Error, end.RootCauseComponent ?? end.Component, end.RootCauseText ?? end.ErrorText, target.Key);\n",
+            "                        // Ein nachgelagerter Blocker macht die vorgeschalteten Lookup-Fehlzeilen nicht ungültig.\n"
+            "                        foreach (var misses in inspectable.Skip(ancestors.Count).Where(s => options.Stage == \"all\" || s.Id == options.Stage))\n"
+            "                            EmitPackagePreview(misses, \"StageSql\", target.Key);\n"
+            "                        output.Diagnostic(end.RootCauseCode ?? end.Error, end.RootCauseComponent ?? end.Component, end.RootCauseText ?? end.ErrorText, target.Key);\n")
+        text = replace_exact(text,
             "                RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); if (mode == \"0\") LookupMatchView(c, stage, parent); return;\n",
             "                RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); return;\n")
         text = replace_exact(text,
