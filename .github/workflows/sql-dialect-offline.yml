@@ -1,0 +1,28 @@
+name: SQL Dialect Qualification
+
+on:
+  pull_request:
+    paths: &dialect-paths
+      - ".github/workflows/sql-dialect-offline.yml"
+      - "Scripts/SqlDialect/**"
+  push:
+    branches: [main]
+    paths: *dialect-paths
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-query-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: >-
+          python -m pip install --require-hashes --only-binary=:all: -r Scripts/SqlDialect/requirements.txt
+      - run: python -m unittest discover -s Scripts/SqlDialect
+      - name: Verify fixed synthetic values and schema on SQL Server 2025
+        run: bash Scripts/SqlDialect/run-sql-server-acceptance.sh
