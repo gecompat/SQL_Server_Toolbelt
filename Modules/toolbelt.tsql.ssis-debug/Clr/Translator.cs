@@ -20,6 +20,7 @@ namespace Toolbelt.Tsql.SsisDebug
         internal string Id, Cte, Query, Component, Error, ErrorText, RootCauseCode, RootCauseStage, RootCauseComponent, RootCauseText;
         internal string RowCountVariable, RowCountType;
         internal string FlatFileWriteMetadata;
+        internal Stage LookupMisses;
         internal long RowCountMinimum, RowCountMaximum;
         internal readonly List<StageColumn> Columns = new List<StageColumn>();
         internal readonly List<Stage> Parents = new List<Stage>();
@@ -94,13 +95,16 @@ namespace Toolbelt.Tsql.SsisDebug
                 Flow flow = target.Value.Key; Component destination = target.Value.Value;
                 Stage end = BuildDestination(flow, destination);
                 var ancestors = Ancestors(end);
+                // Die Fehlzeilen sind separat inspizierbar und gehören nicht zum Ziel-SELECT.
+                var inspectable = ancestors.Concat(ancestors.Where(s => s.LookupMisses != null)
+                    .Select(s => s.LookupMisses).Distinct()).ToList();
                 bool sharedSnapshotPending = end.Error == null && !bindings.ComponentsV2 && ancestors.Any(s => s.RowCountVariable != null);
                 var pathDetails = Json.Obj("stages", ancestors.Select(s => (object)Json.Obj("stageId", s.Id, "componentId", s.Component, "parentStageIds", s.Parents.Select(p => p.Id).ToList(), "status", s.Error == null ? "available" : "blocked",
                     "rootCause", s.Error == null ? null : Json.Obj("code", s.RootCauseCode ?? s.Error, "stageId", s.RootCauseStage ?? s.Id, "componentId", s.RootCauseComponent ?? s.Component, "message", s.RootCauseText ?? s.ErrorText))).ToList());
                 if (sharedSnapshotPending) pathDetails.Add("completenessNote", "RowCount und Hauptprojektion nutzen noch keinen gemeinsamen materialisierten Debugstand.");
                 output.Add(new Artifact { Kind = "Workflow", Target = target.Key, Component = destination.Id, Content = Json.Write(Json.Obj("flow", flow.Id, "destination", destination.Id, "components", flow.Components.Select(c => (object)(bindings.ComponentsV2 ? Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "versionRaw", c.VersionRaw, "versionPresent", c.VersionPresent, "versionOrigin", c.VersionOrigin, "name", c.Name) : Json.Obj("id", c.Id, "kind", c.Kind, "classId", c.Class, "version", c.Version, "name", c.Name))).ToList(), "tasks", package.Workflow), bindings.Limits), Complete = end.Error == null && !sharedSnapshotPending,
                     Details = Json.Write(pathDetails, bindings.Limits) });
-                foreach (Stage stage in ancestors)
+                foreach (Stage stage in inspectable)
                     output.Add(new Artifact { Kind = "StageIndex", Target = target.Key, Stage = stage.Id, Component = stage.Component, Content = stage.Cte, Complete = stage.Error == null, Evidence = stage.Error == null ? "pragmatic" : "unsupported", Safety = stage.Error == null ? "not_checked" : "blocked", Details = Json.Write(Json.Obj("parents", stage.Parents.Select(x => (object)x.Id).ToList(), "columns", stage.Columns.Select(c => (object)Json.Obj("lineageId", c.Id, "name", c.Name, "sqlAlias", c.Alias, "sqlType", c.Type)).ToList(), "status", stage.Error == null ? "available" : "blocked", "rootCause", stage.Error == null ? null : Json.Obj("code", stage.RootCauseCode ?? stage.Error, "stageId", stage.RootCauseStage ?? stage.Id, "componentId", stage.RootCauseComponent ?? stage.Component, "message", stage.RootCauseText ?? stage.ErrorText)), bindings.Limits) });
                 if (options.ProcedureDefinition)
                 {
@@ -113,17 +117,20 @@ namespace Toolbelt.Tsql.SsisDebug
                     else EmitV2Plan(end, "TargetSql", target.Key);
                     continue;
                 }
-                if (options.Stage != null && options.Stage != "all" && !ancestors.Any(s => s.Id == options.Stage)) throw new DebugFault("unresolved_binding", "Stufe gehört nicht zum ausgewählten Zielfluss.");
+                if (options.Stage != null && options.Stage != "all" && !inspectable.Any(s => s.Id == options.Stage)) throw new DebugFault("unresolved_binding", "Stufe gehört nicht zum ausgewählten Zielfluss.");
                 if (options.CatalogMode == "package")
                 {
                     if (end.Error != null)
                     {
+                        // Ein nachgelagerter Blocker macht die vorgeschalteten Lookup-Fehlzeilen nicht ungültig.
+                        foreach (var misses in inspectable.Skip(ancestors.Count).Where(s => options.Stage == "all" || s.Id == options.Stage))
+                            EmitPackagePreview(misses, "StageSql", target.Key);
                         output.Diagnostic(end.RootCauseCode ?? end.Error, end.RootCauseComponent ?? end.Component, end.RootCauseText ?? end.ErrorText, target.Key);
                         output.Add(new Artifact { Kind = "DebugScript", Target = target.Key, Stage = end.Id, Component = end.Component, Content = "-- Unvollständiger Paketpfad; konkrete Erstursache in Diagnostic/StageIndex.\n", Complete = false, Safety = "blocked", Executable = false });
                         continue;
                     }
-                    if (options.Stage == "all") foreach (var stage in ancestors) EmitPackagePreview(stage, "StageSql", target.Key);
-                    else if (options.Stage != null) EmitPackagePreview(ancestors.Single(s => s.Id == options.Stage), "StageSql", target.Key);
+                    if (options.Stage == "all") foreach (var stage in inspectable) EmitPackagePreview(stage, "StageSql", target.Key);
+                    else if (options.Stage != null) EmitPackagePreview(inspectable.Single(s => s.Id == options.Stage), "StageSql", target.Key);
                     string preview = EmitPackagePreview(end, "TargetSql", target.Key);
                     output.Add(new Artifact { Kind = "DebugScript", Target = target.Key, Stage = end.Id, Component = end.Component, Content = preview, Complete = true, Safety = "not_checked", Executable = false, Evidence = "pragmatic" });
                     continue;
@@ -838,7 +845,7 @@ namespace Toolbelt.Tsql.SsisDebug
             {
                 stage.Caches.Add(savedCache); stage.Inputs.UnionWith(savedCache.Inputs);
                 ProcedureDataset dataset; if (procedureDatasets.TryGetValue(c.Id, out dataset) && !stage.Procedures.Contains(dataset)) stage.Procedures.Add(dataset);
-                RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); if (mode == "0") LookupMatchView(c, stage, parent); return;
+                RenderLookupJoin(c, port, stage, parent, savedCache, keys, mode, noMatch); return;
             }
             SqlQuery query = Query(c, stage); List<BoundColumn> reference = Projection.Columns(query, safety);
             string suffix = runToken + "_" + lookupIds[c.Id];
@@ -885,17 +892,35 @@ namespace Toolbelt.Tsql.SsisDebug
             cache.Owner = Util.Hash("ssis-debug-v1|" + runHash + "|" + c.Id + "|" + cache.Definition);
             lookupCaches.Add(c.Id, cache); stage.Caches.Add(cache);
             RenderLookupJoin(c, port, stage, parent, cache, keys, mode, noMatch);
-            if (mode == "0") LookupMatchView(c, stage, parent);
             output.Diagnostic("lookup_comparison_deviation", c.Id, "SQL-Gleichheit mit vollständigem Schlüssel und expliziter Vergleichscollation; keine SSIS-Full-Cache-Parität.");
         }
-        private void LookupMatchView(Component c, Stage stage, Stage parent)
+        private void LookupFailureViews(Component c, Stage stage, Stage parent, LookupCache cache, string predicate)
         {
+            // Der reservierte Prüfslot wird je nach Modus für Treffer- oder Fehlzeilen genutzt.
+            string key = "lookup-match:" + c.Id;
             if (options.CatalogMode == "package")
             {
-                output.Diagnostic("lookup_failure_condition", c.Id, "Lookup ist im Paket auf Fehler bei fehlendem Treffer eingestellt. Die lokale CTE-Vorschau zeigt den Matchpfad; keine Simulation des Paketabbruchs.");
+                Stage misses;
+                if (!stages.TryGetValue(key, out misses))
+                {
+                    misses = New(c.Id, "lookup_misses", key);
+                    Inherit(misses, parent);
+                    misses.Columns.AddRange(parent.Columns);
+                    misses.Inputs.UnionWith(cache.Inputs);
+                    if (!misses.Caches.Contains(cache)) misses.Caches.Add(cache);
+                    ProcedureDataset dataset;
+                    if (procedureDatasets.TryGetValue(c.Id, out dataset) && !misses.Procedures.Contains(dataset))
+                        misses.Procedures.Add(dataset);
+                    misses.Query = "SELECT " + FieldsBy(misses.Columns, "m") + " FROM " + Util.Q(parent.Cte) +
+                        " AS m WHERE NOT EXISTS (SELECT 1 FROM " + Util.Q(cache.Name) + " AS lk WHERE " + predicate + ")";
+                    stages.Add(key, misses);
+                    output.Diagnostic("lookup_failure_condition", c.Id, "Lookup ohne Treffer löst im Paket einen Fehler aus. Die Stufe " +
+                        misses.Id + " zeigt die Fehlzeilen im lokalen Entwurf. Das Zielskript zeigt weiterhin den Trefferpfad.");
+                }
+                stage.LookupMisses = misses;
                 return;
             }
-            string key = "lookup-match:" + c.Id; Stage matches;
+            Stage matches;
             if (!stages.TryGetValue(key, out matches))
             { matches = New(c.Id, "lookup_matches", key); Inherit(matches, parent); matches.Query = stage.Query; matches.Columns.AddRange(stage.Columns); matches.Inputs.UnionWith(stage.Inputs); matches.Caches.AddRange(stage.Caches.Where(x => !matches.Caches.Contains(x))); stages.Add(key, matches); }
             Inherit(stage, matches); Block(stage, new DebugFault("unsupported_component", "Lookup-Fail-Disposition bleibt blockiert; Matchansicht " + matches.Id + " ist prüfbar."));
@@ -933,7 +958,9 @@ namespace Toolbelt.Tsql.SsisDebug
                 var outputCol = NewColumn(col.Lineage == "" ? col.Id : col.Lineage, col.Name, col.SqlType, true); stage.Columns.Add(outputCol);
                 fields.Add("CAST(lk." + Util.Q(refCol.Alias) + " AS " + outputCol.Type + ") AS " + Util.Q(outputCol.Alias));
             }
-            stage.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m " + (mode == "1" || noMatch ? "LEFT JOIN " : "INNER JOIN ") + Util.Q(cache.Name) + " AS lk" + (options.CatalogMode == "package" ? "" : " WITH (NOLOCK)") + " ON " + String.Join(" AND ", joins) + (noMatch ? " WHERE lk.[tbx_match] IS NULL" : "");
+            string predicate = String.Join(" AND ", joins);
+            stage.Query = "SELECT " + String.Join(", ", fields) + " FROM " + Util.Q(parent.Cte) + " AS m " + (mode == "1" || noMatch ? "LEFT JOIN " : "INNER JOIN ") + Util.Q(cache.Name) + " AS lk" + (options.CatalogMode == "package" ? "" : " WITH (NOLOCK)") + " ON " + predicate + (noMatch ? " WHERE lk.[tbx_match] IS NULL" : "");
+            if (mode == "0") LookupFailureViews(c, stage, parent, cache, predicate);
         }
         private string EmitPackagePreview(Stage end, string kind, string target)
         {

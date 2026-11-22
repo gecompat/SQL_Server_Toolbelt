@@ -83,9 +83,20 @@ vorgegebener relationaler Flatfile-Bestand bleibt weiterhin nutzbar.
 Multicast reicht den jeweiligen Eingangsstand durch. Union All ignoriert
 unverbundene Reserveeingänge ohne Spalten, aber keine benötigten Mappings.
 Der Conditional-Split-Defaultzweig benötigt keine eigene EvaluationOrder.
-Die Vorschau zeigt auch NULL-Bedingungen und Lookup-Fail-Bedingungen; sie
-simuliert daraus keinen SSIS-Paketabbruch. Die Lookupauswahl bleibt ohne
-explizite Auswahlregel pragmatisch, nicht deterministisch zugesichert.
+Die Vorschau zeigt NULL-Bedingungen. Ist ein Lookup auf Abbruch bei fehlendem
+Treffer eingestellt, erscheint im `StageIndex` die Stufe `lookup_misses_…`
+mit der Komponenten-ID des Lookups. `@InspectStage=N'all'` liefert ihren
+SQL-Block als `StageSql`. Alternativ die `TargetFlowId` und `StageId` aus
+dieser Zeile als `@TargetFlow` und `@InspectStage` erneut übergeben.
+Ist erst eine nachgelagerte Stufe blockiert, bleibt der Lookup-Block abrufbar.
+
+Der Block liefert die ursprünglichen Eingabespalten genau der Zeilen, für die
+der Lookup unter den Vergleichsregeln der Vorschau keinen Treffer findet.
+Er verwendet denselben Vergleich wie der Trefferpfad, einschließlich der
+Längenprüfung für Full-Cache-Textschlüssel. Das Zielskript zeigt weiterhin
+den Trefferpfad. Die Fehlzeilenstufe löst keinen SSIS-Paketabbruch aus.
+Ohne explizite Auswahlregel bleibt die Wahl unter gleichen Referenzschlüsseln
+beliebig.
 
 Bei Full-Cache-Lookups vergleicht der Paketmodus Textschlüssel unter BIN2
 einschließlich ihrer Byte-Länge. Nachgestellte Leerzeichen unterscheiden so
