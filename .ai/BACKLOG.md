@@ -1,5 +1,22 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Nachweisabgleich — 2026-11-22
+
+Die beauftragten aktuellen Installer-, Trigger-, Windows-Filesystem-,
+ZIP- und Worker-Teilfälle sind abgenommen. Der
+[Nachweisabgleich](../Releases/1.0.0/CURRENT-QUALIFICATION-REST.md)
+verlinkt die jeweils maßgeblichen Prüfungen und ihren Geltungsbereich.
+
+Das freigegebene lokale bidirektionale SQL-Dialektwerkzeug ist im geprüften
+Umfang über [PR #655](https://github.com/gecompat/SQL_Server_Toolbelt/pull/655)
+integriert. Die [Main-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/45023399256)
+bestätigt 24 Offline-Tests, zehn native SQL-Server-2025-Fälle und den
+Container-Cleanup. Die native Databricks-Abnahme und das unterstützte
+Warehouseprofil bleiben ausdrücklich offen. Der vereinbarte
+`ROW_NUMBER`-Ersatzpfad ist bei fehlender Unterstützung des lateralen
+`TOP`/`LIMIT` auf dem später ausgewählten Ziel erforderlich. Der
+[Abnahmeweg](../Scripts/SqlDialect/README.md#native-abnahme) ist vorbereitet.
+
 ## Vollständige ZIP-Extraktion — 2026-11-21
 
 V1 ist über [PR #635](https://github.com/gecompat/SQL_Server_Toolbelt/pull/635)
@@ -45,8 +62,9 @@ und die [gemeinsame Installationsabnahme](../Releases/1.0.0/CURRENT-INSTALL-QUAL
 begrenzen die aktuellen Aussagen. Historische Einträge unten bleiben erhalten.
 
 Der [bereinigte Kandidatenplan](../Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
-führt das separate lokale bidirektionale SQL-Dialektwerkzeug als Entwurf mit
-ausstehendem Vertragsabschluss und eigener Implementierungsfreigabe.
+beschreibt den damaligen Entwurf des lokalen bidirektionalen
+SQL-Dialektwerkzeugs. Für den heutigen Stand gilt der
+[Nachweisabgleich vom 22. November](#nachweisabgleich--2026-11-22).
 Vorhandene Caller-/ServiceAccount-
 Identitäten reichen aus; kein zusätzlicher RunAs-Modus ist beauftragt.
 Allgemeine alte „ready“- oder Qualifikationslisten sind kein neuer Arbeitsauftrag.
@@ -1998,6 +2016,10 @@ Keine pauschale Dateiverschiebung, neue Registry oder zusätzliche Reviewkette.
 Unveränderte unabhängige Dokumente bleiben außerhalb des jeweiligen Änderungsumfangs.
 
 ## Research-Vormerkung: SQL-Dialekt-Transformation — 2026-10-16
+
+Die folgende Chronik beschreibt den Researchstand vor der freigegebenen
+Implementierung. Der [Nachweisabgleich vom 22. November](#nachweisabgleich--2026-11-22)
+nennt den integrierten Umfang und die offene native Databricks-Abnahme.
 
 **Abschluss des beauftragten Researchscopes, 2026-10-18:** Machbarkeit,
 Regelspike, native SQL-Server-/Spark-Semantik und begrenzte Performance-/
