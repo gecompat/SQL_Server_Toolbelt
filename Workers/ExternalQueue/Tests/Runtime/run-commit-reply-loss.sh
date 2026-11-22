@@ -56,7 +56,10 @@ sql -Q "CREATE DATABASE [${TBX_COMMIT_DATABASE}];"
 {
   sed "1s/^USE \[ContosoToolbelt\];$/USE [${TBX_COMMIT_DATABASE}];/" "$profile"
   printf '\nGO\n'
-} | sql -d "$TBX_COMMIT_DATABASE" >/dev/null
+} >"$root/install.sql"
+chmod 644 "$root/install.sql"
+docker cp "$root/install.sql" "$container:/tmp/worker-commit-install.sql"
+sql -d "$TBX_COMMIT_DATABASE" -i /tmp/worker-commit-install.sql >/dev/null
 echo WORKER_COMMIT_SQL_INSTALLED
 sql -d "$TBX_COMMIT_DATABASE" -Q "CREATE TABLE dbo.TbxCommitFixtureMarker(DatabaseName sysname NOT NULL);
   INSERT dbo.TbxCommitFixtureMarker VALUES(DB_NAME());" >/dev/null
