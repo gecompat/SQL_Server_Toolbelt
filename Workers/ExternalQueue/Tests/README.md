@@ -15,7 +15,8 @@ Verbindung vor Zustellung der Antwort zu schließen. Die Abnahme prüft
 UNKNOWN beim ursprünglichen Ausführer, das Ausbleiben eines zweiten
 Versuchs und die fachlich korrekte Disposition bei expliziter Reconciliation
 mit einem frischen Abschlussaudit. Der Loopback-Contract ist die
-Transportgegenprobe. Der native Gesamtfall ist weiterhin ausstehend.
+Transportgegenprobe. Der [native Workflow](../../../.github/workflows/worker-commit-reply-loss.yml)
+bindet diesen Fall an den aktuellen Worker und die eigene SQL-2025-Testinstanz.
 
 ## Terminalhistorie nach Fehlerabschluss und Folgeclaim
 

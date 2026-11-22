@@ -41,7 +41,7 @@ binding="$(docker port "$container" 1433/tcp)"
 export TBX_COMMIT_SQL_PORT="${BASH_REMATCH[1]}"
 sql() {
   docker exec -i --env SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" "$container" /opt/mssql-tools18/bin/sqlcmd \
-    -S tcp:127.0.0.1,1433 -U sa -C -b -x -l 2 -t 45 "$@"
+    -S tcp:127.0.0.1,1433 -U sa -C -b -x -f 65001 -r 1 -l 2 -t 45 "$@"
 }
 ready=false
 for attempt in {1..50}; do
@@ -51,11 +51,13 @@ for attempt in {1..50}; do
 done
 [[ "$ready" == true ]] || { echo WORKER_COMMIT_SQL_NOT_READY >&2; exit 1; }
 export TBX_COMMIT_DATABASE="ContosoCommit_$(openssl rand -hex 8)"
+echo WORKER_COMMIT_SQL_READY
 sql -Q "CREATE DATABASE [${TBX_COMMIT_DATABASE}];"
 {
   sed "1s/^USE \[ContosoToolbelt\];$/USE [${TBX_COMMIT_DATABASE}];/" "$profile"
   printf '\nGO\n'
 } | sql -d "$TBX_COMMIT_DATABASE" >/dev/null
+echo WORKER_COMMIT_SQL_INSTALLED
 sql -d "$TBX_COMMIT_DATABASE" -Q "CREATE TABLE dbo.TbxCommitFixtureMarker(DatabaseName sysname NOT NULL);
   INSERT dbo.TbxCommitFixtureMarker VALUES(DB_NAME());" >/dev/null
 pwsh -NoLogo -NoProfile -NonInteractive -File Workers/ExternalQueue/Tests/Runtime/Invoke-CommitReplyLoss.ps1
