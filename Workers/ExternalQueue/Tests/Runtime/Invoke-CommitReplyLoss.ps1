@@ -86,8 +86,7 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
     [void]$shell.AddScript({
         param($Root,$Claim,$Direct,$Proxy)
         $ErrorActionPreference='Stop'
-        Import-Module (Join-Path $Root 'ExecutionActors.psm1') -Force
-        Import-Module (Join-Path $Root 'ManagedQueueWorker.psm1') -Force
+        $worker = Import-Module (Join-Path $Root 'ManagedQueueWorker.psm1') -PassThru -Force
         $eligible = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         [void]$eligible.Add('test.commit.loss')
         $context = [pscustomobject]@{
@@ -104,7 +103,10 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
             $this.ExecutorConnected=$true
             return $this.Proxy
         }
-        $actor = New-WorkerExecutionActor -ExecutionId $context.Claim.ExecutionId -Executor {} -GuardianControl {} -Context $context
+        $actor = & $worker {
+            param($ExecutionContext)
+            New-WorkerExecutionActor -ExecutionId $ExecutionContext.Claim.ExecutionId -Executor {} -GuardianControl {} -Context $ExecutionContext
+        } $context
         $result = Invoke-ManagedExecutor $actor.Shared $context
         [pscustomobject]@{Commit=$result.Committed;Rollback=$result.RollbackConfirmed;Disposed=$result.ResourcesDisposed
             Terminal=$context.Terminal;SlotEndConfirmed=$context.SlotEndConfirmed
