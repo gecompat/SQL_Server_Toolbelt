@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -89,5 +91,42 @@ public sealed class CommitReplyGate : IDisposable
             listener.Stop();
             stopping.Dispose();
         }
+    }
+}
+
+// The fixture subscribes only inside its dedicated process, which performs
+// exactly one client-side SqlTransaction.Commit.
+public sealed class CommitReplyDiagnostic : IDisposable
+{
+    private const string CommitBefore = "System.Data.SqlClient.WriteTransactionCommitBefore";
+    private readonly IDisposable discovery;
+    private readonly List<IDisposable> subscriptions = new List<IDisposable>();
+
+    public CommitReplyDiagnostic(CommitReplyGate gate)
+    {
+        discovery = DiagnosticListener.AllListeners.Subscribe(new Observer<DiagnosticListener>(listener =>
+        {
+            if (listener.Name == "SqlClientDiagnosticListener")
+                subscriptions.Add(listener.Subscribe(
+                    new Observer<KeyValuePair<string, object>>(entry =>
+                    {
+                        if (entry.Key == CommitBefore) gate.WithholdReply();
+                    }), name => name == CommitBefore));
+        }));
+    }
+
+    public void Dispose()
+    {
+        discovery.Dispose();
+        foreach (IDisposable subscription in subscriptions) subscription.Dispose();
+    }
+
+    private sealed class Observer<T> : IObserver<T>
+    {
+        private readonly Action<T> next;
+        public Observer(Action<T> next) { this.next = next; }
+        public void OnNext(T value) => next(value);
+        public void OnCompleted() { }
+        public void OnError(Exception error) { }
     }
 }
