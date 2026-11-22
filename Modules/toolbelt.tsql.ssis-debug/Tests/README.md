@@ -1,5 +1,38 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
+## Native Windows-Abnahme der Lookup-Fehlzeilen — 2026-11-22
+
+Der synthetische Paketmodus-Gesamtfall auf Windows SQL Server 2025/CU8
+qualifiziert die Lookup-Fehlzeilen aus
+[PR #657](https://github.com/gecompat/SQL_Server_Toolbelt/pull/657) für den
+Produktquellstand `0e30eb582f87b5286adcb067cd4e79551c736a93`. Der reproduzierbare
+Provider entstand mit `New-ClrReleaseArtifacts.ps1`. `New-SimpleInstall.py`
+erzeugte den lokalen SQL-Installer mit `--trust-mode hash`. Der Lab-Adapter
+verwendete eine eigene leere Testdatenbank und prüfte die SHA2-512-Hashes
+beider tatsächlich installierten Assemblies. Die Anmeldung erfolgte mit
+verschlüsseltem Transport und dem expliziten Trustwert des Functional-Labvertrags.
+
+Die installierte `USP_ExplainSsisDataFlow` lieferte mit `@InspectStage=N'all'`
+je eine Fehlzeilenstufe für beide Zielpfade. Über die aus `StageIndex`
+ermittelten IDs lieferte die Einzelwahl denselben SQL-Block. Der anschließend
+ausgeführte Treffer- und Fehlzeilen-SQL-Block teilte zehn synthetische
+Eingabezeilen in drei Treffer und sieben Fehlzeilen. Geprüft wurden
+zusammengesetzte Schlüssel, NULL-Schlüssel, nachgestellte Leerzeichen,
+doppelte Referenzen, ein NULL-Payload sowie unveränderte Eingabewerte und
+das erwartete Ergebnisschema. Das Zielskript behielt den Trefferpfad.
+
+Der korrigierte Lauf bestand 28 Prüfungen. Ein frischer Audit aus einer
+separaten Verbindung bestand zwei Prüfungen für die entfernte Testdatenbank
+und die Wiederherstellung des zuvor geprüften Trust- und Konfigurationszustands.
+Der erste Lauf hatte Installation und Byteprüfung bestanden, brach jedoch
+wegen eines PowerShell-Scopefehlers im Prüfadapter ab. Sein Fehlernachweis
+und sein separater bestandener Audit bleiben erhalten. Die Korrektur
+wurde vor dem neuen Lauf offline mit synthetischen Resultsets geprüft.
+
+Die Abnahme gilt für diesen Windows-/Paketmodus-Fall. Private Originalpakete,
+SSMS und authentifiziertes TLS waren kein Teil dieses Laufs.
+[Anwendung](../Documentation/LocalCteDebug.md).
+
 ## Vereinfachter Installer und XML-Aufruf — 2026-11-20
 
 Der [neue Teilrecord](Qualification/Simplicity.20261120.json) trennt die gezielten
