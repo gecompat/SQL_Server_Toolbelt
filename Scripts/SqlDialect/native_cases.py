@@ -45,6 +45,12 @@ def statements():
            "SELECT t.id AS id, r.n AS n FROM q AS t CROSS APPLY "
            "(SELECT COUNT_BIG(x.id) AS n FROM q AS x WHERE x.id = t.id AND x.id = 1) AS r ORDER BY id",
            {"lateral_select": True, "lateral_scalar_aggregate": True}, [["1", "1"], ["2", "0"]], True)
+    yield ("lateral_ordered_cutoff", "tsql", TS_PREFIX +
+           "SELECT t.id AS id, r.value AS value FROM q AS t OUTER APPLY "
+           "(SELECT TOP (1) x.id AS value FROM q AS x WHERE x.k = t.k AND x.id <= t.id ORDER BY value DESC) AS r "
+           "ORDER BY id",
+           {"lateral_select": True, "lateral_ordered_limit": True, "lateral_unique_order": ["value"],
+            "lateral_cutoff": True}, [["1", "1"], ["2", "2"]], True)
     yield ("multiplicity", "databricks",
            "SELECT 1 AS id UNION ALL SELECT 1 AS id UNION ALL SELECT CAST(NULL AS INT) AS id",
            {}, [["1"], ["1"], [None]], False)
@@ -96,10 +102,12 @@ def main():
     parser.add_argument("--databricks", action="store_true", help="Use an explicitly configured running warehouse.")
     args = parser.parse_args()
     probes = list(cases())
-    if args.databricks:
-        return prove_databricks(probes)
     source = Path(__file__).with_name("convert_query.py")
-    print(json.dumps({"converter_sha256": sha256(source.read_bytes()).hexdigest(), "cases": probes}))
+    fingerprint = sha256(source.read_bytes()).hexdigest()
+    if args.databricks:
+        print(f"DATABRICKS_CONVERTER_SHA256 {fingerprint}")
+        return prove_databricks(probes)
+    print(json.dumps({"converter_sha256": fingerprint, "cases": probes}))
     return 0
 
 

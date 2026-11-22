@@ -14,12 +14,14 @@ from sqlglot.errors import ParseError, TokenError
 PIN = "30.23.0"
 MAX_SQL_BYTES = 16_384
 MAX_CONTEXT_BYTES = 65_536
+MAX_OUTPUT_BYTES = 1_048_576
 MAX_TOKENS = 512
 MAX_DEPTH = 16
 NAME = re.compile(r"[A-Za-z_][A-Za-z_0-9]{0,127}\Z")
 COMPARISONS = {exp.EQ: "=", exp.NEQ: "<>", exp.LT: "<", exp.LTE: "<=", exp.GT: ">", exp.GTE: ">="}
 DOMAIN_TYPES = ("INT", "BIGINT", "DATE")
 DECIMAL_TYPE = re.compile(r"DECIMAL\(([1-9][0-9]?),([0-9]{1,2})\)\Z")
+TEXT_TYPE = re.compile(r"NVARCHAR\(([1-9][0-9]{0,3})\)\Z")
 INTEGER_LIMITS = {"INT": (-2**31, 2**31-1), "BIGINT": (-2**63, 2**63-1)}
 ARITHMETIC = {exp.Add: "+", exp.Sub: "-", exp.Mul: "*"}
 
@@ -168,7 +170,7 @@ class SelectBinding:
         if any(projection.find(exp.AggFunc) is not None for projection in query.expressions):
             self.require_capability("lateral_scalar_aggregate")
             require(not has_limit, "lateral_aggregate_limit")
-        sql, schema = self.correlated_select(query, allow_order=has_limit)
+        sql, schema = self.correlated_select(query, allow_order=has_limit, allow_cutoff=has_limit)
         self.relations[alias] = ({column["name"]: column for column in schema}, not cross)
         self.column_orders[alias] = [column["name"] for column in schema]
         relation = f"(\n{sql}\n) AS {quote(alias, self.target)}"
@@ -180,7 +182,7 @@ class SelectBinding:
         require(self.context.get(name) is True, name + "_required", "requires_context")
         self.capabilities.add(name)
 
-    def correlated_select(self, query, allow_order=False):
+    def correlated_select(self, query, allow_order=False, allow_cutoff=False):
         from_node = query.args.get("from_")
         shape(from_node, exp.From, "this")
         shape(from_node.this, exp.Table, "this", "db", "catalog", "alias")
@@ -192,7 +194,7 @@ class SelectBinding:
         where = query.args.get("where")
         if where is not None:
             shape(where, exp.Where, "this")
-            self.lateral_filter(where.this, local_name)
+            self.lateral_filter(where.this, local_name, allow_cutoff)
         member = self.child()
         member.relations = self.relations.copy()
         member.base_relations = self.base_relations.copy()
@@ -200,21 +202,26 @@ class SelectBinding:
             member.context = {**self.context, "unique_order": self.context.get("lateral_unique_order")}
         return member.query(query, allow_ctes=False, allow_order=allow_order)
 
-    def lateral_filter(self, node, local_name):
+    def lateral_filter(self, node, local_name, allow_cutoff=False):
         kind = type(node)
         if kind is exp.Paren:
             shape(node, exp.Paren, "this")
-            self.lateral_filter(node.this, local_name)
+            self.lateral_filter(node.this, local_name, allow_cutoff)
             return
         if kind is exp.And:
             shape(node, exp.And, "this", "expression")
-            self.lateral_filter(node.this, local_name)
-            self.lateral_filter(node.expression, local_name)
+            self.lateral_filter(node.this, local_name, allow_cutoff)
+            self.lateral_filter(node.expression, local_name, allow_cutoff)
             return
         if all(column.table == local_name for column in node.find_all(exp.Column)):
             require(node.find(exp.Exists) is None, "lateral_subquery")
             return
-        shape(node, exp.EQ, "this", "expression")
+        if kind in (exp.LT, exp.LTE, exp.GT, exp.GTE):
+            require(allow_cutoff, "lateral_correlation")
+            self.require_capability("lateral_cutoff")
+        else:
+            require(kind is exp.EQ, "lateral_correlation")
+        shape(node, kind, "this", "expression")
         left, right = node.this, node.expression
         shape(left, exp.Column, "this", "table")
         shape(right, exp.Column, "this", "table")
@@ -274,7 +281,7 @@ class SelectBinding:
             sql_type, nullable = self.column_contract(declarations.get(name))
             self.parameters[name] = {"type": sql_type, "nullable": nullable}
             marker = (":" if self.target == "databricks" else "@") + name
-            return f"CAST({marker} AS {sql_type})", sql_type, nullable
+            return f"CAST({marker} AS {self.target_type(sql_type)})", sql_type, nullable
         if type(node) is exp.Cast:
             shape(node, exp.Cast, "this", "to")
             target_type = self.cast_type(node.to)
@@ -293,8 +300,10 @@ class SelectBinding:
                     literal = literal.replace("-", "")
                 return f"CAST('{literal}' AS DATE)", "DATE", False
             operand, source_type, nullable = self.operand(node.this)
+            if self.text_width(source_type) and self.source == "databricks" and target_type == "TEXT":
+                target_type = source_type
             require(target_type == source_type or (source_type, target_type) == ("INT", "BIGINT"), "integer_cast")
-            return f"CAST({operand} AS {target_type})", target_type, nullable
+            return f"CAST({operand} AS {self.target_type(target_type)})", target_type, nullable
         if type(node) is exp.Case:
             return self.searched_case(node)
         if type(node) is exp.Coalesce:
@@ -302,6 +311,7 @@ class SelectBinding:
             values = [self.operand(value) for value in (node.this, *node.expressions)]
             sql_type = values[0][1]
             require(len(values) >= 2 and all(item[1] == sql_type for item in values), "coalesce_type")
+            require(not self.text_width(sql_type), "text_projection_only")
             if node.args.get("is_null"):
                 require(self.source == "tsql" and len(values) == 2, "isnull_shape")
             operands = ", ".join(item[0] for item in values)
@@ -310,7 +320,7 @@ class SelectBinding:
             shape(node, exp.Nullif, "this", "expression")
             first, first_type, _ = self.operand(node.this)
             second, second_type, _ = self.operand(node.expression)
-            require(first_type == second_type, "nullif_type")
+            require(first_type == second_type and not self.text_width(first_type), "nullif_type")
             return f"NULLIF({first}, {second})", first_type, True
         if type(node) in (exp.Year, exp.Month, exp.Day):
             shape(node, type(node), "this")
@@ -347,16 +357,36 @@ class SelectBinding:
     def cast_type(self, node):
         shape(node, exp.DataType, "this", "expressions")
         name = node.this.name
-        if name != "DECIMAL":
+        if name == "NVARCHAR":
+            require(self.source == "tsql" and len(node.expressions) == 1, "text_cast")
+        elif name != "DECIMAL":
             require(not node.expressions, "type_dimensions")
             return name
-        require(len(node.expressions) == 2, "decimal_dimensions")
+        else:
+            require(len(node.expressions) == 2, "decimal_dimensions")
         values = []
         for parameter in node.expressions:
             shape(parameter, exp.DataTypeParam, "this")
             values.append(self.integer_literal(parameter.this))
-        sql_type = f"DECIMAL({values[0]},{values[1]})"
-        require(self.decimal_dimensions(sql_type), "decimal_dimensions")
+        sql_type = f"{name}({','.join(map(str, values))})"
+        if name == "DECIMAL":
+            require(self.decimal_dimensions(sql_type), "decimal_dimensions")
+        else:
+            require(self.text_width(sql_type), "text_cast")
+        return sql_type
+
+    @staticmethod
+    def text_width(sql_type):
+        match = TEXT_TYPE.fullmatch(sql_type) if isinstance(sql_type, str) else None
+        if not match:
+            return None
+        width = int(match[1])
+        require(width <= 4000, "text_width")
+        return width
+
+    def target_type(self, sql_type):
+        if self.target == "databricks" and self.text_width(sql_type):
+            return "STRING"
         return sql_type
 
     @staticmethod
@@ -496,6 +526,7 @@ class SelectBinding:
         default = node.args.get("default")
         require(bool(cases) and default is not None, "explicit_case")
         else_sql, result_type, nullable = self.operand(default)
+        require(not self.text_width(result_type), "text_projection_only")
         branches = []
         for branch in cases:
             shape(branch, exp.If, "this", "true")
@@ -509,8 +540,16 @@ class SelectBinding:
         require(isinstance(declaration, dict), "operand_type", "requires_context")
         sql_type = declaration.get("type")
         nullable = declaration.get("nullable")
-        require((sql_type in DOMAIN_TYPES or self.decimal_dimensions(sql_type)) and type(nullable) is bool,
+        width = self.text_width(sql_type)
+        require((sql_type in DOMAIN_TYPES or self.decimal_dimensions(sql_type) or width) and type(nullable) is bool,
                 "operand_contract", "requires_context")
+        if width:
+            maximum = self.context.get("text_max_utf16_units")
+            require(type(maximum) is int and 0 <= maximum <= width and self.context.get("text_unicode_scalars") is True,
+                    "text_domain", "requires_context")
+            fact = {"text_max_utf16_units": maximum, "text_unicode_scalars": True}
+            if fact not in self.assumptions:
+                self.assumptions.append(fact)
         if sql_type == "DATE":
             self.date_domain()
         return sql_type, nullable
@@ -554,6 +593,7 @@ class SelectBinding:
             return f"({left} IS NULL)"
         right, right_type, _ = resolve(node.expression)
         require(left_type == right_type, "mixed_type_comparison")
+        require(not self.text_width(left_type), "text_comparison")
         return f"({left} {COMPARISONS[kind]} {right})"
 
     @staticmethod
@@ -590,6 +630,8 @@ class SelectBinding:
                     "union_schema")
             for left, right in zip(left_schema, right_schema, strict=True):
                 left["nullable"] |= right["nullable"]
+            if tree.args["distinct"]:
+                require(all(not self.text_width(column["type"]) for column in left_schema), "text_distinct")
             operator = "UNION" if tree.args["distinct"] else "UNION ALL"
             return prefix + left_sql + f"\n{operator}\n" + right_sql, left_schema
         sql, schema = self.select(tree)
@@ -636,6 +678,7 @@ class SelectBinding:
         distinct = tree.args.get("distinct")
         if distinct is not None:
             shape(distinct, exp.Distinct)
+            require(all(not self.text_width(column["type"]) for column in schema), "text_distinct")
         top = f"TOP ({count}) " if count is not None and self.target == "tsql" else ""
         source_sql = ""
         if from_sql:
@@ -685,7 +728,8 @@ class SelectBinding:
         keys = []
         for column in node.expressions:
             shape(column, exp.Column, "this", "table")
-            key, _, _ = self.operand(column)
+            key, sql_type, _ = self.operand(column)
+            require(not self.text_width(sql_type), "text_group")
             require(key not in keys, "duplicate_group_key")
             keys.append(key)
         require(bool(keys), "group_key")
@@ -696,6 +740,7 @@ class SelectBinding:
             shape(node, type(node), "this")
             shape(node.this, exp.Column, "this", "table")
             value, sql_type, nullable = self.operand(node.this)
+            require(not self.text_width(sql_type), "text_aggregate")
             # An ungrouped aggregate also has a row when the input is empty.
             return f"{node.key.upper()}({value})", sql_type, nullable or not grouping
         if type(node) is exp.Count:
@@ -787,8 +832,8 @@ class SelectBinding:
 
     def ranking_key(self, column):
         shape(column, exp.Column, "this", "table")
-        sql, _, nullable = self.operand(column)
-        require(not nullable, "ranking_nullable_key")
+        sql, sql_type, nullable = self.operand(column)
+        require(not nullable and not self.text_width(sql_type), "ranking_key")
         return sql, f"{column.table}.{column.name}"
 
     def qualify(self, node, outputs, schema, source_sql, projections):
@@ -846,7 +891,8 @@ class SelectBinding:
         seen = set()
         for item in node.expressions:
             name = self.order_key(item)
-            require(name in columns and name not in seen and not columns[name]["nullable"], "order_key")
+            require(name in columns and name not in seen and not columns[name]["nullable"]
+                    and not self.text_width(columns[name]["type"]), "order_key")
             seen.add(name)
             order.append(quote(name, self.target) + (" DESC" if item.args.get("desc") else " ASC"))
         require(bool(order), "order_key")
@@ -891,6 +937,7 @@ def convert(query, source, context):
         binding = SelectBinding(source, context)
         sql, schema = binding.query(trees[0])
         sql += ";"
+        require(len(sql.encode("utf-8")) <= MAX_OUTPUT_BYTES, "output_bytes", "limit_exceeded")
         reparsed = sqlglot.parse(sql, read=binding.target, error_level=ErrorLevel.RAISE)
         require(len(reparsed) == 1 and type(reparsed[0]) in (exp.Select, exp.Union), "target_syntax")
         return dict(result, status="converted", sql=sql, result_schema=schema, parameters=binding.parameters,

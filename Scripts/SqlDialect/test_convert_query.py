@@ -309,6 +309,13 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertIn("LIMIT 1", first["sql"])
         self.assertEqual(first["required_capabilities"], ["lateral_ordered_limit", "lateral_select"])
         self.assertEqual(convert(first["sql"], "databricks", context)["result_schema"], first["result_schema"])
+        cutoff = length.replace("z.id = a.id", "z.id = a.id AND z.id <= a.id")
+        self.assertEqual(convert(cutoff, "tsql", context)["code"], "lateral_cutoff_required")
+        strict_capability = {**context, "lateral_cutoff": True}
+        with_cutoff = convert(cutoff, "tsql", strict_capability)
+        self.assertEqual(with_cutoff["status"], "converted")
+        self.assertIn("lateral_cutoff", with_cutoff["required_capabilities"])
+        self.assertEqual(convert(with_cutoff["sql"], "databricks", strict_capability)["status"], "converted")
         aggregate = base + "CROSS APPLY (SELECT COUNT_BIG(*) AS value FROM q AS z WHERE z.id = a.id) AS b"
         self.assertEqual(convert(aggregate, "tsql", context)["code"], "lateral_scalar_aggregate_required")
         context["lateral_scalar_aggregate"] = True
@@ -316,6 +323,23 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertEqual(result["status"], "converted")
         self.assertIn("CROSS JOIN LATERAL", result["sql"])
         self.assertEqual(result["result_schema"], [{"name": "value", "type": "BIGINT", "nullable": False}])
+
+    def test_text_values_are_bound_but_not_compared(self):
+        context = {"parameters": {"p": {"type": "NVARCHAR(80)", "nullable": True}}}
+        self.assertEqual(convert("SELECT @p AS val", "tsql", context)["code"], "text_domain")
+        context.update(text_max_utf16_units=40, text_unicode_scalars=True)
+        first = convert("SELECT @p AS val", "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("CAST(:p AS STRING)", first["sql"])
+        reverse = convert(first["sql"], "databricks", context)
+        self.assertEqual(reverse["status"], "converted")
+        self.assertIn("AS NVARCHAR(80)", reverse["sql"])
+        self.assertEqual(reverse["result_schema"], first["result_schema"])
+        for rejected in ("SELECT DISTINCT @p AS val", "SELECT @p AS val ORDER BY val",
+                         "SELECT 1 AS val WHERE @p = @p",
+                         "SELECT @p AS val UNION SELECT @p AS val",
+                         "SELECT NULLIF(@p, @p) AS val"):
+            self.assertIsNone(convert(rejected, "tsql", context)["sql"])
 
     def test_star_expansion_uses_complete_declared_order(self):
         table = {**self.binding, "columns": {

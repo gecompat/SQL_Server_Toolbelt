@@ -59,6 +59,12 @@ EXISTS-Unterabfragen erlauben eine Ebene der Gleichheitskorrelation.
 IN akzeptiert gleich typisierte Literallisten. Dezimalprojektionen
 erhalten explizite Precision und Scale. Ein Cast, der ein Literal
 runden oder abschneiden müsste, wird abgelehnt.
+Textwerte aus explizit gebundenen Spalten oder Parametern können projiziert
+werden. `NVARCHAR(n)` bezeichnet dabei den gemeinsamen logischen Vertrag
+mit höchstens `text_max_utf16_units` UTF-16-Einheiten und der Zusicherung
+`text_unicode_scalars: true`. Die Databricks-Parameterprojektion verwendet
+STRING. Vergleiche, Gruppierung sowie Sortierung von Text erfordern
+einen eigenen Collationvertrag und werden in diesem Profil abgelehnt.
 Gruppierung über benannte Spalten, HAVING, MIN/MAX und COUNT/COUNT_BIG
 sind für die gebundenen Ganzzahlabfragen abgedeckt. Erforderliche
 INT-Zählungen setzen die Zusicherung `max_group_rows` voraus.
@@ -94,6 +100,9 @@ entsprechende Databricks-Fähigkeit ausdrücklich zusichern. Der Bericht führt
 diese Voraussetzung unter `required_capabilities` auf.
 Für direkt laterales TOP/LIMIT sind zusätzlich
 `lateral_ordered_limit: true` und `lateral_unique_order` nötig.
+Ein zusätzliches linkes Cutoff-Prädikat erfordert bei TOP/LIMIT
+`lateral_cutoff: true`. In diesem Profil bleibt die direkte laterale
+Ausführung erhalten.
 Korrelierte Skalaraggregate ohne GROUP BY benötigen
 `lateral_scalar_aggregate: true`. Diese Schalter sind Zusicherungen des
 Aufrufers zur gewählten Zielengine. Der Offline-Check ermittelt sie nicht.
@@ -103,7 +112,26 @@ und den Parametervertrag. Bei fehlendem Kontext, einem nicht abgedeckten
 Konstrukt, ungültiger Eingabe oder einem Limitüberschritt enthält sie einen
 festen Fehlercode und `sql: null`. Die SQL-Datei ist auf 16 KiB, die
 Kontextdatei auf 64 KiB, der Tokeneingang auf 512 Tokens und die
-Klammerungstiefe auf 16 begrenzt. Eingaben werden als UTF-8 gelesen.
+Klammerungstiefe auf 16 begrenzt. Die SQL-Ausgabe ist auf 1 MiB
+begrenzt. Eingaben werden als UTF-8 gelesen.
+
+## Native Abnahme
+
+Die CI führt den [synthetischen Korpus](native_cases.py) auf SQL Server 2025
+aus. Sie prüft Werte, NULL, Multiplizität, definierte Reihenfolge und die
+per SqlClient beobachteten Spaltennamen und Typen. Der SQL-Lauf verwendet
+einen isolierten Container, dessen Abwesenheit nach dem Test verifiziert wird.
+
+Die Databricks-Prüfung nutzt dieselben festen Fälle. Für ein bestehendes
+ausdrücklich ausgewähltes laufendes SQL-Warehouse müssen
+`DATABRICKS_HOST`, `DATABRICKS_SQL_WAREHOUSE_ID` und
+`DATABRICKS_TOKEN` lokal gesetzt sein. Der Befehl
+`python Scripts/SqlDialect/native_cases.py --databricks` gibt nur
+Fallnamen und Status aus und legt keine Cloud-Ressourcen an.
+Fehlt die Konfiguration, endet die Prüfung vor dem ersten Request
+mit `DATABRICKS_CONFIG_MISSING`. Der historische Spark-Nachweis
+beschreibt den früheren Researchkorpus. Die native Databricks-Abnahme
+des aktuellen Konverters bleibt davon getrennt.
 
 Die [lokalen Tests](test_convert_query.py) prüfen die Umkehrkonvertierung,
 Schema- und Parametererhalt und explizite Ablehnungen. Komplexere APPLY-Fälle,
