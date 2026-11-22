@@ -3,12 +3,13 @@
 **Freigabe vom 2026-11-22:** Der Benutzer hat die Implementierung des
 besprochenen lokalen bidirektionalen Werkzeugs ausdrücklich freigegeben.
 Der [erste Offline-Teilumfang](../../Scripts/SqlDialect/README.md) liefert
-gebundene Ganzzahlprojektionen und Filter mit typisierten Parametern in
+gebundene Ganzzahlprojektionen und Filter mit typisierten Parametern,
+nichtrekursive CTEs, Joins, UNION ALL und begrenztes APPLY/LATERAL in
 beiden Richtungen. Die ursprünglichen Versuche unten bleiben auf ihren
 jeweiligen Scope gebunden. Die V1-Abnahme benötigt weiterhin die
 fehlenden Sprachteile und ein tatsächliches Databricks-Zielprofil.
 
-Stand: 2026-10-16 · Autor: Codex · Status: konkretisierter Vertragsvorschlag,
+Historischer Stand: 2026-10-16 · Autor: Codex · Status: konkretisierter Vertragsvorschlag,
 `researched`, keine Implementierungsfreigabe. Dieser Vorschlag präzisiert die
 [Machbarkeitsanalyse](SQL_DIALECT_TRANSFORMATION_FEASIBILITY.md) nach dem
 Benutzerauftrag desselben Tages. „Automatisch“ bezeichnet geplantes Verhalten
