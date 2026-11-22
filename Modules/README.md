@@ -13,7 +13,7 @@ ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronit
 
 ## Aktueller Status
 
-**45 Module sind implementiert. 15 sind `validated`, 30 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
+**45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
 ## Implementierte Module
@@ -21,7 +21,7 @@ abgeleitet.**
 <!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->
 | Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
 |---|---|---:|---|---|---|---|---|
-| `toolbelt.archive.zip-files` | Windows ZIP File Facades | `1.0.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.archive.zip-files` | Windows ZIP File Facades | `1.0.0` | `toolbelt_archive` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.archive.zip-memory` | ZIP Memory Inspection | `1.4.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.binary.bit-operations` | Bigint Bit Operations Compatibility | `1.0.0` | `toolbelt_binary` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |

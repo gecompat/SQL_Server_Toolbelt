@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-22 – Windows-ZIP-Dateifassaden validiert
+
+Die drei ZIP-Dateifassaden sind für Windows SQL Server 2019, 2022 und
+2025 im lokalen Profil validiert. Die ZIP-Testmatrix dokumentiert die
+sechs Engine-/CL-Kombinationen und die Kontexte der Spezialfälle.
+[ZIP-Testmatrix](Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md)
+
 ## Gemeinsamer markerfreier Quellinstaller — 2026-11-20
 
 - Gemeinsame Windows-/Portable-Profile lokal/zentral als normale create-only-T-SQL-Datei; alle SQL-Assemblynamen beginnen mit tlblt. Historische Releaseartefakte bleiben unverändert.
@@ -2337,7 +2344,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 15 sind `validated`, 30 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

@@ -117,7 +117,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 45 Module sind implementiert. 15 sind `validated`, 30 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -129,7 +129,7 @@ Evidenzkanal. Second Session und Event Log verwenden die versionsabhängig
 ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule blieben damals wegen
 ausdrücklich abgegrenzter Performance-, Client-/Treiber-, Fixture-,
 Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`.
-Der aktuelle Bestand umfasst 45 Module, davon 21 `validated` und 24
+Der Stand vom 2026-10-19 umfasste 45 Module, davon 21 `validated` und 24
 `partially validated`; alle 16 V0c-Module sind seit der Nachqualifikation
 vom 2026-10-19 `validated`. Der
 [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md) ersetzt die historischen

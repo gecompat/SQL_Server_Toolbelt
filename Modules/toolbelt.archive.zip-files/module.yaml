@@ -2,7 +2,7 @@ module_id: "toolbelt.archive.zip-files"
 module_name: "Windows ZIP File Facades"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Lokale Windows-ZIP-Fassaden für Dateierzeugung, Einzel-Entry- und Archivextraktion."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated"
+  windows: "validated"
   linux: "not applicable: Windows-EXTERNAL_ACCESS-Filesystemprovider"
 providers:
   - id: tsql-facade
     technology: T-SQL
     platforms: [Windows]
-    status: "partially validated"
+    status: "validated"
 deployment_capabilities:
   local: true
   central: false
@@ -45,6 +45,7 @@ objects:
   - {type: USP, schema: toolbelt_archive, name: USP_ExtractZipArchiveToDirectory, visibility: public}
 permissions_required:
   - "Vorhandene EXECUTE-/Ownershipchain-/Root-/NTFS-Rechte, Caller Windows Authentication"
+  - "ServiceAccount: kanonische Datenbankrolle, dienstidentitätsgebundene Root-/NTFS-Rechte und bei den älteren Fassaden objektspezifische Sicht auf die geprüften Abhängigkeiten."
   - "Kein GRANT, EXECUTE AS, Owner-/Config-/Assembly-/Trustwechsel"
   - "Installation: vorhandene Rechte für die tatsächlich ausgeführten CREATE-/Schemaoperationen; die Engine prüft jede Operation. Kein pauschales sysadmin-Gate für reine Objekterstellung."
 historical_lifecycle_permissions:
@@ -84,6 +85,10 @@ contracts:
   validation: "1.0"
 tests:
   static: "Tests/Static/validate_contract.py"
+  windows_matrix: "Tests/Runtime/ZipFiles.WindowsMatrix.sql"
+  current_edges: "Tests/Runtime/ZipFiles.CurrentClosure.sql"
+  collation_shape: "Tests/Runtime/ZipFiles.CurrentCollationShape.sql"
+  directory_output: "Tests/Runtime/ZipFiles.Directory.Direct.sql"
   runtime: "Tests/Runtime/ZipFiles.Contract.sql"
   contract: "Tests/Runtime/ZipFiles.Contract.sql"
   help: "Tests/Runtime/Help.Contract.sql"
@@ -95,4 +100,8 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "Privater begrenzter Windows-local-Lauf und gezielte AppLock-Probes"
     scope: "SQL Server 2025/CU8 Windows, CL170, local: elf Fälle in früheren Teilabläufen erfolgreich, danach zwei gezielte Aliasprüfungen unter AppLock erfolgreich, mit identischen Produktbytes. Zusammen 13 Fallnachweise, kein gemeinsamer 13-Fälle-Erfolgslauf. Fünf SQL-Fixtures, Windows-Caller/SQLauth-Ablehnung, Deploy-/Uninstall-Repeat und Alias-First-GO-/AppLock-Schutz; eigene DB/Root abwesend, zwei Trustzustände wiederhergestellt und frische Prüfung erfolgreich, keine Konfigurations-/Rechte-/Owneränderung. Historische fehlgeschlagene Abläufe bleiben fehlgeschlagen; unveränderte Provider wiederverwendet, keine vollständige ZIP-/NTFS-/Zielmatrix-, Central-/Linux-, Minimalrechte- oder aktuelle Head-CI-Qualifikation."
+    result: "success"
+  - date: "2026-11-22"
+    workflow: "Native ZIP-Dateifassaden-Abnahme und frische Windows-Lab-Audits"
+    scope: "Windows/local: 2019/CU32 CL150, 2022/CU26 CL150/160 und 2025/CU8 CL150/160/170. Native Fachmatrix für alle drei Fassaden. Repräsentative CL170-Nachweise für ServiceAccount, NTFS, Publikation, CRC, Lastgrenzen, Create-only-Wiederholung, direkte Ausgabe und KeepData, Hilfe und Skill-Katalog, CS/BIN2, Readback-Offsets sowie Writer-Größen- und Zeitbudgets. Alle verwendeten eigenen Ressourcen frisch auditiert. Der historische Marker-Lifecycle hat seinen eigenen Nachweis."
     result: "success"
