@@ -1897,7 +1897,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 17 sind `validated`, 28 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
@@ -6147,7 +6147,7 @@ Worksheetliste und Zellreader bleiben getrennte öffentliche Vorschläge.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Listing-only aus `varbinary(max)`; Central-Directory-Reihenfolge; deklarierte Größen/CRC; Directory-, Encryption-, Extraction-Support-, Duplicate- und Path-Safety-Status; UTF-8/CP437; strikte Strukturprüfung; harte Limits; ZIP64/Multi-Disk abgelehnt; unbekannte Methoden und verdächtige Entries werden gelistet statt verworfen. |
 | Alternativen | Getrenntes Metadatenmodul, reine T-SQL-Implementierung und externer Worker wurden zugunsten der Erweiterung des vorhandenen SAFE-CLR-Moduls verworfen, damit der ZIP-Parserkern nur einmal existiert. |
@@ -6155,7 +6155,7 @@ Worksheetliste und Zellreader bleiben getrennte öffentliche Vorschläge.
 | Tests | Statischer Vertrag; synthetische Struktur-/Encoding-/Pfad-/Duplicate-/Limitfälle; direkte Ausgabe und ResultTable; Local/Central; Upgrade 1.1.0→1.2.0; automatisierte SQL-Server-2019-/2022-/2025-Matrix unter Windows base und Linux latest erfolgreich. |
 | Freigabe | Fachvertrag und Implementierung dieses konkreten V1-Slices am 2026-08-09 ausdrücklich durch den Benutzer freigegeben. |
 | Evidenz | Modulartefakte unter `Modules/toolbelt.archive.zip-memory/`; statischer Vertragscheck, Windows-.NET-Framework-4.8-Build und die vollständige SQL-Server-2019-/2022-/2025-Linux-Matrix einschließlich Listing und Extraktion sind im [GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453) erfolgreich. |
-| Nächster Schritt | Reale Archive, echte Extremgrößen, Interoperabilität und den vollständigen Upgradepfad aus einem realen 1.1.0-Stand als Releaseevidenz ergänzen. |
+| Aktueller Nachweis | [Portable ZIP-Memory-Abnahme](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build); historische Lifecycle-Nachweise bleiben erhalten. |
 
 ### AP-2026-029: TC-2026-014 Rollback-independent Event Log
 
@@ -6311,13 +6311,13 @@ vollständige Modulqualifikation bleiben getrennt.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Ein oeffentliches Objekt mit stabilem Help-/Fehler-/Resultset-Vertrag; Duplicate-Entry-Semantik als expliziter Fehler; harte Default-Limits (`@MaxEntryBytes = 104857600`, `@MaxCompressionRatio = 200.00`); verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload; lokale und zentrale Lifecycle-Artefakte sowie statische und Runtime-Tests vorhanden. |
 | Tests | Windows-.NET-Framework-4.8-Build sowie SQL Server 2019, 2022 und 2025 unter Linux; auf SQL Server 2025 Compatibility Levels 150, 160 und 170. Trust, Stored, Deflate, Data Descriptor, Encoding, CRC32, Limits, ResultTable, Wiederholungsdeployment, Central und Uninstall erfolgreich. |
-| Blocker | Kein Merge-Blocker. Reale Archive, echte Extremgrößen-/Ressourcenläufe, historische Upgrades und Interoperabilität bleiben offen. |
+| Blocker | Kein Merge-Blocker. Die aktuelle portable Abnahme und der frühere Lifecycle sind getrennt dokumentiert. |
 | Evidenz | Produktives Modul `toolbelt.archive.zip-memory` Version `1.1.0`; Workflow [30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206) erfolgreich. |
-| Nächster Schritt | Reale Archive, echte Extremgrößen und historische Upgrade-/Interoperabilitätsevidenz ergänzen; ZIP-Erzeugung und vollständige Dateisystemextraktion bleiben getrennte spätere Slices. |
+| Aktueller Nachweis | [Portable ZIP-Memory-Abnahme](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build); historische Lifecycle-Nachweise bleiben erhalten. |
 
 ### AP-2026-019: TC-2026-034 Verarbeitungswelle 1 (Vertragswelle)
 

@@ -1,12 +1,42 @@
 # Contract-Testmatrix: ZIP Memory CLR Inspection
 
-## Nachweisabgleich2026-11-06
+## Aktueller portabler Build
+
+Die Abnahme umfasst den markerfreien Create-only-Installer mit
+`tlblt_Archive_ZipMemory` als `SAFE` und exakter SHA2-512-Bindung.
+Je Engine gelten SQL Server 2019 mit CL150, 2022 mit CL150/160 und 2025 mit
+CL150/160/170. Geprüft werden lokale Installation und direkte zentrale
+Aufrufe aus einer getrennten Caller-Datenbank.
+
+| Prüfung | Windows-Lab | Linux-CI |
+|---|---|---|
+| Writer, Listing, Extraktion in ResultTables, exakte Groß-/Kleinschreibung und Ergebniserhalt bei Ablehnung | 48 Assertions in zwölf Kontexten auf SQL 2019/CU32, 2022/CU26, 2025/CU8; drei frische Audits bestanden | Dieselben 48 Assertions auf SQL 2019/2022/2025 in separaten, anschließend entfernten CI-Containern |
+| Reader bei 128 MiB komprimiert und 64 MiB entpackt, jeweils an der Grenze und ein Byte darüber | SQL 2025/CU8 CL170, acht Assertions lokal/zentral | SQL 2019 CL150, acht Assertions lokal/zentral |
+| Stored-Writer bei 32 MiB pro Entry, 128 MiB Gesamtpayload, 1.024 Entries und 2.048 UTF-16-Codeeinheiten im Namen, jeweils mit isolierter Überschreitung | SQL 2025/CU8 CL170, zwölf Assertions lokal/zentral; frischer gemeinsamer Grenzfall-Audit bestanden | SQL 2019 CL150, zwölf Assertions lokal/zentral |
+
+Linux-Nachweis und Wiederholungsprüfung laufen im
+[ZIP-Memory-Workflow](../../../.github/workflows/zip-memory-runtime.yml).
+Die Linux-Labverbindungen waren für diese Welle nicht verfügbar. Die
+SQL-Grenzproben verwenden synthetische Daten am unveränderten Produktlimit.
+Die Reader-Fixtures werden unabhängig dekodiert und ihr erwarteter Payload-Hash
+wird im SQL-Aufruf abgeglichen. Der Writer prüft Größe, Struktur und Inhalt
+direkt an den ZIP-Bytes, da die öffentliche Reader-Namensgrenze bei
+1.024 UTF-16-Codeeinheiten liegt.
+
+Die unveränderten Archivgrößen- und Entryanzahlgrenzen sowie die öffentlichen
+Objektrechte verwenden die unten verlinkten vorhandenen Nachweise. Die
+native Wiederholungsprüfung des Readers betrifft den geänderten
+Dekompressionspfad. Historische Upgrade- und Uninstallfälle gehören zum
+damaligen Installer. Die synthetischen Tests begründen keine allgemeine
+Produktionskapazität oder Zusage für unbekannte ZIP-Formate.
+
+## Historischer Nachweisabgleich vom 6. November 2026
 
 Die spätere [Entryanzahl-Qualifikation](../../../Releases/1.0.0/ZIP-ENTRY-COUNT-QUALIFICATION.md)
 belegt Listing mit10000 Einträgen, die Abweisung von10001 sowie des zu großen
 MaxEntries-Parameters auf zwölf Ziel-/CL-Paaren lokal/direkt zentral. Die
-nachfolgende alte `not executed`-Zeile für Entry-Count ist deshalb kein heutiger
-offener Punkt dieses Listingprofils. Sie bleibt als historischer Eintrag erhalten.
+ursprüngliche offene Entry-Count-Zeile ist in der Tabelle durch diesen Nachweis
+ersetzt.
 Dies belegt für sich weder Archiv256MiB noch komprimierten Extraktionsinput128MiB.
 Die spätere [native Archivbyte-Prüfung](../../../Releases/1.0.0/ZIP-ARCHIVE-BYTE-QUALIFICATION.md)
 schließt separat exakt256MiB und ein Byte darüber für öffentliche Listing- und
@@ -74,9 +104,9 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | Duplicate Name | doppelter exakter Name liefert `51323` | `success` |
 | Verschlüsselt | `@FailIfEncrypted = 1` liefert `51324` | `success` |
 | Encrypted Status | `@FailIfEncrypted = 0` liefert `IsEncrypted = 1` ohne Payload | `success` |
-| Archivlimit | hartes Limit `268435456` Bytes | `not executed` |
-| Entry-Count | hartes Limit `10000` Entries | `not executed` |
-| Compressed Limit | hartes Limit `134217728` Bytes | `not executed` |
+| Archivlimit | hartes Limit `268435456` Bytes | [native Grenzprüfung](../../../Releases/1.0.0/ZIP-ARCHIVE-BYTE-QUALIFICATION.md) |
+| Entry-Count | hartes Limit `10000` Entries | [native Grenzprüfung](../../../Releases/1.0.0/ZIP-ENTRY-COUNT-QUALIFICATION.md) |
+| Compressed Limit | hartes Limit `134217728` Bytes | [Reader-Grenzprüfung im aktuellen Build](#aktueller-portabler-build) |
 | Output-Limit | `@MaxEntryBytes` vor und während Dekomprimierung | `success` |
 | Ratio-Limit | deklarierte und tatsächliche Compression Ratio | `success` |
 | Method | unbekannte Method und Deflate64 liefern `51327` | `success` |
@@ -101,21 +131,21 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | SQL 2022 Linux | physische Engine, Compatibility 160 | `success` |
 | SQL 2025 Linux | Compatibility 150, 160 und 170 | `success` |
 | Windows Build | .NET-Framework-Build und Release-Manifest | `success` |
-| Windows Runtime | SQL Server unter Windows | `not executed` |
+| Windows Runtime | SQL Server unter Windows | [aktuelle Windows-Matrix](#aktueller-portabler-build) |
 
 `not executed` wird erst durch reproduzierbare CI- oder gezielte Release-Evidenz
 ersetzt. `partially validated` beim Upgrade bezeichnet den erfolgreichen
 synthetischen Versionsmarker-Pfad ohne vollständiges vorheriges 1.1.0-Deployment.
-Einzelne offene Fälle verhindern keine wahrheitsgemäße
-`partially validated`-Einstufung des Moduls, bleiben aber vor Release sichtbar.
+Der Versionsmarker-Pfad bleibt historische Evidenz. Der aktuelle
+Create-only-Installer unterstützt keinen Upgrade- oder Uninstallpfad.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
+- Datum: `2026-11-22`
+- Nachweis: `.github/workflows/zip-memory-runtime.yml; ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build`
+- Scope: Markerfreier Portable-Installer und SAFE-Assembly auf Windows-Lab und Linux-CI, 2019 CL150, 2022 CL150/160, 2025 CL150/160/170, je lokal und direkt zentral. Native Reader- und Writer-Grenzfälle auf Windows 2025/CU8 CL170 und Linux 2019 CL150, je lokal und zentral. Windows-Abschlussaudits und Linux-Container-Cleanup; historischer Lifecycle bleibt separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -1,5 +1,12 @@
 # Tests – ZIP Memory CLR Inspection
 
+Die [aktuelle portable Testmatrix](ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build)
+enthält die Windows- und Linux-Engine-/CL-Paare für lokale und zentrale
+Aufrufe sowie die nativen Reader- und Writer-Grenzproben. Der aktuelle
+Linux-Workflow baut und prüft die markerfreien SQL-Installer im PR und auf
+`main`. Ein manueller Dispatch dieses Workflows bleibt der historische
+Lifecycle-Test.
+
 Die begrenzten Callerrechte für Listing, Extraktion und Writer sind im
 [ZIP-Callerbericht](../../../Releases/1.0.0/ZIP-CALLER-PROFILE.md) dokumentiert.
 Diese zusätzliche Rechteprüfung ändert Produktbytes und Modulstatus nicht und
@@ -35,9 +42,9 @@ werden geschlossen. Retention ist kein Datei-Cleanup-PASS.
 
 Die eingebettete synthetische C#-Suite bleibt unverändert. Der historische
 Aufruf im folgenden Abschnitt dokumentiert den damaligen Stand.
-Neue Intake-/Frameworkqualifikation: **NOT_EXECUTED**, Quellenstand 2026-10-08.
-Modulstatus und Release bleiben `partially validated` und `unreleased`;
-keine zusätzliche SQL-, SAFE-, Plattform- oder Kapazitätsqualifikation.
+Am 8. Oktober 2026 war die neue Intake-Prüfung noch nicht ausgeführt. Der
+aktuelle ZIP-Workflow führt sie mit der exakten Framework-Assembly vor der
+nativen Linux-Matrix aus.
 
 ## Writer 1.3.0 (2026-10-01)
 
@@ -47,7 +54,9 @@ keine zusätzliche SQL-, SAFE-, Plattform- oder Kapazitätsqualifikation.
 
 Abstrakte Endstand-Evidence vom 2026-10-01: Der vollständige Moduladapter war auf SQL Server 2019 unter Linux (Compatibility 150) und SQL Server 2025 unter Windows (Compatibility 150, 160 und 170) erfolgreich. Jeder Lauf umfasst lokale und zentrale Installation, die Writer- und SQLClient-Metadatenverträge, tatsächliche 16-MiB-Standardpayloads mit beiden Methoden, leere Stored-/Deflate-Payloads über direkte CLR-Tabellefunktion, öffentliche SELECT-Ausgabe und ResultTable, bestehende encrypted-NULL-Regressionen, Transaktionen und Fehleratomarität sowie echtes 1.2.0-Binaryupgrade, Kollisionen, Wiederdeploy und Uninstall. Build, Framework-Suite und statischer Modulvalidator waren am finalen Quellstand erfolgreich. Nichtöffentliche Laufzeitdaten wurden nicht als Repository-Artefakte gespeichert.
 
-Der Modulstatus bleibt `partially validated`: echte Produktionsarchive, globale Kapazitäts- oder Parallelitätsgrenzen und SQL-LOB-Ceilings oberhalb der Standardpayload sind nicht vollständig qualifiziert. Die größeren synthetischen Frameworkgrenzen sind ein separater Nachweis, keine allgemeine Serverkapazitätszusage.
+Der historische Lauf deckte native SQL-LOBs bis zur Standardpayload ab. Die
+heutigen synthetischen Writer-Grenztests sind separat in der aktuellen Matrix
+ausgewiesen. Reale Produktionsarchive und globale Kapazität werden dort nicht zugesichert.
 
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität bleiben offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
@@ -84,21 +93,13 @@ GitHub-Actions-Lauf `32701896453`:
 Der Lauf belegt für `1.2.0` lokale und zentrale Installation, Upgrade-Marker,
 Wiederholungsdeploy, Extraktions- und Listingverträge sowie Uninstall.
 
-## Offen
-
-- SQL-Server-Runtime unter Windows;
-- echte Läufe an den maximalen Archiv-, Entry- und Entry-Count-Grenzen;
-- zusätzliche Interoperabilitätsläufe vor Release.
-
-Der Modulstatus ist `partially validated`.
-
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
+- Datum: `2026-11-22`
+- Nachweis: `.github/workflows/zip-memory-runtime.yml; ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build`
+- Scope: Markerfreier Portable-Installer und SAFE-Assembly auf Windows-Lab und Linux-CI, 2019 CL150, 2022 CL150/160, 2025 CL150/160/170, je lokal und direkt zentral. Native Reader- und Writer-Grenzfälle auf Windows 2025/CU8 CL170 und Linux 2019 CL150, je lokal und zentral. Windows-Abschlussaudits und Linux-Container-Cleanup; historischer Lifecycle bleibt separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

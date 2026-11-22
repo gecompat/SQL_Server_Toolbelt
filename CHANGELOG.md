@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-22 – Portables ZIP-Memory-Modul validiert
+
+Die markerfreie lokale und zentrale Installation, die drei öffentlichen
+ZIP-Memory-Aufrufe und die nativen Reader-/Writer-Grenzproben sind in der
+[aktuellen Testmatrix](Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build)
+dokumentiert.
+
 ## 2026-11-22 – Windows-ZIP-Dateifassaden validiert
 
 Die drei ZIP-Dateifassaden sind für Windows SQL Server 2019, 2022 und
@@ -2344,7 +2351,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 17 sind `validated`, 28 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

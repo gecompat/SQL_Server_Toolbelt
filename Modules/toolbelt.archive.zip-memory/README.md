@@ -8,8 +8,9 @@ Den [modulbezogenen Buildplan](Deployment/README.md) oder den
 Beide führen auf denselben markerfreien create-only-Kern: normale SQL-Datei,
 kein SQLCMD-Modus, keine Deployment-Extended-Properties. Der aktuelle SQL-Assemblyname ist `tlblt_Archive_ZipMemory`.
 Die bisherigen Versions-/Lifecycleangaben weiter unten und ihre damaligen
-Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Sie sind kein
-aktueller Upgrade-/Uninstallweg und keine neue native Installerabnahme.
+Assemblynamen bleiben an die ursprünglichen Artefakte gebunden. Die
+[aktuelle Testmatrix](Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build)
+führt die native Abnahme des Create-only-Installers.
 
 
 Aktueller Release-1.4-Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8 erfolgreich; echte Upgradefixture, Writerregression und nichtdoomende Lifecycle-Callerablehnung. Historische Reader-/Writer-Matrix ersetzt keine weitere 1.4-Kapazitätsqualifikation.
@@ -116,7 +117,7 @@ Harte Providerlimits:
 ## Nicht unterstützt
 
 ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung, Deflate64, andere Methods,
-Archiv-Erzeugung, Multi-Entry-, Verzeichnis- und rekursive Extraktion sowie
+Multi-Entry-, Verzeichnis- und rekursive Extraktion sowie
 Dateisystem-, Netzwerk- oder Prozesszugriff.
 
 ## Dokumentation
@@ -140,9 +141,10 @@ GitHub-Actions-Lauf `32701896453` war erfolgreich für Version `1.2.0`:
   und DOS-Zeit, ResultTable, Upgrade-Marker, Wiederholungsdeployment, Central
   und Uninstall.
 
-Der Extraktions- und Listingvertrag ist in der Linux-Zielversionsmatrix
-erfolgreich. Windows-SQL-Server-Runtime, echte Extremgrößenläufe und eine
-breitere Interoperabilitätsmatrix realer Archive bleiben vor Release offen.
+Der aktuelle Build ist für Listing, Extraktion und Writer auf den deklarierten
+Windows- und Linux-Engine-/CL-Paaren lokal und zentral validiert.
+Synthetische Grenzfälle und die jeweils zugehörigen Zielkontexte stehen in der
+[Testmatrix](Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build).
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
 und der lokale Lauf vom 2026-08-29 mit reproduzierbar neu gebautem, per
@@ -151,9 +153,9 @@ exaktem SHA2-512 autorisiertem Releaseartefakt.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
+- Datum: `2026-11-22`
+- Nachweis: `.github/workflows/zip-memory-runtime.yml; ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build`
+- Scope: Markerfreier Portable-Installer und SAFE-Assembly auf Windows-Lab und Linux-CI, 2019 CL150, 2022 CL150/160, 2025 CL150/160/170, je lokal und direkt zentral. Native Reader- und Writer-Grenzfälle auf Windows 2025/CU8 CL170 und Linux 2019 CL150, je lokal und zentral. Windows-Abschlussaudits und Linux-Container-Cleanup; historischer Lifecycle bleibt separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
