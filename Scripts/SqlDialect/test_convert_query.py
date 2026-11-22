@@ -70,6 +70,68 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertIsNone(result["sql"])
         self.assertNotIn("ContosoProcedure", str(result))
 
+    def test_cte_join_roundtrip_preserves_null_extension(self):
+        declarations = [
+            {**self.binding, "columns": {"id": {"type": "BIGINT", "nullable": False}}},
+            {"source": ["dbo", "Detail"], "target": ["main", "demo", "Detail"],
+             "columns": {"id": {"type": "BIGINT", "nullable": False}}},
+        ]
+        sql = ("WITH a AS (SELECT e.id AS id FROM dbo.Event AS e), "
+               "b AS (SELECT x.id AS id FROM a AS x) "
+               "SELECT x.id AS left_id, d.id AS right_id FROM b AS x "
+               "LEFT OUTER JOIN dbo.Detail AS d ON d.id = x.id WHERE x.id >= @key")
+        first = convert(sql, "tsql", {"relations": declarations, "parameters": self.parameters})
+        self.assertEqual(first["status"], "converted")
+        self.assertEqual([item["nullable"] for item in first["result_schema"]], [False, True])
+        reversed_mappings = [
+            {**item, "source": item["target"], "target": item["source"]} for item in declarations
+        ]
+        second = convert(first["sql"], "databricks", {"relations": reversed_mappings, "parameters": self.parameters})
+        self.assertEqual(second["status"], "converted")
+        self.assertIn("LEFT JOIN [dbo].[Detail] AS [d] ON", second["sql"])
+        self.assertEqual(first["result_schema"], second["result_schema"])
+
+    def test_cte_scopes_fail_closed(self):
+        for sql in (
+            "WITH a AS (SELECT t.id AS id FROM a AS t) SELECT 1 AS id",
+            "WITH a AS (SELECT t.id AS id FROM b AS t), b AS (SELECT 1 AS id) SELECT 2 AS id",
+            "WITH a AS (SELECT 1 AS id), A AS (SELECT 2 AS id) SELECT 3 AS id",
+            "WITH a AS (SELECT 1 AS id) SELECT t.id AS id FROM a AS t, a AS b",
+            "WITH a AS (SELECT 1 AS id) SELECT b.id AS id FROM a AS t JOIN a AS T ON t.id = T.id",
+        ):
+            with self.subTest(sql=sql):
+                self.assertIsNone(convert(sql, "tsql", {})["sql"])
+
+    def test_explicit_cross_and_right_join_nullability(self):
+        for join, expected in (
+            ("CROSS JOIN one AS y", [False, False]),
+            ("RIGHT JOIN one AS y ON x.id = y.id", [True, False]),
+            ("FULL JOIN one AS y ON x.id = y.id", [True, True]),
+        ):
+            with self.subTest(join=join):
+                sql = f"WITH one AS (SELECT 1 AS id) SELECT x.id AS a, y.id AS b FROM one AS x {join}"
+                result = convert(sql, "tsql", {})
+                self.assertEqual(result["status"], "converted")
+                self.assertEqual([item["nullable"] for item in result["result_schema"]], expected)
+
+    def test_correlated_apply_is_capability_gated_and_roundtrips(self):
+        sql = ("WITH one AS (SELECT 1 AS id) SELECT x.id AS a, y.id AS b FROM one AS x "
+               "OUTER APPLY (SELECT z.id AS id FROM one AS z WHERE z.id = x.id) AS y")
+        unavailable = convert(sql, "tsql", {})
+        self.assertEqual((unavailable["status"], unavailable["sql"]), ("requires_context", None))
+        context = {"lateral_select": True}
+        first = convert(sql, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("LEFT JOIN LATERAL", first["sql"])
+        self.assertIn("ON TRUE", first["sql"])
+        self.assertEqual(first["required_capabilities"], ["lateral_select"])
+        self.assertEqual([item["nullable"] for item in first["result_schema"]], [False, True])
+        second = convert(first["sql"], "databricks", context)
+        self.assertEqual(second["status"], "converted")
+        self.assertIn("OUTER APPLY", second["sql"])
+        self.assertEqual(second["result_schema"], first["result_schema"])
+        self.assertIsNone(convert(sql.replace("z.id = x.id", "z.id > x.id"), "tsql", context)["sql"])
+
 
 if __name__ == "__main__":
     unittest.main()

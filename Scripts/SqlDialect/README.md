@@ -41,9 +41,19 @@ Unterstützt sind explizit aliasierte Projektionen, nullbare `INT`- und
 `BIGINT`-Spalten und Parameter, kleine ganzzahlige Literale, gleiche
 Vergleichstypen, `IS NULL`, logische Verknüpfungen sowie typgleiche
 Casts und die Erweiterung von `INT` auf `BIGINT`. Die Abfrage kann
-eine einzige vollständig qualifizierte Relation mit Alias enthalten.
+vollständig qualifizierte Relationen mit Alias enthalten. Mehrere Relationen
+werden als Liste `relations` übergeben. Nichtrekursive CTEs können auf früher
+definierte CTEs derselben Abfrage verweisen. Explizite INNER-, LEFT-, RIGHT-,
+FULL- und CROSS-Joins werden übersetzt. Das logische Schema berücksichtigt
+zusätzliche NULLs aus Outer Joins.
 Spaltennamen müssen auf beiden Seiten identisch sein. Parameterwerte
 werden erst durch den jeweiligen SQL-Client gebunden.
+
+Der Teilumfang für APPLY und LATERAL akzeptiert eine einzelne laterale
+Unterabfrage mit einer benannten Relation und optional einer gleich typisierten
+Gleichheitskorrelation. Der Aufrufer muss mit `"lateral_select": true` die
+entsprechende Databricks-Fähigkeit ausdrücklich zusichern. Der Bericht führt
+diese Voraussetzung unter `required_capabilities` auf.
 
 Die JSON-Ausgabe enthält bei `converted` SQL, ein logisches Ergebnisschema
 und den Parametervertrag. Bei fehlendem Kontext, einem nicht abgedeckten
@@ -53,6 +63,6 @@ Kontextdatei auf 64 KiB, der Tokeneingang auf 512 Tokens und die
 Klammerungstiefe auf 16 begrenzt. Eingaben werden als UTF-8 gelesen.
 
 Die [lokalen Tests](test_convert_query.py) prüfen die Umkehrkonvertierung,
-Schema- und Parametererhalt und explizite Ablehnungen. Joins, CTEs,
-APPLY, zusätzliche Typen und die native Databricks-Abnahme bleiben
-weitere Arbeit der freigegebenen V1.
+Schema- und Parametererhalt und explizite Ablehnungen. Komplexere APPLY-Fälle,
+zusätzliche Typen und die native Databricks-Abnahme bleiben weitere Arbeit
+der freigegebenen V1.
