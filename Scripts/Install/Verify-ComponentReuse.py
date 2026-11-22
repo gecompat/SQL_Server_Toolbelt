@@ -88,6 +88,13 @@ SSIS_HELP_NEW=('1: bisherige zwölfspaltige Standardhilfe plus genau eine vollst
                'Rückkehr vor fachlicher Parameter-/Paket-/Katalogprüfung und Ergebniszielmutation. '
                '0 oder NULL führt den Fachpfad aus. Im internen CLR-Einstieg bleiben die neun '
                'LOB-Argumente auch bei Hilfe syntaktisch erforderlich.').encode('utf-8')
+SSIS_INSPECT_OLD=('all liefert die unterstützten Vorgängerstufen jedes gewählten Ziels. '
+                  'Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist '
+                  'TargetFlow fachlich erforderlich und die Stufe muss zu dessen Vorgängerpfad gehören.').encode('utf-8')
+SSIS_INSPECT_NEW=('all liefert die verfügbaren Prüfblöcke jedes gewählten Ziels. Im Paketmodus '
+                  'zählen dazu die lookup_misses-Stufen für Lookups mit Abbruch bei fehlendem Treffer. '
+                  'Alternativ eine exakte StageId aus dem StageIndex desselben Pakets; dann ist '
+                  'TargetFlow fachlich erforderlich und die Stufe muss diesem Ziel zugeordnet sein.').encode('utf-8')
 IDENTIFIER_SCALAR_PATH='Modules/toolbelt.metadata.identifier/Source/SVF_QuoteMultipartName.sql'
 IDENTIFIER_SCALAR_RIGHTS_OLD=b'-- Rechte:          SELECT oder REFERENCES'
 IDENTIFIER_SCALAR_RIGHTS_NEW=b'-- Rechte:          EXECUTE und erforderliche Ownershipchain zum Parser'
@@ -119,6 +126,11 @@ def corrected_historical_help(original,path):
         a=original.index(start)+len(start);b=original.find(end,a)
         if b<0 or original[a:b].count(SCHEMA_HELP_OLD)!=1:raise ValueError('NONCANONICAL_SSIS_HELP')
         original=original[:a]+original[a:b].replace(SCHEMA_HELP_OLD,SSIS_HELP_NEW)+original[b:]
+    if path in (SSIS_PUBLIC_PATH,SSIS_HELP_PATH) and SSIS_INSPECT_OLD in original:
+        rows=[line for line in original.splitlines() if b"N'PARAMETER',7,N'@InspectStage'" in line]
+        if len(rows)!=1 or rows[0].count(SSIS_INSPECT_OLD)!=1 or original.count(SSIS_INSPECT_OLD)!=1:
+            raise ValueError('NONCANONICAL_SSIS_INSPECT_HELP')
+        original=original.replace(rows[0],rows[0].replace(SSIS_INSPECT_OLD,SSIS_INSPECT_NEW))
     if path in XLSX_HELP_PATHS and SCHEMA_HELP_OLD in original:
         start=b'    IF @Hilfe=1\n    BEGIN\n';end=b'        RETURN 0;'
         if original.count(start)!=1 or original.count(SCHEMA_HELP_OLD)!=1:

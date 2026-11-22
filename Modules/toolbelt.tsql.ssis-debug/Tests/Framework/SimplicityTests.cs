@@ -212,6 +212,32 @@ internal static partial class ContractTests
         string partialCache = PackageLookupSql(lookupDocument);
         Assert(partialCache.Contains("ROW_NUMBER() OVER (PARTITION BY") &&
             !partialCache.Contains("DATALENGTH(lk.[k"), "LOOKUP_OTHER_CACHE_MODES_KEEP_SQL_KEYS");
+        const string missesPrefix = "lookup_misses_";
+        Func<string, string, Artifacts> preview = (inspect, target) => Engine.Analyze(Encoding.UTF8.GetBytes(lookupDocument.ToString()),
+            new Options { Operation = "explain", Version = 150, CatalogMode = "package", Stage = inspect, Target = target }, new NullCatalog(), new Budget());
+        Assert(!preview("all", null).Rows.Any(a => a.Kind == "StageIndex" && a.Content.StartsWith(missesPrefix, StringComparison.Ordinal)),
+            "LOOKUP_MISSES_ONLY_FOR_FAIL_DISPOSITION");
+        lookupComponent.Element("properties").Elements("property").Single(p => (string)p.Attribute("name") == "CacheType").Value = "0";
+        lookupComponent.Element("properties").Elements("property").Single(p => (string)p.Attribute("name") == "NoMatchBehavior").Value = "0";
+        var allStages = preview("all", null);
+        var index = allStages.Rows.First(a => a.Kind == "StageIndex" && a.Content.StartsWith(missesPrefix, StringComparison.Ordinal));
+        Assert(allStages.Rows.Count(a => a.Kind == "StageIndex" && a.Target == index.Target && a.Content.StartsWith(missesPrefix, StringComparison.Ordinal)) == 1,
+            "LOOKUP_MISSES_ONE_STAGE_PER_LOOKUP_AND_TARGET");
+        var allMisses = allStages.Rows.Single(a => a.Kind == "StageSql" && a.Target == index.Target && a.Stage == index.Stage);
+        var singleMisses = preview(index.Stage, index.Target).Rows.Single(a => a.Kind == "StageSql");
+        Assert(singleMisses.Content == allMisses.Content && allMisses.Content.Contains("WHERE NOT EXISTS") &&
+            allMisses.Content.Contains("= DATALENGTH(lk.[k") && !allMisses.Executable && allMisses.Safety == "not_checked",
+            "LOOKUP_MISSES_SELECTABLE_AND_REUSES_TEXT_LENGTH");
+        var defaultPreview = preview(null, index.Target);
+        Assert(defaultPreview.Rows.Any(a => a.Kind == "StageIndex" && a.Stage == index.Stage) &&
+            !defaultPreview.Rows.Any(a => a.Kind == "StageSql") &&
+            !defaultPreview.Rows.Single(a => a.Kind == "DebugScript").Content.Contains(missesPrefix),
+            "LOOKUP_MISSES_DEFAULT_INDEX_WITHOUT_TARGET_SQL_CHANGE");
+        lookupComponent.Element("properties").Elements("property").Single(p => (string)p.Attribute("name") == "SqlCommand").Value = "EXEC dbo.SyntheticLookupProcedure";
+        var procedureMisses = preview(index.Stage, index.Target).Rows.Single(a => a.Kind == "StageSql").Content;
+        Assert(procedureMisses.Contains("_input]") && procedureMisses.Contains("WHERE NOT EXISTS") &&
+            procedureMisses.Split(new[] { "EXECUTE [dbo].[SyntheticLookupProcedure]" }, StringSplitOptions.None).Length == 2 &&
+            !procedureMisses.Contains("CREATE TABLE [##"), "LOOKUP_MISSES_REUSES_ONE_PROCEDURE_CAPTURE");
 
         document = XDocument.Parse(Encoding.UTF8.GetString(packageBytes));
         document.Root.Element(dts + "ConnectionManagers").Add(new XElement(dts + "ConnectionManager", new XAttribute(dts + "refId", "Package.ConnectionManagers[SyntheticFile]"), new XAttribute(dts + "CreationName", "FLATFILE"), new XAttribute(dts + "ObjectName", "SyntheticFile")));
