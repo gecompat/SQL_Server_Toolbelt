@@ -56,12 +56,21 @@ class SelectBinding:
         self.capabilities = set()
 
     def relation(self, table):
+        if type(table) is exp.Subquery:
+            shape(table, exp.Subquery, "this", "alias")
+            table_alias = table.args.get("alias")
+            shape(table_alias, exp.TableAlias, "this")
+            alias = identifier(table_alias.this)
+            self.require_new_alias(alias)
+            sql, schema = self.child().query(table.this, allow_ctes=False)
+            self.relations[alias] = ({column["name"]: column for column in schema}, False)
+            return f"(\n{sql}\n) AS {quote(alias, self.target)}", alias
         shape(table, exp.Table, "this", "db", "catalog", "alias")
         parts = tuple(identifier(table.args[key]) for key in ("catalog", "db", "this") if table.args.get(key))
         table_alias = table.args.get("alias")
         shape(table_alias, exp.TableAlias, "this")
         alias = identifier(table_alias.this)
-        require(alias.casefold() not in {key.casefold() for key in self.relations}, "duplicate_relation_alias")
+        self.require_new_alias(alias)
         if len(parts) == 1:
             columns = self.ctes.get(parts[0])
             require(columns is not None, "unbound_cte", "requires_context")
@@ -85,6 +94,9 @@ class SelectBinding:
 
     def qualified(self, parts, alias):
         return ".".join(quote(part, self.target) for part in parts) + " AS " + quote(alias, self.target)
+
+    def require_new_alias(self, alias):
+        require(alias.casefold() not in {key.casefold() for key in self.relations}, "duplicate_relation_alias")
 
     def join(self, node):
         shape(node, exp.Join, "this", "on", "side", "kind")
@@ -129,7 +141,7 @@ class SelectBinding:
         alias_node = lateral.args.get("alias")
         shape(alias_node, exp.TableAlias, "this")
         alias = identifier(alias_node.this)
-        require(alias.casefold() not in {key.casefold() for key in self.relations}, "duplicate_relation_alias")
+        self.require_new_alias(alias)
         shape(lateral.this, exp.Subquery, "this")
         query = lateral.this.this
         shape(query, exp.Select, "expressions", "from_", "where")
@@ -156,7 +168,7 @@ class SelectBinding:
                     or (right.table == local_name and left.table in self.relations), "lateral_correlation")
         member = self.child()
         member.relations = self.relations.copy()
-        sql, schema = member.select(query, allow_ctes=False)
+        sql, schema = member.query(query, allow_ctes=False)
         self.relations[alias] = ({column["name"]: column for column in schema}, not cross)
         relation = f"(\n{sql}\n) AS {quote(alias, self.target)}"
         if self.target == "tsql":
@@ -180,7 +192,7 @@ class SelectBinding:
             shape(alias, exp.TableAlias, "this")
             name = identifier(alias.this)
             require(name.casefold() not in {key.casefold() for key in self.ctes}, "duplicate_cte")
-            sql, schema = self.child().select(entry.this, allow_ctes=False)
+            sql, schema = self.child().query(entry.this, allow_ctes=False)
             self.ctes[name] = {column["name"]: column for column in schema}
             definitions.append(f"{quote(name, self.target)} AS (\n{sql}\n)")
         require(bool(definitions), "cte_shape")
@@ -257,11 +269,28 @@ class SelectBinding:
         require(left_type == right_type, "mixed_type_comparison")
         return f"({left} {COMPARISONS[kind]} {right})"
 
-    def select(self, tree, allow_ctes=True):
-        shape(tree, exp.Select, "expressions", "from_", "where", "joins", "with_")
+    def query(self, tree, allow_ctes=True):
+        is_union = type(tree) is exp.Union
+        if is_union:
+            shape(tree, exp.Union, "this", "expression", "distinct", "with_")
+            require(tree.args.get("distinct") is False, "union_all_required")
+        else:
+            shape(tree, exp.Select, "expressions", "from_", "where", "joins", "with_")
         with_node = tree.args.get("with_")
         require(allow_ctes or with_node is None, "nested_cte")
         prefix = self.with_clause(with_node) if with_node is not None else ""
+        if is_union:
+            left_sql, left_schema = self.child().query(tree.this, allow_ctes=False)
+            right_sql, right_schema = self.child().query(tree.expression, allow_ctes=False)
+            require([column["type"] for column in left_schema] == [column["type"] for column in right_schema],
+                    "union_schema")
+            for left, right in zip(left_schema, right_schema, strict=True):
+                left["nullable"] |= right["nullable"]
+            return prefix + left_sql + "\nUNION ALL\n" + right_sql, left_schema
+        sql, schema = self.select(tree)
+        return prefix + sql, schema
+
+    def select(self, tree):
         from_node = tree.args.get("from_")
         joins = tree.args.get("joins", [])
         require(from_node is not None or not joins, "join_from_required")
@@ -283,7 +312,7 @@ class SelectBinding:
             outputs.append(f"{value} AS {quote(name, self.target)}")
             schema.append({"name": name, "type": sql_type, "nullable": nullable})
         require(bool(outputs), "projection_required")
-        sql = prefix + "SELECT " + ", ".join(outputs)
+        sql = "SELECT " + ", ".join(outputs)
         if from_sql:
             sql += "\n" + "\n".join(from_sql)
         where = tree.args.get("where")
@@ -319,10 +348,10 @@ def convert(query, source, context):
         trees = parser.parse(tokens, sql=query)
         require(len(trees) == 1 and trees[0] is not None, "statement_count", "invalid_input")
         binding = SelectBinding(source, context)
-        sql, schema = binding.select(trees[0])
+        sql, schema = binding.query(trees[0])
         sql += ";"
         reparsed = sqlglot.parse(sql, read=binding.target, error_level=ErrorLevel.RAISE)
-        require(len(reparsed) == 1 and type(reparsed[0]) is exp.Select, "target_syntax")
+        require(len(reparsed) == 1 and type(reparsed[0]) in (exp.Select, exp.Union), "target_syntax")
         return dict(result, status="converted", sql=sql, result_schema=schema, parameters=binding.parameters,
                     required_capabilities=sorted(binding.capabilities))
     except Rejected as error:

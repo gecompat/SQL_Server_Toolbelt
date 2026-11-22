@@ -132,6 +132,21 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertEqual(second["result_schema"], first["result_schema"])
         self.assertIsNone(convert(sql.replace("z.id = x.id", "z.id > x.id"), "tsql", context)["sql"])
 
+    def test_union_all_derived_relation_and_schema(self):
+        sql = ("WITH one AS (SELECT 1 AS id) SELECT d.id AS merged FROM "
+               "(SELECT x.id AS id FROM one AS x UNION ALL SELECT @p AS alias) AS d")
+        context = {"parameters": {"p": {"type": "INT", "nullable": True}}}
+        first = convert(sql, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertEqual(first["result_schema"], [{"name": "merged", "type": "INT", "nullable": True}])
+        self.assertIn("UNION ALL", first["sql"])
+        reverse = convert(first["sql"], "databricks", context)
+        self.assertEqual(reverse["status"], "converted")
+        self.assertEqual(first["result_schema"], reverse["result_schema"])
+        self.assertIsNone(convert(sql.replace("UNION ALL", "UNION"), "tsql", context)["sql"])
+        wider = {"parameters": {"p": {"type": "BIGINT", "nullable": True}}}
+        self.assertIsNone(convert(sql, "tsql", wider)["sql"])
+
 
 if __name__ == "__main__":
     unittest.main()
