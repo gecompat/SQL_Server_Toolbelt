@@ -1,5 +1,31 @@
 # Windows Filesystem: Contract-Testmatrix
 
+## Native I/O-Grenzfälle – 22. November 2026
+
+[CurrentIoBoundaries.sql](Runtime/CurrentIoBoundaries.sql) bestand auf
+Windows SQL Server 2025/CU8, CL170, lokal mit Windows-Authentifizierung im
+`Caller`-Modus. Der Create-only-Teilinstaller aus `7e5f48eb` installierte
+bytegleich die Filesystem-Assembly und deren ZIP-Memory-Abhängigkeit aus dem
+bereits qualifizierten gemeinsamen Installationssatz. Die SQL-Installation
+prüfte ihre SHA2-512-Identitäten. Der Dateilauf verwendete eine neue eigene
+NTFS-Struktur mit relativem `WorkPath`.
+
+| Gruppe | Native Prüfung |
+|---|---|
+| Binary und Text | 16 MiB exakt, Anforderung ein Byte darüber abgewiesen, korrekter Folgeoffset und EOF. Eine geteilte UTF-8-Sequenz wurde ab der letzten vollständigen Zeichengrenze fortgesetzt. |
+| Codepages | Exakte Dateibytes und Dekodierung für UTF-8, UTF-16 LE/BE und Windows-1252. Ungültiges UTF-8 wurde abgewiesen. Das Transcoding Windows-1252 nach UTF-16 BE erzeugte das erwartete BOM und die erwarteten Bytes. |
+| Atomare Ausgabe | Ein vorhandenes Ziel blieb bei NoOverwrite und bei einem späten Encodingfehler nach bereits geschriebenen Stagingblöcken bytegleich. Der WorkPath war leer. Explizites Überschreiben veröffentlichte die erwarteten Ersatzbytes. |
+
+Die SQL-Fixture bestand mit 22 Assertions. Die separate Windows-Gastprüfung
+bestätigte Dateibytes, Dateigröße und den leeren Stagingordner. Der frische
+Abschlussaudit bestätigte die Entfernung der eigenen Datenbank und des
+Testordners sowie die Wiederherstellung von Trust und CLR-Konfiguration.
+Die bestehenden Caller-, ServiceAccount-, NTFS-/Reparse- und ZIP-Nachweise
+bleiben für ihre geprüften Pfade verwendbar. Der neue Nachweis gilt für
+den ausgewiesenen I/O-Scope unter Caller. Modulstatus `partially validated`.
+
+## Historischer manueller Ausgangsstand
+
 | Kategorie | Nachweis | Status |
 |---|---|---|
 | Build | .NET Framework 4.8, Release-Binary und SHA2-512 | erfolgreich: Manuelle Windows-CLR-Preflight-Validierung |

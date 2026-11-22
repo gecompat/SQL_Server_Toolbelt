@@ -1,5 +1,33 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Privates Parserpaar – 22. November 2026
+
+Der aktuelle markerfreie Installer aus `7e5f48eb` setzte das unveränderte
+Binärpaar aus der [gemeinsamen Installer-Abnahme](../../../Scripts/Install/Tests/QUALIFICATION.md#privates-parser-binärpaar-und-minimalrechte)
+ein. Die eingebauten Assemblydateien wurden in jeder eigenen Datenbank
+per SHA2-512 mit dem Installermanifest abgeglichen.
+
+| Windows-Engine | Compatibility Level | Ausführungen |
+|---|---|---:|
+| SQL Server 2019/CU32 | 150 | 4 |
+| SQL Server 2022/CU26 | 150, 160 | 8 |
+| SQL Server 2025/CU8 | 150, 160, 170 | 12 |
+
+In jedem der zwölf Kontexte bestanden die unveränderten Fixtures
+[Trigger.Contract.sql](Runtime/Trigger.Contract.sql) und
+[Trigger.Safety.sql](Runtime/Trigger.Safety.sql). Der zentrale Modus
+bezeichnet hier das Installationsprofil. Die synthetischen Quelltabellen und
+der Prozeduraufruf liegen gemäß Trigger-Vertrag in derselben Datenbank.
+Geprüft wurden die erzeugte und ausgeführte AFTER-/INSTEAD-OF-DDL,
+Triggerflags, Unicode-Bindung, strikte Ablehnungen, Caller-Transaktionen
+und unveränderte Objektdefinitionen nach den Fixtures.
+
+Drei gesonderte, journalgebundene Abschlussaudits bestätigten die Entfernung
+aller sechs eigenen Datenbanken sowie die Wiederherstellung von CLR und Trust.
+Es wurden keine Testrollen oder Rechte eingerichtet. Die früheren
+Trigger-Belege behalten ihre ursprünglichen Binärbindungen. Der Nachweis
+gilt für den beschriebenen Triggerpfad mit der vorhandenen Testanmeldung.
+
 ## Executor: echtes begrenztes Anmelde-/Rechteprofil — 2026-11-09
 
 Die [aktuelle Executor-Rechtematrix](../../../Releases/1.0.0/TABLE-CLONE-EXECUTOR-RIGHTS-QUALIFICATION.md)

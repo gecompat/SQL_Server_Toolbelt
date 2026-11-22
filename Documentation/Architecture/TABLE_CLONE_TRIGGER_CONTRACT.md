@@ -9,12 +9,11 @@ SHA-512-Pins `634EBA3C4D7AB7EBEA4B59C68C3B0C78081686F54359595B8206EADE989BFC51D0
 Die bestehende Interface-, Rechte- und Binaryprüfung bleibt erhalten.
 `IncludeTriggers=0` erreicht diesen Prüfpfad weiterhin nicht.
 
-Der private Parser besteht 248 Offlinefälle; die SSIS-Erzeugung verwendet
-seine private ScriptDom-Abhängigkeit nativ. Ein neuer nativer Trigger-Klonfall
-mit diesen geänderten Binaries ist nicht ausgeführt. Die folgenden datierten
-Trigger-/Parsernachweise bleiben an den Originalstand gebunden. Der neue
-markerlose SSIS-Installer allein installiert keine Parser-TVFs und ist kein
-Upgradeweg für die bisherigen markerbasierten Modulinstallationen.
+Die [native Trigger-Abnahme des privaten Parserpaars](../../Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md#privates-parserpaar--22-november-2026)
+belegt den Opt-in-Pfad auf Windows SQL Server 2019, 2022 und 2025. Die
+folgenden datierten Trigger-/Parsernachweise bleiben an ihre jeweiligen
+Originalartefakte gebunden. Der gemeinsame Create-only-Installer liefert
+die Parser-TVFs in den geeigneten Windows-Profilen.
 
 
 
