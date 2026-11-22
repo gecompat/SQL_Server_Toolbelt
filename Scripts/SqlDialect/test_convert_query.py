@@ -257,6 +257,20 @@ class TranslateIntegerSelect(unittest.TestCase):
         self.assertEqual(convert(f"SELECT {body} AS position{table}", "databricks",
                                  {**context, "ranking_order": []})["status"], "requires_context")
 
+    def test_uncorrelated_exists_and_typed_literal_in_list(self):
+        query = ("WITH q AS (SELECT 1 AS id) SELECT p.id AS id FROM q AS p "
+                 "WHERE p.id IN (1, -2) AND NOT EXISTS (SELECT 1 AS marker FROM q AS x WHERE x.id = 0)")
+        first = convert(query, "tsql", {})
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("EXISTS", first["sql"])
+        self.assertEqual(convert(first["sql"], "databricks", {})["result_schema"], first["result_schema"])
+        for rejected in (
+            query.replace("x.id = 0", "x.id = p.id"),
+            query.replace("IN (1, -2)", "IN (SELECT 1 AS id)"),
+            query.replace("IN (1, -2)", "IN (1, CAST(2 AS BIGINT))"),
+        ):
+            self.assertIsNone(convert(rejected, "tsql", {})["sql"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -49,6 +49,8 @@ definierte CTEs derselben Abfrage verweisen. Explizite INNER-, LEFT-, RIGHT-,
 FULL- und CROSS-Joins werden übersetzt. Das logische Schema berücksichtigt
 zusätzliche NULLs aus Outer Joins. Abgeleitete Tabellen und `UNION ALL` mit
 positionsweise identischen Spaltentypen bleiben in beiden Richtungen erhalten.
+Unkorrelierte EXISTS-Unterabfragen und gleich typisierte IN-Literallisten
+folgen derselben Namensbindung.
 Gruppierung über benannte Spalten, HAVING, MIN/MAX und COUNT/COUNT_BIG
 sind für die gebundenen Ganzzahlabfragen abgedeckt. Erforderliche
 INT-Zählungen setzen die Zusicherung `max_group_rows` voraus.

@@ -374,6 +374,21 @@ class SelectBinding:
             shape(node, kind, "this")
             nested = self.predicate(node.this, resolve)
             return f"(NOT {nested})" if kind is exp.Not else f"({nested})"
+        if kind is exp.In:
+            shape(node, exp.In, "this", "expressions")
+            left, left_type, _ = resolve(node.this)
+            require(bool(node.expressions), "in_literal_list")
+            members = []
+            for item in node.expressions:
+                # Implicit string-to-number casts and nonliteral lists have
+                # different error and binding rules across the engines.
+                members.append(self.in_literal(item, left_type, resolve))
+            return f"({left} IN ({', '.join(members)}))"
+        if kind is exp.Exists:
+            shape(node, exp.Exists, "this")
+            shape(node.this, exp.Select, "expressions", "from_", "where", "joins")
+            sql, _ = self.child().query(node.this, allow_ctes=False)
+            return f"(EXISTS (\n{sql}\n))"
         shape(node, kind, "this", "expression")
         require(kind in COMPARISONS or kind is exp.Is, "predicate")
         left, left_type, _ = resolve(node.this)
@@ -383,6 +398,20 @@ class SelectBinding:
         right, right_type, _ = resolve(node.expression)
         require(left_type == right_type, "mixed_type_comparison")
         return f"({left} {COMPARISONS[kind]} {right})"
+
+    @staticmethod
+    def in_literal(node, expected_type, resolve):
+        literal = node
+        if type(literal) is exp.Cast:
+            shape(literal, exp.Cast, "this", "to")
+            literal = literal.this
+        if type(literal) is exp.Neg:
+            shape(literal, exp.Neg, "this")
+            literal = literal.this
+        shape(literal, exp.Literal, "this", "is_string")
+        sql, sql_type, _ = resolve(node)
+        require(sql_type == expected_type, "in_literal_type")
+        return sql
 
     def query(self, tree, allow_ctes=True):
         is_union = type(tree) is exp.Union
