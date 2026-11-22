@@ -49,6 +49,12 @@ definierte CTEs derselben Abfrage verweisen. Explizite INNER-, LEFT-, RIGHT-,
 FULL- und CROSS-Joins werden übersetzt. Das logische Schema berücksichtigt
 zusätzliche NULLs aus Outer Joins. Abgeleitete Tabellen und `UNION ALL` mit
 positionsweise identischen Spaltentypen bleiben in beiden Richtungen erhalten.
+Gruppierung über benannte Spalten, HAVING, MIN/MAX und COUNT/COUNT_BIG
+sind für die gebundenen Ganzzahlabfragen abgedeckt. Erforderliche
+INT-Zählungen setzen die Zusicherung `max_group_rows` voraus.
+TOP und LIMIT erfordern einen positiven Literalwert und ORDER BY über
+nicht nullbare Ausgabealiase. Für die begrenzte Auswahl muss `unique_order`
+genau die als eindeutig zugesicherte Reihenfolge der Schlüssel enthalten.
 Spaltennamen müssen auf beiden Seiten identisch sein. Parameterwerte
 werden erst durch den jeweiligen SQL-Client gebunden.
 

@@ -54,6 +54,7 @@ class SelectBinding:
         self.ctes = {}
         self.parameters = {}
         self.capabilities = set()
+        self.assumptions = []
 
     def relation(self, table):
         if type(table) is exp.Subquery:
@@ -180,6 +181,7 @@ class SelectBinding:
         member.ctes = self.ctes
         member.parameters = self.parameters
         member.capabilities = self.capabilities
+        member.assumptions = self.assumptions
         return member
 
     def with_clause(self, node):
@@ -270,23 +272,24 @@ class SelectBinding:
         require(sql_type in ("INT", "BIGINT") and type(nullable) is bool, "operand_contract", "requires_context")
         return sql_type, nullable
 
-    def predicate(self, node):
+    def predicate(self, node, resolve=None):
+        resolve = resolve or self.operand
         kind = type(node)
         if kind in (exp.And, exp.Or):
             shape(node, kind, "this", "expression")
             operator = "AND" if kind is exp.And else "OR"
-            return f"({self.predicate(node.this)} {operator} {self.predicate(node.expression)})"
+            return f"({self.predicate(node.this, resolve)} {operator} {self.predicate(node.expression, resolve)})"
         if kind in (exp.Paren, exp.Not):
             shape(node, kind, "this")
-            nested = self.predicate(node.this)
+            nested = self.predicate(node.this, resolve)
             return f"(NOT {nested})" if kind is exp.Not else f"({nested})"
         shape(node, kind, "this", "expression")
         require(kind in COMPARISONS or kind is exp.Is, "predicate")
-        left, left_type, _ = self.operand(node.this)
+        left, left_type, _ = resolve(node.this)
         if kind is exp.Is:
             shape(node.expression, exp.Null)
             return f"({left} IS NULL)"
-        right, right_type, _ = self.operand(node.expression)
+        right, right_type, _ = resolve(node.expression)
         require(left_type == right_type, "mixed_type_comparison")
         return f"({left} {COMPARISONS[kind]} {right})"
 
@@ -296,7 +299,10 @@ class SelectBinding:
             shape(tree, exp.Union, "this", "expression", "distinct", "with_")
             require(tree.args.get("distinct") is False, "union_all_required")
         else:
-            shape(tree, exp.Select, "expressions", "from_", "where", "joins", "with_")
+            shape(tree, exp.Select, "expressions", "from_", "where", "joins", "with_", "order", "limit",
+                  "group", "having")
+            require(allow_ctes or (tree.args.get("order") is None and tree.args.get("limit") is None),
+                    "nested_order")
         with_node = tree.args.get("with_")
         require(allow_ctes or with_node is None, "nested_cte")
         prefix = self.with_clause(with_node) if with_node is not None else ""
@@ -321,6 +327,17 @@ class SelectBinding:
             relation, _ = self.relation(from_node.this)
             from_sql.append("FROM " + relation)
             from_sql.extend(self.join(node) for node in joins)
+        group = tree.args.get("group")
+        having = tree.args.get("having")
+        grouping = self.group_columns(group) if group is not None else []
+        expressions = [*tree.expressions, *([having] if having is not None else [])]
+        grouped = group is not None or any(item.find(exp.AggFunc) is not None for item in expressions)
+        require(not grouped or from_node is not None, "aggregate_relation")
+        require(having is None or grouped, "having_group")
+
+        def resolve(node):
+            return self.group_operand(node, grouping) if grouped else self.operand(node)
+
         outputs = []
         schema = []
         seen = set()
@@ -329,20 +346,119 @@ class SelectBinding:
             name = identifier(projection.args["alias"])
             require(name.casefold() not in seen, "duplicate_output")
             seen.add(name.casefold())
-            value, sql_type, nullable = self.operand(projection.this)
+            value, sql_type, nullable = resolve(projection.this)
             outputs.append(f"{value} AS {quote(name, self.target)}")
             schema.append({"name": name, "type": sql_type, "nullable": nullable})
         require(bool(outputs), "projection_required")
-        sql = "SELECT " + ", ".join(outputs)
+        order = tree.args.get("order")
+        limit = tree.args.get("limit")
+        ordering = self.ordering(order, schema) if order is not None else ""
+        count = self.row_limit(limit, order) if limit is not None else None
+        top = f"TOP ({count}) " if count is not None and self.target == "tsql" else ""
+        sql = "SELECT " + top + ", ".join(outputs)
         if from_sql:
             sql += "\n" + "\n".join(from_sql)
         where = tree.args.get("where")
         if where:
             shape(where, exp.Where, "this")
             sql += "\nWHERE " + self.predicate(where.this)
+        if grouping:
+            sql += "\nGROUP BY " + ", ".join(grouping)
+        if having is not None:
+            shape(having, exp.Having, "this")
+            sql += "\nHAVING " + self.predicate(having.this, resolve)
         require(len(self.parameters) <= 64 and len({name.casefold() for name in self.parameters}) == len(self.parameters),
                 "parameter_inventory")
+        if ordering:
+            sql += "\nORDER BY " + ordering
+        if count is not None and self.target == "databricks":
+            sql += f"\nLIMIT {count}"
         return sql, schema
+
+    def group_columns(self, node):
+        shape(node, exp.Group, "expressions")
+        keys = []
+        for column in node.expressions:
+            shape(column, exp.Column, "this", "table")
+            key, _, _ = self.operand(column)
+            require(key not in keys, "duplicate_group_key")
+            keys.append(key)
+        require(bool(keys), "group_key")
+        return keys
+
+    def group_operand(self, node, grouping):
+        if type(node) in (exp.Min, exp.Max):
+            shape(node, type(node), "this")
+            shape(node.this, exp.Column, "this", "table")
+            value, sql_type, nullable = self.operand(node.this)
+            # An ungrouped aggregate also has a row when the input is empty.
+            return f"{node.key.upper()}({value})", sql_type, nullable or not grouping
+        if type(node) is exp.Count:
+            return self.count(node)
+        if type(node) is exp.Cast and type(node.this) is exp.Count:
+            shape(node, exp.Cast, "this", "to")
+            shape(node.to, exp.DataType, "this")
+            value, source_type, _ = self.count(node.this)
+            sql_type = node.to.this.name
+            require(sql_type in ("INT", "BIGINT"), "aggregate_cast")
+            if source_type == "BIGINT" and sql_type == "INT":
+                self.count32_bound()
+            return f"CAST({value} AS {sql_type})", sql_type, False
+        require(all(self.operand(column)[0] in grouping for column in node.find_all(exp.Column)),
+                "unbound_group_column")
+        return self.operand(node)
+
+    def count(self, node):
+        shape(node, exp.Count, "this", "big_int")
+        if type(node.this) is exp.Star:
+            shape(node.this, exp.Star)
+            operand = "*"
+        else:
+            shape(node.this, exp.Column, "this", "table")
+            operand, _, _ = self.operand(node.this)
+        expression = ("COUNT_BIG" if self.target == "tsql" else "COUNT") + f"({operand})"
+        if self.source == "tsql" and node.args.get("big_int") is False:
+            self.count32_bound()
+            return f"CAST({expression} AS INT)", "INT", False
+        return expression, "BIGINT", False
+
+    def count32_bound(self):
+        bound = self.context.get("max_group_rows")
+        require(type(bound) is int and 0 <= bound <= 2_147_483_647, "count32_cardinality", "requires_context")
+        fact = {"max_group_rows": bound}
+        if fact not in self.assumptions:
+            self.assumptions.append(fact)
+
+    @staticmethod
+    def order_key(node):
+        shape(node, exp.Ordered, "this", "desc", "nulls_first")
+        shape(node.this, exp.Column, "this")
+        return identifier(node.this.this)
+
+    def ordering(self, node, schema):
+        shape(node, exp.Order, "expressions")
+        columns = {column["name"]: column for column in schema}
+        order = []
+        seen = set()
+        for item in node.expressions:
+            name = self.order_key(item)
+            require(name in columns and name not in seen and not columns[name]["nullable"], "order_key")
+            seen.add(name)
+            order.append(quote(name, self.target) + (" DESC" if item.args.get("desc") else " ASC"))
+        require(bool(order), "order_key")
+        return ", ".join(order)
+
+    def row_limit(self, limit, order):
+        shape(limit, exp.Limit, "expression")
+        shape(limit.expression, exp.Literal, "this", "is_string")
+        text = limit.expression.this
+        require(not limit.expression.is_string and re.fullmatch(r"[0-9]{1,10}", text)
+                and 1 <= int(text) <= 2_147_483_647, "limit_literal")
+        require(order is not None, "limit_order", "requires_context")
+        keys = [self.order_key(node) for node in order.expressions]
+        require(self.context.get("unique_order") == keys, "limit_order_unique", "requires_context")
+        self.assumptions.append({"unique_order": keys})
+        return int(text)
 
 
 def convert(query, source, context):
@@ -374,7 +490,7 @@ def convert(query, source, context):
         reparsed = sqlglot.parse(sql, read=binding.target, error_level=ErrorLevel.RAISE)
         require(len(reparsed) == 1 and type(reparsed[0]) in (exp.Select, exp.Union), "target_syntax")
         return dict(result, status="converted", sql=sql, result_schema=schema, parameters=binding.parameters,
-                    required_capabilities=sorted(binding.capabilities))
+                    required_capabilities=sorted(binding.capabilities), assumptions=binding.assumptions)
     except Rejected as error:
         return dict(result, status=error.status, code=error.code)
     except (ParseError, TokenError, UnicodeError):

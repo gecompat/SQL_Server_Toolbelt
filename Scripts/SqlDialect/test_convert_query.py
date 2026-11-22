@@ -160,6 +160,47 @@ class TranslateIntegerSelect(unittest.TestCase):
         ):
             self.assertIsNone(convert(rejected, "tsql", {})["sql"])
 
+    def test_top_limit_requires_declared_unique_order(self):
+        sql = "SELECT TOP (2) 1 AS id ORDER BY id DESC"
+        context = {"unique_order": ["id"]}
+        self.assertEqual(convert(sql, "tsql", {})["status"], "requires_context")
+        first = convert(sql, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("ORDER BY `id` DESC\nLIMIT 2", first["sql"])
+        self.assertEqual(first["assumptions"], [context])
+        reverse = convert(first["sql"], "databricks", context)
+        self.assertEqual(reverse["status"], "converted")
+        self.assertIn("SELECT TOP (2)", reverse["sql"])
+        for rejected in (
+            "SELECT TOP (2) WITH TIES 1 AS id ORDER BY id",
+            "SELECT TOP (2) PERCENT 1 AS id ORDER BY id",
+            "SELECT TOP (2) CAST(NULL AS INT) AS id ORDER BY id",
+            "SELECT TOP (2) 1 AS id ORDER BY 1",
+        ):
+            self.assertIsNone(convert(rejected, "tsql", context)["sql"])
+
+    def test_group_with_count_width_and_having(self):
+        sql = ("WITH src AS (SELECT 1 AS id) SELECT t.id AS id, COUNT(*) AS runs, "
+               "COUNT_BIG(t.id) AS total, MIN(t.id) AS smallest FROM src AS t "
+               "GROUP BY t.id HAVING COUNT(*) >= 1")
+        self.assertEqual(convert(sql, "tsql", {})["status"], "requires_context")
+        context = {"max_group_rows": 100}
+        first = convert(sql, "tsql", context)
+        self.assertEqual(first["status"], "converted")
+        self.assertIn("CAST(COUNT(*) AS INT)", first["sql"])
+        self.assertEqual([column["type"] for column in first["result_schema"]], ["INT", "INT", "BIGINT", "INT"])
+        self.assertEqual(first["assumptions"], [context])
+        reverse = convert(first["sql"], "databricks", context)
+        self.assertEqual(reverse["status"], "converted")
+        self.assertEqual(reverse["result_schema"], first["result_schema"])
+        self.assertIsNone(convert(sql.replace("GROUP BY t.id ", ""), "tsql", context)["sql"])
+        self.assertIsNone(convert(sql.replace("COUNT_BIG(t.id)", "COUNT_BIG(DISTINCT t.id)"), "tsql", context)["sql"])
+
+    def test_ungrouped_min_can_be_null(self):
+        sql = "WITH src AS (SELECT 1 AS id) SELECT MIN(t.id) AS smallest FROM src AS t WHERE t.id = 0"
+        actual = convert(sql, "tsql", {})
+        self.assertEqual(actual["result_schema"], [{"name": "smallest", "type": "INT", "nullable": True}])
+
 
 if __name__ == "__main__":
     unittest.main()
