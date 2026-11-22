@@ -1,5 +1,11 @@
 # Test-Evidence
 
+Die [aktuelle Windows-I/O-Abnahme](WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md#native-io-grenzfälle--22-november-2026)
+belegt die Chunk-, Codepage- und Atomic-Write-Fälle der allgemeinen
+Dateiprozeduren im `Caller`-Modus. Die
+[SQL-Fixture](Runtime/CurrentIoBoundaries.sql) setzt eine eigene
+Testdatenbank, einen synthetischen Root und einen leeren WorkPath voraus.
+
 ## Befüllter FileSystemRoot-Repeat 2026-10-20
 
 **Begrenzter Abschluss nach zusätzlicher Benutzerfreigabe:** Der vierte
