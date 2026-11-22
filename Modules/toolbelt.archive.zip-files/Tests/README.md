@@ -1,8 +1,8 @@
 # ZIP-Dateifassaden – Evidenz und Grenzen
 
-Implementation 1.0.0, teilweise validiert, unveröffentlicht. Begrenzte native
-Windows-local-Teilnachweise sind vorhanden; vollständige Qualifikation offen.
-Statische Sourceprüfungen sind kein Runtime-PASS.
+Version 1.0.0 ist für den deklarierten Windows-/Local-Vertrag validiert und
+unveröffentlicht. Die [Testmatrix](ZIP_FILES_TEST_MATRIX.md) dokumentiert
+die aktuellen nativen Nachweise und die Kontexte der Spezialfälle.
 Fachlicher Vertrag: [ZIP_FILES_CONTRACT](../../../Documentation/Architecture/ZIP_FILES_CONTRACT.md).
 
 ## Sourceprüfung
@@ -19,14 +19,16 @@ Am 2026-10-04 waren der statische Sourcevertrag und der vollständige
 Docaudit für 37 Module erfolgreich. Kein SQL-/Provider-/NTFS-Lauf wurde
 dabei ausgeführt.
 
-## Runtime
+## Runtime-Nachweise
 
 Die [aktuelle Testmatrix](ZIP_FILES_TEST_MATRIX.md) enthält die separat
 gebundenen Nachweise für die vollständige Archivextraktion V1 und die
 neueren Windows-Läufe für Einzel-Entry und Writer. Die folgenden
 Oktober-Nachweise gelten jeweils für ihren ursprünglichen Kontext.
 
-Am 2026-10-04 wurden auf SQL Server 2025/CU8 Windows, CL170, local elf
+### Historische Abnahme vom 2026-10-04
+
+Auf SQL Server 2025/CU8 Windows, CL170, local wurden elf
 Fälle in früheren Teilabläufen erfolgreich geprüft: die fünf öffentlichen
 SQL-Fixtures Help, InstalledMetadata, Safety, Contract und Atomicity,
 Windows-Callerpositive, SQLauth-Ablehnung, Deploy-Repeat, Uninstall-Repeat
@@ -65,8 +67,8 @@ Die positive Legacyform verlangt beim ZIP1.4-Reader keine Objekt-ModuleId/Versio
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Privater begrenzter Windows-local-Lauf und gezielte AppLock-Probes`
-- Scope: SQL Server 2025/CU8 Windows, CL170, local: elf Fälle in früheren Teilabläufen erfolgreich, danach zwei gezielte Aliasprüfungen unter AppLock erfolgreich, mit identischen Produktbytes. Zusammen 13 Fallnachweise, kein gemeinsamer 13-Fälle-Erfolgslauf. Fünf SQL-Fixtures, Windows-Caller/SQLauth-Ablehnung, Deploy-/Uninstall-Repeat und Alias-First-GO-/AppLock-Schutz; eigene DB/Root abwesend, zwei Trustzustände wiederhergestellt und frische Prüfung erfolgreich, keine Konfigurations-/Rechte-/Owneränderung. Historische fehlgeschlagene Abläufe bleiben fehlgeschlagen; unveränderte Provider wiederverwendet, keine vollständige ZIP-/NTFS-/Zielmatrix-, Central-/Linux-, Minimalrechte- oder aktuelle Head-CI-Qualifikation.
+- Datum: `2026-11-22`
+- Nachweis: `Native ZIP-Dateifassaden-Abnahme und frische Windows-Lab-Audits`
+- Scope: Windows/local: 2019/CU32 CL150, 2022/CU26 CL150/160 und 2025/CU8 CL150/160/170. Native Fachmatrix für alle drei Fassaden. Repräsentative CL170-Nachweise für ServiceAccount, NTFS, Publikation, CRC, Lastgrenzen, Create-only-Wiederholung, direkte Ausgabe und KeepData, Hilfe und Skill-Katalog, CS/BIN2, Readback-Offsets sowie Writer-Größen- und Zeitbudgets. Alle verwendeten eigenen Ressourcen frisch auditiert. Der historische Marker-Lifecycle hat seinen eigenen Nachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

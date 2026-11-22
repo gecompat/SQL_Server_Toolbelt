@@ -44,13 +44,14 @@ Die [Windows-/CL-Abnahme](Tests/ZIP_FILES_TEST_MATRIX.md#aktuelle-windows-cl-abn
 enthält die sechs geprüften Engine-/CL-Kombinationen und die getrennten
 ServiceAccount-, Negativ- und Publish-Nachweise. Die
 [V1-Abnahme](Tests/ZIP_FILES_TEST_MATRIX.md#vollständige-archivextraktion-v1)
-dokumentiert unter anderem die physischen Grenzfälle. Der folgende
-Manifestnachweis gehört zu den historischen Einzel-Entry- und Writer-Läufen.
+dokumentiert unter anderem die physischen Grenzfälle. Das Manifest führt
+den Windows-/Local-Vertrag als `validated`. Der historische
+Marker-Lifecycle ist in der Testmatrix dokumentiert.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Privater begrenzter Windows-local-Lauf und gezielte AppLock-Probes`
-- Scope: SQL Server 2025/CU8 Windows, CL170, local: elf Fälle in früheren Teilabläufen erfolgreich, danach zwei gezielte Aliasprüfungen unter AppLock erfolgreich, mit identischen Produktbytes. Zusammen 13 Fallnachweise, kein gemeinsamer 13-Fälle-Erfolgslauf. Fünf SQL-Fixtures, Windows-Caller/SQLauth-Ablehnung, Deploy-/Uninstall-Repeat und Alias-First-GO-/AppLock-Schutz; eigene DB/Root abwesend, zwei Trustzustände wiederhergestellt und frische Prüfung erfolgreich, keine Konfigurations-/Rechte-/Owneränderung. Historische fehlgeschlagene Abläufe bleiben fehlgeschlagen; unveränderte Provider wiederverwendet, keine vollständige ZIP-/NTFS-/Zielmatrix-, Central-/Linux-, Minimalrechte- oder aktuelle Head-CI-Qualifikation.
+- Datum: `2026-11-22`
+- Nachweis: `Native ZIP-Dateifassaden-Abnahme und frische Windows-Lab-Audits`
+- Scope: Windows/local: 2019/CU32 CL150, 2022/CU26 CL150/160 und 2025/CU8 CL150/160/170. Native Fachmatrix für alle drei Fassaden. Repräsentative CL170-Nachweise für ServiceAccount, NTFS, Publikation, CRC, Lastgrenzen, Create-only-Wiederholung, direkte Ausgabe und KeepData, Hilfe und Skill-Katalog, CS/BIN2, Readback-Offsets sowie Writer-Größen- und Zeitbudgets. Alle verwendeten eigenen Ressourcen frisch auditiert. Der historische Marker-Lifecycle hat seinen eigenen Nachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

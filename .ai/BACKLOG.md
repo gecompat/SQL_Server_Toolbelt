@@ -11,6 +11,12 @@ enthält Aufruf und Teilfehlerverhalten. Der
 [ursprüngliche Vertragsentwurf](../Documentation/Architecture/ZIP_FULL_ARCHIVE_EXTRACTION_PROPOSAL.md)
 dokumentiert die Abgrenzung.
 
+**Abnahme am 2026-11-22.** Der deklarierte Windows-/Local-Vertrag der
+ZIP-Dateifassaden ist validiert. Die sechs Windows-/CL-Kontexte, aktuelle
+Einzel-Entry- und Writer-Nachweise sowie die ergänzenden V1-Ausgabefälle
+sind in der Testmatrix bindend dokumentiert. Der Modulbuild bleibt
+unveröffentlicht.
+
 ## Einfachere Installation und DTSX-Debug — 2026-11-19
 
 Auf Benutzerauftrag sind die [Zukunftsanforderungen für einfache Installation,
@@ -1891,7 +1897,7 @@ bleiben `failed_cleaned`. Der synthetische Produkt-Snapshot ist exakt baumgleich
 zum tatsächlich getesteten Korrekturstand; keine persönlichen Commitmetadaten
 im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
-45 Module sind implementiert. 15 sind `validated`, 30 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 

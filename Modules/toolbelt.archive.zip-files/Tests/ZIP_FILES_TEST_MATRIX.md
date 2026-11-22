@@ -250,6 +250,30 @@ Diese Sicht war auf den temporären Benutzer und die eigene Testdatenbank
 beschränkt. Die konkrete Rechtekombination ist für den nachgewiesenen
 Aufrufweg ausreichend. Die Windows-/CL-Matrix nutzt den Caller-Modus.
 
+### Abschluss der verbleibenden aktuellen Fälle
+
+| Alter Offen-Eintrag | Aktueller Nachweis |
+|---|---|
+| Windows und CL | Sechs native Kombinationen, sechs Gastprüfungen und frische Audits in der aktuellen Matrix. |
+| Ausgabe, `KeepData` und EOF | Direkte Resultsets und ResultTable für alle drei Fassaden. [V1-Ausgabefall](Runtime/ZipFiles.Directory.Direct.sql) mit sechs Prüfungen, darunter die vier Kombinationen aus `KeepData` und passendem oder abweichendem Schema. Der [Restfall](Runtime/ZipFiles.CurrentClosure.sql) prüft mit neun Assertions tatsächliches Überschreiben in beiden älteren Fassaden, Folgeoffset und leeren Chunk exakt am Dateiende. |
+| ZIP-Negative und Writer-Budget | Die 14 Negativfälle bleiben gültig. Im Restfall bestätigten 51354 (Eintrag und Envelope) und 51356 (Writer-Zeitbudget) die Ablehnung vor Publikation. Das bestehende Archiv blieb bytegleich. Der aktuelle Einzel-Entry-CRC-Fehler ist 51328. |
+| Hilfe, Ordinalregeln und indizierte ResultTable | Der [Collation-Fall](Runtime/ZipFiles.CurrentCollationShape.sql) lief auf Windows 2025/CU8 CL170 in zwei eigenen Datenbanken mit CS-AS und BIN2, jeweils abweichend von TempDB. 15 Prüfungen bestätigten ordinale ZIP-Namen, kontrollierte NTFS-Kollision, Index- und Zeilenerhalt sowie die blockierte Schemaänderung. Die drei Hilfeausgaben in Caller-TX lieferten den vollständigen Markdown-Text wie im SQL-Katalog. |
+| Caller-TX, NTFS-Identität und Publish | Aktuelle Nachweise für nicht committierbare Transaktionen, beide Identitäten, verweigerte Zielpfade, Reparse und konkurrierende NoOverwrite-Aufrufe. Die physischen V1-Grenzfälle sind oben gebunden. |
+| Lifecycle und Deployment | Create-only-Erst- und Wiederholungsinstallation samt Erhaltungsnachweis. Historische Upgrade-, Uninstall- und Marker-Verträge gehören zu ihren ursprünglichen Artefakten. Windows/local ist der deklarierte aktuelle Support. |
+
+Die vier ergänzenden Laufkontexte auf Windows SQL Server 2025/CU8,
+CL170, bestanden insgesamt 30 SQL-/Clientprüfungen und vier frische
+Abschlussaudits. Beide frühen Collation-Versuche bleiben als
+`FAILED_CLEANED` erhalten. Die Diagnose isolierte ein zu enges
+Testorakel für den Autocommit-Transaktionszustand nach blockiertem
+Schemawechsel. Die frischen Audits beider Versuche bestanden.
+
+`validated` gilt für den deklarierten Windows-/Local-Vertrag mit der
+ausgeführten Funktionsmatrix und den dokumentierten repräsentativen
+Spezialfällen. ServiceAccount-, Last- und Konkurrenzprüfungen sind an
+ihre ausgewiesenen nativen Kontexte gebunden. Linux und Central liegen
+außerhalb des Vertrags.
+
 ## Historische Abnahme der Einzel-Entry- und Writer-Fassaden
 
 Sourceprüfungen sind keine SQL-/Windows-/NTFS-Evidenz. Die nativen Teilnachweise
@@ -258,7 +282,10 @@ local: elf frühere erfolgreiche Fälle und zwei später gezielt erfolgreiche
 AppLock-Aliasfälle mit identischen Produktbytes. Kein gemeinsamer 13-Fälle-
 Erfolgslauf; keine breitere Provider- oder vollständige Modulqualifikation.
 
-| Scope | Konkretes Orakel / Fixture | Status |
+Die Statusspalte hält den ursprünglichen Stand vom 2026-10-04 fest.
+Der obige Abgleich ist für den aktuellen Build maßgeblich.
+
+| Scope | Konkretes Orakel / Fixture | Status am 2026-10-04 |
 |---|---|---|
 | Statisch | zwei Signaturen/Defaults, fünf-/sieben-/vierfeldrige Stages, statische EXECs, Help-/TX-/Publish-Reihenfolge, Brückenschutz, eigener später SQL-TX, zwei Lifecycle-P-Slots | Sourceprüfung separat |
 | Help | Help.Contract.sql: beide 12-Feld-Helps, 17/12 Parameter, vier Results; Help vor TX/Dependencies/ResultTable, ignoriert Debug | begrenzter nativer Teilnachweis erfolgreich |
@@ -294,8 +321,8 @@ Dependency-Interop: vier feste RequireObjectMarkers-Rollen (Writer/Core1, Legacy
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Privater begrenzter Windows-local-Lauf und gezielte AppLock-Probes`
-- Scope: SQL Server 2025/CU8 Windows, CL170, local: elf Fälle in früheren Teilabläufen erfolgreich, danach zwei gezielte Aliasprüfungen unter AppLock erfolgreich, mit identischen Produktbytes. Zusammen 13 Fallnachweise, kein gemeinsamer 13-Fälle-Erfolgslauf. Fünf SQL-Fixtures, Windows-Caller/SQLauth-Ablehnung, Deploy-/Uninstall-Repeat und Alias-First-GO-/AppLock-Schutz; eigene DB/Root abwesend, zwei Trustzustände wiederhergestellt und frische Prüfung erfolgreich, keine Konfigurations-/Rechte-/Owneränderung. Historische fehlgeschlagene Abläufe bleiben fehlgeschlagen; unveränderte Provider wiederverwendet, keine vollständige ZIP-/NTFS-/Zielmatrix-, Central-/Linux-, Minimalrechte- oder aktuelle Head-CI-Qualifikation.
+- Datum: `2026-11-22`
+- Nachweis: `Native ZIP-Dateifassaden-Abnahme und frische Windows-Lab-Audits`
+- Scope: Windows/local: 2019/CU32 CL150, 2022/CU26 CL150/160 und 2025/CU8 CL150/160/170. Native Fachmatrix für alle drei Fassaden. Repräsentative CL170-Nachweise für ServiceAccount, NTFS, Publikation, CRC, Lastgrenzen, Create-only-Wiederholung, direkte Ausgabe und KeepData, Hilfe und Skill-Katalog, CS/BIN2, Readback-Offsets sowie Writer-Größen- und Zeitbudgets. Alle verwendeten eigenen Ressourcen frisch auditiert. Der historische Marker-Lifecycle hat seinen eigenen Nachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
