@@ -11,7 +11,7 @@ function Read-TestByte($Stream) {
 }
 
 $upstream=[Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback,0)
-$gate=$null;$client=$null;$server=$null
+$gate=$null;$client=$null;$server=$null;$diagnostic=$null;$provider=$null
 try {
     $upstream.Start()
     $gate=[CommitReplyGate]::new($upstream.LocalEndpoint.Port)
@@ -24,7 +24,9 @@ try {
     $serverStream.WriteByte(12)
     if ((Read-TestByte $clientStream) -ne 12) { throw 'COMMIT_GATE_RESPONSE' }
 
-    $gate.WithholdReply()
+    $diagnostic=[CommitReplyDiagnostic]::new($gate)
+    $provider=[Diagnostics.DiagnosticListener]::new('SqlClientDiagnosticListener')
+    $provider.Write('System.Data.SqlClient.WriteTransactionCommitBefore',$null)
     $clientStream.WriteByte(21)
     if ((Read-TestByte $serverStream) -ne 21) { throw 'COMMIT_GATE_REQUEST_NOT_FORWARDED' }
     $serverStream.WriteByte(22)
@@ -34,6 +36,8 @@ try {
     if ((Read-TestByte $clientStream) -ne -1) { throw 'COMMIT_GATE_RESPONSE_LEAK' }
     if ((Read-TestByte $serverStream) -ne -1) { throw 'COMMIT_GATE_UPSTREAM_STILL_OPEN' }
 } finally {
+    if ($null -ne $provider) { $provider.Dispose() }
+    if ($null -ne $diagnostic) { $diagnostic.Dispose() }
     if ($null -ne $client) { $client.Dispose() }
     if ($null -ne $server) { $server.Dispose() }
     if ($null -ne $gate) { $gate.Dispose() }

@@ -97,6 +97,7 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
                 ClaimToken=[guid]$Claim.ClaimToken;ExecutionId=[guid]$Claim.ExecutionId
                 SlotReservationId=[guid]$Claim.SlotReservationId;WorkTypeName='test.commit.loss'}
             Budget=86400;Terminal='UNKNOWN';SlotEndConfirmed=$false;PrimaryDiagnostic=$null;PrimaryError=$null
+            FailureDiagnostic=$null
         }
         $context | Add-Member ScriptProperty ConnectionString {
             if ($this.ExecutorConnected) { return $this.Direct }
@@ -110,14 +111,33 @@ SELECT CONVERT(nvarchar(max),(SELECT c.WorkItemId,c.ClaimGeneration,c.ClaimToken
         $result = Invoke-ManagedExecutor $actor.Shared $context
         [pscustomobject]@{Commit=$result.Committed;Rollback=$result.RollbackConfirmed;Disposed=$result.ResourcesDisposed
             Terminal=$context.Terminal;SlotEndConfirmed=$context.SlotEndConfirmed
-            Phase=$context.PrimaryDiagnostic.Phase;Secondary=$actor.Shared.SecondaryCode}
+            Phase=$context.PrimaryDiagnostic?.Phase;SqlNumber=$context.PrimaryDiagnostic?.SqlNumber
+            Secondary=$actor.Shared.SecondaryCode}
     }).AddArgument((Resolve-Path (Join-Path $PSScriptRoot '../..')).Path).AddArgument($claim).AddArgument($direct).AddArgument($proxy)
     $task = $shell.BeginInvoke()
     $timer = [Diagnostics.Stopwatch]::StartNew()
     while (-not $gate.ReplyWithheld.IsCompleted -and -not $task.IsCompleted -and $timer.Elapsed.TotalSeconds -lt 25) {
         Start-Sleep -Milliseconds 50
     }
-    if (-not $gate.ReplyWithheld.IsCompletedSuccessfully -or $task.IsCompleted) { throw 'COMMIT_PROBE_NO_WITHHELD_REPLY' }
+    if (-not $gate.ReplyWithheld.IsCompletedSuccessfully -or $task.IsCompleted) {
+        $stage='RENDEZVOUS'
+        if ($task.IsCompleted) {
+            try {
+                $early=@($shell.EndInvoke($task))
+                if ($early.Count -eq 1) {
+                    $known=@('BIND','BEGIN_CONTEXT','BEGIN_TRANSACTION','TRANSACTION_WITNESS','RESOLVE_HANDLER','HANDLER','COMPLETING','COMMITTING')
+                    $phase=if($early[0].Phase -cin $known){$early[0].Phase}else{'NONE'}
+                    $sqlNumber=if($early[0].SqlNumber -is [int]){$early[0].SqlNumber}else{0}
+                    Write-Host "WORKER_COMMIT_EARLY_END phase=$phase sqlNumber=$sqlNumber commit=$([bool]$early[0].Commit)"
+                }
+            } catch {
+                $failure=$_.Exception
+                while ($failure.InnerException) {$failure=$failure.InnerException}
+                Write-Host "WORKER_COMMIT_EARLY_EXCEPTION type=$($failure.GetType().Name)"
+            }
+        }
+        throw 'COMMIT_PROBE_NO_WITHHELD_REPLY'
+    }
     $stage = 'PERSISTED'
     $slot = @{'@Slot'=[guid]$claim.SlotReservationId;'@Item'=[long]$claim.WorkItemId}
     $observer = [Data.SqlClient.SqlConnection]::new($direct)
