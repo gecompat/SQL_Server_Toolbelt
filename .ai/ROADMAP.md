@@ -117,7 +117,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 45 Module sind implementiert. 16 sind `validated`, 29 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 45 Module sind implementiert. 17 sind `validated`, 28 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -494,7 +494,7 @@ nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung.
 
 ### Phase 2.7 – ZIP Memory SQL CLR
 
-**Status:** `completed`; Runtime `partially validated`
+**Status:** `completed`; Runtime `validated`
 
 **Arbeitspaket:** `AP-2026-020`
 
@@ -506,8 +506,9 @@ ResultTable, Central und Uninstall wurden im Workflow
 [32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
 auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft. Die
 automatisierte Windows-/Linux-Matrix 2019/2022/2025 war am 2026-09-01
-ebenfalls erfolgreich. Reale Archive, echte Extremgrößen, Interoperabilität
-und ein vollständiger Upgradepfad aus einem realen 1.1.0-Stand bleiben offen.
+ebenfalls erfolgreich. Die [aktuelle portable Abnahme](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build)
+umfasst die markerfreien Installer, die drei öffentlichen APIs und native
+Reader-/Writer-Grenzfälle. Historische Upgradepfade gehören zu früheren Installern.
 
 ### Phase 2.8 – Windows Filesystem
 

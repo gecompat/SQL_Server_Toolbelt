@@ -2,7 +2,7 @@ module_id: "toolbelt.archive.zip-memory"
 module_name: "ZIP Memory Inspection"
 version: "1.4.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Listet ZIP-Metadaten, extrahiert einen einzelnen Entry und erzeugt Stored-/Deflate-ZIPs aus caller-lokalen Entries über einen begrenzten SAFE-SQL-CLR-Provider."
 sql_server_versions:
@@ -151,6 +151,9 @@ tests:
   writer_metadata: "Tests/Runtime/Writer.Metadata.ps1"
   manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
+  current_portable: "Tests/Runtime/ZipMemory.CurrentPortable.sql"
+  reader_live_ceilings: "Tests/Runtime/ZipMemory.ReaderLiveCeilings.sql"
+  writer_live_ceilings: "Tests/Runtime/ZipMemory.WriterLiveCeilings.sql"
 validation_evidence:
   - date: "2026-10-01"
     workflow: "local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1; Spikes/XlsxMemory/Run-FrameworkQualification.ps1"
@@ -179,4 +182,8 @@ validation_evidence:
   - date: "2026-10-02"
     workflow: "local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1"
     scope: "Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen."
+    result: "success"
+  - date: "2026-11-22"
+    workflow: ".github/workflows/zip-memory-runtime.yml; ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build"
+    scope: "Markerfreier Portable-Installer und SAFE-Assembly auf Windows-Lab und Linux-CI, 2019 CL150, 2022 CL150/160, 2025 CL150/160/170, je lokal und direkt zentral. Native Reader- und Writer-Grenzfälle auf Windows 2025/CU8 CL170 und Linux 2019 CL150, je lokal und zentral. Windows-Abschlussaudits und Linux-Container-Cleanup; historischer Lifecycle bleibt separat."
     result: "success"

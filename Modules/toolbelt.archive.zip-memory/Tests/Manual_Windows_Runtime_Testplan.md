@@ -1,10 +1,16 @@
 # Manueller Windows-Runtime-Testplan
 
+Die native Abnahme des aktuellen Create-only-Installers ist in der
+[aktuellen portablen Testmatrix](ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build)
+dokumentiert. Der folgende historische Plan bezieht sich auf die frühere
+Lifecycle-Installation.
+
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
 ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
 
-Status: ausstehend. Dieser Testplan ergänzt die erfolgreiche Linux-Matrix um den erforderlichen Windows-SQL-Server-Runtime-Nachweis. Ein erfolgreicher .NET-Framework-Build allein ist keine Runtime-Evidenz.
+Der damalige Plan ergänzte die Linux-Matrix um native Windows-Prüfungen. Ein
+erfolgreicher .NET-Framework-Build allein ist keine Runtime-Evidenz.
 
 Bestehende Linux-Evidenz für Version `1.2.0`: [SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453). Diese Evidenz ersetzt keinen Windows-SQL-Server-Runtime-Lauf.
 
@@ -57,8 +63,8 @@ Keine realen Datenbanknamen, Hashwerte, Pfade, Konten, Hostnamen, Archive, Datei
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
+- Datum: `2026-11-22`
+- Nachweis: `.github/workflows/zip-memory-runtime.yml; ZIP_MEMORY_CONTRACT_TEST_MATRIX.md#aktueller-portabler-build`
+- Scope: Markerfreier Portable-Installer und SAFE-Assembly auf Windows-Lab und Linux-CI, 2019 CL150, 2022 CL150/160, 2025 CL150/160/170, je lokal und direkt zentral. Native Reader- und Writer-Grenzfälle auf Windows 2025/CU8 CL170 und Linux 2019 CL150, je lokal und zentral. Windows-Abschlussaudits und Linux-Container-Cleanup; historischer Lifecycle bleibt separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

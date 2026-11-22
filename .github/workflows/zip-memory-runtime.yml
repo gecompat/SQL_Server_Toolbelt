@@ -19,6 +19,8 @@ on:
       - "Modules/toolbelt.core.result-table/Deployment/**"
       - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/run-zip-memory-linux.sh"
+      - "Tests/CI/run-zip-memory-current-linux.sh"
+      - "Tests/Release/compose_zip_entry_limits.py"
       - ".github/workflows/zip-memory-runtime.yml"
   push:
     branches: [main]
@@ -38,6 +40,8 @@ on:
       - "Modules/toolbelt.core.result-table/Deployment/**"
       - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/run-zip-memory-linux.sh"
+      - "Tests/CI/run-zip-memory-current-linux.sh"
+      - "Tests/Release/compose_zip_entry_limits.py"
       - ".github/workflows/zip-memory-runtime.yml"
   workflow_dispatch:
 
@@ -116,6 +120,54 @@ jobs:
           name: zip-memory-clr-release-input
           if-no-files-found: error
           path: .runtime/zip-memory-release/**
+      - name: Build current portable installers
+        if: github.event_name != 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          $root = '.runtime/zip-memory-current'
+          New-Item -ItemType Directory -Path "$root/inputs/parser", "$root/installers" | Out-Null
+          $package = Join-Path $env:RUNNER_TEMP 'zip-scriptdom-180.117.0.zip'
+          $unpacked = Join-Path $env:RUNNER_TEMP 'zip-scriptdom-180.117.0'
+          Invoke-WebRequest -Uri 'https://api.nuget.org/v3-flatcontainer/microsoft.sqlserver.transactsql.scriptdom/180.117.0/microsoft.sqlserver.transactsql.scriptdom.180.117.0.nupkg' -OutFile $package -TimeoutSec 60
+          Expand-Archive -LiteralPath $package -DestinationPath $unpacked
+          . ./Scripts/Clr/Resolve-ToolbeltScriptDom.ps1
+          $dom = Resolve-ToolbeltScriptDom -Path "$unpacked/lib/net472/Microsoft.SqlServer.TransactSql.ScriptDom.dll"
+          Copy-Item -LiteralPath $dom -Destination "$root/inputs/parser/"
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $msbuild = & $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1
+          python Scripts/Install/filesystem_build.py --module toolbelt.archive.zip-memory --output "$root/inputs/zip-memory" --msbuild $msbuild
+          if ($LASTEXITCODE) { throw 'ZIP_PORTABLE_BUILD' }
+          foreach ($mode in 'local','central') {
+            ./Deployment/Build-Install.ps1 -Inputs "$root/inputs" -OutputSqlFile "$root/installers/Install-$mode.sql" -Platform Portable -DeploymentMode $mode -ModuleId toolbelt.archive.zip-memory -TrustMethod hash
+          }
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          name: zip-memory-portable-installers
+          if-no-files-found: error
+          retention-days: 7
+          path: .runtime/zip-memory-current/installers/
+
+  current-sql-server-linux:
+    if: github.event_name != 'workflow_dispatch'
+    name: Current portable ZIP / Linux SQL Server ${{ matrix.version }}
+    needs: build-net-framework
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["2019", "2022", "2025"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: zip-memory-portable-installers
+          path: .runtime/zip-memory-current/installers
+      - name: Verify portable install, API and caller modes
+        env:
+          TBX_SQL_VERSION: ${{ matrix.version }}
+        run: bash Tests/CI/run-zip-memory-current-linux.sh
 
   sql-server-linux:
     # Retired SQLCMD/marker lifecycle: explicit historical dispatch only.
