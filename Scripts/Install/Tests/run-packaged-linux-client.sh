@@ -73,14 +73,22 @@ done
 sql -Q "IF NOT EXISTS (SELECT 1 FROM sys.dm_os_host_info WHERE host_platform=N'Linux')
   OR CONVERT(int,SERVERPROPERTY('ProductMajorVersion'))<>17
   OR NOT EXISTS (SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value=1 AND value_in_use=1)
-  THROW 52850,N'PACKAGED_LINUX_TARGET',1;
-  EXEC sys.sp_configure N'clr enabled',1; RECONFIGURE;"
-sql -Q 'CREATE DATABASE [ContosoPackaged];'
-sql -Q 'ALTER DATABASE [ContosoPackaged] SET COMPATIBILITY_LEVEL=170;'
+  OR NOT EXISTS (SELECT 1 FROM sys.configurations WHERE name=N'clr enabled' AND value=0 AND value_in_use=0)
+  OR NOT EXISTS (SELECT 1 FROM sys.databases WHERE name=N'model' AND compatibility_level=170)
+  OR DB_ID(N'ContosoPackaged') IS NOT NULL
+  THROW 52850,N'PACKAGED_LINUX_TARGET',1;"
+audit_configuration() {
+  sql -d master -Q "SET NOCOUNT ON;
+    SELECT configuration_id,CONVERT(int,value),CONVERT(int,value_in_use)
+    FROM sys.configurations WHERE name<>N'clr enabled' ORDER BY configuration_id;"
+}
+audit_configuration >"$root/configuration-before"
 
 # The client executes on the runner with real ODBC sqlcmd and discovers its
 # adjacent payload. The server container has no workspace mount.
 cd "$root"
+mkdir client-data
+export XDG_DATA_HOME="$root/client-data"
 pwsh -NoLogo -NoProfile -NonInteractive -Command '
   $ErrorActionPreference = "Stop"
   if (-not $IsLinux) { throw "PACKAGED_LINUX_CLIENT_OS" }
@@ -88,17 +96,37 @@ pwsh -NoLogo -NoProfile -NonInteractive -Command '
   Remove-Item Env:MSSQL_SA_PASSWORD
   $result = & ./Deployment/Install-Toolbelt.ps1 -ServerInstance $env:TBX_SERVER -Database ContosoPackaged `
       -DeploymentMode central -Credential $credential -SqlcmdPath $env:TBX_SQLCMD -TrustServerCertificate `
-      -LoginTimeoutSeconds 15 -CommandTimeoutSeconds 300
+      -CreateDatabase -EnableClr -LoginTimeoutSeconds 15 -CommandTimeoutSeconds 300 6>$null
   if ($result.Status -cne "INSTALLED_OR_PRESENT" -or $result.Profile -cne "Portable-central" -or
       $result.Modules -ne 41 -or $result.Lifecycle -cne "create-only" -or $result.TrustMethod -cne "auto") {
     throw "PACKAGED_LINUX_RECEIPT"
   }
+  $journal = Get-Content -LiteralPath $result.PreparationJournal -Raw | ConvertFrom-Json
+  if ($journal.state -cne "PREPARATION_COMPLETE" -or $journal.database -cne "ContosoPackaged" -or
+      $journal.before.database_guid -ne $null -or $journal.automaticRollback -ne $false -or
+      $journal.outcome.DatabaseCreated -ne $true -or $journal.outcome.ClrEnabled -ne $true -or
+      $journal.outcome.DatabaseGuid -ne $journal.outcome.CreatedGuid) {
+    throw "PACKAGED_LINUX_PREPARATION_JOURNAL"
+  }
+  $guid = [guid]$journal.outcome.DatabaseGuid
+  if ($guid -eq [guid]::Empty) { throw "PACKAGED_LINUX_PREPARATION_GUID" }
+  [IO.File]::WriteAllText((Join-Path $PWD "prepared-guid"), $guid.ToString())
+  "PACKAGED_LINUX_PREPARATION_PASS"
   "PACKAGED_LINUX_INSTALL_PASS profile=Portable-central modules=41"
 '
 
+# Fresh SQL sessions compare engine state with the client receipt and the
+# independently measured baseline. The EXIT trap verifies container absence.
+prepared_guid="$(cat "$root/prepared-guid")"
+audit_configuration >"$root/configuration-after"
+cmp -s "$root/configuration-before" "$root/configuration-after" ||
+  { echo 'PACKAGED_LINUX_CONFIGURATION_DIFF' >&2; exit 1; }
 sql -d ContosoPackaged -Q "SET NOCOUNT ON;
   IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE database_id=DB_ID() AND compatibility_level=170 AND is_trustworthy_on=0)
   OR NOT EXISTS (SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value=1 AND value_in_use=1)
+  OR NOT EXISTS (SELECT 1 FROM sys.configurations WHERE name=N'clr enabled' AND value=1 AND value_in_use=1)
+  OR NOT EXISTS (SELECT 1 FROM sys.database_recovery_status WHERE database_id=DB_ID()
+    AND database_guid=CONVERT(uniqueidentifier,N'$prepared_guid'))
   OR DB_ID(N'ContosoToolbelt') IS NOT NULL
   OR (SELECT COUNT(*) FROM toolbelt_metadata.VW_ObjectUsageSkills)<>259
   THROW 52850,N'PACKAGED_LINUX_CATALOGUE',2;
@@ -111,3 +139,4 @@ sql -d ContosoPackaged -Q "SET NOCOUNT ON;
 cmp -s "$root/expected-assemblies" "$root/actual-assemblies" ||
   { echo 'PACKAGED_LINUX_ASSEMBLY_DIFF' >&2; exit 1; }
 echo 'PACKAGED_LINUX_CATALOGUE_PASS'
+echo 'PACKAGED_LINUX_PROVISIONING_AUDIT_PASS'
