@@ -227,9 +227,15 @@ class SelectBinding:
             shape(node, exp.Cast, "this", "to")
             shape(node.to, exp.DataType, "this")
             target_type = node.to.this.name
+            if type(node.this) is exp.Null:
+                shape(node.this, exp.Null)
+                require(target_type in ("INT", "BIGINT"), "integer_cast")
+                return f"CAST(NULL AS {target_type})", target_type, True
             operand, source_type, nullable = self.operand(node.this)
             require(target_type == source_type or (source_type, target_type) == ("INT", "BIGINT"), "integer_cast")
             return f"CAST({operand} AS {target_type})", target_type, nullable
+        if type(node) is exp.Case:
+            return self.searched_case(node)
         negative = type(node) is exp.Neg
         if negative:
             shape(node, exp.Neg, "this")
@@ -240,6 +246,21 @@ class SelectBinding:
         # The minimum INT has dialect-specific literal typing. Keep a shared range.
         require(-2_147_483_647 <= value <= 2_147_483_647, "integer_literal_range")
         return f"CAST({value} AS INT)", "INT", False
+
+    def searched_case(self, node):
+        shape(node, exp.Case, "ifs", "default")
+        cases = node.args.get("ifs")
+        default = node.args.get("default")
+        require(bool(cases) and default is not None, "explicit_case")
+        else_sql, result_type, nullable = self.operand(default)
+        branches = []
+        for branch in cases:
+            shape(branch, exp.If, "this", "true")
+            then_sql, branch_type, branch_nullable = self.operand(branch.args["true"])
+            require(branch_type == result_type, "case_type")
+            nullable |= branch_nullable
+            branches.append(f"WHEN {self.predicate(branch.this)} THEN {then_sql}")
+        return f"CASE {' '.join(branches)} ELSE {else_sql} END", result_type, nullable
 
     @staticmethod
     def column_contract(declaration):

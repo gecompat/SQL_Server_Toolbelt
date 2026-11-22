@@ -147,6 +147,19 @@ class TranslateIntegerSelect(unittest.TestCase):
         wider = {"parameters": {"p": {"type": "BIGINT", "nullable": True}}}
         self.assertIsNone(convert(sql, "tsql", wider)["sql"])
 
+    def test_explicit_typed_searched_case(self):
+        sql = "SELECT CASE WHEN 1 = 2 THEN CAST(NULL AS INT) ELSE 3 END AS value"
+        first = convert(sql, "tsql", {})
+        self.assertEqual(first["status"], "converted")
+        self.assertEqual(first["result_schema"], [{"name": "value", "type": "INT", "nullable": True}])
+        self.assertEqual(convert(first["sql"], "databricks", {})["result_schema"], first["result_schema"])
+        for rejected in (
+            sql.replace("ELSE 3 ", ""),
+            sql.replace("ELSE 3", "ELSE CAST(3 AS BIGINT)"),
+            sql.replace("CASE WHEN 1 = 2", "CASE 1 WHEN 2"),
+        ):
+            self.assertIsNone(convert(rejected, "tsql", {})["sql"])
+
 
 if __name__ == "__main__":
     unittest.main()

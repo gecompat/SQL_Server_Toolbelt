@@ -40,7 +40,9 @@ WHERE e.Id >= @Minimum OR e.Id IS NULL;
 Unterstützt sind explizit aliasierte Projektionen, nullbare `INT`- und
 `BIGINT`-Spalten und Parameter, kleine ganzzahlige Literale, gleiche
 Vergleichstypen, `IS NULL`, logische Verknüpfungen sowie typgleiche
-Casts und die Erweiterung von `INT` auf `BIGINT`. Die Abfrage kann
+Casts und die Erweiterung von `INT` auf `BIGINT`. Ein gesuchter
+`CASE`-Ausdruck akzeptiert typgleiche Zweige einschließlich expliziter
+NULL-Casts und verlangt einen ELSE-Zweig. Die Abfrage kann
 vollständig qualifizierte Relationen mit Alias enthalten. Mehrere Relationen
 werden als Liste `relations` übergeben. Nichtrekursive CTEs können auf früher
 definierte CTEs derselben Abfrage verweisen. Explizite INNER-, LEFT-, RIGHT-,
