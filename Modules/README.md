@@ -1,6 +1,9 @@
-# Module – SQL Server Toolbelt
+# Technisches Modulregister – SQL Server Toolbelt
 
-Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module von SQL Server Toolbelt.
+Dieses Verzeichnis führt die implementierten Module mit Quellen, Manifesten,
+Verträgen und modulspezifischen Nachweisen. Für die Benutzung beginne mit der
+[Auswahl nach Aufgabe](../Documentation/ChooseFunctions.md) oder der
+[Objektreferenz](../Documentation/Reference/README.md).
 
 Die [SQL-Objektreferenz](../Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen)
 führt vom gesuchten Objektnamen zur eigenen Beschreibung mit Verhalten,
@@ -9,7 +12,7 @@ Parametern und Beispielen im jeweiligen Modulordner `Documentation/`.
 Der [zentrale Beispielkatalog](../Documentation/Reference/API_CATALOG.md)
 ergänzt die Modulübersicht um Aufrufe, Parameter und Voraussetzungen aller
 öffentlichen Schnittstellen. Die [HTML-Ansicht](../Documentation/Reference/API_CATALOG.html)
-ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronität geprüft.
+ist lokal durchsuchbar.
 
 ## Aktueller Status
 

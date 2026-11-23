@@ -50,11 +50,7 @@ Text pro Feld gezählt. Keine gesamte Heap-/Laufzeitgarantie.
 Aufruf setzt vorhandenes SELECT auf der öffentlichen IF voraus; keine
 Berechtigungserteilung im Lifecycle. Provider: vorhandene XLSX-SAFE-Assembly,
 Dependencies ZIP>=1.4.0 und ResultTable>=1.0.0 unverändert. Zielplattformen SQL
-Server2019/2022/2025 Windows/Linux. Offlinekernqualifikation ist begrenzte
-Evidenz. Native API-/FillRow-/Metadaten- und Lifecyclefälle bestehen im
-ausgewählten Scope der [Testmatrix](../Tests/XLSX_CONTRACT_TEST_MATRIX.md);
-aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft;
-tatsächliche Minimalrechte bleiben offen.
+Server 2019, 2022 und 2025 unter Windows und Linux.
 
 ## Vollständiger Eingabevertrag
 

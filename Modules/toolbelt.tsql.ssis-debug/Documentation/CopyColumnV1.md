@@ -54,9 +54,3 @@ kataloggeprüften Codepage der tatsächlich aufgelösten Quellspalte passen. Zwe
 gleiche XML-Angaben reichen als Nachweis nicht aus. Fehlt diese verlässliche
 Lineage, bleibt der Pfad mit `unsupported_component` gesperrt; der Generator
 errät keine Codepage. Unicode- und numerische Kopien bleiben unverändert.
-
-Die [Prüfmatrix](../Tests/README.md#copy-column-v1-deltaabnahme)
-trennt die ursprünglichen Explain-Läufe vom abschließenden Prozedurguard.
-Paketintegrität, tatsächliche ZIP-Ausführung, SSMS, TLS und Linux-Exporthost
-sind eigene Nachweise. Ältere Gesamtabnahmen bleiben an ihre ursprünglichen
-Builds gebunden; der aktuelle Gesamtmodulstatus steht in `module.yaml`.

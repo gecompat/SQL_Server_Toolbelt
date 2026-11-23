@@ -109,8 +109,6 @@ Server-Runtime und Release-Extremgrößenläufe bleiben offen.
 
 Siehe `../Examples/ExtractZipEntryFromBinary.sql`.
 
-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
-
 ## Aktueller Sicherheitsvertrag
 
 SC-004: Entryextraktion verwendet standardmäßig 16777216 Bytes (16 MiB), höchstens 67108864 Bytes (64 MiB). Deklarierte und tatsächlich gelesene Größe werden geprüft. Ein exakt dimensionierter finaler Entrybuffer ersetzt wachsenden MemoryStream und ToArray-Abschlusskopie. Archiv-/Compressed-/Ratio-/CRC-Grenzen bleiben bestehen. Die technische ArchiveSession teilt die feste Entryobergrenze.

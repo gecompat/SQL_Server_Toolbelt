@@ -88,13 +88,3 @@ Die [vollständige Installationsreferenz](ONE-CALL-INSTALL.md) beschreibt die
 übrigen Parameter und Profilgrenzen. Technische Grundlagen:
 [Microsoft CLR-Aktivierung](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/clr-enabled-server-configuration-option)
 und [CREATE DATABASE](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-transact-sql).
-
-Die [separate Vorbereitungsabnahme](Tests/Qualification/InstallerProvisioning.20261119.json)
-bindet die sechs nativen Versions-/Plattformkontexte, die gezielte GUID-Delta-
-Prüfung und den damaligen Gesamtfall. Sie belegt auch den tatsächlichen
-CLR-Übergang 0 nach 1 sowie die nativen Fehlergrenzen und frischen Audits.
-Die native Anmeldung verwendete SQL-Credentials von Windows; die allgemeinen
-Modulnachweise und ursprünglichen rc.3-Clientbelege behalten ihren eigenen Scope.
-Den Gesamtfall aus dem aktuellen ZIP mit beiden Schaltern und separatem
-Zustandsvergleich beschreibt die
-[Abnahme des gepackten Linux-Clients](../Scripts/Install/Tests/QUALIFICATION.md#ein-aufruf-installer-auf-einem-linux-client).

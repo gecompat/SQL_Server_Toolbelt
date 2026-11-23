@@ -74,7 +74,7 @@ werden erst beim manuellen Ausführen sichtbar; sie sind ohne Definition nicht g
 
 ## Flatfiles, Verzweigungen und Berechnungen
 
-Auf ausdrücklichen Benutzerwunsch ist eine Flatfile-Quelle eine angenommene
+Eine Flatfile-Quelle ist eine angenommene
 Dummyzeile mit `CAST(NULL AS <DTSX-Typ>)` je Spalte. Sie liest keine Datei.
 Die Quelle ist als solche kommentiert; für ein lokales Szenario können an
 dieser Stelle konkrete Beispielwerte eingesetzt werden. Ein explizit

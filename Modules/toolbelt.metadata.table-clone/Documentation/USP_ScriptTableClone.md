@@ -180,11 +180,6 @@ gemappte Tabellenverweise werden anhand tatsächlicher AST-/Tokenspannen
 umgeschrieben. Kommentare/Literale bleiben erhalten; dynamische,
 verschlüsselte, CLR-, EXECUTE-AS-, externe oder unklare Formen blockieren
 vor Veröffentlichung. Keine automatische Kopie von Funktionen/Prozeduren.
-Der begrenzte lokale Windows2025/exakt-CU8-CL170-Triggernachweis bestand
-am2026-10-04; Scope und verbleibende Grenzen stehen im
-[Triggervertrag](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md).
-Aktuelle Head-CI wird separat im PR nachgewiesen.
-
 Triggeroption NULL meldet53900/10. Plattform-/Parsergates verwenden53907/2..6,
 Unsupported-/Bindungsformen53903/15..22, Namenskollisionen53904/2 und
 Parser-/Spannenfehler53905/3..6. Der Triggervertrag ordnet die States genau zu.

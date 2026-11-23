@@ -193,7 +193,7 @@ Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv i
 
 Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md), [USP_ExtractZipEntryFromBinary.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipEntryFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 1ad150626ea364a67652530ea48100ee841a84449f22f5e505b494944eb73cd2 -->
+<!-- Source/Vertrag SHA256: 956492c9471a2baad23106c2b18d57ffd91960ad293b53d8a9b74623aa2c49ed -->
 
 Voraussetzung: ZIPmemory1.4.0 mit passender SAFE-Assembly tlblt_Archive_ZipMemory und ResultTable derselben Datenbank. Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170 gemäß Modulmatrix. Vorhandene CLR-/Trustvoraussetzungen; keine Datei- oder Netzwerkquelle.
 
@@ -431,7 +431,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md), [SVF_Base64Encode.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: 084658123d579b5aa2fd77ec60290f3355a10c8c111bce0d0dfc45366d38184f -->
+<!-- Source/Vertrag SHA256: ff2e5c392dd52ea0eaafcece082edff2615e7ef0cb31c76ac819c6f168d200aa -->
 
 Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Base64-Modul installiert. Reiner T-SQL/XML-Provider ohne CLR oder Netzwerk. Funktionsargumente positionsbezogen angeben; bei deklariertem Default das Schlüsselwort DEFAULT oder den gewünschten Wert übergeben.
 
@@ -455,7 +455,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md), [SVF_Base64Decode.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 170a2ed9cd5b54afcbfac79cca1f018b787a65c081ce53799a29a300aa701f7b -->
+<!-- Source/Vertrag SHA256: e07fb43644d0de53000d6f07a893232def28c162ecb02d8152b930afa5b54040 -->
 
 Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170; Base64-Modul installiert. Reiner T-SQL/XML-Provider ohne CLR oder Netzwerk. Funktionsargumente positionsbezogen angeben; bei deklariertem Default das Schlüsselwort DEFAULT oder den gewünschten Wert übergeben.
 
@@ -577,7 +577,7 @@ Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 
 Vertrag und Quelle: [SVF_IntegerToBase.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_IntegerToBase.sql), [SVF_IntegerToBase.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_IntegerToBase.md), [SVF_IntegerToBase.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_IntegerToBase.md).
 
-<!-- Source/Vertrag SHA256: 084476647978b2ffef8c619c8869e0fa77668be0d9ef29f0392f997d62c0579e -->
+<!-- Source/Vertrag SHA256: 86b31d8642e1d475def9a0d15b136313ba85d2c97ce2cb841887a6ea838d37d3 -->
 
 Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul installiert; reine T-SQL-Funktionen ohne CLR, externe Datenquelle oder Systemkatalogabfrage. Beide Argumente positionsbezogen übergeben. Keine SQL-Defaults.
 
@@ -601,7 +601,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [SVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md), [SVF_TryBaseToInteger.md](../../Metadata/UsageSkills/toolbelt_conversion/SVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: e634d0402cf7f5494c907b0e19986f742288233a28db4f5a7956b5a769b58276 -->
+<!-- Source/Vertrag SHA256: ba25b4fe559720a02cbac0f8609c59ec734fdffac77db79f4c8616c125a8fb55 -->
 
 Voraussetzung: SQL Server 2019/2022/2025, Windows/Linux, CL150/160/170. Modul installiert; reine T-SQL-Funktionen ohne CLR, externe Datenquelle oder Systemkatalogabfrage. Beide Argumente positionsbezogen übergeben. Keine SQL-Defaults.
 
@@ -934,7 +934,7 @@ Gibt begrenzten Unicode-Text in den SQL-Messages-Kanal aus, wahlweise mit NOWAIT
 
 Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md), [USP_WriteConsoleMessage.md](../../Metadata/UsageSkills/toolbelt_core/USP_WriteConsoleMessage.md).
 
-<!-- Source/Vertrag SHA256: cfa58f28d9c810b9fce5deac9be4351f9f01da040ee0b2fe7647462d5377e06f -->
+<!-- Source/Vertrag SHA256: 82eadeca184907b3bbf585786e504cbc497e86dc03e7b0908ffa03434f354383 -->
 
 Voraussetzung: Installierte reine T-SQL-Prozedur auf SQL Server 2019/2022/2025, Windows oder Linux, lokal/zentral gemäß Modulvertrag. Client/Treiber muss Informationsnachrichten entgegennehmen; NOWAIT ist keine Zusage sofortiger UI-Darstellung. Keine CLR-, Datei-, Netzwerk- oder Tabellenabhängigkeit.
 
@@ -1389,7 +1389,7 @@ Erzeugt eine Folge von bigint-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md), [TVF_GenerateSeriesBigInt.md](../../Metadata/UsageSkills/toolbelt_core/TVF_GenerateSeriesBigInt.md).
 
-<!-- Source/Vertrag SHA256: 8ddfbde6f22cd19e9ff4b5955085e9a5a40dcc2171f89dac65d7413adc725cbf -->
+<!-- Source/Vertrag SHA256: fd2c0ff40a36b2edc80c9b56921467f9dd01c696f79d7f19b78d7672ee7e9d6a -->
 
 Voraussetzung: SQL Server 2019/2022/2025, Windows oder Linux; Compatibility Level 150/160/170. Modul installiert, kein CLR oder externer Provider. Alle drei Argumentpositionen müssen im Funktionsaufruf angegeben werden; DEFAULT in der dritten Position oder explizites NULL aktiviert den Richtungsdefault.
 
@@ -1416,7 +1416,7 @@ Erzeugt eine Folge von int-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql), [TVF_GenerateSeriesInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesInt.md), [TVF_GenerateSeriesInt.md](../../Metadata/UsageSkills/toolbelt_core/TVF_GenerateSeriesInt.md).
 
-<!-- Source/Vertrag SHA256: 4e8e0747e462e02ff1c611e6420bef50d36ffd5fc98ae2fc6a06afdbfc2bdb81 -->
+<!-- Source/Vertrag SHA256: 671b02b55683c2461d0fcd3e690abe8c9096c82b341afc1ad1af991a81e5098f -->
 
 Voraussetzung: SQL Server 2019/2022/2025, Windows oder Linux; Compatibility Level 150/160/170. Modul installiert, kein CLR oder externer Provider. Alle drei Argumentpositionen müssen im Funktionsaufruf angegeben werden; DEFAULT in der dritten Position oder explizites NULL aktiviert den Richtungsdefault.
 
@@ -1471,7 +1471,7 @@ Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vor
 
 Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md), [USP_PrepareResultTable.md](../../Metadata/UsageSkills/toolbelt_core/USP_PrepareResultTable.md).
 
-<!-- Source/Vertrag SHA256: 096f48198210e6ebcde5991a9787a42a9b6d510b95ef8350cc8bed805ea3ace9 -->
+<!-- Source/Vertrag SHA256: 2de17b8991ee4869d32b367c43c205652112126294db14ace0797c9ab5f16fa3 -->
 
 Voraussetzung: Ziel-#Temp und Referenztabelle müssen im unterstützten Session-/Namensscope existieren. Kein frei geliefertes DDL, keine globale oder permanente Zieltabelle. Der Help-Pfad benötigt keine Ziel-/Referenztabelle.
 
@@ -3363,7 +3363,7 @@ Interpretiert den zuvor gelesenen Rohwert einer XLSX-Zelle als begrenzten, typis
 
 Vertrag und Quelle: [TVF_InterpretXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_InterpretXlsxCell.sql), [TVF_InterpretXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_InterpretXlsxCell.md), [TVF_InterpretXlsxCell.md](../../Metadata/UsageSkills/toolbelt_file/TVF_InterpretXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: bd38ec0e000068bd124729ecf1a3fb9730e0b9384bb847def7dde340a8e33fd3 -->
+<!-- Source/Vertrag SHA256: 67266ebb314a3d1a33c80a3fcc8e1b01067472a3cd8d08651a6466f6710e4c21 -->
 
 Voraussetzung: Modul XLSXmemory1.2.0 mit SAFE-Assembly tlblt_File_XlsxMemory, ZIPmemory>=1.4.0 und ResultTable>=1.0.0 gemäß Modulabhängigkeiten. Unterstützte SQL2019/2022/2025 Windows/Linux-Kontexte gemäß Modulmatrix, vorhandene CLR-/Trustvoraussetzungen. Keine Installation, Rechteerteilung, Labänderung oder Datenquelle wird durch diesen Aufruf vorbereitet.
 
@@ -3391,7 +3391,7 @@ Formatiert eine XLSX-Einzelzelle mit den unterstützten Literalformaten und Kult
 
 Vertrag und Quelle: [TVF_FormatXlsxCell.sql](../../Modules/toolbelt.file.xlsx-memory/Source/TVF_FormatXlsxCell.sql), [TVF_FormatXlsxCell.md](../../Modules/toolbelt.file.xlsx-memory/Documentation/TVF_FormatXlsxCell.md), [TVF_FormatXlsxCell.md](../../Metadata/UsageSkills/toolbelt_file/TVF_FormatXlsxCell.md).
 
-<!-- Source/Vertrag SHA256: 3a2de638bacab9812d1c72dad8628aba8f964f7ea1c074433e53fc31fcddaf5b -->
+<!-- Source/Vertrag SHA256: 50d33cea954bfe47f6d73c0298c6679cd3ec9ffe93b5626a26ec52931d3a89e3 -->
 
 Voraussetzung: Modul XLSXmemory1.2.0 mit SAFE-Assembly tlblt_File_XlsxMemory, ZIPmemory>=1.4.0 und ResultTable>=1.0.0 gemäß Modulabhängigkeiten. Unterstützte SQL2019/2022/2025 Windows/Linux-Kontexte gemäß Modulmatrix, vorhandene CLR-/Trustvoraussetzungen. Keine Installation, Rechteerteilung, Labänderung oder Datenquelle wird durch diesen Aufruf vorbereitet.
 
@@ -4093,7 +4093,7 @@ Zeigt sichtbare bekannte Modulschnittstellenkandidaten; Version und Deployment-M
 
 Vertrag und Quelle: [VW_ModuleCapabilities.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ModuleCapabilities.sql), [VW_ModuleCapabilities.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ModuleCapabilities.md), [VW_ModuleCapabilities.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ModuleCapabilities.md).
 
-<!-- Source/Vertrag SHA256: 4db9e3bfa8d1a8f2d67ffdbed1cb5ddebd8606e8bbcf5e7f84e9d3f58cf0aa19 -->
+<!-- Source/Vertrag SHA256: 7f9b93cd62e5fb94cff095d3b3edb90ce9a5452a54ae35d961ad303ec923e133 -->
 
 Voraussetzung: Installierte markerfreie View auf SQL2019/2022/2025 Windows/Linux, lokal oder zentral mit dem zulässigen Compatibility Level. Keine Runtime-Modulabhängigkeit und kein CLR-Aufruf. Der Generator liest beim Offlinebuild alle module.yaml-Dateien deterministisch und erzeugt feste Kandidatentupel ModuleId/qualifizierter Name/zulässige SQL-Objekttypen. Assemblies aus expliziten Deklarationen; bei einem Modul ohne Objekte Fallback auf dessen deklarierten CLR-Assemblynamen. Toolbelt-Assemblyalias tlblt_, bereits tlblt-Namen erhalten; private ScriptDom-Alias tlblt.Microsoft.SqlServer.TransactSql.ScriptDom. Unbekannte Manifestformen/Objekttypen oder Assemblyaliasformen brechen den Build ab, keine automatische Runtime-Discovery.
 
@@ -4118,7 +4118,7 @@ Bekannte Toolbelt-Objekte und ihre vollständigen maschinenlesbaren Usage-Skills
 
 Vertrag und Quelle: [VW_ObjectUsageSkills.sql](../../Modules/toolbelt.metadata.capability-catalog/Source/VW_ObjectUsageSkills.sql), [VW_ObjectUsageSkills.md](../../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md), [VW_ObjectUsageSkills.md](../../Metadata/UsageSkills/toolbelt_metadata/VW_ObjectUsageSkills.md).
 
-<!-- Source/Vertrag SHA256: e0c8cc34726e51eac8b0de3a24c53441365029acb2681f97529e29512a0aa982 -->
+<!-- Source/Vertrag SHA256: 19310d539337de78db09c52045ab62f8841d6e6173b7a58594f00474556ec11d -->
 
 Voraussetzung: Neue Skill-Sicht im gewählten Ziel verfügbar und vorhandenes SELECT-Recht. Die Einträge sind konstante bekannte Beschreibungen und bestätigen weder Installation noch aktuelle Objektdefinition oder Ausführungsrechte. DatabaseRole bezeichnet eine logische Projektrolle, keinen fest kodierten Datenbanknamen. Gesamt- und Teilprofile desselben Quellstands enthalten denselben vollständigen Katalog einschließlich nicht ausgewählter Module.
 
@@ -4192,7 +4192,7 @@ Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfan
 
 Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md), [USP_ScriptTableClone.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: 366afd87530ef3b804438bc299a13ce258550da59fd537a611a9ca1e923fd323 -->
+<!-- Source/Vertrag SHA256: f0faafe550e32f3bf9e85fa636611c1e6629e80508d92940dc13e5a9a16032bc -->
 
 Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
@@ -4235,7 +4235,7 @@ Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-d
 
 Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md), [USP_ExecuteTableClone.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: dfee7ade70bd33ebd233cc4040fe8a4261b3f70469a87630f0ec8f64ce568549 -->
+<!-- Source/Vertrag SHA256: 20639b2f9475dab5574242cd4f449bf2564c4c04fa410de2c1daddb828bccc05 -->
 
 Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
@@ -4351,7 +4351,7 @@ Modul `toolbelt.pseudonymization.deterministic` · Version `1.2.0` · `TVF`
 
 Vertrag und Quelle: [DeterministicTranslate.sql](../../Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql), [TVF_DeterministicTranslate.md](../../Modules/toolbelt.pseudonymization.deterministic/Documentation/TVF_DeterministicTranslate.md), [TVF_DeterministicTranslate.md](../../Metadata/UsageSkills/toolbelt_pseudonymization/TVF_DeterministicTranslate.md).
 
-<!-- Source/Vertrag SHA256: 79f9b691aabb657f13d9096d6fa7f8053e6795fbbae6c7f99890dbcd272e971b -->
+<!-- Source/Vertrag SHA256: 506c8cca4194683308654d4efb66c7c5c54a68d8915ac85ebe47a736f0701b35 -->
 
 Voraussetzung: Modul 1.2.0 mit kanonischen T-SQL-Abhängigkeiten derselben Datenbank. SQL2019/2022/2025 auf Windows/Linux mit CL150/160/170 gemäß Modulmatrix. Explizite Versionen und binäre Keys statt impliziter Textkodierung. Keine Fach- oder Systemkatalogabfrage für die Transformation erforderlich. Input- und Fehlercodes vor Weiterverwendung auswerten.
 
@@ -5269,7 +5269,7 @@ Prüft und zerlegt einen strikten SemVer-2.0.0-Text mit explizitem Validierungss
 
 Vertrag und Quelle: [TVF_ParseSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/TVF_ParseSemanticVersion.sql), [TVF_ParseSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/TVF_ParseSemanticVersion.md), [TVF_ParseSemanticVersion.md](../../Metadata/UsageSkills/toolbelt_validation/TVF_ParseSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: f4a2f3f3956c5fd41afb29db539026dd522b1f9b07a289234ddc2a040102ec91 -->
+<!-- Source/Vertrag SHA256: f1eeff91bc710d231a9c4a6a16e5a089a94779457677a6d451095ee4b4810d72 -->
 
 Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
@@ -5347,7 +5347,7 @@ Skalarer Komfortaufruf des kanonischen relationalen SemVer-Vergleichs.
 
 Vertrag und Quelle: [SVF_CompareSemanticVersion.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_CompareSemanticVersion.sql), [SVF_CompareSemanticVersion.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_CompareSemanticVersion.md), [SVF_CompareSemanticVersion.md](../../Metadata/UsageSkills/toolbelt_validation/SVF_CompareSemanticVersion.md).
 
-<!-- Source/Vertrag SHA256: 367cacc4cdea611771af20ab175ac7244c37b7a03096ee76e8255fb6341b5d9e -->
+<!-- Source/Vertrag SHA256: c12bc739604fffebc9011c7fa8e5dff5b0b1d2e870e7e926dbdd02ea9f084340 -->
 
 Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 
@@ -5371,7 +5371,7 @@ Skalarer Komfortaufruf des kanonischen relationalen SemVer-Sortierschlüssels.
 
 Vertrag und Quelle: [SVF_SemanticVersionSortKey.sql](../../Modules/toolbelt.validation.semantic-version/Source/SVF_SemanticVersionSortKey.sql), [SVF_SemanticVersionSortKey.md](../../Modules/toolbelt.validation.semantic-version/Documentation/SVF_SemanticVersionSortKey.md), [SVF_SemanticVersionSortKey.md](../../Metadata/UsageSkills/toolbelt_validation/SVF_SemanticVersionSortKey.md).
 
-<!-- Source/Vertrag SHA256: 90ce8afb583544b90c3c04a6c3878304b244409da1f7bb8a670ddeb8af546a36 -->
+<!-- Source/Vertrag SHA256: 55e6a40c52a5f4576234184a980fab5b76636f46643a9bb10a6eb96c623d8d79 -->
 
 Voraussetzung: Installiertes T-SQL-Modul auf unterstütztem SQL Server 2019/2022/2025 unter Windows oder Linux. Lokal und zentral gemäß vorhandenem Deploymentvertrag; Abhängigkeiten innerhalb des Moduls müssen vorhanden sein. Keine CLR-, Root-, Datenquellen- oder Netzwerkanforderung. Die relevanten Zeichenvergleiche verwenden explizit Latin1_General_100_BIN2.
 

@@ -42,14 +42,14 @@ Dateihashes belegen Konsistenz, keine Herausgebersignatur.
 
 ## Plattform, Rechte und Trust
 
-Ohne `-Platform` wird das Windows-Profil auf Windows beziehungsweise das
-Portable-Profil auf Linux ausgewählt. `-Platform Portable` ist auch auf Windows
-möglich. Windows-Funktionen werden auf Linux nicht installiert. Lokal und zentral
-bezeichnen den Installationsort in der Datenbank, nicht den Rechner des Clients.
+Der Client ermittelt das Betriebssystem der verbundenen SQL-Server-Instanz.
+`-Platform Auto` wählt aus dem vollständigen Satz Windows für ein Windows-Ziel
+und Portable für ein Linux-Ziel. `-Platform Portable` ist auch für ein
+Windows-Ziel möglich. Lokal und zentral bezeichnen den Datenbankmodus.
 
 | TrustMethod | Verhalten |
 |---|---|
-| `auto`, Standard | Bereits TRUSTWORTHY ON: vorhandenen Datenbank-Trust nutzen; andernfalls exakte Hashfreigabe |
+| `auto`, Standard | Bei bereits aktivem TRUSTWORTHY den Weg `trustworthy` nutzen, bei OFF den Weg `hash`. |
 | `hash` | Eingebettete Assemblyhashes vergleichen und exakt diese Hashes registrieren |
 | `trustworthy-checked` | Bereits TRUSTWORTHY ON und passende Ownerautorisierung voraussetzen; Hashvergleich ohne Registrierung |
 | `trustworthy` | Vorhandenen Datenbank-Trust ohne Toolbelt-Hashvergleich verwenden |
@@ -97,6 +97,24 @@ wird dieser verwendet, sofern der Aufruf ihn nicht ausdrücklich überschreibt.
 Details zu Inputs und vier Profilen: [gemeinsamer SQL-Build](../Scripts/Install/README.md).
 `Deploy-All.ps1` führt Planung, Quellbuild und Installation über denselben Kern.
 
+## Parameterübersicht
+
+| Parameter | Bedeutung |
+|---|---|
+| `-DeploymentMode` | Pflicht. `local` für die Anwendungsdatenbank, `central` für die gemeinsame Toolbelt-Datenbank. |
+| `-ServerInstance`, `-Database` | Zielinstanz und Zielkatalog. Für Installation und Zielvorprüfung erforderlich. `-ValidateOnly` benötigt kein Ziel. |
+| `-Credential` | Optionales `PSCredential` für SQL-Anmeldung. Ohne Credential verwendet `sqlcmd` integrierte Anmeldung im aktuellen Prozesskontext. |
+| `-PackageZip`, `-InstallSql` | Alternative Eingaben. Inneres Payload-ZIP oder SQL-Datei mit danebenliegendem Manifest. Im vollständigen Satz findet der Client den mitgelieferten Payload. |
+| `-ExpectedSha256` | Erwarteter SHA-256-Wert des inneren Payload-ZIP oder der einzelnen SQL-Datei, 64 Hexzeichen. Das äußere ZIP separat prüfen. |
+| `-Platform` | `Auto` (Standard), `Windows` oder `Portable`. Eine einzelne SQL-Datei bringt ihr Profil im Manifest mit. |
+| `-TrustMethod` | `auto`, `hash`, `trustworthy-checked` oder `trustworthy`. Bei `-InstallSql` gilt ohne explizite Auswahl der Wert aus dem Manifest. |
+| `-SqlcmdPath` | Name oder Pfad des ODBC-Clients. Standard `sqlcmd`. |
+| `-TrustServerCertificate` | Ausdrücklicher TLS-Override für die Verbindung. |
+| `-ValidateOnly`, `-PreflightOnly` | Alternative Prüfmodi. Offline-Paketprüfung oder lesende Zielprüfung ohne Installation. |
+| `-CreateDatabase`, `-EnableClr` | Getrennte [administrative Optionen](PROVISIONING.md). |
+| `-LoginTimeoutSeconds` | 1 bis 120 Sekunden, Standard 60. |
+| `-CommandTimeoutSeconds` | 1 bis 1800 Sekunden, Standard 600. |
+
 ## Prüfen, Fehler und Abschluss
 
 - `-ValidateOnly`: Paket-/Dateikontrolle ohne Verbindung und ohne SQL-Ausführung.
@@ -107,7 +125,8 @@ Details zu Inputs und vier Profilen: [gemeinsamer SQL-Build](../Scripts/Install/
 - `-TrustServerCertificate`: nur ausdrücklich auf Wunsch; die Prüfung von
   Zertifikatskette und Servername entfällt. Kein automatischer TLS-Fallback.
 - `-LoginTimeoutSeconds` und `-CommandTimeoutSeconds`: endliche Clientgrenzen;
-  nach Fehler oder Timeout kein automatischer Wiederanlauf.
+  standardmäßig 60 beziehungsweise 600 Sekunden. Nach einem Fehler oder
+  Timeout läuft die Installation nicht automatisch erneut an.
 
 Der Installationsdispatch bindet die zuvor gelesene Datenbank-GUID erneut und
 verwendet eine sitzungsgebundene Anwendungssperre. Der Abschluss prüft erwartete

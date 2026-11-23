@@ -8,9 +8,6 @@ Die SVF delegiert an
 [`TVF_CompareSemanticVersion`](./TVF_CompareSemanticVersion.md). Für
 mengenorientierte Vergleiche ist die inline TVF mit `APPLY` zu bevorzugen.
 
-Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
-
 ## Aufrufparameter
 
 <!-- API_PARAMETERS:BEGIN -->

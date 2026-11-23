@@ -37,6 +37,10 @@ Vor jeder Dateiänderung und vor jedem Commit prüfen: Öffentliche Organisation
 
 ## Dokumentation und Tests
 
+Der Einstieg für [Entwicklung und Projektpflege](Documentation/Development/README.md)
+führt zu Architektur, Generatoren und Nachweisen. Die getrennte
+[Bedienerdokumentation](Documentation/README.md) erklärt die Anwendung.
+
 Code, Dokumentation, Beispiele, Help-Vertrag, Tests, Backlog und Status werden gekoppelt gepflegt. Jedes Modul muss die Kriterien aus [MODULE_DEFINITION_OF_DONE.md](./Documentation/Standards/MODULE_DEFINITION_OF_DONE.md) erfüllen.
 
 Für neue und geänderte öffentliche SQL-Objekte konkretisiert der
@@ -69,9 +73,10 @@ Hash mit dem manifestierten Wert vergleichen, beispielsweise lokal mit
 SHA2-512-/Trust-Regeln des jeweiligen Moduls. Diese Unterlagen bleiben lokal,
 soweit sie nicht ausdrücklich öffentliche oder synthetische Inhalte sind.
 
-Die installierte Modulversion ist bei Modulen mit entsprechender Markierung
-über die vorhandenen Extended Properties auslesbar. Beispiel in der
-Installationsdatenbank:
+Der aktuelle gemeinsame Installer schreibt keine Versions-Extended-Properties.
+Für diesen Stand Installationssatz und Quellcommit lokal festhalten. Bei
+einer historischen markerbasierten Installation lässt sich deren gespeicherte
+Versionsmarkierung in der Installationsdatenbank nachschlagen:
 
 ```sql
 SELECT name, CONVERT(nvarchar(128), value) AS ModuleVersion

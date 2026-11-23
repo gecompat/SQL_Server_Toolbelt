@@ -5,12 +5,7 @@ Tabellenklonplan und führt ihn nach exaktem Hashvergleich aus. Nur neue Ziele
 in bestehenden Schemas derselben Installationsdatenbank sind zulässig.
 Kein frei geliefertes SQL, keine Datenkopie und keine Triggerkopie.
 
-Stand 2026-10-04: historisches3.1 implementiert und unabhängig sourcegeprüft;
-begrenzte lokale3.1-Nachweise bestanden. Der4.0-Hash-/Planner-/Lifecyclepfad
-bestand den im [Triggervertrag](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
-abgegrenzten lokalen Nachweis; vollständige Produktqualifikation bleibt offen.
-Head-CI ist separat im PR nachzuweisen. Maßgeblich ist der
-[Executor-Vertrag](../../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md).
+Der [Executor-Vertrag](../../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md) beschreibt Planbildung, Hash und Ausführungsgrenzen.
 
 ## Parameter
 
