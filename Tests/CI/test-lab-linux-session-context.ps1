@@ -86,6 +86,15 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
         Assert ((Get-LabLinuxSqlClientTimeoutFailureCode $timeoutRecord QUERY)-ceq'TLS_SQLCLIENT_QUERY_TIMEOUT') 'SQL query timeout maps to its fixed stage token without exposing exception detail'
         $flags=[Reflection.BindingFlags]::Instance -bor [Reflection.BindingFlags]::NonPublic -bor [Reflection.BindingFlags]::Public
         $sqlAssembly=[Reflection.Assembly]::Load('System.Data.SqlClient')
+        $preflightSource=[IO.File]::ReadAllText((Join-Path $Root 'Invoke-LabLinuxPreflight.ps1'))
+        Assert ($preflightSource -match '\$builder\[''Connect Timeout''\]\s*=\s*10' -and $preflightSource -notmatch '\$builder\.ConnectTimeout\s*=') 'Linux preflight uses the SqlClient connection-string keyword instead of an IDictionary member name'
+        $timeoutBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new('Data Source=tcp:localhost,1433;Initial Catalog=master;User ID=sa;Password=synthetic;Encrypt=True;TrustServerCertificate=False')
+        $timeoutConnection=$null
+        try{
+            $timeoutBuilder.Pooling=$false;$timeoutBuilder.ConnectRetryCount=0;$timeoutBuilder['Connect Timeout']=10
+            $timeoutConnection=[Data.SqlClient.SqlConnection]::new($timeoutBuilder.ConnectionString)
+            Assert ($timeoutBuilder.ConnectTimeout-eq10 -and $timeoutConnection.State-eq[Data.ConnectionState]::Closed) 'Canonical timeout keyword constructs a closed SqlConnection without opening a network session'
+        }finally{if($timeoutConnection){$timeoutConnection.Dispose()};if($timeoutBuilder){$timeoutBuilder.Clear()}}
         $sqlErrorType=$sqlAssembly.GetType('System.Data.SqlClient.SqlError',$true)
         $sqlErrorCollectionType=$sqlAssembly.GetType('System.Data.SqlClient.SqlErrorCollection',$true)
         $sqlExceptionType=$sqlAssembly.GetType('System.Data.SqlClient.SqlException',$true)
@@ -106,6 +115,10 @@ $fixture=New-Module -ArgumentList $root -ScriptBlock {
         $nonTimeoutRecord=[Management.Automation.ErrorRecord]::new($nonTimeout,'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
         Assert ($null-eq(Get-LabLinuxSqlClientTimeoutFailureCode $nonTimeoutRecord OPEN)) 'unclassified SQL open failures preserve the existing safe fallback'
         Assert ((Get-LabLinuxSqlClientFailureCode $nonTimeoutRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_UNCLASSIFIED') 'unclassified SqlClient errors retain their bounded operation phase'
+        $constructorArgumentDetail='synthetic-private-connection-detail'
+        $constructorArgumentRecord=[Management.Automation.ErrorRecord]::new([ArgumentException]::new($constructorArgumentDetail),'synthetic',[Management.Automation.ErrorCategory]::InvalidArgument,$null)
+        $constructorArgumentCode=Get-LabLinuxSqlClientFailureCode $constructorArgumentRecord CONSTRUCT
+        Assert ($constructorArgumentCode-ceq'TLS_SQLCLIENT_CONSTRUCT_INVALID_ARGUMENT'-and$constructorArgumentCode-cnotmatch[regex]::Escape($constructorArgumentDetail)) 'Linux SqlClient constructor argument failures retain a fixed safe category without exception details'
         $authenticationRecord=[Management.Automation.ErrorRecord]::new([Security.Authentication.AuthenticationException]::new('synthetic-private-auth-detail'),'synthetic',[Management.Automation.ErrorCategory]::NotSpecified,$null)
         Assert ((Get-LabLinuxSqlClientFailureCode $authenticationRecord OPEN)-ceq'TLS_SQLCLIENT_OPEN_AUTHENTICATION') 'TLS authentication errors retain only a fixed phase and category'
         $wrappedSqlException=$sqlExceptionConstructor.Invoke([object[]]@('synthetic-private-sql-detail',$sqlErrors,$authenticationRecord.Exception,[guid]::Empty))
