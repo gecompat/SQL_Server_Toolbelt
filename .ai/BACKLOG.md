@@ -1,5 +1,12 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## SC-045: authentifizierter Labtransport — 2026-11-23
+
+Der [Toolbelt-Livebeleg](../Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md#abnahme-von-sc-2026-045)
+ist für die ausgewählten V2-Labprofile abgeschlossen. Frühere Offen-Angaben
+zu diesen Profilen beschreiben ihre jeweiligen Zwischenstände. Die breitere
+Lab-Qualifikation TLS-001 und die native Databricks-Abnahme bleiben getrennt.
+
 ## Nachweisabgleich — 2026-11-22
 
 Die beauftragten aktuellen Installer-, Trigger-, Windows-Filesystem-,
@@ -2286,7 +2293,7 @@ mit diesem Integrationsauftrag geändert; Modulvalidierungsstatus bleibt separat
 
 14 P1 und 11 P2; alle fachlichen Entscheidungen sind freigegeben. Die folgende
 Tabelle beschreibt den integrierten Stand. Der Cloudabschluss bleibt eine
-getrennte Abnahme; insbesondere ist SC-045 weiterhin offen.
+getrennte Abnahme.
 
 | Gruppe | Inhalt | Priorität | Aktueller Stand |
 |---|---|---|---|
@@ -2302,7 +2309,7 @@ getrennte Abnahme; insbesondere ist SC-045 weiterhin offen.
 | `SC-2026-026` | Queue Claim: Handlerausführung versus Metadatensicht | P1 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-027` | Second Session: ursprünglicher Caller versus Remote-Principal | P1 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-040` | File-Content-Textread: Größe und Inhalt aus verschiedenen Reads | P1 | implementiert; in main integriert; Head-CI bestanden |
-| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | offen (P1); Code integriert; Head-CI bestanden; authentifizierte TLS-Lab-Abnahme ausstehend; unabhängige Fachtests gemäß Benutzerklarstellung erlaubt |
+| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | Code integriert; [authentifizierte Liveabnahme](../Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md#abnahme-von-sc-2026-045) für die ausgewählten V2-Labprofile abgeschlossen |
 | `SC-2026-046` | Queue Enqueue: Producerautorität je Work Type | P1 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-006` | JSON Pointer: kumulative Fragmentarbeit | P2 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-013` | Unquoting: wiederholte LOB-Kopien bei dichten Quotes | P2 | implementiert; in main integriert; Head-CI bestanden |

@@ -16,8 +16,8 @@ qualifizierten Cutover vom 2026-10-22. V2-Bytes werden im
 gewählten Labkontext vor Clientverbindungen erneut geprüft; V1-Functional
 bleibt erhalten. Die gemeinsame native Windows-Abnahme bestand alle sechs
 Containerprofile mit beiden echten Stacks, Signatur-Negativfall und eigenem
-Cleanup. Linuxclients und Hyper-V bleiben offen; CI wird in den zugehörigen
-PRs geführt. Die Windows-Teilmatrix ist kein pauschaler SC-045-Abschluss.
+Cleanup. Die spätere [Abnahme von SC-2026-045](LAB_QUALIFIED_TLS_CONSUMER.md#abnahme-von-sc-2026-045)
+ergänzt die getrennt gebundenen Linux- und Hyper-V-Profile.
 
 Der Benutzer hat die pauschale Blockierung unabhängiger Funktionsprüfungen
 durch die Lab-TLS-Qualifikation ausdrücklich aufgehoben. Aktuell gelten
@@ -123,13 +123,11 @@ Der Merge-Dateistand ist zum geprüften Head identisch; eigene Mergecommit-CI
 und vollständige Plattform-/Minimalrechte-/Heap-/Releasequalifikation werden
 daraus nicht abgeleitet. Die gezielten lokalen Teilnachweise folgen unten.
 
-**SC-045 bleibt P1 und offen bis zur erfolgreichen authentifizierten
-TLS-Lab-Abnahme.** Der zuletzt für `AuthenticatedTls` geprüfte externe
-Labvertrag wurde vor der Verbindung abgewiesen. Die zuvor ausgeführten Produktprüfungen nutzten den
-damaligen Labtransport und qualifizieren keine authentifizierte TLS-Verbindung.
-Erforderlich bleibt ein erfolgreicher Livebeleg für Zertifikatskette und
-Servernamen mit SQLClient und `sqlcmd` auf ausdrücklich ausgewählten,
-schema-validierten Labzielen. SC-018 verlangt weiterhin die betreiberseitige
+Zum Zeitpunkt dieser Integration war SC-045 bis zur authentifizierten
+TLS-Lab-Abnahme offen. Der damalige externe Labvertrag wurde vor der Verbindung
+abgewiesen. Die spätere [SC-045-Abnahme](LAB_QUALIFIED_TLS_CONSUMER.md#abnahme-von-sc-2026-045)
+ordnet die echten Prüfungen für Zertifikatskette und Servernamen den
+ausgewählten V2-Profilen zu. SC-018 verlangt weiterhin die betreiberseitige
 Beschränkung der Legacydirektgrants auf vertrauenswürdige Principals.
 Kein neuer Cloudabschluss oder pauschales Modulstatusupgrade durch den Merge.
 
