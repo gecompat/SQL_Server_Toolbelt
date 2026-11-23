@@ -1,14 +1,7 @@
 # USP_CopyTableCloneData
 
 Kopiert einen ausdrücklich gemappten Verbund innerhalb der Installationsdatenbank
-in leere formgleiche Ziele. Die einzeln freigegebene Erweiterung gehört zu
-`toolbelt.metadata.table-clone` 4.1.0. Sourcevorbereitung ist kein Runtime-Nachweis;
-der normale Copy-/Client-/Lifecycle-Scope ist auf Linux2019 und Windows2025/CU8
-bestanden; vier dynamische Identity-Zustände und zwei SNAPSHOT-Konkurrenzfälle
-separat auf Linux2019 geprüft. Abgeschlossene Teilnachweise aus Fehlerläufen
-bleiben ausdrücklich getrennt. Head-CI separat im PR; Release unveröffentlicht.
-Genaue Grenzen im Architekturvertrag.
-Maßgeblich ist der [Datenkopievertrag](../../../Documentation/Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md).
+in leere formgleiche Ziele. Für das Erzeugen eines Plans verwende [USP_ScriptTableClone](USP_ScriptTableClone.md). Für das Anlegen neuer Zieltabellen verwende [USP_ExecuteTableClone](USP_ExecuteTableClone.md). Der [Datenkopievertrag](../../../Documentation/Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md) beschreibt Voraussetzungen, Rechte und Grenzen.
 
 ## Parameter
 
@@ -85,8 +78,7 @@ DROP TABLE #CopyMap;
 
 Eigene Daten-/FK-Fehler 53940..53946 sowie bestehende Core-/Helper- und Enginefehler
 bleiben getrennt. Caller-TX: nichtdoomendes RAISERROR/RETURN mit
-TBX_TABLE_CLONE_COPY_CALLER_TRANSACTION. Testscope, offene Nachweise und Lifecycle
-stehen im [Manifest](../module.yaml) und in der [Testmatrix](../Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md).
+TBX_TABLE_CLONE_COPY_CALLER_TRANSACTION.
 
 ## Technischer Lösungsweg
 

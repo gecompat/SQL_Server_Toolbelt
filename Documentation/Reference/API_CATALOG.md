@@ -16,7 +16,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_CreateZipFileFromEntries.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_CreateZipFileFromEntries.sql), [USP_CreateZipFileFromEntries.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_CreateZipFileFromEntries.md), [USP_CreateZipFileFromEntries.md](../../Metadata/UsageSkills/toolbelt_archive/USP_CreateZipFileFromEntries.md).
 
-<!-- Source/Vertrag SHA256: 5fc41743605d34b2e7440106a4d3f5e74895ccfb924fd15e6ae5d4153abb5f53 -->
+<!-- Source/Vertrag SHA256: 953f80a9bb5305030dc88468b86a1502a2c00a51a9ddd61666d78d4d576a6e80 -->
 
 Voraussetzung: Windows-only mit lokalem ZIPfiles1.0.0-Profil, ZIPmemory1.4.0, Windowsfilesystem1.0.0 und ResultTable derselben Datenbank. Vorhandener aktiver Root mit AllowWrite, bestehendes Zielverzeichnis und NTFS-Rechte. Caller-Modus verlangt Windowsauthentifizierung. ServiceAccount nur bei expliziter Wahl mit toolbelt_filesystem_service_account und Root-AllowServiceAccount. Keine zentrale Cross-DB- oder Linuxroute.
 
@@ -65,7 +65,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md), [USP_ExtractZipEntryToFile.md](../../Metadata/UsageSkills/toolbelt_archive/USP_ExtractZipEntryToFile.md).
 
-<!-- Source/Vertrag SHA256: 5efbbdc846384d4f7103dd4947b3c3449f54af6012abc27070f6ac7b10d5706c -->
+<!-- Source/Vertrag SHA256: c20dbf32cbadbbfce034d7df2eb95f4b8f15e9510b13bf165b0e8b9976a20ead -->
 
 Voraussetzung: Windows-only mit lokalem ZIPfiles1.0.0-Profil, ZIPmemory1.4.0, Windowsfilesystem1.0.0 und ResultTable derselben Datenbank. Vorhandener aktiver Root mit AllowWrite, bestehendes Zielverzeichnis und NTFS-Rechte. Caller-Modus verlangt Windowsauthentifizierung. ServiceAccount nur bei expliziter Wahl mit toolbelt_filesystem_service_account und Root-AllowServiceAccount. Keine zentrale Cross-DB- oder Linuxroute.
 
@@ -4281,7 +4281,7 @@ Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene lee
 
 Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md), [USP_CopyTableCloneData.md](../../Metadata/UsageSkills/toolbelt_metadata/USP_CopyTableCloneData.md).
 
-<!-- Source/Vertrag SHA256: 125f2fd512045cb62a6a719afb14433798d9e7676fdd6e5be5ff8bc835d514e3 -->
+<!-- Source/Vertrag SHA256: 58472122a98cb09ed8b6c8501f330ccc3a7e5ecb34b632b5df0917a49472c782 -->
 
 Voraussetzung: Modul4.1.1 in der tatsächlich ausgewählten Installationsdatenbank; ausschließlich SameDB-Quell-/Zielobjekte. Ein dreiteiliger zentraler Prozeduraufruf verlegt die Quellobjekte nicht in die Caller-Datenbank. Bestehender ResultTable-Helper>=1.0.0. Basisplanung/Executor/Copy sind TSQL auf Windows/Linux SQL2019/2022/2025 mit zulässigem CL150/160/170. Trigger-Opt-in ist gesondert Windows-only mit bereits vorhandenem exakt gebundenem Parser2.0.1 und vier Parser-TVFs; kein Nachinstallieren.
 
@@ -4603,7 +4603,7 @@ Vollständiger begrenzter Kölner Phonetikcode mit geschlossenem Alphabet.
 
 Vertrag und Quelle: [TVF_ColognePhonetic.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql), [TVF_ColognePhonetic.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_ColognePhonetic.md), [TVF_ColognePhonetic.md](../../Metadata/UsageSkills/toolbelt_string/TVF_ColognePhonetic.md).
 
-<!-- Source/Vertrag SHA256: 571ed7b593b9cf62a3bb54d6ebf5021db150911266adea798aae75a4c6caf6a9 -->
+<!-- Source/Vertrag SHA256: 1edc1cb4c8df13b2e2fdcc915de725ea546d5fa5da6f2d9450cfa8c9541f1e01 -->
 
 Voraussetzung: Installiertes Modul mit passender autorisierter SAFE-Assembly tlblt_String_Phonetic, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, lokal oder zentral. Keine Abhängigkeit von Distanz-/Jaro-Assembly, Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Scanner. Der markierte Scannerport und sein Herkunfts-/Lizenzvertrag bleiben unverändert.
 
@@ -4628,7 +4628,7 @@ Vollständige begrenzte primäre und alternative Double-Metaphone-Codes.
 
 Vertrag und Quelle: [TVF_DoubleMetaphone.sql](../../Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql), [TVF_DoubleMetaphone.md](../../Modules/toolbelt.string.phonetic/Documentation/TVF_DoubleMetaphone.md), [TVF_DoubleMetaphone.md](../../Metadata/UsageSkills/toolbelt_string/TVF_DoubleMetaphone.md).
 
-<!-- Source/Vertrag SHA256: 02c161850019374ee41ed9a01cfe09c1bd2a7d29524dc1049f00a15ad2a0de04 -->
+<!-- Source/Vertrag SHA256: ffe2961a85ca56bfb19f934634a48a2122d8a020b603f5129b744734a0a8b5e2 -->
 
 Voraussetzung: Installiertes Modul mit passender autorisierter SAFE-Assembly tlblt_String_Phonetic, SQL Server 2019/2022/2025 auf Windows/Linux gemäß Modulmatrix, lokal oder zentral. Keine Abhängigkeit von Distanz-/Jaro-Assembly, Daten-/Systemkatalog-, Datei- oder Netzwerkzugriff im Scanner. Der markierte Scannerport und sein Herkunfts-/Lizenzvertrag bleiben unverändert.
 
@@ -4893,7 +4893,7 @@ Zerlegt Originaltokens mit mehreren Separatoren, Quotes und Escape-Regeln; entqu
 
 Vertrag und Quelle: [TVF_SplitAdvanced.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql), [TVF_SplitAdvanced.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md), [TVF_SplitAdvanced.md](../../Metadata/UsageSkills/toolbelt_string/TVF_SplitAdvanced.md).
 
-<!-- Source/Vertrag SHA256: d2c5f0ff4310ad799971ca94f96a974af5e6702c47ebf363c33001c26c40d7d9 -->
+<!-- Source/Vertrag SHA256: cc52838a030c7057de7cce3221bf57a51eaefe4c4b9ab64fe7b4900074888cd2 -->
 
 Voraussetzung: Reines T-SQL-Modul auf SQL Server 2019/2022/2025 unter Windows/Linux, unterstützter Compatibility Level mindestens 150. OPENJSON liest ausschließlich übergebenes JSON, keine Quelldaten oder externen Systeme. Lokal/zentral dieselbe Fachquelle. Separatoren müssen ein nichtleeres JSON-Array von Strings sein; NUL und aktive Quote-/Escapezeichen darin verboten. Quote und Escape leer unabhängig deaktiviert, sonst jeweils genau eine unterschiedliche Nicht-Surrogate-Codeunit; NULL ist bei nicht-NULL Input ungültig. Separatorstrings selbst sind keine Unicode-Normalisierungsfunktion.
 
@@ -5044,7 +5044,7 @@ Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jar
 
 Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql), [USP_CompareTextPairs.md](../../Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md), [USP_CompareTextPairs.md](../../Metadata/UsageSkills/toolbelt_string/USP_CompareTextPairs.md).
 
-<!-- Source/Vertrag SHA256: 7af2eb4235d0bf0c0c72451559bab37393ade3f01feab3297e1d79668453995a -->
+<!-- Source/Vertrag SHA256: 5722311f26a99379215adaad9296913a36f97e935e5215e509eb81118eeabc68 -->
 
 Voraussetzung: Installierte Module text-pairs, edit-distance mit passender SAFE-Assembly und ResultTable-Helfer im selben Toolbelt-Datenbankkontext, SQL Server 2019/2022/2025 unter Windows/Linux gemäß Modulmatrix. Zentrale Verwendung erfolgt dreiteilig mit sessionlokalen #Temps des Callers. Input muss während des synchronen Aufrufs stabil bleiben; keine MARS-/parallele Mutation. Tabellenrouting benötigt eine committable lokale Transaktion oder eine neu startbare eigene Transaktion; verteilte Caller-Savepoints sind nicht unterstützt. Reine Hilfe kehrt vor diesen Fachprüfungen zurück.
 

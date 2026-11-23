@@ -283,3 +283,53 @@ bestand den im [Triggervertrag](../Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
 abgegrenzten lokalen Nachweis; vollständige Produktqualifikation bleibt offen.
 Head-CI ist separat im PR nachzuweisen. Maßgeblich ist der
 [Executor-Vertrag](../Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md).
+
+## TVF_ColognePhonetic
+
+[Vertrag](../Architecture/PHONETIC_CONTRACT.md),
+[Modul](../../Modules/toolbelt.string.phonetic/README.md), [Matrix](../../Modules/toolbelt.string.phonetic/Tests/PHONETIC_TEST_MATRIX.md).
+Begrenzte Build-/Runtime-/Clientnachweise liegen vor; Minimalrechte, vollständige
+Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../../Modules/toolbelt.string.phonetic/Tests/README.md).
+
+## TVF_DoubleMetaphone
+
+[Vertrag](../Architecture/PHONETIC_CONTRACT.md),
+[Modul](../../Modules/toolbelt.string.phonetic/README.md), [Matrix](../../Modules/toolbelt.string.phonetic/Tests/PHONETIC_TEST_MATRIX.md).
+Begrenzte Build-/Runtime-/Clientnachweise liegen vor; Minimalrechte, vollständige
+Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../../Modules/toolbelt.string.phonetic/Tests/README.md).
+
+## USP_CopyTableCloneData
+
+in leere formgleiche Ziele. Die einzeln freigegebene Erweiterung gehört zu
+`toolbelt.metadata.table-clone` 4.1.0. Sourcevorbereitung ist kein Runtime-Nachweis;
+der normale Copy-/Client-/Lifecycle-Scope ist auf Linux2019 und Windows2025/CU8
+bestanden; vier dynamische Identity-Zustände und zwei SNAPSHOT-Konkurrenzfälle
+separat auf Linux2019 geprüft. Abgeschlossene Teilnachweise aus Fehlerläufen
+bleiben ausdrücklich getrennt. Head-CI separat im PR; Release unveröffentlicht.
+Genaue Grenzen im Architekturvertrag.
+Maßgeblich ist der [Datenkopievertrag](../Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md).
+
+## USP_CopyTableCloneData
+
+Testscope, offene Nachweise und Lifecycle
+stehen im [Manifest](../../Modules/toolbelt.metadata.table-clone/module.yaml) und in der [Testmatrix](../../Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md).
+
+## TVF_SplitAdvanced
+
+Siehe [Modul](../../Modules/toolbelt.string.split-advanced/README.md), [Design](../Architecture/SPLIT_ADVANCED_MODULE_DESIGN.md) und [Testmatrix](../../Modules/toolbelt.string.split-advanced/Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md).
+
+## USP_CompareTextPairs
+
+Die zusätzliche Hilfe benötigt noch ihre eigene native Abnahme.
+
+## USP_ExtractZipEntryToFile
+
+Die native Testmatrix beschreibt
+auch die für den geprüften ServiceAccount-Aufruf benötigte Sicht auf die
+Abhängigkeiten. [Windows-Testmatrix](../../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md#aktuelle-windows-cl-abnahme-für-einzel-entry-writer-und-v1)
+
+## USP_CreateZipFileFromEntries
+
+Die native Testmatrix beschreibt
+auch die für den geprüften ServiceAccount-Aufruf benötigte Sicht auf die
+Abhängigkeiten. [Windows-Testmatrix](../../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md#aktuelle-windows-cl-abnahme-für-einzel-entry-writer-und-v1)

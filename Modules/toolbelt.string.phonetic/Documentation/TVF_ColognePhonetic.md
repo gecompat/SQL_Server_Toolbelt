@@ -18,10 +18,7 @@ Priorität: NULL, rohe Quote 4096 (2), vollständige UTF16-Prüfung (1), Alphabe
 sind nicht im Alphabet (3); isolierte Surrogate sind Fehler 1. Fehlercodes 1..3
 liefern ausschließlich NULL-Codes; technische Fehler bleiben Exceptions.
 
-[Vertrag](../../../Documentation/Architecture/PHONETIC_CONTRACT.md),
-[Modul](../README.md), [Matrix](../Tests/PHONETIC_TEST_MATRIX.md).
-Begrenzte Build-/Runtime-/Clientnachweise liegen vor; Minimalrechte, vollständige
-Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../Tests/README.md).
+[Phonetikvertrag](../../../Documentation/Architecture/PHONETIC_CONTRACT.md) · [Alternative TVF_DoubleMetaphone](TVF_DoubleMetaphone.md)
 
 ## Aufrufparameter
 
