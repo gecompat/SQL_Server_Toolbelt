@@ -26,165 +26,60 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 
 # SQL Server Toolbelt
 
-<!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 45 Module implementiert – 28 teilweise validiert](https://img.shields.io/badge/Status-45%20Module%20implementiert%20%7C%2028%20teilweise%20validiert-yellow)](./Modules/README.md)
-<!-- END GENERATED:MODULE_STATUS_BADGE -->
-[![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
-[![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
+SQL Server Toolbelt erweitert die SQL Server Database Engine ab Version 2019
+um wiederverwendbare Funktionen, Stored Procedures und Views. Die Bibliothek
+richtet sich an T-SQL-Entwickler und SQL-Server-Administratoren. 45 Module
+sind implementiert.
 
 ## Installation und erster Test
 
-Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
-Mit PowerShell 7.4+ und sqlcmd (ODBC) übernimmt der
-[Ein-Aufruf-Installer](./Deployment/ONE-CALL-INSTALL.md) Vorprüfung, Trust und
-lokale oder zentrale Neuinstallation.
-Der aktuelle Quellstand verwendet einen gemeinsamen markerfreien SQL-Kern für
-Windows/Portable sowie lokale/zentrale Installation. Die normale SQL-Datei
-benötigt keinen SQLCMD-Modus; alternativ übernimmt der Client die Ausführung.
-[Quellbuild](./Scripts/Install/README.md), fertigen gebauten Satz und
-historische Vorabreleases bitte unterscheiden. Der aktuelle Lebenszyklus ist
-create-only, kein automatisches Upgrade oder Uninstall.
+[Toolbelt installieren](./INSTALL.md) führt von der Wahl des Pakets bis zum
+ersten Aufruf. Installiere in der Anwendungsdatenbank oder zentral in einer
+eigenen Datenbank. Der aktuelle Installer ergänzt fehlende Objekte. Für eine
+Aktualisierung bereitest du eine separate Installation vor und stellst die
+Aufrufer nach der Prüfung um.
 
-Für die Nutzung führen die [Modulübersicht](./Modules/README.md),
-die [Lesewege](./Documentation/README.md) und die
-[durchsuchbare API-Referenz](./Documentation/Reference/API_CATALOG.html)
-zu Beispielen und verbindlichen Objektbeschreibungen. Ältere Pakete und
-veröffentlichte Projektsnapshots stehen getrennt in der [Releaseübersicht](./Releases/README.md).
+Die Installationsanleitung erklärt die Voraussetzungen je Plattform, Rechte,
+CLR und Trust sowie den Weg über PowerShell und über eine normale SQL-Datei
+in SSMS. Veröffentlichte Vorabpakete haben ihren eigenen Installationsstand.
 
-## Zweck
+## Eine Funktion finden und verwenden
 
-SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
-
-## Scope
-
-- Wiederverwendbare Stored Procedures, Table-valued Functions, Scalar-valued Functions, Views und bei technischer Notwendigkeit weitere Komponenten.
-- T-SQL ist die bevorzugte Implementierungssprache.
-- C#, SQL CLR, Python, Java oder R sind zulässig, wenn sie fachlich oder technisch besser geeignet sind und die Entscheidung dokumentiert wird.
-- Lokale Installation in einer Zieldatenbank und zentrale Installation in einer dedizierten Toolbelt-Datenbank sind gleichwertige Designziele.
-- Cross-database-Verwendung wird angestrebt, soweit SQL-Server-Verträge und Plattformgrenzen dies zulassen.
-
-## Non-Goals
-
-- Performance-, Konfigurations-, Diagnose- und Security-Analysen gehören in [`gecompat/SQL_Server_Analyze`](https://github.com/gecompat/SQL_Server_Analyze).
-- Azure SQL Database, Azure SQL Managed Instance und andere Azure-Produkte werden nicht automatisch unterstützt.
-- Das Repository enthält keine Produktionsdaten, Produktionsbackups oder realen Runtime-Ausgaben.
-
-## Zielgruppe
-
-SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte und testbare Erweiterungsobjekte einsetzen möchten.
-
-## Einstieg
-
-Die [Lesewege](./Documentation/README.md) führen von der Modulauswahl über
-Voraussetzungen und Deployment zu Aufrufbeispielen und Fehlerklärung.
-Die Module sind unveröffentlicht; Unterstützung und Nachweise gelten jeweils
-für den im Modul dokumentierten Umfang. Für Beiträge gilt
-[CONTRIBUTING.md](./CONTRIBUTING.md). Der ausdrücklich getrennte Einstieg für
-KI-Systeme ist [AGENTS.md](./AGENTS.md).
-
-## Aufträge mit der Queue verarbeiten
-
-Der [Queue-Leitfaden mit vollständigen SSMS-Beispielen](./Modules/toolbelt.core.work-queue/Documentation/USAGE.md)
-erklärt Einsatzfälle, Einrichtung, Einreihung, Claims, Retry/Dead Letter,
-Prioritäten und Barriers. Der [Worker-Leitfaden](./Workers/ExternalQueue/USAGE.md)
-zeigt Ausführung, zentrale Parallelität, Pause, Stop/Hold und Wiederfreigabe.
-
-## SQL-Objekte nachschlagen
-
-Die Parametertabellen nennen für jeden Parameter Datenform, Grenzen,
-Default-/NULL-Verhalten und sämtliche festen Werte mit ihrer Bedeutung.
-
-Der [SQL-Objektkatalog](./Documentation/Reference/API_CATALOG.md) führt zu
-den einzelnen Functions, Stored Procedures, Views und CLR-Aggregaten.
-Suche nach dem Objektnamen und öffne unter „Vertrag und Quelle“ dessen
-Markdown-Seite. Sie beschreibt Zweck, Verhalten, Parameter, Ergebnisse
-und Beispiele und verlinkt die gemeinsamen Fachverträge.
-Die [HTML-Ansicht mit Suche](./Documentation/Reference/API_CATALOG.html)
-erleichtert das Auffinden; [Hinweise zur Verwendung der Referenz](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen)
-erklären Ergebnisdeutung und Fehlerklärung.
-
-Für nicht offensichtliche Algorithmen und technische Entscheidungen führen
-die [technischen Lösungswege](./Documentation/Reference/IMPLEMENTATION_GUIDE.md)
-vom Problem zur Implementierung: etwa JSON-Parsergrenzen, SemVer-Sortkeys,
-Distanzmatrizen, Worker-Ownership oder die Veröffentlichung von Dateien.
-Die betroffenen Objektseiten verlinken jeweils den passenden Abschnitt.
-
-## Aktueller Status
-
-45 Module sind implementiert.
-
-Der aktuelle Modulbestand mit Versionsnummern und Nachweisgrenzen steht in
-der [Modulübersicht](./Modules/README.md). Der
-[Projektentwicklungssnapshot v1.0.0-rc.4](./Releases/1.0.0/RC4.md)
-bündelt den Ein-Aufruf-Installer, seine vollständige SQL-Basis und die
-Anwenderdokumentation für Tests. Pakete, Einstieg und Nachweisgrenzen stehen in
-der [Releaseübersicht](./Releases/README.md).
-
-Alle Modulversionen bleiben `unreleased`. Die Zielkanäle der
-[Freigabematrix](./Releases/1.0.0/FREIGABEMATRIX.md) sind keine unterstützte
-Modulveröffentlichung; die fachlichen Pflichtabnahmen bleiben separat offen.
-Frühere Modul- und Testnotizen sind als [Historie](./Documentation/History/MODULE_NOTES_2026-10-22.md) erhalten.
-
-## Modulprinzip
-
-- Ein Modul ist Lifecycle-, Deployment- und Dokumentationseinheit.
-- Module können einzelne zentrale Capabilities oder mehrere zusammengehörige Objekte enthalten.
-- Abhängigkeiten sind versioniert, werden vor der ersten Mutation geprüft und nicht automatisch nachinstalliert.
-- Wiederverwendete Fachlogik existiert genau einmal.
-- Öffentliche Objekte liegen in fachlichen Schemas nach `toolbelt_<category>`.
-
-Details: [Modul- und Abhängigkeitsmodell](./Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md)
+- [Nach Aufgabe auswählen](./Documentation/ChooseFunctions.md). Finde etwa
+  den passenden JSON-Zugriff, eine Textvergleichsfunktion oder den richtigen
+  Weg für Dateien, ZIP-Archive und DTSX-Pakete.
+- [SQL-Objekte nachschlagen](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen).
+  Suche nach dem Namen und lies Parameter, Ergebnisse, Grenzen und Beispiele.
+- [Bedienerdokumentation](./Documentation/README.md). Anleitungen für
+  Installation, zentrale Aufrufe, DTSX-Debugging, Queue und Worker.
 
 ## Unterstützte SQL-Server-Versionen
 
-Die konkrete Grundmatrix umfasst SQL Server 2019, 2022 und 2025. Windows- und Linux-Support sowie lokale, zentrale und Cross-database-Verwendung werden je Modul getrennt ausgewiesen und validiert.
+Die Zielversionen sind SQL Server 2019, 2022 und 2025. Welche Funktionen unter
+Windows und Linux sowie lokal und zentral verfügbar sind, hängt vom
+Installationsprofil und vom jeweiligen Objektvertrag ab. Die
+[Profilauswahl](./INSTALL.md#lokal-oder-zentral-wählen) erklärt die Unterschiede.
+Für Azure SQL Database und Azure SQL Managed Instance besteht keine allgemeine
+Kompatibilitätszusage. Die öffentlichen Vorabpakete sind Entwicklungssnapshots.
 
-## T-SQL-first
+Für Instanzanalyse, Diagnose, Performance und Sicherheitsauswertung gibt es das
+separate Projekt [SQL Server Analyze](https://github.com/gecompat/SQL_Server_Analyze).
 
-T-SQL ist bevorzugt. Alternative Technologien benötigen eine dokumentierte Begründung zu Performance, Security, Deployment, Plattform und Wartung. Details: [T-SQL-Engineering](./Documentation/Standards/TSQL_ENGINEERING.md)
+## Projektpflege
 
-## Navigation
+[Entwicklungsdokumentation und Nachweise](./Documentation/Development/README.md)
+· [Modulübersicht](./Modules/README.md)
+· [Mitwirken](./CONTRIBUTING.md)
+· [KI-Einstieg](./AGENTS.md)
 
-| Bereich | Pfad |
-|---|---|
-| Architektur | [Documentation/Architecture/](./Documentation/Architecture/) |
-| Standards | [Documentation/Standards/](./Documentation/Standards/) |
-| Module | [Modules/](./Modules/) |
-| Repository-weites Deployment | [Deployment/](./Deployment/) |
-| Beschreibungen der einzelnen SQL-Objekte | [SQL-Objektreferenz](./Documentation/Reference/README.md#einzelne-sql-objekte-nachschlagen) |
-| Algorithmen und technische Implementierungswege | [Technische Lösungswege](./Documentation/Reference/IMPLEMENTATION_GUIDE.md) |
-| Beispiele für alle öffentlichen APIs | [Beispielkatalog](./Documentation/Reference/API_CATALOG.md) |
-| Templates | [Templates/](./Templates/) |
-| Backlogs | [Backlog/](./Backlog/) |
-| Tests | [Tests/](./Tests/) |
-| Mitwirken | [CONTRIBUTING.md](./CONTRIBUTING.md) |
-| Sicherheit | [SECURITY.md](./SECURITY.md) |
-| Changelog | [CHANGELOG.md](./CHANGELOG.md) |
-| Lizenz | [LICENSE.md](./LICENSE.md) |
+<!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
+[![Status: 45 Module implementiert – 28 teilweise validiert](https://img.shields.io/badge/Status-45%20Module%20implementiert%20%7C%2028%20teilweise%20validiert-yellow)](./Modules/README.md)
+<!-- END GENERATED:MODULE_STATUS_BADGE -->
 
-
-## Historische Modulnotizen
-
-Frühere versionsgebundene Modul- und Testnotizen stehen getrennt in
-[Documentation/History](./Documentation/History/MODULE_NOTES_2026-10-22.md).
-Die folgenden Einstiege erhalten bisherige Abschnittslinks.
-
-### Begrenzter Paarvergleich 1.0.0
-
-[Historische Notiz zu diesem Stand](./Documentation/History/MODULE_NOTES_2026-10-22.md#begrenzter-paarvergleich-100).
-
-### XLSX-Typinterpretation 1.1.0
-
-[Historische Notiz zu diesem Stand](./Documentation/History/MODULE_NOTES_2026-10-22.md#xlsx-typinterpretation-110).
-
-### CSV Memory 1.0.0
-
-[Historische Notiz zu diesem Stand](./Documentation/History/MODULE_NOTES_2026-10-22.md#csv-memory-100).
-
-### JSON Pointer 1.0.0
-
-[Historische Notiz zu diesem Stand](./Documentation/History/MODULE_NOTES_2026-10-22.md#json-pointer-100).
-
-### Safe Cast 1.0.0
-
-[Historische Notiz zu diesem Stand](./Documentation/History/MODULE_NOTES_2026-10-22.md#safe-cast-100).
+<a id="historische-modulnotizen"></a>
+<a id="begrenzter-paarvergleich-100"></a>
+<a id="xlsx-typinterpretation-110"></a>
+<a id="csv-memory-100"></a>
+<a id="json-pointer-100"></a>
+<a id="safe-cast-100"></a>
+[Historische Modulnotizen](./Documentation/History/MODULE_NOTES_2026-10-22.md)

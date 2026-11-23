@@ -20,9 +20,6 @@ SELECT toolbelt_conversion.SVF_IntegerToBase
 ); -- -FF
 ```
 
-Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860
-
 ## Aufrufparameter
 
 <!-- API_PARAMETERS:BEGIN -->

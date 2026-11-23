@@ -29,9 +29,6 @@ Es bleibt eine Statuszeile erhalten. Für das folgende Beispiel werden
 `PreRelease='alpha.1'` und `BuildMetadata='build.7'` erwartet.
 Dies ist eine aus dem Vertrag abgeleitete Ergebniserwartung.
 
-Historischer Einzelbeleg (aktuelle Testgrenzen siehe Modulbeschreibung):
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
-
 ## Aufrufparameter
 
 <!-- API_PARAMETERS:BEGIN -->

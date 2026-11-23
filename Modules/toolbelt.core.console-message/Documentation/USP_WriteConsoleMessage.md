@@ -74,11 +74,3 @@ EXEC toolbelt_core.USP_WriteConsoleMessage @Hilfe = 1;
 Reihenfolge und Payload-Chunks sind Enginevertrag. Pufferung, Präfixe,
 Zeilenformatierung und Darstellung der Message-Frame-Grenzen hängen von
 Client beziehungsweise Treiber ab.
-
-Die [W2c-Runtime
-30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975)
-belegt den Enginevertrag auf SQL Server 2025 Linux mit Compatibility Levels
-150, 160 und 170. Die Nachqualifikation vom 2026-10-19 ergänzt die
-vollständige physische Windows-/Linux-Matrix auf SQL Server 2019/2022/2025
-sowie zusätzliche ADO.NET-/ODBC-Prüfungen. Details und Aussagegrenzen:
-[Clientprüfung](../Tests/README.md#clientprüfung-2026-10-19).

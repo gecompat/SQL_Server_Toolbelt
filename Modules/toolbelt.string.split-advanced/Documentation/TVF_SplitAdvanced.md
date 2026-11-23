@@ -70,7 +70,7 @@ Authentifizierung und passende User-/SELECT-Rechte in der Ziel-Datenbank;
 die Funktion aktiviert weder TRUSTWORTHY noch Ownership-Chaining und
 erteilt selbst keine Rechte.
 
-Siehe [Modul](../README.md), [Design](../../../Documentation/Architecture/SPLIT_ADVANCED_MODULE_DESIGN.md) und [Testmatrix](../Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md).
+Für einzelne wörtliche Trennzeichen ohne Quote-/Escape-Regeln eignet sich [TVF_SplitByCharacters](../../toolbelt.string.split-characters/Documentation/TVF_SplitByCharacters.md).
 
 ## Vollständiger Eingabevertrag
 

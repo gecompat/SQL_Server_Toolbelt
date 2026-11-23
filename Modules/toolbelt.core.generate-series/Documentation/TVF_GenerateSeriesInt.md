@@ -59,14 +59,6 @@ Rückgabespalte ist `int`, damit Joins und `CROSS APPLY` gegen `int`-Spalten
 keine unnötige implizite `bigint`-Konvertierung benötigen. Es besteht keine
 Plan-, Cardinality- oder Laufzeitgarantie.
 
-## Teststatus
-
-Der
-[Generate-Series-Runtime-Lauf 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324)
-war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`; der Modulstatus ist `partially validated`.
-
 ## Technischer Lösungsweg
 
 [Grundlage, Verarbeitungsschritte und Designgründe](../../../Documentation/Reference/IMPLEMENTATION_GUIDE.md#zahlenreihen).

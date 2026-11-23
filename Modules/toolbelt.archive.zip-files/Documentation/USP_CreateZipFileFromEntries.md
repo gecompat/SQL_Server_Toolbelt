@@ -72,9 +72,7 @@ EXEC toolbelt_archive.USP_CreateZipFileFromEntries @Hilfe=1;
 ```
 
 Fachliche synthetische Beispiele im Help setzen einen zugelassenen Root-Alias
-und ein vorhandenes Zielverzeichnis voraus. Die native Testmatrix beschreibt
-auch die für den geprüften ServiceAccount-Aufruf benötigte Sicht auf die
-Abhängigkeiten. [Windows-Testmatrix](../Tests/ZIP_FILES_TEST_MATRIX.md#aktuelle-windows-cl-abnahme-für-einzel-entry-writer-und-v1)
+und ein vorhandenes Zielverzeichnis voraus. Die Fassade prüft die Signaturen ihrer SQL-Abhängigkeiten. Die Aufruferidentität muss deren Metadaten sehen können. Bei Fehler 54622 deshalb neben dem Installationsstand auch die objektbezogene Metadatensicht prüfen. Für sonst unsichtbare Abhängigkeiten kann der zuständige Administrator gezielt VIEW DEFINITION vergeben.
 
 ## Technischer Lösungsweg
 

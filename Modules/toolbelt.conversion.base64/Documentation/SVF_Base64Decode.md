@@ -54,13 +54,11 @@ synchron. Decodierte Werte sind untrusted binary data. Die Funktion führt die
 Bytes nicht aus, prüft aber weder Dateityp noch Inhalt, Vertraulichkeit oder
 Integrität.
 
-## Einschränkungen und Teststatus
+## Einschränkungen
 
 Die Fehlernummern des XML-/Engine-Providers unterscheiden sich von der nativen
 SQL-Server-2025-Funktion. Der Vertrag verspricht semantische Ablehnung, keine
-Imitation nativer Fehlernummern. SQL Server 2025 unter Linux ist mit
-Compatibility Levels 150, 160 und 170 erfolgreich geprüft. Physische
-2019-/2022- und Windows-Läufe bleiben `not executed`.
+Imitation nativer Fehlernummern.
 
 ## Aktueller Sicherheitsvertrag
 

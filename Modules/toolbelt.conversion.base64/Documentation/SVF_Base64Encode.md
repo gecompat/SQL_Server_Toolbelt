@@ -49,11 +49,9 @@ Die Funktion verspricht kein Scalar-UDF-Inlining. Der Rückgabewert verwendet
 die Default-Collation der Installationsdatenbank; das Alphabet selbst besteht
 nur aus ASCII-Zeichen. Große LOBs werden vollständig synchron materialisiert.
 
-## Einschränkungen und Teststatus
+## Einschränkungen
 
-Base64 schützt weder Vertraulichkeit noch Integrität. SQL Server 2025 unter
-Linux ist mit Compatibility Levels 150, 160 und 170 erfolgreich geprüft.
-Physische 2019-/2022- und Windows-Läufe bleiben `not executed`.
+Base64 schützt weder Vertraulichkeit noch Integrität.
 
 ## Aktueller Sicherheitsvertrag
 

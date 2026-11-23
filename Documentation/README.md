@@ -1,95 +1,51 @@
-# Dokumentation und Lesewege
+# SQL Server Toolbelt verwenden
 
-## Eine Funktion, Procedure oder View nachschlagen
+SQL Server Toolbelt ergänzt die SQL Server Database Engine um wiederverwendbare
+Funktionen, Prozeduren und Views. Die Dokumentation richtet sich an Personen,
+die T-SQL schreiben, Daten verarbeiten oder eine Installation betreiben.
 
-Die [SQL-Objektreferenz](Reference/README.md#einzelne-sql-objekte-nachschlagen)
-führt über den Objektnamen zu seiner eigenen Beschreibung. Beginne dort,
-wenn du Zweck, Parameter, Ergebnis oder einen Beispielaufruf suchst.
-Die Modulbeschreibung erklärt die Installation und Testgrenzen;
-verlinkte Fachverträge erläutern das Zusammenspiel mehrerer Objekte.
+## Die passende Funktion finden
 
-## Toolbelt zum ersten Mal installieren
+- [Nach Aufgabe auswählen](ChooseFunctions.md). Die Übersicht ordnet alle Module
+  nach Anwendungsfällen ein und nennt ähnliche Werkzeuge und ihre Unterschiede.
+- [Nach SQL-Objekt suchen](Reference/README.md). Die Referenz führt vom Namen
+  zur Objektseite mit Voraussetzungen, Parametern, Ergebnissen, Fehlern und
+  Beispielen. Der HTML-Katalog kann nach dem Entpacken lokal durchsucht werden.
+- [Hilfe direkt in SQL lesen](../Modules/toolbelt.metadata.capability-catalog/Documentation/VW_ObjectUsageSkills.md).
+  Die Skill-View bietet Kurzbeschreibungen und vollständige Markdown-Anleitungen.
+  Bei Prozeduren lässt sich die Hilfe zusätzlich mit `@Hilfe=1` aufrufen.
 
-Die [Installationsanleitung](../INSTALL.md) verwendet den gemeinsamen aktuellen
-Installer mit eingebetteten DLLs. Sie führt durch Windows-/Portable- und
-lokale/zentrale Profile, Rechte, CLR und Trust, SSMS-Ausführung und den ersten
-Hilfeaufruf. Erwartete Ergebnisse und Fehlerklärung stehen im selben Leseweg;
-Ein fertig gebauter Satz enthält die benötigten Binaries; für den Quellweg
-sind die dokumentierten Buildinputs erforderlich. Der aktuelle create-only-Weg
-ist kein Upgrade bestehender Installationen. Frühere Stable-/CLR-/Help-Pakete stehen getrennt in
-der [Releaseübersicht](../Releases/README.md#historische-pakete-und-nachweise).
+## Installieren und betreiben
 
-## Queue und Worker verstehen und verwenden
+- [Toolbelt installieren](../INSTALL.md). Paket oder Quellbuild wählen,
+  Voraussetzungen prüfen, lokal oder zentral installieren und die Einrichtung
+  verifizieren. Dort stehen auch die Trustvarianten und der Wechsel auf eine
+  neue Installation.
+- [Ein-Aufruf-Installer nachschlagen](../Deployment/ONE-CALL-INSTALL.md).
+  Parameter, Authentifizierung, Vorprüfung und Fehlermeldungen.
+- [Datenbank und CLR vorbereiten](../Deployment/PROVISIONING.md).
+  Wirkung, Rechte und Fehlerbehandlung der optionalen Vorbereitung.
+- [Objekte aus einer anderen Datenbank aufrufen](../INSTALL.md#zentrale-objekte-aufrufen).
+  Dreiteilige Namen, Datenbankzuordnung und Berechtigungen.
 
-Der [Queue-Lernweg](../Modules/toolbelt.core.work-queue/Documentation/USAGE.md)
-führt von der passenden Einsatzentscheidung über Installation und Rechte zu
-vollständigen SSMS-Beispielen mit erklärten Ergebnissen. Alle Queue-APIs,
-Retry, Dead Letter, Recovery und Gruppen-Barriers sind dort eingeordnet.
-Der [Worker-Lernweg](../Workers/ExternalQueue/USAGE.md) ergänzt Startparameter,
-Managedbetrieb, Parallelität, Stop/Hold und bewusste Wiederfreigabe.
+## Durchgängige Anleitungen
 
-## Ein Modul gezielt auswählen
+- [DTSX-Datenfluss als SQL nachvollziehen](../Modules/toolbelt.tsql.ssis-debug/Documentation/LocalCteDebug.md).
+  DTSX-XML übergeben, Startwerte setzen, Zwischenschritte und Lookup-Fehlzeilen prüfen.
+- [Aufträge mit der Queue verarbeiten](../Modules/toolbelt.core.work-queue/Documentation/USAGE.md).
+  Einrichtung, Einreihung, Claims, Retry, Dead Letter und Barriers anhand eines Ablaufs.
+- [Queue-Worker starten und steuern](../Workers/ExternalQueue/USAGE.md).
+  Ausführung, Parallelität, Stop, Hold und Wiederfreigabe.
+- [SQL zwischen T-SQL und Databricks SQL übertragen](../Scripts/SqlDialect/README.md).
+  Das separate Kommandozeilenwerkzeug prüft und übersetzt die dokumentierten
+  Abfrageformen. Die native Databricks-Kompatibilität ist offen.
 
-SQL Server Toolbelt richtet sich an Entwickler und Administratoren mit
-T-SQL- und SQL-Server-Grundkenntnissen. Wähle zunächst ein Modul und dessen
-belegte Plattform. Eine Zielplattform oder vorhandener Code bedeutet noch
-keine vollständige Validierung; den aktuellen Umfang bestimmen das jeweilige
-`module.yaml`, die Modulbeschreibung und ihre Testmatrix.
+## Bei Abweichungen
 
-Die [Releaseübersicht](../Releases/README.md) trennt den aktuellen gemeinsamen
-Installer von früheren Kandidaten, Quellpaketen und ihren Nachweisgrenzen.
-Der bereits veröffentlichte Projektsnapshot ist historisch. Der heutige gemeinsame
-Installer ist unveröffentlicht; alle Modulmanifeste bleiben `unreleased`.
+Bei Installationsfehlern mit der [Fehlerhilfe](../INSTALL.md#fehler-beheben)
+beginnen. Bei einem unerwarteten Abfrageergebnis die Objektseite lesen und
+`NULL`, leere Ergebnismenge, Statusspalte und SQL-Fehler unterscheiden. Bei
+einem Wechsel des Servers zusätzlich Plattform, Kompatibilitätslevel, Rechte
+und die Datenbank prüfen, in der die Funktion tatsächlich ausgeführt wird.
 
-## Ein Modul kennenlernen und vorbereiten
-
-1. Suche das benötigte Modul in der [Modulübersicht](../Modules/README.md).
-   Öffne seine README und Objektseiten. Prüfe SQL-Version, Betriebssystem,
-   Deployment-Modus, Dependencies, Rechte und Einschränkungen.
-2. Wähle anhand des [Deployment-Modells](Architecture/DEPLOYMENT_MODEL.md)
-   zwischen lokaler und zentraler Installation. Lies anschließend den
-   [Deploymentablauf](../Deployment/README.md): Er beschreibt den Offlineplan,
-   normale SQL-Dateien und alternativ PowerShell 7.4 mit ODBC-sqlcmd sowie
-   ausdrückliche Zielwahl, CLR-Eingaben und Fehlergrenzen.
-3. Beginne mit dem dort beschriebenen `-PlanOnly` für deine Modulauswahl.
-   Der Plan nennt Profil, Module und ergänzte Pflichtabhängigkeiten; er lädt
-   keine Binaries und verbindet sich nicht mit SQL Server. Die Buildanleitung
-   erklärt die danach benötigten Eingaben. Rechte werden nicht vergeben.
-4. Führe ein Deployment erst mit den dokumentierten Voraussetzungen auf einer
-   bewusst gewählten Umgebung aus. Bei Fehlern können Teilobjekte bestehen
-   bleiben. Create-only ergänzt fehlende Objekte, ersetzt bestehende nicht und
-   bietet kein automatisches Upgrade oder Uninstall.
-5. Wähle danach ein einzelnes passendes Beispiel im
-   [API-Katalog](Reference/README.md). Erklärt werden Parameter und
-   Voraussetzungen; für Resultsets, Seiteneffekte und Fehler bleibt die
-   verlinkte Objektseite maßgeblich. Die SQL-Beispielsammlung nicht gesammelt
-   ausführen. Vergleiche das Ergebnis mit dem dort beschriebenen Vertrag.
-
-## Abweichungen untersuchen
-
-Bei einem Deploymentfehler den [Deploymentablauf](../Deployment/README.md)
-und die Voraussetzungen des betroffenen Moduls prüfen. Bei abweichenden
-Ergebnissen zur Objektseite und zum dort verlinkten Fachvertrag zurückgehen.
-Die [Hinweise zur Herkunft und Fehlermeldung](../CONTRIBUTING.md) erklären,
-welche Versionen und lokalen Belege für eine Untersuchung benötigt werden.
-Reale Ausgaben und Zugangsdaten bleiben privat. Eine bestandene Testmatrix
-belegt ausschließlich ihre genannten Ziele und Fälle.
-
-## Quellen und Verzeichniszwecke
-
-| Bereich | Zweck und nächste Quelle |
-|---|---|
-| `INSTALL.md` | Durchgehender menschlicher Einstieg für Installation, ersten Test und Fehlerklärung |
-| `Modules/` | Implementierung, Modulmanifest, Objektseiten, Deployment und modulspezifische Tests |
-| `Deployment/` | Repository-Runner und ausführbare Vorbereitungsschritte |
-| `Documentation/Architecture/` | Gemeinsame Fachverträge, Architekturentscheidungen und ausdrücklich datierte Integrationsnachweise |
-| `Documentation/Standards/` | Gemeinsame Engineering-, Datenschutz- und Qualitätsregeln |
-| `Documentation/History/` | Erhaltene versionsgebundene Modul-/Testnotizen, ausdrücklich keine aktuelle Supportquelle |
-| `Documentation/Reference/` | Abgeleiteter API-Katalog; [Quellen und Generierung](Reference/README.md#quellen-und-pflege) |
-| `Backlog/` | Ideen und recherchierte Kandidaten; keine automatische Implementierungsfreigabe |
-| `Tests/` | Testprogramme und Nachweisgrenzen; [Dokumentationsprüfung](../Tests/Documentation/README.md) |
-
-Für Beiträge und Projektpflege beginne mit [CONTRIBUTING.md](../CONTRIBUTING.md).
-KI-Steuerung wird gesondert über [AGENTS.md](../AGENTS.md) entdeckt. Dieser
-Einstieg führt zu den aktiven Projektregeln und deren maschinenlesbaren
-Quellen; er ist keine zusätzliche Produktanleitung.
+[Entwicklung und Projektpflege](Development/README.md)
