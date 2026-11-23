@@ -1,5 +1,21 @@
 # Gebundener Lab-V2-Consumer
 
+## Abnahme von SC-2026-045
+
+Der Toolbelt-Livebeleg für Zertifikatskette und Servernamen ist für die
+ausgewählten V2-Labprofile abgeschlossen. `System.Data.SqlClient` und
+ODBC/sqlcmd prüften den erwarteten SQL-Build über verschlüsselte Verbindungen
+mit `TrustServerCertificate=False`.
+
+| Clientkontext | Gebundener nativer Nachweis |
+|---|---|
+| Windows, Docker und Podman | Beide Stacks auf SQL 2019 CU32, 2022 CU27 und 2025 CU9. [Windows-V2-Cutover](https://github.com/gecompat/SQL_Server_Lab/blob/main/Documentation/Quality/TLS_V2_CONSUMER_CUTOVER_ACCEPTANCE_2026-10-22.md) |
+| Isolierter Linuxclient, Docker und Podman | Je zwei Clientchecks mit öffentlichem V2-Export und Cleanup auf SQL 2025 CU9. Die Toolbelt-Korrektur ist in [PR #659](https://github.com/gecompat/SQL_Server_Toolbelt/pull/659) integriert. [Lab-Nachweise in PR #856](https://github.com/gecompat/SQL_Server_Lab/pull/856) |
+| Windows, öffentliches Hyper-V-Referenzprofil | SQL 2025 RTM mit signiertem V2-Export, striktem SSIS-Consumer und eigenem Cleanup. [Lab-PR #892](https://github.com/gecompat/SQL_Server_Lab/pull/892) |
+
+Weitere SQL-/Clientkombinationen, Zertifikatserneuerung und andere Consumer
+stehen im gesonderten [TLS-001-Plan](https://github.com/gecompat/SQL_Server_Lab/blob/main/Documentation/Project_Planning/TLS_001_COMPLETION_CHECKLIST.md).
+
 ## Geltungsbereich
 
 Der V2-Consumer bindet den SC-2026-045-Transportpfad an den ausdrücklich
@@ -13,8 +29,7 @@ Hyper-V-Lane erhält hierdurch keinen Nachweis. Die gemeinsame native
 Windows-Teilmatrix ist für Docker und Podman mit SQL 2019 CU32, 2022 CU27
 und 2025 CU9 separat bestanden.
 
-Der zusätzliche ausdrücklich isolierte Linuxclient befindet sich in
-Entwicklung und ist noch nicht nativ freigegeben. Sein dedizierter
+Der zusätzlich abgenommene isolierte Linuxclient verwendet einen dedizierten
 [read-only Preflight](../../Tests/CI/Invoke-LabLinuxPreflight.ps1) wird durch
 die gekoppelte öffentliche Lab-Vordergrundsitzung aufgerufen. Er ersetzt
 weder die Windows-Abnahmen noch die bestehenden Feature-/Deploymentadapter.
@@ -268,6 +283,6 @@ Die direkte Reader-API liefert private Bytes für den Consumer. Die generische
 Lab-CLI-/Browserdarstellung schützt diese Bytes zusätzlich durch Maskierung;
 das ist ein eigener synthetisch geprüfter Anzeigevertrag. Die CI-Gates und
 exakten Integrationsheads gehören zu den jeweiligen Lab-/Toolbelt-PRs.
-Linux-Clientprozesse, öffentliche Hyper-V-Lane und übrige TLS-001-Schritte
-bleiben offen; SC-2026-045 ist durch diese Windows-Teilmatrix nicht pauschal
-abgeschlossen. Rohdaten und Secrets bleiben lokal außerhalb Git.
+Die Windows-Teilmatrix gilt für diese sechs Containerprofile. Die getrennten
+Linux- und Hyper-V-Nachweise stehen in der Abnahme oben. Rohdaten und Secrets
+bleiben lokal außerhalb Git.
