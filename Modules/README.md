@@ -73,6 +73,8 @@ abgeleitet.**
 
 Der Modulstatus trennt vorhandenen Code von tatsächlich ausgeführter Evidenz.
 Er bedeutet keine pauschale Plattform- oder Pflichtmatrixvalidierung.
+Die [Validierungsmatrix](../Tests/MODULE_VALIDATION_MATRIX.md) zeigt den belegten
+Umfang, offene Nachweiszuordnungen und konkrete ausstehende Prüfungen.
 
 ## Hinweise für neue Module
 
