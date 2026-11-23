@@ -22,7 +22,7 @@ try{
         $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new($entry.connectionString)
         if(-not$builder.Encrypt-or$builder.TrustServerCertificate-or$builder.DataSource-cne'tcp:localhost,1433'-or
             $builder.UserID-cne'sa'-or$builder.Password-cne$entry.password){throw 'LAB_LINUX_CONNECTION_INVALID'}
-        $builder.Pooling=$false;$builder.ConnectRetryCount=0;$builder.ConnectTimeout=10
+        $builder.Pooling=$false;$builder.ConnectRetryCount=0;$builder['Connect Timeout']=10
         Assert-LabQualifiedConnectWindow $snapshot
         $failureCode=Invoke-LabLinuxSqlClientQualification -Builder $builder -Snapshot $snapshot -ExpectedSqlBuild $q.SqlBuild -ConnectionFactory {
             param([string]$ConnectionString)

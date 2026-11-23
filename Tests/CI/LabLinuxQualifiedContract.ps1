@@ -103,6 +103,7 @@ function Get-LabLinuxSqlClientFailureCode {
         if($type-cin@('System.TypeLoadException','System.IO.FileNotFoundException','System.IO.FileLoadException')){return ('TLS_SQLCLIENT_'+$Stage+'_ASSEMBLY_UNAVAILABLE')}
         if($type-ceq'System.Security.Authentication.AuthenticationException'){return ('TLS_SQLCLIENT_'+$Stage+'_AUTHENTICATION')}
         if($type-ceq'System.Net.Sockets.SocketException'){return ('TLS_SQLCLIENT_'+$Stage+'_NETWORK')}
+        if($Stage-ceq'CONSTRUCT' -and ($exception -is [ArgumentException] -or $exception -is [FormatException])){return 'TLS_SQLCLIENT_CONSTRUCT_INVALID_ARGUMENT'}
         if($type-ceq'System.Data.SqlClient.SqlException'){
             $numberProperty=$exception.GetType().GetProperty('Number',[Reflection.BindingFlags]'Instance,Public')
             if($numberProperty){try{if([int]$numberProperty.GetValue($exception)-eq-2){return ('TLS_SQLCLIENT_'+$Stage+'_TIMEOUT')}}catch{}}
