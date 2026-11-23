@@ -69,11 +69,12 @@ separate Projekt [SQL Server Analyze](https://github.com/gecompat/SQL_Server_Ana
 
 [Entwicklungsdokumentation und Nachweise](./Documentation/Development/README.md)
 · [Modulübersicht](./Modules/README.md)
+· [Validierungsmatrix](./Tests/MODULE_VALIDATION_MATRIX.md)
 · [Mitwirken](./CONTRIBUTING.md)
 · [KI-Einstieg](./AGENTS.md)
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 45 Module implementiert – 28 teilweise validiert](https://img.shields.io/badge/Status-45%20Module%20implementiert%20%7C%2028%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![45 Module implementiert](https://img.shields.io/badge/Status-45%20Module%20implementiert-blue)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 
 <a id="historische-modulnotizen"></a>

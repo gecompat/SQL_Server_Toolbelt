@@ -510,20 +510,11 @@ def status_badge(modules: list[dict[str, object]]) -> str:
     implemented = sum(
         module["implementation_status"] == "implemented" for module in modules
     )
-    partial = sum(
-        module["validation_status"] == "partially validated" for module in modules
-    )
     module_label = "Modul" if implemented == 1 else "Module"
-    label = (
-        f"{implemented}%20{module_label}%20implementiert%20%7C%20"
-        f"{partial}%20teilweise%20validiert"
-    )
-    alt = (
-        f"Status: {implemented} {module_label} implementiert – "
-        f"{partial} teilweise validiert"
-    )
+    label = f"{implemented}%20{module_label}%20implementiert"
+    alt = f"{implemented} {module_label} implementiert"
     return (
-        f"[![{alt}](https://img.shields.io/badge/Status-{label}-yellow)]"
+        f"[![{alt}](https://img.shields.io/badge/Status-{label}-blue)]"
         f"(./Modules/README.md)"
     )
 
